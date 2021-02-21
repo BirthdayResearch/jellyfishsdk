@@ -1,0 +1,11 @@
+{
+  "name": "defichain",
+  "version": "0.0.1",
+  "description": "Decentralized finance enabled on Bitcoin.",
+  "author": {
+    "name": "DeFiChain Foundation",
+    "email": "engineering@defichain.com",
+    "url": "https://defichain.com/"
+  },
+  "license": "MIT"
+}
