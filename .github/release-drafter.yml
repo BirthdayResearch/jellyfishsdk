@@ -25,6 +25,7 @@ version-resolver:
       - 'kind/docs'
       - 'kind/fix'
   default: patch
+prerelease: true
 template: |
   ## What’s Changed
 

@@ -19,6 +19,11 @@ issue:
       list: [ "feature", "bug", "question" ]
       multiple: false
       needs: true
+      author_association:
+        author: true
+        collaborator: true
+        member: true
+        owner: true
 
     - prefix: area
       list: [ "core" ]
@@ -32,6 +37,11 @@ issue:
           ```txt
           /area label-1 label-2
           ```
+      author_association:
+        author: true
+        collaborator: true
+        member: true
+        owner: true
 
   chat_ops:
     - cmd: /close
@@ -97,6 +107,11 @@ pull_request:
           description:
             success: Ready for review & merge.
             failure: Missing 'kind' label for release generation.
+      author_association:
+        author: true
+        collaborator: true
+        member: true
+        owner: true
 
     - prefix: priority
       multiple: false
