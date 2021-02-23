@@ -51,15 +51,7 @@
 
 # Area
 - color: fbca04
-  name: area/documentation
-- color: fbca04
-  name: area/translation
-- color: fbca04
   name: area/core
-- color: fbca04
-  name: area/local
-- color: fbca04
-  name: area/remote
 
 # Priority
 - color: d93f0b
