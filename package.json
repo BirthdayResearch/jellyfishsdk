@@ -1,5 +1,5 @@
 {
-  "name": "defichain",
+  "name": "@defichain/jellyfish",
   "version": "0.0.1",
   "description": "Decentralized finance enabled on Bitcoin.",
   "author": {

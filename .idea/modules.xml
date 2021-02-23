@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/defichain-js.iml" filepath="$PROJECT_DIR$/.idea/defichain-js.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/jellyfish.iml" filepath="$PROJECT_DIR$/.idea/jellyfish.iml" />
     </modules>
   </component>
 </project>

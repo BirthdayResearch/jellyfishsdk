@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a bug encountered with using defichain-js
+about: Report a bug encountered with using jellyfish
 labels: kind/bug
 ---
 

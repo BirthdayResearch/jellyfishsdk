@@ -1,6 +1,6 @@
 ---
 name: Enhancement request
-about: Suggest an enhancement for defichain-js
+about: Suggest an enhancement for jellyfish
 labels: kind/feature
 ---
 
