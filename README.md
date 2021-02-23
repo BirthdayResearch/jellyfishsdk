@@ -39,7 +39,7 @@ Thanks for contributing! You can read our [contributing guidelines here](CONTRIB
 ### Security issues
 
 If you discover a security vulnerability in
-Jellyfish, [please see submit it privately](https://github.com/DeFiCh/.github/blob/main/SECURITY.md).
+@defichain/jellyfish, [please see submit it privately](https://github.com/DeFiCh/.github/blob/main/SECURITY.md).
 
 ### Testing
 
