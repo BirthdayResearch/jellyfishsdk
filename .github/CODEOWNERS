@@ -1,6 +1,18 @@
 # Define individuals that are responsible for code in a repository.
 # More details are here: https://help.github.com/articles/about-codeowners/
 
-/.github/                       @fuxingloh @monstrobishi
-package.json                    @uzyn @fuxingloh @monstrobishi
-LICENSE                         @uzyn @fuxingloh @monstrobishi
+/.github/                                       @fuxingloh @monstrobishi
+/.idea/                                         @fuxingloh
+CONTRIBUTING.md                                 @fuxingloh @monstrobishi @thedoublejay
+README.md                                       @fuxingloh @monstrobishi @thedoublejay
+
+/docs/                                          @uzyn @fuxingloh @monstrobishi @thedoublejay
+
+/packages/jellyfish/                            @fuxingloh @monstrobishi @thedoublejay
+/packages/jellyfish-core/                       @fuxingloh @monstrobishi @thedoublejay
+/packages/jellyfish-rpc/                        @fuxingloh @monstrobishi @thedoublejay
+
+package.json                                    @fuxingloh @monstrobishi @thedoublejay
+package-lock.json                               @fuxingloh @monstrobishi @thedoublejay
+
+LICENSE                                         @uzyn @fuxingloh @monstrobishi

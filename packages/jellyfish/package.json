@@ -1,0 +1,28 @@
+{
+  "private": false,
+  "name": "@defichain/jellyfish",
+  "version": "0.0.1",
+  "description": "A collection of JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin",
+  "keywords": [
+    "defi",
+    "defichain",
+    "bitcoin",
+    "crypto",
+    "cryptocurrency"
+  ],
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "DeFiChain Foundation",
+      "email": "engineering@defichain.com",
+      "url": "https://defichain.com/"
+    }
+  ],
+  "main": "src/jellyfish.ts",
+  "dependencies": {
+    "@defichain/jellyfish-core": "0.0.1",
+    "@defichain/jellyfish-rpc": "0.0.1"
+  }
+}
