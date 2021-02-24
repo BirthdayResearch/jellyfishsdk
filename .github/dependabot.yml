@@ -1,0 +1,29 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - "kind/dependencies"
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/jellyfish'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - "kind/dependencies"
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/jellyfish-core'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - "kind/dependencies"
+
+  - package-ecosystem: 'npm'
+    directory: '/packages/jellyfish-rpc'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - "kind/dependencies"
