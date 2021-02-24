@@ -1,16 +1,5 @@
 # DeFiChain Jellyfish Contributing Guide
 
-## Copyright headers
-
-Most modules and files in the repository should have the following copyright header:
-
-```ts
-// Copyright (c) DeFiChain Jellyfish authors. All rights reserved. MIT license.
-```
-
-If the code originates elsewhere, ensure that the file has the proper copyright headers. We only allow MIT, BSD, and
-Apache licensed code.
-
 ## All features must be united tested with accepted coverage. (Target 100%)
 
 Each package or functionality must be accompanied by full coverage testing.
