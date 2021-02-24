@@ -18,5 +18,8 @@
       "url": "https://defichain.com/"
     }
   ],
-  "main": "src/core.ts"
+  "main": "src/core.ts",
+  "devDependencies": {
+    "typescript": "^4.2.2"
+  }
 }

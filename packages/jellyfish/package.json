@@ -22,5 +22,8 @@
   "dependencies": {
     "@defichain/jellyfish-core": "0.0.1",
     "@defichain/jellyfish-rpc": "0.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.2"
   }
 }
