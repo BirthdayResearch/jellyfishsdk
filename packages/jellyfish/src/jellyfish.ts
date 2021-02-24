@@ -1,13 +1,17 @@
-import {JellyfishCore} from '@defichain/jellyfish-core'
+import { JellyfishCore } from '@defichain/jellyfish-core'
 
 export interface JellyfishOpts {
-  wallet: boolean,
+  wallet: boolean
 }
 
 export type Protocol = 'rpc'
 
-export function Jellyfish(host: string, protocol: Protocol, opts: JellyfishOpts = {
-  wallet: false
-}): JellyfishCore {
+export function Jellyfish(
+  host: string,
+  protocol: Protocol,
+  opts: JellyfishOpts = {
+    wallet: false,
+  }
+): JellyfishCore {
   return null
 }
