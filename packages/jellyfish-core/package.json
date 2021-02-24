@@ -19,6 +19,9 @@
     }
   ],
   "main": "src/core.ts",
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
     "typescript": "^4.2.2"
   }

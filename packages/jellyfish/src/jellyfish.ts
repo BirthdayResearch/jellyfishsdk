@@ -12,6 +12,9 @@ export function Jellyfish(
   opts: JellyfishOpts = {
     wallet: false,
   }
-): JellyfishCore {
-  return null
+): JellyfishCore | undefined {
+  if (opts.wallet) {
+    return new JellyfishCore(host, protocol)
+  }
+  return undefined
 }
