@@ -56,7 +56,7 @@
     "size": "size-limit"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "^0.0.3",
+    "@defichain/jellyfish-core": "^0.0.4",
     "@defichain/jellyfish-rpc": "^0.0.3"
   },
   "devDependencies": {
