@@ -30,7 +30,7 @@
     "pack": "npm pack"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "^0.0.3"
+    "@defichain/jellyfish-core": "^0.0.4"
   },
   "devDependencies": {
     "typescript": "^4.2.2"

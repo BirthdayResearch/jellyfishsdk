@@ -44,27 +44,17 @@
     "node": ">=12.x",
     "electron": ">=10.x"
   },
-  "size-limit": [
-    {
-      "path": "dist/jellyfish.umd.js",
-      "limit": "5000 ms"
-    }
-  ],
   "scripts": {
     "build": "parcel build src/jellyfish.ts",
-    "pack": "npm pack",
-    "size": "size-limit"
+    "pack": "npm pack"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "^0.0.3",
-    "@defichain/jellyfish-rpc": "^0.0.3"
+    "@defichain/jellyfish-core": "^0.0.4",
+    "@defichain/jellyfish-rpc": "^0.0.4"
   },
   "devDependencies": {
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",
-    "@size-limit/file": "^4.9.1",
-    "@size-limit/time": "^4.9.1",
     "parcel": "2.0.0-beta.1",
-    "size-limit": "^4.9.1",
     "typescript": "^4.2.2"
   }
 }
