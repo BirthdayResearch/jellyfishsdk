@@ -15,8 +15,21 @@ jobs:
         with:
           node-version: '15'
 
+      - uses: actions/github-script@v3
+        id: version
+        with:
+          script: |
+            const semver = context.ref.replace('refs/tags/v', '')
+            if (semver.match(/[0-9]\.[0-9]\.[0-9]/)) {
+              return semver
+            }
+
+            throw new Error('not semver')
+          result-encoding: string
+
       - run: npm ci
       - run: npm run lerna:build
+      - run: npm run lerna:version ${{ steps.version.outputs.result }}
 
       - name: Publish Next
         if: github.event.release.prerelease

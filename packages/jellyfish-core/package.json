@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@defichain/jellyfish-core",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A collection of JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin",
   "keywords": [
     "DeFiChain",

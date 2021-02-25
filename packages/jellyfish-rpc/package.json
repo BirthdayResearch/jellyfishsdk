@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@defichain/jellyfish-rpc",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "A collection of JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin",
   "keywords": [
     "DeFiChain",
@@ -30,7 +30,7 @@
     "pack": "npm pack"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "0.0.1"
+    "@defichain/jellyfish-core": "^0.0.3"
   },
   "devDependencies": {
     "typescript": "^4.2.2"
