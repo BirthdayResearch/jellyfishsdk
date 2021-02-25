@@ -8,6 +8,7 @@ jobs:
   npm:
     name: NPM
     runs-on: ubuntu-latest
+    environment: NPM Release Publishing
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -22,9 +23,18 @@ jobs:
       - run: npm ci
       - run: npm run lerna:build
 
-      - name: Publish
+      - name: Publish Next
+        if: github.event.action == 'prereleased'
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          lerna publish from-git
+          lerna publish from-git --dist-tag next --canary --yes
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Publish Latest
+        if: github.event.action == 'published'
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
+          lerna publish from-git --yes
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
