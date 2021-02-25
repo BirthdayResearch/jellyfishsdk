@@ -15,11 +15,6 @@ jobs:
         with:
           node-version: '15'
 
-      - name: Check package version
-        uses: technote-space/package-version-check-action@v1
-        with:
-          COMMIT_DISABLED: 1
-
       - run: npm ci
       - run: npm run lerna:build
 
