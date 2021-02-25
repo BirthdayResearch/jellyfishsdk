@@ -1,7 +1,7 @@
 {
   "private": false,
   "name": "@defichain/jellyfish",
-  "version": "0.0.4",
+  "version": "0.0.0",
   "description": "A collection of JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin",
   "keywords": [
     "DeFiChain",
@@ -46,11 +46,13 @@
   },
   "scripts": {
     "build": "parcel build src/jellyfish.ts",
-    "pack": "npm pack"
+    "pack": "npm pack",
+    "publish:next": "npm publish --tag next",
+    "publish:latest": "npm publish --tag latest"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "^0.0.4",
-    "@defichain/jellyfish-rpc": "^0.0.4"
+    "@defichain/jellyfish-core": "0.0.0",
+    "@defichain/jellyfish-rpc": "0.0.0"
   },
   "devDependencies": {
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",

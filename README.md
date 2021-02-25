@@ -1,7 +1,8 @@
 # @defichain/jellyfish
 
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish?ref=badge_shield)
+[![MIT License](https://img.shields.io/github/license/DeFiCh/jellyfish)](https://github.com/DeFiCh/jellyfish/releases)
+[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
 
 A collection of TypeScript/JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin.
 
