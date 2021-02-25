@@ -14,6 +14,8 @@
   "scripts": {
     "lerna:build": "lerna run build",
     "lerna:pack": "lerna run pack",
+    "lerna:publish:next": "lerna publish from-git --dist-tag next --canary --yes",
+    "lerna:publish:latest": "lerna publish from-git --yes",
     "format": "prettier --write **/*.ts",
     "format:fail": "prettier --check **/*.ts",
     "lint": "eslint --fix **/*.ts",

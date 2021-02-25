@@ -19,17 +19,17 @@ jobs:
       - run: npm run lerna:build
 
       - name: Publish Next
-        if: github.event.action == 'prereleased'
+        if: github.event.release.prerelease
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          lerna publish from-git --dist-tag next --canary --yes
+          npm run lerna:publish:next
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
       - name: Publish Latest
-        if: github.event.action == 'published'
+        if: "!github.event.release.prerelease"
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          lerna publish from-git --yes
+          npm run lerna:publish:latest
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
