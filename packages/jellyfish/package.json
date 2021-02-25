@@ -42,7 +42,7 @@
     "@defichain/jellyfish-rpc": "0.0.1"
   },
   "devDependencies": {
-    "@parcel/transformer-typescript-types": "2.0.0-beta.1",
+    "@parcel/transformer-typescript-types": "2.0.0-nightly.210",
     "parcel": "2.0.0-beta.1",
     "typescript": "^4.2.2"
   }
