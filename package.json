@@ -14,7 +14,7 @@
   "scripts": {
     "lerna:build": "lerna run build",
     "lerna:pack": "lerna run pack",
-    "lerna:version": "lerna version $1 --yes --no-push --no-git-tag-version",
+    "lerna:version": "lerna version $1 --yes --no-push",
     "lerna:publish:next": "lerna publish from-package --dist-tag next --canary --yes",
     "lerna:publish:latest": "lerna publish from-package --yes",
     "format": "prettier --write **/*.ts",
