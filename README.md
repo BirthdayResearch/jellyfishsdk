@@ -59,6 +59,8 @@ convenience with basic toolchain setup but use of IntelliJ is totally optional.
 If you discover a security vulnerability in
 @defichain/jellyfish, [please see submit it privately](https://github.com/DeFiCh/.github/blob/main/SECURITY.md).
 
+## License & Disclaimer
 
-## License
+BY USING DEFICHAIN JELLYFISH, YOU (THE USER) AGREE TO BE BOUND BY [THE TERMS OF THIS LICENSE](LICENSE).
+
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish?ref=badge_large)
