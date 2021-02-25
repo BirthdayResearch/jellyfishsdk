@@ -6,13 +6,13 @@
 CONTRIBUTING.md                                 @fuxingloh
 README.md                                       @fuxingloh
 
-/docs/                                          @fuxingloh @monstrobishi @thedoublejay
+/docs/                                          @fuxingloh
 
-/packages/jellyfish/                            @fuxingloh @monstrobishi @thedoublejay
-/packages/jellyfish-core/                       @fuxingloh @monstrobishi @thedoublejay
-/packages/jellyfish-rpc/                        @fuxingloh @monstrobishi @thedoublejay
+/packages/jellyfish/                            @fuxingloh
+/packages/jellyfish-core/                       @fuxingloh
+/packages/jellyfish-rpc/                        @fuxingloh
 
-package.json                                    @fuxingloh @monstrobishi @thedoublejay
-package-lock.json                               @fuxingloh @monstrobishi @thedoublejay
+package.json                                    @fuxingloh
+package-lock.json                               @fuxingloh
 
 LICENSE                                         @uzyn @fuxingloh @monstrobishi
