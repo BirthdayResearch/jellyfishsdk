@@ -11,6 +11,6 @@ export class JellyfishCore {
   }
 
   getAddress(): string {
-    return this.address + 'abc'
+    return this.address + 'abc123'
   }
 }
