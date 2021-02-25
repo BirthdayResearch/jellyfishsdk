@@ -12,7 +12,8 @@
     "./packages/*"
   ],
   "scripts": {
-    "build": "lerna run build",
+    "lerna:build": "lerna run build",
+    "lerna:pack": "lerna run pack",
     "format": "prettier --write **/*.ts",
     "format:fail": "prettier --check **/*.ts",
     "lint": "eslint --fix **/*.ts",

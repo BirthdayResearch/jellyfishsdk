@@ -31,11 +31,25 @@
       "includeNodeModules": {
         "@defichain/jellyfish-core": true,
         "@defichain/jellyfish-rpc": true
+      },
+      "engines": {
+        "browsers": "> 0.25%"
       }
     }
   },
+  "engines": {
+    "node": ">=12.x",
+    "electron": ">=10.x"
+  },
+  "size-limit": [
+    {
+      "path": "dist/jellyfish.umd.js",
+      "limit": "5000 ms"
+    }
+  ],
   "scripts": {
-    "build": "parcel build src/jellyfish.ts"
+    "build": "parcel build src/jellyfish.ts",
+    "pack": "npm pack"
   },
   "dependencies": {
     "@defichain/jellyfish-core": "0.0.1",
@@ -43,7 +57,9 @@
   },
   "devDependencies": {
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",
+    "@size-limit/preset-small-lib": "^4.9.1",
     "parcel": "2.0.0-beta.1",
+    "size-limit": "^4.9.1",
     "typescript": "^4.2.2"
   }
 }

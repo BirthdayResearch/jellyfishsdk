@@ -1,3 +1,4 @@
+# Shift-left testing to mitigation upstream risk
 name: CI
 
 on:
@@ -12,8 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
 
       - run: npm ci
-      - run: npm run build
+      - run: npm run lerna:build
       - run: npm run format:fail
       - run: npm run lint:fail
+      - run: npm run lerna:pack
+
+      - uses: andresz1/size-limit-action@c53e18c847d5eb13f61754c45f3fbfc3aa5c17cc
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          skip_step: build
+          directory: packages/jellyfish/

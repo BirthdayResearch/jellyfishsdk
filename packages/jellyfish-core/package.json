@@ -19,8 +19,12 @@
     }
   ],
   "main": "src/core.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "pack": "npm pack"
   },
   "devDependencies": {
     "typescript": "^4.2.2"

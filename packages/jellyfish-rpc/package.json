@@ -19,8 +19,12 @@
     }
   ],
   "main": "src/rpc.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "pack": "npm pack"
   },
   "dependencies": {
     "@defichain/jellyfish-core": "0.0.1"
