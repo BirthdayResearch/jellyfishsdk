@@ -21,7 +21,9 @@
       "url": "https://defichain.com/"
     }
   ],
-  "main": "src/core.ts",
+  "source": "src/core.ts",
+  "main": "dist/core.js",
+  "types": "dist/core.d.ts",
   "files": [
     "dist"
   ],

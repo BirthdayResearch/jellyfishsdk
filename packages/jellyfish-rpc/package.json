@@ -21,7 +21,9 @@
       "url": "https://defichain.com/"
     }
   ],
-  "main": "src/rpc.ts",
+  "source": "src/rpc.ts",
+  "main": "dist/rpc.js",
+  "types": "dist/rpc.d.ts",
   "files": [
     "dist"
   ],
