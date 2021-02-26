@@ -16,6 +16,8 @@ updates:
     ignore:
       - dependency-name: "@parcel/transformer-typescript-types"
       - dependency-name: "parcel"
+      - dependency-name: "@defichain/jellyfish-core"
+      - dependency-name: "@defichain/jellyfish-rpc"
 
   - package-ecosystem: 'npm'
     directory: '/packages/jellyfish-core'
@@ -30,3 +32,5 @@ updates:
       interval: 'weekly'
     labels:
       - "kind/dependencies"
+    ignore:
+      - dependency-name: "@defichain/jellyfish-core"
