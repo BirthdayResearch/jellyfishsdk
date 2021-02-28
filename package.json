@@ -15,15 +15,13 @@
     "./packages/*"
   ],
   "scripts": {
-    "lerna:build": "lerna run build",
-    "lerna:version": "lerna version $1 --yes --no-push --no-git-tag-version",
-    "lerna:publish:next": "lerna run publish:next",
-    "lerna:publish:latest": "lerna run publish:latest",
-    "format": "prettier --write **/*.ts",
-    "format:fail": "prettier --check **/*.ts",
-    "lint": "eslint --fix **/*.ts",
-    "lint:fail": "eslint **/*.ts",
-    "all": "npm run lerna:build && npm run format && npm run lint && jest"
+    "build": "lerna run build",
+    "version": "lerna version $1 --yes --no-push --no-git-tag-version",
+    "publish:next": "lerna run publish:next",
+    "publish:latest": "lerna run publish:latest",
+    "lint:write": "prettier --write **/*.ts && eslint --fix **/*.ts",
+    "lint:check": "prettier --check **/*.ts && eslint **/*.ts",
+    "all": "npm run build && npm run format && npm run lint && jest"
   },
   "devDependencies": {
     "@size-limit/file": "^4.9.1",
@@ -49,8 +47,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "npm run format",
-      "npm run lint"
+      "npm run lint:write"
     ]
   },
   "size-limit": [
