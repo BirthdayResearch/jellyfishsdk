@@ -1,0 +1,22 @@
+version: '3.6'
+
+services:
+  reg-net:
+    image: defi/defichain:1.5.0
+    ports:
+      - 19554:19554
+      - 19555:19555
+    command: >
+      defid
+      -printtoconsole
+      -regtest=1
+
+  test-net:
+    image: defi/defichain:1.5.0
+    ports:
+      - 18554:18554
+      - 18555:18555
+    command: >
+      defid
+      -printtoconsole
+      -testnet=1

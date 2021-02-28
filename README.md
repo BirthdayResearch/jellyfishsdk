@@ -6,7 +6,7 @@
 
 A collection of TypeScript/JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin.
 
-> 🚧 Work in progress.
+> 🚧 Work in progress. This project uses Yarn 2 for it's monorepo setup.
 
 ## Installation
 
