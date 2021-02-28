@@ -12,11 +12,10 @@
     }
   ],
   "workspaces": [
-    "packages/*"
+    "./packages/*"
   ],
   "scripts": {
     "lerna:build": "lerna run build",
-    "lerna:pack": "lerna run pack",
     "lerna:version": "lerna version $1 --yes --no-push --no-git-tag-version",
     "lerna:publish:next": "lerna run publish:next",
     "lerna:publish:latest": "lerna run publish:latest",
@@ -24,7 +23,7 @@
     "format:fail": "prettier --check **/*.ts",
     "lint": "eslint --fix **/*.ts",
     "lint:fail": "eslint **/*.ts",
-    "all": "npm run lerna:build && npm run format && npm run lint"
+    "all": "npm run lerna:build && npm run format && npm run lint && jest"
   },
   "devDependencies": {
     "@size-limit/file": "^4.9.1",

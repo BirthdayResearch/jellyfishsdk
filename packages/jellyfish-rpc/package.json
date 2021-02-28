@@ -19,9 +19,11 @@
       "name": "DeFiChain Foundation",
       "email": "engineering@defichain.com",
       "url": "https://defichain.com/"
+    },
+    {
+      "name": "DeFiChain Jellyfish Developers"
     }
   ],
-  "source": "src/rpc.ts",
   "main": "dist/rpc.js",
   "types": "dist/rpc.d.ts",
   "files": [
@@ -29,14 +31,16 @@
   ],
   "scripts": {
     "build": "tsc",
-    "pack": "npm pack",
     "publish:next": "npm publish --tag next",
     "publish:latest": "npm publish --tag latest"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "0.0.0"
+    "@defichain/jellyfish-core": "0.0.0",
+    "cross-fetch": "^3.0.6",
+    "json-bigint": "^1.0.0"
   },
   "devDependencies": {
+    "@types/json-bigint": "^1.0.0",
     "typescript": "^4.2.2"
   }
 }

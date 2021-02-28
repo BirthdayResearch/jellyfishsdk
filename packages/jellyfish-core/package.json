@@ -19,9 +19,11 @@
       "name": "DeFiChain Foundation",
       "email": "engineering@defichain.com",
       "url": "https://defichain.com/"
+    },
+    {
+      "name": "DeFiChain Jellyfish Developers"
     }
   ],
-  "source": "src/core.ts",
   "main": "dist/core.js",
   "types": "dist/core.d.ts",
   "files": [
@@ -29,7 +31,6 @@
   ],
   "scripts": {
     "build": "tsc",
-    "pack": "npm pack",
     "publish:next": "npm publish --tag next",
     "publish:latest": "npm publish --tag latest"
   },

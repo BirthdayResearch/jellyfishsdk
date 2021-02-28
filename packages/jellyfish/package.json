@@ -19,9 +19,11 @@
       "name": "DeFiChain Foundation",
       "email": "engineering@defichain.com",
       "url": "https://defichain.com/"
+    },
+    {
+      "name": "DeFiChain Jellyfish Developers"
     }
   ],
-  "source": "src/jellyfish.ts",
   "main": "dist/jellyfish.cjs.js",
   "module": "dist/jellyfish.esm.js",
   "browser": "dist/jellyfish.umd.js",
@@ -46,7 +48,6 @@
   },
   "scripts": {
     "build": "parcel build src/jellyfish.ts",
-    "pack": "npm pack",
     "publish:next": "npm publish --tag next",
     "publish:latest": "npm publish --tag latest"
   },
@@ -54,6 +55,10 @@
     "@defichain/jellyfish-core": "0.0.0",
     "@defichain/jellyfish-rpc": "0.0.0"
   },
+  "bundledDependencies": [
+    "@defichain/jellyfish-core",
+    "@defichain/jellyfish-rpc"
+  ],
   "devDependencies": {
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",
     "parcel": "2.0.0-beta.1",

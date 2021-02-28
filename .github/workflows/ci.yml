@@ -21,4 +21,36 @@ jobs:
       - run: npm run lerna:build
       - run: npm run format:fail
       - run: npm run lint:fail
-      - run: npm run lerna:pack
+
+  reg-net:
+    name: RegNet
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+      # TODO(fuxingloh): reg net testing
+
+  test-net:
+    name: TestNet
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+      # TODO(fuxingloh): test net testing
+
+  main-net:
+    name: MainNet
+    runs-on: ubuntu-latest
+    needs: [ reg-net, test-net ]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+      # TODO(fuxingloh): main net testing?
