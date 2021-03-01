@@ -4,7 +4,7 @@
 [![MIT License](https://img.shields.io/github/license/DeFiCh/jellyfish)](https://github.com/DeFiCh/jellyfish/releases)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
 
-A collection of TypeScript/JavaScript tools and library for DeFiChain to enable decentralized finance on Bitcoin.
+A collection of TypeScript/JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
 
 > 🚧 Work in progress. This project uses Yarn 2 for it's monorepo setup.
 
