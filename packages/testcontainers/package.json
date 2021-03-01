@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/jellyfish-rpc",
+  "name": "@defichain/testcontainers",
   "version": "0.0.0",
   "description": "A collection of TypeScript/JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin",
   "keywords": [
@@ -11,9 +11,6 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "contributors": [
     {
       "name": "DeFiChain Foundation",
@@ -24,8 +21,8 @@
       "name": "DeFiChain Jellyfish Developers"
     }
   ],
-  "main": "dist/rpc.js",
-  "types": "dist/rpc.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -35,13 +32,13 @@
     "publish:latest": "npm publish --tag latest"
   },
   "dependencies": {
-    "@defichain/jellyfish-core": "0.0.0",
-    "cross-fetch": "^3.0.6",
+    "@types/dockerode": "^3.2.2",
+    "@types/node-fetch": "^2.5.8",
+    "dockerode": "^3.2.1",
+    "node-fetch": "^2.6.1",
     "json-bigint": "^1.0.0"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
-    "@types/json-bigint": "^1.0.0",
     "typescript": "^4.2.2"
   }
 }

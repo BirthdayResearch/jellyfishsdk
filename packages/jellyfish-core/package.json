@@ -35,6 +35,7 @@
     "publish:latest": "npm publish --tag latest"
   },
   "devDependencies": {
+    "@defichain/testcontainers": "0.0.0",
     "typescript": "^4.2.2"
   }
 }
