@@ -6,7 +6,7 @@
       <excludeFolder url="file://$MODULE_DIR$/.parcel-cache" />
       <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish/dist" />
       <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish-core/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish-rpc/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish-jsonrpc/dist" />
       <excludeFolder url="file://$MODULE_DIR$/packages/testcontainers/dist" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

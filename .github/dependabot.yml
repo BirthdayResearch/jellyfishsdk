@@ -17,7 +17,8 @@ updates:
       - dependency-name: "@parcel/transformer-typescript-types"
       - dependency-name: "parcel"
       - dependency-name: "@defichain/jellyfish-core"
-      - dependency-name: "@defichain/jellyfish-rpc"
+      - dependency-name: "@defichain/jellyfish-jsonrpc"
+      - dependency-name: "@defichain/testcontainers"
 
   - package-ecosystem: 'npm'
     directory: '/packages/jellyfish-core'
@@ -27,10 +28,11 @@ updates:
       - "kind/dependencies"
 
   - package-ecosystem: 'npm'
-    directory: '/packages/jellyfish-rpc'
+    directory: '/packages/jellyfish-jsonrpc'
     schedule:
       interval: 'weekly'
     labels:
       - "kind/dependencies"
     ignore:
       - dependency-name: "@defichain/jellyfish-core"
+      - dependency-name: "@defichain/testcontainers"

@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/jellyfish-rpc",
+  "name": "@defichain/jellyfish-jsonrpc",
   "version": "0.0.0",
   "description": "A collection of TypeScript/JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin",
   "keywords": [

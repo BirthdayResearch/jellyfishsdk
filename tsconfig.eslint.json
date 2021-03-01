@@ -6,6 +6,7 @@
   "include": [
     "packages/jellyfish",
     "packages/jellyfish-core",
-    "packages/jellyfish-rpc"
+    "packages/jellyfish-jsonrpc",
+    "packages/testcontainers",
   ]
 }
