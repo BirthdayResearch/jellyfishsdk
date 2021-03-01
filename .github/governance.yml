@@ -26,19 +26,27 @@ issue:
         owner: true
 
     - prefix: area
-      list: [ "core" ]
+      list: [ "core", "wallet", "docker", "jsonrpc", "docs" ]
       multiple: true
       needs:
         comment: |
           @$AUTHOR: There are no 'area' labels on this issue. Adding an appropriate label will greatly expedite the process for us. You can add as many area as you see fit. **If you are unsure what to do you can ignore this!**
 
-          You can add area labels by leaving a `/area` comment. The supported labels are synchronized in this [labels manifest](.github/labels.yml) file.
+          You can add area labels by leaving a `/area` comment. The supported labels are:
 
           ```txt
-          /area label-1 label-2
+          /area core wallet docker jsonrpc docs
           ```
       author_association:
         author: true
+        collaborator: true
+        member: true
+        owner: true
+
+    - prefix: priority
+      multiple: false
+      list: [ "urgent-now", "important-soon" ]
+      author_association:
         collaborator: true
         member: true
         owner: true
