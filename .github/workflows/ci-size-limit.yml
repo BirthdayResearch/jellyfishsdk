@@ -22,3 +22,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           build_script: build
           skip_step: install
+
+
+# TODO(fuxingloh): npm i -g @size-limit/file @size-limit/time size-limit

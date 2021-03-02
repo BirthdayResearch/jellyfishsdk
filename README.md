@@ -1,12 +1,12 @@
-# @defichain/jellyfish
-
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
-[![MIT License](https://img.shields.io/github/license/DeFiCh/jellyfish)](https://github.com/DeFiCh/jellyfish/releases)
+[![TS-Standard](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
 
-A collection of TypeScript/JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
+# @defichain/jellyfish
 
-> 🚧 Work in progress. This project uses Yarn 2 for it's monorepo setup.
+A collection of TypeScript + JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
+
+> 🚧 Work in progress.
 
 ## Installation
 
@@ -17,11 +17,7 @@ npm install @defichain/jellyfish
 ## Connecting to a node
 
 ```js
-import {Jellyfish} from '@defichain/jellyfish'
-
-const jellyfish = Jellyfish('0.0.0.0', 'rpc', {
-  wallet: true, // defaults to false
-})
+// TODO(fuxingloh): 
 ```
 
 ## Features
@@ -62,6 +58,6 @@ If you discover a security vulnerability in
 
 ## License & Disclaimer
 
-By using `@defichain/jellyfish`, you (the user) agree to be bound by [the terms of this license](LICENSE).
+By using `@defichain/jellyfish` (this repo), you (the user) agree to be bound by [the terms of this license](LICENSE).
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish?ref=badge_large)
