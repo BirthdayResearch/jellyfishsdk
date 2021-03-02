@@ -1,10 +1,10 @@
 module.exports = {
   testEnvironment: 'node',
   testMatch: [
-    '**/__tests__/**/*.ts',
+    '**/__tests__/**/*.ts'
   ],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': 'ts-jest'
   },
   verbose: true,
   clearMocks: true

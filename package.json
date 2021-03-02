@@ -15,7 +15,7 @@
     "./packages/*"
   ],
   "scripts": {
-    "postinstall": "husky install",
+    "prepare": "husky install",
     "build": "lerna run build",
     "version": "lerna version $1 --yes --no-push --no-git-tag-version",
     "publish:next": "lerna run publish:next",
