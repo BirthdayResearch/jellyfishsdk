@@ -24,8 +24,8 @@
       "name": "DeFiChain Jellyfish Developers"
     }
   ],
-  "main": "dist/rpc.js",
-  "types": "dist/rpc.d.ts",
+  "main": "dist/jsonrpc.js",
+  "types": "dist/jsonrpc.d.ts",
   "files": [
     "dist"
   ],
