@@ -1,6 +1,6 @@
 # DeFiChain Jellyfish Contributing Guide
 
-## All features must be united tested with accepted coverage. (Target 100%)
+## All features must be unit tested with accepted coverage. (Target 100%)
 
 Each package or functionality must be accompanied by full coverage testing.
 
@@ -31,8 +31,6 @@ TypeScript must be used for all code written in this project.
 > Heavily adapted from [deno style guide](https://github.com/denoland/deno/blob/main/docs/contributing/style_guide.md).
 
 ### Document and maintain browser compatibility.
-
-### Do not use the filename `index.ts`
 
 ### Minimize dependencies (target zero)
 
