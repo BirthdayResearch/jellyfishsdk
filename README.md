@@ -1,44 +1,66 @@
-# @defichain/jellyfish
-
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
-[![MIT License](https://img.shields.io/github/license/DeFiCh/jellyfish)](https://github.com/DeFiCh/jellyfish/releases)
+[![TS-Standard](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
 
-A collection of TypeScript/JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
+# @defichain/jellyfish
 
-> 🚧 Work in progress. This project uses Yarn 2 for it's monorepo setup.
+A collection of TypeScript + JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
 
-## Installation
+> 🚧 Work in progress.
+
+## Usage
+
+For the majority of the time, you just need `@defichain/jellyfish`.
+
+### Installation
 
 ```shell
-npm install @defichain/jellyfish
+npm i @defichain/jellyfish
 ```
 
-## Connecting to a node
+### Setting a client
 
 ```js
-import {Jellyfish} from '@defichain/jellyfish'
-
-const jellyfish = Jellyfish('0.0.0.0', 'rpc', {
-  wallet: true, // defaults to false
-})
+// TODO(fuxingloh): 
 ```
+
+<details>
+
+<summary>All available dependencies</summary>
+
+```shell
+npm i @defichain/jellyfish
+npm i @defichain/jellyfish-core
+npm i @defichain/jellyfish-jsonrpc
+npm i -D @defichain/testcontainers
+```
+
+</details>
 
 ## Features
 
-- [ ] TODO(fuxingloh)
+```js
+// TODO(fuxingloh): 
+```
 
 ## Documentation & Community
 
-- [ ] TODO(fuxingloh)
+```js
+// TODO(fuxingloh): 
+```
 
 ## Motivation & Philosophy
 
-- [ ] TODO(fuxingloh)
+```js
+// TODO(fuxingloh): 
+```
 
 ## Developing & Contributing
 
-Thanks for contributing! You can read our [contributing guidelines here](CONTRIBUTING.md).
+Thanks for contributing, here is our [contributing guidelines](CONTRIBUTING.md).
+
+We use `npm 7` for this project, it's required to set
+up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
 
 ```shell
 npm install
@@ -46,8 +68,17 @@ npm install
 
 ### Testing
 
+`jest.config.js` is set up at the root project level as well as at each sub module. You can run jest at root to test all
+modules or individually at each sub module. If you use IntelliJ IDEA, you can right click any file to test it
+individually and have it reported to the IDE.
+
+Docker is required to run the tests as [`@defichain/testcontainers`](./packages/testcontainers) will automatically spin
+up `regtest` instances for testing.
+
+Coverage is collected at merge with `codecov`; more testing 🚀 less 🐛 = 😎
+
 ```shell
-npm run test
+jest
 ```
 
 ### IntelliJ IDEA
@@ -62,6 +93,6 @@ If you discover a security vulnerability in
 
 ## License & Disclaimer
 
-By using `@defichain/jellyfish`, you (the user) agree to be bound by [the terms of this license](LICENSE).
+By using `@defichain/jellyfish` (this repo), you (the user) agree to be bound by [the terms of this license](LICENSE).
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish?ref=badge_large)

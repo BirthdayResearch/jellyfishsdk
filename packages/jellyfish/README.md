@@ -4,12 +4,13 @@ Distributed as `@defichain/jellyfish` with all packages included.
 
 - [ ] TODO(fuxingloh)
 
-### Testing
+## @defichain/jellyfish-core
 
-```text
-🏃 Parallelized multiple scenarios
-```
+`@defichain/jellyfish-core` the protocol agnostic DeFiChain client implementation with APIs separated into their category. Client APIs are implemented categorically as follows:
 
-1. RegNet testing -> generate coverage
-1. TestNet testing -> sanity check
-1. MainNet testing -> sanity check
+### `client.'category'.'method'()`
+
+|category|method|JS|CCP|
+|---|---|---|---|
+|mining|getmintinginfo|`client.mining.getMintingInfo()`|`rpc/mining.cpp#getmintinginfo`|
+|rawtransaction|sendrawtransaction|`client.transaction.sendRawTransaction(tx)`|`rpc/sendrawtransaction.cpp#sendrawtransaction`|
