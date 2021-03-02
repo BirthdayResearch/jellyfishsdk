@@ -10,7 +10,8 @@ README.md                                       @fuxingloh
 
 /packages/jellyfish/                            @fuxingloh
 /packages/jellyfish-core/                       @fuxingloh
-/packages/jellyfish-rpc/                        @fuxingloh
+/packages/jellyfish-jsonrpc/                    @fuxingloh
+/packages/testcontainers/                       @fuxingloh
 
 package.json                                    @fuxingloh
 package-lock.json                               @fuxingloh

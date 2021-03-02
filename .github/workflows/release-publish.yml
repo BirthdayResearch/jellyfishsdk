@@ -28,14 +28,14 @@ jobs:
           result-encoding: string
 
       - run: npm ci
-      - run: npm run lerna:build
-      - run: npm run lerna:version ${{ steps.version.outputs.result }}
+      - run: npm run build
+      - run: npm run version ${{ steps.version.outputs.result }}
 
       - name: Publish Next
         if: github.event.release.prerelease
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          npm run lerna:publish:next
+          npm run publish:next
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
@@ -43,6 +43,6 @@ jobs:
         if: "!github.event.release.prerelease"
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          npm run lerna:publish:latest
+          npm run publish:latest
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

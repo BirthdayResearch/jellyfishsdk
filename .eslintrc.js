@@ -2,13 +2,15 @@ module.exports = {
   root: true,
   parser: "@typescript-eslint/parser",
   plugins: [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "jsdoc"
   ],
   parserOptions: {
     project: "./tsconfig.eslint.json"
   },
   extends: [
     "eslint:recommended",
+    "plugin:jsdoc/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "prettier"
