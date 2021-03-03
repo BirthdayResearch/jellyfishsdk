@@ -2,18 +2,22 @@
 # More details are here: https://help.github.com/articles/about-codeowners/
 
 /.github/                                       @fuxingloh
+/.husky/                                        @fuxingloh
 /.idea/                                         @fuxingloh
-CONTRIBUTING.md                                 @fuxingloh
-README.md                                       @fuxingloh
 
 /docs/                                          @fuxingloh
 
-/packages/jellyfish/                            @fuxingloh
-/packages/jellyfish-core/                       @fuxingloh
-/packages/jellyfish-jsonrpc/                    @fuxingloh
-/packages/testcontainers/                       @fuxingloh
+/packages/jellyfish/                            @fuxingloh @thedoublejay
+/packages/jellyfish-core/                       @fuxingloh @thedoublejay @fullstackninja864 @saurabh391
+/packages/jellyfish-jsonrpc/                    @fuxingloh @thedoublejay
+/packages/testcontainers/                       @fuxingloh @thedoublejay @fullstackninja864 @saurabh391
 
+lerna.json                                      @fuxingloh
+tsconfig.json                                   @fuxingloh
+jest.config.js                                  @fuxingloh
 package.json                                    @fuxingloh
 package-lock.json                               @fuxingloh
 
+CONTRIBUTING.md                                 @fuxingloh
+README.md                                       @fuxingloh
 LICENSE                                         @uzyn @fuxingloh @monstrobishi
