@@ -7,8 +7,6 @@ on:
   pull_request:
     branches: [ main ]
 
-# TODO(fuxingloh): npm install -g codecov
-
 jobs:
   build:
     name: Build
@@ -21,7 +19,10 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm run lint:check
+      - run: npm run standard
+
+      - run: npx --no-install jest --ci --coverage
+      - run: npx codecov
 
   reg-net:
     name: RegNet
@@ -32,7 +33,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
+
       # TODO(fuxingloh): reg net testing
+      - run: echo "::error::not yet implemented"
 
   test-net:
     name: TestNet
@@ -43,7 +46,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
+
       # TODO(fuxingloh): test net testing
+      - run: echo "::error::not yet implemented"
 
   main-net:
     name: MainNet
@@ -54,4 +59,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
+
       # TODO(fuxingloh): main net testing?
+      - run: echo "::error::not yet implemented"
