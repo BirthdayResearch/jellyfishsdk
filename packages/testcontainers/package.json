@@ -21,8 +21,8 @@
       "name": "DeFiChain Jellyfish Developers"
     }
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/testcontainers.js",
+  "types": "dist/testcontainers.d.ts",
   "files": [
     "dist"
   ],
