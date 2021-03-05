@@ -83,7 +83,7 @@ describe('master node pos minting', () => {
     })
   })
 
-  it('should be able to perform amk fork feature', async () => {
+  it('should be able to perform amk rpc feature', async () => {
     await container.generate(105)
 
     const address = await container.getNewAddress()

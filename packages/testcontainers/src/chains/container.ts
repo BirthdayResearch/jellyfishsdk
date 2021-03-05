@@ -75,6 +75,23 @@ async function cleanUpStale (docker: Dockerode): Promise<void> {
 }
 
 /**
+ * Pull DeFiDContainer.image from DockerHub
+ */
+async function pullImage (docker: Dockerode): Promise<void> {
+  return await new Promise((resolve, reject) => {
+    docker.pull(DeFiDContainer.image, {}, (error, result) => {
+      if (error instanceof Error) {
+        reject(error)
+        return
+      }
+      docker.modem.followProgress(result, () => {
+        resolve()
+      })
+    })
+  })
+}
+
+/**
  * DeFiChain defid node managed in docker
  */
 export abstract class DeFiDContainer {
@@ -120,9 +137,11 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Start defid node on docker
+   * Always pull a version of DeFiDContainer.image,
+   * Create container and start it immediately
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
+    await pullImage(this.docker)
     this.startOptions = Object.assign(defaultStartOptions, startOptions)
     this.container = await this.docker.createContainer({
       name: generateName(this.network),
@@ -194,7 +213,7 @@ export abstract class DeFiDContainer {
     })
     const text = await response.text()
     const { result, error } = JSONBig.parse(text)
-    if (error !== undefined) {
+    if (error !== null) {
       throw new Error(JSONBig.stringify(error))
     }
 
@@ -273,7 +292,6 @@ export abstract class DeFiDContainer {
    * Stale nodes are nodes that are running for more than 1 hour
    */
   async stop (): Promise<void> {
-    // Cleanup chaining
     try {
       await this.container?.stop()
     } finally {
