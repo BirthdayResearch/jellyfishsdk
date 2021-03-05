@@ -20,5 +20,5 @@ jobs:
       - run: npm run build
       - run: npm run standard
 
-      - run: npx --no-install jest --ci --coverage
+      - run: npx --no-install jest --ci --coverage --forceExit
       - run: npx codecov
