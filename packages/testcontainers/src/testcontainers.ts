@@ -1,6 +1,6 @@
 export { DockerOptions } from 'dockerode'
 
-export { StartOptions, DeFiDContainer } from './chains/container'
+export { StartOptions, DeFiDContainer, DeFiDRpcError } from './chains/container'
 export { MainNetContainer } from './chains/main_net_container'
 export { TestNetContainer } from './chains/test_net_container'
 export {

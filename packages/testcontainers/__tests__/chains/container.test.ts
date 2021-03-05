@@ -1,5 +1,5 @@
 import { RegTestContainer } from '../../src/chains/reg_test_container'
-import { DeFiDContainer, StartOptions } from '../../src/chains/container'
+import { DeFiDContainer, DeFiDRpcError, StartOptions } from '../../src/chains/container'
 
 describe('container error handling', () => {
   let container: DeFiDContainer
@@ -15,6 +15,14 @@ describe('container error handling', () => {
     container = new RegTestContainer()
     return await expect(container.getRpcPort())
       .rejects.toThrow(/container not yet started/)
+  })
+
+  it('should error rpc as DeFiDRpcError', async () => {
+    container = new RegTestContainer()
+    await container.start()
+    await container.waitForReady()
+    return await expect(container.call('invalid'))
+      .rejects.toThrowError(DeFiDRpcError)
   })
 
   it('should get error: container might have crashed if invalid Cmd is present', async () => {

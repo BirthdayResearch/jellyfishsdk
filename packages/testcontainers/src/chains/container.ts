@@ -195,6 +195,7 @@ export abstract class DeFiDContainer {
   /**
    * Utility rpc function for the current node, for convenience sake.
    * This is not error checked, it will just return the raw result.
+   * @throws DeFiDRpcError for rpc call errors
    */
   async call (method: string, params: any = []): Promise<any> {
     const url = await this.getCachedRpcUrl()
@@ -209,8 +210,10 @@ export abstract class DeFiDContainer {
     })
     const text = await response.text()
     const { result, error } = JSONBig.parse(text)
+
+    // surface as DeFiDRpcError for downstream type checking
     if (error !== null) {
-      throw new Error(JSONBig.stringify(error))
+      throw new DeFiDRpcError(result)
     }
 
     return result
@@ -297,5 +300,17 @@ export abstract class DeFiDContainer {
         await cleanUpStale(this.docker)
       }
     }
+  }
+}
+
+/**
+ * RPC error from container
+ */
+export class DeFiDRpcError extends Error {
+  readonly payload: any
+
+  constructor (payload: any) {
+    super('DeFiD RPC error from container')
+    this.payload = payload
   }
 }
