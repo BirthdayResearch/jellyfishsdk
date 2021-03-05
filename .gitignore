@@ -2,9 +2,11 @@
 .idea/*
 !.idea/inspectionProfiles/
 !.idea/dictionaries/
+!.idea/codeStyles/
 !.idea/vcs.xml
 !.idea/modules.xml
 !.idea/*.iml
+!.idea/README.md
 
 # Yarn
 .yarn/*
