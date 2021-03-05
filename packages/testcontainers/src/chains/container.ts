@@ -58,14 +58,10 @@ async function cleanUpStale (docker: Dockerode): Promise<void> {
   return await new Promise((resolve, reject) => {
     docker.listContainers({ all: 1 }, (error, result) => {
       if (error instanceof Error) {
-        reject(error)
-        return
-      }
-      if (result === undefined) {
-        return
+        return reject(error)
       }
 
-      const promises = result
+      const promises = (result ?? [])
         .filter(isStale)
         .map(tryStopRemove)
 
