@@ -64,17 +64,28 @@ npm install
 ### Testing
 
 `jest.config.js` is set up at the root project level as well as at each sub module. You can run jest at root to test all
-modules or individually at each sub module. If you use IntelliJ IDEA, you can right click any file to test it
-individually and have it reported to the IDE.
+modules or individually at each sub module. By default, only regtest chain are used for normal testing. If you use
+IntelliJ IDEA, you can right click any file to test it individually and have it reported to the IDE.
 
 Docker is required to run the tests as [`@defichain/testcontainers`](./packages/testcontainers) will automatically spin
-up `regtest` instances for testing.
+up `regtest` instances for testing. The number of containers it will spin up concurrently is dependent on your
+jest `--maxConcurrency` count.
 
-Coverage is collected at merge with `codecov`; more testing 🚀 less 🐛 = 😎
+Coverage is collected at pr merge with `codecov`; more testing 🚀 less 🐛 = 😎
 
 ```shell
 jest
 ```
+
+### Publishing
+
+`"version": "0.0.0"` is used because publishing will be done automatically
+by [GitHub releases](https://github.com/DeFiCh/jellyfish/releases) with connected workflows. On
+release `types: [ published, prereleased ]`, GitHub Action will automatically build all packages in this repo and
+publish it into npm.
+
+* release are tagged as `@latest`
+* prerelease are tagged as `@next` (please use this cautiously)
 
 ### IntelliJ IDEA
 
