@@ -1,6 +1,5 @@
 import Dockerode, { DockerOptions, Container, ContainerInfo } from 'dockerode'
 import fetch from 'node-fetch'
-import JSONBig from 'json-bigint'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -193,30 +192,39 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Utility rpc function for the current node, for convenience sake.
-   * This is not error checked, it will just return the raw result.
-   * @throws DeFiDRpcError for rpc call errors
+   * For convenience sake, utility rpc for the current node.
+   * JSON 'result' is parsed and returned
+   * @throws DeFiDRpcError is raised for RPC errors
    */
   async call (method: string, params: any = []): Promise<any> {
-    const url = await this.getCachedRpcUrl()
-    const response = await fetch(url, {
-      method: 'POST',
-      body: JSONBig.stringify({
-        jsonrpc: '1.0',
-        id: Math.floor(Math.random() * 10000000000000000),
-        method: method,
-        params: params
-      })
+    const body = JSON.stringify({
+      jsonrpc: '1.0',
+      id: Math.floor(Math.random() * 100000000000000),
+      method: method,
+      params: params
     })
-    const text = await response.text()
-    const { result, error } = JSONBig.parse(text)
 
-    // surface as DeFiDRpcError for downstream type checking
+    const text = await this.post(body)
+    const { result, error } = JSON.parse(text)
+
     if (error !== null) {
-      throw new DeFiDRpcError(result)
+      throw new DeFiDRpcError(error)
     }
 
     return result
+  }
+
+  /**
+   * For convenience sake, HTTP post to the RPC URL for the current node.
+   * Not error checked, returns the raw JSON as string.
+   */
+  async post (body: string): Promise<string> {
+    const url = await this.getCachedRpcUrl()
+    const response = await fetch(url, {
+      method: 'POST',
+      body: body
+    })
+    return await response.text()
   }
 
   /**
