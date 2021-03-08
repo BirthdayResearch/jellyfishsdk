@@ -1,4 +1,3 @@
-# Shift-left testing to mitigation upstream risk
 name: CI
 
 on:
@@ -9,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -21,50 +20,5 @@ jobs:
       - run: npm run build
       - run: npm run standard
 
-      - run: npx --no-install jest --ci --coverage
+      - run: npx --no-install jest --ci --coverage --forceExit
       - run: npx codecov
-
-  reg-net:
-    name: RegNet
-    runs-on: ubuntu-latest
-    needs: [ build ]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '15'
-
-      # TODO(fuxingloh): reg net testing
-      - run: |
-          echo "::error::not yet implemented"
-          exit 1
-
-  test-net:
-    name: TestNet
-    runs-on: ubuntu-latest
-    needs: [ build ]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '15'
-
-      # TODO(fuxingloh): test net testing
-      - run: |
-          echo "::error::not yet implemented"
-          exit 1
-
-  main-net:
-    name: MainNet
-    runs-on: ubuntu-latest
-    needs: [ reg-net, test-net ]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '15'
-
-      # TODO(fuxingloh): main net testing?
-      - run: |
-          echo "::error::not yet implemented"
-          exit 1

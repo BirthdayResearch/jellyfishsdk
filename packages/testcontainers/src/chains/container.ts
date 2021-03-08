@@ -1,0 +1,316 @@
+import Dockerode, { DockerOptions, Container, ContainerInfo } from 'dockerode'
+import fetch from 'node-fetch'
+import JSONBig from 'json-bigint'
+
+/**
+ * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
+ */
+type Network = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
+
+/**
+ * Mandatory options to start defid with
+ */
+export interface StartOptions {
+  // TODO(fuxingloh): change to cookie based auth soon
+  user?: string
+  password?: string
+}
+
+const defaultStartOptions = {
+  user: 'testcontainers-user',
+  password: 'testcontainers-password'
+}
+
+/**
+ * Generate a name for a new docker container with network type and random number
+ */
+function generateName (network: Network): string {
+  const rand = Math.floor(Math.random() * 10000000)
+  return `${DeFiDContainer.PREFIX}-${network}-${rand}`
+}
+
+/**
+ * Clean up stale nodes are nodes that are running for 1 hour
+ */
+async function cleanUpStale (docker: Dockerode): Promise<void> {
+  /**
+   * Same prefix and created more than 1 hour ago
+   */
+  const isStale = (containerInfo: ContainerInfo): boolean => {
+    if (containerInfo.Names.filter((value) => value.startsWith(DeFiDContainer.PREFIX)).length > 0) {
+      return containerInfo.Created + 60 * 60 < Date.now() / 1000
+    }
+
+    return false
+  }
+
+  /**
+   * Stop container that are running, remove them after
+   */
+  const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
+    const container = docker.getContainer(containerInfo.Id)
+    if (containerInfo.State === 'running') {
+      await container.stop()
+    }
+    await container.remove()
+  }
+
+  return await new Promise((resolve, reject) => {
+    docker.listContainers({ all: 1 }, (error, result) => {
+      if (error instanceof Error) {
+        return reject(error)
+      }
+
+      const promises = (result ?? [])
+        .filter(isStale)
+        .map(tryStopRemove)
+
+      Promise.all(promises).finally(resolve)
+    })
+  })
+}
+
+/**
+ * Pull DeFiDContainer.image from DockerHub
+ */
+async function pullImage (docker: Dockerode): Promise<void> {
+  return await new Promise((resolve, reject) => {
+    docker.pull(DeFiDContainer.image, {}, (error, result) => {
+      if (error instanceof Error) {
+        reject(error)
+        return
+      }
+      docker.modem.followProgress(result, () => {
+        resolve()
+      })
+    })
+  })
+}
+
+/**
+ * DeFiChain defid node managed in docker
+ */
+export abstract class DeFiDContainer {
+  /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
+  public static readonly PREFIX = 'defichain-testcontainers-'
+  public static readonly image = 'defi/defichain:1.5.0'
+
+  protected readonly docker: Dockerode
+  protected readonly network: Network
+
+  protected container?: Container
+  protected startOptions?: StartOptions
+  protected cachedRpcUrl?: string
+
+  protected constructor (network: Network, options?: DockerOptions) {
+    this.docker = new Dockerode(options)
+    this.network = network
+  }
+
+  /**
+   * Require container, else error exceptionally.
+   * Not a clean design, but it keep the complexity of this implementation low.
+   */
+  protected requireContainer (): Container {
+    if (this.container !== undefined) {
+      return this.container
+    }
+    throw new Error('container not yet started')
+  }
+
+  /**
+   * Convenience Cmd builder with StartOptions
+   */
+  protected getCmd (opts: StartOptions): string[] {
+    return [
+      'defid',
+      '-printtoconsole',
+      '-rpcallowip=172.17.0.0/16',
+      '-rpcbind=0.0.0.0',
+      `-rpcuser=${opts.user!}`,
+      `-rpcpassword=${opts.password!}`
+    ]
+  }
+
+  /**
+   * Always pull a version of DeFiDContainer.image,
+   * Create container and start it immediately
+   */
+  async start (startOptions: StartOptions = {}): Promise<void> {
+    await pullImage(this.docker)
+    this.startOptions = Object.assign(defaultStartOptions, startOptions)
+    this.container = await this.docker.createContainer({
+      name: generateName(this.network),
+      Image: DeFiDContainer.image,
+      Tty: true,
+      Cmd: this.getCmd(this.startOptions),
+      HostConfig: {
+        PublishAllPorts: true
+      }
+    })
+    await this.container.start()
+  }
+
+  /**
+   * Get host machine port
+   *
+   * @param name of ExposedPorts e.g. '80/tcp'
+   */
+  async getPort (name: string): Promise<string> {
+    const container = this.requireContainer()
+
+    return await new Promise((resolve, reject) => {
+      container.inspect(function (err, data) {
+        if (err instanceof Error) {
+          return reject(err)
+        }
+
+        if (data?.NetworkSettings.Ports[name] !== undefined) {
+          return resolve(data.NetworkSettings.Ports[name][0].HostPort)
+        }
+
+        return reject(new Error('Unable to find rpc port, the container might have crashed'))
+      })
+    })
+  }
+
+  /**
+   * Get host machine port used for defid rpc
+   */
+  public abstract getRpcPort (): Promise<string>
+
+  /**
+   * Get host machine url used for defid rpc calls with auth
+   */
+  async getCachedRpcUrl (): Promise<string> {
+    if (this.cachedRpcUrl === undefined) {
+      const port = await this.getRpcPort()
+      const user = this.startOptions!.user!
+      const password = this.startOptions!.password!
+      this.cachedRpcUrl = `http://${user}:${password}@127.0.0.1:${port}/`
+    }
+    return this.cachedRpcUrl
+  }
+
+  /**
+   * Utility rpc function for the current node, for convenience sake.
+   * This is not error checked, it will just return the raw result.
+   * @throws DeFiDRpcError for rpc call errors
+   */
+  async call (method: string, params: any = []): Promise<any> {
+    const url = await this.getCachedRpcUrl()
+    const response = await fetch(url, {
+      method: 'POST',
+      body: JSONBig.stringify({
+        jsonrpc: '1.0',
+        id: Math.floor(Math.random() * 10000000000000000),
+        method: method,
+        params: params
+      })
+    })
+    const text = await response.text()
+    const { result, error } = JSONBig.parse(text)
+
+    // surface as DeFiDRpcError for downstream type checking
+    if (error !== null) {
+      throw new DeFiDRpcError(result)
+    }
+
+    return result
+  }
+
+  /**
+   * Convenience method to getmintinginfo, typing mapping is non exhaustive
+   */
+  async getMintingInfo (): Promise<{ blocks: number, chain: string }> {
+    return await this.call('getmintinginfo', [])
+  }
+
+  /**
+   * Convenience method to getblockcount, typing mapping is non exhaustive
+   */
+  async getBlockCount (): Promise<number> {
+    return await this.call('getblockcount', [])
+  }
+
+  /**
+   * Wait for rpc to be ready, default to 15000ms
+   */
+  private async waitForRpc (timeout = 15000): Promise<void> {
+    const expiredAt = Date.now() + timeout
+
+    return await new Promise((resolve, reject) => {
+      const checkReady = (): void => {
+        this.cachedRpcUrl = undefined
+        this.getMintingInfo().then(() => {
+          resolve()
+        }).catch(err => {
+          if (expiredAt < Date.now()) {
+            reject(new Error(`DeFiDContainer docker not ready within given timeout of ${timeout}ms.\n${err.message as string}`))
+          }
+
+          setTimeout(() => void checkReady(), 200)
+        })
+      }
+
+      checkReady()
+    })
+  }
+
+  /**
+   * Wait for everything to be ready, override for additional hooks
+   */
+  async waitForReady (timeout = 15000): Promise<void> {
+    return await this.waitForRpc(timeout)
+  }
+
+  /**
+   * tty into docker
+   */
+  async exec (opts: { Cmd: string[] }): Promise<void> {
+    return await new Promise((resolve, reject) => {
+      const container = this.requireContainer()
+      container.exec({
+        Cmd: opts.Cmd
+      }, (error, exec) => {
+        if (error instanceof Error) {
+          reject(error)
+        } else {
+          exec?.start({})
+            .then(() => resolve())
+            .catch(reject)
+        }
+      })
+    })
+  }
+
+  /**
+   * Stop and remove the current node.
+   *
+   * This method will also automatically stop and removes nodes that are stale.
+   * Stale nodes are nodes that are running for more than 1 hour
+   */
+  async stop (): Promise<void> {
+    try {
+      await this.container?.stop()
+    } finally {
+      try {
+        await this.container?.remove()
+      } finally {
+        await cleanUpStale(this.docker)
+      }
+    }
+  }
+}
+
+/**
+ * RPC error from container
+ */
+export class DeFiDRpcError extends Error {
+  readonly payload: any
+
+  constructor (payload: any) {
+    super('DeFiD RPC error from container')
+    this.payload = payload
+  }
+}
