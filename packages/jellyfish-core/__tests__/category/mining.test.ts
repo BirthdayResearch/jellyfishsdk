@@ -27,6 +27,11 @@ describe('non masternode', () => {
     expect(info.chain).toBe('regtest')
     expect(info.warnings).toBe('')
   })
+
+  it('should getNetworkHashPerSecond', async () => {
+    const result = await client.mining.getNetworkHashPerSecond()
+    expect(result).toBe(0)
+  })
 })
 
 describe('masternode', () => {
@@ -68,5 +73,10 @@ describe('masternode', () => {
     expect(info.pooledtx).toBe(0)
     expect(info.chain).toBe('regtest')
     expect(info.warnings).toBe('')
+  })
+
+  it('should getNetworkHashPerSecond', async () => {
+    const result = await client.mining.getNetworkHashPerSecond()
+    expect(result).toBeGreaterThan(0)
   })
 })
