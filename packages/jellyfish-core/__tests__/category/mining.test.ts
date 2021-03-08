@@ -1,5 +1,5 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ContainerAdapterClient } from './container_adapter_client'
+import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 
 describe('non masternode', () => {

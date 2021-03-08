@@ -1,5 +1,5 @@
 import { MintingInfo, JellyfishError, JellyfishClient } from '../src/core'
-import { ContainerAdapterClient } from './category/container_adapter_client'
+import { ContainerAdapterClient } from './container_adapter_client'
 import { RegTestContainer } from '@defichain/testcontainers'
 
 class TestClient extends JellyfishClient {
