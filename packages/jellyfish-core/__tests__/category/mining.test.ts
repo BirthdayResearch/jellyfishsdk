@@ -17,7 +17,6 @@ describe('non masternode', () => {
 
   it('should getMintingInfo', async () => {
     const info = await client.mining.getMintingInfo()
-    console.log(info)
 
     expect(info.blocks).toBe(0)
     expect(info.difficulty).toBeDefined()
@@ -69,7 +68,7 @@ describe('masternode', () => {
     expect(info.generate).toBe(true)
     expect(info.mintedblocks).toBe(0)
 
-    expect(info.networkhashps).toBe(0)
+    expect(info.networkhashps).toBeGreaterThan(0)
     expect(info.pooledtx).toBe(0)
     expect(info.chain).toBe('regtest')
     expect(info.warnings).toBe('')

@@ -3,7 +3,7 @@ import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
  * Jellyfish client adapter for container
- * Used for testing jellyfish-core only
+ * To be used for testing jellyfish-core protocol data binding only
  */
 export class ContainerAdapterClient extends JellyfishClient {
   protected readonly container: DeFiDContainer
@@ -15,7 +15,6 @@ export class ContainerAdapterClient extends JellyfishClient {
 
   /**
    * Wrap the call from client to testcontainers.
-   * Errors are surfaced and adapted as well
    */
   async call<T> (method: string, params: any[]): Promise<T> {
     const body = JSON.stringify({
@@ -27,15 +26,12 @@ export class ContainerAdapterClient extends JellyfishClient {
 
     const text = await this.container.post(body)
     const response = JSON.parse(text)
-    console.log(response)
 
     const { result, error } = response
 
     if (error !== null) {
       throw new JellyfishError(error)
     }
-
-    // TODO(fuxingloh): map error structure
 
     return result
   }
