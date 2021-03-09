@@ -1,7 +1,7 @@
 import { BigNumber, JellyfishClient } from '../core'
 
 /**
- * Minting related RPC calls for DeFiChain
+ * Wallet related RPC calls for DeFiChain
  */
 export class Wallet {
   private readonly client: JellyfishClient
