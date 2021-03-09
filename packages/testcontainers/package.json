@@ -35,8 +35,7 @@
     "@types/dockerode": "^3.2.2",
     "@types/node-fetch": "^2.5.8",
     "dockerode": "^3.2.1",
-    "node-fetch": "^2.6.1",
-    "json-bigint": "^1.0.0"
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "typescript": "^4.2.2"
