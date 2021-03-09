@@ -35,7 +35,7 @@ export class Mining {
    * @return Promise<number>
    */
   async getNetworkHashPerSecond (nblocks: number = 120, height: number = -1): Promise<number> {
-    return await this.client.call('getnetworkhashps', [nblocks, height])
+    return await this.client.call('getnetworkhashps', [nblocks, height], 'number')
   }
 
   /**
@@ -43,6 +43,6 @@ export class Mining {
    * @return Promise<MintingInfo>
    */
   async getMintingInfo (): Promise<MintingInfo> {
-    return await this.client.call('getmintinginfo', [])
+    return await this.client.call('getmintinginfo', [], 'number')
   }
 }
