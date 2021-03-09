@@ -315,10 +315,7 @@ export abstract class DeFiDContainer {
  * RPC error from container
  */
 export class DeFiDRpcError extends Error {
-  readonly payload: any
-
-  constructor (payload: any) {
-    super('DeFiD RPC error from container')
-    this.payload = payload
+  constructor (error: { code: number, message: string }) {
+    super(`DeFiDRpcError from RPC: '${error.message}', code: ${error.code}`)
   }
 }
