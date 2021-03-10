@@ -102,4 +102,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     await this.container?.start()
     await super.waitForReady(timeout)
   }
+
+  /**
+   * Wait for master node wallet coin to be mature for spending.
+   */
+  async waitForWalletCoinbaseMaturity (): Promise<void> {
+    await this.generate(100)
+  }
 }

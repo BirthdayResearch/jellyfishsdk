@@ -1,4 +1,4 @@
-import { JellyfishClient, JellyfishError } from '../src/core'
+import { JellyfishJSON, JellyfishClient, JellyfishError, Precision } from '../src/core'
 import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
@@ -16,8 +16,8 @@ export class ContainerAdapterClient extends JellyfishClient {
   /**
    * Wrap the call from client to testcontainers.
    */
-  async call<T> (method: string, params: any[]): Promise<T> {
-    const body = JSON.stringify({
+  async call<T> (method: string, params: any[], precision: Precision): Promise<T> {
+    const body = JellyfishJSON.stringify({
       jsonrpc: '1.0',
       id: Math.floor(Math.random() * 100000000000000),
       method: method,
@@ -25,7 +25,7 @@ export class ContainerAdapterClient extends JellyfishClient {
     })
 
     const text = await this.container.post(body)
-    const response = JSON.parse(text)
+    const response = JellyfishJSON.parse(text, precision)
 
     const { result, error } = response
 
