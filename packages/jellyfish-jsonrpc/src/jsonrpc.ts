@@ -12,8 +12,17 @@ import AbortController from 'abort-controller'
  * ClientOptions for JsonRpc
  */
 export interface ClientOptions {
+  /**
+   * Millis before RPC request is aborted
+   * @default 60000 ms
+   */
   timeout?: number
-  headers?: Headers | string[][] | Record<string, string>
+
+  /**
+   * Headers to include in the RPC request
+   * @default []
+   */
+  headers?: string[][] | Record<string, string>
 }
 
 /**

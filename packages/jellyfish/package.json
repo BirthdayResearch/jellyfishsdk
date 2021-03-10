@@ -47,22 +47,21 @@
     "electron": ">=10.x"
   },
   "scripts": {
-    "build": "parcel build src/jellyfish.ts",
+    "build": "parcel build src/jellyfish.ts --no-autoinstall",
     "publish:next": "npm publish --tag next",
     "publish:latest": "npm publish --tag latest"
   },
   "dependencies": {
     "@defichain/jellyfish-core": "0.0.0",
-    "@defichain/jellyfish-jsonrpc": "0.0.0"
+    "@defichain/jellyfish-jsonrpc": "0.0.0",
+    "bignumber.js": "^9.0.1",
+    "lossless-json": "^1.0.4"
   },
-  "bundledDependencies": [
-    "@defichain/jellyfish-core",
-    "@defichain/jellyfish-jsonrpc"
-  ],
   "devDependencies": {
     "@defichain/testcontainers": "0.0.0",
-    "@parcel/transformer-typescript-types": "2.0.0-beta.1",
-    "parcel": "2.0.0-beta.1",
-    "typescript": "^4.2.2"
+    "@parcel/packager-ts": "2.0.0-nightly.622",
+    "@parcel/transformer-typescript-types": "2.0.0-nightly.622",
+    "parcel": "2.0.0-nightly.620",
+    "typescript": "3.9.9"
   }
 }
