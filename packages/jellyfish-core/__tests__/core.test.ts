@@ -1,19 +1,17 @@
-import { MintingInfo, JellyfishError, JellyfishClient } from '../src/core'
+import { MintingInfo, JellyfishClient, JellyfishClientError } from '../src/core'
 import { ContainerAdapterClient } from './container_adapter_client'
 import { RegTestContainer } from '@defichain/testcontainers'
 
 class TestClient extends JellyfishClient {
   async call<T> (method: string, payload: any[]): Promise<T> {
-    throw new JellyfishError({
-      code: 1, message: 'error message from node'
-    })
+    throw new JellyfishClientError('error from client')
   }
 }
 
 it('should export client', async () => {
   const client = new TestClient()
   return await expect(client.call('fail', []))
-    .rejects.toThrowError(JellyfishError)
+    .rejects.toThrowError(JellyfishClientError)
 })
 
 it('should export categories', async () => {
@@ -21,7 +19,7 @@ it('should export categories', async () => {
   return await expect(async () => {
     const info: MintingInfo = await client.mining.getMintingInfo()
     console.log(info)
-  }).rejects.toThrowError(JellyfishError)
+  }).rejects.toThrowError(JellyfishClientError)
 })
 
 describe('JellyfishError handling', () => {

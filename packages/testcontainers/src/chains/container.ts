@@ -207,7 +207,7 @@ export abstract class DeFiDContainer {
     const text = await this.post(body)
     const { result, error } = JSON.parse(text)
 
-    if (error !== null) {
+    if (error !== undefined && error !== null) {
       throw new DeFiDRpcError(error)
     }
 
