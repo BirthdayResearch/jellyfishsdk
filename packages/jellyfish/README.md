@@ -1,16 +1,12 @@
 # @defichain/jellyfish
 
-Distributed as `@defichain/jellyfish` with all packages included.
+This is the entrypoint for most dApp developer. Distributed as `@defichain/jellyfish`, it bundles and creates 4 types of
+JavaScript packages for public use.
 
-- [ ] TODO(fuxingloh)
+This package provides conventional defaults and bundle all code required for dApps building. For library consumer, it is
+just "plug and play", they don't need to care how it works underneath.
 
-## @defichain/jellyfish-core
-
-`@defichain/jellyfish-core` the protocol agnostic DeFiChain client implementation with APIs separated into their category. Client APIs are implemented categorically as follows:
-
-### `client.'category'.'method'()`
-
-|category|method|JS|CCP|
-|---|---|---|---|
-|mining|getmintinginfo|`client.mining.getMintingInfo()`|`rpc/mining.cpp#getmintinginfo`|
-|rawtransaction|sendrawtransaction|`client.transaction.sendRawTransaction(tx)`|`rpc/sendrawtransaction.cpp#sendrawtransaction`|
+1. `dist/jellyfish.cjs.js` for node.js
+1. `dist/jellyfish.umd.js` for browser
+1. `dist/jellyfish.esm.js` for ES6 module
+1. `dist/jellyfish.d.ts` for TypeScript definitions
