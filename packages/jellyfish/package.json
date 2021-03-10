@@ -47,7 +47,7 @@
     "electron": ">=10.x"
   },
   "scripts": {
-    "build": "parcel build src/jellyfish.ts --no-autoinstall",
+    "build": "parcel build src/jellyfish.ts",
     "publish:next": "npm publish --tag next",
     "publish:latest": "npm publish --tag latest"
   },
@@ -59,9 +59,7 @@
   },
   "devDependencies": {
     "@defichain/testcontainers": "0.0.0",
-    "@parcel/packager-ts": "2.0.0-nightly.622",
-    "@parcel/transformer-typescript-types": "2.0.0-nightly.622",
-    "parcel": "2.0.0-nightly.620",
-    "typescript": "3.9.9"
+    "@parcel/transformer-typescript-types": "2.0.0-nightly.579",
+    "parcel": "2.0.0-nightly.579"
   }
 }
