@@ -31,10 +31,22 @@ describe('JSON-RPC 1.0 specification', () => {
 
     await expect(result).toBe('intercepted')
 
-    await expect(intercept.mock.calls[0][0].id).toBeGreaterThan(-1)
     await expect(intercept.mock.calls[0][0].jsonrpc).toBe('1.0')
+    await expect(intercept.mock.calls[0][0].id).toBeGreaterThan(-1)
     await expect(intercept.mock.calls[0][0].method).toBe('intercept')
     await expect(intercept.mock.calls[0][0].params).toEqual(['p1', 'p2'])
+  })
+
+  it('generated id must be positive as per the spec', async () => {
+    const client = new JsonRpcClient('http://intercepted.defichain.node')
+
+    for (const i of [...Array(100).keys()]) {
+      await client.call(`generate${i}`, [], 'number')
+      await expect(intercept.mock.calls[i][0].id).toBeGreaterThan(-1)
+      await expect(intercept.mock.calls[i][0].id.toString()).not.toEqual(
+        expect.not.stringMatching('.')
+      )
+    }
   })
 
   it('should generate a different id for each RPC', async () => {
