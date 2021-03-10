@@ -316,6 +316,6 @@ export abstract class DeFiDContainer {
  */
 export class DeFiDRpcError extends Error {
   constructor (error: { code: number, message: string }) {
-    super(`DeFiDRpcError from RPC: '${error.message}', code: ${error.code}`)
+    super(`DeFiDRpcError: '${error.message}', code: ${error.code}`)
   }
 }

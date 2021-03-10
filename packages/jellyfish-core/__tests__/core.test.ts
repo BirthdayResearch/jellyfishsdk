@@ -37,11 +37,11 @@ describe('JellyfishError handling', () => {
 
   it('invalid method should throw -32601 with message as structured', async () => {
     return await expect(client.call('invalid', [], 'lossless'))
-      .rejects.toThrowError(/JellyfishError from RPC: 'Method not found', code: -32601/)
+      .rejects.toThrowError(/JellyfishRPCError: 'Method not found', code: -32601/)
   })
 
   it('importprivkey should throw -5 with message as structured', async () => {
     return await expect(client.call('importprivkey', ['invalid-key'], 'lossless'))
-      .rejects.toThrowError(/JellyfishError from RPC: 'Invalid private key encoding', code: -5/)
+      .rejects.toThrowError(/JellyfishRPCError: 'Invalid private key encoding', code: -5/)
   })
 })
