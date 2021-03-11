@@ -1,4 +1,4 @@
-import { JellyfishJSON, JellyfishClient, JellyfishError, Precision } from '../src/core'
+import { JellyfishJSON, JellyfishClient, Precision, JellyfishRPCError } from '../src/core'
 import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
@@ -29,8 +29,8 @@ export class ContainerAdapterClient extends JellyfishClient {
 
     const { result, error } = response
 
-    if (error !== null) {
-      throw new JellyfishError(error)
+    if (error !== undefined && error !== null) {
+      throw new JellyfishRPCError(error)
     }
 
     return result

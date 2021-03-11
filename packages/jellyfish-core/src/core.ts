@@ -29,6 +29,8 @@ export abstract class JellyfishClient {
    * 'number' parse all numeric values as 'Number' and precision will be loss if it exceeds IEEE-754 standard.
    *
    * @throws JellyfishError
+   * @throws JellyfishRPCError
+   * @throws JellyfishClientError
    */
   abstract call<T> (method: string, params: any[], precision: Precision): Promise<T>
 }
@@ -37,12 +39,25 @@ export abstract class JellyfishClient {
  * JellyfishError; where jellyfish/defichain errors are encapsulated into.
  */
 export class JellyfishError extends Error {
-  public readonly code: number
-  public readonly rawMessage: string
+}
+
+/**
+ * Jellyfish client side error, from user.
+ */
+export class JellyfishClientError extends JellyfishError {
+  constructor (message: string) {
+    super(`JellyfishClientError: ${message}`)
+  }
+}
+
+/**
+ * Jellyfish RPC error, from upstream.
+ */
+export class JellyfishRPCError extends JellyfishError {
+  public readonly payload: { code: number, message: string }
 
   constructor (error: { code: number, message: string }) {
-    super(`JellyfishError from RPC: '${error.message}', code: ${error.code}`)
-    this.code = error.code
-    this.rawMessage = error.message
+    super(`JellyfishRPCError: '${error.message}', code: ${error.code}`)
+    this.payload = error
   }
 }
