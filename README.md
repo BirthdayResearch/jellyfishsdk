@@ -20,14 +20,45 @@ npm install @defichain/jellyfish
 
 ### Browser
 
-```js
-
+```html
+<!-- TODO(fuxingloh): WIP -->
+<script src="https://unpkg.com/@defichain/jellyfish@latest/dist/jellyfish.umd.js"/>
 ```
 
-## Usage
+## Getting Started
+
+### CJS for Node
 
 ```js
-// TODO(fuxingloh): 
+const jellyfish = require('@defichain/jellyfish')
+const client = new jellyfish.Client('http://localhost:8554', {
+  timeout: 20000
+})
+
+client.mining.getMintingInfo().then((info) => {
+  console.log(info)
+})
+```
+
+### ES6 Modules
+
+```js
+import {Client} from '@defichain/jellyfish'
+
+const client = new Client('http://localhost:8554')
+const info = await client.mining.getMintingInfo()
+```
+
+### Providers
+
+```js
+import {Client, HttpProvider, OceanProvider} from '@defichain/jellyfish'
+
+const options = {} // optional
+
+// TODO(fuxingloh): WIP, more coventional default will be introduced with convenience
+const localClient = new Client(new HttpProvider('http://localhost:8554'), options)
+const oceanClient = new Client(new OceanProvider(), options)
 ```
 
 ## Documentation & Community
