@@ -21,7 +21,7 @@
       "url": "https://defichain.com/"
     },
     {
-      "name": "DeFiChain Jellyfish Developers"
+      "name": "DeFiChain Jellyfish Contributors"
     }
   ],
   "main": "dist/jellyfish.cjs.js",
