@@ -1,32 +1,13 @@
 import { JsonRpcClient } from '@defichain/jellyfish-jsonrpc'
 import { JellyfishClient } from '@defichain/jellyfish-core'
 
-export * from '@defichain/jellyfish-core'
-
-interface Provider {
-  url: string
-  protocol: string
-}
-
-/**
- * @param url to create the HttpProvider
- */
-function _HttpProvider (url: string): Provider {
-  return {
-    url: url,
-    protocol: 'JSON-RPC 1.0'
-  }
-}
-
-/**
- * TODO(fuxingloh): add description after RFC
- */
-function _OceanProvider (): Provider {
-  return {
-    url: 'https://ocean.defichain.com',
-    protocol: 'JSON-RPC 1.0'
-  }
-}
+import {
+  Provider,
+  HttpProvider,
+  OceanProvider,
+  HttpProviderConstructor,
+  OceanProviderConstructor
+} from './provider'
 
 /**
  * Client options for Jellyfish
@@ -60,7 +41,7 @@ const JellyfishOptionsDefault = {
  *
  * @constructor
  */
-function _Client (provider: string | Provider = OceanProvider(), options?: JellyfishOptions): JellyfishClient {
+function initClient (provider: string | Provider = OceanProvider(), options?: JellyfishOptions): JellyfishClient {
   const url = typeof provider === 'string' ? provider : provider.url
 
   return new JsonRpcClient(url,
@@ -74,35 +55,38 @@ interface ClientConstructor {
   (provider?: string | Provider, options?: JellyfishOptions): JellyfishClient
 }
 
-interface HttpProviderConstructor {
-  new (url: string): Provider
-
-  (url: string): Provider
-}
-
-interface OceanProviderConstructor {
-  new (): Provider
-
-  (): Provider
-}
-
-interface Jellyfish {
-  Client: ClientConstructor
-  HttpProvider: HttpProviderConstructor
-  OceanProvider: OceanProviderConstructor
-}
-
-export const Client: ClientConstructor = _Client as ClientConstructor
-export const HttpProvider: HttpProviderConstructor = _HttpProvider as HttpProviderConstructor
-export const OceanProvider: OceanProviderConstructor = _OceanProvider as OceanProviderConstructor
-
-export const _Jellyfish: Jellyfish = {
-  Client,
-  HttpProvider,
-  OceanProvider
+/**
+ * Initialize a Jellyfish Client
+ */
+export const Client: ClientConstructor = initClient as ClientConstructor
+export {
+  HttpProvider, OceanProvider
 }
 
 /**
+ * MIT License
+ *
+ * Copyright (c) DeFiChain Foundation
+ * Copyright (c) DeFiChain Jellyfish Contributors
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+
  * @example <caption>ES6 Modules</caption>
  * import {Client, HttpProvider} from '@defichain/jellyfish'
  * const client = new Client(new HttpProvider('https://ocean.jellyfish.com'), {
@@ -119,4 +103,14 @@ export const _Jellyfish: Jellyfish = {
  * // or
  * var client2 = new jf.Client(jf.OceanProvider())
  */
-export default _Jellyfish
+export const Jellyfish: {
+  Client: ClientConstructor
+  HttpProvider: HttpProviderConstructor
+  OceanProvider: OceanProviderConstructor
+} = {
+  Client,
+  HttpProvider,
+  OceanProvider
+}
+
+export default Jellyfish

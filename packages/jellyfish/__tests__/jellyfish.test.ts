@@ -27,5 +27,3 @@ it('HttpProvider', async () => {
 
   await expect(info.chain).toBe('regtest')
 })
-
-// TODO(fuxingloh): test OceanProvider when released
