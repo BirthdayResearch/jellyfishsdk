@@ -1,3 +1,4 @@
+[![CI](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml/badge.svg)](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7019f1d74a0500951b2a/maintainability)](https://codeclimate.com/github/DeFiCh/jellyfish/maintainability)
 [![TS-Standard](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
@@ -7,32 +8,22 @@
 
 A collection of TypeScript + JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
 
-> 🚧 Work in progress.
+> 🚧 Work in progress, `3/193` rpc completed.
 
-## Usage
+## Installation
 
-For the majority of the time, you just need `@defichain/jellyfish`.
-
-### Installation
+### Node
 
 ```shell
-npm i @defichain/jellyfish
+npm install @defichain/jellyfish
 ```
 
-### Setting a client
-
+### Browser
 ```js
-// TODO(fuxingloh): 
+
 ```
 
-|package|@latest|@next|
-|---|---|---|
-|`@defichain/jellyfish`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)|
-|`@defichain/jellyfish-core`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish-core)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-core/next)|
-|`@defichain/jellyfish-jsonrpc`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc/next)|
-|`@defichain/testcontainers`|![npm](https://img.shields.io/npm/v/@defichain/testcontainers)|![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)|
-
-## Features
+## Usage
 
 ```js
 // TODO(fuxingloh): 
@@ -40,15 +31,30 @@ npm i @defichain/jellyfish
 
 ## Documentation & Community
 
-```js
+```
 // TODO(fuxingloh): 
+Documentation can be found at `https://jellyfish.defichain.com`?
++ Community Links
 ```
 
-## Motivation & Philosophy
+## Packages
 
-```js
-// TODO(fuxingloh): 
-```
+* `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: `umd`, `esm`, `cjs`
+  and `d.ts`
+* `@defichain/jellyfish-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
+  design.
+* `@defichain/jellyfish-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+* `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
+  Docker container.
+
+### Latest Releases
+
+|package|@latest|@next|
+|---|---|---|
+|`@defichain/jellyfish`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)|
+|`@defichain/jellyfish-core`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish-core)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-core/next)|
+|`@defichain/jellyfish-jsonrpc`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc/next)|
+|`@defichain/testcontainers`|![npm](https://img.shields.io/npm/v/@defichain/testcontainers)|![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)|
 
 ## Developing & Contributing
 
@@ -71,7 +77,7 @@ Docker is required to run the tests as [`@defichain/testcontainers`](./packages/
 up `regtest` instances for testing. The number of containers it will spin up concurrently is dependent on your
 jest `--maxConcurrency` count.
 
-Coverage is collected at pr merge with `codecov`; more testing 🚀 less 🐛 = 😎
+Coverage is collected at each pull request to main with `codecov`; more testing 🚀 less 🐛 = 😎
 
 ```shell
 jest
