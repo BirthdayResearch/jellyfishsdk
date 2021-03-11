@@ -19,6 +19,7 @@ npm install @defichain/jellyfish
 ```
 
 ### Browser
+
 ```js
 
 ```
@@ -75,7 +76,8 @@ IntelliJ IDEA, you can right click any file to test it individually and have it 
 
 Docker is required to run the tests as [`@defichain/testcontainers`](./packages/testcontainers) will automatically spin
 up `regtest` instances for testing. The number of containers it will spin up concurrently is dependent on your
-jest `--maxConcurrency` count.
+jest `--maxConcurrency` count. Test are known to be flaky due to the usage of multiple Docker containers for test
+concurrency.
 
 Coverage is collected at each pull request to main with `codecov`; more testing 🚀 less 🐛 = 😎
 
