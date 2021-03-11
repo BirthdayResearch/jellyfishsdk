@@ -7,6 +7,7 @@
 /kind chore
 /kind docs
 /kind refactor
+/kind dependencies
 -->
 
 /kind
