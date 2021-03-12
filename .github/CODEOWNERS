@@ -4,6 +4,8 @@
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh
 /.idea/                                         @fuxingloh
+/.github/workflows/oss-governance-bot.yml       @fuxingloh
+/.github/governance.yml                         @fuxingloh
 
 /docs/                                          @fuxingloh
 
