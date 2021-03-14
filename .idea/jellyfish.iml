@@ -8,6 +8,7 @@
       <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish-core/dist" />
       <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish-jsonrpc/dist" />
       <excludeFolder url="file://$MODULE_DIR$/packages/testcontainers/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/website/.docusaurus" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
