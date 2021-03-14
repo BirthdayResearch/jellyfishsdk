@@ -1,18 +1,11 @@
-# @defichain/testcontainers
+---
+id: usage
+title: Testcontainers Usage
+sidebar_label: Usage
+slug: /testcontainers/usage
+---
 
-Similar to [testcontainers](https://www.testcontainers.org/) in the Java ecosystem, this package provides a lightweight,
-throwaway instances of `regtest`, `testnet` or `mainnet` provisioned automatically in Docker container.
-`@defichain/testcontainers` encapsulate on top of `defi/defichain:v1.x` and directly interface with the Docker REST API.
-
-With `@defichain/testcontainers`, it allows the JS developers to:
-
-1. End-to-end test their application without hassle of setting up the toolchain
-2. Run parallel tests as port number and container are dynamically generated on demand
-3. Supercharge our CI workflow; run locally, anywhere or CI (as long as it has Docker installed)
-4. Supercharge your `@defichain/jellyfish` implementation with 100% day 1 compatibility (mono repo!)
-5. Bring quality and reliability to dApps on the DeFiChain JS ecosystem
-
-## Usage Example
+## Installation
 
 Install as dev only as you don't need this in production. **Please don't use this in production!**
 
@@ -20,12 +13,16 @@ Install as dev only as you don't need this in production. **Please don't use thi
 npm i -D @defichain/testcontainers
 ```
 
-Use your favourite jest runner and start building dApps!
+## RegTestContainer
 
-### Basic `RegTestContainer` setup
+* `RegTestContainer` provides a defid node managed in Docker.
+* `MasterNodeRegTestContainer` provides a pre-configured masternode with coins auto minting.
+* You can use your favourite test runner and set it up as part of the test lifecycle.
+
+### `new RegTestContainer()`
 
 ```js
-import { RegTestDocker } from '@defichain/testcontainers'
+import { RegTestContainer } from '@defichain/testcontainers'
 
 describe('reg test container', () => {
   const container = new RegTestContainer()
@@ -47,7 +44,7 @@ describe('reg test container', () => {
 })
 ```
 
-### `MasterNodeRegTestContainer` with auto-minting
+### `new MasterNodeRegTestContainer()`
 
 ```js
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
@@ -59,6 +56,7 @@ describe('master node pos minting', () => {
   beforeEach(async () => {
     await container.start()
     await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
   })
 
   afterEach(async () => {
@@ -66,8 +64,6 @@ describe('master node pos minting', () => {
   })
 
   it('should wait until coinbase maturity with spendable balance', async () => {
-    await container.generate(100)
-
     await waitForExpect(async () => {
       const info = await container.getMintingInfo()
       expect(info.blocks).toBeGreaterThan(100)
@@ -82,29 +78,39 @@ describe('master node pos minting', () => {
 })
 ```
 
-### Endpoint?
+## Convenience Methods
+
+### `container.getCachedRpcUrl()`
 
 ```js
-const container = new MasterNodeRegTestContainer()
-const rpcURL = await container.getCachedRpcUrl()
+const container = new RegTestContainer()
 
 // they are dynmaically assigned to host, you can run multiple concurrent tests!
-const port = await container.getPort('8555/tcp')
+const rpcURL = await container.getCachedRpcUrl()
 ```
 
-### Included `container.call('method', [])` for convenience RPC calls
+### `container.call('method', [])`
 
 ```js
-const container = new MasterNodeRegTestContainer()
-await container.start()
-await container.waitForReady()
+const container = new RegTestContainer()
 
-// raw universal calls
+// raw calls
 const { blocks } = await container.call('getmintinginfo')
 const address = await container.call('getnewaddress', ['label', 'legacy'])
 
-// basic included types
+// basic included methods
 const count = await container.getBlockCount()
 const info = await container.getMintingInfo()
 const newAddress = await container.getNewAddress()
+```
+
+## Using with Jellyfish
+
+```js
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { Client, HttpProvider } from '@defichain/jellyfish'
+const container = new RegTestContainer()
+
+const rpcURL = await container.getCachedRpcUrl()
+const client = new Client(new HttpProvider(rpcURL))
 ```

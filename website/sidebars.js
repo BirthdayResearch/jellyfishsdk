@@ -13,7 +13,10 @@ module.exports = {
       type: 'category',
       label: 'Testcontainers',
       collapsed: false,
-      items: ['testcontainers/overview']
+      items: [
+        'testcontainers/overview',
+        'testcontainers/usage'
+      ]
     }
   ]
 }
