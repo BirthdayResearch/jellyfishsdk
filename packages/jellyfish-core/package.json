@@ -40,7 +40,7 @@
     "lossless-json": "^1.0.4"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
+    "@defichain/testcontainers": "0.0.9",
     "@types/lossless-json": "^1.0.0",
     "typescript": ">=4.2.0"
   }
