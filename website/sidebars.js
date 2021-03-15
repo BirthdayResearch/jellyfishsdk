@@ -1,6 +1,6 @@
 module.exports = {
   sidebar: [
-    'overview',
+    'introduction',
     {
       type: 'category',
       label: 'Jellyfish',
@@ -13,7 +13,6 @@ module.exports = {
       collapsed: false,
       items: [
         'testcontainers/overview',
-        'testcontainers/installation',
         'testcontainers/usage'
       ]
     }

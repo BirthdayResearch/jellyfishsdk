@@ -5,13 +5,21 @@ sidebar_label: Using testcontainers
 slug: /testcontainers/usage
 ---
 
+## Installation
+
+Install as dev only as you don't need this in production. **Please don't use this in production!**
+
+```shell
+npm i -D @defichain/testcontainers
+```
+
+## Containers
+
 * `RegTestContainer` provides a defid node managed in Docker.
 * `MasterNodeRegTestContainer` provides a pre-configured masternode with coins auto minting.
 * You can use your favourite test runner and set it up as part of the test lifecycle.
 
-## Containers
-
-### `new RegTestContainer()`
+### `RegTestContainer`
 
 ```js
 import { RegTestContainer } from '@defichain/testcontainers'
@@ -36,7 +44,7 @@ describe('reg test container', () => {
 })
 ```
 
-### `new MasterNodeRegTestContainer()`
+### `MasterNodeRegTestContainer`
 
 ```js
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
@@ -72,7 +80,7 @@ describe('master node pos minting', () => {
 
 ## Convenience Methods
 
-### `container.getCachedRpcUrl()`
+### `getCachedRpcUrl()`
 
 ```js
 const container = new RegTestContainer()
@@ -81,7 +89,7 @@ const container = new RegTestContainer()
 const rpcURL = await container.getCachedRpcUrl()
 ```
 
-### `container.call('method', [])`
+### `call('method', [])`
 
 ```js
 const container = new RegTestContainer()
