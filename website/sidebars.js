@@ -1,6 +1,6 @@
 module.exports = {
   sidebar: [
-    'getting-started',
+    'overview',
     {
       type: 'category',
       label: 'Jellyfish',
