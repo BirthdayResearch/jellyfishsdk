@@ -2,11 +2,12 @@
   "private": false,
   "name": "@defichain/jellyfish-jsonrpc",
   "version": "0.0.0",
-  "description": "A collection of TypeScript/JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
     "DeFiChain",
     "JavaScript",
-    "API"
+    "API",
+    "Bitcoin"
   ],
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
@@ -31,8 +32,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "publish:next": "npm publish --tag next",
-    "publish:latest": "npm publish --tag latest"
+    "publish:next": "npm publish --tag next --access public",
+    "publish:latest": "npm publish --tag latest --access public"
   },
   "dependencies": {
     "@defichain/jellyfish-core": "0.0.0",
