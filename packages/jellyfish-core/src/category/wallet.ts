@@ -11,10 +11,10 @@ export class Wallet {
   }
 
   /**
-   * Returns the total available balance.
+   * Returns the total available balance in wallet.
    *
-   * @param minimumConfirmation
-   * @param includeWatchOnly
+   * @param minimumConfirmation to include transactions confirmed at least this many times
+   * @param includeWatchOnly for watch-only wallets
    * @return Promise<number>
    */
   async getBalance (minimumConfirmation: number = 0, includeWatchOnly: boolean = false): Promise<BigNumber> {
