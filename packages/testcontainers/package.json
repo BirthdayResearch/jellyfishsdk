@@ -32,12 +32,12 @@
     "publish:latest": "npm publish --tag latest"
   },
   "dependencies": {
-    "@types/dockerode": "^3.2.2",
-    "@types/node-fetch": "^2.5.8",
     "dockerode": "^3.2.1",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
+    "@types/dockerode": "^3.2.2",
+    "@types/node-fetch": "^2.5.8",
     "typescript": ">=4.2.0"
   }
 }
