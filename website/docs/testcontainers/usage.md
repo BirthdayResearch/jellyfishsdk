@@ -1,23 +1,15 @@
 ---
 id: usage
-title: Testcontainers Usage
-sidebar_label: Usage
+title: Using @defichain/testcontainers
+sidebar_label: Using testcontainers
 slug: /testcontainers/usage
 ---
-
-## Installation
-
-Install as dev only as you don't need this in production. **Please don't use this in production!**
-
-```shell
-npm i -D @defichain/testcontainers
-```
-
-## RegTestContainer
 
 * `RegTestContainer` provides a defid node managed in Docker.
 * `MasterNodeRegTestContainer` provides a pre-configured masternode with coins auto minting.
 * You can use your favourite test runner and set it up as part of the test lifecycle.
+
+## Containers
 
 ### `new RegTestContainer()`
 

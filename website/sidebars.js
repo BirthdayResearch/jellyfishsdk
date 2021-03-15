@@ -1,8 +1,6 @@
 module.exports = {
   sidebar: [
     'getting-started',
-    'installation',
-    'features',
     {
       type: 'category',
       label: 'Jellyfish',
@@ -15,6 +13,7 @@ module.exports = {
       collapsed: false,
       items: [
         'testcontainers/overview',
+        'testcontainers/installation',
         'testcontainers/usage'
       ]
     }
