@@ -8,6 +8,8 @@ slug: /
 A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin.
 Consisting of 4 packages with more to be added in the future, the jellyfish project allow DeFiChain developers to build decentralized apps that are modern, easy to use and easy to test.
 
+Jellyfish follows a monorepo methodology, all maintained packages are in the same repo and published with the same version tag.
+
 ## Packages
 
 * `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs

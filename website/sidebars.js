@@ -5,7 +5,20 @@ module.exports = {
       type: 'category',
       label: 'Jellyfish',
       collapsed: false,
-      items: ['jellyfish/overview']
+      items: [
+        'jellyfish/overview',
+        'jellyfish/design',
+        'jellyfish/usage'
+      ]
+    },
+    {
+      type: 'category',
+      label: 'Jellyfish APIs',
+      collapsed: false,
+      items: [
+        'jellyfish/api/mining',
+        'jellyfish/api/wallet'
+      ]
     },
     {
       type: 'category',
