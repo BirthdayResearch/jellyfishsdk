@@ -1,6 +1,6 @@
 import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber } from '../../src/core'
+import { BigNumber } from '../../src'
 import waitForExpect from 'wait-for-expect'
 
 describe('non masternode', () => {

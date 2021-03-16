@@ -1,4 +1,4 @@
-import { MintingInfo, JellyfishClient, JellyfishClientError } from '../src/core'
+import { MintingInfo, JellyfishClient, JellyfishClientError } from '../src'
 import { ContainerAdapterClient } from './container_adapter_client'
 import { RegTestContainer } from '@defichain/testcontainers'
 

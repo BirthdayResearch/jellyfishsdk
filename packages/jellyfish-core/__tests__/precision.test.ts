@@ -1,4 +1,4 @@
-import { BigNumber } from '../src/core'
+import { BigNumber } from '../src'
 
 /**
  * Why JavaScript default number should not be used as it lose precision

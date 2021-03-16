@@ -1,4 +1,4 @@
-import { JellyfishJSON, JellyfishClient, Precision, JellyfishRPCError } from '../src/core'
+import { JellyfishJSON, JellyfishClient, Precision, JellyfishRPCError } from '../src'
 import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
