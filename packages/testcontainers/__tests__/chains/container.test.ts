@@ -1,5 +1,4 @@
-import { RegTestContainer } from '../../src/chains/reg_test_container'
-import { DeFiDContainer, DeFiDRpcError, StartOptions } from '../../src/chains/container'
+import { RegTestContainer, DeFiDContainer, DeFiDRpcError, StartOptions } from '../../src'
 
 describe('container error handling', () => {
   let container: DeFiDContainer

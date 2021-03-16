@@ -1,5 +1,4 @@
-import { RegTestContainer } from '../src/chains/reg_test_container'
-import { GenesisKeys } from '../src/testkeys'
+import { GenesisKeys, RegTestContainer } from '../src'
 
 describe('genesis keys', () => {
   const container = new RegTestContainer()
