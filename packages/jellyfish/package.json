@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@defichain/testcontainers": "0.0.0",
-    "@parcel/transformer-typescript-types": "2.0.0-beta.1",
+    "@parcel/transformer-typescript-types": "2.0.0-nightly.629",
     "parcel": "2.0.0-beta.1"
   }
 }
