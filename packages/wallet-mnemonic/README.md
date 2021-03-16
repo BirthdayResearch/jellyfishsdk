@@ -1,0 +1,1 @@
+# @defichain/wallet-mnemonic
