@@ -1,4 +1,4 @@
-import { JellyfishClient } from '../core'
+import { JellyfishClient } from '../.'
 
 export interface MintingInfo {
   blocks: number

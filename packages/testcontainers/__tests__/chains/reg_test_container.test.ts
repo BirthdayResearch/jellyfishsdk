@@ -1,9 +1,5 @@
-import {
-  MasterNodeRegTestContainer,
-  RegTestContainer
-} from '../../src/chains/reg_test_container'
+import { MasterNodeRegTestContainer, RegTestContainer, GenesisKeys } from '../../src'
 import waitForExpect from 'wait-for-expect'
-import { GenesisKeys } from '../../src/testkeys'
 
 describe('regtest', () => {
   const container = new RegTestContainer()

@@ -1,4 +1,4 @@
-import { MainNetContainer, TestNetContainer, RegTestContainer } from '../src/testcontainers'
+import { MainNetContainer, TestNetContainer, RegTestContainer } from '../src'
 
 describe('main', () => {
   const container = new MainNetContainer()

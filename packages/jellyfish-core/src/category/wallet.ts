@@ -1,4 +1,4 @@
-import { BigNumber, JellyfishClient } from '../core'
+import { BigNumber, JellyfishClient } from '../.'
 
 /**
  * Wallet related RPC calls for DeFiChain
