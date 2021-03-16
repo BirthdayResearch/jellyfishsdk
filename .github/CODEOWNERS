@@ -7,7 +7,7 @@
 /.github/workflows/oss-governance-bot.yml       @fuxingloh
 /.github/governance.yml                         @fuxingloh
 
-/docs/                                          @fuxingloh
+/website/                                       @fuxingloh
 
 /packages/jellyfish/                            @fuxingloh @thedoublejay
 /packages/jellyfish-core/                       @fuxingloh @thedoublejay @fullstackninja864 @saurabh391
