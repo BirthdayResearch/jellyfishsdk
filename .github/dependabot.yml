@@ -8,6 +8,13 @@ updates:
       - "kind/dependencies"
 
   - package-ecosystem: 'npm'
+    directory: '/website'
+    schedule:
+      interval: 'monthly'
+    labels:
+      - "kind/dependencies"
+
+  - package-ecosystem: 'npm'
     directory: '/packages/jellyfish'
     schedule:
       interval: 'weekly'

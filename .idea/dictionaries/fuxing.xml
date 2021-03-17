@@ -29,6 +29,7 @@
       <w>gettransaction</w>
       <w>getunconfirmedbalance</w>
       <w>importprivkey</w>
+      <w>infima</w>
       <w>jsonrpc</w>
       <w>libevent</w>
       <w>listaccounts</w>

@@ -6,7 +6,7 @@
 
 # @defichain/jellyfish
 
-A collection of TypeScript + JavaScript tools and libraries for DeFiChain to build decentralized finance on Bitcoin.
+A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin.
 
 > 🚧 Work in progress, `3/193` rpc completed.
 
@@ -83,10 +83,10 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 
 |package|@latest|@next|
 |---|---|---|
-|`@defichain/jellyfish`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)|
-|`@defichain/jellyfish-core`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish-core)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-core/next)|
-|`@defichain/jellyfish-jsonrpc`|![npm](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc)|![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc/next)|
-|`@defichain/testcontainers`|![npm](https://img.shields.io/npm/v/@defichain/testcontainers)|![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)|
+|`@defichain/jellyfish`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)|
+|`@defichain/jellyfish-core`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-core)](https://www.npmjs.com/package/@defichain/jellyfish-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-core/v/next)|
+|`@defichain/jellyfish-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-jsonrpc/next)](https://www.npmjs.com/package/@defichain/jellyfish-jsonrpc/v/next)|
+|`@defichain/testcontainers`|[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)|
 
 ## Developing & Contributing
 
