@@ -1,0 +1,9 @@
+[build]
+base = "website/"
+publish = "build/"
+command = "npm run build"
+
+[[headers]]
+for = "/img/*"
+[headers.values]
+Cross-Origin-Resource-Policy = "same-origin"
