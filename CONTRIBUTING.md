@@ -38,7 +38,7 @@ TypeScript must be used for all code written in this project.
 
 ### Use underscores, not dashes in filenames.
 
-Example: Use `api_core.ts` instead of `api-core.ts`.
+Example: Use `foo_bar.ts` instead of `foo-bar.ts`.
 
 ### Exported functions: max 2 args, put the rest into an options object.
 
