@@ -22,7 +22,7 @@
     "react-dom": "^17.0.1"
   },
   "devDependencies": {
-    "@docusaurus/types": "^2.0.0-alpha.71"
+    "@docusaurus/types": "^2.0.0-alpha.72"
   },
   "browserslist": {
     "production": [
