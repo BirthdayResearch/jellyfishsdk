@@ -1,5 +1,5 @@
 import {
-  JellyfishClient,
+  ApiClient,
   JellyfishClientError,
   JellyfishJSON,
   JellyfishRPCError,
@@ -36,7 +36,7 @@ export const defaultOptions: ClientOptions = {
 /**
  * A JSON-RPC client implementation for connecting to a DeFiChain node.
  */
-export class JsonRpcClient extends JellyfishClient {
+export class JsonRpcClient extends ApiClient {
   private readonly url: string
   private readonly options: ClientOptions
 
@@ -55,7 +55,7 @@ export class JsonRpcClient extends JellyfishClient {
   }
 
   /**
-   * Implements JSON-RPC 1.0 specification for JellyfishClient
+   * Implements JSON-RPC 1.0 specification for ApiClient
    */
   async call<T> (method: string, params: any[], precision: Precision): Promise<T> {
     const body = JsonRpcClient.stringify(method, params)

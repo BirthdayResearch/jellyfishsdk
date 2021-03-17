@@ -1,11 +1,11 @@
-import { JellyfishJSON, JellyfishClient, Precision, JellyfishRPCError } from '../src'
+import { JellyfishJSON, ApiClient, Precision, JellyfishRPCError } from '../src'
 import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
  * Jellyfish client adapter for container
  * To be used for testing api-core protocol data binding only
  */
-export class ContainerAdapterClient extends JellyfishClient {
+export class ContainerAdapterClient extends ApiClient {
   protected readonly container: DeFiDContainer
 
   constructor (container: DeFiDContainer) {

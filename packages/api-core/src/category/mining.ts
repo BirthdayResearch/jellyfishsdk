@@ -1,4 +1,4 @@
-import { JellyfishClient } from '../.'
+import { ApiClient } from '../.'
 
 export interface MintingInfo {
   blocks: number
@@ -21,9 +21,9 @@ export interface MintingInfo {
  * Minting related RPC calls for DeFiChain
  */
 export class Mining {
-  private readonly client: JellyfishClient
+  private readonly client: ApiClient
 
-  constructor (client: JellyfishClient) {
+  constructor (client: ApiClient) {
     this.client = client
   }
 

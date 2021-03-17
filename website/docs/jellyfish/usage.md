@@ -59,15 +59,15 @@ import { JsonRpcClient } from '@defichain/api-jsonrpc'
 const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 ```
 
-### JellyfishClient
+### ApiClient
 
-You can extend `JellyfishClient` with the `@defichain/api-core` package to create your own transport exchange specification.
+You can extend `ApiClient` with the `@defichain/api-core` package to create your own transport exchange specification.
 
 ```ts
-import { JellyfishClient } from '@defichain/api-core'
+import { ApiClient } from '@defichain/api-core'
 
 
-class SpecClient extends JellyfishClient {
+class SpecClient extends ApiClient {
   async call<T> (method: string, payload: any[]): Promise<T> {
     throw new JellyfishClientError('error from client')
   }

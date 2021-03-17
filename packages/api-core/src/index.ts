@@ -7,9 +7,9 @@ export * from './category/wallet'
 export * from './json'
 
 /**
- * JellyfishClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.
+ * ApiClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.
  */
-export abstract class JellyfishClient {
+export abstract class ApiClient {
   public readonly mining = new Mining(this)
   public readonly wallet = new Wallet(this)
 
@@ -37,6 +37,7 @@ export abstract class JellyfishClient {
 
 /**
  * JellyfishError; where jellyfish/defichain errors are encapsulated into.
+ * TODO(fuxingloh): wait for wallet-core integration to refactor this out rename this
  */
 export class JellyfishError extends Error {
 }

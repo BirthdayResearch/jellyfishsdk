@@ -26,7 +26,7 @@ client.mining.getMintingInfo().then((result) => {
 
 ## Development
 
-`JellyfishClient` being an abstract class allows the ability to adapt to any protocol when introduced (e.g. ws, https)
+`ApiClient` being an abstract class allows the ability to adapt to any protocol when introduced (e.g. ws, https)
 while being simple to use. This implementation structure can be observed in ContainerAdapterClient where it is used to
 test api-core implementations.
 

@@ -1,8 +1,8 @@
-import { MintingInfo, JellyfishClient, JellyfishClientError } from '../src'
+import { MintingInfo, ApiClient, JellyfishClientError } from '../src'
 import { ContainerAdapterClient } from './container_adapter_client'
 import { RegTestContainer } from '@defichain/testcontainers'
 
-class TestClient extends JellyfishClient {
+class TestClient extends ApiClient {
   async call<T> (method: string, payload: any[]): Promise<T> {
     throw new JellyfishClientError('error from client')
   }

@@ -1,12 +1,12 @@
-import { BigNumber, JellyfishClient } from '../.'
+import { BigNumber, ApiClient } from '../.'
 
 /**
  * Wallet related RPC calls for DeFiChain
  */
 export class Wallet {
-  private readonly client: JellyfishClient
+  private readonly client: ApiClient
 
-  constructor (client: JellyfishClient) {
+  constructor (client: ApiClient) {
     this.client = client
   }
 
