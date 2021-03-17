@@ -1,4 +1,4 @@
-import { JellyfishClient } from '@defichain/jellyfish-core'
+import { JellyfishClient } from '@defichain/api-core'
 import { Client, OceanProvider, HttpProvider } from '../src/jellyfish'
 
 describe('with new keyword', () => {

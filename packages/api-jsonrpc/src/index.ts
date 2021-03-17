@@ -4,7 +4,7 @@ import {
   JellyfishJSON,
   JellyfishRPCError,
   Precision
-} from '@defichain/jellyfish-core'
+} from '@defichain/api-core'
 import fetch from 'cross-fetch'
 import AbortController from 'abort-controller'
 

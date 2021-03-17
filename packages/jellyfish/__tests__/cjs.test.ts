@@ -1,4 +1,4 @@
-import { JellyfishClient } from '@defichain/jellyfish-core'
+import { JellyfishClient } from '@defichain/api-core'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const Jellyfish = require('../src/jellyfish')

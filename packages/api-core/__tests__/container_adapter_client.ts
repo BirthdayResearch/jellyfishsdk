@@ -3,7 +3,7 @@ import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
  * Jellyfish client adapter for container
- * To be used for testing jellyfish-core protocol data binding only
+ * To be used for testing api-core protocol data binding only
  */
 export class ContainerAdapterClient extends JellyfishClient {
   protected readonly container: DeFiDContainer

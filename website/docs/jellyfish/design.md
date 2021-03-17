@@ -49,7 +49,7 @@ it('lost precision converting DFI 😥', () => {
 
 ### `JellyfishJSON`
 
-**jellyfish-core** implements `JellyfishJSON` that allows parsing of JSON with `'lossless'`, `'bignumber'` and 
+**api-core** implements `JellyfishJSON` that allows parsing of JSON with `'lossless'`, `'bignumber'` and 
 `'number'` numeric precision.
 
 * **'lossless'** uses LosslessJSON that parses numeric values as LosslessNumber. With LosslessNumber, one can perform
@@ -96,7 +96,7 @@ export class Mining {
 
 ## Protocol agnostic core
 
-JellyfishClient in `jellyfish-core` is a protocol agnostic DeFiChain client implementation with APIs separated into 
+JellyfishClient in `api-core` is a protocol agnostic DeFiChain client implementation with APIs separated into 
 their category. The protocol-agnostic core enable independent communication protocols, allowing
 vendor-agnostic middleware adaptable to any needs.
 

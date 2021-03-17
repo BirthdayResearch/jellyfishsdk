@@ -1,5 +1,5 @@
-import { JsonRpcClient } from '@defichain/jellyfish-jsonrpc'
-import { JellyfishClient } from '@defichain/jellyfish-core'
+import { JsonRpcClient } from '@defichain/api-jsonrpc'
+import { JellyfishClient } from '@defichain/api-core'
 
 import {
   Provider,
