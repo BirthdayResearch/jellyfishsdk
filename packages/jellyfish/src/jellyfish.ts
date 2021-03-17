@@ -1,5 +1,5 @@
-import { JsonRpcClient } from '@defichain/jellyfish-jsonrpc'
-import { JellyfishClient } from '@defichain/jellyfish-core'
+import { JsonRpcClient } from '@defichain/api-jsonrpc'
+import { ApiClient } from '@defichain/api-core'
 
 import {
   Provider,
@@ -41,7 +41,7 @@ const JellyfishOptionsDefault = {
  *
  * @constructor
  */
-function initClient (provider: string | Provider = OceanProvider(), options?: JellyfishOptions): JellyfishClient {
+function initClient (provider: string | Provider = OceanProvider(), options?: JellyfishOptions): ApiClient {
   const url = typeof provider === 'string' ? provider : provider.url
 
   return new JsonRpcClient(url,
@@ -50,9 +50,9 @@ function initClient (provider: string | Provider = OceanProvider(), options?: Je
 }
 
 interface ClientConstructor {
-  new (provider?: string | Provider, options?: JellyfishOptions): JellyfishClient
+  new (provider?: string | Provider, options?: JellyfishOptions): ApiClient
 
-  (provider?: string | Provider, options?: JellyfishOptions): JellyfishClient
+  (provider?: string | Provider, options?: JellyfishOptions): ApiClient
 }
 
 /**

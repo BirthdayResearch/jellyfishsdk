@@ -1,9 +1,9 @@
-# @defichain/jellyfish-jsonrpc
+# @defichain/api-jsonrpc
 
-`@defichain/jellyfish-jsonrpc` implements `@defichain/jellyfish-core`
+`@defichain/api-jsonrpc` implements `@defichain/api-core`
 with [`JSON-RPC 1.0`](https://www.jsonrpc.org/specification_v1) specification.
 
-Other than `jellyfish-core`, 2 other external dependencies are used with 4 deeply.
+Other than `api-core`, 2 other external dependencies are used with 4 deeply.
 
 1. `cross-fetch` for an isomorphic fetch client compatible with RN, Node & browser.
     1. `node-fetch`
@@ -12,5 +12,5 @@ Other than `jellyfish-core`, 2 other external dependencies are used with 4 deepl
 
 ## Development & Testing
 
-As all RPC interfacing is implemented in `jellyfish-core`, this package development & testing only focus on the
+As all RPC interfacing is implemented in `api-core`, this package development & testing only focus on the
 [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification implementation.

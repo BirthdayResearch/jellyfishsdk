@@ -9,6 +9,8 @@
       <w>bech</w>
       <w>clarkequayheight</w>
       <w>createmasternode</w>
+      <w>currentblocktx</w>
+      <w>currentblockweight</w>
       <w>dakotaheight</w>
       <w>debugexclude</w>
       <w>defi</w>
@@ -24,21 +26,29 @@
       <w>getblockcount</w>
       <w>getblockhash</w>
       <w>getmintinginfo</w>
+      <w>getnetworkhashps</w>
       <w>getnewaddress</w>
       <w>getreceivedbyaddress</w>
       <w>gettransaction</w>
       <w>getunconfirmedbalance</w>
       <w>importprivkey</w>
       <w>infima</w>
+      <w>isoperator</w>
       <w>jsonrpc</w>
       <w>libevent</w>
       <w>listaccounts</w>
       <w>logtimemicros</w>
       <w>mainnet</w>
       <w>masternode</w>
+      <w>masternodeid</w>
+      <w>masternodeoperator</w>
+      <w>masternodestate</w>
+      <w>mintedblocks</w>
       <w>nblocks</w>
+      <w>networkhashps</w>
       <w>nmasternode</w>
       <w>nospv</w>
+      <w>pooledtx</w>
       <w>printtoconsole</w>
       <w>priv</w>
       <w>regtest</w>

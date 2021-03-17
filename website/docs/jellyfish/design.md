@@ -1,7 +1,7 @@
 ---
 id: design
-title: Jellyfish Design
-sidebar_label: Jellyfish Design
+title: Design
+sidebar_label: Design
 slug: /jellyfish/design
 ---
 
@@ -49,7 +49,7 @@ it('lost precision converting DFI 😥', () => {
 
 ### `JellyfishJSON`
 
-**jellyfish-core** implements `JellyfishJSON` that allows parsing of JSON with `'lossless'`, `'bignumber'` and 
+**api-core** implements `JellyfishJSON` that allows parsing of JSON with `'lossless'`, `'bignumber'` and 
 `'number'` numeric precision.
 
 * **'lossless'** uses LosslessJSON that parses numeric values as LosslessNumber. With LosslessNumber, one can perform
@@ -62,7 +62,7 @@ As not all number parsed are significant in all context, (e.g. `mining.getMintin
 users to use the `number` for non precision sensitive operation (e.g. `networkhashps`) and BigNumber for precision 
 sensitive operations.
 
-### `JellyfishClient`
+### `ApiClient`
 
 As jellyfish is written in TypeScript, all RPC exchanges with a node are typed. BigNumber precision is used for all 
 wallet or transaction related operations. While IEEE-754 number is used for all other arbitrary operations.
@@ -96,12 +96,12 @@ export class Mining {
 
 ## Protocol agnostic core
 
-JellyfishClient in `jellyfish-core` is a protocol agnostic DeFiChain client implementation with APIs separated into 
+ApiClient in `api-core` is a protocol agnostic DeFiChain client implementation with APIs separated into 
 their category. The protocol-agnostic core enable independent communication protocols, allowing
 vendor-agnostic middleware adaptable to any needs.
 
 ```ts
-export abstract class JellyfishClient {
+export abstract class ApiClient {
   /**
    * A promise based procedure call handling
    *

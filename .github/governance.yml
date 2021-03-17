@@ -26,7 +26,7 @@ issue:
         owner: true
 
     - prefix: area
-      list: [ "core", "wallet", "docker", "jsonrpc", "docs" ]
+      list: [ "jellyfish", "testcontainers", "api-core", "api-jsonrpc", "wallet-core", "wallet-node", "wallet-mnemonic", "website" ]
       multiple: true
       needs:
         comment: |
@@ -35,7 +35,7 @@ issue:
           You can add area labels by leaving a `/area` comment. The supported labels are:
 
           ```txt
-          /area core wallet docker jsonrpc docs
+          /area jellyfish api-core api-jsonrpc wallet-core ...
           ```
       author_association:
         author: true

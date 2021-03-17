@@ -10,8 +10,8 @@
 /website/                                       @fuxingloh
 
 /packages/jellyfish/                            @fuxingloh @thedoublejay
-/packages/jellyfish-core/                       @fuxingloh @thedoublejay @fullstackninja864 @saurabh391
-/packages/jellyfish-jsonrpc/                    @fuxingloh @thedoublejay
+/packages/api-core/                             @fuxingloh @thedoublejay @fullstackninja864 @saurabh391
+/packages/api-jsonrpc/                          @fuxingloh @thedoublejay
 /packages/testcontainers/                       @fuxingloh @thedoublejay @fullstackninja864 @saurabh391
 
 lerna.json                                      @fuxingloh

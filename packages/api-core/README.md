@@ -1,6 +1,6 @@
-# @defichain/jellyfish-core
+# @defichain/api-core
 
-`@defichain/jellyfish-core` is a protocol agnostic DeFiChain client implementation with APIs separated into their
+`@defichain/api-core` is a protocol agnostic DeFiChain client implementation with APIs separated into their
 category.
 
 ## Features
@@ -26,11 +26,11 @@ client.mining.getMintingInfo().then((result) => {
 
 ## Development
 
-`JellyfishClient` being an abstract class allows the ability to adapt to any protocol when introduced (e.g. ws, https)
+`ApiClient` being an abstract class allows the ability to adapt to any protocol when introduced (e.g. ws, https)
 while being simple to use. This implementation structure can be observed in ContainerAdapterClient where it is used to
-test jellyfish-core implementations.
+test api-core implementations.
 
-RPC categories are grouped into `jellyfish-core/src/category/*.ts` (e.g. `category/mining.ts`) this allows a protocol
+RPC categories are grouped into `api-core/src/category/*.ts` (e.g. `category/mining.ts`) this allows a protocol
 agnostic implementation of the RPC. All concerns are grouped within one `ts` file for better developer experience of
 browsing and maintaining the code.
 
@@ -50,6 +50,6 @@ handling with rich structure.
 jest
 ```
 
-As the RPC is implemented on `jellyfish-core`, all testing of RPC implementation should be done on `jellyfish-core`.
+As the RPC is implemented on `api-core`, all testing of RPC implementation should be done on `api-core`.
 `ContainerAdapterClient` is created to facilitate testing via an adapter implementation with all RPCs proxied into a
 `@defichain/testcontainers`.
