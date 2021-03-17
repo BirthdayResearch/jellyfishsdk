@@ -1,7 +1,7 @@
 ---
 id: usage
 title: Using @defichain/testcontainers
-sidebar_label: Testcontainers Usage
+sidebar_label: Using testcontainers
 slug: /testcontainers/usage
 ---
 

@@ -1,7 +1,7 @@
 ---
 id: design
-title: Jellyfish Design
-sidebar_label: Jellyfish Design
+title: Design
+sidebar_label: Design
 slug: /jellyfish/design
 ---
 

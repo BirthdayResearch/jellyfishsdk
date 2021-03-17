@@ -1,6 +1,6 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'DeFiChain Jellyfish',
+  title: 'DeFi Jellyfish',
   tagline: 'A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin',
   url: 'https://jellyfish.defichain.io',
   baseUrl: '/',
@@ -11,7 +11,7 @@ module.exports = {
   projectName: 'Jellyfish',
   themeConfig: {
     navbar: {
-      title: 'DeFiChain Jellyfish',
+      title: 'DeFi Jellyfish',
       logo: {
         alt: 'DeFiChain Logo',
         src: 'img/defichain.svg'

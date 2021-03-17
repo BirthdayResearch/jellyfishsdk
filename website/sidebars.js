@@ -13,7 +13,7 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Jellyfish APIs',
+      label: 'DeFi APIs',
       collapsed: false,
       items: [
         'jellyfish/api/mining',

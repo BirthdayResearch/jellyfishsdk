@@ -1,7 +1,7 @@
 ---
 id: overview
-title: Jellyfish Overview
-sidebar_label: Jellyfish Overview
+title: Overview
+sidebar_label: Overview
 slug: /jellyfish
 ---
 
