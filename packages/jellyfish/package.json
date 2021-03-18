@@ -55,8 +55,7 @@
   "dependencies": {
     "@defichain/api-core": "0.0.0",
     "@defichain/api-jsonrpc": "0.0.0",
-    "bignumber.js": "^9.0.1",
-    "lossless-json": "^1.0.4"
+    "bignumber.js": "^9.0.1"
   },
   "devDependencies": {
     "@defichain/testcontainers": "0.0.0",

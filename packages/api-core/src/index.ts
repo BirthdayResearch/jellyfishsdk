@@ -1,10 +1,10 @@
+import { Precision } from '@defichain/json'
 import { Mining } from './category/mining'
 import { Wallet } from './category/wallet'
-import { Precision } from './json'
 
+export * from '@defichain/json'
 export * from './category/mining'
 export * from './category/wallet'
-export * from './json'
 
 /**
  * ApiClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.

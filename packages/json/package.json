@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/api-core",
+  "name": "@defichain/json",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -35,11 +35,14 @@
     "publish:next": "npm publish --tag next --access public",
     "publish:latest": "npm publish --tag latest --access public"
   },
+  "peerDependencies": {
+    "bignumber.js": "^9.0.1"
+  },
   "dependencies": {
-    "@defichain/json": "0.0.0"
+    "lossless-json": "^1.0.4"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
+    "@types/lossless-json": "^1.0.0",
     "typescript": ">=4.2.0"
   }
 }

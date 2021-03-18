@@ -44,7 +44,7 @@ export class JsonRpcClient extends ApiClient {
    * Construct a Jellyfish client to connect to a DeFiChain node via JSON-RPC.
    *
    * @param url endpoint
-   * @param options Optional JellyfishJsonRpcOptions
+   * @param options Optional ClientOptions
    * timeout: default to 60000ms
    * headers: none
    */

@@ -30,7 +30,6 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
 
 /**
  * JellyfishJSON allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
- * TODO(fuxingloh): wait for wallet-core integration to refactor this out rename this
  */
 export const JellyfishJSON = {
   /**
@@ -49,7 +48,7 @@ export const JellyfishJSON = {
         return parse(text, reviveLosslessAs(string => Number(string)))
 
       default:
-        throw new Error(`JellyfishJson.parse ${precision as string} precision is not supported`)
+        throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
     }
   },
 
