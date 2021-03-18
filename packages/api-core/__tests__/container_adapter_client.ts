@@ -1,4 +1,4 @@
-import { JellyfishJSON, ApiClient, Precision, JellyfishRPCError } from '../src'
+import { JellyfishJSON, ApiClient, Precision, RpcApiError } from '../src'
 import { DeFiDContainer } from '@defichain/testcontainers'
 
 /**
@@ -30,7 +30,7 @@ export class ContainerAdapterClient extends ApiClient {
     const { result, error } = response
 
     if (error !== undefined && error !== null) {
-      throw new JellyfishRPCError(error)
+      throw new RpcApiError(error)
     }
 
     return result

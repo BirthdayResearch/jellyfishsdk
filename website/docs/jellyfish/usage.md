@@ -69,7 +69,7 @@ import { ApiClient } from '@defichain/api-core'
 
 class SpecClient extends ApiClient {
   async call<T> (method: string, payload: any[]): Promise<T> {
-    throw new JellyfishClientError('error from client')
+    throw new ClientApiError('error from client')
   }
 }
 
