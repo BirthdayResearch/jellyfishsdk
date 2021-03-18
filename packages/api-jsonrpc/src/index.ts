@@ -1,8 +1,8 @@
 import {
   ApiClient,
-  JellyfishClientError,
+  ClientApiError,
   JellyfishJSON,
-  JellyfishRPCError,
+  RpcApiError,
   Precision
 } from '@defichain/api-core'
 import fetch from 'cross-fetch'
@@ -69,7 +69,7 @@ export class JsonRpcClient extends ApiClient {
 
       case 401:
       case 404:
-        throw new JellyfishClientError(`${response.status} - ${response.statusText}`)
+        throw new ClientApiError(`${response.status} - ${response.statusText}`)
     }
   }
 
@@ -86,7 +86,7 @@ export class JsonRpcClient extends ApiClient {
     const { result, error } = JellyfishJSON.parse(text, precision)
 
     if (error !== undefined && error !== null) {
-      throw new JellyfishRPCError(error)
+      throw new RpcApiError(error)
     }
 
     return result
@@ -114,7 +114,7 @@ export class JsonRpcClient extends ApiClient {
       return response
     } catch (err) {
       if (err.type === 'aborted') {
-        throw new JellyfishClientError(`request aborted due to set timeout of ${timeout}ms`)
+        throw new ClientApiError(`request aborted due to set timeout of ${timeout}ms`)
       }
 
       throw err

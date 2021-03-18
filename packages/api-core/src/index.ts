@@ -28,37 +28,36 @@ export abstract class ApiClient {
    *
    * 'number' parse all numeric values as 'Number' and precision will be loss if it exceeds IEEE-754 standard.
    *
-   * @throws JellyfishError
-   * @throws JellyfishRPCError
-   * @throws JellyfishClientError
+   * @throws ApiError
+   * @throws RpcApiError
+   * @throws ClientApiError
    */
   abstract call<T> (method: string, params: any[], precision: Precision): Promise<T>
 }
 
 /**
- * JellyfishError; where jellyfish/defichain errors are encapsulated into.
- * TODO(fuxingloh): wait for wallet-core integration to refactor this out rename this
+ * ApiError; where defichain errors are encapsulated into.
  */
-export class JellyfishError extends Error {
+export class ApiError extends Error {
 }
 
 /**
- * Jellyfish client side error, from user.
+ * Api client side error, from user.
  */
-export class JellyfishClientError extends JellyfishError {
+export class ClientApiError extends ApiError {
   constructor (message: string) {
-    super(`JellyfishClientError: ${message}`)
+    super(`ClientApiError: ${message}`)
   }
 }
 
 /**
- * Jellyfish RPC error, from upstream.
+ * API RPC error, from upstream.
  */
-export class JellyfishRPCError extends JellyfishError {
+export class RpcApiError extends ApiError {
   public readonly payload: { code: number, message: string }
 
   constructor (error: { code: number, message: string }) {
-    super(`JellyfishRPCError: '${error.message}', code: ${error.code}`)
+    super(`RpcApiError: '${error.message}', code: ${error.code}`)
     this.payload = error
   }
 }

@@ -34,7 +34,7 @@ RPC categories are grouped into `api-core/src/category/*.ts` (e.g. `category/min
 agnostic implementation of the RPC. All concerns are grouped within one `ts` file for better developer experience of
 browsing and maintaining the code.
 
-`JellyfishError` encapsulate RPC errors from DeFiChain within a structure. This allows for `instanceof` or type of error
+`ApiError` encapsulate RPC errors from DeFiChain within a structure. This allows for `instanceof` or type of error
 handling with rich structure.
 
 `JellyfishJSON` allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.

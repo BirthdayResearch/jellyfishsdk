@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '../src'
 import { RegTestContainer } from '@defichain/testcontainers'
-import { JellyfishClientError, JellyfishError, JellyfishRPCError } from '@defichain/api-core'
+import { ClientApiError, ApiError, RpcApiError } from '@defichain/api-core'
 import nock from 'nock'
 
 describe('JSON-RPC 1.0 specification', () => {
@@ -60,7 +60,7 @@ describe('JSON-RPC 1.0 specification', () => {
   })
 })
 
-describe('JellyfishError', () => {
+describe('ApiError', () => {
   const container = new RegTestContainer()
 
   beforeAll(async () => {
@@ -75,37 +75,37 @@ describe('JellyfishError', () => {
     await container.stop()
   })
 
-  it('should throw JellyfishRPCError', async () => {
+  it('should throw RpcApiError', async () => {
     const url = await container.getCachedRpcUrl()
     const client = new JsonRpcClient(url)
 
     const promise = client.call('importprivkey', ['invalid-key'], 'lossless')
 
-    await expect(promise).rejects.toThrow(JellyfishError)
-    await expect(promise).rejects.toThrow(JellyfishRPCError)
-    await expect(promise).rejects.toThrow('JellyfishRPCError: \'Invalid private key encoding\', code: -5')
+    await expect(promise).rejects.toThrow(ApiError)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid private key encoding\', code: -5')
   })
 
-  it('should throw JellyfishClientError: 404 - Not Found', async () => {
+  it('should throw ClientApiError: 404 - Not Found', async () => {
     const url = await container.getCachedRpcUrl()
     const client = new JsonRpcClient(url)
 
     const promise = client.call('invalid', [], 'number')
 
-    await expect(promise).rejects.toThrow(JellyfishError)
-    await expect(promise).rejects.toThrow(JellyfishClientError)
-    await expect(promise).rejects.toThrow('JellyfishClientError: 404 - Not Found')
+    await expect(promise).rejects.toThrow(ApiError)
+    await expect(promise).rejects.toThrow(ClientApiError)
+    await expect(promise).rejects.toThrow('ClientApiError: 404 - Not Found')
   })
 
-  it('should throw JellyfishClientError: 401 - Unauthorized', async () => {
+  it('should throw ClientApiError: 401 - Unauthorized', async () => {
     const port = await container.getRpcPort()
     const client = new JsonRpcClient(`http://foo:not-bar@localhost:${port}`)
 
     const promise = client.mining.getMintingInfo()
 
-    await expect(promise).rejects.toThrow(JellyfishError)
-    await expect(promise).rejects.toThrow(JellyfishClientError)
-    await expect(promise).rejects.toThrow('JellyfishClientError: 401 - Unauthorized')
+    await expect(promise).rejects.toThrow(ApiError)
+    await expect(promise).rejects.toThrow(ClientApiError)
+    await expect(promise).rejects.toThrow('ClientApiError: 401 - Unauthorized')
   })
 })
 
@@ -142,8 +142,8 @@ describe('ClientOptions', () => {
     })
 
     const promise = client.mining.getMintingInfo()
-    await expect(promise).rejects.toThrow(JellyfishError)
-    await expect(promise).rejects.toThrow(JellyfishClientError)
-    await expect(promise).rejects.toThrow('JellyfishClientError: request aborted due to set timeout of 2000ms')
+    await expect(promise).rejects.toThrow(ApiError)
+    await expect(promise).rejects.toThrow(ClientApiError)
+    await expect(promise).rejects.toThrow('ClientApiError: request aborted due to set timeout of 2000ms')
   })
 })
