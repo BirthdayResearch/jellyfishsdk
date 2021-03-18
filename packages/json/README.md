@@ -1,0 +1,8 @@
+# @defichain/json
+
+`JellyfishJSON` allows parsing of JSON with `'lossless'`, `'bignumber'` and `'number'` numeric precision.
+
+- `'lossless'` uses LosslessJSON that parses numeric values as LosslessNumber. With LosslessNumber, one can perform
+  regular numeric operations, and it will throw an error when this would result in losing information.
+- `'bignumber'` parse all numeric values as 'BigNumber' using bignumber.js library.
+- `'number'` parse all numeric values as 'Number' and precision will be loss if it exceeds IEEE-754 standard.

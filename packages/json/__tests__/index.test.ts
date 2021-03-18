@@ -1,4 +1,4 @@
-import { BigNumber, JellyfishJSON, LosslessNumber } from '../src/json'
+import { BigNumber, JellyfishJSON, LosslessNumber } from '../src/'
 
 describe('parse', () => {
   describe('lossless', () => {
