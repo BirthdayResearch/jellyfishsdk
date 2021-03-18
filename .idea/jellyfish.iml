@@ -12,6 +12,10 @@
       <excludeFolder url="file://$MODULE_DIR$/website/build" />
       <excludeFolder url="file://$MODULE_DIR$/packages/json/dist" />
       <excludeFolder url="file://$MODULE_DIR$/packages/network/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-ledger/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-core/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-node/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-mnemonic/dist" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
