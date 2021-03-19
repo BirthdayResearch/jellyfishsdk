@@ -4,18 +4,10 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.parcel-cache" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/jellyfish/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/api-core/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/api-jsonrpc/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/testcontainers/dist" />
       <excludeFolder url="file://$MODULE_DIR$/website/.docusaurus" />
       <excludeFolder url="file://$MODULE_DIR$/website/build" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/json/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/network/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-ledger/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-core/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-node/dist" />
-      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-mnemonic/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/packages/wallet-node-ledger/dist" />
+      <excludePattern pattern="*dist*" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
