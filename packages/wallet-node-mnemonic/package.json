@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/wallet-ledger",
+  "name": "@defichain/wallet-node-mnemonic",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -25,10 +25,10 @@
       "name": "DeFiChain Jellyfish Contributors"
     }
   ],
-  "main": "dist/index.js",
+  "main": "../wallet-mnemonic/dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "../wallet-mnemonic/dist"
   ],
   "scripts": {
     "build": "tsc",
@@ -36,7 +36,9 @@
     "publish:latest": "npm publish --tag latest --access public"
   },
   "dependencies": {
-    "@defichain/wallet-core": "0.0.0"
+    "@defichain/wallet-node": "0.0.0",
+    "bip32": "^2.0.6",
+    "bip39": "^3.0.3"
   },
   "devDependencies": {
     "typescript": ">=4.2.0"

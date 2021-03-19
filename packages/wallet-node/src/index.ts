@@ -1,5 +1,11 @@
-import { Wallet } from '@defichain/wallet-core'
+import { HDNode } from '@defichain/wallet-core'
 
-export class NodeWallet extends Wallet {
+/**
+ * Stateful Wallet
+ */
+// export class NodeWallet extends HDNode {
+//
+// }
 
-}
+
+// TODO(fuxingloh): watch only

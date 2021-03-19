@@ -1,1 +1,0 @@
-# @defichain/wallet-core
