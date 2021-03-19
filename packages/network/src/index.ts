@@ -37,6 +37,19 @@ export interface Network {
   scriptHash: number
 }
 
+export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network {
+  switch (network) {
+    case 'mainnet':
+      return MainNet
+    case 'testnet':
+      return TestNet
+    case 'regtest':
+      return RegTest
+    default:
+      throw new Error(`${network as string} network not found`)
+  }
+}
+
 export const MainNet: Network = {
   messagePrefix: '\x15Defi Signed Message:\n',
   bech32: 'df',

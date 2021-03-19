@@ -1,9 +1,23 @@
-import { Network, MainNet, RegTest, TestNet } from '../src'
+import { Network, MainNet, RegTest, TestNet, getNetwork } from '../src'
 
 it('should be exported', () => {
   const network: Network = MainNet
   expect(network.bech32).toBe('df')
   expect(network.wif).toBe(0x80)
+})
+
+describe('getNetwork', () => {
+  it('should get mainnet', () => {
+    expect(getNetwork('mainnet').bech32).toBe('df')
+  })
+
+  it('should get testnet', () => {
+    expect(getNetwork('testnet').bech32).toBe('tf')
+  })
+
+  it('should get regtest', () => {
+    expect(getNetwork('regtest').bech32).toBe('bcrt')
+  })
 })
 
 it('should match MainNet network', () => {
