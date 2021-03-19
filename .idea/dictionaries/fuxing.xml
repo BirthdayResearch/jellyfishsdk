@@ -6,6 +6,7 @@
       <w>bayfrontgardensheight</w>
       <w>bayfrontheight</w>
       <w>bayfrontmarinaheight</w>
+      <w>bcrt</w>
       <w>bech</w>
       <w>clarkequayheight</w>
       <w>createmasternode</w>
@@ -59,11 +60,13 @@
       <w>rpcuser</w>
       <w>segwit</w>
       <w>sendtoaddress</w>
+      <w>signmessage</w>
       <w>testcontainers</w>
       <w>txnotokens</w>
       <w>uacomment</w>
       <w>unpkg</w>
       <w>utxostoaccount</w>
+      <w>verifymessage</w>
     </words>
   </dictionary>
 </component>
