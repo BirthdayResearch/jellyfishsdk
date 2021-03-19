@@ -1,23 +1,29 @@
-import { Main, RegTest, Test } from "../src";
+import { Network, MainNet, RegTest, TestNet } from '../src'
 
-it('should match Main network', () => {
-  expect(Main.messagePrefix).toBe('\x15Defi Signed Message:\n')
-  expect(Main.bech32).toBe('df')
-  expect(Main.bip32.public).toBe(0x0488b21e)
-  expect(Main.bip32.private).toBe(0x0488ade4)
-  expect(Main.pubKeyHash).toBe(0x12)
-  expect(Main.scriptHash).toBe(0x5a)
-  expect(Main.wif).toBe(0x80)
+it('should be exported', () => {
+  const network: Network = MainNet
+  expect(network.bech32).toBe('df')
+  expect(network.wif).toBe(0x80)
 })
 
-it('should match Test network', () => {
-  expect(Test.messagePrefix).toBe('\x15Defi Signed Message:\n')
-  expect(Test.bech32).toBe('tf')
-  expect(Test.bip32.public).toBe(0x043587cf)
-  expect(Test.bip32.private).toBe(0x04358394)
-  expect(Test.pubKeyHash).toBe(0xf)
-  expect(Test.scriptHash).toBe(0x80)
-  expect(Test.wif).toBe(0xef)
+it('should match MainNet network', () => {
+  expect(MainNet.messagePrefix).toBe('\x15Defi Signed Message:\n')
+  expect(MainNet.bech32).toBe('df')
+  expect(MainNet.bip32.public).toBe(0x0488b21e)
+  expect(MainNet.bip32.private).toBe(0x0488ade4)
+  expect(MainNet.pubKeyHash).toBe(0x12)
+  expect(MainNet.scriptHash).toBe(0x5a)
+  expect(MainNet.wif).toBe(0x80)
+})
+
+it('should match TestNet network', () => {
+  expect(TestNet.messagePrefix).toBe('\x15Defi Signed Message:\n')
+  expect(TestNet.bech32).toBe('tf')
+  expect(TestNet.bip32.public).toBe(0x043587cf)
+  expect(TestNet.bip32.private).toBe(0x04358394)
+  expect(TestNet.pubKeyHash).toBe(0xf)
+  expect(TestNet.scriptHash).toBe(0x80)
+  expect(TestNet.wif).toBe(0xef)
 })
 
 it('should match RegTest network', () => {
