@@ -1,11 +1,3 @@
-import { HDNode } from "./hd_node";
-import { HDWalletNode } from "./hd_wallet";
-
-export {
-  HDNode,
-  HDWalletNode,
-}
-
-// TODO(fuxingloh): create customTx?
-// TODO(fuxingloh): send?
-// TODO(fuxingloh): list transaction?
+export * from './hd_node'
+export * from './hd_wallet'
+export * from './dfi_hd_node'

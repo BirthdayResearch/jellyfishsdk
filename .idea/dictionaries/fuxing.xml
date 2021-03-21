@@ -1,6 +1,8 @@
 <component name="ProjectDictionaryState">
   <dictionary name="fuxing">
     <words>
+      <w>accounthistorycount</w>
+      <w>accounttoaccount</w>
       <w>accounttoutxos</w>
       <w>amkheight</w>
       <w>bayfrontgardensheight</w>
@@ -10,6 +12,8 @@
       <w>bech</w>
       <w>clarkequayheight</w>
       <w>createmasternode</w>
+      <w>cryptocoin</w>
+      <w>cryptocoins</w>
       <w>currentblocktx</w>
       <w>currentblockweight</w>
       <w>dakotaheight</w>
@@ -22,6 +26,7 @@
       <w>dummypos</w>
       <w>fuxingloh</w>
       <w>generatetoaddress</w>
+      <w>getaccount</w>
       <w>getaddressinfo</w>
       <w>getbalance</w>
       <w>getblockcount</w>
@@ -30,6 +35,7 @@
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
       <w>getreceivedbyaddress</w>
+      <w>gettokenbalances</w>
       <w>gettransaction</w>
       <w>getunconfirmedbalance</w>
       <w>importprivkey</w>
@@ -37,7 +43,9 @@
       <w>isoperator</w>
       <w>jsonrpc</w>
       <w>libevent</w>
+      <w>listaccounthistory</w>
       <w>listaccounts</w>
+      <w>listunspent</w>
       <w>logtimemicros</w>
       <w>mainnet</w>
       <w>masternode</w>
@@ -60,6 +68,7 @@
       <w>rpcuser</w>
       <w>segwit</w>
       <w>sendtoaddress</w>
+      <w>sendtokenstoaddress</w>
       <w>signmessage</w>
       <w>testcontainers</w>
       <w>txnotokens</w>

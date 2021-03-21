@@ -1,30 +1,66 @@
-export interface HDNode {
-  publicKey: Buffer
-  privateKey?: Buffer
-  address: string
+/**
+ * Stateless BIP32 Hierarchical Deterministic Node
+ * https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki
+ */
+export interface HdNode<T extends HdNode<any>> {
 
-  // TODO(fuxingloh): convert to all Promise based actions
+  /**
+   * Get the public key Buffer of HdNode
+   */
+  publicKey (): Promise<Buffer>
 
-  neuter (): HDNode
+  /**
+   * Get the private key Buffer of HdNode
+   * Allowed to fail when it is neutered or if it is hardware key.
+   */
+  privateKey (): Promise<Buffer>
 
-  isNeuter (): boolean
+  /**
+   * Derive a node in this hierarchical key tree.
+   * @param index of the node to derive
+   */
+  derive (index: number): Promise<T>
 
-  derive (index: number): HDNode
+  /**
+   * Derive a hardened node in this hierarchical key tree.
+   * @param index of the hardened node to derive
+   */
+  deriveHardened (index: number): Promise<T>
 
-  deriveHardened (index: number): HDNode
+  /**
+   * @param path to derive
+   * @example
+   * m/0'
+   * m/0'/100
+   * m/44'/0'/0'/0/0
+   */
+  derivePath (path: string): Promise<T>
 
-  derivePath (path: string): HDNode
+  /**
+   * Sign the hash
+   *
+   * @param hash to sign
+   * @param lowR whether to create signature with Low R values,
+   * should be defaulted to true
+   * can be ignored if implementation class is unable to specific this option.
+   */
+  sign (hash: Buffer, lowR?: boolean): Promise<Buffer>;
 
-  toWIF (): string
+  /**
+   * Verify the signature of a hash with this node/address
+   *
+   * @param hash to verify
+   * @param signature to verify
+   */
+  verify (hash: Buffer, signature: Buffer): Promise<boolean>;
 
-  // TODO(fuxingloh): chainCode
-  // TODO(fuxingloh): depth
-  // TODO(fuxingloh): index
-
-  // TODO(fuxingloh): sign
-  // TODO(fuxingloh): verify
-
-  // TODO(fuxingloh): fingerprint
-  // TODO(fuxingloh): parentFingerprint
-  // TODO(fuxingloh): toBase58
+  // TODO(fuxingloh): Additional interface that can be implemented, ignored for now
+  //  - neuter
+  //  - isNeutered
+  //  - toWIF
+  //  - chainCode
+  //  - depth/index
+  //  - fingerprint
+  //  - toBase58
+  //  - parentFingerprint
 }
