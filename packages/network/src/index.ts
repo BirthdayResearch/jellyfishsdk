@@ -1,3 +1,6 @@
+/**
+ * DeFi network configuration
+ */
 export interface Network {
   /**
    * For signing message with RPC
@@ -37,6 +40,10 @@ export interface Network {
   scriptHash: number
 }
 
+/**
+ * @param network name
+ * @return DeFi network configuration with name network of the network
+ */
 export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network {
   switch (network) {
     case 'mainnet':
