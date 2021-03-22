@@ -37,8 +37,8 @@
   },
   "dependencies": {
     "@defichain/api-core": "0.0.0",
-    "cross-fetch": "^3.0.6",
-    "abort-controller": "^3.0.0"
+    "cross-fetch": "3.1.2",
+    "abort-controller": "3.0.0"
   },
   "devDependencies": {
     "@defichain/testcontainers": "0.0.0",

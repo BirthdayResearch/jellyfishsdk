@@ -39,6 +39,7 @@
       <w>gettokenbalances</w>
       <w>gettransaction</w>
       <w>getunconfirmedbalance</w>
+      <w>getwalletinfo</w>
       <w>importprivkey</w>
       <w>importpubkey</w>
       <w>infima</w>
