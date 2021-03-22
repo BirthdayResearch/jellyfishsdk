@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/wallet-core",
+  "name": "@defichain/wallet-coin",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [

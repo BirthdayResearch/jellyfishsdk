@@ -313,7 +313,7 @@ export abstract class HdWallet<T extends HdNode<T>> {
   /**
    * Discover all addresses within account, respecting the gap limit
    *
-   * @param account level splits the key space into independent user identities.
+   * @param account to discover as it splits the key space into independent user identities.
    *
    * @param gapLimit address gap limit should be defaulted to 20.
    * If the software hits 20 unused addresses in a row,
@@ -337,11 +337,11 @@ export abstract class HdWallet<T extends HdNode<T>> {
       }
       addresses[i] = await this.getAddress(account, 0, i)
       if (progress) {
-        progress(DiscoverActivity.address_discovering, account)
+        progress(DiscoverActivity.address_discovering, account, 0, i)
       }
       if (addresses[i].active || await this.isNodeActive(addresses[i].node)) {
         if (progress) {
-          progress(DiscoverActivity.address_discovered_active, account)
+          progress(DiscoverActivity.address_active, account, 0, i)
         }
         // 3.2 reset gap to 0
         gap = 0
@@ -371,7 +371,8 @@ interface HdWalletAddress<T> {
 export enum DiscoverActivity {
   account_discovering = 'account_discovering',
   address_discovering = 'address_discovering',
-  address_discovered_active = 'address_discovered_active',
+  address_active = 'address_active',
+  blockchain_scanning = 'blockchain_scanning',
 }
 
 /**

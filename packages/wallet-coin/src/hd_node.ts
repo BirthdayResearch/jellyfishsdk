@@ -54,7 +54,7 @@ export interface HdNode<T extends HdNode<any>> {
    */
   verify (hash: Buffer, signature: Buffer): Promise<boolean>;
 
-  // TODO(fuxingloh): Additional interface that can be implemented, ignored for now
+  // TODO(fuxingloh): Additional interface that can be implemented, ignored for now to keep it lite
   //  - neuter
   //  - isNeutered
   //  - toWIF
