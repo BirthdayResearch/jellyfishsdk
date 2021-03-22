@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { HdNode } from "./hd_node";
+import { HdNode } from "@defichain/wallet-coin";
 
 /**
  * Based on BIP32, DeFi implementation of Hierarchical Deterministic Node
@@ -14,10 +14,10 @@ export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
   getUnspent (): Promise<BigNumber>
 
   /**
-   * @param format address format
+   * @param format of the address
    * @return address formatted with as specified
    */
-  getAddress (format: 'legacy' | 'p2sh' | 'bech32'): Promise<string>
+  getAddress (format: 'bech32' | 'p2sh' | 'legacy'): Promise<string>
 
   // TODO(fuxingloh): implementations of defi accounts feature
   // listaccounts
@@ -32,5 +32,5 @@ export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
   // accounthistorycount
   // sendtokenstoaddress
 
-  // TODO(fuxingloh): ability create/send customTx? or separate this ability
+  // TODO(fuxingloh): ability create/send customTx? or separate this ability into another module
 }

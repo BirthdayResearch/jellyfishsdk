@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/wallet-defid",
+  "name": "@defichain/wallet-coin-dfi",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -34,8 +34,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@defichain/wallet-core": "0.0.0",
-    "@defichain/api-core": "0.0.0"
+    "@defichain/wallet-coin": "0.0.0"
   },
   "devDependencies": {
     "typescript": ">=4.2.0"
