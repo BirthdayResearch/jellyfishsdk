@@ -25,10 +25,10 @@
       "name": "DeFiChain Jellyfish Contributors"
     }
   ],
-  "main": "../wallet-mnemonic/dist/index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "../wallet-mnemonic/dist"
+    "dist"
   ],
   "scripts": {
     "build": "tsc",
@@ -38,7 +38,6 @@
   "dependencies": {
     "@defichain/network": "0.0.0",
     "@defichain/wallet-coin": "0.0.0",
-    "@defichain/wallet-coin-dfi-fullnode": "0.0.0",
     "bip32": "^2.0.6",
     "bip39": "^3.0.3",
     "bs58check": "^2.1.2",

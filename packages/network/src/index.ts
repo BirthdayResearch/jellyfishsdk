@@ -1,3 +1,4 @@
+// TODO(fuxingloh): i feel like this should be together with 'wallet-coin-dfi' for packages brevity
 /**
  * DeFi network configuration
  */
