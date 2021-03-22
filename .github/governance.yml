@@ -26,7 +26,7 @@ issue:
         owner: true
 
     - prefix: area
-      list: [ "jellyfish", "testcontainers", "api-core", "api-jsonrpc", "wallet-core", "wallet-node", "wallet-mnemonic", "website" ]
+      list: [ "jellyfish", "testcontainers", "api-core", "api-jsonrpc", "wallet-core", "wallet-defid", "wallet-defid-ledger", "wallet-node-mnemonic", "website" ]
       multiple: true
       needs:
         comment: |

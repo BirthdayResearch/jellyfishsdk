@@ -8,6 +8,7 @@ import { HdNode } from "./hd_node";
 export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
 
   /**
+   * TODO(fuxingloh): rename this to getBalance?
    * @return unspent transaction outputs balance
    */
   getUnspent (): Promise<BigNumber>
