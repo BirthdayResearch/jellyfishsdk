@@ -34,3 +34,5 @@ export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
 
   // TODO(fuxingloh): ability create/send customTx? or separate this ability into another module
 }
+
+// TODO(fuxingloh): address generation?

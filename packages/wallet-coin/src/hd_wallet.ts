@@ -372,7 +372,6 @@ export enum DiscoverActivity {
   account_discovering = 'account_discovering',
   address_discovering = 'address_discovering',
   address_active = 'address_active',
-  blockchain_scanning = 'blockchain_scanning',
 }
 
 /**

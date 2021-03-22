@@ -24,6 +24,7 @@
       <w>devnet</w>
       <w>dockerode</w>
       <w>dummypos</w>
+      <w>fullnode</w>
       <w>fuxingloh</w>
       <w>generatetoaddress</w>
       <w>getaccount</w>
@@ -39,6 +40,7 @@
       <w>gettransaction</w>
       <w>getunconfirmedbalance</w>
       <w>importprivkey</w>
+      <w>importpubkey</w>
       <w>infima</w>
       <w>isoperator</w>
       <w>jsonrpc</w>
@@ -61,6 +63,7 @@
       <w>printtoconsole</w>
       <w>priv</w>
       <w>regtest</w>
+      <w>rescanblockchain</w>
       <w>rewardaddress</w>
       <w>rpcallowip</w>
       <w>rpcbind</w>
