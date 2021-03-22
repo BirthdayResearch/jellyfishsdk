@@ -1,0 +1,52 @@
+{
+  "private": false,
+  "name": "@defichain/wallet-mnemonic",
+  "version": "0.0.0",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
+  "keywords": [
+    "DeFiChain",
+    "JavaScript",
+    "API",
+    "Bitcoin"
+  ],
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "contributors": [
+    {
+      "name": "DeFiChain Foundation",
+      "email": "engineering@defichain.com",
+      "url": "https://defichain.com/"
+    },
+    {
+      "name": "DeFiChain Jellyfish Contributors"
+    }
+  ],
+  "main": "../wallet-mnemonic/dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "../wallet-mnemonic/dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "publish:next": "npm publish --tag next --access public",
+    "publish:latest": "npm publish --tag latest --access public"
+  },
+  "dependencies": {
+    "@defichain/network": "0.0.0",
+    "@defichain/wallet-coin": "0.0.0",
+    "@defichain/wallet-coin-dfi-fullnode": "0.0.0",
+    "bip32": "^2.0.6",
+    "bip39": "^3.0.3",
+    "bs58check": "^2.1.2",
+    "create-hash": "^1.2.0"
+  },
+  "devDependencies": {
+    "typescript": ">=4.2.0",
+    "@types/create-hash": "^1.2.2",
+    "@types/bs58check": "^2.1.0"
+  }
+}

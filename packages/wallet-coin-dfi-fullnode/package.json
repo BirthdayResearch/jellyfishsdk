@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/wallet-node-mnemonic",
+  "name": "@defichain/wallet-coin-dfi-fullnode",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -25,20 +25,17 @@
       "name": "DeFiChain Jellyfish Contributors"
     }
   ],
-  "main": "../wallet-mnemonic/dist/index.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "../wallet-mnemonic/dist"
+    "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish:next": "npm publish --tag next --access public",
-    "publish:latest": "npm publish --tag latest --access public"
+    "build": "tsc"
   },
   "dependencies": {
-    "@defichain/wallet-node": "0.0.0",
-    "bip32": "^2.0.6",
-    "bip39": "^3.0.3"
+    "@defichain/wallet-coin-dfi": "0.0.0",
+    "@defichain/api-core": "0.0.0"
   },
   "devDependencies": {
     "typescript": ">=4.2.0"
