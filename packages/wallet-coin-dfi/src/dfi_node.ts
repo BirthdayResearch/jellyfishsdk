@@ -14,10 +14,10 @@ export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
   getUnspent (): Promise<BigNumber>
 
   /**
-   * @param format of the address
+   * @param format of the address, // TODO(fuxingloh): restricted to only 'bech32' as a default for now
    * @return address formatted with as specified
    */
-  getAddress (format: 'bech32' | 'p2sh' | 'legacy'): Promise<string>
+  getAddress (format: 'bech32'): Promise<string>
 
   // TODO(fuxingloh): implementations of defi accounts feature
   // listaccounts
