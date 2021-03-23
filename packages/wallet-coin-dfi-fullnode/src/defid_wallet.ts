@@ -18,6 +18,10 @@ export class FullNodeDfiHdWallet<T extends FullNodeDfiHdNode> extends DfiHdWalle
     this.apiClient = apiClient;
   }
 
+  getBalance (): Promise<BigNumber> {
+    return this.apiClient.wallet.getBalance()
+  }
+
   async isNodeActive (node: FullNodeDfiHdNode): Promise<boolean> {
     const address = await node.getAddress('bech32')
 

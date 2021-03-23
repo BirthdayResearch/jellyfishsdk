@@ -10,7 +10,11 @@ import { DfiWalletOptions } from "./dfi_config";
  */
 export abstract class DfiHdNode<T extends DfiHdNode<any>> implements HdNode<T> {
 
-  abstract options: DfiWalletOptions
+  protected readonly options: DfiWalletOptions
+
+  protected constructor (options: DfiWalletOptions) {
+    this.options = options
+  }
 
   /**
    * // TODO(fuxingloh): restricted to only 'bech32' as a default for now
@@ -18,8 +22,12 @@ export abstract class DfiHdNode<T extends DfiHdNode<any>> implements HdNode<T> {
    * @return address formatted with as specified
    */
   async getAddress (format: 'bech32' = 'bech32'): Promise<string> {
-    const pubKey = await this.publicKey()
-    return toBech32(pubKey, this.options.bech32.hrp)
+    if (format === 'bech32') {
+      const pubKey = await this.publicKey()
+      return toBech32(pubKey, this.options.bech32.hrp)
+    }
+
+    throw new Error(`${format} not supported`);
   }
 
   abstract getBalance (): Promise<BigNumber>

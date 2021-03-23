@@ -18,6 +18,8 @@ function sha256 (buffer: Buffer): Buffer {
 //   return bs58check.encode(payload)
 // }
 
+// TODO(fuxingloh): implement type check to improve reliability
+
 /**
  * @param pubKey to format into bech32
  * @param hrp human readable part
