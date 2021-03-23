@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { HdWallet } from "@defichain/wallet-coin";
 import { DfiHdNode } from "./dfi_node";
 
@@ -15,4 +16,6 @@ export abstract class DfiHdWallet<T extends DfiHdNode<T>> extends HdWallet<T> {
   protected constructor (master: T) {
     super(master, COIN_TYPE_DFI)
   }
+
+  abstract getBalance (): Promise<BigNumber>
 }

@@ -1,23 +1,28 @@
 import BigNumber from 'bignumber.js'
 import { HdNode } from "@defichain/wallet-coin";
+import { toBech32 } from "./dfi_address";
+import { DfiWalletOptions } from "./dfi_config";
+
 
 /**
  * Based on BIP32, DeFi implementation of Hierarchical Deterministic Node
  * Containing DeFi Blockchain specific features
  */
-export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
+export abstract class DfiHdNode<T extends DfiHdNode<any>> implements HdNode<T> {
+
+  abstract options: DfiWalletOptions
 
   /**
-   * TODO(fuxingloh): rename this to getBalance?
-   * @return unspent transaction outputs balance
-   */
-  getUnspent (): Promise<BigNumber>
-
-  /**
-   * @param format of the address, // TODO(fuxingloh): restricted to only 'bech32' as a default for now
+   * // TODO(fuxingloh): restricted to only 'bech32' as a default for now
+   * @param format of the address
    * @return address formatted with as specified
    */
-  getAddress (format: 'bech32'): Promise<string>
+  async getAddress (format: 'bech32' = 'bech32'): Promise<string> {
+    const pubKey = await this.publicKey()
+    return toBech32(pubKey, this.options.bech32.hrp)
+  }
+
+  abstract getBalance (): Promise<BigNumber>
 
   // TODO(fuxingloh): implementations of defi accounts feature
   // listaccounts
@@ -33,6 +38,18 @@ export interface DfiHdNode<T extends DfiHdNode<any>> extends HdNode<T> {
   // sendtokenstoaddress
 
   // TODO(fuxingloh): ability create/send customTx? or separate this ability into another module
-}
 
-// TODO(fuxingloh): address generation?
+  abstract publicKey (): Promise<Buffer>
+
+  abstract privateKey (): Promise<Buffer>
+
+  abstract derive (index: number): Promise<T>
+
+  abstract deriveHardened (index: number): Promise<T>
+
+  abstract derivePath (path: string): Promise<T>
+
+  abstract sign (hash: Buffer, lowR?: boolean): Promise<Buffer>
+
+  abstract verify (hash: Buffer, signature: Buffer): Promise<boolean>
+}
