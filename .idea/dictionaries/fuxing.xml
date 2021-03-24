@@ -10,6 +10,8 @@
       <w>bayfrontmarinaheight</w>
       <w>bcrt</w>
       <w>bech</w>
+      <w>beregszaszi</w>
+      <w>btchip</w>
       <w>chainparams</w>
       <w>clarkequayheight</w>
       <w>createmasternode</w>
@@ -46,6 +48,7 @@
       <w>infima</w>
       <w>isoperator</w>
       <w>jsonrpc</w>
+      <w>ledgerhq</w>
       <w>libevent</w>
       <w>listaccounthistory</w>
       <w>listaccounts</w>
@@ -75,12 +78,14 @@
       <w>sendtoaddress</w>
       <w>sendtokenstoaddress</w>
       <w>signmessage</w>
+      <w>speculos</w>
       <w>testcontainers</w>
       <w>txnotokens</w>
       <w>uacomment</w>
       <w>unpkg</w>
       <w>utxostoaccount</w>
       <w>verifymessage</w>
+      <w>wpkh</w>
     </words>
   </dictionary>
 </component>

@@ -59,7 +59,7 @@ export class MnemonicHdNode implements HdNode<MnemonicHdNode> {
    * @param mnemonic code of the hd node
    * @param options for chain agnostic generation of public/private keys
    */
-  public static fromMnemonic (mnemonic: string, options: Bip32Options): MnemonicHdNode {
+  static fromMnemonic (mnemonic: string, options: Bip32Options): MnemonicHdNode {
     const seed = bip39.mnemonicToSeedSync(mnemonic)
     return this.fromSeed(seed, options)
   }
@@ -68,7 +68,7 @@ export class MnemonicHdNode implements HdNode<MnemonicHdNode> {
    * @param seed of the hd node
    * @param options for chain agnostic generation of public/private keys
    */
-  public static fromSeed (seed: Buffer, options: Bip32Options): MnemonicHdNode {
+  static fromSeed (seed: Buffer, options: Bip32Options): MnemonicHdNode {
     const node = bip32.fromSeed(seed, options)
     return new MnemonicHdNode(node)
   }
