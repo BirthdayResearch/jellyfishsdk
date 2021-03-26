@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/json",
+  "name": "@defichain/jellyfish-json",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -22,7 +22,10 @@
       "url": "https://defichain.com/"
     },
     {
-      "name": "DeFiChain Jellyfish Contributors"
+      "name": "DeFi Blockchain Contributors"
+    },
+    {
+      "name": "DeFi Jellyfish Contributors"
     }
   ],
   "main": "dist/index.js",
