@@ -39,7 +39,7 @@
     "publish:latest": "npm publish --tag latest --access public"
   },
   "dependencies": {
-    "@defichain/api-core": "0.0.0",
+    "@defichain/jellyfish-api-core": "0.0.0",
     "cross-fetch": "^3.0.6",
     "abort-controller": "^3.0.0"
   },

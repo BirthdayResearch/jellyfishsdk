@@ -38,7 +38,7 @@
   "targets": {
     "browser": {
       "includeNodeModules": {
-        "@defichain/api-core": true,
+        "@defichain/jellyfish-api-core": true,
         "@defichain/api-jsonrpc": true
       },
       "engines": {
@@ -56,7 +56,7 @@
     "publish:latest": "npm publish --tag latest --access public"
   },
   "dependencies": {
-    "@defichain/api-core": "0.0.0",
+    "@defichain/jellyfish-api-core": "0.0.0",
     "@defichain/api-jsonrpc": "0.0.0",
     "bignumber.js": "^9.0.1"
   },
