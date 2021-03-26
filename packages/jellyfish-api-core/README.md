@@ -1,3 +1,6 @@
+[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)
+[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/next)
+
 # @defichain/jellyfish-api-core
 
 `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client implementation with APIs separated into their
@@ -28,11 +31,11 @@ client.mining.getMintingInfo().then((result) => {
 
 `ApiClient` being an abstract class allows the ability to adapt to any protocol when introduced (e.g. ws, https)
 while being simple to use. This implementation structure can be observed in ContainerAdapterClient where it is used to
-test api-core implementations.
+test jellyfish-api-core implementations.
 
-RPC categories are grouped into `api-core/src/category/*.ts` (e.g. `category/mining.ts`) this allows a protocol agnostic
-implementation of the RPC. All concerns are grouped within one `ts` file for better developer experience of browsing and
-maintaining the code.
+RPC categories are grouped into `jellyfish-api-core/src/category/*.ts` (e.g. `category/mining.ts`) this allows a
+protocol agnostic implementation of the RPC. All concerns are grouped within one `ts` file for better developer
+experience of browsing and maintaining the code.
 
 `ApiError` encapsulate RPC errors from DeFiChain within a structure. This allows for `instanceof` or type of error
 handling with rich structure.

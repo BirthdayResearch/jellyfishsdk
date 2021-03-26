@@ -1,3 +1,6 @@
+[![npm](https://img.shields.io/npm/v/@defichain/testcontainer)](https://www.npmjs.com/package/@defichain/testcontainer/v/latest)
+[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainer/next)](https://www.npmjs.com/package/@defichain/testcontainer/v/next)
+
 # @defichain/testcontainers
 
 Similar to [testcontainers](https://www.testcontainers.org/) in the Java ecosystem, this package provides a lightweight,

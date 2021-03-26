@@ -78,6 +78,8 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 * `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
   design.
 * `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+* `@defichain/jellyfish-json` allows parsing of JSON with `'lossless'`, `'bignumber'` and `'number'` numeric precision.
+* `@defichain/jellyfish-network` contains DeFi blockchain various network configuration for main, net and regtest.
 * `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
   Docker container.
 
@@ -88,6 +90,8 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 |`@defichain/jellyfish`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)|
 |`@defichain/jellyfish-api-core`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/next)|
 |`@defichain/jellyfish-api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/next)|
+|`@defichain/jellyfish-json`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-json)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-json/next)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/next)|
+|`@defichain/jellyfish-network`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-network)](https://www.npmjs.com/package/@defichain/jellyfish-network/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-network/next)](https://www.npmjs.com/package/@defichain/jellyfish-network/v/next)|
 |`@defichain/testcontainers`|[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)|
 
 ## Developing & Contributing
