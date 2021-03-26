@@ -1,6 +1,6 @@
-# @defichain/api-jsonrpc
+# @defichain/jellyfish-api-jsonrpc
 
-`@defichain/api-jsonrpc` implements `@defichain/jellyfish-api-core`
+`@defichain/jellyfish-api-jsonrpc` implements `@defichain/jellyfish-api-core`
 with [`JSON-RPC 1.0`](https://www.jsonrpc.org/specification_v1) specification.
 
 Other than `jellyfish-api-core`, 2 other external dependencies are used with 4 deeply.
