@@ -12,5 +12,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: micnncim/action-label-syncer@0e9c5104859d0e78219af63791636eba42382b5d
+        with:
+          prune: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
