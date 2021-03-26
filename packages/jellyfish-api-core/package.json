@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/json",
+  "name": "@defichain/jellyfish-api-core",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -22,7 +22,10 @@
       "url": "https://defichain.com/"
     },
     {
-      "name": "DeFiChain Jellyfish Contributors"
+      "name": "DeFi Blockchain Contributors"
+    },
+    {
+      "name": "DeFi Jellyfish Contributors"
     }
   ],
   "main": "dist/index.js",
@@ -35,14 +38,11 @@
     "publish:next": "npm publish --tag next --access public",
     "publish:latest": "npm publish --tag latest --access public"
   },
-  "peerDependencies": {
-    "bignumber.js": "^9.0.1"
-  },
   "dependencies": {
-    "lossless-json": "^1.0.4"
+    "@defichain/jellyfish-json": "0.0.0"
   },
   "devDependencies": {
-    "@types/lossless-json": "^1.0.0",
+    "@defichain/testcontainers": "0.0.0",
     "typescript": ">=4.2.0"
   }
 }

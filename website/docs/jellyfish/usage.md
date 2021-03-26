@@ -51,20 +51,20 @@ const oceanClient = new Client(new OceanProvider(), options)
 
 ### JsonRpcClient
 
-You can use `@defichain/api-jsonrpc` directly without using `@defichain/jellyfish`.
+You can use `@defichain/jellyfish-api-jsonrpc` directly without using `@defichain/jellyfish`.
 
 ```ts
-import { JsonRpcClient } from '@defichain/api-jsonrpc'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 ```
 
 ### ApiClient
 
-You can extend `ApiClient` with the `@defichain/api-core` package to create your own transport exchange specification.
+You can extend `ApiClient` with the `@defichain/jellyfish-api-core` package to create your own transport exchange specification.
 
 ```ts
-import { ApiClient } from '@defichain/api-core'
+import { ApiClient } from '@defichain/jellyfish-api-core'
 
 
 class SpecClient extends ApiClient {

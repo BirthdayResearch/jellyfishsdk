@@ -1,4 +1,4 @@
-# DeFiChain Jellyfish Contributing Guide
+# DeFi Jellyfish Contributing Guide
 
 ## All features must be unit tested with accepted coverage. (Target 100%)
 

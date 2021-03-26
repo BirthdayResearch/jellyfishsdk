@@ -1,4 +1,3 @@
-[![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 [![CI](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml/badge.svg)](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7019f1d74a0500951b2a/maintainability)](https://codeclimate.com/github/DeFiCh/jellyfish/maintainability)
@@ -64,6 +63,8 @@ const oceanClient = new Client(new OceanProvider(), options)
 
 ## Documentation & Community
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
+
 ```
 // TODO(fuxingloh): 
 Documentation can be found at `https://jellyfish.defichain.com`?
@@ -74,9 +75,11 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 
 * `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: `umd`, `esm`, `cjs`
   and `d.ts`
-* `@defichain/api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
+* `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
   design.
-* `@defichain/api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+* `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+* `@defichain/jellyfish-json` allows parsing of JSON with `'lossless'`, `'bignumber'` and `'number'` numeric precision.
+* `@defichain/jellyfish-network` contains DeFi blockchain various network configuration for main, net and regtest.
 * `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
   Docker container.
 
@@ -85,8 +88,10 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 |package|@latest|@next|
 |---|---|---|
 |`@defichain/jellyfish`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)|
-|`@defichain/api-core`|[![npm](https://img.shields.io/npm/v/@defichain/api-core)](https://www.npmjs.com/package/@defichain/api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/api-core/next)](https://www.npmjs.com/package/@defichain/api-core/v/next)|
-|`@defichain/api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/api-jsonrpc)](https://www.npmjs.com/package/@defichain/api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/api-jsonrpc/v/next)|
+|`@defichain/jellyfish-api-core`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/next)|
+|`@defichain/jellyfish-api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/next)|
+|`@defichain/jellyfish-json`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-json)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-json/next)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/next)|
+|`@defichain/jellyfish-network`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-network)](https://www.npmjs.com/package/@defichain/jellyfish-network/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-network/next)](https://www.npmjs.com/package/@defichain/jellyfish-network/v/next)|
 |`@defichain/testcontainers`|[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)|
 
 ## Developing & Contributing

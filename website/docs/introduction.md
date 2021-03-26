@@ -14,9 +14,9 @@ Jellyfish follows a monorepo methodology, all maintained packages are in the sam
 
 * `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs
   and d.ts
-* `@defichain/api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
+* `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
   design.
-* `@defichain/api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+* `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
 * `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
   Docker container.
 
@@ -25,6 +25,6 @@ Jellyfish follows a monorepo methodology, all maintained packages are in the sam
 |package|@latest|@next|
 |---|---|---|
 |`@defichain/jellyfish`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)|
-|`@defichain/api-core`|[![npm](https://img.shields.io/npm/v/@defichain/api-core)](https://www.npmjs.com/package/@defichain/api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/api-core/next)](https://www.npmjs.com/package/@defichain/api-core/v/next)|
-|`@defichain/api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/api-jsonrpc)](https://www.npmjs.com/package/@defichain/api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/api-jsonrpc/v/next)|
+|`@defichain/jellyfish-api-core`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/next)|
+|`@defichain/jellyfish-api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/next)|
 |`@defichain/testcontainers`|[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)|

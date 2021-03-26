@@ -1,8 +1,8 @@
-import { Precision } from '@defichain/json'
+import { Precision } from '@defichain/jellyfish-json'
 import { Mining } from './category/mining'
 import { Wallet } from './category/wallet'
 
-export * from '@defichain/json'
+export * from '@defichain/jellyfish-json'
 export * from './category/mining'
 export * from './category/wallet'
 

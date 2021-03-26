@@ -22,7 +22,10 @@
       "url": "https://defichain.com/"
     },
     {
-      "name": "DeFiChain Jellyfish Contributors"
+      "name": "DeFi Blockchain Contributors"
+    },
+    {
+      "name": "DeFi Jellyfish Contributors"
     }
   ],
   "main": "dist/jellyfish.cjs.js",
@@ -35,8 +38,8 @@
   "targets": {
     "browser": {
       "includeNodeModules": {
-        "@defichain/api-core": true,
-        "@defichain/api-jsonrpc": true
+        "@defichain/jellyfish-api-core": true,
+        "@defichain/jellyfish-api-jsonrpc": true
       },
       "engines": {
         "browsers": "> 0.25%"
@@ -53,8 +56,8 @@
     "publish:latest": "npm publish --tag latest --access public"
   },
   "dependencies": {
-    "@defichain/api-core": "0.0.0",
-    "@defichain/api-jsonrpc": "0.0.0",
+    "@defichain/jellyfish-api-core": "0.0.0",
+    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
     "bignumber.js": "^9.0.1"
   },
   "devDependencies": {
