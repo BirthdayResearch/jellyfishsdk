@@ -66,8 +66,9 @@ export {
 /**
  * MIT License
  *
- * Copyright (c) DeFiChain Foundation
- * Copyright (c) DeFiChain Jellyfish Contributors
+ * Copyright (c) 2021 DeFiChain Foundation
+ * Copyright (c) 2021 DeFi Blockchain Contributors
+ * Copyright (c) 2021 DeFi Jellyfish Contributors
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

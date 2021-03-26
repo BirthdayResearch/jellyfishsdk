@@ -19,7 +19,10 @@
       "url": "https://defichain.com/"
     },
     {
-      "name": "DeFiChain Jellyfish Contributors"
+      "name": "DeFi Blockchain Contributors"
+    },
+    {
+      "name": "DeFi Jellyfish Contributors"
     }
   ],
   "main": "dist/index.js",
