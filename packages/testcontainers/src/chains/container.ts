@@ -92,7 +92,7 @@ async function pullImage (docker: Dockerode): Promise<void> {
 export abstract class DeFiDContainer {
   /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
   public static readonly PREFIX = 'defichain-testcontainers-'
-  public static readonly image = 'defi/defichain:1.5.0'
+  public static readonly image = 'defi/defichain:1.6.0'
 
   protected readonly docker: Dockerode
   protected readonly network: Network
