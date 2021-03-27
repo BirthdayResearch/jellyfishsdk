@@ -65,7 +65,7 @@ export default function Home () {
   const { siteConfig = {} } = context
   return (
     <Layout
-      title='Build dApps on DeFiChain'
+      title='Build dApps on DeFi Blockchain'
       description={siteConfig.tagline}
     >
 

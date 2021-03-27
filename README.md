@@ -6,8 +6,8 @@
 
 # @defichain/jellyfish
 
-A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on
-Bitcoin.
+A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized
+finance on Bitcoin.
 
 > 🚧 Work in progress, `3/193` rpc completed.
 
@@ -101,9 +101,8 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 
 ## Developing & Contributing
 
-Thanks for contributing, appreciate all the help we can get. 
-Feel free to make a pull-request, we will guide you along the way to make it mergeable.
-Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
+Thanks for contributing, appreciate all the help we can get. Feel free to make a pull-request, we will guide you along
+the way to make it mergeable. Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
 
 We use `npm 7` for this project, it's required to set
 up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).

@@ -2,10 +2,11 @@
   "private": false,
   "name": "@defichain/jellyfish-network",
   "version": "0.0.0",
-  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
   "keywords": [
     "DeFiChain",
-    "JavaScript",
+    "DeFi",
+    "Blockchain",
     "API",
     "Bitcoin"
   ],
