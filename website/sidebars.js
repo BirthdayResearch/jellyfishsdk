@@ -1,5 +1,5 @@
 module.exports = {
-  sidebar: [
+  docs: [
     'introduction',
     {
       type: 'category',
@@ -19,15 +19,11 @@ module.exports = {
         'jellyfish/api/mining',
         'jellyfish/api/wallet'
       ]
-    },
-    {
-      type: 'category',
-      label: 'Testcontainers',
-      collapsed: false,
-      items: [
-        'testcontainers/overview',
-        'testcontainers/usage'
-      ]
     }
+  ],
+  testcontainers: [
+    'testcontainers/overview',
+    'testcontainers/usage',
+    'testcontainers/jellyfish'
   ]
 }

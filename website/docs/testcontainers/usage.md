@@ -1,7 +1,7 @@
 ---
 id: usage
-title: Using @defichain/testcontainers
-sidebar_label: Using testcontainers
+title: Testcontainers usage
+sidebar_label: Testcontainers usage
 slug: /testcontainers/usage
 ---
 
@@ -102,15 +102,4 @@ const address = await container.call('getnewaddress', ['label', 'legacy'])
 const count = await container.getBlockCount()
 const info = await container.getMintingInfo()
 const newAddress = await container.getNewAddress()
-```
-
-## Using with Jellyfish
-
-```js
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { Client, HttpProvider } from '@defichain/jellyfish'
-const container = new RegTestContainer()
-
-const rpcURL = await container.getCachedRpcUrl()
-const client = new Client(new HttpProvider(rpcURL))
 ```
