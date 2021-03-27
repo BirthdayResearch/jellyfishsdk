@@ -1,11 +1,11 @@
 ---
 id: usage
-title: Usage
-sidebar_label: Usage
+title: Jellyfish usage
+sidebar_label: Jellyfish usage
 slug: /jellyfish/usage
 ---
 
-## `@defichain/jellyfish`
+## @defichain/jellyfish
 
 ### Installation
 

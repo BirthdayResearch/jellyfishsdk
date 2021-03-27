@@ -1,16 +1,8 @@
 module.exports = {
   docs: [
     'introduction',
-    {
-      type: 'category',
-      label: 'Jellyfish',
-      collapsed: false,
-      items: [
-        'jellyfish/overview',
-        'jellyfish/design',
-        'jellyfish/usage'
-      ]
-    },
+    'jellyfish/design',
+    'jellyfish/usage',
     {
       type: 'category',
       label: 'DeFi APIs',

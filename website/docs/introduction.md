@@ -5,26 +5,31 @@ sidebar_label: Introduction
 slug: /
 ---
 
-A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin.
-Consisting of 4 packages with more to be added in the future, the jellyfish project allow DeFiChain developers to build decentralized apps that are modern, easy to use and easy to test.
+## What is Jellyfish?
 
-Jellyfish follows a monorepo methodology, all maintained packages are in the same repo and published with the same version tag.
+A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized 
+finance on Bitcoin. Consisting of multiple packages with more to be added in the future, this JS library enable 
+developers to develop decentralized applications on top of DeFi Blockchain that are modern, easy to use and easy to 
+test.
 
-## Packages
+Written in TypeScript, jellyfish provides first-class citizen support for TypeScript with strongly typed interfaces of
+DeFi blockchain rpc exchanges. Built using modern JavaScript approaches, it emphasises a **future-first developer experience**
+and backport for compatibility. The protocol-agnostic core enable independent communication protocols, allowing
+vendor-agnostic middleware adaptable to any needs.
 
-* `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs
-  and d.ts
-* `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
-  design.
-* `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
-* `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
-  Docker container.
+### Monorepo & packages 
 
-### Latest releases
+As with all modern JavaScript projects, jellyfish follows a monorepo structure with its concerns separated. All packages
+maintained in this repo are published with the same version tag and follows the `DeFiCh/ain` releases.
 
-|package|@latest|@next|
-|---|---|---|
-|`@defichain/jellyfish`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)|
-|`@defichain/jellyfish-api-core`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/next)|
-|`@defichain/jellyfish-api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/next)|
-|`@defichain/testcontainers`|[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)|
+[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
+[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)
+
+Package                                            | Description 
+---------------------------------------------------|-------------
+`@defichain/jellyfish`                             | Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts
+`@defichain/jellyfish-api-core`                    | A protocol agnostic DeFi Blockchain client interfaces, with a "foreign function interface" design.
+`@defichain/jellyfish-api-jsonrpc`                 | Implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+`@defichain/jellyfish-json`                        | Allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
+`@defichain/jellyfish-network`                     | Contains DeFi blockchain various network configuration for main, net and regtest.
+`@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
