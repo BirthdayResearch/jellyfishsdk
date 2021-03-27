@@ -34,7 +34,7 @@ module.exports = {
       },
       items: [
         {
-          to: 'docs/jellyfish',
+          to: 'docs',
           activeBasePath: 'docs/jellyfish',
           label: 'Jellyfish',
           position: 'left'
