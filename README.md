@@ -6,7 +6,8 @@
 
 # @defichain/jellyfish
 
-A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin.
+A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on
+Bitcoin.
 
 > 🚧 Work in progress, `3/193` rpc completed.
 
@@ -65,6 +66,9 @@ const oceanClient = new Client(new OceanProvider(), options)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
+Following the idea of everything in main is production ready; all pull request must be accompanied by a documentation
+change under the `website/` folder. Hence, the main branch should be treated as a release with documentations.
+
 ```
 // TODO(fuxingloh): 
 Documentation can be found at `https://jellyfish.defichain.com`?
@@ -75,9 +79,10 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 
 * `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: `umd`, `esm`, `cjs`
   and `d.ts`
-* `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
-  design.
-* `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+* `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function
+  interface" design.
+* `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1)
+  specification.
 * `@defichain/jellyfish-json` allows parsing of JSON with `'lossless'`, `'bignumber'` and `'number'` numeric precision.
 * `@defichain/jellyfish-network` contains DeFi blockchain various network configuration for main, net and regtest.
 * `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
@@ -96,7 +101,9 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 
 ## Developing & Contributing
 
-Thanks for contributing, here is our [contributing guidelines](CONTRIBUTING.md).
+Thanks for contributing, appreciate all the help we can get. 
+Feel free to make a pull-request, we will guide you along the way to make it mergeable.
+Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
 
 We use `npm 7` for this project, it's required to set
 up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
