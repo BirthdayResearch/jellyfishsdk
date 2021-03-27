@@ -10,12 +10,21 @@ module.exports = {
   organizationName: 'DeFiChain',
   projectName: 'Jellyfish',
   themeConfig: {
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/dracula')
+    },
     colorMode: {
       defaultMode: 'light',
       switchConfig: {
         darkIcon: '🌙',
         lightIcon: '💡'
-      }
+      },
+      respectPrefersColorScheme: true
+    },
+    announcementBar: {
+      id: 'wip-pre-beta',
+      content: '@defichain/jellyfish is currently being actively developed, pre-alpha.'
     },
     navbar: {
       title: 'DeFi Jellyfish',
