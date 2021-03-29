@@ -8,6 +8,7 @@ module.exports = {
       label: 'DeFi APIs',
       collapsed: false,
       items: [
+        'jellyfish/api/blockchain',
         'jellyfish/api/mining',
         'jellyfish/api/wallet'
       ]

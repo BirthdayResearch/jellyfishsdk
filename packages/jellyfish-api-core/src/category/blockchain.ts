@@ -11,7 +11,7 @@ export class Blockchain {
   }
 
   /**
-   * Returns an object containing various state info regarding blockchain processing.
+   * Get various state info regarding blockchain processing.
    * @return Promise<BlockchainInfo>
    */
   async getBlockchainInfo (): Promise<BlockchainInfo> {
