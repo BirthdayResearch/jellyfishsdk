@@ -1,7 +1,7 @@
 ---
 id: overview
 title: Overview
-sidebar_label: What is testcontainers?
+sidebar_label: Overview
 slug: /testcontainers
 ---
 

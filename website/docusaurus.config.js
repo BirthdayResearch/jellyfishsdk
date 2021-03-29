@@ -1,7 +1,7 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'DeFi Jellyfish',
-  tagline: 'A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin',
+  tagline: 'A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin',
   url: 'https://jellyfish.defichain.io',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -10,6 +10,22 @@ module.exports = {
   organizationName: 'DeFiChain',
   projectName: 'Jellyfish',
   themeConfig: {
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/dracula')
+    },
+    colorMode: {
+      defaultMode: 'light',
+      switchConfig: {
+        darkIcon: '🌙',
+        lightIcon: '💡'
+      },
+      respectPrefersColorScheme: true
+    },
+    announcementBar: {
+      id: 'wip-pre-beta',
+      content: '@defichain/jellyfish is currently being actively developed, pre-alpha.'
+    },
     navbar: {
       title: 'DeFi Jellyfish',
       logo: {
@@ -18,7 +34,7 @@ module.exports = {
       },
       items: [
         {
-          to: 'docs/jellyfish',
+          to: 'docs',
           activeBasePath: 'docs/jellyfish',
           label: 'Jellyfish',
           position: 'left'
@@ -76,9 +92,38 @@ module.exports = {
               href: 'https://github.com/DeFiCh'
             }
           ]
+        },
+        {
+          title: 'Legal',
+          items: [
+            {
+              label: 'Privacy',
+              to: 'https://defichain.com/privacy-policy/'
+            },
+            {
+              label: 'MIT License',
+              to: 'https://github.com/DeFiCh/jellyfish/blob/main/LICENSE'
+            }
+          ]
+        },
+        {
+          items: [
+            {
+              html: `
+                <a href="https://www.netlify.com" target="_blank" rel="noreferrer noopener" aria-label="Deploys by Netlify">
+                  <img src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" alt="Deploys by Netlify" />
+                </a>
+              `
+            }
+          ]
         }
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} DeFiChain Foundation & Jellyfish Contributors`
+      logo: {
+        alt: 'DeFi Blockchain',
+        src: 'img/defi-blockchain.png',
+        href: 'https://defichain.com'
+      },
+      copyright: `Copyright © ${new Date().getFullYear()} DeFiChain Foundation & DeFi Jellyfish Contributors`
     }
   },
   presets: [

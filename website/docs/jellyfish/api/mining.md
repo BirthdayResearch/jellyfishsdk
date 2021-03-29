@@ -5,21 +5,37 @@ sidebar_label: Mining API
 slug: /jellyfish/api/mining
 ---
 
+```js
+import {Client} from '@defichain/jellyfish'
+const client = new Client()
+
+// Using client.mining.
+const something = await client.mining.method()
+```
+
+
 ## getNetworkHashPerSecond
 
 Returns the estimated network hashes per second.
 - `nblocks` to estimate since last difficulty change.
 - `height` to estimate at the time of the given height.
 
-```ts
-getNetworkHashPerSecond (nblocks: number = 120, height: number = -1): Promise<number>
+```ts title="client.mining.getNetworkHashPerSecond()"
+interface mining {
+  getNetworkHashPerSecond (nblocks: number = 120, 
+                           height: number = -1): Promise<number>
+}
 ```
 
 ## getMintingInfo
 
 Get minting-related information.
 
-```ts
+```ts title="client.mining.getMintingInfo()"
+interface mining {
+  getMintingInfo (): Promise<MintingInfo>
+}
+
 interface MintingInfo {
   blocks: number
   currentblockweight?: number
@@ -36,6 +52,4 @@ interface MintingInfo {
   chain: 'main' | 'test' | 'regtest' | string
   warnings: string
 }
-
-getMintingInfo (): Promise<MintingInfo>
 ```

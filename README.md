@@ -6,7 +6,8 @@
 
 # @defichain/jellyfish
 
-A collection of TypeScript + JavaScript tools and libraries for DeFiChain developers to build decentralized finance on Bitcoin.
+A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized
+finance on Bitcoin.
 
 > 🚧 Work in progress, `3/193` rpc completed.
 
@@ -65,38 +66,35 @@ const oceanClient = new Client(new OceanProvider(), options)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
+Following the idea of everything in main is production ready; all pull request must be accompanied by a documentation
+change under the `website/` folder. Hence, the main branch should be treated as a release with documentations.
+
 ```
 // TODO(fuxingloh): 
 Documentation can be found at `https://jellyfish.defichain.com`?
 + Community Links
 ```
 
-## Packages
+### Packages
 
-* `@defichain/jellyfish` bundled usage entrypoint with conventional defaults for 4 bundles: `umd`, `esm`, `cjs`
-  and `d.ts`
-* `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client interfaces, with a "foreign function interface"
-  design.
-* `@defichain/jellyfish-api-jsonrpc` implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
-* `@defichain/jellyfish-json` allows parsing of JSON with `'lossless'`, `'bignumber'` and `'number'` numeric precision.
-* `@defichain/jellyfish-network` contains DeFi blockchain various network configuration for main, net and regtest.
-* `@defichain/testcontainers` provides a lightweight, throw away instances for DeFiD node provisioned automatically in
-  Docker container.
+Jellyfish follows a monorepo methodology, all maintained packages are in the same repo and published with the same version tag.
 
-### Latest Releases
+[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
+[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)
 
-|package|@latest|@next|
-|---|---|---|
-|`@defichain/jellyfish`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)|
-|`@defichain/jellyfish-api-core`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-core/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/next)|
-|`@defichain/jellyfish-api-jsonrpc`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc/next)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/next)|
-|`@defichain/jellyfish-json`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-json)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-json/next)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/next)|
-|`@defichain/jellyfish-network`|[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-network)](https://www.npmjs.com/package/@defichain/jellyfish-network/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-network/next)](https://www.npmjs.com/package/@defichain/jellyfish-network/v/next)|
-|`@defichain/testcontainers`|[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)|[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)|
+Package                                            | Description
+---------------------------------------------------|-------------
+`@defichain/jellyfish`                             | Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts
+`@defichain/jellyfish-api-core`                    | A protocol agnostic DeFi Blockchain client interfaces, with a "foreign function interface" design.
+`@defichain/jellyfish-api-jsonrpc`                 | Implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification.
+`@defichain/jellyfish-json`                        | Allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
+`@defichain/jellyfish-network`                     | Contains DeFi blockchain various network configuration for main, net and regtest.
+`@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
 
 ## Developing & Contributing
 
-Thanks for contributing, here is our [contributing guidelines](CONTRIBUTING.md).
+Thanks for contributing, appreciate all the help we can get. Feel free to make a pull-request, we will guide you along
+the way to make it mergeable. Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
 
 We use `npm 7` for this project, it's required to set
 up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).

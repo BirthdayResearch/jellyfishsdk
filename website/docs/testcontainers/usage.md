@@ -1,7 +1,7 @@
 ---
 id: usage
-title: Using @defichain/testcontainers
-sidebar_label: Using testcontainers
+title: Testcontainers usage
+sidebar_label: Testcontainers usage
 slug: /testcontainers/usage
 ---
 
@@ -19,10 +19,10 @@ npm i -D @defichain/testcontainers
 * `MasterNodeRegTestContainer` provides a pre-configured masternode with coins auto minting.
 * You can use your favourite test runner and set it up as part of the test lifecycle.
 
-### `RegTestContainer`
+### RegTest
 
-```js
-import { RegTestContainer } from '@defichain/testcontainers'
+```ts
+import {RegTestContainer} from '@defichain/testcontainers'
 
 describe('reg test container', () => {
   const container = new RegTestContainer()
@@ -44,10 +44,14 @@ describe('reg test container', () => {
 })
 ```
 
-### `MasterNodeRegTestContainer`
+### MasterNodeRegTest
+
+With `MasterNodeRegTestContainer`, you can run a preconfigured masternode with staking enabled to auto mint every
+second. Additionally, you can use `waitForWalletCoinbaseMaturity` to wait for coinbase maturity for your minted coins 
+to be spendable.
 
 ```js
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import {MasterNodeRegTestContainer} from '@defichain/testcontainers'
 import waitForExpect from "wait-for-expect";
 
 describe('master node pos minting', () => {
@@ -78,9 +82,9 @@ describe('master node pos minting', () => {
 })
 ```
 
-## Convenience Methods
+## Convenience methods
 
-### `getCachedRpcUrl()`
+### getCachedRpcUrl
 
 ```js
 const container = new RegTestContainer()
@@ -89,28 +93,17 @@ const container = new RegTestContainer()
 const rpcURL = await container.getCachedRpcUrl()
 ```
 
-### `call('method', [])`
+### call('method', [])
 
 ```js
 const container = new RegTestContainer()
 
 // raw calls
-const { blocks } = await container.call('getmintinginfo')
+const {blocks} = await container.call('getmintinginfo')
 const address = await container.call('getnewaddress', ['label', 'legacy'])
 
 // basic included methods
 const count = await container.getBlockCount()
 const info = await container.getMintingInfo()
 const newAddress = await container.getNewAddress()
-```
-
-## Using with Jellyfish
-
-```js
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { Client, HttpProvider } from '@defichain/jellyfish'
-const container = new RegTestContainer()
-
-const rpcURL = await container.getCachedRpcUrl()
-const client = new Client(new HttpProvider(rpcURL))
 ```

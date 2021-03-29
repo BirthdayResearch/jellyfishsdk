@@ -1,7 +1,7 @@
 ---
 id: design
-title: Design
-sidebar_label: Design
+title: Jellyfish design
+sidebar_label: Jellyfish design
 slug: /jellyfish/design
 ---
 
@@ -47,7 +47,7 @@ it('lost precision converting DFI 😥', () => {
 });
 ```
 
-### `JellyfishJSON`
+### JellyfishJSON
 
 **api-core** implements `JellyfishJSON` that allows parsing of JSON with `'lossless'`, `'bignumber'` and 
 `'number'` numeric precision.
@@ -62,7 +62,7 @@ As not all number parsed are significant in all context, (e.g. `mining.getMintin
 users to use the `number` for non precision sensitive operation (e.g. `networkhashps`) and BigNumber for precision 
 sensitive operations.
 
-### `ApiClient`
+### ApiClient
 
 As jellyfish is written in TypeScript, all RPC exchanges with a node are typed. BigNumber precision is used for all 
 wallet or transaction related operations. While IEEE-754 number is used for all other arbitrary operations.

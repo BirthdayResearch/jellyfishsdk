@@ -1,16 +1,8 @@
 module.exports = {
-  sidebar: [
+  docs: [
     'introduction',
-    {
-      type: 'category',
-      label: 'Jellyfish',
-      collapsed: false,
-      items: [
-        'jellyfish/overview',
-        'jellyfish/design',
-        'jellyfish/usage'
-      ]
-    },
+    'jellyfish/design',
+    'jellyfish/usage',
     {
       type: 'category',
       label: 'DeFi APIs',
@@ -19,15 +11,11 @@ module.exports = {
         'jellyfish/api/mining',
         'jellyfish/api/wallet'
       ]
-    },
-    {
-      type: 'category',
-      label: 'Testcontainers',
-      collapsed: false,
-      items: [
-        'testcontainers/overview',
-        'testcontainers/usage'
-      ]
     }
+  ],
+  testcontainers: [
+    'testcontainers/overview',
+    'testcontainers/usage',
+    'testcontainers/jellyfish'
   ]
 }

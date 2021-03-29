@@ -18,7 +18,7 @@ Please follow the guidelines outlined at https://github.com/DeFiCh/.github/blob/
 
 ## Documentation
 
-Each pull request with feature change should have accompanying documentations under the `docs/` folder.
+Each pull request with feature change should have accompanying documentations under the `website/` folder.
 
 ## Explicit over implicit
 
