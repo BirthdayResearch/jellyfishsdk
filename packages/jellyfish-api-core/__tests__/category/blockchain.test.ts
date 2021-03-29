@@ -32,8 +32,6 @@ describe('non masternode', () => {
     expect(info.size_on_disk).toBeGreaterThan(0)
     expect(info.pruned).toBe(false)
 
-    expect(Object.keys(info.softforks).length).toBe(10)
-
     expect(info.softforks.amk.type).toBe('buried')
     expect(info.softforks.amk.active).toBe(true)
     expect(info.softforks.amk.height).toBe(0)
@@ -78,7 +76,5 @@ describe('masternode', () => {
     expect(info.chainwork.length).toBe(64)
     expect(info.size_on_disk).toBeGreaterThan(0)
     expect(info.pruned).toBe(false)
-
-    expect(Object.keys(info.softforks).length).toBe(10)
   })
 })
