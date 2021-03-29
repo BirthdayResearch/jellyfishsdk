@@ -6,6 +6,7 @@ import {
   Precision
 } from '@defichain/jellyfish-api-core'
 import fetch from 'cross-fetch'
+import { Response } from 'cross-fetch/lib.fetch'
 import AbortController from 'abort-controller'
 
 /**
