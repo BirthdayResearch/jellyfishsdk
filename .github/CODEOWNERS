@@ -9,9 +9,9 @@
 
 /website/                                       @fuxingloh
 
-/packages/jellyfish/                            @fuxingloh @thedoublejay @fullstackninja864
-/packages/jellyfish-api-core/                   @fuxingloh @thedoublejay @fullstackninja864
-/packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay @fullstackninja864
+/packages/jellyfish/                            @fuxingloh @thedoublejay @fullstackninja864 @canonbrother
+/packages/jellyfish-api-core/                   @fuxingloh @thedoublejay @fullstackninja864 @canonbrother
+/packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay @fullstackninja864 @canonbrother
 /packages/jellyfish-json/                       @fuxingloh
 /packages/jellyfish-network/                    @fuxingloh
 /packages/testcontainers/                       @fuxingloh
