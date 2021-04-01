@@ -47,12 +47,12 @@ describe('masternode', () => {
   })
 
   it('should getMintingInfo', async () => {
-    const info = await client.mining.getMintingInfo()
-
     await waitForExpect(async () => {
-      const info = await container.getMintingInfo()
-      expect(info.blocks).toBeGreaterThan(1)
+      const info = await client.mining.getMintingInfo()
+      await expect(info.blocks).toBeGreaterThan(1)
     })
+
+    const info = await client.mining.getMintingInfo()
 
     expect(info.blocks).toBeGreaterThan(0)
 
