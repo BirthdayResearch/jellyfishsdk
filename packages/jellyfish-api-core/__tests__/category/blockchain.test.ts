@@ -99,7 +99,6 @@ describe('masternode', () => {
     it('test getblock with verbo 1', async () => {
       verbosity = 1
       const data: BlockVerbo = await client.blockchain.getBlock(blockHash, verbosity)
-      console.log('data: ', data)
       expect(data).toHaveProperty('hash')
       expect(data.confirmations).toStrictEqual(1)
       expect(data.strippedsize).toStrictEqual(360)
@@ -122,6 +121,10 @@ describe('masternode', () => {
       expect(data.chainwork).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000004')
       expect(data.nTx).toStrictEqual(1)
       expect(data.previousblockhash).toStrictEqual('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
+
+      // NOTE(canonbrother): Get block without verbo, the verbo default should be 1
+      const dataTestWithoutVerbo: BlockVerbo = await client.blockchain.getBlock(blockHash)
+      expect(data).toStrictEqual(dataTestWithoutVerbo)
     })
 
     it('test getblock with verbo2', async () => {
