@@ -6,11 +6,11 @@ slug: /jellyfish/api/blockchain
 ---
 
 ```js
-import { Client } from "@defichain/jellyfish";
-const client = new Client();
+import {Client} from '@defichain/jellyfish'
+const client = new Client()
 
 // Using client.blockchain.
-const something = await client.blockchain.method();
+const something = await client.blockchain.method()
 ```
 
 ## getBlockchainInfo
@@ -19,29 +19,29 @@ Get various state info regarding blockchain processing.
 
 ```ts title="client.blockchain.getBlockchainInfo()"
 interface blockchain {
-  getBlockchainInfo(): Promise<BlockchainInfo>;
+  getBlockchainInfo (): Promise<BlockchainInfo>
 }
 
 interface BlockchainInfo {
-  chain: "main" | "test" | "regtest" | string;
-  blocks: number;
-  headers: number;
-  bestblockhash: string;
-  difficulty: number;
-  mediantime: number;
-  verificationprogress: number;
-  initialblockdownload: boolean;
-  chainwork: string;
-  size_on_disk: number;
-  pruned: boolean;
+  chain: 'main' | 'test' | 'regtest' | string
+  blocks: number
+  headers: number
+  bestblockhash: string
+  difficulty: number
+  mediantime: number
+  verificationprogress: number
+  initialblockdownload: boolean
+  chainwork: string
+  size_on_disk: number
+  pruned: boolean
   softforks: {
     [id: string]: {
-      type: "buried" | "bip9";
-      active: boolean;
-      height: number;
-    };
-  };
-  warnings: string;
+      type: 'buried' | 'bip9'
+      active: boolean
+      height: number
+    }
+  }
+  warnings: string
 }
 ```
 
@@ -51,7 +51,7 @@ Get block data with particular header hash.
 
 ```ts title="client.blockchain.getBlock()"
 interface blockchain {
-  getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo>;
+  getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo>
 }
 
 interface BlockBase {
@@ -103,7 +103,7 @@ interface Vin {
   coinbase: string
   txid: string
   vout: number
-  scriptSig:
+  scriptSig: 
     asm: string
     hex: string
   }
@@ -114,7 +114,7 @@ interface Vin {
 interface Vout {
   value: number
   n: number
-  scriptPubKey:
+  scriptPubKey: 
     asm: string
     hex: string
     type: string
@@ -131,7 +131,7 @@ Get a hash of block in best-block-chain at height provided.
 
 ```ts title="client.blockchain.getBlockHash()"
 interface blockchain {
-  getBlockHash(height: number): Promise<string>;
+  getBlockHash(height: number): Promise<string>
 }
 ```
 
@@ -141,6 +141,7 @@ Get the height of the most-work fully-validated chain.
 
 ```ts title="client.blockchain.getBlockCount()"
 interface blockchain {
-  getBlockCount(): Promise<number>;
+  getBlockCount (): Promise<number>
 }
 ```
+
