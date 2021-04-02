@@ -1,8 +1,5 @@
 import { ApiClient } from '../.'
 
-type BlockVerbo0 = 'string'
-export type BlockVerbo = BlockVerbo2 | BlockVerbo1 | BlockVerbo0
-
 /**
  * Blockchain related RPC calls for DeFiChain
  */
@@ -42,12 +39,9 @@ export class Blockchain {
    * Get block data with particular header hash.
    * @param blockHash
    * @param verbosity optional, default is 1, 0 for hex encoded
-   * @return Promise<BlockVerbo>
+   * @return Promise<string | BlockBase>
    */
-  async getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo2>
-  async getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo1>
-  async getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo0>
-  async getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo> {
+  async getBlock<T> (blockHash: string, verbosity?: 0 | 1 | 2): Promise<string | Block<T>> {
     return await this.client.call('getblock', [blockHash, verbosity], 'number')
   }
 }
@@ -77,7 +71,7 @@ export interface BlockchainInfo {
   warnings: string
 }
 
-export interface BlockBase {
+export interface Block<T> {
   hash: string
   confirmations: number
   strippedsize: number
@@ -86,8 +80,8 @@ export interface BlockBase {
   height: number
   masternode: string
   minter: string
-  mintedBlocks: any
-  stakeModifier: any
+  mintedBlocks: number
+  stakeModifier: string
   version: number
   versionHex: string
   merkleroot: string
@@ -96,17 +90,10 @@ export interface BlockBase {
   bits: string
   difficulty: number
   chainwork: string
+  tx: T[]
   nTx: number
   previousblockhash: string
   nextblockhash: string
-}
-
-export interface BlockVerbo1 extends BlockBase {
-  tx: string[]
-}
-
-export interface BlockVerbo2 extends BlockBase {
-  tx: RawTx[]
 }
 
 export interface RawTx {

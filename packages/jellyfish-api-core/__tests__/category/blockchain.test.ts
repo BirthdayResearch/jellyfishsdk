@@ -1,7 +1,7 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { BlockVerbo } from '../../src/category/blockchain'
+import { Block, RawTx } from '../../src/category/blockchain'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -82,66 +82,77 @@ describe('masternode', () => {
   })
 
   describe('getBlock', () => {
-    const height: number = 1
     let blockHash: string = ''
-    let verbosity: number = 0
 
     beforeAll(async () => {
-      blockHash = await client.blockchain.getBlockHash(height)
+      blockHash = await client.blockchain.getBlockHash(1)
     })
 
     it('test getblock with verbo 0, should return hash', async () => {
-      verbosity = 0
-      const data: BlockVerbo = await client.blockchain.getBlock(blockHash, verbosity)
+      const data: string | Block<unknown> = await client.blockchain.getBlock(blockHash, 0)
       expect(data).not.toBeNull()
     })
 
     it('test getblock with verbo 1', async () => {
-      verbosity = 1
-      const data: BlockVerbo = await client.blockchain.getBlock(blockHash, verbosity)
-      expect(data).toHaveProperty('hash')
-      expect(data.confirmations).toStrictEqual(1)
-      expect(data.strippedsize).toStrictEqual(360)
-      expect(data.size).toStrictEqual(396)
-      expect(data.weight).toStrictEqual(1476)
-      expect(data.height).toStrictEqual(1)
-      expect(data.masternode).toStrictEqual('e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4')
-      expect(data.minter).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-      expect(data.mintedBlocks).toStrictEqual(1)
-      expect(data.stakeModifier).toStrictEqual('fdd82eafa32300653d3b2d9b98a6650b4b15fe2eb32cdd847d3bf2272514cfbf')
-      expect(data.version).toStrictEqual(536870912)
-      expect(data.versionHex).toStrictEqual('20000000')
-      expect(data.merkleroot).toStrictEqual('00eed320c213f506038fa29f77d4d2535232fa97b7789ff6fb516c63201c5e44')
-      expect(data.tx.length).toStrictEqual(1)
-      expect(data.tx[0]).toStrictEqual('00eed320c213f506038fa29f77d4d2535232fa97b7789ff6fb516c63201c5e44')
-      expect(data).toHaveProperty('time')
-      expect(data).toHaveProperty('mediantime')
-      expect(data.bits).toStrictEqual('207fffff')
-      expect(data.difficulty).toStrictEqual(4.656542373906925e-10)
-      expect(data.chainwork).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000004')
-      expect(data.nTx).toStrictEqual(1)
-      expect(data.previousblockhash).toStrictEqual('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
+      const data: string | Block<string> = await client.blockchain.getBlock<string>(blockHash, 1)
+      const block = data as Block<string>
+      expect(block).toHaveProperty('hash')
+      expect(block.confirmations).toStrictEqual(2)
+      expect(block.strippedsize).toStrictEqual(360)
+      expect(block.size).toStrictEqual(396)
+      expect(block.weight).toStrictEqual(1476)
+      expect(block.height).toStrictEqual(1)
+      expect(block.masternode).toStrictEqual('e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4')
+      expect(block.minter).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+      expect(block.mintedBlocks).toStrictEqual(1)
+      expect(block.stakeModifier).toStrictEqual('fdd82eafa32300653d3b2d9b98a6650b4b15fe2eb32cdd847d3bf2272514cfbf')
+      expect(block.version).toStrictEqual(536870912)
+      expect(block.versionHex).toStrictEqual('20000000')
+      expect(block.merkleroot).toStrictEqual('00eed320c213f506038fa29f77d4d2535232fa97b7789ff6fb516c63201c5e44')
+      expect(block.tx.length).toStrictEqual(1)
+      expect(block.tx[0]).toStrictEqual('00eed320c213f506038fa29f77d4d2535232fa97b7789ff6fb516c63201c5e44')
+      expect(block).toHaveProperty('time')
+      expect(block).toHaveProperty('mediantime')
+      expect(block.bits).toStrictEqual('207fffff')
+      expect(block.difficulty).toStrictEqual(4.656542373906925e-10)
+      expect(block.chainwork).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000004')
+      expect(block.nTx).toStrictEqual(1)
+      expect(block.previousblockhash).toStrictEqual('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
 
       // NOTE(canonbrother): Get block without verbo, the verbo default should be 1
-      const dataTestWithoutVerbo: BlockVerbo = await client.blockchain.getBlock(blockHash)
-      expect(data).toStrictEqual(dataTestWithoutVerbo)
+      const dataWithoutVerbo: string | Block<string> = await client.blockchain.getBlock<string>(blockHash)
+      const blockWithoutVerbo = dataWithoutVerbo as Block<string>
+      expect(blockWithoutVerbo).toStrictEqual(dataWithoutVerbo)
     })
 
     it('test getblock with verbo2', async () => {
-      verbosity = 2
-      const data: BlockVerbo = await client.blockchain.getBlock(blockHash, verbosity)
-      console.log('data: ', data)
+      const data: string | Block<RawTx> = await client.blockchain.getBlock<RawTx>(blockHash, 2)
+      const block = data as Block<RawTx>
       // NOTE(canonbrother): The only diff between verbo1 and verbo2 is "tx" format
-      expect(data.tx.length).toStrictEqual(1)
-      expect(data.tx[0].vin[0].coinbase).toStrictEqual('5100')
-      expect(data.tx[0].vin[0].sequence).toStrictEqual(4294967295)
-      expect(data.tx[0].vout[0].value).toStrictEqual(38)
-      expect(data.tx[0].vout[0].n).toStrictEqual(0)
-      expect(data.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
-      expect(data.tx[0].vout[0].scriptPubKey).toHaveProperty('hex')
-      expect(data.tx[0].vout[0].scriptPubKey.reqSigs).toStrictEqual(1)
-      expect(data.tx[0].vout[0].scriptPubKey.type).toStrictEqual('pubkeyhash')
-      expect(data.tx[0].vout[0].scriptPubKey.addresses[0]).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      expect(block.tx.length).toStrictEqual(1)
+      expect(block.tx[0].vin[0].coinbase).toStrictEqual('5100')
+      expect(block.tx[0].vin[0].sequence).toStrictEqual(4294967295)
+      expect(block.tx[0].vout[0].value).toStrictEqual(38)
+      expect(block.tx[0].vout[0].n).toStrictEqual(0)
+      expect(block.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
+      expect(block.tx[0].vout[0].scriptPubKey).toHaveProperty('hex')
+      expect(block.tx[0].vout[0].scriptPubKey.reqSigs).toStrictEqual(1)
+      expect(block.tx[0].vout[0].scriptPubKey.type).toStrictEqual('pubkeyhash')
+      expect(block.tx[0].vout[0].scriptPubKey.addresses[0]).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    })
+  })
+
+  describe('getBlockHash', () => {
+    it('should getBlockHash', async () => {
+      const blockHash: string = await client.blockchain.getBlockHash(1)
+      expect(blockHash).not.toBeNull()
+    })
+  })
+
+  describe('getBlockCount', () => {
+    it('should getBlockCount', async () => {
+      const blockCount: number = await client.blockchain.getBlockCount()
+      expect(blockCount).toStrictEqual(2)
     })
   })
 })
