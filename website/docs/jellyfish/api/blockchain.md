@@ -51,10 +51,10 @@ Get block data with particular header hash.
 
 ```ts title="client.blockchain.getBlock()"
 interface blockchain {
-  async getBlock (hash: string, verbosity?: 0): Promise<string>
-  async getBlock (hash: string, verbosity?: 1): Promise<Block<string>>
-  async getBlock (hash: string, verbosity?: 2): Promise<Block<RawTx>>
-  async getBlock<T> (blockHash: string, verbosity?: 0 | 1 | 2): Promise<string | Block<T>>
+  getBlock (hash: string, verbosity: 0): Promise<string>
+  getBlock (hash: string, verbosity: 1): Promise<Block<string>>
+  getBlock (hash: string, verbosity: 2): Promise<Block<Transaction>>
+  getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>>
 }
 
 export interface Block<T> {
@@ -80,6 +80,44 @@ export interface Block<T> {
   nTx: number
   previousblockhash: string
   nextblockhash: string
+}
+
+export interface Transaction {
+  txid: string
+  hash: string
+  version: number
+  size: number
+  vsize: number
+  weight: number
+  locktime: number
+  vin: Vin[]
+  vout: Vout[]
+  hex: string
+}
+
+export interface Vin {
+  coinbase: string
+  txid: string
+  vout: number
+  scriptSig: {
+    asm: string
+    hex: string
+  }
+  txinwitness: string[]
+  sequence: string
+}
+
+export interface Vout {
+  value: number
+  n: number
+  scriptPubKey: {
+    asm: string
+    hex: string
+    type: string
+    reqSigs: number
+    addresses: string[]
+    tokenId: string
+  }
 }
 ```
 

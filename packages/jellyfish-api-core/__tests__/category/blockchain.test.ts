@@ -1,7 +1,7 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { Block, RawTx } from '../../src/category/blockchain'
+import { Block, Transaction } from '../../src'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -82,72 +82,100 @@ describe('masternode', () => {
   })
 
   describe('getBlock', () => {
-    let blockHash: string = ''
+    /**
+     * Wait for block hash to reach a certain height
+     */
+    async function waitForBlockHash (height: number): Promise<string> {
+      await waitForExpect(async () => {
+        const info = await client.blockchain.getBlockchainInfo()
+        await expect(info.blocks).toBeGreaterThan(height)
+      })
 
-    beforeAll(async () => {
-      blockHash = await client.blockchain.getBlockHash(1)
+      return await client.blockchain.getBlockHash(height)
+    }
+
+    it('should getBlock with verbosity 0 and return just a string that is serialized, hex-encoded data for block', async () => {
+      const blockHash = await waitForBlockHash(1)
+      const hash: string = await client.blockchain.getBlock(blockHash, 0)
+
+      expect(hash).not.toBeNull()
     })
 
-    it('test getblock with verbo 0, should return hash', async () => {
-      const block: string = await client.blockchain.getBlock(blockHash, 0)
-      expect(block).not.toBeNull()
-    })
-
-    it('test getblock with verbo 1', async () => {
+    it('should getBlock with verbosity 1 and return block with tx as hex', async () => {
+      const blockHash = await waitForBlockHash(1)
       const block: Block<string> = await client.blockchain.getBlock(blockHash, 1)
-      expect(block).toHaveProperty('hash')
+
+      expect(block.hash.length).toBe(64)
+
       expect(block.confirmations).toBeGreaterThanOrEqual(2)
       expect(block.strippedsize).toBeGreaterThanOrEqual(360)
+
       expect(block.size).toBeGreaterThanOrEqual(396)
       expect(block.weight).toBeGreaterThanOrEqual(1476)
       expect(block.height).toBeGreaterThanOrEqual(1)
-      expect(block.masternode).toStrictEqual('e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4')
-      expect(block.minter).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+
+      expect(block.masternode.length).toBe(64)
+      expect(block.minter.length).toBe(34) // legacy address length
+
       expect(block.mintedBlocks).toBeGreaterThanOrEqual(1)
-      expect(block.stakeModifier).toStrictEqual('fdd82eafa32300653d3b2d9b98a6650b4b15fe2eb32cdd847d3bf2272514cfbf')
+      expect(block.stakeModifier.length).toBe(64)
       expect(block.version).toBeGreaterThanOrEqual(536870912)
       expect(block.versionHex).toStrictEqual('20000000')
-      expect(block.merkleroot).toStrictEqual('00eed320c213f506038fa29f77d4d2535232fa97b7789ff6fb516c63201c5e44')
-      expect(block.tx.length).toBeGreaterThanOrEqual(1)
-      expect(block.tx[0]).toStrictEqual('00eed320c213f506038fa29f77d4d2535232fa97b7789ff6fb516c63201c5e44')
-      expect(block).toHaveProperty('time')
-      expect(block).toHaveProperty('mediantime')
-      expect(block.bits).toStrictEqual('207fffff')
-      expect(block).toHaveProperty('difficulty')
-      expect(block.chainwork).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000004')
-      expect(block.nTx).toBeGreaterThanOrEqual(1)
-      expect(block.previousblockhash).toStrictEqual('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
+      expect(block.merkleroot.length).toBe(64)
 
-      // NOTE(canonbrother): Get block without verbo, the verbo default should be 1
-      const blockWithoutVerbo: string = await client.blockchain.getBlock(blockHash)
-      expect(blockWithoutVerbo).toStrictEqual(block)
+      expect(block.tx.length).toBeGreaterThanOrEqual(1)
+      expect(block.tx[0].length).toBe(64)
+
+      expect(block.time).toBeGreaterThan(1)
+      expect(block.mediantime).toBeGreaterThan(1)
+
+      expect(block.bits).toStrictEqual('207fffff')
+      expect(block.difficulty).toBeGreaterThan(0)
+
+      expect(block.chainwork.length).toBe(64)
+      expect(block.nTx).toBeGreaterThanOrEqual(1)
+      expect(block.previousblockhash.length).toBe(64)
     })
 
-    it('test getblock with verbo2', async () => {
-      const block: Block<RawTx> = await client.blockchain.getBlock(blockHash, 2)
-      // NOTE(canonbrother): The only diff between verbo1 and verbo2 is "tx" format
+    it('should getBlock with verbosity 2 and return block with tx as RawText', async () => {
+      const blockHash = await waitForBlockHash(1)
+      const block: Block<Transaction> = await client.blockchain.getBlock(blockHash, 2)
+
       expect(block.tx.length).toBeGreaterThanOrEqual(1)
       expect(block.tx[0].vin[0].coinbase).toStrictEqual('5100')
       expect(block.tx[0].vin[0].sequence).toBeGreaterThanOrEqual(4294967295)
+
       expect(block.tx[0].vout[0].value).toBeGreaterThanOrEqual(38)
       expect(block.tx[0].vout[0].n).toBeGreaterThanOrEqual(0)
+
       expect(block.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
       expect(block.tx[0].vout[0].scriptPubKey).toHaveProperty('hex')
       expect(block.tx[0].vout[0].scriptPubKey.reqSigs).toBeGreaterThanOrEqual(1)
       expect(block.tx[0].vout[0].scriptPubKey.type).toStrictEqual('pubkeyhash')
-      expect(block.tx[0].vout[0].scriptPubKey.addresses[0]).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      expect(block.tx[0].vout[0].scriptPubKey.addresses[0].length).toBe(34)
     })
   })
 
   describe('getBlockHash', () => {
     it('should getBlockHash', async () => {
+      await waitForExpect(async () => {
+        const info = await client.blockchain.getBlockchainInfo()
+        await expect(info.blocks).toBeGreaterThan(1)
+      })
+
       const blockHash: string = await client.blockchain.getBlockHash(1)
       expect(blockHash).not.toBeNull()
+      expect(blockHash.length).toBe(64)
     })
   })
 
   describe('getBlockCount', () => {
     it('should getBlockCount', async () => {
+      await waitForExpect(async () => {
+        const info = await client.blockchain.getBlockchainInfo()
+        await expect(info.blocks).toBeGreaterThan(1)
+      })
+
       const blockCount: number = await client.blockchain.getBlockCount()
       expect(blockCount).toBeGreaterThanOrEqual(2)
     })

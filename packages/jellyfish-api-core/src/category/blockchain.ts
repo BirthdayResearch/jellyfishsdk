@@ -37,15 +37,36 @@ export class Blockchain {
 
   /**
    * Get block data with particular header hash.
-   * @param blockHash
-   * @param verbosity optional, default is 1, 0 for hex encoded
-   * @return Promise<string | Block>
+   * Returns a string that is serialized, hex-encoded data for block 'hash'
+   *
+   * @param hash of the block
+   * @param verbosity 0
+   * @return Promise<string>
    */
-  async getBlock (hash: string, verbosity?: 0): Promise<string>
-  async getBlock (hash: string, verbosity?: 1): Promise<Block<string>>
-  async getBlock (hash: string, verbosity?: 2): Promise<Block<RawTx>>
-  async getBlock<T> (blockHash: string, verbosity?: 0 | 1 | 2): Promise<string | Block<T>> {
-    return await this.client.call('getblock', [blockHash, verbosity], 'number')
+  getBlock (hash: string, verbosity: 0): Promise<string>
+
+  /**
+   * Get block data with particular header hash.
+   * Returns an Object with information about the block 'hash'.
+   *
+   * @param hash of the block
+   * @param verbosity 1
+   * @return Promise<Block<string>>
+   */
+  getBlock (hash: string, verbosity: 1): Promise<Block<string>>
+
+  /**
+   * Get block data with particular header hash.
+   * Returns an Object with information about block 'hash' and information about each transaction.
+   *
+   * @param hash of the block
+   * @param verbosity 2
+   * @return Promise<Block<Transaction>>
+   */
+  getBlock (hash: string, verbosity: 2): Promise<Block<Transaction>>
+
+  async getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>> {
+    return await this.client.call('getblock', [hash, verbosity], 'number')
   }
 }
 
@@ -99,7 +120,7 @@ export interface Block<T> {
   nextblockhash: string
 }
 
-export interface RawTx {
+export interface Transaction {
   txid: string
   hash: string
   version: number
