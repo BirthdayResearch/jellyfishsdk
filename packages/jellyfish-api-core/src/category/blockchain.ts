@@ -39,7 +39,7 @@ export class Blockchain {
    * Get block data with particular header hash.
    * @param blockHash
    * @param verbosity optional, default is 1, 0 for hex encoded
-   * @return Promise<string | BlockBase>
+   * @return Promise<string | Block>
    */
   async getBlock<T> (blockHash: string, verbosity?: 0 | 1 | 2): Promise<string | Block<T>> {
     return await this.client.call('getblock', [blockHash, verbosity], 'number')

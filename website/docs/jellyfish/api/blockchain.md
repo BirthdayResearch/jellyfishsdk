@@ -51,10 +51,10 @@ Get block data with particular header hash.
 
 ```ts title="client.blockchain.getBlock()"
 interface blockchain {
-  getBlock (blockHash: string, verbosity?: number): Promise<BlockVerbo>
+  async getBlock<T> (blockHash: string, verbosity?: 0 | 1 | 2): Promise<string | Block<T>>
 }
 
-interface BlockBase {
+export interface Block<T> {
   hash: string
   confirmations: number
   strippedsize: number
@@ -63,8 +63,8 @@ interface BlockBase {
   height: number
   masternode: string
   minter: string
-  mintedBlocks: any
-  stakeModifier: any
+  mintedBlocks: number
+  stakeModifier: string
   version: number
   versionHex: string
   merkleroot: string
@@ -73,55 +73,10 @@ interface BlockBase {
   bits: string
   difficulty: number
   chainwork: string
+  tx: T[]
   nTx: number
   previousblockhash: string
   nextblockhash: string
-}
-
-interface BlockVerbo1 extends BlockBase {
-  tx: string[]
-}
-
-interface BlockVerbo2 extends BlockBase {
-  tx: RawTx[]
-}
-
-interface RawTx {
-  txid: string
-  hash: string
-  version: number
-  size: number
-  vsize: number
-  weight: number
-  locktime: number
-  vin: Vin[]
-  vout: Vout[]
-  hex: string
-}
-
-interface Vin {
-  coinbase: string
-  txid: string
-  vout: number
-  scriptSig: 
-    asm: string
-    hex: string
-  }
-  txinwitness: string[]
-  sequence: string
-}
-
-interface Vout {
-  value: number
-  n: number
-  scriptPubKey: 
-    asm: string
-    hex: string
-    type: string
-    reqSigs: number
-    addresses: string[]
-    tokenId: string
-  }
 }
 ```
 
