@@ -41,6 +41,9 @@ export class Blockchain {
    * @param verbosity optional, default is 1, 0 for hex encoded
    * @return Promise<string | Block>
    */
+  async getBlock (hash: string, verbosity?: 0): Promise<string>
+  async getBlock (hash: string, verbosity?: 1): Promise<Block<string>>
+  async getBlock (hash: string, verbosity?: 2): Promise<Block<RawTx>>
   async getBlock<T> (blockHash: string, verbosity?: 0 | 1 | 2): Promise<string | Block<T>> {
     return await this.client.call('getblock', [blockHash, verbosity], 'number')
   }
