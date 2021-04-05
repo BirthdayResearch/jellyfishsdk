@@ -40,6 +40,30 @@ describe('parse', () => {
       expect(obj.number.toString()).toBe('1200000000')
     })
   })
+
+  describe('precision mapping', () => {
+    it('specify the value to be revived as preferred type', () => {
+      const jsonObj = JellyfishJSON.parse(`{
+        "bestblock": "7048e23a5cb86cc7751ef63a87a0ca6e0a00a786bce8af88ae3d1292c5414954",
+        "confirmations": 1,
+        "value": 1200000000.00000001,
+        "scriptPubKey": {
+          "asm": "OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG",
+          "hex": "76a914b36814fd26190b321aa985809293a41273cfe15e88ac",
+          "reqSigs": 1,
+          "type": "pubkeyhash",
+          "addresses": [ "mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU"]
+        },
+        "coinbase": true
+      }`, { value: 'bignumber', confirmations: 'number', reqSigs: 'lossless' })
+
+      expect(jsonObj.value instanceof BigNumber).toBe(true)
+      expect(jsonObj.value.toString()).toBe('1200000000.00000001')
+      expect(jsonObj.confirmations).toBe(1)
+      expect(jsonObj.scriptPubKey.reqSigs instanceof LosslessNumber).toBe(true)
+      expect(jsonObj.scriptPubKey.reqSigs.toString()).toBe('1')
+    })
+  })
 })
 
 describe('stringify', () => {

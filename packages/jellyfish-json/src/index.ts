@@ -16,6 +16,14 @@ export { BigNumber, LosslessNumber }
 export type Precision = 'lossless' | 'bignumber' | 'number'
 
 /**
+ * To allow manual key based customization of what precision it should be
+ */
+export interface PrecisionMapping {
+  // [key: string]: Precision | ((string: string) => any),
+  [key: string]: Precision | PrecisionMapping
+}
+
+/**
  * Revive lossless as a type
  */
 const reviveLosslessAs = (transformer: (string: string) => any) => {
@@ -28,6 +36,29 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
   }
 }
 
+const dumbRevive = (precision: any) => {
+  return (key: string, value: any) => {
+    const keys = Object.keys(precision)
+    if (keys.includes(key) && value instanceof LosslessNumber) {
+      switch (precision[key]) {
+        case 'lossless':
+          return value
+        case 'bignumber':
+          return new BigNumber(value.toString())
+        case 'number':
+          return Number(value.toString())
+        default:
+          throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+      }
+    }
+
+    if (value instanceof LosslessNumber) {
+      return Number(value.toString())
+    }
+    return value
+  }
+}
+
 /**
  * JellyfishJSON allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
  */
@@ -36,20 +67,23 @@ export const JellyfishJSON = {
    * @param text JSON string to parse into object.
    * @param precision Numeric precision to parse RPC payload as.
    */
-  parse (text: string, precision: Precision): any {
-    switch (precision) {
-      case 'lossless':
-        return parse(text)
+  parse (text: string, precision: Precision | PrecisionMapping): any {
+    if (typeof precision === 'string') {
+      switch (precision) {
+        case 'lossless':
+          return parse(text)
 
-      case 'bignumber':
-        return parse(text, reviveLosslessAs(string => new BigNumber(string)))
+        case 'bignumber':
+          return parse(text, reviveLosslessAs(string => new BigNumber(string)))
 
-      case 'number':
-        return parse(text, reviveLosslessAs(string => Number(string)))
+        case 'number':
+          return parse(text, reviveLosslessAs(string => Number(string)))
 
-      default:
-        throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+        default:
+          throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+      }
     }
+    return parse(text, dumbRevive(precision))
   },
 
   /**
