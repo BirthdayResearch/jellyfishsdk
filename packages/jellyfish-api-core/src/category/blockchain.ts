@@ -17,6 +17,17 @@ export class Blockchain {
   async getBlockchainInfo (): Promise<BlockchainInfo> {
     return await this.client.call('getblockchaininfo', [], 'number')
   }
+
+  /**
+   * Get details of unspent transaction output (UTXO).
+   * @param txId the transaction id
+   * @param number vout number
+   * @param includeMempool default true, whether to improve mempool
+   * @return Promise<UTXO>
+   */
+  async getTxOut (txId: string, n: number, includeMempool?: boolean): Promise<UTXODetails> {
+    return await this.client.call('gettxout', [txId, n, includeMempool], 'number')
+  }
 }
 
 /**
@@ -42,4 +53,19 @@ export interface BlockchainInfo {
     }
   }
   warnings: string
+}
+
+export interface UTXODetails {
+  bestblock: string
+  confirmations: number
+  value: number
+  scriptPubKey: {
+    asm: string
+    hex: string
+    type: string
+    reqSigs: number
+    addresses: string[]
+    tokenId: string
+  }
+  coinbase: boolean
 }
