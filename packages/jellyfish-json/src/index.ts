@@ -53,14 +53,13 @@ const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any 
  */
 const remapLosslessObj = (precision: PrecisionMapping, losslessObj: any): any => {
   for (const k in precision) {
-    const value = losslessObj[k]
-    if (value !== undefined && value !== null) {
+    if (typeof losslessObj[k] !== 'undefined') {
       const precisionType = precision[k] as Precision
       if (typeof precisionType !== 'string') {
         remapLosslessObj(precisionType, losslessObj[k])
       }
-      if (value instanceof LosslessNumber) {
-        losslessObj[k] = revive(precisionType, value)
+      if (losslessObj[k] instanceof LosslessNumber) {
+        losslessObj[k] = revive(precisionType, losslessObj[k])
       }
     }
   }
