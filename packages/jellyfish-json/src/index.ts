@@ -36,34 +36,57 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
 }
 
 /**
- *
+ * Revive lossless with keys a type
+ * @param text json string that is used to tranform to a json object
  * @param precision PrecisionMapping is a key value pair to allow revive value type
  * @returns jsonObject
  */
-const dumbRevive = (precision: PrecisionMapping) => {
-  return (key: string, value: any) => {
-    const keys = Object.keys(precision)
-    if (keys.includes(key) && value instanceof LosslessNumber) {
-      switch (precision[key]) {
-        case 'lossless':
-          return value
+const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any => {
+  return remapLosslessObj(precision, parse(text))
+}
 
-        case 'bignumber':
-          return new BigNumber(value.toString())
-
-        case 'number':
-          return Number(value.toString())
-
-        default:
-          throw new Error(`JellyfishJSON.parse ${key} precision is not supported`)
+/**
+ * Remap lossless
+ * @param precision Precision - 'bignumber', 'number', 'lossless'
+ * @param losslessObj lossless json object
+ * @returns losslessObj
+ */
+const remapLosslessObj = (precision: PrecisionMapping, losslessObj: any): any => {
+  for (const k in precision) {
+    const value = losslessObj[k]
+    if (value !== undefined && value !== null) {
+      const precisionType = precision[k] as Precision
+      if (typeof precisionType !== 'string') {
+        remapLosslessObj(precisionType, losslessObj[k])
+      }
+      if (value instanceof LosslessNumber) {
+        losslessObj[k] = revive(precisionType, value)
       }
     }
+  }
 
-    if (value instanceof LosslessNumber) {
+  return losslessObj
+}
+
+/**
+ * Revive target value based on type provided
+ * @param precision Precision
+ * @param value is used to be converted a preferred type
+ * @returns converted value, 'lossless', 'bignumber', 'number'
+ */
+const revive = (precision: Precision, value: any): any => {
+  switch (precision) {
+    case 'lossless':
+      return value
+
+    case 'bignumber':
+      return new BigNumber(value.toString())
+
+    case 'number':
       return Number(value.toString())
-    }
 
-    return value
+    default:
+      throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
   }
 }
 
@@ -91,7 +114,8 @@ export const JellyfishJSON = {
           throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
       }
     }
-    return parse(text, dumbRevive(precision))
+
+    return reviveLosslessWithKeys(text, precision)
   },
 
   /**

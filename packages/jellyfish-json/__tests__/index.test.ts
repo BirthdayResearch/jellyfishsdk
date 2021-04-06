@@ -52,16 +52,30 @@ describe('parse', () => {
           "hex": "76a914b36814fd26190b321aa985809293a41273cfe15e88ac",
           "reqSigs": 1,
           "type": "pubkeyhash",
-          "addresses": [ "mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU"]
+          "addresses": [ "mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU"],
+          "custom": {
+            "nested": 1200000000.00000001
+          }
         },
         "coinbase": true
-      }`, { value: 'bignumber', confirmations: 'number', reqSigs: 'lossless' })
+      }`, {
+        value: 'bignumber',
+        confirmations: 'lossless',
+        scriptPubKey: {
+          reqSigs: 'number',
+          custom: {
+            nested: 'bignumber'
+          }
+        }
+      })
 
       expect(jsonObj.value instanceof BigNumber).toBe(true)
       expect(jsonObj.value.toString()).toBe('1200000000.00000001')
-      expect(jsonObj.confirmations).toBe(1)
-      expect(jsonObj.scriptPubKey.reqSigs instanceof LosslessNumber).toBe(true)
-      expect(jsonObj.scriptPubKey.reqSigs.toString()).toBe('1')
+      expect(jsonObj.confirmations instanceof LosslessNumber).toBe(true)
+      expect(jsonObj.confirmations.toString()).toBe('1')
+      expect(jsonObj.scriptPubKey.reqSigs).toBe(1)
+      expect(jsonObj.scriptPubKey.custom.nested instanceof BigNumber).toBe(true)
+      expect(jsonObj.scriptPubKey.custom.nested.toString()).toBe('1200000000.00000001')
     })
   })
 })
