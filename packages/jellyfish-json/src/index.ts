@@ -43,20 +43,19 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
 const dumbRevive = (precision: PrecisionMapping) => {
   return (key: string, value: any) => {
     const keys = Object.keys(precision)
-    if (keys.includes(key) && value instanceof LosslessNumber) {
-      switch (precision[key]) {
-        case 'lossless':
-          return value
-        case 'bignumber':
-          return new BigNumber(value.toString())
-        case 'number':
-          return Number(value.toString())
-        default:
-          throw new Error(`JellyfishJSON.parse ${key} precision is not supported`)
-      }
-    }
-
     if (value instanceof LosslessNumber) {
+      if (keys.includes(key)) {
+        switch (precision[key]) {
+          case 'lossless':
+            return value
+          case 'bignumber':
+            return new BigNumber(value.toString())
+          case 'number':
+            return Number(value.toString())
+          default:
+            throw new Error(`JellyfishJSON.parse ${key} precision is not supported`)
+        }
+      }
       return Number(value.toString())
     }
     return value
