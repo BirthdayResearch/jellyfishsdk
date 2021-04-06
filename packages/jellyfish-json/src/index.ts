@@ -19,7 +19,6 @@ export type Precision = 'lossless' | 'bignumber' | 'number'
  * To allow manual key based customization of what precision it should be
  */
 export interface PrecisionMapping {
-  // [key: string]: Precision | ((string: string) => any),
   [key: string]: Precision | PrecisionMapping
 }
 
@@ -36,7 +35,12 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
   }
 }
 
-const dumbRevive = (precision: any) => {
+/**
+ *
+ * @param precision PrecisionMapping is a key value pair to allow revive value type
+ * @returns jsonObject
+ */
+const dumbRevive = (precision: PrecisionMapping) => {
   return (key: string, value: any) => {
     const keys = Object.keys(precision)
     if (keys.includes(key) && value instanceof LosslessNumber) {
@@ -48,7 +52,7 @@ const dumbRevive = (precision: any) => {
         case 'number':
           return Number(value.toString())
         default:
-          throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+          throw new Error(`JellyfishJSON.parse ${key} precision is not supported`)
       }
     }
 
