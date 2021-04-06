@@ -78,6 +78,28 @@ describe('parse', () => {
       expect(jsonObj.scriptPubKey.custom.nested.toString()).toBe('1200000000.00000001')
     })
   })
+
+  it('should throw error as unmatch precision mapping with resp', async () => {
+    const t: any = () => {
+      return JellyfishJSON.parse('{"nested": 1}', {
+        nested: {
+          something: 'bignumber'
+        }
+      })
+    }
+
+    expect(t).toThrow('JellyfishJSON.parse undefined with bignumber precision is not supported')
+  })
+
+  it('should throw error as invalid type to be converted', async () => {
+    const t: any = () => {
+      return JellyfishJSON.parse('{"value": {}}', {
+        value: 'bignumber'
+      })
+    }
+
+    expect(t).toThrow('JellyfishJSON.parse [object Object] with bignumber precision is not supported')
+  })
 })
 
 describe('stringify', () => {

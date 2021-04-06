@@ -54,10 +54,12 @@ const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any 
 const remapLosslessObj = (precision: PrecisionMapping, losslessObj: any): any => {
   for (const k in precision) {
     const precisionType = precision[k] as Precision
-    if (typeof precisionType !== 'string') {
-      remapLosslessObj(precisionType, losslessObj[k])
-    } else if (losslessObj[k] instanceof LosslessNumber) {
+    if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
       losslessObj[k] = revive(precisionType, losslessObj[k])
+    } else if (typeof precisionType === 'object') {
+      remapLosslessObj(precisionType, losslessObj[k])
+    } else {
+      throw new Error(`JellyfishJSON.parse ${losslessObj[k] as string} with ${precisionType} precision is not supported`)
     }
   }
 
