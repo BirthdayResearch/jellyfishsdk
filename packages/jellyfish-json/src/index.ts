@@ -55,18 +55,20 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
   for (const k in losslessObj) {
     const precisionType = precision[k] as Precision
 
-    // parsing invalid type
+    // validation #1: parsing invalid type
     // eg: parsing empty object to bignumber
     if (typeof losslessObj[k] === 'object' && Object.keys(losslessObj[k]).length === 0) {
       throw new Error(`JellyfishJSON.parse ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
+    }
 
-      // unmatch precision parse
-      // eg: {nested: 1} parsed by {nested: { something: 'bignumber'}}
-    } else if (typeof precisionType === 'object' && losslessObj[k] instanceof LosslessNumber) {
+    // validation #2: unmatch precision parse
+    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
+    if (typeof precisionType === 'object' && losslessObj[k] instanceof LosslessNumber) {
       throw new Error(`JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
+    }
 
     // convert type based on precision
-    } else if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
+    if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
       losslessObj[k] = revive(precisionType, losslessObj[k])
 
     // loop nested precistionType
