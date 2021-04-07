@@ -42,7 +42,7 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
  * @returns jsonObject
  */
 const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any => {
-  return remapLosslessObj(precision, parse(text))
+  return remapLosslessObj(parse(text), precision)
 }
 
 /**
@@ -51,15 +51,36 @@ const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any 
  * @param losslessObj lossless json object
  * @returns losslessObj
  */
-const remapLosslessObj = (precision: PrecisionMapping, losslessObj: any): any => {
-  for (const k in precision) {
+const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any => {
+  for (const k in losslessObj) {
     const precisionType = precision[k] as Precision
-    if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
+
+    // parsing invalid type
+    // eg: parsing empty object to bignumber
+    if (typeof losslessObj[k] === 'object' && Object.keys(losslessObj[k]).length === 0) {
+      throw new Error(`JellyfishJSON.parse ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
+
+      // unmatch precision parse
+      // eg: {nested: 1} parsed by {nested: { something: 'bignumber'}}
+    } else if (typeof precisionType === 'object' && losslessObj[k] instanceof LosslessNumber) {
+      throw new Error(`JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
+
+    // convert type based on precision
+    } else if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
       losslessObj[k] = revive(precisionType, losslessObj[k])
+
+    // loop nested precistionType
+    // { parent: { child: { nestedChild: { 'bignumber' }}}}
     } else if (typeof precisionType === 'object') {
-      remapLosslessObj(precisionType, losslessObj[k])
-    } else {
-      throw new Error(`JellyfishJSON.parse ${losslessObj[k] as string} with ${precisionType} precision is not supported`)
+      remapLosslessObj(losslessObj[k], precisionType)
+
+    // convert to number by default
+    } else if (losslessObj[k] instanceof LosslessNumber) {
+      losslessObj[k] = revive('number', losslessObj[k])
+
+    // loop nested losslessObj
+    } else if (typeof losslessObj[k] === 'object' && !(losslessObj[k] instanceof LosslessNumber)) {
+      remapLosslessObj(losslessObj[k], precision)
     }
   }
 

@@ -53,20 +53,24 @@ describe('parse', () => {
           "reqSigs": 1,
           "type": "pubkeyhash",
           "addresses": [ "mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU"],
-          "custom": {
-            "nested": 1200000000.00000001
+          "customX": {
+            "nestedX": 1200000000.00000001
+          },
+          "customY": {
+            "nestedY": 1200000000.00000001
           }
         },
-        "coinbase": true
+        "coinbase": true,
+        "custom": 99
       }`, {
-        value: 'bignumber',
-        confirmations: 'lossless',
         scriptPubKey: {
           reqSigs: 'number',
-          custom: {
-            nested: 'bignumber'
+          customX: {
+            nestedX: 'bignumber'
           }
-        }
+        },
+        value: 'bignumber',
+        confirmations: 'lossless'
       })
 
       expect(jsonObj.value instanceof BigNumber).toBe(true)
@@ -74,31 +78,33 @@ describe('parse', () => {
       expect(jsonObj.confirmations instanceof LosslessNumber).toBe(true)
       expect(jsonObj.confirmations.toString()).toBe('1')
       expect(jsonObj.scriptPubKey.reqSigs).toBe(1)
-      expect(jsonObj.scriptPubKey.custom.nested instanceof BigNumber).toBe(true)
-      expect(jsonObj.scriptPubKey.custom.nested.toString()).toBe('1200000000.00000001')
+      expect(jsonObj.scriptPubKey.customX.nestedX instanceof BigNumber).toBe(true)
+      expect(jsonObj.scriptPubKey.customX.nestedX.toString()).toBe('1200000000.00000001')
+      expect(jsonObj.scriptPubKey.customY.nestedY).toBe(1200000000)
+      expect(jsonObj.custom).toBe(99)
     })
-  })
 
-  it('should throw error as unmatch precision mapping with resp', async () => {
-    const t: any = () => {
-      return JellyfishJSON.parse('{"nested": 1}', {
-        nested: {
-          something: 'bignumber'
-        }
-      })
-    }
+    it('should throw error as unmatch precision mapping with resp', async () => {
+      const t: any = () => {
+        return JellyfishJSON.parse('{"nested": 1}', {
+          nested: {
+            something: 'bignumber'
+          }
+        })
+      }
 
-    expect(t).toThrow('JellyfishJSON.parse undefined with bignumber precision is not supported')
-  })
+      expect(t).toThrow('JellyfishJSON.parse nested: 1 with [object Object] precision is not supported')
+    })
 
-  it('should throw error as invalid type to be converted', async () => {
-    const t: any = () => {
-      return JellyfishJSON.parse('{"value": {}}', {
-        value: 'bignumber'
-      })
-    }
+    it('should throw error as invalid type to be converted', async () => {
+      const t: any = () => {
+        return JellyfishJSON.parse('{"value": {}}', {
+          value: 'bignumber'
+        })
+      }
 
-    expect(t).toThrow('JellyfishJSON.parse [object Object] with bignumber precision is not supported')
+      expect(t).toThrow('JellyfishJSON.parse [object Object] with bignumber precision is not supported')
+    })
   })
 })
 
