@@ -22,6 +22,13 @@ export interface PrecisionMapping {
   [key: string]: Precision | PrecisionMapping
 }
 
+const Action = {
+  CONV_BASED_PRECISION: 1,
+  LOOP_PRECISION_TYPE: 2,
+  CONV_NUM_BY_DEFAULT: 3,
+  LOOP_NESTED_LOSSLESSOBJ: 4
+}
+
 /**
  * Revive lossless as a type
  */
@@ -53,31 +60,68 @@ const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any 
  */
 const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any => {
   for (const k in losslessObj) {
-    const precisionType = precision[k] as Precision
+    const precisionType = precision[k]
 
-    // will throw err if invalidate type conversion found
-    validate(k, losslessObj[k], precisionType)
+    // throw err if invalid type conversion found
+    if (!isValid(losslessObj[k], precisionType as Precision)) {
+      throw new Error(`JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
+    }
 
-    // convert type based on precision
-    if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
-      losslessObj[k] = revive(precisionType, losslessObj[k])
+    const action: number = getAction(losslessObj[k], precisionType as Precision)
 
-    // loop nested precistionType
-    // { parent: { child: { nestedChild: { 'bignumber' }}}}
-    } else if (typeof precisionType === 'object') {
-      remapLosslessObj(losslessObj[k], precisionType)
+    switch (action) {
+      case Action.CONV_BASED_PRECISION:
+        losslessObj[k] = revive(precisionType as Precision, losslessObj[k])
+        break
 
-    // convert to number by default
-    } else if (losslessObj[k] instanceof LosslessNumber) {
-      losslessObj[k] = revive('number', losslessObj[k])
+      case Action.LOOP_PRECISION_TYPE:
+        remapLosslessObj(losslessObj[k], precisionType as PrecisionMapping)
+        break
 
-    // loop nested losslessObj
-    } else if (typeof losslessObj[k] === 'object' && !(losslessObj[k] instanceof LosslessNumber)) {
-      remapLosslessObj(losslessObj[k], precision)
+      case Action.CONV_NUM_BY_DEFAULT:
+        losslessObj[k] = revive('number', losslessObj[k])
+        break
+
+      case Action.LOOP_NESTED_LOSSLESSOBJ:
+        remapLosslessObj(losslessObj[k], precision)
+        break
+
+      default:
+        break
     }
   }
 
   return losslessObj
+}
+
+/**
+ *
+ * @param value LosslessObj value
+ * @param precisionType Precision
+ */
+const getAction = (value: any, precisionType: Precision): number => {
+  // convert type based on precision
+  if (typeof precisionType === 'string' && value instanceof LosslessNumber) {
+    return Action.CONV_BASED_PRECISION
+  }
+
+  // loop nested precistionType
+  // { parent: { child: { nestedChild: { 'bignumber' }}}}
+  if (typeof precisionType === 'object') {
+    return Action.LOOP_PRECISION_TYPE
+  }
+
+  // convert to number by default
+  if (value instanceof LosslessNumber) {
+    return Action.CONV_NUM_BY_DEFAULT
+  }
+
+  // loop nested losslessObj
+  if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
+    return Action.LOOP_NESTED_LOSSLESSOBJ
+  }
+
+  return 0
 }
 
 /**
@@ -87,18 +131,20 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
  * @param value losslessObj value
  * @param precisionType Precision
  */
-const validate = (key: string, value: any, precisionType: Precision): void => {
+const isValid = (value: any, precisionType: Precision): boolean => {
   if (
-  // validation #1: parsing invalid type
-  // eg: parsing empty object to bignumber
+    // validation #1: parsing invalid type
+    // eg: parsing empty object to bignumber
     (typeof value === 'object' && Object.keys(value).length === 0) ||
 
-      // validation #2: unmatch precision parse
-      // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
-      (typeof precisionType === 'object' && value instanceof LosslessNumber)
+    // validation #2: unmatch precision parse
+    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
+    (typeof precisionType === 'object' && value instanceof LosslessNumber)
   ) {
-    throw new Error(`JellyfishJSON.parse ${key}: ${value as string} with ${precisionType as string} precision is not supported`)
+    return false
   }
+
+  return true
 }
 
 /**
