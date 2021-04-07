@@ -23,6 +23,7 @@ export interface PrecisionMapping {
 }
 
 const Action = {
+  NULL: 0,
   CONV_BASED_PRECISION: 1,
   LOOP_PRECISION_TYPE: 2,
   CONV_NUM_BY_DEFAULT: 3,
@@ -85,9 +86,6 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
       case Action.LOOP_NESTED_LOSSLESSOBJ:
         remapLosslessObj(losslessObj[k], precision)
         break
-
-      default:
-        break
     }
   }
 
@@ -121,7 +119,7 @@ const getAction = (value: any, precisionType: Precision): number => {
     return Action.LOOP_NESTED_LOSSLESSOBJ
   }
 
-  return 0
+  return Action.NULL
 }
 
 /**
