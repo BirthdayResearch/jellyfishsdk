@@ -103,7 +103,7 @@ describe('parse', () => {
         })
       }
 
-      expect(t).toThrow('JellyfishJSON.parse [object Object] with bignumber precision is not supported')
+      expect(t).toThrow('JellyfishJSON.parse value: [object Object] with bignumber precision is not supported')
     })
   })
 })

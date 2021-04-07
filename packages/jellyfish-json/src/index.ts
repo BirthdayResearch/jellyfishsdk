@@ -55,17 +55,8 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
   for (const k in losslessObj) {
     const precisionType = precision[k] as Precision
 
-    // validation #1: parsing invalid type
-    // eg: parsing empty object to bignumber
-    if (typeof losslessObj[k] === 'object' && Object.keys(losslessObj[k]).length === 0) {
-      throw new Error(`JellyfishJSON.parse ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
-    }
-
-    // validation #2: unmatch precision parse
-    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
-    if (typeof precisionType === 'object' && losslessObj[k] instanceof LosslessNumber) {
-      throw new Error(`JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
-    }
+    // will throw err if invalidate type conversion found
+    validate(k, losslessObj[k], precisionType)
 
     // convert type based on precision
     if (typeof precisionType === 'string' && losslessObj[k] instanceof LosslessNumber) {
@@ -87,6 +78,27 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
   }
 
   return losslessObj
+}
+
+/**
+ * To validatie the losslessObj type with precisionType in type conversion loops
+ *
+ * @param key losslessObj key
+ * @param value losslessObj value
+ * @param precisionType Precision
+ */
+const validate = (key: string, value: any, precisionType: Precision): void => {
+  if (
+  // validation #1: parsing invalid type
+  // eg: parsing empty object to bignumber
+    (typeof value === 'object' && Object.keys(value).length === 0) ||
+
+      // validation #2: unmatch precision parse
+      // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
+      (typeof precisionType === 'object' && value instanceof LosslessNumber)
+  ) {
+    throw new Error(`JellyfishJSON.parse ${key}: ${value as string} with ${precisionType as string} precision is not supported`)
+  }
 }
 
 /**
