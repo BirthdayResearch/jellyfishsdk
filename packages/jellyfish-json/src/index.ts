@@ -50,7 +50,14 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
  * @returns jsonObject
  */
 function reviveLosslessWithKeys (text: string, precision: PrecisionMapping): any {
-  return remapLosslessObj(parse(text), precision)
+  const losslessObj = parse(text)
+
+  const errMessage = validate(losslessObj, precision)
+  if (errMessage !== '') {
+    throw new Error(errMessage)
+  }
+
+  return remapLosslessObj(losslessObj, precision)
 }
 
 /**
@@ -62,11 +69,6 @@ function reviveLosslessWithKeys (text: string, precision: PrecisionMapping): any
 function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
   for (const k in losslessObj) {
     const precisionType = precision[k]
-
-    // throw err if invalid type conversion found
-    if (!isValid(losslessObj[k], precisionType as Precision)) {
-      throw new Error(`JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`)
-    }
 
     const action: number = getAction(losslessObj[k], precisionType as Precision)
 
@@ -154,6 +156,20 @@ function getLosslessAction (value: any): number {
   }
 
   return Action.NULL
+}
+
+function validate (losslessObj: any, precision: PrecisionMapping): string {
+  let errorMessage = ''
+  for (const k in losslessObj) {
+    const precisionType = precision[k]
+
+    // throw err if invalid type conversion found
+    if (!isValid(losslessObj[k], precisionType as Precision)) {
+      errorMessage = `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
+    }
+  }
+
+  return errorMessage
 }
 
 /**
