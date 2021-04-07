@@ -101,6 +101,25 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
  * @param precisionType Precision
  */
 function getAction (value: any, precisionType: Precision): number {
+  const action = getPrecisionAction(value, precisionType)
+
+  if (action === Action.NULL) {
+    return getLosslessAction(value)
+  }
+
+  return action
+}
+
+/**
+ * Precision action is about
+ * 1. convert type based on precision
+ * 2. loop precision mapping object recursively
+ *
+ * @param value
+ * @param precisionType
+ * @returns Action
+ */
+function getPrecisionAction (value: any, precisionType: Precision): number {
   // convert type based on precision
   if (typeof precisionType === 'string' && value instanceof LosslessNumber) {
     return Action.CONV_BASED_PRECISION
@@ -112,6 +131,18 @@ function getAction (value: any, precisionType: Precision): number {
     return Action.LOOP_PRECISION_TYPE
   }
 
+  return Action.NULL
+}
+
+/**
+ * The Lossless action is about
+ * 1. convert type to number by default
+ * 2. loop nested lossless object
+ *
+ * @param value losslessObj value
+ * @returns Action
+ */
+function getLosslessAction (value: any): number {
   // convert to number by default
   if (value instanceof LosslessNumber) {
     return Action.CONV_NUM_BY_DEFAULT
