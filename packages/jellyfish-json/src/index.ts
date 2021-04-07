@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { parse, stringify, LosslessNumber } from 'lossless-json'
+import { PrecisionMapping, remap } from './remap'
 
 export { BigNumber, LosslessNumber }
 
@@ -16,21 +17,6 @@ export { BigNumber, LosslessNumber }
 export type Precision = 'lossless' | 'bignumber' | 'number'
 
 /**
- * To allow manual key based customization of what precision it should be
- */
-export interface PrecisionMapping {
-  [key: string]: Precision | PrecisionMapping
-}
-
-const Action = {
-  NULL: 0,
-  CONV_BASED_PRECISION: 1,
-  LOOP_PRECISION_TYPE: 2,
-  CONV_NUM_BY_DEFAULT: 3,
-  LOOP_NESTED_LOSSLESSOBJ: 4
-}
-
-/**
  * Revive lossless as a type
  */
 const reviveLosslessAs = (transformer: (string: string) => any) => {
@@ -44,186 +30,20 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
 }
 
 /**
- * Revive lossless with keys a type
- * @param text json string that is used to tranform to a json object
- * @param precision PrecisionMapping is a key value pair to allow revive value type
- * @returns jsonObject
- */
-function reviveLosslessWithKeys (text: string, precision: PrecisionMapping): any {
-  const losslessObj = parse(text)
-
-  const errMessage = validate(losslessObj, precision)
-  if (errMessage !== '') {
-    throw new Error(errMessage)
-  }
-
-  return remapLosslessObj(losslessObj, precision)
-}
-
-/**
- * Remap lossless
- * @param precision Precision - 'bignumber', 'number', 'lossless'
- * @param losslessObj lossless json object
- * @returns losslessObj
- */
-function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
-  for (const k in losslessObj) {
-    const precisionType = precision[k]
-
-    const action: number = getAction(losslessObj[k], precisionType as Precision)
-
-    switch (action) {
-      case Action.CONV_BASED_PRECISION:
-        losslessObj[k] = revive(precisionType as Precision, losslessObj[k])
-        break
-
-      case Action.LOOP_PRECISION_TYPE:
-        remapLosslessObj(losslessObj[k], precisionType as PrecisionMapping)
-        break
-
-      case Action.CONV_NUM_BY_DEFAULT:
-        losslessObj[k] = revive('number', losslessObj[k])
-        break
-
-      case Action.LOOP_NESTED_LOSSLESSOBJ:
-        remapLosslessObj(losslessObj[k], precision)
-        break
-
-      default:
-        break
-    }
-  }
-
-  return losslessObj
-}
-
-/**
- *
- * @param value LosslessObj value
- * @param precisionType Precision
- */
-function getAction (value: any, precisionType: Precision): number {
-  const action = getPrecisionAction(value, precisionType)
-
-  if (action === Action.NULL) {
-    return getLosslessAction(value)
-  }
-
-  return action
-}
-
-/**
- * Precision action is about
- * 1. convert type based on precision
- * 2. loop precision mapping object recursively
- *
- * @param value
- * @param precisionType
- * @returns Action
- */
-function getPrecisionAction (value: any, precisionType: Precision): number {
-  // convert type based on precision
-  if (typeof precisionType === 'string' && value instanceof LosslessNumber) {
-    return Action.CONV_BASED_PRECISION
-  }
-
-  // loop nested precistionType
-  // { parent: { child: { nestedChild: { 'bignumber' }}}}
-  if (typeof precisionType === 'object') {
-    return Action.LOOP_PRECISION_TYPE
-  }
-
-  return Action.NULL
-}
-
-/**
- * The Lossless action is about
- * 1. convert type to number by default
- * 2. loop nested lossless object
- *
- * @param value losslessObj value
- * @returns Action
- */
-function getLosslessAction (value: any): number {
-  // convert to number by default
-  if (value instanceof LosslessNumber) {
-    return Action.CONV_NUM_BY_DEFAULT
-  }
-
-  // loop nested losslessObj
-  if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
-    return Action.LOOP_NESTED_LOSSLESSOBJ
-  }
-
-  return Action.NULL
-}
-
-function validate (losslessObj: any, precision: PrecisionMapping): string {
-  let errorMessage = ''
-  for (const k in losslessObj) {
-    const precisionType = precision[k]
-
-    // throw err if invalid type conversion found
-    if (!isValid(losslessObj[k], precisionType as Precision)) {
-      errorMessage = `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
-    }
-  }
-
-  return errorMessage
-}
-
-/**
- * To validatie the losslessObj type with precisionType in type conversion loops
- *
- * @param key losslessObj key
- * @param value losslessObj value
- * @param precisionType Precision
- */
-function isValid (value: any, precisionType: Precision): boolean {
-  if (
-    // validation #1: parsing invalid type
-    // eg: parsing empty object to bignumber
-    (typeof value === 'object' && Object.keys(value).length === 0) ||
-
-    // validation #2: unmatch precision parse
-    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
-    (typeof precisionType === 'object' && value instanceof LosslessNumber)
-  ) {
-    return false
-  }
-
-  return true
-}
-
-/**
- * Revive target value based on type provided
- * @param precision Precision
- * @param value is used to be converted a preferred type
- * @returns converted value, 'lossless', 'bignumber', 'number'
- */
-function revive (precision: Precision, value: any): any {
-  switch (precision) {
-    case 'lossless':
-      return value
-
-    case 'bignumber':
-      return new BigNumber(value.toString())
-
-    case 'number':
-      return Number(value.toString())
-
-    default:
-      throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
-  }
-}
-
-/**
  * JellyfishJSON allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
  */
 export const JellyfishJSON = {
   /**
+   * Precision parses all numeric value as the given Precision.
+   *
+   * PrecisionMapping selectively remap each numeric value based on the mapping provided,
+   * defaults to number if precision is not provided for the key. This works deeply.
+   *
+   * PrecisionMapping will throw an error is there is Precision mismatch, as it is scanned deeply.
+   * Precision will not throw an error as it blindly remap all numeric value at root.
+   *
    * @param text JSON string to parse into object.
-   * @param precision Numeric precision to parse RPC payload as.
+   * @param precision Numeric precision to parse payload as.
    */
   parse (text: string, precision: Precision | PrecisionMapping): any {
     if (typeof precision === 'string') {
@@ -242,7 +62,7 @@ export const JellyfishJSON = {
       }
     }
 
-    return reviveLosslessWithKeys(text, precision)
+    return remap(text, precision)
   },
 
   /**
