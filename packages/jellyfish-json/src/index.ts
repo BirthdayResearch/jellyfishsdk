@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { parse, stringify, LosslessNumber } from 'lossless-json'
+import { PrecisionMapping, remap } from './remap'
 
 export { BigNumber, LosslessNumber }
 
@@ -33,23 +34,35 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
  */
 export const JellyfishJSON = {
   /**
+   * Precision parses all numeric value as the given Precision.
+   *
+   * PrecisionMapping selectively remap each numeric value based on the mapping provided,
+   * defaults to number if precision is not provided for the key. This works deeply.
+   *
+   * PrecisionMapping will throw an error is there is Precision mismatch, as it is scanned deeply.
+   * Precision will not throw an error as it blindly remap all numeric value at root.
+   *
    * @param text JSON string to parse into object.
-   * @param precision Numeric precision to parse RPC payload as.
+   * @param precision Numeric precision to parse payload as.
    */
-  parse (text: string, precision: Precision): any {
-    switch (precision) {
-      case 'lossless':
-        return parse(text)
+  parse (text: string, precision: Precision | PrecisionMapping): any {
+    if (typeof precision === 'string') {
+      switch (precision) {
+        case 'lossless':
+          return parse(text)
 
-      case 'bignumber':
-        return parse(text, reviveLosslessAs(string => new BigNumber(string)))
+        case 'bignumber':
+          return parse(text, reviveLosslessAs(string => new BigNumber(string)))
 
-      case 'number':
-        return parse(text, reviveLosslessAs(string => Number(string)))
+        case 'number':
+          return parse(text, reviveLosslessAs(string => Number(string)))
 
-      default:
-        throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+        default:
+          throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+      }
     }
+
+    return remap(text, precision)
   },
 
   /**
