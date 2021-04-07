@@ -49,7 +49,7 @@ const reviveLosslessAs = (transformer: (string: string) => any) => {
  * @param precision PrecisionMapping is a key value pair to allow revive value type
  * @returns jsonObject
  */
-const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any => {
+function reviveLosslessWithKeys (text: string, precision: PrecisionMapping): any {
   return remapLosslessObj(parse(text), precision)
 }
 
@@ -59,7 +59,7 @@ const reviveLosslessWithKeys = (text: string, precision: PrecisionMapping): any 
  * @param losslessObj lossless json object
  * @returns losslessObj
  */
-const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any => {
+function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
   for (const k in losslessObj) {
     const precisionType = precision[k]
 
@@ -86,6 +86,9 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
       case Action.LOOP_NESTED_LOSSLESSOBJ:
         remapLosslessObj(losslessObj[k], precision)
         break
+
+      default:
+        break
     }
   }
 
@@ -97,7 +100,7 @@ const remapLosslessObj = (losslessObj: any, precision: PrecisionMapping): any =>
  * @param value LosslessObj value
  * @param precisionType Precision
  */
-const getAction = (value: any, precisionType: Precision): number => {
+function getAction (value: any, precisionType: Precision): number {
   // convert type based on precision
   if (typeof precisionType === 'string' && value instanceof LosslessNumber) {
     return Action.CONV_BASED_PRECISION
@@ -129,7 +132,7 @@ const getAction = (value: any, precisionType: Precision): number => {
  * @param value losslessObj value
  * @param precisionType Precision
  */
-const isValid = (value: any, precisionType: Precision): boolean => {
+function isValid (value: any, precisionType: Precision): boolean {
   if (
     // validation #1: parsing invalid type
     // eg: parsing empty object to bignumber
@@ -151,7 +154,7 @@ const isValid = (value: any, precisionType: Precision): boolean => {
  * @param value is used to be converted a preferred type
  * @returns converted value, 'lossless', 'bignumber', 'number'
  */
-const revive = (precision: Precision, value: any): any => {
+function revive (precision: Precision, value: any): any {
   switch (precision) {
     case 'lossless':
       return value
