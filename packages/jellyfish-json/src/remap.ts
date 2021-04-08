@@ -34,22 +34,18 @@ export function remap (text: string, precision: PrecisionMapping): any {
     throw new Error(errMessage)
   }
 
-  const result = Array.isArray(losslessObj)
+  return Array.isArray(losslessObj)
     ? bulkRemapLosslessObj(losslessObj, precision)
     : remapLosslessObj(losslessObj, precision)
-
-  return result
 }
 
 function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | undefined {
-  let errorMessage: string | undefined = ''
   for (let i = 0; i < losslessObj.length; i += 1) {
-    errorMessage = validate(losslessObj[i], precision)
+    const errorMessage = validate(losslessObj[i], precision)
     if (errorMessage !== undefined) {
       return errorMessage
     }
   }
-  return errorMessage
 }
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
@@ -90,12 +86,12 @@ function isValid (value: any, precisionType: Precision): boolean {
   return true
 }
 
-function bulkRemapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
-  const result = []
+function bulkRemapLosslessObj (losslessObj: any[], precision: PrecisionMapping): any[] {
+  const mappedObj = []
   for (let i = 0; i < losslessObj.length; i += 1) {
-    result.push(remapLosslessObj(losslessObj[i], precision))
+    mappedObj.push(remapLosslessObj(losslessObj[i], precision))
   }
-  return result
+  return mappedObj
 }
 
 /**
