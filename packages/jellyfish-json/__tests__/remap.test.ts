@@ -140,36 +140,6 @@ it('should remap all array object with same precision', () => {
   expect(parsed[1].big instanceof BigNumber).toBe(true)
 })
 
-// it('should remap all array with different precision and unmapped default to number', () => {
-//   const parsed = JellyfishJSON.parse(`[
-//     {
-//       "big": 123
-//     },
-//     {
-//       "big": 123.4
-//     },
-//     {
-//       "big": 123.45
-//     },
-//     {
-//       "big": 123.456
-//     }
-//   ]`, [
-//     {
-//       big: 'bignumber'
-//     },
-//     {},
-//     {
-//       big: 'bignumber'
-//     },
-//   ])
-
-//   expect(parsed[0] instanceof BigNumber).toBe(true)
-//   expect(parsed[1]).toBe(123.4)
-//   expect(parsed[2] instanceof BigNumber).toBe(true)
-//   expect(parsed[3]).toBe(123.456)
-// });
-
 it('should remap all array object with same precision deeply', () => {
   const parsed = JellyfishJSON.parse(`[
     {

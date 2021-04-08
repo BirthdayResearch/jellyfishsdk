@@ -56,12 +56,14 @@ function validate (losslessObj: any, precision: PrecisionMapping): string | unde
     // throw err if invalid type conversion found
     if (!isValid(value, type as Precision)) {
       return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
-    }
-
-    if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
+    } else if (isNestedObject(value)) {
       return validate(value, precision)
     }
   }
+}
+
+function isNestedObject (value: any): boolean {
+  return typeof value === 'object' && !(value instanceof LosslessNumber)
 }
 
 /**
@@ -92,10 +94,6 @@ function isValid (value: any, precisionType: Precision): boolean {
  */
 function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
   for (const k in losslessObj) {
-    if (!Object.prototype.hasOwnProperty.call(losslessObj, k)) {
-      continue
-    }
-
     const type: Precision | PrecisionMapping = precision[k]
 
     switch (getAction(losslessObj[k], type)) {
@@ -125,23 +123,38 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
 }
 
 function getAction (value: any, type: Precision | PrecisionMapping): MappingAction {
+  const mappingAction = getPrecisionMappingAction(value, type)
+
+  if (mappingAction === MappingAction.NONE) {
+    return getDeeplyMappingAction(value, type)
+  }
+
+  return mappingAction
+}
+
+function getPrecisionMappingAction (value: any, type: Precision | PrecisionMapping): MappingAction {
   // typed with precision
   if (typeof type === 'string' && value instanceof LosslessNumber) {
     return MappingAction.PRECISION
   }
 
+  // precision in loop
   if (typeof type === 'string' && Array.isArray(value)) {
     return MappingAction.PRECISION_LOOP
-  }
-
-  // deeply with mapping
-  if (typeof type === 'object') {
-    return MappingAction.DEEPLY_PRECISION_MAPPING
   }
 
   // number as default
   if (value instanceof LosslessNumber) {
     return MappingAction.DEFAULT_NUMBER
+  }
+
+  return MappingAction.NONE
+}
+
+function getDeeplyMappingAction (value: any, type: Precision | PrecisionMapping): MappingAction {
+  // deeply with mapping
+  if (typeof type === 'object') {
+    return MappingAction.DEEPLY_PRECISION_MAPPING
   }
 
   // deeply with unknown
