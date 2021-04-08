@@ -1,7 +1,7 @@
 import { BigNumber, JellyfishJSON, LosslessNumber } from '../src'
 
 it('remap deeply', () => {
-  const jsonObj = JellyfishJSON.parse(`{
+  const { result: jsonObj } = JellyfishJSON.parse(`{"result": {
         "bestblock": "7048e23a5cb86cc7751ef63a87a0ca6e0a00a786bce8af88ae3d1292c5414954",
         "confirmations": 1,
         "value": 1200000000.00000001,
@@ -20,7 +20,7 @@ it('remap deeply', () => {
         },
         "coinbase": true,
         "custom": 99
-      }`, {
+      }}`, {
     scriptPubKey: {
       reqSigs: 'number',
       customX: {
@@ -47,7 +47,7 @@ it('remap deeply', () => {
 
 it('should throw error if unmatched precision mapping with text', async () => {
   const t: any = () => {
-    return JellyfishJSON.parse('{"nested": 1}', {
+    return JellyfishJSON.parse('{"result":{"nested": 1}}', {
       nested: {
         something: 'bignumber'
       }
@@ -59,7 +59,7 @@ it('should throw error if unmatched precision mapping with text', async () => {
 
 it('should throw error if invalid type is converted', async () => {
   const t: any = () => {
-    return JellyfishJSON.parse('{"value": {}}', {
+    return JellyfishJSON.parse('{"result":{"value": {}}}', {
       value: 'bignumber'
     })
   }
@@ -68,7 +68,7 @@ it('should throw error if invalid type is converted', async () => {
 })
 
 it('missing property should be ignored', () => {
-  const text = '{"nested":1}'
+  const text = '{"result":{"nested":1}}'
   const object = JellyfishJSON.parse(text, {
     nested: 'number',
     invalid: 'lossless'

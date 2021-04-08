@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { parse, stringify, LosslessNumber } from 'lossless-json'
 import { PrecisionMapping, remap } from './remap'
 
-export { BigNumber, LosslessNumber }
+export { BigNumber, LosslessNumber, PrecisionMapping }
 
 /**
  * Numeric precision to parse RPC payload as.

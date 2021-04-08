@@ -53,7 +53,7 @@ export class Wallet {
     return await this.client.call(
       'listunspent',
       [minimumConfirmation, maximumConfirmation, addresses, includeUnsafe, queryOptions],
-      'number'
+      { amount: 'bignumber' }
     )
   }
 }

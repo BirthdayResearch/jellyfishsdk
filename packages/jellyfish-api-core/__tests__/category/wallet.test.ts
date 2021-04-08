@@ -47,12 +47,11 @@ describe('masternode', () => {
     })
   })
 
-  describe.only('listUnspent', () => {
+  describe('listUnspent', () => {
     it('should listUnspent', async () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent()
         expect(utxos.length).toBeGreaterThan(0)
-        console.log('utxos: ', utxos[0])
         for (let i = 0; i < utxos.length; i += 1) {
           const utxo = utxos[i]
           expect(utxo).toHaveProperty('txid')
@@ -96,7 +95,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         utxos.forEach(utxo => {
-          expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+          expect(utxo.address).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
         })
       })
     })
@@ -106,7 +105,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         utxos.forEach(utxo => {
-          expect(utxo.safe).toBeTruthy()
+          expect(utxo.safe).toBe(true)
         })
       })
     })
@@ -116,7 +115,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         utxos.forEach(utxo => {
-          expect(utxo.amount.isGreaterThanOrEqualTo(new BigNumber('5'))).toBeTruthy()
+          expect(utxo.amount.isGreaterThanOrEqualTo(new BigNumber('5'))).toBe(true)
         })
       })
     })
@@ -126,7 +125,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         utxos.forEach(utxo => {
-          expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBeTruthy()
+          expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
         })
       })
     })
@@ -144,7 +143,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         const sum: BigNumber = utxos.map(utxo => utxo.amount).reduce((acc, val) => acc.plus(val))
-        expect(sum.isLessThanOrEqualTo(new BigNumber('100'))).toBeTruthy()
+        expect(sum.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
       })
     })
 
@@ -153,7 +152,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         utxos.forEach(utxo => {
-          expect(utxo.tokenId).toStrictEqual('0')
+          expect(utxo.tokenId).toBe('0')
         })
       })
     })

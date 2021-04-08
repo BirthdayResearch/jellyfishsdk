@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 /**
@@ -71,13 +72,14 @@ export class Blockchain {
 
   /**
   * Get details of unspent transaction output (UTXO).
+  *
   * @param txId the transaction id
-  * @param number vout number
-  * @param includeMempool default true, whether to improve mempool
-  * @return Promise<UTXO>
+  * @param n vout number
+  * @param includeMempool default true, whether to include mempool
+  * @return Promise<UTXODetails>
   */
-  async getTxOut (txId: string, n: number, includeMempool?: boolean): Promise<UTXODetails> {
-    return await this.client.call('gettxout', [txId, n, includeMempool], 'number')
+  async getTxOut (txId: string, n: number, includeMempool = true): Promise<UTXODetails> {
+    return await this.client.call('gettxout', [txId, n, includeMempool], { value: 'bignumber' })
   }
 }
 
@@ -159,26 +161,21 @@ export interface Vin {
 export interface Vout {
   value: number
   n: number
-  scriptPubKey: {
-    asm: string
-    hex: string
-    type: string
-    reqSigs: number
-    addresses: string[]
-    tokenId: string
-  }
+  scriptPubKey: ScriptPubKey
 }
 export interface UTXODetails {
   bestblock: string
   confirmations: number
-  value: number
-  scriptPubKey: {
-    asm: string
-    hex: string
-    type: string
-    reqSigs: number
-    addresses: string[]
-    tokenId: string
-  }
+  value: BigNumber
+  scriptPubKey: ScriptPubKey
   coinbase: boolean
+}
+
+export interface ScriptPubKey {
+  asm: string
+  hex: string
+  type: string
+  reqSigs: number
+  addresses: string[]
+  tokenId: string
 }

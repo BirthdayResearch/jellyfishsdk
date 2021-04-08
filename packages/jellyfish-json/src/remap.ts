@@ -24,14 +24,20 @@ enum MappingAction {
  * @param precision PrecisionMapping is a key value pair to allow revive value type
  */
 export function remap (text: string, precision: PrecisionMapping): any {
-  const losslessObj = parse(text)
+  const { result: losslessObj } = parse(text)
 
-  const errMessage = validate(losslessObj, precision)
+  const errMessage = Array.isArray(losslessObj)
+    ? bulkValidate(losslessObj, precision)
+    : validate(losslessObj, precision)
   if (errMessage !== undefined) {
     throw new Error(errMessage)
   }
 
-  return remapLosslessObj(losslessObj, precision)
+  const result = Array.isArray(losslessObj)
+    ? bulkRemapLosslessObj(losslessObj, precision)
+    : remapLosslessObj(losslessObj, precision)
+
+  return { result }
 }
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
@@ -43,6 +49,25 @@ function validate (losslessObj: any, precision: PrecisionMapping): string | unde
       return `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
     }
   }
+}
+
+function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | undefined {
+  let errorMessage: string | undefined = ''
+  for (let i = 0; i < losslessObj.length; i += 1) {
+    errorMessage = validate(losslessObj[i], precision)
+    if (errorMessage !== undefined) {
+      return errorMessage
+    }
+  }
+  return errorMessage
+}
+
+function bulkRemapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
+  const result = []
+  for (let i = 0; i < losslessObj.length; i += 1) {
+    result.push(remapLosslessObj(losslessObj[i], precision))
+  }
+  return result
 }
 
 /**
