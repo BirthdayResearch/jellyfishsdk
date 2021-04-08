@@ -10,6 +10,7 @@ export interface PrecisionMapping {
 }
 
 enum MappingAction {
+  NONE = 0,
   PRECISION = 1,
   PRECISION_LOOP = 2,
   DEEPLY_PRECISION_MAPPING = 3,
@@ -131,7 +132,7 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
   return losslessObj
 }
 
-function getAction (value: any, type: Precision | PrecisionMapping): MappingAction | undefined {
+function getAction (value: any, type: Precision | PrecisionMapping): MappingAction {
   // typed with precision
   if (typeof type === 'string' && value instanceof LosslessNumber) {
     return MappingAction.PRECISION
@@ -155,6 +156,8 @@ function getAction (value: any, type: Precision | PrecisionMapping): MappingActi
   if (typeof value === 'object') {
     return MappingAction.DEEPLY_UNKNOWN
   }
+
+  return MappingAction.NONE
 }
 
 /**
