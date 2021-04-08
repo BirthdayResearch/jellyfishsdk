@@ -124,6 +124,7 @@ describe('masternode', () => {
       const listUnspentPayload = { queryOptions: { maximumAmount: 100 } }
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        console.log('utxos: ', utxos)
         utxos.forEach(utxo => {
           expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
         })
@@ -143,7 +144,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
         const sum: BigNumber = utxos.map(utxo => utxo.amount).reduce((acc, val) => acc.plus(val))
-        expect(sum.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
+        expect(sum.isGreaterThanOrEqualTo(new BigNumber('100'))).toBe(true)
       })
     })
 
