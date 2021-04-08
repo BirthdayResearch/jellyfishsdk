@@ -45,9 +45,52 @@ it('remap deeply', () => {
   expect(jsonObj.custom).toBe(99)
 })
 
+it('should be working in array #1', async () => {
+  const { result: jsonObj } = JellyfishJSON.parse(`{
+    "result": {
+      "value": 38,
+      "customX": [
+        {"nestedA": { "a1": 1, "a2": 2, "a3": 3}},
+        {"nestedB": { "b1": 4, "b2": 5, "b3": 6}},
+        {"nestedC": 99}
+      ],
+      "customY": [50, 55, 60],
+      "customZ": [70, 75, 80]
+    }, "error": {}, "id": 3
+  }`, {
+    value: 'bignumber',
+    customX: { nestedA: { a2: 'bignumber' } },
+    customY: 'bignumber'
+  })
+
+  expect(jsonObj.value instanceof BigNumber).toBe(true)
+  expect(jsonObj.value.toString()).toBe('38')
+  expect(jsonObj.customX[0].nestedA.a2 instanceof BigNumber).toBe(true)
+  expect(jsonObj.customX[0].nestedA.a2.toString()).toBe('2')
+  expect(jsonObj.customY.every((y: BigNumber) => y instanceof BigNumber)).toBe(true)
+  expect(jsonObj.customZ.every((z: number) => typeof z === 'number')).toBe(true)
+})
+
+it('should be working in array #2', async () => {
+  const jsonObj = JellyfishJSON.parse(`[
+    {"group1": {"subgroup1": 4000}},
+    {"group2": {"subgroup2": 5000}},
+    {"group3": {"subgroup3": 6000}}
+  ]`, {
+    group2: { subgroup2: 'bignumber' },
+    group3: { subgroup3: 'lossless' }
+  })
+
+  expect(jsonObj[0].group1.subgroup1).toBe(4000)
+  expect(jsonObj[1].group2.subgroup2 instanceof BigNumber).toBe(true)
+  expect(jsonObj[1].group2.subgroup2.toString()).toBe('5000')
+  expect(jsonObj[2].group3.subgroup3 instanceof LosslessNumber).toBe(true)
+  expect(jsonObj[2].group3.subgroup3.toString()).toBe('6000')
+})
+
 it('should throw error if unmatched precision mapping with text', async () => {
   const t: any = () => {
-    return JellyfishJSON.parse('{"result":{"nested": 1}}', {
+    return JellyfishJSON.parse('{"result":{"nested": 1, "nestedB": 1}}', {
       nested: {
         something: 'bignumber'
       }
