@@ -12,9 +12,10 @@ export interface PrecisionMapping {
 enum MappingAction {
   NONE = 0,
   PRECISION = 1,
-  DEEPLY_PRECISION_MAPPING = 2,
-  DEFAULT_NUMBER = 3,
-  DEEPLY_UNKNOWN = 4
+  PRECISION_LOOP = 2,
+  DEEPLY_PRECISION_MAPPING = 3,
+  DEFAULT_NUMBER = 4,
+  DEEPLY_UNKNOWN = 5
 }
 
 /**
@@ -26,23 +27,71 @@ enum MappingAction {
 export function remap (text: string, precision: PrecisionMapping): any {
   const losslessObj = parse(text)
 
-  const errMessage = validate(losslessObj, precision)
+  const errMessage = Array.isArray(losslessObj)
+    ? bulkValidate(losslessObj, precision)
+    : validate(losslessObj, precision)
   if (errMessage !== undefined) {
     throw new Error(errMessage)
   }
 
-  return remapLosslessObj(losslessObj, precision)
+  return Array.isArray(losslessObj)
+    ? bulkRemapLosslessObj(losslessObj, precision)
+    : remapLosslessObj(losslessObj, precision)
+}
+
+function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | undefined {
+  for (let i = 0; i < losslessObj.length; i += 1) {
+    const errorMessage = validate(losslessObj[i], precision)
+    if (errorMessage !== undefined) {
+      return errorMessage
+    }
+  }
 }
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
   for (const k in losslessObj) {
-    const precisionType = precision[k]
+    const value = losslessObj[k]
+    const type = precision[k]
 
     // throw err if invalid type conversion found
-    if (!isValid(losslessObj[k], precisionType as Precision)) {
-      return `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
+    if (!isValid(value, type as Precision)) {
+      return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
+    }
+
+    if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
+      return validate(value, precision)
     }
   }
+}
+
+/**
+ * Validate the losslessObj type with precisionType
+ *
+ * @param value losslessObj value
+ * @param precisionType Precision
+ */
+function isValid (value: any, precisionType: Precision): boolean {
+  if (value instanceof LosslessNumber && typeof precisionType === 'object') {
+    // validation #1: unmatched precision parse
+    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
+    return false
+  }
+
+  if (typeof value === 'object' && Object.keys(value).length === 0) {
+    // validation #2: parsing invalid type
+    // eg: parsing empty object to bignumber
+    return false
+  }
+
+  return true
+}
+
+function bulkRemapLosslessObj (losslessObj: any[], precision: PrecisionMapping): any[] {
+  const mappedObj = []
+  for (let i = 0; i < losslessObj.length; i += 1) {
+    mappedObj.push(remapLosslessObj(losslessObj[i], precision))
+  }
+  return mappedObj
 }
 
 /**
@@ -62,6 +111,10 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
         losslessObj[k] = mapValue(losslessObj[k], type as Precision)
         break
 
+      case MappingAction.PRECISION_LOOP:
+        losslessObj[k] = bulkMapValue(losslessObj[k], type as Precision)
+        break
+
       case MappingAction.DEFAULT_NUMBER:
         losslessObj[k] = mapValue(losslessObj[k], 'number')
         break
@@ -71,7 +124,7 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
         break
 
       case MappingAction.DEEPLY_UNKNOWN:
-        remapLosslessObj(losslessObj[k], {})
+        remapLosslessObj(losslessObj[k], precision)
         break
     }
   }
@@ -83,6 +136,10 @@ function getAction (value: any, type: Precision | PrecisionMapping): MappingActi
   // typed with precision
   if (typeof type === 'string' && value instanceof LosslessNumber) {
     return MappingAction.PRECISION
+  }
+
+  if (typeof type === 'string' && Array.isArray(value)) {
+    return MappingAction.PRECISION_LOOP
   }
 
   // deeply with mapping
@@ -104,28 +161,6 @@ function getAction (value: any, type: Precision | PrecisionMapping): MappingActi
 }
 
 /**
- * Validate the losslessObj type with precisionType
- *
- * @param value losslessObj value
- * @param precisionType Precision
- */
-function isValid (value: any, precisionType: Precision): boolean {
-  if (typeof value === 'object' && Object.keys(value).length === 0) {
-    // validation #1: parsing invalid type
-    // eg: parsing empty object to bignumber
-    return false
-  }
-
-  if (typeof precisionType === 'object' && value instanceof LosslessNumber) {
-    // validation #2: unmatched precision parse
-    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
-    return false
-  }
-
-  return true
-}
-
-/**
  * @param precision Precision
  * @param value is used to be converted a preferred type
  * @returns converted value, 'lossless', 'bignumber', 'number'
@@ -144,4 +179,12 @@ function mapValue (value: LosslessNumber, precision: Precision): LosslessNumber 
     default:
       throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
   }
+}
+
+function bulkMapValue (value: LosslessNumber[], precision: Precision): Array<LosslessNumber | BigNumber | Number> {
+  const mappedValue = []
+  for (let i = 0; i < value.length; i += 1) {
+    mappedValue.push(mapValue(value[i], precision))
+  }
+  return mappedValue
 }
