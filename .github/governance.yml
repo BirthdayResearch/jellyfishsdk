@@ -16,7 +16,10 @@ issue:
           The triage/accepted label can be added by foundation members by writing /triage accepted in a comment.
 
     - prefix: kind
-      list: [ "feature", "bug", "question" ]
+      list:
+        - feature
+        - bug
+        - question
       multiple: false
       needs: true
       author_association:
@@ -26,7 +29,20 @@ issue:
         owner: true
 
     - prefix: area
-      list: [ "jellyfish", "api-core", "api-jsonrpc", "json", "network", "testcontainers", "website" ]
+      list:
+        - core
+        - website
+        - jellyfish
+        - jellyfish-api-core
+        - jellyfish-api-jsonrpc
+        - jellyfish-json
+        - jellyfish-network
+        - jellyfish-transaction
+        - jellyfish-wallet
+        - jellyfish-wallet-dfi
+        - jellyfish-wallet-mnemonic
+        - jellyfish-wallet-ledger-dfi
+        - testcontainers
       multiple: true
       needs:
         comment: |
@@ -95,7 +111,13 @@ pull_request:
   labels:
     - prefix: kind
       multiple: false
-      list: [ "feature", "fix", "chore", "docs", "refactor", "dependencies" ]
+      list:
+        - feature
+        - fix
+        - chore
+        - docs
+        - refactor
+        - dependencies
       needs:
         comment: |
           @$AUTHOR: There are no 'kind' label on this PR. You need a 'kind' label to generate the release automatically.
