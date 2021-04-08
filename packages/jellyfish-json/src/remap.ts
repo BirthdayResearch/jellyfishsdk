@@ -24,7 +24,8 @@ enum MappingAction {
  * @param precision PrecisionMapping is a key value pair to allow revive value type
  */
 export function remap (text: string, precision: PrecisionMapping): any {
-  const { result: losslessObj } = parse(text)
+  // result, error and id are the native resp properties by ApiClient.call
+  const { result: losslessObj, error, id } = parse(text)
 
   const errMessage = Array.isArray(losslessObj)
     ? bulkValidate(losslessObj, precision)
@@ -37,7 +38,7 @@ export function remap (text: string, precision: PrecisionMapping): any {
     ? bulkRemapLosslessObj(losslessObj, precision)
     : remapLosslessObj(losslessObj, precision)
 
-  return { result }
+  return { result, error, id }
 }
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
