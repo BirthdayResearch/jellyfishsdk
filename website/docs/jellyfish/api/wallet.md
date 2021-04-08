@@ -29,7 +29,7 @@ interface wallet {
 
 ## listUnspent
 
-Get details of unspent transaction output (UTXO).
+Get list of UTXOs in wallet.
 
 ```ts title="client.wallet.listUnspent()"
 interface wallet {
