@@ -45,7 +45,7 @@ it('remap deeply', () => {
   expect(jsonObj.custom).toBe(99)
 })
 
-it('should be working in array #1', async () => {
+it('should remap array in deeply nested array', async () => {
   const { result: jsonObj } = JellyfishJSON.parse(`{
     "result": {
       "value": 38,
@@ -71,7 +71,7 @@ it('should be working in array #1', async () => {
   expect(jsonObj.customZ.every((z: number) => typeof z === 'number')).toBe(true)
 })
 
-it('should be working in array #2', async () => {
+it('should remap array at object root', async () => {
   const jsonObj = JellyfishJSON.parse(`[
     {"group1": {"subgroup1": 4000}},
     {"group2": {"subgroup2": 5000}},
@@ -86,6 +86,110 @@ it('should be working in array #2', async () => {
   expect(jsonObj[1].group2.subgroup2.toString()).toBe('5000')
   expect(jsonObj[2].group3.subgroup3 instanceof LosslessNumber).toBe(true)
   expect(jsonObj[2].group3.subgroup3.toString()).toBe('6000')
+})
+
+it('should remap object at root with key mapping', () => {
+  const parsed = JellyfishJSON.parse(`{
+    "big": 123.4,
+    "num": 1000
+  }`, {
+    big: 'bignumber'
+  })
+  expect(parsed.big instanceof BigNumber).toBe(true)
+  expect(parsed.num).toBe(1000)
+})
+
+it('should remap object deeply with key mapping', () => {
+  const parsed = JellyfishJSON.parse(`{
+    "deeply": {
+      "big": 123,
+      "num": 1000
+    }
+  }`, {
+    deeply: {
+      big: 'bignumber'
+    }
+  })
+  expect(parsed.deeply.big instanceof BigNumber).toBe(true)
+  expect(parsed.deeply.num).toBe(1000)
+})
+
+it('should remap all array with same precision', () => {
+  const parsed = JellyfishJSON.parse(`[
+    100,
+    200
+  ]`, 'bignumber')
+
+  expect(parsed[0] instanceof BigNumber).toBe(true)
+  expect(parsed[1] instanceof BigNumber).toBe(true)
+})
+
+it('should remap all array object with same precision', () => {
+  const parsed = JellyfishJSON.parse(`[
+    {
+      "big": 100
+    },
+    {
+      "big": 200.2
+    }
+  ]`, {
+    big: 'bignumber'
+  })
+
+  expect(parsed[0].big instanceof BigNumber).toBe(true)
+  expect(parsed[1].big instanceof BigNumber).toBe(true)
+})
+
+// it('should remap all array with different precision and unmapped default to number', () => {
+//   const parsed = JellyfishJSON.parse(`[
+//     {
+//       "big": 123
+//     },
+//     {
+//       "big": 123.4
+//     },
+//     {
+//       "big": 123.45
+//     },
+//     {
+//       "big": 123.456
+//     }
+//   ]`, [
+//     {
+//       big: 'bignumber'
+//     },
+//     {},
+//     {
+//       big: 'bignumber'
+//     },
+//   ])
+
+//   expect(parsed[0] instanceof BigNumber).toBe(true)
+//   expect(parsed[1]).toBe(123.4)
+//   expect(parsed[2] instanceof BigNumber).toBe(true)
+//   expect(parsed[3]).toBe(123.456)
+// });
+
+it('should remap all array object with same precision deeply', () => {
+  const parsed = JellyfishJSON.parse(`[
+    {
+      "deeply": {
+        "big": 123
+      }
+    },
+    {
+      "deeply": {
+        "big": 123.4
+      }
+    }
+  ]`, {
+    deeply: {
+      big: 'bignumber'
+    }
+  })
+
+  expect(parsed[0].deeply.big instanceof BigNumber).toBe(true)
+  expect(parsed[1].deeply.big instanceof BigNumber).toBe(true)
 })
 
 it('should throw error if unmatched precision mapping with text', async () => {

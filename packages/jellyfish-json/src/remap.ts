@@ -35,7 +35,7 @@ export function remap (text: string, precision: PrecisionMapping): any {
   }
 
   return Array.isArray(losslessObj)
-    ? bulkRemapLosslessObj(losslessObj, precision)
+    ? (losslessObj).map(v => remapLosslessObj(v, precision))
     : remapLosslessObj(losslessObj, precision)
 }
 
@@ -50,16 +50,15 @@ function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | 
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
   for (const k in losslessObj) {
-    const value = losslessObj[k]
-    const type = precision[k]
+    const precisionType = precision[k]
 
     // throw err if invalid type conversion found
-    if (!isValid(value, type as Precision)) {
-      return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
+    if (!isValid(losslessObj[k], precisionType as Precision)) {
+      return `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
     }
 
-    if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
-      return validate(value, precision)
+    if (typeof losslessObj[k] === 'object' && !(losslessObj[k] instanceof LosslessNumber)) {
+      return validate(losslessObj[k], precision)
     }
   }
 }
@@ -86,14 +85,6 @@ function isValid (value: any, precisionType: Precision): boolean {
   return true
 }
 
-function bulkRemapLosslessObj (losslessObj: any[], precision: PrecisionMapping): any[] {
-  const mappedObj = []
-  for (let i = 0; i < losslessObj.length; i += 1) {
-    mappedObj.push(remapLosslessObj(losslessObj[i], precision))
-  }
-  return mappedObj
-}
-
 /**
  * @param losslessObj lossless json object
  * @param precision Precision - 'bignumber', 'number', 'lossless'
@@ -112,7 +103,7 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
         break
 
       case MappingAction.PRECISION_LOOP:
-        losslessObj[k] = bulkMapValue(losslessObj[k], type as Precision)
+        losslessObj[k] = (losslessObj[k] as any[]).map(v => mapValue(v, type as Precision))
         break
 
       case MappingAction.DEFAULT_NUMBER:
@@ -179,12 +170,4 @@ function mapValue (value: LosslessNumber, precision: Precision): LosslessNumber 
     default:
       throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
   }
-}
-
-function bulkMapValue (value: LosslessNumber[], precision: Precision): Array<LosslessNumber | BigNumber | Number> {
-  const mappedValue = []
-  for (let i = 0; i < value.length; i += 1) {
-    mappedValue.push(mapValue(value[i], precision))
-  }
-  return mappedValue
 }
