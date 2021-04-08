@@ -50,15 +50,16 @@ function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | 
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
   for (const k in losslessObj) {
-    const precisionType = precision[k]
+    const type = precision[k]
+    const value = losslessObj[k]
 
     // throw err if invalid type conversion found
-    if (!isValid(losslessObj[k], precisionType as Precision)) {
-      return `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
+    if (!isValid(value, type as Precision)) {
+      return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
     }
 
-    if (typeof losslessObj[k] === 'object' && !(losslessObj[k] instanceof LosslessNumber)) {
-      return validate(losslessObj[k], precision)
+    if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
+      return validate(value, precision)
     }
   }
 }
