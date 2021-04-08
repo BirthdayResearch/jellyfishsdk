@@ -35,7 +35,7 @@ export function remap (text: string, precision: PrecisionMapping): any {
   }
 
   return Array.isArray(losslessObj)
-    ? bulkRemapLosslessObj(losslessObj, precision)
+    ? (losslessObj).map(v => remapLosslessObj(v, precision))
     : remapLosslessObj(losslessObj, precision)
 }
 
@@ -50,18 +50,20 @@ function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | 
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
   for (const k in losslessObj) {
-    const value = losslessObj[k]
     const type = precision[k]
+    const value = losslessObj[k]
 
     // throw err if invalid type conversion found
     if (!isValid(value, type as Precision)) {
       return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
-    }
-
-    if (typeof value === 'object' && !(value instanceof LosslessNumber)) {
+    } else if (isNestedObject(value)) {
       return validate(value, precision)
     }
   }
+}
+
+function isNestedObject (value: any): boolean {
+  return typeof value === 'object' && !(value instanceof LosslessNumber)
 }
 
 /**
@@ -86,24 +88,12 @@ function isValid (value: any, precisionType: Precision): boolean {
   return true
 }
 
-function bulkRemapLosslessObj (losslessObj: any[], precision: PrecisionMapping): any[] {
-  const mappedObj = []
-  for (let i = 0; i < losslessObj.length; i += 1) {
-    mappedObj.push(remapLosslessObj(losslessObj[i], precision))
-  }
-  return mappedObj
-}
-
 /**
  * @param losslessObj lossless json object
  * @param precision Precision - 'bignumber', 'number', 'lossless'
  */
 function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
   for (const k in losslessObj) {
-    if (!Object.prototype.hasOwnProperty.call(losslessObj, k)) {
-      continue
-    }
-
     const type: Precision | PrecisionMapping = precision[k]
 
     switch (getAction(losslessObj[k], type)) {
@@ -112,7 +102,7 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
         break
 
       case MappingAction.PRECISION_LOOP:
-        losslessObj[k] = bulkMapValue(losslessObj[k], type as Precision)
+        losslessObj[k] = (losslessObj[k] as any[]).map(v => mapValue(v, type as Precision))
         break
 
       case MappingAction.DEFAULT_NUMBER:
@@ -133,23 +123,38 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
 }
 
 function getAction (value: any, type: Precision | PrecisionMapping): MappingAction {
+  const mappingAction = getPrecisionMappingAction(value, type)
+
+  if (mappingAction === MappingAction.NONE) {
+    return getDeeplyMappingAction(value, type)
+  }
+
+  return mappingAction
+}
+
+function getPrecisionMappingAction (value: any, type: Precision | PrecisionMapping): MappingAction {
   // typed with precision
   if (typeof type === 'string' && value instanceof LosslessNumber) {
     return MappingAction.PRECISION
   }
 
+  // precision in loop
   if (typeof type === 'string' && Array.isArray(value)) {
     return MappingAction.PRECISION_LOOP
-  }
-
-  // deeply with mapping
-  if (typeof type === 'object') {
-    return MappingAction.DEEPLY_PRECISION_MAPPING
   }
 
   // number as default
   if (value instanceof LosslessNumber) {
     return MappingAction.DEFAULT_NUMBER
+  }
+
+  return MappingAction.NONE
+}
+
+function getDeeplyMappingAction (value: any, type: Precision | PrecisionMapping): MappingAction {
+  // deeply with mapping
+  if (typeof type === 'object') {
+    return MappingAction.DEEPLY_PRECISION_MAPPING
   }
 
   // deeply with unknown
@@ -179,12 +184,4 @@ function mapValue (value: LosslessNumber, precision: Precision): LosslessNumber 
     default:
       throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
   }
-}
-
-function bulkMapValue (value: LosslessNumber[], precision: Precision): Array<LosslessNumber | BigNumber | Number> {
-  const mappedValue = []
-  for (let i = 0; i < value.length; i += 1) {
-    mappedValue.push(mapValue(value[i], precision))
-  }
-  return mappedValue
 }
