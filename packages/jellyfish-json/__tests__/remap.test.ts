@@ -72,7 +72,7 @@ it('should remap array in deeply nested array', async () => {
 })
 
 it('should remap array at object root', async () => {
-  const jsonObj = JellyfishJSON.parse(`[
+  const parsed = JellyfishJSON.parse(`[
     {"group1": {"subgroup1": 4000}},
     {"group2": {"subgroup2": 5000}},
     {"group3": {"subgroup3": 6000}}
@@ -81,11 +81,11 @@ it('should remap array at object root', async () => {
     group3: { subgroup3: 'lossless' }
   })
 
-  expect(jsonObj[0].group1.subgroup1).toBe(4000)
-  expect(jsonObj[1].group2.subgroup2 instanceof BigNumber).toBe(true)
-  expect(jsonObj[1].group2.subgroup2.toString()).toBe('5000')
-  expect(jsonObj[2].group3.subgroup3 instanceof LosslessNumber).toBe(true)
-  expect(jsonObj[2].group3.subgroup3.toString()).toBe('6000')
+  expect(parsed[0].group1.subgroup1).toBe(4000)
+  expect(parsed[1].group2.subgroup2 instanceof BigNumber).toBe(true)
+  expect(parsed[1].group2.subgroup2.toString()).toBe('5000')
+  expect(parsed[2].group3.subgroup3 instanceof LosslessNumber).toBe(true)
+  expect(parsed[2].group3.subgroup3.toString()).toBe('6000')
 })
 
 it('should remap object at root with key mapping', () => {
@@ -160,6 +160,20 @@ it('should remap all array object with same precision deeply', () => {
 
   expect(parsed[0].deeply.big instanceof BigNumber).toBe(true)
   expect(parsed[1].deeply.big instanceof BigNumber).toBe(true)
+})
+
+it('should remap linear array', async () => {
+  const parsed = JellyfishJSON.parse(`
+    {
+      "items": [1,2,3]
+    }`, {
+    items: 'bignumber'
+  })
+
+  expect(parsed.items.every((i: BigNumber) => i instanceof BigNumber)).toBe(true)
+  expect(parsed.items[0].toString()).toBe('1')
+  expect(parsed.items[1].toString()).toBe('2')
+  expect(parsed.items[2].toString()).toBe('3')
 })
 
 it('should throw error if unmatched precision mapping with text', async () => {
