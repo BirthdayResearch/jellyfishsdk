@@ -27,25 +27,17 @@ enum MappingAction {
 export function remap (text: string, precision: PrecisionMapping): any {
   const losslessObj = parse(text)
 
-  const errMessage = Array.isArray(losslessObj)
-    ? bulkValidate(losslessObj, precision)
-    : validate(losslessObj, precision)
-  if (errMessage !== undefined) {
-    throw new Error(errMessage)
+  if (Array.isArray(losslessObj)) {
+    return losslessObj.map((v: any) => {
+      const errMsg = validate(v, precision)
+      if (errMsg !== undefined) throw new Error(errMsg)
+      return remapLosslessObj(v, precision)
+    })
   }
 
-  return Array.isArray(losslessObj)
-    ? (losslessObj).map(v => remapLosslessObj(v, precision))
-    : remapLosslessObj(losslessObj, precision)
-}
-
-function bulkValidate (losslessObj: any, precision: PrecisionMapping): string | undefined {
-  for (let i = 0; i < losslessObj.length; i += 1) {
-    const errorMessage = validate(losslessObj[i], precision)
-    if (errorMessage !== undefined) {
-      return errorMessage
-    }
-  }
+  const errMsg = validate(losslessObj, precision)
+  if (errMsg !== undefined) throw new Error(errMsg)
+  return remapLosslessObj(losslessObj, precision)
 }
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
@@ -123,38 +115,23 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
 }
 
 function getAction (value: any, type: Precision | PrecisionMapping): MappingAction {
-  const mappingAction = getPrecisionMappingAction(value, type)
-
-  if (mappingAction === MappingAction.NONE) {
-    return getDeeplyMappingAction(value, type)
-  }
-
-  return mappingAction
-}
-
-function getPrecisionMappingAction (value: any, type: Precision | PrecisionMapping): MappingAction {
   // typed with precision
   if (typeof type === 'string' && value instanceof LosslessNumber) {
     return MappingAction.PRECISION
   }
 
-  // precision in loop
   if (typeof type === 'string' && Array.isArray(value)) {
     return MappingAction.PRECISION_LOOP
+  }
+
+  // deeply with mapping
+  if (typeof type === 'object') {
+    return MappingAction.DEEPLY_PRECISION_MAPPING
   }
 
   // number as default
   if (value instanceof LosslessNumber) {
     return MappingAction.DEFAULT_NUMBER
-  }
-
-  return MappingAction.NONE
-}
-
-function getDeeplyMappingAction (value: any, type: Precision | PrecisionMapping): MappingAction {
-  // deeply with mapping
-  if (typeof type === 'object') {
-    return MappingAction.DEEPLY_PRECISION_MAPPING
   }
 
   // deeply with unknown
