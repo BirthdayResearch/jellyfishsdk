@@ -207,3 +207,13 @@ it('missing property should be ignored', () => {
 
   expect(JSON.stringify(object)).toBe(text)
 })
+
+it('strict precision testing: should the specific struct value is parsed', async () => {
+  const parsed = JellyfishJSON.parse(`
+    {"foo": {"bar": 123}, "bar": 456 }
+  `, { foo: { bar: 'number' }, bar: 'bignumber' })
+
+  expect(parsed.foo.bar).toBe(123)
+  expect(parsed.bar instanceof BigNumber).toBe(true)
+  expect(parsed.bar.toString()).toBe('456')
+})
