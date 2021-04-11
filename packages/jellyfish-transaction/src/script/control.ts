@@ -1,4 +1,4 @@
-import { StaticCode } from './static'
+import { StaticCode } from './opcode'
 
 /**
  * Marks transaction as invalid.

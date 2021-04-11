@@ -1,6 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { OPCode } from './opcode'
-import { StaticCode } from './static'
+import { OPCode, StaticCode } from './opcode'
 
 /**
  * An empty array of bytes is pushed onto the stack.
@@ -54,27 +53,31 @@ export class OP_PUSHDATA extends OPCode {
     if (Buffer.isBuffer(numOrBuffer)) {
       this.data = numOrBuffer
     } else if (buffer !== undefined) {
-      this.data = OP_PUSHDATA.getDataFromBuffer(numOrBuffer, buffer)
+      const buff = OP_PUSHDATA.readData(numOrBuffer, buffer)
+      this.data = Buffer.from(buff).reverse()
     } else {
       throw new Error('OP_PUSHDATA invalid constructor parameters')
     }
   }
 
-  private static getDataFromBuffer (code: number, buffer: SmartBuffer): Buffer {
+  /**
+   * Read data from buffer
+   */
+  private static readData (code: number, buffer: SmartBuffer): Buffer {
     if (code < 0x4c) {
-      return buffer.readBuffer(code).reverse()
+      return buffer.readBuffer(code)
     }
 
     if (code === 0x4c) {
-      return buffer.readBuffer(buffer.readUInt8()).reverse()
+      return buffer.readBuffer(buffer.readUInt8())
     }
 
     if (code === 0x4d) {
-      return buffer.readBuffer(buffer.readUInt16LE()).reverse()
+      return buffer.readBuffer(buffer.readUInt16LE())
     }
 
     if (code === 0x4e) {
-      return buffer.readBuffer(buffer.readUInt32LE()).reverse()
+      return buffer.readBuffer(buffer.readUInt32LE())
     }
 
     throw new RangeError(`OP_PUSHDATA ${code} is not between 0x01 or 0x4e inclusive`)

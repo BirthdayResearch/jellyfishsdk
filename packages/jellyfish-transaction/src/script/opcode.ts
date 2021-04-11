@@ -1,8 +1,3 @@
-import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
-import { OP_PUSHDATA } from './constants'
-import { numAsOPCode } from './static'
-
 /**
  * Operation code, script words, opcodes, commands and functions there are many names to this.
  * This is essentially things to be pushed into the DeFi scripting stack.
@@ -18,49 +13,22 @@ export abstract class OPCode {
   abstract asm (): string
 
   abstract asBuffer (): Buffer
+}
 
-  static fromBuffer (buffer: SmartBuffer): OPCode[] {
-    const length = readVarUInt(buffer)
-    if (length === 0) {
-      return []
-    }
+/**
+ * Statically mapped code of OPCode
+ */
+export abstract class StaticCode extends OPCode {
+  protected readonly code: number
 
-    return this.toOPCodes(SmartBuffer.fromBuffer(buffer.readBuffer(length)))
+  constructor (code: number) {
+    super()
+    this.code = code
   }
 
-  private static toOPCodes (buffer: SmartBuffer): OPCode[] {
-    const stack: OPCode[] = []
-    while (buffer.remaining() > 0) {
-      stack.push(this.toOpCode(buffer))
-    }
-    return stack
-  }
-
-  private static toOpCode (buffer: SmartBuffer): OPCode {
-    const code = buffer.readUInt8()
-
-    if (code !== 0x00 && code <= 0x4e) {
-      return new OP_PUSHDATA(code, buffer)
-    }
-
-    return numAsOPCode(code)
-  }
-
-  static toBuffer (stack: OPCode[], buffer: SmartBuffer): void {
-    let len = 0
-    const buffers = []
-
-    // Collect len of byes and all buffers
-    for (const opCode of stack) {
-      const buf = opCode.asBuffer()
-      len += buf.length
-      buffers.push(buf)
-    }
-
-    // Write the len of buffer in bytes and then all the buffer
-    writeVarUInt(len, buffer)
-    for (const buff of buffers) {
-      buffer.writeBuffer(buff)
-    }
+  asBuffer (): Buffer {
+    const buffer = Buffer.allocUnsafe(1)
+    buffer.writeUInt8(this.code)
+    return buffer
   }
 }

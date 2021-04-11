@@ -1,6 +1,6 @@
 import { OP_0, OP_FALSE } from './constants'
 import { OP_RETURN } from './control'
-import { OPCode } from './opcode'
+import { StaticCode } from './opcode'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -19,24 +19,6 @@ export function numAsOPCode (num: number): StaticCode {
 
     default:
       return new OP_UNMAPPED(num)
-  }
-}
-
-/**
- * Statically mapped code
- */
-export abstract class StaticCode extends OPCode {
-  protected readonly code: number
-
-  constructor (code: number) {
-    super()
-    this.code = code
-  }
-
-  asBuffer (): Buffer {
-    const buffer = Buffer.allocUnsafe(1)
-    buffer.writeUInt8(this.code)
-    return buffer
   }
 }
 
