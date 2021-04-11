@@ -3,7 +3,11 @@
 
 # @defichain/jellyfish-transaction
 
-Stateless transaction builder for DeFi. 
+Dead simple modern stateless raw transaction builder for DeFi.
+
+```
+Used in DeFi Fiber, but not yet included in @defichain/jellyfish bundle. 
+```
 
 ## Prior-art
 
