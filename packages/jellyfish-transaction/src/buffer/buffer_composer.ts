@@ -55,14 +55,15 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Deeply toJSON mapper.
-   * This unwrap the data in ComposableBuffer and convert all ComposableBuffer into their raw state.
+   * Deeply toObject() mapper.
+   * This unwrap the data in ComposableBuffer and convert all ComposableBuffer into their raw object.
+   * This make it compatible to convert into JSON with JSON.stringify()
    * @return {Object}
    */
-  toJSON (): object {
+  toObject (): object {
     const json: any = {}
     for (const [key, value] of Object.entries(this.data)) {
-      json[key] = value instanceof ComposableBuffer ? value.toJSON() : value
+      json[key] = value instanceof ComposableBuffer ? value.toObject() : value
     }
     return json
   }

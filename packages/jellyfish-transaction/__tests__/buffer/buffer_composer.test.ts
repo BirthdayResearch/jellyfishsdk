@@ -141,7 +141,7 @@ describe('ComposableBuffer deep implementation', () => {
 
   it('CRoot to JSON deeply compare', () => {
     const root = new CRoot(data)
-    expect(JSON.stringify(root.toJSON())).toBe(JSON.stringify(data))
+    expect(JSON.stringify(root.toObject())).toBe(JSON.stringify(data))
   })
 
   it('buffer to CRoot', () => {
