@@ -1,11 +1,13 @@
 import { Precision, PrecisionPath } from '@defichain/jellyfish-json'
 import { Blockchain } from './category/blockchain'
 import { Mining } from './category/mining'
+import { RawTx } from './category/rawtx'
 import { Wallet } from './category/wallet'
 
 export * from '@defichain/jellyfish-json'
 export * from './category/blockchain'
 export * from './category/mining'
+export * as rawtx from './category/rawtx'
 export * from './category/wallet'
 
 /**
@@ -14,6 +16,7 @@ export * from './category/wallet'
 export abstract class ApiClient {
   public readonly blockchain = new Blockchain(this)
   public readonly mining = new Mining(this)
+  public readonly rawtx = new RawTx(this)
   public readonly wallet = new Wallet(this)
 
   /**
