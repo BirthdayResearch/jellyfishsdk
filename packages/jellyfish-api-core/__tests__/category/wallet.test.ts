@@ -41,13 +41,13 @@ describe('masternode', () => {
   describe('getBalance', () => {
     it('should getBalance >= 100', async () => {
       return await waitForExpect(async () => {
-        const balance = await client.wallet.getBalance()
+        const balance: BigNumber = await client.wallet.getBalance()
         expect(balance.isGreaterThan(new BigNumber('100'))).toBe(true)
       })
     })
   })
 
-  describe.only('listUnspent', () => {
+  describe('listUnspent', () => {
     it('should listUnspent', async () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent()
