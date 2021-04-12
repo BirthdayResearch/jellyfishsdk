@@ -36,6 +36,9 @@
     "publish:next": "npm publish --tag next --access public",
     "publish:latest": "npm publish --tag latest --access public"
   },
+  "peerDependencies": {
+    "bignumber.js": "^9.0.1"
+  },
   "dependencies": {
     "smart-buffer": "^4.1.0"
   },

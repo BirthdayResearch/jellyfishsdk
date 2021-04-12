@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from './buffer/buffer_composer'
 import {
@@ -16,6 +17,9 @@ import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
 /* eslint-disable no-return-assign */
 
 /**
+ * USE CTransaction AT YOUR OWN RISK.
+ * The TransactionBuilder has safety logic built-in to prevent overspent, CTransaction is its raw counter part.
+ *
  * Composable Transaction, C stands for Composable.
  * Immutable by design, it implements the Transaction interface for convenience.
  * Bi-directional fromBuffer, toBuffer deep composer.
@@ -88,7 +92,7 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
  * Bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CVout extends ComposableBuffer<Vout> implements Vout {
-  public get value (): BigInt {
+  public get value (): BigNumber {
     return this.data.value
   }
 
@@ -97,8 +101,14 @@ export class CVout extends ComposableBuffer<Vout> implements Vout {
   }
 
   composers (vout: Vout): BufferComposer[] {
+    const DIGIT_8 = new BigNumber('100000000')
+
     return [
-      ComposableBuffer.bigUInt64(() => vout.value, v => vout.value = v),
+      ComposableBuffer.bigUInt64(() => {
+        return BigInt(vout.value.multipliedBy(DIGIT_8).toString(10))
+      }, v => {
+        vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
+      }),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v))
     ]
   }
@@ -131,6 +141,9 @@ export class CScript extends ComposableBuffer<Script> implements Script {
 }
 
 /**
+ * USE CTransactionSegWit AT YOUR OWN RISK.
+ * The TransactionBuilder has safety logic built-in to prevent overspent, CTransactionSegWit is its raw counter part.
+ *
  * Composable TransactionSegWit, C stands for Composable.
  * Immutable by design, it implements the TransactionSegWit interface for convenience.
  * Bi-directional fromBuffer, toBuffer deep composer.

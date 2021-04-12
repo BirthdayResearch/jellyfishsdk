@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { OPCode } from './script'
 
 /**
@@ -37,7 +38,7 @@ export interface Vin {
  * Also know as Transaction Out, TxOut, VectorOut, RedeemOut, Creating UTXO.
  */
 export interface Vout {
-  value: BigInt // ---------------------| 8 bytes
+  value: BigNumber // ------------------| 8 bytes
   script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
