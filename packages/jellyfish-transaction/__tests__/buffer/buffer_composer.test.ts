@@ -139,6 +139,11 @@ describe('ComposableBuffer deep implementation', () => {
     expect(buffer.toBuffer().toString('hex')).toBe(hex)
   })
 
+  it('CRoot to JSON deeply compare', () => {
+    const root = new CRoot(data)
+    expect(JSON.stringify(root.toJSON())).toBe(JSON.stringify(data))
+  })
+
   it('buffer to CRoot', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     const root = new CRoot(buffer)
