@@ -17,7 +17,7 @@ import { OPCode } from './opcode'
  */
 export class OP_PUSHDATA extends OPCode {
   /**
-   * Kept as Big Endian while at rest
+   * Stored as Big Endian while at rest
    */
   protected readonly data: Buffer
 
