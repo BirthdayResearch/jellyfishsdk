@@ -2,7 +2,7 @@ import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { BigNumber } from '../../src'
 import waitForExpect from 'wait-for-expect'
-import { UTXO } from '../../src/category/wallet'
+import { UTXO, ListUnspentOptions } from '../../src/category/wallet'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -18,7 +18,7 @@ describe('non masternode', () => {
   })
 
   it('should getBalance = 0', async () => {
-    const balance: BigNumber = await client.wallet.getBalance()
+    const balance = await client.wallet.getBalance()
 
     expect(balance.toString()).toBe('0')
   })
@@ -41,13 +41,13 @@ describe('masternode', () => {
   describe('getBalance', () => {
     it('should getBalance >= 100', async () => {
       return await waitForExpect(async () => {
-        const balance: BigNumber = await client.wallet.getBalance()
+        const balance = await client.wallet.getBalance()
         expect(balance.isGreaterThan(new BigNumber('100'))).toBe(true)
       })
     })
   })
 
-  describe('listUnspent', () => {
+  describe.only('listUnspent', () => {
     it('should listUnspent', async () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent()
@@ -71,9 +71,8 @@ describe('masternode', () => {
     })
 
     it('test listUnspent minimumConfirmation filter', async () => {
-      const listUnspentPayload = { minimumConfirmation: 99 }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(99)
         utxos.forEach(utxo => {
           expect(utxo.confirmations).toBeGreaterThanOrEqual(99)
         })
@@ -81,9 +80,8 @@ describe('masternode', () => {
     })
 
     it('test listUnspent maximumConfirmation filter', async () => {
-      const listUnspentPayload = { maximumConfirmation: 300 }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 300)
         utxos.forEach(utxo => {
           expect(utxo.confirmations).toBeLessThanOrEqual(300)
         })
@@ -91,9 +89,11 @@ describe('masternode', () => {
     })
 
     it('test listUnspent addresses filter', async () => {
-      const listUnspentPayload = { addresses: ['mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'] }
+      const options: ListUnspentOptions = {
+        addresses: ['mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU']
+      }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
           expect(utxo.address).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
         })
@@ -101,9 +101,9 @@ describe('masternode', () => {
     })
 
     it('test listUnspent includeUnsafe filter', async () => {
-      const listUnspentPayload = { includeUnsafe: false }
+      const options: ListUnspentOptions = { includeUnsafe: false }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
           expect(utxo.safe).toBe(true)
         })
@@ -111,9 +111,9 @@ describe('masternode', () => {
     })
 
     it('test listUnspent queryOptions minimumAmount filter', async () => {
-      const listUnspentPayload = { queryOptions: { minimumAmount: 5 } }
+      const options: ListUnspentOptions = { queryOptions: { minimumAmount: 5 } }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
           expect(utxo.amount.isGreaterThanOrEqualTo(new BigNumber('5'))).toBe(true)
         })
@@ -121,9 +121,9 @@ describe('masternode', () => {
     })
 
     it('test listUnspent queryOptions maximumAmount filter', async () => {
-      const listUnspentPayload = { queryOptions: { maximumAmount: 100 } }
+      const options: ListUnspentOptions = { queryOptions: { maximumAmount: 100 } }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         console.log('utxos: ', utxos)
         utxos.forEach(utxo => {
           expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
@@ -132,26 +132,26 @@ describe('masternode', () => {
     })
 
     it('test listUnspent queryOptions maximumCount filter', async () => {
-      const listUnspentPayload = { queryOptions: { maximumCount: 100 } }
+      const options: ListUnspentOptions = { queryOptions: { maximumCount: 100 } }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         expect(utxos.length).toBeLessThanOrEqual(100)
       })
     })
 
     it('test listUnspent queryOptions minimumSumAmount filter', async () => {
-      const listUnspentPayload = { queryOptions: { minimumSumAmount: 100 } }
+      const options: ListUnspentOptions = { queryOptions: { minimumSumAmount: 100 } }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         const sum: BigNumber = utxos.map(utxo => utxo.amount).reduce((acc, val) => acc.plus(val))
         expect(sum.isGreaterThanOrEqualTo(new BigNumber('100'))).toBe(true)
       })
     })
 
     it('test listUnspent queryOptions tokenId filter', async () => {
-      const listUnspentPayload = { queryOptions: { tokenId: '0' } }
+      const options: ListUnspentOptions = { queryOptions: { tokenId: '0' } }
       await waitForExpect(async () => {
-        const utxos: UTXO[] = await client.wallet.listUnspent(listUnspentPayload)
+        const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
           expect(utxo.tokenId).toBe('0')
         })

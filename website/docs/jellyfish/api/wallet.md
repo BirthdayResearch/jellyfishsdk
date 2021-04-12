@@ -33,12 +33,14 @@ Get list of UTXOs in wallet.
 
 ```ts title="client.wallet.listUnspent()"
 interface wallet {
-  listUnspent (payload: ListUnspentPayload): Promise<UTXO[]>
+  listUnspent (
+    minimumConfirmation = 1,
+    maximumConfirmation = 9999999,
+    options: ListUnspentOptions = {},
+  ): Promise<UTXO[]>
 }
 
-interface ListUnspentPayload {
-  minimumConfirmation?: number
-  maximumConfirmation?: number
+interface ListUnspentOptions {
   addresses?: string[]
   includeUnsafe?: boolean
   queryOptions?: ListUnspentQueryOptions
