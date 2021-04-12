@@ -12,9 +12,10 @@ export interface PrecisionMapping {
 enum MappingAction {
   NONE = 0,
   PRECISION = 1,
-  DEEPLY_PRECISION_MAPPING = 2,
-  DEFAULT_NUMBER = 3,
-  DEEPLY_UNKNOWN = 4
+  PRECISION_LOOP = 2,
+  DEEPLY_PRECISION_MAPPING = 3,
+  DEFAULT_NUMBER = 4,
+  DEEPLY_UNKNOWN = 5
 }
 
 /**
@@ -26,23 +27,57 @@ enum MappingAction {
 export function remap (text: string, precision: PrecisionMapping): any {
   const losslessObj = parse(text)
 
-  const errMessage = validate(losslessObj, precision)
-  if (errMessage !== undefined) {
-    throw new Error(errMessage)
+  if (Array.isArray(losslessObj)) {
+    return losslessObj.map((v: any) => {
+      const errMsg = validate(v, precision)
+      if (errMsg !== undefined) throw new Error(errMsg)
+      return remapLosslessObj(v, precision)
+    })
   }
 
+  const errMsg = validate(losslessObj, precision)
+  if (errMsg !== undefined) throw new Error(errMsg)
   return remapLosslessObj(losslessObj, precision)
 }
 
 function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
   for (const k in losslessObj) {
-    const precisionType = precision[k]
+    const type = precision[k]
+    const value = losslessObj[k]
 
     // throw err if invalid type conversion found
-    if (!isValid(losslessObj[k], precisionType as Precision)) {
-      return `JellyfishJSON.parse ${k}: ${losslessObj[k] as string} with ${precisionType as string} precision is not supported`
+    if (!isValid(value, type as Precision)) {
+      return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
+    } else if (isNestedObject(value)) {
+      return validate(value, precision)
     }
   }
+}
+
+function isNestedObject (value: any): boolean {
+  return typeof value === 'object' && !(value instanceof LosslessNumber)
+}
+
+/**
+ * Validate the losslessObj type with precisionType
+ *
+ * @param value losslessObj value
+ * @param precisionType Precision
+ */
+function isValid (value: any, precisionType: Precision): boolean {
+  if (value instanceof LosslessNumber && typeof precisionType === 'object') {
+    // validation #1: unmatched precision parse
+    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
+    return false
+  }
+
+  if (typeof value === 'object' && Object.keys(value).length === 0) {
+    // validation #2: parsing invalid type
+    // eg: parsing empty object to bignumber
+    return false
+  }
+
+  return true
 }
 
 /**
@@ -51,15 +86,15 @@ function validate (losslessObj: any, precision: PrecisionMapping): string | unde
  */
 function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
   for (const k in losslessObj) {
-    if (!Object.prototype.hasOwnProperty.call(losslessObj, k)) {
-      continue
-    }
-
     const type: Precision | PrecisionMapping = precision[k]
 
     switch (getAction(losslessObj[k], type)) {
       case MappingAction.PRECISION:
         losslessObj[k] = mapValue(losslessObj[k], type as Precision)
+        break
+
+      case MappingAction.PRECISION_LOOP:
+        losslessObj[k] = (losslessObj[k] as any[]).map(v => mapValue(v, type as Precision))
         break
 
       case MappingAction.DEFAULT_NUMBER:
@@ -71,7 +106,7 @@ function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
         break
 
       case MappingAction.DEEPLY_UNKNOWN:
-        remapLosslessObj(losslessObj[k], {})
+        remapLosslessObj(losslessObj[k], precision)
         break
     }
   }
@@ -83,6 +118,10 @@ function getAction (value: any, type: Precision | PrecisionMapping): MappingActi
   // typed with precision
   if (typeof type === 'string' && value instanceof LosslessNumber) {
     return MappingAction.PRECISION
+  }
+
+  if (typeof type === 'string' && Array.isArray(value)) {
+    return MappingAction.PRECISION_LOOP
   }
 
   // deeply with mapping
@@ -101,28 +140,6 @@ function getAction (value: any, type: Precision | PrecisionMapping): MappingActi
   }
 
   return MappingAction.NONE
-}
-
-/**
- * Validate the losslessObj type with precisionType
- *
- * @param value losslessObj value
- * @param precisionType Precision
- */
-function isValid (value: any, precisionType: Precision): boolean {
-  if (typeof value === 'object' && Object.keys(value).length === 0) {
-    // validation #1: parsing invalid type
-    // eg: parsing empty object to bignumber
-    return false
-  }
-
-  if (typeof precisionType === 'object' && value instanceof LosslessNumber) {
-    // validation #2: unmatched precision parse
-    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
-    return false
-  }
-
-  return true
 }
 
 /**
