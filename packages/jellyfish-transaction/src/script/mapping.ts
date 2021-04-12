@@ -1,6 +1,9 @@
 import { OP_0, OP_FALSE } from './constants'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
+import { OP_DUP } from './stack'
+import { OP_CHECKSIG, OP_HASH160 } from './crypto'
+import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -10,16 +13,12 @@ export function numAsOPCode (num: number): StaticCode {
     throw new Error('OPCode should be 1 byte.')
   }
 
-  switch (num) {
-    case 0x00:
-      return OP_CODES.OP_0
-
-    case 0x6a:
-      return OP_CODES.OP_RETURN
-
-    default:
-      return new OP_UNMAPPED(num)
+  const opCode = HEX_MAPPING[num]
+  if (opCode !== undefined) {
+    return opCode
   }
+
+  return new OP_UNMAPPED(num)
 }
 
 /**
@@ -76,9 +75,9 @@ export const OP_CODES = {
   //     OP_ELSE = 0x67,
   //     OP_ENDIF = 0x68,
   //     OP_VERIFY = 0x69,
-  OP_RETURN: new OP_RETURN()
+  OP_RETURN: new OP_RETURN(),
 
-  // stack ops
+  // stack
   //     OP_TOALTSTACK = 0x6b,
   //     OP_FROMALTSTACK = 0x6c,
   //     OP_2DROP = 0x6d,
@@ -90,7 +89,7 @@ export const OP_CODES = {
   //     OP_IFDUP = 0x73,
   //     OP_DEPTH = 0x74,
   //     OP_DROP = 0x75,
-  //     OP_DUP = 0x76,
+  OP_DUP: new OP_DUP(),
   //     OP_NIP = 0x77,
   //     OP_OVER = 0x78,
   //     OP_PICK = 0x79,
@@ -108,13 +107,13 @@ export const OP_CODES = {
   //     OP_SIZE = 0x82,
   //
 
-  // bit logic
+  // bitwise
   //     OP_INVERT = 0x83,
   //     OP_AND = 0x84,
   //     OP_OR = 0x85,
   //     OP_XOR = 0x86,
-  //     OP_EQUAL = 0x87,
-  //     OP_EQUALVERIFY = 0x88,
+  OP_EQUAL: new OP_EQUAL(),
+  OP_EQUALVERIFY: new OP_EQUALVERIFY(),
   //     OP_RESERVED1 = 0x89,
   //     OP_RESERVED2 = 0x8a,
   //
@@ -156,10 +155,10 @@ export const OP_CODES = {
   //     OP_RIPEMD160 = 0xa6,
   //     OP_SHA1 = 0xa7,
   //     OP_SHA256 = 0xa8,
-  //     OP_HASH160 = 0xa9,
+  OP_HASH160: new OP_HASH160(),
   //     OP_HASH256 = 0xaa,
   //     OP_CODESEPARATOR = 0xab,
-  //     OP_CHECKSIG = 0xac,
+  OP_CHECKSIG: new OP_CHECKSIG()
   //     OP_CHECKSIGVERIFY = 0xad,
   //     OP_CHECKMULTISIG = 0xae,
   //     OP_CHECKMULTISIGVERIFY = 0xaf,
@@ -180,4 +179,20 @@ export const OP_CODES = {
   //     OP_NOP10 = 0xb9,
   //
   //     OP_INVALIDOPCODE = 0xff,
+}
+
+const HEX_MAPPING: {
+  [n: number]: StaticCode
+} = {
+  0x00: OP_CODES.OP_0,
+  // control
+  0x6a: OP_CODES.OP_RETURN,
+  // stack
+  0x76: OP_CODES.OP_DUP,
+  // bitwise
+  0x87: OP_CODES.OP_EQUAL,
+  0x88: OP_CODES.OP_EQUALVERIFY,
+  // crypto
+  0xa9: OP_CODES.OP_HASH160,
+  0xac: OP_CODES.OP_CHECKSIG
 }
