@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 /**
@@ -67,6 +68,27 @@ export class Blockchain {
 
   async getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>> {
     return await this.client.call('getblock', [hash, verbosity], 'number')
+  }
+
+  /**
+   * Get all transaction ids in memory pool as json object
+   * @param verbose true
+   */
+  getRawMempool (verbose: true): Promise<Array<Mempool<MempoolTx>>>
+
+  /**
+   * Get all transaction ids in memory pool as string
+   * @param verbose true
+   */
+  getRawMempool (verbose: false): Promise<Array<Mempool<string>>>
+
+  /**
+   * Get all transaction ids in memory pool as
+   * @param verbose default = false, true for json object, false for array of transaction ids
+   * @return Promise<TransactionId[]>
+   */
+  async getRawMempool<T> (verbose: boolean): Promise<Array<Mempool<T>>> {
+    return await this.client.call('getrawmempool', [verbose], 'bignumber')
   }
 }
 
@@ -156,4 +178,33 @@ export interface Vout {
     addresses: string[]
     tokenId: string
   }
+}
+
+export interface Mempool<T> {
+  transactionid: T
+}
+
+export interface MempoolTx {
+  vsize: number
+  size: number // (DEPRECATED) same as vsize. Only returned if defid is started with -deprecatedrpc=size
+  weight: number
+  fee: BigNumber
+  modifiedfee: BigNumber
+  time: Date
+  height: number
+  descendantcount: number
+  descendantfees: BigNumber
+  ancestorcount: number
+  ancestorsize: number
+  ancestorfees: BigNumber
+  wtxid: string
+  fees: {
+    base: number
+    modified: number
+    ancestor: number
+    descendant: number
+  }
+  depends: string[]
+  spentby: string[]
+  'bip125-replaceable': boolean
 }

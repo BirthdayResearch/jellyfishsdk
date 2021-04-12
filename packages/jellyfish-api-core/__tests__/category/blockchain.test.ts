@@ -180,4 +180,13 @@ describe('masternode', () => {
       expect(blockCount).toBeGreaterThanOrEqual(2)
     })
   })
+
+  describe.only('getRawMempool', () => {
+    it('should getRawMempool', async () => {
+      await waitForExpect(async () => {
+        const rawMempool = await client.blockchain.getRawMempool(false)
+        console.log('rawMempool: ', rawMempool)
+      })
+    })
+  })
 })
