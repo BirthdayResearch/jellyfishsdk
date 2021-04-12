@@ -45,7 +45,7 @@ it('remap deeply', () => {
   expect(jsonObj.custom).toBe(99)
 })
 
-it('should be working in array #1', async () => {
+it('should remap array in deeply nested array', async () => {
   const { result: jsonObj } = JellyfishJSON.parse(`{
     "result": {
       "value": 38,
@@ -71,8 +71,8 @@ it('should be working in array #1', async () => {
   expect(jsonObj.customZ.every((z: number) => typeof z === 'number')).toBe(true)
 })
 
-it('should be working in array #2', async () => {
-  const jsonObj = JellyfishJSON.parse(`[
+it('should remap array at object root', async () => {
+  const parsed = JellyfishJSON.parse(`[
     {"group1": {"subgroup1": 4000}},
     {"group2": {"subgroup2": 5000}},
     {"group3": {"subgroup3": 6000}}
@@ -81,11 +81,99 @@ it('should be working in array #2', async () => {
     group3: { subgroup3: 'lossless' }
   })
 
-  expect(jsonObj[0].group1.subgroup1).toBe(4000)
-  expect(jsonObj[1].group2.subgroup2 instanceof BigNumber).toBe(true)
-  expect(jsonObj[1].group2.subgroup2.toString()).toBe('5000')
-  expect(jsonObj[2].group3.subgroup3 instanceof LosslessNumber).toBe(true)
-  expect(jsonObj[2].group3.subgroup3.toString()).toBe('6000')
+  expect(parsed[0].group1.subgroup1).toBe(4000)
+  expect(parsed[1].group2.subgroup2 instanceof BigNumber).toBe(true)
+  expect(parsed[1].group2.subgroup2.toString()).toBe('5000')
+  expect(parsed[2].group3.subgroup3 instanceof LosslessNumber).toBe(true)
+  expect(parsed[2].group3.subgroup3.toString()).toBe('6000')
+})
+
+it('should remap object at root with key mapping', () => {
+  const parsed = JellyfishJSON.parse(`{
+    "big": 123.4,
+    "num": 1000
+  }`, {
+    big: 'bignumber'
+  })
+  expect(parsed.big instanceof BigNumber).toBe(true)
+  expect(parsed.num).toBe(1000)
+})
+
+it('should remap object deeply with key mapping', () => {
+  const parsed = JellyfishJSON.parse(`{
+    "deeply": {
+      "big": 123,
+      "num": 1000
+    }
+  }`, {
+    deeply: {
+      big: 'bignumber'
+    }
+  })
+  expect(parsed.deeply.big instanceof BigNumber).toBe(true)
+  expect(parsed.deeply.num).toBe(1000)
+})
+
+it('should remap all array with same precision', () => {
+  const parsed = JellyfishJSON.parse(`[
+    100,
+    200
+  ]`, 'bignumber')
+
+  expect(parsed[0] instanceof BigNumber).toBe(true)
+  expect(parsed[1] instanceof BigNumber).toBe(true)
+})
+
+it('should remap all array object with same precision', () => {
+  const parsed = JellyfishJSON.parse(`[
+    {
+      "big": 100
+    },
+    {
+      "big": 200.2
+    }
+  ]`, {
+    big: 'bignumber'
+  })
+
+  expect(parsed[0].big instanceof BigNumber).toBe(true)
+  expect(parsed[1].big instanceof BigNumber).toBe(true)
+})
+
+it('should remap all array object with same precision deeply', () => {
+  const parsed = JellyfishJSON.parse(`[
+    {
+      "deeply": {
+        "big": 123
+      }
+    },
+    {
+      "deeply": {
+        "big": 123.4
+      }
+    }
+  ]`, {
+    deeply: {
+      big: 'bignumber'
+    }
+  })
+
+  expect(parsed[0].deeply.big instanceof BigNumber).toBe(true)
+  expect(parsed[1].deeply.big instanceof BigNumber).toBe(true)
+})
+
+it('should remap linear array', async () => {
+  const parsed = JellyfishJSON.parse(`
+    {
+      "items": [1,2,3]
+    }`, {
+    items: 'bignumber'
+  })
+
+  expect(parsed.items.every((i: BigNumber) => i instanceof BigNumber)).toBe(true)
+  expect(parsed.items[0].toString()).toBe('1')
+  expect(parsed.items[1].toString()).toBe('2')
+  expect(parsed.items[2].toString()).toBe('3')
 })
 
 it('should throw error if unmatched precision mapping with text', async () => {
@@ -118,4 +206,14 @@ it('missing property should be ignored', () => {
   })
 
   expect(JSON.stringify(object)).toBe(text)
+})
+
+it('strict precision testing: should the specific struct value is parsed', async () => {
+  const parsed = JellyfishJSON.parse(`
+    {"foo": {"bar": 123}, "bar": 456 }
+  `, { foo: { bar: 'number' }, bar: 'bignumber' })
+
+  expect(parsed.foo.bar).toBe(123)
+  expect(parsed.bar instanceof BigNumber).toBe(true)
+  expect(parsed.bar.toString()).toBe('456')
 })
