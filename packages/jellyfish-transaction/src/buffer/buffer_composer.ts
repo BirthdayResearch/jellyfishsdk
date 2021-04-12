@@ -27,6 +27,11 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    */
   constructor (buffer: SmartBuffer)
 
+  /**
+   * For typescript type checking
+   */
+  constructor (data: SmartBuffer | T)
+
   constructor (data: SmartBuffer | T) {
     if (data instanceof SmartBuffer) {
       // @ts-expect-error as data will be mapped by fromBuffer()
