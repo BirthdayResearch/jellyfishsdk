@@ -18,7 +18,7 @@ describe('non masternode', () => {
   })
 
   it('should getBalance = 0', async () => {
-    const balance = await client.wallet.getBalance()
+    const balance: BigNumber = await client.wallet.getBalance()
 
     expect(balance.toString()).toBe('0')
   })
