@@ -4,7 +4,7 @@ import { OP_PUSHDATA } from '../../src/script'
 describe('OP_PUSHDATA construct from buffer', () => {
   function expectHexBuffer (hex: string, prefix: string): void {
     const buff = Buffer.from(hex, 'hex')
-    const data = new OP_PUSHDATA(buff)
+    const data = new OP_PUSHDATA(buff, 'big')
 
     expect(data.asm()).toBe(hex)
     expect(data.asBuffer().toString('hex')).toBe(

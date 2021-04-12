@@ -1,7 +1,4 @@
-import { numAsOPCode, OP_0, OP_CODES, OP_FALSE, OP_RETURN, OP_UNMAPPED, StaticCode } from '../../src/script'
-import { OP_DUP } from '../../src/script/stack'
-import { OP_CHECKSIG, OP_HASH160 } from '../../src/script/crypto'
-import { OP_EQUAL, OP_EQUALVERIFY } from '../../src/script/bitwise'
+import { numAsOPCode, OP_0, OP_CODES, OP_FALSE, OP_RETURN, OP_UNMAPPED, StaticCode, OP_DUP, OP_CHECKSIG, OP_HASH160, OP_EQUAL, OP_EQUALVERIFY } from '../../src/script'
 
 it('OP_UNMAPPED', () => {
   expect(numAsOPCode(0xfe)).toBeInstanceOf(OP_UNMAPPED)

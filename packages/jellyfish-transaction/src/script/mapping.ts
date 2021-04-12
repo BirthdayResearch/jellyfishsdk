@@ -181,6 +181,9 @@ export const OP_CODES = {
   //     OP_INVALIDOPCODE = 0xff,
 }
 
+/**
+ * Hex code mapping of all static OP_CODES
+ */
 const HEX_MAPPING: {
   [n: number]: StaticCode
 } = {
