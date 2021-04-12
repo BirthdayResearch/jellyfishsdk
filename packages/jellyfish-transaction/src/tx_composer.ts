@@ -206,8 +206,8 @@ export class CWitness extends ComposableBuffer<Witness> implements Witness {
  * This just wraps the WitnessScript with (n = VarUInt, + n Bytes).
  */
 export class CWitnessScript extends ComposableBuffer<WitnessScript> implements WitnessScript {
-  public get buffer (): Buffer {
-    return this.data.buffer
+  public get hex (): string {
+    return this.data.hex
   }
 
   composers (script: WitnessScript): BufferComposer[] {
@@ -215,11 +215,11 @@ export class CWitnessScript extends ComposableBuffer<WitnessScript> implements W
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           const len = readVarUInt(buffer)
-          script.buffer = Buffer.from(buffer.readBuffer(len))
+          script.hex = buffer.readString(len, 'hex')
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          writeVarUInt(script.buffer.length, buffer)
-          buffer.writeBuffer(script.buffer)
+          writeVarUInt(script.hex.length / 2, buffer)
+          buffer.writeString(script.hex, 'hex')
         }
       }
     ]
