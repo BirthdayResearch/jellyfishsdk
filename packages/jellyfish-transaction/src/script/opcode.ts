@@ -10,7 +10,11 @@
  * This allows instanceof assertions and wraps all data to be pushed into a stack as a an instantiatable object.
  */
 export abstract class OPCode {
-  abstract asm (): string
+  public readonly type: string
+
+  protected constructor (type: string) {
+    this.type = type
+  }
 
   abstract asBuffer (): Buffer
 }
@@ -19,10 +23,10 @@ export abstract class OPCode {
  * Statically mapped code of OPCode
  */
 export abstract class StaticCode extends OPCode {
-  protected readonly code: number
+  public readonly code: number
 
-  constructor (code: number) {
-    super()
+  protected constructor (code: number, type: string) {
+    super(type)
     this.code = code
   }
 
