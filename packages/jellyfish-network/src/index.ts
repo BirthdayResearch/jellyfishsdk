@@ -1,5 +1,5 @@
 /**
- * Network specific DeFi Wallet configuration.
+ * Network specific DeFi configuration.
  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
  */
 export interface Network {
@@ -25,7 +25,7 @@ export interface Network {
 
 /**
  * @param network name
- * @return Network specific DeFi Wallet configuration
+ * @return Network specific DeFi configuration
  */
 export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network {
   switch (network) {
@@ -41,7 +41,7 @@ export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network
 }
 
 /**
- * MainNet specific DeFi Wallet configuration.
+ * MainNet specific DeFi configuration.
  */
 export const MainNet: Network = {
   bech32: {
@@ -58,7 +58,7 @@ export const MainNet: Network = {
 }
 
 /**
- * TestNet specific DeFi Wallet configuration.
+ * TestNet specific DeFi configuration.
  */
 export const TestNet: Network = {
   bech32: {
@@ -75,7 +75,7 @@ export const TestNet: Network = {
 }
 
 /**
- * RegTest specific DeFi Wallet configuration.
+ * RegTest specific DeFi configuration.
  */
 export const RegTest: Network = {
   bech32: {
