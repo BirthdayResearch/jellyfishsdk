@@ -42,7 +42,7 @@ export class Wallet {
     maximumConfirmation = 9999999,
     options: ListUnspentOptions = {}
   ): Promise<UTXO[]> {
-    const { addresses, includeUnsafe, queryOptions = {} } = options
+    const { addresses = [], includeUnsafe = true, queryOptions = {} } = options
 
     return await this.client.call(
       'listunspent',
