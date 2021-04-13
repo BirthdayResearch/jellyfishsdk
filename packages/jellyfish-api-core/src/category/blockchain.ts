@@ -71,15 +71,15 @@ export class Blockchain {
   }
 
   /**
-  * Get details of unspent transaction output (UTXO).
-  *
-  * @param txId the transaction id
-  * @param n vout number
-  * @param includeMempool default true, whether to include mempool
-  * @return Promise<UTXODetails>
-  */
-  async getTxOut (txId: string, n: number, includeMempool = true): Promise<UTXODetails> {
-    return await this.client.call('gettxout', [txId, n, includeMempool], { value: 'bignumber' })
+    * Get details of unspent transaction output (UTXO).
+    *
+    * @param txId the transaction id
+    * @param index vout number
+    * @param includeMempool default true, whether to include mempool
+    * @return Promise<UTXODetails>
+    */
+  async getTxOut (txId: string, index: number, includeMempool = true): Promise<UTXODetails> {
+    return await this.client.call('gettxout', [txId, index, includeMempool], { value: 'bignumber' })
   }
 }
 
