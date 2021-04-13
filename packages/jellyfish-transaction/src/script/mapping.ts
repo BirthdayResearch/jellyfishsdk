@@ -25,8 +25,8 @@ export function numAsOPCode (num: number): StaticCode {
  * Unmapped OPCode are codes that don't yet have a class for it yet.
  */
 export class OP_UNMAPPED extends StaticCode {
-  asm (): string {
-    return `OP_UNMAPPED_CODE_${this.code.toString()}`
+  constructor (code: number) {
+    super(code, `OP_UNMAPPED_CODE_${code.toString()}`)
   }
 }
 

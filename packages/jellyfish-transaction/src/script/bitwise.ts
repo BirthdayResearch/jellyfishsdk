@@ -5,11 +5,7 @@ import { StaticCode } from './opcode'
  */
 export class OP_EQUAL extends StaticCode {
   constructor () {
-    super(0x87)
-  }
-
-  asm (): string {
-    return 'OP_EQUAL'
+    super(0x87, 'OP_EQUAL')
   }
 }
 
@@ -18,10 +14,6 @@ export class OP_EQUAL extends StaticCode {
  */
 export class OP_EQUALVERIFY extends StaticCode {
   constructor () {
-    super(0x88)
-  }
-
-  asm (): string {
-    return 'OP_EQUALVERIFY'
+    super(0x88, 'OP_EQUALVERIFY')
   }
 }

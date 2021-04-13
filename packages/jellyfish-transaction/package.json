@@ -26,8 +26,8 @@
       "name": "DeFi Jellyfish Contributors"
     }
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist",
+  "types": "dist",
   "files": [
     "dist"
   ],
@@ -35,6 +35,9 @@
     "build": "tsc",
     "publish:next": "npm publish --tag next --access public",
     "publish:latest": "npm publish --tag latest --access public"
+  },
+  "peerDependencies": {
+    "bignumber.js": "^9.0.1"
   },
   "dependencies": {
     "smart-buffer": "^4.1.0"

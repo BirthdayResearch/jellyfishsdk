@@ -17,9 +17,9 @@ import { OPCode } from './opcode'
  */
 export class OP_PUSHDATA extends OPCode {
   /**
-   * Stored as Big Endian while at rest
+   * Stored as LITTLE ENDIAN hex string.
    */
-  protected readonly data: Buffer
+  public readonly hex: string
 
   /**
    * @param buffer {Buffer} raw buffer to create OP_PUSHDATA with
@@ -34,19 +34,19 @@ export class OP_PUSHDATA extends OPCode {
   constructor (code: number, buffer: SmartBuffer)
 
   constructor (p1: any, p2: any) {
-    super()
+    super('OP_PUSHDATA')
     if (Buffer.isBuffer(p1) && (p2 === 'little' || p2 === 'big')) {
       if (p2 === 'big') {
-        this.data = Buffer.from(p1)
+        this.hex = Buffer.from(p1).reverse().toString('hex')
       } else {
-        this.data = Buffer.from(p1).reverse()
+        this.hex = Buffer.from(p1).toString('hex')
       }
       return
     }
 
     if (typeof p1 === 'number' && p2 instanceof SmartBuffer) {
       const buff = OP_PUSHDATA.readData(p1, p2)
-      this.data = Buffer.from(buff).reverse()
+      this.hex = Buffer.from(buff).toString('hex')
       return
     }
 
@@ -80,7 +80,7 @@ export class OP_PUSHDATA extends OPCode {
    * @return [0x01-0x4e, [>0x4b ?? length], [push data]]
    */
   asBuffer (): Buffer {
-    const len = this.data.length
+    const len = this.hex.length / 2
     const buffer = new SmartBuffer()
 
     if (len < 76) {
@@ -98,14 +98,7 @@ export class OP_PUSHDATA extends OPCode {
       throw new RangeError('OP_PUSHDATA buffer is larger than 16777215')
     }
 
-    buffer.writeBuffer(this.data.reverse())
+    buffer.writeString(this.hex, 'hex')
     return buffer.toBuffer()
-  }
-
-  /**
-   * Push Data ASM is the bytes itself in hex
-   */
-  asm (): string {
-    return this.data.toString('hex')
   }
 }

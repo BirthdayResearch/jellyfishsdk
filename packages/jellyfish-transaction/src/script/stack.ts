@@ -8,10 +8,6 @@ import { StaticCode } from './opcode'
  */
 export class OP_DUP extends StaticCode {
   constructor () {
-    super(0x76)
-  }
-
-  asm (): string {
-    return 'OP_DUP'
+    super(0x76, 'OP_DUP')
   }
 }

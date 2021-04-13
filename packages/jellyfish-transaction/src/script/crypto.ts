@@ -5,11 +5,7 @@ import { StaticCode } from './opcode'
  */
 export class OP_HASH160 extends StaticCode {
   constructor () {
-    super(0xa9)
-  }
-
-  asm (): string {
-    return 'OP_HASH160'
+    super(0xa9, 'OP_HASH160')
   }
 }
 
@@ -21,10 +17,6 @@ export class OP_HASH160 extends StaticCode {
  */
 export class OP_CHECKSIG extends StaticCode {
   constructor () {
-    super(0xac)
-  }
-
-  asm (): string {
-    return 'OP_CHECKSIG'
+    super(0xac, 'OP_CHECKSIG')
   }
 }

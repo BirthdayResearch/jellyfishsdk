@@ -7,11 +7,7 @@ import { StaticCode } from './opcode'
  */
 export class OP_0 extends StaticCode {
   constructor () {
-    super(0x00)
-  }
-
-  asm (): string {
-    return 'OP_0'
+    super(0x00, 'OP_0')
   }
 }
 
@@ -21,7 +17,4 @@ export class OP_0 extends StaticCode {
  * @see OP_0
  */
 export class OP_FALSE extends OP_0 {
-  asm (): string {
-    return 'OP_FALSE'
-  }
 }
