@@ -71,6 +71,18 @@ export class Blockchain {
   }
 
   /**
+    * Get details of unspent transaction output (UTXO).
+    *
+    * @param txId the transaction id
+    * @param index vout number
+    * @param includeMempool default true, whether to include mempool
+    * @return Promise<UTXODetails>
+    */
+  async getTxOut (txId: string, index: number, includeMempool = true): Promise<UTXODetails> {
+    return await this.client.call('gettxout', [txId, index, includeMempool], { value: 'bignumber' })
+  }
+
+  /**
    * Get all transaction ids in memory pool as json object
    * @param verbose true
    */
@@ -170,14 +182,24 @@ export interface Vin {
 export interface Vout {
   value: number
   n: number
-  scriptPubKey: {
-    asm: string
-    hex: string
-    type: string
-    reqSigs: number
-    addresses: string[]
-    tokenId: string
-  }
+  scriptPubKey: ScriptPubKey
+}
+
+export interface UTXODetails {
+  bestblock: string
+  confirmations: number
+  value: BigNumber
+  scriptPubKey: ScriptPubKey
+  coinbase: boolean
+}
+
+export interface ScriptPubKey {
+  asm: string
+  hex: string
+  type: string
+  reqSigs: number
+  addresses: string[]
+  tokenId: string
 }
 
 export interface Mempool<T> {

@@ -26,3 +26,49 @@ interface wallet {
               includeWatchOnly: boolean = false): Promise<BigNumber>   
 }
 ```
+
+## listUnspent
+
+Get list of UTXOs in wallet.
+
+```ts title="client.wallet.listUnspent()"
+interface wallet {
+  listUnspent (
+    minimumConfirmation = 1,
+    maximumConfirmation = 9999999,
+    options: ListUnspentOptions = {},
+  ): Promise<UTXO[]>
+}
+
+interface ListUnspentOptions {
+  addresses?: string[]
+  includeUnsafe?: boolean
+  queryOptions?: ListUnspentQueryOptions
+}
+
+interface ListUnspentQueryOptions {
+  minimumAmount?: number
+  maximumAmount?: number
+  maximumCount?: number
+  minimumSumAmount?: number
+  tokenId?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+  address: string
+  label: string
+  scriptPubKey: string
+  amount: BigNumber
+  tokenId: number
+  confirmations: number
+  redeemScript: number
+  witnessScript: number
+  spendable: boolean
+  solvable: boolean
+  reused: string
+  desc: string
+  safe: boolean
+}
+```

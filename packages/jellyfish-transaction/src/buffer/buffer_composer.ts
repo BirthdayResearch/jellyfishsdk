@@ -13,7 +13,7 @@ export interface BufferComposer {
  * It is also deeply recursive by default allow cascading object composing.
  */
 export abstract class ComposableBuffer<T> implements BufferComposer {
-  readonly data: T
+  protected readonly data: T
 
   abstract composers (data: T): BufferComposer[]
 
@@ -52,6 +52,20 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     for (const mapping of this.composers(this.data)) {
       mapping.toBuffer(buffer)
     }
+  }
+
+  /**
+   * Deeply toObject() mapper.
+   * This unwrap the data in ComposableBuffer and convert all ComposableBuffer into their raw object.
+   * This make it compatible to convert into JSON with JSON.stringify()
+   * @return {Object}
+   */
+  toObject (): object {
+    const json: any = {}
+    for (const [key, value] of Object.entries(this.data)) {
+      json[key] = value instanceof ComposableBuffer ? value.toObject() : value
+    }
+    return json
   }
 
   /**
@@ -139,6 +153,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * Read/write as little endian, set/get as little endian.
+   *
    * @param length of the bytes to read/set
    * @param getter to read hex from to buffer
    * @param setter to set to hex from buffer
@@ -148,14 +164,14 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length))
-        setter(buff.reverse().toString('hex'))
+        setter(buff.toString('hex'))
       },
       toBuffer: (buffer: SmartBuffer): void => {
         const hex = getter()
         if (hex.length !== length * 2) {
           throw new Error('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
         }
-        const buff: Buffer = Buffer.from(hex, 'hex').reverse()
+        const buff: Buffer = Buffer.from(hex, 'hex')
         buffer.writeBuffer(buff)
       }
     }

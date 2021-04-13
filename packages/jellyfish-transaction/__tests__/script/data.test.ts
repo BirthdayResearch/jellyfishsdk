@@ -1,15 +1,32 @@
 import { SmartBuffer } from 'smart-buffer'
 import { OP_PUSHDATA } from '../../src/script'
 
+// TODO(fuxingloh): push in as big endian?
+
+it('should construct as big endian', () => {
+  const buff = Buffer.from('00ff', 'hex')
+  const data = new OP_PUSHDATA(buff, 'big')
+
+  expect(data.hex).toBe('ff00')
+  expect(data.asBuffer().toString('hex')).toBe('02ff00')
+})
+
+it('should construct as little endian', () => {
+  const buff = Buffer.from('00ff', 'hex')
+  const data = new OP_PUSHDATA(buff, 'little')
+
+  expect(data.hex).toBe('00ff')
+  expect(data.asBuffer().toString('hex')).toBe('0200ff')
+})
+
 describe('OP_PUSHDATA construct from buffer', () => {
   function expectHexBuffer (hex: string, prefix: string): void {
     const buff = Buffer.from(hex, 'hex')
-    const data = new OP_PUSHDATA(buff, 'big')
+    const data = new OP_PUSHDATA(buff, 'little')
 
-    expect(data.asm()).toBe(hex)
-    expect(data.asBuffer().toString('hex')).toBe(
-      `${prefix}` + Buffer.from(hex, 'hex').reverse().toString('hex')
-    )
+    expect(data.type).toBe('OP_PUSHDATA')
+    expect(data.hex).toBe(hex)
+    expect(data.asBuffer().toString('hex')).toBe(`${prefix}${hex}`)
   }
 
   it('1 len', () => {
@@ -49,7 +66,8 @@ describe('OP_PUSHDATA construct from code and smart buffer', () => {
     const prefix = Buffer.allocUnsafe(1)
     prefix.writeUInt8(code)
 
-    expect(data.asm()).toBe(Buffer.from(hex, 'hex').reverse().toString('hex'))
+    expect(data.type).toBe('OP_PUSHDATA')
+    expect(data.hex).toBe(hex)
     expect(data.asBuffer().toString('hex')).toBe(
       `${prefix.toString('hex')}${len}${hex}`
     )

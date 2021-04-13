@@ -2,15 +2,15 @@ import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../src/buffer/buffer_composer'
 import { readVarUInt, writeVarUInt } from '../../src/buffer/buffer_varuint'
 
-function hexAsBufferLE (hex: string | string[]): SmartBuffer {
+function hexAsBuffer (hex: string | string[]): SmartBuffer {
   if (typeof hex === 'string') {
-    const buffer = Buffer.from(hex, 'hex').reverse()
+    const buffer = Buffer.from(hex, 'hex')
     return SmartBuffer.fromBuffer(buffer)
   }
 
   const buffer = new SmartBuffer()
   for (const hex1 of hex) {
-    buffer.writeBuffer(Buffer.from(hex1, 'hex').reverse())
+    buffer.writeBuffer(Buffer.from(hex1, 'hex'))
   }
   return buffer
 }
@@ -20,17 +20,17 @@ function hexAsBufferLE (hex: string | string[]): SmartBuffer {
 it('should format (4 bytes, 32 bytes, 8 bytes) hex with hexAsBufferLE', () => {
   // assert hexAsBufferLE conditions is as expected.
 
-  const buffer = hexAsBufferLE([
+  const buffer = hexAsBuffer([
     '00080008',
     'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f',
     '01aa535d3d0c0000'
   ])
   expect(buffer.toString('hex'))
-    .toBe('080008009f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff00000c3d5d53aa01')
+    .toBe('00080008fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f01aa535d3d0c0000')
 })
 
 function shouldFromBuffer<T> (composer: BufferComposer, hex: string | string[], val: T, getter: () => T): void {
-  composer.fromBuffer(hexAsBufferLE(hex))
+  composer.fromBuffer(hexAsBuffer(hex))
   expect(getter()).toEqual(val)
 }
 
@@ -38,7 +38,7 @@ function shouldToBuffer<T> (composer: BufferComposer, hex: string | string[], va
   setter(val)
   const buffer: SmartBuffer = new SmartBuffer()
   composer.toBuffer(buffer)
-  const expected: SmartBuffer = hexAsBufferLE(hex)
+  const expected: SmartBuffer = hexAsBuffer(hex)
   expect(buffer.toString('hex')).toBe(expected.toString('hex'))
 }
 
@@ -129,7 +129,7 @@ describe('ComposableBuffer deep implementation', () => {
     text: 'hello world'
   }
 
-  const hex = '0102010000400000d189cc04b8e151ef010000800000d11d5c04dc4b5adf0b646c726f77206f6c6c6568'
+  const hex = '0102010000400000ef51e1b804cc89d1010000800000df5a4bdc045c1dd10b646c726f77206f6c6c6568'
 
   it('CRoot to buffer', () => {
     const root = new CRoot(data)
@@ -139,11 +139,16 @@ describe('ComposableBuffer deep implementation', () => {
     expect(buffer.toBuffer().toString('hex')).toBe(hex)
   })
 
+  it('CRoot to JSON deeply compare', () => {
+    const root = new CRoot(data)
+    expect(JSON.stringify(root.toObject())).toBe(JSON.stringify(data))
+  })
+
   it('buffer to CRoot', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     const root = new CRoot(buffer)
 
-    expect(JSON.stringify(root.data)).toBe(JSON.stringify(data))
+    expect(JSON.stringify(root.toObject())).toBe(JSON.stringify(data))
   })
 })
 
@@ -171,9 +176,9 @@ describe('ComposableBuffer.varUIntArray', () => {
   describe('[1 byte, (2 bytes, 12 bytes), (2 bytes, 12 bytes)]', () => {
     const hex = [
       '02',
-      'a000',
+      '00a0',
       'fff7f7881a8099afa6940d42',
-      '0080',
+      '8000',
       'ef51e1b804cc89d182d27965'
     ]
 
@@ -250,9 +255,9 @@ describe('ComposableBuffer.array', () => {
 
   describe('[(8 bytes, 32 bytes),(8 bytes, 32 bytes)]', () => {
     const hex = [
-      '0008000800080008',
+      '0800080008000800',
       'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f',
-      '01aa535d3d0c0000',
+      '00000c3d5d53aa01',
       'ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a'
     ]
 
@@ -334,7 +339,7 @@ describe('ComposableBuffer.single', () => {
     it('should fromBuffer', () => {
       shouldFromBuffer(composer, [
         'ef51e1b804cc89d182d2796a5c3af89e',
-        '0008'
+        '0800'
       ], {
         id: 'ef51e1b804cc89d182d2796a5c3af89e',
         value: 0x0008
@@ -344,7 +349,7 @@ describe('ComposableBuffer.single', () => {
     it('should toBuffer', () => {
       shouldToBuffer(composer, [
         'ef51e1b804cc89d182d2796a5c3af89e',
-        '0001'
+        '0100'
       ], {
         id: 'ef51e1b804cc89d182d2796a5c3af89e',
         value: 0x0001
@@ -379,17 +384,17 @@ describe('ComposableBuffer.single', () => {
 
 describe('ComposableBuffer.hex', () => {
   const composer = ComposableBuffer.hex(16, () => value, (v: string) => value = v)
-  const expectedBuffer = Buffer.from('ef51e1b804cc89d182d279655c3aa89e', 'hex').reverse()
+  const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
   let value = ''
 
   it('should fromBuffer', () => {
     composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
 
-    expect(value).toBe('ef51e1b804cc89d182d279655c3aa89e')
+    expect(value).toBe('9ea83a5c6579d282d189cc04b8e151ef')
   })
 
   it('should toBuffer', () => {
-    value = 'ef51e1b804cc89d182d279655c3aa89e'
+    value = '9ea83a5c6579d282d189cc04b8e151ef'
 
     const buffer = new SmartBuffer()
     composer.toBuffer(buffer)
@@ -454,21 +459,21 @@ describe('ComposableBuffer.uInt16', () => {
 
   describe('0x0081', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '0081', 0x0081, () => value)
+      shouldFromBuffer(composer, '8100', 0x0081, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '0081', 0x0081, v => value = v)
+      shouldToBuffer(composer, '8100', 0x0081, v => value = v)
     })
   })
 
   describe('0x0801', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '0801', 0x0801, () => value)
+      shouldFromBuffer(composer, '0108', 0x0801, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '0801', 0x0801, v => value = v)
+      shouldToBuffer(composer, '0108', 0x0801, v => value = v)
     })
   })
 
@@ -487,41 +492,41 @@ describe('ComposableBuffer.int32', () => {
 
   describe('0x00000002', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '00000002', 0x00000002, () => value)
+      shouldFromBuffer(composer, '02000000', 0x00000002, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '00000002', 0x00000002, v => value = v)
+      shouldToBuffer(composer, '02000000', 0x00000002, v => value = v)
     })
   })
 
   describe('0x00aa0002', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '00aa0002', 0x00aa0002, () => value)
+      shouldFromBuffer(composer, '0200aa00', 0x00aa0002, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '00aa0002', 0x00aa0002, v => value = v)
+      shouldToBuffer(composer, '0200aa00', 0x00aa0002, v => value = v)
     })
   })
 
   describe('2147483647', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '7FFFFFFF', 2147483647, () => value)
+      shouldFromBuffer(composer, 'FFFFFF7F', 2147483647, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '7FFFFFFF', 2147483647, v => value = v)
+      shouldToBuffer(composer, 'FFFFFF7F', 2147483647, v => value = v)
     })
   })
 
   describe('-1660944385', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '9CFFFFFF', -1660944385, () => value)
+      shouldFromBuffer(composer, 'FFFFFF9C', -1660944385, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '9CFFFFFF', -1660944385, v => value = v)
+      shouldToBuffer(composer, 'FFFFFF9C', -1660944385, v => value = v)
     })
   })
 
@@ -540,41 +545,41 @@ describe('ComposableBuffer.uInt32', () => {
 
   describe('0x00000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '00000001', 0x00000001, () => value)
+      shouldFromBuffer(composer, '01000000', 0x00000001, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '00000001', 0x00000001, v => value = v)
+      shouldToBuffer(composer, '01000000', 0x00000001, v => value = v)
     })
   })
 
   describe('0x0faa0002', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '0faa0002', 0x0faa0002, () => value)
+      shouldFromBuffer(composer, '0200aa0f', 0x0faa0002, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '0faa0002', 0x0faa0002, v => value = v)
+      shouldToBuffer(composer, '0200aa0f', 0x0faa0002, v => value = v)
     })
   })
 
   describe('2147483647', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '7FFFFFFF', 2147483647, () => value)
+      shouldFromBuffer(composer, 'FFFFFF7F', 2147483647, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '7FFFFFFF', 2147483647, v => value = v)
+      shouldToBuffer(composer, 'FFFFFF7F', 2147483647, v => value = v)
     })
   })
 
   describe('4000000000', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, 'ee6b2800', 4000000000, () => value)
+      shouldFromBuffer(composer, '00286bee', 4000000000, () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, 'ee6b2800', 4000000000, v => value = v)
+      shouldToBuffer(composer, '00286bee', 4000000000, v => value = v)
     })
   })
 
@@ -593,53 +598,51 @@ describe('ComposableBuffer.bigUInt64', () => {
 
   describe('0x0000000000000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '0000000000000001', BigInt('0x0000000000000001'), () => value)
+      shouldFromBuffer(composer, '0100000000000000', BigInt('0x0000000000000001'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '0000000000000001', BigInt('0x0000000000000001'), v => value = v)
+      shouldToBuffer(composer, '0100000000000000', BigInt('0x0000000000000001'), v => value = v)
     })
   })
 
   describe('0x8000000000000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '8000000000000001', BigInt('0x8000000000000001'), () => value)
+      shouldFromBuffer(composer, '0100000000000080', BigInt('0x8000000000000001'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '8000000000000001', BigInt('0x8000000000000001'), v => value = v)
+      shouldToBuffer(composer, '0100000000000080', BigInt('0x8000000000000001'), v => value = v)
     })
   })
 
   describe('0xff00000000000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, 'ff00000000000001', BigInt('0xff00000000000001'), () => value)
+      shouldFromBuffer(composer, '01000000000000ff', BigInt('0xff00000000000001'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, 'ff00000000000001', BigInt('0xff00000000000001'), v => value = v)
+      shouldToBuffer(composer, '01000000000000ff', BigInt('0xff00000000000001'), v => value = v)
     })
   })
 
   describe('4000000000', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '00000000ee6b2800', BigInt(4000000000), () => value)
+      shouldFromBuffer(composer, '00286bee00000000', BigInt(4000000000), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '00000000ee6b2800', BigInt(4000000000), v => value = v)
+      shouldToBuffer(composer, '00286bee00000000', BigInt(4000000000), v => value = v)
     })
   })
 
-  describe('120000000000000000', () => {
-    // 1200000000.00000000 MAX DFI Supply
-
+  describe('120000000000000000 MAX DFI Supply', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '01aa535d3d0c0000', BigInt('120000000000000000'), () => value)
+      shouldFromBuffer(composer, '00000c3d5d53aa01', BigInt('120000000000000000'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '01aa535d3d0c0000', BigInt('120000000000000000'), v => value = v)
+      shouldToBuffer(composer, '00000c3d5d53aa01', BigInt('120000000000000000'), v => value = v)
     })
   })
 
