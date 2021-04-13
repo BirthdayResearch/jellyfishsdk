@@ -19,6 +19,12 @@ it('should construct as little endian', () => {
   expect(data.asBuffer().toString('hex')).toBe('0200ff')
 })
 
+it('should return length of PUSHDATA', () => {
+  const buff = Buffer.from('00ff', 'hex')
+  const data = new OP_PUSHDATA(buff, 'little')
+  expect(data.length()).toBe(2)
+})
+
 describe('OP_PUSHDATA construct from buffer', () => {
   function expectHexBuffer (hex: string, prefix: string): void {
     const buff = Buffer.from(hex, 'hex')

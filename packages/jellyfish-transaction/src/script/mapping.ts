@@ -30,7 +30,7 @@ export class OP_UNMAPPED extends StaticCode {
   }
 }
 
-// TODO(jellyfish): to map everything as class
+// TODO(contributors): to map everything as class
 //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
 /**
