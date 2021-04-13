@@ -33,6 +33,52 @@ function expectObjectToHexBuffer<T> (data: T, hex: string, asC: ((data: T) => Co
 }
 
 describe('CTransaction', () => {
+  it('should map class getter to data', () => {
+    const data: Transaction = {
+      version: 0x00000001,
+      vin: [
+        {
+          index: 0,
+          script: {
+            stack: []
+          },
+          sequence: 4294967278,
+          txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+        }
+      ],
+      vout: [
+        {
+          value: new BigNumber('1.1234'),
+          script: {
+            stack: [
+              OP_CODES.OP_DUP,
+              OP_CODES.OP_HASH160,
+              new OP_PUSHDATA(Buffer.from('8280b37df378db99f66f85c95a783a76ac7a6d59', 'hex'), 'little'),
+              OP_CODES.OP_EQUALVERIFY,
+              OP_CODES.OP_CHECKSIG
+            ]
+          }
+        }
+      ],
+      lockTime: 0x00000011
+    }
+    const transaction = new CTransaction(data)
+
+    expect(transaction.version).toBe(data.version)
+
+    expect(transaction.vin.length).toBe(data.vin.length)
+    expect(transaction.vin[0].txid).toBe(data.vin[0].txid)
+    expect(transaction.vin[0].index).toBe(data.vin[0].index)
+    expect(transaction.vin[0].script.stack).toBe(data.vin[0].script.stack)
+    expect(transaction.vin[0].sequence).toBe(data.vin[0].sequence)
+
+    expect(transaction.vout.length).toBe(data.vout.length)
+    expect(transaction.vout[0].value).toBe(data.vout[0].value)
+    expect(transaction.vout[0].script.stack).toBe(data.vout[0].script.stack)
+
+    expect(transaction.lockTime).toBe(data.lockTime)
+  })
+
   describe('P2WPKH (UNSIGNED)', () => {
     const hex = '0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000'
     const data: Transaction = {
@@ -623,6 +669,66 @@ describe('CScript', () => {
 })
 
 describe('CTransactionSegWit', () => {
+  it('should map class getter to data', () => {
+    const data: TransactionSegWit = {
+      version: 0x00000001,
+      marker: 0x00,
+      flag: 0x01,
+      vin: [
+        {
+          index: 0,
+          script: {
+            stack: [
+              new OP_PUSHDATA(Buffer.from('30450221008b9d1dc26ba6a9cb62127b02742fa9d754cd3bebf337f7a55d114c8e5cdd30be022040529b194ba3f9281a99f2b1c0a19c0489bc22ede944ccf4ecbab4cc618ef3ed01', 'hex'), 'little')
+            ]
+          },
+          sequence: 4294967278,
+          txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+        }
+      ],
+      vout: [
+        {
+          script: {
+            stack: [
+              OP_CODES.OP_DUP,
+              OP_CODES.OP_HASH160,
+              new OP_PUSHDATA(Buffer.from('8280b37df378db99f66f85c95a783a76ac7a6d59', 'hex'), 'little'),
+              OP_CODES.OP_EQUALVERIFY,
+              OP_CODES.OP_CHECKSIG
+            ]
+          },
+          value: new BigNumber('1.1234')
+        }
+      ],
+      witness: [
+        {
+          scripts: []
+        }
+      ],
+      lockTime: 0x00000011
+    }
+    const segWit = new CTransactionSegWit(data)
+
+    expect(segWit.version).toBe(data.version)
+    expect(segWit.marker).toBe(data.marker)
+    expect(segWit.flag).toBe(data.flag)
+
+    expect(segWit.vin.length).toBe(data.vin.length)
+    expect(segWit.vin[0].txid).toBe(data.vin[0].txid)
+    expect(segWit.vin[0].index).toBe(data.vin[0].index)
+    expect(segWit.vin[0].script.stack.length).toBe(data.vin[0].script.stack.length)
+    expect(segWit.vin[0].sequence).toBe(data.vin[0].sequence)
+
+    expect(segWit.vout.length).toBe(data.vout.length)
+    expect(segWit.vout[0].value).toBe(data.vout[0].value)
+    expect(segWit.vout[0].script.stack.length).toBe(data.vout[0].script.stack.length)
+
+    expect(segWit.witness.length).toBe(data.witness.length)
+    expect(segWit.witness[0].scripts.length).toBe(data.witness[0].scripts.length)
+
+    expect(segWit.lockTime).toBe(data.lockTime)
+  })
+
   describe('P2WPKH (SIGNED)', () => {
     const hex = '01000000000102fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f00000000494830450221008b9d1dc26ba6a9cb62127b02742fa9d754cd3bebf337f7a55d114c8e5cdd30be022040529b194ba3f9281a99f2b1c0a19c0489bc22ede944ccf4ecbab4cc618ef3ed01eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac000247304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee0121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635711000000'
     const data: TransactionSegWit = {
