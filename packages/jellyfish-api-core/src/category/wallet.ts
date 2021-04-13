@@ -12,6 +12,18 @@ export enum AddressType {
   BECH32 = 'bech32'
 }
 
+//
+export enum ScriptType {
+  NONSTANDARD = 'nonstandard',
+  PUBKEY = 'pubkey',
+  PUBKEYHASH = 'pubkeyhash',
+  SCRIPTHASH = 'scripthash',
+  MULTISIG = 'multisig',
+  NULLDATA = 'nulldata',
+  ['WITNESS_V0_KEYHASH'] = 'witness_v0_keyhash',
+  ['WITNESS_UNKNOWN'] = 'witness_unknown',
+}
+
 /**
  * Wallet related RPC calls for DeFiChain
  */
@@ -79,10 +91,20 @@ export class Wallet {
    * Validate and return information about the given DFI address
    *
    * @param address
-   * @returns Promise<ValidateAddressResult>
+   * @return Promise<ValidateAddressResult>
    */
   async validateAddress (address: string): Promise<ValidateAddressResult> {
     return await this.client.call('validateaddress', [address], 'number')
+  }
+
+  /**
+   * Return information about the given address
+   *
+   * @param address
+   * @return Promise<AddressInfo>
+   */
+  async getAddressInfo (address: string): Promise<AddressInfo> {
+    return await this.client.call('getaddressinfo', [address], 'number')
   }
 
   /**
@@ -102,13 +124,20 @@ export class Wallet {
    */
   async sendToAddress (
     address: string,
-    amount: string,
-    options: SendToAddressOptions
+    amount: number,
+    options: SendToAddressOptions = {
+      comment: '',
+      commentTo: '',
+      subtractFeeFromAmount: false,
+      replaceable: false,
+      confTarget: 6,
+      estimateMode: Mode.UNSET,
+      avoidReuse: true
+    }
   ): Promise<string> {
     const {
-      comment = '', commentTo = '', subtractFeeFromAmount = false,
-      replaceable = false, confTarget = 6, estimateMode = Mode.UNSET,
-      avoidReuse = true
+      comment, commentTo, subtractFeeFromAmount,
+      replaceable, confTarget, estimateMode, avoidReuse
     } = options
 
     return await this.client.call(
@@ -151,4 +180,48 @@ export interface ValidateAddressResult {
   iswitness: boolean
   ['witness_version']: number
   ['witness_program']: string
+}
+
+export interface AddressInfo {
+  address: string
+  scriptPubKey: string
+  ismine: boolean
+  iswatchonly: boolean
+  solvable: boolean
+  desc: string
+  isscript: boolean
+  ischange: true
+  iswitness: boolean
+  ['witness_version']: number
+  ['witness_program']: string
+  script: ScriptType
+  hex: string
+  pubkeys: string[]
+  sigsrequired: number
+  pubkey: string
+  embedded: {
+    address: string
+    scriptPubKey: string
+    isscript: boolean
+    iswitness: boolean
+    ['witness_version']: number
+    ['witness_program']: string
+    script: ScriptType
+    hex: string
+    sigsrequired: number
+    pubkey: string
+    pubkeys: string[]
+  }
+  iscompressed: boolean
+  label: string
+  timestamp: number
+  hdkeypath: string
+  hdseedid: string
+  hdmasterfingerprint: string
+  labels: Label[]
+}
+
+export interface Label {
+  name: string
+  purpose: string
 }

@@ -1,9 +1,9 @@
 import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber, ValidateAddressResult, AddressType } from '../../src'
+import { BigNumber, ValidateAddressResult, AddressType, AddressInfo, ScriptType } from '../../src'
 import waitForExpect from 'wait-for-expect'
 
-describe.only('non masternode', () => {
+describe('non masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
   let address = ''
@@ -77,6 +77,41 @@ describe.only('non masternode', () => {
     })
   })
 
+  describe('getAddressInfo', () => {
+    it('should getAddressInfo', async () => {
+      return await waitForExpect(async () => {
+        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(address)
+
+        expect(addressInfo.address).toBe(address)
+        expect(typeof addressInfo.scriptPubKey).toBe('string')
+        expect(addressInfo.ismine).toBe(true)
+        expect(addressInfo.solvable).toBe(true)
+        expect(typeof addressInfo.desc).toBe('string')
+        expect(addressInfo.iswatchonly).toBe(false)
+        expect(addressInfo.isscript).toBe(true)
+        expect(addressInfo.iswitness).toBe(false)
+        expect(addressInfo.script).toBe(ScriptType.WITNESS_V0_KEYHASH)
+        expect(typeof addressInfo.hex).toBe('string')
+        expect(typeof addressInfo.pubkey).toBe('string')
+        expect(addressInfo.embedded.isscript).toBe(false)
+        expect(addressInfo.embedded.iswitness).toBe(true)
+        expect(addressInfo.embedded.witness_version).toBe(0)
+        expect(typeof addressInfo.embedded.witness_program).toBe('string')
+        expect(typeof addressInfo.embedded.pubkey).toBe('string')
+        expect(typeof addressInfo.embedded.address).toBe('string')
+        expect(typeof addressInfo.embedded.scriptPubKey).toBe('string')
+        expect(addressInfo.label).toBe('')
+        expect(addressInfo.ischange).toBe(false)
+        expect(typeof addressInfo.timestamp).toBe('number')
+        expect(typeof addressInfo.hdkeypath).toBe('string')
+        expect(typeof addressInfo.hdseedid).toBe('string')
+        expect(addressInfo.labels.length).toBeGreaterThanOrEqual(1)
+        expect(addressInfo.labels[0].name).toBe('')
+        expect(addressInfo.labels[0].purpose).toBe('receive')
+      })
+    })
+  })
+
   describe('validateAddress', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
@@ -92,7 +127,7 @@ describe.only('non masternode', () => {
   })
 })
 
-describe('masternode', () => {
+describe.only('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   let address = ''
@@ -168,6 +203,41 @@ describe('masternode', () => {
     })
   })
 
+  describe('getAddressInfo', () => {
+    it('should getAddressInfo', async () => {
+      return await waitForExpect(async () => {
+        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(address)
+
+        expect(addressInfo.address).toBe(address)
+        expect(typeof addressInfo.scriptPubKey).toBe('string')
+        expect(addressInfo.ismine).toBe(true)
+        expect(addressInfo.solvable).toBe(true)
+        expect(typeof addressInfo.desc).toBe('string')
+        expect(addressInfo.iswatchonly).toBe(false)
+        expect(addressInfo.isscript).toBe(true)
+        expect(addressInfo.iswitness).toBe(false)
+        expect(addressInfo.script).toBe(ScriptType.WITNESS_V0_KEYHASH)
+        expect(typeof addressInfo.hex).toBe('string')
+        expect(typeof addressInfo.pubkey).toBe('string')
+        expect(addressInfo.embedded.isscript).toBe(false)
+        expect(addressInfo.embedded.iswitness).toBe(true)
+        expect(addressInfo.embedded.witness_version).toBe(0)
+        expect(typeof addressInfo.embedded.witness_program).toBe('string')
+        expect(typeof addressInfo.embedded.pubkey).toBe('string')
+        expect(typeof addressInfo.embedded.address).toBe('string')
+        expect(typeof addressInfo.embedded.scriptPubKey).toBe('string')
+        expect(addressInfo.label).toBe('')
+        expect(addressInfo.ischange).toBe(false)
+        expect(typeof addressInfo.timestamp).toBe('number')
+        expect(typeof addressInfo.hdkeypath).toBe('string')
+        expect(typeof addressInfo.hdseedid).toBe('string')
+        expect(addressInfo.labels.length).toBeGreaterThanOrEqual(1)
+        expect(addressInfo.labels[0].name).toBe('')
+        expect(addressInfo.labels[0].purpose).toBe('receive')
+      })
+    })
+  })
+
   describe('validateAddress', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
@@ -182,12 +252,12 @@ describe('masternode', () => {
     })
   })
 
-  // describe('sendToAddress', () => {
-  //   it('should sendToAddress', async () => {
-  //     return await waitForExpect(async () => {
-  //       // const transactionId = await client.wallet.sendToAddress()
-  //       // console.log('transactionId: ', transactionId)
-  //     })
-  //   })
-  // })
+  describe('sendToAddress', () => {
+    it('should sendToAddress', async () => {
+      return await waitForExpect(async () => {
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001)
+        console.log('transactionId: ', transactionId)
+      })
+    })
+  })
 })
