@@ -163,6 +163,7 @@ export interface Vout {
   n: number
   scriptPubKey: ScriptPubKey
 }
+
 export interface UTXODetails {
   bestblock: string
   confirmations: number
