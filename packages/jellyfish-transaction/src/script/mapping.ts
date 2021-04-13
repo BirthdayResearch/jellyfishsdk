@@ -4,6 +4,7 @@ import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
 import { OP_CHECKSIG, OP_HASH160 } from './crypto'
 import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
+import { OP_PUSHDATA } from './data'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -43,6 +44,9 @@ export const OP_CODES = {
   // OP_PUSHDATA1 use OP_PUSHDATA
   // OP_PUSHDATA2 use OP_PUSHDATA
   // OP_PUSHDATA4 use OP_PUSHDATA
+  OP_PUSHDATA: (buffer: Buffer, endian: 'little' | 'big'): OP_PUSHDATA => {
+    return new OP_PUSHDATA(buffer, endian)
+  },
 
   //     OP_1NEGATE = 0x4f,
   //     OP_RESERVED = 0x50,
