@@ -183,7 +183,7 @@ export class CTransactionSegWit extends ComposableBuffer<TransactionSegWit> impl
 
   composers (tx: TransactionSegWit): BufferComposer[] {
     return [
-      ComposableBuffer.int32(() => tx.version, v => tx.version = v),
+      ComposableBuffer.uInt32(() => tx.version, v => tx.version = v),
       ComposableBuffer.uInt8(() => tx.marker, v => tx.marker = v),
       ComposableBuffer.uInt8(() => tx.flag, v => tx.flag = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
