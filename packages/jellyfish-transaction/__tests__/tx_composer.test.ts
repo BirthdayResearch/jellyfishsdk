@@ -1,8 +1,8 @@
-import { Script, Vout, Vin, Transaction, WitnessScript, Witness, TransactionSegWit } from '../src/tx'
+import { BigNumber } from 'bignumber.js'
+import { Script, Vout, Vin, Transaction, WitnessScript, Witness, TransactionSegWit, CScript, CTransaction, CTransactionSegWit, CVin, CVout, CWitness, CWitnessScript } from '../src'
+
 import { OP_CODES, OP_PUSHDATA } from '../src/script'
-import { CScript, CTransaction, CTransactionSegWit, CVin, CVout, CWitness, CWitnessScript } from '../src/tx_composer'
 import { SmartBuffer } from 'smart-buffer'
-import { BigNumber } from '@defichain/jellyfish-json'
 import { ComposableBuffer } from '../src/buffer/buffer_composer'
 
 // Test vector mostly taken from: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
@@ -805,6 +805,12 @@ describe('CTransactionSegWit', () => {
 
     it('should compose from Object to Composable to Buffer', () => {
       expectObjectToHexBuffer(data, hex, data => new CTransactionSegWit(data))
+    })
+
+    it('should be consistent for 10000 to Buffer generation', () => {
+      for (let i = 0; i < 10000; i++) {
+        expectObjectToHexBuffer(data, hex, data => new CTransactionSegWit(data))
+      }
     })
   })
 
