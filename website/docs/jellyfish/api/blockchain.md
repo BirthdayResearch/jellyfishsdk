@@ -57,7 +57,7 @@ interface blockchain {
   getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>>
 }
 
-export interface Block<T> {
+interface Block<T> {
   hash: string
   confirmations: number
   strippedsize: number
@@ -82,7 +82,7 @@ export interface Block<T> {
   nextblockhash: string
 }
 
-export interface Transaction {
+interface Transaction {
   txid: string
   hash: string
   version: number
@@ -95,7 +95,7 @@ export interface Transaction {
   hex: string
 }
 
-export interface Vin {
+interface Vin {
   coinbase: string
   txid: string
   vout: number
@@ -107,7 +107,7 @@ export interface Vin {
   sequence: string
 }
 
-export interface Vout {
+interface Vout {
   value: number
   n: number
   scriptPubKey: {
@@ -141,3 +141,29 @@ interface blockchain {
 }
 ```
 
+## getTxOut
+
+Get details of unspent transaction output (UTXO).
+
+```ts title="client.blockchain.getTxOut()"
+interface blockchain {
+  getTxOut (txId: string, n: number, includeMempool = true): Promise<UTXODetails>
+}
+
+interface UTXODetails {
+  bestblock: string
+  confirmations: number
+  value: BigNumber
+  scriptPubKey: ScriptPubKey
+  coinbase: boolean
+}
+
+interface ScriptPubKey {
+  asm: string
+  hex: string
+  type: string
+  reqSigs: number
+  addresses: string[]
+  tokenId: string
+}
+```

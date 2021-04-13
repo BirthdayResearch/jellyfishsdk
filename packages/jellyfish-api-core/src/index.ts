@@ -1,4 +1,4 @@
-import { Precision } from '@defichain/jellyfish-json'
+import { Precision, PrecisionMapping } from '@defichain/jellyfish-json'
 import { Blockchain } from './category/blockchain'
 import { Mining } from './category/mining'
 import { Wallet } from './category/wallet'
@@ -35,7 +35,7 @@ export abstract class ApiClient {
    * @throws RpcApiError
    * @throws ClientApiError
    */
-  abstract call<T> (method: string, params: any[], precision: Precision): Promise<T>
+  abstract call<T> (method: string, params: any[], precision: Precision | PrecisionMapping): Promise<T>
 }
 
 /**
