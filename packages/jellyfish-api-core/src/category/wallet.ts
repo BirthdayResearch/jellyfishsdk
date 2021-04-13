@@ -1,9 +1,15 @@
 import { BigNumber, ApiClient } from '../.'
 
 enum Mode {
-  UNSET = 'UNSET',
-  ECONOMICAL = 'ECONOMICAL',
-  CONSERVATIVE = 'CONSERVATIVE'
+  UNSET = 'unset',
+  ECONOMICAL = 'economical',
+  CONSERVATIVE = 'conservative'
+}
+
+export enum AddressType {
+  LEGACY = 'legacy',
+  ['P2SH-SEGWIT'] = 'p2sh-segwit',
+  BECH32 = 'bech32'
 }
 
 /**
@@ -57,6 +63,29 @@ export class Wallet {
   }
 
   /**
+   * Returns a new Defi address for receiving payments.
+   * If 'label' is specified, it's added to the address book
+   * so payments recevied with the address will be associated with 'label'
+   *
+   * @param label for address to be linked to. It can also be set as empty string
+   * @param addressType to use, eg: legacy, p2sh-segwit, bech32
+   * @return Promise<string>
+   */
+  async getNewAddress (label: string = '', addressType = AddressType['P2SH-SEGWIT']): Promise<string> {
+    return await this.client.call('getnewaddress', [label, addressType], 'number')
+  }
+
+  /**
+   * Validate and return information about the given DFI address
+   *
+   * @param address
+   * @returns Promise<ValidateAddressResult>
+   */
+  async validateAddress (address: string): Promise<ValidateAddressResult> {
+    return await this.client.call('validateaddress', [address], 'number')
+  }
+
+  /**
    * Send an amount to given address and return a transaction id
    *
    * @param address
@@ -77,12 +106,8 @@ export class Wallet {
     options: SendToAddressOptions
   ): Promise<string> {
     const {
-      comment = '',
-      commentTo = '',
-      subtractFeeFromAmount = false,
-      replaceable,
-      confTarget,
-      estimateMode = Mode.UNSET,
+      comment = '', commentTo = '', subtractFeeFromAmount = false,
+      replaceable = false, confTarget = 6, estimateMode = Mode.UNSET,
       avoidReuse = true
     } = options
 
@@ -116,4 +141,14 @@ export interface SendToAddressOptions {
 export interface IWallet {
   ['wallet_name']: string
   warning: string
+}
+
+export interface ValidateAddressResult {
+  isvalid: boolean
+  address: string
+  scriptPubKey: string
+  isscript: boolean
+  iswitness: boolean
+  ['witness_version']: number
+  ['witness_program']: string
 }
