@@ -1,9 +1,9 @@
 import { BigNumber, ApiClient } from '../.'
 
-enum Mode {
-  UNSET = 'unset',
-  ECONOMICAL = 'economical',
-  CONSERVATIVE = 'conservative'
+export enum Mode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
 }
 
 export enum AddressType {
@@ -12,7 +12,6 @@ export enum AddressType {
   BECH32 = 'bech32'
 }
 
-//
 export enum ScriptType {
   NONSTANDARD = 'nonstandard',
   PUBKEY = 'pubkey',
@@ -22,6 +21,10 @@ export enum ScriptType {
   NULLDATA = 'nulldata',
   ['WITNESS_V0_KEYHASH'] = 'witness_v0_keyhash',
   ['WITNESS_UNKNOWN'] = 'witness_unknown',
+}
+
+export enum WalletFlag {
+  ['AVOID_REUSE'] = 'avoid_reuse'
 }
 
 /**
@@ -87,24 +90,45 @@ export class Wallet {
    * @param options.blank
    * @param options.passphrase
    * @param options.avoidReuse
-   * @return Promise<Wallet>
+   * @return Promise<IWallet>
    */
   async createWallet (
     walletName: string,
     disablePrivateKeys = false,
-    options: CreateWalletOptions = {
-      blank: false,
-      passphrase: '',
-      avoidReuse: false
-    }
+    options: CreateWalletOptions = {}
   ): Promise<IWallet> {
-    const { blank, passphrase, avoidReuse } = options
+    const { blank = false, passphrase = '', avoidReuse = false } = options
 
     return await this.client.call(
       'createwallet',
       [walletName, disablePrivateKeys, blank, passphrase, avoidReuse],
-      'bignumber'
+      'number'
     )
+  }
+
+  /**
+   * Return object containing various wallet state info
+   *
+   * @return Promise<WalletInfo>
+   */
+  async getWalletInfo (): Promise<WalletInfo> {
+    return await this.client.call('getwalletinfo', [], {
+      balance: 'bignumber',
+      unconfirmed_balance: 'bignumber',
+      immature_balance: 'bignumber',
+      paytxfee: 'bignumber'
+    })
+  }
+
+  /**
+   * Change the state of the given wallet flag for a wallet
+   *
+   * @param flag to change. eg: avoid_reuse
+   * @param value optional, default = true
+   * @return Promise<WalletFlagResult>
+   */
+  async setWalletFlag (flag: WalletFlag, value: boolean = true): Promise<WalletFlagResult> {
+    return await this.client.call('setwalletflag', [flag, value], 'number')
   }
 
   /**
@@ -182,6 +206,16 @@ export class Wallet {
       'bignumber'
     )
   }
+
+  /**
+   * Lists groups of addresses which have had their common ownership made public
+   * by common use as inputs or as the resulting change in past transactions
+   *
+   * @return Promise<Array<Array<Array<any>>>>
+   */
+  async listAddressGroupings (): Promise<any[][][]> {
+    return await this.client.call('listaddressgroupings', [], 'bignumber')
+  }
 }
 
 export interface UTXO {
@@ -217,24 +251,45 @@ export interface ListUnspentQueryOptions {
 }
 
 export interface CreateWalletOptions {
-  blank: boolean
-  passphrase: string
-  avoidReuse: boolean
+  blank?: boolean
+  passphrase?: string
+  avoidReuse?: boolean
 }
 
 export interface SendToAddressOptions {
-  comment: string
-  commentTo: string
-  subtractFeeFromAmount: boolean
+  comment?: string
+  commentTo?: string
+  subtractFeeFromAmount?: boolean
   replaceable?: boolean
   confTarget?: number
-  estimateMode: Mode
-  avoidReuse: boolean
+  estimateMode?: Mode
+  avoidReuse?: boolean
 }
 
 export interface IWallet {
-  ['wallet_name']: string
+  name: string
   warning: string
+}
+
+export interface WalletInfo {
+  walletname: string
+  walletversion: number
+  balance: BigNumber
+  unconfirmed_balance: BigNumber
+  immature_balance: BigNumber
+  txcount: number
+  keypoololdest: number
+  keypoolsize: number
+  keypoolsize_hd_internal: number
+  unlocked_until: number
+  paytxfee: BigNumber
+  hdseedid: string
+  private_keys_enabled: boolean
+  avoid_reuse: boolean
+  scanning: {
+    duration: number
+    progress: number
+  }
 }
 
 export interface ValidateAddressResult {
@@ -289,4 +344,10 @@ export interface AddressInfo {
 export interface Label {
   name: string
   purpose: string
+}
+
+export interface WalletFlagResult {
+  ['flag_name']: string
+  ['flag_state']: boolean
+  warnings: string
 }

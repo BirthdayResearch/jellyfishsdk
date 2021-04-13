@@ -2,12 +2,12 @@ import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { BigNumber, ValidateAddressResult, AddressType, AddressInfo, ScriptType } from '../../src'
 import waitForExpect from 'wait-for-expect'
-import { UTXO, ListUnspentOptions } from '../../src/category/wallet'
+import { UTXO, ListUnspentOptions, WalletFlag, SendToAddressOptions, Mode } from '../../src/category/wallet'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
-  let address = ''
+  let aliceAddress = ''
 
   beforeAll(async () => {
     await container.start()
@@ -29,7 +29,7 @@ describe('non masternode', () => {
   describe('getNewAddress', () => {
     it('should getNewAddress', async () => {
       return await waitForExpect(async () => {
-        address = await client.wallet.getNewAddress()
+        const address = await client.wallet.getNewAddress()
 
         expect(typeof address).toBe('string')
       })
@@ -37,9 +37,9 @@ describe('non masternode', () => {
 
     it('should getNewAddress with label', async () => {
       return await waitForExpect(async () => {
-        address = await client.wallet.getNewAddress('alice')
+        aliceAddress = await client.wallet.getNewAddress('alice')
 
-        expect(typeof address).toBe('string')
+        expect(typeof aliceAddress).toBe('string')
       })
     })
 
@@ -81,9 +81,9 @@ describe('non masternode', () => {
   describe('getAddressInfo', () => {
     it('should getAddressInfo', async () => {
       return await waitForExpect(async () => {
-        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(address)
+        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
-        expect(addressInfo.address).toBe(address)
+        expect(addressInfo.address).toBe(aliceAddress)
         expect(typeof addressInfo.scriptPubKey).toBe('string')
         expect(addressInfo.ismine).toBe(true)
         expect(addressInfo.solvable).toBe(true)
@@ -101,13 +101,13 @@ describe('non masternode', () => {
         expect(typeof addressInfo.embedded.pubkey).toBe('string')
         expect(typeof addressInfo.embedded.address).toBe('string')
         expect(typeof addressInfo.embedded.scriptPubKey).toBe('string')
-        expect(addressInfo.label).toBe('')
+        expect(addressInfo.label).toBe('alice')
         expect(addressInfo.ischange).toBe(false)
         expect(typeof addressInfo.timestamp).toBe('number')
         expect(typeof addressInfo.hdkeypath).toBe('string')
         expect(typeof addressInfo.hdseedid).toBe('string')
         expect(addressInfo.labels.length).toBeGreaterThanOrEqual(1)
-        expect(addressInfo.labels[0].name).toBe('')
+        expect(addressInfo.labels[0].name).toBe('alice')
         expect(addressInfo.labels[0].purpose).toBe('receive')
       })
     })
@@ -116,22 +116,202 @@ describe('non masternode', () => {
   describe('validateAddress', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
-        const result: ValidateAddressResult = await client.wallet.validateAddress(address)
+        const result: ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
         expect(result.isvalid).toBe(true)
-        expect(result.address).toBe(address)
+        expect(result.address).toBe(aliceAddress)
         expect(typeof result.scriptPubKey).toBe('string')
         expect(result.isscript).toBe(true)
         expect(result.iswitness).toBe(false)
       })
     })
   })
+
+  describe('listAddressGroupings', () => {
+    it('should listAddressGroupings', async () => {
+      return await waitForExpect(async () => {
+        const data = await client.wallet.listAddressGroupings()
+
+        expect(data[0][0][0]).toBe('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+        expect(data[0][0][1] instanceof BigNumber).toBe(true)
+        expect(data[0][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(data[0][0][2]).toBe('coinbase')
+
+        expect(data[1][0][0]).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+        expect(data[1][0][1] instanceof BigNumber).toBe(true)
+        expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(data[1][0][2]).toBe('coinbase')
+      })
+    })
+  })
+
+  describe('getWalletInfo', () => {
+    it('should getWalletInfo', async () => {
+      return await waitForExpect(async () => {
+        const walletInfo = await client.wallet.getWalletInfo()
+
+        expect(walletInfo.walletname).toBe('')
+        expect(walletInfo.walletversion).toBe(169900)
+        expect(walletInfo.balance instanceof BigNumber).toBe(true)
+        expect(walletInfo.balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.unconfirmed_balance instanceof BigNumber).toBe(true)
+        expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.immature_balance instanceof BigNumber).toBe(true)
+        expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.txcount).toBeGreaterThanOrEqual(100)
+        expect(typeof walletInfo.keypoololdest).toBe('number')
+        expect(typeof walletInfo.keypoolsize).toBe('number')
+        expect(typeof walletInfo.keypoolsize_hd_internal).toBe('number')
+        expect(walletInfo.paytxfee instanceof BigNumber).toBe(true)
+        expect(walletInfo.paytxfee.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(typeof walletInfo.hdseedid).toBe('string')
+        expect(walletInfo.private_keys_enabled).toBe(true)
+        expect(walletInfo.avoid_reuse).toBe(false)
+        expect(walletInfo.scanning).toBe(false)
+      })
+    })
+  })
+
+  describe('setWalletFlag', () => {
+    it('should setWalletFlag', async () => {
+      return await waitForExpect(async () => {
+        const walletInfoBefore = await client.wallet.getWalletInfo()
+        expect(walletInfoBefore.avoid_reuse).toBe(false)
+
+        const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+        expect(result.flag_name).toBe('avoid_reuse')
+        expect(result.flag_state).toBe(true)
+        expect(result.warnings).toBe('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
+
+        const walletInfoAfter = await client.wallet.getWalletInfo()
+        expect(walletInfoAfter.avoid_reuse).toBe(true)
+      })
+    })
+  })
+
+  describe('sendToAddress', () => {
+    const address = 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
+
+    it('should sendToAddress', async () => {
+      return await waitForExpect(async () => {
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with comment and commentTo', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          comment: 'pizza',
+          commentTo: 'domino'
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with replaceable', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          replaceable: true
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with confTarget', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          confTarget: 60
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with estimateMode', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          estimateMode: Mode.ECONOMICAL
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with avoidReuse', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          avoidReuse: false
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+  })
+
+  describe('createWallet', () => {
+    it('should createWallet', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('alice')
+
+        expect(wallet.name).toBe('alice')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with disablePrivateKeys true', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('bob', true)
+
+        expect(wallet.name).toBe('bob')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with blank true', async () => {
+      return await waitForExpect(async () => {
+        const options = { blank: true }
+        const wallet = await client.wallet.createWallet('charlie', false, options)
+
+        expect(wallet.name).toBe('charlie')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with passphrase', async () => {
+      return await waitForExpect(async () => {
+        const options = { passphrase: 'shhh...' }
+        const wallet = await client.wallet.createWallet('david', false, options)
+
+        expect(wallet.name).toBe('david')
+        expect(wallet.warning).toBe('')
+      })
+    })
+
+    it('should createWallet with avoidReuse true', async () => {
+      return await waitForExpect(async () => {
+        const options = { avoidReuse: true }
+        const wallet = await client.wallet.createWallet('eve', false, options)
+
+        expect(wallet.name).toBe('eve')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+  })
 })
 
-describe.only('masternode', () => {
+describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-  let address = ''
+  let aliceAddress = ''
 
   beforeAll(async () => {
     await container.start()
@@ -159,7 +339,6 @@ describe.only('masternode', () => {
         expect(utxos.length).toBeGreaterThan(0)
         for (let i = 0; i < utxos.length; i += 1) {
           const utxo = utxos[i]
-          console.log('utxo: ', utxo)
           expect(typeof utxo.txid).toBe('string')
           expect(typeof utxo.vout).toBe('number')
           expect(typeof utxo.address).toBe('string')
@@ -230,7 +409,6 @@ describe.only('masternode', () => {
       const options: ListUnspentOptions = { queryOptions: { maximumAmount: 100 } }
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
-        console.log('utxos: ', utxos)
         utxos.forEach(utxo => {
           expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
         })
@@ -268,7 +446,7 @@ describe.only('masternode', () => {
   describe('getNewAddress', () => {
     it('should getNewAddress', async () => {
       return await waitForExpect(async () => {
-        address = await client.wallet.getNewAddress()
+        const address = await client.wallet.getNewAddress()
 
         expect(typeof address).toBe('string')
       })
@@ -276,9 +454,9 @@ describe.only('masternode', () => {
 
     it('should getNewAddress with label', async () => {
       return await waitForExpect(async () => {
-        address = await client.wallet.getNewAddress('alice')
+        aliceAddress = await client.wallet.getNewAddress('alice')
 
-        expect(typeof address).toBe('string')
+        expect(typeof aliceAddress).toBe('string')
       })
     })
 
@@ -320,9 +498,9 @@ describe.only('masternode', () => {
   describe('getAddressInfo', () => {
     it('should getAddressInfo', async () => {
       return await waitForExpect(async () => {
-        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(address)
+        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
-        expect(addressInfo.address).toBe(address)
+        expect(addressInfo.address).toBe(aliceAddress)
         expect(typeof addressInfo.scriptPubKey).toBe('string')
         expect(addressInfo.ismine).toBe(true)
         expect(addressInfo.solvable).toBe(true)
@@ -340,13 +518,13 @@ describe.only('masternode', () => {
         expect(typeof addressInfo.embedded.pubkey).toBe('string')
         expect(typeof addressInfo.embedded.address).toBe('string')
         expect(typeof addressInfo.embedded.scriptPubKey).toBe('string')
-        expect(addressInfo.label).toBe('')
+        expect(addressInfo.label).toBe('alice')
         expect(addressInfo.ischange).toBe(false)
         expect(typeof addressInfo.timestamp).toBe('number')
         expect(typeof addressInfo.hdkeypath).toBe('string')
         expect(typeof addressInfo.hdseedid).toBe('string')
         expect(addressInfo.labels.length).toBeGreaterThanOrEqual(1)
-        expect(addressInfo.labels[0].name).toBe('')
+        expect(addressInfo.labels[0].name).toBe('alice')
         expect(addressInfo.labels[0].purpose).toBe('receive')
       })
     })
@@ -355,10 +533,10 @@ describe.only('masternode', () => {
   describe('validateAddress', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
-        const result: ValidateAddressResult = await client.wallet.validateAddress(address)
+        const result: ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
         expect(result.isvalid).toBe(true)
-        expect(result.address).toBe(address)
+        expect(result.address).toBe(aliceAddress)
         expect(typeof result.scriptPubKey).toBe('string')
         expect(result.isscript).toBe(true)
         expect(result.iswitness).toBe(false)
@@ -366,11 +544,182 @@ describe.only('masternode', () => {
     })
   })
 
+  describe('listAddressGroupings', () => {
+    it('should listAddressGroupings', async () => {
+      return await waitForExpect(async () => {
+        const data = await client.wallet.listAddressGroupings()
+
+        expect(data[0][0][0]).toBe('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+        expect(data[0][0][1] instanceof BigNumber).toBe(true)
+        expect(data[0][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(data[0][0][2]).toBe('coinbase')
+
+        expect(data[1][0][0]).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+        expect(data[1][0][1] instanceof BigNumber).toBe(true)
+        expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(data[1][0][2]).toBe('coinbase')
+      })
+    })
+  })
+
+  describe('getWalletInfo', () => {
+    it('should getWalletInfo', async () => {
+      return await waitForExpect(async () => {
+        const walletInfo = await client.wallet.getWalletInfo()
+
+        expect(walletInfo.walletname).toBe('')
+        expect(walletInfo.walletversion).toBe(169900)
+        expect(walletInfo.balance instanceof BigNumber).toBe(true)
+        expect(walletInfo.balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.unconfirmed_balance instanceof BigNumber).toBe(true)
+        expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.immature_balance instanceof BigNumber).toBe(true)
+        expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.txcount).toBeGreaterThanOrEqual(100)
+        expect(typeof walletInfo.keypoololdest).toBe('number')
+        expect(typeof walletInfo.keypoolsize).toBe('number')
+        expect(typeof walletInfo.keypoolsize_hd_internal).toBe('number')
+        expect(walletInfo.paytxfee instanceof BigNumber).toBe(true)
+        expect(walletInfo.paytxfee.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(typeof walletInfo.hdseedid).toBe('string')
+        expect(walletInfo.private_keys_enabled).toBe(true)
+        expect(walletInfo.avoid_reuse).toBe(false)
+        expect(walletInfo.scanning).toBe(false)
+      })
+    })
+  })
+
+  describe('setWalletFlag', () => {
+    it('should setWalletFlag', async () => {
+      return await waitForExpect(async () => {
+        const walletInfoBefore = await client.wallet.getWalletInfo()
+        expect(walletInfoBefore.avoid_reuse).toBe(false)
+
+        const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+        expect(result.flag_name).toBe('avoid_reuse')
+        expect(result.flag_state).toBe(true)
+        expect(result.warnings).toBe('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
+
+        const walletInfoAfter = await client.wallet.getWalletInfo()
+        expect(walletInfoAfter.avoid_reuse).toBe(true)
+      })
+    })
+  })
+
   describe('sendToAddress', () => {
+    const address = 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
+
     it('should sendToAddress', async () => {
       return await waitForExpect(async () => {
         const transactionId = await client.wallet.sendToAddress(address, 0.00001)
-        console.log('transactionId: ', transactionId)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with comment and commentTo', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          comment: 'pizza',
+          commentTo: 'domino'
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with replaceable', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          replaceable: true
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with confTarget', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          confTarget: 60
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with estimateMode', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          estimateMode: Mode.ECONOMICAL
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+
+    it('should sendToAddress with avoidReuse', async () => {
+      return await waitForExpect(async () => {
+        const options: SendToAddressOptions = {
+          avoidReuse: false
+        }
+        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
+
+        expect(typeof transactionId).toBe('string')
+      })
+    })
+  })
+
+  describe('createWallet', () => {
+    it('should createWallet', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('alice')
+
+        expect(wallet.name).toBe('alice')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with disablePrivateKeys true', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('bob', true)
+
+        expect(wallet.name).toBe('bob')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with blank true', async () => {
+      return await waitForExpect(async () => {
+        const options = { blank: true }
+        const wallet = await client.wallet.createWallet('charlie', false, options)
+
+        expect(wallet.name).toBe('charlie')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with passphrase', async () => {
+      return await waitForExpect(async () => {
+        const options = { passphrase: 'shhh...' }
+        const wallet = await client.wallet.createWallet('david', false, options)
+
+        expect(wallet.name).toBe('david')
+        expect(wallet.warning).toBe('')
+      })
+    })
+
+    it('should createWallet with avoidReuse true', async () => {
+      return await waitForExpect(async () => {
+        const options = { avoidReuse: true }
+        const wallet = await client.wallet.createWallet('eve', false, options)
+
+        expect(wallet.name).toBe('eve')
+        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
   })
