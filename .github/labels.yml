@@ -53,6 +53,8 @@
 - color: fbca04
   name: area/core
 - color: fbca04
+  name: area/workflow
+- color: fbca04
   name: area/website
 - color: fbca04
   name: area/jellyfish
