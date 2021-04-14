@@ -76,6 +76,8 @@
       <w>numequalverify</w>
       <w>numnotequal</w>
       <w>pooledtx</w>
+      <w>prevout</w>
+      <w>prevouts</w>
       <w>printtoconsole</w>
       <w>priv</w>
       <w>pubkey</w>
@@ -91,6 +93,7 @@
       <w>secp</w>
       <w>segwit</w>
       <w>sendtoaddress</w>
+      <w>sighash</w>
       <w>sighashtype</w>
       <w>signmessage</w>
       <w>testcontainers</w>
