@@ -99,7 +99,8 @@ export class Blockchain {
   getRawMempool (verbose: true): Promise<MempoolTx>
 
   /**
-   * Get all transaction ids in memory pool as
+   * Get all transaction ids in memory pool as string[] if verbose is false
+   * else as json object
    *
    * @param verbose default = false, true for json object, false for array of transaction ids
    * @return Promise<string[] | MempoolTx>

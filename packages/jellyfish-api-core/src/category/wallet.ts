@@ -182,19 +182,16 @@ export class Wallet {
   async sendToAddress (
     address: string,
     amount: number,
-    options: SendToAddressOptions = {
-      comment: '',
-      commentTo: '',
-      subtractFeeFromAmount: false,
-      replaceable: false,
-      confTarget: 6,
-      estimateMode: Mode.UNSET,
-      avoidReuse: true
-    }
+    options: SendToAddressOptions = {}
   ): Promise<string> {
     const {
-      comment, commentTo, subtractFeeFromAmount,
-      replaceable, confTarget, estimateMode, avoidReuse
+      comment = '',
+      commentTo = '',
+      subtractFeeFromAmount = false,
+      replaceable = false,
+      confTarget = 6,
+      estimateMode = Mode.UNSET,
+      avoidReuse = true
     } = options
 
     return await this.client.call(

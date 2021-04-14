@@ -132,15 +132,7 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const data = await client.wallet.listAddressGroupings()
 
-        expect(data[0][0][0]).toBe('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-        expect(data[0][0][1] instanceof BigNumber).toBe(true)
-        expect(data[0][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(data[0][0][2]).toBe('coinbase')
-
-        expect(data[1][0][0]).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-        expect(data[1][0][1] instanceof BigNumber).toBe(true)
-        expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(data[1][0][2]).toBe('coinbase')
+        expect(data.length === 0).toBe(true)
       })
     })
   })
@@ -158,7 +150,7 @@ describe('non masternode', () => {
         expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
         expect(walletInfo.immature_balance instanceof BigNumber).toBe(true)
         expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(walletInfo.txcount).toBeGreaterThanOrEqual(100)
+        expect(walletInfo.txcount).toBeGreaterThanOrEqual(0)
         expect(typeof walletInfo.keypoololdest).toBe('number')
         expect(typeof walletInfo.keypoolsize).toBe('number')
         expect(typeof walletInfo.keypoolsize_hd_internal).toBe('number')
@@ -185,74 +177,6 @@ describe('non masternode', () => {
 
         const walletInfoAfter = await client.wallet.getWalletInfo()
         expect(walletInfoAfter.avoid_reuse).toBe(true)
-      })
-    })
-  })
-
-  describe('sendToAddress', () => {
-    const address = 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
-
-    it('should sendToAddress', async () => {
-      return await waitForExpect(async () => {
-        const transactionId = await client.wallet.sendToAddress(address, 0.00001)
-
-        expect(typeof transactionId).toBe('string')
-      })
-    })
-
-    it('should sendToAddress with comment and commentTo', async () => {
-      return await waitForExpect(async () => {
-        const options: SendToAddressOptions = {
-          comment: 'pizza',
-          commentTo: 'domino'
-        }
-        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
-
-        expect(typeof transactionId).toBe('string')
-      })
-    })
-
-    it('should sendToAddress with replaceable', async () => {
-      return await waitForExpect(async () => {
-        const options: SendToAddressOptions = {
-          replaceable: true
-        }
-        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
-
-        expect(typeof transactionId).toBe('string')
-      })
-    })
-
-    it('should sendToAddress with confTarget', async () => {
-      return await waitForExpect(async () => {
-        const options: SendToAddressOptions = {
-          confTarget: 60
-        }
-        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
-
-        expect(typeof transactionId).toBe('string')
-      })
-    })
-
-    it('should sendToAddress with estimateMode', async () => {
-      return await waitForExpect(async () => {
-        const options: SendToAddressOptions = {
-          estimateMode: Mode.ECONOMICAL
-        }
-        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
-
-        expect(typeof transactionId).toBe('string')
-      })
-    })
-
-    it('should sendToAddress with avoidReuse', async () => {
-      return await waitForExpect(async () => {
-        const options: SendToAddressOptions = {
-          avoidReuse: false
-        }
-        const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
-
-        expect(typeof transactionId).toBe('string')
       })
     })
   })
@@ -614,9 +538,6 @@ describe('masternode', () => {
         const transactionId = await client.wallet.sendToAddress(address, 0.00001)
 
         expect(typeof transactionId).toBe('string')
-
-        const rawMempool = await client.blockchain.getRawMempool(false)
-        console.log('rawMempool: ', rawMempool)
       })
     })
 
