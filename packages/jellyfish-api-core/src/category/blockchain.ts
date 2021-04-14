@@ -83,24 +83,40 @@ export class Blockchain {
   }
 
   /**
-   * Get all transaction ids in memory pool as json object
-   * @param verbose true
+   * Get all transaction ids in memory pool as string
+   *
+   * @param verbose false
+   * Promise<string[]>
    */
-  getRawMempool (verbose: true): Promise<Array<Mempool<MempoolTx>>>
+  getRawMempool (verbose: false): Promise<string[]>
 
   /**
-   * Get all transaction ids in memory pool as string
+   * Get all transaction ids in memory pool as json object
+   *
    * @param verbose true
+   * @return Promise<MempoolTx>
    */
-  getRawMempool (verbose: false): Promise<Array<Mempool<string>>>
+  getRawMempool (verbose: true): Promise<MempoolTx>
 
   /**
    * Get all transaction ids in memory pool as
+   *
    * @param verbose default = false, true for json object, false for array of transaction ids
-   * @return Promise<TransactionId[]>
+   * @return Promise<string[] | MempoolTx>
    */
-  async getRawMempool<T> (verbose: boolean): Promise<Array<Mempool<T>>> {
-    return await this.client.call('getrawmempool', [verbose], 'bignumber')
+  async getRawMempool (verbose: boolean): Promise<string[] | MempoolTx> {
+    return await this.client.call('getrawmempool', [verbose], {
+      fees: {
+        base: 'bignumber',
+        modified: 'bignumber',
+        ancestor: 'bignumber',
+        descendant: 'bignumber'
+      },
+      fee: 'bignumber',
+      modifiedfee: 'bignumber',
+      descendantfees: 'bignumber',
+      ancestorfees: 'bignumber'
+    })
   }
 }
 
@@ -202,31 +218,30 @@ export interface ScriptPubKey {
   tokenId: string
 }
 
-export interface Mempool<T> {
-  transactionid: T
-}
-
 export interface MempoolTx {
-  vsize: number
-  size: number // (DEPRECATED) same as vsize. Only returned if defid is started with -deprecatedrpc=size
-  weight: number
-  fee: BigNumber
-  modifiedfee: BigNumber
-  time: Date
-  height: number
-  descendantcount: number
-  descendantfees: BigNumber
-  ancestorcount: number
-  ancestorsize: number
-  ancestorfees: BigNumber
-  wtxid: string
-  fees: {
-    base: number
-    modified: number
-    ancestor: number
-    descendant: number
+  [key: string]: {
+    vsize: number
+    size: number // (DEPRECATED) same as vsize. Only returned if defid is started with -deprecatedrpc=size
+    weight: number
+    fee: BigNumber
+    modifiedfee: BigNumber
+    time: Date
+    height: number
+    descendantcount: number
+    descendantsize: number
+    descendantfees: BigNumber
+    ancestorcount: number
+    ancestorsize: number
+    ancestorfees: BigNumber
+    wtxid: string
+    fees: {
+      base: BigNumber
+      modified: BigNumber
+      ancestor: BigNumber
+      descendant: BigNumber
+    }
+    depends: string[]
+    spentby: string[]
+    'bip125-replaceable': boolean
   }
-  depends: string[]
-  spentby: string[]
-  'bip125-replaceable': boolean
 }

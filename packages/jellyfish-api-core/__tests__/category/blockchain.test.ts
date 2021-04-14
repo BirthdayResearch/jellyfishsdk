@@ -1,7 +1,7 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { BigNumber, Block, Transaction } from '../../src'
+import { BigNumber, Block, MempoolTx, Transaction, WalletFlag } from '../../src'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -50,6 +50,7 @@ describe('masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
@@ -199,12 +200,57 @@ describe('masternode', () => {
     })
   })
 
-  describe.only('getRawMempool', () => {
-    it('should getRawMempool', async () => {
-      await waitForExpect(async () => {
-        const rawMempool = await client.blockchain.getRawMempool(false)
-        console.log('rawMempool: ', rawMempool)
-      })
+  describe('getRawMempool', () => {
+    let transactionId = ''
+
+    beforeAll(async () => {
+      await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+      transactionId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
+    })
+
+    it('should getRawMempool and return array of transaction ids', async () => {
+      const rawMempool: string[] = await client.blockchain.getRawMempool(false)
+
+      expect(rawMempool.length > 0).toBe(true)
+      expect(typeof rawMempool[0]).toBe('string')
+    })
+
+    it('should getRawMempool and return array of transaction ids', async () => {
+      const rawMempool: MempoolTx = await client.blockchain.getRawMempool(true)
+
+      const data = rawMempool[transactionId]
+      expect(data.fees.base instanceof BigNumber).toBe(true)
+      expect(data.fees.modified instanceof BigNumber).toBe(true)
+      expect(data.fees.ancestor instanceof BigNumber).toBe(true)
+      expect(data.fees.descendant instanceof BigNumber).toBe(true)
+      expect(data.fees.base.isGreaterThan(new BigNumber('0'))).toBe(true)
+      expect(data.fees.modified.isGreaterThan(new BigNumber('0'))).toBe(true)
+      expect(data.fees.ancestor.isGreaterThan(new BigNumber('0'))).toBe(true)
+      expect(data.fees.descendant.isGreaterThan(new BigNumber('0'))).toBe(true)
+
+      expect(data.fee instanceof BigNumber).toBe(true)
+      expect(data.fee.isGreaterThan(new BigNumber('0'))).toBe(true)
+      expect(data.modifiedfee instanceof BigNumber).toBe(true)
+      expect(data.modifiedfee.isGreaterThan(new BigNumber('0'))).toBe(true)
+
+      expect(typeof data.vsize).toBe('number')
+      expect(typeof data.weight).toBe('number')
+      expect(typeof data.height).toBe('number')
+      expect(typeof data.time).toBe('number')
+      expect(typeof data.wtxid).toBe('string')
+      expect(data.depends.length >= 0).toBe(true)
+      expect(data.spentby.length >= 0).toBe(true)
+      expect(data['bip125-replaceable']).toBe(false)
+
+      expect(typeof data.descendantcount).toBe('number')
+      expect(typeof data.descendantsize).toBe('number')
+      expect(data.descendantfees instanceof BigNumber).toBe(true)
+      expect(data.descendantfees.isGreaterThan(new BigNumber('0'))).toBe(true)
+
+      expect(typeof data.ancestorcount).toBe('number')
+      expect(typeof data.ancestorsize).toBe('number')
+      expect(data.ancestorfees instanceof BigNumber).toBe(true)
+      expect(data.ancestorfees.isGreaterThan(new BigNumber('0'))).toBe(true)
     })
   })
 })

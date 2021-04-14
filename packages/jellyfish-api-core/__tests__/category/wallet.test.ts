@@ -614,6 +614,9 @@ describe('masternode', () => {
         const transactionId = await client.wallet.sendToAddress(address, 0.00001)
 
         expect(typeof transactionId).toBe('string')
+
+        const rawMempool = await client.blockchain.getRawMempool(false)
+        console.log('rawMempool: ', rawMempool)
       })
     })
 
