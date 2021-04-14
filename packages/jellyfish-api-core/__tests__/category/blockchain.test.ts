@@ -215,7 +215,7 @@ describe('masternode', () => {
       expect(typeof rawMempool[0]).toBe('string')
     })
 
-    it('should getRawMempool and return array of transaction ids', async () => {
+    it('should getRawMempool and return json object', async () => {
       const rawMempool: MempoolTx = await client.blockchain.getRawMempool(true)
 
       const data = rawMempool[transactionId]

@@ -208,7 +208,7 @@ export class Wallet {
    * Lists groups of addresses which have had their common ownership made public
    * by common use as inputs or as the resulting change in past transactions
    *
-   * @return Promise<Array<Array<Array<any>>>>
+   * @return Promise<any[][][]>
    */
   async listAddressGroupings (): Promise<any[][][]> {
     return await this.client.call('listaddressgroupings', [], 'bignumber')
