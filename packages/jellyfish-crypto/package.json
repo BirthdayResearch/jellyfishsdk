@@ -37,12 +37,13 @@
     "publish:latest": "npm publish --tag latest --access public"
   },
   "dependencies": {
+    "bip66": "^1.1.5",
     "create-hash": "^1.2.0",
-    "elliptic": "^6.5.4"
+    "tiny-secp256k1": "^1.1.6"
   },
   "devDependencies": {
     "@types/create-hash": "^1.2.2",
-    "@types/elliptic": "^6.4.12",
+    "@types/tiny-secp256k1": "^1.0.0",
     "typescript": ">=4.2.0"
   }
 }

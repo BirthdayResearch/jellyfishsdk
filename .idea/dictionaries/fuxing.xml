@@ -91,6 +91,7 @@
       <w>secp</w>
       <w>segwit</w>
       <w>sendtoaddress</w>
+      <w>sighashtype</w>
       <w>signmessage</w>
       <w>testcontainers</w>
       <w>thedoublejay</w>
