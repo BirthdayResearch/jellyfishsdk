@@ -12,6 +12,8 @@ export class RegTestContainer extends DeFiDContainer {
       '-regtest=1',
       '-txnotokens=0',
       '-logtimemicros',
+      '-txindex=1',
+      '-acindex=1',
       '-amkheight=0',
       '-bayfrontheight=1',
       '-bayfrontgardensheight=2',

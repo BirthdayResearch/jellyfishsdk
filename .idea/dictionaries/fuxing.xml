@@ -2,6 +2,7 @@
   <dictionary name="fuxing">
     <words>
       <w>accounttoutxos</w>
+      <w>acindex</w>
       <w>amkheight</w>
       <w>anyonecanpay</w>
       <w>bayfrontgardensheight</w>
@@ -24,6 +25,7 @@
       <w>createmasternode</w>
       <w>currentblocktx</w>
       <w>currentblockweight</w>
+      <w>dakotacrescentheight</w>
       <w>dakotaheight</w>
       <w>debugexclude</w>
       <w>defi</w>
@@ -100,6 +102,7 @@
       <w>thedoublejay</w>
       <w>toaltstack</w>
       <w>txid</w>
+      <w>txindex</w>
       <w>txnotokens</w>
       <w>uacomment</w>
       <w>unpkg</w>
