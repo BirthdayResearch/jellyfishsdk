@@ -159,7 +159,7 @@ describe('CTransaction', () => {
             stack: [
               OP_CODES.OP_DUP,
               OP_CODES.OP_HASH160,
-              new OP_PUSHDATA(Buffer.from('a457b684d7f0d539a46a45bbc043f35b59d0d963', 'hex'), 'little'),
+              OP_CODES.OP_PUSHDATA(Buffer.from('a457b684d7f0d539a46a45bbc043f35b59d0d963', 'hex'), 'little'),
               OP_CODES.OP_EQUALVERIFY,
               OP_CODES.OP_CHECKSIG
             ]
@@ -171,7 +171,7 @@ describe('CTransaction', () => {
             stack: [
               OP_CODES.OP_DUP,
               OP_CODES.OP_HASH160,
-              new OP_PUSHDATA(Buffer.from('fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c', 'hex'), 'little'),
+              OP_CODES.OP_PUSHDATA(Buffer.from('fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c', 'hex'), 'little'),
               OP_CODES.OP_EQUALVERIFY,
               OP_CODES.OP_CHECKSIG
             ]
