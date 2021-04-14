@@ -11,6 +11,7 @@
       <w>bech</w>
       <w>booland</w>
       <w>boolor</w>
+      <w>canonbrother</w>
       <w>chainparams</w>
       <w>checklocktimeverify</w>
       <w>checkmultisig</w>
@@ -87,6 +88,7 @@
       <w>rpcpassword</w>
       <w>rpcuser</w>
       <w>rshift</w>
+      <w>secp</w>
       <w>segwit</w>
       <w>sendtoaddress</w>
       <w>signmessage</w>

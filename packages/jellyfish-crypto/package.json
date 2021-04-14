@@ -1,0 +1,48 @@
+{
+  "private": false,
+  "name": "@defichain/jellyfish-crypto",
+  "version": "0.0.0",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
+  "keywords": [
+    "DeFiChain",
+    "DeFi",
+    "Blockchain",
+    "API",
+    "Bitcoin"
+  ],
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "DeFiChain Foundation",
+      "email": "engineering@defichain.com",
+      "url": "https://defichain.com/"
+    },
+    {
+      "name": "DeFi Blockchain Contributors"
+    },
+    {
+      "name": "DeFi Jellyfish Contributors"
+    }
+  ],
+  "main": "dist",
+  "types": "dist",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "publish:next": "npm publish --tag next --access public",
+    "publish:latest": "npm publish --tag latest --access public"
+  },
+  "dependencies": {
+    "create-hash": "^1.2.0",
+    "elliptic": "^6.5.4"
+  },
+  "devDependencies": {
+    "@types/create-hash": "^1.2.2",
+    "@types/elliptic": "^6.4.12",
+    "typescript": ">=4.2.0"
+  }
+}
