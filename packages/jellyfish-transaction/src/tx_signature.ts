@@ -138,9 +138,15 @@ async function asWitnessProgram (transaction: Transaction, vin: Vin, signInputOp
  * https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki
  */
 export const TransactionSigner = {
-  // TODO(fuxingloh): provide index instead
 
-  async signInput (transaction: Transaction, vin: Vin, option: SignInputOption, sigHashType: SIGHASH = SIGHASH.ALL): Promise<Witness> {
+  /**
+   * @param transaction to sign
+   * @param index of the vin to sign
+   * @param option input option
+   * @param sigHashType SIGHASH type
+   */
+  async signInput (transaction: Transaction, index: number, option: SignInputOption, sigHashType: SIGHASH = SIGHASH.ALL): Promise<Witness> {
+    const vin = transaction.vin[index]
     const program = await asWitnessProgram(transaction, vin, option, sigHashType)
     const preimage = new CWitnessProgram(program).asBuffer()
     const sigHash = dSHA256(preimage)
@@ -169,7 +175,7 @@ export const TransactionSigner = {
 
     const witnesses: Witness[] = []
     for (let i = 0; i < transaction.vin.length; i++) {
-      const witness = await this.signInput(transaction, transaction.vin[i], inputOptions[i], sigHashType)
+      const witness = await this.signInput(transaction, i, inputOptions[i], sigHashType)
       witnesses.push(witness)
     }
 
