@@ -197,16 +197,12 @@ export const TransactionSigner = {
       throw new Error('vin.length and inputOptions.length must match')
     }
 
-    if (version) {
-      if (transaction.version !== DeFiTransaction.Version) {
-        throw new Error(`option.validate.version = true - trying to sign a txn ${transaction.version} different from ${DeFiTransaction.Version} is not supported`)
-      }
+    if (version && transaction.version !== DeFiTransaction.Version) {
+      throw new Error(`option.validate.version = true - trying to sign a txn ${transaction.version} different from ${DeFiTransaction.Version} is not supported`)
     }
 
-    if (lockTime) {
-      if (transaction.lockTime !== 0) {
-        throw new Error(`option.validate.lockTime = true - lockTime: ${transaction.lockTime} must be zero`)
-      }
+    if (lockTime && transaction.lockTime !== 0) {
+      throw new Error(`option.validate.lockTime = true - lockTime: ${transaction.lockTime} must be zero`)
     }
   }
 }
