@@ -4,9 +4,9 @@ import { Mining } from './category/mining'
 import { Wallet } from './category/wallet'
 
 export * from '@defichain/jellyfish-json'
-export * from './category/blockchain'
-export * from './category/mining'
-export * from './category/wallet'
+export * as blockchain from './category/blockchain'
+export * as mining from './category/mining'
+export * as wallet from './category/wallet'
 
 /**
  * ApiClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.
