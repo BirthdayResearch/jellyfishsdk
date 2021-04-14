@@ -10,3 +10,5 @@ export const DeFiTransaction = {
 
 export * from './tx'
 export * from './tx_composer'
+export * from './tx_segwit'
+export * from './tx_signature'
