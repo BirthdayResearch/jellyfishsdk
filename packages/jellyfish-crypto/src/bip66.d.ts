@@ -1,3 +1,6 @@
+/**
+ * No DefinitelyTyped declarations found, declaring our own here.
+ */
 declare module 'bip66' {
   export function check (buffer: Buffer): boolean
 
