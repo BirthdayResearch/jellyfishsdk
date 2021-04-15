@@ -19,26 +19,22 @@ export class RawTx {
     this.client = client
   }
 
-  private static asHex (rawTx: string | Buffer): string {
-    return Buffer.isBuffer(rawTx) ? rawTx.toString('hex') : rawTx
-  }
-
   /**
    * Create a transaction spending the given inputs and creating new outputs.
    * Returns hex-encoded raw transaction.
    * Note that the transaction's inputs are not signed, and
    * it is not stored in the wallet or transmitted to the network.
    *
-   * @param inputs {CreateRawTxIn[]} array of inputs
-   * @param outputs {CreateRawTxOut[]} array with outputs
-   * @param options {CreateRawTxOptions}
-   * @param options.locktime {number} Non-0 value also locktime-activates inputs
-   * @param options.replaceable {boolean} Marks this transaction as BIP125-replaceable
-   * @return {Promise<string>} hex string of the transaction (Little Endian)
+   * @param {CreateRawTxIn[]} inputs array of inputs
+   * @param {CreateRawTxOut[]} outputs array with outputs
+   * @param {CreateRawTxOptions} options
+   * @param {number} options.locktime Non-0 value also locktime-activates inputs
+   * @param {boolean} options.replaceable Marks this transaction as BIP125-replaceable
+   * @return {Promise<string>} hex string of the transaction
    */
   async createRawTransaction (
     inputs: CreateRawTxIn[],
-    outputs: CreateRawTxOut[],
+    outputs: CreateRawTxOut,
     options: CreateRawTxOptions = {}
   ): Promise<string> {
     const { locktime = 0, replaceable = false } = options
@@ -55,23 +51,22 @@ export class RawTx {
    * The third optional argument (may be null) is an array of previous transaction outputs that
    * this transaction depends on but may not yet be in the block chain.
    *
-   * @param rawTx {string|Buffer} unsigned raw transaction
-   * @param privKeys {string[] | Buffer[]} array of base58-encoded private keys for signing (WIF)
-   * @param prevTxs {SignRawTxWithKeyPrevTx[]} array of previous dependent transaction outputs
-   * @param options {SignRawTxWithKeyOptions}
-   * @param options.sigHashType {SigHashType} The signature hash type to use
+   * @param {string} rawTx unsigned raw transaction
+   * @param {string[]} privKeys array of base58-encoded private keys for signing (WIF)
+   * @param {SignRawTxWithKeyPrevTx[]} prevTxs array of previous dependent transaction outputs
+   * @param {SignRawTxWithKeyOptions} options
+   * @param {SigHashType} options.sigHashType The signature hash type to use
    * @return {Promise<SignRawTxWithKeyResult>}
    */
   async signRawTransactionWithKey (
-    rawTx: string | Buffer,
+    rawTx: string,
     privKeys: string[],
-    prevTxs: SignRawTxWithKeyPrevTx[],
+    prevTxs?: SignRawTxWithKeyPrevTx[],
     options: SignRawTxWithKeyOptions = {}
   ): Promise<SignRawTxWithKeyResult> {
-    const hex = RawTx.asHex(rawTx)
     const { sigHashType = SigHashType.ALL } = options
     return await this.client.call('signrawtransactionwithkey', [
-      hex, privKeys, prevTxs, sigHashType
+      rawTx, privKeys, prevTxs, sigHashType
     ], 'number')
   }
 
@@ -79,17 +74,16 @@ export class RawTx {
    * Returns result of mempool acceptance tests indicating if raw transaction would be accepted by mempool.
    * This checks if the transaction violates the consensus or policy rules.
    *
-   * @param signedTx {string|Buffer} signed raw transaction
-   * @param maxFeeRate {BigNumber} Reject transactions whose fee rate is higher than the specified value.
+   * @param {string} signedTx signed raw transaction
+   * @param {BigNumber} maxFeeRate Reject transactions whose fee rate is higher than the specified value. in DFI/kB
    * @return {Promise<TestMempoolAcceptResult>} transaction mempool accept result
    * @see sendRawTransaction
    * @see createRawTransaction
    * @see signRawTransactionWithKey
    */
-  async testMempoolAccept (signedTx: string | Buffer, maxFeeRate: BigNumber = new BigNumber('0')): Promise<TestMempoolAcceptResult> {
-    const hex = RawTx.asHex(signedTx)
+  async testMempoolAccept (signedTx: string, maxFeeRate: BigNumber = new BigNumber('0')): Promise<TestMempoolAcceptResult> {
     const results: TestMempoolAcceptResult[] = await this.client.call('testmempoolaccept', [
-      [hex], maxFeeRate
+      [signedTx], maxFeeRate
     ], 'number')
     return results[0]
   }
@@ -100,17 +94,16 @@ export class RawTx {
    * for manual rebroadcast may degrade privacy by leaking the transaction's origin, as
    * nodes will normally not rebroadcast non-wallet transactions already in their mempool.
    *
-   * @param signedTx {string|Buffer} signed raw transaction
-   * @param maxFeeRate {BigNumber} Reject transactions whose fee rate is higher than the specified value.
+   * @param {string} signedTx signed raw transaction
+   * @param {BigNumber} maxFeeRate Reject transactions whose fee rate is higher than the specified value. in DFI/kB
    * @return {Promise<string>} transaction hash in hex
    * @see testMempoolAccept
    * @see createRawTransaction
    * @see signRawTransactionWithKey
    */
-  async sendRawTransaction (signedTx: string | Buffer, maxFeeRate: BigNumber = new BigNumber('0')): Promise<string> {
-    const hex = RawTx.asHex(signedTx)
+  async sendRawTransaction (signedTx: string, maxFeeRate: BigNumber = new BigNumber('0')): Promise<string> {
     return await this.client.call('sendrawtransaction', [
-      hex, maxFeeRate
+      signedTx, maxFeeRate
     ], 'number')
   }
 }
@@ -144,13 +137,17 @@ export interface SignRawTxWithKeyPrevTx {
    */
   scriptPubKey: string
   /**
-   * required for P2SH or P2WSH
+   * Required for P2SH or P2WSH
    */
   redeemScript?: string
   /**
-   * The amount spent
+   * Required for P2WSH or P2SH-P2WSH witness script
    */
-  amount: BigNumber
+  witnessScript?: string
+  /**
+   * Required for segwit inputs
+   */
+  amount?: BigNumber
 }
 
 export interface SignRawTxWithKeyOptions {
@@ -205,5 +202,5 @@ export interface TestMempoolAcceptResult {
   /**
    * Rejection string, only present when 'allowed' is false
    */
-  ['reject-reason']?: string
+  'reject-reason'?: string
 }
