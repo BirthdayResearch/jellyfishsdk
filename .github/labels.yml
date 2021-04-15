@@ -53,6 +53,8 @@
 - color: fbca04
   name: area/core
 - color: fbca04
+  name: area/workflow
+- color: fbca04
   name: area/website
 - color: fbca04
   name: area/jellyfish
@@ -60,6 +62,8 @@
   name: area/jellyfish-api-core
 - color: fbca04
   name: area/jellyfish-api-jsonrpc
+- color: fbca04
+  name: area/jellyfish-crypto
 - color: fbca04
   name: area/jellyfish-json
 - color: fbca04
@@ -72,8 +76,6 @@
   name: area/jellyfish-wallet-dfi
 - color: fbca04
   name: area/jellyfish-wallet-mnemonic
-- color: fbca04
-  name: area/jellyfish-wallet-ledger-dfi
 - color: fbca04
   name: area/testcontainers
 

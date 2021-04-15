@@ -61,9 +61,19 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * @return {Object}
    */
   toObject (): object {
+    function toObject (value: any): any {
+      if (value instanceof ComposableBuffer) {
+        return value.toObject()
+      }
+      if (Array.isArray(value) && value.length > 0) {
+        return value.map(v => toObject(v))
+      }
+      return value
+    }
+
     const json: any = {}
     for (const [key, value] of Object.entries(this.data)) {
-      json[key] = value instanceof ComposableBuffer ? value.toObject() : value
+      json[key] = toObject(value)
     }
     return json
   }

@@ -54,4 +54,12 @@ describe('container error handling', () => {
     await expect(container.waitForReady(100))
       .rejects.toThrow(/DeFiDContainer docker not ready within given timeout of/)
   })
+
+  it('should fail waitForCondition as condition is never valid', async () => {
+    container = new RegTestContainer()
+    await container.start()
+    await container.waitForReady()
+    return await expect(container.waitForCondition(async () => false, 3000))
+      .rejects.toThrow('waitForCondition is not ready within given timeout of 3000ms.')
+  })
 })
