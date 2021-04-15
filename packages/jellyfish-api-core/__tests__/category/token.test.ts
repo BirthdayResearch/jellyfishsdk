@@ -1,8 +1,7 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
-import { TokenPagination } from '../../src'
 
-describe('non masternode', () => {
+describe.skip('non masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -39,7 +38,7 @@ describe('non masternode', () => {
     })
 
     it('should listTokens with pagination and return an empty object as out of range', async () => {
-      const pagination: TokenPagination = {
+      const pagination = {
         start: 1,
         including_start: true,
         limit: 100
@@ -50,7 +49,7 @@ describe('non masternode', () => {
     })
 
     it('should listTokens with verbose false', async () => {
-      const pagination: TokenPagination = {
+      const pagination = {
         start: 0,
         including_start: true,
         limit: 100
@@ -66,7 +65,7 @@ describe('non masternode', () => {
 
   describe('getToken', () => {
     it('should getToken', async () => {
-      const token: any = await client.token.getToken('DFI')
+      const token = await client.token.getToken('DFI')
       const data = token['0']
 
       expect(data.symbol).toBe('DFI')
@@ -96,10 +95,37 @@ describe('masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
     await container.stop()
+  })
+
+  describe.only('createToken', () => {
+    it('should createToken', async () => {
+      const utxos = await container.call('listunspent')
+      console.log('utxos: ', utxos.length, utxos[0].txid, utxos[0].vout)
+      const address = await container.call('getnewaddress')
+
+      const metadata = {
+        symbol: 'ddd',
+        name: 'ddd',
+        isDAT: true,
+        decimal: 8,
+        limit: 100,
+        mintable: true,
+        tradeable: true,
+        collateralAddress: address
+      }
+      const data = await client.token.createToken(metadata, [{
+        txid: utxos[0].txid,
+        vout: utxos[0].vout
+      }])
+      console.log('data: ', data)
+      const tokens = await client.token.listTokens()
+      console.log('tokens: ', tokens)
+    })
   })
 
   describe('listTokens', () => {
@@ -126,7 +152,7 @@ describe('masternode', () => {
     })
 
     it('should listTokens with pagination and return an empty object as out of range', async () => {
-      const pagination: TokenPagination = {
+      const pagination = {
         start: 1,
         including_start: true,
         limit: 100
@@ -137,7 +163,7 @@ describe('masternode', () => {
     })
 
     it('should listTokens with verbose false', async () => {
-      const pagination: TokenPagination = {
+      const pagination = {
         start: 0,
         including_start: true,
         limit: 100
@@ -153,7 +179,7 @@ describe('masternode', () => {
 
   describe('getToken', () => {
     it('should getToken', async () => {
-      const token: any = await client.token.getToken('DFI')
+      const token = await client.token.getToken('DFI')
       const data = token['0']
 
       expect(data.symbol).toBe('DFI')

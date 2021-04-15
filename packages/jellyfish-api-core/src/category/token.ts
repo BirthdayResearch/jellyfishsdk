@@ -11,6 +11,16 @@ export class Token {
   }
 
   /**
+   * Creates a token with given metadata
+   *
+   * @param metadata
+   * @param utoxs array of specific UTXOs to spend
+   */
+  async createToken (metadata: CreateTokenMetadata, utxos: CreateTokenUTXO[] = []): Promise<string> {
+    return await this.client.call('createtoken', [metadata, utxos], 'number')
+  }
+
+  /**
    * Returns information about tokens
    *
    * @param pagination
@@ -58,6 +68,22 @@ export interface IToken {
     destructionHeight: number
     collateralAddress: string
   }
+}
+
+export interface CreateTokenMetadata {
+  symbol: string
+  name: string
+  isDAT: boolean
+  decimal: number
+  limit: number
+  mintable: boolean
+  tradeable: boolean
+  collateralAddress: string
+}
+
+export interface CreateTokenUTXO {
+  txid: string
+  vout: number
 }
 
 export interface TokenPagination {
