@@ -69,7 +69,7 @@ describe('coinbase maturity', () => {
     const privKey = 'cPuytfxySwc9RVrFpqQ9xheZ6jCmJD6pEe3XUPvev5hBwheivH5C'
     await container.waitForWalletBalanceGTE(100)
 
-    const { txid, index } = await container.fundAddress(address, 10)
+    const { txid, vout } = await container.fundAddress(address, 10)
     await container.call('importprivkey', [privKey])
     return await waitForExpect(async () => {
       const unspent = await container.call('listunspent', [
@@ -77,7 +77,7 @@ describe('coinbase maturity', () => {
       ])
 
       expect(unspent[0].txid).toBe(txid)
-      expect(unspent[0].vout).toBe(index)
+      expect(unspent[0].vout).toBe(vout)
       expect(unspent[0].address).toBe(address)
       expect(unspent[0].amount).toBe(10)
 

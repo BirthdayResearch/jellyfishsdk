@@ -135,11 +135,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    *
    * @param {string} address to fund
    * @param {number} amount to fund an address, take note of number precision issues, BigNumber not included in pkg.
-   * @return {Promise<{txid: string, index: number}>} txid and index of the transaction
+   * @return {Promise<{txid: string, vout: number}>} txid and index of the transaction
    * @see waitForWalletCoinbaseMaturity
    * @see waitForWalletBalanceGTE
    */
-  async fundAddress (address: string, amount: number): Promise<{ txid: string, index: number }> {
+  async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
     const txid = await this.call('sendtoaddress', [address, amount])
 
     await this.waitForCondition(async () => {
@@ -157,7 +157,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     } = await this.call('getrawtransaction', [txid, true])
     for (const out of vout) {
       if (out.scriptPubKey.addresses.includes(address)) {
-        return { txid, index: out.n }
+        return { txid, vout: out.n }
       }
     }
 
