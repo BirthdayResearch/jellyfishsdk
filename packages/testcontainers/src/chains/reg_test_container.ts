@@ -129,7 +129,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
-   * Fund an address with an amount for testing.
+   * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
    * This allow for light wallet implementation testing.
    *
@@ -142,7 +142,13 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @see waitForWalletBalanceGTE
    */
   async fundAddress (address: string, amount: number): Promise<string> {
-    return await this.call('sendtoaddress', [address, amount])
+    const txid = await this.call('sendtoaddress', [address, amount])
+
+    await this.waitForCondition(async () => {
+      const { confirmations } = await this.call('gettxout', [txid, 0, true])
+      return confirmations > 0
+    }, 10000)
+    return txid
   }
 
   /**
@@ -153,12 +159,12 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    *
    * This is not a deterministic feature, each time you run this, you get a different set of address and priv key.
    *
-   * @return {Promise<{ address: string, privKey: string }>} a new address and it's associated privKey
+   * @return {Promise<{ address: string, privKey: string, pubKey: string }>} a new address and it's associated privKey
    */
-  async newAddressAndPrivKey (): Promise<{ address: string, privKey: string }> {
+  async newAddressKeys (): Promise<{ address: string, privKey: string, pubKey: string }> {
     const address = await this.call('getnewaddress', ['', 'bech32'])
     const privKey = await this.call('dumpprivkey', [address])
-
-    return { address, privKey }
+    const getaddressinfo = await this.call('getaddressinfo', [address])
+    return { address, privKey, pubKey: getaddressinfo.pubkey }
   }
 }
