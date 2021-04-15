@@ -46,7 +46,7 @@ describe.skip('non masternode', () => {
   })
 })
 
-describe.skip('masternode', () => {
+describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -59,8 +59,28 @@ describe.skip('masternode', () => {
     await container.stop()
   })
 
+  describe('createPoolPair', () => {
+    it('should createPoolPair', async () => {
+      await waitForExpect(async () => {
+        const address = await container.call('getnewaddress')
+
+        const metadata = {
+          tokenA: 'DFI',
+          tokenB: 'DDD',
+          commission: 0.003,
+          status: true,
+          ownerAddress: address,
+          customRewards: '',
+          pairSymbol: ''
+        }
+        const data = await client.poolPair.createPoolPair(metadata)
+        console.log('data: ', data)
+      })
+    })
+  })
+
   // TODO(canonbrother): currently the pool pair is empty, no point to test for now
-  describe('listPoolPairs', () => {
+  describe.skip('listPoolPairs', () => {
     it('should listPoolPairs', async () => {
       await waitForExpect(async () => {
         const poolPairs = await client.poolPair.listPoolPairs()
@@ -70,7 +90,7 @@ describe.skip('masternode', () => {
   })
 
   // TODO(canonbrother): pool not found, test again once pool pair is up
-  describe('getPoolPair', () => {
+  describe.skip('getPoolPair', () => {
     it('should getPoolPair', async () => {
       await waitForExpect(async () => {
         const poolPair = await client.poolPair.getPoolPair('DFI')
@@ -80,7 +100,7 @@ describe.skip('masternode', () => {
   })
 
   // TODO(canonbrother): empty pool shares, test again once pool shares is up
-  describe('listPoolShares', () => {
+  describe.skip('listPoolShares', () => {
     it('should listPoolShares', async () => {
       await waitForExpect(async () => {
         const poolShares = await client.poolPair.listPoolShares()

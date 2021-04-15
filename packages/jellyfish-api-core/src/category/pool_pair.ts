@@ -12,6 +12,17 @@ export class PoolPair {
   }
 
   /**
+   * Create a pool pair with given metadata
+   *
+   * @param metadata
+   * @param utxos is an array of specific UTXOs to spend
+   * @return Promise<string>
+   */
+  async createPoolPair (metadata: CreatePoolPairMetadata, utxos: CreatePoolPairUTXO[] = []): Promise<string> {
+    return await this.client.call('createpoolpair', [metadata, utxos], 'number')
+  }
+
+  /**
    * Returns information about pools
    *
    * @param pagination
@@ -74,6 +85,21 @@ export class PoolPair {
       totalLiquidity: 'bignumber'
     })
   }
+}
+
+export interface CreatePoolPairMetadata {
+  tokenA: string
+  tokenB: string
+  commission: number
+  status: boolean
+  ownerAddress: string
+  customRewards?: string
+  pairSymbol?: string
+}
+
+export interface CreatePoolPairUTXO {
+  txid: string
+  vout: number
 }
 
 export interface IPoolPair {
