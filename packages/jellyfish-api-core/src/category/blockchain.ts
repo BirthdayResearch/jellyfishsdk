@@ -222,7 +222,10 @@ export interface ScriptPubKey {
 export interface MempoolTx {
   [key: string]: {
     vsize: number
-    size: number // (DEPRECATED) same as vsize. Only returned if defid is started with -deprecatedrpc=size
+    /**
+     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
+     */
+    size: number
     weight: number
     fee: BigNumber
     modifiedfee: BigNumber

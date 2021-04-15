@@ -79,13 +79,18 @@ Create a new wallet.
 
 ```ts title="client.wallet.createWallet()"
 interface wallet {
-  createWallet (walletName: string, disablePrivateKeys = false, options: CreateWalletOptions = {}): Promise<IWallet>
+  createWallet (walletName: string, disablePrivateKeys = false, options: CreateWalletOptions = {}): Promise<CreateWalletResult>
 }
 
 interface CreateWalletOptions {
   blank?: boolean
   passphrase?: string
   avoidReuse?: boolean
+}
+
+export interface CreateWalletResult {
+  name: string
+  warning: string
 }
 ```
 
@@ -130,21 +135,21 @@ interface wallet {
 }
 
 interface WalletFlagResult {
-  ['flag_name']: string
-  ['flag_state']: boolean
+  flag_name: string
+  flag_state: boolean
   warnings: string
 }
 ```
 
 ## getNewAddress
 
-Returns a new Defi address for receiving payments.
+Returns a new DeFi address for receiving payments.
 If 'label' is specified, it's added to the address book.
 So payments recevied with the address will be associated with 'label'.
 
 ```ts title="client.wallet.getNewAddress()"
 interface wallet {
-  getNewAddress (label: string = '', addressType = AddressType['P2SH-SEGWIT']): Promise<string>
+  getNewAddress (label: string = '', addressType = AddressType.BECH32): Promise<string>
 }
 ```
 

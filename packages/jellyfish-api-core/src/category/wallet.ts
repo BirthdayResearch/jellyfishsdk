@@ -8,7 +8,7 @@ export enum Mode {
 
 export enum AddressType {
   LEGACY = 'legacy',
-  ['P2SH-SEGWIT'] = 'p2sh-segwit',
+  P2SH_SEGWIT = 'p2sh-segwit',
   BECH32 = 'bech32'
 }
 
@@ -19,12 +19,12 @@ export enum ScriptType {
   SCRIPTHASH = 'scripthash',
   MULTISIG = 'multisig',
   NULLDATA = 'nulldata',
-  ['WITNESS_V0_KEYHASH'] = 'witness_v0_keyhash',
-  ['WITNESS_UNKNOWN'] = 'witness_unknown',
+  WITNESS_V0_KEYHASH = 'witness_v0_keyhash',
+  WITNESS_UNKNOWN = 'witness_unknown',
 }
 
 export enum WalletFlag {
-  ['AVOID_REUSE'] = 'avoid_reuse'
+  AVOID_REUSE = 'avoid_reuse'
 }
 
 /**
@@ -90,13 +90,13 @@ export class Wallet {
    * @param options.blank
    * @param options.passphrase
    * @param options.avoidReuse
-   * @return Promise<IWallet>
+   * @return Promise<CreateWalletResult>
    */
   async createWallet (
     walletName: string,
     disablePrivateKeys = false,
     options: CreateWalletOptions = {}
-  ): Promise<IWallet> {
+  ): Promise<CreateWalletResult> {
     const { blank = false, passphrase = '', avoidReuse = false } = options
 
     return await this.client.call(
@@ -132,7 +132,7 @@ export class Wallet {
   }
 
   /**
-   * Returns a new Defi address for receiving payments.
+   * Returns a new DeFi address for receiving payments.
    * If 'label' is specified, it's added to the address book
    * so payments recevied with the address will be associated with 'label'
    *
@@ -140,7 +140,7 @@ export class Wallet {
    * @param addressType to use, eg: legacy, p2sh-segwit, bech32
    * @return Promise<string>
    */
-  async getNewAddress (label: string = '', addressType = AddressType['P2SH-SEGWIT']): Promise<string> {
+  async getNewAddress (label: string = '', addressType = AddressType.BECH32): Promise<string> {
     return await this.client.call('getnewaddress', [label, addressType], 'number')
   }
 
@@ -263,7 +263,7 @@ export interface SendToAddressOptions {
   avoidReuse?: boolean
 }
 
-export interface IWallet {
+export interface CreateWalletResult {
   name: string
   warning: string
 }

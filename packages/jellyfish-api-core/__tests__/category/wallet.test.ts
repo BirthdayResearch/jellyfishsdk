@@ -1,13 +1,12 @@
 import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber, ValidateAddressResult, AddressType, AddressInfo, ScriptType } from '../../src'
+import { BigNumber, ValidateAddressResult, AddressType, AddressInfo } from '../../src'
 import waitForExpect from 'wait-for-expect'
 import { UTXO, ListUnspentOptions, WalletFlag, SendToAddressOptions, Mode } from '../../src/category/wallet'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
-  let aliceAddress = ''
 
   beforeAll(async () => {
     await container.start()
@@ -37,7 +36,7 @@ describe('non masternode', () => {
 
     it('should getNewAddress with label', async () => {
       return await waitForExpect(async () => {
-        aliceAddress = await client.wallet.getNewAddress('alice')
+        const aliceAddress = await client.wallet.getNewAddress('alice')
 
         expect(typeof aliceAddress).toBe('string')
       })
@@ -48,7 +47,7 @@ describe('non masternode', () => {
         const legacyAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
         const legacyAddressValidateResult = await client.wallet.validateAddress(legacyAddress)
 
-        const p2shSegwitAddress = await client.wallet.getNewAddress('', AddressType['P2SH-SEGWIT'])
+        const p2shSegwitAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
         const p2shSegwitAddressValidateResult = await client.wallet.validateAddress(p2shSegwitAddress)
 
         const bech32Address = await client.wallet.getNewAddress('bob', AddressType.BECH32)
@@ -81,6 +80,7 @@ describe('non masternode', () => {
   describe('getAddressInfo', () => {
     it('should getAddressInfo', async () => {
       return await waitForExpect(async () => {
+        const aliceAddress = await client.wallet.getNewAddress('alice')
         const addressInfo: AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
         expect(addressInfo.address).toBe(aliceAddress)
@@ -89,18 +89,9 @@ describe('non masternode', () => {
         expect(addressInfo.solvable).toBe(true)
         expect(typeof addressInfo.desc).toBe('string')
         expect(addressInfo.iswatchonly).toBe(false)
-        expect(addressInfo.isscript).toBe(true)
-        expect(addressInfo.iswitness).toBe(false)
-        expect(addressInfo.script).toBe(ScriptType.WITNESS_V0_KEYHASH)
-        expect(typeof addressInfo.hex).toBe('string')
+        expect(addressInfo.isscript).toBe(false)
+        expect(addressInfo.iswitness).toBe(true)
         expect(typeof addressInfo.pubkey).toBe('string')
-        expect(addressInfo.embedded.isscript).toBe(false)
-        expect(addressInfo.embedded.iswitness).toBe(true)
-        expect(addressInfo.embedded.witness_version).toBe(0)
-        expect(typeof addressInfo.embedded.witness_program).toBe('string')
-        expect(typeof addressInfo.embedded.pubkey).toBe('string')
-        expect(typeof addressInfo.embedded.address).toBe('string')
-        expect(typeof addressInfo.embedded.scriptPubKey).toBe('string')
         expect(addressInfo.label).toBe('alice')
         expect(addressInfo.ischange).toBe(false)
         expect(typeof addressInfo.timestamp).toBe('number')
@@ -116,13 +107,14 @@ describe('non masternode', () => {
   describe('validateAddress', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
+        const aliceAddress = await client.wallet.getNewAddress('alice')
         const result: ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
         expect(result.isvalid).toBe(true)
         expect(result.address).toBe(aliceAddress)
         expect(typeof result.scriptPubKey).toBe('string')
-        expect(result.isscript).toBe(true)
-        expect(result.iswitness).toBe(false)
+        expect(result.isscript).toBe(false)
+        expect(result.iswitness).toBe(true)
       })
     })
   })
@@ -235,7 +227,6 @@ describe('non masternode', () => {
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-  let aliceAddress = ''
 
   beforeAll(async () => {
     await container.start()
@@ -378,7 +369,7 @@ describe('masternode', () => {
 
     it('should getNewAddress with label', async () => {
       return await waitForExpect(async () => {
-        aliceAddress = await client.wallet.getNewAddress('alice')
+        const aliceAddress = await client.wallet.getNewAddress('alice')
 
         expect(typeof aliceAddress).toBe('string')
       })
@@ -389,7 +380,7 @@ describe('masternode', () => {
         const legacyAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
         const legacyAddressValidateResult = await client.wallet.validateAddress(legacyAddress)
 
-        const p2shSegwitAddress = await client.wallet.getNewAddress('', AddressType['P2SH-SEGWIT'])
+        const p2shSegwitAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
         const p2shSegwitAddressValidateResult = await client.wallet.validateAddress(p2shSegwitAddress)
 
         const bech32Address = await client.wallet.getNewAddress('bob', AddressType.BECH32)
@@ -422,6 +413,7 @@ describe('masternode', () => {
   describe('getAddressInfo', () => {
     it('should getAddressInfo', async () => {
       return await waitForExpect(async () => {
+        const aliceAddress = await client.wallet.getNewAddress('alice')
         const addressInfo: AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
         expect(addressInfo.address).toBe(aliceAddress)
@@ -430,18 +422,9 @@ describe('masternode', () => {
         expect(addressInfo.solvable).toBe(true)
         expect(typeof addressInfo.desc).toBe('string')
         expect(addressInfo.iswatchonly).toBe(false)
-        expect(addressInfo.isscript).toBe(true)
-        expect(addressInfo.iswitness).toBe(false)
-        expect(addressInfo.script).toBe(ScriptType.WITNESS_V0_KEYHASH)
-        expect(typeof addressInfo.hex).toBe('string')
+        expect(addressInfo.isscript).toBe(false)
+        expect(addressInfo.iswitness).toBe(true)
         expect(typeof addressInfo.pubkey).toBe('string')
-        expect(addressInfo.embedded.isscript).toBe(false)
-        expect(addressInfo.embedded.iswitness).toBe(true)
-        expect(addressInfo.embedded.witness_version).toBe(0)
-        expect(typeof addressInfo.embedded.witness_program).toBe('string')
-        expect(typeof addressInfo.embedded.pubkey).toBe('string')
-        expect(typeof addressInfo.embedded.address).toBe('string')
-        expect(typeof addressInfo.embedded.scriptPubKey).toBe('string')
         expect(addressInfo.label).toBe('alice')
         expect(addressInfo.ischange).toBe(false)
         expect(typeof addressInfo.timestamp).toBe('number')
@@ -457,13 +440,14 @@ describe('masternode', () => {
   describe('validateAddress', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
+        const aliceAddress = await client.wallet.getNewAddress('alice')
         const result: ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
         expect(result.isvalid).toBe(true)
         expect(result.address).toBe(aliceAddress)
         expect(typeof result.scriptPubKey).toBe('string')
-        expect(result.isscript).toBe(true)
-        expect(result.iswitness).toBe(false)
+        expect(result.isscript).toBe(false)
+        expect(result.iswitness).toBe(true)
       })
     })
   })
