@@ -1,0 +1,67 @@
+version: v1
+
+labels:
+  - label: area/workflow
+    sync: true
+    matcher:
+      files: ".github/**"
+
+  - label: area/website
+    sync: true
+    matcher:
+      files: "website/**"
+
+  - label: area/jellyfish
+    sync: true
+    matcher:
+      files: "packages/jellyfish/**"
+
+  - label: area/jellyfish-api-core
+    sync: true
+    matcher:
+      files: "packages/jellyfish-api-core/**"
+
+  - label: area/jellyfish-api-jsonrpc
+    sync: true
+    matcher:
+      files: "packages/jellyfish-api-jsonrpc/**"
+
+  - label: area/jellyfish-crypto
+    sync: true
+    matcher:
+      files: "packages/jellyfish-crypto/**"
+
+  - label: area/jellyfish-json
+    sync: true
+    matcher:
+      files: "packages/jellyfish-json/**"
+
+  - label: area/jellyfish-network
+    sync: true
+    matcher:
+      files: "packages/jellyfish-network/**"
+
+  - label: area/jellyfish-transaction
+    sync: true
+    matcher:
+      files: "packages/jellyfish-transaction/**"
+
+  - label: area/jellyfish-wallet
+    sync: true
+    matcher:
+      files: "packages/jellyfish-wallet/**"
+
+  - label: area/jellyfish-wallet-dfi
+    sync: true
+    matcher:
+      files: "packages/jellyfish-wallet-dfi/**"
+
+  - label: area/jellyfish-wallet-mnemonic
+    sync: true
+    matcher:
+      files: "packages/jellyfish-wallet-mnemonic/**"
+
+  - label: area/testcontainers
+    sync: true
+    matcher:
+      files: "packages/testcontainers/**"

@@ -10,19 +10,29 @@ import { DERSignature } from './der'
  * @see https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki
  */
 export interface EllipticPair {
+  /**
+   * @return Promise<Buffer> compressed public key
+   */
   publicKey: () => Promise<Buffer>
+
+  /**
+   * Allowed to fail if EllipticPair does not provide hardware key
+   * @return Promise<Buffer> privateKey
+   */
   privateKey: () => Promise<Buffer>
 
   /**
-   * @param hash to sign
-   * @return signature of signed hash in DER
+   * @param hash {Buffer} to sign
+   * @return {Buffer} signature in DER format, SIGHASHTYPE not included
+   * @see https://tools.ietf.org/html/rfc6979
+   * @see https://github.com/bitcoin/bitcoin/pull/13666
    */
   sign: (hash: Buffer) => Promise<Buffer>
 
   /**
-   * @param hash to verify with signature
-   * @param derSignature of the hash in encoded with Distinguished Encoding Rules, SIGHASHTYPE must not be included
-   * @return validity of signature of the hash
+   * @param hash {Buffer} to verify with signature
+   * @param derSignature {Buffer} of the hash in encoded with DER, SIGHASHTYPE must not be included
+   * @return boolean validity of signature of the hash
    */
   verify: (hash: Buffer, derSignature: Buffer) => Promise<boolean>
 }
