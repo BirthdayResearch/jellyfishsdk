@@ -2,6 +2,7 @@ import { encode, decode, decodeAsEllipticPair } from '../src'
 
 const REG_TEST_WIF = 'cQSsfYvYkK5tx3u1ByK2ywTTc9xJrREc1dd67ZrJqJUEMwgktPWN'
 const privKey = '557c4bdff86e59015987c1c7f3328a1fb4c2177b5e834f09c8cd10fae51af93b'
+const pubKey = '03987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe81'
 
 it('should decode without version', () => {
   const decoded = decode(REG_TEST_WIF)
@@ -27,8 +28,10 @@ it('should decode with correct version', () => {
 
 it('should decode decodeAsEllipticPair', async () => {
   const pair = decodeAsEllipticPair(REG_TEST_WIF, 0xef)
-  const key = await pair.privateKey()
-  expect(key.toString('hex')).toBe(privKey)
+  const privateKey = await pair.privateKey()
+  const publicKey = await pair.publicKey()
+  expect(privateKey.toString('hex')).toBe(privKey)
+  expect(publicKey.toString('hex')).toBe(pubKey)
 })
 
 it('should encode', () => {
