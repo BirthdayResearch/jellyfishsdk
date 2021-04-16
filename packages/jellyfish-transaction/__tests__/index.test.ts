@@ -27,7 +27,8 @@ it('should be able to use DeFiTransaction constants to craft Transaction', () =>
             new OP_PUSHDATA(Buffer.from('3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159', 'hex'), 'little')
           ]
         },
-        value: new BigNumber('1')
+        value: new BigNumber('1'),
+        dct_id: 0x00
       }
     ],
     witness: [

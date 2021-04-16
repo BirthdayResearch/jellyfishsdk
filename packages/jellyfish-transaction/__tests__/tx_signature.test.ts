@@ -38,7 +38,8 @@ describe('sign single input', () => {
             OP_CODES.OP_EQUALVERIFY,
             OP_CODES.OP_CHECKSIG
           ]
-        }
+        },
+        dct_id: 0x00
       },
       {
         value: new BigNumber('2.2345'),
@@ -50,7 +51,8 @@ describe('sign single input', () => {
             OP_CODES.OP_EQUALVERIFY,
             OP_CODES.OP_CHECKSIG
           ]
-        }
+        },
+        dct_id: 0x00
       }
     ],
     lockTime: 0x00000011
@@ -65,7 +67,8 @@ describe('sign single input', () => {
         OP_CODES.OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
       ]
     },
-    value: new BigNumber('6')
+    value: new BigNumber('6'),
+    dct_id: 0x00
   }
   const keyPair = elliptic.getEllipticPairFromPrivateKey(privateKey)
 
@@ -141,7 +144,8 @@ describe('sign single input', () => {
             OP_CODES.OP_PUSHDATA(Buffer.from('1d1a0ecb48aee1be1f2687d2963ae33f77d2963ae33f71a187d2963ae33f71a1', 'hex'), 'little')
           ]
         },
-        value: new BigNumber('6')
+        value: new BigNumber('6'),
+        dct_id: 0x00
       },
       ellipticPair: keyPair
     }, SIGHASH.ALL))
@@ -214,7 +218,8 @@ describe('sign transaction', () => {
             OP_CODES.OP_0,
             new OP_PUSHDATA(Buffer.from('3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159', 'hex'), 'little')
           ]
-        }
+        },
+        dct_id: 0x00
       }
     ],
     lockTime: 0x00000000
@@ -229,7 +234,8 @@ describe('sign transaction', () => {
         OP_CODES.OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
       ]
     },
-    value: new BigNumber('1000')
+    value: new BigNumber('1000'),
+    dct_id: 0x00
   }
   const keyPair = elliptic.getEllipticPairFromPrivateKey(privateKey)
   const inputOption = {

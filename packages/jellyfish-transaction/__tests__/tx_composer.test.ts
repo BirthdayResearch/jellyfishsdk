@@ -57,7 +57,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_EQUALVERIFY,
               OP_CODES.OP_CHECKSIG
             ]
-          }
+          },
+          dct_id: 0x00
         }
       ],
       lockTime: 0x00000011
@@ -112,7 +113,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_EQUALVERIFY,
               OP_CODES.OP_CHECKSIG
             ]
-          }
+          },
+          dct_id: 0x00
         },
         {
           value: new BigNumber('2.2345'),
@@ -124,7 +126,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_EQUALVERIFY,
               OP_CODES.OP_CHECKSIG
             ]
-          }
+          },
+          dct_id: 0x00
         }
       ],
       lockTime: 0x00000011
@@ -164,7 +167,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('1.999966')
+          value: new BigNumber('1.999966'),
+          dct_id: 0x00
         },
         {
           script: {
@@ -176,7 +180,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('8')
+          value: new BigNumber('8'),
+          dct_id: 0x00
         }
       ],
       lockTime: 1170
@@ -224,7 +229,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('50')
+          value: new BigNumber('50'),
+          dct_id: 0x00
         }
       ],
       lockTime: 0
@@ -264,7 +270,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('0x0000000035a4e900').dividedBy('100000000')
+          value: new BigNumber('0x0000000035a4e900').dividedBy('100000000'),
+          dct_id: 0x00
         },
         {
           script: {
@@ -276,7 +283,8 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('0x00000000052f83c0').dividedBy('100000000')
+          value: new BigNumber('0x00000000052f83c0').dividedBy('100000000'),
+          dct_id: 0x00
         }
       ],
       lockTime: 0x00000000
@@ -412,7 +420,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -433,7 +442,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -454,7 +464,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -475,7 +486,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -496,7 +508,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -517,7 +530,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -538,7 +552,8 @@ describe('CVout', () => {
           OP_CODES.OP_0,
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
-      }
+      },
+      dct_id: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -697,7 +712,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('1.1234')
+          value: new BigNumber('1.1234'),
+          dct_id: 0x00
         }
       ],
       witness: [
@@ -766,7 +782,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('1.1234')
+          value: new BigNumber('1.1234'),
+          dct_id: 0x00
         },
         {
           script: {
@@ -778,7 +795,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('2.2345')
+          value: new BigNumber('2.2345'),
+          dct_id: 0x00
         }
       ],
       witness: [
@@ -843,7 +861,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('0x000000000bebb4b8').dividedBy('100000000')
+          value: new BigNumber('0x000000000bebb4b8').dividedBy('100000000'),
+          dct_id: 0x00
         },
         {
           script: {
@@ -855,7 +874,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('0x000000002faf0800').dividedBy('100000000')
+          value: new BigNumber('0x000000002faf0800').dividedBy('100000000'),
+          dct_id: 0x00
         }
       ],
       witness: [
@@ -919,7 +939,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('0x000000012a05f200').dividedBy('100000000')
+          value: new BigNumber('0x000000012a05f200').dividedBy('100000000'),
+          dct_id: 0x00
         }
       ],
       witness: [
@@ -981,7 +1002,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('9')
+          value: new BigNumber('9'),
+          dct_id: 0x00
         },
         {
           script: {
@@ -993,7 +1015,8 @@ describe('CTransactionSegWit', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          value: new BigNumber('0.87')
+          value: new BigNumber('0.87'),
+          dct_id: 0x00
         }
       ],
       witness: [
