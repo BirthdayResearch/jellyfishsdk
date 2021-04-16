@@ -1,4 +1,4 @@
-import { parse } from 'lossless-json'
+import { LosslessNumber, parse } from 'lossless-json'
 import { PrecisionPath, remap } from '../src/remap'
 import { BigNumber } from '../src'
 
@@ -145,8 +145,28 @@ describe('remap individually', () => {
   })
 })
 
+it('should remap lossless | number | bignumber', () => {
+  const parsed = parseAndRemap(`{
+      "a": 1,
+      "b": 2,
+      "c": 3
+    }`, {
+    a: 'bignumber',
+    b: 'lossless',
+    c: 'number'
+  })
+
+  expect(parsed.a instanceof BigNumber).toBe(true)
+  expect(parsed.a.toString()).toBe('1')
+
+  expect(parsed.b instanceof LosslessNumber).toBe(true)
+  expect(parsed.b.toString()).toBe('2')
+
+  expect(parsed.c).toBe(3)
+})
+
 describe('remap invalid mapping should succeed', () => {
-  it('should ignore invalid remapping', () => {
+  it('should ignore invalid mapping', () => {
     const parsed = parseAndRemap(`{
       "ignored": 123.4,
       "num": 1000
@@ -157,5 +177,41 @@ describe('remap invalid mapping should succeed', () => {
     })
     expect(parsed.ignored).toBe(123.4)
     expect(parsed.num).toBe(1000)
+  })
+
+  it('should ignore invalid null object', () => {
+    remap({
+      invalid: null
+    }, {
+      invalid: 'bignumber'
+    })
+  })
+
+  it('should ignore invalid undefined object', () => {
+    remap({
+      invalid: undefined
+    }, {
+      invalid: 'bignumber'
+    })
+  })
+
+  it('should ignore invalid null mapping', () => {
+    parseAndRemap(`{
+      "invalid": 123.4,
+      "num": 1000
+    }`, {
+      // @ts-expect-error
+      invalid: undefined
+    })
+  })
+
+  it('should ignore invalid undefined mapping', () => {
+    parseAndRemap(`{
+      "invalid": 123.4,
+      "num": 1000
+    }`, {
+      // @ts-expect-error
+      invalid: undefined
+    })
   })
 })

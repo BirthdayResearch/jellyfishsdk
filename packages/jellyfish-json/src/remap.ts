@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { LosslessNumber } from 'lossless-json'
+import { Precision } from './index'
 
 /**
  * Path based precision mapping
@@ -26,7 +27,7 @@ import { LosslessNumber } from 'lossless-json'
  * }
  */
 export interface PrecisionPath {
-  [path: string]: 'bignumber' | PrecisionPath
+  [path: string]: Precision | PrecisionPath
 }
 
 /**
@@ -41,40 +42,52 @@ export function remap (losslessObj: any, precision: PrecisionPath): any {
  * @param {any} losslessObj to deeply remap
  * @param {'bignumber' | PrecisionPath} precision path mapping
  */
-function deepRemap (losslessObj: any, precision: 'bignumber' | PrecisionPath): any {
-  if (typeof precision !== 'object') {
-    return reviveObjectAs(losslessObj, precision)
+function deepRemap (losslessObj: any, precision: Precision | PrecisionPath): any {
+  if (losslessObj === null || losslessObj === undefined) {
+    return losslessObj
   }
+
+  if (typeof precision !== 'object') {
+    return reviveAs(losslessObj, precision)
+  }
+
   if (Array.isArray(losslessObj)) {
     return losslessObj.map(obj => deepRemap(obj, precision))
+  }
+
+  if (losslessObj instanceof LosslessNumber) {
+    return reviveLosslessAs(losslessObj)
   }
 
   for (const [key, value] of Object.entries(losslessObj)) {
     losslessObj[key] = deepRemap(value, precision[key])
   }
-  return reviveObjectAs(losslessObj)
+  return losslessObj
 }
 
 /**
- * Array will deeply remapped, object keys will be iterated on.
+ * Array will deeply remapped, object keys will be iterated on as keys.
  *
  * @param {any} losslessObj to revive
- * @param {'bignumber'} precision to use, specific 'bignumber' for BigNumber else always default to number
+ * @param precision to use, specific 'bignumber' for BigNumber or values always ignored and default to number
  */
-function reviveObjectAs (losslessObj: any, precision?: 'bignumber' | string): any {
-  if (Array.isArray(losslessObj)) {
-    return losslessObj.map((v: any) => reviveObjectAs(v, precision))
+function reviveAs (losslessObj: any, precision?: Precision): any {
+  if (losslessObj === null || losslessObj === undefined) {
+    return losslessObj
   }
 
   if (losslessObj instanceof LosslessNumber) {
     return reviveLosslessAs(losslessObj, precision)
   }
 
+  if (Array.isArray(losslessObj)) {
+    return losslessObj.map((v: any) => reviveAs(v, precision))
+  }
+
   if (typeof losslessObj === 'object') {
     for (const [key, value] of Object.entries(losslessObj)) {
-      losslessObj[key] = reviveObjectAs(value, precision)
+      losslessObj[key] = reviveAs(value, precision)
     }
-    return losslessObj
   }
 
   return losslessObj
@@ -82,9 +95,13 @@ function reviveObjectAs (losslessObj: any, precision?: 'bignumber' | string): an
 
 /**
  * @param {LosslessNumber} losslessNum to revive as bignumber or number if precision != bignumber
- * @param {'bignumber'} precision to use, specific 'bignumber' for BigNumber else always default to number
+ * @param {Precision} precision to use, specific 'bignumber' for BigNumber else always default to number
  */
-function reviveLosslessAs (losslessNum: LosslessNumber, precision?: 'bignumber' | string): BigNumber | number {
+function reviveLosslessAs (losslessNum: LosslessNumber, precision?: Precision): BigNumber | LosslessNumber | number {
+  if (precision === 'lossless') {
+    return losslessNum
+  }
+
   if (precision === 'bignumber') {
     return new BigNumber(losslessNum.toString())
   }
