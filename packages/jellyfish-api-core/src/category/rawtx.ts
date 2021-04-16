@@ -20,10 +20,8 @@ export class RawTx {
   }
 
   /**
-   * Create a transaction spending the given inputs and creating new outputs.
-   * Returns hex-encoded raw transaction.
-   * Note that the transaction's inputs are not signed, and
-   * it is not stored in the wallet or transmitted to the network.
+   * Create a transaction spending the given inputs and creating new outputs that returns a hex-encoded raw transaction.
+   * Note that the transaction's inputs are not signed, and it is not stored in the wallet or transmitted to the network.
    *
    * @param {CreateRawTxIn[]} inputs array of inputs
    * @param {CreateRawTxOut[]} outputs array with outputs
@@ -45,11 +43,9 @@ export class RawTx {
   }
 
   /**
-   * Sign inputs for raw transaction (serialized, hex-encoded).
-   * The second argument is an array of base58-encoded private
-   * keys that will be the only keys used to sign the transaction.
-   * The third optional argument (may be null) is an array of previous transaction outputs that
-   * this transaction depends on but may not yet be in the block chain.
+   * Sign inputs for raw transaction (serialized, hex-encoded), Providing an array of base58-encoded private keys that
+   * will be the keys used to sign the transaction. An optional array of previous transaction outputs that this
+   * transaction depends on but may not yet be in the blockchain.
    *
    * @param {string} rawTx unsigned raw transaction
    * @param {string[]} privKeys array of base58-encoded private keys for signing (WIF)
@@ -72,7 +68,8 @@ export class RawTx {
 
   /**
    * Returns result of mempool acceptance tests indicating if raw transaction would be accepted by mempool.
-   * This checks if the transaction violates the consensus or policy rules.
+   * This checks if the transaction violates the consensus or policy rules. The fee rate is expressed is DFI/kB,
+   * using the vSize of the transaction.
    *
    * @param {string} signedTx signed raw transaction
    * @param {BigNumber} maxFeeRate Reject transactions whose fee rate is higher than the specified value. in DFI/kB
@@ -89,10 +86,9 @@ export class RawTx {
   }
 
   /**
-   * Submit a raw transaction (serialized, hex-encoded) to connected node and network.
-   * Note that the transaction will be sent unconditionally to all peers, so using this
-   * for manual rebroadcast may degrade privacy by leaking the transaction's origin, as
-   * nodes will normally not rebroadcast non-wallet transactions already in their mempool.
+   * Submit a raw transaction (serialized, hex-encoded) to the connected node and network. The transaction will be sent
+   * unconditionally to all peers, so using this for manual rebroadcast may degrade privacy by leaking the transaction's
+   * origin, as nodes will normally not rebroadcast non-wallet transactions already in their mempool.
    *
    * @param {string} signedTx signed raw transaction
    * @param {BigNumber} maxFeeRate Reject transactions whose fee rate is higher than the specified value. in DFI/kB
