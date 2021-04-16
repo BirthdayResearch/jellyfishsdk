@@ -64,3 +64,5 @@ describe('stringify', () => {
     expect(string).toBe('{"bignumber":1200000000.00000001}')
   })
 })
+
+// TODO(fuxingloh): mapping test

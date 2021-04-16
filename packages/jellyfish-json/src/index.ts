@@ -62,7 +62,8 @@ export const JellyfishJSON = {
       }
     }
 
-    return remap(text, precision)
+    const losslessObj = parse(text)
+    return remap(losslessObj, precision)
   },
 
   /**
