@@ -49,20 +49,19 @@ export class RawTx {
    *
    * @param {string} rawTx unsigned raw transaction
    * @param {string[]} privKeys array of base58-encoded private keys for signing (WIF)
-   * @param {SignRawTxWithKeyPrevTx[]} prevTxs array of previous dependent transaction outputs
    * @param {SignRawTxWithKeyOptions} options
-   * @param {SigHashType} options.sigHashType The signature hash type to use
+   * @param {SigHashType} options.sigHashType the signature hash type to use
+   * @param {SignRawTxWithKeyPrevTx[]} options.prevTxs array of previous dependent transaction outputs
    * @return {Promise<SignRawTxWithKeyResult>}
    */
   async signRawTransactionWithKey (
     rawTx: string,
     privKeys: string[],
-    prevTxs?: SignRawTxWithKeyPrevTx[],
     options: SignRawTxWithKeyOptions = {}
   ): Promise<SignRawTxWithKeyResult> {
     const { sigHashType = SigHashType.ALL } = options
     return await this.client.call('signrawtransactionwithkey', [
-      rawTx, privKeys, prevTxs, sigHashType
+      rawTx, privKeys, options.prevTxs, sigHashType
     ], 'number')
   }
 
@@ -119,6 +118,11 @@ export interface CreateRawTxOut {
   [address: string]: BigNumber
 }
 
+export interface SignRawTxWithKeyOptions {
+  prevTxs?: SignRawTxWithKeyPrevTx[]
+  sigHashType?: SigHashType
+}
+
 export interface SignRawTxWithKeyPrevTx {
   /**
    * The transaction id
@@ -144,10 +148,6 @@ export interface SignRawTxWithKeyPrevTx {
    * Required for segwit inputs
    */
   amount?: BigNumber
-}
-
-export interface SignRawTxWithKeyOptions {
-  sigHashType?: SigHashType
 }
 
 export interface SignRawTxWithKeyResult {

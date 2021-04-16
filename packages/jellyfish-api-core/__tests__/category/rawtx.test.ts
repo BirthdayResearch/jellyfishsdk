@@ -152,7 +152,7 @@ describe('signRawTransactionWithKey', () => {
       outputs[input.bech32] = new BigNumber('4.9')
 
       const unsigned = await client.rawtx.createRawTransaction(inputs, outputs)
-      return await client.rawtx.signRawTransactionWithKey(unsigned, [input.privKey], [], {
+      return await client.rawtx.signRawTransactionWithKey(unsigned, [input.privKey], {
         sigHashType: type
       })
     }
