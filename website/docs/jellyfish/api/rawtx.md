@@ -55,9 +55,13 @@ interface rawtx {
   signRawTransactionWithKey (
     rawTx: string,
     privKeys: string[],
-    prevTxs?: SignRawTxWithKeyPrevTx[],
     options: SignRawTxWithKeyOptions = {}
   ): Promise<SignRawTxWithKeyResult>
+}
+
+interface SignRawTxWithKeyOptions {
+  prevTxs?: SignRawTxWithKeyPrevTx[]
+  sigHashType?: SigHashType
 }
 
 interface SignRawTxWithKeyPrevTx {
@@ -67,10 +71,6 @@ interface SignRawTxWithKeyPrevTx {
   redeemScript?: string
   witnessScript?: string
   amount?: BigNumber
-}
-
-interface SignRawTxWithKeyOptions {
-  sigHashType?: SigHashType
 }
 
 enum SigHashType {

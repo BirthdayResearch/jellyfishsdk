@@ -59,9 +59,10 @@ export class RawTx {
     privKeys: string[],
     options: SignRawTxWithKeyOptions = {}
   ): Promise<SignRawTxWithKeyResult> {
-    const { sigHashType = SigHashType.ALL } = options
+    const { prevTxs = [], sigHashType = SigHashType.ALL } = options
+
     return await this.client.call('signrawtransactionwithkey', [
-      rawTx, privKeys, options.prevTxs, sigHashType
+      rawTx, privKeys, prevTxs, sigHashType
     ], 'number')
   }
 
@@ -77,7 +78,10 @@ export class RawTx {
    * @see createRawTransaction
    * @see signRawTransactionWithKey
    */
-  async testMempoolAccept (signedTx: string, maxFeeRate: BigNumber = new BigNumber('0')): Promise<TestMempoolAcceptResult> {
+  async testMempoolAccept (
+    signedTx: string,
+    maxFeeRate: BigNumber = new BigNumber('0')
+  ): Promise<TestMempoolAcceptResult> {
     const results: TestMempoolAcceptResult[] = await this.client.call('testmempoolaccept', [
       [signedTx], maxFeeRate
     ], 'number')
@@ -96,7 +100,10 @@ export class RawTx {
    * @see createRawTransaction
    * @see signRawTransactionWithKey
    */
-  async sendRawTransaction (signedTx: string, maxFeeRate: BigNumber = new BigNumber('0')): Promise<string> {
+  async sendRawTransaction (
+    signedTx: string, maxFeeRate:
+    BigNumber = new BigNumber('0')
+  ): Promise<string> {
     return await this.client.call('sendrawtransaction', [
       signedTx, maxFeeRate
     ], 'number')
