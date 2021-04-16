@@ -2,11 +2,13 @@ import { Precision, PrecisionMapping } from '@defichain/jellyfish-json'
 import { Blockchain } from './category/blockchain'
 import { Mining } from './category/mining'
 import { Wallet } from './category/wallet'
+import { Account } from './category/account'
 
 export * from '@defichain/jellyfish-json'
 export * from './category/blockchain'
 export * from './category/mining'
 export * from './category/wallet'
+export * from './category/account'
 
 /**
  * ApiClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -15,6 +17,7 @@ export abstract class ApiClient {
   public readonly blockchain = new Blockchain(this)
   public readonly mining = new Mining(this)
   public readonly wallet = new Wallet(this)
+  public readonly account = new Account(this)
 
   /**
    * A promise based procedure call handling
