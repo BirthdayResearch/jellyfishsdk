@@ -4,6 +4,7 @@ import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness } from './tx
 import scripting, { OP_CODES, OP_PUSHDATA } from './script'
 import { CWitnessProgram, WitnessProgram } from './tx_segwit'
 import { DeFiTransaction } from './index'
+import { writeVarUInt } from "./buffer/buffer_varuint";
 
 export enum SIGHASH {
   ALL = 0x01,
@@ -15,7 +16,7 @@ export enum SIGHASH {
   SINGLE_ANYONECANPAY = SIGHASH.SINGLE | SIGHASH.ANYONECANPAY,
 }
 
-interface SignInputOption {
+export interface SignInputOption {
   /**
    * Prevout of this input
    */
@@ -31,7 +32,7 @@ interface SignInputOption {
   witnessScript?: Script
 }
 
-interface SignOption {
+export interface SignOption {
   sigHashType?: SIGHASH
   validate?: {
     version?: boolean
@@ -72,8 +73,10 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
   const buffer = new SmartBuffer()
   for (const vout of transaction.vout) {
     const bigInt = BigInt(vout.value.multipliedBy('100000000').toString(10))
+
     buffer.writeBigUInt64LE(bigInt)
     scripting.fromOpCodesToBuffer(vout.script.stack, buffer)
+    writeVarUInt(vout.dct_id, buffer)
   }
   return hash.dSHA256(buffer.toBuffer()).toString('hex')
 }

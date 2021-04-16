@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
-import { SIGHASH, Transaction, TransactionSigner, Vout, DeFiTransaction } from '../src'
-import { OP_CODES, OP_PUSHDATA } from '../src/script'
+import { SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
+import { OP_CODES, OP_PUSHDATA } from '../../src/script'
 import { elliptic, hash } from '@defichain/jellyfish-crypto'
 
 // Test vector mostly taken from: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
