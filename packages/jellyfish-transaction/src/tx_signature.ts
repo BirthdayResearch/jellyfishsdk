@@ -1,4 +1,4 @@
-import { dSHA256, EllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
+import { hash, elliptic } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness } from './tx'
 import scripting, { OP_CODES, OP_PUSHDATA } from './script'
@@ -23,7 +23,7 @@ interface SignInputOption {
   /**
    * EllipticPair to generate a signature with
    */
-  ellipticPair: EllipticPair
+  ellipticPair: elliptic.EllipticPair
   /**
    * Optionally provide a witness script,
    * or it will be guessed if it can be guessed.
@@ -49,7 +49,7 @@ function hashPrevouts (transaction: Transaction, sigHashType: SIGHASH): string {
     buffer.writeBuffer(Buffer.from(vin.txid, 'hex'))
     buffer.writeUInt32LE(vin.index)
   }
-  return dSHA256(buffer.toBuffer()).toString('hex')
+  return hash.dSHA256(buffer.toBuffer()).toString('hex')
 }
 
 function hashSequence (transaction: Transaction, sigHashType: SIGHASH): string {
@@ -61,7 +61,7 @@ function hashSequence (transaction: Transaction, sigHashType: SIGHASH): string {
   for (const vin of transaction.vin) {
     buffer.writeUInt32LE(vin.sequence)
   }
-  return dSHA256(buffer.toBuffer()).toString('hex')
+  return hash.dSHA256(buffer.toBuffer()).toString('hex')
 }
 
 function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
@@ -75,7 +75,7 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
     buffer.writeBigUInt64LE(bigInt)
     scripting.fromOpCodesToBuffer(vout.script.stack, buffer)
   }
-  return dSHA256(buffer.toBuffer()).toString('hex')
+  return hash.dSHA256(buffer.toBuffer()).toString('hex')
 }
 
 /**
@@ -96,7 +96,7 @@ async function getScriptCode (vin: Vin, signInputOption: SignInputOption): Promi
   // The length of 20 indicates that it is a P2WPKH type.
   if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
     const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
-    const pubkeyHash = HASH160(pubkey)
+    const pubkeyHash = hash.HASH160(pubkey)
 
     return {
       stack: [
@@ -149,7 +149,7 @@ export const TransactionSigner = {
     const vin = transaction.vin[index]
     const program = await asWitnessProgram(transaction, vin, option, sigHashType)
     const preimage = new CWitnessProgram(program).asBuffer()
-    const sigHash = dSHA256(preimage)
+    const sigHash = hash.dSHA256(preimage)
     const derSignature = await option.ellipticPair.sign(sigHash)
     const sigHashBuffer = Buffer.alloc(1, sigHashType)
 
