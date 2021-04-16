@@ -1,5 +1,5 @@
 import { parse } from 'lossless-json'
-import { PrecisionMapping, remap } from '../src/remap'
+import { PrecisionPath, remap } from '../src/remap'
 import { BigNumber } from '../src'
 
 it('should remap everything in the path', () => {
@@ -56,7 +56,7 @@ it('should remap everything in the path', () => {
   expect(remapped.h).toBe(1.2)
 })
 
-function parseAndRemap (text: string, precision: PrecisionMapping): any {
+function parseAndRemap (text: string, precision: PrecisionPath): any {
   const losslessObj = parse(text)
   return remap(losslessObj, precision)
 }

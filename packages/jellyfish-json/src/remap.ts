@@ -4,7 +4,7 @@ import { LosslessNumber } from 'lossless-json'
 /**
  * Path based precision mapping
  * Specifying 'bignumber' will automatically map all Number in that path as 'bignumber'.
- * Otherwise it will default to number. This works deeply.
+ * Otherwise, it will default to number, This applies deeply.
  *
  * @example
  * path = {
@@ -25,23 +25,23 @@ import { LosslessNumber } from 'lossless-json'
  *   g: number
  * }
  */
-export interface PrecisionMapping {
-  [path: string]: 'bignumber' | PrecisionMapping
+export interface PrecisionPath {
+  [path: string]: 'bignumber' | PrecisionPath
 }
 
 /**
  * @param {any} losslessObj to deeply remap into bignumber or number.
- * @param {'bignumber' | PrecisionMapping} precision path mapping
+ * @param {'bignumber' | PrecisionPath} precision path mapping
  */
-export function remap (losslessObj: any, precision: PrecisionMapping): any {
+export function remap (losslessObj: any, precision: PrecisionPath): any {
   return deepRemap(losslessObj, precision)
 }
 
 /**
  * @param {any} losslessObj to deeply remap
- * @param {'bignumber' | PrecisionMapping} precision path mapping
+ * @param {'bignumber' | PrecisionPath} precision path mapping
  */
-function deepRemap (losslessObj: any, precision: 'bignumber' | PrecisionMapping): any {
+function deepRemap (losslessObj: any, precision: 'bignumber' | PrecisionPath): any {
   if (typeof precision !== 'object') {
     return reviveObjectAs(losslessObj, precision)
   }
