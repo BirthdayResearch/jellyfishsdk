@@ -1,5 +1,6 @@
-import { JellyfishJSON, ApiClient, Precision, RpcApiError } from '../src'
+import { ApiClient, RpcApiError } from '../src'
 import { DeFiDContainer } from '@defichain/testcontainers'
+import { JellyfishJSON, Precision, PrecisionPath } from '@defichain/jellyfish-json'
 
 /**
  * Jellyfish client adapter for container
@@ -16,7 +17,7 @@ export class ContainerAdapterClient extends ApiClient {
   /**
    * Wrap the call from client to testcontainers.
    */
-  async call<T> (method: string, params: any[], precision: Precision): Promise<T> {
+  async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
     const body = JellyfishJSON.stringify({
       jsonrpc: '1.0',
       id: Math.floor(Math.random() * 100000000000000),
@@ -25,9 +26,9 @@ export class ContainerAdapterClient extends ApiClient {
     })
 
     const text = await this.container.post(body)
-    const response = JellyfishJSON.parse(text, precision)
-
-    const { result, error } = response
+    const { result, error } = JellyfishJSON.parse(text, {
+      result: precision
+    })
 
     if (error !== undefined && error !== null) {
       throw new RpcApiError(error)
