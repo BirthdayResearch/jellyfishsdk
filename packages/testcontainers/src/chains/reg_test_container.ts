@@ -117,8 +117,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for in wallet balance to be greater than an amount.
    * This allow test that require fund to wait for fund to be filled up before running the tests.
    *
-   * @param balance {number} to wait for in wallet to be greater than or equal
-   * @param timeout {number} default to 30000ms
+   * @param {number} balance to wait for in wallet to be greater than or equal
+   * @param {number} timeout default to 30000ms
    * @see waitForWalletCoinbaseMaturity
    */
   async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
@@ -129,20 +129,39 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
-   * Fund an address with an amount for testing.
+   * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
-   * This allow for light wallet implementation testing.
+   * This allows for light wallet implementation testing.
    *
-   * Note, please use whole number as BigNumber is not used here.
-   *
-   * @param address {string} to fund
-   * @param amount {number} to fund address
-   * @return string txid of the transaction
+   * @param {string} address to fund
+   * @param {number} amount to fund an address, take note of number precision issues, BigNumber not included in pkg.
+   * @return {Promise<{txid: string, vout: number}>} txid and index of the transaction
    * @see waitForWalletCoinbaseMaturity
    * @see waitForWalletBalanceGTE
    */
-  async fundAddress (address: string, amount: number): Promise<string> {
-    return await this.call('sendtoaddress', [address, amount])
+  async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
+    const txid = await this.call('sendtoaddress', [address, amount])
+
+    await this.waitForCondition(async () => {
+      const { confirmations } = await this.call('gettxout', [txid, 0, true])
+      return confirmations > 0
+    }, 10000)
+
+    const { vout }: {
+      vout: Array<{
+        n: number
+        scriptPubKey: {
+          addresses: string[]
+        }
+      }>
+    } = await this.call('getrawtransaction', [txid, true])
+    for (const out of vout) {
+      if (out.scriptPubKey.addresses.includes(address)) {
+        return { txid, vout: out.n }
+      }
+    }
+
+    throw new Error('getrawtransaction will always return the required vout')
   }
 
   /**
@@ -151,14 +170,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * This is to facilitate raw tx feature testing, if you need an address that is not associated with the wallet,
    * use jellyfish-crypto instead.
    *
-   * This is not a deterministic feature, each time you run this, you get a different set of address and priv key.
+   * This is not a deterministic feature, each time you run this, you get a different set of address and keys.
    *
-   * @return {Promise<{ address: string, privKey: string }>} a new address and it's associated privKey
+   * @return {Promise<{ address: string, privKey: string, pubKey: string }>} a new address and it's associated privKey
    */
-  async newAddressAndPrivKey (): Promise<{ address: string, privKey: string }> {
+  async newAddressKeys (): Promise<{ address: string, privKey: string, pubKey: string }> {
     const address = await this.call('getnewaddress', ['', 'bech32'])
     const privKey = await this.call('dumpprivkey', [address])
-
-    return { address, privKey }
+    const getaddressinfo = await this.call('getaddressinfo', [address])
+    return { address, privKey, pubKey: getaddressinfo.pubkey }
   }
 }
