@@ -2,6 +2,8 @@ import { bech32 } from 'bech32'
 import { SHA256 } from './hash'
 
 /**
+ * Human Readable Part, prefixed to all bech32/segwit native address
+ *
  * df   - DeFi MainNet
  * tf   - DeFi TestNet
  * bcrt - DeFi RegTest
