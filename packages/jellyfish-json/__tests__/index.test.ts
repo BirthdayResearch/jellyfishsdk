@@ -64,3 +64,15 @@ describe('stringify', () => {
     expect(string).toBe('{"bignumber":1200000000.00000001}')
   })
 })
+
+it('should remap object at root with precision', () => {
+  const parsed = JellyfishJSON.parse(`{
+    "big": 10.4,
+    "num": 1234
+  }`, {
+    big: 'bignumber'
+  })
+
+  expect(parsed.big instanceof BigNumber).toBe(true)
+  expect(parsed.num).toBe(1234)
+})

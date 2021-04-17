@@ -8,6 +8,7 @@ import {
 import fetch from 'cross-fetch'
 import { Response } from 'cross-fetch/lib.fetch'
 import AbortController from 'abort-controller'
+import { PrecisionPath } from '@defichain/jellyfish-json'
 
 /**
  * ClientOptions for JsonRpc
@@ -58,7 +59,7 @@ export class JsonRpcClient extends ApiClient {
   /**
    * Implements JSON-RPC 1.0 specification for ApiClient
    */
-  async call<T> (method: string, params: any[], precision: Precision): Promise<T> {
+  async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
     const body = JsonRpcClient.stringify(method, params)
     const response = await this.fetchTimeout(body)
     const text = await response.text()
@@ -83,8 +84,10 @@ export class JsonRpcClient extends ApiClient {
     })
   }
 
-  private static parse (text: string, precision: Precision): any {
-    const { result, error } = JellyfishJSON.parse(text, precision)
+  private static parse (text: string, precision: Precision | PrecisionPath): any {
+    const { result, error } = JellyfishJSON.parse(text, {
+      result: precision
+    })
 
     if (error !== undefined && error !== null) {
       throw new RpcApiError(error)
