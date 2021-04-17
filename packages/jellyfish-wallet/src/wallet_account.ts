@@ -6,6 +6,9 @@ import { WalletHdNode } from './wallet_hd_node'
  * Account are derived from root and the pubkey to be used is `44'/1129'/${account}'/0/0`
  */
 export interface WalletAccount {
+  /**
+   * @return {Promise<boolean>} whether the account is active
+   */
   isActive: () => Promise<boolean>
 
   /**
