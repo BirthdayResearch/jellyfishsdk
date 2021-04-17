@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { parse, stringify, LosslessNumber } from 'lossless-json'
-import { PrecisionMapping, remap } from './remap'
+import { PrecisionPath, remap } from './remap'
 
-export { BigNumber, LosslessNumber, PrecisionMapping }
+export { BigNumber, LosslessNumber, PrecisionPath }
 
 /**
  * Numeric precision to parse RPC payload as.
@@ -36,16 +36,13 @@ export const JellyfishJSON = {
   /**
    * Precision parses all numeric value as the given Precision.
    *
-   * PrecisionMapping selectively remap each numeric value based on the mapping provided,
+   * PrecisionPath selectively remap each numeric value based on the mapping provided,
    * defaults to number if precision is not provided for the key. This works deeply.
    *
-   * PrecisionMapping will throw an error is there is Precision mismatch, as it is scanned deeply.
-   * Precision will not throw an error as it blindly remap all numeric value at root.
-   *
-   * @param text JSON string to parse into object.
-   * @param precision Numeric precision to parse payload as.
+   * @param {string} text JSON string to parse into object.
+   * @param {Precision | PrecisionPath} precision Numeric precision to parse payload as.
    */
-  parse (text: string, precision: Precision | PrecisionMapping): any {
+  parse (text: string, precision: Precision | PrecisionPath): any {
     if (typeof precision === 'string') {
       switch (precision) {
         case 'lossless':
@@ -62,11 +59,12 @@ export const JellyfishJSON = {
       }
     }
 
-    return remap(text, precision)
+    const losslessObj = parse(text)
+    return remap(losslessObj, precision)
   },
 
   /**
-   * @param value Object to stringify, with no risk of losing precision.
+   * @param {any} value object to stringify, with no risk of losing precision.
    */
   stringify (value: any): string {
     const replacer = (key: string, value: any): any => {

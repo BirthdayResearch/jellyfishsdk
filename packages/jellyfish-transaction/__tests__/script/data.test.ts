@@ -1,8 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import { OP_PUSHDATA } from '../../src/script'
 
-// TODO(fuxingloh): push in as big endian?
-
 it('should construct as big endian', () => {
   const buff = Buffer.from('00ff', 'hex')
   const data = new OP_PUSHDATA(buff, 'big')

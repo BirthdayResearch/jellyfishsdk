@@ -109,8 +109,13 @@ describe('DER Signature: sign and verify', () => {
       return await shouldReturnPubKeyFromPubKey(privateKeyHex, publicKeyHex)
     })
 
-    it('should sign hash Buffer and get signature', async () => {
-      return await shouldSignHashBufferGetSignature(privateKeyHex, hashHex, signatureHex)
+    it('should sign hash Buffer and verify signature', async () => {
+      const privateKey = Buffer.from(privateKeyHex, 'hex')
+      const curvePair = getEllipticPairFromPrivateKey(privateKey)
+
+      const hash = Buffer.from(hashHex, 'hex')
+      const signature = await curvePair.sign(hash)
+      expect(curvePair.verify(hash, signature)).toBeTruthy()
     })
 
     it('should verify hash with signature', async () => {
@@ -128,8 +133,13 @@ describe('DER Signature: sign and verify', () => {
       return await shouldReturnPubKeyFromPubKey(privateKeyHex, publicKeyHex)
     })
 
-    it('should sign hash Buffer and get signature', async () => {
-      return await shouldSignHashBufferGetSignature(privateKeyHex, hashHex, signatureHex)
+    it('should sign hash Buffer and verify signature', async () => {
+      const privateKey = Buffer.from(privateKeyHex, 'hex')
+      const curvePair = getEllipticPairFromPrivateKey(privateKey)
+
+      const hash = Buffer.from(hashHex, 'hex')
+      const signature = await curvePair.sign(hash)
+      expect(curvePair.verify(hash, signature)).toBeTruthy()
     })
 
     it('should verify hash with signature', async () => {
