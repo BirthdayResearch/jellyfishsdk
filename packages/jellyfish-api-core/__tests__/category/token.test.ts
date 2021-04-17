@@ -1,7 +1,7 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 
-describe.skip('non masternode', () => {
+describe('non masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -39,7 +39,7 @@ describe.skip('non masternode', () => {
 
     it('should listTokens with pagination and return an empty object as out of range', async () => {
       const pagination = {
-        start: 1,
+        start: 300,
         including_start: true,
         limit: 100
       }
@@ -102,18 +102,63 @@ describe('masternode', () => {
     await container.stop()
   })
 
-  describe.only('createToken', () => {
+  describe('createToken', () => {
     it('should createToken', async () => {
-      const utxos = await container.call('listunspent')
-      console.log('utxos: ', utxos.length, utxos[0].txid, utxos[0].vout)
+      const tokensBefore = await client.token.listTokens()
+      let numberOfTokens = Object.keys(tokensBefore).length
+      expect(numberOfTokens).toBe(1)
+
       const address = await container.call('getnewaddress')
 
       const metadata = {
-        symbol: 'ddd',
-        name: 'ddd',
-        isDAT: true,
-        decimal: 8,
-        limit: 100,
+        symbol: 'DDD',
+        name: 'DDD',
+        isDAT: false,
+        mintable: true,
+        tradeable: true,
+        collateralAddress: address
+      }
+      const data = await client.token.createToken(metadata)
+      expect(typeof data).toBe('string')
+
+      await container.waitForWalletCoinbaseMaturity()
+      numberOfTokens += 1
+
+      const tokensAfter = await client.token.listTokens()
+      expect(Object.keys(tokensAfter).length).toBe(numberOfTokens)
+      for (const k in tokensAfter) {
+        if (tokensAfter[k].symbol === metadata.symbol) {
+          const newToken = tokensAfter[k]
+          expect(newToken.symbolKey).toBe(`${metadata.symbol}#${k}`)
+          expect(newToken.name).toBe(metadata.name)
+          expect(newToken.mintable).toBe(metadata.mintable)
+          expect(newToken.tradeable).toBe(metadata.tradeable)
+          expect(newToken.collateralAddress).toBe(metadata.collateralAddress)
+          expect(newToken.isDAT).toBe(metadata.isDAT)
+          expect(newToken.decimal).toBe(8)
+          expect(newToken.limit).toBe(0)
+          expect(newToken.isLPS).toBe(false)
+          expect(newToken.finalized).toBe(false)
+          expect(newToken.minted).toBe(0)
+          expect(typeof newToken.creationTx).toBe('string')
+          expect(typeof newToken.destructionTx).toBe('string')
+          expect(typeof newToken.creationHeight).toBe('number')
+          expect(typeof newToken.destructionHeight).toBe('number')
+        }
+      }
+    })
+
+    it('should createToken with utxo', async () => {
+      const tokensBefore = await client.token.listTokens()
+      let numberOfTokens = Object.keys(tokensBefore).length
+
+      const utxos = await container.call('listunspent')
+      const address = await container.call('getnewaddress')
+
+      const metadata = {
+        symbol: 'DDT',
+        name: 'DDT',
+        isDAT: false,
         mintable: true,
         tradeable: true,
         collateralAddress: address
@@ -122,44 +167,167 @@ describe('masternode', () => {
         txid: utxos[0].txid,
         vout: utxos[0].vout
       }])
-      console.log('data: ', data)
-      const tokens = await client.token.listTokens()
-      console.log('tokens: ', tokens)
+      expect(typeof data).toBe('string')
+
+      await container.waitForWalletCoinbaseMaturity()
+      numberOfTokens += 1
+
+      const tokensAfter = await client.token.listTokens()
+      expect(Object.keys(tokensAfter).length).toBe(numberOfTokens)
+      for (const k in tokensAfter) {
+        if (tokensAfter[k].symbol === metadata.symbol) {
+          const newToken = tokensAfter[k]
+          expect(newToken.symbolKey).toBe(`${metadata.symbol}#${k}`)
+          expect(newToken.name).toBe(metadata.name)
+          expect(newToken.mintable).toBe(metadata.mintable)
+          expect(newToken.tradeable).toBe(metadata.tradeable)
+          expect(newToken.collateralAddress).toBe(metadata.collateralAddress)
+          expect(newToken.isDAT).toBe(metadata.isDAT)
+          expect(newToken.decimal).toBe(8)
+          expect(newToken.limit).toBe(0)
+          expect(newToken.isLPS).toBe(false)
+          expect(newToken.finalized).toBe(false)
+          expect(newToken.minted).toBe(0)
+          expect(typeof newToken.creationTx).toBe('string')
+          expect(typeof newToken.destructionTx).toBe('string')
+          expect(typeof newToken.creationHeight).toBe('number')
+          expect(typeof newToken.destructionHeight).toBe('number')
+        }
+      }
+    })
+
+    // TODO(canonbrother): no error throw
+    it.skip('should be failed while creating token with existing symbol', async () => {
+      const address = await container.call('getnewaddress')
+      const metadata = {
+        symbol: 'DOA',
+        name: 'DOA',
+        isDAT: false,
+        mintable: true,
+        tradeable: true,
+        collateralAddress: address
+      }
+      const data = await client.token.createToken(metadata)
+      expect(typeof data).toBe('string')
+
+      await container.waitForWalletCoinbaseMaturity()
+      const tokensBefore = await client.token.listTokens()
+      console.log('tokensBefore: ', tokensBefore)
+
+      // const t: any = async () => {
+      //   await client.token.createToken(metadata)
+      // }
+      // expect(t).toThrow()
+      try {
+        await client.token.createToken(metadata)
+        await container.waitForWalletCoinbaseMaturity()
+        const tokensAfter = await client.token.listTokens()
+        console.log('tokensAfter: ', tokensAfter)
+      } catch (err) {
+        console.log('err: ', err)
+      }
     })
   })
 
   describe('listTokens', () => {
-    it('should listTokens', async () => {
-      const token = await client.token.listTokens()
-      const data = token['0']
+    async function createToken (symbol: string, metadata: any): Promise<void> {
+      const address = await container.call('getnewaddress')
+      const defaultMetadata = {
+        symbol,
+        name: symbol,
+        isDAT: false,
+        mintable: true,
+        tradeable: true,
+        collateralAddress: address
+      }
+      await client.token.createToken({ ...defaultMetadata, ...metadata })
+    }
 
-      expect(data.symbol).toBe('DFI')
-      expect(data.symbolKey).toBe('DFI')
-      expect(data.name).toBe('Default Defi token')
-      expect(data.decimal).toBe(8)
-      expect(data.limit).toBe(0)
-      expect(data.mintable).toBe(false)
-      expect(data.tradeable).toBe(true)
-      expect(data.isDAT).toBe(true)
-      expect(data.isLPS).toBe(false)
-      expect(data.finalized).toBe(true)
-      expect(data.minted).toBe(0)
-      expect(data.creationTx).toBe('0000000000000000000000000000000000000000000000000000000000000000')
-      expect(data.creationHeight).toBe(0)
-      expect(data.destructionTx).toBe('0000000000000000000000000000000000000000000000000000000000000000')
-      expect(data.destructionHeight).toBe(-1)
-      expect(data.collateralAddress).toBe('')
+    beforeAll(async () => {
+      await createToken('DBTC', { isDAT: true })
+      await createToken('DNOTMINT', { mintable: false })
+      await createToken('DNOTTRAD', { tradeable: false })
+      await container.waitForWalletCoinbaseMaturity()
+    })
+
+    it('should listTokens', async () => {
+      const tokens = await client.token.listTokens()
+      expect(Object.keys(tokens).length).toBeGreaterThan(3)
+
+      for (const k in tokens) {
+        const token = tokens[k]
+        expect(token.decimal).toBe(8)
+        expect(token.limit).toBe(0)
+        expect(token.minted).toBe(0)
+        expect(token.isLPS).toBe(false)
+        expect(typeof token.creationTx).toBe('string')
+        expect(typeof token.creationHeight).toBe('number')
+        expect(typeof token.destructionTx).toBe('string')
+        expect(typeof token.destructionHeight).toBe('number')
+        expect(typeof token.collateralAddress).toBe('string')
+
+        switch (token.symbol) {
+          case 'DFI':
+            expect(token.symbol).toBe('DFI')
+            expect(token.symbolKey).toBe('DFI')
+            expect(token.name).toBe('Default Defi token')
+            expect(token.mintable).toBe(false)
+            expect(token.tradeable).toBe(true)
+            expect(token.isDAT).toBe(true)
+            expect(token.finalized).toBe(true)
+            expect(token.collateralAddress).toBe('')
+            break
+          case 'DBTC':
+            expect(token.symbol).toBe('DBTC')
+            expect(token.symbolKey).toBe('DBTC')
+            expect(token.name).toBe('DBTC')
+            expect(token.mintable).toBe(true)
+            expect(token.tradeable).toBe(true)
+            expect(token.isDAT).toBe(true)
+            expect(token.finalized).toBe(false)
+            break
+          case 'DNOTMINT':
+            expect(token.symbol).toBe('DNOTMINT')
+            expect(token.symbolKey).toBe(`DNOTMINT#${k}`)
+            expect(token.name).toBe('DNOTMINT')
+            expect(token.mintable).toBe(false)
+            expect(token.tradeable).toBe(true)
+            expect(token.isDAT).toBe(false)
+            expect(token.finalized).toBe(false)
+            break
+          case 'DNOTTRAD':
+            expect(token.symbol).toBe('DNOTTRAD')
+            expect(token.symbolKey).toBe(`DNOTTRAD#${k}`)
+            expect(token.name).toBe('DNOTTRAD')
+            expect(token.mintable).toBe(true)
+            expect(token.tradeable).toBe(false)
+            expect(token.isDAT).toBe(false)
+            expect(token.finalized).toBe(false)
+            break
+        }
+      }
     })
 
     it('should listTokens with pagination and return an empty object as out of range', async () => {
       const pagination = {
-        start: 1,
+        start: 300,
         including_start: true,
         limit: 100
       }
-      const token = await client.token.listTokens(pagination)
+      const tokens = await client.token.listTokens(pagination)
 
-      expect(Object.keys(token).length).toBe(0)
+      expect(Object.keys(tokens).length).toBe(0)
+    })
+
+    it('should listTokens with pagination limit', async () => {
+      const pagination = {
+        start: 0,
+        including_start: true,
+        limit: 2
+      }
+      const tokens = await client.token.listTokens(pagination)
+
+      expect(Object.keys(tokens).length).toBe(2)
     })
 
     it('should listTokens with verbose false', async () => {

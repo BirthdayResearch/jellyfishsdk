@@ -13,19 +13,36 @@ export class Token {
   /**
    * Creates a token with given metadata
    *
-   * @param metadata
-   * @param utoxs array of specific UTXOs to spend
+   * @param {CreateTokenMetadata} metadata
+   * @param {string} metadata.symbol token's symbol (unique)
+   * @param {string} metadata.name token's name (unique)
+   * @param {boolean} metadata.isDAT default = false
+   * @param {boolean} metadata.mintable default = true
+   * @param {boolean} metadata.tradeable default = true
+   * @param {string} metadata.collateralAddress for keeping collateral amount
+   * @param {CreateTokenUTXO[]} utxos array of specific UTXOs to spend
+   * @param {string} utxos.txid
+   * @param {number} utxos.vout
+   * @return Promise<string>
    */
   async createToken (metadata: CreateTokenMetadata, utxos: CreateTokenUTXO[] = []): Promise<string> {
-    return await this.client.call('createtoken', [metadata, utxos], 'number')
+    const defaultMetadata = {
+      isDAT: false,
+      mintable: true,
+      tradeable: true
+    }
+    return await this.client.call('createtoken', [{ ...defaultMetadata, ...metadata }, utxos], 'number')
   }
 
   /**
    * Returns information about tokens
    *
-   * @param pagination
-   * @param verbose
-   * @return Promise<Token>
+   * @param {TokenPagination} pagination
+   * @param {number} pagination.start
+   * @param {boolean} pagination.including_start
+   * @param {number} pagination.limit
+   * @param {boolean} verbose
+   * @return Promise<IToken>
    */
   async listTokens (
     pagination: TokenPagination = {
@@ -41,7 +58,7 @@ export class Token {
   /**
    * Return information about token
    *
-   * @param symbol
+   * @param {string} symbol
    * @return Promise<Token>
    */
   async getToken (symbol: string): Promise<IToken> {
@@ -74,8 +91,6 @@ export interface CreateTokenMetadata {
   symbol: string
   name: string
   isDAT: boolean
-  decimal: number
-  limit: number
   mintable: boolean
   tradeable: boolean
   collateralAddress: string
