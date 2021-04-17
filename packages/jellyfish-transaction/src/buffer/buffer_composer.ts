@@ -60,7 +60,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * This make it compatible to convert into JSON with JSON.stringify()
    * @return {Object}
    */
-  toObject (): object {
+  toObject (): any {
     function toObject (value: any): any {
       if (value instanceof ComposableBuffer) {
         return value.toObject()

@@ -40,6 +40,7 @@ export interface Vin {
 export interface Vout {
   value: BigNumber // ------------------| 8 bytes
   script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
+  dct_id: number // --------------------| 1 byte (Although it is VarUInt but disabled hence always 0x00)
 }
 
 /**
