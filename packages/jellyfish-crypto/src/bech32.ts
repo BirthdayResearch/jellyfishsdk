@@ -26,7 +26,7 @@ export function toBech32 (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): strin
  * @param {string} address to decode from bech32
  * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
  * @param {number} version witness version, OP_0
- * @return {Buffer} pubkey
+ * @return {Buffer} hash160 of the pubkey
  * @see https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
  */
 export function fromBech32 (address: string, hrp?: HRP, version?: 0x00): Buffer {

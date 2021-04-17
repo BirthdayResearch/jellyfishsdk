@@ -1,3 +1,4 @@
+export * from './bech32'
 export * from './der'
 export * from './elliptic'
 export * from './hash'
