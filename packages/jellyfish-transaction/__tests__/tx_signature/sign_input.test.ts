@@ -3,8 +3,6 @@ import { SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
 import { getEllipticPairFromPrivateKey, SHA256, HASH160 } from '@defichain/jellyfish-crypto'
 
-// Test vector mostly taken from: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-
 describe('sign single input', () => {
   // 0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000
   const transaction: Transaction = {
@@ -80,7 +78,7 @@ describe('sign single input', () => {
 
     expect(witness.scripts.length).toBe(2)
     expect(witness.scripts[0].hex).toBe(
-      '304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee01'
+      '304402205273fcba694d7ec43cd291e2a07c07945eb3280c5419fe558a6ea92a03e91b15022001c4c25f9e3a3e6ad092c5f909356bebb7875fde0e57c97f3be10960631e9b2801'
     )
     expect(witness.scripts[1].hex).toBe(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'
@@ -104,7 +102,7 @@ describe('sign single input', () => {
 
     expect(witness.scripts.length).toBe(2)
     expect(witness.scripts[0].hex).toBe(
-      '304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee01'
+      '304402205273fcba694d7ec43cd291e2a07c07945eb3280c5419fe558a6ea92a03e91b15022001c4c25f9e3a3e6ad092c5f909356bebb7875fde0e57c97f3be10960631e9b2801'
     )
     expect(witness.scripts[1].hex).toBe(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'

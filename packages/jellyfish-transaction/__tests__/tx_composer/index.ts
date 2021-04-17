@@ -1,8 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import { ComposableBuffer } from '../../src/buffer/buffer_composer'
 
-// Test vector mostly taken from: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-
 export function expectHexBufferToObject<T> (hex: string, data: T, asC: ((buffer: SmartBuffer) => ComposableBuffer<T>)): void {
   const composable = asC(SmartBuffer.fromBuffer(
     Buffer.from(hex, 'hex')

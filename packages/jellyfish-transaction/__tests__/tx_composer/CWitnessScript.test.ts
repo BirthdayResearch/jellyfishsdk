@@ -1,5 +1,5 @@
 import { CWitnessScript, WitnessScript } from '../../src'
-import { expectHexBufferToObject, expectObjectToHexBuffer } from './index.test'
+import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CWitnessScript', () => {
   describe('len is 71', () => {

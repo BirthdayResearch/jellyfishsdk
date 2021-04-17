@@ -1,6 +1,6 @@
 import { CScript, Script } from '../../src'
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
-import { expectHexBufferToObject, expectObjectToHexBuffer } from './index.test'
+import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CScript', () => {
   describe('P2PK', () => {

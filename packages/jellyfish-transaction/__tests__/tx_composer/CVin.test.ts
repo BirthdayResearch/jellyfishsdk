@@ -1,6 +1,6 @@
 import { CVin, Vin } from '../../src'
 import { OP_PUSHDATA } from '../../src/script'
-import { expectHexBufferToObject, expectObjectToHexBuffer } from './index.test'
+import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CVin', () => {
   describe('P2KH (UNSIGNED)', () => {

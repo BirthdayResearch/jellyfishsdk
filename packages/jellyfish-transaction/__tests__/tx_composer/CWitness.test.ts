@@ -1,5 +1,5 @@
 import { CWitness, Witness } from '../../src'
-import { expectHexBufferToObject, expectObjectToHexBuffer } from './index.test'
+import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CWitness', () => {
   describe('0x02 0x47<> 0x27<>', () => {

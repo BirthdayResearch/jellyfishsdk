@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { CTransaction, Transaction } from '../../src'
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
-import { expectHexBufferToObject, expectObjectToHexBuffer } from './index.test'
+import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CTransaction', () => {
   it('should map class getter to data', () => {
@@ -52,7 +52,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2WPKH (UNSIGNED)', () => {
-    const hex = '0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000'
+    const hex = '0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac009093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac0011000000'
     const data: Transaction = {
       version: 0x00000001,
       vin: [
@@ -114,7 +114,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2SH-P2WPKH (UNSIGNED)', () => {
-    const hex = '0100000001db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a54770100000000feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac0008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac92040000'
+    const hex = '0100000001db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a54770100000000feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac000008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac0092040000'
     const data: Transaction = {
       version: 0x00000001,
       vin: [
@@ -168,7 +168,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2WSH (UNSIGNED)', () => {
-    const hex = '0100000002fe3dc9208094f3ffd12645477b3dc56f60ec4fa8e6f5d67c565d1c6b9216b36e0000000000ffffffff0815cf020f013ed6cf91d29f4202e8a58726b1ac6c79da47c23d1bee0a6925f80000000000ffffffff0100f2052a010000001976a914a30741f8145e5acadf23f751864167f32e0963f788ac00000000'
+    const hex = '0100000002fe3dc9208094f3ffd12645477b3dc56f60ec4fa8e6f5d67c565d1c6b9216b36e0000000000ffffffff0815cf020f013ed6cf91d29f4202e8a58726b1ac6c79da47c23d1bee0a6925f80000000000ffffffff0100f2052a010000001976a914a30741f8145e5acadf23f751864167f32e0963f788ac0000000000'
     const data: Transaction = {
       version: 0x00000001,
       vin: [
@@ -217,7 +217,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2SH-P2WSH (UNSIGNED)', () => {
-    const hex = '010000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688acc0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac00000000'
+    const hex = '010000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac00c0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac0000000000'
     const data: Transaction = {
       version: 0x00000001,
       vin: [

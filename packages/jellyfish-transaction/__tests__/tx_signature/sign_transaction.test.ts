@@ -3,8 +3,6 @@ import { DeFiTransaction, SIGHASH, Transaction, TransactionSigner, Vout } from '
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
 import { getEllipticPairFromPrivateKey } from '@defichain/jellyfish-crypto'
 
-// Test vector mostly taken from: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
-
 describe('sign transaction', () => {
   const transaction: Transaction = {
     version: DeFiTransaction.Version,
