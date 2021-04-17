@@ -1,10 +1,10 @@
-import { hash, elliptic } from '@defichain/jellyfish-crypto'
+import { EllipticPair, dSHA256, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness } from './tx'
 import scripting, { OP_CODES, OP_PUSHDATA } from './script'
 import { CWitnessProgram, WitnessProgram } from './tx_segwit'
 import { DeFiTransaction } from './index'
-import { writeVarUInt } from "./buffer/buffer_varuint";
+import { writeVarUInt } from './buffer/buffer_varuint'
 
 export enum SIGHASH {
   ALL = 0x01,
@@ -24,7 +24,7 @@ export interface SignInputOption {
   /**
    * EllipticPair to generate a signature with
    */
-  ellipticPair: elliptic.EllipticPair
+  ellipticPair: EllipticPair
   /**
    * Optionally provide a witness script,
    * or it will be guessed if it can be guessed.
@@ -50,7 +50,7 @@ function hashPrevouts (transaction: Transaction, sigHashType: SIGHASH): string {
     buffer.writeBuffer(Buffer.from(vin.txid, 'hex'))
     buffer.writeUInt32LE(vin.index)
   }
-  return hash.dSHA256(buffer.toBuffer()).toString('hex')
+  return dSHA256(buffer.toBuffer()).toString('hex')
 }
 
 function hashSequence (transaction: Transaction, sigHashType: SIGHASH): string {
@@ -62,7 +62,7 @@ function hashSequence (transaction: Transaction, sigHashType: SIGHASH): string {
   for (const vin of transaction.vin) {
     buffer.writeUInt32LE(vin.sequence)
   }
-  return hash.dSHA256(buffer.toBuffer()).toString('hex')
+  return dSHA256(buffer.toBuffer()).toString('hex')
 }
 
 function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
@@ -78,7 +78,7 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
     scripting.fromOpCodesToBuffer(vout.script.stack, buffer)
     writeVarUInt(vout.dct_id, buffer)
   }
-  return hash.dSHA256(buffer.toBuffer()).toString('hex')
+  return dSHA256(buffer.toBuffer()).toString('hex')
 }
 
 /**
@@ -99,7 +99,7 @@ async function getScriptCode (vin: Vin, signInputOption: SignInputOption): Promi
   // The length of 20 indicates that it is a P2WPKH type.
   if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
     const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
-    const pubkeyHash = hash.HASH160(pubkey)
+    const pubkeyHash = HASH160(pubkey)
 
     return {
       stack: [
@@ -152,7 +152,7 @@ export const TransactionSigner = {
     const vin = transaction.vin[index]
     const program = await asWitnessProgram(transaction, vin, option, sigHashType)
     const preimage = new CWitnessProgram(program).asBuffer()
-    const sigHash = hash.dSHA256(preimage)
+    const sigHash = dSHA256(preimage)
     const derSignature = await option.ellipticPair.sign(sigHash)
     const sigHashBuffer = Buffer.alloc(1, sigHashType)
 

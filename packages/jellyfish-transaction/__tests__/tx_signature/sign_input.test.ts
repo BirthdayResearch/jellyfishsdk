@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
-import { elliptic, hash } from '@defichain/jellyfish-crypto'
+import { getEllipticPairFromPrivateKey, SHA256, HASH160 } from '@defichain/jellyfish-crypto'
 
 // Test vector mostly taken from: https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
 
@@ -70,7 +70,7 @@ describe('sign single input', () => {
     value: new BigNumber('6'),
     dct_id: 0x00
   }
-  const keyPair = elliptic.getEllipticPairFromPrivateKey(privateKey)
+  const keyPair = getEllipticPairFromPrivateKey(privateKey)
 
   it('should sign single input', async () => {
     const witness = await TransactionSigner.signInput(transaction, 1, {
@@ -95,7 +95,7 @@ describe('sign single input', () => {
         stack: [
           OP_CODES.OP_DUP,
           OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA(hash.HASH160(publicKey), 'little'),
+          OP_CODES.OP_PUSHDATA(HASH160(publicKey), 'little'),
           OP_CODES.OP_EQUALVERIFY,
           OP_CODES.OP_CHECKSIG
         ]
@@ -119,7 +119,7 @@ describe('sign single input', () => {
         stack: [
           OP_CODES.OP_DUP,
           OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA(hash.SHA256(publicKey), 'little'),
+          OP_CODES.OP_PUSHDATA(SHA256(publicKey), 'little'),
           OP_CODES.OP_EQUALVERIFY,
           OP_CODES.OP_CHECKSIG
         ]
