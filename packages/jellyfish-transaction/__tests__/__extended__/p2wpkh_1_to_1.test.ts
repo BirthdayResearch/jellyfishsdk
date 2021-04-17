@@ -1,18 +1,13 @@
-import BigNumber from "bignumber.js";
-import { SmartBuffer } from "smart-buffer";
-import { CTransaction, CTransactionSegWit, SIGHASH, SignInputOption, TransactionSigner } from "../../src";
-import { OP_CODES } from "../../src/script";
-import { bech32, wif } from "@defichain/jellyfish-crypto";
+import BigNumber from 'bignumber.js'
+import { SmartBuffer } from 'smart-buffer'
+import { fromBech32, decodeAsEllipticPair } from '@defichain/jellyfish-crypto'
+import { CTransaction, CTransactionSegWit, SignInputOption, TransactionSigner } from '../../src'
+import { OP_CODES } from '../../src/script'
 
 // From Address P2WPKH
 const input = {
   bech32: 'bcrt1qykj5fsrne09yazx4n72ue4fwtpx8u65zac9zhn',
   privKey: 'cQSsfYvYkK5tx3u1ByK2ywTTc9xJrREc1dd67ZrJqJUEMwgktPWN'
-}
-// To Address P2WPKH
-const output = {
-  bech32: 'bcrt1qf26rj8895uewxcfeuukhng5wqxmmpqp555z5a7',
-  privKey: 'cQbfHFbdJNhg3UGaBczir2m5D4hiFRVRKgoU8GJoxmu2gEhzqHtV'
 }
 
 const unsigned = '0400000001346faf87ccf6fe45463831a23054780d78e4a6decab10575aba212d2e087eb3d0000000000ffffffff010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340000000000'
@@ -22,7 +17,7 @@ it('bi-directional unsigned buffer', () => {
   const fromBuffer = SmartBuffer.fromBuffer(Buffer.from(unsigned, 'hex'))
   const tx = new CTransaction(fromBuffer)
 
-  const toBuffer = new SmartBuffer();
+  const toBuffer = new SmartBuffer()
   tx.toBuffer(toBuffer)
   expect(toBuffer.toBuffer().toString('hex')).toBe(unsigned)
 })
@@ -31,7 +26,7 @@ it('bi-directional signed buffer', () => {
   const fromBuffer = SmartBuffer.fromBuffer(Buffer.from(signed, 'hex'))
   const tx = new CTransactionSegWit(fromBuffer)
 
-  const toBuffer = new SmartBuffer();
+  const toBuffer = new SmartBuffer()
   tx.toBuffer(toBuffer)
 
   expect(toBuffer.toBuffer().toString('hex')).toBe(signed)
@@ -47,17 +42,17 @@ it('sign transaction', async () => {
       script: {
         stack: [
           OP_CODES.OP_0,
-          OP_CODES.OP_PUSHDATA(bech32.fromBech32(input.bech32, 'bcrt', 0x00), 'little')
+          OP_CODES.OP_PUSHDATA(fromBech32(input.bech32, 'bcrt', 0x00), 'little')
         ]
       },
       value: new BigNumber('10'),
       dct_id: 0
     },
-    ellipticPair: wif.decodeAsEllipticPair(input.privKey)
+    ellipticPair: decodeAsEllipticPair(input.privKey)
   }]
   const txSigned = new CTransactionSegWit(await TransactionSigner.sign(txUnsigned, inputs))
 
-  const toBuffer = new SmartBuffer();
+  const toBuffer = new SmartBuffer()
   txSigned.toBuffer(toBuffer)
 
   expect(toBuffer.toBuffer().toString('hex')).toBe(signed)
