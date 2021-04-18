@@ -3,6 +3,7 @@ import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
 import { OPCode } from './opcode'
 import { numAsOPCode } from './mapping'
 import { OP_PUSHDATA } from './data'
+import { isDeFiScript, remapDeFiScript } from "./defi";
 
 export * from './bitwise'
 export * from './constants'
@@ -32,7 +33,12 @@ export default {
    * @return {OPCode[]} read from buffer to OPCode
    */
   fromBufferToOpCodes (buffer: SmartBuffer): OPCode[] {
-    return fromBuffer(buffer)
+    const length = readVarUInt(buffer)
+    if (length === 0) {
+      return []
+    }
+
+    return toOPCodes(SmartBuffer.fromBuffer(buffer.readBuffer(length)))
   },
   /**
    * Converts OPCode[] and write it into SmartBuffer.
@@ -58,43 +64,43 @@ export default {
    * @param buffer {SmartBuffer} to write to
    */
   fromOpCodesToBuffer (stack: OPCode[], buffer: SmartBuffer): void {
-    toBuffer(stack, buffer)
+    const buffs = toBuffer(stack)
+
+    // Write the len of buffer in bytes and then all the buffer
+    writeVarUInt(buffs.length, buffer)
+    buffer.writeBuffer(buffs)
   }
 }
 
-function fromBuffer (buffer: SmartBuffer): OPCode[] {
-  const length = readVarUInt(buffer)
-  if (length === 0) {
-    return []
-  }
-
-  return toOPCodes(SmartBuffer.fromBuffer(buffer.readBuffer(length)))
-}
-
-function toBuffer (stack: OPCode[], buffer: SmartBuffer): void {
+/**
+ * @param {OPCode[]} stack of OPCode
+ * @return Buffer presentation of OPCode[]
+ */
+export function toBuffer (stack: OPCode[]): Buffer {
   let len = 0
   const buffers = []
 
-  // Collect len of byes and all buffers
   for (const opCode of stack) {
     const buf = opCode.asBuffer()
-    len += buf.length
     buffers.push(buf)
+    len += buf.length
   }
 
-  // Write the len of buffer in bytes and then all the buffer
-  writeVarUInt(len, buffer)
-  for (const buff of buffers) {
-    buffer.writeBuffer(buff)
-  }
+  return Buffer.concat(buffers, len)
 }
 
-function toOPCodes (buffer: SmartBuffer): OPCode[] {
+/**
+ * @param {Buffer} buffer to read without VarUInt
+ * @return OPCode[]
+ */
+export function toOPCodes (buffer: SmartBuffer): OPCode[] {
   const stack: OPCode[] = []
   while (buffer.remaining() > 0) {
     stack.push(toOpCode(buffer))
   }
-  return stack
+
+  // remap if isDeFiScript to identify DeFi Scripting
+  return remapDeFiScript(stack)
 }
 
 function toOpCode (buffer: SmartBuffer): OPCode {
