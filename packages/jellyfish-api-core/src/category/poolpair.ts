@@ -12,21 +12,37 @@ export class PoolPair {
   }
 
   /**
-   * Create a pool pair with given metadata
+   * Create a poolpair with given metadata
    *
-   * @param metadata
-   * @param utxos is an array of specific UTXOs to spend
+   * @param {CreatePoolPairMetadata} metadata a data providing information for pool pair creation
+   * @param {string} metadata.tokenA uses to trade to obtain tokenB
+   * @param {string} metadata.tokenB
+   * @param {number} metadata.commission
+   * @param {boolean} metadata.status
+   * @param {string} metadata.ownerAddress
+   * @param {string} metadata.customRewards
+   * @param {string} metadata.pairSymbol
+   * @param {CreatePoolPairUTXO[]} utxos is an array of specific UTXOs to spend
+   * @param {string} utxo.txid
+   * @param {number} utxo.vout
    * @return Promise<string>
    */
   async createPoolPair (metadata: CreatePoolPairMetadata, utxos: CreatePoolPairUTXO[] = []): Promise<string> {
-    return await this.client.call('createpoolpair', [metadata, utxos], 'number')
+    const defaultMetadata = {
+      customerRewards: [],
+      pairSymbol: ''
+    }
+    return await this.client.call('createpoolpair', [{ ...defaultMetadata, ...metadata }, utxos], 'number')
   }
 
   /**
    * Returns information about pools
    *
-   * @param pagination
-   * @param verbose
+   * @param {PoolPairPagination} pagination
+   * @param {number} pagination.start
+   * @param {boolean} pagination.including_start
+   * @param {number} pagination.limit
+   * @param {boolean} verbose
    * @return Promise<any>
    */
   async listPoolPairs (
@@ -54,8 +70,8 @@ export class PoolPair {
   /**
    * Returns information about pool
    *
-   * @param symbol
-   * @param verbose
+   * @param {string} symbol
+   * @param {boolean} verbose
    * @return Promise<IPoolPair>
    */
   async getPoolPair (symbol: string, verbose = true): Promise<IPoolPair> {
@@ -65,9 +81,12 @@ export class PoolPair {
   /**
    * Returns information about pool shares
    *
-   * @param pagination
-   * @param verbose
-   * @param isMineOnly
+   * @param {PoolPairPagination} pagination
+   * @param {number} pagination.start
+   * @param {boolean} pagination.including_start
+   * @param {number} pagination.limit
+   * @param {boolean} verbose
+   * @param {boolean} isMineOnly
    * @return Promise<IPoolShare>
    */
   async listPoolShares (

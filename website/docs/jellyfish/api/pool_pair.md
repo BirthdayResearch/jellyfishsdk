@@ -28,7 +28,7 @@ interface poolPair {
   ): Promise<IPoolShare>
 }
 
-export interface IPoolPair {
+interface IPoolPair {
   [id: string]: {
     symbol: string
     name: string
@@ -65,7 +65,31 @@ Returns information about pools
 
 ```ts title="client.poolPair.getPoolPair()"
 interface poolPair {
-  getPoolPair (symbol: string, verbose = true): Promise<IPoolPair> {
+  getPoolPair (symbol: string, verbose = true): Promise<IPoolPair>
+}
+
+interface IPoolPair {
+  [id: string]: {
+    symbol: string
+    name: string
+    status: string
+    idTokenA: string
+    idTokenB: string
+    reserveA: BigNumber
+    reserveB: BigNumber
+    commission: BigNumber
+    totalLiquidity: BigNumber
+    ['reserveA/reserveB']: BigNumber
+    ['reserveB/reserveA']: BigNumber
+    tradeEnabled: boolean
+    ownerAddress: string
+    blockCommissionA: BigNumber
+    blockCommissionB: BigNumber
+    rewardPct: BigNumber
+    customRewards: BigNumber
+    creationTx: string
+    creationHeight: number
+  }
 }
 ```
 
@@ -82,6 +106,24 @@ interface poolPair {
       limit: 100
     },
     verbose = true,
-    isMineOnly = false): Promise<IPoolPair> {
-}: Promise<IPoolShare>
+    isMineOnly = false
+  ): Promise<IPoolShare>
+}
+
+interface IPoolShare {
+  [id: string]: {
+    poolID: string
+    owner: string
+    ['%']: BigNumber
+    amount: BigNumber
+    totalLiquidity: BigNumber
+  }
+}
+
+
+interface PoolPairPagination {
+  start: number
+  including_start: boolean
+  limit: number
+}
 ```
