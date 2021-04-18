@@ -15,6 +15,9 @@ export class OceanWalletAccount implements WalletAccount {
     this.network = network
   }
 
+  /**
+   * @return {string} bech32 address
+   */
   async getAddress (): Promise<string> {
     const pubKey = await this.hdNode.publicKey()
     return toBech32(pubKey, this.network.bech32.hrp as HRP)
@@ -25,10 +28,13 @@ export class OceanWalletAccount implements WalletAccount {
   }
 }
 
+/**
+ * Provide OceanWalletAccount with upstream to DeFi ocean services.
+ */
 export class OceanWalletAccountProvider implements WalletAccountProvider<OceanWalletAccount> {
   private readonly network: Network
 
-  // TODO(fuxingloh): to implement 'jellyfish-api-ocean'
+  // TODO(fuxingloh): to implement after 'jellyfish-api-ocean'
 
   constructor (network: Network) {
     this.network = network
