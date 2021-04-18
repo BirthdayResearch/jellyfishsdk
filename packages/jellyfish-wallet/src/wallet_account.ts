@@ -16,6 +16,13 @@ export interface WalletAccount {
    */
   getAddress: () => Promise<string>
 
+  // TODO(fuxingloh): stateless features
+  //  - getUtxoBalance
+  //  - listUtxo
+  //  - listTransaction
+  //  - listTokenBalance
+  //  - getTokenBalance
+
   // TODO(fuxingloh): stateful features
   //  - sendUtxo
   //  - sendToken
@@ -24,13 +31,6 @@ export interface WalletAccount {
   //  - swap
   //  - fromUtxoToAccount
   //  - fromAccountToUtxo
-
-  // TODO(fuxingloh): stateless features
-  //  - getUtxoBalance
-  //  - listUtxo
-  //  - listTransaction
-  //  - listTokenBalance
-  //  - getTokenBalance
 }
 
 /**
