@@ -21,7 +21,7 @@ export interface WalletHdNode extends EllipticPair {
 }
 
 /**
- * WalletHdNode uses the provider model to allow jellyfish-wallet to derive/provider a WalletHdNode from any sources.
+ * WalletHdNode uses the provider model to allow jellyfish-wallet to derive/provide a WalletHdNode from any sources.
  * This design keep WalletHdNode derivation agnostic of any implementation, allowing a lite
  * implementation where WalletHdNode are derived on demand.
  */
