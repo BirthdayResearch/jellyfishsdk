@@ -69,7 +69,7 @@ export function mnemonicToSeed (mnemonic: string[]): Buffer {
 }
 
 /**
- * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for non custodial DeFi.
+ * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
  * Purpose [44'] / CoinType-agnostic [n] / Account [n] / Chain (ignored for now) [0] / Addresses [n]
  *
  * - BIP32 Hierarchical Deterministic Wallets

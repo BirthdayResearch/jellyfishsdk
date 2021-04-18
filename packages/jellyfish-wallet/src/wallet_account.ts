@@ -7,12 +7,12 @@ import { WalletHdNode } from './wallet_hd_node'
  */
 export interface WalletAccount {
   /**
-   * @return {Promise<boolean>} whether the account is active
+   * @return {Promise<boolean>} whether the current account is active and has txn activity
    */
   isActive: () => Promise<boolean>
 
   /**
-   * @return {Promise<string>} address of the wallet, for consistency sake only one address should be used.
+   * @return {Promise<string>} address of the wallet, for consistency sake only one address format should be used.
    */
   getAddress: () => Promise<string>
 
