@@ -38,5 +38,10 @@ export interface WalletAccount {
  * provider. This keep WalletAccount implementation free from a single implementation constraint.
  */
 export interface WalletAccountProvider<T extends WalletAccount> {
-  map: (hdNode: WalletHdNode) => Promise<T>
+
+  /**
+   * @param {WalletHdNode} hdNode of this wallet account
+   * @return WalletAccount
+   */
+  provide: (hdNode: WalletHdNode) => T
 }

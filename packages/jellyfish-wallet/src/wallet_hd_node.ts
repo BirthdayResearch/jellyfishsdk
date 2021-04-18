@@ -28,7 +28,8 @@ export interface WalletHdNode extends EllipticPair {
 export interface WalletHdNodeProvider<T extends WalletHdNode> {
 
   /**
-   * @param path to derive
+   * @param {string} path to derive
+   * @return WalletHdNode
    */
   derive: (path: string) => T
 }

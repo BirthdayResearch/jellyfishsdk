@@ -1,4 +1,4 @@
-import { TestNodeProvider } from './test_node.mock'
+import { TestNodeProvider } from './node.mock'
 import { WalletHdNode } from '../src'
 
 it('should derive', () => {

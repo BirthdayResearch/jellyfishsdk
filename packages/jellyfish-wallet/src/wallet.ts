@@ -28,9 +28,10 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
    * @param {number} account number to get
    * @return {Promise<WalletAccount>}
    */
-  async get (account: number): Promise<Account> {
-    const hdNode = await this.nodeProvider.drive(`44'/${COIN_TYPE}'/${account}'/0/0`)
-    return await this.accountProvider.map(hdNode)
+  get (account: number): Account {
+    const path = `44'/${COIN_TYPE}'/${account}'/0/0`
+    const node = this.nodeProvider.derive(path)
+    return this.accountProvider.provide(node)
   }
 
   /**
@@ -48,8 +49,9 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
 
     for (let i = 1; i < maxAccounts; i++) {
       const account = await this.get(i)
-
-      if (!await account.isActive()) break
+      if (!await account.isActive()) {
+        break
+      }
 
       wallets[i] = account
     }

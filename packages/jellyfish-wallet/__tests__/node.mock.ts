@@ -12,8 +12,8 @@ import { EllipticPair, getEllipticPairFromPrivateKey } from '@defichain/jellyfis
  * This is for testing only, please don't use this for anything else.
  */
 export class TestNode implements WalletHdNode {
-  private readonly path: string
-  private readonly ellipticPair: EllipticPair
+  public readonly path: string
+  public readonly ellipticPair: EllipticPair
 
   constructor (path: string) {
     this.path = path

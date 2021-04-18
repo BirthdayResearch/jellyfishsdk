@@ -34,7 +34,7 @@ export class OceanWalletAccountProvider implements WalletAccountProvider<OceanWa
     this.network = network
   }
 
-  async map (hdNode: WalletHdNode): Promise<OceanWalletAccount> {
+  provide (hdNode: WalletHdNode): OceanWalletAccount {
     return new OceanWalletAccount(hdNode, this.network)
   }
 }
