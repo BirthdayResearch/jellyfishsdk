@@ -12,6 +12,7 @@ import {
 
 import scriptComposer, { OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
+import { DeFiTransaction } from './index'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -45,7 +46,7 @@ export class CTransaction extends ComposableBuffer<Transaction> implements Trans
     return [
       ComposableBuffer.uInt32(() => tx.version, v => tx.version = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v)),
+      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v, tx.version)),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
   }
@@ -92,6 +93,17 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
  * Bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CVout extends ComposableBuffer<Vout> implements Vout {
+  private readonly version: number
+
+  /**
+   * @param {SmartBuffer | Vout} data
+   * @param {number} version 2|4 v4 contains dct_id, while v2 don't
+   */
+  constructor (data: SmartBuffer | Vout, version: number = DeFiTransaction.Version) {
+    super(data)
+    this.version = version
+  }
+
   public get value (): BigNumber {
     return this.data.value
   }
@@ -114,7 +126,18 @@ export class CVout extends ComposableBuffer<Vout> implements Vout {
         vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
       }),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      ComposableBuffer.uInt8(() => vout.dct_id, v => vout.dct_id = v)
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          if (this.version >= 4) {
+            vout.dct_id = readVarUInt(buffer)
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          if (this.version >= 4) {
+            writeVarUInt(vout.dct_id, buffer)
+          }
+        }
+      }
     ]
   }
 }
@@ -192,7 +215,7 @@ export class CTransactionSegWit extends ComposableBuffer<TransactionSegWit> impl
       ComposableBuffer.uInt8(() => tx.marker, v => tx.marker = v),
       ComposableBuffer.uInt8(() => tx.flag, v => tx.flag = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v)),
+      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v, tx.version)),
       ComposableBuffer.array<Witness>(() => tx.witness, v => tx.witness = v, v => new CWitness(v), () => tx.vin.length),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
