@@ -62,7 +62,18 @@ class SECP256K1 implements EllipticPair {
   }
 
   async sign (hash: Buffer): Promise<Buffer> {
-    const signature = ecc.sign(hash, this.privKey)
+    let signature = ecc.sign(hash, this.privKey)
+
+    const extraData = Buffer.alloc(32, 0)
+    let counter = 0
+
+    // if first try is lowR, skip the loop, for second try and on, add extra entropy counting up
+    while (signature[0] > 0x7f) {
+      counter++
+      extraData.writeUIntLE(counter, 0, 6)
+      // @ts-expect-error
+      signature = ecc.signWithEntropy(hash, this.privKey, extraData)
+    }
     return DERSignature.encode(signature)
   }
 

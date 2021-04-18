@@ -1,4 +1,4 @@
-import { RegTestContainer } from '../../src'
+import { RegTestContainer } from '../../../src'
 
 describe('regtest', () => {
   const container = new RegTestContainer()

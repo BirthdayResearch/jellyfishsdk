@@ -100,6 +100,10 @@ export class CVout extends ComposableBuffer<Vout> implements Vout {
     return this.data.script
   }
 
+  public get dct_id (): number {
+    return this.data.dct_id
+  }
+
   composers (vout: Vout): BufferComposer[] {
     const DIGIT_8 = new BigNumber('100000000')
 
@@ -109,7 +113,8 @@ export class CVout extends ComposableBuffer<Vout> implements Vout {
       }, v => {
         vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
       }),
-      ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v))
+      ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
+      ComposableBuffer.uInt8(() => vout.dct_id, v => vout.dct_id = v)
     ]
   }
 }

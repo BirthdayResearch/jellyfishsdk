@@ -4,7 +4,7 @@ import { CTransactionSegWit, TransactionSegWit, DeFiTransaction } from '../src'
 import { OP_CODES, OP_PUSHDATA } from '../src/script'
 
 it('should be able to use DeFiTransaction constants to craft Transaction', () => {
-  const hex = '04000000000101ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0000000000ffffffff0100e1f505000000001600143bde42dbee7e4dbe6a21b2d50ce2f0167faa8159010000000000'
+  const hex = '04000000000101ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0000000000ffffffff0100e1f505000000001600143bde42dbee7e4dbe6a21b2d50ce2f0167faa815900010000000000'
   const data: TransactionSegWit = {
     version: DeFiTransaction.Version,
     marker: DeFiTransaction.WitnessMarker,
@@ -27,7 +27,8 @@ it('should be able to use DeFiTransaction constants to craft Transaction', () =>
             new OP_PUSHDATA(Buffer.from('3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159', 'hex'), 'little')
           ]
         },
-        value: new BigNumber('1')
+        value: new BigNumber('1'),
+        dct_id: 0x00
       }
     ],
     witness: [

@@ -242,7 +242,8 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Wait for rpc to be ready, default to 15000ms
+   * Wait for rpc to be ready
+   * @param {number} timeout duration, default to 15000ms
    */
   private async waitForRpc (timeout = 15000): Promise<void> {
     const expiredAt = Date.now() + timeout
@@ -266,8 +267,8 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * @param condition {() => Promise<boolean>} to wait for true
-   * @param timeout {number} duration to timeout when condition is not met
+   * @param {() => Promise<boolean>} condition to wait for true
+   * @param {number} timeout duration when condition is not met
    */
   async waitForCondition (condition: () => Promise<boolean>, timeout: number): Promise<void> {
     const expiredAt = Date.now() + timeout
@@ -290,6 +291,7 @@ export abstract class DeFiDContainer {
 
   /**
    * Wait for everything to be ready, override for additional hooks
+   * @param {number} timeout duration, default to 15000ms
    */
   async waitForReady (timeout = 15000): Promise<void> {
     return await this.waitForRpc(timeout)

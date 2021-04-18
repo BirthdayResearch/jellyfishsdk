@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '../../src'
+import { MasterNodeRegTestContainer } from '../../../src'
 import waitForExpect from 'wait-for-expect'
 
 describe('masternode', () => {
@@ -69,7 +69,7 @@ describe('coinbase maturity', () => {
     const privKey = 'cPuytfxySwc9RVrFpqQ9xheZ6jCmJD6pEe3XUPvev5hBwheivH5C'
     await container.waitForWalletBalanceGTE(100)
 
-    const txid = await container.fundAddress(address, 10)
+    const { txid, vout } = await container.fundAddress(address, 10)
     await container.call('importprivkey', [privKey])
     return await waitForExpect(async () => {
       const unspent = await container.call('listunspent', [
@@ -77,6 +77,7 @@ describe('coinbase maturity', () => {
       ])
 
       expect(unspent[0].txid).toBe(txid)
+      expect(unspent[0].vout).toBe(vout)
       expect(unspent[0].address).toBe(address)
       expect(unspent[0].amount).toBe(10)
 
@@ -85,13 +86,16 @@ describe('coinbase maturity', () => {
     })
   })
 
-  it('should be able to get new address and priv key for testing', async () => {
-    const { address, privKey } = await container.newAddressAndPrivKey()
+  it('should be able to get new address and priv/pub key for testing', async () => {
+    const { address, privKey, pubKey } = await container.newAddressKeys()
     await container.waitForWalletBalanceGTE(10)
-    const txid = await container.fundAddress(address, 1)
+    const { txid } = await container.fundAddress(address, 1)
 
     const dumpprivkey = await container.call('dumpprivkey', [address])
     expect(dumpprivkey).toBe(privKey)
+
+    const getaddressinfo = await container.call('getaddressinfo', [address])
+    expect(getaddressinfo.pubkey).toBe(pubKey)
 
     return await waitForExpect(async () => {
       const unspent = await container.call('listunspent', [
