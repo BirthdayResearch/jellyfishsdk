@@ -12,7 +12,6 @@ import {
 
 import scriptComposer, { OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
-import { DeFiTransaction } from './index'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -46,7 +45,12 @@ export class CTransaction extends ComposableBuffer<Transaction> implements Trans
     return [
       ComposableBuffer.uInt32(() => tx.version, v => tx.version = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v, tx.version)),
+      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
+        if (tx.version < 4) {
+          return new CVoutV2(v)
+        }
+        return new CVoutV4(v)
+      }),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
   }
@@ -91,19 +95,44 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
  * Composable Vout, C stands for Composable.
  * Immutable by design, it implements the Vout interface for convenience.
  * Bi-directional fromBuffer, toBuffer deep composer.
+ *
+ * This is Transaction V2 buffer composition
  */
-export class CVout extends ComposableBuffer<Vout> implements Vout {
-  private readonly version: number
-
-  /**
-   * @param {SmartBuffer | Vout} data
-   * @param {number} version 2|4 v4 contains dct_id, while v2 don't
-   */
-  constructor (data: SmartBuffer | Vout, version: number = DeFiTransaction.Version) {
-    super(data)
-    this.version = version
+export class CVoutV2 extends ComposableBuffer<Vout> implements Vout {
+  public get value (): BigNumber {
+    return this.data.value
   }
 
+  public get script (): Script {
+    return this.data.script
+  }
+
+  public get dct_id (): number {
+    return 0x00
+  }
+
+  composers (vout: Vout): BufferComposer[] {
+    const DIGIT_8 = new BigNumber('100000000')
+
+    return [
+      ComposableBuffer.bigUInt64(() => {
+        return BigInt(vout.value.multipliedBy(DIGIT_8).toString(10))
+      }, v => {
+        vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
+      }),
+      ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v))
+    ]
+  }
+}
+
+/**
+ * Composable Vout, C stands for Composable.
+ * Immutable by design, it implements the Vout interface for convenience.
+ * Bi-directional fromBuffer, toBuffer deep composer.
+ *
+ * This is Transaction V4 buffer composition
+ */
+export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
   public get value (): BigNumber {
     return this.data.value
   }
@@ -126,18 +155,7 @@ export class CVout extends ComposableBuffer<Vout> implements Vout {
         vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
       }),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      {
-        fromBuffer: (buffer: SmartBuffer): void => {
-          if (this.version >= 4) {
-            vout.dct_id = readVarUInt(buffer)
-          }
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          if (this.version >= 4) {
-            writeVarUInt(vout.dct_id, buffer)
-          }
-        }
-      }
+      ComposableBuffer.varUInt(() => vout.dct_id, v => vout.dct_id = v)
     ]
   }
 }
@@ -215,7 +233,12 @@ export class CTransactionSegWit extends ComposableBuffer<TransactionSegWit> impl
       ComposableBuffer.uInt8(() => tx.marker, v => tx.marker = v),
       ComposableBuffer.uInt8(() => tx.flag, v => tx.flag = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v, tx.version)),
+      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
+        if (tx.version < 4) {
+          return new CVoutV2(v)
+        }
+        return new CVoutV4(v)
+      }),
       ComposableBuffer.array<Witness>(() => tx.witness, v => tx.witness = v, v => new CWitness(v), () => tx.vin.length),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
