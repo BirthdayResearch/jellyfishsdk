@@ -26,5 +26,9 @@ export interface WalletHdNode extends EllipticPair {
  * implementation where WalletHdNode are derived on demand.
  */
 export interface WalletHdNodeProvider<T extends WalletHdNode> {
-  drive: (path: string) => Promise<T>
+
+  /**
+   * @param path to derive
+   */
+  derive: (path: string) => T
 }
