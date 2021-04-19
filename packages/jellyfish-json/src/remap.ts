@@ -1,164 +1,110 @@
 import BigNumber from 'bignumber.js'
-import { LosslessNumber, parse } from 'lossless-json'
+import { LosslessNumber } from 'lossless-json'
 import { Precision } from './index'
 
 /**
- * Manual key based mapping of each precision value
+ * Path based precision mapping
+ * Specifying 'bignumber' will automatically map all Number in that path as 'bignumber'.
+ * Otherwise, it will default to number, This applies deeply.
+ *
+ * @example
+ * path = {
+ *   a: 'bignumber',
+ *   b: {
+ *     c: 'bignumber'
+ *   }
+ * }
+ * value = {
+ *   a: BigNumber,
+ *   b: {
+ *     c: {
+ *       d: BigNumber,
+ *       e: [BigNumber, BigNumber]
+ *     },
+ *     f: number
+ *   },
+ *   g: number
+ * }
  */
-export interface PrecisionMapping {
-  [key: string]: Precision | PrecisionMapping
-}
-
-enum MappingAction {
-  NONE = 0,
-  PRECISION = 1,
-  PRECISION_LOOP = 2,
-  DEEPLY_PRECISION_MAPPING = 3,
-  DEFAULT_NUMBER = 4,
-  DEEPLY_UNKNOWN = 5
+export interface PrecisionPath {
+  [path: string]: Precision | PrecisionPath
 }
 
 /**
- * Remap lossless object with PrecisionMapping for each keys.
- *
- * @param text json string that is used to transform to a json object
- * @param precision PrecisionMapping is a key value pair to allow revive value type
+ * @param {any} losslessObj to deeply remap into bignumber or number.
+ * @param {'bignumber' | PrecisionPath} precision path mapping
  */
-export function remap (text: string, precision: PrecisionMapping): any {
-  const losslessObj = parse(text)
+export function remap (losslessObj: any, precision: PrecisionPath): any {
+  return deepRemap(losslessObj, precision)
+}
+
+/**
+ * @param {any} losslessObj to deeply remap
+ * @param {'bignumber' | PrecisionPath} precision path mapping
+ */
+function deepRemap (losslessObj: any, precision: Precision | PrecisionPath): any {
+  if (losslessObj === null || losslessObj === undefined) {
+    return losslessObj
+  }
+
+  if (typeof precision !== 'object') {
+    return reviveAs(losslessObj, precision)
+  }
 
   if (Array.isArray(losslessObj)) {
-    return losslessObj.map((v: any) => {
-      const errMsg = validate(v, precision)
-      if (errMsg !== undefined) throw new Error(errMsg)
-      return remapLosslessObj(v, precision)
-    })
+    return losslessObj.map(obj => deepRemap(obj, precision))
   }
 
-  const errMsg = validate(losslessObj, precision)
-  if (errMsg !== undefined) throw new Error(errMsg)
-  return remapLosslessObj(losslessObj, precision)
-}
-
-function validate (losslessObj: any, precision: PrecisionMapping): string | undefined {
-  for (const k in losslessObj) {
-    const type = precision[k]
-    const value = losslessObj[k]
-
-    // throw err if invalid type conversion found
-    if (!isValid(value, type as Precision)) {
-      return `JellyfishJSON.parse ${k}: ${value as string} with ${type as string} precision is not supported`
-    } else if (isNestedObject(value)) {
-      return validate(value, precision)
-    }
+  if (losslessObj instanceof LosslessNumber) {
+    return reviveLosslessAs(losslessObj)
   }
-}
 
-function isNestedObject (value: any): boolean {
-  return typeof value === 'object' && !(value instanceof LosslessNumber)
+  for (const [key, value] of Object.entries(losslessObj)) {
+    losslessObj[key] = deepRemap(value, precision[key])
+  }
+  return losslessObj
 }
 
 /**
- * Validate the losslessObj type with precisionType
+ * Array will deeply remapped, object keys will be iterated on as keys.
  *
- * @param value losslessObj value
- * @param precisionType Precision
+ * @param {any} losslessObj to revive
+ * @param precision to use, specific 'bignumber' for BigNumber or values always ignored and default to number
  */
-function isValid (value: any, precisionType: Precision): boolean {
-  if (value instanceof LosslessNumber && typeof precisionType === 'object') {
-    // validation #1: unmatched precision parse
-    // eg: [LosslessObj] {nested: 1} parsed by [PrecisionMapping] {nested: { something: 'bignumber'}}
-    return false
+function reviveAs (losslessObj: any, precision?: Precision): any {
+  if (losslessObj === null || losslessObj === undefined) {
+    return losslessObj
   }
 
-  if (typeof value === 'object' && Object.keys(value).length === 0) {
-    // validation #2: parsing invalid type
-    // eg: parsing empty object to bignumber
-    return false
+  if (losslessObj instanceof LosslessNumber) {
+    return reviveLosslessAs(losslessObj, precision)
   }
 
-  return true
-}
+  if (Array.isArray(losslessObj)) {
+    return losslessObj.map((v: any) => reviveAs(v, precision))
+  }
 
-/**
- * @param losslessObj lossless json object
- * @param precision Precision - 'bignumber', 'number', 'lossless'
- */
-function remapLosslessObj (losslessObj: any, precision: PrecisionMapping): any {
-  for (const k in losslessObj) {
-    const type: Precision | PrecisionMapping = precision[k]
-
-    switch (getAction(losslessObj[k], type)) {
-      case MappingAction.PRECISION:
-        losslessObj[k] = mapValue(losslessObj[k], type as Precision)
-        break
-
-      case MappingAction.PRECISION_LOOP:
-        losslessObj[k] = (losslessObj[k] as any[]).map(v => mapValue(v, type as Precision))
-        break
-
-      case MappingAction.DEFAULT_NUMBER:
-        losslessObj[k] = mapValue(losslessObj[k], 'number')
-        break
-
-      case MappingAction.DEEPLY_PRECISION_MAPPING:
-        remapLosslessObj(losslessObj[k], type as PrecisionMapping)
-        break
-
-      case MappingAction.DEEPLY_UNKNOWN:
-        remapLosslessObj(losslessObj[k], precision)
-        break
+  if (typeof losslessObj === 'object') {
+    for (const [key, value] of Object.entries(losslessObj)) {
+      losslessObj[key] = reviveAs(value, precision)
     }
   }
 
   return losslessObj
 }
 
-function getAction (value: any, type: Precision | PrecisionMapping): MappingAction {
-  // typed with precision
-  if (typeof type === 'string' && value instanceof LosslessNumber) {
-    return MappingAction.PRECISION
-  }
-
-  if (typeof type === 'string' && Array.isArray(value)) {
-    return MappingAction.PRECISION_LOOP
-  }
-
-  // deeply with mapping
-  if (typeof type === 'object') {
-    return MappingAction.DEEPLY_PRECISION_MAPPING
-  }
-
-  // number as default
-  if (value instanceof LosslessNumber) {
-    return MappingAction.DEFAULT_NUMBER
-  }
-
-  // deeply with unknown
-  if (typeof value === 'object') {
-    return MappingAction.DEEPLY_UNKNOWN
-  }
-
-  return MappingAction.NONE
-}
-
 /**
- * @param precision Precision
- * @param value is used to be converted a preferred type
- * @returns converted value, 'lossless', 'bignumber', 'number'
+ * @param {LosslessNumber} losslessNum to revive as bignumber or number if precision != bignumber
+ * @param {Precision} precision to use, specific 'bignumber' for BigNumber else always default to number
  */
-function mapValue (value: LosslessNumber, precision: Precision): LosslessNumber | BigNumber | Number {
-  switch (precision) {
-    case 'lossless':
-      return value
-
-    case 'bignumber':
-      return new BigNumber(value.toString())
-
-    case 'number':
-      return Number(value.toString())
-
-    default:
-      throw new Error(`JellyfishJSON.parse ${precision as string} precision is not supported`)
+function reviveLosslessAs (losslessNum: LosslessNumber, precision?: Precision): BigNumber | LosslessNumber | number {
+  if (precision === 'lossless') {
+    return losslessNum
   }
+
+  if (precision === 'bignumber') {
+    return new BigNumber(losslessNum.toString())
+  }
+
+  return Number(losslessNum.toString())
 }

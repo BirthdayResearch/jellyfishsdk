@@ -77,10 +77,17 @@ export class OP_PUSHDATA extends OPCode {
   }
 
   /**
+   * Length of bytes
+   */
+  length (): number {
+    return this.hex.length / 2
+  }
+
+  /**
    * @return [0x01-0x4e, [>0x4b ?? length], [push data]]
    */
   asBuffer (): Buffer {
-    const len = this.hex.length / 2
+    const len = this.length()
     const buffer = new SmartBuffer()
 
     if (len < 76) {

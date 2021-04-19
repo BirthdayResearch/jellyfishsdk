@@ -1,11 +1,13 @@
-import { Precision, PrecisionMapping } from '@defichain/jellyfish-json'
+import { Precision, PrecisionPath } from '@defichain/jellyfish-json'
 import { Blockchain } from './category/blockchain'
 import { Mining } from './category/mining'
+import { RawTx } from './category/rawtx'
 import { Wallet } from './category/wallet'
 
 export * from '@defichain/jellyfish-json'
 export * from './category/blockchain'
 export * from './category/mining'
+export * as rawtx from './category/rawtx'
 export * from './category/wallet'
 
 /**
@@ -14,14 +16,15 @@ export * from './category/wallet'
 export abstract class ApiClient {
   public readonly blockchain = new Blockchain(this)
   public readonly mining = new Mining(this)
+  public readonly rawtx = new RawTx(this)
   public readonly wallet = new Wallet(this)
 
   /**
    * A promise based procedure call handling
    *
-   * @param method Name of the RPC method
-   * @param params Array of params as RPC payload
-   * @param precision
+   * @param {string} method name of the RPC method
+   * @param {any[]} params array of params as RPC payload
+   * @param {Precision | PrecisionPath} precision
    * Numeric precision to parse RPC payload as 'lossless', 'bignumber' or 'number'.
    *
    * 'lossless' uses LosslessJSON that parses numeric values as LosslessNumber. With LosslessNumber, one can perform
@@ -31,11 +34,14 @@ export abstract class ApiClient {
    *
    * 'number' parse all numeric values as 'Number' and precision will be loss if it exceeds IEEE-754 standard.
    *
+   * 'PrecisionPath' path based precision mapping, specifying 'bignumber' will automatically map all Number in that
+   * path as 'bignumber'. Otherwise, it will default to number, This applies deeply.
+   *
    * @throws ApiError
    * @throws RpcApiError
    * @throws ClientApiError
    */
-  abstract call<T> (method: string, params: any[], precision: Precision | PrecisionMapping): Promise<T>
+  abstract call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T>
 }
 
 /**

@@ -2,6 +2,7 @@
   <dictionary name="fuxing">
     <words>
       <w>accounttoutxos</w>
+      <w>acindex</w>
       <w>amkheight</w>
       <w>anyonecanpay</w>
       <w>bayfrontgardensheight</w>
@@ -9,9 +10,13 @@
       <w>bayfrontmarinaheight</w>
       <w>bcrt</w>
       <w>bech</w>
+      <w>bestblock</w>
+      <w>bestblockhash</w>
       <w>booland</w>
       <w>boolor</w>
+      <w>canonbrother</w>
       <w>chainparams</w>
+      <w>chainwork</w>
       <w>checklocktimeverify</w>
       <w>checkmultisig</w>
       <w>checkmultisigverify</w>
@@ -21,8 +26,10 @@
       <w>clarkequayheight</w>
       <w>codeseparator</w>
       <w>createmasternode</w>
+      <w>createrawtransaction</w>
       <w>currentblocktx</w>
       <w>currentblockweight</w>
+      <w>dakotacrescentheight</w>
       <w>dakotaheight</w>
       <w>debugexclude</w>
       <w>defi</w>
@@ -31,6 +38,7 @@
       <w>devnet</w>
       <w>dockerode</w>
       <w>dummypos</w>
+      <w>dumpprivkey</w>
       <w>equalverify</w>
       <w>fromaltstack</w>
       <w>fullstackninja</w>
@@ -38,6 +46,8 @@
       <w>generatetoaddress</w>
       <w>getaddressinfo</w>
       <w>getbalance</w>
+      <w>getblock</w>
+      <w>getblockchaininfo</w>
       <w>getblockcount</w>
       <w>getblockhash</w>
       <w>getmintinginfo</w>
@@ -45,12 +55,14 @@
       <w>getnewaddress</w>
       <w>getreceivedbyaddress</w>
       <w>gettransaction</w>
+      <w>gettxout</w>
       <w>getunconfirmedbalance</w>
       <w>greaterthan</w>
       <w>greaterthanorequal</w>
       <w>ifdup</w>
       <w>importprivkey</w>
       <w>infima</w>
+      <w>initialblockdownload</w>
       <w>invalidopcode</w>
       <w>isoperator</w>
       <w>jsonrpc</w>
@@ -58,6 +70,7 @@
       <w>lessthanorequal</w>
       <w>libevent</w>
       <w>listaccounts</w>
+      <w>locktime</w>
       <w>logtimemicros</w>
       <w>lshift</w>
       <w>mainnet</w>
@@ -65,9 +78,13 @@
       <w>masternodeid</w>
       <w>masternodeoperator</w>
       <w>masternodestate</w>
+      <w>mediantime</w>
+      <w>mempool</w>
+      <w>merkleroot</w>
       <w>mintedblocks</w>
       <w>nblocks</w>
       <w>networkhashps</w>
+      <w>nextblockhash</w>
       <w>nmasternode</w>
       <w>nospv</w>
       <w>notif</w>
@@ -75,10 +92,14 @@
       <w>numequalverify</w>
       <w>numnotequal</w>
       <w>pooledtx</w>
+      <w>previousblockhash</w>
+      <w>prevout</w>
+      <w>prevouts</w>
       <w>printtoconsole</w>
       <w>priv</w>
       <w>pubkey</w>
       <w>pushdata</w>
+      <w>rawtx</w>
       <w>regtest</w>
       <w>rewardaddress</w>
       <w>ripemd</w>
@@ -87,23 +108,37 @@
       <w>rpcpassword</w>
       <w>rpcuser</w>
       <w>rshift</w>
+      <w>secp</w>
       <w>segwit</w>
+      <w>sendrawtransaction</w>
       <w>sendtoaddress</w>
+      <w>sighash</w>
+      <w>sighashtype</w>
       <w>signmessage</w>
+      <w>signrawtransactionwithkey</w>
+      <w>sigs</w>
+      <w>softforks</w>
+      <w>strippedsize</w>
       <w>testcontainers</w>
+      <w>testmempoolaccept</w>
       <w>thedoublejay</w>
       <w>toaltstack</w>
       <w>txid</w>
+      <w>txindex</w>
+      <w>txinwitness</w>
       <w>txnotokens</w>
       <w>uacomment</w>
       <w>unpkg</w>
       <w>utxo</w>
+      <w>utxos</w>
       <w>utxostoaccount</w>
       <w>varint</w>
       <w>verif</w>
+      <w>verificationprogress</w>
       <w>verifymessage</w>
       <w>vernotif</w>
       <w>vout</w>
+      <w>vsize</w>
       <w>wpkh</w>
     </words>
   </dictionary>

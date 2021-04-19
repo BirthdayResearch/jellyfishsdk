@@ -79,7 +79,11 @@ export class Blockchain {
     * @return Promise<UTXODetails>
     */
   async getTxOut (txId: string, index: number, includeMempool = true): Promise<UTXODetails> {
-    return await this.client.call('gettxout', [txId, index, includeMempool], { value: 'bignumber' })
+    return await this.client.call('gettxout', [
+      txId, index, includeMempool
+    ], {
+      value: 'bignumber'
+    })
   }
 
   /**

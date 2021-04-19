@@ -12,6 +12,8 @@ export class RegTestContainer extends DeFiDContainer {
       '-regtest=1',
       '-txnotokens=0',
       '-logtimemicros',
+      '-txindex=1',
+      '-acindex=1',
       '-amkheight=0',
       '-bayfrontheight=1',
       '-bayfrontgardensheight=2',
@@ -114,5 +116,73 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async waitForWalletCoinbaseMaturity (): Promise<void> {
     await this.generate(100)
+  }
+
+  /**
+   * Wait for in wallet balance to be greater than an amount.
+   * This allow test that require fund to wait for fund to be filled up before running the tests.
+   *
+   * @param {number} balance to wait for in wallet to be greater than or equal
+   * @param {number} timeout default to 30000ms
+   * @see waitForWalletCoinbaseMaturity
+   */
+  async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
+    return await this.waitForCondition(async () => {
+      const getbalance = await this.call('getbalance')
+      return getbalance >= balance
+    }, timeout)
+  }
+
+  /**
+   * Fund an address with an amount and wait for 1 confirmation.
+   * Funded address don't have to be tracked within the node wallet.
+   * This allows for light wallet implementation testing.
+   *
+   * @param {string} address to fund
+   * @param {number} amount to fund an address, take note of number precision issues, BigNumber not included in pkg.
+   * @return {Promise<{txid: string, vout: number}>} txid and index of the transaction
+   * @see waitForWalletCoinbaseMaturity
+   * @see waitForWalletBalanceGTE
+   */
+  async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
+    const txid = await this.call('sendtoaddress', [address, amount])
+
+    await this.waitForCondition(async () => {
+      const { confirmations } = await this.call('gettxout', [txid, 0, true])
+      return confirmations > 0
+    }, 10000)
+
+    const { vout }: {
+      vout: Array<{
+        n: number
+        scriptPubKey: {
+          addresses: string[]
+        }
+      }>
+    } = await this.call('getrawtransaction', [txid, true])
+    for (const out of vout) {
+      if (out.scriptPubKey.addresses.includes(address)) {
+        return { txid, vout: out.n }
+      }
+    }
+
+    throw new Error('getrawtransaction will always return the required vout')
+  }
+
+  /**
+   * Create a new bech32 address and get the associated priv key for it.
+   * The address is created in the wallet and the priv key is dumped out.
+   * This is to facilitate raw tx feature testing, if you need an address that is not associated with the wallet,
+   * use jellyfish-crypto instead.
+   *
+   * This is not a deterministic feature, each time you run this, you get a different set of address and keys.
+   *
+   * @return {Promise<{ address: string, privKey: string, pubKey: string }>} a new address and it's associated privKey
+   */
+  async newAddressKeys (): Promise<{ address: string, privKey: string, pubKey: string }> {
+    const address = await this.call('getnewaddress', ['', 'bech32'])
+    const privKey = await this.call('dumpprivkey', [address])
+    const getaddressinfo = await this.call('getaddressinfo', [address])
+    return { address, privKey, pubKey: getaddressinfo.pubkey }
   }
 }

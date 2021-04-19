@@ -44,14 +44,14 @@ async function cleanUpStale (docker: Dockerode): Promise<void> {
   }
 
   /**
-   * Stop container that are running, remove them after
+   * Stop container that are running, remove them after and their associated volumes
    */
   const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
     const container = docker.getContainer(containerInfo.Id)
     if (containerInfo.State === 'running') {
       await container.stop()
     }
-    await container.remove()
+    await container.remove({ v: true })
   }
 
   return await new Promise((resolve, reject) => {
@@ -242,7 +242,8 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Wait for rpc to be ready, default to 15000ms
+   * Wait for rpc to be ready
+   * @param {number} timeout duration, default to 15000ms
    */
   private async waitForRpc (timeout = 15000): Promise<void> {
     const expiredAt = Date.now() + timeout
@@ -255,9 +256,9 @@ export abstract class DeFiDContainer {
         }).catch(err => {
           if (expiredAt < Date.now()) {
             reject(new Error(`DeFiDContainer docker not ready within given timeout of ${timeout}ms.\n${err.message as string}`))
+          } else {
+            setTimeout(() => void checkReady(), 200)
           }
-
-          setTimeout(() => void checkReady(), 200)
         })
       }
 
@@ -266,7 +267,31 @@ export abstract class DeFiDContainer {
   }
 
   /**
+   * @param {() => Promise<boolean>} condition to wait for true
+   * @param {number} timeout duration when condition is not met
+   */
+  async waitForCondition (condition: () => Promise<boolean>, timeout: number): Promise<void> {
+    const expiredAt = Date.now() + timeout
+
+    return await new Promise((resolve, reject) => {
+      const checkCondition = async (): Promise<void> => {
+        const isReady = await condition().catch(() => false)
+        if (isReady) {
+          resolve()
+        } else if (expiredAt < Date.now()) {
+          reject(new Error(`waitForCondition is not ready within given timeout of ${timeout}ms.`))
+        } else {
+          setTimeout(() => void checkCondition(), 200)
+        }
+      }
+
+      void checkCondition()
+    })
+  }
+
+  /**
    * Wait for everything to be ready, override for additional hooks
+   * @param {number} timeout duration, default to 15000ms
    */
   async waitForReady (timeout = 15000): Promise<void> {
     return await this.waitForRpc(timeout)
@@ -293,7 +318,7 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Stop and remove the current node.
+   * Stop and remove the current node and their associated volumes.
    *
    * This method will also automatically stop and removes nodes that are stale.
    * Stale nodes are nodes that are running for more than 1 hour
@@ -303,7 +328,7 @@ export abstract class DeFiDContainer {
       await this.container?.stop()
     } finally {
       try {
-        await this.container?.remove()
+        await this.container?.remove({ v: true })
       } finally {
         await cleanUpStale(this.docker)
       }
