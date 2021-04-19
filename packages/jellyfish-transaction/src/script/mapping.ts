@@ -57,7 +57,12 @@ export const OP_CODES = {
   OP_PUSHDATA: (buffer: Buffer, endian: 'little' | 'big'): OP_PUSHDATA => {
     return new OP_PUSHDATA(buffer, endian)
   },
-
+  /**
+   * @param {string} hex in little endian
+   */
+  OP_PUSHDATA_HEX_LE: (hex: string): OP_PUSHDATA => {
+    return new OP_PUSHDATA(Buffer.from(hex, 'hex'), 'little')
+  },
   // TODO: to map everything as class
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 

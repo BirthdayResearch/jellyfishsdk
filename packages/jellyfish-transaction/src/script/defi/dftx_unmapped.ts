@@ -7,24 +7,24 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 /**
  * Unmapped DeFi OP that is valid but don't have a composer for it yet.
  */
-export interface UnmappedOperation {
+export interface DeFiOpUnmapped {
   /**
    * Stored as LITTLE ENDIAN hex string.
    */
   hex: string
 }
 
-export class CUnmappedOperation extends ComposableBuffer<UnmappedOperation> {
+export class CDeFiOpUnmapped extends ComposableBuffer<DeFiOpUnmapped> {
   static OP_NAME = 'DEFI_OP_UNMAPPED'
 
-  composers (op: UnmappedOperation): BufferComposer[] {
+  composers (op: DeFiOpUnmapped): BufferComposer[] {
     return [
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          buffer.writeString(op.hex, 'hex')
+          op.hex = buffer.readBuffer(buffer.remaining()).toString('hex')
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          op.hex = buffer.readBuffer(buffer.remaining()).toString('hex')
+          buffer.writeString(op.hex, 'hex')
         }
       }
     ]

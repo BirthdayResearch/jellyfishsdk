@@ -16,7 +16,10 @@ export interface PoolSwap {
   fromAmount: BigNumber // -------------| 8 bytes
   toScript: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes
   toTokenId: number // -----------------| VarUInt{1-9 bytes}
-  maxPrice: BigNumber // ---------------| 16 bytes
+  maxPrice: {
+    integer: BigNumber // --------------| 8 bytes
+    fraction: BigNumber // -------------| 8 bytes
+  }
 }
 
 /**
@@ -37,13 +40,11 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
       {
         fromBuffer (buffer: SmartBuffer) {
           const integer = new BigNumber(buffer.readBigUInt64LE().toString())
-          const fraction = new BigNumber(buffer.readBigUInt64LE().toString()).dividedBy('100000000')
-          ps.maxPrice = integer.plus(fraction)
+          const fraction = new BigNumber(buffer.readBigUInt64LE().toString())
+          ps.maxPrice = { integer, fraction }
         },
         toBuffer (buffer: SmartBuffer) {
-          const maxPrice = ps.maxPrice
-          const integer: BigNumber = maxPrice.integerValue(BigNumber.ROUND_DOWN)
-          const fraction: BigNumber = maxPrice.minus(integer).multipliedBy('100000000')
+          const { integer, fraction } = ps.maxPrice
           buffer.writeBigUInt64LE(BigInt(integer.toString(10)))
           buffer.writeBigUInt64LE(BigInt(fraction.toString(10)))
         }

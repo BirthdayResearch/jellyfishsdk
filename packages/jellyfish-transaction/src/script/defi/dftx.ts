@@ -4,7 +4,7 @@ import {
   CPoolSwap,
   PoolSwap
 } from './dftx_pool'
-import { CUnmappedOperation, UnmappedOperation } from './dftx_unmapped'
+import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -38,7 +38,14 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
     return [
       CDfTx.signature(dftx),
       ComposableBuffer.uInt8(() => dftx.type, v => dftx.type = v),
-      CDfTx.data(dftx)
+      {
+        fromBuffer (buffer: SmartBuffer) {
+          return CDfTx.data(dftx).fromBuffer(buffer)
+        },
+        toBuffer (buffer: SmartBuffer) {
+          return CDfTx.data(dftx).toBuffer(buffer)
+        }
+      }
     ]
   }
 
@@ -52,7 +59,7 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         if (signature !== CDfTx.SIGNATURE) {
           throw new Error(`CDfTx attempt to read a signature that is not recognized: ${signature}`)
         }
-        buffer.writeUInt32BE(signature)
+        dftx.signature = signature
       },
       toBuffer (buffer: SmartBuffer): void {
         if (dftx.signature !== CDfTx.SIGNATURE) {
@@ -76,7 +83,7 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
       case CPoolSwap.OP_CODE:
         return compose<PoolSwap>(CPoolSwap.OP_NAME, d => new CPoolSwap(d))
       default:
-        return compose<UnmappedOperation>(CUnmappedOperation.OP_NAME, d => new CUnmappedOperation(d))
+        return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
   }
 }
