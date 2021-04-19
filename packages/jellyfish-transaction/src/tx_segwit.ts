@@ -44,11 +44,7 @@ export class CWitnessProgram extends ComposableBuffer<WitnessProgram> {
       ComposableBuffer.hex(32, () => wp.outpointTxId, v => wp.outpointTxId = v),
       ComposableBuffer.uInt32(() => wp.outpointIndex, v => wp.outpointIndex = v),
       ComposableBuffer.single<Script>(() => wp.scriptCode, v => wp.scriptCode = v, v => new CScript(v)),
-      ComposableBuffer.bigUInt64(() => {
-        return BigInt(wp.value.multipliedBy('100000000').toString(10))
-      }, v => {
-        wp.value = new BigNumber(v.toString()).dividedBy('100000000')
-      }),
+      ComposableBuffer.satoshiAsBigNumber(() => wp.value, v => wp.value = v),
       ComposableBuffer.uInt32(() => wp.sequence, v => wp.sequence = v),
       ComposableBuffer.hex(32, () => wp.hashOutputs, v => wp.hashOutputs = v),
       ComposableBuffer.uInt32(() => wp.lockTime, v => wp.lockTime = v),

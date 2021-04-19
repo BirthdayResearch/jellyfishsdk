@@ -1,3 +1,4 @@
+import { BigNumber } from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../src/buffer/buffer_composer'
 import { readVarUInt, writeVarUInt } from '../../src/buffer/buffer_varuint'
@@ -652,6 +653,61 @@ describe('ComposableBuffer.bigUInt64', () => {
     expect(() => {
       composer.toBuffer(new SmartBuffer())
     }).toThrow('It must be >= 0n and < 2n ** 64n. Received 18_446_744_073_709_551_617n')
+  })
+})
+
+describe('ComposableBuffer.satoshiAsBigNumber', () => {
+  let value: BigNumber = new BigNumber('0x01')
+  const composer = ComposableBuffer.satoshiAsBigNumber(() => value, (v: BigNumber) => value = v)
+
+  describe('0x0000000000000001', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '0100000000000000', new BigNumber('0.00000001'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '0100000000000000', new BigNumber('0.00000001'), v => value = v)
+    })
+  })
+
+  describe('0x8000000000000001', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '0100000000000080', new BigNumber('92233720368.54775809'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '0100000000000080', new BigNumber('92233720368.54775809'), v => value = v)
+    })
+  })
+
+  describe('0xff00000000000001', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '01000000000000ff', new BigNumber('183746864796.71623681'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '01000000000000ff', new BigNumber('183746864796.71623681'), v => value = v)
+    })
+  })
+
+  describe('40.00000000', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '00286bee00000000', new BigNumber(40.00000000), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '00286bee00000000', new BigNumber(40.00000000), v => value = v)
+    })
+  })
+
+  describe('1200000000.00000000 MAX DFI Supply', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '00000c3d5d53aa01', new BigNumber('1200000000.00000000'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '00000c3d5d53aa01', new BigNumber('1200000000.00000000'), v => value = v)
+    })
   })
 })
 

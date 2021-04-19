@@ -116,8 +116,7 @@ describe('signRawTransactionWithKey', () => {
     expect(signed.complete).toBe(true)
     expect(signed.hex.substr(0, 14)).toBe('04000000000101')
     expect(signed.hex.substr(86, 88)).toBe('00ffffffff010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b0803400024730440220')
-    expect(signed.hex.substr(306, 78)).toBe('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
-    expect(signed.hex.length).toBe(384)
+    expect(signed.hex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
   })
 
   // TODO(anyone): SignRawTxWithKeyPrevTx is not yet typed tested,
@@ -137,8 +136,7 @@ describe('signRawTransactionWithKey', () => {
     expect(signed.complete).toBe(true)
     expect(signed.hex.substr(0, 14)).toBe('04000000000101')
     expect(signed.hex.substr(86, 152)).toBe('00ffffffff020065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340080ce341d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a8200024730440220')
-    expect(signed.hex.substr(370, 78)).toBe('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
-    expect(signed.hex.length).toBe(448)
+    expect(signed.hex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
   })
 
   describe('signRawTransactionWithKeySigHashType', () => {
@@ -157,46 +155,40 @@ describe('signRawTransactionWithKey', () => {
       })
     }
 
+    function exceptSignature (signed: SignRawTxWithKeyResult): void {
+      expect(signed.complete).toBe(true)
+      expect(signed.hex.length).toBeGreaterThanOrEqual(446)
+      expect(signed.hex.length).toBeLessThanOrEqual(448)
+    }
+
     it('should signRawTransactionWithKey() with SigHashType.ALL', async () => {
       const signed = await signRawTransactionWithKeySigHashType(SigHashType.ALL)
-
-      expect(signed.complete).toBe(true)
-      expect(signed.hex.length).toBe(448)
+      exceptSignature(signed)
     })
 
     it('should signRawTransactionWithKey() with SigHashType.NONE', async () => {
       const signed = await signRawTransactionWithKeySigHashType(SigHashType.NONE)
-
-      expect(signed.complete).toBe(true)
-      expect(signed.hex.length).toBe(448)
+      exceptSignature(signed)
     })
 
     it('should signRawTransactionWithKey() with SigHashType.SINGLE', async () => {
       const signed = await signRawTransactionWithKeySigHashType(SigHashType.SINGLE)
-
-      expect(signed.complete).toBe(true)
-      expect(signed.hex.length).toBe(448)
+      exceptSignature(signed)
     })
 
     it('should signRawTransactionWithKey() with SigHashType.ALL_ANYONECANPAY', async () => {
       const signed = await signRawTransactionWithKeySigHashType(SigHashType.ALL_ANYONECANPAY)
-
-      expect(signed.complete).toBe(true)
-      expect(signed.hex.length).toBe(448)
+      exceptSignature(signed)
     })
 
     it('should signRawTransactionWithKey() with SigHashType.NONE_ANYONECANPAY', async () => {
       const signed = await signRawTransactionWithKeySigHashType(SigHashType.NONE_ANYONECANPAY)
-
-      expect(signed.complete).toBe(true)
-      expect(signed.hex.length).toBe(448)
+      exceptSignature(signed)
     })
 
     it('should signRawTransactionWithKey() with SigHashType.SINGLE_ANYONECANPAY', async () => {
       const signed = await signRawTransactionWithKeySigHashType(SigHashType.SINGLE_ANYONECANPAY)
-
-      expect(signed.complete).toBe(true)
-      expect(signed.hex.length).toBe(448)
+      exceptSignature(signed)
     })
   })
 })

@@ -8,6 +8,11 @@ import { OPCode } from './script'
  * @see https://github.com/DeFiCh/ain/blob/a011b9db38ce6d3d5c1b67c1e3bad9365b86f2ce/src/primitives/transaction.h#L217
  */
 export interface Transaction {
+  /**
+   * Version is either 2 or 4
+   * V2 structure is the same as Bitcoin
+   * V4 contains dct_id in vout
+   */
   version: number // -------------------| 4 bytes
   vin: Vin[] // ------------------------| c = VarUInt{1-9 bytes}, + c x Vin
   vout: Vout[] // ----------------------| c = VarUInt{1-9 bytes}, + c x Vout
@@ -51,7 +56,7 @@ export interface Vout {
  * @see https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
  * @see https://github.com/bitcoin/bips/blob/master/bip-0144.mediawiki
  */
-export interface TransactionSegWit {
+export interface TransactionSegWit extends Transaction {
   version: number // -------------------| 4 bytes
   marker: number // --------------------| 1 byte
   flag: number // ----------------------| 1 byte
