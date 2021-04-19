@@ -1,6 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-import { Operation } from './dftx'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -8,7 +7,7 @@ import { Operation } from './dftx'
 /**
  * Unmapped DeFi OP that is valid but don't have a composer for it yet.
  */
-export interface UnmappedOperation extends Operation {
+export interface UnmappedOperation {
   /**
    * Stored as LITTLE ENDIAN hex string.
    */
@@ -16,6 +15,8 @@ export interface UnmappedOperation extends Operation {
 }
 
 export class CUnmappedOperation extends ComposableBuffer<UnmappedOperation> {
+  static OP_NAME = 'DEFI_OP_UNMAPPED'
+
   composers (op: UnmappedOperation): BufferComposer[] {
     return [
       {

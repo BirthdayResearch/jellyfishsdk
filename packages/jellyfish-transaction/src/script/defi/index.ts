@@ -24,6 +24,9 @@ export function isDeFiScript (stack: OPCode[]): boolean {
   return hex.length >= 10 && hex.startsWith(DEFI_SIGNATURE)
 }
 
+/**
+ * @param {OPCode[]} stack to check and remap into OP_DEFI_TX if valid
+ */
 export function remapDeFiScript (stack: OPCode[]): OPCode[] {
   if (!isDeFiScript(stack)) {
     return stack

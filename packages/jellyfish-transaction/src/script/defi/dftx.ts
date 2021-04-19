@@ -11,6 +11,7 @@ import { CUnmappedOperation, UnmappedOperation } from './dftx_unmapped'
 
 /**
  * DeFi Transaction
+ * [OP_RETURN, OP_PUSHDATA] Custom Transaction
  */
 export interface DfTx<T> {
   signature: number // -------------------| 4 bytes, 0x44665478, DfTx
@@ -26,6 +27,10 @@ export interface DfTx<T> {
   name: string
 }
 
+/**
+ * Composable DfTx, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CDfTx extends ComposableBuffer<DfTx<any>> {
   static SIGNATURE = 0x44665478
 
@@ -33,7 +38,7 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
     return [
       CDfTx.signature(dftx),
       ComposableBuffer.uInt8(() => dftx.type, v => dftx.type = v),
-      CDfTx.operation(dftx)
+      CDfTx.data(dftx)
     ]
   }
 
@@ -61,17 +66,17 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
   /**
    * Operation data read/write composing
    */
-  static operation (dftx: DfTx<any>): BufferComposer {
+  static data (dftx: DfTx<any>): BufferComposer {
     function compose<T> (name: string, asC: (data: SmartBuffer | T) => ComposableBuffer<T>): BufferComposer {
       dftx.name = name
       return ComposableBuffer.single<T>(() => dftx.data, v => dftx.data = v, asC)
     }
 
     switch (dftx.type) {
-      case CPoolSwap.TYPE:
-        return compose<PoolSwap>('DEFI_OP_POOL_SWAP', d => new CPoolSwap(d))
+      case CPoolSwap.OP_CODE:
+        return compose<PoolSwap>(CPoolSwap.OP_NAME, d => new CPoolSwap(d))
       default:
-        return compose<UnmappedOperation>('DEFI_OP_UNMAPPED', d => new CUnmappedOperation(d))
+        return compose<UnmappedOperation>(CUnmappedOperation.OP_NAME, d => new CUnmappedOperation(d))
     }
   }
 }

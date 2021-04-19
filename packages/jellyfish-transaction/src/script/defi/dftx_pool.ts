@@ -24,7 +24,8 @@ export interface PoolSwap {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CPoolSwap extends ComposableBuffer<PoolSwap> {
-  static TYPE = 0x73
+  static OP_CODE = 0x73
+  static OP_NAME = 'DEFI_OP_POOL_SWAP'
 
   composers (ps: PoolSwap): BufferComposer[] {
     return [
