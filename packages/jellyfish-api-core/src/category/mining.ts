@@ -13,9 +13,9 @@ export class Mining {
   /**
    * Returns the estimated network hashes per second
    *
-   * @param nblocks to estimate since last difficulty change.
-   * @param height to estimate at the time of the given height.
-   * @return Promise<number>
+   * @param {number} nblocks to estimate since last difficulty change.
+   * @param {number} height to estimate at the time of the given height.
+   * @return {Promise<number>}
    */
   async getNetworkHashPerSecond (nblocks: number = 120, height: number = -1): Promise<number> {
     return await this.client.call('getnetworkhashps', [nblocks, height], 'number')
@@ -23,7 +23,7 @@ export class Mining {
 
   /**
    * Get minting-related information
-   * @return Promise<MintingInfo>
+   * @return {Promise<MintingInfo>}
    */
   async getMintingInfo (): Promise<MintingInfo> {
     return await this.client.call('getmintinginfo', [], 'number')

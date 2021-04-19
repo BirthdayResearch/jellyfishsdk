@@ -40,8 +40,8 @@ export class Wallet {
   /**
    * Returns the total available balance in wallet.
    *
-   * @param minimumConfirmation to include transactions confirmed at least this many times
-   * @param includeWatchOnly for watch-only wallets
+   * @param {number} minimumConfirmation to include transactions confirmed at least this many times
+   * @param {boolean} includeWatchOnly for watch-only wallets
    * @return Promise<BigNumber>
    */
   async getBalance (minimumConfirmation: number = 0, includeWatchOnly: boolean = false): Promise<BigNumber> {
@@ -51,18 +51,18 @@ export class Wallet {
   /**
    * Get list of UTXOs in wallet.
    *
-   * @param minimumConfirmation default = 1, to filter
-   * @param maximumConfirmation default = 9999999, to filter
-   * @param options
-   * @param options.addresses to filter
-   * @param options.includeUnsafe default = true, include outputs that are not safe to spend
-   * @param options.queryOptions
-   * @param options.queryOptions.minimumAmount default = 0, minimum value of each UTXO
-   * @param options.queryOptions.maximumAmount default is 'unlimited', maximum value of each UTXO
-   * @param options.queryOptions.maximumCount default is 'unlimited', maximum number of UTXOs
-   * @param options.queryOptions.minimumSumAmount default is 'unlimited', minimum sum valie of all UTXOs
-   * @param options.queryOptions.tokenId default is 'all', filter by token
-   * @return Promise<UTXO[]>
+   * @param {number} minimumConfirmation default = 1, to filter
+   * @param {number} maximumConfirmation default = 9999999, to filter
+   * @param {ListUnspentOptions=} options
+   * @param {string[]=} options.addresses to filter
+   * @param {boolean=} options.includeUnsafe default = true, include outputs that are not safe to spend
+   * @param {ListUnspentQueryOptions=} options.queryOptions
+   * @param {number=} options.queryOptions.minimumAmount default = 0, minimum value of each UTXO
+   * @param {number=} options.queryOptions.maximumAmount default is 'unlimited', maximum value of each UTXO
+   * @param {number=} options.queryOptions.maximumCount default is 'unlimited', maximum number of UTXOs
+   * @param {number=} options.queryOptions.minimumSumAmount default is 'unlimited', minimum sum valie of all UTXOs
+   * @param {string=} options.queryOptions.tokenId default is 'all', filter by token
+   * @return {Promise<UTXO[]>}
   */
   async listUnspent (
     minimumConfirmation = 1,
@@ -84,13 +84,13 @@ export class Wallet {
   /**
    * Create a new wallet
    *
-   * @param walletName
-   * @param disablePrivateKeys
-   * @param options
-   * @param options.blank
-   * @param options.passphrase
-   * @param options.avoidReuse
-   * @return Promise<CreateWalletResult>
+   * @param {string} walletName
+   * @param {boolean} disablePrivateKeys
+   * @param {CreateWalletOptions=} options
+   * @param {boolean=} options.blank
+   * @param {string=} options.passphrase
+   * @param {boolean=} options.avoidReuse
+   * @return {Promise<CreateWalletResult>}
    */
   async createWallet (
     walletName: string,
@@ -109,7 +109,7 @@ export class Wallet {
   /**
    * Return object containing various wallet state info
    *
-   * @return Promise<WalletInfo>
+   * @return {Promise<WalletInfo>}
    */
   async getWalletInfo (): Promise<WalletInfo> {
     return await this.client.call('getwalletinfo', [], {
@@ -123,9 +123,9 @@ export class Wallet {
   /**
    * Change the state of the given wallet flag for a wallet
    *
-   * @param flag to change. eg: avoid_reuse
-   * @param value optional, default = true
-   * @return Promise<WalletFlagResult>
+   * @param {WalletFlag} flag to change. eg: avoid_reuse
+   * @param {boolean} value optional, default = true
+   * @return {Promise<WalletFlagResult>}
    */
   async setWalletFlag (flag: WalletFlag, value: boolean = true): Promise<WalletFlagResult> {
     return await this.client.call('setwalletflag', [flag, value], 'number')
@@ -136,9 +136,9 @@ export class Wallet {
    * If 'label' is specified, it's added to the address book
    * so payments recevied with the address will be associated with 'label'
    *
-   * @param label for address to be linked to. It can also be set as empty string
-   * @param addressType to use, eg: legacy, p2sh-segwit, bech32
-   * @return Promise<string>
+   * @param {string} label for address to be linked to. It can also be set as empty string
+   * @param {AddressType} addressType to use, eg: legacy, p2sh-segwit, bech32
+   * @return {Promise<string>}
    */
   async getNewAddress (label: string = '', addressType = AddressType.BECH32): Promise<string> {
     return await this.client.call('getnewaddress', [label, addressType], 'number')
@@ -147,8 +147,8 @@ export class Wallet {
   /**
    * Validate and return information about the given DFI address
    *
-   * @param address
-   * @return Promise<ValidateAddressResult>
+   * @param {string} address
+   * @return {Promise<ValidateAddressResult>}
    */
   async validateAddress (address: string): Promise<ValidateAddressResult> {
     return await this.client.call('validateaddress', [address], 'number')
@@ -157,8 +157,8 @@ export class Wallet {
   /**
    * Return information about the given address
    *
-   * @param address
-   * @return Promise<AddressInfo>
+   * @param {string} address
+   * @return {Promise<AddressInfo>}
    */
   async getAddressInfo (address: string): Promise<AddressInfo> {
     return await this.client.call('getaddressinfo', [address], 'number')
@@ -167,17 +167,17 @@ export class Wallet {
   /**
    * Send an amount to given address and return a transaction id
    *
-   * @param address
-   * @param amount
-   * @param options
-   * @param options.comment
-   * @param options.commentTo
-   * @param options.subtractFeeFromAmount
-   * @param options.replaceable
-   * @param options.confTarget
-   * @param options.estimateMode
-   * @param options.avoidReuse
-   * @return Promise<string>
+   * @param {string} address
+   * @param {number} amount
+   * @param {SendToAddressOptions=} options
+   * @param {string=} options.comment
+   * @param {string=} options.commentTo
+   * @param {boolean=} options.subtractFeeFromAmount
+   * @param {boolean=} options.replaceable
+   * @param {number=} options.confTarget
+   * @param {Mode=} options.estimateMode
+   * @param {boolean=} options.avoidReuse
+   * @return {Promise<string>}
    */
   async sendToAddress (
     address: string,
@@ -208,7 +208,7 @@ export class Wallet {
    * Lists groups of addresses which have had their common ownership made public
    * by common use as inputs or as the resulting change in past transactions
    *
-   * @return Promise<any[][][]>
+   * @return {Promise<any[][][]>}
    */
   async listAddressGroupings (): Promise<any[][][]> {
     return await this.client.call('listaddressgroupings', [], 'bignumber')
