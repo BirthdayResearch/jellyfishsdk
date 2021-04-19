@@ -1,5 +1,8 @@
+import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { writeVarUInt, readVarUInt } from './buffer_varuint'
+
+const ONE_HUNDRED_MILLION = new BigNumber('100000000')
 
 export interface BufferComposer {
   fromBuffer: (buffer: SmartBuffer) => void
@@ -270,6 +273,23 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         buffer.writeBigUInt64LE(getter().valueOf())
       }
     }
+  }
+
+  /**
+   * Unsigned bigint/satoshi as BigNumber, 8 bytes
+   * BigNumber is multiplied/divided by 100,000,000
+   *
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   */
+  static satoshiAsBigNumber (getter: () => BigNumber, setter: (data: BigNumber) => void): BufferComposer {
+    return ComposableBuffer.bigUInt64(() => {
+      const number = getter().multipliedBy('100000000').toString(10)
+      return BigInt(number)
+    }, v => {
+      const number = new BigNumber(v.toString()).dividedBy(ONE_HUNDRED_MILLION)
+      setter(number)
+    })
   }
 
   /**

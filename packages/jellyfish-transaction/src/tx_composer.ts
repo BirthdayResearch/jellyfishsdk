@@ -112,14 +112,8 @@ export class CVoutV2 extends ComposableBuffer<Vout> implements Vout {
   }
 
   composers (vout: Vout): BufferComposer[] {
-    const DIGIT_8 = new BigNumber('100000000')
-
     return [
-      ComposableBuffer.bigUInt64(() => {
-        return BigInt(vout.value.multipliedBy(DIGIT_8).toString(10))
-      }, v => {
-        vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
-      }),
+      ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v))
     ]
   }
@@ -146,14 +140,8 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
   }
 
   composers (vout: Vout): BufferComposer[] {
-    const DIGIT_8 = new BigNumber('100000000')
-
     return [
-      ComposableBuffer.bigUInt64(() => {
-        return BigInt(vout.value.multipliedBy(DIGIT_8).toString(10))
-      }, v => {
-        vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
-      }),
+      ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
       ComposableBuffer.varUInt(() => vout.dct_id, v => vout.dct_id = v)
     ]
