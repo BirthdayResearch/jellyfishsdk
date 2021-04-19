@@ -296,7 +296,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    */
   static satoshiAsBigNumber (getter: () => BigNumber, setter: (data: BigNumber) => void): BufferComposer {
     return ComposableBuffer.bigUInt64(() => {
-      const number = getter().multipliedBy('100000000').toString(10)
+      const number = getter().multipliedBy(ONE_HUNDRED_MILLION).toString(10)
       return BigInt(number)
     }, v => {
       const number = new BigNumber(v.toString()).dividedBy(ONE_HUNDRED_MILLION)

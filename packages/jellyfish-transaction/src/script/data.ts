@@ -87,25 +87,29 @@ export class OP_PUSHDATA extends OPCode {
    * @return [0x01-0x4e, [>0x4b ?? length], [push data]]
    */
   asBuffer (): Buffer {
-    const len = this.length()
+    const buffer = new SmartBuffer()
+    buffer.writeBuffer(OP_PUSHDATA.getLenOpBuffer(this.length()))
+    buffer.writeString(this.hex, 'hex')
+    return buffer.toBuffer()
+  }
+
+  static getLenOpBuffer (length: number): Buffer {
     const buffer = new SmartBuffer()
 
-    if (len < 76) {
-      buffer.writeUInt8(len)
-    } else if (len <= 255) {
+    if (length < 76) {
+      buffer.writeUInt8(length)
+    } else if (length <= 255) {
       buffer.writeUInt8(0x4c)
-      buffer.writeUInt8(len)
-    } else if (len <= 65535) {
+      buffer.writeUInt8(length)
+    } else if (length <= 65535) {
       buffer.writeUInt8(0x4d)
-      buffer.writeUInt16LE(len)
-    } else if (len <= 16777215) {
+      buffer.writeUInt16LE(length)
+    } else if (length <= 16777215) {
       buffer.writeUInt8(0x4e)
-      buffer.writeUInt32LE(len)
+      buffer.writeUInt32LE(length)
     } else {
       throw new RangeError('OP_PUSHDATA buffer is larger than 16777215')
     }
-
-    buffer.writeString(this.hex, 'hex')
     return buffer.toBuffer()
   }
 }

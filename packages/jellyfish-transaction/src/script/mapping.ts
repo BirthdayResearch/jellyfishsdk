@@ -5,6 +5,8 @@ import { OP_DUP } from './stack'
 import { OP_CHECKSIG, OP_HASH160 } from './crypto'
 import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 import { OP_PUSHDATA } from './data'
+import { DfTx } from "./defi/dftx";
+import { OP_DEFI_TX } from "./defi";
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -39,11 +41,19 @@ export class OP_UNMAPPED extends StaticCode {
  * https://github.com/DeFiCh/ain/blob/master/src/script/script.h
  */
 export const OP_CODES = {
+  OP_DEFI_TX: (dftx: DfTx<any>): OP_DEFI_TX => {
+    return new OP_DEFI_TX(dftx)
+  },
+
+  // TODO(fuxingloh): Add DfTx specific operation utilities
+
   OP_0: new OP_0(),
   OP_FALSE: new OP_FALSE(),
-  // OP_PUSHDATA1 use OP_PUSHDATA
-  // OP_PUSHDATA2 use OP_PUSHDATA
-  // OP_PUSHDATA4 use OP_PUSHDATA
+  /**
+   * OP_PUSHDATA1 use OP_PUSHDATA
+   * OP_PUSHDATA2 use OP_PUSHDATA
+   * OP_PUSHDATA4 use OP_PUSHDATA
+   */
   OP_PUSHDATA: (buffer: Buffer, endian: 'little' | 'big'): OP_PUSHDATA => {
     return new OP_PUSHDATA(buffer, endian)
   },
