@@ -180,18 +180,21 @@ interface blockchain {
 
 interface MempoolTx {
   [key: string]: {
-    vsize: number
-    size: number // (DEPRECATED) same as vsize. Only returned if defid is started with -deprecatedrpc=size
-    weight: number
+    vsize: BigNumber
+    /**
+     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
+     */
+    size: BigNumber
+    weight: BigNumber
     fee: BigNumber
     modifiedfee: BigNumber
-    time: Date
-    height: number
-    descendantcount: number
-    descendantsize: number
+    time: BigNumber
+    height: BigNumber
+    descendantcount: BigNumber
+    descendantsize: BigNumber
     descendantfees: BigNumber
-    ancestorcount: number
-    ancestorsize: number
+    ancestorcount: BigNumber
+    ancestorsize: BigNumber
     ancestorfees: BigNumber
     wtxid: string
     fees: {

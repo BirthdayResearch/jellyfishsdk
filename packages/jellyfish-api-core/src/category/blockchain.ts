@@ -113,18 +113,7 @@ export class Blockchain {
    * @return {Promise<string[] | MempoolTx>}
    */
   async getRawMempool (verbose: boolean): Promise<string[] | MempoolTx> {
-    return await this.client.call('getrawmempool', [verbose], {
-      fees: {
-        base: 'bignumber',
-        modified: 'bignumber',
-        ancestor: 'bignumber',
-        descendant: 'bignumber'
-      },
-      fee: 'bignumber',
-      modifiedfee: 'bignumber',
-      descendantfees: 'bignumber',
-      ancestorfees: 'bignumber'
-    })
+    return await this.client.call('getrawmempool', [verbose], 'bignumber')
   }
 }
 
@@ -228,21 +217,21 @@ export interface ScriptPubKey {
 
 export interface MempoolTx {
   [key: string]: {
-    vsize: number
+    vsize: BigNumber
     /**
      * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
      */
-    size: number
-    weight: number
+    size: BigNumber
+    weight: BigNumber
     fee: BigNumber
     modifiedfee: BigNumber
-    time: Date
-    height: number
-    descendantcount: number
-    descendantsize: number
+    time: BigNumber
+    height: BigNumber
+    descendantcount: BigNumber
+    descendantsize: BigNumber
     descendantfees: BigNumber
-    ancestorcount: number
-    ancestorsize: number
+    ancestorcount: BigNumber
+    ancestorsize: BigNumber
     ancestorfees: BigNumber
     wtxid: string
     fees: {
