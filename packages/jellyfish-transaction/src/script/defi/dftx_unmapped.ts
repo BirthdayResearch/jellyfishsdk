@@ -1,6 +1,6 @@
-import { SmartBuffer } from "smart-buffer";
-import { BufferComposer, ComposableBuffer } from "../../buffer/buffer_composer";
-import { Operation } from "./dftx";
+import { SmartBuffer } from 'smart-buffer'
+import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { Operation } from './dftx'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */

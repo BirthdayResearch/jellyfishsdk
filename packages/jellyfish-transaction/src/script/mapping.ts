@@ -5,8 +5,8 @@ import { OP_DUP } from './stack'
 import { OP_CHECKSIG, OP_HASH160 } from './crypto'
 import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 import { OP_PUSHDATA } from './data'
-import { DfTx } from "./defi/dftx";
-import { OP_DEFI_TX } from "./defi";
+import { DfTx } from './defi/dftx'
+import { OP_DEFI_TX } from './defi'
 
 /**
  * @param num to map as OPCode, 1 byte long

@@ -3,7 +3,7 @@ import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
 import { OPCode } from './opcode'
 import { numAsOPCode } from './mapping'
 import { OP_PUSHDATA } from './data'
-import { isDeFiScript, remapDeFiScript } from "./defi";
+import { remapDeFiScript } from './defi'
 
 export * from './bitwise'
 export * from './constants'

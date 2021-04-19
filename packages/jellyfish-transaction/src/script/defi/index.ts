@@ -1,9 +1,9 @@
-import { SmartBuffer } from "smart-buffer";
-import { OPCode } from "../opcode";
-import { OP_PUSHDATA } from "../data";
-import { OP_RETURN } from "../control";
-import { CDfTx, DfTx } from "./dftx";
-import { OP_CODES } from "../mapping";
+import { SmartBuffer } from 'smart-buffer'
+import { OPCode } from '../opcode'
+import { OP_PUSHDATA } from '../data'
+import { OP_RETURN } from '../control'
+import { CDfTx, DfTx } from './dftx'
+import { OP_CODES } from '../mapping'
 
 const DEFI_SIGNATURE = '44665478' // DfTx
 
@@ -39,7 +39,7 @@ export function remapDeFiScript (stack: OPCode[]): OPCode[] {
 
   return [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX(dftx.toObject()),
+    OP_CODES.OP_DEFI_TX(dftx.toObject())
   ]
 }
 
@@ -50,8 +50,8 @@ export class OP_DEFI_TX extends OPCode {
   public readonly tx: DfTx<any>
 
   constructor (tx: DfTx<any>) {
-    super('OP_DEFI_TX');
-    this.tx = tx;
+    super('OP_DEFI_TX')
+    this.tx = tx
   }
 
   asBuffer (): Buffer {

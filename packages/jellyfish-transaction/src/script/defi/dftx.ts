@@ -1,14 +1,10 @@
-import { SmartBuffer } from "smart-buffer";
-import { BufferComposer, ComposableBuffer } from "../../buffer/buffer_composer";
+import { SmartBuffer } from 'smart-buffer'
+import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import {
-  CPoolAddLiquidity,
-  CPoolRemoveLiquidity,
   CPoolSwap,
-  PoolAddLiquidity,
-  PoolRemoveLiquidity,
   PoolSwap
-} from "./dftx_pool";
-import { CUnmappedOperation, UnmappedOperation } from "./dftx_unmapped";
+} from './dftx_pool'
+import { CUnmappedOperation, UnmappedOperation } from './dftx_unmapped'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -16,10 +12,10 @@ import { CUnmappedOperation, UnmappedOperation } from "./dftx_unmapped";
 /**
  * DeFi Transaction
  */
-export interface DfTx<T extends Operation> {
+export interface DfTx<T> {
   signature: number // -------------------| 4 bytes, 0x44665478, DfTx
   type: number // ------------------------| 1 byte
-  operation: T // ------------------------| varying bytes, 0-n
+  data: T // -----------------------------| varying bytes, 0-n
 
   /**
    * Not composed into buffer, for readability only.
@@ -30,14 +26,6 @@ export interface DfTx<T extends Operation> {
   name: string
 }
 
-/**
- * DeFi Transaction Operational Data
- * They are the data for the DEFI_OP_<...>
- * They can be empty, depending on the op type.
- */
-export interface Operation {
-}
-
 export class CDfTx extends ComposableBuffer<DfTx<any>> {
   static SIGNATURE = 0x44665478
 
@@ -45,8 +33,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
     return [
       CDfTx.signature(dftx),
       ComposableBuffer.uInt8(() => dftx.type, v => dftx.type = v),
-      CDfTx.operation(dftx),
-    ];
+      CDfTx.operation(dftx)
+    ]
   }
 
   /**
@@ -74,20 +62,16 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
    * Operation data read/write composing
    */
   static operation (dftx: DfTx<any>): BufferComposer {
-    function compose<T extends Operation> (name: string, asC: (data: SmartBuffer | T) => ComposableBuffer<T>): BufferComposer {
+    function compose<T> (name: string, asC: (data: SmartBuffer | T) => ComposableBuffer<T>): BufferComposer {
       dftx.name = name
-      return ComposableBuffer.single<T>(() => dftx.operation, v => dftx.operation = v, asC)
+      return ComposableBuffer.single<T>(() => dftx.data, v => dftx.data = v, asC)
     }
 
     switch (dftx.type) {
       case CPoolSwap.TYPE:
-        return compose<PoolSwap>("DEFI_OP_POOL_SWAP", d => new CPoolSwap(d))
-      case CPoolAddLiquidity.TYPE:
-        return compose<PoolAddLiquidity>("DEFI_OP_POOL_ADD_LIQUIDITY", d => new CPoolAddLiquidity(d))
-      case CPoolRemoveLiquidity.TYPE:
-        return compose<PoolRemoveLiquidity>("DEFI_OP_POOL_REMOVE_LIQUIDITY", d => new CPoolRemoveLiquidity(d))
+        return compose<PoolSwap>('DEFI_OP_POOL_SWAP', d => new CPoolSwap(d))
       default:
-        return compose<UnmappedOperation>("DEFI_OP_UNMAPPED", d => new CUnmappedOperation(d))
+        return compose<UnmappedOperation>('DEFI_OP_UNMAPPED', d => new CUnmappedOperation(d))
     }
   }
 }

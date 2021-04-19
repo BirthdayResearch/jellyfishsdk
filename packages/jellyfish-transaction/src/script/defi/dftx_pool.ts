@@ -1,90 +1,52 @@
-import { BufferComposer, ComposableBuffer } from "../../buffer/buffer_composer";
-import { Operation } from "./dftx";
+import BigNumber from 'bignumber.js'
+import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
+import { SmartBuffer } from 'smart-buffer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
 
-export interface PoolSwap extends Operation {
-  // var bw = new BufferWriter();
-  //   bw.write(new Buffer(CUSTOM_SIGNATURE));
-  //   bw.write(new Buffer(customTxType.poolSwap));
-  //   bw = CScript.toBuffer(data.from, bw);
-  //   bw.writeVarintNum(Number(data.idTokenFrom));
-  //   bw.writeUInt64LEBN(BN.fromNumber(data.amountFrom * 100000000));
-  //   bw = CScript.toBuffer(data.to, bw);
-  //   bw.writeVarintNum(Number(data.idTokenTo));
-  //   if (data.maxPrice) {
-  //     bw.writeUInt64LEBN(BN.fromNumber(data.maxPrice / 100000000));
-  //     bw.writeUInt64LEBN(BN.fromNumber(data.maxPrice % 100000000));
-  //   } else {
-  //     bw.writeUInt64LEBN(new BN(String(INT64_MAX)));
-  //     bw.writeUInt64LEBN(new BN(String(INT64_MAX)));
-  //   }
-  //   return bw.toBuffer();
+/**
+ * A poolswap transaction.
+ */
+export interface PoolSwap {
+  fromScript: Script // ----------------| n = VarUInt{1-9 bytes}, + n bytes
+  fromTokenId: number // ---------------| VarUInt{1-9 bytes}
+  fromAmount: BigNumber // -------------| 8 bytes
+  toScript: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes
+  toTokenId: number // -----------------| VarUInt{1-9 bytes}
+  maxPrice: BigNumber // ---------------| 16 bytes
 }
 
+/**
+ * Composable PoolSwap, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   static TYPE = 0x73
 
-  composers (data: PoolSwap): BufferComposer[] {
-    return [];
+  composers (ps: PoolSwap): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => ps.fromScript, v => ps.fromScript = v, v => new CScript(v)),
+      ComposableBuffer.varUInt(() => ps.fromTokenId, v => ps.fromTokenId = v),
+      ComposableBuffer.satoshiAsBigNumber(() => ps.fromAmount, v => ps.fromAmount = v),
+      ComposableBuffer.single<Script>(() => ps.toScript, v => ps.toScript = v, v => new CScript(v)),
+      ComposableBuffer.varUInt(() => ps.toTokenId, v => ps.toTokenId = v),
+      {
+        fromBuffer (buffer: SmartBuffer) {
+          const integer = new BigNumber(buffer.readBigUInt64LE().toString())
+          const fraction = new BigNumber(buffer.readBigUInt64LE().toString()).dividedBy('100000000')
+          ps.maxPrice = integer.plus(fraction)
+        },
+        toBuffer (buffer: SmartBuffer) {
+          const maxPrice = ps.maxPrice
+          const integer: BigNumber = maxPrice.integerValue(BigNumber.ROUND_DOWN)
+          const fraction: BigNumber = maxPrice.minus(integer).multipliedBy('100000000')
+          buffer.writeBigUInt64LE(BigInt(integer.toString(10)))
+          buffer.writeBigUInt64LE(BigInt(fraction.toString(10)))
+        }
+      }
+    ]
   }
 }
-
-export interface PoolAddLiquidity extends Operation {
-
-  // $.checkArgument(data, 'data is required');
-  //   var bw = new BufferWriter();
-  //   bw.write(new Buffer(CUSTOM_SIGNATURE));
-  //   bw.write(new Buffer(customTxType.addPoolLiquidity));
-  //   var size = Object.keys(data.from).length;
-  //   bw.writeVarintNum(size);
-  //   for (var entry of  Object.entries(data.from)) {
-  //     bw = CScript.toBuffer(entry[0], bw);
-  //     bw = new CBalances(entry[1], bw);
-  //   }
-  //   bw = CScript.toBuffer(data.shareAddress, bw);
-  //   return bw.toBuffer();
-}
-
-export class CPoolAddLiquidity extends ComposableBuffer<PoolAddLiquidity> {
-  static TYPE = 0x6c
-
-  composers (data: PoolAddLiquidity): BufferComposer[] {
-    return [];
-  }
-
-  // $.checkArgument(data, 'data is required');
-  //   var bw = new BufferWriter();
-  //   bw.write(new Buffer(CUSTOM_SIGNATURE));
-  //   bw.write(new Buffer(customTxType.addPoolLiquidity));
-  //   var size = Object.keys(data.from).length;
-  //   bw.writeVarintNum(size);
-  //   for (var entry of  Object.entries(data.from)) {
-  //     bw = CScript.toBuffer(entry[0], bw);
-  //     bw = new CBalances(entry[1], bw);
-  //   }
-  //   bw = CScript.toBuffer(data.shareAddress, bw);
-  //   return bw.toBuffer();
-}
-
-export interface PoolRemoveLiquidity extends Operation {
-//  $.checkArgument(data, 'data is required');
-//   var bw = new BufferWriter();
-//   bw.write(new Buffer(CUSTOM_SIGNATURE));
-//   bw.write(new Buffer(customTxType.removePoolLiquidity));
-//   bw = CScript.toBuffer(data.from, bw);
-//   bw.writeVarintNum(data.nTokenId);
-//   bw.writeUInt64LEBN(BN.fromNumber(data.nValue * 100000000));
-//   return bw.toBuffer();
-}
-
-export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> {
-  static TYPE = 0x72
-
-  composers (data: PoolRemoveLiquidity): BufferComposer[] {
-    return [];
-  }
-}
-
-
