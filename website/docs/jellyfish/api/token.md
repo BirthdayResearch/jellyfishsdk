@@ -50,10 +50,10 @@ interface token {
       limit: 100
     },
     verbose = true
-  ): Promise<IToken>
+  ): Promise<TokenResult>
 }
 
-interface IToken {
+interface TokenResult {
   [id: string]: {
     symbol: string
     symbolKey: string
@@ -87,10 +87,10 @@ Returns information about token.
 
 ```ts title="client.token.getToken()"
 interface token {
-  getToken (symbol: string): Promise<IToken>
+  getToken (symbol: string): Promise<TokenResult>
 }
 
-interface IToken {
+interface TokenResult {
   [id: string]: {
     symbol: string
     symbolKey: string

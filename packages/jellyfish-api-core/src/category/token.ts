@@ -23,7 +23,7 @@ export class Token {
    * @param {CreateTokenUTXO[]} utxos array of specific UTXOs to spend
    * @param {string} utxos.txid
    * @param {number} utxos.vout
-   * @return Promise<string>
+   * @return {Promise<string>}
    */
   async createToken (metadata: CreateTokenMetadata, utxos: CreateTokenUTXO[] = []): Promise<string> {
     const defaultMetadata = {
@@ -42,7 +42,7 @@ export class Token {
    * @param {boolean} pagination.including_start
    * @param {number} pagination.limit
    * @param {boolean} verbose
-   * @return Promise<IToken>
+   * @return {Promise<TokenResult>}
    */
   async listTokens (
     pagination: TokenPagination = {
@@ -51,7 +51,7 @@ export class Token {
       limit: 100
     },
     verbose = true
-  ): Promise<IToken> {
+  ): Promise<TokenResult> {
     return await this.client.call('listtokens', [pagination, verbose], 'number')
   }
 
@@ -59,14 +59,14 @@ export class Token {
    * Return information about token
    *
    * @param {string} symbol
-   * @return Promise<Token>
+   * @return {Promise<TokenResult>}
    */
-  async getToken (symbol: string): Promise<IToken> {
+  async getToken (symbol: string): Promise<TokenResult> {
     return await this.client.call('gettoken', [symbol], 'number')
   }
 }
 
-export interface IToken {
+export interface TokenResult {
   [id: string]: {
     symbol: string
     symbolKey: string
