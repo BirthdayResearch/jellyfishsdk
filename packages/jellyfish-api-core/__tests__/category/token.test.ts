@@ -210,7 +210,7 @@ describe('masternode', () => {
     })
 
     // TODO(canonbrother): no error throw and its able to create same symbol and name
-    it('should be failed while creating token with existing symbol', async () => {
+    it.skip('should be failed while creating token with existing symbol', async () => {
       const address = await container.call('getnewaddress')
       const metadata = {
         symbol: 'DOA',
@@ -272,6 +272,7 @@ describe('masternode', () => {
       expect(tokenBefore.mintable).toBe(true)
       expect(tokenBefore.tradeable).toBe(true)
       expect(tokenBefore.finalized).toBe(false)
+      expect(tokenBefore.symbolKey).toBe(`DTEST#${tokenDTESTId}`)
 
       const data = await client.token.updateToken(`DTEST#${tokenDTESTId}`, {
         symbol: 'DDEST',
@@ -291,6 +292,8 @@ describe('masternode', () => {
       expect(tokenAfter.mintable).toBe(false)
       expect(tokenAfter.tradeable).toBe(false)
       expect(tokenAfter.finalized).toBe(false)
+      // NOTE(canonbrother): isDAT will not show the ID
+      expect(tokenAfter.symbolKey).toBe('DDEST')
     })
 
     it('should updateToken by token id', async () => {
