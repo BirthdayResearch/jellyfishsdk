@@ -92,6 +92,19 @@ describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
+  async function createToken (symbol: string, metadata?: any): Promise<void> {
+    const address = await container.call('getnewaddress')
+    const defaultMetadata = {
+      symbol,
+      name: symbol,
+      isDAT: false,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await client.token.createToken({ ...defaultMetadata, ...metadata })
+  }
+
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
@@ -196,8 +209,8 @@ describe('masternode', () => {
       }
     })
 
-    // TODO(canonbrother): no error throw
-    it.skip('should be failed while creating token with existing symbol', async () => {
+    // TODO(canonbrother): no error throw and its able to create same symbol and name
+    it('should be failed while creating token with existing symbol', async () => {
       const address = await container.call('getnewaddress')
       const metadata = {
         symbol: 'DOA',
@@ -211,8 +224,8 @@ describe('masternode', () => {
       expect(typeof data).toBe('string')
 
       await container.waitForWalletCoinbaseMaturity()
-      const tokensBefore = await client.token.listTokens()
-      console.log('tokensBefore: ', tokensBefore)
+      const tokens = await client.token.listTokens()
+      console.log('tokens: ', tokens)
 
       // const t: any = async () => {
       //   await client.token.createToken(metadata)
@@ -223,26 +236,88 @@ describe('masternode', () => {
         await container.waitForWalletCoinbaseMaturity()
         const tokensAfter = await client.token.listTokens()
         console.log('tokensAfter: ', tokensAfter)
+        // here listing DOA#130 and DOA#131 but symbol and name are same 'DOA'
       } catch (err) {
         console.log('err: ', err)
       }
     })
   })
 
-  describe('listTokens', () => {
-    async function createToken (symbol: string, metadata: any): Promise<void> {
-      const address = await container.call('getnewaddress')
-      const defaultMetadata = {
-        symbol,
-        name: symbol,
-        isDAT: false,
-        mintable: true,
-        tradeable: true,
-        collateralAddress: address
-      }
-      await client.token.createToken({ ...defaultMetadata, ...metadata })
-    }
+  describe('updateToken', () => {
+    let tokenDTESTId = ''
+    let tokenDABCId = ''
 
+    beforeAll(async () => {
+      await createToken('DTEST')
+      await createToken('DABC')
+      await container.waitForWalletCoinbaseMaturity()
+
+      const tokens = await client.token.listTokens()
+      for (const k in tokens) {
+        const token = tokens[k]
+        if (token.symbol === 'DTEST') {
+          tokenDTESTId = k
+        }
+        if (token.symbol === 'DABC') {
+          tokenDABCId = k
+        }
+      }
+    })
+
+    it('should updateToken', async () => {
+      const { [tokenDTESTId]: tokenBefore } = await client.token.getToken(`DTEST#${tokenDTESTId}`)
+      expect(tokenBefore.symbol).toBe('DTEST')
+      expect(tokenBefore.name).toBe('DTEST')
+      expect(tokenBefore.isDAT).toBe(false)
+      expect(tokenBefore.mintable).toBe(true)
+      expect(tokenBefore.tradeable).toBe(true)
+      expect(tokenBefore.finalized).toBe(false)
+
+      const data = await client.token.updateToken(`DTEST#${tokenDTESTId}`, {
+        symbol: 'DDEST',
+        name: 'DDEST',
+        isDAT: true,
+        mintable: false,
+        tradeable: false,
+        finalize: false
+      })
+      expect(typeof data).toBe('string')
+      await container.waitForWalletCoinbaseMaturity()
+
+      const { [tokenDTESTId]: tokenAfter } = await client.token.getToken('DDEST')
+      expect(tokenAfter.symbol).toBe('DDEST')
+      expect(tokenAfter.name).toBe('DDEST')
+      expect(tokenAfter.isDAT).toBe(true)
+      expect(tokenAfter.mintable).toBe(false)
+      expect(tokenAfter.tradeable).toBe(false)
+      expect(tokenAfter.finalized).toBe(false)
+    })
+
+    it('should updateToken by token id', async () => {
+      const { [tokenDABCId]: tokenBefore } = await client.token.getToken(`DABC#${tokenDABCId}`)
+      expect(tokenBefore.mintable).toBe(true)
+
+      await client.token.updateToken(tokenDABCId, { mintable: false })
+      await container.waitForWalletCoinbaseMaturity()
+
+      const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
+      expect(tokenAfter.mintable).toBe(false)
+    })
+
+    it('should updateToken by creationTx', async () => {
+      const { [tokenDABCId]: tokenBefore } = await client.token.getToken(`DABC#${tokenDABCId}`)
+      expect(tokenBefore.tradeable).toBe(true)
+
+      const { creationTx } = tokenBefore
+      await client.token.updateToken(creationTx, { tradeable: false })
+      await container.waitForWalletCoinbaseMaturity()
+
+      const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
+      expect(tokenAfter.tradeable).toBe(false)
+    })
+  })
+
+  describe('listTokens', () => {
     beforeAll(async () => {
       await createToken('DBTC', { isDAT: true })
       await createToken('DNOTMINT', { mintable: false })

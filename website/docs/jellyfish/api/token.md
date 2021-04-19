@@ -15,7 +15,7 @@ const something = await client.token.method()
 
 ## createToken
 
-Returns information about tokens.
+Creates a token with given metadata.
 
 ```ts title="client.token.createToken()"
 interface token {
@@ -34,6 +34,25 @@ interface CreateTokenMetadata {
 interface CreateTokenUTXO {
   txid: string
   vout: number
+}
+```
+
+## updateToken
+
+Updates a token with given metadata.
+
+```ts title="client.token.updateToken()"
+interface token {
+  updateToken (token: string, metadata?: UpdateTokenMetadata): Promise<string>
+}
+
+interface UpdateTokenMetadata {
+  symbol?: string
+  name?: string
+  isDAT?: boolean
+  mintable?: boolean
+  tradeable?: boolean
+  finalize?: boolean
 }
 ```
 
@@ -87,7 +106,7 @@ Returns information about token.
 
 ```ts title="client.token.getToken()"
 interface token {
-  getToken (symbol: string): Promise<TokenResult>
+  getToken (symbolKey: string): Promise<TokenResult>
 }
 
 interface TokenResult {

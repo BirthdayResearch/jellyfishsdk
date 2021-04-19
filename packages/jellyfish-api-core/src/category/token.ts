@@ -35,6 +35,23 @@ export class Token {
   }
 
   /**
+   * Updates a token with given metadata
+   *
+   * @param {string} token symbolKey, id ror creation tx
+   * @param {UpdateTokenMetadata=} metadata
+   * @param {string=} metadata.symbol
+   * @param {string=} metadata.name
+   * @param {boolean=} metadata.isDAT
+   * @param {boolean=} metadata.mintable
+   * @param {boolean=} metadata.tradeable
+   * @param {boolean=} metadata.finalize
+   * @return {Promise<string>}
+   */
+  async updateToken (token: string, metadata?: UpdateTokenMetadata): Promise<string> {
+    return await this.client.call('updatetoken', [token, metadata], 'number')
+  }
+
+  /**
    * Returns information about tokens
    *
    * @param {TokenPagination} pagination
@@ -58,11 +75,11 @@ export class Token {
   /**
    * Return information about token
    *
-   * @param {string} symbol
+   * @param {string} symbolKey
    * @return {Promise<TokenResult>}
    */
-  async getToken (symbol: string): Promise<TokenResult> {
-    return await this.client.call('gettoken', [symbol], 'number')
+  async getToken (symbolKey: string): Promise<TokenResult> {
+    return await this.client.call('gettoken', [symbolKey], 'number')
   }
 }
 
@@ -94,6 +111,15 @@ export interface CreateTokenMetadata {
   mintable: boolean
   tradeable: boolean
   collateralAddress: string
+}
+
+export interface UpdateTokenMetadata {
+  symbol?: string
+  name?: string
+  isDAT?: boolean
+  mintable?: boolean
+  tradeable?: boolean
+  finalize?: boolean
 }
 
 export interface CreateTokenUTXO {
