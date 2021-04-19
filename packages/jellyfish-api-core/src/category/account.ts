@@ -13,34 +13,34 @@ export class Account {
   /**
    * Returns information about all accounts on chain
    *
-   * @param pagination
-   * @param pagination.start
-   * @param pagination.including_start
-   * @param pagination.limit
-   * @param verbose default = true, otherwise limited objects are listed
-   * @param indexedAmounts format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
-   * @param isMineOnly get balances about all accounts belonging to the wallet
+   * @param {AccountPagination=} pagination
+   * @param {string} pagination.start
+   * @param {boolean} pagination.including_start
+   * @param {number} pagination.limit
+   * @param {boolean} verbose default = true, otherwise limited objects are listed
+   * @param {boolean} indexedAmounts format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
+   * @param {boolean} isMineOnly get balances about all accounts belonging to the wallet
    * @return Promise<IAccount>
    */
   async listAccounts (
     pagination: AccountPagination = {
-      start: '',
-      including_start: true,
+      // start: '',
+      including_start: false,
       limit: 100
     }, verbose = true, indexedAmounts = false, isMineOnly = false
   ): Promise<any> {
-    return await this.client.call('listaccounts', [{}, verbose, indexedAmounts, isMineOnly], 'number')
+    return await this.client.call('listaccounts', [pagination, verbose, indexedAmounts, isMineOnly], 'number')
   }
 
   /**
    * Returns information about account
    *
-   * @param owner adress in base58/bech32/hex encoding
-   * @param pagination
-   * @param pagination.start
-   * @param pagination.including_start
-   * @param pagination.limit
-   * @param indexedAmounts format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
+   * @param {string} owner address in base58/bech32/hex encoding
+   * @param {AccountPagination} pagination
+   * @param {string} pagination.start
+   * @param {boolean} pagination.including_start
+   * @param {number} pagination.limit
+   * @param {boolean} indexedAmounts format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @return Promise<IAccount>
    */
   async getAccount (owner: string, pagination: AccountPagination = {
@@ -53,12 +53,13 @@ export class Account {
 
   /**
    * Returns the balances of all accounts that belong to the wallet
-   * @param pagination
-   * @param pagination.start
-   * @param pagination.including_start
-   * @param pagination.limit
-   * @param indexedAmounts format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
-   * @param symbolLookup use token symbols in output, default = false
+   *
+   * @param {AccountPagination} pagination
+   * @param {string} pagination.start
+   * @param {boolean} pagination.including_start
+   * @param {number} pagination.limit
+   * @param {boolean} indexedAmounts format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
+   * @param {boolean} symbolLookup use token symbols in output, default = false
    * @return
    */
   async getTokenBalances (
@@ -74,27 +75,35 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param owner
-   * @param options
-   * @param options.maxBlockHeight
-   * @param options.depth
-   * @param options.no_rewards
-   * @param options.token
-   * @param options.txtype
-   * @param options.limit
+   * @param {string=} owner
+   * @param {AccountHistoryOptions=} options
+   * @param {number=} options.maxBlockHeight Optional height to iterate from (downto genesis block), (default = chaintip).
+   * @param {number=} options.depth Maximum depth, from the genesis block is the default
+   * @param {boolean=} options.no_rewards Filter out rewards
+   * @param {string=} options.token Filter by token
+   * @param {string=} options.txtype Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG
+   * @param {number=} options.limit Maximum number of records to return, 100 by default
    * @return
    */
-  async listAccountHistory (): Promise<any> {
-    return await this.client.call('listaccounthistory', [], 'number')
+  async listAccountHistory (owner?: string, options?: AccountHistoryOptions): Promise<any> {
+    return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 }
 
 export interface AccountPagination {
-  start: string
-  including_start: boolean
-  limit: number
+  start?: string
+  including_start?: boolean
+  limit?: number
 }
 
 // export interface IAccount {
-
 // }
+
+export interface AccountHistoryOptions {
+  maxBlockHeight: number
+  depth: number
+  no_rewards: boolean
+  token: string
+  txtype: string
+  limit: number
+}
