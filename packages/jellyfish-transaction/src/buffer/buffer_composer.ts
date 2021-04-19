@@ -82,6 +82,18 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * @return BufferComposer that does nothing
+   */
+  static empty (): BufferComposer {
+    return {
+      fromBuffer (buffer: SmartBuffer): void {
+      },
+      toBuffer (buffer: SmartBuffer): void {
+      }
+    }
+  }
+
+  /**
    * The length of the array is set with VarUInt in the first sequence of 1 - 9 bytes.
    *
    * @param getter to read array of ComposableBuffer Object from to buffer

@@ -153,6 +153,24 @@ describe('ComposableBuffer deep implementation', () => {
   })
 })
 
+describe('ComposableBuffer.empty', () => {
+  const composer = ComposableBuffer.empty()
+
+  it('toBuffer should do nothing', () => {
+    const buffer = SmartBuffer.fromBuffer(Buffer.from('0001', 'hex'))
+    composer.toBuffer(buffer)
+
+    expect(buffer.readUInt8()).toBe(0)
+  })
+
+  it('fromBuffer should do nothing', () => {
+    const buffer = new SmartBuffer()
+    composer.fromBuffer(buffer)
+
+    expect(buffer.length).toBe(0)
+  })
+})
+
 describe('ComposableBuffer.varUIntArray', () => {
   interface VarItem {
     val: number // 2 bytes
