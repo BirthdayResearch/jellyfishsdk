@@ -39,6 +39,7 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
       CDfTx.signature(dftx),
       ComposableBuffer.uInt8(() => dftx.type, v => dftx.type = v),
       {
+        // This is not exactly an performant design, but it is succinct
         fromBuffer (buffer: SmartBuffer) {
           return CDfTx.data(dftx).fromBuffer(buffer)
         },
