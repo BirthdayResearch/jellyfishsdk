@@ -209,13 +209,12 @@ describe('masternode', () => {
       }
     })
 
-    // TODO(canonbrother): no error throw and its able to create same symbol and name
-    it.skip('should be failed while creating token with existing symbol', async () => {
+    it('should be failed while creating token with existing symbol', async () => {
       const address = await container.call('getnewaddress')
       const metadata = {
         symbol: 'DOA',
         name: 'DOA',
-        isDAT: false,
+        isDAT: true,
         mintable: true,
         tradeable: true,
         collateralAddress: address
@@ -224,22 +223,9 @@ describe('masternode', () => {
       expect(typeof data).toBe('string')
 
       await container.waitForWalletCoinbaseMaturity()
-      const tokens = await client.token.listTokens()
-      console.log('tokens: ', tokens)
 
-      // const t: any = async () => {
-      //   await client.token.createToken(metadata)
-      // }
-      // expect(t).toThrow()
-      try {
-        await client.token.createToken(metadata)
-        await container.waitForWalletCoinbaseMaturity()
-        const tokensAfter = await client.token.listTokens()
-        console.log('tokensAfter: ', tokensAfter)
-        // here listing DOA#130 and DOA#131 but symbol and name are same 'DOA'
-      } catch (err) {
-        console.log('err: ', err)
-      }
+      const promise = client.token.createToken(metadata)
+      await expect(promise).rejects.toThrow()
     })
   })
 
