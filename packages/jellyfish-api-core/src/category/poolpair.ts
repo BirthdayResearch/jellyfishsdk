@@ -79,6 +79,21 @@ export class PoolPair {
   }
 
   /**
+   * Add pool liquidity transaction
+   *
+   * @param from
+   * @param from[address] provides at least two types of token with format 'amoun@token'
+   * @param shareAddress defi address for crediting tokens
+   * @param inputs
+   * @param inputs.txid
+   * @param inputs.vout
+   * @return {Promise<any>}
+   */
+  async addPoolLiquidity (from: any, shareAddress: string, inputs?: string[]): Promise<any> {
+    return await this.client.call('addpoolliquidity', [from, shareAddress, inputs], 'number')
+  }
+
+  /**
    * Returns information about pool shares
    *
    * @param {PoolPairPagination} pagination

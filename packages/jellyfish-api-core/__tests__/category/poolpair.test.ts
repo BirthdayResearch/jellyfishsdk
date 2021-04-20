@@ -18,7 +18,7 @@ describe('masternode', () => {
     await container.call('createtoken', [metadata])
   }
 
-  async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
+  async function createPoolPair (tokenB: string, metadata?: any): Promise<string> {
     const address = await container.call('getnewaddress')
     const defaultMetadata = {
       tokenA: 'DFI',
@@ -28,6 +28,8 @@ describe('masternode', () => {
       ownerAddress: address
     }
     await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
+
+    return address
   }
 
   beforeAll(async () => {
@@ -148,47 +150,47 @@ describe('masternode', () => {
 
       expect(points).toBe(3)
     })
-  })
 
-  it('should listPoolPairs with pagination and return an empty object as out of range', async () => {
-    const pagination = {
-      start: 300,
-      including_start: true,
-      limit: 100
-    }
-    const poolpairs = await client.poolpair.listPoolPairs(pagination)
+    it('should listPoolPairs with pagination and return an empty object as out of range', async () => {
+      const pagination = {
+        start: 300,
+        including_start: true,
+        limit: 100
+      }
+      const poolpairs = await client.poolpair.listPoolPairs(pagination)
 
-    expect(Object.keys(poolpairs).length).toBe(0)
-  })
+      expect(Object.keys(poolpairs).length).toBe(0)
+    })
 
-  it('should listPoolPairs with pagination limit', async () => {
-    const pagination = {
-      start: 0,
-      including_start: true,
-      limit: 2
-    }
-    const poolpairs = await client.poolpair.listPoolPairs(pagination)
+    it('should listPoolPairs with pagination limit', async () => {
+      const pagination = {
+        start: 0,
+        including_start: true,
+        limit: 2
+      }
+      const poolpairs = await client.poolpair.listPoolPairs(pagination)
 
-    expect(Object.keys(poolpairs).length).toBe(2)
-  })
+      expect(Object.keys(poolpairs).length).toBe(2)
+    })
 
-  it('should listPoolPairs with verbose false', async () => {
-    const pagination = {
-      start: 0,
-      including_start: true,
-      limit: 100
-    }
-    const poolpairs = await client.poolpair.listPoolPairs(pagination, false)
+    it('should listPoolPairs with verbose false', async () => {
+      const pagination = {
+        start: 0,
+        including_start: true,
+        limit: 100
+      }
+      const poolpairs = await client.poolpair.listPoolPairs(pagination, false)
 
-    for (const k in poolpairs) {
-      const poolpair = poolpairs[k]
+      for (const k in poolpairs) {
+        const poolpair = poolpairs[k]
 
-      expect(typeof poolpair.symbol).toBe('string')
-      expect(typeof poolpair.name).toBe('string')
-      expect(typeof poolpair.status).toBe('boolean')
-      expect(typeof poolpair.idTokenA).toBe('string')
-      expect(typeof poolpair.idTokenB).toBe('string')
-    }
+        expect(typeof poolpair.symbol).toBe('string')
+        expect(typeof poolpair.name).toBe('string')
+        expect(typeof poolpair.status).toBe('boolean')
+        expect(typeof poolpair.idTokenA).toBe('string')
+        expect(typeof poolpair.idTokenB).toBe('string')
+      }
+    })
   })
 
   describe('getPoolPair', () => {
@@ -234,6 +236,35 @@ describe('masternode', () => {
         expect(typeof data.idTokenA).toBe('string')
         expect(typeof data.idTokenB).toBe('string')
       }
+    })
+  })
+
+  describe.only('addPoolLiquidity', () => {
+    let DDAI_ADDRESS = ''
+
+    beforeAll(async () => {
+      await createToken('DDAI')
+      await container.waitForWalletCoinbaseMaturity()
+
+      DDAI_ADDRESS = await createPoolPair('DDAI')
+      await container.waitForWalletCoinbaseMaturity()
+    })
+
+    it('should addPoolLiquidity', async () => {
+      const aliceAddress = await container.call('getnewaddress')
+      const bobAddress = await container.call('getnewaddress')
+      console.log('addr: ', aliceAddress, bobAddress, DDAI_ADDRESS)
+
+      const data = await client.poolpair.addPoolLiquidity({
+        [aliceAddress]: '300000000@DFI',
+        [bobAddress]: '30000000000000000@DDAI'
+      }, DDAI_ADDRESS)
+
+      // const data = await client.poolpair.addPoolLiquidity({'*': [
+      //   '300000000@DFI', '30000000000000000@DDAI',
+      // ]}, DDAI_ADDRESS)
+
+      console.log('data: ', data)
     })
   })
 
