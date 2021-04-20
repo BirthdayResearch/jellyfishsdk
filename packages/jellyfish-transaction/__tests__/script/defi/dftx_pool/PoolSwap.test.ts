@@ -53,7 +53,7 @@ const poolSwap: PoolSwap = {
   }
 }
 
-it('should craft dftx with OP_CODES.OP_DEFI_TX_POOL_SWAP', () => {
+it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
     OP_CODES.OP_DEFI_TX_POOL_SWAP(poolSwap)
@@ -64,14 +64,14 @@ it('should craft dftx with OP_CODES.OP_DEFI_TX_POOL_SWAP', () => {
 })
 
 describe('Composable', () => {
-  it('should compose from buffer to poolswap', () => {
+  it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CPoolSwap(buffer)
 
     expect(composable.toObject()).toEqual(poolSwap)
   })
 
-  it('should compose from poolswap to buffer', () => {
+  it('should compose from composable to buffer', () => {
     const composable = new CPoolSwap(poolSwap)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)

@@ -48,7 +48,7 @@ const poolAddLiquidity: PoolAddLiquidity = {
   }
 }
 
-it('should craft dftx with OP_CODES.OP_DEFI_TX_POOL_SWAP', () => {
+it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
     OP_CODES.OP_DEFI_TX_POOL_ADD_LIQUIDITY(poolAddLiquidity)
@@ -59,14 +59,14 @@ it('should craft dftx with OP_CODES.OP_DEFI_TX_POOL_SWAP', () => {
 })
 
 describe('Composable', () => {
-  it('should compose from buffer to poolswap', () => {
+  it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CPoolAddLiquidity(buffer)
 
     expect(composable.toObject()).toEqual(poolAddLiquidity)
   })
 
-  it('should compose from poolswap to buffer', () => {
+  it('should compose from composable to buffer', () => {
     const composable = new CPoolAddLiquidity(poolAddLiquidity)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
