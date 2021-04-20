@@ -3,7 +3,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness } from './tx'
 import scripting, { OP_CODES, OP_PUSHDATA } from './script'
 import { CWitnessProgram, WitnessProgram } from './tx_segwit'
-import { DeFiTransaction } from './index'
+import { DeFiTransactionConstants } from './index'
 import { writeVarUInt } from './buffer/buffer_varuint'
 
 export enum SIGHASH {
@@ -184,8 +184,8 @@ export const TransactionSigner = {
 
     return {
       version: transaction.version,
-      marker: DeFiTransaction.WitnessMarker,
-      flag: DeFiTransaction.WitnessFlag,
+      marker: DeFiTransactionConstants.WitnessMarker,
+      flag: DeFiTransactionConstants.WitnessFlag,
       vin: transaction.vin,
       vout: transaction.vout,
       witness: witnesses,
@@ -200,8 +200,8 @@ export const TransactionSigner = {
       throw new Error('vin.length and inputOptions.length must match')
     }
 
-    if (version && transaction.version !== DeFiTransaction.Version) {
-      throw new Error(`option.validate.version = true - trying to sign a txn ${transaction.version} different from ${DeFiTransaction.Version} is not supported`)
+    if (version && transaction.version !== DeFiTransactionConstants.Version) {
+      throw new Error(`option.validate.version = true - trying to sign a txn ${transaction.version} different from ${DeFiTransactionConstants.Version} is not supported`)
     }
 
     if (lockTime && transaction.lockTime !== 0) {
