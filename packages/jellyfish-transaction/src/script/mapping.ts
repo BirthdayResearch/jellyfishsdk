@@ -7,7 +7,14 @@ import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 import { OP_PUSHDATA } from './data'
 import { CDfTx, DfTx } from './defi/dftx'
 import { OP_DEFI_TX } from './defi'
-import { CPoolAddLiquidity, CPoolSwap, PoolAddLiquidity, PoolSwap } from './defi/dftx_pool'
+import {
+  CPoolAddLiquidity,
+  CPoolRemoveLiquidity,
+  CPoolSwap,
+  PoolAddLiquidity,
+  PoolRemoveLiquidity,
+  PoolSwap
+} from './defi/dftx_pool'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -56,6 +63,14 @@ export const OP_CODES = {
       type: CPoolAddLiquidity.OP_CODE,
       name: CPoolAddLiquidity.OP_NAME,
       data: poolAddLiquidity
+    })
+  },
+  OP_DEFI_TX_POOL_REMOVE_LIQUIDITY: (poolRemoveLiquidity: PoolRemoveLiquidity): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPoolRemoveLiquidity.OP_CODE,
+      name: CPoolRemoveLiquidity.OP_NAME,
+      data: poolRemoveLiquidity
     })
   },
   OP_0: new OP_0(),
