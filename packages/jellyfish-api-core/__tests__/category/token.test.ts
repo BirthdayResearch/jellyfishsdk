@@ -1,5 +1,6 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
+import waitForExpect from 'wait-for-expect'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -16,6 +17,11 @@ describe('non masternode', () => {
 
   describe('listTokens', () => {
     it('should listTokens', async () => {
+      await waitForExpect(async () => {
+        const tokens = await client.token.listTokens()
+        expect(Object.keys(tokens).length).toBeGreaterThan(0)
+      })
+
       const token = await client.token.listTokens()
       const data = token['0']
 
@@ -38,14 +44,16 @@ describe('non masternode', () => {
     })
 
     it('should listTokens with pagination and return an empty object as out of range', async () => {
-      const pagination = {
-        start: 300,
-        including_start: true,
-        limit: 100
-      }
-      const token = await client.token.listTokens(pagination)
+      await waitForExpect(async () => {
+        const pagination = {
+          start: 300,
+          including_start: true,
+          limit: 100
+        }
+        const token = await client.token.listTokens(pagination)
 
-      expect(Object.keys(token).length).toBe(0)
+        expect(Object.keys(token).length).toBe(0)
+      })
     })
 
     it('should listTokens with verbose false', async () => {
@@ -54,9 +62,14 @@ describe('non masternode', () => {
         including_start: true,
         limit: 100
       }
-      const token = await client.token.listTokens(pagination, false)
-      const data = token['0']
 
+      await waitForExpect(async () => {
+        const tokens = await client.token.listTokens(pagination, false)
+        expect(Object.keys(tokens).length).toBeGreaterThan(0)
+      })
+
+      const tokens = await client.token.listTokens(pagination, false)
+      const data = tokens['0']
       expect(data.symbol).toBe('DFI')
       expect(data.symbolKey).toBe('DFI')
       expect(data.name).toBe('Default Defi token')
@@ -65,6 +78,11 @@ describe('non masternode', () => {
 
   describe('getToken', () => {
     it('should getToken', async () => {
+      await waitForExpect(async () => {
+        const token = await client.token.getToken('DFI')
+        expect(Object.keys(token).length).toBeGreaterThan(0)
+      })
+
       const token = await client.token.getToken('DFI')
       const data = token['0']
 
@@ -122,7 +140,6 @@ describe('masternode', () => {
       expect(numberOfTokens).toBe(1)
 
       const address = await container.call('getnewaddress')
-
       const metadata = {
         symbol: 'DDD',
         name: 'DDD',
@@ -131,10 +148,11 @@ describe('masternode', () => {
         tradeable: true,
         collateralAddress: address
       }
+
       const data = await client.token.createToken(metadata)
       expect(typeof data).toBe('string')
 
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(1)
       numberOfTokens += 1
 
       const tokensAfter = await client.token.listTokens()
@@ -176,17 +194,22 @@ describe('masternode', () => {
         tradeable: true,
         collateralAddress: address
       }
+
       const data = await client.token.createToken(metadata, [{
         txid: utxos[0].txid,
         vout: utxos[0].vout
       }])
       expect(typeof data).toBe('string')
 
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(1)
       numberOfTokens += 1
 
+      await waitForExpect(async () => {
+        const tokensAfter = await client.token.listTokens()
+        expect(Object.keys(tokensAfter).length).toBe(numberOfTokens)
+      })
+
       const tokensAfter = await client.token.listTokens()
-      expect(Object.keys(tokensAfter).length).toBe(numberOfTokens)
       for (const k in tokensAfter) {
         if (tokensAfter[k].symbol === metadata.symbol) {
           const newToken = tokensAfter[k]
@@ -222,7 +245,7 @@ describe('masternode', () => {
       const data = await client.token.createToken(metadata)
       expect(typeof data).toBe('string')
 
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(1)
 
       const promise = client.token.createToken(metadata)
       await expect(promise).rejects.toThrow()
@@ -236,7 +259,7 @@ describe('masternode', () => {
     beforeAll(async () => {
       await createToken('DTEST')
       await createToken('DABC')
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(2)
 
       const tokens = await client.token.listTokens()
       for (const k in tokens) {
@@ -269,7 +292,7 @@ describe('masternode', () => {
         finalize: false
       })
       expect(typeof data).toBe('string')
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(1)
 
       const { [tokenDTESTId]: tokenAfter } = await client.token.getToken('DDEST')
       expect(tokenAfter.symbol).toBe('DDEST')
@@ -287,7 +310,7 @@ describe('masternode', () => {
       expect(tokenBefore.mintable).toBe(true)
 
       await client.token.updateToken(tokenDABCId, { mintable: false })
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(1)
 
       const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
       expect(tokenAfter.mintable).toBe(false)
@@ -299,7 +322,7 @@ describe('masternode', () => {
 
       const { creationTx } = tokenBefore
       await client.token.updateToken(creationTx, { tradeable: false })
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(1)
 
       const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
       expect(tokenAfter.tradeable).toBe(false)
@@ -311,13 +334,16 @@ describe('masternode', () => {
       await createToken('DBTC', { isDAT: true })
       await createToken('DNOTMINT', { mintable: false })
       await createToken('DNOTTRAD', { tradeable: false })
-      await container.waitForWalletCoinbaseMaturity()
+      await container.generate(3)
     })
 
     it('should listTokens', async () => {
-      const tokens = await client.token.listTokens()
-      expect(Object.keys(tokens).length).toBeGreaterThan(3)
+      await waitForExpect(async () => {
+        const tokens = await client.token.listTokens()
+        expect(Object.keys(tokens).length).toBeGreaterThan(3)
+      })
 
+      const tokens = await client.token.listTokens()
       for (const k in tokens) {
         const token = tokens[k]
         expect(token.decimal).toBe(8)
@@ -400,6 +426,12 @@ describe('masternode', () => {
         including_start: true,
         limit: 100
       }
+
+      await waitForExpect(async () => {
+        const token = await client.token.listTokens(pagination, false)
+        expect(Object.keys(token).length).toBeGreaterThan(0)
+      })
+
       const token = await client.token.listTokens(pagination, false)
       const data = token['0']
 
@@ -411,6 +443,11 @@ describe('masternode', () => {
 
   describe('getToken', () => {
     it('should getToken', async () => {
+      await waitForExpect(async () => {
+        const token = await client.token.getToken('DFI')
+        expect(Object.keys(token).length).toBeGreaterThan(0)
+      })
+
       const token = await client.token.getToken('DFI')
       const data = token['0']
 
