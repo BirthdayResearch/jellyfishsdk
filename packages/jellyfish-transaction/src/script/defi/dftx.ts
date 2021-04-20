@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import {
-  CPoolSwap,
+  CPoolAddLiquidity, CPoolSwap, PoolAddLiquidity,
   PoolSwap
 } from './dftx_pool'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
@@ -83,6 +83,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
     switch (dftx.type) {
       case CPoolSwap.OP_CODE:
         return compose<PoolSwap>(CPoolSwap.OP_NAME, d => new CPoolSwap(d))
+      case CPoolAddLiquidity.OP_CODE:
+        return compose<PoolAddLiquidity>(CPoolAddLiquidity.OP_NAME, d => new CPoolAddLiquidity(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
