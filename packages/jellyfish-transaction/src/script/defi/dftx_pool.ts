@@ -112,3 +112,29 @@ export class CTokenBalance extends ComposableBuffer<TokenBalance> {
     ]
   }
 }
+
+/**
+ * PoolRemoveLiquidity DeFi Transaction
+ */
+export interface PoolRemoveLiquidity {
+  script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
+  tokenId: number // -------------------| VarUInt{1-9 bytes}
+  amount: BigNumber // -----------------| 8 bytes
+}
+
+/**
+ * Composable PoolRemoveLiquidity, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> {
+  static OP_CODE = 0x72
+  static OP_NAME = 'DEFI_OP_POOL_REMOVE_LIQUIDITY'
+
+  composers (p: PoolRemoveLiquidity): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => p.script, v => p.script = v, v => new CScript(v)),
+      ComposableBuffer.varUInt(() => p.tokenId, v => p.tokenId = v),
+      ComposableBuffer.satoshiAsBigNumber(() => p.amount, v => p.amount = v)
+    ]
+  }
+}
