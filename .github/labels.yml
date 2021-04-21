@@ -63,7 +63,7 @@
 - color: fbca04
   name: area/jellyfish-api-jsonrpc
 - color: fbca04
-  name: area/jellyfish-api-ocean
+  name: area/jellyfish-api-whale
 - color: fbca04
   name: area/jellyfish-crypto
 - color: fbca04
@@ -75,7 +75,7 @@
 - color: fbca04
   name: area/jellyfish-wallet
 - color: fbca04
-  name: area/jellyfish-wallet-ocean
+  name: area/jellyfish-wallet-whale
 - color: fbca04
   name: area/jellyfish-wallet-mnemonic
 - color: fbca04

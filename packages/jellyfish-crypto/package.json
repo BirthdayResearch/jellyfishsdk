@@ -27,7 +27,10 @@
     }
   ],
   "main": "dist",
-  "types": "dist",
+  "exports": {
+    "./": "./dist/index.js",
+    "./*": "./dist/*.js"
+  },
   "files": [
     "dist"
   ],

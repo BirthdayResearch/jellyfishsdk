@@ -3,10 +3,10 @@ import { Network } from '@defichain/jellyfish-network'
 import { HRP, toBech32 } from '@defichain/jellyfish-crypto'
 
 /**
- * jellyfish-api-ocean implementation of WalletAccount.
+ * jellyfish-api-whale implementation of WalletAccount.
  * All stateless and stateful node service is provided by an ocean instance.
  */
-export class OceanWalletAccount implements WalletAccount {
+export class WhaleWalletAccount implements WalletAccount {
   private readonly hdNode: WalletHdNode
   private readonly network: Network
 
@@ -29,18 +29,18 @@ export class OceanWalletAccount implements WalletAccount {
 }
 
 /**
- * Provide OceanWalletAccount with upstream to DeFi ocean services.
+ * Provide WhaleWalletAccount with upstream to DeFi whale services.
  */
-export class OceanWalletAccountProvider implements WalletAccountProvider<OceanWalletAccount> {
+export class WhaleWalletAccountProvider implements WalletAccountProvider<WhaleWalletAccount> {
   private readonly network: Network
 
-  // TODO(fuxingloh): to implement after 'jellyfish-api-ocean'
+  // TODO(fuxingloh): to implement after 'jellyfish-api-whale'
 
   constructor (network: Network) {
     this.network = network
   }
 
-  provide (hdNode: WalletHdNode): OceanWalletAccount {
-    return new OceanWalletAccount(hdNode, this.network)
+  provide (hdNode: WalletHdNode): WhaleWalletAccount {
+    return new WhaleWalletAccount(hdNode, this.network)
   }
 }
