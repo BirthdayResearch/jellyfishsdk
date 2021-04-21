@@ -26,11 +26,8 @@
       "name": "DeFi Jellyfish Contributors"
     }
   ],
-  "main": "dist",
-  "exports": {
-    "./": "./dist/index.js",
-    "./*": "./dist/*.js"
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],

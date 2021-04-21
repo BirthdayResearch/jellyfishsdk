@@ -100,6 +100,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
     })
 
+    await new Promise((resolve) => {
+      // 1 second delay before stopping due to race conditions
+      setTimeout(_ => resolve(0), 1000)
+    })
+
     // restart and wait for ready
     await this.container?.stop()
     await this.container?.start()
