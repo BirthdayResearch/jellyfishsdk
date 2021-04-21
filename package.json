@@ -27,12 +27,6 @@
     "test": "jest",
     "all": "npm run build && npm run standard && npm run test"
   },
-  "jest": {
-    "collectCoverageFrom": [
-      "packages/**/*.{ts,js}",
-      "!packages/**/__tests__/**"
-    ]
-  },
   "devDependencies": {
     "@size-limit/preset-app": "^4.10.1",
     "@types/jest": "^26.0.22",
