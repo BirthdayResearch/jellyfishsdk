@@ -25,6 +25,7 @@
     "publish:latest": "lerna run publish:latest",
     "standard": "ts-standard --fix",
     "test": "jest",
+    "test:ci": "jest --ci --coverage --forceExit",
     "all": "npm run build && npm run standard && npm run test"
   },
   "devDependencies": {
