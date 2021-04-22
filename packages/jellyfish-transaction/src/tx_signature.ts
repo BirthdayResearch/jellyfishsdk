@@ -5,6 +5,7 @@ import scripting, { OP_CODES, OP_PUSHDATA } from './script'
 import { CWitnessProgram, WitnessProgram } from './tx_segwit'
 import { DeFiTransactionConstants } from './index'
 import { writeVarUInt } from './buffer/buffer_varuint'
+import { ONE_HUNDRED_MILLION, writeBigNumberUInt64 } from './buffer/buffer_bignumber'
 
 export enum SIGHASH {
   ALL = 0x01,
@@ -72,9 +73,8 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
 
   const buffer = new SmartBuffer()
   for (const vout of transaction.vout) {
-    const bigInt = BigInt(vout.value.multipliedBy('100000000').toString(10))
-
-    buffer.writeBigUInt64LE(bigInt)
+    const satoshi = vout.value.multipliedBy(ONE_HUNDRED_MILLION)
+    writeBigNumberUInt64(satoshi, buffer)
     scripting.fromOpCodesToBuffer(vout.script.stack, buffer)
     writeVarUInt(vout.dct_id, buffer)
   }
@@ -84,8 +84,8 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
 /**
  * If script is not provided, it needs to be guessed
  *
- * @param vin of the script
- * @param signInputOption to sign the vin
+ * @param {Vin} vin of the script
+ * @param {SignInputOption} signInputOption to sign the vin
  */
 async function getScriptCode (vin: Vin, signInputOption: SignInputOption): Promise<Script> {
   const stack = signInputOption.prevout.script.stack
@@ -143,10 +143,10 @@ async function asWitnessProgram (transaction: Transaction, vin: Vin, signInputOp
 export const TransactionSigner = {
 
   /**
-   * @param transaction to sign
-   * @param index of the vin to sign
-   * @param option input option
-   * @param sigHashType SIGHASH type
+   * @param {Transaction} transaction to sign
+   * @param {number} index of the vin to sign
+   * @param {SignInputOption} option input option
+   * @param {SIGHASH} sigHashType SIGHASH type
    */
   async signInput (transaction: Transaction, index: number, option: SignInputOption, sigHashType: SIGHASH = SIGHASH.ALL): Promise<Witness> {
     const vin = transaction.vin[index]

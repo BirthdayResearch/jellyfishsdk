@@ -253,7 +253,7 @@ describe('ComposableBuffer.varUIntArray', () => {
 
 describe('ComposableBuffer.array', () => {
   interface Item {
-    value: BigInt // 8 bytes
+    value: BigNumber // 8 bytes
     txid: string // 32 bytes
   }
 
@@ -262,7 +262,7 @@ describe('ComposableBuffer.array', () => {
   class CItem extends ComposableBuffer<Item> {
     composers (data: Item): BufferComposer[] {
       return [
-        ComposableBuffer.bigUInt64(() => data.value, v => data.value = v),
+        ComposableBuffer.bigNumberUInt64(() => data.value, v => data.value = v),
         ComposableBuffer.hex(32, () => data.txid, v => data.txid = v)
       ]
     }
@@ -282,11 +282,11 @@ describe('ComposableBuffer.array', () => {
 
     const val = [
       {
-        value: BigInt('0x0008000800080008'),
+        value: new BigNumber('0x0008000800080008'),
         txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
       },
       {
-        value: BigInt('0x01aa535d3d0c0000'),
+        value: new BigNumber('0x01aa535d3d0c0000'),
         txid: 'ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a'
       }
     ]
@@ -305,7 +305,7 @@ describe('ComposableBuffer.array', () => {
     it('should fail toBuffer deeply due to hex invalid length', () => {
       items = [
         {
-          value: BigInt('0x0008000800080008'),
+          value: new BigNumber('0x0008000800080008'),
           txid: 'fff7f7881a8099afa6940d42d1e7f636'
         }
       ]
@@ -318,14 +318,14 @@ describe('ComposableBuffer.array', () => {
     it('should fail toBuffer deeply due to value out of range', () => {
       items = [
         {
-          value: BigInt('0x100008000800080008'),
+          value: new BigNumber('0x100008000800080008'),
           txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
         }
       ]
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('It must be >= 0n and < 2n ** 64n. Received 295_150_157_013_526_773_768n')
+      }).toThrow('It must be >= 0n and < 2n ** 64n. Received 295150157013526773768')
     })
   })
 })
@@ -611,66 +611,66 @@ describe('ComposableBuffer.uInt32', () => {
   })
 })
 
-describe('ComposableBuffer.bigUInt64', () => {
-  let value: BigInt = BigInt('0x01')
-  const composer = ComposableBuffer.bigUInt64(() => value, (v: BigInt) => value = v)
+describe('ComposableBuffer.bigNumberUInt64', () => {
+  let value: BigNumber = new BigNumber('0x01')
+  const composer = ComposableBuffer.bigNumberUInt64(() => value, (v: BigNumber) => value = v)
 
   describe('0x0000000000000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '0100000000000000', BigInt('0x0000000000000001'), () => value)
+      shouldFromBuffer(composer, '0100000000000000', new BigNumber('0x0000000000000001'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '0100000000000000', BigInt('0x0000000000000001'), v => value = v)
+      shouldToBuffer(composer, '0100000000000000', new BigNumber('0x0000000000000001'), v => value = v)
     })
   })
 
   describe('0x8000000000000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '0100000000000080', BigInt('0x8000000000000001'), () => value)
+      shouldFromBuffer(composer, '0100000000000080', new BigNumber('0x8000000000000001'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '0100000000000080', BigInt('0x8000000000000001'), v => value = v)
+      shouldToBuffer(composer, '0100000000000080', new BigNumber('0x8000000000000001'), v => value = v)
     })
   })
 
   describe('0xff00000000000001', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '01000000000000ff', BigInt('0xff00000000000001'), () => value)
+      shouldFromBuffer(composer, '01000000000000ff', new BigNumber('0xff00000000000001'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '01000000000000ff', BigInt('0xff00000000000001'), v => value = v)
+      shouldToBuffer(composer, '01000000000000ff', new BigNumber('0xff00000000000001'), v => value = v)
     })
   })
 
   describe('4000000000', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '00286bee00000000', BigInt(4000000000), () => value)
+      shouldFromBuffer(composer, '00286bee00000000', new BigNumber(4000000000), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '00286bee00000000', BigInt(4000000000), v => value = v)
+      shouldToBuffer(composer, '00286bee00000000', new BigNumber(4000000000), v => value = v)
     })
   })
 
   describe('120000000000000000 MAX DFI Supply', () => {
     it('should fromBuffer', () => {
-      shouldFromBuffer(composer, '00000c3d5d53aa01', BigInt('120000000000000000'), () => value)
+      shouldFromBuffer(composer, '00000c3d5d53aa01', new BigNumber('120000000000000000'), () => value)
     })
 
     it('should toBuffer', () => {
-      shouldToBuffer(composer, '00000c3d5d53aa01', BigInt('120000000000000000'), v => value = v)
+      shouldToBuffer(composer, '00000c3d5d53aa01', new BigNumber('120000000000000000'), v => value = v)
     })
   })
 
   it('should fail toBuffer validate', () => {
-    value = BigInt('0x10000000000000001')
+    value = new BigNumber('0x10000000000000001')
 
     expect(() => {
       composer.toBuffer(new SmartBuffer())
-    }).toThrow('It must be >= 0n and < 2n ** 64n. Received 18_446_744_073_709_551_617n')
+    }).toThrow('It must be >= 0n and < 2n ** 64n. Received 18446744073709551617')
   })
 })
 
