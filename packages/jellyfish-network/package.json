@@ -33,8 +33,5 @@
   ],
   "scripts": {
     "build": "tsc"
-  },
-  "devDependencies": {
-    "typescript": ">=4.2.0"
   }
 }
