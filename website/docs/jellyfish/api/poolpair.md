@@ -25,10 +25,10 @@ interface poolPair {
       limit: 100
     },
     verbose = true,
-  ): Promise<IPoolShare>
+  ): Promise<PoolPairResult>
 }
 
-interface IPoolPair {
+interface PoolPairResult {
   [id: string]: {
     symbol: string
     name: string
@@ -65,10 +65,10 @@ Returns information about pools
 
 ```ts title="client.poolPair.getPoolPair()"
 interface poolPair {
-  getPoolPair (symbol: string, verbose = true): Promise<IPoolPair>
+  getPoolPair (symbol: string, verbose = true): Promise<PoolPairResult>
 }
 
-interface IPoolPair {
+interface PoolPairResult {
   [id: string]: {
     symbol: string
     name: string
@@ -93,6 +93,29 @@ interface IPoolPair {
 }
 ```
 
+## addPoolLiquidity
+
+Add pool liquidity transaction
+
+```ts title="client.poolPair.addPoolLiquidity()"
+interface poolPair {
+  addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string>
+}
+
+interface AddPoolLiquiditySource {
+  [address: string]: string | string[]
+}
+
+interface AddPoolLiquidityOptions {
+  utxos?: AddPoolLiquidityUTXO[]
+}
+
+interface AddPoolLiquidityUTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listPoolShares
 
 Returns information about pools
@@ -106,11 +129,11 @@ interface poolPair {
       limit: 100
     },
     verbose = true,
-    isMineOnly = false
-  ): Promise<IPoolShare>
+    options: PoolShareOptions = {},
+  ): Promise<PoolShareResult>
 }
 
-interface IPoolShare {
+interface PoolShareResult {
   [id: string]: {
     poolID: string
     owner: string
@@ -120,10 +143,13 @@ interface IPoolShare {
   }
 }
 
-
 interface PoolPairPagination {
   start: number
   including_start: boolean
   limit: number
+}
+
+interface PoolShareOptions {
+  isMineOnly?: boolean
 }
 ```

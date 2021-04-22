@@ -20,30 +20,26 @@ export class PoolPair {
    * @param {number} metadata.commission
    * @param {boolean} metadata.status
    * @param {string} metadata.ownerAddress
-   * @param {string} metadata.customRewards
-   * @param {string} metadata.pairSymbol
+   * @param {string=} metadata.customRewards
+   * @param {string=} metadata.pairSymbol
    * @param {CreatePoolPairUTXO[]} utxos is an array of specific UTXOs to spend
    * @param {string} utxo.txid
    * @param {number} utxo.vout
-   * @return Promise<string>
+   * @return {Promise<string>}
    */
   async createPoolPair (metadata: CreatePoolPairMetadata, utxos: CreatePoolPairUTXO[] = []): Promise<string> {
-    const defaultMetadata = {
-      customerRewards: [],
-      pairSymbol: ''
-    }
-    return await this.client.call('createpoolpair', [{ ...defaultMetadata, ...metadata }, utxos], 'number')
+    return await this.client.call('createpoolpair', [metadata, utxos], 'number')
   }
 
   /**
    * Returns information about pools
    *
    * @param {PoolPairPagination} pagination
-   * @param {number} pagination.start
-   * @param {boolean} pagination.including_start
-   * @param {number} pagination.limit
-   * @param {boolean} verbose
-   * @return Promise<any>
+   * @param {number} pagination.start default is 0
+   * @param {boolean} pagination.including_start default = true
+   * @param {number} pagination.limit to limit number of records
+   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokena, idTokenB
+   * @return {Promise<PoolPairResult>}
    */
   async listPoolPairs (
     pagination: PoolPairPagination = {
@@ -52,7 +48,7 @@ export class PoolPair {
       limit: 100
     },
     verbose = true
-  ): Promise<IPoolPair> {
+  ): Promise<PoolPairResult> {
     return await this.client.call('listpoolpairs', [pagination, verbose], {
       reserveA: 'bignumber',
       reserveB: 'bignumber',
@@ -70,39 +66,42 @@ export class PoolPair {
   /**
    * Returns information about pool
    *
-   * @param {string} symbol
-   * @param {boolean} verbose
-   * @return Promise<IPoolPair>
+   * @param {string} symbol token's symbol
+   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokena, idTokenB
+   * @return {Promise<PoolPairResult>}
    */
-  async getPoolPair (symbol: string, verbose = true): Promise<IPoolPair> {
+  async getPoolPair (symbol: string, verbose = true): Promise<PoolPairResult> {
     return await this.client.call('getpoolpair', [symbol, verbose], 'number')
   }
 
   /**
    * Add pool liquidity transaction
    *
-   * @param from
-   * @param from[address] provides at least two types of token with format 'amoun@token'
-   * @param shareAddress defi address for crediting tokens
-   * @param inputs
-   * @param inputs.txid
-   * @param inputs.vout
-   * @return {Promise<any>}
+   * @param {AddPoolLiquiditySource} from pool liquidity sources
+   * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
+   * @param {string} shareAddress defi address for crediting tokens
+   * @param {AddPoolLiquidityOptions} options
+   * @param {AddPoolLiquidityUTXO[]=} options.utxos utxos array of specific UTXOs to spend
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
    */
-  async addPoolLiquidity (from: any, shareAddress: string, inputs?: string[]): Promise<any> {
-    return await this.client.call('addpoolliquidity', [from, shareAddress, inputs], 'number')
+  async addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string> {
+    const { utxos } = options
+    return await this.client.call('addpoolliquidity', [from, shareAddress, utxos], 'bignumber')
   }
 
   /**
    * Returns information about pool shares
    *
    * @param {PoolPairPagination} pagination
-   * @param {number} pagination.start
-   * @param {boolean} pagination.including_start
-   * @param {number} pagination.limit
-   * @param {boolean} verbose
-   * @param {boolean} isMineOnly
-   * @return Promise<IPoolShare>
+   * @param {number} pagination.start default is 0
+   * @param {boolean} pagination.including_start default = true
+   * @param {number} pagination.limit to limit number of records
+   * @param {boolean} verbose default = true, otherwise only poolID, owner and %
+   * @param {PoolShareOptions} options
+   * @param {boolean=} options.isMineOnly default = true
+   * @return {Promise<PoolShareResult>}
    */
   async listPoolShares (
     pagination: PoolPairPagination = {
@@ -111,13 +110,10 @@ export class PoolPair {
       limit: 100
     },
     verbose = true,
-    isMineOnly = false
-  ): Promise<IPoolShare> {
-    return await this.client.call('listpoolshares', [pagination, verbose, isMineOnly], {
-      '%': 'bignumber',
-      amount: 'bignumber',
-      totalLiquidity: 'bignumber'
-    })
+    options: PoolShareOptions = {}
+  ): Promise<PoolShareResult> {
+    const { isMineOnly = true } = options
+    return await this.client.call('listpoolshares', [pagination, verbose, isMineOnly], 'bignumber')
   }
 }
 
@@ -136,7 +132,7 @@ export interface CreatePoolPairUTXO {
   vout: number
 }
 
-export interface IPoolPair {
+export interface PoolPairResult {
   [id: string]: {
     symbol: string
     name: string
@@ -160,7 +156,7 @@ export interface IPoolPair {
   }
 }
 
-export interface IPoolShare {
+export interface PoolShareResult {
   [id: string]: {
     poolID: string
     owner: string
@@ -174,4 +170,21 @@ export interface PoolPairPagination {
   start: number
   including_start: boolean
   limit: number
+}
+
+export interface AddPoolLiquiditySource {
+  [address: string]: string | string[]
+}
+
+export interface AddPoolLiquidityOptions {
+  utxos?: AddPoolLiquidityUTXO[]
+}
+
+export interface AddPoolLiquidityUTXO {
+  txid: string
+  vout: number
+}
+
+export interface PoolShareOptions {
+  isMineOnly?: boolean
 }

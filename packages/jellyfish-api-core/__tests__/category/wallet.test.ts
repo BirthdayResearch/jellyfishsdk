@@ -54,7 +54,6 @@ describe('masternode', () => {
         expect(utxos.length).toBeGreaterThan(0)
         for (let i = 0; i < utxos.length; i += 1) {
           const utxo = utxos[i]
-          console.log('utxo: ', utxo)
           expect(typeof utxo.txid).toBe('string')
           expect(typeof utxo.vout).toBe('number')
           expect(typeof utxo.address).toBe('string')
@@ -125,7 +124,6 @@ describe('masternode', () => {
       const options: ListUnspentOptions = { queryOptions: { maximumAmount: 100 } }
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
-        console.log('utxos: ', utxos)
         utxos.forEach(utxo => {
           expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
         })
