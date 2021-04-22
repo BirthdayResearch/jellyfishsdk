@@ -13,9 +13,6 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "contributors": [
     {
       "name": "DeFiChain Foundation",

@@ -17,6 +17,9 @@
   "workspaces": [
     "./packages/*"
   ],
+  "engines": {
+    "node": ">=12.x"
+  },
   "scripts": {
     "prepare": "husky install",
     "build": "lerna run build",
