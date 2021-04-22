@@ -25,17 +25,8 @@
     "publish:latest": "lerna run publish:latest",
     "standard": "ts-standard --fix",
     "test": "jest",
+    "test:ci": "jest --ci --coverage --forceExit",
     "all": "npm run build && npm run standard && npm run test"
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "**/*.{ts,js}",
-      "!**/__tests__/**",
-      "!**/coverage/**",
-      "!**/node_modules/**",
-      "!**/babel.config.js",
-      "!**/jest.setup.js"
-    ]
   },
   "devDependencies": {
     "@size-limit/preset-app": "^4.10.1",
