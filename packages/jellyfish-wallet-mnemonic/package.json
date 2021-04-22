@@ -35,9 +35,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish:next": "npm publish --tag next --access public",
-    "publish:latest": "npm publish --tag latest --access public"
+    "build": "tsc"
   },
   "dependencies": {
     "@defichain/jellyfish-wallet": "0.0.0",

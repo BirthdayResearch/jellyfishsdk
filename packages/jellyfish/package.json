@@ -52,9 +52,7 @@
     "electron": ">=10.x"
   },
   "scripts": {
-    "build": "parcel build src/jellyfish.ts",
-    "publish:next": "npm publish --tag next --access public",
-    "publish:latest": "npm publish --tag latest --access public"
+    "build": "parcel build src/jellyfish.ts"
   },
   "dependencies": {
     "@defichain/jellyfish-api-core": "0.0.0",
