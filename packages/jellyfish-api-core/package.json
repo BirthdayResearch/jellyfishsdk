@@ -38,7 +38,6 @@
     "@defichain/jellyfish-json": "0.0.0"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
-    "typescript": ">=4.2.0"
+    "@defichain/testcontainers": "0.0.0"
   }
 }

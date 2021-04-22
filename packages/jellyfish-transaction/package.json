@@ -40,8 +40,5 @@
   "dependencies": {
     "@defichain/jellyfish-crypto": "0.0.0",
     "smart-buffer": "^4.1.0"
-  },
-  "devDependencies": {
-    "typescript": ">=4.2.0"
   }
 }
