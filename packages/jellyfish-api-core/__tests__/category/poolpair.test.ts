@@ -10,6 +10,7 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(200)
   })
 
   afterAll(async () => {
@@ -47,9 +48,9 @@ describe('masternode', () => {
     const address = await container.call('getnewaddress')
 
     // NOTE(canonbrother): using `minttokens` on DFI is an error as DFI is not mintable
-    // await container.call('minttokens', ['1000@DFI'])
+    // await container.call('minttokens', ['100@DFI'])
     const payload: { [key: string]: string } = {}
-    payload[address] = '2000@0'
+    payload[address] = '100@0'
     await container.call('utxostoaccount', [payload])
     await container.call('minttokens', [`2000@${symbol}`])
 
@@ -62,6 +63,7 @@ describe('masternode', () => {
     })
 
     it('should createPoolPair', async () => {
+      let assertion = 0
       const poolpairsBefore = await client.poolpair.listPoolPairs()
       const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
 
@@ -83,25 +85,28 @@ describe('masternode', () => {
 
       for (const k in poolpairsAfter) {
         const poolpair = poolpairsAfter[k]
-        expect(poolpair.name).toBe('Default Defi token-DBTC')
-        expect(poolpair.symbol).toBe(`${metadata.tokenA}-${metadata.tokenB}`)
-        expect(poolpair.status).toBe(metadata.status)
-        expect(poolpair.commission.toString()).toBe(new BigNumber(metadata.commission).toString())
-        expect(poolpair.ownerAddress).toBe(metadata.ownerAddress)
-        expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
-        expect(typeof poolpair.idTokenA).toBe('string')
-        expect(typeof poolpair.idTokenB).toBe('string')
-        expect(poolpair.reserveA instanceof BigNumber).toBe(true)
-        expect(poolpair.reserveB instanceof BigNumber).toBe(true)
-        expect(typeof poolpair['reserveA/reserveB']).toBe('string')
-        expect(typeof poolpair['reserveB/reserveA']).toBe('string')
-        expect(poolpair.tradeEnabled).toBe(false)
-        expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
-        expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
-        expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
-        expect(typeof poolpair.creationTx).toBe('string')
-        expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
+        if (poolpair.name === 'Default Defi token-DBTC') {
+          expect(poolpair.symbol).toBe(`${metadata.tokenA}-${metadata.tokenB}`)
+          expect(poolpair.status).toBe(metadata.status)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(metadata.commission).toString())
+          expect(poolpair.ownerAddress).toBe(metadata.ownerAddress)
+          expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
+          expect(typeof poolpair.idTokenA).toBe('string')
+          expect(typeof poolpair.idTokenB).toBe('string')
+          expect(poolpair.reserveA instanceof BigNumber).toBe(true)
+          expect(poolpair.reserveB instanceof BigNumber).toBe(true)
+          expect(typeof poolpair['reserveA/reserveB']).toBe('string')
+          expect(typeof poolpair['reserveB/reserveA']).toBe('string')
+          expect(poolpair.tradeEnabled).toBe(false)
+          expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
+          expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
+          expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
+          expect(typeof poolpair.creationTx).toBe('string')
+          expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
+          assertion += 1
+        }
       }
+      expect(assertion).toBe(1)
     })
   })
 
@@ -259,8 +264,6 @@ describe('masternode', () => {
 
   describe('addPoolLiquidity', () => {
     beforeAll(async () => {
-      await container.generate(100)
-
       await createToken('DDAI')
 
       await mintTokens('DDAI')
@@ -271,7 +274,7 @@ describe('masternode', () => {
     it('should addPoolLiquidity', async () => {
       const shareAddress = await container.call('getnewaddress')
       const data = await client.poolpair.addPoolLiquidity({
-        '*': ['100@DFI', '200@DDAI']
+        '*': ['10@DFI', '200@DDAI']
       }, shareAddress)
 
       expect(typeof data).toBe('string')
@@ -280,13 +283,13 @@ describe('masternode', () => {
     it('should addPoolLiquidity with specific input token address', async () => {
       const tokenAAddress = await container.call('getnewaddress')
       const tokenBAddress = await container.call('getnewaddress')
-      await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['100@DFI'] }])
+      await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['10@DFI'] }])
       await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
       await container.generate(25)
 
       const shareAddress = await container.call('getnewaddress')
       const data = await client.poolpair.addPoolLiquidity({
-        [tokenAAddress]: '50@DFI',
+        [tokenAAddress]: '5@DFI',
         [tokenBAddress]: '100@DDAI'
       }, shareAddress)
 
@@ -298,8 +301,8 @@ describe('masternode', () => {
 
       const shareAddress = await container.call('getnewaddress')
       const data = await client.poolpair.addPoolLiquidity({
-        '*': ['100@DFI', '200@DDAI']
-      }, shareAddress, { utxos: [{ txid: utxos[0].txid, vout: 0 }] })
+        '*': ['10@DFI', '200@DDAI']
+      }, shareAddress, { utxos: [{ txid: utxos[0].txid, vout: 0 }] }) // ApplyAddPoolLiquidityTx: tx must have at least one input from account owner', code: -32600
 
       expect(typeof data).toBe('string')
     })
@@ -309,7 +312,7 @@ describe('masternode', () => {
     async function addPoolLiquidity (): Promise<void> {
       const shareAddress = await container.call('getnewaddress')
       const data = await client.poolpair.addPoolLiquidity({
-        '*': ['100@DFI', '200@DSWAP']
+        '*': ['10@DFI', '200@DSWAP']
       }, shareAddress)
 
       expect(typeof data).toBe('string')
@@ -318,8 +321,6 @@ describe('masternode', () => {
     }
 
     beforeAll(async () => {
-      await container.generate(100)
-
       await createToken('DSWAP')
 
       await mintTokens('DSWAP')
