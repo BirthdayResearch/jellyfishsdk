@@ -1,5 +1,5 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 
 describe('masternode', () => {
@@ -99,21 +99,20 @@ describe('masternode', () => {
       await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
       await container.generate(25)
 
-      const { txid: txidA } = await container.fundAddress(tokenAAddress, 10)
-      const { txid: txidB } = await container.fundAddress(tokenBAddress, 10)
-      console.log('txid: ', txidA, txidB, tokenAAddress, tokenBAddress)
+      const txid = await container.call('sendmany', ['', {
+        [tokenAAddress]: 10,
+        [tokenBAddress]: 20
+      }])
       await container.generate(2)
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.filter((utxo: any) => utxo.txid === txidA || utxo.txid === txidB).map((utxo: any) => {
+      const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
         }
       })
-      console.log('inputs: ', inputs)
 
-      // ApplyAddPoolLiquidityTx: tx must have at least one input from account owner', code: -32600
       const data = await client.poolpair.addPoolLiquidity({
         [tokenAAddress]: '5@DFI',
         [tokenBAddress]: '100@DDAI'
@@ -126,6 +125,26 @@ describe('masternode', () => {
       // }, shareAddress, { utxos: [{ txid: utxo.txid, vout: 0 }] })
 
       expect(typeof data).toBe('string')
+    })
+
+    it('should fail while addPoolLiquidity with utxos which does not include account owner', async () => {
+      const shareAddress = await container.call('getnewaddress')
+      const tokenAAddress = await container.call('getnewaddress')
+      const tokenBAddress = await container.call('getnewaddress')
+
+      const utxos = await container.call('listunspent')
+      const inputs = utxos.map((utxo: any) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+
+      const promise = client.poolpair.addPoolLiquidity({
+        [tokenAAddress]: '5@DFI',
+        [tokenBAddress]: '100@DDAI'
+      }, shareAddress, { utxos: inputs })
+      await expect(promise).rejects.toThrow('tx must have at least one input from account owner')
     })
   })
 
@@ -266,12 +285,9 @@ describe('masternode', () => {
     })
 
     it('should be failed as getting non-existent pair', async () => {
-      expect.assertions(1)
-      try {
-        await client.poolpair.getPoolPair('DFI-NONEXIST')
-      } catch (err) {
-        expect(err.message).toBe('RpcApiError: \'Pool not found\', code: -5')
-      }
+      const promise = client.poolpair.getPoolPair('DFI-NONEXIST')
+
+      await expect(promise).rejects.toThrow('Pool not found')
     })
   })
 
