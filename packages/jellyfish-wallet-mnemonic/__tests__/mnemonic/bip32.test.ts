@@ -47,7 +47,7 @@ describe('24 words: random', () => {
   let provider: MnemonicHdNodeProvider
 
   beforeAll(() => {
-    const words = generateMnemonic(12)
+    const words = generateMnemonic(24)
     const seed = mnemonicToSeed(words)
     provider = MnemonicHdNodeProvider.fromSeed(seed, regTestBip32Options)
   })
@@ -85,7 +85,8 @@ describe('24 words: random', () => {
       expect(signed.witness.length).toBe(1)
       expect(signed.witness[0].scripts.length).toBe(2)
 
-      expect(signed.witness[0].scripts[0].hex.length).toBe(142)
+      expect(signed.witness[0].scripts[0].hex.length).toBeGreaterThanOrEqual(140)
+      expect(signed.witness[0].scripts[0].hex.length).toBeLessThanOrEqual(142)
       expect(signed.witness[0].scripts[1].hex.length).toBe(66)
     })
   })
