@@ -246,10 +246,14 @@ describe('masternode', () => {
       }
     })
 
-    // it.skip('should be failed as getting non-existent pair', async () => {
-    //   const promise = client.poolpair.getPoolPair('DFI-NONEXIST')
-    //   expect(promise).rejects.toThrow('RpcApiError: \'Pool not found\', code: -5')
-    // })
+    it('should be failed as getting non-existent pair', async () => {
+      expect.assertions(1)
+      try {
+        await client.poolpair.getPoolPair('DFI-NONEXIST')
+      } catch (err) {
+        expect(err.message).toBe('RpcApiError: \'Pool not found\', code: -5')
+      }
+    })
   })
 
   describe('addPoolLiquidity', () => {
@@ -272,7 +276,7 @@ describe('masternode', () => {
       expect(typeof data).toBe('string')
     })
 
-    it.skip('should addPoolLiquidity with specific input token address', async () => {
+    it('should addPoolLiquidity with specific input token address', async () => {
       const tokenAAddress = await container.call('getnewaddress')
       const tokenBAddress = await container.call('getnewaddress')
       await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['100@DFI'] }])
