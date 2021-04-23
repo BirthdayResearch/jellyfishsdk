@@ -57,211 +57,6 @@ describe('masternode', () => {
     await container.generate(25)
   }
 
-  describe('createPoolPair', () => {
-    beforeAll(async () => {
-      await createToken('DBTC')
-    })
-
-    it('should createPoolPair', async () => {
-      let assertion = 0
-      const poolpairsBefore = await client.poolpair.listPoolPairs()
-      const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
-
-      const address = await container.call('getnewaddress')
-      const metadata = {
-        tokenA: 'DFI',
-        tokenB: 'DBTC',
-        commission: 1,
-        status: true,
-        ownerAddress: address
-      }
-      const data = await client.poolpair.createPoolPair(metadata)
-      expect(typeof data).toBe('string')
-
-      await container.generate(1)
-
-      const poolpairsAfter = await client.poolpair.listPoolPairs()
-      expect(Object.keys(poolpairsAfter).length).toBe(poolpairsLengthBefore + 1)
-
-      for (const k in poolpairsAfter) {
-        const poolpair = poolpairsAfter[k]
-        if (poolpair.name === 'Default Defi token-DBTC') {
-          expect(poolpair.symbol).toBe(`${metadata.tokenA}-${metadata.tokenB}`)
-          expect(poolpair.status).toBe(metadata.status)
-          expect(poolpair.commission.toString()).toBe(new BigNumber(metadata.commission).toString())
-          expect(poolpair.ownerAddress).toBe(metadata.ownerAddress)
-          expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
-          expect(typeof poolpair.idTokenA).toBe('string')
-          expect(typeof poolpair.idTokenB).toBe('string')
-          expect(poolpair.reserveA instanceof BigNumber).toBe(true)
-          expect(poolpair.reserveB instanceof BigNumber).toBe(true)
-          expect(typeof poolpair['reserveA/reserveB']).toBe('string')
-          expect(typeof poolpair['reserveB/reserveA']).toBe('string')
-          expect(poolpair.tradeEnabled).toBe(false)
-          expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
-          expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
-          expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
-          expect(typeof poolpair.creationTx).toBe('string')
-          expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
-          assertion += 1
-        }
-      }
-      expect(assertion).toBe(1)
-    })
-  })
-
-  describe('listPoolPairs', () => {
-    beforeAll(async () => {
-      await createToken('DETH')
-      await createToken('DXRP')
-      await createToken('DUSDT')
-
-      await createPoolPair('DETH', { commission: 0.001 })
-      await createPoolPair('DXRP', { commission: 0.003 })
-      await createPoolPair('DUSDT', { status: false })
-    })
-
-    it('should listPoolPairs', async () => {
-      let points = 0
-      const poolpairs = await client.poolpair.listPoolPairs()
-
-      for (const k in poolpairs) {
-        const poolpair = poolpairs[k]
-
-        if (poolpair.symbol === 'DFI-DETH') {
-          expect(poolpair.name).toBe('Default Defi token-DETH')
-          expect(poolpair.status).toBe(true)
-          expect(poolpair.commission.toString()).toBe(new BigNumber(0.001).toString())
-          points += 1
-        }
-
-        if (poolpair.symbol === 'DFI-DXRP') {
-          expect(poolpair.name).toBe('Default Defi token-DXRP')
-          expect(poolpair.status).toBe(true)
-          expect(poolpair.commission.toString()).toBe(new BigNumber(0.003).toString())
-          points += 1
-        }
-
-        if (poolpair.symbol === 'DFI-DUSD') {
-          expect(poolpair.name).toBe('Default Defi token-DUSDT')
-          expect(poolpair.status).toBe(false)
-          expect(poolpair.commission.toString()).toBe(new BigNumber(0).toString())
-          points += 1
-        }
-
-        expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
-        expect(typeof poolpair.ownerAddress).toBe('string')
-        expect(typeof poolpair.idTokenA).toBe('string')
-        expect(typeof poolpair.idTokenB).toBe('string')
-        expect(poolpair.reserveA instanceof BigNumber).toBe(true)
-        expect(poolpair.reserveB instanceof BigNumber).toBe(true)
-        expect(typeof poolpair['reserveA/reserveB']).toBe('string')
-        expect(typeof poolpair['reserveB/reserveA']).toBe('string')
-        expect(poolpair.tradeEnabled).toBe(false)
-        expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
-        expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
-        expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
-        expect(typeof poolpair.creationTx).toBe('string')
-        expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
-      }
-
-      expect(points).toBe(3)
-    })
-
-    it('should listPoolPairs with pagination and return an empty object as out of range', async () => {
-      const pagination = {
-        start: 300,
-        including_start: true,
-        limit: 100
-      }
-      const poolpairs = await client.poolpair.listPoolPairs(pagination)
-
-      expect(Object.keys(poolpairs).length).toBe(0)
-    })
-
-    it('should listPoolPairs with pagination limit', async () => {
-      const pagination = {
-        start: 0,
-        including_start: true,
-        limit: 2
-      }
-      const poolpairs = await client.poolpair.listPoolPairs(pagination)
-
-      expect(Object.keys(poolpairs).length).toBe(2)
-    })
-
-    it('should listPoolPairs with verbose false', async () => {
-      const pagination = {
-        start: 0,
-        including_start: true,
-        limit: 100
-      }
-      const poolpairs = await client.poolpair.listPoolPairs(pagination, false)
-
-      for (const k in poolpairs) {
-        const poolpair = poolpairs[k]
-
-        expect(typeof poolpair.symbol).toBe('string')
-        expect(typeof poolpair.name).toBe('string')
-        expect(typeof poolpair.status).toBe('boolean')
-        expect(typeof poolpair.idTokenA).toBe('string')
-        expect(typeof poolpair.idTokenB).toBe('string')
-      }
-    })
-  })
-
-  describe('getPoolPair', () => {
-    beforeAll(async () => {
-      await createToken('DBCH')
-      await createPoolPair('DBCH')
-    })
-
-    it('should getPoolPair', async () => {
-      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
-
-      for (const k in poolpair) {
-        const data = poolpair[k]
-        expect(data.symbol).toBe('DFI-DBCH')
-        expect(data.name).toBe('Default Defi token-DBCH')
-        expect(data.status).toBe(true)
-        expect(typeof data.idTokenA).toBe('string')
-        expect(typeof data.idTokenB).toBe('string')
-        expect(data.reserveA instanceof BigNumber).toBe(true)
-        expect(data.reserveB instanceof BigNumber).toBe(true)
-        expect(typeof data['reserveA/reserveB']).toBe('string')
-        expect(typeof data['reserveB/reserveA']).toBe('string')
-        expect(data.tradeEnabled).toBe(false)
-        expect(data.blockCommissionA instanceof BigNumber).toBe(true)
-        expect(data.blockCommissionB instanceof BigNumber).toBe(true)
-        expect(data.rewardPct instanceof BigNumber).toBe(true)
-        expect(typeof data.creationTx).toBe('string')
-        expect(data.creationHeight instanceof BigNumber).toBe(true)
-      }
-    })
-
-    it('should getPoolPair with verbose false', async () => {
-      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH', false)
-
-      for (const k in poolpair) {
-        const data = poolpair[k]
-        expect(data.symbol).toBe('DFI-DBCH')
-        expect(data.name).toBe('Default Defi token-DBCH')
-        expect(data.status).toBe(true)
-        expect(typeof data.idTokenA).toBe('string')
-        expect(typeof data.idTokenB).toBe('string')
-      }
-    })
-
-    it('should be failed as getting non-existent pair', async () => {
-      expect.assertions(1)
-      try {
-        await client.poolpair.getPoolPair('DFI-NONEXIST')
-      } catch (err) {
-        expect(err.message).toBe('RpcApiError: \'Pool not found\', code: -5')
-      }
-    })
-  })
-
   describe('addPoolLiquidity', () => {
     beforeAll(async () => {
       await createToken('DDAI')
@@ -296,13 +91,39 @@ describe('masternode', () => {
       expect(typeof data).toBe('string')
     })
 
-    it.skip('should addPoolLiquidity with utxos', async () => {
-      const utxos = await container.call('listunspent')
-
+    it('should addPoolLiquidity with utxos', async () => {
       const shareAddress = await container.call('getnewaddress')
+      const tokenAAddress = await container.call('getnewaddress')
+      const tokenBAddress = await container.call('getnewaddress')
+      await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['10@DFI'] }])
+      await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
+      await container.generate(25)
+
+      const { txid: txidA } = await container.fundAddress(tokenAAddress, 10)
+      const { txid: txidB } = await container.fundAddress(tokenBAddress, 10)
+      console.log('txid: ', txidA, txidB, tokenAAddress, tokenBAddress)
+      await container.generate(2)
+
+      const utxos = await container.call('listunspent')
+      const inputs = utxos.filter((utxo: any) => utxo.txid === txidA || utxo.txid === txidB).map((utxo: any) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+      console.log('inputs: ', inputs)
+
+      // ApplyAddPoolLiquidityTx: tx must have at least one input from account owner', code: -32600
       const data = await client.poolpair.addPoolLiquidity({
-        '*': ['10@DFI', '200@DDAI']
-      }, shareAddress, { utxos: [{ txid: utxos[0].txid, vout: 0 }] }) // ApplyAddPoolLiquidityTx: tx must have at least one input from account owner', code: -32600
+        [tokenAAddress]: '5@DFI',
+        [tokenBAddress]: '100@DDAI'
+      }, shareAddress, { utxos: inputs })
+
+      // NOTE(canonbrother): cannot use '*' (auto-selection) with providing utxos as mapping specific utxos in needed
+      // const shareAddress = await container.call('getnewaddress')
+      // const data = await client.poolpair.addPoolLiquidity({
+      //   '*': ['10@DFI', '200@DDAI']
+      // }, shareAddress, { utxos: [{ txid: utxo.txid, vout: 0 }] })
 
       expect(typeof data).toBe('string')
     })
@@ -399,6 +220,217 @@ describe('masternode', () => {
         expect(data.amount instanceof BigNumber).toBe(true)
         expect(data.totalLiquidity instanceof BigNumber).toBe(true)
       }
+    })
+  })
+
+  describe('getPoolPair', () => {
+    beforeAll(async () => {
+      await createToken('DBCH')
+      await createPoolPair('DBCH')
+    })
+
+    it('should getPoolPair', async () => {
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH')
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.symbol).toBe('DFI-DBCH')
+        expect(data.name).toBe('Default Defi token-DBCH')
+        expect(data.status).toBe(true)
+        expect(typeof data.idTokenA).toBe('string')
+        expect(typeof data.idTokenB).toBe('string')
+        expect(data.reserveA instanceof BigNumber).toBe(true)
+        expect(data.reserveB instanceof BigNumber).toBe(true)
+        expect(typeof data['reserveA/reserveB']).toBe('string')
+        expect(typeof data['reserveB/reserveA']).toBe('string')
+        expect(data.tradeEnabled).toBe(false)
+        expect(data.blockCommissionA instanceof BigNumber).toBe(true)
+        expect(data.blockCommissionB instanceof BigNumber).toBe(true)
+        expect(data.rewardPct instanceof BigNumber).toBe(true)
+        expect(typeof data.creationTx).toBe('string')
+        expect(data.creationHeight instanceof BigNumber).toBe(true)
+      }
+    })
+
+    it('should getPoolPair with verbose false', async () => {
+      const poolpair = await client.poolpair.getPoolPair('DFI-DBCH', false)
+
+      for (const k in poolpair) {
+        const data = poolpair[k]
+        expect(data.symbol).toBe('DFI-DBCH')
+        expect(data.name).toBe('Default Defi token-DBCH')
+        expect(data.status).toBe(true)
+        expect(typeof data.idTokenA).toBe('string')
+        expect(typeof data.idTokenB).toBe('string')
+      }
+    })
+
+    it('should be failed as getting non-existent pair', async () => {
+      expect.assertions(1)
+      try {
+        await client.poolpair.getPoolPair('DFI-NONEXIST')
+      } catch (err) {
+        expect(err.message).toBe('RpcApiError: \'Pool not found\', code: -5')
+      }
+    })
+  })
+
+  describe('listPoolPairs', () => {
+    beforeAll(async () => {
+      await createToken('DETH')
+      await createToken('DXRP')
+      await createToken('DUSDT')
+
+      await createPoolPair('DETH', { commission: 0.001 })
+      await createPoolPair('DXRP', { commission: 0.003 })
+      await createPoolPair('DUSDT', { status: false })
+    })
+
+    it('should listPoolPairs', async () => {
+      let assertions = 0
+      const poolpairs = await client.poolpair.listPoolPairs()
+
+      for (const k in poolpairs) {
+        const poolpair = poolpairs[k]
+
+        if (poolpair.symbol === 'DFI-DETH') {
+          expect(poolpair.name).toBe('Default Defi token-DETH')
+          expect(poolpair.status).toBe(true)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(0.001).toString())
+          assertions += 1
+        }
+
+        if (poolpair.symbol === 'DFI-DXRP') {
+          expect(poolpair.name).toBe('Default Defi token-DXRP')
+          expect(poolpair.status).toBe(true)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(0.003).toString())
+          assertions += 1
+        }
+
+        if (poolpair.symbol === 'DFI-DUSD') {
+          expect(poolpair.name).toBe('Default Defi token-DUSDT')
+          expect(poolpair.status).toBe(false)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(0).toString())
+          assertions += 1
+        }
+
+        expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
+        expect(typeof poolpair.ownerAddress).toBe('string')
+        expect(typeof poolpair.idTokenA).toBe('string')
+        expect(typeof poolpair.idTokenB).toBe('string')
+        expect(poolpair.reserveA instanceof BigNumber).toBe(true)
+        expect(poolpair.reserveB instanceof BigNumber).toBe(true)
+
+        if (poolpair['reserveA/reserveB'] instanceof BigNumber && poolpair['reserveB/reserveA'] instanceof BigNumber) {
+          expect(poolpair.tradeEnabled).toBe(true)
+        } else {
+          expect(poolpair['reserveA/reserveB']).toBe('0')
+          expect(poolpair['reserveB/reserveA']).toBe('0')
+          expect(poolpair.tradeEnabled).toBe(false)
+        }
+
+        expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
+        expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
+        expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
+        expect(typeof poolpair.creationTx).toBe('string')
+        expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
+      }
+
+      expect(assertions).toBe(3)
+    })
+
+    it('should listPoolPairs with pagination and return an empty object as out of range', async () => {
+      const pagination = {
+        start: 300,
+        including_start: true,
+        limit: 100
+      }
+      const poolpairs = await client.poolpair.listPoolPairs(pagination)
+
+      expect(Object.keys(poolpairs).length).toBe(0)
+    })
+
+    it('should listPoolPairs with pagination limit', async () => {
+      const pagination = {
+        start: 0,
+        including_start: true,
+        limit: 2
+      }
+      const poolpairs = await client.poolpair.listPoolPairs(pagination)
+
+      expect(Object.keys(poolpairs).length).toBe(2)
+    })
+
+    it('should listPoolPairs with verbose false', async () => {
+      const pagination = {
+        start: 0,
+        including_start: true,
+        limit: 100
+      }
+      const poolpairs = await client.poolpair.listPoolPairs(pagination, false)
+
+      for (const k in poolpairs) {
+        const poolpair = poolpairs[k]
+
+        expect(typeof poolpair.symbol).toBe('string')
+        expect(typeof poolpair.name).toBe('string')
+        expect(typeof poolpair.status).toBe('boolean')
+        expect(typeof poolpair.idTokenA).toBe('string')
+        expect(typeof poolpair.idTokenB).toBe('string')
+      }
+    })
+  })
+
+  describe('createPoolPair', () => {
+    beforeAll(async () => {
+      await createToken('DBTC')
+    })
+
+    it('should createPoolPair', async () => {
+      let assertions = 0
+      const poolpairsBefore = await client.poolpair.listPoolPairs()
+      const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
+
+      const address = await container.call('getnewaddress')
+      const metadata = {
+        tokenA: 'DFI',
+        tokenB: 'DBTC',
+        commission: 1,
+        status: true,
+        ownerAddress: address
+      }
+      const data = await client.poolpair.createPoolPair(metadata)
+      expect(typeof data).toBe('string')
+
+      await container.generate(1)
+
+      const poolpairsAfter = await client.poolpair.listPoolPairs()
+      expect(Object.keys(poolpairsAfter).length).toBe(poolpairsLengthBefore + 1)
+
+      for (const k in poolpairsAfter) {
+        const poolpair = poolpairsAfter[k]
+        if (poolpair.name === 'Default Defi token-DBTC') {
+          expect(poolpair.symbol).toBe(`${metadata.tokenA}-${metadata.tokenB}`)
+          expect(poolpair.status).toBe(metadata.status)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(metadata.commission).toString())
+          expect(poolpair.ownerAddress).toBe(metadata.ownerAddress)
+          expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
+          expect(typeof poolpair.idTokenA).toBe('string')
+          expect(typeof poolpair.idTokenB).toBe('string')
+          expect(poolpair.reserveA instanceof BigNumber).toBe(true)
+          expect(poolpair.reserveB instanceof BigNumber).toBe(true)
+          expect(typeof poolpair['reserveA/reserveB']).toBe('string')
+          expect(typeof poolpair['reserveB/reserveA']).toBe('string')
+          expect(poolpair.tradeEnabled).toBe(false)
+          expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
+          expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
+          expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
+          expect(typeof poolpair.creationTx).toBe('string')
+          expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
+          assertions += 1
+        }
+      }
+      expect(assertions).toBe(1)
     })
   })
 })

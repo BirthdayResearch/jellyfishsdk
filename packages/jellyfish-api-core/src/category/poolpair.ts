@@ -132,8 +132,8 @@ export interface PoolPairResult {
     reserveB: BigNumber
     commission: BigNumber
     totalLiquidity: BigNumber
-    ['reserveA/reserveB']: string
-    ['reserveB/reserveA']: string
+    ['reserveA/reserveB']: BigNumber | string
+    ['reserveB/reserveA']: BigNumber | string
     tradeEnabled: boolean
     ownerAddress: string
     blockCommissionA: BigNumber
