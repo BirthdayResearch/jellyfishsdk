@@ -26,15 +26,13 @@
       "name": "DeFi Jellyfish Contributors"
     }
   ],
-  "main": "dist",
-  "types": "dist",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish:next": "npm publish --tag next --access public",
-    "publish:latest": "npm publish --tag latest --access public"
+    "build": "tsc"
   },
   "dependencies": {
     "bech32": "^2.0.0",
@@ -47,7 +45,6 @@
     "@types/bech32": "^1.1.2",
     "@types/create-hash": "^1.2.2",
     "@types/tiny-secp256k1": "^1.0.0",
-    "@types/wif": "^2.0.2",
-    "typescript": ">=4.2.0"
+    "@types/wif": "^2.0.2"
   }
 }

@@ -13,7 +13,8 @@ export class Blockchain {
 
   /**
    * Get various state info regarding blockchain processing.
-   * @return Promise<BlockchainInfo>
+   *
+   * @return {Promise<BlockchainInfo>}
    */
   async getBlockchainInfo (): Promise<BlockchainInfo> {
     return await this.client.call('getblockchaininfo', [], 'number')
@@ -21,8 +22,9 @@ export class Blockchain {
 
   /**
    * Get a hash of block in best-block-chain at height provided.
-   * @param height
-   * @return Promise<string>
+   *
+   * @param {number} height
+   * @return {Promise<string>}
    */
   async getBlockHash (height: number): Promise<string> {
     return await this.client.call('getblockhash', [height], 'number')
@@ -30,7 +32,8 @@ export class Blockchain {
 
   /**
    * Get the height of the most-work fully-validated chain.
-   * @return Promise<number>
+   *
+   * @return {Promise<number>}
    */
   async getBlockCount (): Promise<number> {
     return await this.client.call('getblockcount', [], 'number')
@@ -40,9 +43,9 @@ export class Blockchain {
    * Get block data with particular header hash.
    * Returns a string that is serialized, hex-encoded data for block 'hash'
    *
-   * @param hash of the block
-   * @param verbosity 0
-   * @return Promise<string>
+   * @param {string} hash of the block
+   * @param {number} verbosity 0
+   * @return {Promise<string>}
    */
   getBlock (hash: string, verbosity: 0): Promise<string>
 
@@ -50,9 +53,9 @@ export class Blockchain {
    * Get block data with particular header hash.
    * Returns an Object with information about the block 'hash'.
    *
-   * @param hash of the block
-   * @param verbosity 1
-   * @return Promise<Block<string>>
+   * @param {string} hash of the block
+   * @param {number} verbosity 1
+   * @return {Promise<Block<string>>}
    */
   getBlock (hash: string, verbosity: 1): Promise<Block<string>>
 
@@ -60,9 +63,9 @@ export class Blockchain {
    * Get block data with particular header hash.
    * Returns an Object with information about block 'hash' and information about each transaction.
    *
-   * @param hash of the block
-   * @param verbosity 2
-   * @return Promise<Block<Transaction>>
+   * @param {string} hash of the block
+   * @param {number} verbosity 2
+   * @return {Promise<Block<Transaction>>}
    */
   getBlock (hash: string, verbosity: 2): Promise<Block<Transaction>>
 
@@ -73,10 +76,10 @@ export class Blockchain {
   /**
     * Get details of unspent transaction output (UTXO).
     *
-    * @param txId the transaction id
-    * @param index vout number
-    * @param includeMempool default true, whether to include mempool
-    * @return Promise<UTXODetails>
+    * @param {string} txId the transaction id
+    * @param {number} index vout number
+    * @param {boolean} includeMempool default true, whether to include mempool
+    * @return {Promise<UTXODetails>}
     */
   async getTxOut (txId: string, index: number, includeMempool = true): Promise<UTXODetails> {
     return await this.client.call('gettxout', [
@@ -84,6 +87,33 @@ export class Blockchain {
     ], {
       value: 'bignumber'
     })
+  }
+
+  /**
+   * Get all transaction ids in memory pool as string
+   *
+   * @param {boolean} verbose false
+   * @return {Promise<string[]>}
+   */
+  getRawMempool (verbose: false): Promise<string[]>
+
+  /**
+   * Get all transaction ids in memory pool as json object
+   *
+   * @param {boolean} verbose true
+   * @return {Promise<MempoolTx>}
+   */
+  getRawMempool (verbose: true): Promise<MempoolTx>
+
+  /**
+   * Get all transaction ids in memory pool as string[] if verbose is false
+   * else as json object
+   *
+   * @param {boolean} verbose default = false, true for json object, false for array of transaction ids
+   * @return {Promise<string[] | MempoolTx>}
+   */
+  async getRawMempool (verbose: boolean): Promise<string[] | MempoolTx> {
+    return await this.client.call('getrawmempool', [verbose], 'bignumber')
   }
 }
 
@@ -183,4 +213,35 @@ export interface ScriptPubKey {
   reqSigs: number
   addresses: string[]
   tokenId: string
+}
+
+export interface MempoolTx {
+  [key: string]: {
+    vsize: BigNumber
+    /**
+     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
+     */
+    size: BigNumber
+    weight: BigNumber
+    fee: BigNumber
+    modifiedfee: BigNumber
+    time: BigNumber
+    height: BigNumber
+    descendantcount: BigNumber
+    descendantsize: BigNumber
+    descendantfees: BigNumber
+    ancestorcount: BigNumber
+    ancestorsize: BigNumber
+    ancestorfees: BigNumber
+    wtxid: string
+    fees: {
+      base: BigNumber
+      modified: BigNumber
+      ancestor: BigNumber
+      descendant: BigNumber
+    }
+    depends: string[]
+    spentby: string[]
+    'bip125-replaceable': boolean
+  }
 }

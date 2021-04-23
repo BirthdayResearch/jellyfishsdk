@@ -9,7 +9,7 @@
 A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized
 finance on Bitcoin.
 
-> 🚧 Work in progress, `10/193` rpc completed.
+> 🚧 Work in progress.
 
 ## Installation
 
@@ -77,7 +77,8 @@ Documentation can be found at `https://jellyfish.defichain.com`?
 
 ### Packages
 
-Jellyfish follows a monorepo methodology, all maintained packages are in the same repo and published with the same version tag.
+DeFi Jellyfish follows a monorepo methodology, all maintained packages are in the same repo and published with the same
+version tag.
 
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
 [![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)
@@ -87,9 +88,14 @@ Package                                            | Description
 `@defichain/jellyfish`                             | Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts
 `@defichain/jellyfish-api-core`                    | A protocol agnostic DeFi Blockchain client interfaces, with a "foreign function interface" design.
 `@defichain/jellyfish-api-jsonrpc`                 | Implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification for api-core.
+`@defichain/jellyfish-api-whale`                   | Implements the DeFi Whale service communication specification for api-core.
+`@defichain/jellyfish-crypto`                      | Cryptography operations for jellyfish, includes a simple 'secp256k1' EllipticPair.
 `@defichain/jellyfish-json`                        | Allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
 `@defichain/jellyfish-network`                     | Contains DeFi blockchain various network configuration for mainnet, testnet and regtest.
 `@defichain/jellyfish-transaction`                 | Dead simple modern stateless raw transaction builder for DeFi.
+`@defichain/jellyfish-wallet`                      | Jellyfish wallet is a managed wallet, where account can get discovered from an HD seed.
+`@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
+`@defichain/jellyfish-wallet-whale`                | WhaleWalletAccount implements the WalletAccount from jellyfish-wallet; a stateless account service for DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
 
 ## Developing & Contributing

@@ -1,4 +1,4 @@
-name: Files
+name: Governance
 
 on:
   pull_request_target:

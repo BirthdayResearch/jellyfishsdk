@@ -1,5 +1,7 @@
+import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { writeVarUInt, readVarUInt } from './buffer_varuint'
+import { ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
 
 export interface BufferComposer {
   fromBuffer: (buffer: SmartBuffer) => void
@@ -23,7 +25,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   constructor (data: T)
 
   /**
-   * @param buffer to compose into Object
+   * @param {SmartBuffer} buffer to compose into Object
    */
   constructor (buffer: SmartBuffer)
 
@@ -76,6 +78,18 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       json[key] = toObject(value)
     }
     return json
+  }
+
+  /**
+   * @return BufferComposer that does nothing
+   */
+  static empty (): BufferComposer {
+    return {
+      fromBuffer (buffer: SmartBuffer): void {
+      },
+      toBuffer (buffer: SmartBuffer): void {
+      }
+    }
   }
 
   /**
@@ -256,20 +270,35 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Unsigned BigInt, 8 bytes
+   * Unsigned BigNumber, 8 bytes
    *
    * @param getter to read from to buffer
    * @param setter to set to from buffer
    */
-  static bigUInt64 (getter: () => BigInt, setter: (data: BigInt) => void): BufferComposer {
+  static bigNumberUInt64 (getter: () => BigNumber, setter: (data: BigNumber) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        setter(buffer.readBigUInt64LE())
+        setter(readBigNumberUInt64(buffer))
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        buffer.writeBigUInt64LE(getter().valueOf())
+        writeBigNumberUInt64(getter(), buffer)
       }
     }
+  }
+
+  /**
+   * Unsigned satoshi as BigNumber, 8 bytes
+   * BigNumber is multiplied/divided by 100,000,000
+   *
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   */
+  static satoshiAsBigNumber (getter: () => BigNumber, setter: (data: BigNumber) => void): BufferComposer {
+    return ComposableBuffer.bigNumberUInt64(() => {
+      return getter().multipliedBy(ONE_HUNDRED_MILLION)
+    }, v => {
+      setter(v.dividedBy(ONE_HUNDRED_MILLION))
+    })
   }
 
   /**

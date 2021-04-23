@@ -32,9 +32,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish:next": "npm publish --tag next --access public",
-    "publish:latest": "npm publish --tag latest --access public"
+    "build": "tsc"
   },
   "dependencies": {
     "dockerode": "^3.2.1",
@@ -42,7 +40,6 @@
   },
   "devDependencies": {
     "@types/dockerode": "^3.2.2",
-    "@types/node-fetch": "^2.5.8",
-    "typescript": ">=4.2.0"
+    "@types/node-fetch": "^2.5.8"
   }
 }

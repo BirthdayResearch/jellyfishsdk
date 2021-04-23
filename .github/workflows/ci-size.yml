@@ -1,4 +1,4 @@
-name: CI
+name: CI Size
 
 on:
   pull_request:

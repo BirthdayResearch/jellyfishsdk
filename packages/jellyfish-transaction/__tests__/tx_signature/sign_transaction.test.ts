@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
-import { DeFiTransaction, SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
+import { DeFiTransactionConstants, SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
 import { getEllipticPairFromPrivateKey } from '@defichain/jellyfish-crypto'
 
 describe('sign transaction', () => {
   const transaction: Transaction = {
-    version: DeFiTransaction.Version,
+    version: DeFiTransactionConstants.Version,
     vin: [
       {
         index: 0,
@@ -55,9 +55,9 @@ describe('sign transaction', () => {
       ellipticPair: keyPair
     }])
 
-    expect(signed.version).toBe(DeFiTransaction.Version)
-    expect(signed.marker).toBe(DeFiTransaction.WitnessMarker)
-    expect(signed.flag).toBe(DeFiTransaction.WitnessFlag)
+    expect(signed.version).toBe(DeFiTransactionConstants.Version)
+    expect(signed.marker).toBe(DeFiTransactionConstants.WitnessMarker)
+    expect(signed.flag).toBe(DeFiTransactionConstants.WitnessFlag)
 
     expect(signed.vin.length).toBe(1)
     expect(signed.vout.length).toBe(1)
@@ -75,7 +75,7 @@ describe('sign transaction', () => {
       })).rejects.toThrow('vin.length and inputOptions.length must match')
     })
 
-    it('should fail if version is different from DeFiTransaction.Version', async () => {
+    it('should fail if version is different from DeFiTransactionConstants.Version', async () => {
       const txn = {
         ...transaction,
         version: 1
@@ -84,7 +84,7 @@ describe('sign transaction', () => {
         .rejects.toThrow('option.validate.version = true - trying to sign a txn 1 different from 4 is not supported')
     })
 
-    it('should succeed if version is different from DeFiTransaction.Version', async () => {
+    it('should succeed if version is different from DeFiTransactionConstants.Version', async () => {
       const txn = {
         ...transaction,
         version: 1

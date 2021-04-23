@@ -26,6 +26,11 @@ labels:
     matcher:
       files: "packages/jellyfish-api-jsonrpc/**"
 
+  - label: area/jellyfish-api-whale
+    sync: true
+    matcher:
+      files: "packages/jellyfish-api-whale/**"
+
   - label: area/jellyfish-crypto
     sync: true
     matcher:
@@ -51,15 +56,15 @@ labels:
     matcher:
       files: "packages/jellyfish-wallet/**"
 
-  - label: area/jellyfish-wallet-dfi
-    sync: true
-    matcher:
-      files: "packages/jellyfish-wallet-dfi/**"
-
   - label: area/jellyfish-wallet-mnemonic
     sync: true
     matcher:
       files: "packages/jellyfish-wallet-mnemonic/**"
+
+  - label: area/jellyfish-wallet-whale
+    sync: true
+    matcher:
+      files: "packages/jellyfish-wallet-whale/**"
 
   - label: area/testcontainers
     sync: true
