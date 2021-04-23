@@ -49,18 +49,7 @@ export class PoolPair {
     },
     verbose = true
   ): Promise<PoolPairResult> {
-    return await this.client.call('listpoolpairs', [pagination, verbose], {
-      reserveA: 'bignumber',
-      reserveB: 'bignumber',
-      commission: 'bignumber',
-      totalLiquidity: 'bignumber',
-      'reserveA/reserveB': 'bignumber',
-      'reserveB/reserveA': 'bignumber',
-      blockCommissionA: 'bignumber',
-      blockCommissionB: 'bignumber',
-      rewardPct: 'bignumber',
-      customRewards: 'bignumber'
-    })
+    return await this.client.call('listpoolpairs', [pagination, verbose], 'bignumber')
   }
 
   /**
@@ -71,7 +60,7 @@ export class PoolPair {
    * @return {Promise<PoolPairResult>}
    */
   async getPoolPair (symbol: string, verbose = true): Promise<PoolPairResult> {
-    return await this.client.call('getpoolpair', [symbol, verbose], 'number')
+    return await this.client.call('getpoolpair', [symbol, verbose], 'bignumber')
   }
 
   /**
@@ -143,8 +132,8 @@ export interface PoolPairResult {
     reserveB: BigNumber
     commission: BigNumber
     totalLiquidity: BigNumber
-    ['reserveA/reserveB']: BigNumber
-    ['reserveB/reserveA']: BigNumber
+    ['reserveA/reserveB']: string
+    ['reserveB/reserveA']: string
     tradeEnabled: boolean
     ownerAddress: string
     blockCommissionA: BigNumber
@@ -152,7 +141,7 @@ export interface PoolPairResult {
     rewardPct: BigNumber
     customRewards: BigNumber
     creationTx: string
-    creationHeight: number
+    creationHeight: BigNumber
   }
 }
 

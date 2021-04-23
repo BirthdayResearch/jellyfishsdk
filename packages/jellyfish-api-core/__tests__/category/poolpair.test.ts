@@ -63,13 +63,13 @@ describe('masternode', () => {
 
     it('should createPoolPair', async () => {
       const poolpairsBefore = await client.poolpair.listPoolPairs()
-      expect(Object.keys(poolpairsBefore).length).toBe(0)
+      const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
 
       const address = await container.call('getnewaddress')
       const metadata = {
         tokenA: 'DFI',
         tokenB: 'DBTC',
-        commission: 0,
+        commission: 1,
         status: true,
         ownerAddress: address
       }
@@ -79,27 +79,28 @@ describe('masternode', () => {
       await container.generate(1)
 
       const poolpairsAfter = await client.poolpair.listPoolPairs()
-      expect(Object.keys(poolpairsAfter).length).toBe(1)
+      expect(Object.keys(poolpairsAfter).length).toBe(poolpairsLengthBefore + 1)
+
       for (const k in poolpairsAfter) {
         const poolpair = poolpairsAfter[k]
         expect(poolpair.name).toBe('Default Defi token-DBTC')
         expect(poolpair.symbol).toBe(`${metadata.tokenA}-${metadata.tokenB}`)
         expect(poolpair.status).toBe(metadata.status)
-        expect(poolpair.commission).toBe(metadata.commission)
+        expect(poolpair.commission.toString()).toBe(new BigNumber(metadata.commission).toString())
         expect(poolpair.ownerAddress).toBe(metadata.ownerAddress)
-        expect(poolpair.totalLiquidity).toBe(0)
+        expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
         expect(typeof poolpair.idTokenA).toBe('string')
         expect(typeof poolpair.idTokenB).toBe('string')
-        expect(typeof poolpair.reserveA).toBe('number')
-        expect(typeof poolpair.reserveB).toBe('number')
+        expect(poolpair.reserveA instanceof BigNumber).toBe(true)
+        expect(poolpair.reserveB instanceof BigNumber).toBe(true)
         expect(typeof poolpair['reserveA/reserveB']).toBe('string')
         expect(typeof poolpair['reserveB/reserveA']).toBe('string')
         expect(poolpair.tradeEnabled).toBe(false)
-        expect(typeof poolpair.blockCommissionA).toBe('number')
-        expect(typeof poolpair.blockCommissionB).toBe('number')
-        expect(typeof poolpair.rewardPct).toBe('number')
+        expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
+        expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
+        expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
         expect(typeof poolpair.creationTx).toBe('string')
-        expect(typeof poolpair.creationHeight).toBe('number')
+        expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
       }
     })
   })
@@ -125,38 +126,38 @@ describe('masternode', () => {
         if (poolpair.symbol === 'DFI-DETH') {
           expect(poolpair.name).toBe('Default Defi token-DETH')
           expect(poolpair.status).toBe(true)
-          expect(poolpair.commission).toBe(0.001)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(0.001).toString())
           points += 1
         }
 
         if (poolpair.symbol === 'DFI-DXRP') {
           expect(poolpair.name).toBe('Default Defi token-DXRP')
           expect(poolpair.status).toBe(true)
-          expect(poolpair.commission).toBe(0.003)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(0.003).toString())
           points += 1
         }
 
         if (poolpair.symbol === 'DFI-DUSD') {
           expect(poolpair.name).toBe('Default Defi token-DUSDT')
           expect(poolpair.status).toBe(false)
-          expect(poolpair.commission).toBe(0)
+          expect(poolpair.commission.toString()).toBe(new BigNumber(0).toString())
           points += 1
         }
 
-        expect(poolpair.totalLiquidity).toBe(0)
+        expect(poolpair.totalLiquidity instanceof BigNumber).toBe(true)
         expect(typeof poolpair.ownerAddress).toBe('string')
         expect(typeof poolpair.idTokenA).toBe('string')
         expect(typeof poolpair.idTokenB).toBe('string')
-        expect(typeof poolpair.reserveA).toBe('number')
-        expect(typeof poolpair.reserveB).toBe('number')
+        expect(poolpair.reserveA instanceof BigNumber).toBe(true)
+        expect(poolpair.reserveB instanceof BigNumber).toBe(true)
         expect(typeof poolpair['reserveA/reserveB']).toBe('string')
         expect(typeof poolpair['reserveB/reserveA']).toBe('string')
         expect(poolpair.tradeEnabled).toBe(false)
-        expect(typeof poolpair.blockCommissionA).toBe('number')
-        expect(typeof poolpair.blockCommissionB).toBe('number')
-        expect(typeof poolpair.rewardPct).toBe('number')
+        expect(poolpair.blockCommissionA instanceof BigNumber).toBe(true)
+        expect(poolpair.blockCommissionB instanceof BigNumber).toBe(true)
+        expect(poolpair.rewardPct instanceof BigNumber).toBe(true)
         expect(typeof poolpair.creationTx).toBe('string')
-        expect(typeof poolpair.creationHeight).toBe('number')
+        expect(poolpair.creationHeight instanceof BigNumber).toBe(true)
       }
 
       expect(points).toBe(3)
@@ -220,16 +221,16 @@ describe('masternode', () => {
         expect(data.status).toBe(true)
         expect(typeof data.idTokenA).toBe('string')
         expect(typeof data.idTokenB).toBe('string')
-        expect(typeof data.reserveA).toBe('number')
-        expect(typeof data.reserveB).toBe('number')
+        expect(data.reserveA instanceof BigNumber).toBe(true)
+        expect(data.reserveB instanceof BigNumber).toBe(true)
         expect(typeof data['reserveA/reserveB']).toBe('string')
         expect(typeof data['reserveB/reserveA']).toBe('string')
         expect(data.tradeEnabled).toBe(false)
-        expect(typeof data.blockCommissionA).toBe('number')
-        expect(typeof data.blockCommissionB).toBe('number')
-        expect(typeof data.rewardPct).toBe('number')
+        expect(data.blockCommissionA instanceof BigNumber).toBe(true)
+        expect(data.blockCommissionB instanceof BigNumber).toBe(true)
+        expect(data.rewardPct instanceof BigNumber).toBe(true)
         expect(typeof data.creationTx).toBe('string')
-        expect(typeof data.creationHeight).toBe('number')
+        expect(data.creationHeight instanceof BigNumber).toBe(true)
       }
     })
 
