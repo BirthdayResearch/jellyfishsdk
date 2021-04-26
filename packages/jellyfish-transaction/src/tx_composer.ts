@@ -45,7 +45,12 @@ export class CTransaction extends ComposableBuffer<Transaction> implements Trans
     return [
       ComposableBuffer.uInt32(() => tx.version, v => tx.version = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v)),
+      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
+        if (tx.version < 4) {
+          return new CVoutV2(v)
+        }
+        return new CVoutV4(v)
+      }),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
   }
@@ -90,8 +95,38 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
  * Composable Vout, C stands for Composable.
  * Immutable by design, it implements the Vout interface for convenience.
  * Bi-directional fromBuffer, toBuffer deep composer.
+ *
+ * This is Transaction V2 buffer composition
  */
-export class CVout extends ComposableBuffer<Vout> implements Vout {
+export class CVoutV2 extends ComposableBuffer<Vout> implements Vout {
+  public get value (): BigNumber {
+    return this.data.value
+  }
+
+  public get script (): Script {
+    return this.data.script
+  }
+
+  public get dct_id (): number {
+    return 0x00
+  }
+
+  composers (vout: Vout): BufferComposer[] {
+    return [
+      ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
+      ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v))
+    ]
+  }
+}
+
+/**
+ * Composable Vout, C stands for Composable.
+ * Immutable by design, it implements the Vout interface for convenience.
+ * Bi-directional fromBuffer, toBuffer deep composer.
+ *
+ * This is Transaction V4 buffer composition
+ */
+export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
   public get value (): BigNumber {
     return this.data.value
   }
@@ -105,16 +140,10 @@ export class CVout extends ComposableBuffer<Vout> implements Vout {
   }
 
   composers (vout: Vout): BufferComposer[] {
-    const DIGIT_8 = new BigNumber('100000000')
-
     return [
-      ComposableBuffer.bigUInt64(() => {
-        return BigInt(vout.value.multipliedBy(DIGIT_8).toString(10))
-      }, v => {
-        vout.value = new BigNumber(v.toString()).dividedBy(DIGIT_8)
-      }),
+      ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      ComposableBuffer.uInt8(() => vout.dct_id, v => vout.dct_id = v)
+      ComposableBuffer.varUInt(() => vout.dct_id, v => vout.dct_id = v)
     ]
   }
 }
@@ -192,7 +221,12 @@ export class CTransactionSegWit extends ComposableBuffer<TransactionSegWit> impl
       ComposableBuffer.uInt8(() => tx.marker, v => tx.marker = v),
       ComposableBuffer.uInt8(() => tx.flag, v => tx.flag = v),
       ComposableBuffer.varUIntArray<Vin>(() => tx.vin, v => tx.vin = v, v => new CVin(v)),
-      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => new CVout(v)),
+      ComposableBuffer.varUIntArray<Vout>(() => tx.vout, v => tx.vout = v, v => {
+        if (tx.version < 4) {
+          return new CVoutV2(v)
+        }
+        return new CVoutV4(v)
+      }),
       ComposableBuffer.array<Witness>(() => tx.witness, v => tx.witness = v, v => new CWitness(v), () => tx.vin.length),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]

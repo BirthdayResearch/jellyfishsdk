@@ -10,3 +10,10 @@ updates:
       - dependency-name: "parcel"
       - dependency-name: "@parcel/*"
       - dependency-name: "@defichain/*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    labels:
+      - "kind/chore"

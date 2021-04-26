@@ -1,8 +1,8 @@
 import { SmartBuffer } from 'smart-buffer'
 
 /**
- * @param num to write as VarUInt (1-9 bytes)
- * @param buffer to write to
+ * @param {number} num to write as VarUInt (1-9 bytes)
+ * @param {SmartBuffer} buffer to write to
  */
 export function writeVarUInt (num: number, buffer: SmartBuffer): void {
   validateUInt53(num)
@@ -35,7 +35,7 @@ export function writeVarUInt (num: number, buffer: SmartBuffer): void {
 
 /**
  * Read VarUInt as number
- * @param buffer to read VarUInt from (1-9 bytes)
+ * @param {SmartBuffer} buffer to read VarUInt from (1-9 bytes)
  * @throws RangeError 'out of Number.MAX_SAFE_INTEGER range' when it's out of MAX_SAFE_INTEGER
  */
 export function readVarUInt (buffer: SmartBuffer): number {
@@ -58,7 +58,7 @@ export function readVarUInt (buffer: SmartBuffer): number {
 }
 
 /**
- * @param num to get total number bytes (1-9 bytes)
+ * @param {number} num to get total number bytes (1-9 bytes)
  */
 export function byteLength (num: number): number {
   validateUInt53(num)
@@ -66,7 +66,7 @@ export function byteLength (num: number): number {
 }
 
 /**
- * @param num to validate
+ * @param {number} num to validate
  * @throws RangeError 'out of Number.MAX_SAFE_INTEGER range' when it's out of MAX_SAFE_INTEGER
  */
 function validateUInt53 (num: number): void {

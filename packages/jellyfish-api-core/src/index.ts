@@ -4,6 +4,7 @@ import { Mining } from './category/mining'
 import { RawTx } from './category/rawtx'
 import { Wallet } from './category/wallet'
 import { Account } from './category/account'
+import { Token } from './category/token'
 
 export * from '@defichain/jellyfish-json'
 export * from './category/blockchain'
@@ -11,6 +12,7 @@ export * from './category/mining'
 export * as rawtx from './category/rawtx'
 export * from './category/wallet'
 export * from './category/account'
+export * from './category/token'
 
 /**
  * ApiClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -21,6 +23,7 @@ export abstract class ApiClient {
   public readonly rawtx = new RawTx(this)
   public readonly wallet = new Wallet(this)
   public readonly account = new Account(this)
+  public readonly token = new Token(this)
 
   /**
    * A promise based procedure call handling

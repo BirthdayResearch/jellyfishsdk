@@ -13,9 +13,6 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  },
   "contributors": [
     {
       "name": "DeFiChain Foundation",
@@ -35,15 +32,12 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "publish:next": "npm publish --tag next --access public",
-    "publish:latest": "npm publish --tag latest --access public"
+    "build": "tsc"
   },
   "dependencies": {
     "@defichain/jellyfish-json": "0.0.0"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
-    "typescript": ">=4.2.0"
+    "@defichain/testcontainers": "0.0.0"
   }
 }

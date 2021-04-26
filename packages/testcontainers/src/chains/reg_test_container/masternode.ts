@@ -1,36 +1,7 @@
+import { GenesisKeys, MasterNodeKey } from '../../testkeys'
 import { DockerOptions } from 'dockerode'
-import { DeFiDContainer, StartOptions } from './container'
-import { GenesisKeys, MasterNodeKey } from '../testkeys'
-
-export class RegTestContainer extends DeFiDContainer {
-  constructor (options?: DockerOptions) {
-    super('regtest', options)
-  }
-
-  protected getCmd (opts: StartOptions): string[] {
-    return [...super.getCmd(opts),
-      '-regtest=1',
-      '-txnotokens=0',
-      '-logtimemicros',
-      '-txindex=1',
-      '-acindex=1',
-      '-amkheight=0',
-      '-bayfrontheight=1',
-      '-bayfrontgardensheight=2',
-      '-clarkequayheight=3',
-      '-dakotaheight=4',
-      '-dakotacrescentheight=5'
-    ]
-  }
-
-  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {
-    return await this.call('getnewaddress', [label, addressType])
-  }
-
-  async getRpcPort (): Promise<string> {
-    return await this.getPort('19554/tcp')
-  }
-}
+import { StartOptions } from '../container'
+import { RegTestContainer } from './index'
 
 /**
  * RegTest with MasterNode preconfigured
@@ -100,6 +71,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
     })
 
+    await new Promise((resolve) => {
+      // 1 second delay before stopping due to race conditions
+      setTimeout(_ => resolve(0), 1000)
+    })
+
     // restart and wait for ready
     await this.container?.stop()
     await this.container?.start()
@@ -108,6 +84,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
 
   /**
    * Wait for master node wallet coin to be mature for spending.
+   *
+   * A coinbase transaction must be 100 blocks deep before you can spend its outputs.
+   * This is a safeguard to prevent outputs that originate
+   * from the coinbase transaction from becoming unspendable
+   * (in the event the mined block moves out of the active chaindue to a fork).
    */
   async waitForWalletCoinbaseMaturity (): Promise<void> {
     await this.generate(100)

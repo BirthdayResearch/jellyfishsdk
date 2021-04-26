@@ -7,8 +7,23 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    name: Build & Test
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+
+      - run: npm ci
+      - run: npm run build
+
+      - run: npm run test:ci
+      - run: npx codecov
+
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,5 +35,17 @@ jobs:
       - run: npm run build
       - run: npm run standard
 
-      - run: npx --no-install jest --ci --coverage --forceExit
-      - run: npx codecov
+  size:
+    name: Size Limit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+
+      - uses: andresz1/size-limit-action@c53e18c847d5eb13f61754c45f3fbfc3aa5c17cc
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          build_script: build

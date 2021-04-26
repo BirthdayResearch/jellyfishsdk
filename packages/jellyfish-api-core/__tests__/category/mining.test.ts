@@ -75,7 +75,9 @@ describe('masternode', () => {
   })
 
   it('should getNetworkHashPerSecond', async () => {
-    const result = await client.mining.getNetworkHashPerSecond()
-    expect(result).toBeGreaterThan(0)
+    return await waitForExpect(async () => {
+      const result = await client.mining.getNetworkHashPerSecond()
+      expect(result).toBeGreaterThan(0)
+    })
   })
 })

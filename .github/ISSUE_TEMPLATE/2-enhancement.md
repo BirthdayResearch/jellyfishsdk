@@ -1,6 +1,6 @@
 ---
 name: Enhancement request
-about: Suggest an enhancement for jellyfish
+about: Suggest an enhancement for DeFi Jellyfish
 labels: kind/feature
 ---
 

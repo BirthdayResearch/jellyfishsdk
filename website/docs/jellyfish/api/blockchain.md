@@ -167,3 +167,45 @@ interface ScriptPubKey {
   tokenId: string
 }
 ```
+## getRawMempool
+
+Get all transaction ids in memory pool as string[] if verbose is false else as json object
+
+```ts title="client.blockchain.getRawMempool()"
+interface blockchain {
+  getRawMempool (verbose: false): Promise<string[]>
+  getRawMempool (verbose: true): Promise<MempoolTx>
+  getRawMempool (verbose: boolean): Promise<string[] | MempoolTx>
+}
+
+interface MempoolTx {
+  [key: string]: {
+    vsize: BigNumber
+    /**
+     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
+     */
+    size: BigNumber
+    weight: BigNumber
+    fee: BigNumber
+    modifiedfee: BigNumber
+    time: BigNumber
+    height: BigNumber
+    descendantcount: BigNumber
+    descendantsize: BigNumber
+    descendantfees: BigNumber
+    ancestorcount: BigNumber
+    ancestorsize: BigNumber
+    ancestorfees: BigNumber
+    wtxid: string
+    fees: {
+      base: BigNumber
+      modified: BigNumber
+      ancestor: BigNumber
+      descendant: BigNumber
+    }
+    depends: string[]
+    spentby: string[]
+    'bip125-replaceable': boolean
+  }
+}
+```

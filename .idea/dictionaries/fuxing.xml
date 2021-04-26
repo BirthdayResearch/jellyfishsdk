@@ -4,6 +4,9 @@
       <w>accounttoutxos</w>
       <w>acindex</w>
       <w>amkheight</w>
+      <w>ancestorcount</w>
+      <w>ancestorfees</w>
+      <w>ancestorsize</w>
       <w>anyonecanpay</w>
       <w>bayfrontgardensheight</w>
       <w>bayfrontheight</w>
@@ -27,6 +30,7 @@
       <w>codeseparator</w>
       <w>createmasternode</w>
       <w>createrawtransaction</w>
+      <w>createwallet</w>
       <w>currentblocktx</w>
       <w>currentblockweight</w>
       <w>dakotacrescentheight</w>
@@ -35,7 +39,11 @@
       <w>defi</w>
       <w>defichain</w>
       <w>defid</w>
+      <w>descendantcount</w>
+      <w>descendantfees</w>
+      <w>descendantsize</w>
       <w>devnet</w>
+      <w>dftx</w>
       <w>dockerode</w>
       <w>dummypos</w>
       <w>dumpprivkey</w>
@@ -53,23 +61,40 @@
       <w>getmintinginfo</w>
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
+      <w>getrawmempool</w>
       <w>getreceivedbyaddress</w>
       <w>gettransaction</w>
       <w>gettxout</w>
       <w>getunconfirmedbalance</w>
+      <w>getwalletinfo</w>
       <w>greaterthan</w>
       <w>greaterthanorequal</w>
+      <w>hdkeypath</w>
+      <w>hdmasterfingerprint</w>
+      <w>hdseedid</w>
       <w>ifdup</w>
       <w>importprivkey</w>
       <w>infima</w>
       <w>initialblockdownload</w>
       <w>invalidopcode</w>
+      <w>ischange</w>
+      <w>iscompressed</w>
+      <w>ismine</w>
       <w>isoperator</w>
+      <w>isscript</w>
+      <w>isvalid</w>
+      <w>iswatchonly</w>
+      <w>iswitness</w>
       <w>jsonrpc</w>
+      <w>keyhash</w>
+      <w>keypoololdest</w>
+      <w>keypoolsize</w>
       <w>lessthan</w>
       <w>lessthanorequal</w>
       <w>libevent</w>
       <w>listaccounts</w>
+      <w>listaddressgroupings</w>
+      <w>listunspent</w>
       <w>locktime</w>
       <w>logtimemicros</w>
       <w>lshift</w>
@@ -82,15 +107,19 @@
       <w>mempool</w>
       <w>merkleroot</w>
       <w>mintedblocks</w>
+      <w>modifiedfee</w>
+      <w>multisig</w>
       <w>nblocks</w>
       <w>networkhashps</w>
       <w>nextblockhash</w>
       <w>nmasternode</w>
       <w>nospv</w>
       <w>notif</w>
+      <w>nulldata</w>
       <w>numequal</w>
       <w>numequalverify</w>
       <w>numnotequal</w>
+      <w>paytxfee</w>
       <w>pooledtx</w>
       <w>previousblockhash</w>
       <w>prevout</w>
@@ -98,6 +127,8 @@
       <w>printtoconsole</w>
       <w>priv</w>
       <w>pubkey</w>
+      <w>pubkeyhash</w>
+      <w>pubkeys</w>
       <w>pushdata</w>
       <w>rawtx</w>
       <w>regtest</w>
@@ -108,21 +139,26 @@
       <w>rpcpassword</w>
       <w>rpcuser</w>
       <w>rshift</w>
+      <w>scripthash</w>
       <w>secp</w>
       <w>segwit</w>
       <w>sendrawtransaction</w>
       <w>sendtoaddress</w>
+      <w>setwalletflag</w>
       <w>sighash</w>
       <w>sighashtype</w>
       <w>signmessage</w>
       <w>signrawtransactionwithkey</w>
       <w>sigs</w>
+      <w>sigsrequired</w>
       <w>softforks</w>
+      <w>spentby</w>
       <w>strippedsize</w>
       <w>testcontainers</w>
       <w>testmempoolaccept</w>
       <w>thedoublejay</w>
       <w>toaltstack</w>
+      <w>txcount</w>
       <w>txid</w>
       <w>txindex</w>
       <w>txinwitness</w>
@@ -132,6 +168,7 @@
       <w>utxo</w>
       <w>utxos</w>
       <w>utxostoaccount</w>
+      <w>validateaddress</w>
       <w>varint</w>
       <w>verif</w>
       <w>verificationprogress</w>
@@ -139,7 +176,10 @@
       <w>vernotif</w>
       <w>vout</w>
       <w>vsize</w>
+      <w>walletname</w>
+      <w>walletversion</w>
       <w>wpkh</w>
+      <w>wtxid</w>
     </words>
   </dictionary>
 </component>

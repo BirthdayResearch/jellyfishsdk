@@ -4,9 +4,8 @@ import { OP_CODES, OP_PUSHDATA } from '../../src/script'
 import { getEllipticPairFromPrivateKey, SHA256, HASH160 } from '@defichain/jellyfish-crypto'
 
 describe('sign single input', () => {
-  // 0100000002fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f0000000000eeffffffef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0100000000ffffffff02202cb206000000001976a9148280b37df378db99f66f85c95a783a76ac7a6d5988ac9093510d000000001976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac11000000
   const transaction: Transaction = {
-    version: 0x00000001,
+    version: 0x00000004,
     vin: [
       {
         index: 0,
@@ -78,7 +77,7 @@ describe('sign single input', () => {
 
     expect(witness.scripts.length).toBe(2)
     expect(witness.scripts[0].hex).toBe(
-      '304402205273fcba694d7ec43cd291e2a07c07945eb3280c5419fe558a6ea92a03e91b15022001c4c25f9e3a3e6ad092c5f909356bebb7875fde0e57c97f3be10960631e9b2801'
+      '30440220529a7ad524c004d68dc331cc2a5c339051da00d73c49cca28661eb1e44f73ad002200ac99a3fec7030528839ac33f7870c462d542d57662ae3f79966a997a0e9115a01'
     )
     expect(witness.scripts[1].hex).toBe(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'
@@ -102,7 +101,7 @@ describe('sign single input', () => {
 
     expect(witness.scripts.length).toBe(2)
     expect(witness.scripts[0].hex).toBe(
-      '304402205273fcba694d7ec43cd291e2a07c07945eb3280c5419fe558a6ea92a03e91b15022001c4c25f9e3a3e6ad092c5f909356bebb7875fde0e57c97f3be10960631e9b2801'
+      '30440220529a7ad524c004d68dc331cc2a5c339051da00d73c49cca28661eb1e44f73ad002200ac99a3fec7030528839ac33f7870c462d542d57662ae3f79966a997a0e9115a01'
     )
     expect(witness.scripts[1].hex).toBe(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'

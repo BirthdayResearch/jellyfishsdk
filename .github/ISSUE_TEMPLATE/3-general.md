@@ -1,6 +1,6 @@
 ---
 name: General question
-about: General question about using jellyfish
+about: General question about using DeFi Jellyfish
 labels: kind/question
 ---
 

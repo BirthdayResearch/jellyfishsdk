@@ -9,16 +9,17 @@
 
 /website/                                       @fuxingloh
 
-/packages/jellyfish/                            @fuxingloh @thedoublejay @fullstackninja864 @canonbrother
-/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @thedoublejay @fullstackninja864
-/packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay @fullstackninja864 @canonbrother
+/packages/jellyfish/                            @fuxingloh
+/packages/jellyfish-api-core/                   @fuxingloh @canonbrother
+/packages/jellyfish-api-jsonrpc/                @fuxingloh
+/packages/jellyfish-api-whale/                  @fuxingloh @canonbrother
 /packages/jellyfish-crypto/                     @fuxingloh
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
 /packages/jellyfish-transaction/                @fuxingloh
 /packages/jellyfish-wallet/                     @fuxingloh
-/packages/jellyfish-wallet-dfi/                 @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
+/packages/jellyfish-wallet-whale/               @fuxingloh
 /packages/testcontainers/                       @fuxingloh
 
 lerna.json                                      @fuxingloh
