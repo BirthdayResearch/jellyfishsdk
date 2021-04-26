@@ -1,68 +1,71 @@
-import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { AccountOwner, AccountAmount } from '../../src'
-
-describe('non masternode', () => {
-  const container = new RegTestContainer()
-  const client = new ContainerAdapterClient(container)
-
-  beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-  })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
-  describe('listAccounts', () => {
-    it('should listAccounts', async () => {
-      await waitForExpect(async () => {
-        const accounts = await client.account.listAccounts()
-        console.log('accounts: ', accounts)
-      })
-    })
-  })
-})
+import { AccountOwner, AccountAmount, TokenBalances } from '../../src'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-
-  async function utxosToAccount (): Promise<void> {
-    const address = await container.call('getnewaddress')
-    const payload: { [key: string]: string } = {}
-    payload[address] = '100@0'
-    await container.call('utxostoaccount', [payload])
-    await container.generate(1)
-  }
-
-  // async function mintTokens (symbol: string): Promise<void> {
-
-  //   await container.call('minttokens', [`2000@${symbol}`])
-
-  //   await container.generate(1)
-  // }
 
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(300)
+
+    await setup()
   })
 
   afterAll(async () => {
     await container.stop()
   })
 
-  describe('listAccounts', () => {
-    beforeAll(async () => {
-      await utxosToAccount()
-      await utxosToAccount()
-      await utxosToAccount()
-    })
+  async function setup (): Promise<void> {
+    const address = await utxosToAccount()
 
+    const symbol = 'DLITE'
+    await createToken(symbol)
+    await accountToAccount(address, symbol)
+  }
+
+  async function utxosToAccount (): Promise<string> {
+    const address = await container.call('getnewaddress')
+
+    const payload: { [key: string]: string } = {}
+    payload[address] = '10000@0'
+    await container.call('utxostoaccount', [payload])
+
+    await container.generate(1)
+
+    return address
+  }
+
+  async function createToken (symbol: string): Promise<void> {
+    const address = await container.call('getnewaddress')
+    const metadata = {
+      symbol,
+      name: symbol,
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await container.call('createtoken', [metadata])
+    await container.generate(1)
+
+    await container.call('minttokens', [`500@${symbol}`])
+    await container.generate(1)
+  }
+
+  async function accountToAccount (from: string, symbol: string): Promise<void> {
+    const to = await container.call('getnewaddress')
+
+    await container.call('accounttoaccount', [from, { [to]: `5@${symbol}` }])
+
+    await container.generate(1)
+  }
+
+  describe.only('listAccounts', () => {
     it('should listAccounts', async () => {
       await waitForExpect(async () => {
         const accounts = await client.account.listAccounts()
@@ -78,7 +81,7 @@ describe('masternode', () => {
         expect(typeof (account.owner as AccountOwner).reqSigs).toBe('number')
         expect((account.owner as AccountOwner).type).toBe('scripthash')
         expect((account.owner as AccountOwner).addresses.length).toBeGreaterThan(0)
-        expect(account.amount).toBe('100.00000000@DFI')
+        expect(typeof account.amount).toBe('string') // eg: 10.00000000@DFI
       }
     })
 
@@ -87,15 +90,18 @@ describe('masternode', () => {
 
       await waitForExpect(async () => {
         accounts = await client.account.listAccounts()
+        console.log('accounts: ', accounts)
         expect(accounts.length).toBeGreaterThan(0)
       })
 
       const pagination = {
-        start: accounts[0].owner.key,
+        start: accounts[2].owner.key,
         including_start: true
       }
 
       accounts = await client.account.listAccounts(pagination)
+      console.log('accounts 2: ', accounts)
+
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
@@ -104,7 +110,7 @@ describe('masternode', () => {
         expect(typeof (account.owner as AccountOwner).reqSigs).toBe('number')
         expect((account.owner as AccountOwner).type).toBe('scripthash')
         expect((account.owner as AccountOwner).addresses.length).toBeGreaterThan(0)
-        expect(account.amount).toBe('100.00000000@DFI')
+        expect(typeof account.amount).toBe('string') // eg: 10.00000000@DFI
       }
     })
 
@@ -134,7 +140,7 @@ describe('masternode', () => {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
         expect(typeof account.owner).toBe('string')
-        expect(account.amount).toBe('100.00000000@DFI')
+        expect(typeof account.amount).toBe('string') // eg: 10.00000000@DFI
       }
     })
 
@@ -189,23 +195,20 @@ describe('masternode', () => {
     })
   })
 
-  describe.only('getAccount', () => {
-    beforeAll(async () => {
-      await utxosToAccount()
-    })
-
-    it.only('should getAccount', async () => {
+  describe('getAccount', () => {
+    it('should getAccount', async () => {
       let accounts: any[] = []
 
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts({}, false)
+        accounts = await client.account.listAccounts()
         expect(accounts.length).toBeGreaterThan(0)
       })
+      console.log('accounts: ', accounts)
 
-      const account = await client.account.getAccount(accounts[0].owner)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0])
       console.log('account: ', account)
       // expect(account.length).toBeGreaterThan(0)
-      // expect(account[0]).toBe('100.00000000@DFI')
+      // expect(account[0]).toBe('10.00000000@DFI')
     })
 
     it('should getAccount with pagination start and including_start', async () => {
@@ -221,11 +224,11 @@ describe('masternode', () => {
         including_start: true
       }
 
-      const account = await client.account.getAccount(accounts[0].owner, pagination)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
       console.log('account 1: ', account)
 
       expect(account.length).toBeGreaterThan(0)
-      expect(account[0]).toBe('100.00000000@DFI')
+      expect(account[0]).toBe('10.00000000@DFI')
     })
 
     it('should getAccount with pagination.limit', async () => {
@@ -239,7 +242,7 @@ describe('masternode', () => {
       const pagination = {
         limit: 2
       }
-      const account = await client.account.getAccount(accounts[0].owner, pagination)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
       console.log('account 2: ', account)
     })
 
@@ -255,38 +258,286 @@ describe('masternode', () => {
         indexedAmounts: true
       }
 
-      const account = await client.account.getAccount(accounts[0].owner, {}, options)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, options)
       console.log('account 3: ', account)
+      expect(typeof account).toBe('object')
+      expect(typeof account[0]).toBe('number')
     })
   })
 
   describe('getTokenBalances', () => {
-    beforeAll(async () => {
-      await utxosToAccount()
+    it('should getTokenBalances', async () => {
+      await waitForExpect(async () => {
+        const tokenBalances: number[] = await client.account.getTokenBalances()
+        console.log('tokenBalances: ', tokenBalances)
+        expect(tokenBalances.length).toBeGreaterThan(0)
+        expect(tokenBalances[0]).toBe(60)
+      })
     })
 
-    it('should getTokenBalances', async () => {
-      let accounts: any[] = []
-
+    it('should getTokenBalances with pagination start and including_start', async () => {
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts()
-        expect(accounts.length).toBeGreaterThan(0)
+        const pagination = {
+          start: '',
+          including_start: true
+        }
+        const tokenBalances: number[] = await client.account.getTokenBalances(pagination)
+        console.log('tokenBalances: ', tokenBalances)
+        // expect(tokenBalances.length).toBeGreaterThan(0)
+        // expect(tokenBalances[0]).toBe(0)
       })
+    })
 
-      const tokenBalances = await client.account.getTokenBalances(accounts[0].owner)
-      console.log('tokenBalances: ', tokenBalances)
+    it('should getTokenBalances with pagination limit', async () => {
+      await waitForExpect(async () => {
+        const pagination = {
+          limit: 2
+        }
+        const tokenBalances: number[] = await client.account.getTokenBalances(pagination)
+        console.log('tokenBalances: ', tokenBalances)
+        // expect(tokenBalances.length).toBeGreaterThan(0)
+        // expect(tokenBalances[0]).toBe(0)
+      })
+    })
+
+    it('should getTokenBalances with indexedAmounts true', async () => {
+      await waitForExpect(async () => {
+        const tokenBalances: TokenBalances = await client.account.getTokenBalances({}, true)
+        console.log('tokenBalances: ', tokenBalances)
+        expect(typeof tokenBalances === 'object').toBe(true)
+        expect(tokenBalances['0']).toBe(60)
+      })
+    })
+
+    it('should getTokenBalances with symbolLookup', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          symbolLookup: true
+        }
+        const tokenBalances: string[] = await client.account.getTokenBalances({}, false, options)
+        console.log('tokenBalances: ', tokenBalances)
+        expect(tokenBalances.length).toBeGreaterThan(0)
+        expect(tokenBalances[0]).toBe('60.00000000@DFI')
+      })
     })
   })
 
-  // describe('listAccountHistory', () => {
-  //   beforeAll(async () => {
-  //     await utxosToAccount()
-  //     await utxosToAccount()
-  //     await utxosToAccount()
-  //   })
+  describe('listAccountHistory', () => {
+    it('should listAccountHistory', async () => {
+      await waitForExpect(async () => {
+        const accountHistories = await client.account.listAccountHistory()
+        console.log('accountHistories: ', accountHistories.length)
+        expect(accountHistories.length).toBeGreaterThan(0)
+      })
 
-  //   it('should listAccountHistory', async () => {
+      const accountHistories = await client.account.listAccountHistory()
 
-  //   })
-  // })
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(typeof accountHistory.owner).toBe('string')
+        expect(typeof accountHistory.blockHeight).toBe('number')
+        expect(typeof accountHistory.blockHash).toBe('string')
+        expect(typeof accountHistory.blockTime).toBe('number')
+        expect(typeof accountHistory.type).toBe('string') // UtxosToAccount, sent, receive
+        expect(typeof accountHistory.txn).toBe('number')
+        expect(typeof accountHistory.txid).toBe('string')
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        expect(typeof accountHistory.amounts[0]).toBe('string') // [ '10.00000000@DFI' ]
+      }
+    })
+
+    it('should listAccountHistory with owner "all"', async () => {
+      await waitForExpect(async () => {
+        const accountHistories = await client.account.listAccountHistory('all')
+        console.log('accountHistories: ', accountHistories)
+        expect(accountHistories.length).toBeGreaterThan(0)
+      })
+
+      const accountHistories = await client.account.listAccountHistory('all')
+
+      for (let i = 0; i < accountHistories.length; i += 1) {
+        const accountHistory = accountHistories[i]
+        expect(typeof accountHistory.owner).toBe('string')
+        expect(typeof accountHistory.blockHeight).toBe('number')
+        expect(typeof accountHistory.blockHash).toBe('string')
+        expect(typeof accountHistory.blockTime).toBe('number')
+        expect(typeof accountHistory.type).toBe('string')
+        expect(typeof accountHistory.txn).toBe('number')
+        expect(typeof accountHistory.txid).toBe('string')
+        expect(accountHistory.amounts.length).toBeGreaterThan(0)
+        expect(typeof accountHistory.amounts[0]).toBe('string')
+      }
+    })
+
+    it('should listAccountHistory with owner CScript', async () => {
+      await waitForExpect(async () => {
+        const accountHistories = await client.account.listAccountHistory()
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with owner address', async () => {
+      await waitForExpect(async () => {
+        const accountHistories = await client.account.listAccountHistory()
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with options maxBlockHeight', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          maxBlockHeight: 100
+        }
+
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with options depth', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          depth: 1
+        }
+
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with options no_rewards', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          no_rewards: true
+        }
+
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with options token', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          token: ''
+        }
+
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with options txtype', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          txtype: ''
+        }
+
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBeGreaterThan(0)
+
+        for (let i = 0; i < accountHistories.length; i += 1) {
+          const accountHistory = accountHistories[i]
+          expect(typeof accountHistory.owner).toBe('string')
+          expect(typeof accountHistory.blockHeight).toBe('number')
+          expect(typeof accountHistory.blockHash).toBe('string')
+          expect(typeof accountHistory.blockTime).toBe('number')
+          expect(typeof accountHistory.type).toBe('string') // UtxosToAccount
+          expect(typeof accountHistory.txn).toBe('number')
+          expect(typeof accountHistory.txid).toBe('string')
+          expect(accountHistory.amounts.length).toBeGreaterThan(0)
+          expect(typeof accountHistory.amounts[0]).toBe('number')
+        }
+      })
+    })
+
+    it('should listAccountHistory with options limit', async () => {
+      await waitForExpect(async () => {
+        const options = {
+          limit: 1
+        }
+
+        const accountHistories = await client.account.listAccountHistory('mine', options)
+        expect(accountHistories.length).toBe(1)
+      })
+    })
+  })
 })
