@@ -23,11 +23,11 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<AccountResult[]>}
    */
-  async listAccounts (
+  async listAccounts<T, U> (
     pagination: AccountPagination = {},
     verbose = true,
     options: ListAccountOptions = {}
-  ): Promise<AccountResult[]> {
+  ): Promise<Array<AccountResult<T, U>>> {
     const { indexedAmounts = false, isMineOnly = false } = options
     return await this.client.call('listaccounts', [pagination, verbose, indexedAmounts, isMineOnly], 'number')
   }
@@ -147,10 +147,10 @@ export interface AccountPagination {
   limit?: number
 }
 
-export interface AccountResult {
+export interface AccountResult<T, U> {
   key: string
-  owner: string | AccountOwner
-  amount: string | AccountAmount
+  owner: T // string | AccountOwner
+  amount: U // string | AccountAmount
 }
 
 export interface AccountOwner {
