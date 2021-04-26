@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core'
-import { CallController } from '@src/module-api/controller.call'
-import { NetworkGuard } from '@src/module-api/commons/guard.network'
-import { TransformInterceptor } from '@src/module-api/commons/interceptor.transform'
-import { ExceptionInterceptor } from '@src/module-api/commons/interceptor.exception'
+import { CallController } from '@src/module.api/call.controller'
+import { NetworkGuard } from '@src/module.api/commons/network.guard'
+import { TransformInterceptor } from '@src/module.api/commons/transform.interceptor'
+import { ExceptionInterceptor } from '@src/module.api/commons/exception.interceptor'
 
 /**
  * Exposed ApiModule for public interfacing

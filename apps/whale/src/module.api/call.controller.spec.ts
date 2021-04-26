@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { CallController } from '@src/module-api/controller.call'
+import { CallController } from '@src/module.api/call.controller'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
