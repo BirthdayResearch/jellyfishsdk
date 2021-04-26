@@ -3,7 +3,7 @@ import { Observable } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
 
 /**
- * Whale endpoints are exposed as /v1.0/:network/...
+ * Whale endpoints are exposed as /v1/:network/...
  * Each whale server can only run a single network for separation of concerns.
  * This provides global request guard to ensure request are routed to the correct endpoint.
  * Incorrect network will raise NotFoundException and handled as a 404 response.
