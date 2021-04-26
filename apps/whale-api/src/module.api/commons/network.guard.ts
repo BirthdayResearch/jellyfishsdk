@@ -21,7 +21,7 @@ export class NetworkGuard implements CanActivate {
   constructor (private readonly configService: ConfigService) {
     const network = configService.get<string>('network')
     if (network === undefined || !NetworkGuard.available.includes(network)) {
-      throw new Error('bootstrapping error: missing config in configuration.ts - network is not configured')
+      throw new Error('bootstrapping error: missing config in app.configuration.ts - network is not configured')
     }
     this.network = network
   }

@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
-import { ApiModule } from '@src/module-api'
+import { ApiModule } from '@src/module.api'
 import { DeFiDModule } from '@src/module.defid'
-import configuration from '@src/configuration'
+import configuration from '@src/app.configuration'
 
 @Module({
   imports: [
