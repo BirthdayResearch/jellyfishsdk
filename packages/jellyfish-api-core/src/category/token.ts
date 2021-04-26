@@ -38,13 +38,13 @@ export class Token {
    * Updates a token with given metadata
    *
    * @param {string} token symbolKey, id ror creation tx
-   * @param {UpdateTokenMetadata=} metadata
-   * @param {string=} metadata.symbol
-   * @param {string=} metadata.name
-   * @param {boolean=} metadata.isDAT
-   * @param {boolean=} metadata.mintable
-   * @param {boolean=} metadata.tradeable
-   * @param {boolean=} metadata.finalize
+   * @param {UpdateTokenMetadata} [metadata]
+   * @param {string} [metadata.symbol]
+   * @param {string} [metadata.name]
+   * @param {boolean} [metadata.isDAT]
+   * @param {boolean} [metadata.mintable]
+   * @param {boolean} [metadata.tradeable]
+   * @param {boolean} [metadata.finalize]
    * @return {Promise<string>}
    */
   async updateToken (token: string, metadata?: UpdateTokenMetadata): Promise<string> {

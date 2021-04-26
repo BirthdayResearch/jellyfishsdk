@@ -12,6 +12,7 @@ module.exports = {
         'jellyfish/api/mining',
         'jellyfish/api/rawtx',
         'jellyfish/api/wallet',
+        'jellyfish/api/poolpair',
         'jellyfish/api/token'
       ]
     }
