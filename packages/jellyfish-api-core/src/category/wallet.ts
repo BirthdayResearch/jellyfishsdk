@@ -53,15 +53,15 @@ export class Wallet {
    *
    * @param {number} minimumConfirmation default = 1, to filter
    * @param {number} maximumConfirmation default = 9999999, to filter
-   * @param {ListUnspentOptions=} options
-   * @param {string[]=} options.addresses to filter
-   * @param {boolean=} options.includeUnsafe default = true, include outputs that are not safe to spend
-   * @param {ListUnspentQueryOptions=} options.queryOptions
-   * @param {number=} options.queryOptions.minimumAmount default = 0, minimum value of each UTXO
-   * @param {number=} options.queryOptions.maximumAmount default is 'unlimited', maximum value of each UTXO
-   * @param {number=} options.queryOptions.maximumCount default is 'unlimited', maximum number of UTXOs
-   * @param {number=} options.queryOptions.minimumSumAmount default is 'unlimited', minimum sum valie of all UTXOs
-   * @param {string=} options.queryOptions.tokenId default is 'all', filter by token
+   * @param {ListUnspentOptions} [options]
+   * @param {string[]} [options.addresses] to filter
+   * @param {boolean} [options.includeUnsafe=true] default = true, include outputs that are not safe to spend
+   * @param {ListUnspentQueryOptions} [options.queryOptions]
+   * @param {number} [options.queryOptions.minimumAmount] default = 0, minimum value of each UTXO
+   * @param {number} [options.queryOptions.maximumAmount] default is 'unlimited', maximum value of each UTXO
+   * @param {number} [options.queryOptions.maximumCount] default is 'unlimited', maximum number of UTXOs
+   * @param {number} [options.queryOptions.minimumSumAmount] default is 'unlimited', minimum sum valie of all UTXOs
+   * @param {string} [options.queryOptions.tokenId] default is 'all', filter by token
    * @return {Promise<UTXO[]>}
   */
   async listUnspent (
@@ -86,10 +86,10 @@ export class Wallet {
    *
    * @param {string} walletName
    * @param {boolean} disablePrivateKeys
-   * @param {CreateWalletOptions=} options
-   * @param {boolean=} options.blank
-   * @param {string=} options.passphrase
-   * @param {boolean=} options.avoidReuse
+   * @param {CreateWalletOptions} [options]
+   * @param {boolean} [options.blank]
+   * @param {string} [options.passphrase]
+   * @param {boolean} [options.avoidReuse]
    * @return {Promise<CreateWalletResult>}
    */
   async createWallet (
@@ -169,14 +169,14 @@ export class Wallet {
    *
    * @param {string} address
    * @param {number} amount
-   * @param {SendToAddressOptions=} options
-   * @param {string=} options.comment
-   * @param {string=} options.commentTo
-   * @param {boolean=} options.subtractFeeFromAmount
-   * @param {boolean=} options.replaceable
-   * @param {number=} options.confTarget
-   * @param {Mode=} options.estimateMode
-   * @param {boolean=} options.avoidReuse
+   * @param {SendToAddressOptions} [options]
+   * @param {string} [options.comment]
+   * @param {string} [options.commentTo]
+   * @param {boolean} [options.subtractFeeFromAmount]
+   * @param {boolean} [options.replaceable]
+   * @param {number} [options.confTarget]
+   * @param {Mode} [options.estimateMode]
+   * @param {boolean} [options.avoidReuse]
    * @return {Promise<string>}
    */
   async sendToAddress (

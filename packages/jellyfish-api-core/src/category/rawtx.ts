@@ -25,9 +25,9 @@ export class RawTx {
    *
    * @param {CreateRawTxIn[]} inputs array of inputs
    * @param {CreateRawTxOut[]} outputs array with outputs
-   * @param {CreateRawTxOptions=} options
-   * @param {number=} options.locktime Non-0 value also locktime-activates inputs
-   * @param {boolean=} options.replaceable Marks this transaction as BIP125-replaceable
+   * @param {CreateRawTxOptions} [options]
+   * @param {number} [options.locktime] Non-0 value also locktime-activates inputs
+   * @param {boolean} [options.replaceable] Marks this transaction as BIP125-replaceable
    * @return {Promise<string>} hex string of the transaction
    */
   async createRawTransaction (
@@ -49,9 +49,9 @@ export class RawTx {
    *
    * @param {string} rawTx unsigned raw transaction
    * @param {string[]} privKeys array of base58-encoded private keys for signing (WIF)
-   * @param {SignRawTxWithKeyOptions=} options
-   * @param {SigHashType=} options.sigHashType the signature hash type to use
-   * @param {SignRawTxWithKeyPrevTx[]=} options.prevTxs array of previous dependent transaction outputs
+   * @param {SignRawTxWithKeyOption} [options]
+   * @param {SigHashType} [options.sigHashType] the signature hash type to use
+   * @param {SignRawTxWithKeyPrevTx[]} [options.prevTxs] array of previous dependent transaction outputs
    * @return {Promise<SignRawTxWithKeyResult>}
    */
   async signRawTransactionWithKey (
