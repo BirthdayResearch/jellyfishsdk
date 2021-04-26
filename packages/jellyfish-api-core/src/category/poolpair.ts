@@ -20,11 +20,11 @@ export class PoolPair {
    * @param {number} metadata.commission
    * @param {boolean} metadata.status
    * @param {string} metadata.ownerAddress
-   * @param {string=} metadata.customRewards
-   * @param {string=} metadata.pairSymbol
+   * @param {string} [metadata.customRewards]
+   * @param {string} [metadata.pairSymbol]
    * @param {CreatePoolPairUTXO[]} utxos is an array of specific UTXOs to spend
-   * @param {string} utxo.txid
-   * @param {number} utxo.vout
+   * @param {string} utxos.txid
+   * @param {number} utxos.vout
    * @return {Promise<string>}
    */
   async createPoolPair (metadata: CreatePoolPairMetadata, utxos: CreatePoolPairUTXO[] = []): Promise<string> {
@@ -69,10 +69,10 @@ export class PoolPair {
    * @param {AddPoolLiquiditySource} from pool liquidity sources
    * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
    * @param {string} shareAddress defi address for crediting tokens
-   * @param {AddPoolLiquidityOptions} options
-   * @param {AddPoolLiquidityUTXO[]=} options.utxos utxos array of specific UTXOs to spend
-   * @param {string} options.utxos.txid
-   * @param {number} options.utxos.vout
+   * @param {AddPoolLiquidityOptions} [options]
+   * @param {AddPoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
   async addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string> {
@@ -88,8 +88,8 @@ export class PoolPair {
    * @param {boolean} pagination.including_start default = true
    * @param {number} pagination.limit to limit number of records
    * @param {boolean} verbose default = true, otherwise only poolID, owner and %
-   * @param {PoolShareOptions} options
-   * @param {boolean=} options.isMineOnly default = true
+   * @param {PoolShareOptions} [options]
+   * @param {boolean} [options.isMineOnly=true]
    * @return {Promise<PoolShareResult>}
    */
   async listPoolShares (
