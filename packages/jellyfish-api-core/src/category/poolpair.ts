@@ -122,37 +122,40 @@ export interface CreatePoolPairUTXO {
 }
 
 export interface PoolPairResult {
-  [id: string]: {
-    symbol: string
-    name: string
-    status: string
-    idTokenA: string
-    idTokenB: string
-    reserveA: BigNumber
-    reserveB: BigNumber
-    commission: BigNumber
-    totalLiquidity: BigNumber
-    ['reserveA/reserveB']: BigNumber | string
-    ['reserveB/reserveA']: BigNumber | string
-    tradeEnabled: boolean
-    ownerAddress: string
-    blockCommissionA: BigNumber
-    blockCommissionB: BigNumber
-    rewardPct: BigNumber
-    customRewards: BigNumber
-    creationTx: string
-    creationHeight: BigNumber
-  }
+  [id: string]: PoolPairInfo
 }
 
+export interface PoolPairInfo {
+  symbol: string
+  name: string
+  status: string
+  idTokenA: string
+  idTokenB: string
+  reserveA: BigNumber
+  reserveB: BigNumber
+  commission: BigNumber
+  totalLiquidity: BigNumber
+  ['reserveA/reserveB']: BigNumber | string
+  ['reserveB/reserveA']: BigNumber | string
+  tradeEnabled: boolean
+  ownerAddress: string
+  blockCommissionA: BigNumber
+  blockCommissionB: BigNumber
+  rewardPct: BigNumber
+  customRewards: BigNumber
+  creationTx: string
+  creationHeight: BigNumber
+}
 export interface PoolShareResult {
-  [id: string]: {
-    poolID: string
-    owner: string
-    ['%']: BigNumber
-    amount: BigNumber
-    totalLiquidity: BigNumber
-  }
+  [id: string]: PoolShareInfo
+}
+
+interface PoolShareInfo {
+  poolID: string
+  owner: string
+  ['%']: BigNumber
+  amount: BigNumber
+  totalLiquidity: BigNumber
 }
 
 export interface PoolPairPagination {

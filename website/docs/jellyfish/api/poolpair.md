@@ -29,27 +29,29 @@ interface poolpair {
 }
 
 interface PoolPairResult {
-  [id: string]: {
-    symbol: string
-    name: string
-    status: string
-    idTokenA: string
-    idTokenB: string
-    reserveA: BigNumber
-    reserveB: BigNumber
-    commission: BigNumber
-    totalLiquidity: BigNumber
-    ['reserveA/reserveB']: BigNumber
-    ['reserveB/reserveA']: BigNumber
-    tradeEnabled: boolean
-    ownerAddress: string
-    blockCommissionA: BigNumber
-    blockCommissionB: BigNumber
-    rewardPct: BigNumber
-    customRewards: BigNumber
-    creationTx: string
-    creationHeight: number
-  }
+  [id: string]: PoolPairInfo
+}
+
+interface PoolPairInfo {
+  symbol: string
+  name: string
+  status: string
+  idTokenA: string
+  idTokenB: string
+  reserveA: BigNumber
+  reserveB: BigNumber
+  commission: BigNumber
+  totalLiquidity: BigNumber
+  ['reserveA/reserveB']: BigNumber
+  ['reserveB/reserveA']: BigNumber
+  tradeEnabled: boolean
+  ownerAddress: string
+  blockCommissionA: BigNumber
+  blockCommissionB: BigNumber
+  rewardPct: BigNumber
+  customRewards: BigNumber
+  creationTx: string
+  creationHeight: number
 }
 
 interface PoolPairPagination {
@@ -69,29 +71,32 @@ interface poolpair {
 }
 
 interface PoolPairResult {
-  [id: string]: {
-    symbol: string
-    name: string
-    status: string
-    idTokenA: string
-    idTokenB: string
-    reserveA: BigNumber
-    reserveB: BigNumber
-    commission: BigNumber
-    totalLiquidity: BigNumber
-    ['reserveA/reserveB']: BigNumber
-    ['reserveB/reserveA']: BigNumber
-    tradeEnabled: boolean
-    ownerAddress: string
-    blockCommissionA: BigNumber
-    blockCommissionB: BigNumber
-    rewardPct: BigNumber
-    customRewards: BigNumber
-    creationTx: string
-    creationHeight: number
-  }
+  [id: string]: PoolPairInfo
+}
+
+interface PoolPairInfo {
+  symbol: string
+  name: string
+  status: string
+  idTokenA: string
+  idTokenB: string
+  reserveA: BigNumber
+  reserveB: BigNumber
+  commission: BigNumber
+  totalLiquidity: BigNumber
+  ['reserveA/reserveB']: BigNumber
+  ['reserveB/reserveA']: BigNumber
+  tradeEnabled: boolean
+  ownerAddress: string
+  blockCommissionA: BigNumber
+  blockCommissionB: BigNumber
+  rewardPct: BigNumber
+  customRewards: BigNumber
+  creationTx: string
+  creationHeight: number
 }
 ```
+
 
 ## addPoolLiquidity
 
@@ -134,13 +139,15 @@ interface poolpair {
 }
 
 interface PoolShareResult {
-  [id: string]: {
-    poolID: string
-    owner: string
-    ['%']: BigNumber
-    amount: BigNumber
-    totalLiquidity: BigNumber
-  }
+  [id: string]: PoolShareInfo
+}
+
+interface PoolShareInfo {
+  poolID: string
+  owner: string
+  ['%']: BigNumber
+  amount: BigNumber
+  totalLiquidity: BigNumber
 }
 
 interface PoolPairPagination {
