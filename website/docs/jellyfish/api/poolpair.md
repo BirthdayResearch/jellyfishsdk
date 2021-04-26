@@ -1,5 +1,5 @@
 ---
-id: poolPair
+id: poolpair
 title: Pool Pair API
 sidebar_label: Pool Pair API
 slug: /jellyfish/api/poolpair
@@ -8,7 +8,7 @@ slug: /jellyfish/api/poolpair
 ```js
 import {Client} from '@defichain/jellyfish'
 const client = new Client()
-// Using client.poolPair.
+// Using client.poolpair.
 const something = await client.poolpair.method()
 ```
 
@@ -65,7 +65,7 @@ interface PoolPairPagination {
 
 Returns information about pools
 
-```ts title="client.poolPair.getPoolPair()"
+```ts title="client.poolpair.getPoolPair()"
 interface poolpair {
   getPoolPair (symbol: string, verbose = true): Promise<PoolPairResult>
 }
@@ -102,7 +102,7 @@ interface PoolPairInfo {
 
 Add pool liquidity transaction
 
-```ts title="client.poolPair.addPoolLiquidity()"
+```ts title="client.poolpair.addPoolLiquidity()"
 interface poolpair {
   addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string>
 }
@@ -125,7 +125,7 @@ interface AddPoolLiquidityUTXO {
 
 Returns information about pools
 
-```ts title="client.poolPair.listPoolShares()"
+```ts title="client.poolpair.listPoolShares()"
 interface poolpair {
   listPoolShares (
     pagination: PoolPairPagination = {
