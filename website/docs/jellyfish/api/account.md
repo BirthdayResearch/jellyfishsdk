@@ -18,7 +18,11 @@ Returns information about all accounts on chain
 
 ```ts title="client.account.listAccounts()"
 interface account {
-  async listAccounts<T, U> (
+  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, string>>>
+  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<string, string>>>
+  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
+  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
+  listAccounts<T, U> (
     pagination: AccountPagination = {},
     verbose = true,
     options: ListAccountOptions = {}
@@ -33,8 +37,8 @@ interface AccountPagination {
 
 interface AccountResult<T, U> {
   key: string
-  owner: T // string | AccountOwner
-  amount: U // string | AccountAmount
+  owner: T // string | AccountOwner (if verbose true)
+  amount: U // string | AccountAmount (if options.indexedAmounts true)
 }
 
 interface AccountOwner {
@@ -60,7 +64,15 @@ Returns information about account
 
 ```ts title="client.account.getAccount()"
 interface account {
-  async getAccount (owner: string, pagination: AccountPagination = {}, options: GetAccountOptions = {}): Promise<string>
+  getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: false }): Promise<string[]>
+  getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: true }): Promise<AccountAmount>
+  getAccount (
+    owner: string,
+    pagination: AccountPagination = {},
+    options: GetAccountOptions = {
+      indexedAmounts: false,
+    },
+  ): Promise<string[] | AccountAmount>
 }
 ```
 
@@ -70,16 +82,16 @@ Returns the balances of all accounts that belong to the wallet
 
 ```ts title="client.account.getTokenBalances()"
 interface account {
-  getTokenBalances<T> (pagination?: AccountPagination, indexedAmounts?: false, options?: GetTokenBalancesOptions): Promise<T[]>
-  getTokenBalances<T> (pagination?: AccountPagination, indexedAmounts?: true, options?: GetTokenBalancesOptions): Promise<T>
-  getTokenBalances<T> (pagination?: AccountPagination, indexedAmounts?: false, options?: { symbolLookup: true }): Promise<T[]>
-  async getTokenBalances<T> (
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<number[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
+  getTokenBalances (
     pagination: AccountPagination = {},
     indexedAmounts = false,
     options: GetTokenBalancesOptions = {
       symbolLookup: false
     }
-  ): Promise<T[] | TokenBalances>
+  ): Promise<number[] | string[] | TokenBalances>
 }
 
 interface TokenBalances {
@@ -103,8 +115,10 @@ Returns information about account history
 
 ```ts title="client.account.listAccountHistory()"
 interface account {
-  async listAccountHistory (owner = 'mine', options: AccountHistoryOptions = {}): Promise<AccountHistory[]>
+  listAccountHistory (owner: OwnerType = 'mine', options: AccountHistoryOptions = {}): Promise<AccountHistory[]>
 }
+
+type OwnerType = 'mine' | 'all' | string
 
 interface AccountHistory {
   owner: string

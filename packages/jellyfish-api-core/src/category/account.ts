@@ -1,5 +1,7 @@
 import { ApiClient } from '../.'
 
+type OwnerType = 'mine' | 'all' | string
+
 /**
  * Account related RPC calls for DeFiChain
  */
@@ -21,8 +23,16 @@ export class Account {
    * @param {ListAccountOptions} [options] default = true, otherwise limited objects are listed
    * @param {boolean} [options.indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
-   * @return {Promise<AccountResult[]>}
+   * @return {Promise<Array<AccountResult<T, U>>>}
    */
+  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, string>>>
+
+  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<string, string>>>
+
+  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
+
+  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
+
   async listAccounts<T, U> (
     pagination: AccountPagination = {},
     verbose = true,
@@ -42,9 +52,13 @@ export class Account {
    * @param {number} [pagination.limit]
    * @param {GetAccountOptions} [options]
    * @param {boolean} [options.indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
-   * @return {Promise<string[]>}
+   * @return {Promise<string[]> | AccountAmount}
    */
-  async getAccount (owner: string, pagination: AccountPagination = {}, options: GetAccountOptions = {}): Promise<string> {
+  getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: false }): Promise<string[]>
+
+  getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: true }): Promise<AccountAmount>
+
+  async getAccount (owner: string, pagination: AccountPagination = {}, options: GetAccountOptions = {}): Promise<string[] | AccountAmount> {
     const { indexedAmounts = false } = options
     return await this.client.call('getaccount', [owner, pagination, indexedAmounts], 'number')
   }
@@ -62,9 +76,7 @@ export class Account {
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
    * @return {Promise<number[]>}
    */
-  getTokenBalances<T> (
-    pagination?: AccountPagination, indexedAmounts?: false, options?: GetTokenBalancesOptions
-  ): Promise<T[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<number[]>
 
   /**
    * Returns the balances in  of all accounts that belong to the wallet
@@ -79,9 +91,7 @@ export class Account {
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
    * @return {Promise<TokenBalances>}
    */
-  getTokenBalances<T> (
-    pagination?: AccountPagination, indexedAmounts?: true, options?: GetTokenBalancesOptions,
-  ): Promise<T>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
 
   /**
    * Returns the balances of all accounts that belong to the wallet
@@ -96,9 +106,7 @@ export class Account {
    * @param {boolean} [options.symbolLookup=true] use token symbols in output, default = false
    * @return {Promise<string[]>}
    */
-  getTokenBalances<T> (
-    pagination?: AccountPagination, indexedAmounts?: false, options?: { symbolLookup: true },
-  ): Promise<T[]>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
 
   /**
    * Returns the balances of all accounts that belong to the wallet
@@ -112,13 +120,13 @@ export class Account {
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
    * @return {Promise<number[] | string[] | TokenBalances>}
    */
-  async getTokenBalances<T> (
+  async getTokenBalances (
     pagination: AccountPagination = {},
     indexedAmounts = false,
     options: GetTokenBalancesOptions = {
       symbolLookup: false
     }
-  ): Promise<T[] | TokenBalances> {
+  ): Promise<number[] | string[] | TokenBalances> {
     const { symbolLookup } = options
     return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'number')
   }
@@ -136,7 +144,7 @@ export class Account {
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @return {Promise<AccountHistory[]>}
    */
-  async listAccountHistory (owner = 'mine', options: AccountHistoryOptions = {}): Promise<AccountHistory[]> {
+  async listAccountHistory (owner: OwnerType = 'mine', options: AccountHistoryOptions = {}): Promise<AccountHistory[]> {
     return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 }

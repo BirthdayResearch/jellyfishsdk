@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { AccountOwner, AccountAmount, TokenBalances } from '../../src'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -69,28 +68,30 @@ describe('masternode', () => {
   describe('listAccounts', () => {
     it('should listAccounts', async () => {
       await waitForExpect(async () => {
-        const accounts = await client.account.listAccounts()
+        const accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const accounts = await client.account.listAccounts()
+      const accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
+
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
         expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof (account.owner as AccountOwner).asm).toBe('string')
-        expect(typeof (account.owner as AccountOwner).reqSigs).toBe('number')
-        expect((account.owner as AccountOwner).type).toBe('scripthash')
-        expect((account.owner as AccountOwner).addresses.length).toBeGreaterThan(0)
+        expect(typeof account.owner.asm).toBe('string')
+        expect(typeof account.owner.reqSigs).toBe('number')
+        expect(account.owner.type).toBe('scripthash')
+        expect(account.owner.addresses.length).toBeGreaterThan(0)
         expect(typeof account.amount).toBe('string') // 10.00000000@DFI
       }
     })
 
+    // TODO(canonbrother): the index seems not working, total records 3, offset 2 expect 1 but return 3
     it.skip('should listAccounts with pagination start and including_start', async () => {
       let accounts: any[] = []
 
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts<AccountOwner, string>()
+        accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
@@ -99,7 +100,8 @@ describe('masternode', () => {
         including_start: true
       }
 
-      accounts = await client.account.listAccounts<AccountOwner, string>(pagination)
+      accounts = await client.account.listAccounts(pagination, true, { indexedAmounts: false, isMineOnly: false })
+
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
@@ -117,18 +119,18 @@ describe('masternode', () => {
         const pagination = {
           limit: 2
         }
-        const accounts = await client.account.listAccounts<AccountOwner, string>(pagination)
+        const accounts = await client.account.listAccounts(pagination, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBe(2)
       })
     })
 
     it('should listAccounts with verbose false', async () => {
       await waitForExpect(async () => {
-        const accounts = await client.account.listAccounts<string, string>()
+        const accounts = await client.account.listAccounts({}, false, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const accounts = await client.account.listAccounts<string, string>({}, false)
+      const accounts = await client.account.listAccounts({}, false, { indexedAmounts: false, isMineOnly: false })
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
@@ -139,15 +141,11 @@ describe('masternode', () => {
 
     it('should listAccounts with indexed_amounts true', async () => {
       await waitForExpect(async () => {
-        const accounts = await client.account.listAccounts<AccountOwner, string>()
+        const accounts = await client.account.listAccounts({}, false, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const options = {
-        indexedAmounts: true
-      }
-
-      const accounts = await client.account.listAccounts<AccountOwner, AccountAmount>({}, true, options)
+      const accounts = await client.account.listAccounts({}, true, { indexedAmounts: true, isMineOnly: false })
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
@@ -166,15 +164,11 @@ describe('masternode', () => {
 
     it('should listAccounts with isMineOnly true', async () => {
       await waitForExpect(async () => {
-        const accounts = await client.account.listAccounts<AccountOwner, string>()
+        const accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: true })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const options = {
-        isMineOnly: true
-      }
-
-      const accounts = await client.account.listAccounts<AccountOwner, string>({}, true, options)
+      const accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: true })
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
@@ -193,20 +187,21 @@ describe('masternode', () => {
       let accounts: any[] = []
 
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts()
+        accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0])
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: false })
       expect(account.length).toBeGreaterThan(0)
       expect(typeof account[0]).toBe('string') // 10.00000000@DFI'
     })
 
+    // TODO(canonbrother): assume the pagination on test only works while getAccount return [amountA, amountB] but [amountA]
     it.skip('should getAccount with pagination start and including_start', async () => {
       let accounts: any[] = []
 
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts()
+        accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
@@ -215,23 +210,24 @@ describe('masternode', () => {
         including_start: true
       }
 
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination, { indexedAmounts: false })
       expect(account.length).toBeGreaterThan(0)
       expect(typeof account[0]).toBe('string') // 10.00000000@DFI
     })
 
+    // TODO(canonbrother): assume the pagination on test only works while getAccount return [amountA, amountB] but [amountA]
     it.skip('should getAccount with pagination.limit', async () => {
       let accounts: any[] = []
 
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts()
+        accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
       const pagination = {
         limit: 2
       }
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination, { indexedAmounts: false })
       expect(account.length).toBe(2)
     })
 
@@ -239,28 +235,26 @@ describe('masternode', () => {
       let accounts: any[] = []
 
       await waitForExpect(async () => {
-        accounts = await client.account.listAccounts()
+        accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const options = {
-        indexedAmounts: true
-      }
-
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, options)
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: true })
       expect(typeof account).toBe('object')
-      expect(typeof account[0]).toBe('number')
+      for (const k in account) {
+        expect(typeof account[k]).toBe('number')
+      }
     })
   })
 
   describe('getTokenBalances', () => {
     it('should getTokenBalances', async () => {
       await waitForExpect(async () => {
-        const tokenBalances: number[] = await client.account.getTokenBalances()
+        const tokenBalances: number[] = await client.account.getTokenBalances({}, false, { symbolLookup: false })
         expect(tokenBalances.length).toBeGreaterThan(0)
       })
 
-      const tokenBalances: number[] = await client.account.getTokenBalances()
+      const tokenBalances: number[] = await client.account.getTokenBalances({}, false, { symbolLookup: false })
       for (let i = 0; i < tokenBalances.length; i += 1) {
         expect(typeof tokenBalances[i]).toBe('string') // [ '300.00000000@0', '200.00000000@1' ]
       }
@@ -272,38 +266,37 @@ describe('masternode', () => {
           start: '',
           including_start: true
         }
-        const tokenBalances: number[] = await client.account.getTokenBalances(pagination)
+        const tokenBalances: number[] = await client.account.getTokenBalances(pagination, false, { symbolLookup: false })
         console.log('tokenBalances: ', tokenBalances)
       })
     })
 
-    it.skip('should getTokenBalances with pagination limit', async () => {
+    it('should getTokenBalances with pagination limit', async () => {
       await waitForExpect(async () => {
-        const pagination = {
-          limit: 2
-        }
-        const tokenBalances: number[] = await client.account.getTokenBalances(pagination)
-        console.log('tokenBalances: ', tokenBalances)
+        const tokenBalances: number[] = await client.account.getTokenBalances({}, false, { symbolLookup: false })
+        expect(tokenBalances.length).toBe(2)
       })
+      const pagination = {
+        limit: 1
+      }
+      const tokenBalances: number[] = await client.account.getTokenBalances(pagination, false, { symbolLookup: false })
+      expect(tokenBalances.length).toBe(1)
     })
 
     it('should getTokenBalances with indexedAmounts true', async () => {
       await waitForExpect(async () => {
-        const tokenBalances: TokenBalances = await client.account.getTokenBalances({}, true)
+        const tokenBalances = await client.account.getTokenBalances({}, true, { symbolLookup: false })
         expect(typeof tokenBalances === 'object').toBe(true)
       })
     })
 
     it('should getTokenBalances with symbolLookup', async () => {
-      const options = {
-        symbolLookup: true
-      }
       await waitForExpect(async () => {
-        const tokenBalances: string[] = await client.account.getTokenBalances({}, false, options)
+        const tokenBalances: string[] = await client.account.getTokenBalances({}, false, { symbolLookup: true })
         expect(tokenBalances.length).toBeGreaterThan(0)
       })
 
-      const tokenBalances: string[] = await client.account.getTokenBalances({}, false, options)
+      const tokenBalances: string[] = await client.account.getTokenBalances({}, false, { symbolLookup: true })
       for (let i = 0; i < tokenBalances.length; i += 1) {
         expect(typeof tokenBalances[i]).toBe('string') // [ '300.00000000@DFI', '200.00000000@DBTC' ]
       }
@@ -314,7 +307,6 @@ describe('masternode', () => {
     it('should listAccountHistory', async () => {
       await waitForExpect(async () => {
         const accountHistories = await client.account.listAccountHistory()
-        console.log('accountHistories: ', accountHistories.length)
         expect(accountHistories.length).toBeGreaterThan(0)
       })
 
@@ -337,7 +329,6 @@ describe('masternode', () => {
     it('should listAccountHistory with owner "all"', async () => {
       await waitForExpect(async () => {
         const accountHistories = await client.account.listAccountHistory('all')
-        console.log('accountHistories: ', accountHistories.length)
         expect(accountHistories.length).toBeGreaterThan(0)
       })
 
@@ -357,6 +348,7 @@ describe('masternode', () => {
       }
     })
 
+    // TODO(canonbrother): generate CScript
     it.skip('should listAccountHistory with owner CScript', async () => {
       await waitForExpect(async () => {
         const accountHistories = await client.account.listAccountHistory()
@@ -410,6 +402,7 @@ describe('masternode', () => {
       }
     })
 
+    // TODO(canonbrother): check the confirmation??
     it.skip('should listAccountHistory with options depth', async () => {
       const options = {
         depth: 6
@@ -458,6 +451,7 @@ describe('masternode', () => {
       }
     })
 
+    // TODO(canonbrother): filter by txtype but its not working
     it.skip('should listAccountHistory with options txtype', async () => {
       const options = {
         txtype: 'AccountToAccount' // receive, sent, blockreward, AccountToAccount, UtxosToAccount, MintToken
