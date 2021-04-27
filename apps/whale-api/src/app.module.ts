@@ -6,6 +6,7 @@ import { ApiModule } from '@src/module.api'
 import { DeFiDModule } from '@src/module.defid'
 import configuration from '@src/app.configuration'
 import { HealthModule } from '@src/module.health'
+import { DatabaseModule } from '@src/module.database'
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { HealthModule } from '@src/module.health'
       load: [configuration]
     }),
     ScheduleModule.forRoot(),
+    DatabaseModule,
     DeFiDModule,
     HealthModule,
     ApiModule
