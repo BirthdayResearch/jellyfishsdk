@@ -24,7 +24,7 @@ beforeEach(async () => {
   await container.waitForWalletBalanceGTE(100)
 })
 
-it('should craft, sign and broadcast a txn', async () => {
+it('should craft, sign and broadcast a txn from scratch', async () => {
   // From Address P2WPKH
   const input = {
     bech32: 'bcrt1qykj5fsrne09yazx4n72ue4fwtpx8u65zac9zhn',
@@ -37,10 +37,12 @@ it('should craft, sign and broadcast a txn', async () => {
     privKey: 'cQbfHFbdJNhg3UGaBczir2m5D4hiFRVRKgoU8GJoxmu2gEhzqHtV'
   }
 
+  // Decode 2 set of deterministic EllipticPair using WIF
+  // You can use 'jellyfish-wallet' or 'jellyfish-crypto' to generate your pair
   const inputPair = decodeAsEllipticPair(input.privKey)
   const outputPair = decodeAsEllipticPair(output.privKey)
 
-  // Fund an untracked address for 10.0 DFI for testing
+  // Fund an untracked address with 10.0 DFI for testing
   const { txid, vout } = await container.fundAddress(input.bech32, 10)
 
   // Create transaction to sign
@@ -98,7 +100,7 @@ it('should craft, sign and broadcast a txn', async () => {
     buffer.toBuffer().toString('hex')
   )
 
-  // Import and track that address
+  // For testing you actually received it, import and track that address
   await container.generate(1)
   await container.call('importprivkey', [output.privKey])
 
@@ -106,6 +108,7 @@ it('should craft, sign and broadcast a txn', async () => {
     0, 9999999, [output.bech32]
   ])
 
-  // Amount is exact to what I send
+  // Amount is exact to what I send and I can unlock it
   expect(unspent[0].amount).toBe(9.999)
+  expect(unspent[0].spendable).toBe(true)
 })
