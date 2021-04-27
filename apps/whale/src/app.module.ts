@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { ApiModule } from '@src/module.api'
 import { DeFiDModule } from '@src/module.defid'
 import configuration from '@src/app.configuration'
+import { HealthModule } from '@src/module.health'
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import configuration from '@src/app.configuration'
       load: [configuration]
     }),
     ScheduleModule.forRoot(),
-    DeFiDModule.forRoot(),
+    DeFiDModule,
+    HealthModule,
     ApiModule
   ]
 })
