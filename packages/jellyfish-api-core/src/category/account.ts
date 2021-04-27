@@ -54,59 +54,17 @@ export class Account {
    * @param {boolean} [options.indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @return {Promise<string[]> | AccountAmount}
    */
+
+  // ['60.00000000@DFI']
   getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: false }): Promise<string[]>
 
+  // {'0': 60}
   getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: true }): Promise<AccountAmount>
 
   async getAccount (owner: string, pagination: AccountPagination = {}, options: GetAccountOptions = {}): Promise<string[] | AccountAmount> {
     const { indexedAmounts = false } = options
     return await this.client.call('getaccount', [owner, pagination, indexedAmounts], 'number')
   }
-
-  /**
-   * Returns the balances of all accounts that belong to the wallet
-   * Output format: number[], eg: [60]
-   *
-   * @param {AccountPagination} [pagination]
-   * @param {string} [pagination.start]
-   * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit]
-   * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
-   * @param {GetTokenBalancesOptions} [options]
-   * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
-   * @return {Promise<number[]>}
-   */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<number[]>
-
-  /**
-   * Returns the balances in  of all accounts that belong to the wallet
-   * Output format: {tokenId: amount}, eg: {'0': 60}
-   *
-   * @param {AccountPagination} [pagination]
-   * @param {string} [pagination.start]
-   * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit]
-   * @param {boolean} [indexedAmounts=true] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
-   * @param {GetTokenBalancesOptions} [options]
-   * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
-   * @return {Promise<TokenBalances>}
-   */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
-
-  /**
-   * Returns the balances of all accounts that belong to the wallet
-   * Output format: ['60.00000000@DFI']
-   *
-   * @param {AccountPagination} [pagination]
-   * @param {string} [pagination.start]
-   * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit]
-   * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
-   * @param {GetTokenBalancesOptions} [options]
-   * @param {boolean} [options.symbolLookup=true] use token symbols in output, default = false
-   * @return {Promise<string[]>}
-   */
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
 
   /**
    * Returns the balances of all accounts that belong to the wallet
@@ -120,6 +78,16 @@ export class Account {
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
    * @return {Promise<number[] | string[] | TokenBalances>}
    */
+
+  // [60]
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<number[]>
+
+  // {'0': 60}
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
+
+  // ['60.00000000@DFI']
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
+
   async getTokenBalances (
     pagination: AccountPagination = {},
     indexedAmounts = false,
