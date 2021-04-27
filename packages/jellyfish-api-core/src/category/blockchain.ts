@@ -74,6 +74,30 @@ export class Blockchain {
   }
 
   /**
+   * Get block header data with particular header hash.
+   * Returns an Object with information about block header.
+   *
+   * @param {string} hash of the block
+   * @param {boolean} verbosity true
+   * @return {Promise<BlockHeader>}
+   */
+  getBlockHeader (hash: string, verbosity: true): Promise<BlockHeader>
+
+  /**
+   * Get block header data with particular header hash.
+   * Returns an Object with information about block header.
+   *
+   * @param {string} hash of the block
+   * @param {boolean} verbosity false
+   * @return {Promise<string>}
+   */
+  getBlockHeader (hash: string, verbosity: false): Promise<string>
+
+  async getBlockHeader (hash: string, verbosity: boolean): Promise<string | BlockHeader> {
+    return await this.client.call('getblockheader', [hash, verbosity], 'number')
+  }
+
+  /**
     * Get details of unspent transaction output (UTXO).
     *
     * @param {string} txId the transaction id
@@ -162,6 +186,23 @@ export interface Block<T> {
   difficulty: number
   chainwork: string
   tx: T[]
+  nTx: number
+  previousblockhash: string
+  nextblockhash: string
+}
+
+export interface BlockHeader {
+  hash: string
+  confirmations: number
+  height: number
+  version: number
+  versionHex: string
+  merkleroot: string
+  time: number
+  mediantime: number
+  bits: string
+  difficulty: number
+  chainwork: string
   nTx: number
   previousblockhash: string
   nextblockhash: string

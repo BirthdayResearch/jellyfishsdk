@@ -121,6 +121,35 @@ interface Vout {
 }
 ```
 
+## getBlockHeader
+
+Get block header data with particular header hash.
+
+```ts title="client.blockchain.getBlockHeader()"
+interface blockchain {
+  getBlockHeader (hash: string, verbosity: true): Promise<BlockHeader>
+  getBlockHeader (hash: string, verbosity: false): Promise<string>
+ 
+}
+
+interface BlockHeader {
+  hash: string
+  confirmations: number
+  height: number
+  version: number
+  versionHex: string
+  merkleroot: string
+  time: number
+  mediantime: number
+  bits: string
+  difficulty: number
+  chainwork: string
+  nTx: number
+  previousblockhash: string
+  nextblockhash: string
+}
+```
+
 ## getBlockHash
 
 Get a hash of block in best-block-chain at height provided.
