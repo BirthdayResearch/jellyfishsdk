@@ -129,7 +129,6 @@ Get block header data with particular header hash.
 interface blockchain {
   getBlockHeader (hash: string, verbosity: true): Promise<BlockHeader>
   getBlockHeader (hash: string, verbosity: false): Promise<string>
- 
 }
 
 interface BlockHeader {

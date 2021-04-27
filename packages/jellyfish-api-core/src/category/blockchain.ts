@@ -75,7 +75,7 @@ export class Blockchain {
 
   /**
    * Get block header data with particular header hash.
-   * Returns an Object with information about block header.
+   * Returns an Object with information for block header.
    *
    * @param {string} hash of the block
    * @param {boolean} verbosity true
@@ -85,7 +85,7 @@ export class Blockchain {
 
   /**
    * Get block header data with particular header hash.
-   * Returns an Object with information about block header.
+   * Returns a string that is serialized, hex-encoded data for block header.
    *
    * @param {string} hash of the block
    * @param {boolean} verbosity false

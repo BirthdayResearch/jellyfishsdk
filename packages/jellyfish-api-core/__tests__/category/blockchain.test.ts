@@ -57,6 +57,18 @@ describe('masternode', () => {
     await container.stop()
   })
 
+  /**
+   * Wait for block hash to reach a certain height
+   */
+  async function waitForBlockHash (height: number): Promise<string> {
+    await waitForExpect(async () => {
+      const info = await client.blockchain.getBlockchainInfo()
+      expect(info.blocks).toBeGreaterThan(height)
+    })
+
+    return await client.blockchain.getBlockHash(height)
+  }
+
   describe('getBlockchainInfo', () => {
     it('should getBlockchainInfo', async () => {
       await waitForExpect(async () => {
@@ -83,23 +95,10 @@ describe('masternode', () => {
   })
 
   describe('getBlock', () => {
-    /**
-     * Wait for block hash to reach a certain height
-     */
-    async function waitForBlockHash (height: number): Promise<string> {
-      await waitForExpect(async () => {
-        const info = await client.blockchain.getBlockchainInfo()
-        expect(info.blocks).toBeGreaterThan(height)
-      })
-
-      return await client.blockchain.getBlockHash(height)
-    }
-
     it('should getBlock with verbosity 0 and return just a string that is serialized, hex-encoded data for block', async () => {
       const blockHash = await waitForBlockHash(1)
       const hash: string = await client.blockchain.getBlock(blockHash, 0)
-
-      expect(hash).not.toBeNull()
+      expect(typeof hash).toBe('string')
     })
 
     it('should getBlock with verbosity 1 and return block with tx as hex', async () => {
@@ -158,19 +157,6 @@ describe('masternode', () => {
   })
 
   describe('getBlockHeader', () => {
-    /**
-     * Wait for block hash to reach a certain height
-     */
-
-    async function waitForBlockHash (height: number): Promise<string> {
-      await waitForExpect(async () => {
-        const info = await client.blockchain.getBlockchainInfo()
-        expect(info.blocks).toBeGreaterThan(height)
-      })
-
-      return await client.blockchain.getBlockHash(height)
-    }
-
     it('should getBlockHeader with verbosity true and return block with tx as hex', async () => {
       const blockHash = await waitForBlockHash(1)
       const blockHeader: BlockHeader = await client.blockchain.getBlockHeader(blockHash, true)
@@ -196,10 +182,10 @@ describe('masternode', () => {
       expect(blockHeader.nextblockhash.length).toBe(64)
     })
 
-    it('should getBlockHeader with verbosity false and return just a string that is serialized, hex-encoded data for block', async () => {
+    it('should getBlockHeader with verbosity false and return a string that is serialized, hex-encoded data for block header', async () => {
       const blockHash = await waitForBlockHash(1)
       const hash: string = await client.blockchain.getBlockHeader(blockHash, false)
-      expect(hash).not.toBeNull()
+      expect(typeof hash).toBe('string')
     })
   })
 
@@ -211,7 +197,7 @@ describe('masternode', () => {
       })
 
       const blockHash: string = await client.blockchain.getBlockHash(1)
-      expect(blockHash).not.toBeNull()
+      expect(typeof blockHash).toBe('string')
       expect(blockHash.length).toBe(64)
     })
   })
