@@ -161,7 +161,7 @@ export interface AccountOwner {
 }
 
 export interface AccountAmount {
-  [id: string]: string
+  [id: string]: number
 }
 
 export interface ListAccountOptions {
@@ -189,7 +189,7 @@ export interface AccountHistory {
   type: string
   txn: number
   txid: string
-  amounts: number[]
+  amounts: string[]
 }
 
 export interface AccountHistoryOptions {
