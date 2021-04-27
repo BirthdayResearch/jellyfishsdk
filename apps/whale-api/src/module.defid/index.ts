@@ -1,7 +1,8 @@
-import { DynamicModule, Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
 import { FactoryProvider } from '@nestjs/common/interfaces/modules/provider.interface'
+import { DeFiDHealthIndicator } from '@src/module.defid/defid.indicator'
 
 const JsonRpcClientFactory: FactoryProvider = {
   provide: JsonRpcClient,
@@ -19,14 +20,16 @@ const JsonRpcClientFactory: FactoryProvider = {
  * DeFiD module configures and export JsonRpcClient connected to a DeFiD.
  * This does not has any side-effect it merely configures and export a JsonRpcClient.
  */
-@Module({})
+@Global()
+@Module({
+  providers: [
+    JsonRpcClientFactory,
+    DeFiDHealthIndicator
+  ],
+  exports: [
+    JsonRpcClient,
+    DeFiDHealthIndicator
+  ]
+})
 export class DeFiDModule {
-  static forRoot (): DynamicModule {
-    return {
-      global: true,
-      module: DeFiDModule,
-      providers: [JsonRpcClientFactory],
-      exports: [JsonRpcClient]
-    }
-  }
 }

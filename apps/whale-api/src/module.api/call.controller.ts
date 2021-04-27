@@ -1,11 +1,29 @@
-import { Controller, Param, Post, Body, ForbiddenException, HttpCode, PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common'
+import {
+  Controller,
+  Param,
+  Post,
+  Body,
+  ForbiddenException,
+  HttpCode,
+  PipeTransform,
+  Injectable,
+  ArgumentMetadata,
+  UseGuards, UseInterceptors
+} from '@nestjs/common'
 
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { NetworkGuard } from '@src/module.api/commons/network.guard'
+import { TransformInterceptor } from '@src/module.api/commons/transform.interceptor'
+import { ExceptionInterceptor } from '@src/module.api/commons/exception.interceptor'
 
 /**
  * MethodWhitelist is a whitelist validation pipe to check
  * whether a plain old rpc can be routed through whale.
  * Non whitelisted method call will result in a ForbiddenException.
+ *
+ * Direct access to DeFiD should not be allowed,
+ * that could used used as an attack against DeFi whale services.
+ * (by changing our peers)
  */
 @Injectable()
 export class MethodWhitelist implements PipeTransform {
@@ -32,6 +50,8 @@ export class CallDto {
 }
 
 @Controller('/v1/:network/call')
+@UseGuards(NetworkGuard)
+@UseInterceptors(TransformInterceptor, ExceptionInterceptor)
 export class CallController {
   constructor (private readonly client: JsonRpcClient) {
   }
