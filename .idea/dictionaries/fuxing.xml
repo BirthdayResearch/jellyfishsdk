@@ -94,6 +94,7 @@
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
+      <w>listpoolpairs</w>
       <w>listunspent</w>
       <w>locktime</w>
       <w>logtimemicros</w>

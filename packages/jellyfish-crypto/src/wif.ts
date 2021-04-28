@@ -1,5 +1,5 @@
 import wif from 'wif'
-import { EllipticPair, getEllipticPairFromPrivateKey } from './elliptic'
+import { EllipticPair, Elliptic } from './elliptic'
 
 interface DecodedWIF {
   readonly version: number
@@ -10,10 +10,10 @@ interface DecodedWIF {
 /**
  * @param {string} wifEncoded private key
  * @param {number} version network to optionally validate
- * @return DecodedWIF
+ * @return {DecodedWIF}
  * @throws Error invalid network version if version mismatch
  */
-export function decode (wifEncoded: string, version?: number): DecodedWIF {
+function decode (wifEncoded: string, version?: number): DecodedWIF {
   return wif.decode(wifEncoded, version)
 }
 
@@ -22,12 +22,12 @@ export function decode (wifEncoded: string, version?: number): DecodedWIF {
  *
  * @param {string} wifEncoded private key
  * @param {number} version network to optionally validate
- * @return EllipticPair
+ * @return {EllipticPair}
  * @throws Error invalid network version if version mismatch
  */
-export function decodeAsEllipticPair (wifEncoded: string, version?: number): EllipticPair {
+function decodeAsEllipticPair (wifEncoded: string, version?: number): EllipticPair {
   const { privateKey } = decode(wifEncoded, version)
-  return getEllipticPairFromPrivateKey(privateKey)
+  return Elliptic.fromPrivKey(privateKey)
 }
 
 /**
@@ -35,6 +35,40 @@ export function decodeAsEllipticPair (wifEncoded: string, version?: number): Ell
  * @param {Buffer} privKey to encode
  * @return {string} encoded WIF
  */
-export function encode (version: number, privKey: Buffer): string {
+function encode (version: number, privKey: Buffer): string {
   return wif.encode(version, privKey, true)
+}
+
+export const WIF = {
+
+  /**
+   * @param {string} wif private key
+   * @param {number} [version] network to optionally validate
+   * @return {DecodedWIF}
+   * @throws Error invalid network version if version mismatch
+   */
+  decode (wif: string, version?: number): DecodedWIF {
+    return decode(wif, version)
+  },
+
+  /**
+   * @param {number} version network version to encoded WIF with
+   * @param {Buffer} privKey to encode
+   * @return {string} encoded WIF
+   */
+  encode (version: number, privKey: Buffer): string {
+    return encode(version, privKey)
+  },
+
+  /**
+   * Get a EllipticPair from WIF encoded private key
+   *
+   * @param {string} wif private key
+   * @param {number} [version] network to optionally validate
+   * @return EllipticPair
+   * @throws Error invalid network version if version mismatch
+   */
+  asEllipticPair (wif: string, version?: number): EllipticPair {
+    return decodeAsEllipticPair(wif, version)
+  }
 }

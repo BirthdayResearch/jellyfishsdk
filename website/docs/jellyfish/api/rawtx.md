@@ -81,6 +81,20 @@ enum SigHashType {
   NONE_ANYONECANPAY = 'NONE|ANYONECANPAY',
   SINGLE_ANYONECANPAY = 'SINGLE|ANYONECANPAY',
 }
+
+interface SignRawTxWithKeyResult {
+  hex: string
+  complete: boolean
+  errors: Array<SignRawTxWithKeyError>
+}
+
+interface SignRawTxWithKeyError {
+  txid: string
+  vout: number
+  scriptSig: string
+  sequence: number
+  error: string
+}
 ```
 
 ## testMempoolAccept

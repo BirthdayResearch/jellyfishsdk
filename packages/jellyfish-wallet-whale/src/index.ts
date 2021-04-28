@@ -1,6 +1,6 @@
 import { WalletAccount, WalletAccountProvider, WalletHdNode } from '@defichain/jellyfish-wallet'
 import { Network } from '@defichain/jellyfish-network'
-import { HRP, toBech32 } from '@defichain/jellyfish-crypto'
+import { HRP, Bech32 } from '@defichain/jellyfish-crypto'
 
 /**
  * jellyfish-api-whale implementation of WalletAccount.
@@ -20,7 +20,7 @@ export class WhaleWalletAccount implements WalletAccount {
    */
   async getAddress (): Promise<string> {
     const pubKey = await this.hdNode.publicKey()
-    return toBech32(pubKey, this.network.bech32.hrp as HRP)
+    return Bech32.fromPubKey(pubKey, this.network.bech32.hrp as HRP)
   }
 
   async isActive (): Promise<boolean> {

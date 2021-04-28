@@ -1,11 +1,11 @@
-import { getEllipticPairFromPrivateKey } from '../src'
+import { Elliptic } from '../src'
 
 // Test vector taken from https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
 
 it('should return privateKey from getEllipticPairFromPrivateKey ', async () => {
   const privateKeyHex = 'bbc27228ddcb9209d7fd6f36b02f7dfa6252af40bb2f1cbc7a557da8027ff866'
   const privateKey = Buffer.from(privateKeyHex, 'hex')
-  const curvePair = getEllipticPairFromPrivateKey(privateKey)
+  const curvePair = Elliptic.fromPrivKey(privateKey)
 
   const getPrivKey: Buffer = await curvePair.privateKey()
   expect(getPrivKey.toString('hex')).toBe(privateKeyHex)
@@ -17,7 +17,7 @@ describe('keypair', () => {
 
   it('should return publicKey from getEllipticPairFromPrivateKey', async () => {
     const privateKey = Buffer.from(privateKeyHex, 'hex')
-    const curvePair = getEllipticPairFromPrivateKey(privateKey)
+    const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const getPubKey: Buffer = await curvePair.publicKey()
     expect(getPubKey.toString('hex')).toBe(publicKeyHex)
@@ -25,7 +25,7 @@ describe('keypair', () => {
 
   it('should return privateKey from getEllipticPairFromPrivateKey ', async () => {
     const privateKey = Buffer.from(privateKeyHex, 'hex')
-    const curvePair = getEllipticPairFromPrivateKey(privateKey)
+    const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const getPrivKey: Buffer = await curvePair.privateKey()
     expect(getPrivKey.toString('hex')).toBe(privateKeyHex)
@@ -35,7 +35,7 @@ describe('keypair', () => {
 describe('DER Signature: sign and verify', () => {
   async function shouldReturnPubKeyFromPubKey (privateKeyHex: string, publicKeyHex: string): Promise<void> {
     const privateKey = Buffer.from(privateKeyHex, 'hex')
-    const curvePair = getEllipticPairFromPrivateKey(privateKey)
+    const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const getPubKey: Buffer = await curvePair.publicKey()
     expect(getPubKey.toString('hex')).toBe(publicKeyHex)
@@ -43,7 +43,7 @@ describe('DER Signature: sign and verify', () => {
 
   async function shouldSignHashBufferGetSignature (privateKeyHex: string, hashHex: string, signatureHex: string): Promise<void> {
     const privateKey = Buffer.from(privateKeyHex, 'hex')
-    const curvePair = getEllipticPairFromPrivateKey(privateKey)
+    const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const hash = Buffer.from(hashHex, 'hex')
     const signature = await curvePair.sign(hash)
@@ -52,7 +52,7 @@ describe('DER Signature: sign and verify', () => {
 
   async function shouldVerifyHashWithSignature (privateKeyHex: string, hashHex: string, signatureHex: string): Promise<void> {
     const privateKey = Buffer.from(privateKeyHex, 'hex')
-    const curvePair = getEllipticPairFromPrivateKey(privateKey)
+    const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const hash = Buffer.from(hashHex, 'hex')
     const signature = Buffer.from(signatureHex, 'hex')
@@ -111,7 +111,7 @@ describe('DER Signature: sign and verify', () => {
 
     it('should sign hash Buffer and verify signature', async () => {
       const privateKey = Buffer.from(privateKeyHex, 'hex')
-      const curvePair = getEllipticPairFromPrivateKey(privateKey)
+      const curvePair = Elliptic.fromPrivKey(privateKey)
 
       const hash = Buffer.from(hashHex, 'hex')
       const signature = await curvePair.sign(hash)
@@ -135,7 +135,7 @@ describe('DER Signature: sign and verify', () => {
 
     it('should sign hash Buffer and verify signature', async () => {
       const privateKey = Buffer.from(privateKeyHex, 'hex')
-      const curvePair = getEllipticPairFromPrivateKey(privateKey)
+      const curvePair = Elliptic.fromPrivKey(privateKey)
 
       const hash = Buffer.from(hashHex, 'hex')
       const signature = await curvePair.sign(hash)

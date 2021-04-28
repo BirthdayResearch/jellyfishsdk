@@ -35,11 +35,11 @@
     "build": "tsc"
   },
   "dependencies": {
-    "dockerode": "^3.2.1",
+    "dockerode": "^3.3.0",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.2.2",
-    "@types/node-fetch": "^2.5.8"
+    "@types/dockerode": "^3.2.3",
+    "@types/node-fetch": "^2.5.10"
   }
 }

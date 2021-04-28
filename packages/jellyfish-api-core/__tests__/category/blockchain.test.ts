@@ -1,7 +1,7 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { BigNumber, Block, BlockHeader, MempoolTx, Transaction, WalletFlag } from '../../src'
+import { BigNumber, blockchain, wallet } from '../../src'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -103,7 +103,7 @@ describe('masternode', () => {
 
     it('should getBlock with verbosity 1 and return block with tx as hex', async () => {
       const blockHash = await waitForBlockHash(1)
-      const block: Block<string> = await client.blockchain.getBlock(blockHash, 1)
+      const block: blockchain.Block<string> = await client.blockchain.getBlock(blockHash, 1)
 
       expect(block.hash.length).toBe(64)
 
@@ -139,7 +139,7 @@ describe('masternode', () => {
 
     it('should getBlock with verbosity 2 and return block with tx as RawText', async () => {
       const blockHash = await waitForBlockHash(1)
-      const block: Block<Transaction> = await client.blockchain.getBlock(blockHash, 2)
+      const block: blockchain.Block<blockchain.Transaction> = await client.blockchain.getBlock(blockHash, 2)
 
       expect(block.tx.length).toBeGreaterThanOrEqual(1)
       expect(block.tx[0].vin[0].coinbase).toStrictEqual('5100')
@@ -159,7 +159,7 @@ describe('masternode', () => {
   describe('getBlockHeader', () => {
     it('should getBlockHeader with verbosity true and return block with tx as hex', async () => {
       const blockHash = await waitForBlockHash(1)
-      const blockHeader: BlockHeader = await client.blockchain.getBlockHeader(blockHash, true)
+      const blockHeader: blockchain.BlockHeader = await client.blockchain.getBlockHeader(blockHash, true)
 
       expect(blockHeader.hash.length).toBe(64)
 
@@ -236,7 +236,7 @@ describe('masternode', () => {
     let transactionId = ''
 
     beforeAll(async () => {
-      await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+      await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
       transactionId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
     })
 
@@ -248,7 +248,7 @@ describe('masternode', () => {
     })
 
     it('should getRawMempool and return json object', async () => {
-      const rawMempool: MempoolTx = await client.blockchain.getRawMempool(true)
+      const rawMempool: blockchain.MempoolTx = await client.blockchain.getRawMempool(true)
 
       const data = rawMempool[transactionId]
       expect(data.fees.base instanceof BigNumber).toBe(true)
