@@ -42,7 +42,7 @@ it('sign transaction', async () => {
       script: {
         stack: [
           OP_CODES.OP_0,
-          OP_CODES.OP_PUSHDATA(Bech32.toPubKey(input.bech32, 'bcrt', 0x00), 'little')
+          OP_CODES.OP_PUSHDATA(Bech32.toHash160(input.bech32, 'bcrt', 0x00), 'little')
         ]
       },
       value: new BigNumber('10'),
