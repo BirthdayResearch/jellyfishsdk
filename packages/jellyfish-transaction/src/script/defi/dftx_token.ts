@@ -18,7 +18,7 @@ export interface TokenMint {
  */
 export class CTokenMint extends ComposableBuffer<TokenMint> {
   static OP_CODE = 0x4d // 'M'
-  static OP_NAME = 'DEFI_OP_MINT_TOKEN'
+  static OP_NAME = 'DEFI_OP_TOKEN_MINT'
 
   composers (tm: TokenMint): BufferComposer[] {
     return [
