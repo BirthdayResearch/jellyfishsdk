@@ -13,7 +13,7 @@ export type HRP = 'df' | 'tf' | 'bcrt'
 /**
  * @param {Buffer} pubKey to format into bech32
  * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
- * @param {number} version witness version, OP_0
+ * @param {number} [version=0x00] witness version, OP_0
  * @return {string} bech32 encoded address
  * @see https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
  */
@@ -27,7 +27,7 @@ function toBech32 (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): string {
 /**
  * @param {string} address to decode from bech32
  * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
- * @param {number} version witness version, OP_0
+ * @param {number} [version] witness version, OP_0
  * @return {Buffer} hash160 of the pubkey
  * @see https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
  */
@@ -49,7 +49,7 @@ export const Bech32 = {
   /**
    * @param {Buffer} pubKey to format into bech32
    * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
-   * @param {number} version witness version, OP_0
+   * @param {number} [version=0x00] witness version, OP_0
    * @return {string} bech32 encoded address
    */
   fromPubKey (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): string {
@@ -58,7 +58,7 @@ export const Bech32 = {
   /**
    * @param {string} address to decode from bech32
    * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
-   * @param {number} version witness version, OP_0
+   * @param {number} [version] witness version, OP_0
    * @return {Buffer} hash160 of the pubkey
    */
   toPubKey (address: string, hrp?: HRP, version?: 0x00): Buffer {

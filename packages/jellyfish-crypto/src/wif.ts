@@ -43,7 +43,7 @@ export const WIF = {
 
   /**
    * @param {string} wif private key
-   * @param {number} version network to optionally validate
+   * @param {number} [version] network to optionally validate
    * @return {DecodedWIF}
    * @throws Error invalid network version if version mismatch
    */
@@ -64,7 +64,7 @@ export const WIF = {
    * Get a EllipticPair from WIF encoded private key
    *
    * @param {string} wif private key
-   * @param {number} version network to optionally validate
+   * @param {number} [version] network to optionally validate
    * @return EllipticPair
    * @throws Error invalid network version if version mismatch
    */
