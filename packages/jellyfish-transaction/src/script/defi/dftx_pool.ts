@@ -3,6 +3,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
+import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -39,14 +40,14 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
       ComposableBuffer.varUInt(() => ps.toTokenId, v => ps.toTokenId = v),
       {
         fromBuffer (buffer: SmartBuffer) {
-          const integer = new BigNumber(buffer.readBigUInt64LE().toString())
-          const fraction = new BigNumber(buffer.readBigUInt64LE().toString())
+          const integer = readBigNumberUInt64(buffer)
+          const fraction = readBigNumberUInt64(buffer)
           ps.maxPrice = { integer, fraction }
         },
         toBuffer (buffer: SmartBuffer) {
           const { integer, fraction } = ps.maxPrice
-          buffer.writeBigUInt64LE(BigInt(integer.toString(10)))
-          buffer.writeBigUInt64LE(BigInt(fraction.toString(10)))
+          writeBigNumberUInt64(integer, buffer)
+          writeBigNumberUInt64(fraction, buffer)
         }
       }
     ]
