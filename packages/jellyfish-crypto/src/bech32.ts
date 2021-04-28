@@ -17,7 +17,7 @@ export type HRP = 'df' | 'tf' | 'bcrt'
  * @return {string} bech32 encoded address
  * @see https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
  */
-export function toBech32 (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): string {
+function toBech32 (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): string {
   const hash = SHA256(pubKey)
   const words = bech32.toWords(hash)
   words.unshift(version)
@@ -31,7 +31,7 @@ export function toBech32 (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): strin
  * @return {Buffer} hash160 of the pubkey
  * @see https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
  */
-export function fromBech32 (address: string, hrp?: HRP, version?: 0x00): Buffer {
+function fromBech32 (address: string, hrp?: HRP, version?: 0x00): Buffer {
   const { prefix, words } = bech32.decode(address)
   if (hrp !== undefined && prefix !== hrp) {
     throw new Error('Invalid HRP: human readable part')
@@ -43,4 +43,25 @@ export function fromBech32 (address: string, hrp?: HRP, version?: 0x00): Buffer 
   }
 
   return Buffer.from(bech32.fromWords(words))
+}
+
+export const Bech32 = {
+  /**
+   * @param {Buffer} pubKey to format into bech32
+   * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
+   * @param {number} version witness version, OP_0
+   * @return {string} bech32 encoded address
+   */
+  fromPubKey (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): string {
+    return toBech32(pubKey, hrp, version)
+  },
+  /**
+   * @param {string} address to decode from bech32
+   * @param {'df'|'tf'|'bcrt'} hrp is the human readable part
+   * @param {number} version witness version, OP_0
+   * @return {Buffer} hash160 of the pubkey
+   */
+  toPubKey (address: string, hrp?: HRP, version?: 0x00): Buffer {
+    return fromBech32(address, hrp, version)
+  }
 }

@@ -3,7 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { CTransactionSegWit, DeFiTransactionConstants, Transaction, TransactionSigner } from '../src'
 import { OP_CODES } from '../src/script'
-import { decodeAsEllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
+import { WIF, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 
 const container = new MasterNodeRegTestContainer()
@@ -39,8 +39,8 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
 
   // Decode 2 set of deterministic EllipticPair using WIF
   // You can use 'jellyfish-wallet' or 'jellyfish-crypto' to generate your pair
-  const inputPair = decodeAsEllipticPair(input.privKey)
-  const outputPair = decodeAsEllipticPair(output.privKey)
+  const inputPair = WIF.asEllipticPair(input.privKey)
+  const outputPair = WIF.asEllipticPair(output.privKey)
 
   // Fund an untracked address with 10.0 DFI for testing
   const { txid, vout } = await container.fundAddress(input.bech32, 10)

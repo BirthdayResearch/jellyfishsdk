@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { fromBech32, decodeAsEllipticPair } from '@defichain/jellyfish-crypto'
+import { Bech32, WIF } from '@defichain/jellyfish-crypto'
 import { CTransaction, CTransactionSegWit, SignInputOption, TransactionSigner } from '../../src'
 import { OP_CODES } from '../../src/script'
 
@@ -42,13 +42,13 @@ it('sign transaction', async () => {
       script: {
         stack: [
           OP_CODES.OP_0,
-          OP_CODES.OP_PUSHDATA(fromBech32(input.bech32, 'bcrt', 0x00), 'little')
+          OP_CODES.OP_PUSHDATA(Bech32.toPubKey(input.bech32, 'bcrt', 0x00), 'little')
         ]
       },
       value: new BigNumber('10'),
       dct_id: 0
     },
-    ellipticPair: decodeAsEllipticPair(input.privKey)
+    ellipticPair: WIF.asEllipticPair(input.privKey)
   }]
   const txSigned = new CTransactionSegWit(await TransactionSigner.sign(txUnsigned, inputs))
 

@@ -11,18 +11,18 @@ import { DERSignature } from './der'
  */
 export interface EllipticPair {
   /**
-   * @return Promise<Buffer> compressed public key
+   * @return {Promise<Buffer>} compressed public key
    */
   publicKey: () => Promise<Buffer>
 
   /**
    * Allowed to fail if EllipticPair does not provide hardware key
-   * @return Promise<Buffer> privateKey
+   * @return {Promise<Buffer>} privateKey
    */
   privateKey: () => Promise<Buffer>
 
   /**
-   * @param hash {Buffer} to sign
+   * @param {Buffer} hash to sign
    * @return {Buffer} signature in DER format, SIGHASHTYPE not included
    * @see https://tools.ietf.org/html/rfc6979
    * @see https://github.com/bitcoin/bitcoin/pull/13666
@@ -30,9 +30,9 @@ export interface EllipticPair {
   sign: (hash: Buffer) => Promise<Buffer>
 
   /**
-   * @param hash {Buffer} to verify with signature
-   * @param derSignature {Buffer} of the hash in encoded with DER, SIGHASHTYPE must not be included
-   * @return boolean validity of signature of the hash
+   * @param {Buffer} hash to verify with signature
+   * @param {Buffer} derSignature of the hash in encoded with DER, SIGHASHTYPE must not be included
+   * @return {boolean} validity of signature of the hash
    */
   verify: (hash: Buffer, derSignature: Buffer) => Promise<boolean>
 }
@@ -84,9 +84,19 @@ class SECP256K1 implements EllipticPair {
 }
 
 /**
- * @param buffer in little endian
- * @return SECP256K1 EllipticPair
+ * @param {Buffer} buffer in little endian
+ * @return {SECP256K1} EllipticPair
  */
-export function getEllipticPairFromPrivateKey (buffer: Buffer): EllipticPair {
+function getEllipticPairFromPrivateKey (buffer: Buffer): EllipticPair {
   return new SECP256K1(buffer)
+}
+
+export const Elliptic = {
+  /**
+   * @param {Buffer} buffer in little endian
+   * @return {SECP256K1} EllipticPair
+   */
+  fromPrivKey (buffer: Buffer): EllipticPair {
+    return getEllipticPairFromPrivateKey(buffer)
+  }
 }

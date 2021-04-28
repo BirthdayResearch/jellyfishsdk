@@ -6,7 +6,7 @@ import {
   TransactionSigner,
   Vout
 } from '@defichain/jellyfish-transaction'
-import { EllipticPair, getEllipticPairFromPrivateKey } from '@defichain/jellyfish-crypto'
+import { EllipticPair, Elliptic } from '@defichain/jellyfish-crypto'
 
 /**
  * This is for testing only, please don't use this for anything else.
@@ -17,7 +17,7 @@ export class TestNode implements WalletHdNode {
 
   constructor (path: string) {
     this.path = path
-    this.ellipticPair = getEllipticPairFromPrivateKey(
+    this.ellipticPair = Elliptic.fromPrivKey(
       Buffer.alloc(32, path, 'ascii')
     )
   }
