@@ -47,7 +47,7 @@ export class Account {
    *
    * @param {string} owner address in base58/bech32/hex encoding
    * @param {AccountPagination} [pagination]
-   * @param {string} [pagination.start]
+   * @param {string | number} [pagination.start]
    * @param {boolean} [pagination.including_start]
    * @param {number} [pagination.limit]
    * @param {GetAccountOptions} [options]
@@ -79,22 +79,23 @@ export class Account {
    * @return {Promise<number[] | string[] | TokenBalances>}
    */
 
-  // [60]
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<number[]>
+  // [ '300.00000000@0', '200.00000000@1' ]
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<string[]>
 
-  // {'0': 60}
+  // { '0': 300, '1': 200 }
   getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
 
-  // ['60.00000000@DFI']
+  // [ '300.00000000@DFI', '200.00000000@DBTC' ]
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
 
+  // { DFI: 300, DBTC: 200 }
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<TokenBalances>
+
   async getTokenBalances (
-    pagination: AccountPagination = {},
-    indexedAmounts = false,
-    options: GetTokenBalancesOptions = {
-      symbolLookup: false
-    }
-  ): Promise<number[] | string[] | TokenBalances> {
+    pagination: AccountPagination,
+    indexedAmounts: boolean,
+    options: GetTokenBalancesOptions
+  ): Promise<string[] | TokenBalances> {
     const { symbolLookup } = options
     return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'number')
   }
@@ -118,7 +119,7 @@ export class Account {
 }
 
 export interface AccountPagination {
-  start?: string
+  start?: string | number
   including_start?: boolean
   limit?: number
 }
