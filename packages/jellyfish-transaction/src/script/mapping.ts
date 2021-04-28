@@ -15,6 +15,7 @@ import {
   PoolRemoveLiquidity,
   PoolSwap
 } from './defi/dftx_pool'
+import { CTokenMint, TokenMint } from './defi/dftx_token'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -71,6 +72,14 @@ export const OP_CODES = {
       type: CPoolRemoveLiquidity.OP_CODE,
       name: CPoolRemoveLiquidity.OP_NAME,
       data: poolRemoveLiquidity
+    })
+  },
+  OP_DEFI_TX_TOKEN_MINT: (tokenMint: TokenMint): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenMint.OP_CODE,
+      name: CTokenMint.OP_NAME,
+      data: tokenMint
     })
   },
   OP_0: new OP_0(),

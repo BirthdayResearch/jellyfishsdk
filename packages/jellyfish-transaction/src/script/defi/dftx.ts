@@ -4,6 +4,7 @@ import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap
 } from './dftx_pool'
+import { CTokenMint, TokenMint } from './dftx_token'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -87,6 +88,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PoolAddLiquidity>(CPoolAddLiquidity.OP_NAME, d => new CPoolAddLiquidity(d))
       case CPoolRemoveLiquidity.OP_CODE:
         return compose<PoolRemoveLiquidity>(CPoolRemoveLiquidity.OP_NAME, d => new CPoolRemoveLiquidity(d))
+      case CTokenMint.OP_CODE:
+        return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
