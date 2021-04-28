@@ -454,7 +454,7 @@ describe('masternode', () => {
       }
     })
 
-    // TODO(canonbrother): filter by txtype but its not working
+    // TODO(canonbrother): require customTx
     it.skip('should listAccountHistory with options txtype', async () => {
       const options = {
         txtype: 'AccountToAccount' // receive, sent, blockreward, AccountToAccount, UtxosToAccount, MintToken

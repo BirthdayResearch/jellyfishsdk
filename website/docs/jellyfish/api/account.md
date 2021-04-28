@@ -90,7 +90,7 @@ interface account {
     pagination: AccountPagination,
     indexedAmounts: boolean,
     options: GetTokenBalancesOptions,
-  ): Promise<string[] | TokenBalances> {
+  ): Promise<string[] | TokenBalances>
 }
 
 interface TokenBalances {
@@ -98,7 +98,7 @@ interface TokenBalances {
 }
 
 interface AccountPagination {
-  start?: string
+  start?: string | number
   including_start?: boolean
   limit?: number
 }
