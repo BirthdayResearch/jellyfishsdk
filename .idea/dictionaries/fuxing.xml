@@ -94,6 +94,7 @@
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
+      <w>listpoolpairs</w>
       <w>listunspent</w>
       <w>locktime</w>
       <w>logtimemicros</w>
@@ -106,7 +107,9 @@
       <w>mediantime</w>
       <w>mempool</w>
       <w>merkleroot</w>
+      <w>mintable</w>
       <w>mintedblocks</w>
+      <w>minttokens</w>
       <w>modifiedfee</w>
       <w>multisig</w>
       <w>nblocks</w>
@@ -121,6 +124,8 @@
       <w>numnotequal</w>
       <w>paytxfee</w>
       <w>pooledtx</w>
+      <w>poolpair</w>
+      <w>poolswap</w>
       <w>previousblockhash</w>
       <w>prevout</w>
       <w>prevouts</w>
@@ -158,6 +163,7 @@
       <w>testmempoolaccept</w>
       <w>thedoublejay</w>
       <w>toaltstack</w>
+      <w>tradeable</w>
       <w>txcount</w>
       <w>txid</w>
       <w>txindex</w>

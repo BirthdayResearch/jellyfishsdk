@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
 import { OP_CODES, OP_PUSHDATA } from '../../src/script'
-import { getEllipticPairFromPrivateKey, SHA256, HASH160 } from '@defichain/jellyfish-crypto'
+import { SHA256, HASH160, Elliptic } from '@defichain/jellyfish-crypto'
 
 describe('sign single input', () => {
   const transaction: Transaction = {
@@ -67,7 +67,7 @@ describe('sign single input', () => {
     value: new BigNumber('6'),
     dct_id: 0x00
   }
-  const keyPair = getEllipticPairFromPrivateKey(privateKey)
+  const keyPair = Elliptic.fromPrivKey(privateKey)
 
   it('should sign single input', async () => {
     const witness = await TransactionSigner.signInput(transaction, 1, {

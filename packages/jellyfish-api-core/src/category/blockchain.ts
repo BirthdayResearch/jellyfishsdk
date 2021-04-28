@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 /**
- * Blockchain related RPC calls for DeFiChain
+ * Blockchain RPCs for DeFi Blockchain
  */
 export class Blockchain {
   private readonly client: ApiClient
@@ -71,6 +71,30 @@ export class Blockchain {
 
   async getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>> {
     return await this.client.call('getblock', [hash, verbosity], 'number')
+  }
+
+  /**
+   * Get block header data with particular header hash.
+   * Returns an Object with information for block header.
+   *
+   * @param {string} hash of the block
+   * @param {boolean} verbosity true
+   * @return {Promise<BlockHeader>}
+   */
+  getBlockHeader (hash: string, verbosity: true): Promise<BlockHeader>
+
+  /**
+   * Get block header data with particular header hash.
+   * Returns a string that is serialized, hex-encoded data for block header.
+   *
+   * @param {string} hash of the block
+   * @param {boolean} verbosity false
+   * @return {Promise<string>}
+   */
+  getBlockHeader (hash: string, verbosity: false): Promise<string>
+
+  async getBlockHeader (hash: string, verbosity: boolean): Promise<string | BlockHeader> {
+    return await this.client.call('getblockheader', [hash, verbosity], 'number')
   }
 
   /**
@@ -162,6 +186,23 @@ export interface Block<T> {
   difficulty: number
   chainwork: string
   tx: T[]
+  nTx: number
+  previousblockhash: string
+  nextblockhash: string
+}
+
+export interface BlockHeader {
+  hash: string
+  confirmations: number
+  height: number
+  version: number
+  versionHex: string
+  merkleroot: string
+  time: number
+  mediantime: number
+  bits: string
+  difficulty: number
+  chainwork: string
   nTx: number
   previousblockhash: string
   nextblockhash: string

@@ -169,28 +169,30 @@ export interface SignRawTxWithKeyResult {
   /**
    * Script verification errors (if there are any)
    */
-  errors: Array<{
-    /**
-     * The hash of the referenced, previous transaction
-     */
-    txid: string
-    /**
-     * The index of the output to spent and used as input
-     */
-    vout: number
-    /**
-     * The hex-encoded signature script
-     */
-    scriptSig: string
-    /**
-     * Script sequence number
-     */
-    sequence: number
-    /**
-     * Verification or signing error related to the input
-     */
-    error: string
-  }>
+  errors: SignRawTxWithKeyError[]
+}
+
+export interface SignRawTxWithKeyError {
+  /**
+   * The hash of the referenced, previous transaction
+   */
+  txid: string
+  /**
+   * The index of the output to spent and used as input
+   */
+  vout: number
+  /**
+   * The hex-encoded signature script
+   */
+  scriptSig: string
+  /**
+   * Script sequence number
+   */
+  sequence: number
+  /**
+   * Verification or signing error related to the input
+   */
+  error: string
 }
 
 export interface TestMempoolAcceptResult {

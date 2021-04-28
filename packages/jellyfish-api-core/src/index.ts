@@ -8,16 +8,17 @@ import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
 
 export * from '@defichain/jellyfish-json'
-export * from './category/blockchain'
-export * from './category/mining'
+
+export * as blockchain from './category/blockchain'
+export * as mining from './category/mining'
 export * as rawtx from './category/rawtx'
-export * from './category/wallet'
-export * from './category/account'
-export * from './category/poolpair'
-export * from './category/token'
+export * as wallet from './category/wallet'
+export * as poolpair from './category/poolpair'
+export * as token from './category/token'
+export * as account from './category/account'
 
 /**
- * ApiClient; a protocol agnostic DeFiChain node client, RPC calls are separated into their category.
+ * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
  */
 export abstract class ApiClient {
   public readonly blockchain = new Blockchain(this)
@@ -54,7 +55,9 @@ export abstract class ApiClient {
 }
 
 /**
- * ApiError; where defichain errors are encapsulated into.
+ * DeFi Blockchain errors are encapsulated into ApiError.
+ * @see ClientApiError
+ * @see RpcApiError
  */
 export class ApiError extends Error {
 }

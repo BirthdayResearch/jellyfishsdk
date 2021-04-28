@@ -101,9 +101,9 @@ Package                                            | Description
 ## Developing & Contributing
 
 Thanks for contributing, appreciate all the help we can get. Feel free to make a pull-request, we will guide you along
-the way to make it mergeable. Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
+the way to make it merge-able. Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
 
-We use `npm 7` for this project, it's required to set
+You need `node v14`, and `npm v7` for this project, it's required to set
 up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
 
 ```shell
@@ -112,14 +112,15 @@ npm install
 
 ### Testing
 
-`jest.config.js` is set up at the root project level as well as at each sub module. You can run jest at root to test all
-modules or individually at each sub module. By default, only regtest chain are used for normal testing. If you use
-IntelliJ IDEA, you can right click any file to test it individually and have it reported to the IDE.
+`jest.config.js` is set up at the root project level as well as at each submodule. You can run jest at root to test all
+modules or individually at each submodule. By default, only regtest chain are used for normal testing. If you use
+IntelliJ IDEA, you can right-click any file to test it individually and have it reported to the IDE.
 
 Docker is required to run the tests as [`@defichain/testcontainers`](./packages/testcontainers) will automatically spin
 up `regtest` instances for testing. The number of containers it will spin up concurrently is dependent on your
 jest `--maxConcurrency` count. Test are known to be flaky due to the usage of multiple Docker containers for test
-concurrency.
+concurrency. Although testcontainers cleans up after itself, there are cases where the tests fail exceptionally you
+might need to occasionally: `docker system prune --volumes`.
 
 Coverage is collected at each pull request to main with `codecov`; more testing 🚀 less 🐛 = 😎
 

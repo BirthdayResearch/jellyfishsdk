@@ -88,7 +88,7 @@ interface CreateWalletOptions {
   avoidReuse?: boolean
 }
 
-export interface CreateWalletResult {
+interface CreateWalletResult {
   name: string
   warning: string
 }
@@ -145,7 +145,7 @@ interface WalletFlagResult {
 
 Returns a new DeFi address for receiving payments.
 If 'label' is specified, it's added to the address book.
-So payments recevied with the address will be associated with 'label'.
+So payments received with the address will be associated with 'label'.
 
 ```ts title="client.wallet.getNewAddress()"
 interface wallet {
@@ -168,8 +168,8 @@ interface ValidateAddressResult {
   scriptPubKey: string
   isscript: boolean
   iswitness: boolean
-  ['witness_version']: number
-  ['witness_program']: string
+  witness_version: number
+  witness_program: string
 }
 ```
 
@@ -192,8 +192,8 @@ interface AddressInfo {
   isscript: boolean
   ischange: true
   iswitness: boolean
-  ['witness_version']: number
-  ['witness_program']: string
+  witness_version: number
+  witness_program: string
   script: ScriptType
   hex: string
   pubkeys: string[]
@@ -204,8 +204,8 @@ interface AddressInfo {
     scriptPubKey: string
     isscript: boolean
     iswitness: boolean
-    ['witness_version']: number
-    ['witness_program']: string
+    witness_version: number
+    witness_program: string
     script: ScriptType
     hex: string
     sigsrequired: number
@@ -249,7 +249,7 @@ interface SendToAddressOptions {
 
 ## listAddressGroupings
 
-Lists groups of addresses which have had their common ownership made public by common use as inputs or as the resulting change in past transactions.
+List groups of addresses which have had their common ownership made public by common use as inputs or as the resulting change in past transactions.
 
 ```ts title="client.wallet.listAddressGroupings()"
 interface wallet {

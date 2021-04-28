@@ -1,6 +1,6 @@
 import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber, ValidateAddressResult, AddressType, AddressInfo } from '../../src'
+import { BigNumber, wallet } from '../../src'
 import waitForExpect from 'wait-for-expect'
 import { UTXO, ListUnspentOptions, WalletFlag, SendToAddressOptions, Mode } from '../../src/category/wallet'
 
@@ -44,13 +44,13 @@ describe('non masternode', () => {
 
     it('should getNewAddress with address type specified', async () => {
       return await waitForExpect(async () => {
-        const legacyAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+        const legacyAddress = await client.wallet.getNewAddress('', wallet.AddressType.LEGACY)
         const legacyAddressValidateResult = await client.wallet.validateAddress(legacyAddress)
 
-        const p2shSegwitAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
+        const p2shSegwitAddress = await client.wallet.getNewAddress('', wallet.AddressType.P2SH_SEGWIT)
         const p2shSegwitAddressValidateResult = await client.wallet.validateAddress(p2shSegwitAddress)
 
-        const bech32Address = await client.wallet.getNewAddress('bob', AddressType.BECH32)
+        const bech32Address = await client.wallet.getNewAddress('bob', wallet.AddressType.BECH32)
         const bech32AddressValidateResult = await client.wallet.validateAddress(bech32Address)
 
         expect(typeof legacyAddress).toBe('string')
@@ -81,7 +81,7 @@ describe('non masternode', () => {
     it('should getAddressInfo', async () => {
       return await waitForExpect(async () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
-        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
+        const addressInfo: wallet.AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
         expect(addressInfo.address).toBe(aliceAddress)
         expect(typeof addressInfo.scriptPubKey).toBe('string')
@@ -108,7 +108,7 @@ describe('non masternode', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
-        const result: ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
+        const result: wallet.ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
         expect(result.isvalid).toBe(true)
         expect(result.address).toBe(aliceAddress)
@@ -377,13 +377,13 @@ describe('masternode', () => {
 
     it('should getNewAddress with address type specified', async () => {
       return await waitForExpect(async () => {
-        const legacyAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+        const legacyAddress = await client.wallet.getNewAddress('', wallet.AddressType.LEGACY)
         const legacyAddressValidateResult = await client.wallet.validateAddress(legacyAddress)
 
-        const p2shSegwitAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
+        const p2shSegwitAddress = await client.wallet.getNewAddress('', wallet.AddressType.P2SH_SEGWIT)
         const p2shSegwitAddressValidateResult = await client.wallet.validateAddress(p2shSegwitAddress)
 
-        const bech32Address = await client.wallet.getNewAddress('bob', AddressType.BECH32)
+        const bech32Address = await client.wallet.getNewAddress('bob', wallet.AddressType.BECH32)
         const bech32AddressValidateResult = await client.wallet.validateAddress(bech32Address)
 
         expect(typeof legacyAddress).toBe('string')
@@ -414,7 +414,7 @@ describe('masternode', () => {
     it('should getAddressInfo', async () => {
       return await waitForExpect(async () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
-        const addressInfo: AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
+        const addressInfo: wallet.AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
         expect(addressInfo.address).toBe(aliceAddress)
         expect(typeof addressInfo.scriptPubKey).toBe('string')
@@ -441,7 +441,7 @@ describe('masternode', () => {
     it('should validateAddress', async () => {
       return await waitForExpect(async () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
-        const result: ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
+        const result: wallet.ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
         expect(result.isvalid).toBe(true)
         expect(result.address).toBe(aliceAddress)

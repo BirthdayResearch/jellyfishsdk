@@ -1,4 +1,4 @@
-import { MintingInfo, ApiClient, ClientApiError } from '../src'
+import { mining, ApiClient, ClientApiError } from '../src'
 import { ContainerAdapterClient } from './container_adapter_client'
 import { RegTestContainer } from '@defichain/testcontainers'
 
@@ -17,7 +17,7 @@ it('should export client', async () => {
 it('should export categories', async () => {
   const client = new TestClient()
   await expect(async () => {
-    const info: MintingInfo = await client.mining.getMintingInfo()
+    const info: mining.MintingInfo = await client.mining.getMintingInfo()
     console.log(info)
   }).rejects.toThrowError(ClientApiError)
 })

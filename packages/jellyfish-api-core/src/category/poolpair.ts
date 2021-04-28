@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '..'
 
 /**
- * PoolPair related RPC calls for DeFiChain
+ * PoolPair RPCs for DeFi Blockchain
  */
 export class PoolPair {
   private readonly client: ApiClient
@@ -38,7 +38,7 @@ export class PoolPair {
    * @param {number} pagination.start default is 0
    * @param {boolean} pagination.including_start default = true
    * @param {number} pagination.limit to limit number of records
-   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokena, idTokenB
+   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokenA, idTokenB
    * @return {Promise<PoolPairResult>}
    */
   async listPoolPairs (
@@ -135,8 +135,8 @@ export interface PoolPairInfo {
   reserveB: BigNumber
   commission: BigNumber
   totalLiquidity: BigNumber
-  ['reserveA/reserveB']: BigNumber | string
-  ['reserveB/reserveA']: BigNumber | string
+  'reserveA/reserveB': BigNumber | string
+  'reserveB/reserveA': BigNumber | string
   tradeEnabled: boolean
   ownerAddress: string
   blockCommissionA: BigNumber
@@ -146,6 +146,7 @@ export interface PoolPairInfo {
   creationTx: string
   creationHeight: BigNumber
 }
+
 export interface PoolShareResult {
   [id: string]: PoolShareInfo
 }
@@ -153,7 +154,7 @@ export interface PoolShareResult {
 interface PoolShareInfo {
   poolID: string
   owner: string
-  ['%']: BigNumber
+  '%': BigNumber
   amount: BigNumber
   totalLiquidity: BigNumber
 }

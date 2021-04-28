@@ -42,8 +42,8 @@ interface PoolPairInfo {
   reserveB: BigNumber
   commission: BigNumber
   totalLiquidity: BigNumber
-  ['reserveA/reserveB']: BigNumber
-  ['reserveB/reserveA']: BigNumber
+  'reserveA/reserveB': BigNumber
+  'reserveB/reserveA': BigNumber
   tradeEnabled: boolean
   ownerAddress: string
   blockCommissionA: BigNumber
@@ -84,8 +84,8 @@ interface PoolPairInfo {
   reserveB: BigNumber
   commission: BigNumber
   totalLiquidity: BigNumber
-  ['reserveA/reserveB']: BigNumber
-  ['reserveB/reserveA']: BigNumber
+  'reserveA/reserveB': BigNumber
+  'reserveB/reserveA': BigNumber
   tradeEnabled: boolean
   ownerAddress: string
   blockCommissionA: BigNumber
@@ -145,7 +145,7 @@ interface PoolShareResult {
 interface PoolShareInfo {
   poolID: string
   owner: string
-  ['%']: BigNumber
+  '%': BigNumber
   amount: BigNumber
   totalLiquidity: BigNumber
 }

@@ -73,24 +73,26 @@ interface token {
 }
 
 interface TokenResult {
-  [id: string]: {
-    symbol: string
-    symbolKey: string
-    name: string
-    decimal: number
-    limit: number
-    mintable: boolean
-    tradeable: boolean
-    isDAT: boolean
-    isLPS: boolean
-    finalized: boolean
-    minted: number
-    creationTx: string
-    creationHeight: number
-    destructionTx: string
-    destructionHeight: number
-    collateralAddress: string
-  }
+  [id: string]: TokenInfo
+}
+
+interface TokenInfo {
+  symbol: string
+  symbolKey: string
+  name: string
+  decimal: number
+  limit: number
+  mintable: boolean
+  tradeable: boolean
+  isDAT: boolean
+  isLPS: boolean
+  finalized: boolean
+  minted: number
+  creationTx: string
+  creationHeight: number
+  destructionTx: string
+  destructionHeight: number
+  collateralAddress: string
 }
 
 interface TokenPagination {
@@ -110,23 +112,25 @@ interface token {
 }
 
 interface TokenResult {
-  [id: string]: {
-    symbol: string
-    symbolKey: string
-    name: string
-    decimal: number
-    limit: number
-    mintable: boolean
-    tradeable: boolean
-    isDAT: boolean
-    isLPS: boolean
-    finalized: boolean
-    minted: number
-    creationTx: string
-    creationHeight: number
-    destructionTx: string
-    destructionHeight: number
-    collateralAddress: string
-  }
+  [id: string]: TokenInfo
+}
+
+interface TokenInfo {
+  symbol: string
+  symbolKey: string
+  name: string
+  decimal: number
+  limit: number
+  mintable: boolean
+  tradeable: boolean
+  isDAT: boolean
+  isLPS: boolean
+  finalized: boolean
+  minted: number
+  creationTx: string
+  creationHeight: number
+  destructionTx: string
+  destructionHeight: number
+  collateralAddress: string
 }
 ```
