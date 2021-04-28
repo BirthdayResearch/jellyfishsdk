@@ -1,7 +1,7 @@
 import { ApiClient } from '../.'
 
 /**
- * Minting related RPC calls for DeFiChain
+ * Mining RPCs for DeFi Blockchain
  */
 export class Mining {
   private readonly client: ApiClient

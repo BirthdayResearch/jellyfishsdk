@@ -1,7 +1,7 @@
 import { ApiClient } from '../.'
 
 /**
- * Token related RPC calls for DeFiChain
+ * Token RPCs for DeFi Blockchain
  */
 export class Token {
   private readonly client: ApiClient
@@ -84,24 +84,26 @@ export class Token {
 }
 
 export interface TokenResult {
-  [id: string]: {
-    symbol: string
-    symbolKey: string
-    name: string
-    decimal: number
-    limit: number
-    mintable: boolean
-    tradeable: boolean
-    isDAT: boolean
-    isLPS: boolean
-    finalized: boolean
-    minted: number
-    creationTx: string
-    creationHeight: number
-    destructionTx: string
-    destructionHeight: number
-    collateralAddress: string
-  }
+  [id: string]: TokenInfo
+}
+
+export interface TokenInfo {
+  symbol: string
+  symbolKey: string
+  name: string
+  decimal: number
+  limit: number
+  mintable: boolean
+  tradeable: boolean
+  isDAT: boolean
+  isLPS: boolean
+  finalized: boolean
+  minted: number
+  creationTx: string
+  creationHeight: number
+  destructionTx: string
+  destructionHeight: number
+  collateralAddress: string
 }
 
 export interface CreateTokenMetadata {

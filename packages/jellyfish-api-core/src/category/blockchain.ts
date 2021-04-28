@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 /**
- * Blockchain related RPC calls for DeFiChain
+ * Blockchain RPCs for DeFi Blockchain
  */
 export class Blockchain {
   private readonly client: ApiClient

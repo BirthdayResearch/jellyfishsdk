@@ -28,7 +28,7 @@ export enum WalletFlag {
 }
 
 /**
- * Wallet related RPC calls for DeFiChain
+ * Wallet RPCs for DeFi Blockchain
  */
 export class Wallet {
   private readonly client: ApiClient
@@ -63,7 +63,7 @@ export class Wallet {
    * @param {number} [options.queryOptions.minimumSumAmount] default is 'unlimited', minimum sum valie of all UTXOs
    * @param {string} [options.queryOptions.tokenId] default is 'all', filter by token
    * @return {Promise<UTXO[]>}
-  */
+   */
   async listUnspent (
     minimumConfirmation = 1,
     maximumConfirmation = 9999999,
@@ -134,7 +134,7 @@ export class Wallet {
   /**
    * Returns a new DeFi address for receiving payments.
    * If 'label' is specified, it's added to the address book
-   * so payments recevied with the address will be associated with 'label'
+   * so payments received with the address will be associated with 'label'
    *
    * @param {string} label for address to be linked to. It can also be set as empty string
    * @param {AddressType} addressType to use, eg: legacy, p2sh-segwit, bech32
@@ -295,8 +295,8 @@ export interface ValidateAddressResult {
   scriptPubKey: string
   isscript: boolean
   iswitness: boolean
-  ['witness_version']: number
-  ['witness_program']: string
+  witness_version: number
+  witness_program: string
 }
 
 export interface AddressInfo {
@@ -309,8 +309,8 @@ export interface AddressInfo {
   isscript: boolean
   ischange: true
   iswitness: boolean
-  ['witness_version']: number
-  ['witness_program']: string
+  witness_version: number
+  witness_program: string
   script: ScriptType
   hex: string
   pubkeys: string[]
@@ -321,8 +321,8 @@ export interface AddressInfo {
     scriptPubKey: string
     isscript: boolean
     iswitness: boolean
-    ['witness_version']: number
-    ['witness_program']: string
+    witness_version: number
+    witness_program: string
     script: ScriptType
     hex: string
     sigsrequired: number
@@ -344,7 +344,7 @@ export interface Label {
 }
 
 export interface WalletFlagResult {
-  ['flag_name']: string
-  ['flag_state']: boolean
+  flag_name: string
+  flag_state: boolean
   warnings: string
 }

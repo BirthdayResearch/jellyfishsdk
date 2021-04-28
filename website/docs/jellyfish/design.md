@@ -56,8 +56,8 @@ it('lost precision converting DFI 😥', () => {
   regular numeric operations, and it will throw an error when this would result in losing information.
 * **'bignumber'** parse all numeric values as 'BigNumber' using bignumber.js library.
 * **'number'** parse all numeric values as 'Number' and precision will be loss if it exceeds IEEE-754 standard.
-* **'PrecisionPath'** path based precision mapping, specifying 'bignumber' will automatically map all Number in that 
-  path as 'bignumber'. Otherwise, it will default to number, This applies deeply.
+* **'PrecisionPath'** provides path based precision mapping, specifying 'bignumber' will automatically map all Number in 
+  that path as 'bignumber'. Otherwise, it will default to number, This applies deeply.
 
 
 As not all number parsed are significant in all context, (e.g. `mining.getMintingInfo()`), this allows jellyfish library 
