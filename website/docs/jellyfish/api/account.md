@@ -23,10 +23,10 @@ interface account {
   listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
   listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
   listAccounts<T, U> (
-    pagination: AccountPagination = {},
+    pagination: AccountPagination = { limit: 100 },
     verbose = true,
-    options: ListAccountOptions = {}
-  ): Promise<Array<AccountResult<T, U>>>
+    options: ListAccountOptions = { indexedAmounts: false, isMineOnly: false }
+  ): Promise<Array<AccountResult<T, U>>> {
 }
 
 interface AccountPagination {
@@ -68,10 +68,8 @@ interface account {
   getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: true }): Promise<AccountAmount>
   getAccount (
     owner: string,
-    pagination: AccountPagination = {},
-    options: GetAccountOptions = {
-      indexedAmounts: false,
-    },
+    pagination: AccountPagination = { limit: 100 },
+    options: GetAccountOptions = { indexedAmounts: false }
   ): Promise<string[] | AccountAmount>
 }
 ```
@@ -86,10 +84,10 @@ interface account {
   getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
   getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<TokenBalances>
-  async getTokenBalances (
-    pagination: AccountPagination,
-    indexedAmounts: boolean,
-    options: GetTokenBalancesOptions,
+  getTokenBalances (
+    pagination: AccountPagination = { limit: 100 },
+    indexedAmounts = false,
+    options: GetTokenBalancesOptions = { symbolLookup: false}
   ): Promise<string[] | TokenBalances>
 }
 
@@ -114,7 +112,12 @@ Returns information about account history
 
 ```ts title="client.account.listAccountHistory()"
 interface account {
-  listAccountHistory (owner: OwnerType = 'mine', options: AccountHistoryOptions = {}): Promise<AccountHistory[]>
+  async listAccountHistory (
+    owner: OwnerType = 'mine',
+    options: AccountHistoryOptions = {
+      limit: 100
+    }
+  ): Promise<AccountHistory[]>
 }
 
 type OwnerType = 'mine' | 'all' | string

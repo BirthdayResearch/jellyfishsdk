@@ -18,7 +18,7 @@ export class Account {
    * @param {AccountPagination} [pagination]
    * @param {string} [pagination.start]
    * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit]
+   * @param {number} [pagination.limit=100]
    * @param {boolean} [verbose=true] default = true, otherwise limited objects are listed
    * @param {ListAccountOptions} [options] default = true, otherwise limited objects are listed
    * @param {boolean} [options.indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
@@ -34,9 +34,9 @@ export class Account {
   listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
 
   async listAccounts<T, U> (
-    pagination: AccountPagination = {},
+    pagination: AccountPagination = { limit: 100 },
     verbose = true,
-    options: ListAccountOptions = {}
+    options: ListAccountOptions = { indexedAmounts: false, isMineOnly: false }
   ): Promise<Array<AccountResult<T, U>>> {
     const { indexedAmounts = false, isMineOnly = false } = options
     return await this.client.call('listaccounts', [pagination, verbose, indexedAmounts, isMineOnly], 'number')
@@ -49,7 +49,7 @@ export class Account {
    * @param {AccountPagination} [pagination]
    * @param {string | number} [pagination.start]
    * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit]
+   * @param {number} [pagination.limit=100]
    * @param {GetAccountOptions} [options]
    * @param {boolean} [options.indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @return {Promise<string[]> | AccountAmount}
@@ -61,7 +61,11 @@ export class Account {
   // {'0': 60}
   getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: true }): Promise<AccountAmount>
 
-  async getAccount (owner: string, pagination: AccountPagination = {}, options: GetAccountOptions = {}): Promise<string[] | AccountAmount> {
+  async getAccount (
+    owner: string,
+    pagination: AccountPagination = { limit: 100 },
+    options: GetAccountOptions = { indexedAmounts: false }
+  ): Promise<string[] | AccountAmount> {
     const { indexedAmounts = false } = options
     return await this.client.call('getaccount', [owner, pagination, indexedAmounts], 'number')
   }
@@ -72,7 +76,7 @@ export class Account {
    * @param {AccountPagination} [pagination]
    * @param {string} [pagination.start]
    * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit]
+   * @param {number} [pagination.limit=100]
    * @param {boolean} [indexedAmounts=false] format of amount output, default = false (true: {tokenid:amount}, false: amount@tokenid)
    * @param {GetTokenBalancesOptions} [options]
    * @param {boolean} [options.symbolLookup=false] use token symbols in output, default = false
@@ -92,9 +96,9 @@ export class Account {
   getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<TokenBalances>
 
   async getTokenBalances (
-    pagination: AccountPagination,
-    indexedAmounts: boolean,
-    options: GetTokenBalancesOptions
+    pagination: AccountPagination = { limit: 100 },
+    indexedAmounts = false,
+    options: GetTokenBalancesOptions = { symbolLookup: false }
   ): Promise<string[] | TokenBalances> {
     const { symbolLookup } = options
     return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'number')
@@ -103,9 +107,9 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param {string} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
-   * @param {number} [options.maxBlockHeight='chaintip'] Optional height to iterate from (downto genesis block), (default = chaintip).
+   * @param {number} [options.maxBlockHeight] Optional height to iterate from (downto genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
@@ -113,7 +117,12 @@ export class Account {
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @return {Promise<AccountHistory[]>}
    */
-  async listAccountHistory (owner: OwnerType = 'mine', options: AccountHistoryOptions = {}): Promise<AccountHistory[]> {
+  async listAccountHistory (
+    owner: OwnerType = 'mine',
+    options: AccountHistoryOptions = {
+      limit: 100
+    }
+  ): Promise<AccountHistory[]> {
     return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 }

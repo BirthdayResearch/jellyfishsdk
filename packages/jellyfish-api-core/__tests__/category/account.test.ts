@@ -213,7 +213,7 @@ describe('masternode', () => {
       }
 
       const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination, { indexedAmounts: false })
-      expect(account.length).toBeGreaterThan(beforeAccountCount - 1)
+      expect(account.length).toBe(1)
       for (let i = 0; i < account.length; i += 1) {
         expect(typeof account[i]).toBe('string')
       }
@@ -413,7 +413,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const depth = 10
         const accountHistories = await client.account.listAccountHistory('mine', { depth })
-        expect(accountHistories.length).toBe(depth + 1) // include zero index
+        expect(accountHistories.length).toBe(depth + 1) // plus 1 to include zero index
       })
     })
 
@@ -454,20 +454,16 @@ describe('masternode', () => {
       }
     })
 
-    // TODO(canonbrother): require customTx
-    it.skip('should listAccountHistory with options txtype', async () => {
-      const options = {
-        txtype: 'AccountToAccount' // receive, sent, blockreward, AccountToAccount, UtxosToAccount, MintToken
-      }
+    it('should listAccountHistory with options txtype', async () => {
       await waitForExpect(async () => {
-        const accountHistories = await client.account.listAccountHistory('mine', options)
+        const accountHistories = await client.account.listAccountHistory('mine', { txtype: 'M' })
         expect(accountHistories.length).toBeGreaterThan(0)
       })
 
-      const accountHistories = await client.account.listAccountHistory('mine', options)
+      const accountHistories = await client.account.listAccountHistory('mine', { txtype: 'M' })
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(accountHistory.type).toBe('AccountToAccount')
+        expect(accountHistory.type).toBe('MintToken')
       }
     })
 
