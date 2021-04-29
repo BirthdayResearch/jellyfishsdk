@@ -16,10 +16,13 @@ async function getContainerInfoByName (docker: Dockerode, name: string): Promise
 }
 
 /**
- * Persist container is a RegTest container with MasterNode minting preconfigured.
+ * PersistentMNRegTestContainer container is a RegTest container with MasterNode minting preconfigured.
  * The container configuration is persistent and can be used consistently.
- * If you did not stop it, the same container will be used for all tests.
- * Beware of race conditions.
+ * If you do not stop the container, the same container can be used for all tests.
+ * However, you must be cognizant of race conditions.
+ *
+ * This container should not be used for finished work, it merely a dev tool to speed up test-driven development.
+ * Once you are done with your dev work, you should swap this out for MasterNodeRegTestContainer.
  */
 export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
   /**
@@ -42,7 +45,7 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
   }
 
   /**
-   * Name of persist container is always consistent.
+   * @return {string} name of persistent container that is always consistent.
    */
   generateName (): string {
     return `${DeFiDContainer.PREFIX}-${this.network}-persistent`
