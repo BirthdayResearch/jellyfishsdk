@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 type OwnerType = 'mine' | 'all' | string
@@ -39,7 +40,7 @@ export class Account {
     options: ListAccountOptions = { indexedAmounts: false, isMineOnly: false }
   ): Promise<Array<AccountResult<T, U>>> {
     const { indexedAmounts = false, isMineOnly = false } = options
-    return await this.client.call('listaccounts', [pagination, verbose, indexedAmounts, isMineOnly], 'number')
+    return await this.client.call('listaccounts', [pagination, verbose, indexedAmounts, isMineOnly], 'bignumber')
   }
 
   /**
@@ -87,21 +88,21 @@ export class Account {
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<string[]>
 
   // { '0': 300, '1': 200 }
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<AccountAmount>
 
   // [ '300.00000000@DFI', '200.00000000@DBTC' ]
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
 
   // { DFI: 300, DBTC: 200 }
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<TokenBalances>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<AccountAmount>
 
   async getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
     options: GetTokenBalancesOptions = { symbolLookup: false }
-  ): Promise<string[] | TokenBalances> {
+  ): Promise<string[] | AccountAmount> {
     const { symbolLookup } = options
-    return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'number')
+    return await this.client.call('gettokenbalances', [pagination, indexedAmounts, symbolLookup], 'bignumber')
   }
 
   /**
@@ -141,13 +142,13 @@ export interface AccountResult<T, U> {
 
 export interface AccountOwner {
   asm: string
-  reqSigs: number
+  reqSigs: BigNumber
   type: string
   addresses: string[]
 }
 
 export interface AccountAmount {
-  [id: string]: number
+  [id: string]: BigNumber
 }
 
 export interface ListAccountOptions {
@@ -157,10 +158,6 @@ export interface ListAccountOptions {
 
 export interface GetAccountOptions {
   indexedAmounts?: boolean
-}
-
-export interface TokenBalances {
-  [id: string]: number
 }
 
 export interface GetTokenBalancesOptions {

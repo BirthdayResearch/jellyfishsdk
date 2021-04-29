@@ -26,7 +26,7 @@ interface account {
     pagination: AccountPagination = { limit: 100 },
     verbose = true,
     options: ListAccountOptions = { indexedAmounts: false, isMineOnly: false }
-  ): Promise<Array<AccountResult<T, U>>> {
+  ): Promise<Array<AccountResult<T, U>>>
 }
 
 interface AccountPagination {
@@ -43,13 +43,13 @@ interface AccountResult<T, U> {
 
 interface AccountOwner {
   asm: string
-  reqSigs: number
+  reqSigs: BigNumber
   type: string
   addresses: string[]
 }
 
 interface AccountAmount {
-  [id: string]: number
+  [id: string]: BigNumber
 }
 
 interface ListAccountOptions {
@@ -81,9 +81,9 @@ Returns the balances of all accounts that belong to the wallet
 ```ts title="client.account.getTokenBalances()"
 interface account {
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<string[]>
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<TokenBalances>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<AccountAmount>
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<TokenBalances>
+  getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<AccountAmount>
   getTokenBalances (
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
@@ -91,8 +91,8 @@ interface account {
   ): Promise<string[] | TokenBalances>
 }
 
-interface TokenBalances {
-  [id: string]: number
+interface AccountAmount {
+  [id: string]: BigNumber
 }
 
 interface AccountPagination {

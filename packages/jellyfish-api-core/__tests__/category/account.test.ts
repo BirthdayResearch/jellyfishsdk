@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
+import BigNumber from 'bignumber.js'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -81,8 +82,8 @@ describe('masternode', () => {
         expect(typeof account.key).toBe('string')
         expect(typeof account.owner === 'object').toBe(true)
         expect(typeof account.owner.asm).toBe('string')
-        expect(typeof account.owner.reqSigs).toBe('number')
-        expect(account.owner.type).toBe('scripthash')
+        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
+        expect(typeof account.owner.type).toBe('string')
         expect(account.owner.addresses.length).toBeGreaterThan(0)
         expect(typeof account.amount).toBe('string') // 10.00000000@DFI
       }
@@ -145,14 +146,14 @@ describe('masternode', () => {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
         expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof (account.owner).asm).toBe('string')
-        expect(typeof (account.owner).reqSigs).toBe('number')
-        expect(account.owner.type).toBe('scripthash')
+        expect(typeof account.owner.asm).toBe('string')
+        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
+        expect(typeof account.owner.type).toBe('string')
         expect(account.owner.addresses.length).toBeGreaterThan(0)
 
         expect(typeof account.amount === 'object').toBe(true)
         for (const k in account.amount) {
-          expect(typeof account.amount[k]).toBe('number') // [{'0': 100}]
+          expect(account.amount[k] instanceof BigNumber).toBe(true) // [{'0': 100}]
         }
       }
     })
@@ -170,10 +171,10 @@ describe('masternode', () => {
         const account = accounts[i]
         expect(typeof account.key).toBe('string')
         expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof (account.owner).asm).toBe('string')
-        expect(typeof (account.owner).reqSigs).toBe('number')
-        expect((account.owner).type).toBe('scripthash')
-        expect((account.owner).addresses.length).toBeGreaterThan(0)
+        expect(typeof account.owner.asm).toBe('string')
+        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
+        expect(typeof account.owner.type).toBe('string')
+        expect(account.owner.addresses.length).toBeGreaterThan(0)
         expect(typeof account.amount).toBe('string') // 10.00000000@DFI
       }
     })
@@ -188,7 +189,8 @@ describe('masternode', () => {
         expect(accounts.length).toBeGreaterThan(0)
       })
 
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: false }) // [ '187.00000000@DBTC', '154.00000000@DETH' ]
+      // [ '187.00000000@DBTC', '154.00000000@DETH' ]
+      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: false })
       expect(account.length).toBeGreaterThan(0)
       for (let i = 0; i < account.length; i += 1) {
         expect(typeof account[i]).toBe('string')
@@ -212,8 +214,10 @@ describe('masternode', () => {
         including_start: true
       }
 
+      // [ '187.00000000@DBTC', '154.00000000@DETH' ]
       const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination, { indexedAmounts: false })
       expect(account.length).toBe(1)
+
       for (let i = 0; i < account.length; i += 1) {
         expect(typeof account[i]).toBe('string')
       }
@@ -263,7 +267,7 @@ describe('masternode', () => {
       }
     })
 
-    it('should getTokenBalances with pagination start and including_start, id is number', async () => {
+    it('should getTokenBalances with pagination start and including_start', async () => {
       let id = ''
 
       await waitForExpect(async () => {
@@ -297,6 +301,9 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances({}, true, { symbolLookup: false })
         expect(typeof tokenBalances === 'object').toBe(true)
+        for (const k in tokenBalances) {
+          expect(tokenBalances[k] instanceof BigNumber).toBe(true)
+        }
       })
     })
 
@@ -328,7 +335,7 @@ describe('masternode', () => {
         expect(typeof accountHistory.blockHeight).toBe('number')
         expect(typeof accountHistory.blockHash).toBe('string')
         expect(typeof accountHistory.blockTime).toBe('number')
-        expect(typeof accountHistory.type).toBe('string') // UtxosToAccount, sent, receive
+        expect(typeof accountHistory.type).toBe('string')
         expect(typeof accountHistory.txn).toBe('number')
         expect(typeof accountHistory.txid).toBe('string')
         expect(accountHistory.amounts.length).toBeGreaterThan(0)
