@@ -15,19 +15,6 @@ export interface StartOptions {
   password?: string
 }
 
-const defaultStartOptions = {
-  user: 'testcontainers-user',
-  password: 'testcontainers-password'
-}
-
-/**
- * Generate a name for a new docker container with network type and random number
- */
-function generateName (network: Network): string {
-  const rand = Math.floor(Math.random() * 10000000)
-  return `${DeFiDContainer.PREFIX}-${network}-${rand}`
-}
-
 /**
  * Clean up stale nodes are nodes that are running for 1 hour
  */
@@ -94,6 +81,11 @@ export abstract class DeFiDContainer {
   public static readonly PREFIX = 'defichain-testcontainers-'
   public static readonly image = 'defi/defichain:1.6.3'
 
+  public static readonly DefaultStartOptions = {
+    user: 'testcontainers-user',
+    password: 'testcontainers-password'
+  }
+
   protected readonly docker: Dockerode
   protected readonly network: Network
 
@@ -137,9 +129,9 @@ export abstract class DeFiDContainer {
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await pullImage(this.docker)
-    this.startOptions = Object.assign(defaultStartOptions, startOptions)
+    this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
     this.container = await this.docker.createContainer({
-      name: generateName(this.network),
+      name: this.generateName(),
       Image: DeFiDContainer.image,
       Tty: true,
       Cmd: this.getCmd(this.startOptions),
@@ -148,6 +140,14 @@ export abstract class DeFiDContainer {
       }
     })
     await this.container.start()
+  }
+
+  /**
+   * Generate a name for a new docker container with network type and random number
+   */
+  generateName (): string {
+    const rand = Math.floor(Math.random() * 10000000)
+    return `${DeFiDContainer.PREFIX}-${this.network}-${rand}`
   }
 
   /**

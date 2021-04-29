@@ -49,8 +49,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   /**
    * This will automatically import the necessary private key for master to mint tokens
    */
-  async waitForReady (timeout: number = 15000): Promise<void> {
-    await super.waitForReady(timeout)
+  async start (startOptions: StartOptions = {}): Promise<void> {
+    await super.start(startOptions)
+
+    // Wait for ready and setup for auto mint
+    await super.waitForReady(25000)
 
     // import keys for master node
     await this.call('importprivkey', [
@@ -79,7 +82,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     // restart and wait for ready
     await this.container?.stop()
     await this.container?.start()
-    await super.waitForReady(timeout)
   }
 
   /**
