@@ -1,14 +1,22 @@
 import { PersistentMNRegTestContainer } from '../../../src'
 import waitForExpect from 'wait-for-expect'
 
-let container: PersistentMNRegTestContainer
+beforeEach(async () => {
+  try {
+    await new PersistentMNRegTestContainer().stop()
+  } catch (ignored) {
+  }
+})
 
 afterEach(async () => {
-  await container?.stop()
+  try {
+    await new PersistentMNRegTestContainer().stop()
+  } catch (ignored) {
+  }
 })
 
 it('should start and mint coins', async () => {
-  container = new PersistentMNRegTestContainer()
+  const container = new PersistentMNRegTestContainer()
   await container.start()
   await container.waitForReady()
 
@@ -19,7 +27,7 @@ it('should start and mint coins', async () => {
 })
 
 it('should always use the same persistent container', async () => {
-  container = new PersistentMNRegTestContainer()
+  let container = new PersistentMNRegTestContainer()
   await container.start()
   await container.waitForReady()
 

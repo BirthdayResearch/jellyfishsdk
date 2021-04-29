@@ -6,7 +6,7 @@ async function getContainerInfoByName (docker: Dockerode, name: string): Promise
   return await new Promise((resolve, reject) => {
     const opts = { limit: 1, filters: `{"name": ["${name}"]}` }
     docker.listContainers(opts, function (err, containers) {
-      if (err === undefined && containers !== undefined) {
+      if (err === null && containers !== undefined) {
         resolve(containers[0])
       } else {
         reject(err)
@@ -26,6 +26,14 @@ async function getContainerInfoByName (docker: Dockerode, name: string): Promise
  */
 export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
   /**
+   * Init the required container instances  for start/stop operation
+   */
+  async init (): Promise<void> {
+    const info = await getContainerInfoByName(this.docker, this.generateName())
+    this.container = info?.Id !== undefined ? this.docker.getContainer(info.Id) : undefined
+  }
+
+  /**
    * This will only start a persistent container if it's not yet already started.
    * @see {generateName()} for the name of container
    */
@@ -33,8 +41,7 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
     this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
 
     try {
-      const info = await getContainerInfoByName(this.docker, this.generateName())
-      this.container = info?.Id !== undefined ? this.docker.getContainer(info.Id) : undefined
+      await this.init()
       this.requireContainer()
       await this.waitForReady(3000)
     } catch (e) {
@@ -49,5 +56,10 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
    */
   generateName (): string {
     return `${DeFiDContainer.PREFIX}-${this.network}-persistent`
+  }
+
+  async stop (): Promise<void> {
+    await this.init()
+    await super.stop()
   }
 }
