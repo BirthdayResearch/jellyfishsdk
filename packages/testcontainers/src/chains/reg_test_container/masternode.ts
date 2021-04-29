@@ -94,9 +94,10 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
     return await this.waitForCondition(async () => {
+      await this.generate(1)
       const count = await this.getBlockCount()
       return count > 100
-    }, timeout)
+    }, timeout, 100)
   }
 
   /**
