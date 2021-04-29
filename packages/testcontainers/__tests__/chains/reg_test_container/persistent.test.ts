@@ -4,7 +4,7 @@ import waitForExpect from 'wait-for-expect'
 let container: PersistentMNRegTestContainer
 
 afterEach(async () => {
-  await container.stop()
+  await container?.stop()
 })
 
 it('should start and mint coins', async () => {

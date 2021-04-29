@@ -8,9 +8,9 @@ async function getContainerInfoByName (docker: Dockerode, name: string): Promise
     docker.listContainers(opts, function (err, containers) {
       if (err === undefined && containers !== undefined) {
         resolve(containers[0])
+      } else {
+        reject(err)
       }
-
-      reject(err)
     })
   })
 }
