@@ -89,11 +89,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    *
    * A coinbase transaction must be 100 blocks deep before you can spend its outputs.
    * This is a safeguard to prevent outputs that originate
-   * from the coinbase transaction from becoming unspendable
-   * (in the event the mined block moves out of the active chaindue to a fork).
+   * from the coinbase transaction from becoming un-spendable
+   * (in the event the mined block moves out of the active chain due to a fork).
    */
-  async waitForWalletCoinbaseMaturity (): Promise<void> {
-    await this.generate(100)
+  async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
+    return await this.waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      return count > 100
+    }, timeout)
   }
 
   /**
