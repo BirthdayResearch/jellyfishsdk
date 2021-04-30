@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ProbeIndicator, HealthIndicatorResult } from '@src/module.health/probe.indicator'
-import { BlockchainInfo } from '@defichain/jellyfish-api-core'
+import { blockchain as bc } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class DeFiDHealthIndicator extends ProbeIndicator {
@@ -30,7 +30,7 @@ export class DeFiDHealthIndicator extends ProbeIndicator {
   async readiness (): Promise<HealthIndicatorResult> {
     // TODO(fuxingloh): readiness criteria must be sufficient for global decentralized implementation
 
-    let info: BlockchainInfo
+    let info: bc.BlockchainInfo
     let count: number
     try {
       info = await this.client.blockchain.getBlockchainInfo()
