@@ -13,7 +13,7 @@ export class Net {
   /**
    * Returns the number of connections to other nodes.
    *
-   * @return {Promise<string>}
+   * @return {Promise<number>}
    */
   async getConnectionCount (): Promise<number> {
     return await this.client.call('getconnectioncount', [], 'number')
