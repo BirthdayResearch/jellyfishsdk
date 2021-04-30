@@ -4,6 +4,7 @@ import { Mining } from './category/mining'
 import { Net } from './category/net'
 import { RawTx } from './category/rawtx'
 import { Wallet } from './category/wallet'
+import { Account } from './category/account'
 import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
 
@@ -16,6 +17,7 @@ export * as rawtx from './category/rawtx'
 export * as wallet from './category/wallet'
 export * as poolpair from './category/poolpair'
 export * as token from './category/token'
+export * as account from './category/account'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -26,6 +28,7 @@ export abstract class ApiClient {
   public readonly net = new Net(this)
   public readonly rawtx = new RawTx(this)
   public readonly wallet = new Wallet(this)
+  public readonly account = new Account(this)
   public readonly poolpair = new PoolPair(this)
   public readonly token = new Token(this)
 
