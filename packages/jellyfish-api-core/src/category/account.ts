@@ -87,7 +87,7 @@ export class Account {
     verbose = true,
     options: ListAccountOptions = { indexedAmounts: false, isMineOnly: false }
   ): Promise<Array<AccountResult<T, U>>> {
-    const { indexedAmounts = false, isMineOnly = false } = options
+    const { indexedAmounts, isMineOnly } = options
     return await this.client.call('listaccounts', [pagination, verbose, indexedAmounts, isMineOnly], 'bignumber')
   }
 
