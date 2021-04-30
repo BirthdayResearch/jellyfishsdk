@@ -1,5 +1,5 @@
-[![npm](https://img.shields.io/npm/v/@defichain/testcontainer)](https://www.npmjs.com/package/@defichain/testcontainer/v/latest)
-[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainer/next)](https://www.npmjs.com/package/@defichain/testcontainer/v/next)
+[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)
+[![npm@next](https://img.shields.io/npm/v/@defichain/testcontainers/next)](https://www.npmjs.com/package/@defichain/testcontainers/v/next)
 
 # @defichain/testcontainers
 
