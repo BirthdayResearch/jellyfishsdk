@@ -15,7 +15,7 @@ export class Net {
    *
    * @return {Promise<string>}
    */
-  async getConnectionCount (): Promise<string> {
+  async getConnectionCount (): Promise<number> {
     return await this.client.call('getconnectioncount', [], 'number')
   }
 }

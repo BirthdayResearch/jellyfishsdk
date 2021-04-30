@@ -19,6 +19,6 @@ Returns the number of connections to other nodes.
 
 ```ts title="client.net.getConnectionCount()"
 interface net {
-  getConnectionCount (): Promise<string>
+  getConnectionCount (): Promise<number>
 }
 ```
