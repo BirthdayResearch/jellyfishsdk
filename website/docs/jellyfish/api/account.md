@@ -12,13 +12,13 @@ const client = new Client()
 const something = await client.account.method()
 ```
 
-## listPoolPairs
+## listAccounts
 
 Returns information about all accounts on chain
 
 ```ts title="client.account.listAccounts()"
 interface account {
-  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, string>>>
+  listAccounts (pagination?: AccountPagination, verbose?: boolean, options?: ListAccountOptions): Promise<Array<AccountResult<AccountOwner, string>>>
   listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<string, string>>>
   listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
   listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
@@ -64,8 +64,8 @@ Returns information about account
 
 ```ts title="client.account.getAccount()"
 interface account {
-  getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: false }): Promise<string[]>
   getAccount (owner: string, pagination: AccountPagination, options: { indexedAmounts: true }): Promise<AccountAmount>
+  getAccount (owner: string, pagination?: AccountPagination, options?: GetAccountOptions): Promise<string[]>
   getAccount (
     owner: string,
     pagination: AccountPagination = { limit: 100 },
@@ -80,7 +80,7 @@ Returns the balances of all accounts that belong to the wallet
 
 ```ts title="client.account.getTokenBalances()"
 interface account {
-  getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: false }): Promise<string[]>
+  getTokenBalances (pagination?: AccountPagination, indexedAmounts?: boolean, options?: GetTokenBalancesOptions): Promise<string[]>
   getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: false }): Promise<AccountAmount>
   getTokenBalances (pagination: AccountPagination, indexedAmounts: false, options: { symbolLookup: true }): Promise<string[]>
   getTokenBalances (pagination: AccountPagination, indexedAmounts: true, options: { symbolLookup: true }): Promise<AccountAmount>
@@ -88,7 +88,7 @@ interface account {
     pagination: AccountPagination = { limit: 100 },
     indexedAmounts = false,
     options: GetTokenBalancesOptions = { symbolLookup: false}
-  ): Promise<string[] | TokenBalances>
+  ): Promise<string[] | AccountAmount>
 }
 
 interface AccountAmount {
