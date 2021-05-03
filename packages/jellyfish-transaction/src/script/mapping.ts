@@ -16,6 +16,14 @@ import {
   PoolSwap
 } from './defi/dftx_pool'
 import { CTokenMint, TokenMint } from './defi/dftx_token'
+import {
+  AccountToAccount,
+  AccountToUtxos,
+  CAccountToAccount,
+  CAccountToUtxos,
+  CUtxosToAccount,
+  UtxosToAccount
+} from './defi/dftx_balance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -80,6 +88,30 @@ export const OP_CODES = {
       type: CTokenMint.OP_CODE,
       name: CTokenMint.OP_NAME,
       data: tokenMint
+    })
+  },
+  DEFI_OP_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUtxosToAccount.OP_CODE,
+      name: CUtxosToAccount.OP_NAME,
+      data: utxosToAccount
+    })
+  },
+  DEFI_OP_ACCOUNT_TO_UTXOS: (accountToUtxos: AccountToUtxos): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAccountToUtxos.OP_CODE,
+      name: CAccountToUtxos.OP_NAME,
+      data: accountToUtxos
+    })
+  },
+  DEFI_OP_ACCOUNT_TO_ACCOUNT: (accountToAccount: AccountToAccount): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAccountToAccount.OP_CODE,
+      name: CAccountToAccount.OP_NAME,
+      data: accountToAccount
     })
   },
   OP_0: new OP_0(),

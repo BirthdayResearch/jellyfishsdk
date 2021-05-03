@@ -68,8 +68,9 @@ export class CUtxosToAccount extends ComposableBuffer<UtxosToAccount> {
  * AccountToUtxos DeFi Transaction
  */
 export interface AccountToUtxos {
-  from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
-  mintingOutputStart: number
+  from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes
+  balances: TokenBalance[] // -----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  mintingOutputsStart: number // --------| 4 bytes unsigned
 }
 
 /**
@@ -82,8 +83,9 @@ export class CAccountToUtxos extends ComposableBuffer<AccountToUtxos> {
 
   composers (a2u: AccountToUtxos): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntArray(() => a2u.from, v => a2u.from = v, v => new CScriptBalances(v)),
-      ComposableBuffer.uInt32(() => a2u.mintingOutputStart, v => a2u.mintingOutputStart = v)
+      ComposableBuffer.single<Script>(() => a2u.from, v => a2u.from = v, v => new CScript(v)),
+      ComposableBuffer.varUIntArray(() => a2u.balances, v => a2u.balances = v, v => new CTokenBalance(v)),
+      ComposableBuffer.uInt8(() => a2u.mintingOutputsStart, v => a2u.mintingOutputsStart = v)
     ]
   }
 }
