@@ -56,10 +56,22 @@ async function cleanUpStale (docker: Dockerode): Promise<void> {
   })
 }
 
+async function hasImageLocally (docker: Dockerode): Promise<boolean> {
+  return await new Promise((resolve, reject) => {
+    docker.getImage(DeFiDContainer.image).inspect((error, result) => {
+      resolve(!(error instanceof Error))
+    })
+  })
+}
+
 /**
- * Pull DeFiDContainer.image from DockerHub
+ * Pull DeFiDContainer.image if it doesn't already exist.
  */
-async function pullImage (docker: Dockerode): Promise<void> {
+async function tryPullImage (docker: Dockerode): Promise<void> {
+  if (await hasImageLocally(docker)) {
+    return
+  }
+
   return await new Promise((resolve, reject) => {
     docker.pull(DeFiDContainer.image, {}, (error, result) => {
       if (error instanceof Error) {
@@ -128,7 +140,7 @@ export abstract class DeFiDContainer {
    * Create container and start it immediately
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
-    await pullImage(this.docker)
+    await tryPullImage(this.docker)
     this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
     this.container = await this.docker.createContainer({
       name: this.generateName(),
