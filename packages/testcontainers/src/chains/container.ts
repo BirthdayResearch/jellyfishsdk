@@ -56,10 +56,22 @@ async function cleanUpStale (docker: Dockerode): Promise<void> {
   })
 }
 
+async function hasImageLocally (docker: Dockerode): Promise<boolean> {
+  return await new Promise((resolve, reject) => {
+    docker.getImage(DeFiDContainer.image).inspect((error, result) => {
+      resolve(!(error instanceof Error))
+    })
+  })
+}
+
 /**
- * Pull DeFiDContainer.image from DockerHub
+ * Pull DeFiDContainer.image if it doesn't already exist.
  */
-async function pullImage (docker: Dockerode): Promise<void> {
+async function tryPullImage (docker: Dockerode): Promise<void> {
+  if (await hasImageLocally(docker)) {
+    return
+  }
+
   return await new Promise((resolve, reject) => {
     docker.pull(DeFiDContainer.image, {}, (error, result) => {
       if (error instanceof Error) {
@@ -128,7 +140,7 @@ export abstract class DeFiDContainer {
    * Create container and start it immediately
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
-    await pullImage(this.docker)
+    await tryPullImage(this.docker)
     this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
     this.container = await this.docker.createContainer({
       name: this.generateName(),
@@ -269,8 +281,9 @@ export abstract class DeFiDContainer {
   /**
    * @param {() => Promise<boolean>} condition to wait for true
    * @param {number} timeout duration when condition is not met
+   * @param {number} [interval=200] duration in ms
    */
-  async waitForCondition (condition: () => Promise<boolean>, timeout: number): Promise<void> {
+  async waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200): Promise<void> {
     const expiredAt = Date.now() + timeout
 
     return await new Promise((resolve, reject) => {
@@ -281,7 +294,7 @@ export abstract class DeFiDContainer {
         } else if (expiredAt < Date.now()) {
           reject(new Error(`waitForCondition is not ready within given timeout of ${timeout}ms.`))
         } else {
-          setTimeout(() => void checkCondition(), 200)
+          setTimeout(() => void checkCondition(), interval)
         }
       }
 

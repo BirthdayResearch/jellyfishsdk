@@ -1,8 +1,10 @@
 import { Precision, PrecisionPath } from '@defichain/jellyfish-json'
 import { Blockchain } from './category/blockchain'
 import { Mining } from './category/mining'
+import { Net } from './category/net'
 import { RawTx } from './category/rawtx'
 import { Wallet } from './category/wallet'
+import { Account } from './category/account'
 import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
 
@@ -10,10 +12,12 @@ export * from '@defichain/jellyfish-json'
 
 export * as blockchain from './category/blockchain'
 export * as mining from './category/mining'
+export * as net from './category/net'
 export * as rawtx from './category/rawtx'
 export * as wallet from './category/wallet'
 export * as poolpair from './category/poolpair'
 export * as token from './category/token'
+export * as account from './category/account'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -21,8 +25,10 @@ export * as token from './category/token'
 export abstract class ApiClient {
   public readonly blockchain = new Blockchain(this)
   public readonly mining = new Mining(this)
+  public readonly net = new Net(this)
   public readonly rawtx = new RawTx(this)
   public readonly wallet = new Wallet(this)
+  public readonly account = new Account(this)
   public readonly poolpair = new PoolPair(this)
   public readonly token = new Token(this)
 

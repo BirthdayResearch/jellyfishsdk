@@ -10,10 +10,12 @@ module.exports = {
       items: [
         'jellyfish/api/blockchain',
         'jellyfish/api/mining',
+        'jellyfish/api/net',
         'jellyfish/api/rawtx',
         'jellyfish/api/wallet',
         'jellyfish/api/poolpair',
-        'jellyfish/api/token'
+        'jellyfish/api/token',
+        'jellyfish/api/account'
       ]
     }
   ],
