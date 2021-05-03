@@ -72,6 +72,7 @@ async function tryPullImage (docker: Dockerode): Promise<void> {
     return
   }
 
+  /* istanbul ignore next */
   return await new Promise((resolve, reject) => {
     docker.pull(DeFiDContainer.image, {}, (error, result) => {
       if (error instanceof Error) {
