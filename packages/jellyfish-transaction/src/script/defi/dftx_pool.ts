@@ -4,6 +4,7 @@ import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
+import { CScriptBalances, ScriptBalances } from './dftx_balance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -62,16 +63,6 @@ export interface PoolAddLiquidity {
   shareAddress: Script // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
-export interface ScriptBalances {
-  script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
-  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
-}
-
-export interface TokenBalance {
-  token: number // ---------------------| 4 bytes unsigned
-  amount: BigNumber // -----------------| 8 bytes unsigned
-}
-
 /**
  * Composable PoolAddLiquidity, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
@@ -84,32 +75,6 @@ export class CPoolAddLiquidity extends ComposableBuffer<PoolAddLiquidity> {
     return [
       ComposableBuffer.varUIntArray(() => p.from, v => p.from = v, v => new CScriptBalances(v)),
       ComposableBuffer.single<Script>(() => p.shareAddress, v => p.shareAddress = v, v => new CScript(v))
-    ]
-  }
-}
-
-/**
- * Composable ScriptBalances, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-export class CScriptBalances extends ComposableBuffer<ScriptBalances> {
-  composers (sb: ScriptBalances): BufferComposer[] {
-    return [
-      ComposableBuffer.single<Script>(() => sb.script, v => sb.script = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => sb.balances, v => sb.balances = v, v => new CTokenBalance(v))
-    ]
-  }
-}
-
-/**
- * Composable TokenBalance, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-export class CTokenBalance extends ComposableBuffer<TokenBalance> {
-  composers (tb: TokenBalance): BufferComposer[] {
-    return [
-      ComposableBuffer.uInt32(() => tb.token, v => tb.token = v),
-      ComposableBuffer.satoshiAsBigNumber(() => tb.amount, v => tb.amount = v)
     ]
   }
 }

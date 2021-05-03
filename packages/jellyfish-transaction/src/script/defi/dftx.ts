@@ -1,6 +1,14 @@
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import {
+  AccountToAccount,
+  AccountToUtxos,
+  CAccountToAccount,
+  CAccountToUtxos,
+  CUtxosToAccount,
+  UtxosToAccount
+} from './dftx_account'
+import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap
 } from './dftx_pool'
@@ -90,6 +98,12 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PoolRemoveLiquidity>(CPoolRemoveLiquidity.OP_NAME, d => new CPoolRemoveLiquidity(d))
       case CTokenMint.OP_CODE:
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
+      case CUtxosToAccount.OP_CODE:
+        return compose<UtxosToAccount>(CUtxosToAccount.OP_NAME, d => new CUtxosToAccount(d))
+      case CAccountToUtxos.OP_CODE:
+        return compose<AccountToUtxos>(CAccountToUtxos.OP_NAME, d => new CAccountToUtxos(d))
+      case CAccountToAccount.OP_CODE:
+        return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
