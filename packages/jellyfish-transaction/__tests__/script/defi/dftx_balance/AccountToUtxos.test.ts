@@ -57,8 +57,6 @@ describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CAccountToUtxos(buffer)
-    console.log(composable.toObject().balances.length)
-    console.log(composable.toObject().balances[0].amount.toFixed())
     expect(composable.toObject()).toEqual(accountToUtxos)
   })
 
