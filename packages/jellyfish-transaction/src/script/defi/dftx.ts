@@ -7,7 +7,7 @@ import {
   CAccountToUtxos,
   CUtxosToAccount,
   UtxosToAccount
-} from './dftx_balance'
+} from './dftx_account'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap

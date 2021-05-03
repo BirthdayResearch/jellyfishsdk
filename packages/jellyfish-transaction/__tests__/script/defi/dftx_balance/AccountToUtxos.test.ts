@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { AccountToUtxos, CAccountToUtxos } from '../../../../src/script/defi/dftx_balance'
+import { AccountToUtxos, CAccountToUtxos } from '../../../../src/script/defi/dftx_account'
 import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
 import BigNumber from 'bignumber.js'
 import { OP_DEFI_TX } from '../../../../src/script/defi'

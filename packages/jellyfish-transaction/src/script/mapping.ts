@@ -23,7 +23,7 @@ import {
   CAccountToUtxos,
   CUtxosToAccount,
   UtxosToAccount
-} from './defi/dftx_balance'
+} from './defi/dftx_account'
 
 /**
  * @param num to map as OPCode, 1 byte long
