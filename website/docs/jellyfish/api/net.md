@@ -22,3 +22,43 @@ interface net {
   getConnectionCount (): Promise<number>
 }
 ```
+
+## getNetworkInfo
+
+Returns an object containing various state info regarding P2P networking.
+
+```ts title="client.net.getNetworkInfo()"
+interface net {
+  getNetworkInfo (): Promise<NetworkInfo>
+}
+
+interface NetworkInfo {
+  version: number
+  subversion: string
+  protocolversion: number
+  localservices: string
+  localrelay: boolean
+  timeoffset: number
+  connections: number
+  networkactive: boolean
+  networks: Network[]
+  relayfee: number
+  incrementalfee: number,
+  localaddresses: LocalAddress[],
+  warnings: string
+}
+
+interface Network {
+  name: string,
+  limited: boolean,
+  reachable: boolean,
+  proxy: string,
+  proxy_randomize_credentials: boolean
+}
+
+interface LocalAddress {
+  address: string,
+  port: number,
+  score: number
+}
+```
