@@ -43,22 +43,22 @@ interface NetworkInfo {
   networkactive: boolean
   networks: Network[]
   relayfee: number
-  incrementalfee: number,
-  localaddresses: LocalAddress[],
+  incrementalfee: number
+  localaddresses: LocalAddress[]
   warnings: string
 }
 
 interface Network {
-  name: string,
-  limited: boolean,
-  reachable: boolean,
-  proxy: string,
+  name: string
+  limited: boolean
+  reachable: boolean
+  proxy: string
   proxy_randomize_credentials: boolean
 }
 
 interface LocalAddress {
-  address: string,
-  port: number,
+  address: string
+  port: number
   score: number
 }
 ```
