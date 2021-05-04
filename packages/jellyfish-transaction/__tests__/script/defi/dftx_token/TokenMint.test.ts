@@ -6,10 +6,8 @@ import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a0e446654784d016050da6001000000',
-    '6a0e446654784d035fc05c7302000000',
-    '6a0e446654784d03a45ce23902000000',
-    '6a0e446654784d06ede2e73001040000'
+    '6a12446654784d010200000000ca9a3b00000000',
+    '6a12446654784d010200000000ea56fa00000000'
   ]
 
   fixtures.forEach(hex => {
@@ -22,11 +20,15 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a0e446654784d' // OP_RETURN, PUSH_DATA(44665478, 4d)
-const data = '016050da6001000000'
+const header = '6a12446654784d' // OP_RETURN, PUSH_DATA(44665478, 4d)
+const data = '01010000006050da6001000000'
 const tokenMint: TokenMint = {
-  tokenId: 1,
-  amount: new BigNumber('59.19887456')
+  balances: [
+    {
+      token: 1,
+      amount: new BigNumber('59.19887456')
+    }
+  ]
 }
 
 it('should craft dftx with OP_CODES._()', () => {

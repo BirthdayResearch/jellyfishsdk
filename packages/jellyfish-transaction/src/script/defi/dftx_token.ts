@@ -1,5 +1,5 @@
-import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { TokenBalance, CTokenBalance } from './dftx_balance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -8,8 +8,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
  * TokenMint DeFi Transaction
  */
 export interface TokenMint {
-  tokenId: number // -------------------| VarUInt{1-9 bytes}
-  amount: BigNumber // -----------------| 8 bytes
+  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
 }
 
 /**
@@ -22,8 +21,7 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
 
   composers (tm: TokenMint): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => tm.tokenId, v => tm.tokenId = v),
-      ComposableBuffer.satoshiAsBigNumber(() => tm.amount, v => tm.amount = v)
+      ComposableBuffer.varUIntArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v))
     ]
   }
 }
