@@ -1,5 +1,5 @@
-import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { TokenBalance } from './dftx_balance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -9,11 +9,6 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
  */
 export interface TokenMint {
   balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
-}
-
-export interface TokenBalance {
-  token: number // ---------------------| 4 bytes unsigned
-  amount: BigNumber // -----------------| 8 bytes unsigned
 }
 
 /**
