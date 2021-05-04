@@ -17,7 +17,6 @@
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
 /packages/jellyfish-transaction/                @fuxingloh
-/packages/jellyfish-transaction/src/                @fuxingloh
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/jellyfish-wallet-whale/               @fuxingloh
