@@ -8,8 +8,12 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
  * TokenMint DeFi Transaction
  */
 export interface TokenMint {
-  tokenId: number // -------------------| VarUInt{1-9 bytes}
-  amount: BigNumber // -----------------| 8 bytes
+  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+}
+
+export interface TokenBalance {
+  token: number // ---------------------| 4 bytes unsigned
+  amount: BigNumber // -----------------| 8 bytes unsigned
 }
 
 /**
@@ -22,8 +26,20 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
 
   composers (tm: TokenMint): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => tm.tokenId, v => tm.tokenId = v),
-      ComposableBuffer.satoshiAsBigNumber(() => tm.amount, v => tm.amount = v)
+      ComposableBuffer.varUIntArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v))
+    ]
+  }
+}
+
+/**
+ * Composable TokenBalance, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenBalance extends ComposableBuffer<TokenBalance> {
+  composers (tb: TokenBalance): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt32(() => tb.token, v => tb.token = v),
+      ComposableBuffer.satoshiAsBigNumber(() => tb.amount, v => tb.amount = v)
     ]
   }
 }
