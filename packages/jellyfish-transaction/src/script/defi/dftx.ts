@@ -3,8 +3,10 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import {
   AccountToAccount,
   AccountToUtxos,
+  AnyAccountToAccount,
   CAccountToAccount,
   CAccountToUtxos,
+  CAnyAccountToAccount,
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
@@ -104,6 +106,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AccountToUtxos>(CAccountToUtxos.OP_NAME, d => new CAccountToUtxos(d))
       case CAccountToAccount.OP_CODE:
         return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
+      case CAnyAccountToAccount.OP_CODE:
+        return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
