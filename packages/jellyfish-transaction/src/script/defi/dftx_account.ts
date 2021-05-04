@@ -77,3 +77,27 @@ export class CAccountToAccount extends ComposableBuffer<AccountToAccount> {
     ]
   }
 }
+
+/**
+ * AccountToAccount DeFi Transaction
+ */
+export interface AnyAccountToAccount {
+  from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
+  to: ScriptBalances[] // --------------| n = VarUInt{1-9 bytes}, + n bytes
+}
+
+/**
+ * Composable UtxosToAccount, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> {
+  static OP_CODE = 0x61 // 'a'
+  static OP_NAME = 'DEFI_OP_ANY_ACCOUNT_TO_ACCOUNT'
+
+  composers (aa2a: AnyAccountToAccount): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntArray(() => aa2a.from, v => aa2a.from = v, v => new CScriptBalances(v)),
+      ComposableBuffer.varUIntArray(() => aa2a.to, v => aa2a.to = v, v => new CScriptBalances(v))
+    ]
+  }
+}

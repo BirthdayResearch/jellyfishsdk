@@ -19,6 +19,8 @@ import { CTokenMint, TokenMint } from './defi/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
+  AnyAccountToAccount,
+  CAnyAccountToAccount,
   CAccountToAccount,
   CAccountToUtxos,
   CUtxosToAccount,
@@ -112,6 +114,14 @@ export const OP_CODES = {
       type: CAccountToAccount.OP_CODE,
       name: CAccountToAccount.OP_NAME,
       data: accountToAccount
+    })
+  },
+  DEFI_OP_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAnyAccountToAccount.OP_CODE,
+      name: CAnyAccountToAccount.OP_NAME,
+      data: anyAccountToAccount
     })
   },
   OP_0: new OP_0(),
