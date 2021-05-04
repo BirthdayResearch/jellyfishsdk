@@ -1,5 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-import { TokenBalance } from './dftx_balance'
+import { TokenBalance, CTokenBalance } from './dftx_balance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -22,19 +22,6 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
   composers (tm: TokenMint): BufferComposer[] {
     return [
       ComposableBuffer.varUIntArray(() => tm.balances, v => tm.balances = v, v => new CTokenBalance(v))
-    ]
-  }
-}
-
-/**
- * Composable TokenBalance, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-export class CTokenBalance extends ComposableBuffer<TokenBalance> {
-  composers (tb: TokenBalance): BufferComposer[] {
-    return [
-      ComposableBuffer.uInt32(() => tb.token, v => tb.token = v),
-      ComposableBuffer.satoshiAsBigNumber(() => tb.amount, v => tb.amount = v)
     ]
   }
 }
