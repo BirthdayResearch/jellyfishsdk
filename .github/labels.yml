@@ -80,6 +80,8 @@
   name: area/jellyfish-wallet-mnemonic
 - color: fbca04
   name: area/testcontainers
+- color: fbca04
+  name: area/defichain-testing
 
 # Priority
 - color: d93f0b
