@@ -21,7 +21,7 @@
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/jellyfish-wallet-whale/               @fuxingloh
 /packages/testcontainers/                       @fuxingloh
-/packages/defichain-testing/                    @fuxingloh @canonbrother
+/packages/testing/                              @fuxingloh @canonbrother
 
 lerna.json                                      @fuxingloh
 tsconfig.json                                   @fuxingloh

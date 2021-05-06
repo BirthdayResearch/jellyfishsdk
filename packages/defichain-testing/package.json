@@ -34,11 +34,12 @@
   "scripts": {
     "build": "tsc"
   },
+  "peerDependencies": {
+    "bignumber.js": "^9.0.1",
+    "@defichain/testcontainers": "0.0.0"
+  },
   "dependencies": {
     "@defichain/jellyfish-network": "0.0.0",
     "@defichain/jellyfish-crypto": "0.0.0"
-  },
-  "devDependencies": {
-    "@defichain/testcontainers": "0.0.0"
   }
 }
