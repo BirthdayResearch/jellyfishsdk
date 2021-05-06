@@ -1,25 +1,44 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigModule } from '@nestjs/config'
-import { DatabaseModule } from '@src/module.database'
+import { DatabaseModule } from '@src/module.database/module'
 import { Database } from '@src/module.database/database'
+import { LevelDatabase } from '@src/module.database/provider.level/level.database'
 import { MemoryDatabase } from '@src/module.database/provider.memory/memory.database'
 
-describe('memory module', () => {
+describe('provided module: level', () => {
   let app: TestingModule
   let database: Database
 
   beforeEach(async () => {
     app = await Test.createTestingModule({
       imports: [
-        ConfigModule.forRoot({
-          isGlobal: true,
-          load: [() => ({
-            database: {
-              provider: 'memory'
-            }
-          })]
-        }),
-        DatabaseModule
+        ConfigModule.forRoot({ isGlobal: true }),
+        DatabaseModule.forRoot('level')
+      ]
+    }).compile()
+
+    database = app.get<Database>(Database)
+  })
+
+  it('dynamically injected database should be level database', () => {
+    expect(database instanceof LevelDatabase).toBe(true)
+  })
+
+  it('should be a singleton module', () => {
+    const a = app.get<Database>(Database)
+    const b = app.get<Database>(Database)
+    expect(a).toEqual(b)
+  })
+})
+
+describe('provided module: memory', () => {
+  let app: TestingModule
+  let database: Database
+
+  beforeEach(async () => {
+    app = await Test.createTestingModule({
+      imports: [
+        DatabaseModule.forRoot('memory')
       ]
     }).compile()
 
@@ -31,39 +50,21 @@ describe('memory module', () => {
   })
 
   it('should be a singleton module', () => {
-    expect(app.get<Database>(Database).get('1')).toBeFalsy()
-    expect(app.get<Database>(Database).get('2')).toBeFalsy()
-
-    app.get<Database>(Database).put('1', 'a-1')
-    app.get<Database>(Database).put('2', { b: 2 })
-
-    expect(app.get<Database>(Database).get('1')).toBe('a-1')
-    expect(app.get<Database>(Database).get('2')).toEqual({
-      b: 2
-    })
+    const a = app.get<Database>(Database)
+    const b = app.get<Database>(Database)
+    expect(a).toEqual(b)
   })
 })
 
-describe('invalid module', () => {
+describe('provided module: invalid', () => {
   it('should fail module instantiation as database provider is invalid', async () => {
     const initModule = async (): Promise<void> => {
       await Test.createTestingModule({
-        imports: [
-          ConfigModule.forRoot({
-            isGlobal: true,
-            load: [() => ({
-              database: {
-                provider: 'invalid'
-              }
-            })]
-          }),
-          DatabaseModule
-        ]
+        imports: [DatabaseModule.forRoot('invalid')]
       }).compile()
     }
 
     await expect(initModule)
-      .rejects
-      .toThrow('bootstrapping error: invalid database.provider - invalid')
+      .rejects.toThrow('bootstrapping error: invalid database.provider - invalid')
   })
 })

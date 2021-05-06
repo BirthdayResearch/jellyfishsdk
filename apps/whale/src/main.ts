@@ -8,7 +8,7 @@ import { newFastifyAdapter } from '@src/fastify'
  */
 async function bootstrap (): Promise<void> {
   const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
+    AppModule.forRoot(),
     newFastifyAdapter()
   )
   await app.listen(3000, '0.0.0.0')

@@ -1,15 +1,13 @@
-import { Database } from '@src/module.database/database'
+import levelup from 'levelup'
+import memdown from 'memdown'
+import { LevelUpDatabase } from '@src/module.database/provider.level/level.database'
 
-export class MemoryDatabase extends Database {
-  // TODO(fuxingloh): remove temporary implementation
-
-  private readonly records: Record<string, any> = {}
-
-  get (key: string): any {
-    return this.records[key]
-  }
-
-  put (key: string, data: any): void {
-    this.records[key] = data
+/**
+ * MemoryDatabase uses [Level/memdown](https://github.com/Level/memdown)
+ * This is a non persistent store created specifically for testing.
+ */
+export class MemoryDatabase extends LevelUpDatabase {
+  constructor () {
+    super(levelup(memdown()))
   }
 }
