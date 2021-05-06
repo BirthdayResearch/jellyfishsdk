@@ -2,6 +2,7 @@ import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemoni
 import BigNumber from 'bignumber.js'
 import { Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { OP_CODES } from '@defichain/jellyfish-transaction/dist/script'
+import { HASH160 } from '@defichain/jellyfish-crypto'
 
 const regTestBip32Options = {
   bip32: {
@@ -80,7 +81,15 @@ describe('24 words: random', () => {
     })
 
     it('should sign tx', async () => {
-      const signed = await node.signTx(transaction, [prevout])
+      const signed = await node.signTx(transaction, [{
+        ...prevout,
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+          ]
+        }
+      }])
 
       expect(signed.witness.length).toBe(1)
       expect(signed.witness[0].scripts.length).toBe(2)
@@ -130,7 +139,15 @@ describe('24 words: abandon x23 art', () => {
     })
 
     it('should sign tx', async () => {
-      const signed = await node.signTx(transaction, [prevout])
+      const signed = await node.signTx(transaction, [{
+        ...prevout,
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+          ]
+        }
+      }])
 
       expect(signed.witness.length).toBe(1)
       expect(signed.witness[0].scripts.length).toBe(2)
@@ -169,7 +186,15 @@ describe('24 words: abandon x23 art', () => {
     })
 
     it('should sign tx', async () => {
-      const signed = await node.signTx(transaction, [prevout])
+      const signed = await node.signTx(transaction, [{
+        ...prevout,
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+          ]
+        }
+      }])
 
       expect(signed.witness.length).toBe(1)
       expect(signed.witness[0].scripts.length).toBe(2)
