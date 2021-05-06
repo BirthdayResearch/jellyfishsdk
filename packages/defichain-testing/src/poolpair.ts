@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { getNewAddress } from './wallet'
 import { poolpair } from '@defichain/jellyfish-api-core'
+import { getNewAddress } from './wallet'
 
 /**
  *

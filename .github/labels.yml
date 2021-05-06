@@ -81,7 +81,7 @@
 - color: fbca04
   name: area/testcontainers
 - color: fbca04
-  name: area/defichain-testing
+  name: area/testing
 
 # Priority
 - color: d93f0b

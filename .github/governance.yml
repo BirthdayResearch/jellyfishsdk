@@ -45,7 +45,7 @@ issue:
         - jellyfish-wallet-mnemonic
         - jellyfish-wallet-whale
         - testcontainers
-        - defichain-testing
+        - testing
       multiple: true
       needs:
         comment: |

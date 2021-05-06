@@ -71,7 +71,7 @@ labels:
     matcher:
       files: "packages/testcontainers/**"
 
-  - label: area/defichain-testing
+  - label: area/testing
     sync: true
     matcher:
       files: "packages/defi-testing/**"
