@@ -1,44 +1,41 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getNewAddress } from './wallet'
+import { poolpair } from '@defichain/jellyfish-api-core'
 
 /**
  *
  * @param {MasterNodeRegTestContainer} container
- * @param {CreatePoolPairMetadata} metadata
- * @param {string} metadata.tokenA
- * @param {string} metadata.tokenB
- * @param {commission} metadata.commission
- * @param {boolean} metadata.status
- * @param {string} metadata.ownerAddress
+ * @param {string} tokenA
+ * @param {string} tokenB
  * @param {CreatePoolPairOptions} [options]
- * @param {string[]} [options.utxos]
+ * @param {commission} [options.commission=0]
+ * @param {boolean} [options.status=true]
+ * @param {string} [options.ownerAddress]
+ * @param {poolpair.CreatePoolPairUTXO[]} [options.utxos]
  * @return {Promise<string>}
  */
 export async function createPoolPair (
   container: MasterNodeRegTestContainer,
-  metadata: CreatePoolPairMetadata,
+  tokenA: string,
+  tokenB: string,
   options?: CreatePoolPairOptions
 ): Promise<string> {
-  const address = await getNewAddress(container)
-  const defaultMetadata = {
-    commission: 0,
-    status: true,
-    ownerAddress: address
+  const metadata = {
+    tokenA,
+    tokenB,
+    commission: options?.commission ?? 0,
+    status: options?.status ?? true,
+    ownerAddress: options?.ownerAddress ?? await getNewAddress(container)
   }
-  const hashed = await container.call('createpoolpair', [{ ...defaultMetadata, ...metadata }, options?.utxos])
+  const hashed = await container.call('createpoolpair', [metadata, options?.utxos])
   await container.generate(1)
 
   return hashed
 }
 
 interface CreatePoolPairOptions {
-  utxos?: string[]
-}
-
-interface CreatePoolPairMetadata {
-  tokenA: string
-  tokenB: string
-  commission: number
-  status: boolean
-  ownerAddress: string
+  commission?: number
+  status?: boolean
+  ownerAddress?: string
+  utxos?: poolpair.CreatePoolPairUTXO[]
 }

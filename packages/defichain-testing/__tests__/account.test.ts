@@ -41,16 +41,11 @@ describe('account', () => {
     it('should accountToAccount', async () => {
       const symbol = 'DAD'
       const from = await container.call('getnewaddress')
-      const metadata = {
-        symbol,
-        name: symbol,
-        collateralAddress: from
-      }
-      await createToken(container, metadata)
+      await createToken(container, symbol, { collateralAddress: from })
       await mintTokens(container, symbol)
 
       const to = await container.call('getnewaddress')
-      await accountToAccount(container, symbol, { amount: 6, from, to })
+      await accountToAccount(container, symbol, 6, { from, to })
 
       await waitForExpect(async () => {
         const accounts = await container.call('listaccounts')

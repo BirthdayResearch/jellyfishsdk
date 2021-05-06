@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
   createToken,
-  getNewAddress,
   createPoolPair
 } from '../src'
 
@@ -21,7 +20,7 @@ describe('utils', () => {
 
   describe('createPoolPair', () => {
     beforeAll(async () => {
-      await createToken(container, { symbol: 'DOG', name: 'DOG' })
+      await createToken(container, 'DOG')
     })
 
     it('should createPoolPair', async () => {
@@ -30,15 +29,7 @@ describe('utils', () => {
       const poolpairsBefore = await container.call('listpoolpairs')
       const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
 
-      const address = await getNewAddress(container)
-      const metadata = {
-        tokenA: 'DFI',
-        tokenB: 'DOG',
-        commission: 1,
-        status: true,
-        ownerAddress: address
-      }
-      const data = await createPoolPair(container, metadata)
+      const data = await createPoolPair(container, 'DFI', 'DOG')
       expect(typeof data).toBe('string')
 
       const poolpairsAfter = await container.call('listpoolpairs')

@@ -5,17 +5,16 @@ import { getNewAddress } from './wallet'
  * send utxos to account
  *
  * @param {RegTestContainer} container
- * @param {number} _amount
+ * @param {number} amount
  * @param {UtxosToAccountOptions} [options]
  * @param {string} [options.address]
  * @param {Promise<void>}
  */
 export async function utxosToAccount (
   container: RegTestContainer,
-  _amount?: number,
+  amount: number,
   options?: UtxosToAccountOptions
 ): Promise<void> {
-  const amount = _amount ?? 100
   const address = options?.address ?? await getNewAddress(container)
   const payload: { [key: string]: string } = {}
   payload[address] = `${amount.toString()}@0`
@@ -27,8 +26,8 @@ export async function utxosToAccount (
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {string} symbol
+ * @param {number} amount
  * @param {AccountToAccountOptions} options
- * @param {number} options.amount
  * @param {string} options.from
  * @param {string} [options.to]
  * @return {Promise<string>}
@@ -36,11 +35,12 @@ export async function utxosToAccount (
 export async function accountToAccount (
   container: MasterNodeRegTestContainer,
   symbol: string,
+  amount: number,
   options: AccountToAccountOptions
 ): Promise<string> {
   const to = options?.to ?? await getNewAddress(container)
 
-  await container.call('accounttoaccount', [options.from, { [to]: `${options.amount.toString()}@${symbol}` }])
+  await container.call('accounttoaccount', [options.from, { [to]: `${amount.toString()}@${symbol}` }])
   await container.generate(25)
 
   return to
@@ -51,7 +51,6 @@ interface UtxosToAccountOptions {
 }
 
 interface AccountToAccountOptions {
-  amount: number
   from: string
   to?: string
 }

@@ -6,30 +6,29 @@ import { utxosToAccount } from './account'
  * Create a new token
  *
  * @param {MasterNodeRegTestContainer} container
- * @param {CreateTokenMetadata} metadata
- * @param {string} metadata.symbol
- * @param {string} metadata.name
- * @param {boolean} [metadata.isDAT]
- * @param {boolean} [metadata.mintable]
- * @param {boolean} [metadata.tradeable]
- * @param {string} [metadata.collateralAddress]
+ * @param {string} symbol
  * @param {CreateTokenOptions} [options]
- * @param {string} [options.address]
+ * @param {string} [options.name]
+ * @param {boolean} [options.isDAT=true]
+ * @param {boolean} [options.mintable=true]
+ * @param {boolean} [options.tradeable=true]
+ * @param {string} [options.collateralAddress]
  * @return {Promise<string>}
  */
 export async function createToken (
   container: MasterNodeRegTestContainer,
-  metadata: CreateTokenMetadata,
+  symbol: string,
   options?: CreateTokenOptions
 ): Promise<string> {
-  const address = options?.address ?? await getNewAddress(container)
-  const defaultMetadata = {
-    isDAT: true,
-    mintable: true,
-    tradeable: true,
-    collateralAddress: address
+  const metadata = {
+    symbol,
+    name: options?.name ?? symbol,
+    isDAT: options?.isDAT ?? true,
+    mintable: options?.mintable ?? true,
+    tradeable: options?.tradeable ?? true,
+    collateralAddress: options?.collateralAddress ?? await getNewAddress(container)
   }
-  const hashed = await container.call('createtoken', [{ ...defaultMetadata, ...metadata }])
+  const hashed = await container.call('createtoken', [metadata])
   await container.generate(25)
 
   return hashed
@@ -64,19 +63,14 @@ export async function mintTokens (
   return hashed
 }
 
-interface CreateTokenOptions {
-  address?: string
-}
-
 interface MintTokensOptions {
   address?: string
   utxoAmount?: number
   mintAmount?: number
 }
 
-interface CreateTokenMetadata {
-  symbol: string
-  name: string
+interface CreateTokenOptions {
+  name?: string
   isDAT?: boolean
   mintable?: boolean
   tradeable?: boolean

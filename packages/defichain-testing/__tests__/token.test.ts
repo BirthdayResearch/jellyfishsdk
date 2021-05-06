@@ -30,15 +30,7 @@ describe('utils', () => {
         tokensLengthBefore = Object.keys(tokens).length
       })
 
-      const symbol = 'DDD'
-      const metadata = {
-        symbol,
-        name: symbol,
-        isDAT: true,
-        mintable: true,
-        tradeable: true
-      }
-      await createToken(container, metadata)
+      await createToken(container, 'DDD')
 
       await waitForExpect(async () => {
         const tokens = await container.call('listtokens')
@@ -58,11 +50,7 @@ describe('utils', () => {
 
   describe('mintTokens', () => {
     beforeAll(async () => {
-      const metadata = {
-        symbol: 'DOA',
-        name: 'DOA'
-      }
-      await createToken(container, metadata)
+      await createToken(container, 'DOA')
     })
 
     it('should mintTokens', async () => {
