@@ -3,16 +3,16 @@ import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
 import { ApiModule } from '@src/module.api'
-import { DeFiDModule } from '@src/module.defid'
-import configuration from '@src/app.configuration'
-import { HealthModule } from '@src/module.health'
 import { DatabaseModule } from '@src/module.database'
+import { DeFiDModule } from '@src/module.defid'
+import { HealthModule } from '@src/module.health'
+import { AppConfiguration } from '@src/app.configuration'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [configuration]
+      load: [AppConfiguration]
     }),
     ScheduleModule.forRoot(),
     DatabaseModule,
