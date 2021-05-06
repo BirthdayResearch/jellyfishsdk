@@ -82,22 +82,43 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
 }
 
 /**
+ *
+ * The witness must consist of exactly 2 items.
+ * The '0' in scriptPubKey indicates the following push is a version 0 witness program.
+ * The length of 20 indicates that it is a P2WPKH type.
+ *
+ * @param {SignInputOption} signInputOption to check is is V0 P2WPKH
+ */
+async function isV0P2WPKH (signInputOption: SignInputOption): Promise<boolean> {
+  const stack = signInputOption.prevout.script.stack
+
+  if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
+    const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
+    const pubkeyHashHex = HASH160(pubkey).toString('hex')
+    const pushDataHex = (stack[1] as OP_PUSHDATA).hex
+
+    if (pubkeyHashHex === pushDataHex) {
+      return true
+    }
+
+    throw new Error('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+  }
+
+  return false
+}
+
+/**
  * If script is not provided, it needs to be guessed
  *
  * @param {Vin} vin of the script
  * @param {SignInputOption} signInputOption to sign the vin
  */
 async function getScriptCode (vin: Vin, signInputOption: SignInputOption): Promise<Script> {
-  const stack = signInputOption.prevout.script.stack
-
   if (signInputOption.witnessScript !== undefined) {
     return signInputOption.witnessScript
   }
 
-  // The witness must consist of exactly 2 items.
-  // The '0' in scriptPubKey indicates the following push is a version 0 witness program.
-  // The length of 20 indicates that it is a P2WPKH type.
-  if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
+  if (await isV0P2WPKH(signInputOption)) {
     const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
     const pubkeyHash = HASH160(pubkey)
 
