@@ -50,7 +50,7 @@ export interface UtxosToAccountOptions {
   address?: string
 }
 
-interface AccountToAccountOptions {
+export interface AccountToAccountOptions {
   from: string
   to?: string
 }
