@@ -25,10 +25,10 @@ interface poolpair {
       limit: 100
     },
     verbose = true,
-  ): Promise<PoolPairResult>
+  ): Promise<PoolPairsResult>
 }
 
-interface PoolPairResult {
+interface PoolPairsResult {
   [id: string]: PoolPairInfo
 }
 
@@ -67,10 +67,10 @@ Returns information about pools
 
 ```ts title="client.poolpair.getPoolPair()"
 interface poolpair {
-  getPoolPair (symbol: string, verbose = true): Promise<PoolPairResult>
+  getPoolPair (symbol: string, verbose = true): Promise<PoolPairsResult>
 }
 
-interface PoolPairResult {
+interface PoolPairsResult {
   [id: string]: PoolPairInfo
 }
 
@@ -135,10 +135,10 @@ interface poolpair {
     },
     verbose = true,
     options: PoolShareOptions = {},
-  ): Promise<PoolShareResult>
+  ): Promise<PoolSharesResult>
 }
 
-interface PoolShareResult {
+interface PoolSharesResult {
   [id: string]: PoolShareInfo
 }
 

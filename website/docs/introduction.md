@@ -39,3 +39,4 @@ Package                                            | Description
 `@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
 `@defichain/jellyfish-wallet-whale`                | WhaleWalletAccount implements the WalletAccount from jellyfish-wallet; a stateless account service for DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
+`@defichain/testing`                               | Provides bundle of test fixtures which making test suit efficient and effective.
