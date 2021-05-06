@@ -68,11 +68,37 @@ describe('sign transaction', () => {
     expect(signed.lockTime).toBe(0x00000000)
   })
 
-  describe('validate', () => {
+  describe('validation', () => {
+    it('should fail as vin.length == 0', async () => {
+      const txn: Transaction = {
+        ...transaction,
+        vin: []
+      }
+      return await expect(TransactionSigner.sign(txn, []))
+        .rejects.toThrow('vin.length = 0 - attempting to sign transaction without vin is not allowed')
+    })
+
+    it('should fail as provided prevout and ellipticPair is mismatched', async () => {
+      const input = {
+        prevout: {
+          script: {
+            stack: [
+              OP_CODES.OP_0,
+              OP_CODES.OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a0', 'hex'), 'little')
+            ]
+          },
+          value: new BigNumber('1000'),
+          dct_id: 0x00
+        },
+        ellipticPair: keyPair
+      }
+      return await expect(TransactionSigner.sign(transaction, [input]))
+        .rejects.toThrow('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+    })
+
     it('should fail as vin.length != inputOptions.length', async () => {
-      return await expect(TransactionSigner.sign(transaction, [inputOption, inputOption], {
-        sigHashType: SIGHASH.NONE
-      })).rejects.toThrow('vin.length and inputOptions.length must match')
+      return await expect(TransactionSigner.sign(transaction, [inputOption, inputOption]))
+        .rejects.toThrow('vin.length and inputOptions.length must match')
     })
 
     it('should fail if version is different from DeFiTransactionConstants.Version', async () => {
