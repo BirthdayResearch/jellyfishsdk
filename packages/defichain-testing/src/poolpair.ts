@@ -33,7 +33,7 @@ export async function createPoolPair (
   return hashed
 }
 
-interface CreatePoolPairOptions {
+export interface CreatePoolPairOptions {
   commission?: number
   status?: boolean
   ownerAddress?: string

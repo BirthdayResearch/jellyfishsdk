@@ -46,7 +46,7 @@ export async function accountToAccount (
   return to
 }
 
-interface UtxosToAccountOptions {
+export interface UtxosToAccountOptions {
   address?: string
 }
 

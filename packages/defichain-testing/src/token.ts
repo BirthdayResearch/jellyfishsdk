@@ -63,7 +63,7 @@ export async function mintTokens (
   return hashed
 }
 
-interface MintTokensOptions {
+export interface MintTokensOptions {
   address?: string
   utxoAmount?: number
   mintAmount?: number
