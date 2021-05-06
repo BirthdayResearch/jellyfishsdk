@@ -196,6 +196,10 @@ export const TransactionSigner = {
   validate (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption) {
     const { version = true, lockTime = true } = (option.validate !== undefined) ? option.validate : {}
 
+    if (transaction.vin.length === 0) {
+      throw new Error('vin.length = 0 - attempting to sign transaction without vin is not allowed')
+    }
+
     if (transaction.vin.length !== inputOptions.length) {
       throw new Error('vin.length and inputOptions.length must match')
     }

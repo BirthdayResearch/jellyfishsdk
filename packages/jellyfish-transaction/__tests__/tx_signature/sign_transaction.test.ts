@@ -69,6 +69,16 @@ describe('sign transaction', () => {
   })
 
   describe('validate', () => {
+    it('should fail as vin.length == 0', async () => {
+      const txn: Transaction = {
+        ...transaction,
+        vin: []
+      }
+      return await expect(TransactionSigner.sign(txn, [], {
+        sigHashType: SIGHASH.NONE
+      })).rejects.toThrow('vin.length = 0 - attempting to sign transaction without vin is not allowed')
+    })
+
     it('should fail as vin.length != inputOptions.length', async () => {
       return await expect(TransactionSigner.sign(transaction, [inputOption, inputOption], {
         sigHashType: SIGHASH.NONE
