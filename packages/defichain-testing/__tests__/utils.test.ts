@@ -181,8 +181,8 @@ describe('utils', () => {
     it('should createSignedTxnHex', async () => {
       const signedTxnHex = await createSignedTxnHex(container, 10, 5)
       expect(signedTxnHex.substr(0, 14)).toBe('04000000000101')
-      expect(signedTxnHex.substr(86, 82)).toBe('00ffffffff010065cd1d0000000016001468a63bbbdf920211e35ea200cd118d63dfc13b1700024730')
-      expect(signedTxnHex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
+      expect(signedTxnHex.substr(86, 82)).toBe('00ffffffff010065cd1d0000000016001465fab8e91aaa9ee245593494ce5e818c5ce1bf1e00024730')
+      expect(signedTxnHex).toContain('00ffffffff010065cd1d000000001600140e2aa76603671982bdeedcc5fffcf81295110efa00024730')
     })
   })
 })

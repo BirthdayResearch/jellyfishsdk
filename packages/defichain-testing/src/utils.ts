@@ -152,15 +152,28 @@ export async function createPoolPair (
   return hashed
 }
 
+/**
+ * Create a signed transaction
+ *
+ * @param {MasterNodeRegTestContainer} container
+ * @param {number} aAmount
+ * @param {number} bAmount
+ * @param {CreateSignedTxnHexOptions} options
+ * @param {EllipticPair} options.aEllipticPair
+ * @param {EllipticPair} options.bEllipticPair
+ * @return {Promise<string>}
+ */
 export async function createSignedTxnHex (
   container: MasterNodeRegTestContainer,
   aAmount: number,
   bAmount: number,
-  a: EllipticPair = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii')),
-  b: EllipticPair = Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
+  options: CreateSignedTxnHexOptions = {
+    aEllipticPair: Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii')),
+    bEllipticPair: Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
+  }
 ): Promise<string> {
-  const aBech32 = Bech32.fromPubKey(await a.publicKey(), RegTest.bech32.hrp as HRP)
-  const bBech32 = Bech32.fromPubKey(await b.publicKey(), RegTest.bech32.hrp as HRP)
+  const aBech32 = Bech32.fromPubKey(await options.aEllipticPair.publicKey(), RegTest.bech32.hrp as HRP)
+  const bBech32 = Bech32.fromPubKey(await options.bEllipticPair.publicKey(), RegTest.bech32.hrp as HRP)
 
   const { txid, vout } = await container.fundAddress(aBech32, aAmount)
   const inputs = [{ txid: txid, vout: vout }]
@@ -168,9 +181,11 @@ export async function createSignedTxnHex (
   const unsigned = await container.call('createrawtransaction', [inputs, {
     [bBech32]: new BigNumber(bAmount)
   }])
+
   const signed = await container.call('signrawtransactionwithkey', [unsigned, [
-    WIF.encode(RegTest.wifPrefix, await a.privateKey())
+    WIF.encode(RegTest.wifPrefix, await options.aEllipticPair.privateKey())
   ]])
+
   return signed.hex
 }
 
@@ -213,4 +228,9 @@ interface CreatePoolPairMetadata {
   commission: number
   status: boolean
   ownerAddress: string
+}
+
+interface CreateSignedTxnHexOptions {
+  aEllipticPair: EllipticPair
+  bEllipticPair: EllipticPair
 }
