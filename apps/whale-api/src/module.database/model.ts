@@ -4,6 +4,16 @@
 export type ModelKey = string | number
 export type ModelKeyType = 'string' | 'number'
 
+interface ModelIndexString<M extends Model> {
+  type: 'string'
+  key: (model: M) => string
+}
+
+interface ModelIndexNumber<M extends Model> {
+  type: 'number'
+  key: (model: M) => number
+}
+
 /**
  * @see Model
  */
@@ -17,19 +27,14 @@ export interface ModelIndex<M extends Model> {
   /**
    * Partition key of the model index.
    */
-  partition: {
-    type: ModelKeyType
-    key: (model: M) => ModelKey
-  }
+  partition: ModelIndexString<M> | ModelIndexNumber<M>
+
   /**
    * Sort key of the model index, where present indicates composite key.
    * This attribute must be sorted in lexicographically order, which is a
    * typical implementation of most key-value store.
    */
-  sort?: {
-    type: ModelKeyType
-    key: (model: M) => ModelKey
-  }
+  sort?: ModelIndexString<M> | ModelIndexNumber<M>
 }
 
 export interface ModelMapping<M extends Model> {
