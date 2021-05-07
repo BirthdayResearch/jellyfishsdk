@@ -13,7 +13,7 @@ import {
 
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { NetworkGuard } from '@src/module.api/commons/network.guard'
-import { TransformInterceptor } from '@src/module.api/commons/transform.interceptor'
+import { ResponseInterceptor } from '@src/module.api/commons/response.interceptor'
 import { ExceptionInterceptor } from '@src/module.api/commons/exception.interceptor'
 
 /**
@@ -51,7 +51,7 @@ export class CallDto {
 
 @Controller('/v1/:network/call')
 @UseGuards(NetworkGuard)
-@UseInterceptors(TransformInterceptor, ExceptionInterceptor)
+@UseInterceptors(ResponseInterceptor, ExceptionInterceptor)
 export class CallController {
   constructor (private readonly client: JsonRpcClient) {
   }
