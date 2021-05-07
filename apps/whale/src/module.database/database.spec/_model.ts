@@ -32,6 +32,7 @@ export const PartitionMapping: ModelMapping<Partition> = {
 }
 
 export interface Partition extends Model {
+  id: string
   a: string
   b: number
 
@@ -77,6 +78,7 @@ export const PartitionSortMapping: ModelMapping<PartitionSort> = {
 }
 
 export interface PartitionSort extends Model {
+  id: string
   a_partition: string
   a_sort: string
 

@@ -50,6 +50,9 @@ export abstract class LevelUpDatabase extends Database {
    * Sub root space for type.
    */
   protected subRoot<M extends Model> (mapping: ModelMapping<M>): LevelUp {
+    // TODO(fuxingloh): sub root indexing might dup too much indexed data as root indexes and sub indexes can be shared.
+    //  We could allow a sub index to act as root. Need to revisit this in the future.
+    //  Other providers like dynamodb where the indexes are manually setup it won't be such an issue.
     return sub(this.root, mapping.type, {
       valueEncoding: 'json',
       keyEncoding: 'binary'
