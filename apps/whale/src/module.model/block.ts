@@ -5,13 +5,6 @@ import { Database, SortOrder } from '@src/module.database/database'
 const BlockMapping: ModelMapping<Block> = {
   type: 'block',
   index: {
-    hash: {
-      name: 'block_hash',
-      partition: {
-        type: 'string',
-        key: (d: Block) => d.hash
-      }
-    },
     height: {
       name: 'block_height',
       partition: {
@@ -23,19 +16,19 @@ const BlockMapping: ModelMapping<Block> = {
 }
 
 @Injectable()
-export class BlockDbMapper {
+export class BlockMapper {
   public constructor (protected readonly database: Database) {
   }
 
   async getByHash (hash: string): Promise<Block | undefined> {
-    return await this.database.get(BlockMapping.index.hash, hash)
+    return await this.database.get(BlockMapping, hash)
   }
 
   async getByHeight (height: number): Promise<Block | undefined> {
     return await this.database.get(BlockMapping.index.height, height)
   }
 
-  async getBest (): Promise<Block | undefined> {
+  async getHighest (): Promise<Block | undefined> {
     const blocks = await this.database.query(BlockMapping.index.height, {
       order: SortOrder.DESC,
       limit: 1

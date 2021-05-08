@@ -1,0 +1,83 @@
+import { Database } from '@src/module.database/database'
+import { Test } from '@nestjs/testing'
+import { MemoryDatabaseModule } from '@src/module.database/provider.memory/module'
+import { LevelDatabase } from '@src/module.database/provider.level/level.database'
+import { ScriptActivityMapper, ScriptActivityType } from '@src/module.model/script.activity'
+import { HexEncoder } from '@src/module.model/_hex.encoder'
+
+let database: Database
+let mapper: ScriptActivityMapper
+
+beforeAll(async () => {
+  const app = await Test.createTestingModule({
+    imports: [MemoryDatabaseModule],
+    providers: [ScriptActivityMapper]
+  }).compile()
+
+  database = app.get<Database>(Database)
+  mapper = app.get<ScriptActivityMapper>(ScriptActivityMapper)
+})
+
+afterAll(async () => {
+  await (database as LevelDatabase).close()
+})
+
+beforeEach(async () => {
+  async function put (hex: string, height: number, type: ScriptActivityType, txid: string, n: number): Promise<void> {
+    await mapper.put({
+      id: HexEncoder.encodeHeight(height) + ScriptActivityMapper.typeAsHex(type) + txid + HexEncoder.encodeVoutIndex(n),
+      hid: HexEncoder.asSHA256(hex),
+      block: { hash: '', height: height },
+      script: { hex: hex, type: '' },
+      txid: txid,
+      type: type,
+      type_hex: ScriptActivityMapper.typeAsHex(type),
+      value: '1.00'
+    })
+  }
+
+  const hex = '1600140e7c0ab18b305bc987a266dc06de26fcfab4b56a'
+
+  function randomTxid (): string {
+    return (Math.random() * 9999999999999999).toString(16).padStart(64, '0')
+  }
+
+  await put(hex, 0, 'vin', randomTxid(), 0)
+  await put(hex, 0, 'vout', randomTxid(), 1)
+  await put(hex, 1, 'vin', randomTxid(), 0)
+  await put(hex, 1, 'vout', randomTxid(), 1)
+})
+
+afterEach(async () => {
+  await (database as LevelDatabase).clear()
+})
+
+it('should query', async () => {
+  const hex = '1600140e7c0ab18b305bc987a266dc06de26fcfab4b56a'
+  const hid = HexEncoder.asSHA256(hex)
+  const list = await mapper.query(hid, 10)
+
+  expect(list.length).toBe(4)
+
+  expect(list[0].block.height).toBe(1)
+  expect(list[0].type_hex).toBe('01')
+
+  expect(list[1].block.height).toBe(1)
+  expect(list[1].type_hex).toBe('00')
+
+  expect(list[2].block.height).toBe(0)
+  expect(list[2].type_hex).toBe('01')
+
+  expect(list[3].block.height).toBe(0)
+  expect(list[3].type_hex).toBe('00')
+})
+
+it('should delete', async () => {
+  const hex = '1600140e7c0ab18b305bc987a266dc06de26fcfab4b56a'
+  const hid = HexEncoder.asSHA256(hex)
+  const list = await mapper.query(hid, 10)
+
+  await mapper.delete(list[0].id)
+  const deleted = await mapper.query(hid, 10)
+  expect(deleted.length).toBe(3)
+})
