@@ -9,12 +9,10 @@ let database: Database
 
 beforeAll(async () => {
   const app = await Test.createTestingModule({
-    imports: [ConfigModule.forRoot({
-      isGlobal: true,
-      load: [() => ({
-        database: { provider: 'level' }
-      })]
-    }), LevelDatabaseModule]
+    imports: [
+      ConfigModule.forRoot({ isGlobal: true }),
+      LevelDatabaseModule
+    ]
   }).compile()
 
   database = app.get<Database>(Database)
