@@ -1,4 +1,4 @@
-import { OP_0, OP_FALSE, OP_1NEGATE } from './constants'
+import { OP_0, OP_FALSE, OP_1NEGATE, OP_1, OP_TRUE, OP_2 } from './constants'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
@@ -145,9 +145,9 @@ export const OP_CODES = {
 
   OP_1NEGATE: new OP_1NEGATE(),
   //  OP_RESERVED = 0x50,
-  //  OP_1 = 0x51,
-  //  OP_TRUE=OP_1,
-  //  OP_2 = 0x52,
+  OP_1: new OP_1(),
+  OP_TRUE: new OP_TRUE(),
+  OP_2: new OP_2(),
   //  OP_3 = 0x53,
   //  OP_4 = 0x54,
   //  OP_5 = 0x55,
@@ -280,6 +280,8 @@ const HEX_MAPPING: {
 } = {
   0x00: OP_CODES.OP_0,
   0x4f: OP_CODES.OP_1NEGATE,
+  0x51: OP_CODES.OP_1,
+  0x52: OP_CODES.OP_2,
   // control
   0x6a: OP_CODES.OP_RETURN,
   // stack

@@ -27,3 +27,29 @@ export class OP_1NEGATE extends StaticCode {
     super(0x4f, 'OP_1NEGATE')
   }
 }
+
+/**
+ * The number 1 is pushed onto the stack.
+ * @see OP_TRUE
+ */
+export class OP_1 extends StaticCode {
+  constructor () {
+    super(0x51, 'OP_1')
+  }
+}
+
+/**
+ * The number 1 is pushed onto the stack.
+ * @see OP_1
+ */
+export class OP_TRUE extends OP_1 {
+}
+
+/**
+ * The number 2 is pushed onto the stack.
+ */
+export class OP_2 extends StaticCode {
+  constructor () {
+    super(0x52, 'OP_2')
+  }
+}
