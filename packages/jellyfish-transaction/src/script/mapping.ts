@@ -126,7 +126,6 @@ export const OP_CODES = {
   },
   OP_0: new OP_0(),
   OP_FALSE: new OP_FALSE(),
-  OP_1NEGATE: new OP_1NEGATE(),
   /**
    * OP_PUSHDATA1 use OP_PUSHDATA
    * OP_PUSHDATA2 use OP_PUSHDATA
@@ -144,7 +143,7 @@ export const OP_CODES = {
   // TODO: to map everything as class
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
-  //  OP_1NEGATE = 0x4f,
+  OP_1NEGATE: new OP_1NEGATE(),
   //  OP_RESERVED = 0x50,
   //  OP_1 = 0x51,
   //  OP_TRUE=OP_1,
@@ -280,6 +279,7 @@ const HEX_MAPPING: {
   [n: number]: StaticCode
 } = {
   0x00: OP_CODES.OP_0,
+  0x4f: OP_CODES.OP_1NEGATE,
   // control
   0x6a: OP_CODES.OP_RETURN,
   // stack
