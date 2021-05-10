@@ -29,7 +29,7 @@ const transaction: Transaction = {
       ]
     },
     value: new BigNumber('5.98'),
-    dct_id: 0x00
+    tokenId: 0x00
   }]
 }
 
@@ -41,7 +41,7 @@ const prevout: Vout = {
     ]
   },
   value: new BigNumber('6'),
-  dct_id: 0x00
+  tokenId: 0x00
 }
 
 describe('24 words: random', () => {

@@ -88,7 +88,7 @@ describe('sign transaction', () => {
             ]
           },
           value: new BigNumber('1000'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         ellipticPair: keyPair
       }
