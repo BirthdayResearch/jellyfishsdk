@@ -33,14 +33,6 @@ describe('P2PKH', () => {
     expect(p2pkh.network).toBe(TestNet)
   })
 
-  it('should be exported', () => {
-    const p2pkh = DeFiAddress.from<P2PKH>('mainnet', p2pkhFixture.mainnet)
-    p2pkh.validate()
-    expect(p2pkh.type).toBe('P2PKH')
-    expect(p2pkh.constructor.name).toBe('P2PKH')
-    expect(p2pkh.network).toBe(MainNet)
-  })
-
   it('should refuse to build ops code stack for invalid address', () => {
     const invalid = DeFiAddress.from('testnet', p2pkhFixture.mainnet)
     expect(invalid.valid).toBeFalsy()

@@ -7,7 +7,6 @@ import { OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction/src/scri
 import * as Regex from './constant/Regex'
 
 export type AddressType = 'Unknown' | 'P2PKH' | 'P2SH' | 'P2WPKH' | 'P2WSH'
-export type Encoding = 'utf8' | 'hex'
 
 type Validator = () => boolean
 
