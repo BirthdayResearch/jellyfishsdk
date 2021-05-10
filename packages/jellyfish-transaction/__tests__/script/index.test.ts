@@ -54,6 +54,42 @@ describe('[OP_1NEGATE]', () => {
   })
 })
 
+describe('[OP_1]', () => {
+  const hex = '0151'
+
+  it('should map fromBuffer', () => {
+    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toBe('OP_1')
+    expect(codes.length).toBe(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    script.fromOpCodesToBuffer([OP_CODES.OP_1], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+  })
+})
+
+describe('[OP_2]', () => {
+  const hex = '0152'
+
+  it('should map fromBuffer', () => {
+    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toBe('OP_2')
+    expect(codes.length).toBe(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    script.fromOpCodesToBuffer([OP_CODES.OP_2], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+  })
+})
+
 describe('[OP_RETURN]', () => {
   const hex = '016a'
 
