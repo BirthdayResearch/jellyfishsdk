@@ -107,7 +107,7 @@ export class CVoutV2 extends ComposableBuffer<Vout> implements Vout {
     return this.data.script
   }
 
-  public get dct_id (): number {
+  public get tokenId (): number {
     return 0x00
   }
 
@@ -135,15 +135,15 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
     return this.data.script
   }
 
-  public get dct_id (): number {
-    return this.data.dct_id
+  public get tokenId (): number {
+    return this.data.tokenId
   }
 
   composers (vout: Vout): BufferComposer[] {
     return [
       ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      ComposableBuffer.varUInt(() => vout.dct_id, v => vout.dct_id = v)
+      ComposableBuffer.varUInt(() => vout.tokenId, v => vout.tokenId = v)
     ]
   }
 }

@@ -36,7 +36,7 @@ describe('sign single input', () => {
             OP_CODES.OP_CHECKSIG
           ]
         },
-        dct_id: 0x00
+        tokenId: 0x00
       },
       {
         value: new BigNumber('2.2345'),
@@ -49,7 +49,7 @@ describe('sign single input', () => {
             OP_CODES.OP_CHECKSIG
           ]
         },
-        dct_id: 0x00
+        tokenId: 0x00
       }
     ],
     lockTime: 0x00000011
@@ -65,7 +65,7 @@ describe('sign single input', () => {
       ]
     },
     value: new BigNumber('6'),
-    dct_id: 0x00
+    tokenId: 0x00
   }
   const keyPair = Elliptic.fromPrivKey(privateKey)
 
@@ -142,7 +142,7 @@ describe('sign single input', () => {
           ]
         },
         value: new BigNumber('6'),
-        dct_id: 0x00
+        tokenId: 0x00
       },
       ellipticPair: keyPair
     }, SIGHASH.ALL))
@@ -160,7 +160,7 @@ describe('sign single input', () => {
           ]
         },
         value: new BigNumber('6'),
-        dct_id: 0x00
+        tokenId: 0x00
       },
       ellipticPair: keyPair
     }, SIGHASH.ALL))

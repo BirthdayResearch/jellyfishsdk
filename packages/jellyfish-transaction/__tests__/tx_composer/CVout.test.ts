@@ -15,7 +15,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -37,7 +37,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -59,7 +59,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -81,7 +81,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -103,7 +103,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -125,7 +125,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -147,7 +147,7 @@ describe('CVoutV2', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -171,7 +171,7 @@ describe('CVoutV4', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0
+      tokenId: 0
     }
 
     it('should compose from Buffer to Composable to Object', () => {
@@ -196,7 +196,7 @@ describe('CVoutV4', () => {
           new OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     }
 
     it('should compose from Buffer to Composable to Object', () => {

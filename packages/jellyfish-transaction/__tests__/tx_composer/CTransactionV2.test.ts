@@ -11,7 +11,7 @@ describe('Transaction', () => {
     expect(composable.vin[0].txid).toBe('0000000000000000000000000000000000000000000000000000000000000000')
     expect(composable.vout.length).toBe(3)
 
-    expect(composable.vout[0].dct_id).toBeUndefined()
+    expect(composable.vout[0].tokenId).toBeUndefined()
     expect(composable.vout[0].value.toString()).toBe('194.99933826')
     expect(composable.vout[0].script.stack.length).toBe(5)
   })
@@ -40,7 +40,7 @@ describe('TransactionSegWit', () => {
     expect(composable.vin.length).toBe(1)
 
     expect(composable.vout.length).toBe(3)
-    expect(composable.vout[0].dct_id).toBeUndefined()
+    expect(composable.vout[0].tokenId).toBeUndefined()
     expect(composable.vout[0].value.toString()).toBe('194.99933826')
     expect(composable.vout[0].script.stack.length).toBe(5)
   })

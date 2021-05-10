@@ -69,7 +69,7 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
             )
           ]
         },
-        dct_id: 0x00
+        tokenId: 0x00
       }
     ],
     lockTime: 0x00000000
@@ -88,7 +88,7 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
           )
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     },
     ellipticPair: inputPair
   }])

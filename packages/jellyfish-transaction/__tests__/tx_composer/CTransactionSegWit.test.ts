@@ -33,7 +33,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('1.1234'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       witness: [
@@ -103,7 +103,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('1.1234'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -116,7 +116,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('2.2345'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       witness: [
@@ -182,7 +182,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('0x000000000bebb4b8').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -195,7 +195,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('0x000000002faf0800').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       witness: [
@@ -260,7 +260,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('0x000000012a05f200').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       witness: [
@@ -323,7 +323,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('9'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -336,7 +336,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           value: new BigNumber('0.87'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       witness: [
