@@ -23,7 +23,7 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
   })
 
   it('OP_1NEGATE', () => {
-    expectOPCode(OP_CODES.OP_1NEGATE, OP_1NEGATE, 'OP_79', 0x4f, '4f')
+    expectOPCode(OP_CODES.OP_1NEGATE, OP_1NEGATE, 'OP_1NEGATE', 0x4f, '4f')
   })
 
   it('OP_RETURN', () => {

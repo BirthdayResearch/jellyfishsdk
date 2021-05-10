@@ -24,6 +24,6 @@ export class OP_FALSE extends OP_0 {
  */
 export class OP_1NEGATE extends StaticCode {
   constructor () {
-    super(0x4f, 'OP_79')
+    super(0x4f, 'OP_1NEGATE')
   }
 }

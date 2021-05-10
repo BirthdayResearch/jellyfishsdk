@@ -36,14 +36,14 @@ describe('[OP_0]', () => {
   })
 })
 
-describe('[OP_NEGATE]', () => {
+describe('[OP_1NEGATE]', () => {
   const hex = '014f'
 
   it('should map fromBuffer', () => {
     const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_79')
+    expect(codes[0].type).toBe('OP_1NEGATE')
     expect(codes.length).toBe(1)
   })
 
