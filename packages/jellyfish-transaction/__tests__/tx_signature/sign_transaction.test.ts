@@ -25,7 +25,7 @@ describe('sign transaction', () => {
             new OP_PUSHDATA(Buffer.from('3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159', 'hex'), 'little')
           ]
         },
-        dct_id: 0x00
+        tokenId: 0x00
       }
     ],
     lockTime: 0x00000000
@@ -41,7 +41,7 @@ describe('sign transaction', () => {
       ]
     },
     value: new BigNumber('1000'),
-    dct_id: 0x00
+    tokenId: 0x00
   }
   const keyPair = Elliptic.fromPrivKey(privateKey)
   const inputOption = {
@@ -88,7 +88,7 @@ describe('sign transaction', () => {
             ]
           },
           value: new BigNumber('1000'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         ellipticPair: keyPair
       }

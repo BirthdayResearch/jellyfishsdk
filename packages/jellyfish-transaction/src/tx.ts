@@ -11,7 +11,7 @@ export interface Transaction {
   /**
    * Version is either 2 or 4
    * V2 structure is the same as Bitcoin
-   * V4 contains dct_id in vout
+   * V4 contains tokenId in vout
    */
   version: number // -------------------| 4 bytes
   vin: Vin[] // ------------------------| c = VarUInt{1-9 bytes}, + c x Vin
@@ -45,7 +45,7 @@ export interface Vin {
 export interface Vout {
   value: BigNumber // ------------------| 8 bytes
   script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
-  dct_id: number // --------------------| 1 byte (Although it is VarUInt but disabled hence always 0x00)
+  tokenId: number // -------------------| 1 byte (Although it is VarUInt but disabled hence always 0x00)
 }
 
 /**

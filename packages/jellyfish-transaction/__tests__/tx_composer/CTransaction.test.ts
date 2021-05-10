@@ -29,7 +29,7 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0x00000011
@@ -85,7 +85,7 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           value: new BigNumber('2.2345'),
@@ -98,7 +98,7 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0x00000011
@@ -139,7 +139,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('1.999966'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -152,7 +152,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('8'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 1170
@@ -201,7 +201,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('50'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0
@@ -242,7 +242,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('0x0000000035a4e900').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -255,7 +255,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('0x00000000052f83c0').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0x00000000
