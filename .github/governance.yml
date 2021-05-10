@@ -3,7 +3,7 @@ version: v1
 issue:
   labels:
     - prefix: triage
-      list: [ "accepted" ]
+      list: ["accepted"]
       multiple: false
       author_association:
         collaborator: true
@@ -44,6 +44,7 @@ issue:
         - jellyfish-wallet
         - jellyfish-wallet-mnemonic
         - jellyfish-wallet-whale
+        - jellyfish-address
         - testcontainers
       multiple: true
       needs:
@@ -59,7 +60,7 @@ issue:
 
     - prefix: priority
       multiple: false
-      list: [ "urgent-now", "important-soon" ]
+      list: ["urgent-now", "important-soon"]
       author_association:
         collaborator: true
         member: true
@@ -143,7 +144,7 @@ pull_request:
 
     - prefix: priority
       multiple: false
-      list: [ "urgent-now", "important-soon" ]
+      list: ["urgent-now", "important-soon"]
       author_association:
         collaborator: true
         member: true

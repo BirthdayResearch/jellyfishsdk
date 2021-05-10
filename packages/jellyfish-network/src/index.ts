@@ -2,7 +2,9 @@
  * Network specific DeFi configuration.
  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
  */
+export type NetworkName = 'mainnet' | 'testnet' | 'regtest'
 export interface Network {
+  name: NetworkName
   bech32: {
     /** bech32 human readable part */
     hrp: string
@@ -27,7 +29,7 @@ export interface Network {
  * @param network name
  * @return Network specific DeFi configuration
  */
-export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network {
+export function getNetwork (network: NetworkName): Network {
   switch (network) {
     case 'mainnet':
       return MainNet
@@ -44,6 +46,7 @@ export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network
  * MainNet specific DeFi configuration.
  */
 export const MainNet: Network = {
+  name: 'mainnet',
   bech32: {
     hrp: 'df'
   },
@@ -61,6 +64,7 @@ export const MainNet: Network = {
  * TestNet specific DeFi configuration.
  */
 export const TestNet: Network = {
+  name: 'testnet',
   bech32: {
     hrp: 'tf'
   },
@@ -78,6 +82,7 @@ export const TestNet: Network = {
  * RegTest specific DeFi configuration.
  */
 export const RegTest: Network = {
+  name: 'regtest',
   bech32: {
     hrp: 'bcrt'
   },

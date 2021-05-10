@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@size-limit/preset-app": "^4.10.1",
+    "@types/bs58": "^4.0.1",
     "@types/jest": "^26.0.22",
     "husky": "^6.0.0",
     "jest": "^26.6.3",
@@ -54,5 +55,8 @@
       "path": "packages/jellyfish/dist/jellyfish.umd.js",
       "limit": "1000 ms"
     }
-  ]
+  ],
+  "dependencies": {
+    "bs58": "^4.0.1"
+  }
 }

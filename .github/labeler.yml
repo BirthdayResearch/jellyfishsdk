@@ -66,6 +66,11 @@ labels:
     matcher:
       files: "packages/jellyfish-wallet-whale/**"
 
+  - label: area/jellyfish-address
+    sync: true
+    matcher:
+      files: "packages/jellyfish-address/**"
+
   - label: area/testcontainers
     sync: true
     matcher:

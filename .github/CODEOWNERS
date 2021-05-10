@@ -20,6 +20,7 @@
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/jellyfish-wallet-whale/               @fuxingloh
+/packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 /packages/testcontainers/                       @fuxingloh
 
 lerna.json                                      @fuxingloh
