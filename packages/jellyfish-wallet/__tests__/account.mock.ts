@@ -1,4 +1,8 @@
 import { WalletAccount, WalletAccountProvider, WalletHdNode } from '../src'
+import { Network, RegTest } from '@defichain/jellyfish-network'
+import { CTransactionSegWit, TransactionSegWit } from '@defichain/jellyfish-transaction'
+import { SmartBuffer } from 'smart-buffer'
+import { SHA256 } from '@defichain/jellyfish-crypto'
 
 /**
  * This is for testing only, please don't use this for anything else.
@@ -11,41 +15,32 @@ import { WalletAccount, WalletAccountProvider, WalletHdNode } from '../src'
  * 02a9b7278229a9a4cb20a7852bf540559dc844faba558338d221cd0d26b795fdbb
  * 02acf1d65943ce391c5c7a6319050c71ece26f5815f1a69445edd35b8d8dac13be
  */
-export class TestAccount implements WalletAccount {
-  public hdNode: WalletHdNode
-  public provider: TestAccountProvider
-
-  constructor (hdNode: WalletHdNode, provider: TestAccountProvider) {
-    this.hdNode = hdNode
-    this.provider = provider
-  }
-
-  /**
-   * @return {string} address is the pubkey
-   */
-  async getAddress (): Promise<string> {
-    const pubKey = await this.hdNode.publicKey()
-    return pubKey.toString('hex')
+export class TestAccount extends WalletAccount {
+  constructor (hdNode: WalletHdNode, readonly provider: TestAccountProvider) {
+    super(hdNode, provider.network)
   }
 
   async isActive (): Promise<boolean> {
     const address = await this.getAddress()
-    return this.provider.mappings[address] !== undefined
+    return this.provider.addresses.includes(address)
+  }
+
+  async send (signed: TransactionSegWit): Promise<string> {
+    const buffer = new SmartBuffer()
+    new CTransactionSegWit(signed).toBuffer(buffer)
+    const hashed: Buffer = SHA256(buffer.toBuffer())
+    return hashed.toString('hex') // for testing only
   }
 }
 
-export interface MockTestAccountData {
-  utxo?: {}
-  tokens?: {}
-}
-
+/**
+ * TestAccountProvider tests integration of jellyfish-wallet with
+ * jellyfish-transaction-builder.
+ */
 export class TestAccountProvider implements WalletAccountProvider<TestAccount> {
-  public readonly mappings: {
-    [pubKey: string]: MockTestAccountData
-  }
+  public network: Network = RegTest
 
-  constructor (mappings: { [pubKey: string]: MockTestAccountData }) {
-    this.mappings = mappings
+  constructor (public readonly addresses: string[]) {
   }
 
   provide (hdNode: WalletHdNode): TestAccount {
