@@ -1,4 +1,4 @@
-import { OP_0, OP_FALSE } from './constants'
+import { OP_0, OP_FALSE, OP_1NEGATE } from './constants'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
@@ -126,6 +126,7 @@ export const OP_CODES = {
   },
   OP_0: new OP_0(),
   OP_FALSE: new OP_FALSE(),
+  OP_1NEGATE: new OP_1NEGATE(),
   /**
    * OP_PUSHDATA1 use OP_PUSHDATA
    * OP_PUSHDATA2 use OP_PUSHDATA

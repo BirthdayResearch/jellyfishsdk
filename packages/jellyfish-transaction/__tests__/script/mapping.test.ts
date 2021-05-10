@@ -1,4 +1,4 @@
-import { numAsOPCode, OP_0, OP_CODES, OP_RETURN, OP_UNMAPPED, StaticCode, OP_DUP, OP_CHECKSIG, OP_HASH160, OP_EQUAL, OP_EQUALVERIFY } from '../../src/script'
+import { numAsOPCode, OP_0, OP_CODES, OP_RETURN, OP_UNMAPPED, StaticCode, OP_DUP, OP_CHECKSIG, OP_HASH160, OP_EQUAL, OP_EQUALVERIFY, OP_1NEGATE } from '../../src/script'
 
 it('OP_UNMAPPED', () => {
   expect(numAsOPCode(0xfe)).toBeInstanceOf(OP_UNMAPPED)
@@ -20,6 +20,10 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
 
   it('OP_FALSE and it is always mapped as OP_0', () => {
     expectOPCode(OP_CODES.OP_FALSE, OP_0, 'OP_0', 0x00, '00')
+  })
+
+  it('OP_1NEGATE', () => {
+    expectOPCode(OP_CODES.OP_1NEGATE, OP_1NEGATE, 'OP_1NEGATE', 0x4f, '4f')
   })
 
   it('OP_RETURN', () => {
