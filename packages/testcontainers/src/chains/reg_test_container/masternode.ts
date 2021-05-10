@@ -29,21 +29,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * It is set to auto mint every 1 second by default in regtest.
    * https://github.com/DeFiCh/ain/blob/6dc990c45788d6806ea/test/functional/test_framework/test_node.py#L160-L178
    */
-  async generate (nblocks: number, address: string = this.masternodeKey.operator.address, maxTries: number = 1000000): Promise<string[]> {
-    const mintedHashes: string[] = []
-
+  async generate (nblocks: number, address: string = this.masternodeKey.operator.address, maxTries: number = 1000000): Promise<void> {
     for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
       const result = await this.call('generatetoaddress', [1, address, 1])
 
       if (result === 1) {
         minted += 1
-        const count = await this.call('getblockcount')
-        const hash = await this.call('getblockhash', [count])
-        mintedHashes.push(hash)
       }
     }
-
-    return mintedHashes
   }
 
   /**

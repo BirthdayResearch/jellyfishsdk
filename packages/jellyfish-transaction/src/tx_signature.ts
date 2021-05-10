@@ -76,7 +76,7 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
     const satoshi = vout.value.multipliedBy(ONE_HUNDRED_MILLION)
     writeBigNumberUInt64(satoshi, buffer)
     scripting.fromOpCodesToBuffer(vout.script.stack, buffer)
-    writeVarUInt(vout.dct_id, buffer)
+    writeVarUInt(vout.tokenId, buffer)
   }
   return dSHA256(buffer.toBuffer()).toString('hex')
 }
