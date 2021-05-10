@@ -2,7 +2,7 @@ import { OP_0, OP_FALSE, OP_1NEGATE } from './constants'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
-import { OP_CHECKSIG, OP_HASH160 } from './crypto'
+import { OP_RIPEMD160, OP_HASH160, OP_CHECKSIG } from './crypto'
 import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 import { OP_PUSHDATA } from './data'
 import { CDfTx, DfTx } from './defi/dftx'
@@ -243,7 +243,7 @@ export const OP_CODES = {
   //  OP_WITHIN = 0xa5,
 
   // crypto
-  //  OP_RIPEMD160 = 0xa6,
+  OP_RIPEMD160: new OP_RIPEMD160(),
   //  OP_SHA1 = 0xa7,
   //  OP_SHA256 = 0xa8,
   OP_HASH160: new OP_HASH160(),
@@ -288,6 +288,7 @@ const HEX_MAPPING: {
   0x87: OP_CODES.OP_EQUAL,
   0x88: OP_CODES.OP_EQUALVERIFY,
   // crypto
+  0xa6: OP_CODES.OP_RIPEMD160,
   0xa9: OP_CODES.OP_HASH160,
   0xac: OP_CODES.OP_CHECKSIG
 }
