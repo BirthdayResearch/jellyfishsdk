@@ -32,6 +32,11 @@ export abstract class DeFiAddress {
     return this.validators().every(validator => validator())
   }
 
+  /**
+   * When insist to use the "network" decoded from raw address, instead of passing one based on running application environment
+   * @param address raw human readable address (utf-8)
+   * @returns DefiAddress or a child class
+   */
   static guess (address: string): DeFiAddress {
     const networks: NetworkName[] = ['mainnet', 'testnet', 'regtest']
     const defaultOne = new UnknownTypeAddress(getNetwork('mainnet'), address)
@@ -44,14 +49,19 @@ export abstract class DeFiAddress {
     return defaultOne
   }
 
+  /**
+   * @param net to be validated against the decoded one from the raw address
+   * @param address raw human readable address (utf-8)
+   * @returns DefiAddress or a child class
+   */
   static from<T extends DeFiAddress>(net: NetworkName, address: string): DeFiAddress | T {
     const network = getNetwork(net)
     const possible: Map<AddressType, DeFiAddress | T> = new Map()
     possible.set('Unknown', new UnknownTypeAddress(network, address))
-    possible.set('P2PKH', Base58Address.build<P2PKH>(network, address, P2PKH))
-    possible.set('P2SH', Base58Address.build<P2SH>(network, address, P2SH))
-    possible.set('P2WPKH', Bech32Address.build<P2WPKH>(network, address, P2WPKH))
-    possible.set('P2WSH', Bech32Address.build<P2WSH>(network, address, P2WSH))
+    possible.set('P2PKH', Base58Address.fromAddress<P2PKH>(network, address, P2PKH))
+    possible.set('P2SH', Base58Address.fromAddress<P2SH>(network, address, P2SH))
+    possible.set('P2WPKH', Bech32Address.fromAddress<P2WPKH>(network, address, P2WPKH))
+    possible.set('P2WSH', Bech32Address.fromAddress<P2WSH>(network, address, P2WSH))
 
     possible.forEach((val) => {
       // re-validate
@@ -122,7 +132,7 @@ export abstract class Base58Address extends DeFiAddress {
     return Buffer.from([this.getPrefix()]).toString('hex')
   }
 
-  static build<T extends Base58Address>(network: Network, utf8String: string, AddressClass: new (...a: any[]) => T): T {
+  static fromAddress<T extends Base58Address>(network: Network, utf8String: string, AddressClass: new (...a: any[]) => T): T {
     return new AddressClass(network, utf8String, bs58.decode(utf8String).toString('hex'))
   }
 
@@ -160,7 +170,7 @@ export abstract class Bech32Address extends DeFiAddress {
     return this.network.bech32.hrp
   }
 
-  static build<T extends Bech32Address>(network: Network, raw: string, AddressClass: new (...a: any[]) => T): T {
+  static fromAddress<T extends Bech32Address>(network: Network, raw: string, AddressClass: new (...a: any[]) => T): T {
     let valid: boolean
     let prefix: string
     let words: number[] = []
