@@ -47,7 +47,7 @@ interface BlockchainInfo {
 
 ## getBlock
 
-Get block data with particular header hash.
+Get block data with a provided block header hash.
 
 ```ts title="client.blockchain.getBlock()"
 interface blockchain {
@@ -108,16 +108,18 @@ interface Vin {
 }
 
 interface Vout {
-  value: number
+  value: BigNumber
   n: number
-  scriptPubKey: {
-    asm: string
-    hex: string
-    type: string
-    reqSigs: number
-    addresses: string[]
-    tokenId: string
-  }
+  scriptPubKey: ScriptPubKey
+  tokenId: string
+}
+
+interface ScriptPubKey {
+  asm: string
+  hex: string
+  type: string
+  reqSigs: number
+  addresses: string[]
 }
 ```
 

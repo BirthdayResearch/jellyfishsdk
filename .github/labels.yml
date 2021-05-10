@@ -82,6 +82,8 @@
   name: area/jellyfish-address
 - color: fbca04
   name: area/testcontainers
+- color: fbca04
+  name: area/testing
 
 # Priority
 - color: d93f0b

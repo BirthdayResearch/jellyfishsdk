@@ -45,6 +45,6 @@ describe("WalletHdNode: 44'/1129'/0'", () => {
       vout: [],
       lockTime: 0
     }, [])
-    ).rejects.toThrow('option.validate.version = true - trying to sign a txn 0 different from 4 is not supported')
+    ).rejects.toThrow()
   })
 })

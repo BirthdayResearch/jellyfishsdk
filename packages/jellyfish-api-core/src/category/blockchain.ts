@@ -40,37 +40,40 @@ export class Blockchain {
   }
 
   /**
-   * Get block data with particular header hash.
-   * Returns a string that is serialized, hex-encoded data for block 'hash'
+   * Get block string hex with a provided block header hash.
    *
    * @param {string} hash of the block
    * @param {number} verbosity 0
-   * @return {Promise<string>}
+   * @return {Promise<string>} block as string that is serialized, hex-encoded data
    */
   getBlock (hash: string, verbosity: 0): Promise<string>
 
   /**
-   * Get block data with particular header hash.
-   * Returns an Object with information about the block 'hash'.
+   * Get block data with a provided block header hash.
    *
    * @param {string} hash of the block
    * @param {number} verbosity 1
-   * @return {Promise<Block<string>>}
+   * @return {Promise<Block<string>>} block information with transaction as txid
    */
   getBlock (hash: string, verbosity: 1): Promise<Block<string>>
 
   /**
-   * Get block data with particular header hash.
-   * Returns an Object with information about block 'hash' and information about each transaction.
+   * Get block data with a provided block header hash.
    *
    * @param {string} hash of the block
    * @param {number} verbosity 2
-   * @return {Promise<Block<Transaction>>}
+   * @return {Promise<Block<Transaction>>} block information and detailed information about each transaction.
    */
   getBlock (hash: string, verbosity: 2): Promise<Block<Transaction>>
 
   async getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>> {
-    return await this.client.call('getblock', [hash, verbosity], 'number')
+    return await this.client.call('getblock', [hash, verbosity], verbosity === 2 ? {
+      tx: {
+        vout: {
+          value: 'bignumber'
+        }
+      }
+    } : 'number')
   }
 
   /**
@@ -98,13 +101,13 @@ export class Blockchain {
   }
 
   /**
-    * Get details of unspent transaction output (UTXO).
-    *
-    * @param {string} txId the transaction id
-    * @param {number} index vout number
-    * @param {boolean} includeMempool default true, whether to include mempool
-    * @return {Promise<UTXODetails>}
-    */
+   * Get details of unspent transaction output (UTXO).
+   *
+   * @param {string} txId the transaction id
+   * @param {number} index vout number
+   * @param {boolean} includeMempool default true, whether to include mempool
+   * @return {Promise<UTXODetails>}
+   */
   async getTxOut (txId: string, index: number, includeMempool = true): Promise<UTXODetails> {
     return await this.client.call('gettxout', [
       txId, index, includeMempool
@@ -234,9 +237,10 @@ export interface Vin {
 }
 
 export interface Vout {
-  value: number
+  value: BigNumber
   n: number
   scriptPubKey: ScriptPubKey
+  tokenId: number
 }
 
 export interface UTXODetails {
@@ -253,7 +257,6 @@ export interface ScriptPubKey {
   type: string
   reqSigs: number
   addresses: string[]
-  tokenId: string
 }
 
 export interface MempoolTx {

@@ -39,7 +39,7 @@ export class PoolPair {
    * @param {boolean} pagination.including_start default = true
    * @param {number} pagination.limit to limit number of records
    * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokenA, idTokenB
-   * @return {Promise<PoolPairResult>}
+   * @return {Promise<PoolPairsResult>}
    */
   async listPoolPairs (
     pagination: PoolPairPagination = {
@@ -48,7 +48,7 @@ export class PoolPair {
       limit: 100
     },
     verbose = true
-  ): Promise<PoolPairResult> {
+  ): Promise<PoolPairsResult> {
     return await this.client.call('listpoolpairs', [pagination, verbose], 'bignumber')
   }
 
@@ -57,9 +57,9 @@ export class PoolPair {
    *
    * @param {string} symbol token's symbol
    * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokena, idTokenB
-   * @return {Promise<PoolPairResult>}
+   * @return {Promise<PoolPairsResult>}
    */
-  async getPoolPair (symbol: string, verbose = true): Promise<PoolPairResult> {
+  async getPoolPair (symbol: string, verbose = true): Promise<PoolPairsResult> {
     return await this.client.call('getpoolpair', [symbol, verbose], 'bignumber')
   }
 
@@ -90,7 +90,7 @@ export class PoolPair {
    * @param {boolean} verbose default = true, otherwise only poolID, owner and %
    * @param {PoolShareOptions} [options]
    * @param {boolean} [options.isMineOnly=true]
-   * @return {Promise<PoolShareResult>}
+   * @return {Promise<PoolSharesResult>}
    */
   async listPoolShares (
     pagination: PoolPairPagination = {
@@ -100,7 +100,7 @@ export class PoolPair {
     },
     verbose = true,
     options: PoolShareOptions = {}
-  ): Promise<PoolShareResult> {
+  ): Promise<PoolSharesResult> {
     const { isMineOnly = true } = options
     return await this.client.call('listpoolshares', [pagination, verbose, isMineOnly], 'bignumber')
   }
@@ -121,7 +121,7 @@ export interface CreatePoolPairUTXO {
   vout: number
 }
 
-export interface PoolPairResult {
+export interface PoolPairsResult {
   [id: string]: PoolPairInfo
 }
 
@@ -147,11 +147,11 @@ export interface PoolPairInfo {
   creationHeight: BigNumber
 }
 
-export interface PoolShareResult {
+export interface PoolSharesResult {
   [id: string]: PoolShareInfo
 }
 
-interface PoolShareInfo {
+export interface PoolShareInfo {
   poolID: string
   owner: string
   '%': BigNumber

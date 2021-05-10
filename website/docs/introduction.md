@@ -40,3 +40,4 @@ maintained in this repo are published with the same version tag and follows the 
 | `@defichain/jellyfish-wallet-whale`    | WhaleWalletAccount implements the WalletAccount from jellyfish-wallet; a stateless account service for DeFi.           |
 | `@defichain/jellyfish-address`         | Provide address builder, parser, validator utility library for DeFi blockchain use.                                    |
 | `@defichain/testcontainers`            | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.           |
+| `@defichain/testing`                   | Provides bundle of test fixtures which making test suit efficient and effective.                                       |

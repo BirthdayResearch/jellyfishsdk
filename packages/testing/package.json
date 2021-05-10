@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/jellyfish-address",
+  "name": "@defichain/testing",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -26,8 +26,8 @@
       "name": "DeFi Jellyfish Contributors"
     }
   ],
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -35,8 +35,9 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@defichain/jellyfish-crypto": "0.0.0",
+    "@defichain/jellyfish-api-core": "0.0.0",
     "@defichain/jellyfish-network": "0.0.0",
-    "@testcontainers": "0.0.0"
+    "@defichain/jellyfish-crypto": "0.0.0",
+    "@defichain/testcontainers": "0.0.0"
   }
 }

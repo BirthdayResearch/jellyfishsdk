@@ -75,3 +75,8 @@ labels:
     sync: true
     matcher:
       files: "packages/testcontainers/**"
+
+  - label: area/testing
+    sync: true
+    matcher:
+      files: "packages/testing/**"

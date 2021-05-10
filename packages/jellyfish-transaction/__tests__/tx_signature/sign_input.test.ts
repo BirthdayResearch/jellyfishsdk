@@ -149,6 +149,24 @@ describe('sign single input', () => {
       .rejects.toThrow('witnessScript required, only P2WPKH can be guessed')
   })
 
+  it('should fail as isV0P2WPKH cannot match provided prevout ', async () => {
+    return await expect(TransactionSigner.signInput(transaction, 1, {
+      prevout: {
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            // hash is invalid
+            OP_CODES.OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a0', 'hex'), 'little')
+          ]
+        },
+        value: new BigNumber('6'),
+        dct_id: 0x00
+      },
+      ellipticPair: keyPair
+    }, SIGHASH.ALL))
+      .rejects.toThrow('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+  })
+
   describe('SIGHASH for consistency should err-out as they are not implemented', () => {
     it('should err SIGHASH.NONE', async () => {
       return await expect(TransactionSigner.signInput(transaction, 1, {

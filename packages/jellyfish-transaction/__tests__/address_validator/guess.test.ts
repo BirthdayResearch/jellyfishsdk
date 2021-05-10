@@ -15,14 +15,14 @@ it('should be able to guess address type', () => {
     console.log('Return type: ', result.constructor)
   })
 
-  console.log('P2WSH: ', 
-      Buffer.from(bech32.fromWords(bech32.decode(P2WSH.SAMPLE).words.slice(1))).toString('hex')
-      // 1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262
+  console.log('P2WSH: ',
+    Buffer.from(bech32.fromWords(bech32.decode(P2WSH.SAMPLE).words.slice(1))).toString('hex')
+    // 1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262
   )
-  console.log('P2WPKH: ', 
+  console.log('P2WPKH: ',
     // bech32.fromWords(
-      Buffer.from(bech32.fromWords(bech32.decode(P2WPKH.SAMPLE).words.slice(1))).toString('hex')
-      // e8df018c7e326cc253faac7e46cdc51e68542c42
+    Buffer.from(bech32.fromWords(bech32.decode(P2WPKH.SAMPLE).words.slice(1))).toString('hex')
+    // e8df018c7e326cc253faac7e46cdc51e68542c42
     // )
   )
 })

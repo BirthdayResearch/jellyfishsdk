@@ -46,6 +46,7 @@ issue:
         - jellyfish-wallet-whale
         - jellyfish-address
         - testcontainers
+        - testing
       multiple: true
       needs:
         comment: |

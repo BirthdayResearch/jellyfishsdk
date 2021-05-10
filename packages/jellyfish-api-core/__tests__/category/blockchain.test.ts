@@ -145,14 +145,17 @@ describe('masternode', () => {
       expect(block.tx[0].vin[0].coinbase).toStrictEqual('5100')
       expect(block.tx[0].vin[0].sequence).toBeGreaterThanOrEqual(4294967295)
 
-      expect(block.tx[0].vout[0].value).toBeGreaterThanOrEqual(38)
-      expect(block.tx[0].vout[0].n).toBeGreaterThanOrEqual(0)
+      expect(block.tx[0].vout[0].n).toBe(0)
+      expect(block.tx[0].vout[0].value.toString(10)).toBe('38')
+      expect(block.tx[0].vout[0].value instanceof BigNumber).toBeTruthy()
 
-      expect(block.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
-      expect(block.tx[0].vout[0].scriptPubKey).toHaveProperty('hex')
+      expect(block.tx[0].vout[0].scriptPubKey.asm).toBe('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
+      expect(block.tx[0].vout[0].scriptPubKey.hex).toBe('76a914b36814fd26190b321aa985809293a41273cfe15e88ac')
       expect(block.tx[0].vout[0].scriptPubKey.reqSigs).toBeGreaterThanOrEqual(1)
-      expect(block.tx[0].vout[0].scriptPubKey.type).toStrictEqual('pubkeyhash')
+      expect(block.tx[0].vout[0].scriptPubKey.type).toBe('pubkeyhash')
       expect(block.tx[0].vout[0].scriptPubKey.addresses[0].length).toBe(34)
+
+      expect(block.tx[0].vout[0].tokenId).toBe(0)
     })
   })
 
