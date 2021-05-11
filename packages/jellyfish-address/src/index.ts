@@ -30,7 +30,7 @@ export abstract class DeFiAddress {
   validate (): boolean {
     this.valid = true
     this.validatorPassed = 0
-    this.validators().forEach((validator, index) => {
+    this.validators().forEach((validator) => {
       const passed = validator()
       this.valid = this.valid && passed
       if (passed) {
