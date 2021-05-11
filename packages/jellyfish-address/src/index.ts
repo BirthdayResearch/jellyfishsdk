@@ -4,7 +4,6 @@ import { SHA256 } from '@defichain/jellyfish-crypto'
 import { getNetwork, Network, NetworkName } from '@defichain/jellyfish-network'
 import { Script } from '@defichain/jellyfish-transaction'
 import { OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction/src/script'
-import * as Regex from './constant/Regex'
 
 export type AddressType = 'Unknown' | 'P2PKH' | 'P2SH' | 'P2WPKH' | 'P2WSH'
 
@@ -29,7 +28,16 @@ export abstract class DeFiAddress {
   abstract getScript (): Script
 
   validate (): boolean {
-    return this.validators().every(validator => validator())
+    this.valid = true
+    this.validatorPassed = 0
+    this.validators().forEach((validator, index) => {
+      const passed = validator()
+      this.valid = this.valid && passed
+      if (passed) {
+        this.validatorPassed += 1
+      }
+    })
+    return this.valid
   }
 
   /**
@@ -63,21 +71,23 @@ export abstract class DeFiAddress {
     possible.set('P2WPKH', Bech32Address.fromAddress<P2WPKH>(network, address, P2WPKH))
     possible.set('P2WSH', Bech32Address.fromAddress<P2WSH>(network, address, P2WSH))
 
-    possible.forEach((val) => {
-      // re-validate
-      val.valid = true
-      val.validators().forEach(vldt => {
-        const passed = vldt()
-        val.valid = val.valid && passed
-        if (passed) {
-          val.validatorPassed += 1
-        } else {
-          val.valid = false
-        }
-      })
+    possible.forEach(each => each.validate())
+
+    let valid
+    possible.forEach(each => {
+      if (each.valid) {
+        valid = each
+      }
     })
 
-    // default, if none of other passed all validators
+    /* eslint-disable @typescript-eslint/strict-boolean-expressions */
+    if (valid) {
+      // find if any has all validator passed
+      return valid
+    }
+
+    // else select the closest guess (most validator passed)
+    // default, when non have validator passed
     let highestKey: AddressType = 'Unknown'
     let highestCount = 0
 
@@ -93,14 +103,14 @@ export abstract class DeFiAddress {
 
 export abstract class Base58Address extends DeFiAddress {
   static MIN_LENGTH = 26
-  static MAX_LENGTH = 34
+  static MAX_LENGTH = 35
 
   // [ prefix, 20 bytes data, 4 bytes checksum ]
   hex: string
   static DATA_HEX_LENGTH = 40 // hex char count
 
-  constructor (network: Network, utf8String: string, hex: string, validated: boolean, type: AddressType) {
-    super(network, utf8String, validated, type)
+  constructor (network: Network, utf8String: string, hex: string, valid: boolean, type: AddressType) {
+    super(network, utf8String, valid, type)
     this.hex = hex
   }
 
@@ -110,20 +120,31 @@ export abstract class Base58Address extends DeFiAddress {
     return [
       () => (this.utf8String.length >= Base58Address.MIN_LENGTH),
       () => (this.utf8String.length <= Base58Address.MAX_LENGTH),
-      () => Regex.BASE_58.test(this.utf8String),
       () => {
-        const bytes = bs58.decode(this.utf8String)
-        return bytes.toString('hex').substr(0, 2) === this.getPrefixString()
+        const charset = '[1-9A-HJ-NP-Za-km-z]'
+        return new RegExp(`${charset}{${this.utf8String.length}}$`).test(this.utf8String)
       },
       () => {
-        // checksum validation
-        const hexBuffer = Buffer.from(this.hex, 'hex')
-        const storedChecksum = Buffer.alloc(4)
-        const scriptOnly = Buffer.alloc(21)
-        hexBuffer.copy(storedChecksum, 0, 21, 25)
-        hexBuffer.copy(scriptOnly, 0, 0, 21)
-        const calculated = SHA256(SHA256(scriptOnly))
-        return storedChecksum.toString('hex') === calculated.toString('hex').substr(0, 8)
+        try {
+          const bytes = bs58.decode(this.utf8String)
+          return bytes.toString('hex').substr(0, 2) === this.getPrefixString()
+        } catch (e) {
+          return false
+        }
+      },
+      () => {
+        try {
+          // checksum validation
+          const hexBuffer = Buffer.from(this.hex, 'hex')
+          const storedChecksum = Buffer.alloc(4)
+          const scriptOnly = Buffer.alloc(21)
+          hexBuffer.copy(storedChecksum, 0, 21, 25)
+          hexBuffer.copy(scriptOnly, 0, 0, 21)
+          const calculated = SHA256(SHA256(scriptOnly))
+          return storedChecksum.toString('hex') === calculated.toString('hex').substr(0, 8)
+        } catch (e) {
+          return false
+        }
       }
     ]
   }
@@ -133,7 +154,13 @@ export abstract class Base58Address extends DeFiAddress {
   }
 
   static fromAddress<T extends Base58Address>(network: Network, utf8String: string, AddressClass: new (...a: any[]) => T): T {
-    return new AddressClass(network, utf8String, bs58.decode(utf8String).toString('hex'))
+    try {
+      const hex = bs58.decode(utf8String).toString('hex')
+      return new AddressClass(network, utf8String, hex)
+    } catch (e) {
+      // non b58 string, invalid address
+      return new AddressClass(network, utf8String, '', false, 'Unknown')
+    }
   }
 
   static to<T extends Base58Address>(net: NetworkName, h160: string, AddressClass: new (...a: any[]) => T): Base58Address | T {
@@ -153,15 +180,19 @@ export abstract class Bech32Address extends DeFiAddress {
   static MAX_LENGTH = 90
   static MAX_HUMAN_READABLE_LENGTH = 83
 
+  constructor (network: Network, utf8String: string, valid: boolean, addressType: AddressType) {
+    super(network, utf8String.toLowerCase(), valid, addressType)
+  }
+
   validators (): Validator[] {
     return [
+      () => (new RegExp(`^${this.getHrp()}`).test(this.utf8String)),
       () => {
-        const lastONE = this.utf8String.lastIndexOf('1')
-        return new RegExp(`^${this.getHrp()}`).test(this.utf8String.substring(0, lastONE))
-      },
-      () => {
-        const lastONE = this.utf8String.lastIndexOf('1')
-        return Regex.BECH_32.test(this.utf8String.substr(lastONE + 1))
+        const charset = '[02-9ac-hj-np-z]' // 0-9, a-z, and reject: [1, b, i, o]
+        const arr = this.utf8String.split('1')
+        const excludeHrp = arr[arr.length - 1]
+        const regex = new RegExp(`${charset}{${excludeHrp.length}}$`)
+        return regex.test(excludeHrp)
       }
     ]
   }
@@ -173,12 +204,13 @@ export abstract class Bech32Address extends DeFiAddress {
   static fromAddress<T extends Bech32Address>(network: Network, raw: string, AddressClass: new (...a: any[]) => T): T {
     let valid: boolean
     let prefix: string
-    let words: number[] = []
+    let data: string = ''
     try {
       const decoded = bech32.decode(raw)
       valid = true
       prefix = decoded.prefix
-      words = decoded.words.slice(1) // exclude version byte
+      const trimmedVersion = decoded.words.slice(1)
+      data = Buffer.from(bech32.fromWords(trimmedVersion)).toString('hex')
 
       if (prefix !== network.bech32.hrp) {
         valid = false
@@ -186,7 +218,8 @@ export abstract class Bech32Address extends DeFiAddress {
     } catch (e) {
       valid = false
     }
-    return new AddressClass(network, raw, words, valid)
+
+    return new AddressClass(network, raw, data, valid)
   }
 }
 
@@ -210,7 +243,7 @@ export class UnknownTypeAddress extends DeFiAddress {
 
 export class P2SH extends Base58Address {
   static SAMPLE = '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy'
-  static SCRIPT_HASH_LENGTH = 50
+  static SCRIPT_HASH_LENGTH = 50 // 25 bytes, 50 char
 
   constructor (network: Network, utf8String: string, hex: string, validated: boolean = false) {
     super(network, utf8String, hex, validated, 'P2SH')
@@ -240,8 +273,6 @@ export class P2SH extends Base58Address {
 }
 
 export class P2PKH extends Base58Address {
-  static SAMPLE = '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2'
-
   constructor (network: Network, utf8String: string, hex: string, validated: boolean = false) {
     super(network, utf8String, hex, validated, 'P2PKH')
   }
@@ -273,11 +304,11 @@ export class P2PKH extends Base58Address {
 
 export class P2WPKH extends Bech32Address {
   static SAMPLE = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
-  static LENGTH = 42
-  static PUB_KEY_HASH_LENGTH = 20
+  static LENGTH_EXCLUDE_HRP = 39 // exclude hrp and separator
 
   // 20 bytes, data only, 40 char
   pubKeyHash: string
+  static PUB_KEY_HASH_LENGTH = 40
 
   constructor (network: Network, utf8String: string, pubKeyHash: string, validated: boolean = false) {
     super(network, utf8String, validated, 'P2WPKH')
@@ -288,8 +319,9 @@ export class P2WPKH extends Bech32Address {
     const rawAdd = this.utf8String
     return [
       ...super.validators(),
-      () => (rawAdd.length <= P2WPKH.LENGTH),
-      () => (rawAdd.length === P2WPKH.LENGTH)
+      () => (rawAdd.length <= P2WPKH.LENGTH_EXCLUDE_HRP + this.getHrp().length + 1),
+      () => (rawAdd.length === P2WPKH.LENGTH_EXCLUDE_HRP + this.getHrp().length + 1),
+      () => (this.pubKeyHash.length === P2WPKH.PUB_KEY_HASH_LENGTH)
     ]
   }
 
@@ -314,39 +346,42 @@ export class P2WPKH extends Bech32Address {
     }
   }
 
-  static to (network: Network, h160: string): string {
+  static to (net: Network | NetworkName, h160: string, witnessVersion = 0x00): P2WPKH {
+    const network: Network = typeof net === 'string' ? getNetwork(net) : net
+
     if (h160.length !== P2WPKH.PUB_KEY_HASH_LENGTH) {
       throw new Error('InvalidPubKeyHashLength')
     }
 
     const numbers = Buffer.from(h160, 'hex')
-    const numberWithVersion = bech32.fromWords([network.pubKeyHashPrefix, ...numbers])
-    const utf8 = bech32.encode(network.bech32.hrp, numberWithVersion)
-    const address = new P2WPKH(network, utf8, h160, true)
-
-    return address.utf8String
+    const fiveBitsWords = bech32.toWords(numbers)
+    const includeVersion = [witnessVersion, ...fiveBitsWords]
+    const utf8 = bech32.encode(network.bech32.hrp, includeVersion)
+    return new P2WPKH(network, utf8, h160, true)
   }
 }
 
 export class P2WSH extends Bech32Address {
   static SAMPLE = 'bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3qccfmv3'
-  static LENGTH = 62
-  static SCRIPT_HASH_LENGTH = 32
+  // the raw utf8, eg bc1...
+  // supposed to be 62, regtest prefix is longer
+  static MAX_LENGTH = 64
 
   // 32 bytes, data only, 64 char
   data: string
+  static SCRIPT_HASH_LENGTH = 64
 
   constructor (network: Network, utf8String: string, data: string, validated: boolean = false) {
     super(network, utf8String, validated, 'P2WSH')
     this.data = data
   }
 
+  // bcrt1ncd7qa2cafwv3cpw68vqczg3qj904k2f4lard4wrj50rzkwmagvs3ttd5f
   validators (): Validator[] {
-    const rawAdd = this.utf8String
     return [
       ...super.validators(),
-      () => (rawAdd.length <= P2WSH.LENGTH),
-      () => (rawAdd.length === P2WSH.LENGTH)
+      () => (this.utf8String.length <= P2WSH.MAX_LENGTH),
+      () => (this.data.length === P2WSH.SCRIPT_HASH_LENGTH)
     ]
   }
 
@@ -367,16 +402,17 @@ export class P2WSH extends Bech32Address {
     }
   }
 
-  static to (network: Network, hex: string): string {
+  static to (net: Network | NetworkName, hex: string, witnessVersion = 0x00): P2WSH {
+    const network: Network = typeof net === 'string' ? getNetwork(net) : net
+
     if (hex.length !== P2WSH.SCRIPT_HASH_LENGTH) {
       throw new Error('InvalidScriptHashLength')
     }
 
     const numbers = Buffer.from(hex, 'hex')
-    const numberWithVersion = bech32.fromWords([network.pubKeyHashPrefix, ...numbers])
-    const utf8 = bech32.encode(network.bech32.hrp, numberWithVersion)
-    const address = new P2WSH(network, utf8, hex, true)
-
-    return address.utf8String
+    const fiveBitsWords = bech32.toWords(numbers)
+    const includeVersion = [witnessVersion, ...fiveBitsWords]
+    const utf8 = bech32.encode(network.bech32.hrp, includeVersion)
+    return new P2WSH(network, utf8, hex, true)
   }
 }
