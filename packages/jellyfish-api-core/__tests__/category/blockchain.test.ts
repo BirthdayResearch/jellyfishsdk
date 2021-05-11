@@ -235,6 +235,20 @@ describe('masternode', () => {
     })
   })
 
+  describe('getChainTips', () => {
+    it('should getChainTips', async () => {
+      const chainTips: blockchain.ChainTip[] = await client.blockchain.getChainTips()
+      for (let i = 0; i < chainTips.length; i += 1) {
+        const data = chainTips[i]
+        expect(data.height).toBeGreaterThan(0)
+        expect(typeof data.hash).toBe('string')
+        expect(data.hash.length).toBe(64)
+        expect(data.branchlen).toBeGreaterThanOrEqual(0)
+        expect(['invalid', 'headers-only', 'valid-headers', 'valid-fork', 'active']).toContain(data.status)
+      }
+    })
+  })
+
   describe('getRawMempool', () => {
     let transactionId = ''
 
