@@ -346,6 +346,12 @@ export class P2WPKH extends Bech32Address {
     }
   }
 
+  /**
+   * @param net network
+   * @param hex data, public key hash (20 bytes, 40 characters)
+   * @param witnessVersion default 0
+   * @returns
+   */
   static to (net: Network | NetworkName, h160: string, witnessVersion = 0x00): P2WPKH {
     const network: Network = typeof net === 'string' ? getNetwork(net) : net
 
@@ -402,6 +408,12 @@ export class P2WSH extends Bech32Address {
     }
   }
 
+  /**
+   * @param net network
+   * @param hex data, redeem script (32 bytes, 64 characters)
+   * @param witnessVersion default 0
+   * @returns
+   */
   static to (net: Network | NetworkName, hex: string, witnessVersion = 0x00): P2WSH {
     const network: Network = typeof net === 'string' ? getNetwork(net) : net
 
