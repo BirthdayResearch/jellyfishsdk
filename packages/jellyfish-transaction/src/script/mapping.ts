@@ -1,25 +1,4 @@
-import {
-  OP_0,
-  OP_FALSE,
-  OP_1NEGATE,
-  OP_1,
-  OP_TRUE,
-  OP_2,
-  OP_3,
-  OP_4,
-  OP_5,
-  OP_6,
-  OP_7,
-  OP_8,
-  OP_9,
-  OP_10,
-  OP_11,
-  OP_12,
-  OP_13,
-  OP_14,
-  OP_15,
-  OP_16
-} from './constants'
+import * as constants from './constants'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
@@ -41,9 +20,9 @@ import {
   AccountToAccount,
   AccountToUtxos,
   AnyAccountToAccount,
-  CAnyAccountToAccount,
   CAccountToAccount,
   CAccountToUtxos,
+  CAnyAccountToAccount,
   CUtxosToAccount,
   UtxosToAccount
 } from './defi/dftx_account'
@@ -145,8 +124,8 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
-  OP_0: new OP_0(),
-  OP_FALSE: new OP_FALSE(),
+  OP_0: new constants.OP_0(),
+  OP_FALSE: new constants.OP_FALSE(),
   /**
    * OP_PUSHDATA1 use OP_PUSHDATA
    * OP_PUSHDATA2 use OP_PUSHDATA
@@ -164,25 +143,25 @@ export const OP_CODES = {
   // TODO: to map everything as class
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
-  OP_1NEGATE: new OP_1NEGATE(),
+  OP_1NEGATE: new constants.OP_1NEGATE(),
   //  OP_RESERVED = 0x50,
-  OP_1: new OP_1(),
-  OP_TRUE: new OP_TRUE(),
-  OP_2: new OP_2(),
-  OP_3: new OP_3(),
-  OP_4: new OP_4(),
-  OP_5: new OP_5(),
-  OP_6: new OP_6(),
-  OP_7: new OP_7(),
-  OP_8: new OP_8(),
-  OP_9: new OP_9(),
-  OP_10: new OP_10(),
-  OP_11: new OP_11(),
-  OP_12: new OP_12(),
-  OP_13: new OP_13(),
-  OP_14: new OP_14(),
-  OP_15: new OP_15(),
-  OP_16: new OP_16(),
+  OP_1: new constants.OP_1(),
+  OP_TRUE: new constants.OP_TRUE(),
+  OP_2: new constants.OP_2(),
+  OP_3: new constants.OP_3(),
+  OP_4: new constants.OP_4(),
+  OP_5: new constants.OP_5(),
+  OP_6: new constants.OP_6(),
+  OP_7: new constants.OP_7(),
+  OP_8: new constants.OP_8(),
+  OP_9: new constants.OP_9(),
+  OP_10: new constants.OP_10(),
+  OP_11: new constants.OP_11(),
+  OP_12: new constants.OP_12(),
+  OP_13: new constants.OP_13(),
+  OP_14: new constants.OP_14(),
+  OP_15: new constants.OP_15(),
+  OP_16: new constants.OP_16(),
 
   // control
   //  OP_NOP = 0x61,
