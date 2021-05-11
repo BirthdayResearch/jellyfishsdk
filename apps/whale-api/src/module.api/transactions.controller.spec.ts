@@ -6,7 +6,7 @@ import { TransactionsController } from '@src/module.api/transactions.controller'
 import BigNumber from 'bignumber.js'
 import { EllipticPair, Bech32, WIF, Elliptic, HRP } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestApiException } from '@src/module.api/interceptors/api.error'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
@@ -83,19 +83,19 @@ describe('controller.test()', () => {
     })
   })
 
-  it('should throw BadRequestException due to invalid txn', async () => {
+  it('should throw BadRequestError due to invalid txn', async () => {
     const hex = '0400000100881133bb11aa00cc'
     await expect(controller.test({
       hex: hex
-    })).rejects.toThrow(BadRequestException)
+    })).rejects.toThrow(BadRequestApiException)
   })
 
-  it('should throw BadRequestException due to high fees', async () => {
+  it('should throw BadRequestError due to high fees', async () => {
     const hex = await createSignedTxnHex(10, 9)
     await expect(controller.test({
       hex: hex,
       maxFeeRate: 1.0
-    })).rejects.toThrow(BadRequestException)
+    })).rejects.toThrow(BadRequestApiException)
   })
 })
 
@@ -131,7 +131,7 @@ describe('controller.send()', () => {
     const hex = '0400000100881133bb11aa00cc'
     await expect(controller.send({
       hex: hex
-    })).rejects.toThrow(BadRequestException)
+    })).rejects.toThrow(BadRequestApiException)
   })
 
   it('should throw BadRequestException due to high fees', async () => {
@@ -139,6 +139,6 @@ describe('controller.send()', () => {
     await expect(controller.send({
       hex: hex,
       maxFeeRate: 1.0
-    })).rejects.toThrow(BadRequestException)
+    })).rejects.toThrow(BadRequestApiException)
   })
 })

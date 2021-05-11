@@ -1,6 +1,7 @@
-import { CanActivate, ExecutionContext, Injectable, NotFoundException } from '@nestjs/common'
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { ConfigService } from '@nestjs/config'
+import { NotFoundApiException } from '@src/module.api/interceptors/api.error'
 
 /**
  * Whale endpoints are exposed as /v1/:network/...
@@ -29,7 +30,7 @@ export class NetworkGuard implements CanActivate {
   canActivate (context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest()
     if (request.params.network !== this.network) {
-      throw new NotFoundException('Network not found')
+      throw new NotFoundApiException('Network not found').withUrl(request.raw?.url)
     }
     return true
   }

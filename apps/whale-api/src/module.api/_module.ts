@@ -1,8 +1,9 @@
 import { APP_PIPE } from '@nestjs/core'
-import { Module, ValidationPipe } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { CallController } from '@src/module.api/call.controller'
 import { HealthController } from '@src/module.api/health.controller'
 import { TransactionsController } from '@src/module.api/transactions.controller'
+import { ApiValidationPipe } from '@src/module.api/_validation'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -16,7 +17,7 @@ import { TransactionsController } from '@src/module.api/transactions.controller'
   providers: [
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({ transform: true })
+      useValue: new ApiValidationPipe()
     }
   ]
 })

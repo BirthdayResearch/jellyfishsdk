@@ -1,11 +1,19 @@
-import { Response } from '@src/module.api/commons/response.interceptor'
+import { ApiResponse } from '@src/module.api/interceptors/response.interceptor'
 
 /**
- * SliceResponse, implements Response interface from response.interceptor.
+ * ApiPage for pagination ApiSliceResponse pagination
+ * - `next` token indicate the token used to get the next slice window.
+ */
+export interface ApiPage {
+  next?: string
+}
+
+/**
+ * ApiSliceResponse, implements ApiResponse interface from response.interceptor.
  *
- * SliceResponse indicates that this response of data array slice is part of a sorted list of items.
+ * ApiSliceResponse indicates that this response of data array slice is part of a sorted list of items.
  * Items are part of a larger sorted list and the slice indicates a window within the large sorted list.
- * Each SliceResponse holds the data array and the "token" for the next part of the slice.
+ * Each ApiSliceResponse holds the data array and the "token" for the next part of the slice.
  * The next token should be passed via @Query('next') and only used when getting the next slice.
  * Hence the first request, the next token is always empty and not provided.
  *
@@ -39,7 +47,7 @@ import { Response } from '@src/module.api/commons/response.interceptor'
  * For developer quality life it's unwise to allow inclusive operator, it just creates more overhead
  * to understanding our services. No GTE or LTE, always GT and LE. Services must be clean and clear,
  * when the usage narrative is clear and so will the use of ease. LIST query must be dead simple.
- * Image travelling down the path, and getting a "next token" to get the next set of items to
+ * Imagine travelling down the path, and getting a "next token" to get the next set of items to
  * continue walking.
  *
  * Because the limit is not part of the slice window your query mechanism should support varying size windows.
@@ -54,16 +62,14 @@ import { Response } from '@src/module.api/commons/response.interceptor'
  * Answer: Blocks sorted by height in descending order, that's your sorted list and your slice window.
  *       : <- Latest | [100] [99] [98] [97] [...] | Oldest ->
  */
-export class SliceResponse<T> implements Response {
+export class ApiSliceResponse<T> implements ApiResponse {
   data: T[]
 
   /**
-   * Although this is called SliceResponse, page is a easier to
+   * Although this is called ApiSliceResponse, page is a easier to
    * understand semantic for your average developer. Hence page.
    */
-  page?: {
-    next?: string
-  }
+  page?: ApiPage
 
   private constructor (data: T[], next?: string) {
     this.data = data
@@ -74,8 +80,8 @@ export class SliceResponse<T> implements Response {
    * @param {T[]} data array slice
    * @param {string} next token slice for greater than, less than operator
    */
-  static next<T> (data: T[], next?: string): SliceResponse<T> {
-    return new SliceResponse<T>(data, next)
+  static next<T> (data: T[], next?: string): ApiSliceResponse<T> {
+    return new ApiSliceResponse<T>(data, next)
   }
 
   /**
@@ -83,7 +89,7 @@ export class SliceResponse<T> implements Response {
    * @param {number} limit number of elements in the data array slice
    * @param {(item: T) => string} nextProvider to get next token when (limit === data array slice)
    */
-  static of<T> (data: T[], limit: number, nextProvider: (item: T) => string): SliceResponse<T> {
+  static of<T> (data: T[], limit: number, nextProvider: (item: T) => string): ApiSliceResponse<T> {
     if (data.length === limit) {
       const next = nextProvider(data[limit - 1])
       return this.next(data, next)
