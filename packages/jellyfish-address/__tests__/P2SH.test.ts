@@ -21,6 +21,8 @@ describe('P2SH', () => {
     p2shFixture.regtest = await container.getNewAddress('', 'p2sh-segwit')
   })
 
+  afterAll(async () => await container.stop())
+
   describe('from() - valid address', () => {
     it('should get the type precisely', () => {
       const p2sh = DeFiAddress.from('mainnet', p2shFixture.mainnet)

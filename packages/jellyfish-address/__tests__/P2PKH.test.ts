@@ -21,6 +21,8 @@ describe('P2PKH', () => {
     p2pkhFixture.regtest = await container.getNewAddress('', 'legacy')
   })
 
+  afterAll(async () => await container.stop())
+
   describe('from() - valid address', () => {
     it('should get the type precisely', () => {
       const p2pkh = DeFiAddress.from('mainnet', p2pkhFixture.mainnet)

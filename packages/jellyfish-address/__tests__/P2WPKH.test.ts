@@ -20,6 +20,8 @@ describe('P2WPKH', () => {
     p2wpkhFixture.regtest = await container.getNewAddress('', 'bech32')
   })
 
+  afterAll(async () => await container.stop())
+
   describe('from() - valid address', () => {
     it('should get the type precisely', () => {
       const p2wpkh = DeFiAddress.from('mainnet', p2wpkhFixture.mainnet)
