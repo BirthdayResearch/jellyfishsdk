@@ -28,7 +28,7 @@ it('should be able to use DeFiTransactionConstants constants to craft Transactio
           ]
         },
         value: new BigNumber('1'),
-        dct_id: 0x00
+        tokenId: 0x00
       }
     ],
     witness: [

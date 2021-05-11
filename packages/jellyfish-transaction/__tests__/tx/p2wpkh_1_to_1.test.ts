@@ -46,7 +46,7 @@ it('sign transaction', async () => {
         ]
       },
       value: new BigNumber('10'),
-      dct_id: 0
+      tokenId: 0
     },
     ellipticPair: WIF.asEllipticPair(input.privKey)
   }]

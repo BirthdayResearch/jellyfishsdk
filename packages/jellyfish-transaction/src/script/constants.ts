@@ -18,3 +18,12 @@ export class OP_0 extends StaticCode {
  */
 export class OP_FALSE extends OP_0 {
 }
+
+/**
+ * The number -1 is pushed onto the stack.
+ */
+export class OP_1NEGATE extends StaticCode {
+  constructor () {
+    super(0x4f, 'OP_1NEGATE')
+  }
+}
