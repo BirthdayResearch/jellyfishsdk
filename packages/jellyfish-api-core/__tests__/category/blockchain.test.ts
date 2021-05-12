@@ -244,13 +244,7 @@ describe('masternode', () => {
         expect(typeof data.hash).toBe('string')
         expect(data.hash.length).toBe(64)
         expect(data.branchlen).toBeGreaterThanOrEqual(0)
-        expect(
-          data.status === 'invalid' ||
-          data.status === 'headers-only' ||
-          data.status === 'valid-headers' ||
-          data.status === 'valid-fork' ||
-          data.status === 'active'
-        ).toBe(true)
+        expect(['invalid', 'headers-only', 'valid-headers', 'valid-fork', 'active'].includes(data.status)).toBe(true)
       }
     })
   })
