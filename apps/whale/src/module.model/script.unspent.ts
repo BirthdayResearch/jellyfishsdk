@@ -5,15 +5,15 @@ import { Model, ModelMapping } from '@src/module.database/model'
 const ScriptUnspentMapping: ModelMapping<ScriptUnspent> = {
   type: 'script_unspent',
   index: {
-    hid_id: {
-      name: 'script_unspent_hid_id',
+    hid_sort: {
+      name: 'script_unspent_hid_sort',
       partition: {
         type: 'string',
         key: (d: ScriptUnspent) => d.hid
       },
       sort: {
         type: 'string',
-        key: (d: ScriptUnspent) => d.id
+        key: (d: ScriptUnspent) => d.sort
       }
     }
   }
@@ -25,7 +25,7 @@ export class ScriptUnspentMapper {
   }
 
   async query (hid: string, limit: number, gt?: string): Promise<ScriptUnspent[]> {
-    return await this.database.query(ScriptUnspentMapping.index.hid_id, {
+    return await this.database.query(ScriptUnspentMapping.index.hid_sort, {
       partitionKey: hid,
       limit: limit,
       order: SortOrder.ASC,
@@ -61,6 +61,6 @@ export interface ScriptUnspent extends Model {
     txid: string // ------------| txn that created this unspent
     n: number // ---------------| index number of this output within the transaction, if coinbase it will be 0
     value: string // -----------| output value stored as string, string as decimal: 0.0000
-    dct_id?: number // ---------| dct id, unused currently, optional before txn v4
+    tokenId?: number // --------| dct id, unused currently, optional before txn v4
   }
 }

@@ -58,7 +58,7 @@ export interface TransactionVout extends Model {
   n: number // -----------------| index of the output in the transaction
 
   value: string // -------------| output value stored as string, string as decimal: 0.0000
-  token_id: number // ----------| currently disabled, will always be 0
+  tokenId?: number // ---------| currently disabled, will always be 0
 
   script: {
     hex: string

@@ -31,7 +31,7 @@ beforeEach(async () => {
       script: { hex: hex, type: '' },
       txid: txid,
       type: type,
-      type_hex: ScriptActivityMapper.typeAsHex(type),
+      typeHex: ScriptActivityMapper.typeAsHex(type),
       value: '1.00'
     })
   }
@@ -60,16 +60,16 @@ it('should query', async () => {
   expect(list.length).toBe(4)
 
   expect(list[0].block.height).toBe(1)
-  expect(list[0].type_hex).toBe('01')
+  expect(list[0].typeHex).toBe('01')
 
   expect(list[1].block.height).toBe(1)
-  expect(list[1].type_hex).toBe('00')
+  expect(list[1].typeHex).toBe('00')
 
   expect(list[2].block.height).toBe(0)
-  expect(list[2].type_hex).toBe('01')
+  expect(list[2].typeHex).toBe('01')
 
   expect(list[3].block.height).toBe(0)
-  expect(list[3].type_hex).toBe('00')
+  expect(list[3].typeHex).toBe('00')
 })
 
 it('should delete', async () => {
