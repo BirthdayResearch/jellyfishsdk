@@ -1,6 +1,7 @@
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
-import DeFiAddress, { P2WSH } from '../src'
+import * as DeFiAddress from '../src'
+import { P2WSH } from '../src'
 
 describe('P2WSH', () => {
   const p2wshFixture = {

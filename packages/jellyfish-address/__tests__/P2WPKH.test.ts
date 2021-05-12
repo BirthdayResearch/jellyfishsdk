@@ -1,7 +1,8 @@
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
 import { RegTestContainer } from '@defichain/testcontainers'
-import DeFiAddress, { P2WPKH } from '../src'
+import * as DeFiAddress from '../src'
+import { P2WPKH } from '../src'
 
 describe('P2WPKH', () => {
   const container = new RegTestContainer()
