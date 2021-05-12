@@ -2,7 +2,7 @@ import bs58 from 'bs58'
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
 import { RegTestContainer } from '@defichain/testcontainers'
-import { Base58Address, DeFiAddress, P2PKH } from '../src'
+import DeFiAddress, { Base58Address, P2PKH } from '../src'
 
 describe('P2PKH', () => {
   const container = new RegTestContainer()
@@ -39,7 +39,6 @@ describe('P2PKH', () => {
       expect(testnet.constructor.name).toBe('P2PKH')
       expect(testnet.network).toBe(TestNet)
 
-      console.log(p2pkhFixture.regtest)
       const regtest = DeFiAddress.from('regtest', p2pkhFixture.regtest)
       expect(regtest.valid).toBeTruthy()
       expect(regtest.type).toBe('P2PKH')
