@@ -2,7 +2,7 @@ import * as constants from './constants'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
-import { OP_RIPEMD160, OP_HASH160, OP_CHECKSIG } from './crypto'
+import { OP_CHECKSIG, OP_HASH160, OP_RIPEMD160 } from './crypto'
 import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 import { OP_PUSHDATA } from './data'
 import { CDfTx, DfTx } from './defi/dftx'
@@ -144,7 +144,7 @@ export const OP_CODES = {
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
   OP_1NEGATE: new constants.OP_1NEGATE(),
-  //  OP_RESERVED = 0x50,
+  OP_RESERVED: new constants.OP_RESERVED(),
   OP_1: new constants.OP_1(),
   OP_TRUE: new constants.OP_TRUE(),
   OP_2: new constants.OP_2(),
@@ -280,6 +280,7 @@ const HEX_MAPPING: {
 } = {
   0x00: OP_CODES.OP_0,
   0x4f: OP_CODES.OP_1NEGATE,
+  0x50: OP_CODES.OP_RESERVED,
   0x51: OP_CODES.OP_1,
   0x52: OP_CODES.OP_2,
   0x53: OP_CODES.OP_3,
