@@ -1,5 +1,4 @@
 import * as script from '../../src/script'
-import { OP_CODES, OP_RIPEMD160 } from '../../src/script'
 
 it('OP_UNMAPPED', () => {
   expect(script.numAsOPCode(0xfe)).toBeInstanceOf(script.OP_UNMAPPED)
@@ -112,7 +111,7 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
   })
 
   it('OP_RIPEMD160', () => {
-    expectOPCode(OP_CODES.OP_RIPEMD160, OP_RIPEMD160, 'OP_RIPEMD160', 0xa6, 'a6')
+    expectOPCode(script.OP_CODES.OP_RIPEMD160, script.OP_RIPEMD160, 'OP_RIPEMD160', 0xa6, 'a6')
   })
 
   it('OP_HASH160', () => {
