@@ -26,6 +26,10 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_1NEGATE, script.OP_1NEGATE, 'OP_1NEGATE', 0x4f, '4f')
   })
 
+  it('OP_RESERVED', () => {
+    expectOPCode(script.OP_CODES.OP_RESERVED, script.OP_RESERVED, 'OP_RESERVED', 0x50, '50')
+  })
+
   it('OP_1', () => {
     expectOPCode(script.OP_CODES.OP_1, script.OP_1, 'OP_1', 0x51, '51')
   })

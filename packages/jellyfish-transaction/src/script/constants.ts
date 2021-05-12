@@ -29,6 +29,15 @@ export class OP_1NEGATE extends StaticCode {
 }
 
 /**
+ * Transaction is invalid unless occuring in an unexecuted OP_IF branch.
+ */
+export class OP_RESERVED extends StaticCode {
+  constructor () {
+    super(0x50, 'OP_RESERVED')
+  }
+}
+
+/**
  * The number 1 is pushed onto the stack.
  * @see OP_TRUE
  */
