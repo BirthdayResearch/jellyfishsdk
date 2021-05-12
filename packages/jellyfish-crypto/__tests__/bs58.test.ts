@@ -1,12 +1,12 @@
-import { Bs58 } from '../src'
+import { Bs58, HASH160 } from '../src'
 
 const fixture = {
-  base58: 'dFFPENo7FPMJpDV6fUcfo4QfkZrfrV1Uf8',
+  base58: 'dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFi',
   prefix: 0x5a,
-  h160: '1410c734d66b986f2a7c2c340a1ee18d83d9b5a2',
+  h160: '25a544c073cbca4e88d59f95ccd52e584c7e6a82',
 
-  invalidCharset: 'dFFPENo7FPMJpDV6fUcfo4QfkZrfrV1UfI',
-  invalidChecksum: 'dFFPENo7FPMJpDV6fUcfo4QfkZrfrV1Uf7'
+  invalidCharset: 'dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFI',
+  invalidChecksum: 'dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFj'
 }
 
 describe('toHash160()', () => {
@@ -17,21 +17,15 @@ describe('toHash160()', () => {
   })
 
   it('should reject invalid address, invalid charset', async () => {
-    try {
+    expect(() => {
       Bs58.toHash160(fixture.invalidCharset)
-      throw new Error('should fail')
-    } catch (e) {
-      expect(e.message).toEqual('Non-base58 character')
-    }
+    }).toThrow('Non-base58 character')
   })
 
   it('should reject invalid address, invalid charset', async () => {
-    try {
+    expect(() => {
       Bs58.toHash160(fixture.invalidChecksum)
-      throw new Error('should fail')
-    } catch (e) {
-      expect(e.message).toEqual('InvalidBase58Address')
-    }
+    }).toThrow('InvalidBase58Address')
   })
 })
 
@@ -47,11 +41,34 @@ describe('fromHash160()', () => {
   })
 
   it('should reject non 20 bytes long data', () => {
-    try {
+    expect(() => {
       Bs58.fromHash160(fixture.h160.substring(1), fixture.prefix)
-      throw new Error('should fail')
-    } catch (e) {
-      expect(e.message).toEqual('InvalidDataLength')
-    }
+    }).toThrow('InvalidDataLength')
+  })
+})
+
+describe('fromPubKey()', () => {
+  const thirdyThreeBytes = '03987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe81'
+  const pubKey = Buffer.from(thirdyThreeBytes, 'hex')
+  const invalidPubKey = Buffer.from(thirdyThreeBytes.slice(2), 'hex') // less 1 byte
+
+  beforeAll(() => {
+    expect(HASH160(pubKey).toString('hex')).toEqual(fixture.h160)
+  })
+
+  it('should convert prefix + hash160 to base58', () => {
+    const address = Bs58.fromPubKey(pubKey, fixture.prefix)
+    expect(address).toEqual(fixture.base58)
+  })
+
+  it('should be able to take in hash160 string', () => {
+    const address = Bs58.fromPubKey(pubKey, fixture.prefix)
+    expect(address).toEqual(fixture.base58)
+  })
+
+  it('should reject non 33 bytes long data', () => {
+    expect(() => {
+      Bs58.fromPubKey(invalidPubKey, fixture.prefix)
+    }).toThrow('InvalidPubKeyLength')
   })
 })

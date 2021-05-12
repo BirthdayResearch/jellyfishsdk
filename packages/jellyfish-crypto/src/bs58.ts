@@ -1,5 +1,5 @@
 import bs58 from 'bs58'
-import { SHA256 } from './hash'
+import { SHA256, HASH160 } from './hash'
 
 export interface DecodedB58 {
   buffer: Buffer
@@ -58,7 +58,16 @@ function fromHash160 (data: string | Buffer, prefix: number): string {
   return bs58.encode(Buffer.from([...withPrefix, ...checksum]))
 }
 
+function fromPubKey (pubKey: Buffer, prefix: number): string {
+  if (pubKey.length !== 33) {
+    throw new Error('InvalidPubKeyLength')
+  }
+  const hash = HASH160(pubKey)
+  return fromHash160(hash, prefix)
+}
+
 export const Bs58 = {
   toHash160,
+  fromPubKey,
   fromHash160
 }

@@ -52,6 +52,9 @@ export const Bech32 = {
    * @return {string} bech32 encoded address
    */
   fromPubKey (pubKey: Buffer, hrp: HRP, version: 0x00 = 0x00): string {
+    if (pubKey.length !== 33) {
+      throw new Error('InvalidPubKeyLength')
+    }
     const hash = HASH160(pubKey)
     return toBech32(hash, hrp, version)
   },
