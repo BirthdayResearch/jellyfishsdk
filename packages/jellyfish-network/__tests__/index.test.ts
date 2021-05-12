@@ -1,4 +1,4 @@
-import { getNetwork, MainNet, Network, RegTest, TestNet } from '../src'
+import { Network, MainNet, RegTest, TestNet, getNetwork } from '../src'
 
 it('should be exported', () => {
   const network: Network = MainNet
