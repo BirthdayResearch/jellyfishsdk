@@ -189,7 +189,7 @@ interface ChainTip {
 }
 ```
 
-# getTxOut
+## getTxOut
 
 Get details of unspent transaction output (UTXO).
 
