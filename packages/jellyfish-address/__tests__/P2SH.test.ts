@@ -113,7 +113,7 @@ describe('P2SH', () => {
 
       expect(scriptStack.stack.length).toEqual(3)
       expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_HASH160)
-      // expect(scriptStack.stack[1]).toEqual(OP_PUSHDATA(unknown original data)) // tested in `to()`
+      expect(scriptStack.stack[1].type).toEqual('OP_PUSHDATA')
       expect(scriptStack.stack[2]).toEqual(OP_CODES.OP_EQUAL)
     })
   })
