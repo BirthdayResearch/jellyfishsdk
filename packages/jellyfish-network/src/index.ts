@@ -1,6 +1,6 @@
+
 /**
- * Network specific DeFi configuration.
- * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
+ * Networks available in DeFi Blockchain.
  */
 export type NetworkName = 'mainnet' | 'testnet' | 'regtest'
 
