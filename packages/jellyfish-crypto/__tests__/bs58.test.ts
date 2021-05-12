@@ -45,4 +45,13 @@ describe('fromHash160()', () => {
     const address = Bs58.fromHash160(fixture.h160, fixture.prefix)
     expect(address).toEqual(fixture.base58)
   })
+
+  it('should reject non 20 bytes long data', () => {
+    try {
+      Bs58.fromHash160(fixture.h160.substring(1), fixture.prefix)
+      throw new Error('should fail')
+    } catch (e) {
+      expect(e.message).toEqual('InvalidDataLength')
+    }
+  })
 })
