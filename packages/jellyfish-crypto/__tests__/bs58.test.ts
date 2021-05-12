@@ -3,10 +3,7 @@ import { Bs58, HASH160 } from '../src'
 const fixture = {
   base58: 'dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFi',
   prefix: 0x5a,
-  h160: '25a544c073cbca4e88d59f95ccd52e584c7e6a82',
-
-  invalidCharset: 'dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFI',
-  invalidChecksum: 'dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFj'
+  h160: '25a544c073cbca4e88d59f95ccd52e584c7e6a82'
 }
 
 describe('toHash160()', () => {
@@ -17,14 +14,16 @@ describe('toHash160()', () => {
   })
 
   it('should reject invalid address, invalid charset', async () => {
+    // edited last char, invalida checksum
     expect(() => {
-      Bs58.toHash160(fixture.invalidCharset)
+      Bs58.toHash160('dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFj')
     }).toThrow('Non-base58 character')
   })
 
   it('should reject invalid address, invalid charset', async () => {
     expect(() => {
-      Bs58.toHash160(fixture.invalidChecksum)
+      // edited, put 'O' invalid character into a normal valid address
+      Bs58.toHash160('dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFO')
     }).toThrow('InvalidBase58Address')
   })
 })
