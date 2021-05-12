@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTestContainer } from '@defichain/testcontainers'
-import { CallController } from '@src/module.api/call.controller'
+import { RpcController } from '@src/module.api/rpc.controller'
 import { ConfigModule } from '@nestjs/config'
 
 const container = new RegTestContainer()
 let client: JsonRpcClient
-let controller: CallController
+let controller: RpcController
 
 beforeAll(async () => {
   await container.start()
@@ -23,11 +23,11 @@ beforeEach(async () => {
     imports: [ConfigModule.forRoot({
       load: [() => ({ network: 'regtest' })]
     })],
-    controllers: [CallController],
+    controllers: [RpcController],
     providers: [{ provide: JsonRpcClient, useFactory: () => client }]
   }).compile()
 
-  controller = app.get<CallController>(CallController)
+  controller = app.get<RpcController>(RpcController)
 })
 
 it('should getblockchaininfo', async () => {

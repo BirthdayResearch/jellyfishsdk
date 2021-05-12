@@ -50,10 +50,10 @@ export class CallDto {
   params?: any[]
 }
 
-@Controller('/v1/:network/call')
+@Controller('/v1/:network/rpc')
 @UseGuards(NetworkGuard)
 @UseInterceptors(ResponseInterceptor, ExceptionInterceptor)
-export class CallController {
+export class RpcController {
   constructor (private readonly client: JsonRpcClient) {
   }
 
