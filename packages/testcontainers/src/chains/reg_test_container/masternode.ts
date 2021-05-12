@@ -1,6 +1,6 @@
 import { GenesisKeys, MasterNodeKey } from '../../testkeys'
 import { DockerOptions } from 'dockerode'
-import { StartOptions } from '../container'
+import { DeFiDContainer, StartOptions } from '../container'
 import { RegTestContainer } from './index'
 
 /**
@@ -9,8 +9,13 @@ import { RegTestContainer } from './index'
 export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
 
-  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], options?: DockerOptions) {
-    super(options)
+  /**
+   * @param {string} masternodeKey pair to use for minting
+   * @param {string} image docker image name
+   * @param {DockerOptions} options
+   */
+  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
+    super(image, options)
     this.masternodeKey = masternodeKey
   }
 
