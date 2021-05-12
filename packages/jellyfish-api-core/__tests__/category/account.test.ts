@@ -479,4 +479,28 @@ describe('masternode', () => {
       })
     })
   })
+
+  describe('utxoStoAccount', () => {
+    let from: string
+
+    beforeAll(async () => {
+      from = await container.call('getnewaddress')
+    })
+
+    it('should utxoStoAccount', async () => {
+      await client.account.utxosToAccount(from, 5)
+    })
+
+    it('should utxoStoAccount with utxos', async () => {
+      const utxos = await container.call('listunspent')
+      const txid = await container.call('sendmany', ['', { [from]: 10 }])
+      const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+      await client.account.utxosToAccount(from, 5, { utxos: inputs })
+    })
+  })
 })

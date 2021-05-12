@@ -220,6 +220,17 @@ export class Account {
   ): Promise<AccountHistory[]> {
     return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
+
+  async utxosToAccount (
+    address: string,
+    amount: number,
+    options: any = {}
+  ): Promise<void> {
+    const { utxos = [] } = options
+    const payload: { [key: string]: string } = {}
+    payload[address] = `${amount.toString()}@0`
+    return await this.client.call('utxostoaccount', [payload, utxos], 'number')
+  }
 }
 
 export interface AccountPagination {
