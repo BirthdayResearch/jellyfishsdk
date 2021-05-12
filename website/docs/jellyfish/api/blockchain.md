@@ -180,6 +180,13 @@ including the main chain as well as orphaned branches.
 interface blockchain {
   getChainTips (): Promise<ChainTip[]>
 }
+
+interface ChainTip {
+  height: number
+  hash: string
+  branchlen: number
+  status: string
+}
 ```
 
 # getTxOut

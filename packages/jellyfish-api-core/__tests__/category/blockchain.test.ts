@@ -1,4 +1,4 @@
-import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { BigNumber, blockchain, wallet } from '../../src'
@@ -244,7 +244,13 @@ describe('masternode', () => {
         expect(typeof data.hash).toBe('string')
         expect(data.hash.length).toBe(64)
         expect(data.branchlen).toBeGreaterThanOrEqual(0)
-        expect(['invalid', 'headers-only', 'valid-headers', 'valid-fork', 'active']).toContain(data.status)
+        expect(
+          data.status === 'invalid' ||
+          data.status === 'headers-only' ||
+          data.status === 'valid-headers' ||
+          data.status === 'valid-fork' ||
+          data.status === 'active'
+        ).toBe(true)
       }
     })
   })
