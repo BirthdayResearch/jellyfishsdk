@@ -1,8 +1,10 @@
-import { Call } from './api/call'
+import { Rpc } from './api/rpc'
 import { Transactions } from './api/transactions'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
-import { raiseIfError, WhaleApiError, WhaleClientTimeoutException } from './errors'
+import { URLSearchParams } from 'url'
+import { raiseIfError, WhaleClientException, WhaleClientTimeoutException } from './errors'
+import { ApiResponse, ApiResponsePagination } from './whale.api.response'
 
 /**
  * WhaleApiClient Options
@@ -37,28 +39,18 @@ export const DefaultOptions: WhaleApiClientOptions = {
   network: 'mainnet'
 }
 
-export interface ApiResponse<T> {
-  data: T
-  page?: ApiResponsePage
-  error?: WhaleApiError
-}
-
-export interface ApiResponsePage {
-  next?: string
-}
-
 /**
  * Supported REST Method for DeFi Whale
  */
 export type Method = 'POST' | 'GET'
 
-export interface RawResponse {
+export interface ResponseAsString {
   status: number
   body: string
 }
 
 export class WhaleApiClient {
-  public readonly call = new Call(this)
+  public readonly rpc = new Rpc(this)
   public readonly transactions = new Transactions(this)
 
   constructor (
@@ -69,26 +61,87 @@ export class WhaleApiClient {
   }
 
   /**
+   * @param {ApiResponsePagination} response from the previous request for pagination chaining
+   */
+  async paginate<T> (response: ApiResponsePagination<T>): Promise<ApiResponsePagination<T>> {
+    const token = response.nextToken
+    if (token === undefined) {
+      return new ApiResponsePagination({ data: [] }, response.method, response.endpoint)
+    }
+
+    const [path, query] = response.endpoint.split('?')
+    if (query === undefined) {
+      throw new WhaleClientException('endpoint does not contain query params for pagination')
+    }
+
+    const params = new URLSearchParams(query)
+    params.set('next', token)
+    const endpoint = `${path}?${params.toString()}`
+
+    const apiResponse = await this.requestAsApiResponse<T[]>(response.method, endpoint)
+    return new ApiResponsePagination<T>(apiResponse, response.method, endpoint)
+  }
+
+  /**
    * @param {'POST|'GET'} method to request
    * @param {string} path to request
-   * @param {object} body to send in request
+   * @param {number} [size] of the list
+   * @param {string} [next] token for pagination
+   * @return {ApiResponsePagination} data list in the JSON response body for pagination query
+   * @see {paginate(ApiResponsePagination)} for pagination query chaining
    */
-  async request<T> (method: Method, path: string, body: object): Promise<T> {
-    const raw = await this.requestRaw(method, path, JSON.stringify(body))
-    const response: ApiResponse<T> = JSON.parse(raw.body)
-    raiseIfError(response)
+  async requestList<T> (method: Method, path: string, size: number, next?: string): Promise<ApiResponsePagination<T>> {
+    const params = new URLSearchParams()
+    params.set('size', `${size}`)
 
+    if (next !== undefined) {
+      params.set('next', next)
+    }
+
+    const response = await this.requestAsApiResponse<T[]>(method, `${path}?${params.toString()}`)
+    return new ApiResponsePagination<T>(response, method, path)
+  }
+
+  /**
+   * @param {'POST|'GET'} method to request
+   * @param {string} path to request
+   * @param {any} [object] JSON to send in request
+   * @return {T} data object in the JSON response body
+   */
+  async requestData<T> (method: Method, path: string, object?: any): Promise<T> {
+    const response = await this.requestAsApiResponse<T>(method, path, object)
     return response.data
   }
 
-  async requestRaw (method: Method, path: string, body: string): Promise<RawResponse> {
-    const { timeout } = this.options
+  /**
+   * @param {'POST|'GET'} method to request
+   * @param {string} path to request
+   * @param {object} [object] JSON to send in request
+   * @return {ApiResponse} parsed structured JSON response
+   */
+  async requestAsApiResponse<T> (method: Method, path: string, object?: any): Promise<ApiResponse<T>> {
+    const json = object !== undefined ? JSON.stringify(object) : undefined
+    const raw = await this.requestAsString(method, path, json)
+    const response: ApiResponse<T> = JSON.parse(raw.body)
+    raiseIfError(response)
+    return response
+  }
+
+  /**
+   * @param {'POST|'GET'} method to request
+   * @param {string} path to request
+   * @param {object} [body] in string in request
+   * @return {ResponseAsString} as JSON string (RawResponse)
+   */
+  async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
+    const { url: urlString, version, network, timeout } = this.options
+    const url = `${urlString}/${version as string}/${network as string}/${path}`
 
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
 
     try {
-      const response = await this._fetch(method, path, body, controller)
+      const response = await _fetch(method, url, controller, body)
       clearTimeout(id)
       return response
     } catch (err) {
@@ -100,24 +153,19 @@ export class WhaleApiClient {
       throw err
     }
   }
+}
 
-  protected async _fetch (method: Method, path: string, body: string, controller: AbortController): Promise<RawResponse> {
-    const { url, version, network } = this.options
+async function _fetch (method: Method, url: string, controller: AbortController, body?: string): Promise<ResponseAsString> {
+  const response = await fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body,
+    cache: 'no-cache',
+    signal: controller.signal
+  })
 
-    const endpoint = `${url}/${version as string}/${network as string}/${path}`
-    const response = await fetch(endpoint, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: body,
-      cache: 'no-cache',
-      signal: controller.signal
-    })
-
-    return {
-      status: response.status,
-      body: await response.text()
-    }
+  return {
+    status: response.status,
+    body: await response.text()
   }
 }

@@ -24,7 +24,7 @@ afterAll(async () => {
 })
 
 it("call('getblockchaininfo')", async () => {
-  const info = await client.call.call<blockchain.BlockchainInfo>('getblockchaininfo', [], 'number')
+  const info = await client.rpc.call<blockchain.BlockchainInfo>('getblockchaininfo', [], 'number')
 
   expect(info.chain).toBe('regtest')
   expect(typeof info.blocks).toBe('number')

@@ -1,4 +1,4 @@
-import { Method, RawResponse, WhaleApiClient } from '../src'
+import { Method, ResponseAsString, WhaleApiClient } from '../src'
 import { StubService } from './stub.service'
 
 /**
@@ -10,7 +10,7 @@ export class StubWhaleApiClient extends WhaleApiClient {
     super({ url: 'not required' })
   }
 
-  protected async _fetch (method: Method, path: string, body: string, controller: AbortController): Promise<RawResponse> {
+  async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
     if (this.service.app === undefined) {
       throw new Error('StubService is not yet started.')
     }

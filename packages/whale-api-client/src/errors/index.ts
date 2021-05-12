@@ -1,6 +1,6 @@
-import { ApiResponse } from '../whale.api.client'
 import { WhaleApiValidationException } from './api.validation.exception'
 import { WhaleApiErrorType, WhaleApiException } from './api.error'
+import { ApiResponse } from '../whale.api.response'
 
 export * from './api.validation.exception'
 export * from './api.error'

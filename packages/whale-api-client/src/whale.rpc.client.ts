@@ -31,6 +31,6 @@ export class WhaleRpcClient extends ApiClient {
    * @throws WhaleClientException instanceof for local issues
    */
   async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
-    return await this.whaleApiClient.call.call(method, params, precision)
+    return await this.whaleApiClient.rpc.call(method, params, precision)
   }
 }
