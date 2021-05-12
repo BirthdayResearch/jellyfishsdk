@@ -36,14 +36,12 @@ issue:
         - jellyfish
         - jellyfish-api-core
         - jellyfish-api-jsonrpc
-        - jellyfish-api-whale
         - jellyfish-crypto
         - jellyfish-json
         - jellyfish-network
         - jellyfish-transaction
         - jellyfish-wallet
         - jellyfish-wallet-mnemonic
-        - jellyfish-wallet-whale
         - testcontainers
         - testing
       multiple: true

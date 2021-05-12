@@ -360,6 +360,24 @@ describe('[OP_RETURN]', () => {
   })
 })
 
+describe('[OP_RIPEMD160]', () => {
+  const hex = '01a6'
+
+  it('should map fromBuffer', () => {
+    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toBe('OP_RIPEMD160')
+    expect(codes.length).toBe(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    script.fromOpCodesToBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+  })
+})
+
 describe('[OP_RETURN, OP_0]', () => {
   const hex = '026a00'
 

@@ -1,6 +1,15 @@
 import { StaticCode } from './opcode'
 
 /**
+ * The input is hashed using RIPEMD-160.
+ */
+export class OP_RIPEMD160 extends StaticCode {
+  constructor () {
+    super(0xa6, 'OP_RIPEMD160')
+  }
+}
+
+/**
  * The input is hashed twice: first with SHA-256 and then with RIPEMD-160.
  */
 export class OP_HASH160 extends StaticCode {
