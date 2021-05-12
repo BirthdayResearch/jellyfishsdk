@@ -1,9 +1,9 @@
 
 /**
- * Networks available in DeFi Blockchain.
+ * Network specific DeFi configuration.
+ * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
  */
 export type NetworkName = 'mainnet' | 'testnet' | 'regtest'
-
 export interface Network {
   name: NetworkName
   bech32: {
