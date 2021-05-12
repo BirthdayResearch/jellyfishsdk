@@ -17,14 +17,14 @@ describe('toHash160()', () => {
     // edited last char, invalida checksum
     expect(() => {
       Bs58.toHash160('dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFj')
-    }).toThrow('Non-base58 character')
+    }).toThrow('InvalidBase58Address')
   })
 
   it('should reject invalid address, invalid charset', async () => {
     expect(() => {
       // edited, put 'O' invalid character into a normal valid address
       Bs58.toHash160('dGrLbw2nTo7de6tKF6cxCyiymarNaB1jFO')
-    }).toThrow('InvalidBase58Address')
+    }).toThrow('Non-base58 character')
   })
 })
 
