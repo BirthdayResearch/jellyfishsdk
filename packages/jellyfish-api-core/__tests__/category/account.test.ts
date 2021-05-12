@@ -488,7 +488,16 @@ describe('masternode', () => {
     })
 
     it('should utxoStoAccount', async () => {
+      const balanceBefore = await container.call('getbalance')
+      expect(balanceBefore).toBeGreaterThanOrEqual(300)
+      console.log(balanceBefore)
+
       await client.account.utxosToAccount(from, 5)
+
+      const balanceAfter = await container.call('getbalance')
+      expect(balanceAfter).toBeLessThan(300)
+
+      console.log(balanceBefore)
     })
 
     it('should utxoStoAccount with utxos', async () => {
