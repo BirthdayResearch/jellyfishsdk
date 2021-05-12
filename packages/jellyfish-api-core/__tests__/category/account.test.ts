@@ -19,6 +19,10 @@ describe('masternode', () => {
   })
 
   describe('listing', () => {
+    beforeAll(async () => {
+      await setup()
+    })
+
     async function setup (): Promise<void> {
       await container.generate(100)
 
@@ -67,15 +71,6 @@ describe('masternode', () => {
 
       return accounts
     }
-
-    beforeAll(async () => {
-      await container.start()
-      await container.waitForReady()
-      await container.waitForWalletCoinbaseMaturity()
-      await container.waitForWalletBalanceGTE(300)
-
-      await setup()
-    })
 
     describe('listAccounts', () => {
       it('should listAccounts', async () => {
@@ -499,36 +494,40 @@ describe('masternode', () => {
 
       it('should utxosToAccount', async () => {
         const balanceBefore = await container.call('getbalance')
-        expect(balanceBefore).toBeGreaterThanOrEqual(304)
 
-        const data = await client.account.utxosToAccount(from, 5)
+        const amount = 5
+        const data = await client.account.utxosToAccount(from, amount)
 
         expect(typeof data).toBe('string')
         expect(data.length).toBe(64)
 
         const balanceAfter = await container.call('getbalance')
-        expect(balanceAfter).toBeLessThan(299)
+        expect(balanceAfter).toBeLessThan(balanceBefore - amount)
       })
 
       it('should utxosToAccount with utxos', async () => {
         const balanceBefore = await container.call('getbalance')
-
         const newAddress = await container.call('getnewaddress')
+
+        const txid = await container.call('sendmany', ['', {
+          [newAddress]: 10
+        }])
         const utxos = await container.call('listunspent')
-        const txid = await container.call('sendmany', ['', { [newAddress]: 10 }])
-        const inputs = utxos.filter((utxo: { txid: any }) => utxo.txid === txid).map((utxo: any) => {
+        const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
           return {
             txid: utxo.txid,
             vout: utxo.vout
           }
         })
 
-        const data = await client.account.utxosToAccount(from, 5, { utxos: inputs })
+        const amount = 5
+        const data = await client.account.utxosToAccount(from, amount, { utxos: inputs })
+
         expect(typeof data).toBe('string')
         expect(data.length).toBe(64)
 
         const balanceAfter = await container.call('getbalance')
-        expect(balanceAfter).toBeLessThan(balanceBefore - 5)
+        expect(balanceAfter).toBeLessThan(balanceBefore - amount)
       })
     })
   })
