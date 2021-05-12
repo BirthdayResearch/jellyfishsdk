@@ -1,4 +1,4 @@
-import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { BigNumber, blockchain, wallet } from '../../src'
@@ -232,6 +232,20 @@ describe('masternode', () => {
       expect(txOut.scriptPubKey.addresses.length).toBeGreaterThanOrEqual(1)
       expect(txOut.scriptPubKey.addresses[0]).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
       expect(txOut.coinbase).toBe(true)
+    })
+  })
+
+  describe('getChainTips', () => {
+    it('should getChainTips', async () => {
+      const chainTips: blockchain.ChainTip[] = await client.blockchain.getChainTips()
+      for (let i = 0; i < chainTips.length; i += 1) {
+        const data = chainTips[i]
+        expect(data.height).toBeGreaterThan(0)
+        expect(typeof data.hash).toBe('string')
+        expect(data.hash.length).toBe(64)
+        expect(data.branchlen).toBeGreaterThanOrEqual(0)
+        expect(['invalid', 'headers-only', 'valid-headers', 'valid-fork', 'active'].includes(data.status)).toBe(true)
+      }
     })
   })
 
