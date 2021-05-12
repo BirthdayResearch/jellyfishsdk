@@ -62,11 +62,11 @@ export interface Transaction extends Model {
   version: number
 
   size: number
-  v_size: number
+  vSize: number
   weight: number
 
-  lock_time: number
+  lockTime: number
 
-  vin_count: number
-  vout_count: number
+  vinCount: number
+  voutCount: number
 }

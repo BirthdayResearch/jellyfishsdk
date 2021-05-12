@@ -59,25 +59,25 @@ export class BlockMapper {
 export interface Block extends Model {
   id: string // ----------------| unique id of the block, same as the hash
   hash: string
-  previous_hash: string
+  previousHash: string
 
   height: number
   version: number
   time: number // --------------| block time in seconds since epoch
-  median_time: number // -------| median time of the past 11 block timestamps
+  medianTime: number // --------| median time of the past 11 block timestamps
 
-  transaction_count: number
+  transactionCount: number
 
   difficulty: number // --------| difficulty of the block.
 
   masternode: string
   minter: string
-  minter_block_count: number
+  minterBlockCount: number
 
-  stake_modifier: string
+  stakeModifier: string
   merkleroot: string
 
   size: number // --------------| block size in bytes
-  size_stripped: number // -----| block size in bytes, excluding witness data.
+  sizeStripped: number // ------| block size in bytes, excluding witness data.
   weight: number // ------------| block weight as defined in BIP 141
 }

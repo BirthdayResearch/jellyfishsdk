@@ -2,12 +2,14 @@ import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
+import { AppConfiguration } from '@src/app.configuration'
+
 import { ApiModule } from '@src/module.api/_module'
 import { DatabaseModule } from '@src/module.database/module'
 import { DeFiDModule } from '@src/module.defid'
 import { HealthModule } from '@src/module.health'
 import { ModelModule } from '@src/module.model/_module'
-import { AppConfiguration } from '@src/app.configuration'
+import { IndexerModule } from '@src/module.indexer/module'
 
 @Module({})
 export class AppModule {
@@ -24,7 +26,8 @@ export class AppModule {
         ModelModule,
         DeFiDModule,
         HealthModule,
-        ApiModule
+        ApiModule,
+        IndexerModule
       ]
     }
   }

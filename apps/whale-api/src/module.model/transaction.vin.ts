@@ -52,20 +52,20 @@ export interface TransactionVin extends Model {
   // ---------------------------| if coinbase transaction: txid + '00'
 
   txid: string // --------------| transaction id that this vin belongs to
-  coinbase: string
+  coinbase?: string
 
   vout?: { // ------------------| id, txid, n and the exact same as TransactionVout
     id: string
     txid: string
     n: number
     value: string
-    dct_id?: number
+    tokenId?: number
   }
 
-  script: {
+  script?: {
     hex: string
   }
 
-  tx_in_witness: string[]
+  txInWitness?: string[]
   sequence: string
 }

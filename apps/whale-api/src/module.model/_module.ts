@@ -19,6 +19,16 @@ import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
     TransactionMapper,
     TransactionVinMapper,
     TransactionVoutMapper
+  ],
+  exports: [
+    RawBlockMapper,
+    BlockMapper,
+    ScriptActivityMapper,
+    ScriptAggregationMapper,
+    ScriptUnspentMapper,
+    TransactionMapper,
+    TransactionVinMapper,
+    TransactionVoutMapper
   ]
 })
 export class ModelModule {
