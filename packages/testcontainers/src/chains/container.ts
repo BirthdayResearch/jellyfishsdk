@@ -56,9 +56,9 @@ async function cleanUpStale (docker: Dockerode): Promise<void> {
   })
 }
 
-async function hasImageLocally (docker: Dockerode): Promise<boolean> {
+async function hasImageLocally (image: string, docker: Dockerode): Promise<boolean> {
   return await new Promise((resolve, reject) => {
-    docker.getImage(DeFiDContainer.image).inspect((error, result) => {
+    docker.getImage(image).inspect((error, result) => {
       resolve(!(error instanceof Error))
     })
   })
@@ -67,14 +67,14 @@ async function hasImageLocally (docker: Dockerode): Promise<boolean> {
 /**
  * Pull DeFiDContainer.image if it doesn't already exist.
  */
-async function tryPullImage (docker: Dockerode): Promise<void> {
-  if (await hasImageLocally(docker)) {
+async function tryPullImage (image: string, docker: Dockerode): Promise<void> {
+  if (await hasImageLocally(image, docker)) {
     return
   }
 
   /* istanbul ignore next */
   return await new Promise((resolve, reject) => {
-    docker.pull(DeFiDContainer.image, {}, (error, result) => {
+    docker.pull(image, {}, (error, result) => {
       if (error instanceof Error) {
         reject(error)
         return
@@ -100,15 +100,22 @@ export abstract class DeFiDContainer {
   }
 
   protected readonly docker: Dockerode
-  protected readonly network: Network
 
   protected container?: Container
   protected startOptions?: StartOptions
   protected cachedRpcUrl?: string
 
-  protected constructor (network: Network, options?: DockerOptions) {
+  /**
+   * @param {Network} network of the container
+   * @param {string} image docker image name
+   * @param {DockerOptions} options
+   */
+  protected constructor (
+    protected readonly network: Network,
+    protected readonly image: string = DeFiDContainer.image,
+    options?: DockerOptions
+  ) {
     this.docker = new Dockerode(options)
-    this.network = network
   }
 
   /**
@@ -137,15 +144,14 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Always pull a version of DeFiDContainer.image,
    * Create container and start it immediately
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
-    await tryPullImage(this.docker)
+    await tryPullImage(this.image, this.docker)
     this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
     this.container = await this.docker.createContainer({
       name: this.generateName(),
-      Image: DeFiDContainer.image,
+      Image: this.image,
       Tty: true,
       Cmd: this.getCmd(this.startOptions),
       HostConfig: {
