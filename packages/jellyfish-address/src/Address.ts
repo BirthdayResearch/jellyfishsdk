@@ -25,7 +25,7 @@ export abstract class Address {
   validate (): boolean {
     this.valid = true
     this.validatorPassed = 0
-    this.validators().forEach((validator) => {
+    this.validators().forEach((validator, index) => {
       const passed = validator()
       this.valid = this.valid && passed
       if (passed) {

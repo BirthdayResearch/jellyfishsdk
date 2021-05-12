@@ -1,6 +1,6 @@
 import { Script } from '@defichain/jellyfish-transaction/src/tx'
 import { Network } from '@defichain/jellyfish-network'
-import { Base58Address } from '../src/Base58Address'
+import { Base58Address } from '../src'
 
 class DummyB58Address extends Base58Address {
   getScript (): Script {
@@ -10,7 +10,7 @@ class DummyB58Address extends Base58Address {
   }
 
   getPrefix (): number {
-    return 0x12 // match the fixture p2pkh prefix
+    return this.network.pubKeyHashPrefix // match the fixture p2pkh prefix
   }
 }
 
@@ -30,7 +30,7 @@ describe('Base58Address', () => {
       privatePrefix: 0x00000000
     },
     wifPrefix: 0x00,
-    pubKeyHashPrefix: 0x00,
+    pubKeyHashPrefix: 0x12,
     scriptHashPrefix: 0x00,
     messagePrefix: '\x00Dummy Msg Prefix:\n'
   }
@@ -43,7 +43,7 @@ describe('Base58Address', () => {
       expect(valid.validate()).toBeTruthy()
     })
 
-    it('fromAddress() - invalid charact set', () => {
+    it('fromAddress() - invalid character set', () => {
       const invalid = Base58Address.fromAddress<DummyB58Address>(dummyNetwork, 'invalid b58 address', DummyB58Address)
       expect(invalid.validate()).toBeFalsy()
     })
