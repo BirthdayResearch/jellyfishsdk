@@ -1,5 +1,5 @@
 import { MasterNodeRegTestContainer } from './masternode'
-import { DeFiDContainer, StartOptions } from '../container'
+import { DeFiDContainer, StartOptions } from '../defid_container'
 import Dockerode, { ContainerInfo } from 'dockerode'
 
 async function getContainerInfoByName (docker: Dockerode, name: string): Promise<ContainerInfo | undefined> {
@@ -35,6 +35,7 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
 
   /**
    * This will only start a persistent container if it's not yet already started.
+   * @param {StartOptions} [startOptions={}] to start the container with
    * @see {generateName()} for the name of container
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
