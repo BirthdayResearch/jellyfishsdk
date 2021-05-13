@@ -53,6 +53,7 @@ export class TransactionsController {
     try {
       return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
     } catch (e) {
+      // TODO(fuxingloh): more meaningful error
       throw new BadRequestApiException()
     }
   }
