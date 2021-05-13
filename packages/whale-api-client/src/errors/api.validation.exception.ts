@@ -5,7 +5,7 @@ import { WhaleApiException } from './api.error'
  */
 export interface ApiValidationProperty {
   property: string
-  value?: string
+  value?: any
   constraints?: string[]
   properties?: ApiValidationProperty[]
 }

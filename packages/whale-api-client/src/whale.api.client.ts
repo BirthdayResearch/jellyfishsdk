@@ -75,7 +75,7 @@ export class WhaleApiClient {
     }
 
     const params = new URLSearchParams(query)
-    params.set('next', token)
+    params.set('next', token.toString())
     const endpoint = `${path}?${params.toString()}`
 
     const apiResponse = await this.requestAsApiResponse<T[]>(response.method, endpoint)

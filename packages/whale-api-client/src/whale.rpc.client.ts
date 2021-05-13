@@ -1,21 +1,15 @@
 import { ApiClient, Precision, PrecisionPath } from '@defichain/jellyfish-api-core'
 import { WhaleApiClient } from './whale.api.client'
 import { Wallet } from '@defichain/jellyfish-api-core/dist/category/wallet'
+import { Net } from '@defichain/jellyfish-api-core/dist/category/net'
 
 /**
  * A JSON-RPC client implemented with WhaleApiClient.call specification.
  * Not all methods are whitelisted.
  */
 export class WhaleRpcClient extends ApiClient {
-  // @ts-expect-error
-  get wallet (): Wallet {
-    throw new Error('wallet RPCs are not enabled in whale client')
-  }
-
-  // @ts-expect-error
-  get net (): Wallet {
-    throw new Error('net RPCs are not enabled in whale client')
-  }
+  wallet = NotEnabledProxy<Wallet>('wallet')
+  net = NotEnabledProxy<Net>('net')
 
   constructor (protected readonly whaleApiClient: WhaleApiClient) {
     super()
@@ -33,4 +27,12 @@ export class WhaleRpcClient extends ApiClient {
   async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
     return await this.whaleApiClient.rpc.call(method, params, precision)
   }
+}
+
+function NotEnabledProxy<T> (category: string): T {
+  return new Proxy({}, {
+    get (target, prop) {
+      throw new Error(`WhaleRpcClient: ${category}.${prop as string} not enabled in WhaleApiClient`)
+    }
+  }) as T
 }

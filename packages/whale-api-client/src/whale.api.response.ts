@@ -11,7 +11,7 @@ export interface ApiResponsePage {
   /**
    * The next token for the next slice in the greater list.
    */
-  next?: string
+  next?: string | number
 }
 
 /**
@@ -44,8 +44,7 @@ export class ApiResponsePagination<T> extends Array<T> {
     public readonly response: ApiResponse<T[]>,
     public readonly method: Method,
     public readonly endpoint: string) {
-    super(response.data.length)
-    this.push(...response.data)
+    super(...response.data)
   }
 
   /**
@@ -58,7 +57,7 @@ export class ApiResponsePagination<T> extends Array<T> {
   /**
    * @return {string} next token
    */
-  get nextToken (): string | undefined {
+  get nextToken (): string | number | undefined {
     return this.response.page?.next
   }
 }
