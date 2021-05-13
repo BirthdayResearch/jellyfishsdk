@@ -5,8 +5,12 @@ import { DeFiDContainer, StartOptions } from '../container'
  * RegTest DeFiD container
  */
 export class RegTestContainer extends DeFiDContainer {
-  constructor (options?: DockerOptions) {
-    super('regtest', options)
+  /**
+   * @param {string} image docker image name
+   * @param {DockerOptions} options
+   */
+  constructor (image: string = DeFiDContainer.image, options?: DockerOptions) {
+    super('regtest', image, options)
   }
 
   protected getCmd (opts: StartOptions): string[] {
