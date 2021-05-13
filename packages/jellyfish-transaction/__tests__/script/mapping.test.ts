@@ -118,11 +118,39 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_RIPEMD160, script.OP_RIPEMD160, 'OP_RIPEMD160', 0xa6, 'a6')
   })
 
+  it('OP_SHA1', () => {
+    expectOPCode(script.OP_CODES.OP_SHA1, script.OP_SHA1, 'OP_SHA1', 0xa7, 'a7')
+  })
+
+  it('OP_SHA256', () => {
+    expectOPCode(script.OP_CODES.OP_SHA256, script.OP_SHA256, 'OP_SHA256', 0xa8, 'a8')
+  })
+
   it('OP_HASH160', () => {
     expectOPCode(script.OP_CODES.OP_HASH160, script.OP_HASH160, 'OP_HASH160', 0xa9, 'a9')
   })
 
+  it('OP_HASH256', () => {
+    expectOPCode(script.OP_CODES.OP_HASH256, script.OP_HASH256, 'OP_HASH256', 0xaa, 'aa')
+  })
+
+  it('OP_CODESEPARATOR', () => {
+    expectOPCode(script.OP_CODES.OP_CODESEPARATOR, script.OP_CODESEPARATOR, 'OP_CODESEPARATOR', 0xab, 'ab')
+  })
+
   it('OP_CHECKSIG', () => {
     expectOPCode(script.OP_CODES.OP_CHECKSIG, script.OP_CHECKSIG, 'OP_CHECKSIG', 0xac, 'ac')
+  })
+
+  it('OP_CHECKSIGVERIFY', () => {
+    expectOPCode(script.OP_CODES.OP_CHECKSIGVERIFY, script.OP_CHECKSIGVERIFY, 'OP_CHECKSIGVERIFY', 0xad, 'ad')
+  })
+
+  it('OP_CHECKMULTISIG', () => {
+    expectOPCode(script.OP_CODES.OP_CHECKMULTISIG, script.OP_CHECKMULTISIG, 'OP_CHECKMULTISIG', 0xae, 'ae')
+  })
+
+  it('OP_CHECKMULTISIGVERIFY', () => {
+    expectOPCode(script.OP_CODES.OP_CHECKMULTISIGVERIFY, script.OP_CHECKMULTISIGVERIFY, 'OP_CHECKMULTISIGVERIFY', 0xaf, 'af')
   })
 })
