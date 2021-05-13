@@ -24,7 +24,7 @@ beforeEach(async () => {
       load: [() => ({ network: 'regtest' })]
     })],
     controllers: [RpcController],
-    providers: [{ provide: JsonRpcClient, useFactory: () => client }]
+    providers: [{ provide: JsonRpcClient, useValue: client }]
   }).compile()
 
   controller = app.get<RpcController>(RpcController)
