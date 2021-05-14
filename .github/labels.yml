@@ -71,6 +71,8 @@
 - color: fbca04
   name: area/jellyfish-transaction
 - color: fbca04
+  name: area/jellyfish-transaction-builder
+- color: fbca04
   name: area/jellyfish-wallet
 - color: fbca04
   name: area/jellyfish-wallet-mnemonic

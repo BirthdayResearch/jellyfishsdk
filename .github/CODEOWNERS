@@ -16,6 +16,7 @@
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
 /packages/jellyfish-transaction/                @fuxingloh
+/packages/jellyfish-transaction-builder/        @fuxingloh
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/testcontainers/                       @fuxingloh
