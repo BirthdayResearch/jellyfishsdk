@@ -1,5 +1,5 @@
 import { DockerOptions } from 'dockerode'
-import { DeFiDContainer, StartOptions } from '../container'
+import { DeFiDContainer, StartOptions } from '../defid_container'
 
 /**
  * RegTest DeFiD container
@@ -7,7 +7,7 @@ import { DeFiDContainer, StartOptions } from '../container'
 export class RegTestContainer extends DeFiDContainer {
   /**
    * @param {string} image docker image name
-   * @param {DockerOptions} options
+   * @param {DockerOptions} [options]
    */
   constructor (image: string = DeFiDContainer.image, options?: DockerOptions) {
     super('regtest', image, options)
