@@ -8,4 +8,9 @@ trust-less crypto transaction from scratch still has certain complexity as with 
 This package `jellyfish-transaction-builder` provides a high-high level abstraction for constructing transaction ready
 to be broadcast for DeFi Blockchain.
 
+What can `jellyfish-transaction-builder` do?
 
+1. Uses low-level `jellyfish-*` packages for creating transaction.
+2. Construct signed segwit transaction ready for broadcasting
+3. Construct DeFi custom transaction
+4. Lastly, provides a simple developer experience for creating signed transaction.
