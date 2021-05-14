@@ -1,9 +1,13 @@
 import { DockerOptions } from 'dockerode'
-import { DeFiDContainer } from './container'
+import { DeFiDContainer } from './defid_container'
 
 export class MainNetContainer extends DeFiDContainer {
-  constructor (options?: DockerOptions) {
-    super('mainnet', options)
+  /**
+   * @param {string} [image=DeFiDContainer.image] docker image name
+   * @param {DockerOptions} [options]
+   */
+  constructor (image: string = DeFiDContainer.image, options?: DockerOptions) {
+    super('mainnet', image, options)
   }
 
   async getRpcPort (): Promise<string> {

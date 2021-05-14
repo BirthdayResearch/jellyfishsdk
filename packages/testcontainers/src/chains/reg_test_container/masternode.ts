@@ -1,6 +1,6 @@
 import { GenesisKeys, MasterNodeKey } from '../../testkeys'
 import { DockerOptions } from 'dockerode'
-import { StartOptions } from '../container'
+import { DeFiDContainer, StartOptions } from '../defid_container'
 import { RegTestContainer } from './index'
 
 /**
@@ -9,8 +9,13 @@ import { RegTestContainer } from './index'
 export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
 
-  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], options?: DockerOptions) {
-    super(options)
+  /**
+   * @param {string} [masternodeKey=GenesisKeys[0]] pair to use for minting
+   * @param {string} [image=DeFiDContainer.image] docker image name
+   * @param {DockerOptions} [options]
+   */
+  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
+    super(image, options)
     this.masternodeKey = masternodeKey
   }
 
@@ -90,7 +95,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       await this.generate(1)
       const count = await this.getBlockCount()
       return count > 100
-    }, timeout, 100)
+    }, timeout, 1)
   }
 
   /**
@@ -98,7 +103,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * This allow test that require fund to wait for fund to be filled up before running the tests.
    *
    * @param {number} balance to wait for in wallet to be greater than or equal
-   * @param {number} timeout default to 30000ms
+   * @param {number} [timeout=30000] in ms
    * @see waitForWalletCoinbaseMaturity
    */
   async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {

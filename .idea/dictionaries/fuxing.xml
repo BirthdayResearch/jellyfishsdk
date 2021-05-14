@@ -62,6 +62,7 @@
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
       <w>getrawmempool</w>
+      <w>getrawtransaction</w>
       <w>getreceivedbyaddress</w>
       <w>gettransaction</w>
       <w>gettxout</w>
