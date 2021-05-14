@@ -110,7 +110,7 @@ describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
-  async function createToken (symbol: string, metadata?: any): Promise<void> {
+  async function createToken (symbol: string, metadata?: any): Promise<string> {
     const address = await container.call('getnewaddress')
     const defaultMetadata = {
       symbol,
@@ -120,9 +120,8 @@ describe('masternode', () => {
       tradeable: true,
       collateralAddress: address
     }
-    await client.token.createToken({ ...defaultMetadata, ...metadata })
+    return await client.token.createToken({ ...defaultMetadata, ...metadata })
   }
-
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
@@ -467,6 +466,35 @@ describe('masternode', () => {
       expect(data.destructionTx).toBe('0000000000000000000000000000000000000000000000000000000000000000')
       expect(data.destructionHeight).toBe(-1)
       expect(data.collateralAddress).toBe('')
+    })
+  })
+
+  describe('getCustomTx', () => {
+    it('should getCustomTx with ', async () => {
+      let txid: any
+
+      beforeAll(async () => {
+        txid = await createToken('DSWAP')
+        await container.generate(3)
+      })
+
+      const data = await client.token.getCustomTx(txid)
+
+      expect(data.type).toBe('CreateToken')
+      expect(data.valid).toBe(true)
+
+      expect(typeof data.results.creationTx).toBe('string')
+      expect(data.results.name).toBe('DSWAP')
+      expect(data.results.symbol).toBe('DSWAP')
+      expect(data.results.isDAT).toBe(false)
+      expect(data.results.mintable).toBe(true)
+      expect(data.results.tradeable).toBe(true)
+      expect(data.results.finalized).toBe(false)
+
+      expect(typeof data.blockhash).toBe('string')
+      expect(data.blockHeight).toBeGreaterThan(0)
+      expect(data.blockTime).toBeGreaterThan(0)
+      expect(data.confirmations).toBe(3)
     })
   })
 })

@@ -81,6 +81,13 @@ export class Token {
   async getToken (symbolKey: string): Promise<TokenResult> {
     return await this.client.call('gettoken', [symbolKey], 'number')
   }
+
+  /**
+   *
+   */
+  async getCustomTx (txid: CustomTxInfo): Promise<any> {
+    return await this.client.call('getcustomtx', [txid], 'number')
+  }
 }
 
 export interface TokenResult {
@@ -133,4 +140,10 @@ export interface TokenPagination {
   start: number
   including_start: boolean
   limit: number
+}
+
+export interface CustomTxInfo {
+  type: string
+  valid: boolean
+  results: any
 }
