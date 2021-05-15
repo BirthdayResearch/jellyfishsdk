@@ -1,10 +1,10 @@
-import { Rpc } from './api/rpc'
-import { Transactions } from './api/transactions'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
 import { URLSearchParams } from 'url'
 import { raiseIfError, WhaleClientException, WhaleClientTimeoutException } from './errors'
-import { ApiResponse, ApiResponsePagination } from './whale.api.response'
+import { WhaleApiResponse, ApiPagedResponse } from './whale.api.response'
+import { Rpc } from './api/rpc'
+import { Transactions } from './api/transactions'
 
 /**
  * WhaleApiClient Options
@@ -61,12 +61,12 @@ export class WhaleApiClient {
   }
 
   /**
-   * @param {ApiResponsePagination} response from the previous request for pagination chaining
+   * @param {ApiPagedResponse} response from the previous request for pagination chaining
    */
-  async paginate<T> (response: ApiResponsePagination<T>): Promise<ApiResponsePagination<T>> {
+  async paginate<T> (response: ApiPagedResponse<T>): Promise<ApiPagedResponse<T>> {
     const token = response.nextToken
     if (token === undefined) {
-      return new ApiResponsePagination({ data: [] }, response.method, response.endpoint)
+      return new ApiPagedResponse({ data: [] }, response.method, response.endpoint)
     }
 
     const [path, query] = response.endpoint.split('?')
@@ -79,7 +79,7 @@ export class WhaleApiClient {
     const endpoint = `${path}?${params.toString()}`
 
     const apiResponse = await this.requestAsApiResponse<T[]>(response.method, endpoint)
-    return new ApiResponsePagination<T>(apiResponse, response.method, endpoint)
+    return new ApiPagedResponse<T>(apiResponse, response.method, endpoint)
   }
 
   /**
@@ -87,10 +87,10 @@ export class WhaleApiClient {
    * @param {string} path to request
    * @param {number} [size] of the list
    * @param {string} [next] token for pagination
-   * @return {ApiResponsePagination} data list in the JSON response body for pagination query
-   * @see {paginate(ApiResponsePagination)} for pagination query chaining
+   * @return {ApiPagedResponse} data list in the JSON response body for pagination query
+   * @see {paginate(ApiPagedResponse)} for pagination query chaining
    */
-  async requestList<T> (method: Method, path: string, size: number, next?: string): Promise<ApiResponsePagination<T>> {
+  async requestList<T> (method: Method, path: string, size: number, next?: string): Promise<ApiPagedResponse<T>> {
     const params = new URLSearchParams()
     params.set('size', `${size}`)
 
@@ -99,7 +99,7 @@ export class WhaleApiClient {
     }
 
     const response = await this.requestAsApiResponse<T[]>(method, `${path}?${params.toString()}`)
-    return new ApiResponsePagination<T>(response, method, path)
+    return new ApiPagedResponse<T>(response, method, path)
   }
 
   /**
@@ -117,12 +117,12 @@ export class WhaleApiClient {
    * @param {'POST|'GET'} method to request
    * @param {string} path to request
    * @param {object} [object] JSON to send in request
-   * @return {ApiResponse} parsed structured JSON response
+   * @return {WhaleApiResponse} parsed structured JSON response
    */
-  async requestAsApiResponse<T> (method: Method, path: string, object?: any): Promise<ApiResponse<T>> {
+  async requestAsApiResponse<T> (method: Method, path: string, object?: any): Promise<WhaleApiResponse<T>> {
     const json = object !== undefined ? JSON.stringify(object) : undefined
     const raw = await this.requestAsString(method, path, json)
-    const response: ApiResponse<T> = JSON.parse(raw.body)
+    const response: WhaleApiResponse<T> = JSON.parse(raw.body)
     raiseIfError(response)
     return response
   }

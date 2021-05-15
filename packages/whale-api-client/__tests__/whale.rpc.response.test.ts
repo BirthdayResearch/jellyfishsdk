@@ -1,11 +1,11 @@
-import { ApiResponse, ApiResponsePagination } from '../src'
+import { WhaleApiResponse, ApiPagedResponse } from '../src'
 
 it('should behavior as an array', () => {
-  const response: ApiResponse<number[]> = {
+  const response: WhaleApiResponse<number[]> = {
     data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   }
 
-  const pagination = new ApiResponsePagination(response, 'GET', '/')
+  const pagination = new ApiPagedResponse(response, 'GET', '/')
 
   expect(pagination.length).toBe(10)
   expect(pagination[0]).toBe(0)
@@ -15,25 +15,25 @@ it('should behavior as an array', () => {
 })
 
 it('should have next token', () => {
-  const response: ApiResponse<number[]> = {
+  const response: WhaleApiResponse<number[]> = {
     data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     page: {
       next: 9
     }
   }
 
-  const pagination = new ApiResponsePagination(response, 'GET', '/items')
+  const pagination = new ApiPagedResponse(response, 'GET', '/items')
 
   expect(pagination.hasNext).toBe(true)
   expect(pagination.nextToken).toBe(9)
 })
 
 it('should not have next', () => {
-  const response: ApiResponse<number[]> = {
+  const response: WhaleApiResponse<number[]> = {
     data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
   }
 
-  const pagination = new ApiResponsePagination(response, 'GET', '/items')
+  const pagination = new ApiPagedResponse(response, 'GET', '/items')
 
   expect(pagination.hasNext).toBe(false)
   expect(pagination.nextToken).toBeUndefined()

@@ -1,13 +1,13 @@
 import { WhaleApiError } from './errors'
 import { Method } from './whale.api.client'
 
-export interface ApiResponse<T> {
+export interface WhaleApiResponse<T> {
   data: T
-  page?: ApiResponsePage
+  page?: ApiPage
   error?: WhaleApiError
 }
 
-export interface ApiResponsePage {
+export interface ApiPage {
   /**
    * The next token for the next slice in the greater list.
    */
@@ -15,15 +15,15 @@ export interface ApiResponsePage {
 }
 
 /**
- * ApiResponsePagination class facilitate the ability to pagination query chaining.
+ * ApiPagedResponse class facilitate the ability to pagination query chaining.
  * It extends the Array class and can be accessed like an array, `res[0]`, `res.length`.
  *
- * After accessing all the items in the Array, you can use the same ApiResponsePagination
+ * After accessing all the items in the Array, you can use the same ApiPagedResponse
  * to query the next set of items. Hence allowing you query pagination chaining until you
  * exhaustive all items in the list.
  *
  * @example
- *   let response: ApiResponsePagination = await client.address.listTokens(...)
+ *   let response: ApiPagedResponse = await client.address.listTokens(...)
  *   for (const item of response) {
  *     console.log(item)
  *   }
@@ -34,14 +34,14 @@ export interface ApiResponsePage {
  *     console.log(item)
  *   }
  */
-export class ApiResponsePagination<T> extends Array<T> {
+export class ApiPagedResponse<T> extends Array<T> {
   /**
-   * @param {ApiResponse} response that holds the data array and next token
+   * @param {WhaleApiResponse} response that holds the data array and next token
    * @param {Method} method of the REST endpoint
    * @param {string} endpoint to paginate query
    */
   constructor (
-    public readonly response: ApiResponse<T[]>,
+    public readonly response: WhaleApiResponse<T[]>,
     public readonly method: Method,
     public readonly endpoint: string) {
     super(...response.data)

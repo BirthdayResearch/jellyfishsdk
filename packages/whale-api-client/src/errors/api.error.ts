@@ -4,6 +4,7 @@ export enum WhaleApiErrorType {
   ValidationError = 'ValidationError',
   BadRequest = 'BadRequest',
   NotFound = 'NotFound',
+  Conflict = 'Conflict',
   Forbidden = 'Forbidden',
   Unauthorized = 'Unauthorized',
   BadGateway = 'BadGateway',

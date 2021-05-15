@@ -1,16 +1,16 @@
 import { WhaleApiValidationException } from './api.validation.exception'
 import { WhaleApiErrorType, WhaleApiException } from './api.error'
-import { ApiResponse } from '../whale.api.response'
+import { WhaleApiResponse } from '../whale.api.response'
 
 export * from './api.error'
 export * from './api.validation.exception'
 export * from './client.timeout.exception'
 
 /**
- * @param {ApiResponse} response to check and raise error if any
+ * @param {WhaleApiResponse} response to check and raise error if any
  * @throws {WhaleApiException} raised error
  */
-export function raiseIfError (response: ApiResponse<any>): void {
+export function raiseIfError (response: WhaleApiResponse<any>): void {
   const error = response.error
   if (error === undefined) {
     return
