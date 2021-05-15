@@ -13,26 +13,21 @@ describe('masternode', () => {
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(300)
+
+    await setup()
   })
 
   afterAll(async () => {
     await container.stop()
   })
 
-  beforeAll(async () => {
-    await setup()
-  })
-
-  let from: string
-  let to: string
-
   async function setup (): Promise<void> {
     await container.generate(100)
 
-    from = await container.call('getnewaddress')
+    const from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
-    to = await accountToAccount('DBTC', 5, from)
+    const to = await accountToAccount('DBTC', 5, from)
     await accountToAccount('DBTC', 18, from, to)
 
     await createToken(from, 'DETH', 200)
@@ -80,7 +75,6 @@ describe('masternode', () => {
       await waitForListingAccounts()
 
       const accounts = await client.account.listAccounts()
-      console.log(accounts)
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
@@ -205,6 +199,7 @@ describe('masternode', () => {
   describe('getAccount', () => {
     it('should getAccount', async () => {
       const accounts = await waitForListingAccounts()
+
       // [ '187.00000000@DBTC', '154.00000000@DETH' ]
       const account = await client.account.getAccount(accounts[0].owner.addresses[0])
       expect(account.length).toBeGreaterThan(0)
@@ -264,7 +259,6 @@ describe('masternode', () => {
     it('should getTokenBalances', async () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances()
-        console.log(tokenBalances)
         expect(tokenBalances.length).toBeGreaterThan(0)
       })
 
