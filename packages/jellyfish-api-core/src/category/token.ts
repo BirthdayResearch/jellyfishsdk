@@ -83,9 +83,15 @@ export class Token {
   }
 
   /**
+   * Get detailed information about a DeFiChain custom transaction.
+   * Will search wallet transactions and mempool transaction if a blockhash is provided
+   * and that block is available then details for that transaction can be returned.
+   * -txindex can be enabled to return details for any transaction.
    *
+   * @param {string} txid
+   * @return {Promise<CustomTxInfo>}
    */
-  async getCustomTx (txid: CustomTxInfo): Promise<any> {
+  async getCustomTx (txid: string): Promise<CustomTxInfo> {
     return await this.client.call('getcustomtx', [txid], 'number')
   }
 }
@@ -146,4 +152,8 @@ export interface CustomTxInfo {
   type: string
   valid: boolean
   results: any
+  blockhash: string
+  blockHeight: number
+  blockTime: number
+  confirmations: number
 }
