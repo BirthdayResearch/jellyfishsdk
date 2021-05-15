@@ -500,7 +500,6 @@ describe('masternode', () => {
       const balanceBefore = await container.call('getbalance')
 
       const infos: UtxosToAccountInfo = { detail: [] }
-
       infos.detail.push({ address: address1, amount: 5 })
       infos.detail.push({ address: address2, amount: 5 })
 
