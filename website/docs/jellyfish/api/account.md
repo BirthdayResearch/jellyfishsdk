@@ -142,26 +142,3 @@ interface AccountHistoryOptions {
   limit?: number
 }
 ```
-
-## utxosToAccount
-
-Creates (and submits to local node and network) a transfer transaction from the wallet UTXOs to specfied account.
-
-```ts title="client.account.utxosToAccount()"
-interface account {
-  utxosToAccount (
-    address: string,
-    amount: number,
-    options: UtxosToAccountOptions = {}
-  ): Promise<string>
-}
-
-interface UtxosToAccountOptions {
-  utxos?: UtxosToAccountUTXO[]
-}
-
-interface UtxosToAccountUTXO {
-  txid: string
-  vout: number
-}
-```
