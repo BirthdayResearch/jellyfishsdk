@@ -2,10 +2,10 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 /**
-  * Single account ID (CScript or address) or reserved words,
-  * 'mine' to list history for all owned accounts or
-  * 'all' to list the whole DB
-  */
+ * Single account ID (CScript or address) or reserved words,
+ * - 'mine' to list history for all owned accounts or
+ * - 'all' to list the whole DB
+ */
 type OwnerType = 'mine' | 'all' | string
 
 /**
@@ -223,7 +223,7 @@ export class Account {
 }
 
 export interface AccountPagination {
-  start?: string | number
+  start?: number
   including_start?: boolean
   limit?: number
 }
