@@ -222,10 +222,10 @@ export class Account {
   }
 
   async utxosToAccount (info: UtxosToAccountInfo, options: UtxosToAccountOptions = {}): Promise<string> {
-    const details: UtxosToAccountDetail[] = info.detail
+    const details: UtxosToAccountDetail[] = info.details
     const payload: any = {}
 
-    for (let i = 0; i < details.length; i++) {
+    for (let i = 0; i < details.length; i += 1) {
       const detail = details[i]
       payload[detail.address] = `${detail.amount}@DFI`
     }
@@ -292,7 +292,7 @@ export interface AccountHistoryOptions {
 }
 
 export interface UtxosToAccountInfo {
-  detail: UtxosToAccountDetail[]
+  details: UtxosToAccountDetail[]
 }
 
 export interface UtxosToAccountDetail {
