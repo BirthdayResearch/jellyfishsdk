@@ -28,8 +28,10 @@ export async function createToken (
     tradeable: options?.tradeable ?? true,
     collateralAddress: options?.collateralAddress ?? await getNewAddress(container)
   }
+
+  await container.waitForWalletBalanceGTE(101) // token creation fee
   const hashed = await container.call('createtoken', [metadata])
-  await container.generate(25)
+  await container.generate(1)
 
   return hashed
 }
@@ -57,8 +59,7 @@ export async function mintTokens (
   await utxosToAccount(container, utxoAmount, { address })
 
   const hashed = await container.call('minttokens', [`${mintAmount}@${symbol}`])
-
-  await container.generate(25)
+  await container.generate(1)
 
   return hashed
 }
