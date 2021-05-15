@@ -493,11 +493,11 @@ describe('masternode', () => {
     it('should utxosToAccount', async () => {
       const balanceBefore = await container.call('getbalance')
 
-      const infos: UtxosToAccountInfo = { detail: [] }
-      infos.detail.push({ address: address1, amount: 5 })
-      infos.detail.push({ address: address2, amount: 5 })
+      const info: UtxosToAccountInfo = { detail: [] }
+      info.detail.push({ address: address1, amount: 5 })
+      info.detail.push({ address: address2, amount: 5 })
 
-      const data = await client.account.utxosToAccount(infos)
+      const data = await client.account.utxosToAccount(info)
 
       expect(typeof data).toBe('string')
       expect(data.length).toBe(64)
@@ -522,11 +522,11 @@ describe('masternode', () => {
         }
       })
 
-      const infos: UtxosToAccountInfo = { detail: [] }
-      infos.detail.push({ address: address1, amount: 5 })
-      infos.detail.push({ address: address2, amount: 5 })
+      const info: UtxosToAccountInfo = { detail: [] }
+      info.detail.push({ address: address1, amount: 5 })
+      info.detail.push({ address: address2, amount: 5 })
 
-      const data = await client.account.utxosToAccount(infos, { utxos: inputs })
+      const data = await client.account.utxosToAccount(info, { utxos: inputs })
 
       expect(typeof data).toBe('string')
       expect(data.length).toBe(64)
