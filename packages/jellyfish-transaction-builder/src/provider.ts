@@ -17,6 +17,8 @@ export interface PrevoutProvider {
 
   /**
    * Collect minimum number of Prevout required to create a transaction.
+   * As PrevoutProvider allows an agnostic implementation, it is free to use
+   * any UTXO selector patterns.
    *
    * @param {BigNumber} minBalance of balance combined in a Prevout required for a single transaction.
    * @param {BigNumber} feeRate for creating transaction, with the increase in selected Prevout so does the fee
