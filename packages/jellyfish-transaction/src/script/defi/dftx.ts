@@ -11,8 +11,8 @@ import {
   UtxosToAccount
 } from './dftx_account'
 import {
-  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
-  PoolSwap
+  CPoolAddLiquidity, CPoolCreatePair, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
+  PoolSwap, PoolCreatePair
 } from './dftx_pool'
 import { CTokenMint, TokenMint } from './dftx_token'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
@@ -98,6 +98,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PoolAddLiquidity>(CPoolAddLiquidity.OP_NAME, d => new CPoolAddLiquidity(d))
       case CPoolRemoveLiquidity.OP_CODE:
         return compose<PoolRemoveLiquidity>(CPoolRemoveLiquidity.OP_NAME, d => new CPoolRemoveLiquidity(d))
+      case CPoolCreatePair.OP_CODE:
+        return compose<PoolCreatePair>(CPoolCreatePair.OP_NAME, d => new CPoolCreatePair(d))
       case CTokenMint.OP_CODE:
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
       case CUtxosToAccount.OP_CODE:
