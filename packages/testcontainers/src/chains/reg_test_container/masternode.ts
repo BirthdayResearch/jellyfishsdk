@@ -92,15 +92,19 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
     return await this.waitForCondition(async () => {
-      await this.generate(1)
       const count = await this.getBlockCount()
-      return count > 100
+      if (count > 100) {
+        return true
+      }
+      await this.generate(1)
+      return false
     }, timeout, 1)
   }
 
   /**
    * Wait for in wallet balance to be greater than an amount.
    * This allow test that require fund to wait for fund to be filled up before running the tests.
+   * This method will trigger block generate to get to the required balance faster.
    *
    * @param {number} balance to wait for in wallet to be greater than or equal
    * @param {number} [timeout=30000] in ms
@@ -108,9 +112,10 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
     return await this.waitForCondition(async () => {
+      await this.generate(1)
       const getbalance = await this.call('getbalance')
       return getbalance >= balance
-    }, timeout)
+    }, timeout, 1)
   }
 
   /**

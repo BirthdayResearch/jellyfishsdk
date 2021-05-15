@@ -11,7 +11,6 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(300)
 
     await setup()
   })
@@ -21,8 +20,6 @@ describe('masternode', () => {
   })
 
   async function setup (): Promise<void> {
-    await container.generate(100)
-
     const from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
@@ -42,18 +39,19 @@ describe('masternode', () => {
       tradeable: true,
       collateralAddress: address
     }
+    await container.waitForWalletBalanceGTE(101)
     await container.call('createtoken', [metadata])
-    await container.generate(25)
+    await container.generate(1)
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(25)
+    await container.generate(1)
   }
 
   async function accountToAccount (symbol: string, amount: number, from: string, _to = ''): Promise<string> {
     const to = _to !== '' ? _to : await container.call('getnewaddress')
 
     await container.call('accounttoaccount', [from, { [to]: `${amount.toString()}@${symbol}` }])
-    await container.generate(25)
+    await container.generate(1)
 
     return to
   }
@@ -414,8 +412,12 @@ describe('masternode', () => {
     it('should listAccountHistory with options depth', async () => {
       await waitForExpect(async () => {
         const depth = 10
+        const height = await container.getBlockCount()
         const accountHistories = await client.account.listAccountHistory('mine', { depth })
-        expect(accountHistories.length).toBe(depth + 1) // plus 1 to include zero index
+
+        for (const accountHistory of accountHistories) {
+          expect(accountHistory.blockHeight).toBeGreaterThanOrEqual(height - depth)
+        }
       })
     })
 
