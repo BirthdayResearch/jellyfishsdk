@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { ApiPage, ApiSliceResponse } from '@src/module.api/interceptors/api.slice.response'
+import { ApiPage, ApiPagedResponse } from '@src/module.api/interceptors/api.paged.response'
 import { ApiError } from '@src/module.api/interceptors/api.error'
 
 /**
@@ -16,13 +16,13 @@ export interface ApiResponse {
 /**
  * Transforms all response from module.api into a object {data:...}
  *
- * If ApiSliceResponse is provided, it will not transform that.
+ * If ApiPagedResponse is provided, it will not transform that.
  */
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse> {
   intercept (context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponse> {
     return next.handle().pipe(map(result => {
-      if (result instanceof ApiSliceResponse) {
+      if (result instanceof ApiPagedResponse) {
         return result
       }
 

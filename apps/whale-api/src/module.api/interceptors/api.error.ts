@@ -11,6 +11,9 @@ export enum ApiErrorType {
   Forbidden = 'Forbidden',
   Unauthorized = 'Unauthorized',
 
+  // Resource conflict
+  Conflict = 'Conflict',
+
   // Infrastructure errors
   BadGateway = 'BadGateway',
   TimeoutError = 'TimeoutError',
@@ -113,6 +116,7 @@ export class NestJSApiException extends ApiException {
       case HttpStatus.NOT_FOUND:
       case HttpStatus.UNAUTHORIZED:
       case HttpStatus.FORBIDDEN:
+      case HttpStatus.CONFLICT:
         return exception.getStatus()
 
       case HttpStatus.GATEWAY_TIMEOUT:
@@ -138,6 +142,9 @@ export class NestJSApiException extends ApiException {
 
       case HttpStatus.NOT_FOUND:
         return ApiErrorType.NotFound
+
+      case HttpStatus.CONFLICT:
+        return ApiErrorType.Conflict
 
       case HttpStatus.UNAUTHORIZED:
         return ApiErrorType.Unauthorized
