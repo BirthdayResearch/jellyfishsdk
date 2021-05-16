@@ -495,7 +495,14 @@ describe('masternode', () => {
       infos.push({ address: address1, amount: 5 })
       infos.push({ address: address2, amount: 5 })
 
-      const data = await client.account.utxosToAccount(infos)
+      const payload: any = {}
+
+      for (let i = 0; i < infos.length; i += 1) {
+        const info = infos[i]
+        payload[info.address] = `${info.amount}@DFI`
+      }
+
+      const data = await client.account.utxosToAccount(payload)
 
       expect(typeof data).toBe('string')
       expect(data.length).toBe(64)
@@ -514,7 +521,14 @@ describe('masternode', () => {
         }
       })
 
-      const data = await client.account.utxosToAccount(infos, inputs)
+      const payload: any = {}
+
+      for (let i = 0; i < infos.length; i += 1) {
+        const info = infos[i]
+        payload[info.address] = `${info.amount}@DFI`
+      }
+
+      const data = await client.account.utxosToAccount(payload, inputs)
 
       expect(typeof data).toBe('string')
       expect(data.length).toBe(64)

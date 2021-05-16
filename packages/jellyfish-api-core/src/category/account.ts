@@ -225,22 +225,13 @@ export class Account {
    * Creates (and submits to local node and network) a transfer transaction from the wallet UTXOs to specfied account.
    * The second optional argument (may be empty array) is an array of specific UTXOs to spend.
    *
-   * @param {UtxosToAccountInfo[]} [infos]
+   * @param {any} [payload]
    * @param {UtxosToAccountUTXO[]} [options=[]]
-   * @param {string} [infos.address]
-   * @param {number} [infos.amount]
    * @param {string} [options.txid]
    * @param {number} [options.vout]
    * @return {Promise<string>}
    */
-  async utxosToAccount (infos: UtxosToAccountInfo[], options: UtxosToAccountUTXO[] = []): Promise<string> {
-    const payload: any = {}
-
-    for (let i = 0; i < infos.length; i += 1) {
-      const info = infos[i]
-      payload[info.address] = `${info.amount}@DFI`
-    }
-
+  async utxosToAccount (payload: any, options: UtxosToAccountUTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, options], 'number')
   }
 }
