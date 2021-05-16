@@ -1,4 +1,5 @@
 import { RegTestContainer } from '@defichain/testcontainers'
+
 /**
  * Create a new address
  *

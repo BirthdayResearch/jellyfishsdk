@@ -30,7 +30,7 @@ interface account {
 }
 
 interface AccountPagination {
-  start?: string | number
+  start?: number
   including_start?: boolean
   limit?: number
 }
@@ -112,7 +112,7 @@ Returns information about account history
 
 ```ts title="client.account.listAccountHistory()"
 interface account {
-  async listAccountHistory (
+  listAccountHistory (
     owner: OwnerType = 'mine',
     options: AccountHistoryOptions = {
       limit: 100
