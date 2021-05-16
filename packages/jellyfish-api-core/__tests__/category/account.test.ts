@@ -491,48 +491,33 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount', async () => {
-      const balanceBefore = await container.call('getbalance')
+      const infos: UtxosToAccountInfo[] = []
+      infos.push({ address: address1, amount: 5 })
+      infos.push({ address: address2, amount: 5 })
 
-      const info: UtxosToAccountInfo = { details: [] }
-      info.details.push({ address: address1, amount: 5 })
-      info.details.push({ address: address2, amount: 5 })
-
-      const data = await client.account.utxosToAccount(info)
+      const data = await client.account.utxosToAccount(infos)
 
       expect(typeof data).toBe('string')
       expect(data.length).toBe(64)
-
-      const balanceAfter = await container.call('getbalance')
-      expect(balanceAfter).toBeLessThan(balanceBefore - 10)
     })
 
     it('should utxosToAccount with utxos', async () => {
-      const balanceBefore = await container.call('getbalance')
-
-      const txid = await container.call('sendmany', ['', {
-        [address1]: 5,
-        [address2]: 5
-      }])
+      const infos: UtxosToAccountInfo[] = []
+      infos.push({ address: address1, amount: 5 })
+      infos.push({ address: address2, amount: 5 })
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
+      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
         }
       })
 
-      const info: UtxosToAccountInfo = { details: [] }
-      info.details.push({ address: address1, amount: 5 })
-      info.details.push({ address: address2, amount: 5 })
-
-      const data = await client.account.utxosToAccount(info, { utxos: inputs })
+      const data = await client.account.utxosToAccount(infos, inputs)
 
       expect(typeof data).toBe('string')
       expect(data.length).toBe(64)
-
-      const balanceAfter = await container.call('getbalance')
-      expect(balanceAfter).toBeLessThan(balanceBefore - 10)
     })
   })
 })

@@ -221,17 +221,27 @@ export class Account {
     return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 
-  async utxosToAccount (info: UtxosToAccountInfo, options: UtxosToAccountOptions = {}): Promise<string> {
-    const details: UtxosToAccountDetail[] = info.details
+  /**
+   * Creates (and submits to local node and network) a transfer transaction from the wallet UTXOs to specfied account.
+   * The second optional argument (may be empty array) is an array of specific UTXOs to spend.
+   *
+   * @param {UtxosToAccountInfo[]} [infos]
+   * @param {UtxosToAccountUTXO[]} [options=[]]
+   * @param {string} [infos.address]
+   * @param {number} [infos.amount]
+   * @param {string} [options.txid]
+   * @param {number} [options.vout]
+   * @return {Promise<string>}
+   */
+  async utxosToAccount (infos: UtxosToAccountInfo[], options: UtxosToAccountUTXO[] = []): Promise<string> {
     const payload: any = {}
 
-    for (let i = 0; i < details.length; i += 1) {
-      const detail = details[i]
-      payload[detail.address] = `${detail.amount}@DFI`
+    for (let i = 0; i < infos.length; i += 1) {
+      const info = infos[i]
+      payload[info.address] = `${info.amount}@DFI`
     }
 
-    const { utxos = [] } = options
-    return await this.client.call('utxostoaccount', [payload, utxos], 'number')
+    return await this.client.call('utxostoaccount', [payload, options], 'number')
   }
 }
 
@@ -292,16 +302,8 @@ export interface AccountHistoryOptions {
 }
 
 export interface UtxosToAccountInfo {
-  details: UtxosToAccountDetail[]
-}
-
-export interface UtxosToAccountDetail {
   address: string
   amount: number
-}
-
-export interface UtxosToAccountOptions {
-  utxos?: UtxosToAccountUTXO[]
 }
 
 export interface UtxosToAccountUTXO {
