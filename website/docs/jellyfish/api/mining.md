@@ -33,6 +33,9 @@ Get minting-related information.
 
 ```ts title="client.mining.getMintingInfo()"
 interface mining {
+  /**
+   * @deprecated prefer getMiningInfo for multiple masternode support.
+   */
   getMintingInfo (): Promise<MintingInfo>
 }
 
