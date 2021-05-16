@@ -54,7 +54,7 @@ describe('masternode', () => {
     await container.call('utxostoaccount', [payload])
     await container.call('minttokens', [`2000@${symbol}`])
 
-    await container.generate(25)
+    await container.generate(1)
   }
 
   describe('addPoolLiquidity', () => {
@@ -80,7 +80,7 @@ describe('masternode', () => {
       const tokenBAddress = await container.call('getnewaddress')
       await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['10@DFI'] }])
       await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
-      await container.generate(25)
+      await container.generate(1)
 
       const shareAddress = await container.call('getnewaddress')
       const data = await client.poolpair.addPoolLiquidity({
@@ -97,13 +97,13 @@ describe('masternode', () => {
       const tokenBAddress = await container.call('getnewaddress')
       await container.call('sendtokenstoaddress', [{}, { [tokenAAddress]: ['10@DFI'] }])
       await container.call('sendtokenstoaddress', [{}, { [tokenBAddress]: ['200@DDAI'] }])
-      await container.generate(25)
+      await container.generate(1)
 
       const txid = await container.call('sendmany', ['', {
         [tokenAAddress]: 10,
         [tokenBAddress]: 20
       }])
-      await container.generate(2)
+      await container.generate(1)
 
       const utxos = await container.call('listunspent')
       const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {

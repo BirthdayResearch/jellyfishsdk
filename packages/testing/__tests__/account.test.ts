@@ -32,10 +32,6 @@ describe('utxosToAccount', () => {
 })
 
 describe('accountToAccount', () => {
-  beforeAll(async () => {
-    await container.generate(100)
-  })
-
   it('should accountToAccount', async () => {
     const symbol = 'DAD'
     const from = await container.call('getnewaddress')
