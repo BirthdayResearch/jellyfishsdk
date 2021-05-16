@@ -7,7 +7,8 @@ import {
   BadRequestApiException,
   NestJSApiException,
   UnknownApiException
-} from '@src/module.api/interceptors/api.error'
+} from '@src/module.api/_core/api.error'
+import { isVersionPrefixed } from '@src/module.api/_core/api.version'
 
 /**
  * Exception Interceptor to remap errors in module-api.
@@ -15,6 +16,10 @@ import {
 @Injectable()
 export class ExceptionInterceptor implements NestInterceptor {
   intercept (context: ExecutionContext, next: CallHandler): Observable<any> {
+    if (!isVersionPrefixed(context)) {
+      return next.handle()
+    }
+
     const url: string = context.switchToHttp().getRequest().raw?.url
 
     return next.handle().pipe(catchError(err => {

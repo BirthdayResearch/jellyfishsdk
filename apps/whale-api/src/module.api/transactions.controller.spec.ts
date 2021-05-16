@@ -1,12 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ConfigModule } from '@nestjs/config'
 import { TransactionsController } from '@src/module.api/transactions.controller'
 import BigNumber from 'bignumber.js'
 import { EllipticPair, Bech32, WIF, Elliptic, HRP } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
-import { BadRequestApiException } from '@src/module.api/interceptors/api.error'
+import { BadRequestApiException } from '@src/module.api/_core/api.error'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
@@ -27,9 +26,6 @@ beforeEach(async () => {
   await container.waitForWalletBalanceGTE(11)
 
   const app: TestingModule = await Test.createTestingModule({
-    imports: [ConfigModule.forRoot({
-      load: [() => ({ network: 'regtest' })]
-    })],
     controllers: [TransactionsController],
     providers: [{ provide: JsonRpcClient, useValue: client }]
   }).compile()
