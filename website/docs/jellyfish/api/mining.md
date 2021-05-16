@@ -29,7 +29,7 @@ interface mining {
 
 ## getMintingInfo
 
-Get minting-related information.
+Get minting-related information. Deprecated in favour of `mining.getMiningInfo()`.
 
 ```ts title="client.mining.getMintingInfo()"
 interface mining {
@@ -55,8 +55,8 @@ interface MintingInfo {
   chain: 'main' | 'test' | 'regtest' | string
   warnings: string
 }
-
 ```
+
 ## getMiningInfo
 
 Get minting-related information.
@@ -66,7 +66,7 @@ interface mining {
   getMiningInfo (): Promise<MiningInfo>
 }
 
-export interface MiningInfo {
+interface MiningInfo {
   blocks: number
   currentblockweight?: number
   currentblocktx?: number
@@ -82,7 +82,7 @@ export interface MiningInfo {
 /**
  * Masternode related information
  */
-export interface MasternodeInfo {
+interface MasternodeInfo {
   masternodeid?: string
   masternodeoperator?: string
   masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
