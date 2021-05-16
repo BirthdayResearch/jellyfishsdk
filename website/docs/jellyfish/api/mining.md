@@ -52,4 +52,39 @@ interface MintingInfo {
   chain: 'main' | 'test' | 'regtest' | string
   warnings: string
 }
+
+```
+## getMiningInfo
+
+Get minting-related information.
+
+```ts title="client.mining.getMiningInfo()"
+interface mining {
+  getMiningInfo (): Promise<MiningInfo>
+}
+
+export interface MiningInfo {
+  blocks: number
+  currentblockweight?: number
+  currentblocktx?: number
+  difficulty: string
+  isoperator: boolean
+  masternodes: MasternodeInfo[],
+  networkhashps: number
+  pooledtx: number
+  chain: 'main' | 'test' | 'regtest' | string
+  warnings: string
+}
+
+/**
+ * Masternode related information
+ */
+export interface MasternodeInfo {
+  masternodeid?: string
+  masternodeoperator?: string
+  masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  generate?: boolean
+  mintedblocks?: number
+  lastblockcreationattempt?: string
+}
 ```
