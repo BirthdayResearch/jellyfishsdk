@@ -106,16 +106,14 @@ export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> 
 }
 
 /**
- * PoolPairCreate DeFi Transaction
+ * PoolCreatePair DeFi Transaction
  */
 export interface PoolCreatePair {
-  tokenA: string // -----------------------| 4 bytes
-  tokenB: string // -----------------------| 4 bytes
-  commission: BigNumber // ----------------| 8 bytes
+  tokenA: number // -----------------------| VarUInt{1-9 bytes}
+  tokenB: number // -----------------------| VarUInt{1-9 bytes}
   status: number // -----------------------| 1 byte
+  commission: BigNumber // ----------------| 8 bytes
   ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
-  // customRewards: number // ----------------|
-  // pairSymbol: number // -------------------| VarUInt{1-9 bytes}, + n bytes
 }
 
 /**
@@ -128,10 +126,10 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
 
   composers (p: PoolCreatePair): BufferComposer[] {
     return [
-      ComposableBuffer.string(() => p.tokenA, v => p.tokenA = v),
-      ComposableBuffer.string(() => p.tokenB, v => p.tokenB = v),
+      ComposableBuffer.varUInt(() => p.tokenA, v => p.tokenA = v),
+      ComposableBuffer.varUInt(() => p.tokenB, v => p.tokenB = v),
+      ComposableBuffer.varUInt(() => p.status, v => p.status = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
-      ComposableBuffer.uInt8(() => p.status, v => p.status = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v))
     ]
   }
