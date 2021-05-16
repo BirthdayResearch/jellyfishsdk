@@ -292,11 +292,6 @@ export interface AccountHistoryOptions {
   limit?: number
 }
 
-export interface UtxosToAccountInfo {
-  address: string
-  amount: number
-}
-
 export interface UtxosToAccountUTXO {
   txid: string
   vout: number
