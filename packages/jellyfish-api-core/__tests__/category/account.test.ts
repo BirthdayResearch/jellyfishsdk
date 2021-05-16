@@ -2,7 +2,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountInfo } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -491,16 +490,9 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount', async () => {
-      const infos: UtxosToAccountInfo[] = []
-      infos.push({ address: address1, amount: 5 })
-      infos.push({ address: address2, amount: 5 })
-
       const payload: any = {}
-
-      for (let i = 0; i < infos.length; i += 1) {
-        const info = infos[i]
-        payload[info.address] = `${info.amount}@DFI`
-      }
+      payload[address1] = '5@DFI'
+      payload[address2] = '5@DFI'
 
       const data = await client.account.utxosToAccount(payload)
 
@@ -509,9 +501,9 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount with utxos', async () => {
-      const infos: UtxosToAccountInfo[] = []
-      infos.push({ address: address1, amount: 5 })
-      infos.push({ address: address2, amount: 5 })
+      const payload: any = {}
+      payload[address1] = '5@DFI'
+      payload[address2] = '5@DFI'
 
       const utxos = await container.call('listunspent')
       const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
@@ -520,13 +512,6 @@ describe('masternode', () => {
           vout: utxo.vout
         }
       })
-
-      const payload: any = {}
-
-      for (let i = 0; i < infos.length; i += 1) {
-        const info = infos[i]
-        payload[info.address] = `${info.amount}@DFI`
-      }
 
       const data = await client.account.utxosToAccount(payload, inputs)
 
