@@ -1,12 +1,18 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { fundEllipticPair, getProviders, MockEllipticPairProvider, randomEllipticPair } from '../provider.mock'
+import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
-import { HASH160 } from '@defichain/jellyfish-crypto'
+import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
+import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import {
+  findOut,
+  fundEllipticPair,
+  randomEllipticPair,
+  sendTransaction
+} from '../test.utils'
 
 const container = new MasterNodeRegTestContainer()
-let elliptic: MockEllipticPairProvider
+let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
 beforeAll(async () => {
@@ -14,9 +20,8 @@ beforeAll(async () => {
   await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
 
-  const { fee, prevout, elliptic: e } = getProviders(container)
-  elliptic = e
-  builder = new P2WPKHTransactionBuilder(fee, prevout, elliptic)
+  providers = await getProviders(container)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 })
 
 afterAll(async () => {
@@ -24,48 +29,82 @@ afterAll(async () => {
 })
 
 beforeEach(async () => {
-  await container.waitForWalletBalanceGTE(100)
-  await fundEllipticPair(container, elliptic.ellipticPair, 1.1) // 1.1
-  await fundEllipticPair(container, elliptic.ellipticPair, 5.5) // 6.6
-  await fundEllipticPair(container, elliptic.ellipticPair, 10.566) // 17.166
-  await fundEllipticPair(container, elliptic.ellipticPair, 15.51345) // 32.67945
-  await fundEllipticPair(container, elliptic.ellipticPair, 20) // 52.67945
-  await fundEllipticPair(container, elliptic.ellipticPair, 37.98) // 90.65945
-  await fundEllipticPair(container, elliptic.ellipticPair, 9.34055) // 99.9
+  await providers.randomizeEllipticPair()
+  await container.waitForWalletBalanceGTE(101)
+
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 1.1) // 1.1
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 5.5) // 6.6
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 10.566) // 17.166
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 15.51345) // 32.67945
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 20) // 52.67945
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 37.98) // 90.65945
+  await fundEllipticPair(container, providers.elliptic.ellipticPair, 9.34055) // 100
+
+  await providers.setupMocks()
 })
 
 describe('utxo.send', () => {
   it('should send to address', async () => {
-    const ellipticPair = randomEllipticPair()
-    const amount = new BigNumber('99')
+    const sendPair = randomEllipticPair()
+    const sendPubKey = await sendPair.publicKey()
+
     const to: Script = {
       stack: [
         OP_CODES.OP_0,
-        OP_CODES.OP_PUSHDATA(HASH160(await ellipticPair.publicKey()), 'little')
+        OP_CODES.OP_PUSHDATA(HASH160(sendPubKey), 'little')
       ]
     }
-    const change = await elliptic.script()
-    await builder.utxo.send(amount, to, change)
+    const change = await providers.elliptic.script()
+    const txn = await builder.utxo.send(new BigNumber('99'), to, change)
+    const outs = await sendTransaction(container, txn)
 
-    // TODO(fuxingloh): check received
-    // TODO(fuxingloh): check unspent
+    const sendTo = await findOut(outs, sendPair)
+    expect(sendTo.value).toBe(99)
+    expect(sendTo.scriptPubKey.hex).toBe(`0014${HASH160(sendPubKey).toString('hex')}`)
+    expect(sendTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(sendPubKey, 'bcrt'))
+
+    const changePair = await providers.elliptic.ellipticPair
+    const changePubKey = await changePair.publicKey()
+    const changeTo = await findOut(outs, providers.elliptic.ellipticPair)
+    expect(changeTo.value).toBeGreaterThan(0.9)
+    expect(changeTo.value).toBeLessThan(1)
+    expect(changeTo.scriptPubKey.hex).toBe(`0014${HASH160(changePubKey).toString('hex')}`)
+    expect(changeTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(changePubKey, 'bcrt'))
+
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toBe(1)
+    expect(prevouts[0].value.toNumber()).toBe(changeTo.value)
+    expect(prevouts[0].vout).toBe(changeTo.n)
+
+    expect(prevouts[0].script.stack.length).toBe(2)
+    expect(prevouts[0].script.stack[0].type).toBe('OP_0')
+    expect((prevouts[0].script.stack[1] as OP_PUSHDATA).hex).toBe(HASH160(changePubKey).toString('hex'))
   })
 })
-
 
 describe('utxo.sendAll', () => {
   it('should send all to address', async () => {
-    const ellipticPair = randomEllipticPair()
+    const sendPair = randomEllipticPair()
+    const sendPubKey = await sendPair.publicKey()
+
     const to: Script = {
       stack: [
         OP_CODES.OP_0,
-        OP_CODES.OP_PUSHDATA(HASH160(await ellipticPair.publicKey()), 'little')
+        OP_CODES.OP_PUSHDATA(HASH160(sendPubKey), 'little')
       ]
     }
-    await builder.utxo.sendAll(to)
+    const txn = await builder.utxo.sendAll(to)
+    const outs = await sendTransaction(container, txn)
 
-    // TODO(fuxingloh): check received
-    // TODO(fuxingloh): check unspent be empty
+    expect(outs.length).toBe(1)
+
+    const sendTo = await findOut(outs, sendPair)
+    expect(sendTo.value).toBeGreaterThan(99.99)
+    expect(sendTo.value).toBeLessThan(100)
+    expect(sendTo.scriptPubKey.hex).toBe(`0014${HASH160(sendPubKey).toString('hex')}`)
+    expect(sendTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(sendPubKey, 'bcrt'))
+
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toBe(0)
   })
 })
-

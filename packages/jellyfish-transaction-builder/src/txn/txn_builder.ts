@@ -10,6 +10,7 @@ import { BigNumber } from 'bignumber.js'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../provider'
 import { calculateFeeP2WPKH } from './txn_fee'
 import { OP_DEFI_TX } from '@defichain/jellyfish-transaction/dist/script/defi'
+import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
 const MAX_FEE_RATE = new BigNumber('0.00100000')
 
@@ -29,19 +30,33 @@ export abstract class P2WPKHTxnBuilder {
    */
   protected async allPrevouts (): Promise<Prevouts> {
     const prevouts = await this.prevoutProvider.all()
-    // TODO(fuxingloh): no prevouts
+    if (prevouts.length === 0) {
+      throw new TxnBuilderError(TxnBuilderErrorType.NO_PREVOUTS,
+        'no prevouts available to create a transaction'
+      )
+    }
     return joinPrevouts(prevouts)
   }
 
   /**
-   * @param {BigNumber} amount to collect, required to form a transaction
+   * @param {BigNumber} minBalance to collect, required to form a transaction
    * @return {Promise<Prevouts>}
    */
-  protected async collectPrevouts (amount: BigNumber): Promise<Prevouts> {
-    const prevouts = await this.prevoutProvider.collect(amount)
-    // TODO(fuxingloh): no prevouts
-    // TODO(fuxingloh): balance not enough
-    return joinPrevouts(prevouts)
+  protected async collectPrevouts (minBalance: BigNumber): Promise<Prevouts> {
+    const prevouts = await this.prevoutProvider.collect(minBalance)
+    if (prevouts.length === 0) {
+      throw new TxnBuilderError(TxnBuilderErrorType.NO_PREVOUTS,
+        'no prevouts available to create a transaction'
+      )
+    }
+
+    const joined = joinPrevouts(prevouts)
+    if (minBalance.gt(joined.total)) {
+      throw new TxnBuilderError(TxnBuilderErrorType.MIN_BALANCE_NOT_ENOUGH,
+        'not enough balance after combing all prevouts'
+      )
+    }
+    return joined
   }
 
   /**
@@ -50,9 +65,16 @@ export abstract class P2WPKHTxnBuilder {
    */
   protected async calculateFee (transaction: Transaction): Promise<BigNumber> {
     const feeRate = await this.feeProvider.estimate()
-    if (MAX_FEE_RATE.gte(feeRate)) {
-      // TODO(fuxingloh): max fee rate
-      throw new Error(`attempting to use a fee rate higher than MAX_FEE_RATE of ${MAX_FEE_RATE.toFixed(10)} is not allowed`)
+    if (MAX_FEE_RATE.lte(feeRate)) {
+      throw new TxnBuilderError(TxnBuilderErrorType.OVER_MAX_FEE_RATE,
+        `attempting to use a fee rate higher than MAX_FEE_RATE of ${MAX_FEE_RATE.toFixed()} is not allowed`
+      )
+    }
+
+    if (!feeRate.isFinite()) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_FEE_RATE,
+        `fee rate ${feeRate.toString()} is invalid`
+      )
     }
 
     return calculateFeeP2WPKH(feeRate, transaction)
@@ -119,8 +141,12 @@ export abstract class P2WPKHTxnBuilder {
         ellipticPair: this.ellipticPairProvider.get(prevout)
       }
     })
-    // TODO(fuxingloh): unable to sign transaction
-    return TransactionSigner.sign(transaction, signInputOptions)
+
+    try {
+      return TransactionSigner.sign(transaction, signInputOptions)
+    } catch (err) {
+      throw new TxnBuilderError(TxnBuilderErrorType.SIGN_TRANSACTION_ERROR, err.message)
+    }
   }
 }
 
@@ -138,7 +164,9 @@ function joinPrevouts (prevouts: Prevout[]): Prevouts {
     }
   })
 
-  const total = prevouts.map(out => out.value).reduce((a, b) => a.plus(b))
+  const total = prevouts
+    .map(out => out.value)
+    .reduce((a, b) => a.plus(b), new BigNumber(0))
   return { prevouts, vin, total }
 }
 

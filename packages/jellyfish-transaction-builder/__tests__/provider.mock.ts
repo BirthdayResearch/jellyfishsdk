@@ -1,30 +1,36 @@
 import { BigNumber } from 'bignumber.js'
-import { Bech32, Elliptic, EllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
+import { Bech32, EllipticPair, HASH160, WIF } from '@defichain/jellyfish-crypto'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../src'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
+import { randomEllipticPair } from './test.utils'
 
 export class MockFeeRateProvider implements FeeRateProvider {
-  constructor (readonly container: MasterNodeRegTestContainer) {
+  constructor (
+    public readonly container: MasterNodeRegTestContainer
+  ) {
   }
 
   async estimate (): Promise<BigNumber> {
-    const { feerate } = await this.container.call('estimatesmartfee')
-    return new BigNumber(feerate)
+    const result = await this.container.call('estimatesmartfee', [1])
+    if (result.errors !== undefined && result.errors.length > 0) {
+      return new BigNumber('0.00005000')
+    }
+    return new BigNumber(result.feerate)
   }
 }
 
 export class MockPrevoutProvider implements PrevoutProvider {
   constructor (
-    readonly container: MasterNodeRegTestContainer,
-    readonly ellipticPair: EllipticPair
+    public readonly container: MasterNodeRegTestContainer,
+    public ellipticPair: EllipticPair
   ) {
   }
 
   async all (): Promise<Prevout[]> {
     const pubKey = await this.ellipticPair.publicKey()
     const unspent: any[] = await this.container.call('listunspent', [
-      0, 9999999, [Bech32.fromPubKey(pubKey, 'bcrt')]
+      1, 9999999, [Bech32.fromPubKey(pubKey, 'bcrt')]
     ])
 
     return unspent.map((utxo: any): Prevout => {
@@ -34,10 +40,14 @@ export class MockPrevoutProvider implements PrevoutProvider {
 
   async collect (minBalance: BigNumber): Promise<Prevout[]> {
     const pubKey = await this.ellipticPair.publicKey()
+    const address = Bech32.fromPubKey(pubKey, 'bcrt')
+
+    // TODO(fuxingloh): minimumSumAmount behavior is weirdly inconsistent, listunspent will always
+    //  return the correct result without providing options. However, with 'minimumSumAmount', it
+    //  will appear sometimes. Likely due to race conditions in bitcoin code,
+    //  e.g. -reindex when importprivkey.
     const unspent: any[] = await this.container.call('listunspent', [
-      0, 9999999, [Bech32.fromPubKey(pubKey, 'bcrt'), false, {
-        minimumSumAmount: minBalance.toNumber()
-      }]
+      1, 9999999, [address], true
     ])
 
     return unspent.map((utxo: any): Prevout => {
@@ -47,7 +57,9 @@ export class MockPrevoutProvider implements PrevoutProvider {
 
   static mapPrevout (utxo: any, pubKey: Buffer): Prevout {
     return {
-      txid: utxo.txid,
+      // utxo.id from defid is reversed, we uses non reversed order in txid
+      // TODO(fuxingloh): we need consistency for this.
+      txid: Buffer.from(utxo.txid, 'hex').reverse().toString('hex'),
       vout: utxo.vout,
       value: new BigNumber(utxo.amount),
       script: {
@@ -63,7 +75,7 @@ export class MockPrevoutProvider implements PrevoutProvider {
 
 export class MockEllipticPairProvider implements EllipticPairProvider {
   constructor (
-    readonly ellipticPair: EllipticPair
+    public ellipticPair: EllipticPair
   ) {
   }
 
@@ -81,27 +93,35 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
   }
 }
 
-export function getProviders (container: MasterNodeRegTestContainer): Providers {
-  const ellipticPair = randomEllipticPair()
-  return {
-    fee: new MockFeeRateProvider(container),
-    elliptic: new MockEllipticPairProvider(ellipticPair),
-    prevout: new MockPrevoutProvider(container, ellipticPair)
-  }
+export async function getProviders (container: MasterNodeRegTestContainer): Promise<MockProviders> {
+  return new MockProviders(container)
 }
 
-export async function fundEllipticPair (container: MasterNodeRegTestContainer, ellipticPair: EllipticPair, amount: number): Promise<void> {
-  const pubKey = await ellipticPair.publicKey()
-  const address = Bech32.fromPubKey(pubKey, 'bcrt')
-  await container.fundAddress(address, amount)
-}
-
-export function randomEllipticPair (): EllipticPair {
-  return Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
-}
-
-interface Providers {
+export class MockProviders {
   fee: MockFeeRateProvider
   prevout: MockPrevoutProvider
   elliptic: MockEllipticPairProvider
+  ellipticPair: EllipticPair = randomEllipticPair()
+
+  constructor (readonly container: MasterNodeRegTestContainer) {
+    this.fee = new MockFeeRateProvider(container)
+    this.elliptic = new MockEllipticPairProvider(this.ellipticPair)
+    this.prevout = new MockPrevoutProvider(container, this.ellipticPair)
+  }
+
+  /**
+   * As MockProvider is linked to a full node you need to reset everytime you want to fund
+   * a new transaction.
+   */
+  randomizeEllipticPair (): void {
+    this.ellipticPair = randomEllipticPair()
+    this.elliptic.ellipticPair = this.ellipticPair
+    this.prevout.ellipticPair = this.ellipticPair
+  }
+
+  async setupMocks (): Promise<void> {
+    // full nodes need importprivkey or else it can't list unspent
+    const wif = WIF.encode(0xef, await this.ellipticPair.privateKey())
+    await this.container.call('importprivkey', [wif])
+  }
 }
