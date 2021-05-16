@@ -21,11 +21,10 @@ export interface PrevoutProvider {
    * any UTXO selector patterns.
    *
    * @param {BigNumber} minBalance of balance combined in a Prevout required for a single transaction.
-   * @param {BigNumber} feeRate for creating transaction, with the increase in selected Prevout so does the fee
    * required to create transaction.
    * @return {Prevout[]} selected all required for creating the transaction
    */
-  collect: (minBalance: BigNumber, feeRate: BigNumber) => Promise<Prevout[]>
+  collect: (minBalance: BigNumber) => Promise<Prevout[]>
 }
 
 /**

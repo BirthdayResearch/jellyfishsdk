@@ -38,13 +38,16 @@ export class TxnBuilderUtxo extends P2WPKHTxnBuilder {
 
   /**
    * Send a specific amount of UTXO provided by prevoutProvider.collect(amount, fee) to script.
+   * If you are not sending the full amount via sendAll, you will need at least 0.001 DFI more
+   * than the specific amount for sending. This will also evidently merge small prevout during
+   * the operation.
    *
    * @param {BigNumber} amount of UTXO to send to script
    * @param {Script} toScript to send UTXO to
    * @param {Script} changeScript to send unspent to after deducting the fees
    */
   async send (amount: BigNumber, toScript: Script, changeScript: Script): Promise<TransactionSegWit> {
-    const minAmount = amount.plus(0.01)
+    const minAmount = amount.plus(0.001)
     const { prevouts, vin, total } = await this.collectPrevouts(minAmount)
     const changeAmount = total.minus(amount)
 
