@@ -143,6 +143,10 @@ and that block is available then details for that transaction can be returned.
 -txindex can be enabled to return details for any transaction.
 
 ```ts title="client.token.getCustomTx()"
+interface token {
+  getCustomTx (txid: string): Promise<CustomTxInfo>
+}
+
 interface CustomTxInfo {
   type: string
   valid: boolean

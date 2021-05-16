@@ -470,14 +470,10 @@ describe('masternode', () => {
   })
 
   describe('getCustomTx', () => {
-    let txid: string
-
-    beforeAll(async () => {
-      txid = await createToken('DSWAP')
-      await container.generate(3)
-    })
-
     it('should getCustomTx', async () => {
+      const txid = await createToken('DSWAP')
+      await container.generate(1)
+
       const data = await client.token.getCustomTx(txid)
 
       expect(data.type).toBe('CreateToken')
@@ -495,7 +491,7 @@ describe('masternode', () => {
       expect(data.blockhash.length).toBe(64)
       expect(data.blockHeight).toBeGreaterThan(0)
       expect(data.blockTime).toBeGreaterThan(0)
-      expect(data.confirmations).toBe(3)
+      expect(data.confirmations).toBe(1)
     })
   })
 })
