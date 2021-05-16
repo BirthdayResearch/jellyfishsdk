@@ -29,6 +29,7 @@ export abstract class P2WPKHTxnBuilder {
    */
   protected async allPrevouts (): Promise<Prevouts> {
     const prevouts = await this.prevoutProvider.all()
+    // TODO(fuxingloh): no prevouts
     return joinPrevouts(prevouts)
   }
 
@@ -37,8 +38,9 @@ export abstract class P2WPKHTxnBuilder {
    * @return {Promise<Prevouts>}
    */
   protected async collectPrevouts (amount: BigNumber): Promise<Prevouts> {
-    const feeRate = await this.feeProvider.estimate()
-    const prevouts = await this.prevoutProvider.collect(amount, feeRate)
+    const prevouts = await this.prevoutProvider.collect(amount)
+    // TODO(fuxingloh): no prevouts
+    // TODO(fuxingloh): balance not enough
     return joinPrevouts(prevouts)
   }
 
@@ -48,7 +50,8 @@ export abstract class P2WPKHTxnBuilder {
    */
   protected async calculateFee (transaction: Transaction): Promise<BigNumber> {
     const feeRate = await this.feeProvider.estimate()
-    if (MAX_FEE_RATE.lt(feeRate)) {
+    if (MAX_FEE_RATE.gte(feeRate)) {
+      // TODO(fuxingloh): max fee rate
       throw new Error(`attempting to use a fee rate higher than MAX_FEE_RATE of ${MAX_FEE_RATE.toFixed(10)} is not allowed`)
     }
 
@@ -60,7 +63,7 @@ export abstract class P2WPKHTxnBuilder {
    * This is a helper method for creating custom defi transactions.
    *
    * As DeFi custom transaction will always require small amount of DFI,
-   * collectPrevouts() is set to search for at least 0.01 DFI amount of prevout.
+   * collectPrevouts() is set to search for at least 0.001 DFI amount of prevout.
    * This will also evidently merge small prevout during the operation.
    *
    * @param {OP_DEFI_TX} opDeFiTx to create
@@ -72,7 +75,7 @@ export abstract class P2WPKHTxnBuilder {
     changeScript: Script,
     outValue: BigNumber = new BigNumber('0')
   ): Promise<TransactionSegWit> {
-    const minFee = outValue.plus(0.01) // see JSDoc above
+    const minFee = outValue.plus(0.001) // see JSDoc above
     const { prevouts, vin, total } = await this.collectPrevouts(minFee)
 
     const deFiOut: Vout = {
@@ -116,6 +119,7 @@ export abstract class P2WPKHTxnBuilder {
         ellipticPair: this.ellipticPairProvider.get(prevout)
       }
     })
+    // TODO(fuxingloh): unable to sign transaction
     return TransactionSigner.sign(transaction, signInputOptions)
   }
 }
