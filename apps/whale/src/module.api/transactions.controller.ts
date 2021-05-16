@@ -1,19 +1,8 @@
 import BigNumber from 'bignumber.js'
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Post,
-  UseGuards,
-  UseInterceptors,
-  ValidationPipe
-} from '@nestjs/common'
-import { NetworkGuard } from '@src/module.api/guards/network.guard'
-import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
-import { ResponseInterceptor } from '@src/module.api/interceptors/response.interceptor'
+import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
-import { BadRequestApiException } from '@src/module.api/interceptors/api.error'
+import { BadRequestApiException } from '@src/module.api/_core/api.error'
 
 class RawTxDto {
   @IsNotEmpty()
@@ -27,8 +16,6 @@ class RawTxDto {
 }
 
 @Controller('/v1/:network/transactions')
-@UseGuards(NetworkGuard)
-@UseInterceptors(ResponseInterceptor, ExceptionInterceptor)
 export class TransactionsController {
   /**
    * MaxFeeRate = vkb * Fees

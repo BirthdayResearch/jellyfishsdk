@@ -1,4 +1,4 @@
-import { ApiPagedResponse } from '@src/module.api/interceptors/api.paged.response'
+import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 
 it('should create with ApiPagedResponse.next', () => {
   const items = [{ id: '1', sort: 'a' }, { id: '2', sort: 'b' }]
