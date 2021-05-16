@@ -92,14 +92,15 @@ export class WhaleApiClient {
    */
   async requestList<T> (method: Method, path: string, size: number, next?: string): Promise<ApiPagedResponse<T>> {
     const params = new URLSearchParams()
-    params.set('size', `${size}`)
+    params.set('size', size.toString())
 
     if (next !== undefined) {
       params.set('next', next)
     }
 
-    const response = await this.requestAsApiResponse<T[]>(method, `${path}?${params.toString()}`)
-    return new ApiPagedResponse<T>(response, method, path)
+    const endpoint = `${path}?${params.toString()}`
+    const response = await this.requestAsApiResponse<T[]>(method, endpoint)
+    return new ApiPagedResponse<T>(response, method, endpoint)
   }
 
   /**
@@ -158,7 +159,7 @@ export class WhaleApiClient {
 async function _fetch (method: Method, url: string, controller: AbortController, body?: string): Promise<ResponseAsString> {
   const response = await fetch(url, {
     method: method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: method !== 'GET' ? { 'Content-Type': 'application/json' } : {},
     body: body,
     cache: 'no-cache',
     signal: controller.signal

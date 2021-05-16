@@ -18,14 +18,14 @@ it('should have next token', () => {
   const response: WhaleApiResponse<number[]> = {
     data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     page: {
-      next: 9
+      next: '9'
     }
   }
 
   const pagination = new ApiPagedResponse(response, 'GET', '/items')
 
   expect(pagination.hasNext).toBe(true)
-  expect(pagination.nextToken).toBe(9)
+  expect(pagination.nextToken).toBe('9')
 })
 
 it('should not have next', () => {
