@@ -3,7 +3,7 @@ import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
 import { RegTestContainer } from '@defichain/testcontainers'
 import * as DeFiAddress from '../src'
-import { Base58Address, P2SH } from '../src'
+import { P2SH } from '../src'
 
 describe('P2SH', () => {
   const container = new RegTestContainer()
@@ -73,7 +73,7 @@ describe('P2SH', () => {
       const scriptHash = '134b0749882c225e8647df3a3417507c6f5b2797'
       expect(scriptHash.length).toEqual(40)
 
-      const p2sh = Base58Address.to<P2SH>('regtest', scriptHash, P2SH)
+      const p2sh = P2SH.to('regtest', scriptHash)
       expect(p2sh.type).toEqual('P2SH')
       expect(p2sh.valid).toBeTruthy()
 
@@ -85,11 +85,11 @@ describe('P2SH', () => {
     })
 
     it('should reject invalid data - not 20 bytes data', () => {
-      const pubKeyHash = '134b0749882c225e8647df3a3417507c6f5b27'
-      expect(pubKeyHash.length).toEqual(38)
+      const scriptHash = '134b0749882c225e8647df3a3417507c6f5b27'
+      expect(scriptHash.length).toEqual(38)
 
       try {
-        Base58Address.to<P2SH>('regtest', pubKeyHash, P2SH)
+        P2SH.to('regtest', scriptHash)
         throw new Error('should had failed')
       } catch (e) {
         expect(e.message).toEqual('InvalidDataLength')
@@ -120,7 +120,7 @@ describe('P2SH', () => {
   })
 
   it('validate()', () => {
-    const hex = bs58.decode(p2shFixture.mainnet).toString('hex')
+    const hex = bs58.decode(p2shFixture.mainnet).toString('hex').substring(2, 42) // take 20 bytes data only
     const p2sh = new P2SH(MainNet, p2shFixture.mainnet, hex)
 
     expect(p2sh.validatorPassed).toEqual(0)
