@@ -45,10 +45,20 @@ describe('add/remove pool pair liquidity', () => {
 
   it('should add and remove liquidity', async () => {
     const address = await container.getNewAddress()
-    const amount = await addPoolLiquidity(container, 'DFI', 50, 'LPT', 50, address)
+    const amount = await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 50,
+      tokenB: 'LPT',
+      amountB: 50,
+      shareAddress: address
+    })
     expect(amount.toFixed(8)).toBe('49.99999000')
 
-    await removePoolLiquidity(container, address, 'DFI-LPT', amount)
+    await removePoolLiquidity(container, {
+      address: address,
+      amountLP: amount,
+      tokenLP: 'DFI-LPT'
+    })
 
     const shares: Record<string, any> = await container.call('listpoolshares')
     expect(Object.keys(shares).length).toBe(0)
