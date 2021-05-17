@@ -111,9 +111,11 @@ export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> 
 export interface PoolCreatePair {
   tokenA: number // -----------------------| VarUInt{1-9 bytes}
   tokenB: number // -----------------------| VarUInt{1-9 bytes}
-  status: boolean // -----------------------| 1 byte
   commission: BigNumber // ----------------| 8 bytes
   ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
+  status: boolean // ----------------------| 1 byte
+  customRewards: string // ----------------| VarUInt{1-9 bytes}
+  pairSymbol: string // -------------------| VarUInt{1-9 bytes}
 }
 
 /**
@@ -128,9 +130,11 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
     return [
       ComposableBuffer.varUInt(() => p.tokenA, v => p.tokenA = v),
       ComposableBuffer.varUInt(() => p.tokenB, v => p.tokenB = v),
-      ComposableBuffer.boolean(() => p.status, v => p.status = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
-      ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v))
+      ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
+      ComposableBuffer.boolean(() => p.status, v => p.status = v),
+      ComposableBuffer.string(() => p.customRewards, v => p.customRewards = v),
+      ComposableBuffer.string(() => p.pairSymbol, v => p.pairSymbol = v)
     ]
   }
 }

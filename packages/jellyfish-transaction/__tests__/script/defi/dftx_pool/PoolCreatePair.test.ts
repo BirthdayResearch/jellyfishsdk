@@ -6,38 +6,42 @@ import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a2a4466547870000200e1f5050000000017a914462093ba56448f9b6d1d22584b3236e2555432d487010000', // commission: 1
-    '6a2a44665478700004000000000000000017a914462093ba56448f9b6d1d22584b3236e2555432d487010000' // commission: 0
+    '6a2a4466547870000200e1f5050000000017a914462093ba56448f9b6d1d22584b3236e2555432d487010000',
+    '6a2a44665478700004000000000000000017a914462093ba56448f9b6d1d22584b3236e2555432d487010000',
+    '6a2a4466547870000100e1f5050000000017a91498f93e07509b6cb0d32557d1e0c2becc1a3e732d87010000',
+    '6a2a4466547870000300e1f5050000000017a91498f93e07509b6cb0d32557d1e0c2becc1a3e732d87010000',
+    '6a2a4466547870000580f0fa020000000017a91498f93e07509b6cb0d32557d1e0c2becc1a3e732d87010000',
+    '6a2a4466547870000780f0fa020000000017a914809a32165e7eb9544f7415f3ad0cb817a1eeb0bb87010000',
+    '6a2a4466547870000880f0fa020000000017a914809a32165e7eb9544f7415f3ad0cb817a1eeb0bb87000000',
+    '6a2a4466547870000b00e1f5050000000017a914809a32165e7eb9544f7415f3ad0cb817a1eeb0bb87010000'
   ]
 
   fixtures.forEach(hex => {
     const stack: any = toOPCodes(
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
-    console.log('stack: ', stack[1].tx, stack[1].tx.data.ownerAddress)
-    // console.log('comm: ', stack[1].tx.data.commission.toString())
     const buffer = toBuffer(stack)
-    console.log('buffer: ', buffer)
     expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x70)
     expect(buffer.toString('hex')).toBe(hex)
   })
 })
 
 const header = '6a2a4466547870' // OP_RETURN, PUSH_DATA(44665478, 70)
-const data = '000200e1f5050000000017a914462093ba56448f9b6d1d22584b3236e2555432d487010000'
+const data = '000880f0fa020000000017a914809a32165e7eb9544f7415f3ad0cb817a1eeb0bb87000000'
 const poolCreatePair: PoolCreatePair = {
   tokenA: 0,
-  tokenB: 2,
-  status: false,
-  commission: new BigNumber('16573246628.72733153'), // should be 1
+  tokenB: 8,
+  status: true,
+  commission: new BigNumber('0.5'),
   ownerAddress: {
     stack: [
-      OP_CODES.OP_PUSHDATA_HEX_LE('462093ba56448f9b6d1d22584b3236e2555432d4'),
-      OP_CODES.OP_EQUAL,
-      OP_CODES.OP_PUSHDATA_HEX_LE('00'),
-      OP_CODES.OP_0
+      OP_CODES.OP_HASH160,
+      OP_CODES.OP_PUSHDATA_HEX_LE('809a32165e7eb9544f7415f3ad0cb817a1eeb0bb'),
+      OP_CODES.OP_EQUAL
     ]
-  }
+  },
+  customRewards: '',
+  pairSymbol: ''
 }
 
 it('should craft dftx with OP_CODES._()', () => {
