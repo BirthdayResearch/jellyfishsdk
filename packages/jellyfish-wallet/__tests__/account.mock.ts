@@ -33,10 +33,6 @@ export class TestAccount extends WalletAccount {
   }
 }
 
-/**
- * TestAccountProvider tests integration of jellyfish-wallet with
- * jellyfish-transaction-builder.
- */
 export class TestAccountProvider implements WalletAccountProvider<TestAccount> {
   public network: Network = RegTest
 
