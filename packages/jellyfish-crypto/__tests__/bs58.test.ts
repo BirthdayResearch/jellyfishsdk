@@ -47,7 +47,7 @@ describe('fromHash160()', () => {
 
   it('should reject version prefix > 255 (1 byte)', () => {
     expect(() => {
-      Bs58.fromHash160(fixture.h160.substring(1), 256)
+      Bs58.fromHash160(fixture.h160, 256)
     }).toThrow('InvalidVersionPrefix')
   })
 })
