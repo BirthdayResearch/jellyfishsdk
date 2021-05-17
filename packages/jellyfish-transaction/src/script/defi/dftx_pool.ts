@@ -4,7 +4,7 @@ import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
-import { CScriptBalances, ScriptBalances } from './dftx_balance'
+import { CScriptBalances, ScriptBalances, TokenBalance, CTokenBalance } from './dftx_balance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -114,8 +114,8 @@ export interface PoolCreatePair {
   commission: BigNumber // ----------------| 8 bytes
   ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
   status: boolean // ----------------------| 1 byte
-  customRewards: string // ----------------| VarUInt{1-9 bytes}
   pairSymbol: string // -------------------| VarUInt{1-9 bytes}
+  customRewards: TokenBalance[]
 }
 
 /**
@@ -133,8 +133,8 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.boolean(() => p.status, v => p.status = v),
-      ComposableBuffer.string(() => p.customRewards, v => p.customRewards = v),
-      ComposableBuffer.string(() => p.pairSymbol, v => p.pairSymbol = v)
+      ComposableBuffer.string(() => p.pairSymbol, v => p.pairSymbol = v),
+      ComposableBuffer.varUIntArray(() => p.customRewards, v => p.customRewards = v, v => new CTokenBalance(v))
     ]
   }
 }

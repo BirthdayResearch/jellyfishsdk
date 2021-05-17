@@ -338,7 +338,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Unsigned Boolean 1 byte, 0 = true, 1 = false
+   * Unsigned Boolean 1 byte, 1 = true, 0 = false
    *
    * @param getter to read from to buffer
    * @param setter to set to from buffer

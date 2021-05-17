@@ -7,7 +7,7 @@ import { readVarUInt } from '../../src/buffer/buffer_varuint'
  */
 export function readBoolean (buffer: SmartBuffer): boolean {
   const length = readVarUInt(buffer)
-  return !(length > 0)
+  return length > 0
 }
 
 /**
@@ -15,7 +15,7 @@ export function readBoolean (buffer: SmartBuffer): boolean {
  * @param {SmartBuffer} buffer
  */
 export function writeBoolean (value: boolean, buffer: SmartBuffer): void {
-  var v = value.toString().toLowerCase() === 'true' ? 0 : 1
+  var v = value.toString().toLowerCase() === 'true' ? 1 : 0
   const buff = Buffer.from([v])
   buffer.writeBuffer(buff)
 }
