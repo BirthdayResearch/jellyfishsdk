@@ -397,7 +397,7 @@ describe('masternode', () => {
     })
   })
 
-  describe.only('createPoolPair', () => {
+  describe('createPoolPair', () => {
     beforeAll(async () => {
       await createToken('DBTC')
     })
