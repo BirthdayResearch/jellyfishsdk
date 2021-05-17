@@ -28,6 +28,7 @@ maintained in this repo are published with the same version tag and follows the 
 Package                                            | Description 
 ---------------------------------------------------|-------------
 `@defichain/jellyfish`                             | Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts
+`@defichain/jellyfish-address`                     | Provide address builder, parser, validator utility library for DeFi Blockchain.
 `@defichain/jellyfish-api-core`                    | A protocol agnostic DeFi Blockchain client interfaces, with a "foreign function interface" design.
 `@defichain/jellyfish-api-jsonrpc`                 | Implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification for api-core.
 `@defichain/jellyfish-crypto`                      | Cryptography operations for jellyfish, includes a simple 'secp256k1' EllipticPair.

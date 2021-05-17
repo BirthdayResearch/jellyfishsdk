@@ -34,6 +34,7 @@ issue:
         - workflow
         - website
         - jellyfish
+        - jellyfish-address
         - jellyfish-api-core
         - jellyfish-api-jsonrpc
         - jellyfish-crypto

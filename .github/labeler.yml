@@ -16,6 +16,11 @@ labels:
     matcher:
       files: "packages/jellyfish/**"
 
+  - label: area/jellyfish-address
+    sync: true
+    matcher:
+      files: "packages/jellyfish-address/**"
+
   - label: area/jellyfish-api-core
     sync: true
     matcher:
@@ -50,7 +55,6 @@ labels:
     sync: true
     matcher:
       files: "packages/jellyfish-wallet-mnemonic/**"
-
 
   - label: area/testcontainers
     sync: true
