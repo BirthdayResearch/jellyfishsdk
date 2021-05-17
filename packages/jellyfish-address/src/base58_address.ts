@@ -48,7 +48,7 @@ export abstract class Base58Address extends Address {
     return Buffer.from([this.getPrefix()]).toString('hex')
   }
 
-  static fromAddress<T extends Base58Address>(network: Network, utf8String: string, AddressClass: new (...a: any[]) => T): T {
+  static fromAddress<T extends Base58Address> (network: Network, utf8String: string, AddressClass: new (...a: any[]) => T): T {
     try {
       const { buffer } = Bs58.toHash160(utf8String)
       return new AddressClass(network, utf8String, buffer.toString('hex'))
