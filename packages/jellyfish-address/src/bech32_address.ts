@@ -1,6 +1,6 @@
 import { Network } from '@defichain/jellyfish-network'
 import { bech32 } from 'bech32'
-import { Address, AddressType, Validator } from './Address'
+import { Address, AddressType, Validator } from './address'
 
 export abstract class Bech32Address extends Address {
   static MAX_LENGTH = 90

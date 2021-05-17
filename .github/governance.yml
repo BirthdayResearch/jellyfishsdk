@@ -34,6 +34,7 @@ issue:
         - workflow
         - website
         - jellyfish
+        - jellyfish-address
         - jellyfish-api-core
         - jellyfish-api-jsonrpc
         - jellyfish-crypto
@@ -42,7 +43,6 @@ issue:
         - jellyfish-transaction
         - jellyfish-wallet
         - jellyfish-wallet-mnemonic
-        - jellyfish-address
         - testcontainers
         - testing
       multiple: true

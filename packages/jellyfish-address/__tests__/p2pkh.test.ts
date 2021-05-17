@@ -90,12 +90,9 @@ describe('P2PKH', () => {
       const pubKeyHash = '134b0749882c225e8647df3a3417507c6f5b27'
       expect(pubKeyHash.length).toEqual(38)
 
-      try {
+      expect(() => {
         P2PKH.to('regtest', pubKeyHash)
-        throw new Error('should had failed')
-      } catch (e) {
-        expect(e.message).toEqual('InvalidDataLength')
-      }
+      }).toThrow('InvalidDataLength')
     })
   })
 
