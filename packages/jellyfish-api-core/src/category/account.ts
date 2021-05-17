@@ -225,7 +225,8 @@ export class Account {
    * Creates (and submits to local node and network) a transfer transaction from the wallet UTXOs to specfied account.
    * The second optional argument (may be empty array) is an array of specific UTXOs to spend.
    *
-   * @param {UtxosToAccountPayload} [payload]
+   * @param {UtxosToAccountPayload} payload
+   * @param {string} payload[address]
    * @param {UtxosToAccountUTXO[]} [utxos=[]]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
