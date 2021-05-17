@@ -1,4 +1,3 @@
-
 /**
  * Networks available in DeFi Blockchain.
  */
@@ -12,22 +11,22 @@ export interface Network {
   name: NetworkName
   bech32: {
     /** bech32 human readable part */
-    hrp: string
+    hrp: 'df' | 'tf' | 'bcrt'
   }
   bip32: {
     /** base58Prefixes.EXT_PUBLIC_KEY */
-    publicPrefix: number
+    publicPrefix: 0x0488b21e | 0x043587cf
     /** base58Prefixes.EXT_SECRET_KEY */
-    privatePrefix: number
+    privatePrefix: 0x0488ade4 | 0x04358394
   }
   /** base58Prefixes.SECRET_KEY */
-  wifPrefix: number
+  wifPrefix: 0x80 | 0xef
   /** base58Prefixes.PUBKEY_ADDRESS */
-  pubKeyHashPrefix: number
+  pubKeyHashPrefix: 0x12 | 0xf | 0x6f
   /** base58Prefixes.SCRIPT_ADDRESS */
-  scriptHashPrefix: number
+  scriptHashPrefix: 0x5a | 0x80 | 0xc4
   /** For message signing. */
-  messagePrefix: string
+  messagePrefix: '\x15Defi Signed Message:\n'
 }
 
 /**
