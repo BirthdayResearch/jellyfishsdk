@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { writeVarUInt, readVarUInt } from './buffer_varuint'
 import { ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
+import { readBoolean, writeBoolean } from './buffer_boolean'
 
 export interface BufferComposer {
   fromBuffer: (buffer: SmartBuffer) => void
@@ -314,6 +315,24 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       },
       toBuffer: (buffer: SmartBuffer): void => {
         writeVarUInt(getter(), buffer)
+      }
+    }
+  }
+
+  /**
+   * Unsigned Boolean 1 byte, 0 = false, 1 = true
+   *
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   * @returns
+   */
+  static boolean (getter: () => boolean, setter: (data: boolean) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        setter(readBoolean(buffer))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        writeBoolean(getter(), buffer)
       }
     }
   }
