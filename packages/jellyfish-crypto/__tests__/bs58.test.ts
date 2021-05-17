@@ -60,11 +60,6 @@ describe('fromPubKey()', () => {
     expect(address).toEqual(fixture.base58)
   })
 
-  it('should be able to take in hash160 string', () => {
-    const address = Bs58.fromPubKey(pubKey, fixture.prefix)
-    expect(address).toEqual(fixture.base58)
-  })
-
   it('should reject non 33 bytes long data', () => {
     expect(() => {
       Bs58.fromPubKey(invalidPubKey, fixture.prefix)
