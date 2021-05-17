@@ -124,7 +124,7 @@ describe('P2PKH', () => {
   })
 
   it('validate()', () => {
-    const hex = bs58.decode(p2pkhFixture.mainnet).toString('hex')
+    const hex = bs58.decode(p2pkhFixture.mainnet).toString('hex').substring(2, 42) // take 20 bytes data only
     const p2pkh = new P2PKH(MainNet, p2pkhFixture.mainnet, hex)
 
     expect(p2pkh.validatorPassed).toEqual(0)

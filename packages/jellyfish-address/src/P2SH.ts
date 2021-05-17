@@ -27,7 +27,7 @@ export class P2SH extends Base58Address {
     return {
       stack: [
         OP_CODES.OP_HASH160,
-        new OP_PUSHDATA(Buffer.from(this.hex.substring(2, 42), 'hex'), 'little'),
+        new OP_PUSHDATA(Buffer.from(this.hex, 'hex'), 'little'),
         OP_CODES.OP_EQUAL
       ]
     }

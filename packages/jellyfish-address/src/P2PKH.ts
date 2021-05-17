@@ -26,7 +26,7 @@ export class P2PKH extends Base58Address {
       stack: [
         OP_CODES.OP_DUP,
         OP_CODES.OP_HASH160,
-        new OP_PUSHDATA(Buffer.from(this.hex.substring(2, 42), 'hex'), 'little'),
+        new OP_PUSHDATA(Buffer.from(this.hex, 'hex'), 'little'),
         OP_CODES.OP_EQUALVERIFY,
         OP_CODES.OP_CHECKSIG
       ]
