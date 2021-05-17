@@ -88,11 +88,13 @@ export abstract class P2WPKHTxnBuilder {
    * collectPrevouts() is set to search for at least 0.001 DFI amount of prevout.
    * This will also evidently merge small prevout during the operation.
    *
+   * Do not use this if you don't know what you are doing. You might misplace funds.
+   *
    * @param {OP_DEFI_TX} opDeFiTx to create
    * @param {Script} changeScript to send unspent to after deducting the fees
    * @param {BigNumber} [outValue=0] for the opDeFiTx, usually always be 0.
    */
-  protected async createDeFiTx (
+  async createDeFiTx (
     opDeFiTx: OP_DEFI_TX,
     changeScript: Script,
     outValue: BigNumber = new BigNumber('0')

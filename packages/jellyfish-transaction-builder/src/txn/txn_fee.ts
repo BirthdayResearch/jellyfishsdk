@@ -10,7 +10,6 @@ import {
 /**
  * Consider dust if output is < 0.00003000
  * This is not the cleanest way to calculate but it's the easiest.
- * TODO(jellyfish): consider refactoring this implementation
  */
 const DUST_AMOUNT = new BigNumber('0.00003000')
 // const DUST_RELAY_TX_FEE = new BigNumber('0.00003000')
