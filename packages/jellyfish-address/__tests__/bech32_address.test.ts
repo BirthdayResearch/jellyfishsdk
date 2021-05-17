@@ -30,7 +30,7 @@ describe('Bech32Address', () => {
     pubKeyHashPrefix: 0x00,
     scriptHashPrefix: 0x00,
     messagePrefix: '\x00Dummy Msg Prefix:\n'
-  }
+  } as any
 
   describe('extensible, should work for any defined network protocol', () => {
     it('fromAddress() - valid', () => {

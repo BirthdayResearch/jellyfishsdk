@@ -76,7 +76,7 @@ function from<T extends Address> (net: NetworkName, address: string): T {
   return (possible.get(highestKey) as T)
 }
 
-export {
+export const DeFiAddress = {
   guess,
   from
 }
