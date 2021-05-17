@@ -43,13 +43,13 @@ function toHash160 (base58: string): DecodedB58 {
  */
 function fromHash160 (data: string | Buffer, prefix: number): string {
   if (typeof data === 'string') {
+    // 40 hex char string only
     if (data.length !== 40) {
       throw new Error('InvalidDataLength')
     }
-  } else {
-    if (data.length !== 20) {
-      throw new Error('InvalidDataLength')
-    }
+  } else if (data.length !== 20) {
+    // 20 bytes buffer only
+    throw new Error('InvalidDataLength')
   }
 
   if (prefix > 255) {
