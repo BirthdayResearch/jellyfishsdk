@@ -42,6 +42,7 @@
     "@defichain/jellyfish-transaction": "0.0.0"
   },
   "devDependencies": {
+    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
     "@defichain/testcontainers": "0.0.0",
     "@defichain/testing": "0.0.0"
   }
