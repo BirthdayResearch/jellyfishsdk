@@ -35,8 +35,6 @@ describe('Base58Address', () => {
     messagePrefix: '\x00Dummy Msg Prefix:\n'
   }
 
-  const random20Bytes = '134b0749882c225e8647df3a3417507c6f5b2797'
-
   describe('extensible, should work for any defined network protocol', () => {
     it('fromAddress() - valid', () => {
       const valid = Base58Address.fromAddress<DummyB58Address>(dummyNetwork, b58Fixture.p2pkh, DummyB58Address)
@@ -54,19 +52,6 @@ describe('Base58Address', () => {
 
       const valid = Base58Address.fromAddress<DummyB58Address>(dummyNetwork, b58Fixture.p2pkh, DummyB58Address)
       expect(valid.validate()).toBeTruthy()
-    })
-
-    it('to() - accept any 20 bytes hex string data', () => {
-      const valid = Base58Address.to<DummyB58Address>(dummyNetwork, random20Bytes, DummyB58Address)
-      expect(valid.getScript().stack).toEqual([])
-    })
-
-    it('to() - reject any non 20 bytes hex string data', () => {
-      try {
-        Base58Address.to<DummyB58Address>(dummyNetwork, random20Bytes.slice(1), DummyB58Address)
-      } catch (e) {
-        expect(e.message).toEqual('InvalidDataLength')
-      }
     })
   })
 })

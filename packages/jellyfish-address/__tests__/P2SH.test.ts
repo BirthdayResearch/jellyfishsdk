@@ -3,7 +3,7 @@ import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
 import { RegTestContainer } from '@defichain/testcontainers'
 import * as DeFiAddress from '../src'
-import { Base58Address, P2SH } from '../src'
+import { P2SH } from '../src'
 
 describe('P2SH', () => {
   const container = new RegTestContainer()
@@ -73,7 +73,7 @@ describe('P2SH', () => {
       const scriptHash = '134b0749882c225e8647df3a3417507c6f5b2797'
       expect(scriptHash.length).toEqual(40)
 
-      const p2sh = Base58Address.to<P2SH>('regtest', scriptHash, P2SH)
+      const p2sh = P2SH.to('regtest', scriptHash)
       expect(p2sh.type).toEqual('P2SH')
       expect(p2sh.valid).toBeTruthy()
 
@@ -89,7 +89,7 @@ describe('P2SH', () => {
       expect(pubKeyHash.length).toEqual(38)
 
       try {
-        Base58Address.to<P2SH>('regtest', pubKeyHash, P2SH)
+        P2SH.to('regtest', pubKeyHash)
         throw new Error('should had failed')
       } catch (e) {
         expect(e.message).toEqual('InvalidDataLength')
