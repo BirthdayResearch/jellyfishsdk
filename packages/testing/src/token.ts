@@ -3,7 +3,7 @@ import { getNewAddress } from './wallet'
 import { utxosToAccount } from './account'
 
 /**
- * Create a new token
+ * Create a new token and return id of token
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {string} symbol
@@ -13,13 +13,13 @@ import { utxosToAccount } from './account'
  * @param {boolean} [options.mintable=true]
  * @param {boolean} [options.tradeable=true]
  * @param {string} [options.collateralAddress]
- * @return {Promise<string>}
+ * @return {Promise<number>} id of the created token
  */
 export async function createToken (
   container: MasterNodeRegTestContainer,
   symbol: string,
   options?: CreateTokenOptions
-): Promise<string> {
+): Promise<number> {
   const metadata = {
     symbol,
     name: options?.name ?? symbol,
@@ -30,10 +30,11 @@ export async function createToken (
   }
 
   await container.waitForWalletBalanceGTE(101) // token creation fee
-  const hashed = await container.call('createtoken', [metadata])
+  await container.call('createtoken', [metadata])
   await container.generate(1)
 
-  return hashed
+  const result = await container.call('gettoken', [symbol])
+  return Number.parseInt(Object.keys(result)[0])
 }
 
 /**
