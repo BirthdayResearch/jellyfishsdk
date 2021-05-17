@@ -74,7 +74,8 @@ describe('24 words: random', () => {
       const hash = Buffer.from('e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a', 'hex')
 
       const signature = await node.sign(hash)
-      expect(signature.length).toBe(70)
+      expect(signature.length).toBeLessThanOrEqual(70)
+      expect(signature.length).toBeGreaterThanOrEqual(67) // 0.00001 probability of being this length
 
       const valid = await node.verify(hash, signature)
       expect(valid).toBe(true)
