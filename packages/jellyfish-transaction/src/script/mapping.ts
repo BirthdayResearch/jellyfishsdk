@@ -77,7 +77,7 @@ export const OP_CODES = {
       data: poolAddLiquidity
     })
   },
-  DEFI_OP_POOL_REMOVE_LIQUIDITY: (poolRemoveLiquidity: PoolRemoveLiquidity): OP_DEFI_TX => {
+  OP_DEFI_TX_POOL_REMOVE_LIQUIDITY: (poolRemoveLiquidity: PoolRemoveLiquidity): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CPoolRemoveLiquidity.OP_CODE,
