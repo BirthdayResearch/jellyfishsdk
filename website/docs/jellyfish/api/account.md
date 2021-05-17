@@ -150,7 +150,11 @@ The second optional argument (may be empty array) is an array of specific UTXOs 
 
 ```ts title="client.account.utxosToAccount()"
 interface account {
-  utxosToAccount (payload: any, options: UtxosToAccountUTXO[] = []): Promise<string>
+  utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string>
+}
+
+interface UtxosToAccountPayload {
+  [key: string]: string;
 }
 
 interface UtxosToAccountUTXO {

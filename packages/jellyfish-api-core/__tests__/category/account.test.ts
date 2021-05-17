@@ -2,6 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
+import { UtxosToAccountPayload } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -490,7 +491,8 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount', async () => {
-      const payload: any = {}
+      const payload: UtxosToAccountPayload = {}
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[address1] = '5@DFI'
       payload[address2] = '5@DFI'
 
@@ -501,7 +503,8 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount with utxos', async () => {
-      const payload: any = {}
+      const payload: UtxosToAccountPayload = {}
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[address1] = '5@DFI'
       payload[address2] = '5@DFI'
 
