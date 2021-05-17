@@ -33,7 +33,7 @@ describe('Base58Address', () => {
     pubKeyHashPrefix: 0x12,
     scriptHashPrefix: 0x00,
     messagePrefix: '\x00Dummy Msg Prefix:\n'
-  }
+  } as any
 
   describe('extensible, should work for any defined network protocol', () => {
     it('fromAddress() - valid', () => {

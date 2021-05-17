@@ -2,8 +2,7 @@ import bs58 from 'bs58'
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
 import { RegTestContainer } from '@defichain/testcontainers'
-import * as DeFiAddress from '../src'
-import { P2SH } from '../src'
+import { DeFiAddress, P2SH } from '../src'
 
 describe('P2SH', () => {
   const container = new RegTestContainer()
