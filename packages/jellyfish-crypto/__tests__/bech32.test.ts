@@ -43,7 +43,7 @@ it('should convert pubkey to bech32', () => {
   expect(bech32).toBe(keypair.bech32)
 })
 
-it('should reject non 32 bytes long input (expected public key)', () => {
+it('should reject non 33 bytes long input (expected public key)', () => {
   expect(() => {
     // @ts-expect-error
     Bech32.fromPubKey(Buffer.from(keypair.pubKey, 'hex').slice(1), 'bcrt', 0x01)
