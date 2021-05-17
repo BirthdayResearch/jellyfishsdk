@@ -3,7 +3,8 @@ import { getNewAddress } from './wallet'
 import { utxosToAccount } from './account'
 
 /**
- * Create a new token and return id of token
+ * Create a new token and return id of token.
+ * This method will ensure there is enough DFI to create a token.
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {string} symbol

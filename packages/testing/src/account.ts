@@ -2,7 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getNewAddress } from './wallet'
 
 /**
- * send utxos to account
+ * Send utxos to account.
+ * This method will also ensure there is enough UTXO to be send to the address.
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {number} amount
@@ -15,6 +16,8 @@ export async function utxosToAccount (
   amount: number,
   options?: UtxosToAccountOptions
 ): Promise<void> {
+  await container.waitForWalletBalanceGTE(amount + 0.1)
+
   const address = options?.address ?? await getNewAddress(container)
   const payload: { [key: string]: string } = {}
   payload[address] = `${amount.toString()}@0`
