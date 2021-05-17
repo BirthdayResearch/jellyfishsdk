@@ -1,8 +1,5 @@
 import { WalletAccount, WalletAccountProvider, WalletHdNode } from '../src'
 import { Network, RegTest } from '@defichain/jellyfish-network'
-import { CTransactionSegWit, TransactionSegWit } from '@defichain/jellyfish-transaction'
-import { SmartBuffer } from 'smart-buffer'
-import { SHA256 } from '@defichain/jellyfish-crypto'
 
 /**
  * This is for testing only, please don't use this for anything else.
@@ -23,13 +20,6 @@ export class TestAccount extends WalletAccount {
   async isActive (): Promise<boolean> {
     const address = await this.getAddress()
     return this.provider.addresses.includes(address)
-  }
-
-  async send (signed: TransactionSegWit): Promise<string> {
-    const buffer = new SmartBuffer()
-    new CTransactionSegWit(signed).toBuffer(buffer)
-    const hashed: Buffer = SHA256(buffer.toBuffer())
-    return hashed.toString('hex') // for testing only
   }
 }
 
