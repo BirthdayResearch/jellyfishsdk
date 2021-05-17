@@ -74,7 +74,7 @@ describe('fromPubKey()', () => {
 
   it('should reject version prefix > 255 (1 byte)', () => {
     expect(() => {
-      Bs58.fromPubKey(invalidPubKey, 256)
+      Bs58.fromPubKey(pubKey, 256)
     }).toThrow('InvalidVersionPrefix')
   })
 })
