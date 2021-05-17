@@ -80,4 +80,34 @@ describe('masternode', () => {
       expect(result).toBeGreaterThan(0)
     })
   })
+
+  it('should getMiningInfo', async () => {
+    await waitForExpect(async () => {
+      const info = await client.mining.getMiningInfo()
+      await expect(info.blocks).toBeGreaterThan(1)
+    })
+
+    const info = await client.mining.getMiningInfo()
+    const mn1 = info.masternodes[0]
+
+    expect(info.blocks).toBeGreaterThan(0)
+
+    expect(info.currentblockweight).toBeGreaterThan(0)
+    expect(info.currentblocktx).toBe(0)
+
+    expect(info.difficulty).toBeDefined()
+    expect(info.isoperator).toBe(true)
+
+    expect(mn1.masternodeid).toBeDefined()
+    expect(mn1.masternodeoperator).toBeDefined()
+    expect(mn1.masternodestate).toBe('ENABLED')
+    expect(mn1.generate).toBe(true)
+    expect(mn1.mintedblocks).toBe(0)
+    expect(mn1.lastblockcreationattempt).toBe('0')
+
+    expect(info.networkhashps).toBeGreaterThan(0)
+    expect(info.pooledtx).toBe(0)
+    expect(info.chain).toBe('regtest')
+    expect(info.warnings).toBe('')
+  })
 })

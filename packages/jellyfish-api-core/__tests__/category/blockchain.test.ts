@@ -1,4 +1,4 @@
-import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { BigNumber, blockchain, wallet } from '../../src'
@@ -235,66 +235,83 @@ describe('masternode', () => {
     })
   })
 
-  describe('getRawMempool', () => {
-    let transactionId = ''
+  describe('getChainTips', () => {
+    it('should getChainTips', async () => {
+      const chainTips: blockchain.ChainTip[] = await client.blockchain.getChainTips()
+      for (let i = 0; i < chainTips.length; i += 1) {
+        const data = chainTips[i]
+        expect(data.height).toBeGreaterThan(0)
+        expect(typeof data.hash).toBe('string')
+        expect(data.hash.length).toBe(64)
+        expect(data.branchlen).toBeGreaterThanOrEqual(0)
+        expect(['invalid', 'headers-only', 'valid-headers', 'valid-fork', 'active'].includes(data.status)).toBe(true)
+      }
+    })
+  })
 
+  describe('getRawMempool', () => {
     beforeAll(async () => {
       await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
-      transactionId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
     })
 
     it('should getRawMempool and return array of transaction ids', async () => {
-      const rawMempool: string[] = await client.blockchain.getRawMempool(false)
+      await waitForExpect(async () => {
+        await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
 
-      expect(rawMempool.length > 0).toBe(true)
-      expect(typeof rawMempool[0]).toBe('string')
+        const rawMempool: string[] = await client.blockchain.getRawMempool(false)
+        expect(rawMempool.length > 0).toBe(true)
+        expect(typeof rawMempool[0]).toBe('string')
+      }, 10000)
     })
 
     it('should getRawMempool and return json object', async () => {
-      const rawMempool: blockchain.MempoolTx = await client.blockchain.getRawMempool(true)
+      await waitForExpect(async () => {
+        const transactionId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
+        const rawMempool: blockchain.MempoolTx = await client.blockchain.getRawMempool(true)
 
-      const data = rawMempool[transactionId]
-      expect(data.fees.base instanceof BigNumber).toBe(true)
-      expect(data.fees.modified instanceof BigNumber).toBe(true)
-      expect(data.fees.ancestor instanceof BigNumber).toBe(true)
-      expect(data.fees.descendant instanceof BigNumber).toBe(true)
-      expect(data.fees.base.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.fees.modified.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.fees.ancestor.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.fees.descendant.isGreaterThan(new BigNumber('0'))).toBe(true)
+        const data = rawMempool[transactionId]
+        expect(data.fees.base instanceof BigNumber).toBe(true)
+        expect(data.fees.modified instanceof BigNumber).toBe(true)
+        expect(data.fees.ancestor instanceof BigNumber).toBe(true)
+        expect(data.fees.descendant instanceof BigNumber).toBe(true)
+        expect(data.fees.base.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.fees.modified.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.fees.ancestor.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.fees.descendant.isGreaterThan(new BigNumber('0'))).toBe(true)
 
-      expect(data.fee instanceof BigNumber).toBe(true)
-      expect(data.fee.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.modifiedfee instanceof BigNumber).toBe(true)
-      expect(data.modifiedfee.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.fee instanceof BigNumber).toBe(true)
+        expect(data.fee.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.modifiedfee instanceof BigNumber).toBe(true)
+        expect(data.modifiedfee.isGreaterThan(new BigNumber('0'))).toBe(true)
 
-      expect(data.vsize instanceof BigNumber).toBe(true)
-      expect(data.weight instanceof BigNumber).toBe(true)
-      expect(data.height instanceof BigNumber).toBe(true)
-      expect(data.time instanceof BigNumber).toBe(true)
-      expect(data.vsize.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.weight.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.height.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.time.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.vsize instanceof BigNumber).toBe(true)
+        expect(data.weight instanceof BigNumber).toBe(true)
+        expect(data.height instanceof BigNumber).toBe(true)
+        expect(data.time instanceof BigNumber).toBe(true)
+        expect(data.vsize.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.weight.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.height.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.time.isGreaterThan(new BigNumber('0'))).toBe(true)
 
-      expect(typeof data.wtxid).toBe('string')
-      expect(data.depends.length >= 0).toBe(true)
-      expect(data.spentby.length >= 0).toBe(true)
-      expect(data['bip125-replaceable']).toBe(false)
+        expect(typeof data.wtxid).toBe('string')
+        expect(data.depends.length >= 0).toBe(true)
+        expect(data.spentby.length >= 0).toBe(true)
+        expect(data['bip125-replaceable']).toBe(false)
 
-      expect(data.descendantcount instanceof BigNumber).toBe(true)
-      expect(data.descendantsize instanceof BigNumber).toBe(true)
-      expect(data.descendantfees instanceof BigNumber).toBe(true)
-      expect(data.descendantcount.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.descendantsize.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.descendantfees.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.descendantcount instanceof BigNumber).toBe(true)
+        expect(data.descendantsize instanceof BigNumber).toBe(true)
+        expect(data.descendantfees instanceof BigNumber).toBe(true)
+        expect(data.descendantcount.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.descendantsize.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.descendantfees.isGreaterThan(new BigNumber('0'))).toBe(true)
 
-      expect(data.ancestorcount instanceof BigNumber).toBe(true)
-      expect(data.ancestorsize instanceof BigNumber).toBe(true)
-      expect(data.ancestorfees instanceof BigNumber).toBe(true)
-      expect(data.ancestorcount.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.ancestorsize.isGreaterThan(new BigNumber('0'))).toBe(true)
-      expect(data.ancestorfees.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.ancestorcount instanceof BigNumber).toBe(true)
+        expect(data.ancestorsize instanceof BigNumber).toBe(true)
+        expect(data.ancestorfees instanceof BigNumber).toBe(true)
+        expect(data.ancestorcount.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.ancestorsize.isGreaterThan(new BigNumber('0'))).toBe(true)
+        expect(data.ancestorfees.isGreaterThan(new BigNumber('0'))).toBe(true)
+      })
     })
   })
 })

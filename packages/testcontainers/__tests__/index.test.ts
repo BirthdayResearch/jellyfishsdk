@@ -53,3 +53,18 @@ describe('regtest', () => {
     expect(chain).toBe('regtest')
   })
 })
+
+describe('regtest: override docker image', () => {
+  const container = new RegTestContainer('defi/defichain:1.6.0')
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should be able to getmintinginfo and chain should be regtest', async () => {
+    await container.start()
+    await container.waitForReady()
+    const { chain } = await container.getMintingInfo()
+    expect(chain).toBe('regtest')
+  })
+})

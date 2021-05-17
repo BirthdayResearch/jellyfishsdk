@@ -1,8 +1,8 @@
 import * as constants from './constants'
+import * as crypto from './crypto'
 import { OP_RETURN } from './control'
 import { StaticCode } from './opcode'
 import { OP_DUP } from './stack'
-import { OP_RIPEMD160, OP_HASH160, OP_CHECKSIG } from './crypto'
 import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
 import { OP_PUSHDATA } from './data'
 import { CDfTx, DfTx } from './defi/dftx'
@@ -144,7 +144,7 @@ export const OP_CODES = {
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
   OP_1NEGATE: new constants.OP_1NEGATE(),
-  //  OP_RESERVED = 0x50,
+  OP_RESERVED: new constants.OP_RESERVED(),
   OP_1: new constants.OP_1(),
   OP_TRUE: new constants.OP_TRUE(),
   OP_2: new constants.OP_2(),
@@ -243,16 +243,16 @@ export const OP_CODES = {
   //  OP_WITHIN = 0xa5,
 
   // crypto
-  OP_RIPEMD160: new OP_RIPEMD160(),
-  //  OP_SHA1 = 0xa7,
-  //  OP_SHA256 = 0xa8,
-  OP_HASH160: new OP_HASH160(),
-  //  OP_HASH256 = 0xaa,
-  //  OP_CODESEPARATOR = 0xab,
-  OP_CHECKSIG: new OP_CHECKSIG()
-  //  OP_CHECKSIGVERIFY = 0xad,
-  //  OP_CHECKMULTISIG = 0xae,
-  //  OP_CHECKMULTISIGVERIFY = 0xaf,
+  OP_RIPEMD160: new crypto.OP_RIPEMD160(),
+  OP_SHA1: new crypto.OP_SHA1(),
+  OP_SHA256: new crypto.OP_SHA256(),
+  OP_HASH160: new crypto.OP_HASH160(),
+  OP_HASH256: new crypto.OP_HASH256(),
+  OP_CODESEPARATOR: new crypto.OP_CODESEPARATOR(),
+  OP_CHECKSIG: new crypto.OP_CHECKSIG(),
+  OP_CHECKSIGVERIFY: new crypto.OP_CHECKSIGVERIFY(),
+  OP_CHECKMULTISIG: new crypto.OP_CHECKMULTISIG(),
+  OP_CHECKMULTISIGVERIFY: new crypto.OP_CHECKMULTISIGVERIFY()
 
   // expansion
   //  OP_NOP1 = 0xb0,
@@ -280,6 +280,7 @@ const HEX_MAPPING: {
 } = {
   0x00: OP_CODES.OP_0,
   0x4f: OP_CODES.OP_1NEGATE,
+  0x50: OP_CODES.OP_RESERVED,
   0x51: OP_CODES.OP_1,
   0x52: OP_CODES.OP_2,
   0x53: OP_CODES.OP_3,
@@ -305,6 +306,13 @@ const HEX_MAPPING: {
   0x88: OP_CODES.OP_EQUALVERIFY,
   // crypto
   0xa6: OP_CODES.OP_RIPEMD160,
+  0xa7: OP_CODES.OP_SHA1,
+  0xa8: OP_CODES.OP_SHA256,
   0xa9: OP_CODES.OP_HASH160,
-  0xac: OP_CODES.OP_CHECKSIG
+  0xaa: OP_CODES.OP_HASH256,
+  0xab: OP_CODES.OP_CODESEPARATOR,
+  0xac: OP_CODES.OP_CHECKSIG,
+  0xad: OP_CODES.OP_CHECKSIGVERIFY,
+  0xae: OP_CODES.OP_CHECKMULTISIG,
+  0xaf: OP_CODES.OP_CHECKMULTISIGVERIFY
 }

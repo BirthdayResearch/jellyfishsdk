@@ -101,6 +101,16 @@ export class Blockchain {
   }
 
   /**
+   * Return information about all known tips in the block tree
+   * including the main chain as well as orphaned branches.
+   *
+   * @return {Promise<ChainTip[]>}
+   */
+  async getChainTips (): Promise<ChainTip[]> {
+    return await this.client.call('getchaintips', [], 'number')
+  }
+
+  /**
    * Get details of unspent transaction output (UTXO).
    *
    * @param {string} txId the transaction id
@@ -257,6 +267,13 @@ export interface ScriptPubKey {
   type: string
   reqSigs: number
   addresses: string[]
+}
+
+export interface ChainTip {
+  height: number
+  hash: string
+  branchlen: number
+  status: string
 }
 
 export interface MempoolTx {

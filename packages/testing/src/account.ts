@@ -1,17 +1,17 @@
-import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getNewAddress } from './wallet'
 
 /**
  * send utxos to account
  *
- * @param {RegTestContainer} container
+ * @param {MasterNodeRegTestContainer} container
  * @param {number} amount
  * @param {UtxosToAccountOptions} [options]
  * @param {string} [options.address]
- * @param {Promise<void>}
+ * @return {Promise<void>}
  */
 export async function utxosToAccount (
-  container: RegTestContainer,
+  container: MasterNodeRegTestContainer,
   amount: number,
   options?: UtxosToAccountOptions
 ): Promise<void> {
@@ -19,6 +19,7 @@ export async function utxosToAccount (
   const payload: { [key: string]: string } = {}
   payload[address] = `${amount.toString()}@0`
   await container.call('utxostoaccount', [payload])
+  await container.generate(1)
 }
 
 /**
@@ -41,9 +42,25 @@ export async function accountToAccount (
   const to = options?.to ?? await getNewAddress(container)
 
   await container.call('accounttoaccount', [options.from, { [to]: `${amount.toString()}@${symbol}` }])
-  await container.generate(25)
+  await container.generate(1)
 
   return to
+}
+
+/**
+ * @param {MasterNodeRegTestContainer} container
+ * @param {string} address to send to
+ * @param {number} amount to send
+ * @param {string} symbol of the token to send
+ * @return {string} hash of transaction
+ */
+export async function sendTokensToAddress (
+  container: MasterNodeRegTestContainer,
+  address: string,
+  amount: number,
+  symbol: string
+): Promise<string> {
+  return await container.call('sendtokenstoaddress', [{}, { [address]: [`${amount}@${symbol}`] }])
 }
 
 export interface UtxosToAccountOptions {

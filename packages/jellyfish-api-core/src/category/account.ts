@@ -2,10 +2,10 @@ import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 /**
-  * Single account ID (CScript or address) or reserved words,
-  * 'mine' to list history for all owned accounts or
-  * 'all' to list the whole DB
-  */
+ * Single account ID (CScript or address) or reserved words,
+ * - 'mine' to list history for all owned accounts or
+ * - 'all' to list the whole DB
+ */
 type OwnerType = 'mine' | 'all' | string
 
 /**
@@ -204,7 +204,7 @@ export class Account {
    *
    * @param {OwnerType} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
-   * @param {number} [options.maxBlockHeight] Optional height to iterate from (downto genesis block), (default = chaintip).
+   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
@@ -223,7 +223,7 @@ export class Account {
 }
 
 export interface AccountPagination {
-  start?: string | number
+  start?: number
   including_start?: boolean
   limit?: number
 }

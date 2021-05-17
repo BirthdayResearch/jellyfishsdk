@@ -259,7 +259,7 @@ describe('masternode', () => {
     beforeAll(async () => {
       await createToken('DTEST')
       await createToken('DABC')
-      await container.generate(2)
+      await container.generate(1)
 
       const tokens = await client.token.listTokens()
       for (const k in tokens) {
@@ -334,7 +334,7 @@ describe('masternode', () => {
       await createToken('DBTC', { isDAT: true })
       await createToken('DNOTMINT', { mintable: false })
       await createToken('DNOTTRAD', { tradeable: false })
-      await container.generate(3)
+      await container.generate(1)
     })
 
     it('should listTokens', async () => {

@@ -1,6 +1,7 @@
 <component name="ProjectDictionaryState">
   <dictionary name="fuxing">
     <words>
+      <w>accounttoaccount</w>
       <w>accounttoutxos</w>
       <w>acindex</w>
       <w>amkheight</w>
@@ -30,6 +31,7 @@
       <w>codeseparator</w>
       <w>createmasternode</w>
       <w>createrawtransaction</w>
+      <w>createtoken</w>
       <w>createwallet</w>
       <w>currentblocktx</w>
       <w>currentblockweight</w>
@@ -52,6 +54,7 @@
       <w>fullstackninja</w>
       <w>fuxingloh</w>
       <w>generatetoaddress</w>
+      <w>getaccount</w>
       <w>getaddressinfo</w>
       <w>getbalance</w>
       <w>getblock</w>
@@ -62,6 +65,7 @@
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
       <w>getrawmempool</w>
+      <w>getrawtransaction</w>
       <w>getreceivedbyaddress</w>
       <w>gettransaction</w>
       <w>gettxout</w>
@@ -150,6 +154,7 @@
       <w>segwit</w>
       <w>sendrawtransaction</w>
       <w>sendtoaddress</w>
+      <w>sendtokenstoaddress</w>
       <w>setwalletflag</w>
       <w>sighash</w>
       <w>sighashtype</w>

@@ -171,6 +171,24 @@ interface blockchain {
 }
 ```
 
+## getChainTips
+
+Return information about all known tips in the block tree
+including the main chain as well as orphaned branches.
+
+```ts title="client.blockchain.getChainTips()"
+interface blockchain {
+  getChainTips (): Promise<ChainTip[]>
+}
+
+interface ChainTip {
+  height: number
+  hash: string
+  branchlen: number
+  status: string
+}
+```
+
 ## getTxOut
 
 Get details of unspent transaction output (UTXO).

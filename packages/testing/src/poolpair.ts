@@ -1,5 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { poolpair } from '@defichain/jellyfish-api-core'
+import { CreatePoolPairUTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { getNewAddress } from './wallet'
 
 /**
@@ -11,7 +11,7 @@ import { getNewAddress } from './wallet'
  * @param {commission} [options.commission=0]
  * @param {boolean} [options.status=true]
  * @param {string} [options.ownerAddress]
- * @param {poolpair.CreatePoolPairUTXO[]} [options.utxos]
+ * @param {CreatePoolPairUTXO[]} [options.utxos]
  * @return {Promise<string>}
  */
 export async function createPoolPair (
@@ -37,5 +37,5 @@ export interface CreatePoolPairOptions {
   commission?: number
   status?: boolean
   ownerAddress?: string
-  utxos?: poolpair.CreatePoolPairUTXO[]
+  utxos?: CreatePoolPairUTXO[]
 }
