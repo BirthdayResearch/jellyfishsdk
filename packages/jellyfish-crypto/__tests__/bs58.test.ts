@@ -44,6 +44,12 @@ describe('fromHash160()', () => {
       Bs58.fromHash160(fixture.h160.substring(1), fixture.prefix)
     }).toThrow('InvalidDataLength')
   })
+
+  it('should reject version prefix > 255 (1 byte)', () => {
+    expect(() => {
+      Bs58.fromHash160(fixture.h160.substring(1), 256)
+    }).toThrow('InvalidVersionPrefix')
+  })
 })
 
 describe('fromPubKey()', () => {
@@ -64,5 +70,11 @@ describe('fromPubKey()', () => {
     expect(() => {
       Bs58.fromPubKey(invalidPubKey, fixture.prefix)
     }).toThrow('InvalidPubKeyLength')
+  })
+
+  it('should reject version prefix > 255 (1 byte)', () => {
+    expect(() => {
+      Bs58.fromPubKey(invalidPubKey, 256)
+    }).toThrow('InvalidVersionPrefix')
   })
 })

@@ -12,7 +12,7 @@ function _checksum (twentyOneBytes: Buffer): Buffer {
 
 /**
  * Decode a base58 address into 20 bytes data, for p2pkh and p2sh use
- * @param base58 33 to 35 characters string (utf8)
+ * @param {string} base58 33 to 35 characters string (utf8)
  * @returns {DecodedB58} 20 bytes data + 1 byte prefix
  */
 function toHash160 (base58: string): DecodedB58 {
@@ -37,8 +37,8 @@ function toHash160 (base58: string): DecodedB58 {
 
 /**
  * To create Base58 address using 20 bytes data + prefix, for p2pkh and p2sh use
- * @param data 20 bytes Buffer or 40 characters string
- * @param prefix 2 | 4 (TBD, enforce DeFiChain prefix only)
+ * @param {Buffer|string} data 20 bytes Buffer or 40 characters string
+ * @param {number} prefix max = 255 = 1 byte
  * @returns Base58 address (in utf8)
  */
 function fromHash160 (data: string | Buffer, prefix: number): string {
@@ -52,16 +52,31 @@ function fromHash160 (data: string | Buffer, prefix: number): string {
     }
   }
 
+  if (prefix > 255) {
+    throw new Error('InvalidVersionPrefix')
+  }
+
   const buffer = typeof data === 'string' ? Buffer.from(data, 'hex') : data
   const withPrefix = Buffer.from([prefix, ...buffer])
   const checksum = _checksum(withPrefix)
   return bs58.encode(Buffer.from([...withPrefix, ...checksum]))
 }
 
+/**
+ * To create Base58 address using a raw 33 bytes (compressed) public key, for p2pkh and p2sh use
+ * @param {Buffer} pubKey 33 bytes long public key
+ * @param {number} prefix max = 255 = 1 byte
+ * @returns {string} base58 encoded string
+ */
 function fromPubKey (pubKey: Buffer, prefix: number): string {
   if (pubKey.length !== 33) {
     throw new Error('InvalidPubKeyLength')
   }
+
+  if (prefix > 255) {
+    throw new Error('InvalidVersionPrefix')
+  }
+
   const hash = HASH160(pubKey)
   return fromHash160(hash, prefix)
 }
