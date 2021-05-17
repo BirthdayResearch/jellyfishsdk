@@ -26,6 +26,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './defi/dftx_account'
+import { CAppointOracle, AppointOracle } from './defi/dftx_oracles'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -76,7 +77,7 @@ export const OP_CODES = {
       data: poolAddLiquidity
     })
   },
-  OP_DEFI_TX_POOL_REMOVE_LIQUIDITY: (poolRemoveLiquidity: PoolRemoveLiquidity): OP_DEFI_TX => {
+  DEFI_OP_POOL_REMOVE_LIQUIDITY: (poolRemoveLiquidity: PoolRemoveLiquidity): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CPoolRemoveLiquidity.OP_CODE,
@@ -122,6 +123,14 @@ export const OP_CODES = {
       type: CAnyAccountToAccount.OP_CODE,
       name: CAnyAccountToAccount.OP_NAME,
       data: anyAccountToAccount
+    })
+  },
+  DEFI_OP_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAppointOracle.OP_CODE,
+      name: CAppointOracle.OP_NAME,
+      data: appointOracle
     })
   },
   OP_0: new constants.OP_0(),
