@@ -119,6 +119,11 @@ export class MockProviders {
     this.prevout.ellipticPair = this.ellipticPair
   }
 
+  async getAddress (): Promise<string> {
+    const pubKey = await this.ellipticPair.publicKey()
+    return Bech32.fromPubKey(pubKey, 'bcrt', 0x00)
+  }
+
   async setupMocks (): Promise<void> {
     // full nodes need importprivkey or else it can't list unspent
     const wif = WIF.encode(0xef, await this.ellipticPair.privateKey())
