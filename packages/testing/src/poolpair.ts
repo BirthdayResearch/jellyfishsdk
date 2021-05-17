@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { CreatePoolPairUTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { getNewAddress } from './wallet'
@@ -27,10 +28,9 @@ export async function createPoolPair (
     status: options?.status ?? true,
     ownerAddress: options?.ownerAddress ?? await getNewAddress(container)
   }
-  const hashed = await container.call('createpoolpair', [metadata, options?.utxos])
+  const txid = await container.call('createpoolpair', [metadata, options?.utxos])
   await container.generate(1)
-
-  return hashed
+  return txid
 }
 
 export interface CreatePoolPairOptions {
@@ -38,4 +38,54 @@ export interface CreatePoolPairOptions {
   status?: boolean
   ownerAddress?: string
   utxos?: CreatePoolPairUTXO[]
+}
+
+/**
+ * @param {MasterNodeRegTestContainer} container
+ * @param {string} tokenA pair token symbol
+ * @param {number} amountA pair amount
+ * @param {string} tokenB pair token symbol
+ * @param {number} amountB pair amount
+ * @param {string} shareAddress for LP
+ * @return {Promise<BigNumber>} amount LP token share
+ */
+export async function addPoolLiquidity (
+  container: MasterNodeRegTestContainer,
+  tokenA: string,
+  amountA: number,
+  tokenB: string,
+  amountB: number,
+  shareAddress: string
+): Promise<BigNumber> {
+  const from = { '*': [`${amountA}@${tokenA}`, `${amountB}@${tokenB}`] }
+  await container.call('addpoolliquidity', [from, shareAddress])
+  await container.generate(1)
+
+  const tokens: string[] = await container.call('getaccount', [shareAddress])
+  const lpToken = tokens.find(value => value.endsWith(`@${tokenA}-${tokenB}`))
+  if (lpToken === undefined) {
+    throw new Error('LP token not found in account')
+  }
+
+  const amount = lpToken.replace(`@${tokenA}-${tokenB}`, '')
+  return new BigNumber(amount)
+}
+
+/**
+ * @param {MasterNodeRegTestContainer} container
+ * @param {string} address which has the LP token
+ * @param {string} tokenLP to remove
+ * @param {BigNumber} amountLP to remove
+ * @return {Promise<string>} txid
+ */
+export async function removePoolLiquidity (
+  container: MasterNodeRegTestContainer,
+  address: string,
+  tokenLP: string,
+  amountLP: BigNumber
+): Promise<string> {
+  const amount = `${amountLP.toFixed(8)}@${tokenLP}`
+  const txid = await container.call('removepoolliquidity', [address, amount])
+  await container.generate(1)
+  return txid
 }
