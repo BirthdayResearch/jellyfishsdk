@@ -4,7 +4,7 @@ import { P2WPKHTxnBuilder } from './txn_builder'
 
 export class TxnBuilderDex extends P2WPKHTxnBuilder {
   /**
-   * Requires at least 0.01 DFI to create transaction, actual fees much are lower.
+   * Requires at least 0.01 DFI to create transaction, actual fees are much lower.
    *
    * @param {PoolSwap} poolSwap txn to create
    * @param {Script} changeScript to send unspent to after deducting the fees

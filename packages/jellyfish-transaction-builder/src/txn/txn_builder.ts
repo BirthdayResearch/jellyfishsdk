@@ -105,10 +105,7 @@ export abstract class P2WPKHTxnBuilder {
     const deFiOut: Vout = {
       value: outValue,
       script: {
-        stack: [
-          OP_CODES.OP_RETURN,
-          opDeFiTx
-        ]
+        stack: [OP_CODES.OP_RETURN, opDeFiTx]
       },
       tokenId: 0x00
     }
