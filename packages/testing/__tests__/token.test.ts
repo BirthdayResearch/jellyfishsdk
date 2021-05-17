@@ -31,7 +31,7 @@ describe('utils', () => {
       })
 
       const tokenId = await createToken(container, 'DDD')
-      expect(tokenId).toBeGreaterThan(1)
+      expect(tokenId).toBeGreaterThan(0)
 
       await waitForExpect(async () => {
         const tokens = await container.call('listtokens')
