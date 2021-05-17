@@ -1,6 +1,6 @@
 import { Bs58 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
-import { Address, AddressType, Validator } from './Address'
+import { Address, AddressType, Validator } from './address'
 
 export abstract class Base58Address extends Address {
   static MIN_LENGTH = 26

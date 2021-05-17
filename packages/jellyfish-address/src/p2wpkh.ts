@@ -2,8 +2,8 @@ import { bech32 } from 'bech32'
 import { getNetwork, Network, NetworkName } from '@defichain/jellyfish-network'
 import { Script } from '@defichain/jellyfish-transaction'
 import { OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction/src/script'
-import { Bech32Address } from './Bech32Address'
-import { Validator } from './Address'
+import { Bech32Address } from './bech32_address'
+import { Validator } from './address'
 
 export class P2WPKH extends Bech32Address {
   static SAMPLE = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
