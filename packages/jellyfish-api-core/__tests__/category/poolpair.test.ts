@@ -426,7 +426,6 @@ describe('masternode', () => {
       for (const k in poolpairsAfter) {
         const poolpair = poolpairsAfter[k]
         if (poolpair.name === 'Default Defi token-DBTC') {
-          console.log('poolpair: ', poolpair)
           expect(poolpair.symbol).toBe(`${metadata.tokenA}-${metadata.tokenB}`)
           expect(poolpair.status).toBe(metadata.status)
           expect(poolpair.commission.toString()).toBe(new BigNumber(metadata.commission).toString())

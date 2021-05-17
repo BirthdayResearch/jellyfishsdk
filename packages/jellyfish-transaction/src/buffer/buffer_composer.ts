@@ -321,9 +321,10 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * String helper method
+   *
    * @param getter to read from to buffer
    * @param setter to set to from buffer
-   * @returns
    */
   static string (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {

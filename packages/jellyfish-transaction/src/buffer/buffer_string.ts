@@ -12,7 +12,6 @@ export function readString (buffer: SmartBuffer): string {
 }
 
 /**
- *
  * @param {string} text
  * @param {SmartBuffer} buffer
  */
