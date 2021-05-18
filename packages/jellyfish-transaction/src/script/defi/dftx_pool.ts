@@ -114,8 +114,8 @@ export interface PoolCreatePair {
   commission: BigNumber // ----------------| 8 bytes
   ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
   status: boolean // ----------------------| 1 byte
-  pairSymbol: string // -------------------| VarUInt{1-9 bytes}
-  customRewards: TokenBalance[]
+  pairSymbol: string // -------------------| VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  customRewards: TokenBalance[] // --------| c = VarUInt{1-9 bytes}, + c x TokenBalance
 }
 
 /**
@@ -133,7 +133,7 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.boolean(() => p.status, v => p.status = v),
-      ComposableBuffer.string(() => p.pairSymbol, v => p.pairSymbol = v),
+      ComposableBuffer.stringBE(() => p.pairSymbol, v => p.pairSymbol = v),
       ComposableBuffer.varUIntArray(() => p.customRewards, v => p.customRewards = v, v => new CTokenBalance(v))
     ]
   }
