@@ -24,7 +24,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   async utxosToAccount (arg: BigNumber | UtxosToAccount, toScript: Script): Promise<TransactionSegWit> {
     let utxosToAccount: UtxosToAccount
 
-    if (_isBigNumber(arg)) {
+    if (BigNumber.isBigNumber(arg)) {
       utxosToAccount = {
         to: [{
           balances: [{
@@ -82,8 +82,4 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
 
     return await this.sign(txn, prevouts)
   }
-}
-
-function _isBigNumber (arg: any): arg is BigNumber {
-  return BigNumber.isBigNumber(arg)
 }
