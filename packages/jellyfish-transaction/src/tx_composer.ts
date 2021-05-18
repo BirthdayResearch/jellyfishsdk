@@ -83,7 +83,8 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
 
   composers (vin: Vin): BufferComposer[] {
     return [
-      ComposableBuffer.hexLE(32, () => vin.txid, v => vin.txid = v),
+      // defid returns txid in BE order hence we need to reverse it
+      ComposableBuffer.hexBE(32, () => vin.txid, v => vin.txid = v),
       ComposableBuffer.uInt32(() => vin.index, v => vin.index = v),
       ComposableBuffer.single<Script>(() => vin.script, v => vin.script = v, v => new CScript(v)),
       ComposableBuffer.uInt32(() => vin.sequence, v => vin.sequence = v)
