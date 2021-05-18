@@ -9,7 +9,7 @@ import { OP_DEFI_TX } from '../../../../src/script/defi'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a35446654786f1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c410355534400da595117030000001976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0000000000',
+    '6a35446654786f1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344',
   ]
 
   fixtures.forEach(hex => {
@@ -23,7 +23,7 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a35446654786f' // OP_RETURN, PUSH_DATA(44665478, 6f)
-const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c410355534400da595117030000001976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0000000000'
+const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344'
 const appointOracle: AppointOracle = {
   script: {
     stack: [
