@@ -12,7 +12,6 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
    * @param {Script} toScript to hold converted token and to send unspent to after deducting the (converted + fees)
    */
   async utxosToAccount (amount: BigNumber, toScript: Script): Promise<TransactionSegWit>
-
   /**
    * Requires at least 0.001 DFI to create transaction, actual fees are much lower.
    *
@@ -20,7 +19,6 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    */
   async utxosToAccount (utxosToAccount: UtxosToAccount, changeScript: Script): Promise<TransactionSegWit>
-
   async utxosToAccount (arg: BigNumber | UtxosToAccount, toScript: Script): Promise<TransactionSegWit> {
     let utxosToAccount: UtxosToAccount
 
@@ -28,7 +26,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
       utxosToAccount = {
         to: [{
           balances: [{
-            token: 0,
+            token: 0x00,
             amount: arg
           }],
           script: toScript
@@ -61,7 +59,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
       script: {
         stack: [OP_CODES.OP_RETURN, dfTx]
       },
-      tokenId: 0x00
+      tokenId: 0
     }
 
     const change: Vout = {
