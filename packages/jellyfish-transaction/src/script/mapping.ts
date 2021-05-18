@@ -1,12 +1,12 @@
+import { StaticCode } from './opcode'
+import { OP_PUSHDATA } from './data'
+import { OP_DEFI_TX } from './defi'
+import { CDfTx, DfTx } from './defi/dftx'
 import * as constants from './constants'
 import * as crypto from './crypto'
-import { OP_RETURN } from './control'
-import { StaticCode } from './opcode'
-import { OP_DUP } from './stack'
-import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
-import { OP_PUSHDATA } from './data'
-import { CDfTx, DfTx } from './defi/dftx'
-import { OP_DEFI_TX } from './defi'
+import * as control from './control'
+import * as stack from './stack'
+import * as bitwise from './bitwise'
 import {
   CPoolAddLiquidity,
   CPoolRemoveLiquidity,
@@ -174,7 +174,7 @@ export const OP_CODES = {
   //  OP_ELSE = 0x67,
   //  OP_ENDIF = 0x68,
   //  OP_VERIFY = 0x69,
-  OP_RETURN: new OP_RETURN(),
+  OP_RETURN: new control.OP_RETURN(),
 
   // stack
   //  OP_TOALTSTACK = 0x6b,
@@ -188,7 +188,7 @@ export const OP_CODES = {
   //  OP_IFDUP = 0x73,
   //  OP_DEPTH = 0x74,
   //  OP_DROP = 0x75,
-  OP_DUP: new OP_DUP(),
+  OP_DUP: new stack.OP_DUP(),
   //  OP_NIP = 0x77,
   //  OP_OVER = 0x78,
   //  OP_PICK = 0x79,
@@ -209,8 +209,8 @@ export const OP_CODES = {
   //  OP_AND = 0x84,
   //  OP_OR = 0x85,
   //  OP_XOR = 0x86,
-  OP_EQUAL: new OP_EQUAL(),
-  OP_EQUALVERIFY: new OP_EQUALVERIFY(),
+  OP_EQUAL: new bitwise.OP_EQUAL(),
+  OP_EQUALVERIFY: new bitwise.OP_EQUALVERIFY(),
   //  OP_RESERVED1 = 0x89,
   //  OP_RESERVED2 = 0x8a,
 
