@@ -125,7 +125,7 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
-  DEFI_OP_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {
+  DEFI_OP_TX_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAppointOracle.OP_CODE,
