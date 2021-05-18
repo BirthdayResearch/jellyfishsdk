@@ -1,4 +1,3 @@
-
 import { getNetwork, NetworkName } from '@defichain/jellyfish-network'
 import { Address, AddressType, UnknownTypeAddress } from './address'
 import { Base58Address } from './base58_address'
