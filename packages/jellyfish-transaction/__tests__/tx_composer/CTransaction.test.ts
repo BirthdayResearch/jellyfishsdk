@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { CTransaction, Transaction } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { CTransaction, Transaction, OP_CODES, OP_PUSHDATA } from '../../src'
 import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CTransaction', () => {

@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
-import { toBuffer, toOPCodes } from '../../../src/script'
 import { OP_DEFI_TX } from '../../../src/script/defi'
 import { DeFiOpUnmapped } from '../../../src/script/defi/dftx_unmapped'
+import { toBuffer, toOPCodes } from '../../../src/script/_buffer'
 
 it('should bi-directional map unmapped buffer-object-buffer', () => {
   const hex = '6a084466547800001100'
