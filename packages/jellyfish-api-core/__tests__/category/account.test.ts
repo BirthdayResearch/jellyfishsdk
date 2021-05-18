@@ -482,19 +482,11 @@ describe('masternode', () => {
   })
 
   describe('utxosToAccount', () => {
-    let address1: string
-    let address2: string
-
-    beforeAll(async () => {
-      address1 = await container.call('getnewaddress')
-      address2 = await container.call('getnewaddress')
-    })
-
     it('should utxosToAccount', async () => {
       const payload: UtxosToAccountPayload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
-      payload[address1] = '5@DFI'
-      payload[address2] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DFI'
 
       const data = await client.account.utxosToAccount(payload)
 
@@ -505,8 +497,8 @@ describe('masternode', () => {
     it('should utxosToAccount with utxos', async () => {
       const payload: UtxosToAccountPayload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
-      payload[address1] = '5@DFI'
-      payload[address2] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DFI'
 
       const utxos = await container.call('listunspent')
       const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
