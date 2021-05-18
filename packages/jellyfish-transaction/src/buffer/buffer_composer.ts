@@ -216,10 +216,11 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         setter(buff.toString('hex'))
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        const buff: Buffer = Buffer.from(getter(), 'hex').reverse()
-        if (buff.length !== length) {
+        const hex = getter()
+        if (hex.length !== length * 2) {
           throw new Error('ComposableBuffer.hexBE.toBuffer invalid as length != getter().length')
         }
+        const buff: Buffer = Buffer.from(hex, 'hex').reverse()
         buffer.writeBuffer(buff)
       }
     }

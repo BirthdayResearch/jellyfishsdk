@@ -469,7 +469,7 @@ describe('ComposableBuffer.hexBE', () => {
   })
 
   it('should fail toBuffer validate', () => {
-    value = 'ef'
+    value = '9ea83a5c6579d282d189cc04b8e151ef1'
 
     expect(() => {
       composer.toBuffer(new SmartBuffer())
