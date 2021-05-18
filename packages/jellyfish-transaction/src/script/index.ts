@@ -14,6 +14,8 @@ export * from './mapping'
 export * from './opcode'
 export * from './stack'
 
+// TODO(fuxingloh): refactor away default
+
 export default {
   /**
    * Read SmartBuffer and create OPCode[] stack.

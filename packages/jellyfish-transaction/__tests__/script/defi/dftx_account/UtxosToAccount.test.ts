@@ -50,7 +50,7 @@ const utxosToAccount: UtxosToAccount = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount)
+    OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount)
   ]
 
   const buffer = toBuffer(stack)

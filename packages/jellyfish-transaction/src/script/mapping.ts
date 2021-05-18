@@ -92,7 +92,7 @@ export const OP_CODES = {
       data: tokenMint
     })
   },
-  DEFI_OP_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
+  OP_DEFI_TX_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CUtxosToAccount.OP_CODE,
@@ -100,7 +100,7 @@ export const OP_CODES = {
       data: utxosToAccount
     })
   },
-  DEFI_OP_ACCOUNT_TO_UTXOS: (accountToUtxos: AccountToUtxos): OP_DEFI_TX => {
+  OP_DEFI_TX_ACCOUNT_TO_UTXOS: (accountToUtxos: AccountToUtxos): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAccountToUtxos.OP_CODE,
@@ -108,7 +108,7 @@ export const OP_CODES = {
       data: accountToUtxos
     })
   },
-  DEFI_OP_ACCOUNT_TO_ACCOUNT: (accountToAccount: AccountToAccount): OP_DEFI_TX => {
+  OP_DEFI_TX_ACCOUNT_TO_ACCOUNT: (accountToAccount: AccountToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAccountToAccount.OP_CODE,
@@ -116,7 +116,7 @@ export const OP_CODES = {
       data: accountToAccount
     })
   },
-  DEFI_OP_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {
+  OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAnyAccountToAccount.OP_CODE,
@@ -124,6 +124,7 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
+
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**

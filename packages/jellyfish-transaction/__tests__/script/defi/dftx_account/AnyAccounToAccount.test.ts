@@ -94,7 +94,7 @@ const anyAccountToAccount: AnyAccountToAccount = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.DEFI_OP_ANY_ACCOUNT_TO_ACCOUNT(anyAccountToAccount)
+    OP_CODES.OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT(anyAccountToAccount)
   ]
 
   const buffer = toBuffer(stack)
