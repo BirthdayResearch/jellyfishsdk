@@ -1,36 +1,62 @@
+import { Script } from '@defichain/jellyfish-transaction'
+import { OP_CODES } from '@defichain/jellyfish-transaction/dist/script'
 import { WalletHdNode } from './wallet_hd_node'
+import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { Network } from '@defichain/jellyfish-network'
+import { DeFiAddress } from '@defichain/jellyfish-address'
 
 /**
  * An HDW is organized as several 'accounts'.
  * Accounts are numbered, the default account ("") being number 0.
  * Account are derived from root and the pubkey to be used is `44'/1129'/${account}'/0/0`
+ *
+ * WalletAccount implementation uses NATIVE SEGWIT redeem script exclusively.
  */
-export interface WalletAccount {
-  /**
-   * @return {Promise<boolean>} whether the current account is active and has txn activity
-   */
-  isActive: () => Promise<boolean>
+export abstract class WalletAccount {
+  protected constructor (
+    private readonly hdNode: WalletHdNode,
+    private readonly network: Network
+  ) {
+  }
 
   /**
-   * @return {Promise<string>} address of the wallet, for consistency sake only one address format should be used.
+   * @return {Promise<string>} Bech32 address of this account. (NATIVE SEGWIT)
    */
-  getAddress: () => Promise<string>
+  async getAddress (): Promise<string> {
+    const pubKey = await this.hdNode.publicKey()
+    return Bech32.fromPubKey(pubKey, this.network.bech32.hrp, 0x00)
+  }
 
-  // TODO(fuxingloh): stateless features
-  //  - getUtxoBalance
-  //  - listUtxo
-  //  - listTransaction
-  //  - listTokenBalance
-  //  - getTokenBalance
+  /**
+   * @return {Promise<Script>} redeem script of this account. (NATIVE SEGWIT)
+   */
+  async getScript (): Promise<Script> {
+    const pubKey = await this.hdNode.publicKey()
+    return {
+      stack: [
+        OP_CODES.OP_0,
+        OP_CODES.OP_PUSHDATA(HASH160(pubKey), 'little')
+      ]
+    }
+  }
 
-  // TODO(fuxingloh): stateful features
-  //  - sendUtxo
-  //  - sendToken
-  //  - addLiquidity
-  //  - removeLiquidity
-  //  - swap
-  //  - fromUtxoToAccount
-  //  - fromAccountToUtxo
+  /**
+   * Convert address to script, this validate that you are sending to the same network.
+   * It uses jellyfish-address under the hood.
+   *
+   * @param {string} address to parse into script
+   * @return {Script} parsed from address
+   */
+  addressToScript (address: string): Script {
+    const parsed = DeFiAddress.from(this.network.name, address)
+    return parsed.getScript()
+  }
+
+  /**
+   * A WalletAccount is active when it has txn activity
+   * @return Promise<boolean>
+   */
+  abstract isActive (): Promise<boolean>
 }
 
 /**
