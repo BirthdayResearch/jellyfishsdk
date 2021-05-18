@@ -15,6 +15,16 @@ const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: TestBuilder
 
+const dummyDfTx = new OP_DEFI_TX({
+  signature: CDfTx.SIGNATURE,
+  type: 0x01,
+  name: 'dummy',
+  data: {
+    // dummy, unmapped dftx
+    hex: '001234'
+  }
+})
+
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
@@ -45,16 +55,6 @@ beforeEach(async () => {
 
 describe('createDeFiTx()', () => {
   it('should creat DfTx stack correctly and return change as vout', async () => {
-    const dummyDfTx = new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: 0x01,
-      name: 'dummy',
-      data: {
-        // dummy, unmapped dftx
-        hex: '001234'
-      }
-    })
-
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change)
 
@@ -82,17 +82,7 @@ describe('createDeFiTx()', () => {
   })
 
   it('balance should be deducted accordingly based on spent on DfTx', async () => {
-    const spendAmount = new BigNumber(34.56) // eg: utxosToAccount
-
-    const dummyDfTx = new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: 0x01,
-      name: 'dummy',
-      data: {
-        // dummy, unmapped dftx
-        hex: '001234'
-      }
-    })
+    const spendAmount = new BigNumber(34.56) // eg: utxosToAccount, the custom tx costed this
 
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change, spendAmount)
