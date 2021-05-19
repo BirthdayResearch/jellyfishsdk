@@ -1,6 +1,6 @@
 import bs58 from 'bs58'
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
-import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
+import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { RegTestContainer } from '@defichain/testcontainers'
 import { DeFiAddress, P2PKH } from '../src'
 

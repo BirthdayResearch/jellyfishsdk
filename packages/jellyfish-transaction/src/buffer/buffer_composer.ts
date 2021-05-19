@@ -85,9 +85,9 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    */
   static empty (): BufferComposer {
     return {
-      fromBuffer (buffer: SmartBuffer): void {
+      fromBuffer (_: SmartBuffer): void {
       },
-      toBuffer (buffer: SmartBuffer): void {
+      toBuffer (_: SmartBuffer): void {
       }
     }
   }
@@ -184,7 +184,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * @param setter to set to hex from buffer
    * @throws Error if length != getter().length in set
    */
-  static hex (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
+  static hexLE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length))
@@ -193,13 +193,89 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       toBuffer: (buffer: SmartBuffer): void => {
         const hex = getter()
         if (hex.length !== length * 2) {
-          throw new Error('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
+          throw new Error('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
         }
         const buff: Buffer = Buffer.from(hex, 'hex')
         buffer.writeBuffer(buff)
       }
     }
   }
+
+  /**
+   * Read/write as big endian, set/get as big endian.
+   *
+   * @param length of the bytes to read/set
+   * @param getter to read hex from to buffer
+   * @param setter to set to hex from buffer
+   * @throws Error if length != getter().length in set
+   */
+  static hexBE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const buff = Buffer.from(buffer.readBuffer(length)).reverse()
+        setter(buff.toString('hex'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const hex = getter()
+        if (hex.length !== length * 2) {
+          throw new Error('ComposableBuffer.hexBE.toBuffer invalid as length != getter().length')
+        }
+        const buff: Buffer = Buffer.from(hex, 'hex').reverse()
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
+   * Read/write as little endian, set/get as little endian.
+   *
+   * @param length of the bytes to read/set
+   * @param getter to read utf8 string from to buffer
+   * @param setter to set to utf8 string from buffer
+   * @throws Error if length != getter().length in set
+   */
+  static utf8LE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const buff = Buffer.from(buffer.readBuffer(length)).reverse()
+        setter(buff.toString('utf-8'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const buff: Buffer = Buffer.from(getter(), 'utf-8').reverse()
+        if (buff.length !== length) {
+          throw new Error('ComposableBuffer.utf8LE.toBuffer invalid as length != getter().length')
+        }
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
+   * Read/write as big endian, set/get as big endian.
+   *
+   * @param length of the bytes to read/set
+   * @param getter to read utf8 string from to buffer
+   * @param setter to set to utf8 string from buffer
+   * @throws Error if length != getter().length in set
+   */
+  static utf8BE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const buff = Buffer.from(buffer.readBuffer(length))
+        setter(buff.toString('utf-8'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const buff: Buffer = Buffer.from(getter(), 'utf-8')
+        if (buff.length !== length) {
+          throw new Error('ComposableBuffer.utf8BE.toBuffer invalid as length != getter().length')
+        }
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  // TODO(jellyfish): with the introduction of hexLE, hexBE, utf8LE, utf8BE
+  //  might want to indicate LE for all unsigned integer
 
   /**
    * Unsigned Int8, 1 byte

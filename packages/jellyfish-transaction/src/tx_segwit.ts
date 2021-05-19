@@ -39,14 +39,14 @@ export class CWitnessProgram extends ComposableBuffer<WitnessProgram> {
   composers (wp: WitnessProgram): BufferComposer[] {
     return [
       ComposableBuffer.uInt32(() => wp.version, v => wp.version = v),
-      ComposableBuffer.hex(32, () => wp.hashPrevouts, v => wp.hashPrevouts = v),
-      ComposableBuffer.hex(32, () => wp.hashSequence, v => wp.hashSequence = v),
-      ComposableBuffer.hex(32, () => wp.outpointTxId, v => wp.outpointTxId = v),
+      ComposableBuffer.hexLE(32, () => wp.hashPrevouts, v => wp.hashPrevouts = v),
+      ComposableBuffer.hexLE(32, () => wp.hashSequence, v => wp.hashSequence = v),
+      ComposableBuffer.hexLE(32, () => wp.outpointTxId, v => wp.outpointTxId = v),
       ComposableBuffer.uInt32(() => wp.outpointIndex, v => wp.outpointIndex = v),
       ComposableBuffer.single<Script>(() => wp.scriptCode, v => wp.scriptCode = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => wp.value, v => wp.value = v),
       ComposableBuffer.uInt32(() => wp.sequence, v => wp.sequence = v),
-      ComposableBuffer.hex(32, () => wp.hashOutputs, v => wp.hashOutputs = v),
+      ComposableBuffer.hexLE(32, () => wp.hashOutputs, v => wp.hashOutputs = v),
       ComposableBuffer.uInt32(() => wp.lockTime, v => wp.lockTime = v),
       ComposableBuffer.uInt32(() => wp.hashType, v => wp.hashType = v)
     ]

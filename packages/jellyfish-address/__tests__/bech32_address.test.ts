@@ -1,4 +1,4 @@
-import { Script } from '@defichain/jellyfish-transaction/src/tx'
+import { Script } from '@defichain/jellyfish-transaction'
 import { Network } from '@defichain/jellyfish-network'
 import { Bech32Address } from '../src'
 

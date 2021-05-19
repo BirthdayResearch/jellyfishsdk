@@ -124,7 +124,7 @@ export abstract class P2WPKHTxnBuilder {
     }
 
     const fee = await this.calculateFee(txn)
-    change.value = total.minus(fee)
+    change.value = total.minus(outValue).minus(fee)
 
     return await this.sign(txn, prevouts)
   }
