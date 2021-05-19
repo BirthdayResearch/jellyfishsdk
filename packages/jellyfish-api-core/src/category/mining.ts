@@ -47,7 +47,7 @@ export class Mining {
   /**
    *
    * @param {number} confirmationTarget in blocks (1 - 1008)
-   * @param {EstimateMode} [estimateMode='CONSERVATIVE'] estimateMode of fees.
+   * @param {EstimateMode} [estimateMode=EstimateMode.CONSERVATIVE] estimateMode of fees.
    * @returns {Promise<SmartFeeEstimation>}
    */
   async estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = EstimateMode.CONSERVATIVE): Promise<SmartFeeEstimation> {

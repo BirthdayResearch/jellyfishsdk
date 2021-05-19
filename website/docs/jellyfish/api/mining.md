@@ -98,7 +98,7 @@ Estimates the approximate fee per kilobyte needed for a transaction
 
 ```ts title="client.mining.estimateSmartFee()"
 interface mining {
-  estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = 'CONSERVATIVE'): Promise<SmartFeeEstimation>
+  estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = EstimateMode.CONSERVATIVE): Promise<SmartFeeEstimation>
 }
 
 interface SmartFeeEstimation {
