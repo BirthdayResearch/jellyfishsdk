@@ -59,6 +59,8 @@
 - color: fbca04
   name: area/jellyfish
 - color: fbca04
+  name: area/jellyfish-address
+- color: fbca04
   name: area/jellyfish-api-core
 - color: fbca04
   name: area/jellyfish-api-jsonrpc
@@ -70,6 +72,8 @@
   name: area/jellyfish-network
 - color: fbca04
   name: area/jellyfish-transaction
+- color: fbca04
+  name: area/jellyfish-transaction-builder
 - color: fbca04
   name: area/jellyfish-wallet
 - color: fbca04

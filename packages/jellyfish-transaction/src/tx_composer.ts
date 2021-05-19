@@ -10,7 +10,7 @@ import {
   Witness, WitnessScript
 } from './tx'
 
-import scriptComposer, { OPCode } from './script'
+import { OP_CODES, OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -83,7 +83,8 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
 
   composers (vin: Vin): BufferComposer[] {
     return [
-      ComposableBuffer.hex(32, () => vin.txid, v => vin.txid = v),
+      // defid returns txid in BE order hence we need to reverse it
+      ComposableBuffer.hexBEBufferLE(32, () => vin.txid, v => vin.txid = v),
       ComposableBuffer.uInt32(() => vin.index, v => vin.index = v),
       ComposableBuffer.single<Script>(() => vin.script, v => vin.script = v, v => new CScript(v)),
       ComposableBuffer.uInt32(() => vin.sequence, v => vin.sequence = v)
@@ -164,10 +165,10 @@ export class CScript extends ComposableBuffer<Script> implements Script {
     return [
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          script.stack = scriptComposer.fromBufferToOpCodes(buffer)
+          script.stack = OP_CODES.fromBuffer(buffer)
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          scriptComposer.fromOpCodesToBuffer(script.stack, buffer)
+          OP_CODES.toBuffer(script.stack, buffer)
         }
       }
     ]

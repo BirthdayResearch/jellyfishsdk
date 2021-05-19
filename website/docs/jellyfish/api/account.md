@@ -30,7 +30,7 @@ interface account {
 }
 
 interface AccountPagination {
-  start?: string | number
+  start?: number
   including_start?: boolean
   limit?: number
 }
@@ -112,7 +112,7 @@ Returns information about account history
 
 ```ts title="client.account.listAccountHistory()"
 interface account {
-  async listAccountHistory (
+  listAccountHistory (
     owner: OwnerType = 'mine',
     options: AccountHistoryOptions = {
       limit: 100
@@ -140,5 +140,25 @@ interface AccountHistoryOptions {
   token?: string
   txtype?: string
   limit?: number
+}
+```
+
+## utxosToAccount
+
+Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account. 
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.utxosToAccount()"
+interface account {
+  utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string>
+}
+
+interface UtxosToAccountPayload {
+  [key: string]: string;
+}
+
+interface UtxosToAccountUTXO {
+  txid: string
+  vout: number
 }
 ```

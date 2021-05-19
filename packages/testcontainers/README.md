@@ -69,7 +69,7 @@ describe('master node pos minting', () => {
   })
 
   it('should wait until coinbase maturity with spendable balance', async () => {
-    await container.generate(100)
+    await container.waitForWalletCoinbaseMaturity()
 
     await waitForExpect(async () => {
       const info = await container.getMintingInfo()

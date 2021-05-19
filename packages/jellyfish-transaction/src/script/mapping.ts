@@ -1,12 +1,15 @@
+import { SmartBuffer } from 'smart-buffer'
+import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
+import { toBuffer, toOPCodes } from './_buffer'
+import { OPCode, StaticCode } from './opcode'
+import { OP_PUSHDATA } from './data'
+import { OP_DEFI_TX } from './defi'
+import { CDfTx, DfTx } from './defi/dftx'
 import * as constants from './constants'
 import * as crypto from './crypto'
-import { OP_RETURN } from './control'
-import { StaticCode } from './opcode'
-import { OP_DUP } from './stack'
-import { OP_EQUAL, OP_EQUALVERIFY } from './bitwise'
-import { OP_PUSHDATA } from './data'
-import { CDfTx, DfTx } from './defi/dftx'
-import { OP_DEFI_TX } from './defi'
+import * as control from './control'
+import * as stack from './stack'
+import * as bitwise from './bitwise'
 import {
   CPoolAddLiquidity,
   CPoolCreatePair,
@@ -59,6 +62,61 @@ export class OP_UNMAPPED extends StaticCode {
  * @see https://github.com/DeFiCh/ain/blob/master/src/script/script.h
  */
 export const OP_CODES = {
+  /**
+   * Read SmartBuffer and create OPCode[] stack.
+   *
+   * Using P2WPKH redeem script as an example.
+   *
+   * Input Example: 1600140e7c0ab18b305bc987a266dc06de26fcfab4b56a
+   *   0x16 (VarUInt)
+   *   0x00 (OP_0)
+   *   6ab5b4fafc26de06dc66a287c95b308bb10a7c0e (formatted as big endian)
+   *
+   * Output Example:
+   *   OP_0
+   *   OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>
+   *
+   * @param {SmartBuffer} buffer to read from
+   * @return {OPCode[]} read from buffer to OPCode
+   */
+  fromBuffer (buffer: SmartBuffer) {
+    const length = readVarUInt(buffer)
+    if (length === 0) {
+      return []
+    }
+
+    return toOPCodes(SmartBuffer.fromBuffer(buffer.readBuffer(length)))
+  },
+  /**
+   * Converts OPCode[] and write it into SmartBuffer.
+   *
+   * Using P2PKH redeem script as an example.
+   *
+   * Input Example:
+   *   OP_DUP
+   *   OP_HASH160
+   *   OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>
+   *   OP_EQUALVERIFY
+   *   OP_CHECKSIG
+   *
+   * Output Example: 1976a9143bde42dbee7e4dbe6a21b2d50ce2f0167faa815988ac
+   *   0x19 (VarUInt)
+   *   0x76 (OP_DUP)
+   *   0xa9 (OP_HASH160)
+   *   5981aa7f16f0e20cd5b2216abe4d7eeedb42de3b (formatted as big endian)
+   *   0x88 (OP_EQUALVERIFY)
+   *   0xac (OP_CHECKSIG)
+   *
+   * @param {OPCode[]} stack to convert into raw buffer
+   * @param {SmartBuffer} buffer to write to
+   */
+  toBuffer (stack: OPCode[], buffer: SmartBuffer) {
+    const buffs = toBuffer(stack)
+
+    // Write the len of buffer in bytes and then all the buffer
+    writeVarUInt(buffs.length, buffer)
+    buffer.writeBuffer(buffs)
+  },
   OP_DEFI_TX: (dftx: DfTx<any>): OP_DEFI_TX => {
     return new OP_DEFI_TX(dftx)
   },
@@ -102,7 +160,7 @@ export const OP_CODES = {
       data: tokenMint
     })
   },
-  DEFI_OP_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
+  OP_DEFI_TX_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CUtxosToAccount.OP_CODE,
@@ -110,7 +168,7 @@ export const OP_CODES = {
       data: utxosToAccount
     })
   },
-  DEFI_OP_ACCOUNT_TO_UTXOS: (accountToUtxos: AccountToUtxos): OP_DEFI_TX => {
+  OP_DEFI_TX_ACCOUNT_TO_UTXOS: (accountToUtxos: AccountToUtxos): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAccountToUtxos.OP_CODE,
@@ -118,7 +176,7 @@ export const OP_CODES = {
       data: accountToUtxos
     })
   },
-  DEFI_OP_ACCOUNT_TO_ACCOUNT: (accountToAccount: AccountToAccount): OP_DEFI_TX => {
+  OP_DEFI_TX_ACCOUNT_TO_ACCOUNT: (accountToAccount: AccountToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAccountToAccount.OP_CODE,
@@ -126,7 +184,7 @@ export const OP_CODES = {
       data: accountToAccount
     })
   },
-  DEFI_OP_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {
+  OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT: (anyAccountToAccount: AnyAccountToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAnyAccountToAccount.OP_CODE,
@@ -134,15 +192,24 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
+
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**
    * OP_PUSHDATA1 use OP_PUSHDATA
    * OP_PUSHDATA2 use OP_PUSHDATA
    * OP_PUSHDATA4 use OP_PUSHDATA
+   * @param {Buffer} buffer
+   * @param {'little' | 'big'} endian order
    */
   OP_PUSHDATA: (buffer: Buffer, endian: 'little' | 'big'): OP_PUSHDATA => {
     return new OP_PUSHDATA(buffer, endian)
+  },
+  /**
+   * @param {Buffer} buffer in little endian
+   */
+  OP_PUSHDATA_LE: (buffer: Buffer): OP_PUSHDATA => {
+    return new OP_PUSHDATA(buffer, 'little')
   },
   /**
    * @param {string} hex in little endian
@@ -150,6 +217,7 @@ export const OP_CODES = {
   OP_PUSHDATA_HEX_LE: (hex: string): OP_PUSHDATA => {
     return new OP_PUSHDATA(Buffer.from(hex, 'hex'), 'little')
   },
+
   // TODO: to map everything as class
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
@@ -183,7 +251,7 @@ export const OP_CODES = {
   //  OP_ELSE = 0x67,
   //  OP_ENDIF = 0x68,
   //  OP_VERIFY = 0x69,
-  OP_RETURN: new OP_RETURN(),
+  OP_RETURN: new control.OP_RETURN(),
 
   // stack
   //  OP_TOALTSTACK = 0x6b,
@@ -197,7 +265,7 @@ export const OP_CODES = {
   //  OP_IFDUP = 0x73,
   //  OP_DEPTH = 0x74,
   //  OP_DROP = 0x75,
-  OP_DUP: new OP_DUP(),
+  OP_DUP: new stack.OP_DUP(),
   //  OP_NIP = 0x77,
   //  OP_OVER = 0x78,
   //  OP_PICK = 0x79,
@@ -218,8 +286,8 @@ export const OP_CODES = {
   //  OP_AND = 0x84,
   //  OP_OR = 0x85,
   //  OP_XOR = 0x86,
-  OP_EQUAL: new OP_EQUAL(),
-  OP_EQUALVERIFY: new OP_EQUALVERIFY(),
+  OP_EQUAL: new bitwise.OP_EQUAL(),
+  OP_EQUALVERIFY: new bitwise.OP_EQUALVERIFY(),
   //  OP_RESERVED1 = 0x89,
   //  OP_RESERVED2 = 0x8a,
 

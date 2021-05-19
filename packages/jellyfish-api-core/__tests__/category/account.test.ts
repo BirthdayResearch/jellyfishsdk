@@ -2,6 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
+import { UtxosToAccountPayload } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -11,7 +12,6 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(300)
 
     await setup()
   })
@@ -21,8 +21,6 @@ describe('masternode', () => {
   })
 
   async function setup (): Promise<void> {
-    await container.generate(100)
-
     const from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
@@ -42,18 +40,19 @@ describe('masternode', () => {
       tradeable: true,
       collateralAddress: address
     }
+    await container.waitForWalletBalanceGTE(101)
     await container.call('createtoken', [metadata])
-    await container.generate(25)
+    await container.generate(1)
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(25)
+    await container.generate(1)
   }
 
   async function accountToAccount (symbol: string, amount: number, from: string, _to = ''): Promise<string> {
     const to = _to !== '' ? _to : await container.call('getnewaddress')
 
     await container.call('accounttoaccount', [from, { [to]: `${amount.toString()}@${symbol}` }])
-    await container.generate(25)
+    await container.generate(1)
 
     return to
   }
@@ -414,8 +413,12 @@ describe('masternode', () => {
     it('should listAccountHistory with options depth', async () => {
       await waitForExpect(async () => {
         const depth = 10
+        const height = await container.getBlockCount()
         const accountHistories = await client.account.listAccountHistory('mine', { depth })
-        expect(accountHistories.length).toBe(depth + 1) // plus 1 to include zero index
+
+        for (const accountHistory of accountHistories) {
+          expect(accountHistory.blockHeight).toBeGreaterThanOrEqual(height - depth)
+        }
       })
     })
 
@@ -477,6 +480,40 @@ describe('masternode', () => {
         const accountHistories = await client.account.listAccountHistory('mine', options)
         expect(accountHistories.length).toBe(1)
       })
+    })
+  })
+
+  describe('utxosToAccount', () => {
+    it('should utxosToAccount', async () => {
+      const payload: UtxosToAccountPayload = {}
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+      payload[await container.getNewAddress()] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DFI'
+
+      const data = await client.account.utxosToAccount(payload)
+
+      expect(typeof data).toBe('string')
+      expect(data.length).toBe(64)
+    })
+
+    it('should utxosToAccount with utxos', async () => {
+      const payload: UtxosToAccountPayload = {}
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+      payload[await container.getNewAddress()] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DFI'
+
+      const utxos = await container.call('listunspent')
+      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+
+      const data = await client.account.utxosToAccount(payload, inputs)
+
+      expect(typeof data).toBe('string')
+      expect(data.length).toBe(64)
     })
   })
 })

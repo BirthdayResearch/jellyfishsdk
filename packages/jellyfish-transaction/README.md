@@ -3,11 +3,7 @@
 
 # @defichain/jellyfish-transaction
 
-Dead simple modern stateless raw transaction builder for DeFi.
-
-```
-Used in DeFi Fiber, but not yet included in @defichain/jellyfish bundle. 
-```
+Dead simple modern stateless raw transaction composer for the DeFi Blockchain.
 
 ## Prior-art
 

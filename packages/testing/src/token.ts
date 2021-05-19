@@ -3,7 +3,8 @@ import { getNewAddress } from './wallet'
 import { utxosToAccount } from './account'
 
 /**
- * Create a new token
+ * Create a new token and return id of token.
+ * This method will ensure there is enough DFI to create a token.
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {string} symbol
@@ -13,13 +14,13 @@ import { utxosToAccount } from './account'
  * @param {boolean} [options.mintable=true]
  * @param {boolean} [options.tradeable=true]
  * @param {string} [options.collateralAddress]
- * @return {Promise<string>}
+ * @return {Promise<number>} id of the created token
  */
 export async function createToken (
   container: MasterNodeRegTestContainer,
   symbol: string,
   options?: CreateTokenOptions
-): Promise<string> {
+): Promise<number> {
   const metadata = {
     symbol,
     name: options?.name ?? symbol,
@@ -28,10 +29,13 @@ export async function createToken (
     tradeable: options?.tradeable ?? true,
     collateralAddress: options?.collateralAddress ?? await getNewAddress(container)
   }
-  const hashed = await container.call('createtoken', [metadata])
-  await container.generate(25)
 
-  return hashed
+  await container.waitForWalletBalanceGTE(101) // token creation fee
+  await container.call('createtoken', [metadata])
+  await container.generate(1)
+
+  const result = await container.call('gettoken', [symbol])
+  return Number.parseInt(Object.keys(result)[0])
 }
 
 /**
@@ -57,8 +61,7 @@ export async function mintTokens (
   await utxosToAccount(container, utxoAmount, { address })
 
   const hashed = await container.call('minttokens', [`${mintAmount}@${symbol}`])
-
-  await container.generate(25)
+  await container.generate(1)
 
   return hashed
 }

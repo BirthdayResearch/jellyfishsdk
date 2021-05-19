@@ -19,7 +19,7 @@ const transaction: Transaction = {
     index: 0,
     script: { stack: [] },
     sequence: 4294967278,
-    txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+    txid: '9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff'
   }],
   vout: [{
     script: {
@@ -74,7 +74,8 @@ describe('24 words: random', () => {
       const hash = Buffer.from('e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a', 'hex')
 
       const signature = await node.sign(hash)
-      expect(signature.length).toBe(70)
+      expect(signature.length).toBeLessThanOrEqual(70)
+      expect(signature.length).toBeGreaterThanOrEqual(67) // 0.00001 probability of being this length
 
       const valid = await node.verify(hash, signature)
       expect(valid).toBe(true)

@@ -19,7 +19,7 @@ export interface UtxosToAccount {
  */
 export class CUtxosToAccount extends ComposableBuffer<UtxosToAccount> {
   static OP_CODE = 0x55 // 'U'
-  static OP_NAME = 'DEFI_OP_UTXOS_TO_ACCOUNT'
+  static OP_NAME = 'OP_DEFI_TX_UTXOS_TO_ACCOUNT'
 
   composers (u2a: UtxosToAccount): BufferComposer[] {
     return [
@@ -43,7 +43,7 @@ export interface AccountToUtxos {
  */
 export class CAccountToUtxos extends ComposableBuffer<AccountToUtxos> {
   static OP_CODE = 0x62 // 'b'
-  static OP_NAME = 'DEFI_OP_ACCOUNT_TO_UTXOS'
+  static OP_NAME = 'OP_DEFI_TX_ACCOUNT_TO_UTXOS'
 
   composers (a2u: AccountToUtxos): BufferComposer[] {
     return [
@@ -68,7 +68,7 @@ export interface AccountToAccount {
  */
 export class CAccountToAccount extends ComposableBuffer<AccountToAccount> {
   static OP_CODE = 0x42 // 'B'
-  static OP_NAME = 'DEFI_OP_ACCOUNT_TO_ACCOUNT'
+  static OP_NAME = 'OP_DEFI_TX_ACCOUNT_TO_ACCOUNT'
 
   composers (a2a: AccountToAccount): BufferComposer[] {
     return [
@@ -92,7 +92,7 @@ export interface AnyAccountToAccount {
  */
 export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> {
   static OP_CODE = 0x61 // 'a'
-  static OP_NAME = 'DEFI_OP_ANY_ACCOUNT_TO_ACCOUNT'
+  static OP_NAME = 'OP_DEFI_TX_ANY_ACCOUNT_TO_ACCOUNT'
 
   composers (aa2a: AnyAccountToAccount): BufferComposer[] {
     return [
