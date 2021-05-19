@@ -63,7 +63,9 @@ export async function sendTokensToAddress (
   amount: number,
   symbol: string
 ): Promise<string> {
-  return await container.call('sendtokenstoaddress', [{}, { [address]: [`${amount}@${symbol}`] }])
+  const txid = await container.call('sendtokenstoaddress', [{}, { [address]: [`${amount}@${symbol}`] }])
+  await container.generate(1)
+  return txid
 }
 
 export interface UtxosToAccountOptions {
