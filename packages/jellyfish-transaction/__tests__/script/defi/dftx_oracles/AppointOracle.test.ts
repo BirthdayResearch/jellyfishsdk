@@ -50,7 +50,7 @@ const appointOracle: AppointOracle = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.DEFI_OP_TX_APPOINT_ORACLE(appointOracle)
+    OP_CODES.OP_DEFI_TX_APPOINT_ORACLE(appointOracle)
   ]
 
   const buffer = toBuffer(stack)

@@ -42,7 +42,7 @@ export interface AppointOracle {
  */
 export class CAppointOracle extends ComposableBuffer<AppointOracle> {
   static OP_CODE = 0x6f
-  static OP_NAME = 'DEFI_OP_APPOINT_ORACLE'
+  static OP_NAME = 'OP_DEFI_TX_APPOINT_ORACLE'
 
   composers (ao: AppointOracle): BufferComposer[] {
     return [
@@ -67,7 +67,7 @@ export class CAppointOracle extends ComposableBuffer<AppointOracle> {
  */
 export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
   static OP_CODE = 0x68
-  static OP_NAME = 'DEFI_OP_REMOVE_ORACLE'
+  static OP_NAME = 'OP_DEFI_TX_REMOVE_ORACLE'
 
   composers (ao: RemoveOracle): BufferComposer[] {
     return [
@@ -94,7 +94,7 @@ export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
  */
 export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
   static OP_CODE = 0x74
-  static OP_NAME = 'DEFI_OP_UPDATE_ORACLE'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_ORACLE'
 
   composers (ao: UpdateOracle): BufferComposer[] {
     return [
@@ -122,7 +122,7 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
  */
 export class CSetOracleData extends ComposableBuffer<SetOracleData> {
   static OP_CODE = 0x79
-  static OP_NAME = 'DEFI_OP_SET_ORACLE_DATA'
+  static OP_NAME = 'OP_DEFI_TX_SET_ORACLE_DATA'
 
   composers (ao: SetOracleData): BufferComposer[] {
     return [

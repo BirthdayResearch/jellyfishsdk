@@ -15,7 +15,16 @@ import {
   PoolSwap
 } from './dftx_pool'
 import { CTokenMint, TokenMint } from './dftx_token'
-import { CAppointOracle, AppointOracle } from './dftx_oracles'
+import { 
+  CAppointOracle, 
+  AppointOracle, 
+  CUpdateOracle, 
+  UpdateOracle, 
+  CRemoveOracle, 
+  RemoveOracle, 
+  CSetOracleData, 
+  SetOracleData 
+} from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -111,6 +120,12 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
       case CAppointOracle.OP_CODE:
         return compose<AppointOracle>(CAppointOracle.OP_NAME, d => new CAppointOracle(d))
+      case CRemoveOracle.OP_CODE:
+        return compose<RemoveOracle>(CRemoveOracle.OP_NAME, d => new CRemoveOracle(d))
+      case CUpdateOracle.OP_CODE:
+        return compose<UpdateOracle>(CUpdateOracle.OP_NAME, d => new CUpdateOracle(d))
+      case CSetOracleData.OP_CODE:
+        return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
