@@ -49,8 +49,6 @@ describe('masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
   })
 
   afterAll(async () => {
