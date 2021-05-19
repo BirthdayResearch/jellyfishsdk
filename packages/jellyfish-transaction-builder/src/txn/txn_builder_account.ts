@@ -2,7 +2,6 @@ import { UtxosToAccount } from '@defichain/jellyfish-transaction/dist/script/def
 import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
-import BigNumber from 'bignumber.js'
 
 export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   /**
@@ -26,18 +25,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
 
     const amountToConvert = utxosToAccount.to[0].balances[0].amount
     return await super.createDeFiTx(
-      // OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount),
-      OP_CODES.OP_DEFI_TX_POOL_SWAP({
-        fromScript: changeScript,
-        fromTokenId: 0,
-        fromAmount: new BigNumber('10'),
-        toScript: changeScript,
-        toTokenId: 1,
-        maxPrice: {
-          integer: new BigNumber('9223372036854775807'),
-          fraction: new BigNumber('9223372036854775807')
-        }
-      }),
+      OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount),
       changeScript,
       amountToConvert
     )
