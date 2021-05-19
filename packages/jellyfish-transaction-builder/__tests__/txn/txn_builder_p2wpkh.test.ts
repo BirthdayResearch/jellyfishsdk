@@ -75,7 +75,7 @@ describe('createDeFiTx()', () => {
     const tx = (result.vout[0].script.stack[1] as OP_DEFI_TX).tx
     expect(tx.signature).toBe(1147556984)
     expect(tx.type).toBe(0x01)
-    expect(tx.name).toBe('DEFI_OP_UNMAPPED')
+    expect(tx.name).toBe('OP_DEFI_TX_UNMAPPED')
 
     const unmapped = tx.data as DeFiOpUnmapped
     expect(unmapped.hex).toBe('001234')

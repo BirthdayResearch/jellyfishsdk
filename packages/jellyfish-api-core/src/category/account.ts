@@ -220,6 +220,21 @@ export class Account {
   ): Promise<AccountHistory[]> {
     return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
+
+  /**
+   * Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account.
+   * Optionally, specific UTXOs to spend to create that transaction.
+   *
+   * @param {UtxosToAccountPayload} payload
+   * @param {string} payload[address]
+   * @param {UtxosToAccountUTXO[]} [utxos=[]]
+   * @param {string} [utxos.txid]
+   * @param {number} [utxos.vout]
+   * @return {Promise<string>}
+   */
+  async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
+    return await this.client.call('utxostoaccount', [payload, utxos], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -276,4 +291,13 @@ export interface AccountHistoryOptions {
   token?: string
   txtype?: string
   limit?: number
+}
+
+export interface UtxosToAccountPayload {
+  [key: string]: string
+}
+
+export interface UtxosToAccountUTXO {
+  txid: string
+  vout: number
 }

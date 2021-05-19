@@ -97,7 +97,7 @@ describe('ComposableBuffer deep implementation', () => {
       return [
         ComposableBuffer.uInt16(() => data.ver, v => data.ver = v),
         ComposableBuffer.uInt32(() => data.val, v => data.val = v),
-        ComposableBuffer.hexLE(8, () => data.hex, v => data.hex = v)
+        ComposableBuffer.hex(8, () => data.hex, v => data.hex = v)
       ]
     }
 
@@ -183,7 +183,7 @@ describe('ComposableBuffer.varUIntArray', () => {
     composers (data: VarItem): BufferComposer[] {
       return [
         ComposableBuffer.uInt16(() => data.val, v => data.val = v),
-        ComposableBuffer.hexLE(12, () => data.hex, v => data.hex = v)
+        ComposableBuffer.hex(12, () => data.hex, v => data.hex = v)
       ]
     }
   }
@@ -233,7 +233,7 @@ describe('ComposableBuffer.varUIntArray', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
     })
 
     it('should fail toBuffer deeply due to value out of range', () => {
@@ -263,7 +263,7 @@ describe('ComposableBuffer.array', () => {
     composers (data: Item): BufferComposer[] {
       return [
         ComposableBuffer.bigNumberUInt64(() => data.value, v => data.value = v),
-        ComposableBuffer.hexLE(32, () => data.txid, v => data.txid = v)
+        ComposableBuffer.hex(32, () => data.txid, v => data.txid = v)
       ]
     }
   }
@@ -312,7 +312,7 @@ describe('ComposableBuffer.array', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
     })
 
     it('should fail toBuffer deeply due to value out of range', () => {
@@ -344,7 +344,7 @@ describe('ComposableBuffer.single', () => {
   class CSingle extends ComposableBuffer<Single> {
     composers (data: Single): BufferComposer[] {
       return [
-        ComposableBuffer.hexLE(16, () => data.id, v => data.id = v),
+        ComposableBuffer.hex(16, () => data.id, v => data.id = v),
         ComposableBuffer.uInt16(() => data.value, v => data.value = v)
       ]
     }
@@ -385,7 +385,7 @@ describe('ComposableBuffer.single', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
     })
 
     it('should fail toBuffer deeply due to value out of range', () => {
@@ -401,8 +401,8 @@ describe('ComposableBuffer.single', () => {
   })
 })
 
-describe('ComposableBuffer.hexLE', () => {
-  const composer = ComposableBuffer.hexLE(16, () => value, (v: string) => value = v)
+describe('ComposableBuffer.hex', () => {
+  const composer = ComposableBuffer.hex(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
   let value = ''
 
@@ -435,12 +435,12 @@ describe('ComposableBuffer.hexLE', () => {
 
     expect(() => {
       composer.toBuffer(new SmartBuffer())
-    }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+    }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
   })
 })
 
 describe('ComposableBuffer.hexBE', () => {
-  const composer = ComposableBuffer.hexBE(16, () => value, (v: string) => value = v)
+  const composer = ComposableBuffer.hexBEBufferLE(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
   let value = ''
 
@@ -473,23 +473,23 @@ describe('ComposableBuffer.hexBE', () => {
 
     expect(() => {
       composer.toBuffer(new SmartBuffer())
-    }).toThrow('ComposableBuffer.hexBE.toBuffer invalid as length != getter().length')
+    }).toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
   })
 })
 
 describe('ComposableBuffer.utf8LE', () => {
   const composer = ComposableBuffer.utf8LE(7, () => value, (v: string) => value = v)
-  const expectedBuffer = Buffer.from('DFI-BTC', 'utf-8')
+  const expectedBuffer = Buffer.from('CTB-IFD', 'utf-8')
   let value = ''
 
   it('should fromBuffer', () => {
     composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
 
-    expect(value).toBe('CTB-IFD')
+    expect(value).toBe('DFI-BTC')
   })
 
   it('should toBuffer', () => {
-    value = 'CTB-IFD'
+    value = 'DFI-BTC'
 
     const buffer = new SmartBuffer()
     composer.toBuffer(buffer)
@@ -550,6 +550,72 @@ describe('ComposableBuffer.utf8BE', () => {
     expect(() => {
       composer.toBuffer(new SmartBuffer())
     }).toThrow('ComposableBuffer.utf8BE.toBuffer invalid as length != getter().length')
+  })
+})
+
+describe('ComposableBuffer.varUIntUtf8LE', () => {
+  const composer = ComposableBuffer.varUIntUtf8LE(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([19]),
+    Buffer.from('CTB-IFD-IFD-IFD-IFD', 'utf-8')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toBe('DFI-DFI-DFI-DFI-BTC')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-DFI-DFI-DFI-BTC'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toBe(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toBe(to.toString())
+  })
+})
+
+describe('ComposableBuffer.varUIntUtf8BE', () => {
+  const composer = ComposableBuffer.varUIntUtf8BE(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([15]),
+    Buffer.from('DFI-ETH-BTC-DFI', 'utf-8')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toBe('DFI-ETH-BTC-DFI')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-ETH-BTC-DFI'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toBe(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toBe(to.toString())
   })
 })
 

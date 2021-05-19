@@ -57,9 +57,7 @@ export class MockPrevoutProvider implements PrevoutProvider {
 
   static mapPrevout (utxo: any, pubKey: Buffer): Prevout {
     return {
-      // utxo.id from defid is reversed, we uses non reversed order in txid
-      // TODO(fuxingloh): we need consistency for this. https://github.com/DeFiCh/jellyfish/issues/231
-      txid: Buffer.from(utxo.txid, 'hex').reverse().toString('hex'),
+      txid: utxo.txid,
       vout: utxo.vout,
       value: new BigNumber(utxo.amount),
       script: {

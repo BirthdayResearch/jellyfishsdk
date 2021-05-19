@@ -84,7 +84,7 @@ export const OP_CODES = {
    *   OP_0
    *   OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>
    *
-   * @param buffer {SmartBuffer} to read from
+   * @param {SmartBuffer} buffer to read from
    * @return {OPCode[]} read from buffer to OPCode
    */
   fromBuffer (buffer: SmartBuffer) {
@@ -115,8 +115,8 @@ export const OP_CODES = {
    *   0x88 (OP_EQUALVERIFY)
    *   0xac (OP_CHECKSIG)
    *
-   * @param stack {OPCode[]} to convert into raw buffer
-   * @param buffer {SmartBuffer} to write to
+   * @param {OPCode[]} stack to convert into raw buffer
+   * @param {SmartBuffer} buffer to write to
    */
   toBuffer (stack: OPCode[], buffer: SmartBuffer) {
     const buffs = toBuffer(stack)
@@ -231,9 +231,17 @@ export const OP_CODES = {
    * OP_PUSHDATA1 use OP_PUSHDATA
    * OP_PUSHDATA2 use OP_PUSHDATA
    * OP_PUSHDATA4 use OP_PUSHDATA
+   * @param {Buffer} buffer
+   * @param {'little' | 'big'} endian order
    */
   OP_PUSHDATA: (buffer: Buffer, endian: 'little' | 'big'): OP_PUSHDATA => {
     return new OP_PUSHDATA(buffer, endian)
+  },
+  /**
+   * @param {Buffer} buffer in little endian
+   */
+  OP_PUSHDATA_LE: (buffer: Buffer): OP_PUSHDATA => {
+    return new OP_PUSHDATA(buffer, 'little')
   },
   /**
    * @param {string} hex in little endian
@@ -241,6 +249,7 @@ export const OP_CODES = {
   OP_PUSHDATA_HEX_LE: (hex: string): OP_PUSHDATA => {
     return new OP_PUSHDATA(Buffer.from(hex, 'hex'), 'little')
   },
+
   // TODO: to map everything as class
   //  to be separated into concerns, stack, arithmetic, crypto, etc...
 
