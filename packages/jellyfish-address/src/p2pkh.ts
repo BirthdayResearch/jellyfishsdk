@@ -1,7 +1,7 @@
 import { Bs58 } from '@defichain/jellyfish-crypto'
 import { getNetwork, Network, NetworkName } from '@defichain/jellyfish-network'
-import { Script } from '@defichain/jellyfish-transaction'
-import { OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction/src/script'
+import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
+
 import { Base58Address } from './base58_address'
 
 export class P2PKH extends Base58Address {
