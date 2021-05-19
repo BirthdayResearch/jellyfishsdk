@@ -35,7 +35,7 @@ describe('non masternode', () => {
 
   it('should have an error with estimateSmartFee', async () => {
     const result = await client.mining.estimateSmartFee(6)
-    const errors = (result.errors != null) || []
+    const errors = (result.errors != null) ? result.errors : []
     expect(errors.length).toBeGreaterThan(0)
     expect(errors[0]).toEqual('Insufficient data or no feerate found')
     expect(result.feerate).toBeUndefined()
