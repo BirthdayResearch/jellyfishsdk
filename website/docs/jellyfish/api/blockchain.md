@@ -292,14 +292,14 @@ interface BlockStats {
   time: number
   totalfee: number
   txs: number
-  "swtotal_size": number
-  "swtotal_weight": number
-  "total_out": number
-  "total_size": number
-  "total_weight": number
-  "utxo_increase": number
-  "utxo_size_inc": number
-  "feerate_percentiles": {
+  swtotal_size: number
+  swtotal_weight: number
+  total_out: number
+  total_size: number
+  total_weight: number
+  utxo_increase: number
+  utxo_size_inc: number
+  feerate_percentiles: {
     '10th_percentile_feerate': number
     '25th_percentile_feerate': number
     '50th_percentile_feerate': number

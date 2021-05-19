@@ -316,7 +316,7 @@ describe('masternode', () => {
   })
 
   describe('getBlockStats', () => {
-    it('should get blockchain start and return  all values  ', async () => {
+    it('should get blockchain stats and return  all values', async () => {
       const blockHash  = await waitForBlockHash(1);
       const stats = await client.blockchain.getBlockStats(blockHash);
 
@@ -326,7 +326,7 @@ describe('masternode', () => {
       expect(stats.medianfee).toBeLessThanOrEqual(stats.maxfee);
     })
 
-    it('should  get blockchain start with specific values', async () => {
+    it('should  get blockchain stats with specific values', async () => {
       const blockHash  = await waitForBlockHash(1);
       const stats = await client.blockchain.getBlockStats(blockHash, ["avgfee", "height"]); 
       
