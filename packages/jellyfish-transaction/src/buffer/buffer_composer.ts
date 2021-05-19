@@ -177,15 +177,14 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Read/write as little endian, set/get as little endian.
+   * LE ordered HEX String with length specified, encoded in LE order buffer.
    *
    * @param length of the bytes to read/set
-   * @param getter to read hex from to buffer
-   * @param setter to set to hex from buffer
+   * @param getter to read LE ordered HEX String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as LE ordered HEX String
    * @throws Error if length != getter().length in set
    */
   static hexLE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
-    // TODO(fuxingloh): this wrong, fix in another PR
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length))
@@ -203,15 +202,14 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Read/write as big endian, set/get as big endian.
+   * BE ordered HEX String with length specified, encoded in LE order buffer.
    *
    * @param length of the bytes to read/set
-   * @param getter to read hex from to buffer
-   * @param setter to set to hex from buffer
+   * @param getter to read BE ordered HEX String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as BE ordered HEX String
    * @throws Error if length != getter().length in set
    */
   static hexBE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
-    // TODO(fuxingloh): this wrong, fix in another PR
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length)).reverse()
@@ -233,8 +231,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * String is always BE, as Javascript is uses BE by default.
    *
    * @param length of the bytes to read/set
-   * @param getter to read BE ordered string and write as LE ordered Buffer
-   * @param setter to write LE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as BE ordered String
    * @throws Error if length != getter().length in set
    */
   static utf8LE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
@@ -258,8 +256,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * String is always BE, as Javascript is uses BE by default.
    *
    * @param length of the bytes to read/set
-   * @param getter to read BE ordered string and write as BE ordered Buffer
-   * @param setter to write BE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as BE ordered Buffer
+   * @param setter to read BE ordered Buffer and set as BE ordered String
    * @throws Error if length != getter().length in set
    */
   static utf8BE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
@@ -282,8 +280,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * VarUInt sized UTF-8 string, encoded in LE order buffer.
    * String is always BE, as Javascript is uses BE by default.
    *
-   * @param getter to read BE ordered string and write as LE ordered Buffer
-   * @param setter to write LE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as BE ordered String
    */
   static varUIntUtf8LE (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
@@ -304,8 +302,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * VarUInt sized UTF-8 string, encoded in BE order buffer.
    * String is always BE, as Javascript is uses BE by default.
    *
-   * @param getter to read BE ordered string and write as BE ordered Buffer
-   * @param setter to write BE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as BE ordered Buffer
+   * @param setter to read BE ordered Buffer and set as BE ordered String
    */
   static varUIntUtf8BE (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
