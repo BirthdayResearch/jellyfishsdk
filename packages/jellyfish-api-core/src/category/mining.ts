@@ -37,7 +37,19 @@ export class Mining {
   async getMiningInfo (): Promise<MiningInfo> {
     return await this.client.call('getmininginfo', [], 'number')
   }
+
+  /**
+   *
+   * @param {number} confirmationTarget in blocks (1 - 1008)
+   * @param {EstimateMode} [estimateMode='CONSERVATIVE'] estimateMode of fees.
+   * @returns {Promise<SmartFeeEstimation>}
+   */
+  async estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = 'CONSERVATIVE'): Promise<SmartFeeEstimation> {
+    return await this.client.call('estimatesmartfee', [confirmationTarget, estimateMode], 'number')
+  }
 }
+
+export type EstimateMode = 'UNSET' | 'ECONOMICAL' | 'CONSERVATIVE'
 
 /**
  * Minting related information
@@ -85,4 +97,13 @@ export interface MasternodeInfo {
   generate?: boolean
   mintedblocks?: number
   lastblockcreationattempt?: string
+}
+
+/**
+ * @description return type of rpc `estimatesmartfee`
+ */
+export interface SmartFeeEstimation {
+  feerate?: number
+  errors?: string[]
+  blocks: number
 }
