@@ -34,15 +34,15 @@ const appointOracle: AppointOracle = {
       OP_CODES.OP_CHECKSIG
     ]
   },
-  weightage: 255,
+  weightage: 1,
   pricefeeds: [
     {
       token: 'TESLA',
-      currency: 'USD'
+      currency: 'EUR'
     },
     {
       token: 'TESLA',
-      currency: 'EUR'
+      currency: 'USD'
     }
   ]
 }
