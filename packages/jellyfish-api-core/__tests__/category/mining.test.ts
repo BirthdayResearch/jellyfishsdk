@@ -147,7 +147,7 @@ describe('estimatesmartfees', () => {
       }
     })
 
-    const result = await client.mining.estimateSmartFee(6, wallet.Mode.ECONOMICAL)
+    const result = await client.mining.estimateSmartFee(6, 'ECONOMICAL')
     expect(result.errors).toBeUndefined()
     expect(result.blocks).toBeGreaterThan(0)
     expect(result.feerate).toBeGreaterThan(0)
