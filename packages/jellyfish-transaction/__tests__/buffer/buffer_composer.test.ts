@@ -97,7 +97,7 @@ describe('ComposableBuffer deep implementation', () => {
       return [
         ComposableBuffer.uInt16(() => data.ver, v => data.ver = v),
         ComposableBuffer.uInt32(() => data.val, v => data.val = v),
-        ComposableBuffer.hexLE(8, () => data.hex, v => data.hex = v)
+        ComposableBuffer.hex(8, () => data.hex, v => data.hex = v)
       ]
     }
 
@@ -183,7 +183,7 @@ describe('ComposableBuffer.varUIntArray', () => {
     composers (data: VarItem): BufferComposer[] {
       return [
         ComposableBuffer.uInt16(() => data.val, v => data.val = v),
-        ComposableBuffer.hexLE(12, () => data.hex, v => data.hex = v)
+        ComposableBuffer.hex(12, () => data.hex, v => data.hex = v)
       ]
     }
   }
@@ -233,7 +233,7 @@ describe('ComposableBuffer.varUIntArray', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
     })
 
     it('should fail toBuffer deeply due to value out of range', () => {
@@ -263,7 +263,7 @@ describe('ComposableBuffer.array', () => {
     composers (data: Item): BufferComposer[] {
       return [
         ComposableBuffer.bigNumberUInt64(() => data.value, v => data.value = v),
-        ComposableBuffer.hexLE(32, () => data.txid, v => data.txid = v)
+        ComposableBuffer.hex(32, () => data.txid, v => data.txid = v)
       ]
     }
   }
@@ -312,7 +312,7 @@ describe('ComposableBuffer.array', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
     })
 
     it('should fail toBuffer deeply due to value out of range', () => {
@@ -344,7 +344,7 @@ describe('ComposableBuffer.single', () => {
   class CSingle extends ComposableBuffer<Single> {
     composers (data: Single): BufferComposer[] {
       return [
-        ComposableBuffer.hexLE(16, () => data.id, v => data.id = v),
+        ComposableBuffer.hex(16, () => data.id, v => data.id = v),
         ComposableBuffer.uInt16(() => data.value, v => data.value = v)
       ]
     }
@@ -385,7 +385,7 @@ describe('ComposableBuffer.single', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
     })
 
     it('should fail toBuffer deeply due to value out of range', () => {
@@ -401,8 +401,8 @@ describe('ComposableBuffer.single', () => {
   })
 })
 
-describe('ComposableBuffer.hexLE', () => {
-  const composer = ComposableBuffer.hexLE(16, () => value, (v: string) => value = v)
+describe('ComposableBuffer.hex', () => {
+  const composer = ComposableBuffer.hex(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
   let value = ''
 
@@ -435,12 +435,12 @@ describe('ComposableBuffer.hexLE', () => {
 
     expect(() => {
       composer.toBuffer(new SmartBuffer())
-    }).toThrow('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+    }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
   })
 })
 
 describe('ComposableBuffer.hexBE', () => {
-  const composer = ComposableBuffer.hexBE(16, () => value, (v: string) => value = v)
+  const composer = ComposableBuffer.hexBEBufferLE(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
   let value = ''
 
@@ -473,7 +473,7 @@ describe('ComposableBuffer.hexBE', () => {
 
     expect(() => {
       composer.toBuffer(new SmartBuffer())
-    }).toThrow('ComposableBuffer.hexBE.toBuffer invalid as length != getter().length')
+    }).toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
   })
 })
 

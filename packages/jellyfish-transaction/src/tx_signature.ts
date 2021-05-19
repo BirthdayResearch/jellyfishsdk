@@ -48,7 +48,8 @@ function hashPrevouts (transaction: Transaction, sigHashType: SIGHASH): string {
 
   const buffer = new SmartBuffer()
   for (const vin of transaction.vin) {
-    buffer.writeBuffer(Buffer.from(vin.txid, 'hex'))
+    const txid = Buffer.from(vin.txid, 'hex').reverse()
+    buffer.writeBuffer(txid)
     buffer.writeUInt32LE(vin.index)
   }
   return dSHA256(buffer.toBuffer()).toString('hex')

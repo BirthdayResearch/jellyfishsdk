@@ -177,15 +177,15 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Read/write as little endian, set/get as little endian.
+   * HEX String with length specified, encoded into Buffer as the same order of the Hex String.
+   * In short this read a hex and push it into the Buffer. It will not re-order the endian.
    *
    * @param length of the bytes to read/set
-   * @param getter to read hex from to buffer
-   * @param setter to set to hex from buffer
+   * @param getter to read HEX String and write as the same ordered Buffer
+   * @param setter to read ordered Buffer and set as the same ordered HEX String
    * @throws Error if length != getter().length in set
    */
-  static hexLE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
-    // TODO(fuxingloh): this wrong, fix in another PR
+  static hex (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length))
@@ -194,7 +194,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       toBuffer: (buffer: SmartBuffer): void => {
         const hex = getter()
         if (hex.length !== length * 2) {
-          throw new Error('ComposableBuffer.hexLE.toBuffer invalid as length != getter().length')
+          throw new Error('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
         }
         const buff: Buffer = Buffer.from(hex, 'hex')
         buffer.writeBuffer(buff)
@@ -203,15 +203,15 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Read/write as big endian, set/get as big endian.
+   * BE ordered HEX String with length specified, encoded in LE order buffer.
+   * Different from BufferComposer.hex, this will reorder the Buffer from LE to BE and BE to LE.
    *
    * @param length of the bytes to read/set
-   * @param getter to read hex from to buffer
-   * @param setter to set to hex from buffer
+   * @param getter to read BE ordered HEX String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as BE ordered HEX String
    * @throws Error if length != getter().length in set
    */
-  static hexBE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
-    // TODO(fuxingloh): this wrong, fix in another PR
+  static hexBEBufferLE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length)).reverse()
@@ -220,7 +220,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       toBuffer: (buffer: SmartBuffer): void => {
         const hex = getter()
         if (hex.length !== length * 2) {
-          throw new Error('ComposableBuffer.hexBE.toBuffer invalid as length != getter().length')
+          throw new Error('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
         }
         const buff: Buffer = Buffer.from(hex, 'hex').reverse()
         buffer.writeBuffer(buff)
@@ -233,8 +233,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * String is always BE, as Javascript is uses BE by default.
    *
    * @param length of the bytes to read/set
-   * @param getter to read BE ordered string and write as LE ordered Buffer
-   * @param setter to write LE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as BE ordered String
    * @throws Error if length != getter().length in set
    */
   static utf8LE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
@@ -258,8 +258,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * String is always BE, as Javascript is uses BE by default.
    *
    * @param length of the bytes to read/set
-   * @param getter to read BE ordered string and write as BE ordered Buffer
-   * @param setter to write BE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as BE ordered Buffer
+   * @param setter to read BE ordered Buffer and set as BE ordered String
    * @throws Error if length != getter().length in set
    */
   static utf8BE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
@@ -282,8 +282,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * VarUInt sized UTF-8 string, encoded in LE order buffer.
    * String is always BE, as Javascript is uses BE by default.
    *
-   * @param getter to read BE ordered string and write as LE ordered Buffer
-   * @param setter to write LE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as LE ordered Buffer
+   * @param setter to read LE ordered Buffer and set as BE ordered String
    */
   static varUIntUtf8LE (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
@@ -304,8 +304,8 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * VarUInt sized UTF-8 string, encoded in BE order buffer.
    * String is always BE, as Javascript is uses BE by default.
    *
-   * @param getter to read BE ordered string and write as BE ordered Buffer
-   * @param setter to write BE ordered Buffer and set as BE ordered string
+   * @param getter to read BE ordered String and write as BE ordered Buffer
+   * @param setter to read BE ordered Buffer and set as BE ordered String
    */
   static varUIntUtf8BE (getter: () => string, setter: (data: string) => void): BufferComposer {
     return {
@@ -321,9 +321,6 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       }
     }
   }
-
-  // TODO(jellyfish): with the introduction of hexLE, hexBE, utf8LE, utf8BE
-  //  might want to indicate LE for all unsigned integer
 
   /**
    * Unsigned Int8, 1 byte
