@@ -77,4 +77,39 @@ describe('account.utxosToAccount()', () => {
     expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
     expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
   })
+
+  it('should reject invalid utxosToAccount arg', async () => {
+    const dest = await providers.elliptic.script()
+    await expect(builder.account.utxosToAccount({
+      to: [{
+        balances: [{
+          token: 0x00,
+          amount: new BigNumber(10)
+        }],
+        script: dest
+      }, {
+        balances: [{
+          token: 0x00,
+          amount: new BigNumber(10)
+        }],
+        script: dest
+      }]
+    }, dest)).rejects.toThrow('Conversion output `utxosToAccount.to` array length must be one')
+  })
+
+  it('should reject invalid utxosToAccount arg', async () => {
+    const dest = await providers.elliptic.script()
+    await expect(builder.account.utxosToAccount({
+      to: [{
+        balances: [{
+          token: 0x00,
+          amount: new BigNumber(10)
+        }, {
+          token: 0x00,
+          amount: new BigNumber(10)
+        }],
+        script: dest
+      }]
+    }, dest)).rejects.toThrow('Conversion output `utxosToAccount.to[0].balances` array length must be one')
+  })
 })
