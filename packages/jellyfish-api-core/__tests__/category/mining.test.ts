@@ -130,7 +130,7 @@ describe('estimatesmartfees', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(20)
+    await container.waitForWalletBalanceGTE(100)
     await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
   })
 
