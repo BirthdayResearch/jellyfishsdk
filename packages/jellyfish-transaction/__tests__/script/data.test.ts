@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { OP_PUSHDATA } from '../../src/script'
+import { OP_PUSHDATA } from '../../src'
 
 it('should construct as big endian', () => {
   const buff = Buffer.from('00ff', 'hex')

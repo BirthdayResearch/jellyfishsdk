@@ -1,7 +1,7 @@
 import { bech32 } from 'bech32'
 import { getNetwork, Network, NetworkName } from '@defichain/jellyfish-network'
-import { Script } from '@defichain/jellyfish-transaction'
-import { OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction/src/script'
+import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
+
 import { Bech32Address } from './bech32_address'
 import { Validator } from './address'
 

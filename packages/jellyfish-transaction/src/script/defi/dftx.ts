@@ -33,7 +33,7 @@ export interface DfTx<T> {
    * Not composed into buffer, for readability only.
    *
    * Name of operation in human readable string.
-   * Structured as 'DEFI_OP_<...>'
+   * Structured as 'OP_DEFI_TX_<...>'
    */
   name: string
 }

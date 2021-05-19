@@ -15,7 +15,7 @@ export interface DeFiOpUnmapped {
 }
 
 export class CDeFiOpUnmapped extends ComposableBuffer<DeFiOpUnmapped> {
-  static OP_NAME = 'DEFI_OP_UNMAPPED'
+  static OP_NAME = 'OP_DEFI_TX_UNMAPPED'
 
   composers (op: DeFiOpUnmapped): BufferComposer[] {
     return [

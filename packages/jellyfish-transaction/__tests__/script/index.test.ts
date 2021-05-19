@@ -1,11 +1,11 @@
 import { SmartBuffer } from 'smart-buffer'
-import script, { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { OP_CODES, OP_PUSHDATA } from '../../src'
 
 describe('[]', () => {
   const hex = '00'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes.length).toBe(0)
@@ -13,7 +13,7 @@ describe('[]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([], smartBuffer)
+    OP_CODES.toBuffer([], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -22,7 +22,7 @@ describe('[OP_0]', () => {
   const hex = '0100'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_0')
@@ -31,7 +31,7 @@ describe('[OP_0]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_0], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_0], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -40,7 +40,7 @@ describe('[OP_1NEGATE]', () => {
   const hex = '014f'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_1NEGATE')
@@ -49,7 +49,7 @@ describe('[OP_1NEGATE]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_1NEGATE], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_1NEGATE], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -58,7 +58,7 @@ describe('[OP_RESERVED]', () => {
   const hex = '0150'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_RESERVED')
@@ -67,7 +67,7 @@ describe('[OP_RESERVED]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_RESERVED], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_RESERVED], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -76,7 +76,7 @@ describe('[OP_1]', () => {
   const hex = '0151'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_1')
@@ -85,7 +85,7 @@ describe('[OP_1]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_1], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_1], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -94,7 +94,7 @@ describe('[OP_2]', () => {
   const hex = '0152'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_2')
@@ -103,7 +103,7 @@ describe('[OP_2]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_2], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_2], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -112,7 +112,7 @@ describe('[OP_3]', () => {
   const hex = '0153'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_3')
@@ -121,7 +121,7 @@ describe('[OP_3]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_3], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_3], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -130,7 +130,7 @@ describe('[OP_4]', () => {
   const hex = '0154'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_4')
@@ -139,7 +139,7 @@ describe('[OP_4]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_4], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_4], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -148,7 +148,7 @@ describe('[OP_5]', () => {
   const hex = '0155'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_5')
@@ -157,7 +157,7 @@ describe('[OP_5]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_5], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_5], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -166,7 +166,7 @@ describe('[OP_6]', () => {
   const hex = '0156'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_6')
@@ -175,7 +175,7 @@ describe('[OP_6]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_6], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_6], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -184,7 +184,7 @@ describe('[OP_7]', () => {
   const hex = '0157'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_7')
@@ -193,7 +193,7 @@ describe('[OP_7]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_7], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_7], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -202,7 +202,7 @@ describe('[OP_8]', () => {
   const hex = '0158'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_8')
@@ -211,7 +211,7 @@ describe('[OP_8]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_8], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_8], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -220,7 +220,7 @@ describe('[OP_9]', () => {
   const hex = '0159'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_9')
@@ -229,7 +229,7 @@ describe('[OP_9]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_9], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_9], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -238,7 +238,7 @@ describe('[OP_10]', () => {
   const hex = '015a'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_10')
@@ -247,7 +247,7 @@ describe('[OP_10]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_10], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_10], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -256,7 +256,7 @@ describe('[OP_11]', () => {
   const hex = '015b'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_11')
@@ -265,7 +265,7 @@ describe('[OP_11]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_11], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_11], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -274,7 +274,7 @@ describe('[OP_12]', () => {
   const hex = '015c'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_12')
@@ -283,7 +283,7 @@ describe('[OP_12]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_12], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_12], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -292,7 +292,7 @@ describe('[OP_13]', () => {
   const hex = '015d'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_13')
@@ -301,7 +301,7 @@ describe('[OP_13]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_13], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_13], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -310,7 +310,7 @@ describe('[OP_14]', () => {
   const hex = '015e'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_14')
@@ -319,7 +319,7 @@ describe('[OP_14]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_14], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_14], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -328,7 +328,7 @@ describe('[OP_15]', () => {
   const hex = '015f'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_15')
@@ -337,7 +337,7 @@ describe('[OP_15]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_15], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_15], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -346,7 +346,7 @@ describe('[OP_16]', () => {
   const hex = '0160'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_16')
@@ -355,7 +355,7 @@ describe('[OP_16]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_16], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_16], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -364,7 +364,7 @@ describe('[OP_RETURN]', () => {
   const hex = '016a'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_RETURN')
@@ -373,7 +373,7 @@ describe('[OP_RETURN]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_RETURN], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_RETURN], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -382,7 +382,7 @@ describe('[OP_RIPEMD160]', () => {
   const hex = '01a6'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_RIPEMD160')
@@ -391,7 +391,7 @@ describe('[OP_RIPEMD160]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -400,7 +400,7 @@ describe('[OP_SHA1]', () => {
   const hex = '01a7'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_SHA1')
@@ -409,7 +409,7 @@ describe('[OP_SHA1]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_SHA1], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_SHA1], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -418,7 +418,7 @@ describe('[OP_SHA256]', () => {
   const hex = '01a8'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_SHA256')
@@ -427,7 +427,7 @@ describe('[OP_SHA256]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_SHA256], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_SHA256], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -436,7 +436,7 @@ describe('[OP_HASH160]', () => {
   const hex = '01a9'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_HASH160')
@@ -445,7 +445,7 @@ describe('[OP_HASH160]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_HASH160], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_HASH160], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -454,7 +454,7 @@ describe('[OP_HASH256]', () => {
   const hex = '01aa'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_HASH256')
@@ -463,7 +463,7 @@ describe('[OP_HASH256]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_HASH256], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_HASH256], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -472,7 +472,7 @@ describe('[OP_CODESEPARATOR]', () => {
   const hex = '01ab'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_CODESEPARATOR')
@@ -481,7 +481,7 @@ describe('[OP_CODESEPARATOR]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_CODESEPARATOR], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_CODESEPARATOR], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -490,7 +490,7 @@ describe('[OP_CHECKSIG]', () => {
   const hex = '01ac'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_CHECKSIG')
@@ -499,7 +499,7 @@ describe('[OP_CHECKSIG]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_CHECKSIG], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKSIG], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -508,7 +508,7 @@ describe('[OP_CHECKSIGVERIFY]', () => {
   const hex = '01ad'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_CHECKSIGVERIFY')
@@ -517,7 +517,7 @@ describe('[OP_CHECKSIGVERIFY]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_CHECKSIGVERIFY], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKSIGVERIFY], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -526,7 +526,7 @@ describe('[OP_CHECKMULTISIG]', () => {
   const hex = '01ae'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_CHECKMULTISIG')
@@ -535,7 +535,7 @@ describe('[OP_CHECKMULTISIG]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_CHECKMULTISIG], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIG], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -544,7 +544,7 @@ describe('[OP_CHECKMULTISIGVERIFY]', () => {
   const hex = '01af'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_CHECKMULTISIGVERIFY')
@@ -553,7 +553,7 @@ describe('[OP_CHECKMULTISIGVERIFY]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_CHECKMULTISIGVERIFY], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIGVERIFY], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -562,7 +562,7 @@ describe('[OP_RETURN, OP_0]', () => {
   const hex = '026a00'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_RETURN')
@@ -572,7 +572,7 @@ describe('[OP_RETURN, OP_0]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([OP_CODES.OP_RETURN, OP_CODES.OP_0], smartBuffer)
+    OP_CODES.toBuffer([OP_CODES.OP_RETURN, OP_CODES.OP_0], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
   })
 })
@@ -582,7 +582,7 @@ describe('[OP_RETURN, OP_PUSHDATA, OP_0]', () => {
   const pushData = 'd35d458fd3495704238a3ff033bea9e95989072c'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes[0].type).toBe('OP_RETURN')
@@ -593,7 +593,7 @@ describe('[OP_RETURN, OP_PUSHDATA, OP_0]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([
+    OP_CODES.toBuffer([
       OP_CODES.OP_RETURN,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
       OP_CODES.OP_0
@@ -607,7 +607,7 @@ describe('[OP_PUSHDATA, OP_0]', () => {
   const pushData = '5704238a3ff033bea9e95989072c'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect((codes[0] as OP_PUSHDATA).hex).toBe(pushData)
@@ -617,7 +617,7 @@ describe('[OP_PUSHDATA, OP_0]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([
+    OP_CODES.toBuffer([
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
       OP_CODES.OP_0
     ], smartBuffer)
@@ -630,7 +630,7 @@ describe('P2PKH: [OP_DUP, OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>, OP
   const pushData = '3bde42dbee7e4dbe6a21b2d50ce2f0167faa8159'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes.length).toBe(5)
@@ -643,7 +643,7 @@ describe('P2PKH: [OP_DUP, OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>, OP
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([
+    OP_CODES.toBuffer([
       OP_CODES.OP_DUP,
       OP_CODES.OP_HASH160,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
@@ -659,7 +659,7 @@ describe('P2SH: [OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(script))>, OP_EQUAL]',
   const pushData = 'e9c3dd0c07aac76179ebc76a6c78d4d67c6c160a'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes.length).toBe(3)
@@ -670,7 +670,7 @@ describe('P2SH: [OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(script))>, OP_EQUAL]',
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([
+    OP_CODES.toBuffer([
       OP_CODES.OP_HASH160,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
       OP_CODES.OP_EQUAL
@@ -684,7 +684,7 @@ describe('P2WPKH: [OP_0, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>]', () => {
   const pushData = '0e7c0ab18b305bc987a266dc06de26fcfab4b56a'
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes.length).toBe(2)
@@ -694,7 +694,7 @@ describe('P2WPKH: [OP_0, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([
+    OP_CODES.toBuffer([
       OP_CODES.OP_0,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little')
     ], smartBuffer)
@@ -707,7 +707,7 @@ describe('P2WSH: [OP_0, OP_PUSHDATA<SHA256(script)>]', () => {
   const pushData = '9e1be07558ea5cc8e02ed1d80c0911048afad949affa36d5c3951e3159dbea19' // 32 bytes
 
   it('should map fromBuffer', () => {
-    const codes = script.fromBufferToOpCodes(SmartBuffer.fromBuffer(
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
     expect(codes.length).toBe(2)
@@ -718,7 +718,7 @@ describe('P2WSH: [OP_0, OP_PUSHDATA<SHA256(script)>]', () => {
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
-    script.fromOpCodesToBuffer([
+    OP_CODES.toBuffer([
       OP_CODES.OP_0,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little')
     ], smartBuffer)
