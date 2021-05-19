@@ -153,46 +153,25 @@ export class Blockchain {
     return await this.client.call('getrawmempool', [verbose], 'bignumber')
   }
 
-/** 
+  /**
  *  Get block statistics for a given window.
- * @param {number} hashOrHeight  The block hash or height of the target block. 
- * @param {Array<keyof BlockStats>} stats Default = all values. See BlockStats Interface. 
- *@return {Promise<BlockStats>}  
+ * @param {number} hashOrHeight  The block hash or height of the target block.
+ * @param {Array<keyof BlockStats>} stats Default = all values. See BlockStats Interface.
+ *@return {Promise<BlockStats>}
 **/
 
-async getBlockStats(hashOrHeight: number | string, stats: Array<keyof BlockStats> = 
-    ["avgfee", "avgfeerate",
-     "avgtxsize", "blockhash",
-    "feerate_percentiles", "height",
-    "ins", "maxfee", "maxfeerate",
-    "maxtxsize", "medianfee",
-    "mediantime", "mediantxsize",
-    "minfee", "minfeerate",
-    "mintxsize", "outs", 
-    "subsidy", "swtotal_weight", 
-    "swtotal_size", "swtxs", "time", 
-    "total_out", "total_size", 
-    "total_weight", "totalfee", 
-    "txs", "utxo_increase", 
-    "utxo_size_inc"]
+  async getBlockStats (hashOrHeight: number | string, stats?: Array<keyof BlockStats>): Promise<BlockStats> {
+    return await this.client.call('getblockstats', [hashOrHeight, stats], 'number')
+  }
 
- ): Promise<BlockStats> {
-  return await this.client.call('getblockstats', [hashOrHeight, stats], 'number' )
-}
-
-/**
+  /**
  * Get the hash of the best (tip) block in the most-work fully-validated chain
  * @returns {Promise<string>}
  */
-
-async getBestBlockHash(): Promise<string> {
-    return await this.client.call("getbestblockhash", [], 'number')
+  async getBestBlockHash (): Promise<string> {
+    return await this.client.call('getbestblockhash', [], 'number')
+  }
 }
-}
-
-
-
-
 
 /**
  * TODO(fuxingloh): defid prune=1 is not type supported yet
@@ -347,7 +326,6 @@ export interface MempoolTx {
   }
 }
 
-
 export interface BlockStats {
   avgfee: number
   avgfeerate: number
@@ -383,5 +361,5 @@ export interface BlockStats {
     '50th_percentile_feerate': number
     '75th_percentile_feerate': number
     '90th_percentile_feerate': number
-  } 
+  }
 }

@@ -314,7 +314,7 @@ interface BlockStats {
 
 Get the hash of the best (tip) block in the most-work fully-validated chain.
 
-```ts title="client.blockchain.getBlockStats()"
+```ts title="client.blockchain.getBestBlockHash()"
 interface blockchain {
   getBestBlockHash (): Promise<string>
 }
