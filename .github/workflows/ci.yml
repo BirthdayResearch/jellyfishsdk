@@ -33,7 +33,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm run standard
+      - run: npx --no-install ts-standard
 
   size:
     name: Size Limit
