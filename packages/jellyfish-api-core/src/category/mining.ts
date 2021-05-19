@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, wallet } from '../.'
 
 /**
  * Mining RPCs for DeFi Blockchain
@@ -44,12 +44,10 @@ export class Mining {
    * @param {EstimateMode} [estimateMode='CONSERVATIVE'] estimateMode of fees.
    * @returns {Promise<SmartFeeEstimation>}
    */
-  async estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = 'CONSERVATIVE'): Promise<SmartFeeEstimation> {
+  async estimateSmartFee (confirmationTarget: number, estimateMode: wallet.Mode = wallet.Mode.CONSERVATIVE): Promise<SmartFeeEstimation> {
     return await this.client.call('estimatesmartfee', [confirmationTarget, estimateMode], 'number')
   }
 }
-
-export type EstimateMode = 'UNSET' | 'ECONOMICAL' | 'CONSERVATIVE'
 
 /**
  * Minting related information
@@ -99,9 +97,6 @@ export interface MasternodeInfo {
   lastblockcreationattempt?: string
 }
 
-/**
- * @description return type of rpc `estimatesmartfee`
- */
 export interface SmartFeeEstimation {
   feerate?: number
   errors?: string[]
