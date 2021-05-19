@@ -479,17 +479,17 @@ describe('ComposableBuffer.hexBE', () => {
 
 describe('ComposableBuffer.utf8LE', () => {
   const composer = ComposableBuffer.utf8LE(7, () => value, (v: string) => value = v)
-  const expectedBuffer = Buffer.from('DFI-BTC', 'utf-8')
+  const expectedBuffer = Buffer.from('CTB-IFD', 'utf-8')
   let value = ''
 
   it('should fromBuffer', () => {
     composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
 
-    expect(value).toBe('CTB-IFD')
+    expect(value).toBe('DFI-BTC')
   })
 
   it('should toBuffer', () => {
-    value = 'CTB-IFD'
+    value = 'DFI-BTC'
 
     const buffer = new SmartBuffer()
     composer.toBuffer(buffer)
@@ -550,6 +550,72 @@ describe('ComposableBuffer.utf8BE', () => {
     expect(() => {
       composer.toBuffer(new SmartBuffer())
     }).toThrow('ComposableBuffer.utf8BE.toBuffer invalid as length != getter().length')
+  })
+})
+
+describe('ComposableBuffer.varUIntUtf8LE', () => {
+  const composer = ComposableBuffer.varUIntUtf8LE(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([19]),
+    Buffer.from('CTB-IFD-IFD-IFD-IFD', 'utf-8')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toBe('DFI-DFI-DFI-DFI-BTC')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-DFI-DFI-DFI-BTC'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toBe(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toBe(to.toString())
+  })
+})
+
+describe('ComposableBuffer.varUIntUtf8BE', () => {
+  const composer = ComposableBuffer.varUIntUtf8BE(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([15]),
+    Buffer.from('DFI-ETH-BTC-DFI', 'utf-8')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toBe('DFI-ETH-BTC-DFI')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-ETH-BTC-DFI'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toBe(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toBe(to.toString())
   })
 })
 
