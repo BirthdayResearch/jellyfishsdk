@@ -1,5 +1,4 @@
-import { CScript, Script } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { CScript, Script, OP_CODES, OP_PUSHDATA } from '../../src'
 import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CScript', () => {

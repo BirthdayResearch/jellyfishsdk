@@ -1,7 +1,7 @@
 import { EllipticPair, dSHA256, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness } from './tx'
-import scripting, { OP_CODES, OP_PUSHDATA } from './script'
+import { OP_CODES, OP_PUSHDATA } from './script'
 import { CWitnessProgram, WitnessProgram } from './tx_segwit'
 import { DeFiTransactionConstants } from './index'
 import { writeVarUInt } from './buffer/buffer_varuint'
@@ -48,7 +48,8 @@ function hashPrevouts (transaction: Transaction, sigHashType: SIGHASH): string {
 
   const buffer = new SmartBuffer()
   for (const vin of transaction.vin) {
-    buffer.writeBuffer(Buffer.from(vin.txid, 'hex'))
+    const txid = Buffer.from(vin.txid, 'hex').reverse()
+    buffer.writeBuffer(txid)
     buffer.writeUInt32LE(vin.index)
   }
   return dSHA256(buffer.toBuffer()).toString('hex')
@@ -75,7 +76,7 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
   for (const vout of transaction.vout) {
     const satoshi = vout.value.multipliedBy(ONE_HUNDRED_MILLION)
     writeBigNumberUInt64(satoshi, buffer)
-    scripting.fromOpCodesToBuffer(vout.script.stack, buffer)
+    OP_CODES.toBuffer(vout.script.stack, buffer)
     writeVarUInt(vout.tokenId, buffer)
   }
   return dSHA256(buffer.toBuffer()).toString('hex')

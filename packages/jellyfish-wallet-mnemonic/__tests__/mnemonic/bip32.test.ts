@@ -19,7 +19,7 @@ const transaction: Transaction = {
     index: 0,
     script: { stack: [] },
     sequence: 4294967278,
-    txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+    txid: '9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff'
   }],
   vout: [{
     script: {

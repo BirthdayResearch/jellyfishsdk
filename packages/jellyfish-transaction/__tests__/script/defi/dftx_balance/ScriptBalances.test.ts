@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
+import { OP_CODES } from '../../../../src'
 import { CScriptBalances, ScriptBalances } from '../../../../src/script/defi/dftx_balance'
-import { OP_CODES } from '../../../../src/script'
 
 const data = '17a914d6e3de1c51f22e580944bb6a1647f1d22f0159c78701000000007030e65502000000'
 const scriptBalances: ScriptBalances = {

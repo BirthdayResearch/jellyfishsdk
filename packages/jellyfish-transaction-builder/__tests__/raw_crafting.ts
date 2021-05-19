@@ -59,7 +59,7 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
         script: { stack: [] },
         sequence: 0xffffffff,
         // container.fundAddress returns in BE
-        txid: Buffer.from(txid, 'hex').reverse().toString('hex')
+        txid: txid
       }
     ],
     vout: [
