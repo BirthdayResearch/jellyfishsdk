@@ -185,6 +185,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * @throws Error if length != getter().length in set
    */
   static hexLE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
+    // TODO(fuxingloh): this wrong, fix in another PR
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length))
@@ -210,6 +211,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * @throws Error if length != getter().length in set
    */
   static hexBE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
+    // TODO(fuxingloh): this wrong, fix in another PR
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length)).reverse()
@@ -227,11 +229,12 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Read/write as little endian, set/get as little endian.
+   * UTF-8 string with length specified, encoded in LE order buffer.
+   * String is always BE, as Javascript is uses BE by default.
    *
    * @param length of the bytes to read/set
-   * @param getter to read utf8 string from to buffer
-   * @param setter to set to utf8 string from buffer
+   * @param getter to read BE ordered string and write as LE ordered Buffer
+   * @param setter to write LE ordered Buffer and set as BE ordered string
    * @throws Error if length != getter().length in set
    */
   static utf8LE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
@@ -251,11 +254,12 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * Read/write as big endian, set/get as big endian.
+   * UTF-8 string with length specified, encoded in BE order buffer.
+   * String is always BE, as Javascript is uses BE by default.
    *
    * @param length of the bytes to read/set
-   * @param getter to read utf8 string from to buffer
-   * @param setter to set to utf8 string from buffer
+   * @param getter to read BE ordered string and write as BE ordered Buffer
+   * @param setter to write BE ordered Buffer and set as BE ordered string
    * @throws Error if length != getter().length in set
    */
   static utf8BE (length: number, getter: () => string, setter: (data: string) => void): BufferComposer {
@@ -269,6 +273,50 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         if (buff.length !== length) {
           throw new Error('ComposableBuffer.utf8BE.toBuffer invalid as length != getter().length')
         }
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
+   * VarUInt sized UTF-8 string, encoded in LE order buffer.
+   * String is always BE, as Javascript is uses BE by default.
+   *
+   * @param getter to read BE ordered string and write as LE ordered Buffer
+   * @param setter to write LE ordered Buffer and set as BE ordered string
+   */
+  static varUIntUtf8LE (getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const length = readVarUInt(buffer)
+        const buff = Buffer.from(buffer.readBuffer(length)).reverse()
+        setter(buff.toString('utf-8'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const buff: Buffer = Buffer.from(getter(), 'utf-8').reverse()
+        writeVarUInt(buff.length, buffer)
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
+   * VarUInt sized UTF-8 string, encoded in BE order buffer.
+   * String is always BE, as Javascript is uses BE by default.
+   *
+   * @param getter to read BE ordered string and write as BE ordered Buffer
+   * @param setter to write BE ordered Buffer and set as BE ordered string
+   */
+  static varUIntUtf8BE (getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const length = readVarUInt(buffer)
+        const buff = Buffer.from(buffer.readBuffer(length))
+        setter(buff.toString('utf-8'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const buff: Buffer = Buffer.from(getter(), 'utf-8')
+        writeVarUInt(buff.length, buffer)
         buffer.writeBuffer(buff)
       }
     }
