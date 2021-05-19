@@ -314,4 +314,35 @@ describe('masternode', () => {
       })
     })
   })
+
+  describe('getBlockStats', () => {
+    it('should get blockchain start and return  all values  ', async () => {
+      const blockHash  = await waitForBlockHash(1);
+      const stats = await client.blockchain.getBlockStats(blockHash);
+
+
+      expect(stats.height).toBeGreaterThanOrEqual(1);
+      expect(stats.minfee).toBeLessThanOrEqual(stats.medianfee);
+      expect(stats.medianfee).toBeLessThanOrEqual(stats.maxfee);
+    })
+
+    it('should  get blockchain start with specific values', async () => {
+      const blockHash  = await waitForBlockHash(1);
+      const stats = await client.blockchain.getBlockStats(blockHash, ["avgfee", "height"]); 
+      
+    expect("height" in stats).toBeTruthy();
+    expect("avgfee" in stats).toBeTruthy();
+    expect(stats.height).toBeGreaterThanOrEqual(1);
+    expect(Object.keys(stats).length).toEqual(2);
+    
+    })
+  })
+  describe('getBestBlockHash', () => {
+      test('should Get hash of best block and return a string', async () => {
+        const bestBlockHash = await client.blockchain.getBestBlockHash();
+        expect(bestBlockHash).toBeTruthy();
+      })
+      
+  })
+  
 })
