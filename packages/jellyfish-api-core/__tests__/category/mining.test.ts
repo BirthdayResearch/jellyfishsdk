@@ -2,6 +2,7 @@ import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcon
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { wallet } from '../../src'
+import { EstimateMode } from '../../src/category/mining'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -145,7 +146,7 @@ describe('estimatesmartfees', () => {
       }
     })
 
-    const result = await client.mining.estimateSmartFee(6, 'ECONOMICAL')
+    const result = await client.mining.estimateSmartFee(6, EstimateMode.ECONOMICAL)
     expect(result.errors).toBeUndefined()
     expect(result.blocks).toBeGreaterThan(0)
     expect(result.feerate).toBeGreaterThan(0)

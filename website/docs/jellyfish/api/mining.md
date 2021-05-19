@@ -107,5 +107,9 @@ interface SmartFeeEstimation {
   blocks: number
 }
 
-type EstimateMode = 'UNSET' | 'ECONOMICAL' | 'CONSERVATIVE';
+enum EstimateMode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
+}
 ```
