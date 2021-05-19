@@ -1,3 +1,7 @@
+import BigNumber from 'bignumber.js'
+import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { UtxosToAccount } from '@defichain/jellyfish-transaction/src/script/defi/dftx_account'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -6,10 +10,6 @@ import {
   fundEllipticPair,
   sendTransaction
 } from '../test.utils'
-import { UtxosToAccount } from '@defichain/jellyfish-transaction/src/script/defi/dftx_account'
-import BigNumber from 'bignumber.js'
-import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
