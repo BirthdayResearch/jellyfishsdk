@@ -1,7 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { CTransactionSegWit, TransactionSegWit, DeFiTransactionConstants } from '../src'
-import { OP_CODES, OP_PUSHDATA } from '../src/script'
+import { OP_CODES, OP_PUSHDATA, CTransactionSegWit, TransactionSegWit, DeFiTransactionConstants } from '../src'
 
 it('should be able to use DeFiTransactionConstants constants to craft Transaction', () => {
   const hex = '04000000000101ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a0000000000ffffffff0100e1f505000000001600143bde42dbee7e4dbe6a21b2d50ce2f0167faa815900010000000000'

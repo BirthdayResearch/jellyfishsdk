@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
-import { DeFiTransactionConstants, SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { OP_CODES, OP_PUSHDATA, DeFiTransactionConstants, SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
+
 import { Elliptic } from '@defichain/jellyfish-crypto'
 
 describe('sign transaction', () => {
