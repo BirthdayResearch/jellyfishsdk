@@ -1,10 +1,6 @@
-import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
-import { SmartBuffer } from 'smart-buffer'
-import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
-import { CScriptBalances, ScriptBalances } from './dftx_balance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -21,8 +17,8 @@ export interface CurrencyPair {
 export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
   composers (cp: CurrencyPair): BufferComposer[] {
     return [
-      ComposableBuffer.utf8BE(cp.token.length, () => cp.token, v => cp.token = v),
-      ComposableBuffer.utf8BE(cp.currency.length, () => cp.currency, v => cp.currency = v)
+      ComposableBuffer.varUIntUtf8BE(() => cp.token, v => cp.token = v),
+      ComposableBuffer.varUIntUtf8BE(() => cp.currency, v => cp.currency = v)
     ]
   }
 }
@@ -72,7 +68,7 @@ export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
   composers (ao: RemoveOracle): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
-      ComposableBuffer.utf8BE(ao.oracleId.length, () => ao.oracleId, v => ao.oracleId = v)
+      ComposableBuffer.varUIntUtf8BE(() => ao.oracleId, v => ao.oracleId = v)
     ]
   }
 }
@@ -98,7 +94,7 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
 
   composers (ao: UpdateOracle): BufferComposer[] {
     return [
-      ComposableBuffer.utf8BE(ao.oracleId.length, () => ao.oracleId, v => ao.oracleId = v),
+      ComposableBuffer.varUIntUtf8BE(() => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => ao.weightage, v => ao.weightage = v),
       ComposableBuffer.varUIntArray(() => ao.pricefeeds, v => ao.pricefeeds = v, v => new CCurrencyPair(v))
@@ -126,7 +122,7 @@ export class CSetOracleData extends ComposableBuffer<SetOracleData> {
 
   composers (ao: SetOracleData): BufferComposer[] {
     return [
-      ComposableBuffer.utf8BE(ao.oracleId.length, () => ao.oracleId, v => ao.oracleId = v),
+      ComposableBuffer.varUIntUtf8BE(() => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.uInt32(() => ao.timestamp, v => ao.timestamp = v),
       ComposableBuffer.varUIntArray(() => ao.prices, v => ao.prices = v, v => new CCurrencyPair(v))
     ]
