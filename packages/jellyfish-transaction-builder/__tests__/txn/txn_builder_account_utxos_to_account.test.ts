@@ -66,7 +66,7 @@ describe('account.utxosToAccount()', () => {
     const change = await findOut(outs, providers.elliptic.ellipticPair)
 
     expect(outs.length).toEqual(2)
-    const encoded: string = OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount).asBuffer().toString('hex')
+    const encoded: string = OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount).asBuffer().toString('hex')
     // OP_RETURN + utxos full buffer
     const expectedRedeemScript = `6a${encoded}`
     expect(outs[0].value).toEqual(conversionAmount)
