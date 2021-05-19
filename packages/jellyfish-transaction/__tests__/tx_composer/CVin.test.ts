@@ -1,5 +1,4 @@
-import { CVin, Vin } from '../../src'
-import { OP_PUSHDATA } from '../../src/script'
+import { CVin, Vin, OP_PUSHDATA } from '../../src'
 import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CVin', () => {

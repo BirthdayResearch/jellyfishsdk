@@ -10,7 +10,7 @@ import {
   Witness, WitnessScript
 } from './tx'
 
-import scriptComposer, { OPCode } from './script'
+import { OP_CODES, OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -164,10 +164,10 @@ export class CScript extends ComposableBuffer<Script> implements Script {
     return [
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          script.stack = scriptComposer.fromBufferToOpCodes(buffer)
+          script.stack = OP_CODES.fromBuffer(buffer)
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          scriptComposer.fromOpCodesToBuffer(script.stack, buffer)
+          OP_CODES.toBuffer(script.stack, buffer)
         }
       }
     ]

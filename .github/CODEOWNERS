@@ -10,12 +10,14 @@
 /website/                                       @fuxingloh
 
 /packages/jellyfish/                            @fuxingloh
+/packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 /packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811
 /packages/jellyfish-api-jsonrpc/                @fuxingloh
 /packages/jellyfish-crypto/                     @fuxingloh
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
 /packages/jellyfish-transaction/                @fuxingloh
+/packages/jellyfish-transaction-builder/        @fuxingloh
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/testcontainers/                       @fuxingloh

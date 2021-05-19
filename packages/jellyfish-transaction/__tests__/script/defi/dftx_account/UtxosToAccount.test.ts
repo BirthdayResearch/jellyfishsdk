@@ -1,8 +1,9 @@
-import { SmartBuffer } from 'smart-buffer'
-import { CUtxosToAccount, UtxosToAccount } from '../../../../src/script/defi/dftx_account'
-import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
 import BigNumber from 'bignumber.js'
+import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/defi'
+import { OP_CODES } from '../../../../src'
+import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
+import { CUtxosToAccount, UtxosToAccount } from '../../../../src/script/defi/dftx_account'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -50,7 +51,7 @@ const utxosToAccount: UtxosToAccount = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount)
+    OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount)
   ]
 
   const buffer = toBuffer(stack)
