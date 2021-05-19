@@ -3,8 +3,8 @@ import {
   CAppointOracle,
   AppointOracle,
 } from '../../../../src/script/defi/dftx_oracles'
-import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
-import BigNumber from 'bignumber.js'
+import { OP_CODES } from '../../../../src/script'
+import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/defi'
 
 it('should bi-directional buffer-object-buffer', () => {
