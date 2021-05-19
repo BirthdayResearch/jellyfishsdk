@@ -1,15 +1,15 @@
-import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
-import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import {
   findOut,
   fundEllipticPair,
-  randomEllipticPair,
   sendTransaction
 } from '../test.utils'
+import { UtxosToAccount } from '@defichain/jellyfish-transaction/src/script/defi/dftx_account'
+import BigNumber from 'bignumber.js'
+import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { OP_CODES } from '@defichain/jellyfish-transaction'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -43,68 +43,38 @@ beforeEach(async () => {
   await providers.setupMocks()
 })
 
-describe('utxo.send', () => {
-  it('should send to address', async () => {
-    const sendPair = randomEllipticPair()
-    const sendPubKey = await sendPair.publicKey()
+describe('account.utxosToAccount()', () => {
+  it('should receive token and change', async () => {
+    const destPubKey = await providers.ellipticPair.publicKey()
+    const dest = await providers.elliptic.script()
 
-    const to: Script = {
-      stack: [
-        OP_CODES.OP_0,
-        OP_CODES.OP_PUSHDATA(HASH160(sendPubKey), 'little')
-      ]
+    const conversionAmount = 12.34
+
+    const utxosToAccount: UtxosToAccount = {
+      to: [{
+        balances: [{
+          token: 0x00,
+          amount: new BigNumber(conversionAmount)
+        }],
+        script: dest
+      }]
     }
-    const change = await providers.elliptic.script()
-    const txn = await builder.utxo.send(new BigNumber('99'), to, change)
+
+    const txn = await builder.account.utxosToAccount(utxosToAccount, dest)
+
     const outs = await sendTransaction(container, txn)
+    const change = await findOut(outs, providers.elliptic.ellipticPair)
 
-    const sendTo = await findOut(outs, sendPair)
-    expect(sendTo.value).toBe(99)
-    expect(sendTo.scriptPubKey.hex).toBe(`0014${HASH160(sendPubKey).toString('hex')}`)
-    expect(sendTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(sendPubKey, 'bcrt'))
+    expect(outs.length).toEqual(2)
+    const encoded: string = OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount).asBuffer().toString('hex')
+    // OP_RETURN + utxos full buffer
+    const expectedRedeemScript = `6a${encoded}`
+    expect(outs[0].value).toEqual(conversionAmount)
+    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
 
-    const changePair = await providers.elliptic.ellipticPair
-    const changePubKey = await changePair.publicKey()
-    const changeTo = await findOut(outs, providers.elliptic.ellipticPair)
-    expect(changeTo.value).toBeGreaterThan(0.9)
-    expect(changeTo.value).toBeLessThan(1)
-    expect(changeTo.scriptPubKey.hex).toBe(`0014${HASH160(changePubKey).toString('hex')}`)
-    expect(changeTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(changePubKey, 'bcrt'))
-
-    const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toBe(1)
-    expect(prevouts[0].value.toNumber()).toBe(changeTo.value)
-    expect(prevouts[0].vout).toBe(changeTo.n)
-
-    expect(prevouts[0].script.stack.length).toBe(2)
-    expect(prevouts[0].script.stack[0].type).toBe('OP_0')
-    expect((prevouts[0].script.stack[1] as OP_PUSHDATA).hex).toBe(HASH160(changePubKey).toString('hex'))
-  })
-})
-
-describe('utxo.sendAll', () => {
-  it('should send all to address', async () => {
-    const sendPair = randomEllipticPair()
-    const sendPubKey = await sendPair.publicKey()
-
-    const to: Script = {
-      stack: [
-        OP_CODES.OP_0,
-        OP_CODES.OP_PUSHDATA(HASH160(sendPubKey), 'little')
-      ]
-    }
-    const txn = await builder.utxo.sendAll(to)
-    const outs = await sendTransaction(container, txn)
-
-    expect(outs.length).toBe(1)
-
-    const sendTo = await findOut(outs, sendPair)
-    expect(sendTo.value).toBeGreaterThan(99.99)
-    expect(sendTo.value).toBeLessThan(100)
-    expect(sendTo.scriptPubKey.hex).toBe(`0014${HASH160(sendPubKey).toString('hex')}`)
-    expect(sendTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(sendPubKey, 'bcrt'))
-
-    const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toBe(0)
+    expect(change.value).toBeLessThan(100 - conversionAmount)
+    expect(change.value).toBeGreaterThan(100 - conversionAmount - 0.001)
+    expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
   })
 })
