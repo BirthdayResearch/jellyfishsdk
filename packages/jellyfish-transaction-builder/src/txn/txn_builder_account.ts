@@ -25,7 +25,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
 
     const amountToConvert = utxosToAccount.to[0].balances[0].amount
     return await super.createDeFiTx(
-      OP_CODES.DEFI_OP_UTXOS_TO_ACCOUNT(utxosToAccount),
+      OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount),
       changeScript,
       amountToConvert
     )
