@@ -11,6 +11,7 @@ import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
 import { NetworkGuard } from '@src/module.api/guards/network.guard'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
 import { ResponseInterceptor } from '@src/module.api/interceptors/response.interceptor'
+import { TokensController } from '@src/module.api/tokens.controller'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -22,6 +23,7 @@ import { ResponseInterceptor } from '@src/module.api/interceptors/response.inter
     AddressController,
     HealthController,
     TransactionsController,
+    TokensController,
     PoolPairController
   ],
   providers: [
