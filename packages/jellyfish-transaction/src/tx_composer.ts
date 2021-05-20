@@ -10,7 +10,7 @@ import {
   Witness, WitnessScript
 } from './tx'
 
-import scriptComposer, { OPCode } from './script'
+import { OP_CODES, OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -83,7 +83,8 @@ export class CVin extends ComposableBuffer<Vin> implements Vin {
 
   composers (vin: Vin): BufferComposer[] {
     return [
-      ComposableBuffer.hex(32, () => vin.txid, v => vin.txid = v),
+      // defid returns txid in BE order hence we need to reverse it
+      ComposableBuffer.hexBEBufferLE(32, () => vin.txid, v => vin.txid = v),
       ComposableBuffer.uInt32(() => vin.index, v => vin.index = v),
       ComposableBuffer.single<Script>(() => vin.script, v => vin.script = v, v => new CScript(v)),
       ComposableBuffer.uInt32(() => vin.sequence, v => vin.sequence = v)
@@ -107,7 +108,7 @@ export class CVoutV2 extends ComposableBuffer<Vout> implements Vout {
     return this.data.script
   }
 
-  public get dct_id (): number {
+  public get tokenId (): number {
     return 0x00
   }
 
@@ -135,15 +136,15 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
     return this.data.script
   }
 
-  public get dct_id (): number {
-    return this.data.dct_id
+  public get tokenId (): number {
+    return this.data.tokenId
   }
 
   composers (vout: Vout): BufferComposer[] {
     return [
       ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-      ComposableBuffer.varUInt(() => vout.dct_id, v => vout.dct_id = v)
+      ComposableBuffer.varUInt(() => vout.tokenId, v => vout.tokenId = v)
     ]
   }
 }
@@ -164,10 +165,10 @@ export class CScript extends ComposableBuffer<Script> implements Script {
     return [
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          script.stack = scriptComposer.fromBufferToOpCodes(buffer)
+          script.stack = OP_CODES.fromBuffer(buffer)
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          scriptComposer.fromOpCodesToBuffer(script.stack, buffer)
+          OP_CODES.toBuffer(script.stack, buffer)
         }
       }
     ]

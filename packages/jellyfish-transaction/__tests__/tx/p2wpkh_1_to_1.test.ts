@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Bech32, WIF } from '@defichain/jellyfish-crypto'
-import { CTransaction, CTransactionSegWit, SignInputOption, TransactionSigner } from '../../src'
-import { OP_CODES } from '../../src/script'
+import { OP_CODES, CTransaction, CTransactionSegWit, SignInputOption, TransactionSigner } from '../../src'
 
 // From Address P2WPKH
 const input = {
@@ -46,7 +45,7 @@ it('sign transaction', async () => {
         ]
       },
       value: new BigNumber('10'),
-      dct_id: 0
+      tokenId: 0
     },
     ellipticPair: WIF.asEllipticPair(input.privKey)
   }]

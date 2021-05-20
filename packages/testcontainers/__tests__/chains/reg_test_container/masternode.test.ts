@@ -19,4 +19,11 @@ describe('masternode', () => {
       expect(info.blocks).toBeGreaterThan(3)
     })
   })
+
+  it('should wait for block', async () => {
+    await container.waitForBlock(4)
+
+    const count = await container.getBlockCount()
+    expect(count).toBeGreaterThan(3)
+  })
 })

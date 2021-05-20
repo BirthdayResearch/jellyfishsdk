@@ -1,5 +1,6 @@
-import Dockerode, { DockerOptions, Container, ContainerInfo } from 'dockerode'
+import Dockerode, { DockerOptions, ContainerInfo } from 'dockerode'
 import fetch from 'node-fetch'
+import { DockerContainer } from './docker_container'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -16,110 +17,32 @@ export interface StartOptions {
 }
 
 /**
- * Clean up stale nodes are nodes that are running for 1 hour
- */
-async function cleanUpStale (docker: Dockerode): Promise<void> {
-  /**
-   * Same prefix and created more than 1 hour ago
-   */
-  const isStale = (containerInfo: ContainerInfo): boolean => {
-    if (containerInfo.Names.filter((value) => value.startsWith(DeFiDContainer.PREFIX)).length > 0) {
-      return containerInfo.Created + 60 * 60 < Date.now() / 1000
-    }
-
-    return false
-  }
-
-  /**
-   * Stop container that are running, remove them after and their associated volumes
-   */
-  const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
-    const container = docker.getContainer(containerInfo.Id)
-    if (containerInfo.State === 'running') {
-      await container.stop()
-    }
-    await container.remove({ v: true })
-  }
-
-  return await new Promise((resolve, reject) => {
-    docker.listContainers({ all: 1 }, (error, result) => {
-      if (error instanceof Error) {
-        return reject(error)
-      }
-
-      const promises = (result ?? [])
-        .filter(isStale)
-        .map(tryStopRemove)
-
-      Promise.all(promises).finally(resolve)
-    })
-  })
-}
-
-async function hasImageLocally (docker: Dockerode): Promise<boolean> {
-  return await new Promise((resolve, reject) => {
-    docker.getImage(DeFiDContainer.image).inspect((error, result) => {
-      resolve(!(error instanceof Error))
-    })
-  })
-}
-
-/**
- * Pull DeFiDContainer.image if it doesn't already exist.
- */
-async function tryPullImage (docker: Dockerode): Promise<void> {
-  if (await hasImageLocally(docker)) {
-    return
-  }
-
-  /* istanbul ignore next */
-  return await new Promise((resolve, reject) => {
-    docker.pull(DeFiDContainer.image, {}, (error, result) => {
-      if (error instanceof Error) {
-        reject(error)
-        return
-      }
-      docker.modem.followProgress(result, () => {
-        resolve()
-      })
-    })
-  })
-}
-
-/**
  * DeFiChain defid node managed in docker
  */
-export abstract class DeFiDContainer {
+export abstract class DeFiDContainer extends DockerContainer {
   /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
   public static readonly PREFIX = 'defichain-testcontainers-'
-  public static readonly image = 'defi/defichain:1.6.3'
+  public static readonly image = 'defi/defichain:1.6.4'
 
   public static readonly DefaultStartOptions = {
     user: 'testcontainers-user',
     password: 'testcontainers-password'
   }
 
-  protected readonly docker: Dockerode
-  protected readonly network: Network
-
-  protected container?: Container
   protected startOptions?: StartOptions
   protected cachedRpcUrl?: string
 
-  protected constructor (network: Network, options?: DockerOptions) {
-    this.docker = new Dockerode(options)
-    this.network = network
-  }
-
   /**
-   * Require container, else error exceptionally.
-   * Not a clean design, but it keep the complexity of this implementation low.
+   * @param {Network} network of the container
+   * @param {string} image docker image name
+   * @param {DockerOptions} options
    */
-  protected requireContainer (): Container {
-    if (this.container !== undefined) {
-      return this.container
-    }
-    throw new Error('container not yet started')
+  protected constructor (
+    protected readonly network: Network,
+    protected readonly image: string = DeFiDContainer.image,
+    options?: DockerOptions
+  ) {
+    super(image, options)
   }
 
   /**
@@ -137,15 +60,14 @@ export abstract class DeFiDContainer {
   }
 
   /**
-   * Always pull a version of DeFiDContainer.image,
    * Create container and start it immediately
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
-    await tryPullImage(this.docker)
+    await this.tryPullImage()
     this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
     this.container = await this.docker.createContainer({
       name: this.generateName(),
-      Image: DeFiDContainer.image,
+      Image: this.image,
       Tty: true,
       Cmd: this.getCmd(this.startOptions),
       HostConfig: {
@@ -161,29 +83,6 @@ export abstract class DeFiDContainer {
   generateName (): string {
     const rand = Math.floor(Math.random() * 10000000)
     return `${DeFiDContainer.PREFIX}-${this.network}-${rand}`
-  }
-
-  /**
-   * Get host machine port
-   *
-   * @param name of ExposedPorts e.g. '80/tcp'
-   */
-  async getPort (name: string): Promise<string> {
-    const container = this.requireContainer()
-
-    return await new Promise((resolve, reject) => {
-      container.inspect(function (err, data) {
-        if (err instanceof Error) {
-          return reject(err)
-        }
-
-        if (data?.NetworkSettings.Ports[name] !== undefined) {
-          return resolve(data.NetworkSettings.Ports[name][0].HostPort)
-        }
-
-        return reject(new Error('Unable to find rpc port, the container might have crashed'))
-      })
-    })
   }
 
   /**
@@ -256,7 +155,7 @@ export abstract class DeFiDContainer {
 
   /**
    * Wait for rpc to be ready
-   * @param {number} timeout duration, default to 15000ms
+   * @param {number} [timeout=15000] in millis
    */
   private async waitForRpc (timeout = 15000): Promise<void> {
     const expiredAt = Date.now() + timeout
@@ -305,30 +204,21 @@ export abstract class DeFiDContainer {
 
   /**
    * Wait for everything to be ready, override for additional hooks
-   * @param {number} timeout duration, default to 15000ms
+   * @param {number} [timeout=15000] duration, default to 15000ms
    */
   async waitForReady (timeout = 15000): Promise<void> {
     return await this.waitForRpc(timeout)
   }
 
   /**
-   * tty into docker
+   * @param {number} count of block to wait for
+   * @param {number} [timeout=30000] in ms
    */
-  async exec (opts: { Cmd: string[] }): Promise<void> {
-    return await new Promise((resolve, reject) => {
-      const container = this.requireContainer()
-      container.exec({
-        Cmd: opts.Cmd
-      }, (error, exec) => {
-        if (error instanceof Error) {
-          reject(error)
-        } else {
-          exec?.start({})
-            .then(() => resolve())
-            .catch(reject)
-        }
-      })
-    })
+  async waitForBlock (count: number, timeout: number = 300000): Promise<void> {
+    return await this.waitForCondition(async () => {
+      const blockCount = await this.getBlockCount()
+      return blockCount > count
+    }, timeout, 200)
   }
 
   /**
@@ -344,7 +234,7 @@ export abstract class DeFiDContainer {
       try {
         await this.container?.remove({ v: true })
       } finally {
-        await cleanUpStale(this.docker)
+        await cleanUpStale(DeFiDContainer.PREFIX, this.docker)
       }
     }
   }
@@ -357,4 +247,45 @@ export class DeFiDRpcError extends Error {
   constructor (error: { code: number, message: string }) {
     super(`DeFiDRpcError: '${error.message}', code: ${error.code}`)
   }
+}
+
+/**
+ * Clean up stale nodes are nodes that are running for 1 hour
+ */
+async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
+  /**
+   * Same prefix and created more than 1 hour ago
+   */
+  const isStale = (containerInfo: ContainerInfo): boolean => {
+    if (containerInfo.Names.filter((value) => value.startsWith(prefix)).length > 0) {
+      return containerInfo.Created + 60 * 60 < Date.now() / 1000
+    }
+
+    return false
+  }
+
+  /**
+   * Stop container that are running, remove them after and their associated volumes
+   */
+  const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
+    const container = docker.getContainer(containerInfo.Id)
+    if (containerInfo.State === 'running') {
+      await container.stop()
+    }
+    await container.remove({ v: true })
+  }
+
+  return await new Promise((resolve, reject) => {
+    docker.listContainers({ all: 1 }, (error, result) => {
+      if (error instanceof Error) {
+        return reject(error)
+      }
+
+      const promises = (result ?? [])
+        .filter(isStale)
+        .map(tryStopRemove)
+
+      Promise.all(promises).finally(resolve)
+    })
+  })
 }

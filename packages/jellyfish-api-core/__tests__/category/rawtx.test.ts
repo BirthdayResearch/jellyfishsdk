@@ -115,7 +115,7 @@ describe('signRawTransactionWithKey', () => {
 
     expect(signed.complete).toBe(true)
     expect(signed.hex.substr(0, 14)).toBe('04000000000101')
-    expect(signed.hex.substr(86, 82)).toBe('00ffffffff010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b0803400024730')
+    expect(signed.hex.substr(86, 78)).toBe('00ffffffff010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340002')
     expect(signed.hex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
   })
 
@@ -135,7 +135,7 @@ describe('signRawTransactionWithKey', () => {
 
     expect(signed.complete).toBe(true)
     expect(signed.hex.substr(0, 14)).toBe('04000000000101')
-    expect(signed.hex.substr(86, 146)).toBe('00ffffffff020065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340080ce341d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a8200024730')
+    expect(signed.hex.substr(86, 142)).toBe('00ffffffff020065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340080ce341d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
     expect(signed.hex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
   })
 

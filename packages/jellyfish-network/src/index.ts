@@ -1,33 +1,39 @@
 /**
+ * Networks available in DeFi Blockchain.
+ */
+export type NetworkName = 'mainnet' | 'testnet' | 'regtest'
+
+/**
  * Network specific DeFi configuration.
  * They can be found in DeFiCh/ain project in file chainparams.cpp, under base58Prefixes
  */
 export interface Network {
+  name: NetworkName
   bech32: {
     /** bech32 human readable part */
-    hrp: string
+    hrp: 'df' | 'tf' | 'bcrt'
   }
   bip32: {
     /** base58Prefixes.EXT_PUBLIC_KEY */
-    publicPrefix: number
+    publicPrefix: 0x0488b21e | 0x043587cf
     /** base58Prefixes.EXT_SECRET_KEY */
-    privatePrefix: number
+    privatePrefix: 0x0488ade4 | 0x04358394
   }
   /** base58Prefixes.SECRET_KEY */
-  wifPrefix: number
+  wifPrefix: 0x80 | 0xef
   /** base58Prefixes.PUBKEY_ADDRESS */
-  pubKeyHashPrefix: number
+  pubKeyHashPrefix: 0x12 | 0xf | 0x6f
   /** base58Prefixes.SCRIPT_ADDRESS */
-  scriptHashPrefix: number
+  scriptHashPrefix: 0x5a | 0x80 | 0xc4
   /** For message signing. */
-  messagePrefix: string
+  messagePrefix: '\x15Defi Signed Message:\n'
 }
 
 /**
  * @param network name
  * @return Network specific DeFi configuration
  */
-export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network {
+export function getNetwork (network: NetworkName): Network {
   switch (network) {
     case 'mainnet':
       return MainNet
@@ -44,6 +50,7 @@ export function getNetwork (network: 'mainnet' | 'testnet' | 'regtest'): Network
  * MainNet specific DeFi configuration.
  */
 export const MainNet: Network = {
+  name: 'mainnet',
   bech32: {
     hrp: 'df'
   },
@@ -61,6 +68,7 @@ export const MainNet: Network = {
  * TestNet specific DeFi configuration.
  */
 export const TestNet: Network = {
+  name: 'testnet',
   bech32: {
     hrp: 'tf'
   },
@@ -78,6 +86,7 @@ export const TestNet: Network = {
  * RegTest specific DeFi configuration.
  */
 export const RegTest: Network = {
+  name: 'regtest',
   bech32: {
     hrp: 'bcrt'
   },

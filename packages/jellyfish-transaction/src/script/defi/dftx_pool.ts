@@ -30,7 +30,7 @@ export interface PoolSwap {
  */
 export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   static OP_CODE = 0x73
-  static OP_NAME = 'DEFI_OP_POOL_SWAP'
+  static OP_NAME = 'OP_DEFI_TX_POOL_SWAP'
 
   composers (ps: PoolSwap): BufferComposer[] {
     return [
@@ -69,7 +69,7 @@ export interface PoolAddLiquidity {
  */
 export class CPoolAddLiquidity extends ComposableBuffer<PoolAddLiquidity> {
   static OP_CODE = 0x6c
-  static OP_NAME = 'DEFI_OP_POOL_ADD_LIQUIDITY'
+  static OP_NAME = 'OP_DEFI_TX_POOL_ADD_LIQUIDITY'
 
   composers (p: PoolAddLiquidity): BufferComposer[] {
     return [
@@ -94,7 +94,7 @@ export interface PoolRemoveLiquidity {
  */
 export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> {
   static OP_CODE = 0x72
-  static OP_NAME = 'DEFI_OP_POOL_REMOVE_LIQUIDITY'
+  static OP_NAME = 'OP_DEFI_TX_POOL_REMOVE_LIQUIDITY'
 
   composers (p: PoolRemoveLiquidity): BufferComposer[] {
     return [

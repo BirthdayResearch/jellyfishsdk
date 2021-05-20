@@ -1,8 +1,13 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { CTransactionSegWit, DeFiTransactionConstants, Transaction, TransactionSigner } from '../src'
-import { OP_CODES } from '../src/script'
+import {
+  CTransactionSegWit,
+  DeFiTransactionConstants,
+  Transaction,
+  TransactionSigner,
+  OP_CODES
+} from '@defichain/jellyfish-transaction'
 import { WIF, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 
@@ -54,7 +59,7 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
         script: { stack: [] },
         sequence: 0xffffffff,
         // container.fundAddress returns in BE
-        txid: Buffer.from(txid, 'hex').reverse().toString('hex')
+        txid: txid
       }
     ],
     vout: [
@@ -69,7 +74,7 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
             )
           ]
         },
-        dct_id: 0x00
+        tokenId: 0x00
       }
     ],
     lockTime: 0x00000000
@@ -88,7 +93,7 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
           )
         ]
       },
-      dct_id: 0x00
+      tokenId: 0x00
     },
     ellipticPair: inputPair
   }])

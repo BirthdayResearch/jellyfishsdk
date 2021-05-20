@@ -34,16 +34,16 @@ issue:
         - workflow
         - website
         - jellyfish
+        - jellyfish-address
         - jellyfish-api-core
         - jellyfish-api-jsonrpc
-        - jellyfish-api-whale
         - jellyfish-crypto
         - jellyfish-json
         - jellyfish-network
         - jellyfish-transaction
+        - jellyfish-transaction-builder
         - jellyfish-wallet
         - jellyfish-wallet-mnemonic
-        - jellyfish-wallet-whale
         - testcontainers
         - testing
       multiple: true

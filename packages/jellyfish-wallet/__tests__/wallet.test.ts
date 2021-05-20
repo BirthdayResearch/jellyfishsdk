@@ -1,13 +1,12 @@
 import { TestNodeProvider } from './node.mock'
-import { MockTestAccountData, TestAccountProvider } from './account.mock'
+import { TestAccountProvider } from './account.mock'
 import { JellyfishWallet } from '../src'
 
 const nodeProvider = new TestNodeProvider()
-const mockData: MockTestAccountData = {}
 
 describe('discover accounts', () => {
   it('should discover [] account when empty', async () => {
-    const accountProvider = new TestAccountProvider({})
+    const accountProvider = new TestAccountProvider([])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover()
@@ -15,9 +14,9 @@ describe('discover accounts', () => {
   })
 
   it('should discover [0] when [0] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover()
@@ -25,9 +24,9 @@ describe('discover accounts', () => {
   })
 
   it('should discover [] when [1] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover()
@@ -35,10 +34,10 @@ describe('discover accounts', () => {
   })
 
   it('should discover [0,1] when [0,1] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData,
-      '0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r',
+      'bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover()
@@ -46,11 +45,11 @@ describe('discover accounts', () => {
   })
 
   it('should discover [0,1,2] when [0,1,2] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData,
-      '0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1': mockData,
-      '023bf78af6546c9d957d0fa0d3066f3d7fa735196662e2cce753305926712945d7': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r',
+      'bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24',
+      'bcrt1qrvt6c60848p8y8vd3pejdt33davp5ka9vxupuj'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover()
@@ -58,12 +57,12 @@ describe('discover accounts', () => {
   })
 
   it('should discover [0,1] when [0,1,3,4] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData,
-      '0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1': mockData,
-      '02a9b7278229a9a4cb20a7852bf540559dc844faba558338d221cd0d26b795fdbb': mockData,
-      '02acf1d65943ce391c5c7a6319050c71ece26f5815f1a69445edd35b8d8dac13be': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r',
+      'bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24',
+      'bcrt1qur2tmednr6e52u9du972nqvua60egwqkf98ps8',
+      'bcrt1qxvvp3tz5u8t90nwwjzsalha66zk9em95tgn3fk'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover()
@@ -71,10 +70,10 @@ describe('discover accounts', () => {
   })
 
   it('should discover [0] when [0,1] has activity as max account is set to 1', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData,
-      '0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r',
+      'bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
     const accounts = await wallet.discover(1)
@@ -84,26 +83,26 @@ describe('discover accounts', () => {
 
 describe('is usable', () => {
   it('[0] should be usable regardless', async () => {
-    const accountProvider = new TestAccountProvider({})
+    const accountProvider = new TestAccountProvider([])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
     expect(await wallet.isUsable(0)).toBe(true)
     expect(await wallet.isUsable(1)).toBe(false)
   })
 
   it('[0,1] should be usable when [0] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
     expect(await wallet.isUsable(0)).toBe(true)
     expect(await wallet.isUsable(1)).toBe(true)
   })
 
   it('[0,1,2] should be usable when [0,1] has activity', async () => {
-    const accountProvider = new TestAccountProvider({
-      '028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f': mockData,
-      '0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1': mockData
-    })
+    const accountProvider = new TestAccountProvider([
+      'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r',
+      'bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24'
+    ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
     expect(await wallet.isUsable(0)).toBe(true)
     expect(await wallet.isUsable(1)).toBe(true)
@@ -111,25 +110,43 @@ describe('is usable', () => {
   })
 
   it('[2] should be usable when [0,1] has no activity', async () => {
-    const accountProvider = new TestAccountProvider({})
+    const accountProvider = new TestAccountProvider([])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
     expect(await wallet.isUsable(2)).toBe(false)
   })
 })
 
 describe('get accounts', () => {
-  const accountProvider = new TestAccountProvider({})
+  const accountProvider = new TestAccountProvider([])
   const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
   it('should get account 0', async () => {
     const account = wallet.get(0)
     const address = await account.getAddress()
-    expect(address).toBe('028b147a7939b8e510defb56a1fccb80d2557d1fa7b5023a704ad4cfcfc651af2f')
+    expect(address).toBe('bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r')
   })
 
   it('should get account 1', async () => {
     const account = wallet.get(1)
     const address = await account.getAddress()
-    expect(address).toBe('0337f21a6b2a6be26086ab0e7509fdb1316ef2a428b2571d1e20cb8886f6e2f9f1')
+    expect(address).toBe('bcrt1qnkmmcu79glheaqsq3gj4gg4675z3cjzn39dt24')
+  })
+
+  it('should get account 2', async () => {
+    const account = wallet.get(2)
+    const address = await account.getAddress()
+    expect(address).toBe('bcrt1qrvt6c60848p8y8vd3pejdt33davp5ka9vxupuj')
+  })
+
+  it('should get account 3', async () => {
+    const account = wallet.get(3)
+    const address = await account.getAddress()
+    expect(address).toBe('bcrt1qur2tmednr6e52u9du972nqvua60egwqkf98ps8')
+  })
+
+  it('should get account 4', async () => {
+    const account = wallet.get(4)
+    const address = await account.getAddress()
+    expect(address).toBe('bcrt1qxvvp3tz5u8t90nwwjzsalha66zk9em95tgn3fk')
   })
 })

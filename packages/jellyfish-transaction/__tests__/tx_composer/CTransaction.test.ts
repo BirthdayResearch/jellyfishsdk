@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { CTransaction, Transaction } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { CTransaction, Transaction, OP_CODES, OP_PUSHDATA } from '../../src'
 import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CTransaction', () => {
@@ -29,7 +28,7 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0x00000011
@@ -62,7 +61,7 @@ describe('CTransaction', () => {
             stack: []
           },
           sequence: 4294967278,
-          txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+          txid: '9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff'
         },
         {
           index: 1,
@@ -70,7 +69,7 @@ describe('CTransaction', () => {
             stack: []
           },
           sequence: 4294967295,
-          txid: 'ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a'
+          txid: '8ac60eb9575db5b2d987e29f301b5b819ea83a5c6579d282d189cc04b8e151ef'
         }
       ],
       vout: [
@@ -85,7 +84,7 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           value: new BigNumber('2.2345'),
@@ -98,7 +97,7 @@ describe('CTransaction', () => {
               OP_CODES.OP_CHECKSIG
             ]
           },
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0x00000011
@@ -114,7 +113,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2SH-P2WPKH (UNSIGNED)', () => {
-    const hex = '0400000001db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a54770100000000feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac000008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac0092040000'
+    const hex = '040000000177541aeb3c4dac9260b68f74f44c973081a9d4cb2ebe8038b2d70faa201b6bdb0100000000feffffff02b8b4eb0b000000001976a914a457b684d7f0d539a46a45bbc043f35b59d0d96388ac000008af2f000000001976a914fd270b1ee6abcaea97fea7ad0402e8bd8ad6d77c88ac0092040000'
     const data: Transaction = {
       version: 0x00000004,
       vin: [
@@ -139,7 +138,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('1.999966'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -152,7 +151,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('8'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 1170
@@ -168,7 +167,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2WSH (UNSIGNED)', () => {
-    const hex = '0400000002fe3dc9208094f3ffd12645477b3dc56f60ec4fa8e6f5d67c565d1c6b9216b36e0000000000ffffffff0815cf020f013ed6cf91d29f4202e8a58726b1ac6c79da47c23d1bee0a6925f80000000000ffffffff0100f2052a010000001976a914a30741f8145e5acadf23f751864167f32e0963f788ac0000000000'
+    const hex = '04000000026eb316926b1c5d567cd6f5e6a84fec606fc53d7b474526d1fff3948020c93dfe0000000000fffffffff825690aee1b3dc247da796cacb12687a5e802429fd291cfd63e010f02cf15080000000000ffffffff0100f2052a010000001976a914a30741f8145e5acadf23f751864167f32e0963f788ac0000000000'
     const data: Transaction = {
       version: 0x00000004,
       vin: [
@@ -201,7 +200,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('50'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0
@@ -217,7 +216,7 @@ describe('CTransaction', () => {
   })
 
   describe('P2SH-P2WSH (UNSIGNED)', () => {
-    const hex = '040000000136641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e0100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac00c0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac0000000000'
+    const hex = '04000000016eb98797a21c6c10aa74edf29d618be109f48a8e94c694f3701e08ca691864360100000000ffffffff0200e9a435000000001976a914389ffce9cd9ae88dcc0631e88a821ffdbe9bfe2688ac00c0832f05000000001976a9147480a33f950689af511e6e84c138dbbd3c3ee41588ac0000000000'
     const data: Transaction = {
       version: 0x00000004,
       vin: [
@@ -242,7 +241,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('0x0000000035a4e900').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         },
         {
           script: {
@@ -255,7 +254,7 @@ describe('CTransaction', () => {
             ]
           },
           value: new BigNumber('0x00000000052f83c0').dividedBy('100000000'),
-          dct_id: 0x00
+          tokenId: 0x00
         }
       ],
       lockTime: 0x00000000

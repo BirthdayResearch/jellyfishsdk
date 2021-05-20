@@ -1,9 +1,13 @@
 import { DockerOptions } from 'dockerode'
-import { DeFiDContainer, StartOptions } from './container'
+import { DeFiDContainer, StartOptions } from './defid_container'
 
 export class TestNetContainer extends DeFiDContainer {
-  constructor (options?: DockerOptions) {
-    super('testnet', options)
+  /**
+   * @param {string} [image=DeFiDContainer.image] docker image name
+   * @param {DockerOptions} [options]
+   */
+  constructor (image: string = DeFiDContainer.image, options?: DockerOptions) {
+    super('testnet', image, options)
   }
 
   protected getCmd (opts: StartOptions): string[] {
