@@ -1,7 +1,8 @@
 import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/defi'
 import { CTokenCreate, TokenCreate } from '../../../../src/script/defi/dftx_token'
-import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
+import { OP_CODES } from '../../../../src/script'
+import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 
 /**
  * using createToken sample from
