@@ -144,7 +144,7 @@ describe('estimatesmartfees', () => {
         const address = await client.wallet.getNewAddress()
         const balance = await client.wallet.getBalance()
         console.log(`Wallet Balance: ${balance.toFixed(8)}`)
-        await client.wallet.sendToAddress(address, 0.0001)
+        await client.wallet.sendToAddress(address, 0.00001, { subtractFeeFromAmount: true })
       }
     })
 
