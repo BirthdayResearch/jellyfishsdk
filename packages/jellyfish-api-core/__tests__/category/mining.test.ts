@@ -140,7 +140,7 @@ describe('estimatesmartfees', () => {
 
   it('should have estimated smart fees', async () => {
     await waitForExpect(async () => {
-      for (let i = 0; i < 20: i++) {
+      for (let i = 0; i < 20; i++) {
         for (let x = 0; x < 20; x++) {
           const address = await client.wallet.getNewAddress()
           await client.wallet.sendToAddress(address, 0.1, { subtractFeeFromAmount: true })
