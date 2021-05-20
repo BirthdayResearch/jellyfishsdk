@@ -217,7 +217,7 @@ export class Wallet {
   /**
    * Send given amounts to multiple given address and return a transaction id
    *
-   * @param {any} amounts Dictionary/map with individual addresses and amounts
+   * @param {Record<string, number>} amounts Dictionary/map with individual addresses and amounts
    * @param {string[]} subtractfeefrom Array of addresses from which fee needs to be deducted.
    * @param {SendManyOptions} options
    * @param {string} [options.comment] A comment
@@ -227,7 +227,7 @@ export class Wallet {
    * @return {Promise<string>} hex string of the transaction
    */
   async sendMany (
-    amounts: any,
+    amounts: Record<string, number>,
     subtractfeefrom: string [] = [],
     options: SendManyOptions = {}): Promise<string> {
     const {

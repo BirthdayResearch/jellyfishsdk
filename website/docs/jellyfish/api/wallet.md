@@ -263,7 +263,7 @@ Send given amounts to multiple given address and return a transaction id.
 
 ```ts title="client.wallet.sendMany()"
 interface wallet {
-  async sendMany (amounts: any , subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+  async sendMany (amounts: Record<string, BigNumber> , subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
 }
 
 interface SendManyOptions {
