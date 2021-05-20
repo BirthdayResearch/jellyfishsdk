@@ -520,10 +520,10 @@ describe('masternode', () => {
   describe('accountHistoryCount', () => {
     it('should get accountHistoryCount', async () => {
       await waitForExpect(async () => {
-        const accountHistoryCount = await client.account.accountHistoryCount()
+        const count = await client.account.accountHistoryCount()
 
-        expect(typeof accountHistoryCount).toBe('number')
-        expect(accountHistoryCount).toBeGreaterThan(0)
+        expect(typeof count).toBe('number')
+        expect(count).toBeGreaterThan(0)
       })
     })
 
