@@ -56,6 +56,7 @@ beforeAll(async () => {
     amountB: 360,
     shareAddress: await getNewAddress(container)
   })
+  await container.generate(1)
 })
 
 afterAll(async () => {
@@ -161,7 +162,7 @@ describe('get', () => {
     })
   })
 
-  it('shoud throw error as numeric string is expected', async () => {
+  it('should throw error as numeric string is expected', async () => {
     await expect(client.poolpair.get('A-B')).rejects.toThrow(WhaleApiException)
     await expect(client.poolpair.get('A-B')).rejects.toThrow('Validation failed (numeric string is expected)')
   })

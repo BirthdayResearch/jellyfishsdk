@@ -19,6 +19,14 @@ export class Transactions {
   async test (rawTx: RawTxReq): Promise<void> {
     return await this.client.requestData('POST', 'transactions/test', rawTx)
   }
+
+  /**
+   * @param {number} confirmationTarget in blocks till fee get confirmed
+   * @return {Promise<number>} fee rate per KB
+   */
+  async estimateFee (confirmationTarget: number = 10): Promise<number> {
+    return await this.client.requestData('GET', `transactions/estimate-fee?confirmationTarget=${confirmationTarget}`)
+  }
 }
 
 /**
