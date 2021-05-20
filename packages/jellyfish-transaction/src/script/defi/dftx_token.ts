@@ -1,7 +1,6 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { TokenBalance, CTokenBalance } from './dftx_balance'
-import { Script } from '../../tx'
-import { CScript } from '../../tx_composer'
+import BigNumber from 'bignumber.js'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -34,12 +33,13 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
 export interface TokenCreate {
   symbol: string // ---------------------| VarUInt{1-9 bytes}, + n bytes
   name: string // -----------------------| VarUInt{1-9 bytes}, + n bytes
-  isDAT: number // ----------------------| 1 byte
-  mintable: number // -------------------| 1 byte
-  tradeable: number // ------------------| 1 byte
-  collateralAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
-  decimal: number // --------------------| 2 bytes
-  limit: number // ----------------------| 4 bytes
+  decimal: number // --------------------| 1 bytes
+  limit: BigNumber // -------------------| 64 bytes
+  flags: number // ----------------------| 1 byte
+  // isDAT: number // ----------------------| 1 byte
+  // mintable: number // -------------------| 1 byte
+  // tradeable: number // ------------------| 1 byte
+  // collateralAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
 /**
@@ -54,12 +54,13 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
     return [
       ComposableBuffer.varUIntUtf8BE(() => tc.symbol, v => tc.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => tc.name, v => tc.name = v),
-      ComposableBuffer.uInt8(() => tc.isDAT, v => tc.isDAT = v),
-      ComposableBuffer.uInt8(() => tc.mintable, v => tc.mintable = v),
-      ComposableBuffer.uInt8(() => tc.tradeable, v => tc.tradeable = v),
-      ComposableBuffer.single<Script>(() => tc.collateralAddress, v => tc.collateralAddress = v, v => new CScript(v)),
-      ComposableBuffer.uInt16(() => tc.decimal, v => tc.decimal = v),
-      ComposableBuffer.uInt32(() => tc.limit, v => tc.limit = v)
+      ComposableBuffer.uInt8(() => tc.decimal, v => tc.decimal = v),
+      ComposableBuffer.bigNumberUInt64(() => tc.limit, v => tc.limit = v),
+      ComposableBuffer.uInt8(() => tc.flags, v => tc.flags = v)
+      // ComposableBuffer.uInt8(() => tc.isDAT, v => tc.isDAT = v),
+      // ComposableBuffer.uInt8(() => tc.mintable, v => tc.mintable = v),
+      // ComposableBuffer.uInt8(() => tc.tradeable, v => tc.tradeable = v),
+      // ComposableBuffer.single<Script>(() => tc.collateralAddress, v => tc.collateralAddress = v, v => new CScript(v)),
     ]
   }
 }

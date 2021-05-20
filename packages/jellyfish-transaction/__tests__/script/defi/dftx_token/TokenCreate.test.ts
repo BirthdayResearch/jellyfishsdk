@@ -3,6 +3,7 @@ import { OP_DEFI_TX } from '../../../../src/script/defi'
 import { CTokenCreate, TokenCreate } from '../../../../src/script/defi/dftx_token'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
+import BigNumber from 'bignumber.js'
 
 /**
  * using createToken sample from
@@ -32,14 +33,15 @@ const data = '035753420e77616c6c7374726565746265747308000000000000000003'
 const tokenCreate: TokenCreate = {
   symbol: 'WSB',
   name: 'wallstreetbets',
-  isDAT: 8,
-  tradeable: 0,
-  mintable: 0,
-  decimal: 0,
-  limit: 50331648,
-  collateralAddress: {
-    stack: []
-  }
+  decimal: 8,
+  limit: new BigNumber('0'),
+  flags: 3
+  // isDAT: 8,
+  // tradeable: 0,
+  // mintable: 0,
+  // collateralAddress: {
+  //   stack: []
+  // }
 }
 
 it('should craft dftx with OP_CODES._()', () => {
