@@ -5,7 +5,9 @@ import { HealthController } from '@src/module.api/health.controller'
 import { TransactionsController } from '@src/module.api/transactions.controller'
 import { ApiValidationPipe } from '@src/module.api/pipes/api.validation.pipe'
 import { AddressController } from '@src/module.api/address.controller'
+import { PoolPairController } from '@src/module.api/poolpair.controller'
 import { TokenInfoCache } from '@src/module.api/cache/token.info.cache'
+import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
 import { NetworkGuard } from '@src/module.api/guards/network.guard'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
 import { ResponseInterceptor } from '@src/module.api/interceptors/response.interceptor'
@@ -19,7 +21,8 @@ import { ResponseInterceptor } from '@src/module.api/interceptors/response.inter
     RpcController,
     AddressController,
     HealthController,
-    TransactionsController
+    TransactionsController,
+    PoolPairController
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },
@@ -27,7 +30,8 @@ import { ResponseInterceptor } from '@src/module.api/interceptors/response.inter
     { provide: APP_GUARD, useClass: NetworkGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
-    TokenInfoCache
+    TokenInfoCache,
+    PoolPairInfoCache
   ]
 })
 export class ApiModule {
