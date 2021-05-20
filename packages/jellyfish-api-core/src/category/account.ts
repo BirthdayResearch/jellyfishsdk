@@ -235,6 +235,10 @@ export class Account {
   async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
   }
+
+  async accountToAccount (from: string, payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
+    return await this.client.call('accounttoaccount', [from, payload, utxos], 'number')
+  }
 }
 
 export interface AccountPagination {

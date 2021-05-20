@@ -516,4 +516,44 @@ describe('masternode', () => {
       expect(data.length).toBe(64)
     })
   })
+
+  describe('accountToAccount', () => {
+    it('should accountToAccount', async () => {
+      const from = await container.getNewAddress()
+      await createToken(from, 'DABC', 5)
+      await createToken(from, 'DDEF', 5)
+
+      const payload: UtxosToAccountPayload = {}
+      payload[await container.getNewAddress()] = '5@DABC'
+      payload[await container.getNewAddress()] = '5@DDEF'
+
+      const data = await client.account.accountToAccount(from, payload)
+
+      expect(typeof data).toBe('string')
+      expect(data.length).toBe(64)
+    })
+
+    it('should utxosToAccount with utxos', async () => {
+      const from = await container.getNewAddress()
+      await createToken(from, 'DABC', 5)
+      await createToken(from, 'DDEF', 5)
+
+      const utxos = await container.call('listunspent')
+      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+
+      const payload: UtxosToAccountPayload = {}
+      payload[await container.getNewAddress()] = '5@DABC'
+      payload[await container.getNewAddress()] = '5@DDEF'
+
+      const data = await client.account.accountToAccount(from, payload, inputs)
+
+      expect(typeof data).toBe('string')
+      expect(data.length).toBe(64)
+    })
+  })
 })
