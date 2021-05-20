@@ -1,6 +1,8 @@
 import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
+import { wallet } from '../../src'
+import { EstimateMode } from '../../src/category/mining'
 
 describe('non masternode', () => {
   const container = new RegTestContainer()
@@ -30,6 +32,14 @@ describe('non masternode', () => {
   it('should getNetworkHashPerSecond', async () => {
     const result = await client.mining.getNetworkHashPerSecond()
     expect(result).toBe(0)
+  })
+
+  it('should have an error with estimateSmartFee', async () => {
+    const result = await client.mining.estimateSmartFee(6)
+    const errors = (result.errors != null) ? result.errors : []
+    expect(errors.length).toBeGreaterThan(0)
+    expect(errors[0]).toEqual('Insufficient data or no feerate found')
+    expect(result.feerate).toBeUndefined()
   })
 })
 
@@ -109,5 +119,39 @@ describe('masternode', () => {
     expect(info.pooledtx).toBe(0)
     expect(info.chain).toBe('regtest')
     expect(info.warnings).toBe('')
+  })
+})
+
+describe('estimatesmartfees', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForBlock(125)
+    await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should have estimated smart fees', async () => {
+    await waitForExpect(async () => {
+      for (let i = 0; i < 20; i++) {
+        for (let x = 0; x < 20; x++) {
+          const address = await client.wallet.getNewAddress()
+          await client.wallet.sendToAddress(address, 0.1, { subtractFeeFromAmount: true })
+        }
+        await container.generate(1)
+      }
+    })
+
+    const result = await client.mining.estimateSmartFee(6, EstimateMode.ECONOMICAL)
+    expect(result.errors).toBeUndefined()
+    expect(result.blocks).toBeGreaterThan(0)
+    expect(result.feerate).toBeGreaterThan(0)
   })
 })
