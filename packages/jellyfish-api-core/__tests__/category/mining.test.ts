@@ -142,6 +142,8 @@ describe('estimatesmartfees', () => {
     await waitForExpect(async () => {
       for (let x = 0; x < 200; x++) {
         const address = await client.wallet.getNewAddress()
+        const balance = await client.wallet.getBalance()
+        console.log(`Wallet Balance: ${balance.toFixed(8)}`)
         await client.wallet.sendToAddress(address, 0.0001)
       }
     })
