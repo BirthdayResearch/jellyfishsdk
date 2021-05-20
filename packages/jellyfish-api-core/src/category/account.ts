@@ -235,6 +235,23 @@ export class Account {
   async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
   }
+
+  /**
+   * Returns count of account history
+   *
+   * @param {OwnerType} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
+   * @param {AccountHistoryCountOptions} [options]
+   * @param {boolean} [options.no_rewards]  Filter out rewards
+   * @param {string} [options.token]  Filter by token
+   * @param {string} [options.txtype]  Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @return {Promise<number>}  Count of account history
+   */
+  async accountHistoryCount (
+    owner: OwnerType = 'mine',
+    options: AccountHistoryCountOptions = {}
+  ): Promise<number> {
+    return await this.client.call('accounthistorycount', [owner, options], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -300,4 +317,10 @@ export interface UtxosToAccountPayload {
 export interface UtxosToAccountUTXO {
   txid: string
   vout: number
+}
+
+export interface AccountHistoryCountOptions {
+  token?: string
+  txtype?: string
+  no_rewards?: boolean
 }

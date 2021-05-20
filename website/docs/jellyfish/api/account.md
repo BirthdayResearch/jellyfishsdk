@@ -162,3 +162,24 @@ interface UtxosToAccountUTXO {
   vout: number
 }
 ```
+
+## accountHistoryCount 
+
+Returns count of account history
+
+```ts title="client.account.accountHistoryCount()"
+interface account {
+  accountHistoryCount (
+    owner: OwnerType = 'mine',
+    options: AccountHistoryCountOptions = {}
+  ): Promise<number>
+}
+
+type OwnerType = 'mine' | 'all' | string
+
+interface  AccountHistoryCountOptions {
+  token?: string
+  txtype?:string
+  no_rewards?: boolean
+}
+```
