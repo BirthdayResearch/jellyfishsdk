@@ -2,9 +2,7 @@ name: Projects
 
 on:
   pull_request:
-    types:
-      - opened
-      - ready_for_review
+    types: [ opened ]
 
 jobs:
   main:
@@ -16,4 +14,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.DEFICHAIN_BOT_GITHUB_TOKEN }}
           GITHUB_PROJECT_URL: https://github.com/orgs/DeFiCh/projects/1
-          GITHUB_PROJECT_COLUMN_NAME: In progress
+          GITHUB_PROJECT_COLUMN_NAME: PR in progress
