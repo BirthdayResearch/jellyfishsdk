@@ -7,6 +7,7 @@ import { Address } from './api/address'
 import { PoolPair } from './api/poolpair'
 import { Rpc } from './api/rpc'
 import { Transactions } from './api/transactions'
+import { Tokens } from './api/tokens'
 
 /**
  * WhaleApiClient Options
@@ -56,6 +57,7 @@ export class WhaleApiClient {
   public readonly poolpair = new PoolPair(this)
   public readonly rpc = new Rpc(this)
   public readonly transactions = new Transactions(this)
+  public readonly tokens = new Tokens(this)
 
   constructor (
     private readonly options: WhaleApiClientOptions
