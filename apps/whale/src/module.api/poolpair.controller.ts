@@ -52,7 +52,7 @@ export class PoolPairController {
 
     try {
       const poolPairResult = await this.rpcClient.poolpair.getPoolPair(id)
-      poolPairData = mapPoolPair(id, poolPairResult[id])
+      poolPairData = mapPoolPair(String(id), poolPairResult[id])
       await this.poolPairInfoCache.set(id, poolPairData)
       return poolPairData
     } catch (e) {
