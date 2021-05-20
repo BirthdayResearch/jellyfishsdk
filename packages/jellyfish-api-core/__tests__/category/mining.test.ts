@@ -130,7 +130,7 @@ describe('estimatesmartfees', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(150)
+    await container.waitForBlock(125)
     await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
   })
 
@@ -140,9 +140,12 @@ describe('estimatesmartfees', () => {
 
   it('should have estimated smart fees', async () => {
     await waitForExpect(async () => {
-      for (let x = 0; x < 200; x++) {
-        const address = await client.wallet.getNewAddress()
-        await client.wallet.sendToAddress(address, 0.02, { subtractFeeFromAmount: true })
+      for (let i = 0; i < 20: i++) {
+        for (let x = 0; x < 20; x++) {
+          const address = await client.wallet.getNewAddress()
+          await client.wallet.sendToAddress(address, 0.1, { subtractFeeFromAmount: true })
+        }
+        await container.generate(1)
       }
     })
 
