@@ -27,11 +27,11 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a1b4466547854' // OP_RETURN, PUSH_DATA(44665478, 54)
-const data = '0342544307426974636f696e08000000000000000003'
+const header = '6a224466547854' // OP_RETURN, PUSH_DATA(44665478, 54)
+const data = '035753420e77616c6c7374726565746265747308000000000000000003'
 const tokenCreate: TokenCreate = {
-  symbol: 'CTB',
-  name: 'nioctiB',
+  symbol: 'WSB',
+  name: 'wallstreetbets',
   isDAT: 8,
   tradeable: 0,
   mintable: 0,

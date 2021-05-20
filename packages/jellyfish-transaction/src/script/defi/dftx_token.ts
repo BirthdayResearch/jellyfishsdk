@@ -52,8 +52,8 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
 
   composers (tc: TokenCreate): BufferComposer[] {
     return [
-      ComposableBuffer.string(() => tc.symbol, v => tc.symbol = v),
-      ComposableBuffer.string(() => tc.name, v => tc.name = v),
+      ComposableBuffer.varUIntUtf8BE(() => tc.symbol, v => tc.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => tc.name, v => tc.name = v),
       ComposableBuffer.uInt8(() => tc.isDAT, v => tc.isDAT = v),
       ComposableBuffer.uInt8(() => tc.mintable, v => tc.mintable = v),
       ComposableBuffer.uInt8(() => tc.tradeable, v => tc.tradeable = v),
