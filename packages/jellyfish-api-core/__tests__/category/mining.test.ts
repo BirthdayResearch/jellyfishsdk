@@ -130,7 +130,7 @@ describe('estimatesmartfees', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
+    await container.waitForWalletBalanceGTE(150)
     await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
   })
 
@@ -142,9 +142,7 @@ describe('estimatesmartfees', () => {
     await waitForExpect(async () => {
       for (let x = 0; x < 200; x++) {
         const address = await client.wallet.getNewAddress()
-        const balance = await client.wallet.getBalance()
-        console.log(`Wallet Balance: ${balance.toFixed(8)}`)
-        await client.wallet.sendToAddress(address, 0.00001, { subtractFeeFromAmount: true })
+        await client.wallet.sendToAddress(address, 0.02, { subtractFeeFromAmount: true })
       }
     })
 
