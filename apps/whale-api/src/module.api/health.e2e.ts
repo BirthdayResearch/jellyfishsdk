@@ -57,9 +57,9 @@ describe('/_health/probes/readiness', () => {
     expect(res.json()).toEqual({
       details: {
         defid: {
-          blocks: 1,
-          headers: 1,
-          initialBlockDownload: true,
+          blocks: expect.any(Number),
+          headers: expect.any(Number),
+          initialBlockDownload: expect.any(Boolean),
           peers: 0,
           status: 'down'
         }

@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js'
-import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, ParseIntPipe, Post, Query, ValidationPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
 import { BadRequestApiException } from '@src/module.api/_core/api.error'
+import { EstimateMode } from '@defichain/jellyfish-api-core/dist/category/mining'
 
 class RawTxDto {
   @IsNotEmpty()
@@ -19,7 +20,7 @@ class RawTxDto {
 export class TransactionsController {
   /**
    * MaxFeeRate = vkb * Fees
-   * This will max out at around 0.001 DFI per transaction (200vb).
+   * This will max out at around 0.001 DFI per average transaction (200vb).
    * @example A typical P2WPKH 1 to 1 transaction is 110.5vb
    * @example A typical P2WPKH 1 to 2 transaction is 142.5vb
    * @example A typical P2WPKH 1 to 1 + dftx transaction is around ~200vb.
@@ -27,6 +28,23 @@ export class TransactionsController {
   private readonly defaultMaxFeeRate: BigNumber = new BigNumber('0.005')
 
   constructor (private readonly client: JsonRpcClient) {
+  }
+
+  /**
+   * If fee rate cannot be estimated it will return a fixed rate of 0.00005000
+   * This will max out at around 0.00001 DFI per average transaction (200vb).
+   *
+   * @param {number} confirmationTarget in blocks till fee get confirmed
+   * @return {Promise<number>} fee rate per KB
+   */
+  @Get('/estimate-fee')
+  async estimateFee (@Query('confirmationTarget', ParseIntPipe) confirmationTarget: number = 10): Promise<number> {
+    const estimation = await this.client.mining.estimateSmartFee(confirmationTarget, EstimateMode.CONSERVATIVE)
+    if (estimation.feerate !== undefined) {
+      return estimation.feerate
+    }
+
+    return 0.00005000
   }
 
   /**

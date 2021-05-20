@@ -1,14 +1,11 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { Database } from '@src/module.database/database'
 import { Test } from '@nestjs/testing'
 import { MemoryDatabaseModule } from '@src/module.database/provider.memory/module'
-import { LevelDatabase } from '@src/module.database/provider.level/level.database'
 import { RawBlockMapper } from '@src/module.model/raw.block'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
-let database: Database
 let mapper: RawBlockMapper
 
 beforeAll(async () => {
@@ -22,12 +19,10 @@ beforeAll(async () => {
     providers: [RawBlockMapper]
   }).compile()
 
-  database = app.get<Database>(Database)
   mapper = app.get<RawBlockMapper>(RawBlockMapper)
 })
 
 afterAll(async () => {
-  await (database as LevelDatabase).close()
   await container.stop()
 })
 
