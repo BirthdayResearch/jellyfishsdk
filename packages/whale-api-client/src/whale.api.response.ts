@@ -26,7 +26,7 @@ export interface ApiPage {
  * exhaustive all items in the list.
  *
  * @example
- *   let response: ApiPagedResponse = await client.address.listTokens(...)
+ *   let response: ApiPagedResponse = await client.address.listToken(...)
  *   for (const item of response) {
  *     console.log(item)
  *   }

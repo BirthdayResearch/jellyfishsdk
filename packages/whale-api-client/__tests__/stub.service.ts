@@ -1,6 +1,9 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp } from '../../../src/e2e.module'
+import { addressToHid } from '../../../src/module.api/address.controller'
+import { ScriptAggregationMapper } from '../../../src/module.model/script.aggregation'
+import waitForExpect from 'wait-for-expect'
 
 /**
  * Service stubs are simulations of a real service, which are used for functional testing.
@@ -18,5 +21,17 @@ export class StubService {
 
   async stop (): Promise<void> {
     this.app?.close()
+  }
+
+  async waitForAddressTxCount (address: string, txCount: number, timeout: number = 15000): Promise<void> {
+    const hid = addressToHid('regtest', address)
+    const aggregationMapper = this.app?.get(ScriptAggregationMapper)
+    if (aggregationMapper === undefined) {
+      throw new Error('StubService not initialized yet')
+    }
+    await waitForExpect(async () => {
+      const agg = await aggregationMapper.getLatest(hid)
+      expect(agg?.statistic.txCount).toBe(txCount)
+    }, timeout)
   }
 }
