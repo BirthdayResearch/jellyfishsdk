@@ -51,13 +51,13 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
    */
   async accountToUtxos (accountToUtxos: AccountToUtxos, destinationScript: Script): Promise<TransactionSegWit> {
     if (accountToUtxos.balances.length !== 1) {
-      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
         'Conversion output `accountToUtxos.balances` array length must be one'
       )
     }
 
     if (accountToUtxos.balances[0].token !== 0x00) {
-      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
         '`accountToUtxos.balances[0].token` must be 0x00, only DFI support'
       )
     }
