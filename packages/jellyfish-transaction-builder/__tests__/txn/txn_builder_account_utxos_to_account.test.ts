@@ -10,10 +10,12 @@ import {
   fundEllipticPair,
   sendTransaction
 } from '../test.utils'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
+let jsonRpc: JsonRpcClient
 
 beforeAll(async () => {
   await container.start()
@@ -22,6 +24,7 @@ beforeAll(async () => {
 
   providers = await getProviders(container)
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
 })
 
 afterAll(async () => {
@@ -32,6 +35,7 @@ beforeEach(async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(101)
 
+  // fund utxos balance
   await fundEllipticPair(container, providers.elliptic.ellipticPair, 1.1) // 1.1
   await fundEllipticPair(container, providers.elliptic.ellipticPair, 5.5) // 6.6
   await fundEllipticPair(container, providers.elliptic.ellipticPair, 10.566) // 17.166
@@ -76,9 +80,14 @@ describe('account.utxosToAccount()', () => {
     expect(change.value).toBeGreaterThan(100 - conversionAmount - 0.001)
     expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
     expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
+
+    // minted token
+    const account = await jsonRpc.account.getAccount(await providers.getAddress())
+    expect(account.length).toStrictEqual(1)
+    expect(account).toContain('12.34000000@DFI')
   })
 
-  it('should reject invalid utxosToAccount arg', async () => {
+  it('should reject invalid utxosToAccount arg - more than 1 token balances object', async () => {
     const dest = await providers.elliptic.script()
     await expect(builder.account.utxosToAccount({
       to: [{
@@ -97,7 +106,7 @@ describe('account.utxosToAccount()', () => {
     }, dest)).rejects.toThrow('Conversion output `utxosToAccount.to` array length must be one')
   })
 
-  it('should reject invalid utxosToAccount arg', async () => {
+  it('should reject invalid utxosToAccount arg - more than 1 token in balance', async () => {
     const dest = await providers.elliptic.script()
     await expect(builder.account.utxosToAccount({
       to: [{
@@ -111,5 +120,18 @@ describe('account.utxosToAccount()', () => {
         script: dest
       }]
     }, dest)).rejects.toThrow('Conversion output `utxosToAccount.to[0].balances` array length must be one')
+  })
+
+  it('should reject invalid utxosToAccount arg - output token is not zero (DFI)', async () => {
+    const dest = await providers.elliptic.script()
+    await expect(builder.account.utxosToAccount({
+      to: [{
+        balances: [{
+          token: 0x01,
+          amount: new BigNumber(10)
+        }],
+        script: dest
+      }]
+    }, dest)).rejects.toThrow('`utxosToAccount.to[0].balances[0].token` must be 0x00, only DFI support')
   })
 })
