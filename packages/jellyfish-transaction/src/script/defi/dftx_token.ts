@@ -33,13 +33,9 @@ export class CTokenMint extends ComposableBuffer<TokenMint> {
 export interface TokenCreate {
   symbol: string // ---------------------| VarUInt{1-9 bytes}, + n bytes
   name: string // -----------------------| VarUInt{1-9 bytes}, + n bytes
-  decimal: number // --------------------| 1 bytes
+  decimal: number // --------------------| 1 byte
   limit: BigNumber // -------------------| 64 bytes
   flags: number // ----------------------| 1 byte
-  // isDAT: number // ----------------------| 1 byte
-  // mintable: number // -------------------| 1 byte
-  // tradeable: number // ------------------| 1 byte
-  // collateralAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
 /**
@@ -57,10 +53,6 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
       ComposableBuffer.uInt8(() => tc.decimal, v => tc.decimal = v),
       ComposableBuffer.bigNumberUInt64(() => tc.limit, v => tc.limit = v),
       ComposableBuffer.uInt8(() => tc.flags, v => tc.flags = v)
-      // ComposableBuffer.uInt8(() => tc.isDAT, v => tc.isDAT = v),
-      // ComposableBuffer.uInt8(() => tc.mintable, v => tc.mintable = v),
-      // ComposableBuffer.uInt8(() => tc.tradeable, v => tc.tradeable = v),
-      // ComposableBuffer.single<Script>(() => tc.collateralAddress, v => tc.collateralAddress = v, v => new CScript(v)),
     ]
   }
 }

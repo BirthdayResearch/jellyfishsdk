@@ -36,12 +36,6 @@ const tokenCreate: TokenCreate = {
   decimal: 8,
   limit: new BigNumber('0'),
   flags: 3
-  // isDAT: 8,
-  // tradeable: 0,
-  // mintable: 0,
-  // collateralAddress: {
-  //   stack: []
-  // }
 }
 
 it('should craft dftx with OP_CODES._()', () => {
