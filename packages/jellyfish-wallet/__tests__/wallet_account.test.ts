@@ -50,7 +50,6 @@ describe('get script', () => {
   it('should get script for 0', async () => {
     const node = nodeProvider.derive('0')
     const account = accountProvider.provide(node)
-    console.log(await account.getScript())
     expect(await account.getScript()).toStrictEqual({
       stack: [
         OP_CODES.OP_0,
