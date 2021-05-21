@@ -23,10 +23,9 @@ beforeAll(async () => {
   await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
-
   providers = await getProviders(container)
 
-  // Prep 1000 DFI Token for testing
+  // Prep 1000 DFI UTXOS for testing
   await container.waitForWalletBalanceGTE(1001)
 })
 
@@ -39,7 +38,7 @@ beforeEach(async () => {
   await container.waitForWalletBalanceGTE(11.1)
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-  // Fund 10 DFI TOKEN, leave some utxos for fee use
+  // Fund 10 DFI TOKEN
   await providers.setupMocks() // required to move utxos
   await utxosToAccount(container, 10, { address: await providers.getAddress() })
 
@@ -47,9 +46,8 @@ beforeEach(async () => {
   const account = await jsonRpc.account.getAccount(await providers.getAddress())
   expect(account).toContain('10.00000000@DFI')
 
-  // Fund 1 more DFI utxos for fee
+  // Fund 1 DFI utxos for fee
   await fundEllipticPair(container, providers.ellipticPair, 1)
-  await container.waitForWalletBalanceGTE(1)
 })
 
 describe('account.accountToUtxos()', () => {
@@ -62,7 +60,7 @@ describe('account.accountToUtxos()', () => {
       from: script,
       balances: [{
         token: 0,
-        amount: new BigNumber(conversionAmount) // balance remaining in token
+        amount: new BigNumber(conversionAmount)
       }],
       mintingOutputsStart: 2
     }
@@ -100,5 +98,47 @@ describe('account.accountToUtxos()', () => {
     // burnt token
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
     expect(account).toContain('7.66000000@DFI')
+  })
+
+  it('should reject invalid accountToUtxos arg - more than 1 token in balance', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.account.accountToUtxos({
+      from: script,
+      balances: [{
+        token: 0,
+        amount: new BigNumber(10)
+      }, {
+        token: 1,
+        amount: new BigNumber(10)
+      }],
+      mintingOutputsStart: 2
+    }, script)).rejects.toThrow('Conversion output `accountToUtxos.balances` array length must be one')
+  })
+
+  it('should reject invalid accountToUtxos arg - more than 1 token in balance', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.account.accountToUtxos({
+      from: script,
+      balances: [{
+        token: 0,
+        amount: new BigNumber(10)
+      }, {
+        token: 1,
+        amount: new BigNumber(10)
+      }],
+      mintingOutputsStart: 2
+    }, script)).rejects.toThrow('Conversion output `accountToUtxos.balances` array length must be one')
+  })
+
+  it('should reject invalid accountToUtxos arg - output token is not zero (DFI)', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.account.accountToUtxos({
+      from: script,
+      balances: [{
+        token: 1,
+        amount: new BigNumber(10)
+      }],
+      mintingOutputsStart: 2
+    }, script)).rejects.toThrow('`accountToUtxos.balances[0].token` must be 0x00, only DFI support')
   })
 })

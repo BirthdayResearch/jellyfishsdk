@@ -1,15 +1,17 @@
+import BigNumber from 'bignumber.js'
 import { AccountToAccount, AccountToUtxos, UtxosToAccount } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_account'
 import { DeFiTransactionConstants, OP_CODES, Script, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
-import BigNumber from 'bignumber.js'
 
 export class TxnBuilderAccount extends P2WPKHTxnBuilder {
   /**
-   * Requires at least conversion amount + 0.001 DFI to create transaction.
+   * Requires UTXO in the same amount + fees to create a transaction.
    *
    * @param {UtxosToAccount} utxosToAccount txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @throws {TxnBuilderError} if 'utxosToAccount.to' and 'utxosToAccount.to[0].balances' length is not `1`
+   * @throws {TxnBuilderError} if 'utxosToAccount.to' and 'utxosToAccount.to[0].balances[0].token' is not `0`
    * @returns {Promise<TransactionSegWit>}
    */
   async utxosToAccount (utxosToAccount: UtxosToAccount, changeScript: Script): Promise<TransactionSegWit> {
@@ -25,6 +27,12 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
       )
     }
 
+    if (utxosToAccount.to[0].balances[0].token !== 0x00) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
+        '`utxosToAccount.to[0].balances[0].token` must be 0x00, only DFI support'
+      )
+    }
+
     const amountToConvert = utxosToAccount.to[0].balances[0].amount
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount),
@@ -37,12 +45,20 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
    *
    * @param {AccountToUtxos} accountToUtxos txn to create
    * @param {Script} destinationScript vout destination, for both utxos minted and change after deducted fee
+   * @throws {TxnBuilderError} if 'accountToUtxos.balances' length is not `1`
+   * @throws {TxnBuilderError} if 'accountToUtxos.balances[0].token' is not `0`
    * @returns {Promise<TransactionSegWit>}
    */
   async accountToUtxos (accountToUtxos: AccountToUtxos, destinationScript: Script): Promise<TransactionSegWit> {
     if (accountToUtxos.balances.length !== 1) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
         'Conversion output `accountToUtxos.balances` array length must be one'
+      )
+    }
+
+    if (accountToUtxos.balances[0].token !== 0x00) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
+        '`accountToUtxos.balances[0].token` must be 0x00, only DFI support'
       )
     }
 
