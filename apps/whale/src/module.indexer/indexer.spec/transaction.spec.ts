@@ -34,17 +34,17 @@ async function expectTransactions (hash: string, count: number): Promise<void> {
   const voutMapper = app.get(TransactionVoutMapper)
   const transactions = await transactionMapper.queryByBlockHash(hash, 100)
 
-  expect(transactions.length).toBe(count)
+  expect(transactions.length).toStrictEqual(count)
 
   for (const transaction of transactions) {
-    expect(transaction.block.hash).toBe(hash)
+    expect(transaction.block.hash).toStrictEqual(hash)
 
     for (const vin of await vinMapper.query(transaction.txid, 100)) {
-      expect(vin.txid).toBe(transaction.txid)
+      expect(vin.txid).toStrictEqual(transaction.txid)
     }
 
     for (const vout of await voutMapper.query(transaction.txid, 100)) {
-      expect(vout.txid).toBe(transaction.txid)
+      expect(vout.txid).toStrictEqual(transaction.txid)
       expect(vout.n).toBeGreaterThanOrEqual(0)
       expect(vout.script.hex).toBeDefined()
       expect(Number.parseFloat(vout.value)).toBeGreaterThanOrEqual(0)

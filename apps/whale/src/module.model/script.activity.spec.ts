@@ -57,19 +57,19 @@ it('should query', async () => {
   const hid = HexEncoder.asSHA256(hex)
   const list = await mapper.query(hid, 10)
 
-  expect(list.length).toBe(4)
+  expect(list.length).toStrictEqual(4)
 
-  expect(list[0].block.height).toBe(1)
-  expect(list[0].typeHex).toBe('01')
+  expect(list[0].block.height).toStrictEqual(1)
+  expect(list[0].typeHex).toStrictEqual('01')
 
-  expect(list[1].block.height).toBe(1)
-  expect(list[1].typeHex).toBe('00')
+  expect(list[1].block.height).toStrictEqual(1)
+  expect(list[1].typeHex).toStrictEqual('00')
 
-  expect(list[2].block.height).toBe(0)
-  expect(list[2].typeHex).toBe('01')
+  expect(list[2].block.height).toStrictEqual(0)
+  expect(list[2].typeHex).toStrictEqual('01')
 
-  expect(list[3].block.height).toBe(0)
-  expect(list[3].typeHex).toBe('00')
+  expect(list[3].block.height).toStrictEqual(0)
+  expect(list[3].typeHex).toStrictEqual('00')
 })
 
 it('should delete', async () => {
@@ -79,5 +79,5 @@ it('should delete', async () => {
 
   await mapper.delete(list[0].id)
   const deleted = await mapper.query(hid, 10)
-  expect(deleted.length).toBe(3)
+  expect(deleted.length).toStrictEqual(3)
 })

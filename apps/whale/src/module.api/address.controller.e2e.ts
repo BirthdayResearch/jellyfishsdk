@@ -29,7 +29,7 @@ describe('balance', () => {
   it('getBalance should be zero', async () => {
     const address = await container.getNewAddress()
     const balance = await controller.getBalance('regtest', address)
-    expect(balance).toBe('0.00000000')
+    expect(balance).toStrictEqual('0.00000000')
   })
 
   it('should getBalance non zero with bech32 address', async () => {
@@ -39,7 +39,7 @@ describe('balance', () => {
     await waitForAddressTxCount(app, address, 1)
 
     const balance = await controller.getBalance('regtest', address)
-    expect(balance).toBe('1.23000000')
+    expect(balance).toStrictEqual('1.23000000')
   })
 
   it('should getBalance non zero with legacy address', async () => {
@@ -49,7 +49,7 @@ describe('balance', () => {
     await waitForAddressTxCount(app, address, 1)
 
     const balance = await controller.getBalance('regtest', address)
-    expect(balance).toBe('0.00100000')
+    expect(balance).toStrictEqual('0.00100000')
   })
 
   it('should getBalance non zero with p2sh-segwit address', async () => {
@@ -59,7 +59,7 @@ describe('balance', () => {
     await waitForAddressTxCount(app, address, 1)
 
     const balance = await controller.getBalance('regtest', address)
-    expect(balance).toBe('10.99999999')
+    expect(balance).toStrictEqual('10.99999999')
   })
 
   it('should sum getBalance', async () => {
@@ -71,7 +71,7 @@ describe('balance', () => {
     await waitForAddressTxCount(app, address, 3)
 
     const balance = await controller.getBalance('regtest', address)
-    expect(balance).toBe('17.38471695')
+    expect(balance).toStrictEqual('17.38471695')
   })
 })
 
@@ -85,7 +85,7 @@ describe('aggregation', () => {
     await waitForAddressTxCount(app, address, 3)
 
     const agg = await controller.getAggregation('regtest', address)
-    expect(agg).toEqual({
+    expect(agg).toStrictEqual({
       amount: {
         txIn: '17.38471695',
         txOut: '0.00000000',
@@ -149,10 +149,10 @@ describe('transactions', () => {
         size: 30
       })
 
-      expect(response.data.length).toBe(8)
+      expect(response.data.length).toStrictEqual(8)
       expect(response.page).toBeUndefined()
 
-      expect(response.data[5]).toEqual({
+      expect(response.data[5]).toStrictEqual({
         block: {
           hash: expect.stringMatching(/[0-f]{64}/),
           height: expect.any(Number)
@@ -179,32 +179,32 @@ describe('transactions', () => {
       const first = await controller.listTransaction('regtest', addressA.bech32, {
         size: 2
       })
-      expect(first.data.length).toBe(2)
+      expect(first.data.length).toStrictEqual(2)
       expect(first.page?.next).toMatch(/[0-f]{82}/)
-      expect(first.data[0].value).toBe('1.12300000')
-      expect(first.data[0].type).toBe('vin')
-      expect(first.data[1].value).toBe('1.12300000')
-      expect(first.data[1].type).toBe('vout')
+      expect(first.data[0].value).toStrictEqual('1.12300000')
+      expect(first.data[0].type).toStrictEqual('vin')
+      expect(first.data[1].value).toStrictEqual('1.12300000')
+      expect(first.data[1].type).toStrictEqual('vout')
 
       const next = await controller.listTransaction('regtest', addressA.bech32, {
         size: 10,
         next: first.page?.next
       })
 
-      expect(next.data.length).toBe(6)
+      expect(next.data.length).toStrictEqual(6)
       expect(next.page?.next).toBeUndefined()
-      expect(next.data[0].value).toBe('9.50000000')
-      expect(next.data[0].type).toBe('vin')
-      expect(next.data[1].value).toBe('9.50000000')
-      expect(next.data[1].type).toBe('vout')
-      expect(next.data[2].value).toBe('2.93719381')
-      expect(next.data[2].type).toBe('vout')
-      expect(next.data[3].value).toBe('1.32412313')
-      expect(next.data[3].type).toBe('vout')
-      expect(next.data[4].value).toBe('0.12340001')
-      expect(next.data[4].type).toBe('vout')
-      expect(next.data[5].value).toBe('34.00000000')
-      expect(next.data[5].type).toBe('vout')
+      expect(next.data[0].value).toStrictEqual('9.50000000')
+      expect(next.data[0].type).toStrictEqual('vin')
+      expect(next.data[1].value).toStrictEqual('9.50000000')
+      expect(next.data[1].type).toStrictEqual('vout')
+      expect(next.data[2].value).toStrictEqual('2.93719381')
+      expect(next.data[2].type).toStrictEqual('vout')
+      expect(next.data[3].value).toStrictEqual('1.32412313')
+      expect(next.data[3].type).toStrictEqual('vout')
+      expect(next.data[4].value).toStrictEqual('0.12340001')
+      expect(next.data[4].type).toStrictEqual('vout')
+      expect(next.data[5].value).toStrictEqual('34.00000000')
+      expect(next.data[5].type).toStrictEqual('vout')
     })
 
     it('should listTransaction with undefined next pagination', async () => {
@@ -213,7 +213,7 @@ describe('transactions', () => {
         next: undefined
       })
 
-      expect(first.data.length).toBe(2)
+      expect(first.data.length).toStrictEqual(2)
       expect(first.page?.next).toMatch(/[0-f]{82}/)
     })
   })
@@ -224,10 +224,10 @@ describe('transactions', () => {
         size: 30
       })
 
-      expect(response.data.length).toBe(4)
+      expect(response.data.length).toStrictEqual(4)
       expect(response.page).toBeUndefined()
 
-      expect(response.data[3]).toEqual({
+      expect(response.data[3]).toStrictEqual({
         block: {
           hash: expect.stringMatching(/[0-f]{64}/),
           height: expect.any(Number)
@@ -252,20 +252,20 @@ describe('transactions', () => {
       const first = await controller.listTransactionUnspent('regtest', addressA.bech32, {
         size: 2
       })
-      expect(first.data.length).toBe(2)
+      expect(first.data.length).toStrictEqual(2)
       expect(first.page?.next).toMatch(/[0-f]{72}/)
-      expect(first.data[0].vout.value).toBe('34.00000000')
-      expect(first.data[1].vout.value).toBe('0.12340001')
+      expect(first.data[0].vout.value).toStrictEqual('34.00000000')
+      expect(first.data[1].vout.value).toStrictEqual('0.12340001')
 
       const next = await controller.listTransactionUnspent('regtest', addressA.bech32, {
         size: 10,
         next: first.page?.next
       })
 
-      expect(next.data.length).toBe(2)
+      expect(next.data.length).toStrictEqual(2)
       expect(next.page?.next).toBeUndefined()
-      expect(next.data[0].vout.value).toBe('1.32412313')
-      expect(next.data[1].vout.value).toBe('2.93719381')
+      expect(next.data[0].vout.value).toStrictEqual('1.32412313')
+      expect(next.data[1].vout.value).toStrictEqual('2.93719381')
     })
 
     it('should listTransactionUnspent with undefined next pagination', async () => {
@@ -274,7 +274,7 @@ describe('transactions', () => {
         next: undefined
       })
 
-      expect(first.data.length).toBe(2)
+      expect(first.data.length).toStrictEqual(2)
       expect(first.page?.next).toMatch(/[0-f]{72}/)
     })
   })
@@ -285,10 +285,10 @@ describe('transactions', () => {
         size: 30
       })
 
-      expect(response.data.length).toBe(2)
+      expect(response.data.length).toStrictEqual(2)
       expect(response.page).toBeUndefined()
 
-      expect(response.data[1]).toEqual({
+      expect(response.data[1]).toStrictEqual({
         block: {
           hash: expect.stringMatching(/[0-f]{64}/),
           height: expect.any(Number)
@@ -318,10 +318,10 @@ describe('transactions', () => {
         size: 30
       })
 
-      expect(response.data.length).toBe(2)
+      expect(response.data.length).toStrictEqual(2)
       expect(response.page).toBeUndefined()
 
-      expect(response.data[1]).toEqual({
+      expect(response.data[1]).toStrictEqual({
         block: {
           hash: expect.stringMatching(/[0-f]{64}/),
           height: expect.any(Number)

@@ -66,10 +66,10 @@ describe('tokens', () => {
       size: 30
     })
 
-    expect(response.data.length).toBe(6)
+    expect(response.data.length).toStrictEqual(6)
     expect(response.page).toBeUndefined()
 
-    expect(response.data[5]).toEqual({
+    expect(response.data[5]).toStrictEqual({
       id: '6',
       amount: '10.00000000',
       symbol: 'F',
@@ -84,22 +84,22 @@ describe('tokens', () => {
     const first = await controller.listToken(address, {
       size: 2
     })
-    expect(first.data.length).toBe(2)
-    expect(first.page?.next).toBe('2')
-    expect(first.data[0].symbol).toBe('A')
-    expect(first.data[1].symbol).toBe('B')
+    expect(first.data.length).toStrictEqual(2)
+    expect(first.page?.next).toStrictEqual('2')
+    expect(first.data[0].symbol).toStrictEqual('A')
+    expect(first.data[1].symbol).toStrictEqual('B')
 
     const next = await controller.listToken(address, {
       size: 10,
       next: first.page?.next
     })
 
-    expect(next.data.length).toBe(4)
+    expect(next.data.length).toStrictEqual(4)
     expect(next.page?.next).toBeUndefined()
-    expect(next.data[0].symbol).toBe('C')
-    expect(next.data[1].symbol).toBe('D')
-    expect(next.data[2].symbol).toBe('E')
-    expect(next.data[3].symbol).toBe('F')
+    expect(next.data[0].symbol).toStrictEqual('C')
+    expect(next.data[1].symbol).toStrictEqual('D')
+    expect(next.data[2].symbol).toStrictEqual('E')
+    expect(next.data[3].symbol).toStrictEqual('F')
   })
 
   it('should listToken with undefined next pagination', async () => {
@@ -108,7 +108,7 @@ describe('tokens', () => {
       next: undefined
     })
 
-    expect(first.data.length).toBe(2)
-    expect(first.page?.next).toBe('2')
+    expect(first.data.length).toStrictEqual(2)
+    expect(first.page?.next).toStrictEqual('2')
   })
 })

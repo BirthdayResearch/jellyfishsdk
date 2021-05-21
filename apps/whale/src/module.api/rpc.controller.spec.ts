@@ -28,5 +28,5 @@ beforeEach(async () => {
 
 it('should getblockchaininfo', async () => {
   const result = await controller.call('getblockchaininfo', undefined)
-  expect(result.chain).toBe('regtest')
+  expect(result.chain).toStrictEqual('regtest')
 })
