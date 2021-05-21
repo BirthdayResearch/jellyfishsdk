@@ -78,8 +78,8 @@ it('address to script', () => {
   const account = accountProvider.provide(node)
   expect(account.addressToScript('bcrt1qur2tmednr6e52u9du972nqvua60egwqkf98ps8')).toStrictEqual({
     stack: [
-      { code: 0, type: 'OP_0' },
-      { hex: 'e0d4bde5b31eb34570ade17ca9819cee9f943816', type: 'OP_PUSHDATA' }
+      OP_CODES.OP_0,
+      OP_CODES.OP_PUSHDATA_HEX_LE('e0d4bde5b31eb34570ade17ca9819cee9f943816')
     ]
   })
 })
