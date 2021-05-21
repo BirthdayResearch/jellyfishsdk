@@ -1,27 +1,10 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { CurrencyPair, CCurrencyPair, CTokenPrice, TokenPrice } from './dftx_price';
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
-
-export interface CurrencyPair {
-  token: string // ---------------------| max 8 bytes
-  currency: string // -----------------| max 8 bytes
-}
-
-/**
- * Composable CurrencyPair, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
-  composers (cp: CurrencyPair): BufferComposer[] {
-    return [
-      ComposableBuffer.varUIntUtf8BE(() => cp.token, v => cp.token = v),
-      ComposableBuffer.varUIntUtf8BE(() => cp.currency, v => cp.currency = v)
-    ]
-  }
-}
 
 /**
  * AppointOracle DeFi Transaction
@@ -68,11 +51,10 @@ export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
   composers (ao: RemoveOracle): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
-      ComposableBuffer.varUIntUtf8BE(() => ao.oracleId, v => ao.oracleId = v)
+      ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v)
     ]
   }
 }
-
 
 /**
  * UpdateOracle DeFi Transaction
@@ -94,7 +76,7 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
 
   composers (ao: UpdateOracle): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => ao.oracleId, v => ao.oracleId = v),
+      ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => ao.weightage, v => ao.weightage = v),
       ComposableBuffer.varUIntArray(() => ao.pricefeeds, v => ao.pricefeeds = v, v => new CCurrencyPair(v))
@@ -102,14 +84,13 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
   }
 }
 
-
 /**
  * SetOracleData DeFi Transaction
  */
  export interface SetOracleData {
   oracleId: string // -------------------| string
   timestamp: number // -------------------| 4 bytes unsigned
-  prices: CurrencyPair[] // -----------------| array of strings each max 8 bytes
+  currencies: TokenPrice[] // -----------------| array of TokenPrice
 }
 
 /**
@@ -122,9 +103,9 @@ export class CSetOracleData extends ComposableBuffer<SetOracleData> {
 
   composers (ao: SetOracleData): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => ao.oracleId, v => ao.oracleId = v),
+      ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.uInt32(() => ao.timestamp, v => ao.timestamp = v),
-      ComposableBuffer.varUIntArray(() => ao.prices, v => ao.prices = v, v => new CCurrencyPair(v))
+      ComposableBuffer.varUIntArray(() => ao.currencies, v => ao.currencies = v, v => new CTokenPrice(v))
     ]
   }
 }
