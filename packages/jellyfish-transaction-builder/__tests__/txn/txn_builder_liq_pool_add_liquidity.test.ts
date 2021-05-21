@@ -25,7 +25,6 @@ beforeAll(async () => {
   await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
-
   providers = await getProviders(container)
 
   await container.waitForWalletBalanceGTE(1)
@@ -54,12 +53,12 @@ beforeEach(async () => {
 
   // Fund 1000 CAT TOKEN
   await sendTokensToAddress(container, await providers.getAddress(), 1000, 'CAT')
+  await container.generate(1)
 
   // Ensure starting balance
-  await container.generate(1)
   const account = await jsonRpc.account.getAccount(await providers.getAddress())
   expect(account).toContain('100.00000000@DFI')
-  expect(account).toContain(`1000.00000000@${'CAT'}`)
+  expect(account).toContain('1000.00000000@CAT')
 
   // Fund 1 DFI UTXOS for fee
   await fundEllipticPair(container, providers.ellipticPair, 1)
@@ -105,7 +104,9 @@ describe('liqPool.addLiquidity()', () => {
 
     // updated balance
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
+    expect(account.length).toStrictEqual(3)
     expect(account).toContain('97.66000000@DFI')
     expect(account).toContain('909.13000000@CAT')
+    expect(account).toContain('@DFI-CAT') // amount subjected to rate
   })
 })
