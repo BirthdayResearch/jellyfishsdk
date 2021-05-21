@@ -1,62 +1,59 @@
 import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-import { Script } from '../../tx'
-import { CScript } from '../../tx_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
 
 export interface CurrencyPair {
-    token: string // ---------------------| max 8 bytes
-    currency: string // -----------------| max 8 bytes
-  }
-  
-  /**
+  token: string // ---------------------| max 8 bytes
+  currency: string // -----------------| max 8 bytes
+}
+
+/**
    * Composable CurrencyPair, C stands for Composable.
    * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
    */
-  export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
-    composers (cp: CurrencyPair): BufferComposer[] {
-      return [
-        ComposableBuffer.varUIntUtf8BE(() => cp.token, v => cp.token = v),
-        ComposableBuffer.varUIntUtf8BE(() => cp.currency, v => cp.currency = v)
-      ]
-    }
+export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
+  composers (cp: CurrencyPair): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => cp.token, v => cp.token = v),
+      ComposableBuffer.varUIntUtf8BE(() => cp.currency, v => cp.currency = v)
+    ]
   }
-  
-  
-  export interface TokenAmount {
-    token: string // ---------------------| max 8 bytes
-    amount: BigNumber // -----------------| 8 bytes unsigned
-  }
-  
-  /**
+}
+
+export interface TokenAmount {
+  currency: string // ---------------------| max 8 bytes
+  amount: BigNumber // -----------------| 8 bytes unsigned
+}
+
+/**
    * Composable TokenAmount, C stands for Composable.
    * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
    */
-  export class CTokenAmount extends ComposableBuffer<TokenAmount> {
-    composers (tp: TokenAmount): BufferComposer[] {
-      return [
-        ComposableBuffer.varUIntUtf8BE(() => tp.token, v => tp.token = v),
-        ComposableBuffer.satoshiAsBigNumber(() => tp.amount, v => tp.amount = v)
-      ]
-    }
+export class CTokenAmount extends ComposableBuffer<TokenAmount> {
+  composers (tp: TokenAmount): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => tp.currency, v => tp.currency = v),
+      ComposableBuffer.satoshiAsBigNumber(() => tp.amount, v => tp.amount = v)
+    ]
   }
-  
-  export interface TokenPrice {
-    currency: string // -----------------| max 8 bytes
-    prices: TokenAmount[] // ----------| TokenAmount
-  }
-  
-  /**
+}
+
+export interface TokenPrice {
+  token: string // -----------------| max 8 bytes
+  prices: TokenAmount[] // ----------| TokenAmount
+}
+
+/**
    * Composable TokenPrice, C stands for Composable.
    * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
    */
-  export class CTokenPrice extends ComposableBuffer<TokenPrice> {
-    composers (sb: TokenPrice): BufferComposer[] {
-      return [
-        ComposableBuffer.varUIntUtf8BE(() => sb.currency, v => sb.currency = v),
-        ComposableBuffer.varUIntArray(() => sb.prices, v => sb.prices = v, v => new CTokenAmount(v))
-      ]
-    }
+export class CTokenPrice extends ComposableBuffer<TokenPrice> {
+  composers (sb: TokenPrice): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => sb.token, v => sb.token = v),
+      ComposableBuffer.varUIntArray(() => sb.prices, v => sb.prices = v, v => new CTokenAmount(v))
+    ]
   }
+}

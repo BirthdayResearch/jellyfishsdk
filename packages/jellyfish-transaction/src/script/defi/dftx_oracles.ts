@@ -1,7 +1,8 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-import { CurrencyPair, CCurrencyPair, CTokenPrice, TokenPrice } from './dftx_price';
+import { CurrencyPair, CCurrencyPair, CTokenPrice, TokenPrice } from './dftx_price'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
+import BigNumber from 'bignumber.js'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -35,8 +36,7 @@ export class CAppointOracle extends ComposableBuffer<AppointOracle> {
 /**
  * RemoveOracle DeFi Transaction
  */
- export interface RemoveOracle {
-  script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
+export interface RemoveOracle {
   oracleId: string // -------------------| string
 }
 
@@ -50,7 +50,6 @@ export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
 
   composers (ao: RemoveOracle): BufferComposer[] {
     return [
-      ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v)
     ]
   }
@@ -59,7 +58,7 @@ export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
 /**
  * UpdateOracle DeFi Transaction
  */
- export interface UpdateOracle {
+export interface UpdateOracle {
   oracleId: string // -------------------| string
   script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
   weightage: number // -------------------| 1 byte unsigned
@@ -87,10 +86,10 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
 /**
  * SetOracleData DeFi Transaction
  */
- export interface SetOracleData {
+export interface SetOracleData {
   oracleId: string // -------------------| string
-  timestamp: number // -------------------| 4 bytes unsigned
-  currencies: TokenPrice[] // -----------------| array of TokenPrice
+  timestamp: BigNumber // -------------------| 4 bytes unsigned
+  tokens: TokenPrice[] // -----------------| array of TokenPrice
 }
 
 /**
@@ -104,8 +103,8 @@ export class CSetOracleData extends ComposableBuffer<SetOracleData> {
   composers (ao: SetOracleData): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v),
-      ComposableBuffer.uInt32(() => ao.timestamp, v => ao.timestamp = v),
-      ComposableBuffer.varUIntArray(() => ao.currencies, v => ao.currencies = v, v => new CTokenPrice(v))
+      ComposableBuffer.bigNumberUInt64(() => ao.timestamp, v => ao.timestamp = v),
+      ComposableBuffer.varUIntArray(() => ao.tokens, v => ao.tokens = v, v => new CTokenPrice(v))
     ]
   }
 }

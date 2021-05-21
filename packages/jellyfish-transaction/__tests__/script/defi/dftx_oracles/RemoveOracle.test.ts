@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
   CRemoveOracle,
-  RemoveOracle,
+  RemoveOracle
 } from '../../../../src/script/defi/dftx_oracles'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -9,7 +9,7 @@ import { OP_DEFI_TX } from '../../../../src/script/defi'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a35446654786f1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344',
+    '6a254466547868061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d1'
   ]
 
   fixtures.forEach(hex => {
@@ -18,23 +18,14 @@ it('should bi-directional buffer-object-buffer', () => {
     )
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x6f)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x68)
   })
 })
 
-const header = '6a35446654786f' // OP_RETURN, PUSH_DATA(44665478, 6f)
-const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344'
+const header = '6a254466547868' // OP_RETURN, PUSH_DATA(44665478, 68)
+const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d1'
 const removeOracle: RemoveOracle = {
-  script: {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_PUSHDATA_HEX_LE('c52fcb3c6dd28e530e5d162fee41f235bf7709cd'),
-      OP_CODES.OP_EQUALVERIFY,
-      OP_CODES.OP_CHECKSIG
-    ]
-  }, 
-  oracleId: 'dc261fb95d8865957ebe7139f61d7dd9b68935b367ad1e1f943e214de17709a2',
+  oracleId: 'd1248472d78681257637f6cafb6eab9b89f4a64eb8c425208b52258994351d06'
 }
 
 it('should craft dftx with OP_CODES._()', () => {
