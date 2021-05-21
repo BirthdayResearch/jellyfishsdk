@@ -89,30 +89,17 @@ describe('account.accountToUtxos()', () => {
     expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
     expect(change.scriptPubKey.hex).toBe(expectedUtxosRedeemScript)
     expect(change.scriptPubKey.addresses[0]).toBe(expectedOutAddress)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(expectedOutAddress)
 
     // minted utxos
     expect(minted.value).toStrictEqual(conversionAmount)
     expect(minted.scriptPubKey.hex).toBe(expectedUtxosRedeemScript)
     expect(minted.scriptPubKey.addresses[0]).toBe(expectedOutAddress)
+    expect(outs[2].scriptPubKey.addresses[0]).toStrictEqual(expectedOutAddress)
 
     // burnt token
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
     expect(account).toContain('7.66000000@DFI')
-  })
-
-  it('should reject invalid accountToUtxos arg - more than 1 token in balance', async () => {
-    const script = await providers.elliptic.script()
-    await expect(builder.account.accountToUtxos({
-      from: script,
-      balances: [{
-        token: 0,
-        amount: new BigNumber(10)
-      }, {
-        token: 1,
-        amount: new BigNumber(10)
-      }],
-      mintingOutputsStart: 2
-    }, script)).rejects.toThrow('Conversion output `accountToUtxos.balances` array length must be one')
   })
 
   it('should reject invalid accountToUtxos arg - more than 1 token in balance', async () => {
@@ -140,5 +127,17 @@ describe('account.accountToUtxos()', () => {
       }],
       mintingOutputsStart: 2
     }, script)).rejects.toThrow('`accountToUtxos.balances[0].token` must be 0x00, only DFI support')
+  })
+
+  it('should reject invalid accountToUtxos arg - `mintingOutputsStart` is not two', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.account.accountToUtxos({
+      from: script,
+      balances: [{
+        token: 0,
+        amount: new BigNumber(10)
+      }],
+      mintingOutputsStart: 1
+    }, script)).rejects.toThrow('`accountToUtxos.mintingOutputsStart` must be `2` for simplicity')
   })
 })

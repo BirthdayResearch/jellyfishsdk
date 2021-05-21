@@ -47,6 +47,7 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
    * @param {Script} destinationScript vout destination, for both utxos minted and change after deducted fee
    * @throws {TxnBuilderError} if 'accountToUtxos.balances' length is not `1`
    * @throws {TxnBuilderError} if 'accountToUtxos.balances[0].token' is not `0`
+   * @throws {TxnBuilderError} if 'accountToUtxos.mintingOutputsStart' is not `2`, vout[0] = DfTx, vout[1] = change, vout[2] = new minted utxos
    * @returns {Promise<TransactionSegWit>}
    */
   async accountToUtxos (accountToUtxos: AccountToUtxos, destinationScript: Script): Promise<TransactionSegWit> {
@@ -59,6 +60,12 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
     if (accountToUtxos.balances[0].token !== 0x00) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
         '`accountToUtxos.balances[0].token` must be 0x00, only DFI support'
+      )
+    }
+
+    if (accountToUtxos.mintingOutputsStart !== 2) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
+        '`accountToUtxos.mintingOutputsStart` must be `2` for simplicity'
       )
     }
 
