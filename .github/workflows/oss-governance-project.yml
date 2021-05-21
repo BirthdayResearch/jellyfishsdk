@@ -19,6 +19,7 @@ jobs:
       - uses: actions/github-script@a3e7071a34d7e1f219a8a4de9a5e0a34d1ee1293
         if: github.event_name == 'pull_request' && github.event.sender.type == 'User' && github.event.pull_request.head.repo.full_name == github.repository
         with:
+          github-token: ${{ secrets.DEFICHAIN_BOT_GITHUB_TOKEN }}
           script: |
             github.issues.addAssignees({
               owner: context.repo.owner,
