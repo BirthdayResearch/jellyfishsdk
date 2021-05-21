@@ -1,6 +1,7 @@
 import { TestAccountProvider } from './account.mock'
 import { TestNodeProvider } from './node.mock'
 import { WalletAccount } from '../src'
+import { OP_CODES } from '@defichain/jellyfish-transaction'
 
 describe('provide different account', () => {
   const nodeProvider = new TestNodeProvider()
@@ -49,10 +50,11 @@ describe('get script', () => {
   it('should get script for 0', async () => {
     const node = nodeProvider.derive('0')
     const account = accountProvider.provide(node)
+    console.log(await account.getScript())
     expect(await account.getScript()).toStrictEqual({
       stack: [
-        { code: 0, type: 'OP_0' },
-        { hex: 'df01eaac7d4f3e28cf3b8929590766d3559e7a69', type: 'OP_PUSHDATA' }
+        OP_CODES.OP_0,
+        OP_CODES.OP_PUSHDATA_HEX_LE('df01eaac7d4f3e28cf3b8929590766d3559e7a69')
       ]
     })
   })
@@ -62,8 +64,8 @@ describe('get script', () => {
     const account = accountProvider.provide(node)
     expect(await account.getScript()).toStrictEqual({
       stack: [
-        { code: 0, type: 'OP_0' },
-        { hex: '938a24a531e4ee0fd4ea12f95058292ed8f3eed4', type: 'OP_PUSHDATA' }
+        OP_CODES.OP_0,
+        OP_CODES.OP_PUSHDATA_HEX_LE('938a24a531e4ee0fd4ea12f95058292ed8f3eed4')
       ]
     })
   })

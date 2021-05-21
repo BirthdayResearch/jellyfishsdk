@@ -69,17 +69,17 @@ describe('account.utxosToAccount()', () => {
     const outs = await sendTransaction(container, txn)
     const change = await findOut(outs, providers.elliptic.ellipticPair)
 
-    expect(outs.length).toEqual(2)
+    expect(outs.length).toStrictEqual(2)
     const encoded: string = OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount).asBuffer().toString('hex')
     // OP_RETURN + utxos full buffer
     const expectedRedeemScript = `6a${encoded}`
-    expect(outs[0].value).toEqual(conversionAmount)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].value).toStrictEqual(conversionAmount)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     expect(change.value).toBeLessThan(100 - conversionAmount)
     expect(change.value).toBeGreaterThan(100 - conversionAmount - 0.001)
-    expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
-    expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
+    expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
 
     // minted token
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
