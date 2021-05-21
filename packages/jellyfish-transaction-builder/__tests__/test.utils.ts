@@ -76,6 +76,6 @@ export async function findOut (outs: TxOut[], pair: EllipticPair): Promise<TxOut
   const address = Bech32.fromPubKey(pubKey, 'bcrt')
 
   return outs.filter(value => {
-    return value.scriptPubKey.addresses?.includes(address)
+    return value.scriptPubKey.addresses.includes(address)
   })[0]
 }
