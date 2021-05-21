@@ -10,7 +10,8 @@ import { P2WPKHTransactionBuilder } from '../../src'
 import {
   findOut,
   fundEllipticPair,
-  sendTransaction
+  sendTransaction,
+  sendTransactionNoGenerate
 } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
@@ -240,5 +241,47 @@ describe('account.accountToAccount()', () => {
     const recipientTwoAccount = await jsonRpc.account.getAccount(destTwoAddress)
     expect(recipientTwoAccount.length).toStrictEqual(1)
     expect(recipientTwoAccount).toContain('63.48000000@CAT')
+  })
+
+  it('should be able to send after exhausting Auth UTXOs', async () => {
+    const newAddress = await container.getNewAddress()
+
+    // output token address
+    const newP2wpkh = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
+
+    const script = await providers.elliptic.script()
+
+    const conversionAmount = 1.0
+    const accountToAccount: AccountToAccount = {
+      from: script,
+      to: [{
+        script: newP2wpkh.getScript(),
+        balances: [{
+          token: 0,
+          amount: new BigNumber(conversionAmount) // balance remaining in token
+        }]
+      }]
+    }
+
+    // Send 3 Dftx within one block (Without generating a block in between transactions)
+    await sendTransactionNoGenerate(container,
+      await builder.account.accountToAccount(accountToAccount, script))
+
+    await sendTransactionNoGenerate(container,
+      await builder.account.accountToAccount(accountToAccount, script))
+
+    await sendTransactionNoGenerate(container,
+      await builder.account.accountToAccount(accountToAccount, script))
+
+    // Generate the block
+    await container.generate(1)
+
+    // burnt token
+    const account = await jsonRpc.account.getAccount(await providers.getAddress())
+    expect(account).toContain('7.00000000@DFI')
+
+    // minted token
+    const recipientAccount = await jsonRpc.account.getAccount(newAddress)
+    expect(recipientAccount).toContain('3.00000000@DFI')
   })
 })

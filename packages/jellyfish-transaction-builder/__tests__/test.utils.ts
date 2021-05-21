@@ -59,6 +59,15 @@ export async function sendTransaction (container: MasterNodeRegTestContainer, tr
   return tx.vout as TxOut[]
 }
 
+export async function sendTransactionNoGenerate (container: MasterNodeRegTestContainer, transaction: TransactionSegWit): Promise<TxOut[]> {
+  const buffer = new SmartBuffer()
+  new CTransactionSegWit(transaction).toBuffer(buffer)
+  const hex = buffer.toBuffer().toString('hex')
+  const txid = await container.call('sendrawtransaction', [hex])
+  const tx = await container.call('getrawtransaction', [txid, true])
+  return tx.vout as TxOut[]
+}
+
 export interface TxOut {
   value: number
   n: number
