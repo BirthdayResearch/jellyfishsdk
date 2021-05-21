@@ -64,6 +64,11 @@ beforeEach(async () => {
 
   // Fund 1 DFI UTXOS for fee
   await fundEllipticPair(container, providers.ellipticPair, 1)
+
+  // Ensure starting balances
+  await container.generate(1)
+  const account = await jsonRpc.account.getAccount(await providers.getAddress())
+  expect(account).toContain(`${amount.toFixed(8)}@DFI-CAT`)
 })
 
 describe('liqPool.removeLiquidity()', () => {
@@ -106,10 +111,12 @@ describe('liqPool.removeLiquidity()', () => {
 
     const dfiBal = balances.get('DFI')
     const catBal = balances.get('CAT')
+    const lmBal = balances.get('DFI-CAT')
 
     expect(dfiBal?.gt(99.999)).toBeTruthy()
     expect(dfiBal?.lt(100)).toBeTruthy()
     expect(catBal?.gt(99.999)).toBeTruthy()
     expect(catBal?.lt(100)).toBeTruthy()
+    expect(lmBal).toBeFalsy()
   })
 })
