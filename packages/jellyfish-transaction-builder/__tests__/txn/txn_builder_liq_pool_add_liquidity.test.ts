@@ -107,6 +107,66 @@ describe('liqPool.addLiquidity()', () => {
     expect(account.length).toStrictEqual(3)
     expect(account).toContain('97.66000000@DFI')
     expect(account).toContain('909.13000000@CAT')
-    expect(account).toContain('@DFI-CAT') // amount subjected to rate
+
+    // minted LM token
+    const lmTokenFound = account.find(tb => tb.split('@')[1] === 'DFI-CAT')
+    expect(lmTokenFound).toBeTruthy()
+  })
+
+  it('should reject invalid addLiquidity arg - more than 1 in `from`', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.liqPool.addLiquidity({
+      from: [{
+        script,
+        balances: [{
+          token: 0,
+          amount: new BigNumber(10)
+        }]
+      }, {
+        script,
+        balances: [{
+          token: 1,
+          amount: new BigNumber(10)
+        }]
+      }],
+      shareAddress: script
+    }, script)).rejects.toThrow('`addLiquidity.from` array length must be ONE')
+  })
+
+  it('should reject invalid addLiquidity arg - not 2 TokenBalance in `from.balances`', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.liqPool.addLiquidity({
+      from: [{
+        script,
+        balances: [{
+          token: 0,
+          amount: new BigNumber(10)
+        }, {
+          token: 0,
+          amount: new BigNumber(10)
+        }, {
+          token: 1,
+          amount: new BigNumber(10)
+        }]
+      }],
+      shareAddress: script
+    }, script)).rejects.toThrow('`addLiquidity.from[0].balances` array length must be TWO')
+  })
+
+  it('should reject invalid addLiquidity arg - `from.balances` is not a valid pair', async () => {
+    const script = await providers.elliptic.script()
+    await expect(builder.liqPool.addLiquidity({
+      from: [{
+        script,
+        balances: [{
+          token: 1,
+          amount: new BigNumber(10)
+        }, {
+          token: 1,
+          amount: new BigNumber(10)
+        }]
+      }],
+      shareAddress: script
+    }, script)).rejects.toThrow('`addLiquidity.from[0].balances` must consists of TWO different token')
   })
 })

@@ -22,7 +22,11 @@ export enum TxnBuilderErrorType {
   /**
    * Conversion output `TokenBalance` array length must be one
    */
-  INVALID_UTXOS_TO_ACCOUNT_OUTPUT
+  INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
+  /**
+   * Invalid input `TokenBalances` array length must be one
+   */
+  INVALID_ADD_LIQUIDITY_INPUT
 }
 
 /**
