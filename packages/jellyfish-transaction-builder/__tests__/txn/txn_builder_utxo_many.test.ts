@@ -59,26 +59,26 @@ describe('utxo.send', () => {
     const outs = await sendTransaction(container, txn)
 
     const sendTo = await findOut(outs, sendPair)
-    expect(sendTo.value).toBe(99)
-    expect(sendTo.scriptPubKey.hex).toBe(`0014${HASH160(sendPubKey).toString('hex')}`)
-    expect(sendTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(sendPubKey, 'bcrt'))
+    expect(sendTo.value).toStrictEqual(99)
+    expect(sendTo.scriptPubKey.hex).toStrictEqual(`0014${HASH160(sendPubKey).toString('hex')}`)
+    expect(sendTo.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(sendPubKey, 'bcrt'))
 
     const changePair = await providers.elliptic.ellipticPair
     const changePubKey = await changePair.publicKey()
     const changeTo = await findOut(outs, providers.elliptic.ellipticPair)
     expect(changeTo.value).toBeGreaterThan(0.9)
     expect(changeTo.value).toBeLessThan(1)
-    expect(changeTo.scriptPubKey.hex).toBe(`0014${HASH160(changePubKey).toString('hex')}`)
-    expect(changeTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(changePubKey, 'bcrt'))
+    expect(changeTo.scriptPubKey.hex).toStrictEqual(`0014${HASH160(changePubKey).toString('hex')}`)
+    expect(changeTo.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(changePubKey, 'bcrt'))
 
     const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toBe(1)
-    expect(prevouts[0].value.toNumber()).toBe(changeTo.value)
-    expect(prevouts[0].vout).toBe(changeTo.n)
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toStrictEqual(changeTo.value)
+    expect(prevouts[0].vout).toStrictEqual(changeTo.n)
 
-    expect(prevouts[0].script.stack.length).toBe(2)
-    expect(prevouts[0].script.stack[0].type).toBe('OP_0')
-    expect((prevouts[0].script.stack[1] as OP_PUSHDATA).hex).toBe(HASH160(changePubKey).toString('hex'))
+    expect(prevouts[0].script.stack.length).toStrictEqual(2)
+    expect(prevouts[0].script.stack[0].type).toStrictEqual('OP_0')
+    expect((prevouts[0].script.stack[1] as OP_PUSHDATA).hex).toStrictEqual(HASH160(changePubKey).toString('hex'))
   })
 })
 
@@ -96,15 +96,15 @@ describe('utxo.sendAll', () => {
     const txn = await builder.utxo.sendAll(to)
     const outs = await sendTransaction(container, txn)
 
-    expect(outs.length).toBe(1)
+    expect(outs.length).toStrictEqual(1)
 
     const sendTo = await findOut(outs, sendPair)
     expect(sendTo.value).toBeGreaterThan(99.99)
     expect(sendTo.value).toBeLessThan(100)
-    expect(sendTo.scriptPubKey.hex).toBe(`0014${HASH160(sendPubKey).toString('hex')}`)
-    expect(sendTo.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(sendPubKey, 'bcrt'))
+    expect(sendTo.scriptPubKey.hex).toStrictEqual(`0014${HASH160(sendPubKey).toString('hex')}`)
+    expect(sendTo.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(sendPubKey, 'bcrt'))
 
     const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toBe(0)
+    expect(prevouts.length).toStrictEqual(0)
   })
 })

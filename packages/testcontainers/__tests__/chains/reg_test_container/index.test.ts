@@ -14,29 +14,29 @@ describe('regtest', () => {
 
   it('should be block 0 for getmintinginfo rpc', async () => {
     const info = await container.getMintingInfo()
-    expect(info.blocks).toBe(0)
-    expect(info.chain).toBe('regtest')
+    expect(info.blocks).toStrictEqual(0)
+    expect(info.chain).toStrictEqual('regtest')
   })
 
   it('should be block 0 for getblockcount rpc', async () => {
     const count = await container.getBlockCount()
-    expect(count).toBe(0)
+    expect(count).toStrictEqual(0)
   })
 
   describe('address', () => {
     it('should be able to getnewaddress', async () => {
       const address = await container.getNewAddress()
-      expect(address.length).toBe(44)
+      expect(address.length).toStrictEqual(44)
     })
 
     it('should be able to getnewaddress with label and as p2sh-segwit', async () => {
       const address = await container.getNewAddress('not-default', 'p2sh-segwit')
-      expect(address.length).toBe(35)
+      expect(address.length).toStrictEqual(35)
     })
 
     it('should be able to getnewaddress with label and as legacy', async () => {
       const address = await container.getNewAddress('not-default', 'legacy')
-      expect(address.length).toBe(34)
+      expect(address.length).toStrictEqual(34)
     })
   })
 })

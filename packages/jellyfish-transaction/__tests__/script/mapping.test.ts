@@ -2,16 +2,16 @@ import * as script from '../../src/script'
 
 it('OP_UNMAPPED', () => {
   expect(script.numAsOPCode(0xfe)).toBeInstanceOf(script.OP_UNMAPPED)
-  expect(script.numAsOPCode(0xfe).type).toBe('OP_UNMAPPED_CODE_254')
-  expect(script.numAsOPCode(0xfe).asBuffer().toString('hex')).toBe('fe')
+  expect(script.numAsOPCode(0xfe).type).toStrictEqual('OP_UNMAPPED_CODE_254')
+  expect(script.numAsOPCode(0xfe).asBuffer().toString('hex')).toStrictEqual('fe')
 })
 
 describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () => {
   function expectOPCode (code: script.StaticCode, instanceOf: any, type: string, num: number, hex: string): void {
     expect(code).toBeInstanceOf(instanceOf)
     expect(script.numAsOPCode(num)).toBeInstanceOf(instanceOf)
-    expect(code.type).toBe(type)
-    expect(code.asBuffer().toString('hex')).toBe(hex)
+    expect(code.type).toStrictEqual(type)
+    expect(code.asBuffer().toString('hex')).toStrictEqual(hex)
   }
 
   it('OP_0', () => {

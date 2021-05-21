@@ -44,5 +44,5 @@ it('should be able to use DeFiTransactionConstants constants to craft Transactio
 
   const buffer = new SmartBuffer()
   new CTransactionSegWit(data).toBuffer(buffer)
-  expect(buffer.toBuffer().toString('hex')).toBe(hex)
+  expect(buffer.toBuffer().toString('hex')).toStrictEqual(hex)
 })

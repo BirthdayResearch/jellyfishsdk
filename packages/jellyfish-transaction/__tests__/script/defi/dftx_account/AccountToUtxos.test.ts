@@ -17,8 +17,8 @@ it('should bi-directional buffer-object-buffer', () => {
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x62)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x62)
   })
 })
 
@@ -51,14 +51,14 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CAccountToUtxos(buffer)
-    expect(composable.toObject()).toEqual(accountToUtxos)
+    expect(composable.toObject()).toStrictEqual(accountToUtxos)
   })
 
   it('should compose from composable to buffer', () => {
@@ -66,6 +66,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

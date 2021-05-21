@@ -4,9 +4,9 @@ it('should generate 12-15-18-21-24 and validate', () => {
   function shouldGenerateAndValidate (length: 12 | 15 | 18 | 21 | 24): void {
     const words = generateMnemonic(length)
 
-    expect(words.length).toBe(length)
-    expect(validateMnemonic(words)).toBe(true)
-    expect(mnemonicToSeed(words).length).toBe(64)
+    expect(words.length).toStrictEqual(length)
+    expect(validateMnemonic(words)).toStrictEqual(true)
+    expect(mnemonicToSeed(words).length).toStrictEqual(64)
   }
 
   shouldGenerateAndValidate(12)
@@ -19,9 +19,9 @@ it('should generate 12-15-18-21-24 and validate', () => {
 it('should generate 24 words as default', () => {
   const words = generateMnemonic()
 
-  expect(words.length).toBe(24)
-  expect(validateMnemonic(words)).toBe(true)
-  expect(mnemonicToSeed(words).length).toBe(64)
+  expect(words.length).toStrictEqual(24)
+  expect(validateMnemonic(words)).toStrictEqual(true)
+  expect(mnemonicToSeed(words).length).toStrictEqual(64)
 })
 
 it('should always generate a fixed mnemonic with the same rng', () => {
@@ -29,11 +29,11 @@ it('should always generate a fixed mnemonic with the same rng', () => {
     return Buffer.alloc(numOfBytes, 0)
   })
 
-  expect(validateMnemonic(words)).toBe(true)
-  expect(mnemonicToSeed(words).toString('hex')).toBe(
+  expect(validateMnemonic(words)).toStrictEqual(true)
+  expect(mnemonicToSeed(words).toString('hex')).toStrictEqual(
     '408b285c123836004f4b8842c89324c1f01382450c0d439af345ba7fc49acf705489c6fc77dbd4e3dc1dd8cc6bc9f043db8ada1e243c4a0eafb290d399480840'
   )
-  expect(words.join(' ')).toBe(
+  expect(words.join(' ')).toStrictEqual(
     'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art'
   )
 })
@@ -50,9 +50,9 @@ it('should validate a fixed mnemonic', () => {
   ]
 
   for (const fixture of fixtures) {
-    expect(validateMnemonic(fixture)).toBe(true)
+    expect(validateMnemonic(fixture)).toStrictEqual(true)
 
     const words = fixture.split(' ')
-    expect(validateMnemonic(words)).toBe(true)
+    expect(validateMnemonic(words)).toStrictEqual(true)
   }
 })
