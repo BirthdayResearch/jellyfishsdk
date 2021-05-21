@@ -19,7 +19,7 @@ export class CTokenBalance extends ComposableBuffer<TokenBalance> {
   composers (tb: TokenBalance): BufferComposer[] {
     return [
       ComposableBuffer.uInt32(() => tb.token, v => tb.token = v),
-      ComposableBuffer.bigNumberUInt64(() => tb.amount, v => tb.amount = v)
+      ComposableBuffer.satoshiAsBigNumber(() => tb.amount, v => tb.amount = v)
     ]
   }
 }
