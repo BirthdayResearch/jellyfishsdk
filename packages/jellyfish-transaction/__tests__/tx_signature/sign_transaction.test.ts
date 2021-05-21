@@ -55,17 +55,17 @@ describe('sign transaction', () => {
       ellipticPair: keyPair
     }])
 
-    expect(signed.version).toBe(DeFiTransactionConstants.Version)
-    expect(signed.marker).toBe(DeFiTransactionConstants.WitnessMarker)
-    expect(signed.flag).toBe(DeFiTransactionConstants.WitnessFlag)
+    expect(signed.version).toStrictEqual(DeFiTransactionConstants.Version)
+    expect(signed.marker).toStrictEqual(DeFiTransactionConstants.WitnessMarker)
+    expect(signed.flag).toStrictEqual(DeFiTransactionConstants.WitnessFlag)
 
-    expect(signed.vin.length).toBe(1)
-    expect(signed.vout.length).toBe(1)
+    expect(signed.vin.length).toStrictEqual(1)
+    expect(signed.vout.length).toStrictEqual(1)
 
-    expect(signed.witness.length).toBe(1)
-    expect(signed.witness[0].scripts.length).toBe(2)
+    expect(signed.witness.length).toStrictEqual(1)
+    expect(signed.witness[0].scripts.length).toStrictEqual(2)
 
-    expect(signed.lockTime).toBe(0x00000000)
+    expect(signed.lockTime).toStrictEqual(0x00000000)
   })
 
   describe('validation', () => {
@@ -120,7 +120,7 @@ describe('sign transaction', () => {
           version: false
         }
       })
-      expect(signed.version).toBe(1)
+      expect(signed.version).toStrictEqual(1)
     })
 
     it('should fail if lockTime is not set to 0', async () => {
@@ -142,7 +142,7 @@ describe('sign transaction', () => {
           lockTime: false
         }
       })
-      expect(signed.lockTime).toBe(1000)
+      expect(signed.lockTime).toStrictEqual(1000)
     })
   })
 

@@ -5,22 +5,22 @@ it('should construct as big endian', () => {
   const buff = Buffer.from('00ff', 'hex')
   const data = new OP_PUSHDATA(buff, 'big')
 
-  expect(data.hex).toBe('ff00')
-  expect(data.asBuffer().toString('hex')).toBe('02ff00')
+  expect(data.hex).toStrictEqual('ff00')
+  expect(data.asBuffer().toString('hex')).toStrictEqual('02ff00')
 })
 
 it('should construct as little endian', () => {
   const buff = Buffer.from('00ff', 'hex')
   const data = new OP_PUSHDATA(buff, 'little')
 
-  expect(data.hex).toBe('00ff')
-  expect(data.asBuffer().toString('hex')).toBe('0200ff')
+  expect(data.hex).toStrictEqual('00ff')
+  expect(data.asBuffer().toString('hex')).toStrictEqual('0200ff')
 })
 
 it('should return length of PUSHDATA', () => {
   const buff = Buffer.from('00ff', 'hex')
   const data = new OP_PUSHDATA(buff, 'little')
-  expect(data.length()).toBe(2)
+  expect(data.length()).toStrictEqual(2)
 })
 
 describe('OP_PUSHDATA construct from buffer', () => {
@@ -28,9 +28,9 @@ describe('OP_PUSHDATA construct from buffer', () => {
     const buff = Buffer.from(hex, 'hex')
     const data = new OP_PUSHDATA(buff, 'little')
 
-    expect(data.type).toBe('OP_PUSHDATA')
-    expect(data.hex).toBe(hex)
-    expect(data.asBuffer().toString('hex')).toBe(`${prefix}${hex}`)
+    expect(data.type).toStrictEqual('OP_PUSHDATA')
+    expect(data.hex).toStrictEqual(hex)
+    expect(data.asBuffer().toString('hex')).toStrictEqual(`${prefix}${hex}`)
   }
 
   it('1 len', () => {
@@ -70,9 +70,9 @@ describe('OP_PUSHDATA construct from code and smart buffer', () => {
     const prefix = Buffer.allocUnsafe(1)
     prefix.writeUInt8(code)
 
-    expect(data.type).toBe('OP_PUSHDATA')
-    expect(data.hex).toBe(hex)
-    expect(data.asBuffer().toString('hex')).toBe(
+    expect(data.type).toStrictEqual('OP_PUSHDATA')
+    expect(data.hex).toStrictEqual(hex)
+    expect(data.asBuffer().toString('hex')).toStrictEqual(
       `${prefix.toString('hex')}${len}${hex}`
     )
   }

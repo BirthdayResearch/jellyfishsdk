@@ -27,23 +27,23 @@ describe('P2PKH', () => {
     it('should get the type precisely', () => {
       const p2pkh = DeFiAddress.from('mainnet', p2pkhFixture.mainnet)
       expect(p2pkh.valid).toBeTruthy()
-      expect(p2pkh.type).toBe('P2PKH')
-      expect(p2pkh.constructor.name).toBe('P2PKH')
-      expect(p2pkh.network).toBe(MainNet)
+      expect(p2pkh.type).toStrictEqual('P2PKH')
+      expect(p2pkh.constructor.name).toStrictEqual('P2PKH')
+      expect(p2pkh.network).toStrictEqual(MainNet)
     })
 
     it('should work for all recognized network type', () => {
       const testnet = DeFiAddress.from('testnet', p2pkhFixture.testnet)
       expect(testnet.valid).toBeTruthy()
-      expect(testnet.type).toBe('P2PKH')
-      expect(testnet.constructor.name).toBe('P2PKH')
-      expect(testnet.network).toBe(TestNet)
+      expect(testnet.type).toStrictEqual('P2PKH')
+      expect(testnet.constructor.name).toStrictEqual('P2PKH')
+      expect(testnet.network).toStrictEqual(TestNet)
 
       const regtest = DeFiAddress.from('regtest', p2pkhFixture.regtest)
       expect(regtest.valid).toBeTruthy()
-      expect(regtest.type).toBe('P2PKH')
-      expect(regtest.constructor.name).toBe('P2PKH')
-      expect(regtest.network).toBe(RegTest)
+      expect(regtest.type).toStrictEqual('P2PKH')
+      expect(regtest.constructor.name).toStrictEqual('P2PKH')
+      expect(regtest.network).toStrictEqual(RegTest)
     })
   })
 
@@ -57,8 +57,8 @@ describe('P2PKH', () => {
       // valid address, used on different network
       const p2pkh = DeFiAddress.from('testnet', p2pkhFixture.mainnet)
       expect(p2pkh.valid).toBeFalsy()
-      // expect(p2pkh.type).toBe('P2PKH') // invalid address guessed type is not promising, as p2pkh and p2sh are versy similar
-      expect(p2pkh.network).toBe(TestNet)
+      // expect(p2pkh.type).toStrictEqual('P2PKH') // invalid address guessed type is not promising, as p2pkh and p2sh are versy similar
+      expect(p2pkh.network).toStrictEqual(TestNet)
     })
 
     it('should get the type precisely', () => {
@@ -102,7 +102,7 @@ describe('P2PKH', () => {
       try {
         invalid.getScript()
       } catch (e) {
-        expect(e.message).toBe('InvalidDefiAddress')
+        expect(e.message).toStrictEqual('InvalidDefiAddress')
       }
     })
 
@@ -134,8 +134,8 @@ describe('P2PKH', () => {
   it('guess()', () => {
     const p2pkh = DeFiAddress.guess(p2pkhFixture.mainnet)
     expect(p2pkh.valid).toBeTruthy()
-    expect(p2pkh.type).toBe('P2PKH')
-    expect(p2pkh.constructor.name).toBe('P2PKH')
-    expect(p2pkh.network).toBe(MainNet)
+    expect(p2pkh.type).toStrictEqual('P2PKH')
+    expect(p2pkh.constructor.name).toStrictEqual('P2PKH')
+    expect(p2pkh.network).toStrictEqual(MainNet)
   })
 })

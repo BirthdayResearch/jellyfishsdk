@@ -73,12 +73,12 @@ describe('createDeFiTx()', () => {
     expect(result.vout[0].script.stack[1].type).toStrictEqual('OP_DEFI_TX')
 
     const tx = (result.vout[0].script.stack[1] as OP_DEFI_TX).tx
-    expect(tx.signature).toBe(1147556984)
-    expect(tx.type).toBe(0x01)
-    expect(tx.name).toBe('OP_DEFI_TX_UNMAPPED')
+    expect(tx.signature).toStrictEqual(1147556984)
+    expect(tx.type).toStrictEqual(0x01)
+    expect(tx.name).toStrictEqual('OP_DEFI_TX_UNMAPPED')
 
     const unmapped = tx.data as DeFiOpUnmapped
-    expect(unmapped.hex).toBe('001234')
+    expect(unmapped.hex).toStrictEqual('001234')
   })
 
   it('balance should be deducted accordingly based on spent on DfTx', async () => {

@@ -45,7 +45,7 @@ describe('accountToAccount', () => {
     const account = accounts.find((acc: any) => acc.amount === `6.00000000@${symbol}`)
 
     expect(account.owner.addresses.length).toBeGreaterThan(0)
-    expect(account.owner.addresses[0]).toBe(to)
+    expect(account.owner.addresses[0]).toStrictEqual(to)
   })
 })
 

@@ -33,12 +33,12 @@ describe('WalletAccount: 0/0/0', () => {
 
   it('getAddress should be bcrt1q...', async () => {
     const address = await account.getAddress()
-    expect(address).toBe('bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8')
+    expect(address).toStrictEqual('bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8')
   })
 
   it('isActive should be active', async () => {
     const active = await account.isActive()
-    expect(active).toBe(true)
+    expect(active).toStrictEqual(true)
   })
 })
 

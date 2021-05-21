@@ -19,7 +19,7 @@ export function expectObjectToHexBuffer<T> (data: T, hex: string, asC: ((data: T
   const buffer = new SmartBuffer()
   txn.toBuffer(buffer)
 
-  expect(buffer.toBuffer().toString('hex')).toBe(hex)
+  expect(buffer.toBuffer().toString('hex')).toStrictEqual(hex)
   // parse and stringify due to JSON path inconsistent positioning
   expect(JSON.parse(JSON.stringify(txn.toObject()))).toStrictEqual(
     JSON.parse(JSON.stringify(data))
