@@ -30,8 +30,8 @@ import {
   UtxosToAccount
 } from './defi/dftx_account'
 import {
-  CAppointOracle, 
-  AppointOracle, 
+  CAppointOracle,
+  AppointOracle,
   RemoveOracle,
   CRemoveOracle,
   UpdateOracle,

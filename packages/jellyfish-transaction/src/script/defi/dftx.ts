@@ -15,15 +15,15 @@ import {
   PoolSwap
 } from './dftx_pool'
 import { CTokenMint, TokenMint } from './dftx_token'
-import { 
-  CAppointOracle, 
-  AppointOracle, 
-  CUpdateOracle, 
-  UpdateOracle, 
-  CRemoveOracle, 
-  RemoveOracle, 
-  CSetOracleData, 
-  SetOracleData 
+import {
+  CAppointOracle,
+  AppointOracle,
+  CUpdateOracle,
+  UpdateOracle,
+  CRemoveOracle,
+  RemoveOracle,
+  CSetOracleData,
+  SetOracleData
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 

@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
   CAppointOracle,
-  AppointOracle,
+  AppointOracle
 } from '../../../../src/script/defi/dftx_oracles'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -9,7 +9,7 @@ import { OP_DEFI_TX } from '../../../../src/script/defi'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a35446654786f1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344',
+    '6a35446654786f1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344'
   ]
 
   fixtures.forEach(hex => {
