@@ -38,6 +38,13 @@ export class TxnBuilderLiqPool extends P2WPKHTxnBuilder {
     )
   }
 
+  /**
+   * Remove from liquidity pool.
+   *
+   * @param {PoolRemoveLiquidity} removeLiquidity pool token p2pwkh scipt, token id and amount to remove
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
   async removeLiquidity (removeLiquidity: PoolRemoveLiquidity, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_POOL_REMOVE_LIQUIDITY(removeLiquidity),
