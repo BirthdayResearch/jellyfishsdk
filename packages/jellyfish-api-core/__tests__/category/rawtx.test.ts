@@ -39,27 +39,27 @@ describe('createRawTransaction', () => {
     const unsigned: string = await client.rawtx.createRawTransaction(inputs, outputs)
 
     // Version
-    expect(unsigned.substr(0, 8)).toBe('04000000')
+    expect(unsigned.substr(0, 8)).toStrictEqual('04000000')
     // Vin
-    expect(unsigned.substr(8, 2)).toBe('01')
-    expect(unsigned.substr(10, 64)).toBe(
+    expect(unsigned.substr(8, 2)).toStrictEqual('01')
+    expect(unsigned.substr(10, 64)).toStrictEqual(
       Buffer.from(txid, 'hex').reverse().toString('hex')
     )
-    expect(unsigned.substr(74, 8)).toBe('00000000')
-    expect(unsigned.substr(82, 2)).toBe('00')
-    expect(unsigned.substr(84, 8)).toBe('ffffffff')
+    expect(unsigned.substr(74, 8)).toStrictEqual('00000000')
+    expect(unsigned.substr(82, 2)).toStrictEqual('00')
+    expect(unsigned.substr(84, 8)).toStrictEqual('ffffffff')
     // Vout
-    expect(unsigned.substr(92, 2)).toBe('01')
-    expect(unsigned.substr(94, 16)).toBe('0065cd1d00000000')
-    expect(unsigned.substr(110, 2)).toBe('16')
-    expect(unsigned.substr(112, 2)).toBe('00') // OP_0
-    expect(unsigned.substr(114, 2)).toBe('14')
-    expect(unsigned.substr(116, 40)).toBe('4ab4391ce5a732e36139e72d79a28e01b7b08034') // PKH
-    expect(unsigned.substr(156, 2)).toBe('00') // DCT_ID
+    expect(unsigned.substr(92, 2)).toStrictEqual('01')
+    expect(unsigned.substr(94, 16)).toStrictEqual('0065cd1d00000000')
+    expect(unsigned.substr(110, 2)).toStrictEqual('16')
+    expect(unsigned.substr(112, 2)).toStrictEqual('00') // OP_0
+    expect(unsigned.substr(114, 2)).toStrictEqual('14')
+    expect(unsigned.substr(116, 40)).toStrictEqual('4ab4391ce5a732e36139e72d79a28e01b7b08034') // PKH
+    expect(unsigned.substr(156, 2)).toStrictEqual('00') // DCT_ID
     // LockTime
-    expect(unsigned.substr(158, 8)).toBe('00000000')
+    expect(unsigned.substr(158, 8)).toStrictEqual('00000000')
 
-    expect(unsigned.length).toBe(166)
+    expect(unsigned.length).toStrictEqual(166)
   })
 
   it('should createRawTransaction() with locktime 1000', async () => {
@@ -73,13 +73,13 @@ describe('createRawTransaction', () => {
       locktime: 1000
     })
 
-    expect(unsigned.substr(0, 84)).toBe(
+    expect(unsigned.substr(0, 84)).toStrictEqual(
       '0400000001' + Buffer.from(txid, 'hex').reverse().toString('hex') + '0000000000'
     )
-    expect(unsigned.substr(84, 8)).toBe('feffffff')
-    expect(unsigned.substr(92, 66)).toBe('010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b0803400')
-    expect(unsigned.substr(158, 8)).toBe('e8030000')
-    expect(unsigned.length).toBe(166)
+    expect(unsigned.substr(84, 8)).toStrictEqual('feffffff')
+    expect(unsigned.substr(92, 66)).toStrictEqual('010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b0803400')
+    expect(unsigned.substr(158, 8)).toStrictEqual('e8030000')
+    expect(unsigned.length).toStrictEqual(166)
   })
 
   it('should createRawTransaction() with replaceable = true', async () => {
@@ -93,12 +93,12 @@ describe('createRawTransaction', () => {
       replaceable: true
     })
 
-    expect(unsigned.substr(0, 84)).toBe(
+    expect(unsigned.substr(0, 84)).toStrictEqual(
       '0400000001' + Buffer.from(txid, 'hex').reverse().toString('hex') + '0000000000'
     )
-    expect(unsigned.substr(84, 8)).toBe('fdffffff')
-    expect(unsigned.substr(92, 74)).toBe('010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340000000000')
-    expect(unsigned.length).toBe(166)
+    expect(unsigned.substr(84, 8)).toStrictEqual('fdffffff')
+    expect(unsigned.substr(92, 74)).toStrictEqual('010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340000000000')
+    expect(unsigned.length).toStrictEqual(166)
   })
 })
 
@@ -113,9 +113,9 @@ describe('signRawTransactionWithKey', () => {
     const unsigned = await client.rawtx.createRawTransaction(inputs, outputs)
     const signed = await client.rawtx.signRawTransactionWithKey(unsigned, [input.privKey])
 
-    expect(signed.complete).toBe(true)
-    expect(signed.hex.substr(0, 14)).toBe('04000000000101')
-    expect(signed.hex.substr(86, 78)).toBe('00ffffffff010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340002')
+    expect(signed.complete).toStrictEqual(true)
+    expect(signed.hex.substr(0, 14)).toStrictEqual('04000000000101')
+    expect(signed.hex.substr(86, 78)).toStrictEqual('00ffffffff010065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340002')
     expect(signed.hex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
   })
 
@@ -133,9 +133,9 @@ describe('signRawTransactionWithKey', () => {
     const unsigned = await client.rawtx.createRawTransaction(inputs, outputs)
     const signed = await client.rawtx.signRawTransactionWithKey(unsigned, [input.privKey])
 
-    expect(signed.complete).toBe(true)
-    expect(signed.hex.substr(0, 14)).toBe('04000000000101')
-    expect(signed.hex.substr(86, 142)).toBe('00ffffffff020065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340080ce341d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
+    expect(signed.complete).toStrictEqual(true)
+    expect(signed.hex.substr(0, 14)).toStrictEqual('04000000000101')
+    expect(signed.hex.substr(86, 142)).toStrictEqual('00ffffffff020065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340080ce341d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
     expect(signed.hex).toContain('012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000')
   })
 
@@ -156,7 +156,7 @@ describe('signRawTransactionWithKey', () => {
     }
 
     function exceptSignature (signed: SignRawTxWithKeyResult): void {
-      expect(signed.complete).toBe(true)
+      expect(signed.complete).toStrictEqual(true)
       expect(signed.hex.length).toBeGreaterThanOrEqual(446)
       expect(signed.hex.length).toBeLessThanOrEqual(448)
     }
@@ -204,9 +204,9 @@ describe('testMempoolAccept', () => {
     const signed = '0400000000010193c90783761bf94838ced5a8313eb355c3bdd053cdbdbb3f9e0f3dbc3243609b0000000000ffffffff020065cd1d000000001600144ab4391ce5a732e36139e72d79a28e01b7b080340080ce341d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a82000247304402201142c461b7b52323654710b14074928dd8e623d75141f9eb8c2132b7cb2d47c202202883fde993e1ecf0cf3955235522e9fe948b523b568d0e6b427f83c6f1b3efd9012103987aec2e508e124468f0f07a836d185b329026e7aaf75be48cf12be8f18cbe8100000000'
     const result = await client.rawtx.testMempoolAccept(signed)
 
-    expect(result.txid).toBe('5749ad89256b50786a02d4527621a4fc7fa6acc5a3b289841112628ff3a4990a')
-    expect(result.allowed).toBe(false)
-    expect(result['reject-reason']).toBe('missing-inputs')
+    expect(result.txid).toStrictEqual('5749ad89256b50786a02d4527621a4fc7fa6acc5a3b289841112628ff3a4990a')
+    expect(result.allowed).toStrictEqual(false)
+    expect(result['reject-reason']).toStrictEqual('missing-inputs')
   })
 
   async function testMempoolAcceptFees (fees?: BigNumber): Promise<TestMempoolAcceptResult> {
@@ -225,29 +225,29 @@ describe('testMempoolAccept', () => {
 
   it('testMempoolAccept() should succeed with any fees', async () => {
     const result = await testMempoolAcceptFees()
-    expect(result.allowed).toBe(true)
+    expect(result.allowed).toStrictEqual(true)
   })
 
   it('testMempoolAccept() should succeed with high fees rate', async () => {
     const result = await testMempoolAcceptFees(new BigNumber('10.0'))
-    expect(result.allowed).toBe(true)
+    expect(result.allowed).toStrictEqual(true)
   })
 
   it('testMempoolAccept() should succeed just above expected fees', async () => {
     const result = await testMempoolAcceptFees(new BigNumber('4.6'))
-    expect(result.allowed).toBe(true)
+    expect(result.allowed).toStrictEqual(true)
   })
 
   it('testMempoolAccept() should fail with low fee rate', async () => {
     const result = await testMempoolAcceptFees(new BigNumber('4.5'))
-    expect(result.allowed).toBe(false)
-    expect(result['reject-reason']).toBe('256: absurdly-high-fee')
+    expect(result.allowed).toStrictEqual(false)
+    expect(result['reject-reason']).toStrictEqual('256: absurdly-high-fee')
   })
 
   it('testMempoolAccept() should fail with extreme low fee rate', async () => {
     const result = await testMempoolAcceptFees(new BigNumber('0.01'))
-    expect(result.allowed).toBe(false)
-    expect(result['reject-reason']).toBe('256: absurdly-high-fee')
+    expect(result.allowed).toStrictEqual(false)
+    expect(result['reject-reason']).toStrictEqual('256: absurdly-high-fee')
   })
 })
 
@@ -265,6 +265,6 @@ describe('sendRawTransaction', () => {
     const txid = await client.rawtx.sendRawTransaction(signed.hex)
 
     const tx = await container.call('getrawtransaction', [txid, true])
-    expect(tx.txid).toBe(txid)
+    expect(tx.txid).toStrictEqual(txid)
   })
 })

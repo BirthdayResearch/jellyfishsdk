@@ -21,7 +21,7 @@ describe('non masternode', () => {
     it('should getBalance = 0', async () => {
       const balance: BigNumber = await client.wallet.getBalance()
 
-      expect(balance.toString()).toBe('0')
+      expect(balance.toString()).toStrictEqual('0')
     })
   })
 
@@ -30,7 +30,7 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const address = await client.wallet.getNewAddress()
 
-        expect(typeof address).toBe('string')
+        expect(typeof address).toStrictEqual('string')
       })
     })
 
@@ -38,7 +38,7 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
 
-        expect(typeof aliceAddress).toBe('string')
+        expect(typeof aliceAddress).toStrictEqual('string')
       })
     })
 
@@ -53,26 +53,26 @@ describe('non masternode', () => {
         const bech32Address = await client.wallet.getNewAddress('bob', wallet.AddressType.BECH32)
         const bech32AddressValidateResult = await client.wallet.validateAddress(bech32Address)
 
-        expect(typeof legacyAddress).toBe('string')
-        expect(legacyAddressValidateResult.isvalid).toBe(true)
-        expect(legacyAddressValidateResult.address).toBe(legacyAddress)
-        expect(typeof legacyAddressValidateResult.scriptPubKey).toBe('string')
-        expect(legacyAddressValidateResult.isscript).toBe(false)
-        expect(legacyAddressValidateResult.iswitness).toBe(false)
+        expect(typeof legacyAddress).toStrictEqual('string')
+        expect(legacyAddressValidateResult.isvalid).toStrictEqual(true)
+        expect(legacyAddressValidateResult.address).toStrictEqual(legacyAddress)
+        expect(typeof legacyAddressValidateResult.scriptPubKey).toStrictEqual('string')
+        expect(legacyAddressValidateResult.isscript).toStrictEqual(false)
+        expect(legacyAddressValidateResult.iswitness).toStrictEqual(false)
 
-        expect(typeof p2shSegwitAddress).toBe('string')
-        expect(p2shSegwitAddressValidateResult.isvalid).toBe(true)
-        expect(p2shSegwitAddressValidateResult.address).toBe(p2shSegwitAddress)
-        expect(typeof p2shSegwitAddressValidateResult.scriptPubKey).toBe('string')
-        expect(p2shSegwitAddressValidateResult.isscript).toBe(true)
-        expect(p2shSegwitAddressValidateResult.iswitness).toBe(false)
+        expect(typeof p2shSegwitAddress).toStrictEqual('string')
+        expect(p2shSegwitAddressValidateResult.isvalid).toStrictEqual(true)
+        expect(p2shSegwitAddressValidateResult.address).toStrictEqual(p2shSegwitAddress)
+        expect(typeof p2shSegwitAddressValidateResult.scriptPubKey).toStrictEqual('string')
+        expect(p2shSegwitAddressValidateResult.isscript).toStrictEqual(true)
+        expect(p2shSegwitAddressValidateResult.iswitness).toStrictEqual(false)
 
-        expect(typeof bech32Address).toBe('string')
-        expect(bech32AddressValidateResult.isvalid).toBe(true)
-        expect(bech32AddressValidateResult.address).toBe(bech32Address)
-        expect(typeof bech32AddressValidateResult.scriptPubKey).toBe('string')
-        expect(bech32AddressValidateResult.isscript).toBe(false)
-        expect(bech32AddressValidateResult.iswitness).toBe(true)
+        expect(typeof bech32Address).toStrictEqual('string')
+        expect(bech32AddressValidateResult.isvalid).toStrictEqual(true)
+        expect(bech32AddressValidateResult.address).toStrictEqual(bech32Address)
+        expect(typeof bech32AddressValidateResult.scriptPubKey).toStrictEqual('string')
+        expect(bech32AddressValidateResult.isscript).toStrictEqual(false)
+        expect(bech32AddressValidateResult.iswitness).toStrictEqual(true)
       })
     })
   })
@@ -83,23 +83,23 @@ describe('non masternode', () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
         const addressInfo: wallet.AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
-        expect(addressInfo.address).toBe(aliceAddress)
-        expect(typeof addressInfo.scriptPubKey).toBe('string')
-        expect(addressInfo.ismine).toBe(true)
-        expect(addressInfo.solvable).toBe(true)
-        expect(typeof addressInfo.desc).toBe('string')
-        expect(addressInfo.iswatchonly).toBe(false)
-        expect(addressInfo.isscript).toBe(false)
-        expect(addressInfo.iswitness).toBe(true)
-        expect(typeof addressInfo.pubkey).toBe('string')
-        expect(addressInfo.label).toBe('alice')
-        expect(addressInfo.ischange).toBe(false)
-        expect(typeof addressInfo.timestamp).toBe('number')
-        expect(typeof addressInfo.hdkeypath).toBe('string')
-        expect(typeof addressInfo.hdseedid).toBe('string')
+        expect(addressInfo.address).toStrictEqual(aliceAddress)
+        expect(typeof addressInfo.scriptPubKey).toStrictEqual('string')
+        expect(addressInfo.ismine).toStrictEqual(true)
+        expect(addressInfo.solvable).toStrictEqual(true)
+        expect(typeof addressInfo.desc).toStrictEqual('string')
+        expect(addressInfo.iswatchonly).toStrictEqual(false)
+        expect(addressInfo.isscript).toStrictEqual(false)
+        expect(addressInfo.iswitness).toStrictEqual(true)
+        expect(typeof addressInfo.pubkey).toStrictEqual('string')
+        expect(addressInfo.label).toStrictEqual('alice')
+        expect(addressInfo.ischange).toStrictEqual(false)
+        expect(typeof addressInfo.timestamp).toStrictEqual('number')
+        expect(typeof addressInfo.hdkeypath).toStrictEqual('string')
+        expect(typeof addressInfo.hdseedid).toStrictEqual('string')
         expect(addressInfo.labels.length).toBeGreaterThanOrEqual(1)
-        expect(addressInfo.labels[0].name).toBe('alice')
-        expect(addressInfo.labels[0].purpose).toBe('receive')
+        expect(addressInfo.labels[0].name).toStrictEqual('alice')
+        expect(addressInfo.labels[0].purpose).toStrictEqual('receive')
       })
     })
   })
@@ -110,11 +110,11 @@ describe('non masternode', () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
         const result: wallet.ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
-        expect(result.isvalid).toBe(true)
-        expect(result.address).toBe(aliceAddress)
-        expect(typeof result.scriptPubKey).toBe('string')
-        expect(result.isscript).toBe(false)
-        expect(result.iswitness).toBe(true)
+        expect(result.isvalid).toStrictEqual(true)
+        expect(result.address).toStrictEqual(aliceAddress)
+        expect(typeof result.scriptPubKey).toStrictEqual('string')
+        expect(result.isscript).toStrictEqual(false)
+        expect(result.iswitness).toStrictEqual(true)
       })
     })
   })
@@ -124,7 +124,7 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const data = await client.wallet.listAddressGroupings()
 
-        expect(data.length === 0).toBe(true)
+        expect(data.length === 0).toStrictEqual(true)
       })
     })
   })
@@ -134,24 +134,24 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const walletInfo = await client.wallet.getWalletInfo()
 
-        expect(walletInfo.walletname).toBe('')
-        expect(walletInfo.walletversion).toBe(169900)
-        expect(walletInfo.balance instanceof BigNumber).toBe(true)
-        expect(walletInfo.balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(walletInfo.unconfirmed_balance instanceof BigNumber).toBe(true)
-        expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(walletInfo.immature_balance instanceof BigNumber).toBe(true)
-        expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.walletname).toStrictEqual('')
+        expect(walletInfo.walletversion).toStrictEqual(169900)
+        expect(walletInfo.balance instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(walletInfo.unconfirmed_balance instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(walletInfo.immature_balance instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
         expect(walletInfo.txcount).toBeGreaterThanOrEqual(0)
-        expect(typeof walletInfo.keypoololdest).toBe('number')
-        expect(typeof walletInfo.keypoolsize).toBe('number')
-        expect(typeof walletInfo.keypoolsize_hd_internal).toBe('number')
-        expect(walletInfo.paytxfee instanceof BigNumber).toBe(true)
-        expect(walletInfo.paytxfee.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(typeof walletInfo.hdseedid).toBe('string')
-        expect(walletInfo.private_keys_enabled).toBe(true)
-        expect(walletInfo.avoid_reuse).toBe(false)
-        expect(walletInfo.scanning).toBe(false)
+        expect(typeof walletInfo.keypoololdest).toStrictEqual('number')
+        expect(typeof walletInfo.keypoolsize).toStrictEqual('number')
+        expect(typeof walletInfo.keypoolsize_hd_internal).toStrictEqual('number')
+        expect(walletInfo.paytxfee instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.paytxfee.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(typeof walletInfo.hdseedid).toStrictEqual('string')
+        expect(walletInfo.private_keys_enabled).toStrictEqual(true)
+        expect(walletInfo.avoid_reuse).toStrictEqual(false)
+        expect(walletInfo.scanning).toStrictEqual(false)
       })
     })
   })
@@ -160,15 +160,15 @@ describe('non masternode', () => {
     it('should setWalletFlag', async () => {
       return await waitForExpect(async () => {
         const walletInfoBefore = await client.wallet.getWalletInfo()
-        expect(walletInfoBefore.avoid_reuse).toBe(false)
+        expect(walletInfoBefore.avoid_reuse).toStrictEqual(false)
 
         const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
-        expect(result.flag_name).toBe('avoid_reuse')
-        expect(result.flag_state).toBe(true)
-        expect(result.warnings).toBe('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
+        expect(result.flag_name).toStrictEqual('avoid_reuse')
+        expect(result.flag_state).toStrictEqual(true)
+        expect(result.warnings).toStrictEqual('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
 
         const walletInfoAfter = await client.wallet.getWalletInfo()
-        expect(walletInfoAfter.avoid_reuse).toBe(true)
+        expect(walletInfoAfter.avoid_reuse).toStrictEqual(true)
       })
     })
   })
@@ -178,8 +178,8 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const wallet = await client.wallet.createWallet('alice')
 
-        expect(wallet.name).toBe('alice')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('alice')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
 
@@ -187,8 +187,8 @@ describe('non masternode', () => {
       return await waitForExpect(async () => {
         const wallet = await client.wallet.createWallet('bob', true)
 
-        expect(wallet.name).toBe('bob')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('bob')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
 
@@ -197,8 +197,8 @@ describe('non masternode', () => {
         const options = { blank: true }
         const wallet = await client.wallet.createWallet('charlie', false, options)
 
-        expect(wallet.name).toBe('charlie')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('charlie')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
 
@@ -207,8 +207,8 @@ describe('non masternode', () => {
         const options = { passphrase: 'shhh...' }
         const wallet = await client.wallet.createWallet('david', false, options)
 
-        expect(wallet.name).toBe('david')
-        expect(wallet.warning).toBe('')
+        expect(wallet.name).toStrictEqual('david')
+        expect(wallet.warning).toStrictEqual('')
       })
     })
 
@@ -217,8 +217,8 @@ describe('non masternode', () => {
         const options = { avoidReuse: true }
         const wallet = await client.wallet.createWallet('eve', false, options)
 
-        expect(wallet.name).toBe('eve')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('eve')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
   })
@@ -242,7 +242,7 @@ describe('masternode', () => {
     it('should getBalance >= 100', async () => {
       return await waitForExpect(async () => {
         const balance: BigNumber = await client.wallet.getBalance()
-        expect(balance.isGreaterThan(new BigNumber('100'))).toBe(true)
+        expect(balance.isGreaterThan(new BigNumber('100'))).toStrictEqual(true)
       })
     })
   })
@@ -254,18 +254,18 @@ describe('masternode', () => {
         expect(utxos.length).toBeGreaterThan(0)
         for (let i = 0; i < utxos.length; i += 1) {
           const utxo = utxos[i]
-          expect(typeof utxo.txid).toBe('string')
-          expect(typeof utxo.vout).toBe('number')
-          expect(typeof utxo.address).toBe('string')
-          expect(typeof utxo.label).toBe('string')
-          expect(typeof utxo.scriptPubKey).toBe('string')
-          expect(utxo.amount instanceof BigNumber).toBe(true)
-          expect(typeof utxo.tokenId).toBe('string')
-          expect(typeof utxo.confirmations).toBe('number')
-          expect(typeof utxo.spendable).toBe('boolean')
-          expect(typeof utxo.solvable).toBe('boolean')
-          expect(typeof utxo.desc).toBe('string')
-          expect(typeof utxo.safe).toBe('boolean')
+          expect(typeof utxo.txid).toStrictEqual('string')
+          expect(typeof utxo.vout).toStrictEqual('number')
+          expect(typeof utxo.address).toStrictEqual('string')
+          expect(typeof utxo.label).toStrictEqual('string')
+          expect(typeof utxo.scriptPubKey).toStrictEqual('string')
+          expect(utxo.amount instanceof BigNumber).toStrictEqual(true)
+          expect(typeof utxo.tokenId).toStrictEqual('string')
+          expect(typeof utxo.confirmations).toStrictEqual('number')
+          expect(typeof utxo.spendable).toStrictEqual('boolean')
+          expect(typeof utxo.solvable).toStrictEqual('boolean')
+          expect(typeof utxo.desc).toStrictEqual('string')
+          expect(typeof utxo.safe).toStrictEqual('boolean')
         }
       })
     })
@@ -295,7 +295,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
-          expect(utxo.address).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+          expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
         })
       })
     })
@@ -305,7 +305,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
-          expect(utxo.safe).toBe(true)
+          expect(utxo.safe).toStrictEqual(true)
         })
       })
     })
@@ -315,7 +315,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
-          expect(utxo.amount.isGreaterThanOrEqualTo(new BigNumber('5'))).toBe(true)
+          expect(utxo.amount.isGreaterThanOrEqualTo(new BigNumber('5'))).toStrictEqual(true)
         })
       })
     })
@@ -325,7 +325,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
-          expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toBe(true)
+          expect(utxo.amount.isLessThanOrEqualTo(new BigNumber('100'))).toStrictEqual(true)
         })
       })
     })
@@ -343,7 +343,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         const sum: BigNumber = utxos.map(utxo => utxo.amount).reduce((acc, val) => acc.plus(val))
-        expect(sum.isGreaterThanOrEqualTo(new BigNumber('100'))).toBe(true)
+        expect(sum.isGreaterThanOrEqualTo(new BigNumber('100'))).toStrictEqual(true)
       })
     })
 
@@ -352,7 +352,7 @@ describe('masternode', () => {
       await waitForExpect(async () => {
         const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
         utxos.forEach(utxo => {
-          expect(utxo.tokenId).toBe('0')
+          expect(utxo.tokenId).toStrictEqual('0')
         })
       })
     })
@@ -363,7 +363,7 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const address = await client.wallet.getNewAddress()
 
-        expect(typeof address).toBe('string')
+        expect(typeof address).toStrictEqual('string')
       })
     })
 
@@ -371,7 +371,7 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
 
-        expect(typeof aliceAddress).toBe('string')
+        expect(typeof aliceAddress).toStrictEqual('string')
       })
     })
 
@@ -386,26 +386,26 @@ describe('masternode', () => {
         const bech32Address = await client.wallet.getNewAddress('bob', wallet.AddressType.BECH32)
         const bech32AddressValidateResult = await client.wallet.validateAddress(bech32Address)
 
-        expect(typeof legacyAddress).toBe('string')
-        expect(legacyAddressValidateResult.isvalid).toBe(true)
-        expect(legacyAddressValidateResult.address).toBe(legacyAddress)
-        expect(typeof legacyAddressValidateResult.scriptPubKey).toBe('string')
-        expect(legacyAddressValidateResult.isscript).toBe(false)
-        expect(legacyAddressValidateResult.iswitness).toBe(false)
+        expect(typeof legacyAddress).toStrictEqual('string')
+        expect(legacyAddressValidateResult.isvalid).toStrictEqual(true)
+        expect(legacyAddressValidateResult.address).toStrictEqual(legacyAddress)
+        expect(typeof legacyAddressValidateResult.scriptPubKey).toStrictEqual('string')
+        expect(legacyAddressValidateResult.isscript).toStrictEqual(false)
+        expect(legacyAddressValidateResult.iswitness).toStrictEqual(false)
 
-        expect(typeof p2shSegwitAddress).toBe('string')
-        expect(p2shSegwitAddressValidateResult.isvalid).toBe(true)
-        expect(p2shSegwitAddressValidateResult.address).toBe(p2shSegwitAddress)
-        expect(typeof p2shSegwitAddressValidateResult.scriptPubKey).toBe('string')
-        expect(p2shSegwitAddressValidateResult.isscript).toBe(true)
-        expect(p2shSegwitAddressValidateResult.iswitness).toBe(false)
+        expect(typeof p2shSegwitAddress).toStrictEqual('string')
+        expect(p2shSegwitAddressValidateResult.isvalid).toStrictEqual(true)
+        expect(p2shSegwitAddressValidateResult.address).toStrictEqual(p2shSegwitAddress)
+        expect(typeof p2shSegwitAddressValidateResult.scriptPubKey).toStrictEqual('string')
+        expect(p2shSegwitAddressValidateResult.isscript).toStrictEqual(true)
+        expect(p2shSegwitAddressValidateResult.iswitness).toStrictEqual(false)
 
-        expect(typeof bech32Address).toBe('string')
-        expect(bech32AddressValidateResult.isvalid).toBe(true)
-        expect(bech32AddressValidateResult.address).toBe(bech32Address)
-        expect(typeof bech32AddressValidateResult.scriptPubKey).toBe('string')
-        expect(bech32AddressValidateResult.isscript).toBe(false)
-        expect(bech32AddressValidateResult.iswitness).toBe(true)
+        expect(typeof bech32Address).toStrictEqual('string')
+        expect(bech32AddressValidateResult.isvalid).toStrictEqual(true)
+        expect(bech32AddressValidateResult.address).toStrictEqual(bech32Address)
+        expect(typeof bech32AddressValidateResult.scriptPubKey).toStrictEqual('string')
+        expect(bech32AddressValidateResult.isscript).toStrictEqual(false)
+        expect(bech32AddressValidateResult.iswitness).toStrictEqual(true)
       })
     })
   })
@@ -416,23 +416,23 @@ describe('masternode', () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
         const addressInfo: wallet.AddressInfo = await client.wallet.getAddressInfo(aliceAddress)
 
-        expect(addressInfo.address).toBe(aliceAddress)
-        expect(typeof addressInfo.scriptPubKey).toBe('string')
-        expect(addressInfo.ismine).toBe(true)
-        expect(addressInfo.solvable).toBe(true)
-        expect(typeof addressInfo.desc).toBe('string')
-        expect(addressInfo.iswatchonly).toBe(false)
-        expect(addressInfo.isscript).toBe(false)
-        expect(addressInfo.iswitness).toBe(true)
-        expect(typeof addressInfo.pubkey).toBe('string')
-        expect(addressInfo.label).toBe('alice')
-        expect(addressInfo.ischange).toBe(false)
-        expect(typeof addressInfo.timestamp).toBe('number')
-        expect(typeof addressInfo.hdkeypath).toBe('string')
-        expect(typeof addressInfo.hdseedid).toBe('string')
+        expect(addressInfo.address).toStrictEqual(aliceAddress)
+        expect(typeof addressInfo.scriptPubKey).toStrictEqual('string')
+        expect(addressInfo.ismine).toStrictEqual(true)
+        expect(addressInfo.solvable).toStrictEqual(true)
+        expect(typeof addressInfo.desc).toStrictEqual('string')
+        expect(addressInfo.iswatchonly).toStrictEqual(false)
+        expect(addressInfo.isscript).toStrictEqual(false)
+        expect(addressInfo.iswitness).toStrictEqual(true)
+        expect(typeof addressInfo.pubkey).toStrictEqual('string')
+        expect(addressInfo.label).toStrictEqual('alice')
+        expect(addressInfo.ischange).toStrictEqual(false)
+        expect(typeof addressInfo.timestamp).toStrictEqual('number')
+        expect(typeof addressInfo.hdkeypath).toStrictEqual('string')
+        expect(typeof addressInfo.hdseedid).toStrictEqual('string')
         expect(addressInfo.labels.length).toBeGreaterThanOrEqual(1)
-        expect(addressInfo.labels[0].name).toBe('alice')
-        expect(addressInfo.labels[0].purpose).toBe('receive')
+        expect(addressInfo.labels[0].name).toStrictEqual('alice')
+        expect(addressInfo.labels[0].purpose).toStrictEqual('receive')
       })
     })
   })
@@ -443,11 +443,11 @@ describe('masternode', () => {
         const aliceAddress = await client.wallet.getNewAddress('alice')
         const result: wallet.ValidateAddressResult = await client.wallet.validateAddress(aliceAddress)
 
-        expect(result.isvalid).toBe(true)
-        expect(result.address).toBe(aliceAddress)
-        expect(typeof result.scriptPubKey).toBe('string')
-        expect(result.isscript).toBe(false)
-        expect(result.iswitness).toBe(true)
+        expect(result.isvalid).toStrictEqual(true)
+        expect(result.address).toStrictEqual(aliceAddress)
+        expect(typeof result.scriptPubKey).toStrictEqual('string')
+        expect(result.isscript).toStrictEqual(false)
+        expect(result.iswitness).toStrictEqual(true)
       })
     })
   })
@@ -457,15 +457,15 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const data = await client.wallet.listAddressGroupings()
 
-        expect(data[0][0][0]).toBe('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-        expect(data[0][0][1] instanceof BigNumber).toBe(true)
-        expect(data[0][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(data[0][0][2]).toBe('coinbase')
+        expect(data[0][0][0]).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+        expect(data[0][0][1] instanceof BigNumber).toStrictEqual(true)
+        expect(data[0][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(data[0][0][2]).toStrictEqual('coinbase')
 
-        expect(data[1][0][0]).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-        expect(data[1][0][1] instanceof BigNumber).toBe(true)
-        expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(data[1][0][2]).toBe('coinbase')
+        expect(data[1][0][0]).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+        expect(data[1][0][1] instanceof BigNumber).toStrictEqual(true)
+        expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(data[1][0][2]).toStrictEqual('coinbase')
       })
     })
   })
@@ -475,24 +475,24 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const walletInfo = await client.wallet.getWalletInfo()
 
-        expect(walletInfo.walletname).toBe('')
-        expect(walletInfo.walletversion).toBe(169900)
-        expect(walletInfo.balance instanceof BigNumber).toBe(true)
-        expect(walletInfo.balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(walletInfo.unconfirmed_balance instanceof BigNumber).toBe(true)
-        expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(walletInfo.immature_balance instanceof BigNumber).toBe(true)
-        expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
+        expect(walletInfo.walletname).toStrictEqual('')
+        expect(walletInfo.walletversion).toStrictEqual(169900)
+        expect(walletInfo.balance instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(walletInfo.unconfirmed_balance instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.unconfirmed_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(walletInfo.immature_balance instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.immature_balance.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
         expect(walletInfo.txcount).toBeGreaterThanOrEqual(100)
-        expect(typeof walletInfo.keypoololdest).toBe('number')
-        expect(typeof walletInfo.keypoolsize).toBe('number')
-        expect(typeof walletInfo.keypoolsize_hd_internal).toBe('number')
-        expect(walletInfo.paytxfee instanceof BigNumber).toBe(true)
-        expect(walletInfo.paytxfee.isGreaterThanOrEqualTo(new BigNumber('0'))).toBe(true)
-        expect(typeof walletInfo.hdseedid).toBe('string')
-        expect(walletInfo.private_keys_enabled).toBe(true)
-        expect(walletInfo.avoid_reuse).toBe(false)
-        expect(walletInfo.scanning).toBe(false)
+        expect(typeof walletInfo.keypoololdest).toStrictEqual('number')
+        expect(typeof walletInfo.keypoolsize).toStrictEqual('number')
+        expect(typeof walletInfo.keypoolsize_hd_internal).toStrictEqual('number')
+        expect(walletInfo.paytxfee instanceof BigNumber).toStrictEqual(true)
+        expect(walletInfo.paytxfee.isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
+        expect(typeof walletInfo.hdseedid).toStrictEqual('string')
+        expect(walletInfo.private_keys_enabled).toStrictEqual(true)
+        expect(walletInfo.avoid_reuse).toStrictEqual(false)
+        expect(walletInfo.scanning).toStrictEqual(false)
       })
     })
   })
@@ -501,15 +501,15 @@ describe('masternode', () => {
     it('should setWalletFlag', async () => {
       return await waitForExpect(async () => {
         const walletInfoBefore = await client.wallet.getWalletInfo()
-        expect(walletInfoBefore.avoid_reuse).toBe(false)
+        expect(walletInfoBefore.avoid_reuse).toStrictEqual(false)
 
         const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
-        expect(result.flag_name).toBe('avoid_reuse')
-        expect(result.flag_state).toBe(true)
-        expect(result.warnings).toBe('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
+        expect(result.flag_name).toStrictEqual('avoid_reuse')
+        expect(result.flag_state).toStrictEqual(true)
+        expect(result.warnings).toStrictEqual('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
 
         const walletInfoAfter = await client.wallet.getWalletInfo()
-        expect(walletInfoAfter.avoid_reuse).toBe(true)
+        expect(walletInfoAfter.avoid_reuse).toStrictEqual(true)
       })
     })
   })
@@ -521,7 +521,7 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const transactionId = await client.wallet.sendToAddress(address, 0.00001)
 
-        expect(typeof transactionId).toBe('string')
+        expect(typeof transactionId).toStrictEqual('string')
       })
     })
 
@@ -533,7 +533,7 @@ describe('masternode', () => {
         }
         const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
 
-        expect(typeof transactionId).toBe('string')
+        expect(typeof transactionId).toStrictEqual('string')
       })
     })
 
@@ -544,7 +544,7 @@ describe('masternode', () => {
         }
         const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
 
-        expect(typeof transactionId).toBe('string')
+        expect(typeof transactionId).toStrictEqual('string')
       })
     })
 
@@ -555,7 +555,7 @@ describe('masternode', () => {
         }
         const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
 
-        expect(typeof transactionId).toBe('string')
+        expect(typeof transactionId).toStrictEqual('string')
       })
     })
 
@@ -566,7 +566,7 @@ describe('masternode', () => {
         }
         const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
 
-        expect(typeof transactionId).toBe('string')
+        expect(typeof transactionId).toStrictEqual('string')
       })
     })
 
@@ -577,7 +577,7 @@ describe('masternode', () => {
         }
         const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
 
-        expect(typeof transactionId).toBe('string')
+        expect(typeof transactionId).toStrictEqual('string')
       })
     })
   })
@@ -587,8 +587,8 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const wallet = await client.wallet.createWallet('alice')
 
-        expect(wallet.name).toBe('alice')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('alice')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
 
@@ -596,8 +596,8 @@ describe('masternode', () => {
       return await waitForExpect(async () => {
         const wallet = await client.wallet.createWallet('bob', true)
 
-        expect(wallet.name).toBe('bob')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('bob')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
 
@@ -606,8 +606,8 @@ describe('masternode', () => {
         const options = { blank: true }
         const wallet = await client.wallet.createWallet('charlie', false, options)
 
-        expect(wallet.name).toBe('charlie')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('charlie')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
 
@@ -616,8 +616,8 @@ describe('masternode', () => {
         const options = { passphrase: 'shhh...' }
         const wallet = await client.wallet.createWallet('david', false, options)
 
-        expect(wallet.name).toBe('david')
-        expect(wallet.warning).toBe('')
+        expect(wallet.name).toStrictEqual('david')
+        expect(wallet.warning).toStrictEqual('')
       })
     })
 
@@ -626,8 +626,8 @@ describe('masternode', () => {
         const options = { avoidReuse: true }
         const wallet = await client.wallet.createWallet('eve', false, options)
 
-        expect(wallet.name).toBe('eve')
-        expect(wallet.warning).toBe('Empty string given as passphrase, wallet will not be encrypted.')
+        expect(wallet.name).toStrictEqual('eve')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
   })

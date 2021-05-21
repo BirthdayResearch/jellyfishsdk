@@ -44,24 +44,24 @@ describe('CTransactionSegWit', () => {
     }
     const segWit = new CTransactionSegWit(data)
 
-    expect(segWit.version).toBe(data.version)
-    expect(segWit.marker).toBe(data.marker)
-    expect(segWit.flag).toBe(data.flag)
+    expect(segWit.version).toStrictEqual(data.version)
+    expect(segWit.marker).toStrictEqual(data.marker)
+    expect(segWit.flag).toStrictEqual(data.flag)
 
-    expect(segWit.vin.length).toBe(data.vin.length)
-    expect(segWit.vin[0].txid).toBe(data.vin[0].txid)
-    expect(segWit.vin[0].index).toBe(data.vin[0].index)
-    expect(segWit.vin[0].script.stack.length).toBe(data.vin[0].script.stack.length)
-    expect(segWit.vin[0].sequence).toBe(data.vin[0].sequence)
+    expect(segWit.vin.length).toStrictEqual(data.vin.length)
+    expect(segWit.vin[0].txid).toStrictEqual(data.vin[0].txid)
+    expect(segWit.vin[0].index).toStrictEqual(data.vin[0].index)
+    expect(segWit.vin[0].script.stack.length).toStrictEqual(data.vin[0].script.stack.length)
+    expect(segWit.vin[0].sequence).toStrictEqual(data.vin[0].sequence)
 
-    expect(segWit.vout.length).toBe(data.vout.length)
-    expect(segWit.vout[0].value).toBe(data.vout[0].value)
-    expect(segWit.vout[0].script.stack.length).toBe(data.vout[0].script.stack.length)
+    expect(segWit.vout.length).toStrictEqual(data.vout.length)
+    expect(segWit.vout[0].value).toStrictEqual(data.vout[0].value)
+    expect(segWit.vout[0].script.stack.length).toStrictEqual(data.vout[0].script.stack.length)
 
-    expect(segWit.witness.length).toBe(data.witness.length)
-    expect(segWit.witness[0].scripts.length).toBe(data.witness[0].scripts.length)
+    expect(segWit.witness.length).toStrictEqual(data.witness.length)
+    expect(segWit.witness[0].scripts.length).toStrictEqual(data.witness[0].scripts.length)
 
-    expect(segWit.lockTime).toBe(data.lockTime)
+    expect(segWit.lockTime).toStrictEqual(data.lockTime)
   })
 
   describe('P2WPKH (SIGNED)', () => {

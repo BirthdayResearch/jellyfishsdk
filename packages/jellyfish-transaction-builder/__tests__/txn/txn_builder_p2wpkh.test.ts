@@ -58,27 +58,27 @@ describe('createDeFiTx()', () => {
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change)
 
-    expect(result.vin.length).toEqual(7)
-    expect(result.vout.length).toEqual(2) // 1 DfTx, 1 change
-    expect(result.vout[0].value).toEqual(new BigNumber(0))
-    expect(result.vout[1].script).toEqual(change)
+    expect(result.vin.length).toStrictEqual(7)
+    expect(result.vout.length).toStrictEqual(2) // 1 DfTx, 1 change
+    expect(result.vout[0].value).toStrictEqual(new BigNumber(0))
+    expect(result.vout[1].script).toStrictEqual(change)
 
     // under normal (non test) env, only required amount of prevout will be taken and aggregated
     // test provider here simply collect everything
     expect(result.vout[1].value.gt(99.999)).toBeTruthy()
     expect(result.vout[1].value.lt(100)).toBeTruthy()
 
-    expect(result.vout[0].script.stack.length).toEqual(2)
-    expect(result.vout[0].script.stack[0]).toEqual(OP_CODES.OP_RETURN)
-    expect(result.vout[0].script.stack[1].type).toEqual('OP_DEFI_TX')
+    expect(result.vout[0].script.stack.length).toStrictEqual(2)
+    expect(result.vout[0].script.stack[0]).toStrictEqual(OP_CODES.OP_RETURN)
+    expect(result.vout[0].script.stack[1].type).toStrictEqual('OP_DEFI_TX')
 
     const tx = (result.vout[0].script.stack[1] as OP_DEFI_TX).tx
-    expect(tx.signature).toBe(1147556984)
-    expect(tx.type).toBe(0x01)
-    expect(tx.name).toBe('OP_DEFI_TX_UNMAPPED')
+    expect(tx.signature).toStrictEqual(1147556984)
+    expect(tx.type).toStrictEqual(0x01)
+    expect(tx.name).toStrictEqual('OP_DEFI_TX_UNMAPPED')
 
     const unmapped = tx.data as DeFiOpUnmapped
-    expect(unmapped.hex).toBe('001234')
+    expect(unmapped.hex).toStrictEqual('001234')
   })
 
   it('balance should be deducted accordingly based on spent on DfTx', async () => {
@@ -87,10 +87,10 @@ describe('createDeFiTx()', () => {
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change, spendAmount)
 
-    expect(result.vin.length).toEqual(7)
-    expect(result.vout.length).toEqual(2) // 1 DfTx, 1 change
-    expect(result.vout[0].value).toEqual(spendAmount)
-    expect(result.vout[1].script).toEqual(change)
+    expect(result.vin.length).toStrictEqual(7)
+    expect(result.vout.length).toStrictEqual(2) // 1 DfTx, 1 change
+    expect(result.vout[0].value).toStrictEqual(spendAmount)
+    expect(result.vout[1].script).toStrictEqual(change)
     expect(result.vout[1].value.gt(new BigNumber(99.999).minus(spendAmount))).toBeTruthy()
     expect(result.vout[1].value.lt(new BigNumber(100).minus(spendAmount))).toBeTruthy()
   })

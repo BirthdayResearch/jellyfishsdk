@@ -101,10 +101,10 @@ describe('DFI to DOG', () => {
 
     // Ensure the created txn is correct.
     const outs = await sendTransaction(container, txn)
-    expect(outs[0].value).toBe(0)
+    expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
-    expect(outs[1].scriptPubKey.addresses[0]).toBe(await providers.getAddress())
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
     // Ensure your balance is correct
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
@@ -115,13 +115,13 @@ describe('DFI to DOG', () => {
     const pair = Object.values(poolPair)[0]
 
     // Ensure correct pp liquidity and reverse balances
-    expect(pair.totalLiquidity.toFixed(8)).toBe('100.00000000')
-    expect(pair.reserveA.toFixed(8)).toBe('110.00000000')
-    expect(pair.reserveB.toFixed(8)).toBe('90.90909090') // 100-9.09090910
+    expect(pair.totalLiquidity.toFixed(8)).toStrictEqual('100.00000000')
+    expect(pair.reserveA.toFixed(8)).toStrictEqual('110.00000000')
+    expect(pair.reserveB.toFixed(8)).toStrictEqual('90.90909090') // 100-9.09090910
 
     // Ensure you don't send all your balance away during poolswap
     const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toBe(1)
+    expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })

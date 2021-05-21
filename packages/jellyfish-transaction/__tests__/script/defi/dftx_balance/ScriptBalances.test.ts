@@ -23,13 +23,13 @@ describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CScriptBalances(buffer)
-    expect(composable.toObject()).toEqual(scriptBalances)
+    expect(composable.toObject()).toStrictEqual(scriptBalances)
   })
 
   it('should compose from composable to buffer', () => {
     const composable = new CScriptBalances(scriptBalances)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

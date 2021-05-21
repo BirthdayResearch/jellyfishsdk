@@ -191,7 +191,7 @@ export class Wallet {
       replaceable = false,
       confTarget = 6,
       estimateMode = Mode.UNSET,
-      avoidReuse = true
+      avoidReuse = false
     } = options
 
     return await this.client.call(
