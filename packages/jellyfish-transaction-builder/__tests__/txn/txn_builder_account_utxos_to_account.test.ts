@@ -106,6 +106,7 @@ describe('account.utxosToAccount()', () => {
     }, dest)).rejects.toThrow('Conversion output `utxosToAccount.to` array length must be one')
   })
 
+  // TODO: support multiple TokenBalance in `utxosToAccount.to` https://github.com/DeFiCh/jellyfish/issues/270
   it('should reject invalid utxosToAccount arg - more than 1 token in balance', async () => {
     const dest = await providers.elliptic.script()
     await expect(builder.account.utxosToAccount({
