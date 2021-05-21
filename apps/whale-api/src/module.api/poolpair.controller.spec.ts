@@ -79,10 +79,10 @@ describe('list', () => {
       size: 30
     })
 
-    expect(response.data.length).toBe(8)
+    expect(response.data.length).toStrictEqual(8)
     expect(response.page).toBeUndefined()
 
-    expect(response.data[1]).toEqual({
+    expect(response.data[1]).toStrictEqual({
       id: '8',
       symbol: 'A-C',
       name: 'A-C',
@@ -114,24 +114,24 @@ describe('list', () => {
     const first = await controller.list({
       size: 2
     })
-    expect(first.data.length).toBe(2)
-    expect(first.page?.next).toBe('8')
-    expect(first.data[0].symbol).toBe('A-B')
-    expect(first.data[1].symbol).toBe('A-C')
+    expect(first.data.length).toStrictEqual(2)
+    expect(first.page?.next).toStrictEqual('8')
+    expect(first.data[0].symbol).toStrictEqual('A-B')
+    expect(first.data[1].symbol).toStrictEqual('A-C')
 
     const next = await controller.list({
       size: 10,
       next: first.page?.next
     })
 
-    expect(next.data.length).toBe(6)
+    expect(next.data.length).toStrictEqual(6)
     expect(next.page?.next).toBeUndefined()
-    expect(next.data[0].symbol).toBe('A-D')
-    expect(next.data[1].symbol).toBe('A-E')
-    expect(next.data[2].symbol).toBe('A-F')
-    expect(next.data[3].symbol).toBe('B-C')
-    expect(next.data[4].symbol).toBe('B-D')
-    expect(next.data[5].symbol).toBe('B-E')
+    expect(next.data[0].symbol).toStrictEqual('A-D')
+    expect(next.data[1].symbol).toStrictEqual('A-E')
+    expect(next.data[2].symbol).toStrictEqual('A-F')
+    expect(next.data[3].symbol).toStrictEqual('B-C')
+    expect(next.data[4].symbol).toStrictEqual('B-D')
+    expect(next.data[5].symbol).toStrictEqual('B-E')
   })
 
   it('should list with undefined next pagination', async () => {
@@ -140,8 +140,8 @@ describe('list', () => {
       next: undefined
     })
 
-    expect(first.data.length).toBe(2)
-    expect(first.page?.next).toBe('8')
+    expect(first.data.length).toStrictEqual(2)
+    expect(first.page?.next).toStrictEqual('8')
   })
 })
 
@@ -149,7 +149,7 @@ describe('get', () => {
   it('should get', async () => {
     const response = await controller.get('7')
 
-    expect(response).toEqual({
+    expect(response).toStrictEqual({
       id: '7',
       symbol: 'A-B',
       name: 'A-B',

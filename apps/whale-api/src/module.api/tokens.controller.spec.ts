@@ -34,7 +34,7 @@ beforeEach(async () => {
 describe('controller.list() for all tokens', () => {
   it('should listTokens', async () => {
     const result = await controller.list({ size: 100 })
-    expect(result.data.length).toBe(4)
+    expect(result.data.length).toStrictEqual(4)
 
     expect(result.data[0]).toStrictEqual({
       id: '0',
@@ -136,8 +136,8 @@ describe('controller.list() for all tokens', () => {
   it('should listTokens with pagination', async () => {
     const first = await controller.list({ size: 2 })
 
-    expect(first.data.length).toBe(2)
-    expect(first.page?.next).toBe('1')
+    expect(first.data.length).toStrictEqual(2)
+    expect(first.page?.next).toStrictEqual('1')
 
     expect(first.data[0]).toStrictEqual(expect.objectContaining({ id: '0', symbol: 'DFI', symbolKey: 'DFI' }))
     expect(first.data[1]).toStrictEqual(expect.objectContaining({ id: '1', symbol: 'DBTC', symbolKey: 'DBTC' }))
@@ -147,8 +147,8 @@ describe('controller.list() for all tokens', () => {
       next: first.page?.next
     })
 
-    expect(next.data.length).toBe(2)
-    expect(next.page?.next).toBe('3')
+    expect(next.data.length).toStrictEqual(2)
+    expect(next.page?.next).toStrictEqual('3')
 
     expect(next.data[0]).toStrictEqual(expect.objectContaining({ id: '2', symbol: 'DETH', symbolKey: 'DETH' }))
     expect(next.data[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DET', symbolKey: 'DBTC-DET' }))
@@ -158,14 +158,14 @@ describe('controller.list() for all tokens', () => {
       next: next.page?.next
     })
 
-    expect(last.data.length).toBe(0)
+    expect(last.data.length).toStrictEqual(0)
     expect(last.page).toBeUndefined()
   })
 
   it('should listTokens with an empty object if size 100 next 300 which is out of range', async () => {
     const result = await controller.list({ size: 100, next: '300' })
 
-    expect(result.data.length).toBe(0)
+    expect(result.data.length).toStrictEqual(0)
     expect(result.page).toBeUndefined()
   })
 })

@@ -58,8 +58,8 @@ describe('raw transactions test/send', () => {
   async function expectTxn (txid: string, amount: number, pubKey: Buffer): Promise<void> {
     const details = await client.blockchain.getTxOut(txid, 0)
 
-    expect(details.value.toString(10)).toBe(amount.toString())
-    expect(details.scriptPubKey.addresses[0]).toBe(
+    expect(details.value.toString(10)).toStrictEqual(amount.toString())
+    expect(details.scriptPubKey.addresses[0]).toStrictEqual(
       Bech32.fromPubKey(pubKey, RegTest.bech32.hrp as HRP)
     )
   }
@@ -171,7 +171,7 @@ describe('estimate fee rate', () => {
 
   it('should have fee of 0.00005 and not 0.00005 after adding activity', async () => {
     const before = await controller.estimateFee(10)
-    expect(before).toBe(0.00005000)
+    expect(before).toStrictEqual(0.00005000)
 
     for (let i = 0; i < 10; i++) {
       for (let x = 0; x < 20; x++) {
@@ -183,6 +183,6 @@ describe('estimate fee rate', () => {
       await container.generate(1)
     }
     const after = await controller.estimateFee(10)
-    expect(after).not.toBe(0.00005000)
+    expect(after).not.toStrictEqual(0.00005000)
   })
 })

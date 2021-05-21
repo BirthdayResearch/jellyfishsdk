@@ -40,18 +40,18 @@ beforeAll(async () => {
 
 it('should get from cache via get as container RPC is killed', async () => {
   const dfi = await cache.get('0')
-  expect(dfi?.symbol).toBe('DFI')
-  expect(dfi?.name).toBe('Default Defi token')
+  expect(dfi?.symbol).toStrictEqual('DFI')
+  expect(dfi?.name).toStrictEqual('Default Defi token')
 
   const tob = await cache.get('2')
-  expect(tob?.symbol).toBe('TOB')
-  expect(tob?.name).toBe('TOB')
+  expect(tob?.symbol).toStrictEqual('TOB')
+  expect(tob?.name).toStrictEqual('TOB')
 })
 
 it('should get from cache via batch as container RPC is killed', async () => {
   const tokens = await cache.batch(['0', '1', '2', '3'])
-  expect(tokens['0'].symbol).toBe('DFI')
-  expect(tokens['1'].symbol).toBe('TOA')
-  expect(tokens['2'].symbol).toBe('TOB')
-  expect(tokens['3'].symbol).toBe('TOC')
+  expect(tokens['0'].symbol).toStrictEqual('DFI')
+  expect(tokens['1'].symbol).toStrictEqual('TOA')
+  expect(tokens['2'].symbol).toStrictEqual('TOB')
+  expect(tokens['3'].symbol).toStrictEqual('TOC')
 })

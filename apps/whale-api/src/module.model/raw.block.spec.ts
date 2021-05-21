@@ -32,7 +32,7 @@ it('should put from defid and get back same object from mapper', async () => {
   await mapper.put(block)
 
   const saved = await mapper.get(hash)
-  expect(saved).toEqual(block)
+  expect(saved).toStrictEqual(block)
 })
 
 it('should delete and be deleted', async () => {

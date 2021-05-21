@@ -31,9 +31,9 @@ it('should wait for block 0', async () => {
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(0)
 
-  expect(block?.height).toBe(0)
-  expect(block?.hash).toBe('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
-  expect(block?.stakeModifier).toBe('0000000000000000000000000000000000000000000000000000000000000000')
+  expect(block?.height).toStrictEqual(0)
+  expect(block?.hash).toStrictEqual('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
+  expect(block?.stakeModifier).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000000')
   expect(block?.transactionCount).toBeGreaterThan(0)
 })
 
@@ -43,7 +43,7 @@ it('should wait for block 1', async () => {
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(1)
 
-  expect(block?.height).toBe(1)
+  expect(block?.height).toStrictEqual(1)
   expect(block?.transactionCount).toBeGreaterThan(0)
 })
 
@@ -53,7 +53,7 @@ it('should wait for block 10', async () => {
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(10)
 
-  expect(block?.height).toBe(10)
+  expect(block?.height).toStrictEqual(10)
   expect(block?.transactionCount).toBeGreaterThan(0)
 })
 

@@ -79,7 +79,7 @@ export async function waitForAddressTxCount (app: NestFastifyApplication, addres
   const aggregationMapper = app.get(ScriptAggregationMapper)
   await waitForExpect(async () => {
     const agg = await aggregationMapper.getLatest(hid)
-    expect(agg?.statistic.txCount).toBe(txCount)
+    expect(agg?.statistic.txCount).toStrictEqual(txCount)
   }, timeout)
 }
 

@@ -21,8 +21,8 @@ it('should 404 with invalid network', async () => {
     url: '/v1/mainnet/rpc/getblockchaininfo'
   })
 
-  expect(res.statusCode).toBe(404)
-  expect(res.json()).toEqual({
+  expect(res.statusCode).toStrictEqual(404)
+  expect(res.json()).toStrictEqual({
     error: {
       code: 404,
       type: 'NotFound',

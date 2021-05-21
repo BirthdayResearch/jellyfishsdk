@@ -46,14 +46,14 @@ beforeAll(async () => {
 
 it('should get from cache via get as container RPC is killed', async () => {
   const abPoolPair = await cache.get('A-B')
-  expect(abPoolPair?.symbol).toBe('A-B')
-  expect(abPoolPair?.name).toBe('A-B')
+  expect(abPoolPair?.symbol).toStrictEqual('A-B')
+  expect(abPoolPair?.name).toStrictEqual('A-B')
 
   const acPoolPair = await cache.get('A-C')
-  expect(acPoolPair?.symbol).toBe('A-C')
-  expect(acPoolPair?.name).toBe('A-C')
+  expect(acPoolPair?.symbol).toStrictEqual('A-C')
+  expect(acPoolPair?.name).toStrictEqual('A-C')
 
   const bcPoolPair = await cache.get('B-C')
-  expect(bcPoolPair?.symbol).toBe('B-C')
-  expect(bcPoolPair?.name).toBe('B-C')
+  expect(bcPoolPair?.symbol).toStrictEqual('B-C')
+  expect(bcPoolPair?.name).toStrictEqual('B-C')
 })
