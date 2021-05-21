@@ -71,10 +71,10 @@ describe('list', () => {
   it('should list', async () => {
     const response = await client.poolpair.list(30)
 
-    expect(response.length).toBe(8)
-    expect(response.hasNext).toBe(false)
+    expect(response.length).toStrictEqual(8)
+    expect(response.hasNext).toStrictEqual(false)
 
-    expect(response[1]).toEqual({
+    expect(response[1]).toStrictEqual({
       id: '8',
       symbol: 'A-C',
       name: 'A-C',
@@ -94,7 +94,6 @@ describe('list', () => {
       tradeEnabled: true,
       ownerAddress: expect.any(String),
       rewardPct: 0,
-      customRewards: undefined,
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
@@ -104,30 +103,30 @@ describe('list', () => {
 
   it('should list with pagination', async () => {
     const first = await client.poolpair.list(3)
-    expect(first.length).toBe(3)
-    expect(first.hasNext).toBe(true)
-    expect(first.nextToken).toBe('9')
+    expect(first.length).toStrictEqual(3)
+    expect(first.hasNext).toStrictEqual(true)
+    expect(first.nextToken).toStrictEqual('9')
 
-    expect(first[0].symbol).toBe('A-B')
-    expect(first[1].symbol).toBe('A-C')
-    expect(first[2].symbol).toBe('A-D')
+    expect(first[0].symbol).toStrictEqual('A-B')
+    expect(first[1].symbol).toStrictEqual('A-C')
+    expect(first[2].symbol).toStrictEqual('A-D')
 
     const next = await client.paginate(first)
-    expect(next.length).toBe(3)
-    expect(next.hasNext).toBe(true)
-    expect(next.nextToken).toBe('12')
+    expect(next.length).toStrictEqual(3)
+    expect(next.hasNext).toStrictEqual(true)
+    expect(next.nextToken).toStrictEqual('12')
 
-    expect(next[0].symbol).toBe('A-E')
-    expect(next[1].symbol).toBe('A-F')
-    expect(next[2].symbol).toBe('B-C')
+    expect(next[0].symbol).toStrictEqual('A-E')
+    expect(next[1].symbol).toStrictEqual('A-F')
+    expect(next[2].symbol).toStrictEqual('B-C')
 
     const last = await client.paginate(next)
-    expect(last.length).toBe(2)
-    expect(last.hasNext).toBe(false)
+    expect(last.length).toStrictEqual(2)
+    expect(last.hasNext).toStrictEqual(false)
     expect(last.nextToken).toBeUndefined()
 
-    expect(last[0].symbol).toBe('B-D')
-    expect(last[1].symbol).toBe('B-E')
+    expect(last[0].symbol).toStrictEqual('B-D')
+    expect(last[1].symbol).toStrictEqual('B-E')
   })
 })
 
@@ -135,7 +134,7 @@ describe('get', () => {
   it('should get', async () => {
     const response = await client.poolpair.get('7')
 
-    expect(response).toEqual({
+    expect(response).toStrictEqual({
       id: '7',
       symbol: 'A-B',
       name: 'A-B',

@@ -11,9 +11,9 @@ it('WhaleApiException should be formatted as', () => {
 
   const exception = new WhaleApiException(error)
 
-  expect(exception.message).toBe('404 - NotFound (/link/to): some message')
-  expect(exception.code).toBe(404)
-  expect(exception.type).toBe('NotFound')
-  expect(exception.at).toBe(123)
-  expect(exception.url).toBe('/link/to')
+  expect(exception.message).toStrictEqual('404 - NotFound (/link/to): some message')
+  expect(exception.code).toStrictEqual(404)
+  expect(exception.type).toStrictEqual('NotFound')
+  expect(exception.at).toStrictEqual(123)
+  expect(exception.url).toStrictEqual('/link/to')
 })

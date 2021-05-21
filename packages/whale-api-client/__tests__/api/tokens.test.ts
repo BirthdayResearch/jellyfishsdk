@@ -34,7 +34,7 @@ afterAll(async () => {
 describe('client.tokens.list()', () => {
   it('should listTokens', async () => {
     const result = await client.tokens.list()
-    expect(result.length).toBe(4)
+    expect(result.length).toStrictEqual(4)
 
     expect(result[0]).toStrictEqual({
       id: '0',
@@ -64,26 +64,26 @@ describe('client.tokens.list()', () => {
   it('should listTokens with pagination', async () => {
     const first = await client.tokens.list(2)
 
-    expect(first.length).toBe(2)
-    expect(first.hasNext).toBe(true)
-    expect(first.nextToken).toBe('1')
+    expect(first.length).toStrictEqual(2)
+    expect(first.hasNext).toStrictEqual(true)
+    expect(first.nextToken).toStrictEqual('1')
 
     expect(first[0]).toStrictEqual(expect.objectContaining({ id: '0', symbol: 'DFI', symbolKey: 'DFI' }))
     expect(first[1]).toStrictEqual(expect.objectContaining({ id: '1', symbol: 'DBTC', symbolKey: 'DBTC' }))
 
     const next = await client.paginate(first)
 
-    expect(next.length).toBe(2)
-    expect(next.hasNext).toBe(true)
-    expect(next.nextToken).toBe('3')
+    expect(next.length).toStrictEqual(2)
+    expect(next.hasNext).toStrictEqual(true)
+    expect(next.nextToken).toStrictEqual('3')
 
     expect(next[0]).toStrictEqual(expect.objectContaining({ id: '2', symbol: 'DETH', symbolKey: 'DETH' }))
     expect(next[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DET', symbolKey: 'DBTC-DET' }))
 
     const last = await client.paginate(next)
 
-    expect(last.length).toBe(0)
-    expect(last.hasNext).toBe(false)
+    expect(last.length).toStrictEqual(0)
+    expect(last.hasNext).toStrictEqual(false)
     expect(last.nextToken).toBeUndefined()
   })
 })

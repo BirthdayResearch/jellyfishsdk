@@ -31,7 +31,7 @@ export class StubService {
     }
     await waitForExpect(async () => {
       const agg = await aggregationMapper.getLatest(hid)
-      expect(agg?.statistic.txCount).toBe(txCount)
+      expect(agg?.statistic.txCount).toStrictEqual(txCount)
     }, timeout)
   }
 }

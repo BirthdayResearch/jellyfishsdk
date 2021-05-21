@@ -54,7 +54,7 @@ describe('getBalance', () => {
   it('should getBalance zero for bech32', async () => {
     const address = await container.getNewAddress()
     const balance = await client.address.getBalance(address)
-    expect(balance).toBe('0.00000000')
+    expect(balance).toStrictEqual('0.00000000')
   })
 
   it('should getBalance for bech32', async () => {
@@ -64,7 +64,7 @@ describe('getBalance', () => {
     await service.waitForAddressTxCount(address, 1)
 
     const balance = await client.address.getBalance(address)
-    expect(balance).toBe('1.23000000')
+    expect(balance).toStrictEqual('1.23000000')
   })
 
   it('should getBalance for legacy', async () => {
@@ -74,7 +74,7 @@ describe('getBalance', () => {
     await service.waitForAddressTxCount(address, 1)
 
     const balance = await client.address.getBalance(address)
-    expect(balance).toBe('1.92822343')
+    expect(balance).toStrictEqual('1.92822343')
   })
 
   it('should getBalance for p2sh', async () => {
@@ -84,7 +84,7 @@ describe('getBalance', () => {
     await service.waitForAddressTxCount(address, 1)
 
     const balance = await client.address.getBalance(address)
-    expect(balance).toBe('1.23419341')
+    expect(balance).toStrictEqual('1.23419341')
   })
 })
 
@@ -98,7 +98,7 @@ it('should getAggregation', async () => {
   await service.waitForAddressTxCount(address, 3)
 
   const agg = await client.address.getAggregation(address)
-  expect(agg).toEqual({
+  expect(agg).toStrictEqual({
     amount: {
       txIn: '24.38471696',
       txOut: '0.00000000',
@@ -125,36 +125,36 @@ it('should getAggregation', async () => {
 describe('tokens', () => {
   it('should listToken', async () => {
     const response = await client.address.listToken(address)
-    expect(response.length).toBe(5)
-    expect(response.hasNext).toBe(false)
+    expect(response.length).toStrictEqual(5)
+    expect(response.hasNext).toStrictEqual(false)
 
-    expect(response[0]).toEqual(expect.objectContaining({ id: '0', amount: '15.50000000', symbol: 'DFI' }))
-    expect(response[4]).toEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D' }))
+    expect(response[0]).toStrictEqual(expect.objectContaining({ id: '0', amount: '15.50000000', symbol: 'DFI' }))
+    expect(response[4]).toStrictEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D' }))
   })
 
   it('should paginate listToken', async () => {
     const first = await client.address.listToken(address, 2)
-    expect(first.length).toBe(2)
-    expect(first.hasNext).toBe(true)
-    expect(first.nextToken).toBe('1')
+    expect(first.length).toStrictEqual(2)
+    expect(first.hasNext).toStrictEqual(true)
+    expect(first.nextToken).toStrictEqual('1')
 
-    expect(first[0]).toEqual(expect.objectContaining({ id: '0', amount: '15.50000000', symbol: 'DFI' }))
-    expect(first[1]).toEqual(expect.objectContaining({ id: '1', amount: '10.00000000', symbol: 'A' }))
+    expect(first[0]).toStrictEqual(expect.objectContaining({ id: '0', amount: '15.50000000', symbol: 'DFI' }))
+    expect(first[1]).toStrictEqual(expect.objectContaining({ id: '1', amount: '10.00000000', symbol: 'A' }))
 
     const next = await client.paginate(first)
-    expect(next.length).toBe(2)
-    expect(next.hasNext).toBe(true)
-    expect(next.nextToken).toBe('3')
+    expect(next.length).toStrictEqual(2)
+    expect(next.hasNext).toStrictEqual(true)
+    expect(next.nextToken).toStrictEqual('3')
 
-    expect(next[0]).toEqual(expect.objectContaining({ id: '2', amount: '10.00000000', symbol: 'B' }))
-    expect(next[1]).toEqual(expect.objectContaining({ id: '3', amount: '10.00000000', symbol: 'C' }))
+    expect(next[0]).toStrictEqual(expect.objectContaining({ id: '2', amount: '10.00000000', symbol: 'B' }))
+    expect(next[1]).toStrictEqual(expect.objectContaining({ id: '3', amount: '10.00000000', symbol: 'C' }))
 
     const last = await client.paginate(next)
-    expect(last.length).toBe(1)
-    expect(last.hasNext).toBe(false)
+    expect(last.length).toStrictEqual(1)
+    expect(last.hasNext).toStrictEqual(false)
     expect(last.nextToken).toBeUndefined()
 
-    expect(last[0]).toEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D' }))
+    expect(last[0]).toStrictEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D' }))
   })
 })
 
@@ -188,10 +188,10 @@ describe('transactions', () => {
   it('should listTransaction', async () => {
     const transactions = await client.address.listTransaction(addressA.bech32)
 
-    expect(transactions.length).toBe(3)
-    expect(transactions.hasNext).toBe(false)
+    expect(transactions.length).toStrictEqual(3)
+    expect(transactions.hasNext).toStrictEqual(false)
 
-    expect(transactions[2]).toEqual({
+    expect(transactions[2]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
         height: expect.any(Number)
@@ -216,27 +216,27 @@ describe('transactions', () => {
 
   it('should paginate listTransaction', async () => {
     const first = await client.address.listTransaction(addressA.bech32, 2)
-    expect(first.length).toBe(2)
-    expect(first.hasNext).toBe(true)
+    expect(first.length).toStrictEqual(2)
+    expect(first.hasNext).toStrictEqual(true)
     expect(first.nextToken).toMatch(/[0-f]{80}/)
 
-    expect(first[0]).toEqual(expect.objectContaining({ value: '9.50000000', type: 'vin' }))
-    expect(first[1]).toEqual(expect.objectContaining({ value: '9.50000000', type: 'vout' }))
+    expect(first[0]).toStrictEqual(expect.objectContaining({ value: '9.50000000', type: 'vin' }))
+    expect(first[1]).toStrictEqual(expect.objectContaining({ value: '9.50000000', type: 'vout' }))
 
     const next = await client.paginate(first)
-    expect(next.length).toBe(1)
-    expect(next.hasNext).toBe(false)
+    expect(next.length).toStrictEqual(1)
+    expect(next.hasNext).toStrictEqual(false)
 
-    expect(next[0]).toEqual(expect.objectContaining({ value: '34.00000000', type: 'vout' }))
+    expect(next[0]).toStrictEqual(expect.objectContaining({ value: '34.00000000', type: 'vout' }))
   })
 
   it('should listTransactionUnspent', async () => {
     const unspent = await client.address.listTransactionUnspent(addressA.bech32)
 
-    expect(unspent.length).toBe(1)
-    expect(unspent.hasNext).toBe(false)
+    expect(unspent.length).toStrictEqual(1)
+    expect(unspent.hasNext).toStrictEqual(false)
 
-    expect(unspent[0]).toEqual({
+    expect(unspent[0]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
         height: expect.any(Number)
@@ -259,19 +259,19 @@ describe('transactions', () => {
 
   it('should paginate listTransactionUnspent', async () => {
     const first = await client.address.listTransactionUnspent(addressB.bech32, 1)
-    expect(first.length).toBe(1)
-    expect(first.hasNext).toBe(true)
+    expect(first.length).toStrictEqual(1)
+    expect(first.hasNext).toStrictEqual(true)
     expect(first.nextToken).toMatch(/[0-f]{80}/)
 
-    expect(first[0].vout.value).toBe('2.93719381')
+    expect(first[0].vout.value).toStrictEqual('2.93719381')
 
     const next = await client.paginate(first)
-    expect(next.length).toBe(1)
-    expect(next.hasNext).toBe(true)
+    expect(next.length).toStrictEqual(1)
+    expect(next.hasNext).toStrictEqual(true)
 
-    expect(next[0].vout.value).toBe('9.49990000')
+    expect(next[0].vout.value).toStrictEqual('9.49990000')
 
     const empty = await client.paginate(next)
-    expect(empty.length).toBe(0)
+    expect(empty.length).toStrictEqual(0)
   })
 })

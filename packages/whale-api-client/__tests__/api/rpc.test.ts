@@ -42,21 +42,21 @@ describe('whitelisted rpc methods', () => {
   it('should rpc.call(getblockchaininfo)', async () => {
     const info = await client.rpc.call<blockchain.BlockchainInfo>('getblockchaininfo', [], 'number')
 
-    expect(info.chain).toBe('regtest')
-    expect(typeof info.blocks).toBe('number')
+    expect(info.chain).toStrictEqual('regtest')
+    expect(typeof info.blocks).toStrictEqual('number')
   })
 
   it('should rpc.call(getblockcount)', async () => {
     const count = await client.rpc.call<number>('getblockcount', [], 'number')
 
-    expect(typeof count).toBe('number')
+    expect(typeof count).toStrictEqual('number')
   })
 
   it('should rpc.call(getblockhash)', async () => {
     await container.generate(1)
 
     const hash = await client.rpc.call<string>('getblockhash', [1], 'number')
-    expect(hash.length).toBe(64)
+    expect(hash.length).toStrictEqual(64)
   })
 
   it('should rpc.call(getblock)', async () => {
@@ -65,7 +65,7 @@ describe('whitelisted rpc methods', () => {
     const hash = await client.rpc.call<string>('getblockhash', [1], 'number')
     const block = await client.rpc.call<blockchain.Block<blockchain.Transaction>>('getblock', [hash], 'number')
 
-    expect(block.hash.length).toBe(64)
-    expect(Array.isArray(block.tx)).toBe(true)
+    expect(block.hash.length).toStrictEqual(64)
+    expect(Array.isArray(block.tx)).toStrictEqual(true)
   })
 })
