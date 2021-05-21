@@ -171,4 +171,74 @@ describe('account.accountToAccount()', () => {
     expect(recipientAccount).toContain('2.34000000@DFI')
     expect(recipientAccount).toContain('63.48000000@CAT')
   })
+
+  it('should be able to transfer to multiple destination address', async () => {
+    const destOneAddress = await container.getNewAddress()
+    const destTwoAddress = await container.getNewAddress()
+
+    // output token addresses
+    const destOneP2wpkh = P2WPKH.fromAddress(RegTest, destOneAddress, P2WPKH)
+    const destTwoP2wpkh = P2WPKH.fromAddress(RegTest, destTwoAddress, P2WPKH)
+
+    const destPubKey = await providers.ellipticPair.publicKey()
+    const script = await providers.elliptic.script()
+
+    const destOneAmount = 2.34
+    const destOneCatAmount = 77.77
+    const destTwoCatAmount = 63.48
+
+    const accountToAccount: AccountToAccount = {
+      from: script,
+      to: [{
+        script: destOneP2wpkh.getScript(),
+        balances: [{
+          token: 0,
+          amount: new BigNumber(destOneAmount)
+        }, {
+          token: secondTokenId,
+          amount: new BigNumber(destOneCatAmount)
+        }]
+      }, {
+        script: destTwoP2wpkh.getScript(),
+        balances: [{
+          token: secondTokenId,
+          amount: new BigNumber(destTwoCatAmount)
+        }]
+      }]
+    }
+
+    const txn = await builder.account.accountToAccount(accountToAccount, script)
+    const outs = await sendTransaction(container, txn)
+
+    expect(outs.length).toEqual(2)
+    const encoded: string = OP_CODES.OP_DEFI_TX_ACCOUNT_TO_ACCOUNT(accountToAccount).asBuffer().toString('hex')
+    // OP_RETURN + DfTx full buffer
+    const expectedRedeemScript = `6a${encoded}`
+    expect(outs[0].value).toEqual(0)
+    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].tokenId).toEqual(0)
+
+    // change
+    const change = await findOut(outs, providers.elliptic.ellipticPair)
+    expect(change.value).toBeLessThan(1)
+    expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
+    expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
+
+    // burnt token
+    const account = await jsonRpc.account.getAccount(await providers.getAddress())
+
+    expect(account).toContain('7.66000000@DFI')
+    expect(account).toContain('858.75000000@CAT')
+
+    // minted token
+    const recipientOneAccount = await jsonRpc.account.getAccount(destOneAddress)
+    expect(recipientOneAccount.length).toStrictEqual(2)
+    expect(recipientOneAccount).toContain('2.34000000@DFI')
+    expect(recipientOneAccount).toContain('77.77000000@CAT')
+
+    const recipientTwoAccount = await jsonRpc.account.getAccount(destTwoAddress)
+    expect(recipientTwoAccount.length).toStrictEqual(1)
+    expect(recipientTwoAccount).toContain('63.48000000@CAT')
+  })
 })
