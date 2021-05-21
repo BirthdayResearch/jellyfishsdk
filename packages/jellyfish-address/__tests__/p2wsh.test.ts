@@ -59,27 +59,27 @@ describe('P2WSH', () => {
   describe('to()', () => {
     it('should be able to build a new address using a script hash (32 bytes, 64 char hex string)', () => {
       const data = '9e1be07558ea5cc8e02ed1d80c0911048afad949affa36d5c3951e3159dbea19' // 32 bytes
-      expect(data.length).toEqual(64)
+      expect(data.length).toStrictEqual(64)
 
       const p2wsh = P2WSH.to('regtest', data)
-      expect(p2wsh.type).toEqual('P2WSH')
+      expect(p2wsh.type).toStrictEqual('P2WSH')
       expect(p2wsh.valid).toBeTruthy()
 
       const scriptStack = p2wsh.getScript()
-      expect(scriptStack.stack.length).toEqual(2)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_0)
-      expect(scriptStack.stack[1]).toEqual(OP_CODES.OP_PUSHDATA_HEX_LE(data))
+      expect(scriptStack.stack.length).toStrictEqual(2)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
+      expect(scriptStack.stack[1]).toStrictEqual(OP_CODES.OP_PUSHDATA_HEX_LE(data))
     })
 
     it('should reject invalid data - not 32 bytes data', () => {
       const pubKeyHash = '134b0749882c225e8647df3a3417507c6f5b27'
-      expect(pubKeyHash.length).toEqual(38)
+      expect(pubKeyHash.length).toStrictEqual(38)
 
       try {
         P2WSH.to('regtest', pubKeyHash)
         throw new Error('should had failed')
       } catch (e) {
-        expect(e.message).toEqual('InvalidScriptHashLength')
+        expect(e.message).toStrictEqual('InvalidScriptHashLength')
       }
     })
   })
@@ -99,9 +99,9 @@ describe('P2WSH', () => {
       const p2wsh = DeFiAddress.from('mainnet', p2wshFixture.mainnet)
       const scriptStack = p2wsh.getScript()
 
-      expect(scriptStack.stack.length).toEqual(2)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_0)
-      expect(scriptStack.stack[1].type).toEqual('OP_PUSHDATA')
+      expect(scriptStack.stack.length).toStrictEqual(2)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
+      expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
     })
   })
 
@@ -109,11 +109,11 @@ describe('P2WSH', () => {
     const data = '9e1be07558ea5cc8e02ed1d80c0911048afad949affa36d5c3951e3159dbea19' // 32 bytes
 
     const p2wsh = new P2WSH(RegTest, p2wshFixture.regtest, data)
-    expect(p2wsh.validatorPassed).toEqual(0)
+    expect(p2wsh.validatorPassed).toStrictEqual(0)
     expect(p2wsh.valid).toBeFalsy()
 
     const isValid = p2wsh.validate()
-    // expect(p2wsh.validatorPassed).toEqual(4) // length, network prefix, data character set
+    // expect(p2wsh.validatorPassed).toStrictEqual(4) // length, network prefix, data character set
     expect(isValid).toBeTruthy()
   })
 

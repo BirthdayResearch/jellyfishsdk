@@ -70,28 +70,28 @@ describe('P2SH', () => {
   describe('to()', () => {
     it('should be able to build a new address using a public key hash (20 bytes, 40 char hex string)', () => {
       const scriptHash = '134b0749882c225e8647df3a3417507c6f5b2797'
-      expect(scriptHash.length).toEqual(40)
+      expect(scriptHash.length).toStrictEqual(40)
 
       const p2sh = P2SH.to('regtest', scriptHash)
-      expect(p2sh.type).toEqual('P2SH')
+      expect(p2sh.type).toStrictEqual('P2SH')
       expect(p2sh.valid).toBeTruthy()
 
       const scriptStack = p2sh.getScript()
-      expect(scriptStack.stack.length).toEqual(3)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_HASH160)
-      expect(scriptStack.stack[1]).toEqual(OP_CODES.OP_PUSHDATA_HEX_LE(scriptHash))
-      expect(scriptStack.stack[2]).toEqual(OP_CODES.OP_EQUAL)
+      expect(scriptStack.stack.length).toStrictEqual(3)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_HASH160)
+      expect(scriptStack.stack[1]).toStrictEqual(OP_CODES.OP_PUSHDATA_HEX_LE(scriptHash))
+      expect(scriptStack.stack[2]).toStrictEqual(OP_CODES.OP_EQUAL)
     })
 
     it('should reject invalid data - not 20 bytes data', () => {
       const scriptHash = '134b0749882c225e8647df3a3417507c6f5b27'
-      expect(scriptHash.length).toEqual(38)
+      expect(scriptHash.length).toStrictEqual(38)
 
       try {
         P2SH.to('regtest', scriptHash)
         throw new Error('should had failed')
       } catch (e) {
-        expect(e.message).toEqual('InvalidDataLength')
+        expect(e.message).toStrictEqual('InvalidDataLength')
       }
     })
   })
@@ -111,10 +111,10 @@ describe('P2SH', () => {
       const p2sh = DeFiAddress.from('mainnet', p2shFixture.mainnet)
       const scriptStack = p2sh.getScript()
 
-      expect(scriptStack.stack.length).toEqual(3)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_HASH160)
-      expect(scriptStack.stack[1].type).toEqual('OP_PUSHDATA')
-      expect(scriptStack.stack[2]).toEqual(OP_CODES.OP_EQUAL)
+      expect(scriptStack.stack.length).toStrictEqual(3)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_HASH160)
+      expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
+      expect(scriptStack.stack[2]).toStrictEqual(OP_CODES.OP_EQUAL)
     })
   })
 
@@ -122,11 +122,11 @@ describe('P2SH', () => {
     const hex = bs58.decode(p2shFixture.mainnet).toString('hex').substring(2, 42) // take 20 bytes data only
     const p2sh = new P2SH(MainNet, p2shFixture.mainnet, hex)
 
-    expect(p2sh.validatorPassed).toEqual(0)
+    expect(p2sh.validatorPassed).toStrictEqual(0)
     expect(p2sh.valid).toBeFalsy()
 
     const isValid = p2sh.validate()
-    expect(p2sh.validatorPassed).toEqual(5)
+    expect(p2sh.validatorPassed).toStrictEqual(5)
     expect(isValid).toBeTruthy()
   })
 

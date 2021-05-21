@@ -12,13 +12,13 @@ describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CTokenBalance(buffer)
-    expect(composable.toObject()).toEqual(tokenBalance)
+    expect(composable.toObject()).toStrictEqual(tokenBalance)
   })
 
   it('should compose from composable to buffer', () => {
     const composable = new CTokenBalance(tokenBalance)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

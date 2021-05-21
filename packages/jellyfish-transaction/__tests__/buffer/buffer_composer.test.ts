@@ -32,7 +32,7 @@ it('should format (4 bytes, 32 bytes, 8 bytes) hex with hexAsBufferLE', () => {
 
 function shouldFromBuffer<T> (composer: BufferComposer, hex: string | string[], val: T, getter: () => T): void {
   composer.fromBuffer(hexAsBuffer(hex))
-  expect(getter()).toEqual(val)
+  expect(getter()).toStrictEqual(val)
 }
 
 function shouldToBuffer<T> (composer: BufferComposer, hex: string | string[], val: T, setter: (v: T) => void): void {

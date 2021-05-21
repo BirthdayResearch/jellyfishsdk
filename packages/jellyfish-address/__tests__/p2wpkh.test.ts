@@ -69,27 +69,27 @@ describe('P2WPKH', () => {
   describe('to()', () => {
     it('should be able to build a new address using a public key hash (20 bytes, 40 char hex string)', () => {
       const data = '0e7c0ab18b305bc987a266dc06de26fcfab4b56a' // 20 bytes
-      expect(data.length).toEqual(40)
+      expect(data.length).toStrictEqual(40)
 
       const p2wpkh = P2WPKH.to('regtest', data)
-      expect(p2wpkh.type).toEqual('P2WPKH')
+      expect(p2wpkh.type).toStrictEqual('P2WPKH')
       expect(p2wpkh.valid).toBeTruthy()
 
       const scriptStack = p2wpkh.getScript()
-      expect(scriptStack.stack.length).toEqual(2)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_0)
-      expect(scriptStack.stack[1]).toEqual(OP_CODES.OP_PUSHDATA_HEX_LE(data))
+      expect(scriptStack.stack.length).toStrictEqual(2)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
+      expect(scriptStack.stack[1]).toStrictEqual(OP_CODES.OP_PUSHDATA_HEX_LE(data))
     })
 
     it('should reject invalid data - not 32 bytes data', () => {
       const pubKeyHash = '9e1be07558ea5cc8e02ed1d80c0911048afad949affa36d5c3951e3159dbea19'
-      expect(pubKeyHash.length).toEqual(64) // testing with a p2wpkh data
+      expect(pubKeyHash.length).toStrictEqual(64) // testing with a p2wpkh data
 
       try {
         P2WPKH.to('regtest', pubKeyHash)
         throw new Error('should had failed')
       } catch (e) {
-        expect(e.message).toEqual('InvalidPubKeyHashLength')
+        expect(e.message).toStrictEqual('InvalidPubKeyHashLength')
       }
     })
   })
@@ -109,9 +109,9 @@ describe('P2WPKH', () => {
       const p2wpkh = DeFiAddress.from('mainnet', p2wpkhFixture.mainnet)
       const scriptStack = p2wpkh.getScript()
 
-      expect(scriptStack.stack.length).toEqual(2)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_0)
-      expect(scriptStack.stack[1].type).toEqual('OP_PUSHDATA')
+      expect(scriptStack.stack.length).toStrictEqual(2)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
+      expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
     })
   })
 
@@ -119,11 +119,11 @@ describe('P2WPKH', () => {
     const data = '0e7c0ab18b305bc987a266dc06de26fcfab4b56a' // 20 bytes
 
     const p2wpkh = new P2WPKH(RegTest, p2wpkhFixture.regtest, data)
-    expect(p2wpkh.validatorPassed).toEqual(0)
+    expect(p2wpkh.validatorPassed).toStrictEqual(0)
     expect(p2wpkh.valid).toBeFalsy()
 
     const isValid = p2wpkh.validate()
-    expect(p2wpkh.validatorPassed).toEqual(5) // length, network prefix, data character set
+    expect(p2wpkh.validatorPassed).toStrictEqual(5) // length, network prefix, data character set
     expect(isValid).toBeTruthy()
   })
 

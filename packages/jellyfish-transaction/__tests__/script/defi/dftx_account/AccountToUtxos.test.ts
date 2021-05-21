@@ -58,7 +58,7 @@ describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CAccountToUtxos(buffer)
-    expect(composable.toObject()).toEqual(accountToUtxos)
+    expect(composable.toObject()).toStrictEqual(accountToUtxos)
   })
 
   it('should compose from composable to buffer', () => {
@@ -66,6 +66,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

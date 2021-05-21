@@ -69,7 +69,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CPoolSwap(buffer)
 
-    expect(composable.toObject()).toEqual(poolSwap)
+    expect(composable.toObject()).toStrictEqual(poolSwap)
   })
 
   it('should compose from composable to buffer', () => {
@@ -77,6 +77,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

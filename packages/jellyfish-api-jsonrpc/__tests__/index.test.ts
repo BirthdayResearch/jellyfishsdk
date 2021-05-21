@@ -34,7 +34,7 @@ describe('JSON-RPC 1.0 specification', () => {
     await expect(intercept.mock.calls[0][0].jsonrpc).toBe('1.0')
     await expect(intercept.mock.calls[0][0].id).toBeGreaterThan(-1)
     await expect(intercept.mock.calls[0][0].method).toBe('intercept')
-    await expect(intercept.mock.calls[0][0].params).toEqual(['p1', 'p2'])
+    await expect(intercept.mock.calls[0][0].params).toStrictEqual(['p1', 'p2'])
   })
 
   it('generated id must be positive as per the spec', async () => {
@@ -43,7 +43,7 @@ describe('JSON-RPC 1.0 specification', () => {
     for (const i of [...Array(100).keys()]) {
       await client.call(`generate${i}`, [], 'number')
       await expect(intercept.mock.calls[i][0].id).toBeGreaterThan(-1)
-      await expect(intercept.mock.calls[i][0].id.toString()).not.toEqual(
+      await expect(intercept.mock.calls[i][0].id.toString()).not.toStrictEqual(
         expect.not.stringMatching('.')
       )
     }
