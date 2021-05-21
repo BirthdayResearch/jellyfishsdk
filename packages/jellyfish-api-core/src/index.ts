@@ -78,10 +78,10 @@ export class ClientApiError extends ApiError {
  * API RPC error, from upstream.
  */
 export class RpcApiError extends ApiError {
-  public readonly payload: { code: number, message: string }
+  public readonly payload: { code: number, message: string, rpcMethod: string }
 
-  constructor (error: { code: number, message: string }) {
-    super(`RpcApiError: '${error.message}', code: ${error.code}`)
+  constructor (error: { code: number, message: string, rpcMethod: string }) {
+    super(`RpcApiError: '${error.message}', code: ${error.code}, rpcMethod: ${error.rpcMethod}`)
     this.payload = error
   }
 }

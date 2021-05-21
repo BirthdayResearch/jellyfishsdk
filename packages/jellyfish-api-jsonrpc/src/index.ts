@@ -89,8 +89,8 @@ export class JsonRpcClient extends ApiClient {
       result: precision
     })
 
-    if (error !== undefined && error !== null) {
-      throw new RpcApiError(error)
+    if (error != null) {
+      throw new RpcApiError({ ...error, rpcMethod: text })
     }
 
     return result

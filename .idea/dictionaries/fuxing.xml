@@ -199,6 +199,7 @@
       <w>walletversion</w>
       <w>wpkh</w>
       <w>wtxid</w>
+      <w>zynesis</w>
     </words>
   </dictionary>
 </component>

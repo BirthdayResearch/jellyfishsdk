@@ -7,7 +7,7 @@
 /.github/workflows/oss-governance-bot.yml       @fuxingloh
 /.github/governance.yml                         @fuxingloh
 
-/website/                                       @fuxingloh
+/website/                                       @fuxingloh @canonbrother
 
 /packages/jellyfish/                            @fuxingloh
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
@@ -16,7 +16,11 @@
 /packages/jellyfish-crypto/                     @fuxingloh
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
-/packages/jellyfish-transaction/                @fuxingloh
+
+/packages/jellyfish-transaction/                          @fuxingloh
+/packages/jellyfish-transaction/src/script/               @fuxingloh @canonbrother @jingyi2811
+/packages/jellyfish-transaction/src/script/defi/          @fuxingloh @canonbrother
+
 /packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
