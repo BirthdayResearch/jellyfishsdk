@@ -11,9 +11,9 @@ import BigNumber from 'bignumber.js'
  * AppointOracle DeFi Transaction
  */
 export interface AppointOracle {
-  script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
-  weightage: number // -------------------| 1 byte unsigned
-  pricefeeds: CurrencyPair[] // -----------------| array of strings each max 8 bytes
+  script: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes
+  weightage: number // ------------------| 1 byte unsigned int
+  priceFeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c x CurrencyPair
 }
 
 /**
@@ -28,7 +28,7 @@ export class CAppointOracle extends ComposableBuffer<AppointOracle> {
     return [
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => ao.weightage, v => ao.weightage = v),
-      ComposableBuffer.varUIntArray(() => ao.pricefeeds, v => ao.pricefeeds = v, v => new CCurrencyPair(v))
+      ComposableBuffer.varUIntArray(() => ao.priceFeeds, v => ao.priceFeeds = v, v => new CCurrencyPair(v))
     ]
   }
 }
@@ -37,7 +37,7 @@ export class CAppointOracle extends ComposableBuffer<AppointOracle> {
  * RemoveOracle DeFi Transaction
  */
 export interface RemoveOracle {
-  oracleId: string // -------------------| string
+  oracleId: string // -------------------| 32 bytes hex string
 }
 
 /**
@@ -59,10 +59,10 @@ export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
  * UpdateOracle DeFi Transaction
  */
 export interface UpdateOracle {
-  oracleId: string // -------------------| string
-  script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
-  weightage: number // -------------------| 1 byte unsigned
-  pricefeeds: CurrencyPair[] // -----------------| array of strings each max 8 bytes
+  oracleId: string // -------------------| 32 bytes hex string
+  script: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes
+  weightage: number // ------------------| 1 byte unsigned int
+  pricefeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c x CurrencyPair
 }
 
 /**
@@ -87,9 +87,9 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
  * SetOracleData DeFi Transaction
  */
 export interface SetOracleData {
-  oracleId: string // -------------------| string
-  timestamp: BigNumber // -------------------| 4 bytes unsigned
-  tokens: TokenPrice[] // -----------------| array of TokenPrice
+  oracleId: string // -------------------| 32 bytes hex string
+  timestamp: BigNumber // ---------------| 8 bytes unsigned integer
+  tokens: TokenPrice[] // ---------------| c = VarUInt{1-9 bytes}, + c x TokenPrice
 }
 
 /**

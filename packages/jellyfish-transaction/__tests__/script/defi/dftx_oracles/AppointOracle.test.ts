@@ -35,7 +35,7 @@ const appointOracle: AppointOracle = {
     ]
   },
   weightage: 1,
-  pricefeeds: [
+  priceFeeds: [
     {
       token: 'TESLA',
       currency: 'EUR'
