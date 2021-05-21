@@ -1,5 +1,11 @@
 import { ApiClient } from '../.'
 
+export enum EstimateMode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
+}
+
 /**
  * Mining RPCs for DeFi Blockchain
  */
@@ -36,6 +42,16 @@ export class Mining {
    */
   async getMiningInfo (): Promise<MiningInfo> {
     return await this.client.call('getmininginfo', [], 'number')
+  }
+
+  /**
+   *
+   * @param {number} confirmationTarget in blocks (1 - 1008)
+   * @param {EstimateMode} [estimateMode=EstimateMode.CONSERVATIVE] estimateMode of fees.
+   * @returns {Promise<SmartFeeEstimation>}
+   */
+  async estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = EstimateMode.CONSERVATIVE): Promise<SmartFeeEstimation> {
+    return await this.client.call('estimatesmartfee', [confirmationTarget, estimateMode], 'number')
   }
 }
 
@@ -85,4 +101,10 @@ export interface MasternodeInfo {
   generate?: boolean
   mintedblocks?: number
   lastblockcreationattempt?: string
+}
+
+export interface SmartFeeEstimation {
+  feerate?: number
+  errors?: string[]
+  blocks: number
 }
