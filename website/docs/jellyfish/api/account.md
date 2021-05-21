@@ -113,14 +113,17 @@ Returns information about account history
 ```ts title="client.account.listAccountHistory()"
 interface account {
   listAccountHistory (
-    owner: OwnerType = 'mine',
+    owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
   ): Promise<AccountHistory[]>
 }
 
-type OwnerType = 'mine' | 'all' | string
+enum OwnerType {
+  MINE = "mine",
+  ALL = "all"
+}
 
 interface AccountHistory {
   owner: string
@@ -170,12 +173,15 @@ Returns count of account history
 ```ts title="client.account.accountHistoryCount()"
 interface account {
   accountHistoryCount (
-    owner: OwnerType = 'mine',
+    owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number>
 }
 
-type OwnerType = 'mine' | 'all' | string
+enum OwnerType {
+  MINE = "mine",
+  ALL = "all"
+}
 
 interface  AccountHistoryCountOptions {
   token?: string

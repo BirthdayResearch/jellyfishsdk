@@ -6,8 +6,10 @@ import { ApiClient } from '../.'
  * - 'mine' to list history for all owned accounts or
  * - 'all' to list the whole DB
  */
-type OwnerType = 'mine' | 'all' | string
-
+enum OwnerType {
+  MINE = 'mine',
+  ALL = 'all'
+}
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -202,7 +204,7 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param {OwnerType} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
    * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
@@ -213,7 +215,7 @@ export class Account {
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
-    owner: OwnerType = 'mine',
+    owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
@@ -239,7 +241,7 @@ export class Account {
   /**
    * Returns count of account history
    *
-   * @param {OwnerType} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string} [owner= OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards]  Filter out rewards
    * @param {string} [options.token]  Filter by token
@@ -247,7 +249,7 @@ export class Account {
    * @return {Promise<number>}  Count of account history
    */
   async accountHistoryCount (
-    owner: OwnerType = 'mine',
+    owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number> {
     return await this.client.call('accounthistorycount', [owner, options], 'number')
