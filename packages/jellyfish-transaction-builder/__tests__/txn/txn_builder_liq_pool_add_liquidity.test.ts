@@ -60,6 +60,10 @@ beforeEach(async () => {
   expect(account).toContain('100.00000000@DFI')
   expect(account).toContain('1000.00000000@CAT')
 
+  // Ensure zero starting pool share balance
+  const poolShares = await jsonRpc.poolpair.listPoolShares()
+  expect(Object.keys(poolShares).length).toStrictEqual(0)
+
   // Fund 1 DFI UTXOS for fee
   await fundEllipticPair(container, providers.ellipticPair, 1)
 })
@@ -69,17 +73,17 @@ describe('liqPool.addLiquidity()', () => {
     const destPubKey = await providers.ellipticPair.publicKey()
     const script = await providers.elliptic.script()
 
-    const tokenAAmount = 2.34 // amount converted into utxos
-    const tokenBAmount = 90.87 // amount converted into utxos
+    const tokenAAmount = 2.34
+    const tokenBAmount = 90.87
     const addLiquidity: PoolAddLiquidity = {
       from: [{
         script,
         balances: [{
           token: 0,
-          amount: new BigNumber(tokenAAmount) // balance remaining in token
+          amount: new BigNumber(tokenAAmount)
         }, {
           token: tokenId,
-          amount: new BigNumber(tokenBAmount) // balance remaining in token
+          amount: new BigNumber(tokenBAmount)
         }]
       }],
       shareAddress: script
@@ -111,6 +115,10 @@ describe('liqPool.addLiquidity()', () => {
     // minted LM token
     const lmTokenFound = account.find(tb => tb.split('@')[1] === 'DFI-CAT')
     expect(lmTokenFound).toBeTruthy()
+
+    // found in pool share listing
+    const poolShares = await jsonRpc.poolpair.listPoolShares()
+    console.log(poolShares)
   })
 
   it('should reject invalid addLiquidity arg - more than 1 in `from`', async () => {
