@@ -118,7 +118,13 @@ describe('liqPool.addLiquidity()', () => {
 
     // found in pool share listing
     const poolShares = await jsonRpc.poolpair.listPoolShares()
-    console.log(poolShares)
+    const key = Object.keys(poolShares)
+    expect(key.length).toStrictEqual(1)
+
+    const accountPoolBal = poolShares[key[0]]
+    expect(accountPoolBal.owner).toStrictEqual(await providers.getAddress())
+    expect(accountPoolBal.poolID).toStrictEqual(tokenId)
+    expect(accountPoolBal.amount.gt(0)).toBeTruthy()
   })
 
   it('should reject invalid addLiquidity arg - more than 1 in `from`', async () => {
