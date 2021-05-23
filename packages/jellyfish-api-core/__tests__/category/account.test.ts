@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountPayload, AccountHistoryCountOptions, TxtType } from '../../src/category/account'
+import { UtxosToAccountPayload, AccountHistoryCountOptions, TxType } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -563,7 +563,7 @@ describe('masternode', () => {
     it('should get accountHistory with txtype option', async () => {
       await waitForExpect(async () => {
         const options: AccountHistoryCountOptions = {
-          txtype: TxtType.MINT_TOKEN
+          txtype: TxType.MINT_TOKEN
         }
         const count = await client.account.historyCount('mine', options)
 

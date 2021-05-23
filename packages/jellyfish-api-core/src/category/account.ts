@@ -10,7 +10,7 @@ enum OwnerType {
   MINE = 'mine',
   ALL = 'all'
 }
-export enum TxtType {
+export enum TxType {
   MINT_TOKEN ='M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
@@ -18,7 +18,16 @@ export enum TxtType {
   UTXOS_TO_ACCOUNT = 'U',
   ACCOUNT_TO_UTOXS = 'b',
   ACCOUNT_TO_ACCOUNT = 'B',
-  ANY_ACCOUNTS_TO_ACCOUNTS = 'a'
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a',
+  CREATE_MASTERNODE = 'C',
+  RESIGN_MASTERNODE = 'R',
+  CREATE_TOKEN = 'T',
+  UPDATE_TOKEN = 'N',
+  UPDATE_TOKEN_ANY = 'n',
+  CREATE_POOL_PAIR = 'p',
+  UPDATE_POOL_PAIR = 'u',
+  SET_GOV_VARIABLE = 'G',
+  AUTO_AUTH_PREP = 'A'
 }
 /**
  * Account RPCs for DeFi Blockchain
@@ -255,7 +264,7 @@ export class Account {
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards]  Filter out rewards
    * @param {string} [options.token]  Filter by token
-   * @param {TxtType | string} [options.txtype]  Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @param {TxType | string} [options.txtype]  Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
    * @return {Promise<number>}  Count of account history
    */
   async historyCount (
@@ -333,6 +342,6 @@ export interface UtxosToAccountUTXO {
 
 export interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxtType | string
+  txtype?: TxType | string
   no_rewards?: boolean
 }
