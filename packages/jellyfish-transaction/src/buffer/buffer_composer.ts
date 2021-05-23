@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { writeVarUInt, readVarUInt } from './buffer_varuint'
+import { getBitsFrom } from './buffer_bitmask'
 import { ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
 
 export interface BufferComposer {
@@ -435,6 +436,28 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       },
       toBuffer: (buffer: SmartBuffer): void => {
         writeVarUInt(getter(), buffer)
+      }
+    }
+  }
+
+  static mask (
+    getter: () => boolean[],
+    setter: (data: boolean[]) => void
+  ): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const strBase2 = buffer.readInt8().toString(2)
+        const array: boolean[] = []
+        for (let i = 1; i <= getter().length; i += 1) {
+          array.push(getBitsFrom(Number(strBase2), i))
+        }
+        setter(array)
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        console.log('getter(): ', getter())
+        const bools = getter().map(bool => bool.toString().toLowerCase() === 'true' ? 1 : 0)
+        const num = parseInt(bools.join(''), 2)
+        buffer.writeBuffer(Buffer.from([num]))
       }
     }
   }

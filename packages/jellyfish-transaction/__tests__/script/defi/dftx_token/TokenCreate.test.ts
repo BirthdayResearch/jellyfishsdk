@@ -35,7 +35,9 @@ const tokenCreate: TokenCreate = {
   name: 'wallstreetbets',
   decimal: 8,
   limit: new BigNumber('0'),
-  flags: 3
+  tradeable: false,
+  mintable: true,
+  isDAT: true
 }
 
 it('should craft dftx with OP_CODES._()', () => {
