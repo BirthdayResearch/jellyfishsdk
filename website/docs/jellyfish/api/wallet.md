@@ -257,6 +257,16 @@ interface wallet {
 }
 ```
 
+## dumpPrivKey
+
+Reveals the private key corresponding to 'address'. Then the importprivkey can be used with this output.
+
+```ts title="client.wallet.dumpPrivKey()"
+interface wallet {
+  dumpPrivKey (address: string): Promise<string>
+}
+```
+
 ## sendMany
 
 Send given amounts to multiple given address and return a transaction id.

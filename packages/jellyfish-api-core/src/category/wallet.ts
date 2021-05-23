@@ -215,6 +215,16 @@ export class Wallet {
   }
 
   /**
+   * Reveals the private key corresponding to 'address'.
+   * Then the importprivkey can be used with this output.
+   * @param {string} address The DFI address for the private key
+   * @return {Promise<string>}
+   */
+  async dumpPrivKey (address: string): Promise<string> {
+    return await this.client.call('dumpprivkey', [address], 'number')
+  }
+
+  /**
    * Send given amounts to multiple given address and return a transaction id.
    *
    * @param {Record<string, number>} amounts Dictionary/map with individual addresses and amounts
