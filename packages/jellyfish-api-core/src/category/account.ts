@@ -10,6 +10,16 @@ enum OwnerType {
   MINE = 'mine',
   ALL = 'all'
 }
+export enum TxtType {
+  MINT_TOKEN ='M',
+  POOL_SWAP = 's',
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTOXS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a'
+}
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -245,10 +255,10 @@ export class Account {
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards]  Filter out rewards
    * @param {string} [options.token]  Filter by token
-   * @param {string} [options.txtype]  Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @param {TxtType | string} [options.txtype]  Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
    * @return {Promise<number>}  Count of account history
    */
-  async accountHistoryCount (
+  async historyCount (
     owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number> {
@@ -323,6 +333,6 @@ export interface UtxosToAccountUTXO {
 
 export interface AccountHistoryCountOptions {
   token?: string
-  txtype?: string
+  txtype?: TxtType | string
   no_rewards?: boolean
 }

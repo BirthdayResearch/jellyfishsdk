@@ -166,13 +166,13 @@ interface UtxosToAccountUTXO {
 }
 ```
 
-## accountHistoryCount 
+## historyCount 
 
 Returns count of account history
 
-```ts title="client.account.accountHistoryCount()"
+```ts title="client.account.historyCount()"
 interface account {
-  accountHistoryCount (
+  historyCount (
     owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryCountOptions = {}
   ): Promise<number>
@@ -183,9 +183,19 @@ enum OwnerType {
   ALL = "all"
 }
 
+ enum TxtType {
+  MINT_TOKEN ='M' ,
+  POOL_SWAP = 's' ,
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTOXS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a'
+}
 interface  AccountHistoryCountOptions {
   token?: string
-  txtype?:string
+  txtype?:TxtType | string
   no_rewards?: boolean
 }
 ```

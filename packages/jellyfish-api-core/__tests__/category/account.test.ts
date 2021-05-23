@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountPayload, AccountHistoryCountOptions } from '../../src/category/account'
+import { UtxosToAccountPayload, AccountHistoryCountOptions, TxtType } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -520,19 +520,19 @@ describe('masternode', () => {
   describe('accountHistoryCount', () => {
     it('should get accountHistoryCount', async () => {
       await waitForExpect(async () => {
-        const count = await client.account.accountHistoryCount()
+        const count = await client.account.historyCount()
 
         expect(typeof count).toBe('number')
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBeGreaterThanOrEqual(0)
       })
     })
 
     it('should get accountHistoryCount with owner as all', async () => {
       await waitForExpect(async () => {
-        const count = await client.account.accountHistoryCount('all')
+        const count = await client.account.historyCount('all')
 
         expect(typeof count).toBe('number')
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBeGreaterThanOrEqual(0)
       })
     })
 
@@ -541,10 +541,10 @@ describe('masternode', () => {
         const options: AccountHistoryCountOptions = {
           no_rewards: true
         }
-        const count = await client.account.accountHistoryCount('mine', options)
+        const count = await client.account.historyCount('mine', options)
 
         expect(typeof count).toBe('number')
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBeGreaterThanOrEqual(0)
       })
     })
 
@@ -553,22 +553,22 @@ describe('masternode', () => {
         const options: AccountHistoryCountOptions = {
           token: 'DBTC'
         }
-        const count = await client.account.accountHistoryCount('mine', options)
+        const count = await client.account.historyCount('mine', options)
 
         expect(typeof count).toBe('number')
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBeGreaterThanOrEqual(0)
       })
     })
 
     it('should get accountHistory with txtype option', async () => {
       await waitForExpect(async () => {
         const options: AccountHistoryCountOptions = {
-          txtype: 'M'
+          txtype: TxtType.MINT_TOKEN
         }
-        const count = await client.account.accountHistoryCount('mine', options)
+        const count = await client.account.historyCount('mine', options)
 
         expect(typeof count).toBe('number')
-        expect(count).toBeGreaterThan(0)
+        expect(count).toBeGreaterThanOrEqual(0)
       })
     })
   })
