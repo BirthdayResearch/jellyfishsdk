@@ -446,15 +446,14 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   ): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const strBase2 = buffer.readInt8().toString(2)
+        const num = buffer.readInt8()
         const array: boolean[] = []
-        for (let i = 1; i <= getter().length; i += 1) {
-          array.push(getBitsFrom(Number(strBase2), i))
+        for (let i = 0; i < getter().length; i += 1) {
+          array.unshift(getBitsFrom(num, i))
         }
         setter(array)
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        console.log('getter(): ', getter())
         const bools = getter().map(bool => bool.toString().toLowerCase() === 'true' ? 1 : 0)
         const num = parseInt(bools.join(''), 2)
         buffer.writeBuffer(Buffer.from([num]))
