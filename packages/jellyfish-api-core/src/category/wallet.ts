@@ -213,6 +213,16 @@ export class Wallet {
   async listAddressGroupings (): Promise<any[][][]> {
     return await this.client.call('listaddressgroupings', [], 'bignumber')
   }
+
+  /**
+   * Reveals the private key corresponding to 'address'.
+   * Then the importprivkey can be used with this output.
+   * @param {string} address The DFI address for the private key
+   * @return {Promise<string>}
+   */
+  async dumpPrivKey (address: string): Promise<string> {
+    return await this.client.call('dumpprivkey', [address], 'number')
+  }
 }
 
 export interface UTXO {

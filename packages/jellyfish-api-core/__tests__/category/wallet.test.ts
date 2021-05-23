@@ -631,4 +631,16 @@ describe('masternode', () => {
       })
     })
   })
+
+  describe('dumpPrivKeys', () => {
+    it('should reveal private key of given address', async () => {
+      await waitForExpect(async () => {
+        const address = await client.wallet.getNewAddress()
+        const privateKey = await client.wallet.dumpPrivKey(address)
+
+        expect(typeof privateKey).toStrictEqual('string')
+        expect(privateKey).toBeTruthy()
+      })
+    })
+  })
 })

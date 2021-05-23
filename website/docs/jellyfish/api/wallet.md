@@ -256,3 +256,13 @@ interface wallet {
   listAddressGroupings (): Promise<any[][][]>
 }
 ```
+
+## dumpPrivKey
+
+Reveals the private key corresponding to 'address'. Then the importprivkey can be used with this output.
+
+```ts title="client.wallet.dumpPrivKey()"
+interface wallet {
+  dumpPrivKey (address: string): Promise<string>
+}
+```
