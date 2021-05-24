@@ -639,7 +639,12 @@ describe('masternode', () => {
         const privateKey = await client.wallet.dumpPrivKey(address)
 
         expect(typeof privateKey).toStrictEqual('string')
-        expect(privateKey).toBeTruthy()
+      })
+    })
+    it('should throw and error when invalid DFI address is provided', async () => {
+      await waitForExpect(async () => {
+        const invalidAddress = 'invalidAddress'
+        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
       })
     })
   })
