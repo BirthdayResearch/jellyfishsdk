@@ -261,12 +261,12 @@ export class Account {
   /**
    * Returns count of account history
    *
-   * @param {OwnerType | string} [owner= OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryCountOptions} [options]
-   * @param {boolean} [options.no_rewards]  Filter out rewards
-   * @param {string} [options.token]  Filter by token
-   * @param {TxType | string} [options.txtype]  Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
-   * @return {Promise<number>}  Count of account history
+   * @param {boolean} [options.no_rewards] Filter out rewards
+   * @param {string} [options.token] Filter by token
+   * @param {TxType | string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @return {Promise<number>} count of account history
    */
   async historyCount (
     owner: OwnerType | string = OwnerType.MINE,
