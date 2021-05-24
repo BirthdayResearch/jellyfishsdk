@@ -31,7 +31,7 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
  * ResignMasterNode DeFi Transaction
  */
 export interface ResignMasterNode {
-  nodeId: string // --------------------------------| VarUInt{20 bytes}
+  nodeId: string // --------------------------------| VarUInt{32 bytes}
 }
 
 /**
