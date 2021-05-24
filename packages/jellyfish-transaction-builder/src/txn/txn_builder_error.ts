@@ -24,6 +24,10 @@ export enum TxnBuilderErrorType {
    */
   INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
   /**
+   * Invalid input `TokenBalances` array length must be one
+   */
+  INVALID_ADD_LIQUIDITY_INPUT,
+  /**
    * Invalid conversion input `TokenBalances`, must consist only valid DFI balance
    */
   INVALID_ACCOUNT_TO_UTXOS_INPUT
