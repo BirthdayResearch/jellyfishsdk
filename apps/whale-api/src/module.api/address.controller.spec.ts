@@ -6,10 +6,10 @@ import { TokenInfoCache } from '@src/module.api/cache/token.info.cache'
 import { CacheModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
-import { DatabaseModule } from '@src/module.database/module'
+import { DatabaseModule } from '@src/module.database/_module'
 import { ModelModule } from '@src/module.model/_module'
-import { DeFiDModule } from '@src/module.defid'
-import { IndexerModule } from '@src/module.indexer/module'
+import { DeFiDModule } from '@src/module.defid/_module'
+import { IndexerModule } from '@src/module.indexer/_module'
 
 const container = new MasterNodeRegTestContainer()
 let controller: AddressController
