@@ -26,3 +26,25 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
     ]
   }
 }
+
+/**
+ * ResignMasterNode DeFi Transaction
+ */
+export interface ResignMasterNode {
+  nodeId: string // --------------------------------| VarUInt{20 bytes}
+}
+
+/**
+ * Composable ResignMasterNode, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CResignMasterNode extends ComposableBuffer<ResignMasterNode> {
+  static OP_CODE = 0x52 // 'R'
+  static OP_NAME = 'OP_DEFI_TX_RESIGN_MASTER_NODE'
+
+  composers (cmn: ResignMasterNode): BufferComposer[] {
+    return [
+      ComposableBuffer.hex(32, () => cmn.nodeId, v => cmn.nodeId = v)
+    ]
+  }
+}
