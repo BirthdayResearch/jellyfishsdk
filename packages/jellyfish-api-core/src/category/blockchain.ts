@@ -111,7 +111,7 @@ export class Blockchain {
   }
 
   /**
-   * Get difficulty of chain.
+   * Get the proof-of-work difficulty as a multiple of the minimum difficulty.
    *
    * @return {Promise<number>}
    */

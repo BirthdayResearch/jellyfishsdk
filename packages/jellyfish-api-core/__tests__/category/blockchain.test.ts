@@ -249,21 +249,7 @@ describe('masternode', () => {
     })
   })
 
-  // getDifficulty of masternode & non masternode
   describe('getdifficulty', () => {
-    // const container = new DifficultyRegTest()
-    const client = new ContainerAdapterClient(container)
-
-    beforeAll(async () => {
-      await container.start()
-      await container.waitForReady()
-      // await container.waitForWalletCoinbaseMaturity()
-    })
-
-    afterAll(async () => {
-      await container.stop()
-    })
-
     it('should getDifficulty', async () => {
       const difficulty = await client.blockchain.getDifficulty()
       expect(difficulty).toBeGreaterThanOrEqual(0)
