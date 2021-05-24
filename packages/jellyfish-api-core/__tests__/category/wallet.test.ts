@@ -632,7 +632,7 @@ describe('masternode', () => {
     })
   })
 
-  describe('dumpPrivKeys', () => {
+  describe('dumpPrivKey', () => {
     it('should reveal private key of given address', async () => {
       await waitForExpect(async () => {
         const address = await client.wallet.getNewAddress()
