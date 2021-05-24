@@ -1009,7 +1009,7 @@ describe('ComposableBuffer.varUInt', () => {
 })
 
 describe('ComposableBuffer.bitmask1Byte', () => {
-  describe('mask 3 bytes to hex', () => {
+  describe('bitmask 1 byte with 3 positional bits', () => {
     const obj = { isA: false, isB: true, isC: false }
 
     const composer = ComposableBuffer.bitmask1Byte(
@@ -1035,7 +1035,7 @@ describe('ComposableBuffer.bitmask1Byte', () => {
     })
   })
 
-  describe('mask max bits 255 to hex', () => {
+  describe('bitmask 1 byte with 8 positional bits', () => {
     const obj = {
       isA: true,
       isB: true,
@@ -1078,6 +1078,50 @@ describe('ComposableBuffer.bitmask1Byte', () => {
           obj.isF = v[5]
           obj.isG = v[6]
           obj.isH = v[7]
+        })
+    })
+  })
+
+  describe('bitmask 1 byte with 7 positional bits', () => {
+    const obj = {
+      isA: false,
+      isB: true,
+      isC: false,
+      isD: true,
+      isE: false,
+      isF: true,
+      isG: false
+    }
+
+    const composer = ComposableBuffer.bitmask1Byte(
+      7, () => Object.values(obj), v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+        obj.isD = v[3]
+        obj.isE = v[4]
+        obj.isF = v[5]
+        obj.isG = v[6]
+      })
+
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '2A',
+        [false, true, false, true, false, true, false],
+        () => Object.values(obj))
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(
+        composer, '2A',
+        [false, true, false, true, false, true, false],
+        v => {
+          obj.isA = v[0]
+          obj.isB = v[1]
+          obj.isC = v[2]
+          obj.isD = v[3]
+          obj.isE = v[4]
+          obj.isF = v[5]
+          obj.isG = v[6]
         })
     })
   })

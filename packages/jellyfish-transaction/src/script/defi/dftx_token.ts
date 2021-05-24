@@ -36,8 +36,8 @@ export interface TokenCreate {
   decimal: number // --------------------| 1 byte
   limit: BigNumber // -------------------| 64 bytes
   isDAT: boolean // ---------------------| 1 byte bitmask start, position 0
-  tradeable: boolean // -----------------| 1 byte bitmask start, position 1
-  mintable: boolean // ------------------| 1 byte bitmask start, position 2
+  tradeable: boolean // -----------------| 1 byte bitmask, position 1
+  mintable: boolean // ------------------| 1 byte bitmask end, position 2
 }
 
 /**
