@@ -35,9 +35,9 @@ export interface TokenCreate {
   name: string // -----------------------| VarUInt{1-9 bytes}, + n bytes
   decimal: number // --------------------| 1 byte
   limit: BigNumber // -------------------| 64 bytes
-  isDAT: boolean // ---------------------| 1 byte
-  tradeable: boolean // -----------------| 1 byte
-  mintable: boolean // ------------------| 1 byte
+  isDAT: boolean // ---------------------| 1 byte bitmask start, position 0
+  tradeable: boolean // -----------------| 1 byte bitmask start, position 1
+  mintable: boolean // ------------------| 1 byte bitmask start, position 2
 }
 
 /**
@@ -46,7 +46,7 @@ export interface TokenCreate {
  */
 export class CTokenCreate extends ComposableBuffer<TokenCreate> {
   static OP_CODE = 0x54 /// 'T'
-  static OP_NAME = 'DEFI_OP_TOKEN_CREATE'
+  static OP_NAME = 'OP_DEFI_TX_TOKEN_CREATE'
 
   composers (tc: TokenCreate): BufferComposer[] {
     return [
@@ -54,7 +54,7 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
       ComposableBuffer.varUIntUtf8BE(() => tc.name, v => tc.name = v),
       ComposableBuffer.uInt8(() => tc.decimal, v => tc.decimal = v),
       ComposableBuffer.bigNumberUInt64(() => tc.limit, v => tc.limit = v),
-      ComposableBuffer.mask(() => [tc.isDAT, tc.tradeable, tc.mintable], v => {
+      ComposableBuffer.bitmask1Byte(3, () => [tc.isDAT, tc.tradeable, tc.mintable], v => {
         tc.isDAT = v[0]
         tc.tradeable = v[1]
         tc.mintable = v[2]

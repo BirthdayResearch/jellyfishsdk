@@ -440,15 +440,23 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     }
   }
 
-  static mask (
+  /**
+   * Imposing mask over bits method, 1 byte
+   *
+   * @param length of the input array to read/set
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   */
+  static bitmask1Byte (
+    length: number,
     getter: () => boolean[],
     setter: (data: boolean[]) => void
   ): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const num = buffer.readInt8()
+        const num = buffer.readUInt8()
         const array: boolean[] = []
-        for (let i = 0; i < getter().length; i += 1) {
+        for (let i = 0; i < length; i += 1) {
           array.unshift(getBitsFrom(num, i))
         }
         setter(array)

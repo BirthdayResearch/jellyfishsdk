@@ -1007,3 +1007,78 @@ describe('ComposableBuffer.varUInt', () => {
     }).toThrow('out of Number.MAX_SAFE_INTEGER range')
   })
 })
+
+describe('ComposableBuffer.bitmask1Byte', () => {
+  describe('mask 3 bytes to hex', () => {
+    const obj = { isA: false, isB: true, isC: false }
+
+    const composer = ComposableBuffer.bitmask1Byte(
+      3,
+      () => [obj.isA, obj.isB, obj.isC],
+      v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+      }
+    )
+
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '02', [false, true, false], () => [obj.isA, obj.isB, obj.isC])
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '02', [false, true, false], v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+      })
+    })
+  })
+
+  describe('mask max bits 255 to hex', () => {
+    const obj = {
+      isA: true,
+      isB: true,
+      isC: true,
+      isD: true,
+      isE: true,
+      isF: true,
+      isG: true,
+      isH: true
+    }
+
+    const composer = ComposableBuffer.bitmask1Byte(
+      8, () => Object.values(obj), v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+        obj.isD = v[3]
+        obj.isE = v[4]
+        obj.isF = v[5]
+        obj.isG = v[6]
+        obj.isH = v[7]
+      })
+
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, 'FF',
+        [true, true, true, true, true, true, true, true],
+        () => Object.values(obj))
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(
+        composer, 'FF',
+        [true, true, true, true, true, true, true, true],
+        v => {
+          obj.isA = v[0]
+          obj.isB = v[1]
+          obj.isC = v[2]
+          obj.isD = v[3]
+          obj.isE = v[4]
+          obj.isF = v[5]
+          obj.isG = v[6]
+          obj.isH = v[7]
+        })
+    })
+  })
+})
