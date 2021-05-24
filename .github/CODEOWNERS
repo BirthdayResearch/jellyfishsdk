@@ -3,19 +3,23 @@
 
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh
-/.idea/                                         @fuxingloh
-/.github/workflows/oss-governance-bot.yml       @fuxingloh
-/.github/governance.yml                         @fuxingloh
+/.idea/                                         @fuxingloh @jingyi2811 @thedoublejay
 
-/website/                                       @fuxingloh
+/website/                                       @fuxingloh @canonbrother
 
 /packages/jellyfish/                            @fuxingloh
-/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811
-/packages/jellyfish-api-jsonrpc/                @fuxingloh
+/packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
+/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @thedoublejay
+/packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
 /packages/jellyfish-crypto/                     @fuxingloh
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
-/packages/jellyfish-transaction/                @fuxingloh
+
+/packages/jellyfish-transaction/                          @fuxingloh
+/packages/jellyfish-transaction/src/script/               @fuxingloh @canonbrother @jingyi2811
+/packages/jellyfish-transaction/src/script/defi/          @fuxingloh @canonbrother
+
+/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/testcontainers/                       @fuxingloh
@@ -27,6 +31,6 @@ jest.config.js                                  @fuxingloh
 package.json                                    @fuxingloh
 package-lock.json                               @fuxingloh
 
-CONTRIBUTING.md                                 @fuxingloh
+CONTRIBUTING.md                                 @fuxingloh @canonbrother
 README.md                                       @fuxingloh
 LICENSE                                         @fuxingloh

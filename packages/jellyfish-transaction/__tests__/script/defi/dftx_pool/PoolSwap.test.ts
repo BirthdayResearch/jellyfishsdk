@@ -1,8 +1,9 @@
-import { SmartBuffer } from 'smart-buffer'
-import { CPoolSwap, PoolSwap } from '../../../../src/script/defi/dftx_pool'
-import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
 import BigNumber from 'bignumber.js'
+import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/defi'
+import { OP_CODES } from '../../../../src'
+import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
+import { CPoolSwap, PoolSwap } from '../../../../src/script/defi/dftx_pool'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -22,8 +23,8 @@ it('should bi-directional buffer-object-buffer', () => {
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x73)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x73)
   })
 })
 
@@ -60,7 +61,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
@@ -68,7 +69,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CPoolSwap(buffer)
 
-    expect(composable.toObject()).toEqual(poolSwap)
+    expect(composable.toObject()).toStrictEqual(poolSwap)
   })
 
   it('should compose from composable to buffer', () => {
@@ -76,6 +77,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

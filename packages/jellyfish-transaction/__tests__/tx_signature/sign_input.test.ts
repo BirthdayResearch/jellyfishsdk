@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
-import { SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { OP_CODES, OP_PUSHDATA, SIGHASH, Transaction, TransactionSigner, Vout } from '../../src'
+
 import { SHA256, HASH160, Elliptic } from '@defichain/jellyfish-crypto'
 
 describe('sign single input', () => {
@@ -13,7 +13,7 @@ describe('sign single input', () => {
           stack: []
         },
         sequence: 4294967278,
-        txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+        txid: '9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff'
       },
       {
         index: 1,
@@ -21,7 +21,7 @@ describe('sign single input', () => {
           stack: []
         },
         sequence: 4294967295,
-        txid: 'ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a'
+        txid: '8ac60eb9575db5b2d987e29f301b5b819ea83a5c6579d282d189cc04b8e151ef'
       }
     ],
     vout: [
@@ -75,11 +75,11 @@ describe('sign single input', () => {
       ellipticPair: keyPair
     }, SIGHASH.ALL)
 
-    expect(witness.scripts.length).toBe(2)
-    expect(witness.scripts[0].hex).toBe(
+    expect(witness.scripts.length).toStrictEqual(2)
+    expect(witness.scripts[0].hex).toStrictEqual(
       '30440220529a7ad524c004d68dc331cc2a5c339051da00d73c49cca28661eb1e44f73ad002200ac99a3fec7030528839ac33f7870c462d542d57662ae3f79966a997a0e9115a01'
     )
-    expect(witness.scripts[1].hex).toBe(
+    expect(witness.scripts[1].hex).toStrictEqual(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'
     )
   })
@@ -99,11 +99,11 @@ describe('sign single input', () => {
       }
     }, SIGHASH.ALL)
 
-    expect(witness.scripts.length).toBe(2)
-    expect(witness.scripts[0].hex).toBe(
+    expect(witness.scripts.length).toStrictEqual(2)
+    expect(witness.scripts[0].hex).toStrictEqual(
       '30440220529a7ad524c004d68dc331cc2a5c339051da00d73c49cca28661eb1e44f73ad002200ac99a3fec7030528839ac33f7870c462d542d57662ae3f79966a997a0e9115a01'
     )
-    expect(witness.scripts[1].hex).toBe(
+    expect(witness.scripts[1].hex).toStrictEqual(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'
     )
   })
@@ -123,11 +123,11 @@ describe('sign single input', () => {
       }
     }, SIGHASH.ALL)
 
-    expect(witness.scripts.length).toBe(2)
-    expect(witness.scripts[0].hex).not.toBe(
+    expect(witness.scripts.length).toStrictEqual(2)
+    expect(witness.scripts[0].hex).not.toStrictEqual(
       '304402203609e17b84f6a7d30c80bfa610b5b4542f32a8a0d5447a12fb1366d7f01cc44a0220573a954c4518331561406f90300e8f3358f51928d43c212a8caed02de67eebee01'
     )
-    expect(witness.scripts[1].hex).toBe(
+    expect(witness.scripts[1].hex).toStrictEqual(
       '025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee6357'
     )
   })

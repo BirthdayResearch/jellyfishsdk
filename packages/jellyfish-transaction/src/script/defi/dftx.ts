@@ -10,6 +10,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
+import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap
@@ -33,7 +34,7 @@ export interface DfTx<T> {
    * Not composed into buffer, for readability only.
    *
    * Name of operation in human readable string.
-   * Structured as 'DEFI_OP_<...>'
+   * Structured as 'OP_DEFI_TX_<...>'
    */
   name: string
 }
@@ -108,6 +109,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
       case CAnyAccountToAccount.OP_CODE:
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
+      case CAutoAuthPrep.OP_CODE:
+        return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

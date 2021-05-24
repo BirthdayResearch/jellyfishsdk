@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Bech32, WIF } from '@defichain/jellyfish-crypto'
-import { CTransaction, CTransactionSegWit, SignInputOption, TransactionSigner } from '../../src'
-import { OP_CODES } from '../../src/script'
+import { OP_CODES, CTransaction, CTransactionSegWit, SignInputOption, TransactionSigner } from '../../src'
 
 // From Address P2WPKH
 const input = {
@@ -19,7 +18,7 @@ it('bi-directional unsigned buffer', () => {
 
   const toBuffer = new SmartBuffer()
   tx.toBuffer(toBuffer)
-  expect(toBuffer.toBuffer().toString('hex')).toBe(unsigned)
+  expect(toBuffer.toBuffer().toString('hex')).toStrictEqual(unsigned)
 })
 
 it('bi-directional signed buffer', () => {
@@ -29,7 +28,7 @@ it('bi-directional signed buffer', () => {
   const toBuffer = new SmartBuffer()
   tx.toBuffer(toBuffer)
 
-  expect(toBuffer.toBuffer().toString('hex')).toBe(signed)
+  expect(toBuffer.toBuffer().toString('hex')).toStrictEqual(signed)
 })
 
 it('sign transaction', async () => {
@@ -55,5 +54,5 @@ it('sign transaction', async () => {
   const toBuffer = new SmartBuffer()
   txSigned.toBuffer(toBuffer)
 
-  expect(toBuffer.toBuffer().toString('hex')).toBe(signed)
+  expect(toBuffer.toBuffer().toString('hex')).toStrictEqual(signed)
 })

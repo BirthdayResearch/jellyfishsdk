@@ -1,5 +1,11 @@
 import { ApiClient } from '../.'
 
+export enum EstimateMode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
+}
+
 /**
  * Mining RPCs for DeFi Blockchain
  */
@@ -24,9 +30,28 @@ export class Mining {
   /**
    * Get minting-related information
    * @return {Promise<MintingInfo>}
+   * @deprecated Prefer using getMiningInfo.
    */
   async getMintingInfo (): Promise<MintingInfo> {
     return await this.client.call('getmintinginfo', [], 'number')
+  }
+
+  /**
+   * Get mining-related information, replaces deprecated getMintingInfo
+   * @return {Promise<MiningInfo>}
+   */
+  async getMiningInfo (): Promise<MiningInfo> {
+    return await this.client.call('getmininginfo', [], 'number')
+  }
+
+  /**
+   *
+   * @param {number} confirmationTarget in blocks (1 - 1008)
+   * @param {EstimateMode} [estimateMode=EstimateMode.CONSERVATIVE] estimateMode of fees.
+   * @returns {Promise<SmartFeeEstimation>}
+   */
+  async estimateSmartFee (confirmationTarget: number, estimateMode: EstimateMode = EstimateMode.CONSERVATIVE): Promise<SmartFeeEstimation> {
+    return await this.client.call('estimatesmartfee', [confirmationTarget, estimateMode], 'number')
   }
 }
 
@@ -48,4 +73,38 @@ export interface MintingInfo {
   pooledtx: number
   chain: 'main' | 'test' | 'regtest' | string
   warnings: string
+}
+
+/**
+ * Minting related information
+ */
+export interface MiningInfo {
+  blocks: number
+  currentblockweight?: number
+  currentblocktx?: number
+  difficulty: string
+  isoperator: boolean
+  masternodes: MasternodeInfo[]
+  networkhashps: number
+  pooledtx: number
+  chain: 'main' | 'test' | 'regtest' | string
+  warnings: string
+}
+
+/**
+ * Masternode related information
+ */
+export interface MasternodeInfo {
+  masternodeid?: string
+  masternodeoperator?: string
+  masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  generate?: boolean
+  mintedblocks?: number
+  lastblockcreationattempt?: string
+}
+
+export interface SmartFeeEstimation {
+  feerate?: number
+  errors?: string[]
+  blocks: number
 }

@@ -1,47 +1,66 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import {
-  createToken,
-  createPoolPair
-} from '../src'
+import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity } from '../src'
 
-describe('utils', () => {
-  const container = new MasterNodeRegTestContainer()
+const container = new MasterNodeRegTestContainer()
 
+beforeAll(async () => {
+  await container.start()
+  await container.waitForReady()
+  await container.waitForWalletCoinbaseMaturity()
+})
+
+afterAll(async () => {
+  await container.stop()
+})
+
+describe('createPoolPair', () => {
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(300)
+    await createToken(container, 'DOG')
   })
 
-  afterAll(async () => {
-    await container.stop()
+  it('should createPoolPair', async () => {
+    const before = await container.call('listpoolpairs')
+
+    const txid = await createPoolPair(container, 'DFI', 'DOG')
+    expect(typeof txid).toStrictEqual('string')
+
+    const after: Record<string, any> = await container.call('listpoolpairs')
+    expect(Object.keys(after).length).toStrictEqual(Object.keys(before).length + 1)
+
+    for (const poolpair of Object.values(after)) {
+      expect(poolpair.name).toStrictEqual('Default Defi token-DOG')
+    }
+
+    expect.assertions(3)
+  })
+})
+
+describe('add/remove pool pair liquidity', () => {
+  beforeAll(async () => {
+    await createToken(container, 'LPT')
+    await mintTokens(container, 'LPT', { mintAmount: 100 })
+    await utxosToAccount(container, 100)
+    await createPoolPair(container, 'DFI', 'LPT')
   })
 
-  describe('createPoolPair', () => {
-    beforeAll(async () => {
-      await createToken(container, 'DOG')
+  it('should add and remove liquidity', async () => {
+    const address = await container.getNewAddress()
+    const amount = await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 50,
+      tokenB: 'LPT',
+      amountB: 50,
+      shareAddress: address
+    })
+    expect(amount.toFixed(8)).toStrictEqual('49.99999000')
+
+    await removePoolLiquidity(container, {
+      address: address,
+      amountLP: amount,
+      tokenLP: 'DFI-LPT'
     })
 
-    it('should createPoolPair', async () => {
-      let assertions = 0
-
-      const poolpairsBefore = await container.call('listpoolpairs')
-      const poolpairsLengthBefore = Object.keys(poolpairsBefore).length
-
-      const data = await createPoolPair(container, 'DFI', 'DOG')
-      expect(typeof data).toBe('string')
-
-      const poolpairsAfter = await container.call('listpoolpairs')
-      expect(Object.keys(poolpairsAfter).length).toBe(poolpairsLengthBefore + 1)
-
-      for (const k in poolpairsAfter) {
-        const poolpair = poolpairsAfter[k]
-        if (poolpair.name === 'Default Defi token-DOG') {
-          assertions += 1
-        }
-      }
-      expect(assertions).toBe(1)
-    })
+    const shares: Record<string, any> = await container.call('listpoolshares')
+    expect(Object.keys(shares).length).toStrictEqual(0)
   })
 })

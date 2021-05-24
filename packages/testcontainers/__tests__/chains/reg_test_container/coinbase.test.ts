@@ -56,13 +56,13 @@ describe('coinbase maturity', () => {
         0, 9999999, [address]
       ])
 
-      expect(unspent[0].txid).toBe(txid)
-      expect(unspent[0].vout).toBe(vout)
-      expect(unspent[0].address).toBe(address)
-      expect(unspent[0].amount).toBe(10)
+      expect(unspent[0].txid).toStrictEqual(txid)
+      expect(unspent[0].vout).toStrictEqual(vout)
+      expect(unspent[0].address).toStrictEqual(address)
+      expect(unspent[0].amount).toStrictEqual(10)
 
-      expect(unspent[0].spendable).toBe(true)
-      expect(unspent[0].solvable).toBe(true)
+      expect(unspent[0].spendable).toStrictEqual(true)
+      expect(unspent[0].solvable).toStrictEqual(true)
     })
   })
 
@@ -72,16 +72,16 @@ describe('coinbase maturity', () => {
     const { txid } = await container.fundAddress(address, 1)
 
     const dumpprivkey = await container.call('dumpprivkey', [address])
-    expect(dumpprivkey).toBe(privKey)
+    expect(dumpprivkey).toStrictEqual(privKey)
 
     const getaddressinfo = await container.call('getaddressinfo', [address])
-    expect(getaddressinfo.pubkey).toBe(pubKey)
+    expect(getaddressinfo.pubkey).toStrictEqual(pubKey)
 
     return await waitForExpect(async () => {
       const unspent = await container.call('listunspent', [
         0, 9999999, [address]
       ])
-      expect(unspent[0].txid).toBe(txid)
+      expect(unspent[0].txid).toStrictEqual(txid)
     })
   })
 })

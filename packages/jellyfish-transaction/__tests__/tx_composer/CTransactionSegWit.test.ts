@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { CTransactionSegWit, TransactionSegWit } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { CTransactionSegWit, TransactionSegWit, OP_CODES, OP_PUSHDATA } from '../../src'
 import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CTransactionSegWit', () => {
@@ -45,24 +44,24 @@ describe('CTransactionSegWit', () => {
     }
     const segWit = new CTransactionSegWit(data)
 
-    expect(segWit.version).toBe(data.version)
-    expect(segWit.marker).toBe(data.marker)
-    expect(segWit.flag).toBe(data.flag)
+    expect(segWit.version).toStrictEqual(data.version)
+    expect(segWit.marker).toStrictEqual(data.marker)
+    expect(segWit.flag).toStrictEqual(data.flag)
 
-    expect(segWit.vin.length).toBe(data.vin.length)
-    expect(segWit.vin[0].txid).toBe(data.vin[0].txid)
-    expect(segWit.vin[0].index).toBe(data.vin[0].index)
-    expect(segWit.vin[0].script.stack.length).toBe(data.vin[0].script.stack.length)
-    expect(segWit.vin[0].sequence).toBe(data.vin[0].sequence)
+    expect(segWit.vin.length).toStrictEqual(data.vin.length)
+    expect(segWit.vin[0].txid).toStrictEqual(data.vin[0].txid)
+    expect(segWit.vin[0].index).toStrictEqual(data.vin[0].index)
+    expect(segWit.vin[0].script.stack.length).toStrictEqual(data.vin[0].script.stack.length)
+    expect(segWit.vin[0].sequence).toStrictEqual(data.vin[0].sequence)
 
-    expect(segWit.vout.length).toBe(data.vout.length)
-    expect(segWit.vout[0].value).toBe(data.vout[0].value)
-    expect(segWit.vout[0].script.stack.length).toBe(data.vout[0].script.stack.length)
+    expect(segWit.vout.length).toStrictEqual(data.vout.length)
+    expect(segWit.vout[0].value).toStrictEqual(data.vout[0].value)
+    expect(segWit.vout[0].script.stack.length).toStrictEqual(data.vout[0].script.stack.length)
 
-    expect(segWit.witness.length).toBe(data.witness.length)
-    expect(segWit.witness[0].scripts.length).toBe(data.witness[0].scripts.length)
+    expect(segWit.witness.length).toStrictEqual(data.witness.length)
+    expect(segWit.witness[0].scripts.length).toStrictEqual(data.witness[0].scripts.length)
 
-    expect(segWit.lockTime).toBe(data.lockTime)
+    expect(segWit.lockTime).toStrictEqual(data.lockTime)
   })
 
   describe('P2WPKH (SIGNED)', () => {
@@ -80,7 +79,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           sequence: 4294967278,
-          txid: 'fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f'
+          txid: '9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff'
         },
         {
           index: 1,
@@ -88,7 +87,7 @@ describe('CTransactionSegWit', () => {
             stack: []
           },
           sequence: 4294967295,
-          txid: 'ef51e1b804cc89d182d279655c3aa89e815b1b309fe287d9b2b55d57b90ec68a'
+          txid: '8ac60eb9575db5b2d987e29f301b5b819ea83a5c6579d282d189cc04b8e151ef'
         }
       ],
       vout: [
@@ -167,7 +166,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           sequence: 4294967294,
-          txid: 'db6b1b20aa0fd7b23880be2ecbd4a98130974cf4748fb66092ac4d3ceb1a5477'
+          txid: '77541aeb3c4dac9260b68f74f44c973081a9d4cb2ebe8038b2d70faa201b6bdb'
         }
       ],
       vout: [
@@ -237,7 +236,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           sequence: 4294967295,
-          txid: 'fe3dc9208094f3ffd12645477b3dc56f60ec4fa8e6f5d67c565d1c6b9216b36e'
+          txid: '6eb316926b1c5d567cd6f5e6a84fec606fc53d7b474526d1fff3948020c93dfe'
         },
         {
           index: 0,
@@ -245,7 +244,7 @@ describe('CTransactionSegWit', () => {
             stack: []
           },
           sequence: 4294967295,
-          txid: '0815cf020f013ed6cf91d29f4202e8a58726b1ac6c79da47c23d1bee0a6925f8'
+          txid: 'f825690aee1b3dc247da796cacb12687a5e802429fd291cfd63e010f02cf1508'
         }
       ],
       vout: [
@@ -308,7 +307,7 @@ describe('CTransactionSegWit', () => {
             ]
           },
           sequence: 4294967295,
-          txid: '36641869ca081e70f394c6948e8af409e18b619df2ed74aa106c1ca29787b96e'
+          txid: '6eb98797a21c6c10aa74edf29d618be109f48a8e94c694f3701e08ca69186436'
         }
       ],
       vout: [

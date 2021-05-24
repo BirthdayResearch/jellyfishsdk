@@ -85,22 +85,27 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   /**
    * Wait for master node wallet coin to be mature for spending.
    *
-   * A coinbase transaction must be 100 blocks deep before you can spend its outputs.
-   * This is a safeguard to prevent outputs that originate
-   * from the coinbase transaction from becoming un-spendable
-   * (in the event the mined block moves out of the active chain due to a fork).
+   * A coinbase transaction must be 100 blocks deep before you can spend its outputs. This is a
+   * safeguard to prevent outputs that originate from the coinbase transaction from becoming
+   * un-spendable (in the event the mined block moves out of the active chain due to a fork).
+   *
+   * @param {number} [timeout=90000] in ms
    */
   async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
     return await this.waitForCondition(async () => {
-      await this.generate(1)
       const count = await this.getBlockCount()
-      return count > 100
+      if (count > 100) {
+        return true
+      }
+      await this.generate(1)
+      return false
     }, timeout, 1)
   }
 
   /**
    * Wait for in wallet balance to be greater than an amount.
    * This allow test that require fund to wait for fund to be filled up before running the tests.
+   * This method will trigger block generate to get to the required balance faster.
    *
    * @param {number} balance to wait for in wallet to be greater than or equal
    * @param {number} [timeout=30000] in ms
@@ -109,8 +114,12 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
     return await this.waitForCondition(async () => {
       const getbalance = await this.call('getbalance')
-      return getbalance >= balance
-    }, timeout)
+      if (getbalance >= balance) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 1)
   }
 
   /**

@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: NPM Release Publishing
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-node@v2.1.5
+      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
           node-version: '15'
 
-      - uses: actions/github-script@v4.0.2
+      - uses: actions/github-script@a3e7071a34d7e1f219a8a4de9a5e0a34d1ee1293
         id: version
         with:
           script: |

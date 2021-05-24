@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { CVoutV2, CVoutV4, Vout } from '../../src'
-import { OP_CODES, OP_PUSHDATA } from '../../src/script'
+import { CVoutV2, CVoutV4, Vout, OP_CODES, OP_PUSHDATA } from '../../src'
 import { expectHexBufferToObject, expectObjectToHexBuffer } from './index'
 
 describe('CVoutV2', () => {
@@ -178,7 +177,7 @@ describe('CVoutV4', () => {
       const composable = new CVoutV2(SmartBuffer.fromBuffer(
         Buffer.from(hex, 'hex')
       ))
-      expect(composable.value).toEqual(data.value)
+      expect(composable.value).toStrictEqual(data.value)
     })
 
     it('should compose from Object to Composable to Buffer', () => {
@@ -203,7 +202,7 @@ describe('CVoutV4', () => {
       const composable = new CVoutV2(SmartBuffer.fromBuffer(
         Buffer.from(hex, 'hex')
       ))
-      expect(composable.value).toEqual(data.value)
+      expect(composable.value).toStrictEqual(data.value)
     })
 
     it('should compose from Object to Composable to Buffer', () => {

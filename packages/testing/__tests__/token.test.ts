@@ -30,11 +30,12 @@ describe('utils', () => {
         tokensLengthBefore = Object.keys(tokens).length
       })
 
-      await createToken(container, 'DDD')
+      const tokenId = await createToken(container, 'DDD')
+      expect(tokenId).toBeGreaterThan(0)
 
       await waitForExpect(async () => {
         const tokens = await container.call('listtokens')
-        expect(Object.keys(tokens).length).toBe(tokensLengthBefore + 1)
+        expect(Object.keys(tokens).length).toStrictEqual(tokensLengthBefore + 1)
       })
 
       const tokens = await container.call('listtokens')
@@ -44,7 +45,7 @@ describe('utils', () => {
           assertions += 1
         }
       }
-      expect(assertions).toBe(1)
+      expect(assertions).toStrictEqual(1)
     })
   })
 
@@ -58,7 +59,7 @@ describe('utils', () => {
       for (const k in tokensBefore) {
         const tokenBefore = tokensBefore[k]
         if (tokenBefore.symbol === 'DOA') {
-          expect(tokenBefore.minted).toBe(0)
+          expect(tokenBefore.minted).toStrictEqual(0)
         }
       }
 
@@ -68,7 +69,7 @@ describe('utils', () => {
       for (const k in tokensAfter) {
         const tokenAfter = tokensAfter[k]
         if (tokenAfter.symbol === 'DOA') {
-          expect(tokenAfter.minted).toBe(2000)
+          expect(tokenAfter.minted).toStrictEqual(2000)
         }
       }
     })

@@ -8,12 +8,12 @@ describe('Transaction', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(v2, 'hex'))
     const composable = new CTransaction(buffer)
 
-    expect(composable.vin[0].txid).toBe('0000000000000000000000000000000000000000000000000000000000000000')
-    expect(composable.vout.length).toBe(3)
+    expect(composable.vin[0].txid).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000000')
+    expect(composable.vout.length).toStrictEqual(3)
 
     expect(composable.vout[0].tokenId).toBeUndefined()
-    expect(composable.vout[0].value.toString()).toBe('194.99933826')
-    expect(composable.vout[0].script.stack.length).toBe(5)
+    expect(composable.vout[0].value.toString()).toStrictEqual('194.99933826')
+    expect(composable.vout[0].script.stack.length).toStrictEqual(5)
   })
 
   it('should bi-directional buffer to object to buffer', () => {
@@ -26,7 +26,7 @@ describe('Transaction', () => {
     const toBuffer = new SmartBuffer()
     txn.toBuffer(toBuffer)
 
-    expect(toBuffer.toBuffer().toString('hex')).toBe(v2)
+    expect(toBuffer.toBuffer().toString('hex')).toStrictEqual(v2)
   })
 })
 
@@ -37,12 +37,12 @@ describe('TransactionSegWit', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(v2, 'hex'))
     const composable = new CTransactionSegWit(buffer)
 
-    expect(composable.vin.length).toBe(1)
+    expect(composable.vin.length).toStrictEqual(1)
 
-    expect(composable.vout.length).toBe(3)
+    expect(composable.vout.length).toStrictEqual(3)
     expect(composable.vout[0].tokenId).toBeUndefined()
-    expect(composable.vout[0].value.toString()).toBe('194.99933826')
-    expect(composable.vout[0].script.stack.length).toBe(5)
+    expect(composable.vout[0].value.toString()).toStrictEqual('194.99933826')
+    expect(composable.vout[0].script.stack.length).toStrictEqual(5)
   })
 
   it('should bi-directional buffer to object to buffer', () => {
@@ -55,6 +55,6 @@ describe('TransactionSegWit', () => {
     const toBuffer = new SmartBuffer()
     txn.toBuffer(toBuffer)
 
-    expect(toBuffer.toBuffer().toString('hex')).toBe(v2)
+    expect(toBuffer.toBuffer().toString('hex')).toStrictEqual(v2)
   })
 })

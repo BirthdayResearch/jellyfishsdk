@@ -10,7 +10,7 @@ describe('keySet 1', () => {
     const wifDecoded = WIF.decode(keySet.wif)
     const privKey = wifDecoded.privateKey
     const pubKey = await Elliptic.fromPrivKey(privKey).publicKey()
-    expect(Bech32.fromPubKey(pubKey, 'bcrt')).toBe(keySet.bech32)
+    expect(Bech32.fromPubKey(pubKey, 'bcrt')).toStrictEqual(keySet.bech32)
   })
 })
 
@@ -24,6 +24,6 @@ describe('keySet 2', () => {
     const wifDecoded = WIF.decode(keySet.wif)
     const privKey = wifDecoded.privateKey
     const pubKey = await Elliptic.fromPrivKey(privKey).publicKey()
-    expect(Bech32.fromPubKey(pubKey, 'bcrt')).toBe(keySet.bech32)
+    expect(Bech32.fromPubKey(pubKey, 'bcrt')).toStrictEqual(keySet.bech32)
   })
 })

@@ -1,8 +1,9 @@
-import { SmartBuffer } from 'smart-buffer'
 import BigNumber from 'bignumber.js'
+import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/defi'
+import { OP_CODES } from '../../../../src'
+import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { CTokenMint, TokenMint } from '../../../../src/script/defi/dftx_token'
-import { OP_CODES, toBuffer, toOPCodes } from '../../../../src/script'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -15,8 +16,8 @@ it('should bi-directional buffer-object-buffer', () => {
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x4d)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x4d)
   })
 })
 
@@ -38,7 +39,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
@@ -46,7 +47,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CTokenMint(buffer)
 
-    expect(composable.toObject()).toEqual(tokenMint)
+    expect(composable.toObject()).toStrictEqual(tokenMint)
   })
 
   it('should compose from composable to buffer', () => {
@@ -54,6 +55,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

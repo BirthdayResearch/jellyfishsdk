@@ -27,12 +27,12 @@ it('should format (4 bytes, 32 bytes, 8 bytes) hex with hexAsBufferLE', () => {
     '01aa535d3d0c0000'
   ])
   expect(buffer.toString('hex'))
-    .toBe('00080008fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f01aa535d3d0c0000')
+    .toStrictEqual('00080008fff7f7881a8099afa6940d42d1e7f6362bec38171ea3edf433541db4e4ad969f01aa535d3d0c0000')
 })
 
 function shouldFromBuffer<T> (composer: BufferComposer, hex: string | string[], val: T, getter: () => T): void {
   composer.fromBuffer(hexAsBuffer(hex))
-  expect(getter()).toEqual(val)
+  expect(getter()).toStrictEqual(val)
 }
 
 function shouldToBuffer<T> (composer: BufferComposer, hex: string | string[], val: T, setter: (v: T) => void): void {
@@ -40,7 +40,7 @@ function shouldToBuffer<T> (composer: BufferComposer, hex: string | string[], va
   const buffer: SmartBuffer = new SmartBuffer()
   composer.toBuffer(buffer)
   const expected: SmartBuffer = hexAsBuffer(hex)
-  expect(buffer.toString('hex')).toBe(expected.toString('hex'))
+  expect(buffer.toString('hex')).toStrictEqual(expected.toString('hex'))
 }
 
 describe('ComposableBuffer deep implementation', () => {
@@ -137,19 +137,19 @@ describe('ComposableBuffer deep implementation', () => {
     const buffer = new SmartBuffer()
     root.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toBe(hex)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 
   it('CRoot to JSON deeply compare', () => {
     const root = new CRoot(data)
-    expect(JSON.stringify(root.toObject())).toBe(JSON.stringify(data))
+    expect(JSON.stringify(root.toObject())).toStrictEqual(JSON.stringify(data))
   })
 
   it('buffer to CRoot', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     const root = new CRoot(buffer)
 
-    expect(JSON.stringify(root.toObject())).toBe(JSON.stringify(data))
+    expect(JSON.stringify(root.toObject())).toStrictEqual(JSON.stringify(data))
   })
 })
 
@@ -160,14 +160,14 @@ describe('ComposableBuffer.empty', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from('0001', 'hex'))
     composer.toBuffer(buffer)
 
-    expect(buffer.readUInt8()).toBe(0)
+    expect(buffer.readUInt8()).toStrictEqual(0)
   })
 
   it('fromBuffer should do nothing', () => {
     const buffer = new SmartBuffer()
     composer.fromBuffer(buffer)
 
-    expect(buffer.length).toBe(0)
+    expect(buffer.length).toStrictEqual(0)
   })
 })
 
@@ -409,7 +409,7 @@ describe('ComposableBuffer.hex', () => {
   it('should fromBuffer', () => {
     composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
 
-    expect(value).toBe('9ea83a5c6579d282d189cc04b8e151ef')
+    expect(value).toStrictEqual('9ea83a5c6579d282d189cc04b8e151ef')
   })
 
   it('should toBuffer', () => {
@@ -418,7 +418,7 @@ describe('ComposableBuffer.hex', () => {
     const buffer = new SmartBuffer()
     composer.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toBe(expectedBuffer.toString('hex'))
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
   })
 
   it('should not have side effect when reading and writing', () => {
@@ -427,7 +427,7 @@ describe('ComposableBuffer.hex', () => {
     const to = new SmartBuffer()
     composer.toBuffer(to)
 
-    expect(from.toString()).toBe(to.toString())
+    expect(from.toString()).toStrictEqual(to.toString())
   })
 
   it('should fail toBuffer validate', () => {
@@ -436,6 +436,186 @@ describe('ComposableBuffer.hex', () => {
     expect(() => {
       composer.toBuffer(new SmartBuffer())
     }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
+  })
+})
+
+describe('ComposableBuffer.hexBE', () => {
+  const composer = ComposableBuffer.hexBEBufferLE(16, () => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('ef51e1b804cc89d182d279655c3aa89e')
+  })
+
+  it('should toBuffer', () => {
+    value = 'ef51e1b804cc89d182d279655c3aa89e'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
+  })
+
+  it('should fail toBuffer validate', () => {
+    value = '9ea83a5c6579d282d189cc04b8e151ef1'
+
+    expect(() => {
+      composer.toBuffer(new SmartBuffer())
+    }).toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
+  })
+})
+
+describe('ComposableBuffer.utf8LE', () => {
+  const composer = ComposableBuffer.utf8LE(7, () => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.from('CTB-IFD', 'utf-8')
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('DFI-BTC')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-BTC'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toStrictEqual(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
+  })
+
+  it('should fail toBuffer validate', () => {
+    value = 'ef'
+
+    expect(() => {
+      composer.toBuffer(new SmartBuffer())
+    }).toThrow('ComposableBuffer.utf8LE.toBuffer invalid as length != getter().length')
+  })
+})
+
+describe('ComposableBuffer.utf8BE', () => {
+  const composer = ComposableBuffer.utf8BE(15, () => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.from('DeFi Blockchain', 'utf-8')
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('DeFi Blockchain')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DeFi Blockchain'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toStrictEqual(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
+  })
+
+  it('should fail toBuffer validate', () => {
+    value = 'ef'
+
+    expect(() => {
+      composer.toBuffer(new SmartBuffer())
+    }).toThrow('ComposableBuffer.utf8BE.toBuffer invalid as length != getter().length')
+  })
+})
+
+describe('ComposableBuffer.varUIntUtf8LE', () => {
+  const composer = ComposableBuffer.varUIntUtf8LE(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([19]),
+    Buffer.from('CTB-IFD-IFD-IFD-IFD', 'utf-8')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('DFI-DFI-DFI-DFI-BTC')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-DFI-DFI-DFI-BTC'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toStrictEqual(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
+  })
+})
+
+describe('ComposableBuffer.varUIntUtf8BE', () => {
+  const composer = ComposableBuffer.varUIntUtf8BE(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([15]),
+    Buffer.from('DFI-ETH-BTC-DFI', 'utf-8')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('DFI-ETH-BTC-DFI')
+  })
+
+  it('should toBuffer', () => {
+    value = 'DFI-ETH-BTC-DFI'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('utf-8')).toStrictEqual(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
   })
 })
 
@@ -760,7 +940,7 @@ describe('ComposableBuffer.varUInt', () => {
       buffer.writeUInt16LE(0x03e8)
 
       composer.fromBuffer(buffer)
-      expect(value).toBe(1000)
+      expect(value).toStrictEqual(1000)
     })
 
     it('should toBuffer', () => {
@@ -770,7 +950,7 @@ describe('ComposableBuffer.varUInt', () => {
       composer.toBuffer(buffer)
 
       const expected = Buffer.from('fde803', 'hex')
-      expect(buffer.toString()).toBe(expected.toString())
+      expect(buffer.toString()).toStrictEqual(expected.toString())
     })
   })
 
@@ -781,7 +961,7 @@ describe('ComposableBuffer.varUInt', () => {
       buffer.writeUInt32LE(0x000186a0)
 
       composer.fromBuffer(buffer)
-      expect(value).toBe(100000)
+      expect(value).toStrictEqual(100000)
     })
 
     it('should toBuffer', () => {
@@ -791,7 +971,7 @@ describe('ComposableBuffer.varUInt', () => {
       composer.toBuffer(buffer)
 
       const expected = Buffer.from('fea0860100', 'hex')
-      expect(buffer.toString()).toBe(expected.toString())
+      expect(buffer.toString()).toStrictEqual(expected.toString())
     })
   })
 
@@ -802,7 +982,7 @@ describe('ComposableBuffer.varUInt', () => {
       buffer.writeBigInt64LE(BigInt(10000000000))
 
       composer.fromBuffer(buffer)
-      expect(value).toBe(10000000000)
+      expect(value).toStrictEqual(10000000000)
     })
 
     it('should toBuffer', () => {
@@ -812,7 +992,7 @@ describe('ComposableBuffer.varUInt', () => {
       composer.toBuffer(buffer)
 
       const expected = Buffer.from('ff00e40b5402000000', 'hex')
-      expect(buffer.toString()).toBe(expected.toString())
+      expect(buffer.toString()).toStrictEqual(expected.toString())
     })
   })
 

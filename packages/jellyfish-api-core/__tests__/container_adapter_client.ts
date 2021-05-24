@@ -30,8 +30,8 @@ export class ContainerAdapterClient extends ApiClient {
       result: precision
     })
 
-    if (error !== undefined && error !== null) {
-      throw new RpcApiError(error)
+    if (error != null) {
+      throw new RpcApiError({ ...error, rpcMethod: method })
     }
 
     return result

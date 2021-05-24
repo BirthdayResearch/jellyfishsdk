@@ -32,10 +32,6 @@ describe('utxosToAccount', () => {
 })
 
 describe('accountToAccount', () => {
-  beforeAll(async () => {
-    await container.generate(100)
-  })
-
   it('should accountToAccount', async () => {
     const symbol = 'DAD'
     const from = await container.call('getnewaddress')
@@ -44,13 +40,12 @@ describe('accountToAccount', () => {
 
     const to = await container.call('getnewaddress')
     await accountToAccount(container, symbol, 6, { from, to })
-    await container.generate(1)
 
     const accounts = await container.call('listaccounts')
     const account = accounts.find((acc: any) => acc.amount === `6.00000000@${symbol}`)
 
     expect(account.owner.addresses.length).toBeGreaterThan(0)
-    expect(account.owner.addresses[0]).toBe(to)
+    expect(account.owner.addresses[0]).toStrictEqual(to)
   })
 })
 
@@ -69,7 +64,6 @@ describe('sendTokensToAddress', () => {
     const address = await container.call('getnewaddress')
     await sendTokensToAddress(container, address, 11, 'TTA')
 
-    await container.generate(1)
     const account = await container.call('getaccount', [address])
     expect(account).toStrictEqual(['11.00000000@TTA'])
   })
