@@ -71,11 +71,15 @@ export interface TxOut {
   tokenId: number
 }
 
-export async function findOut (outs: TxOut[], pair: EllipticPair): Promise<TxOut> {
+export async function findOuts (outs: TxOut[], pair: EllipticPair): Promise<TxOut[]> {
   const pubKey = await pair.publicKey()
   const address = Bech32.fromPubKey(pubKey, 'bcrt')
 
   return outs.filter(value => {
     return value.scriptPubKey.addresses?.includes(address)
-  })[0]
+  })
+}
+
+export async function findOut (outs: TxOut[], pair: EllipticPair): Promise<TxOut> {
+  return (await findOuts(outs, pair))[0]
 }

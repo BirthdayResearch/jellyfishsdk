@@ -20,13 +20,17 @@ export enum TxnBuilderErrorType {
    */
   SIGN_TRANSACTION_ERROR,
   /**
-   * Conversion output `TokenBalance` array length must be one
+   * Invalid conversion output `TokenBalance`, must consist only valid DFI balance
    */
   INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
   /**
    * Invalid input `TokenBalances` array length must be one
    */
-  INVALID_ADD_LIQUIDITY_INPUT
+  INVALID_ADD_LIQUIDITY_INPUT,
+  /**
+   * Invalid conversion input `TokenBalances`, must consist only valid DFI balance
+   */
+  INVALID_ACCOUNT_TO_UTXOS_INPUT
 }
 
 /**

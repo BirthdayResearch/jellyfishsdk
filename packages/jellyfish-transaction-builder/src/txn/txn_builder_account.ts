@@ -1,5 +1,6 @@
-import { UtxosToAccount } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_account'
-import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
+import BigNumber from 'bignumber.js'
+import { AccountToAccount, AccountToUtxos, UtxosToAccount } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_account'
+import { DeFiTransactionConstants, OP_CODES, Script, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
@@ -9,8 +10,9 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
    *
    * @param {UtxosToAccount} utxosToAccount txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-   * @throws {TxnBuilderError} if 'utxosToAccount.to' and 'utxosToAccount.to[0].balances' is not `1`
+   * @throws {TxnBuilderError} if 'utxosToAccount.to' and 'utxosToAccount.to[0].balances' length is not `1`
    * @throws {TxnBuilderError} if 'utxosToAccount.to' and 'utxosToAccount.to[0].balances[0].token' is not `0`
+   * @returns {Promise<TransactionSegWit>}
    */
   async utxosToAccount (utxosToAccount: UtxosToAccount, changeScript: Script): Promise<TransactionSegWit> {
     if (utxosToAccount.to.length !== 1) {
@@ -36,6 +38,80 @@ export class TxnBuilderAccount extends P2WPKHTxnBuilder {
       OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount),
       changeScript,
       amountToConvert
+    )
+  }
+
+  /**
+   *
+   * @param {AccountToUtxos} accountToUtxos txn to create
+   * @param {Script} destinationScript vout destination, for both utxos minted and change after deducted fee
+   * @throws {TxnBuilderError} if 'accountToUtxos.balances' length is not `1`
+   * @throws {TxnBuilderError} if 'accountToUtxos.balances[0].token' is not `0`
+   * @throws {TxnBuilderError} if 'accountToUtxos.mintingOutputsStart' is not `2`, vout[0] = DfTx, vout[1] = change, vout[2] = new minted utxos
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async accountToUtxos (accountToUtxos: AccountToUtxos, destinationScript: Script): Promise<TransactionSegWit> {
+    if (accountToUtxos.balances.length !== 1) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
+        'Conversion output `accountToUtxos.balances` array length must be one'
+      )
+    }
+
+    if (accountToUtxos.balances[0].token !== 0x00) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
+        '`accountToUtxos.balances[0].token` must be 0x00, only DFI support'
+      )
+    }
+
+    if (accountToUtxos.mintingOutputsStart !== 2) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ACCOUNT_TO_UTXOS_INPUT,
+        '`accountToUtxos.mintingOutputsStart` must be `2` for simplicity'
+      )
+    }
+
+    const minFee = new BigNumber(0.001)
+    const { prevouts, vin, total } = await this.collectPrevouts(minFee)
+
+    const deFiOut: Vout = {
+      value: new BigNumber(0),
+      script: {
+        stack: [
+          OP_CODES.OP_RETURN,
+          OP_CODES.OP_DEFI_TX_ACCOUNT_TO_UTXOS(accountToUtxos)
+        ]
+      },
+      tokenId: 0x00
+    }
+
+    const out: Vout = {
+      value: accountToUtxos.balances[0].amount,
+      script: destinationScript,
+      tokenId: 0x00
+    }
+
+    const change: Vout = {
+      value: total,
+      script: destinationScript,
+      tokenId: 0x00
+    }
+
+    const txn: Transaction = {
+      version: DeFiTransactionConstants.Version,
+      vin: vin,
+      vout: [deFiOut, change, out],
+      lockTime: 0x00000000
+    }
+
+    const fee = await this.calculateFee(txn)
+    change.value = total.minus(fee)
+
+    return await this.sign(txn, prevouts)
+  }
+
+  async accountToAccount (accountToAccount: AccountToAccount, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ACCOUNT_TO_ACCOUNT(accountToAccount),
+      changeScript
     )
   }
 }
