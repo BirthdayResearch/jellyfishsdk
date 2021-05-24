@@ -535,20 +535,29 @@ describe('masternode', () => {
 
     it('should utxosToAccount with utxos', async () => {
       const from = await container.getNewAddress()
+      const to1 = await container.getNewAddress()
+      const to2 = await container.getNewAddress()
+
       await createToken(from, 'DABC', 5)
       await createToken(from, 'DDEF', 5)
 
+      const payload: UtxosToAccountPayload = {}
+      payload[to1] = '5@DABC'
+      payload[to2] = '5@DDEF'
+
+      const txid = await container.call('sendmany', ['', {
+        [to1]: 10,
+        [to2]: 20
+      }])
+
       const utxos = await container.call('listunspent')
-      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+
+      const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
         }
       })
-
-      const payload: UtxosToAccountPayload = {}
-      payload[await container.getNewAddress()] = '5@DABC'
-      payload[await container.getNewAddress()] = '5@DDEF'
 
       const data = await client.account.accountToAccount(from, payload, inputs)
 
