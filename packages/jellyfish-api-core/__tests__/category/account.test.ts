@@ -292,7 +292,7 @@ describe('masternode', () => {
     it('should getTokenBalances with pagination limit', async () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances()
-        expect(tokenBalances.length).toBe(2)
+        expect(tokenBalances.length).toBe(3)
       })
       const pagination = {
         limit: 1
