@@ -571,8 +571,7 @@ describe('masternode', () => {
       payload[await container.getNewAddress()] = '5@DJKL'
 
       const utxos = await container.call('listunspent')
-
-      const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
+      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
@@ -588,14 +587,13 @@ describe('masternode', () => {
     it('should not accountToAccount with utxos for DFI coin if does not own the recipient address', async () => {
       const from = await container.getNewAddress()
 
+      const { txid } = await container.fundAddress(from, 10)
+
       const payload: AccountToAccountPayload = {}
       payload['2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz'] = '5@DFI'
 
-      const { txid } = await container.fundAddress(from, 10)
-
       const utxos = await container.call('listunspent')
-
-      const inputs = utxos.filter((utxo: any) => utxo.txid === txid).map((utxo: any) => {
+      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout

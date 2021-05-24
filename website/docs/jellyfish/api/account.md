@@ -170,7 +170,7 @@ Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.accountToAccount()"
 interface account {
-  accountToAccount (from: string, payload: AccountToAccountPayload, utxos: AccountToAccountUTXO[] = []): Promise<string> {
+  accountToAccount (from: string, payload: AccountToAccountPayload, utxos: AccountToAccountUTXO[] = []): Promise<string>
 }
 
 interface AccountToAccountPayload {
