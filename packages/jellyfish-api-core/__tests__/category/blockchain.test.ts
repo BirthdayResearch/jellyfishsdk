@@ -265,8 +265,8 @@ describe('masternode', () => {
     })
 
     it('should getDifficulty', async () => {
-      const getdifficulty = await client.blockchain.getDifficulty()
-      expect(getdifficulty).toBeGreaterThanOrEqual(0)
+      const difficulty = await client.blockchain.getDifficulty()
+      expect(difficulty).toBeGreaterThanOrEqual(0)
     })
   })
 

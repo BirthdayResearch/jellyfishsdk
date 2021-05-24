@@ -111,8 +111,9 @@ export class Blockchain {
   }
 
   /**
-   * Get difficulty of everything.
-   * Return difficulty as number.
+   * Get difficulty of chain.
+   *
+   * @return {Promise<number>}
    */
   async getDifficulty (): Promise<number> {
     return await this.client.call('getdifficulty', [], 'number')
