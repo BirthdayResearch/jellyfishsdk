@@ -10,6 +10,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
+import { CCreateMasterNode, CreateMasterNode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
@@ -111,6 +112,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
+      case CCreateMasterNode.OP_CODE:
+        return compose<CreateMasterNode>(CCreateMasterNode.OP_NAME, d => new CCreateMasterNode(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

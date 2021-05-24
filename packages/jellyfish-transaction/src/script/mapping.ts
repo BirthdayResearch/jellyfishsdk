@@ -30,6 +30,7 @@ import {
   UtxosToAccount
 } from './defi/dftx_account'
 import { CAutoAuthPrep } from './defi/dftx_misc'
+import { CCreateMasterNode, CreateMasterNode } from './defi/dftx_masternode'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -189,6 +190,14 @@ export const OP_CODES = {
       type: CAutoAuthPrep.OP_CODE,
       name: CAutoAuthPrep.OP_NAME,
       data: null
+    })
+  },
+  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasterNode): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateMasterNode.OP_CODE,
+      name: CCreateMasterNode.OP_NAME,
+      data: createMasterNode
     })
   },
 
