@@ -215,7 +215,7 @@ export class Wallet {
   }
 
   /**
-   * Send given amounts to multiple given address and return a transaction id
+   * Send given amounts to multiple given address and return a transaction id.
    *
    * @param {Record<string, number>} amounts Dictionary/map with individual addresses and amounts
    * @param {string[]} subtractfeefrom Array of addresses from which fee needs to be deducted.

@@ -634,7 +634,7 @@ describe('masternode', () => {
 })
 
 describe('sendMany', () => {
-  // NOTE(sp): defid side(c++) does not have much tests for sendmany RPC atm.
+  // NOTE(surangap): defid side(c++) does not have much tests for sendmany RPC atm.
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -642,175 +642,131 @@ describe('sendMany', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(101)
   })
 
   afterAll(async () => {
     await container.stop()
   })
 
-  // util functions NOTE(sp) : may be move to a common util file if possible ??
-  /**
-   * Returns matching utxos for given transaction id and address.
-   *
-   * @param {string} txId transaction id
-   * @param {string} address address
-   * @return {Promise<UTXO[]>} matching UTXO[]
-   */
+  // Returns matching utxos for given transaction id and address.
   const getMatchingUTXO = async (txId: string, address: string): Promise<UTXO[]> => {
     const options: ListUnspentOptions = {
       addresses: [address]
     }
-    const matchingUTXOs: UTXO[] = []
 
-    const listUnspent = async (): Promise<void> => {
-      const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
-      utxos.forEach(utxo => {
-        expect(utxo.address).toBe(address)
-        if (utxo.txid === txId) {
-          matchingUTXOs.push(utxo)
-        }
-      })
-    }
-    await listUnspent()
-    return matchingUTXOs
-  }
-
-  //= ==============================================================================================
-  it('should getBalance >= 100', async () => {
-    return await waitForExpect(async () => {
-      const balance: BigNumber = await client.wallet.getBalance()
-      expect(balance.isGreaterThan(new BigNumber('100'))).toBe(true)
+    const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
+    return utxos.filter((utxo) => {
+      return (utxo.address === address) && (utxo.txid === txId)
     })
-  })
+  }
 
   it('should send one address using sendMany', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001 }
-    return await waitForExpect(async () => {
-      const transactionId = await client.wallet.sendMany(amounts)
-      expect(typeof transactionId).toBe('string')
+    const transactionId = await client.wallet.sendMany(amounts)
+    expect(typeof transactionId).toBe('string')
 
-      // generate one block
-      await container.generate(1)
+    // generate one block
+    await container.generate(1)
 
-      // check the corresponding UTXO
-      const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-      // In this case the we should only have one matching utxo
-      expect(utxos.length).toBe(1)
-      utxos.forEach(utxo => {
-        expect(utxo.address).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-        expect(utxo.amount.isEqualTo(0.00001)).toBe(true)
-      })
+    // check the corresponding UTXO
+    const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    // In this case the we should only have one matching utxo
+    expect(utxos.length).toStrictEqual(1)
+    utxos.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00001))
     })
   })
 
   it('should send multiple address using sendMany', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001, mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002 }
-    return await waitForExpect(async () => {
-      const transactionId = await client.wallet.sendMany(amounts)
-      expect(typeof transactionId).toBe('string')
+    const transactionId = await client.wallet.sendMany(amounts)
+    expect(typeof transactionId).toBe('string')
 
-      // generate one block
-      await container.generate(1)
+    // generate one block
+    await container.generate(1)
 
-      // check the corresponding UTXOs
-      const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-      // In this case the we should only have one matching utxo
-      expect(utxos.length).toBe(1)
-      utxos.forEach(utxo => {
-        expect(utxo.address).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-        expect(utxo.amount.isEqualTo(0.00001)).toBe(true)
-      })
+    // check the corresponding UTXOs
+    const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    // In this case the we should only have one matching utxo
+    expect(utxos.length).toStrictEqual(1)
+    utxos.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00001))
+    })
 
-      const utxos2 = await getMatchingUTXO(transactionId, 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-      // In this case the we should only have one matching utxo
-      expect(utxos2.length).toBe(1)
-      utxos2.forEach(utxo => {
-        expect(utxo.address).toBe('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-        expect(utxo.amount.isEqualTo(0.00002)).toBe(true)
-      })
+    const utxos2 = await getMatchingUTXO(transactionId, 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+    // In this case the we should only have one matching utxo
+    expect(utxos2.length).toStrictEqual(1)
+    utxos2.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00002))
     })
   })
 
   it('should sendMany with comment', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001, mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002 }
-    return await waitForExpect(async () => {
-      const options: SendManyOptions = {
-        comment: 'test comment'
-      }
-      const transactionId = await client.wallet.sendMany(amounts, [], options)
-
-      expect(typeof transactionId).toBe('string')
-
-      // NOTE(sp): How to test the comment is there and where
-    })
+    const options: SendManyOptions = {
+      comment: 'test comment'
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toBe('string')
   })
 
   it('should sendMany with replaceable', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001, mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002 }
-    return await waitForExpect(async () => {
-      const options: SendManyOptions = {
-        replaceable: true
-      }
-      const transactionId = await client.wallet.sendMany(amounts, [], options)
-
-      expect(typeof transactionId).toBe('string')
-    })
+    const options: SendManyOptions = {
+      replaceable: true
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toBe('string')
   })
 
   it('should sendMany with confTarget', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001, mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002 }
-    return await waitForExpect(async () => {
-      const options: SendManyOptions = {
-        confTarget: 60
-      }
-      const transactionId = await client.wallet.sendMany(amounts, [], options)
-
-      expect(typeof transactionId).toBe('string')
-
-      // NOTE(sp): How to test the effect of confTarget
-    })
+    const options: SendManyOptions = {
+      confTarget: 60
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toBe('string')
   })
 
   it('should sendMany with estimateMode', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001, mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002 }
-    return await waitForExpect(async () => {
-      const options: SendManyOptions = {
-        estimateMode: Mode.ECONOMICAL
-      }
-      const transactionId = await client.wallet.sendMany(amounts, [], options)
-
-      expect(typeof transactionId).toBe('string')
-    })
+    const options: SendManyOptions = {
+      estimateMode: Mode.ECONOMICAL
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toBe('string')
   })
 
   it('should sendMany with fee substracted from mentioned recipients', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001, mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 10.5 }
     const subtractFeeFrom: string [] = ['mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy']
-    return await waitForExpect(async () => {
-      const transactionId = await client.wallet.sendMany(amounts, subtractFeeFrom)
-      expect(typeof transactionId).toBe('string')
+    const transactionId = await client.wallet.sendMany(amounts, subtractFeeFrom)
+    expect(typeof transactionId).toBe('string')
 
-      // generate one block
-      await container.generate(1)
+    // generate one block
+    await container.generate(1)
 
-      // check the corresponding UTXOs
-      const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-      // In this case the we should only have one matching utxo
-      expect(utxos.length).toBe(1)
-      utxos.forEach(utxo => {
-        expect(utxo.address).toBe('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
-        // amount should be equal to 0.00001
-        expect(utxo.amount.isEqualTo(0.00001)).toBe(true)
-      })
+    // check the corresponding UTXOs
+    const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    // In this case the we should only have one matching utxo
+    expect(utxos.length).toStrictEqual(1)
+    utxos.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      // amount should be equal to 0.00001
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00001))
+    })
 
-      const utxos2 = await getMatchingUTXO(transactionId, 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-      // In this case the we should only have one matching utxo
-      expect(utxos2.length).toBe(1)
-      utxos2.forEach(utxo => {
-        expect(utxo.address).toBe('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
-        // amount should be less than 10.5
-        expect(utxo.amount.isLessThan(10.5)).toBe(true)
-      })
+    const utxos2 = await getMatchingUTXO(transactionId, 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+    // In this case the we should only have one matching utxo
+    expect(utxos2.length).toStrictEqual(1)
+    utxos2.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+      // amount should be less than 10.5
+      expect(utxo.amount.isLessThan(10.5)).toBe(true)
     })
   })
 })
