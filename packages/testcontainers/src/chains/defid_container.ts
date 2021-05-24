@@ -22,7 +22,7 @@ export interface StartOptions {
 export abstract class DeFiDContainer extends DockerContainer {
   /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
   public static readonly PREFIX = 'defichain-testcontainers-'
-  public static readonly image = 'defi/defichain:HEAD-75b1420'
+  public static readonly image = 'defi/defichain:1.7.0-rc.5'
 
   public static readonly DefaultStartOptions = {
     user: 'testcontainers-user',
