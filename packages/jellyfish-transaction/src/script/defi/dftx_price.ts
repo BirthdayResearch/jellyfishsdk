@@ -5,8 +5,8 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 /* eslint-disable no-return-assign */
 
 export interface CurrencyPair {
-  token: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes
-  currency: string // -----------------| c = VarUInt{1-9 bytes}, + c bytes
+  token: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  currency: string // -----------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
 }
 
 /**
@@ -23,7 +23,7 @@ export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
 }
 
 export interface TokenAmount {
-  currency: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes
+  currency: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
   amount: BigNumber // -----------------| 8 bytes
 }
 
@@ -41,8 +41,8 @@ export class CTokenAmount extends ComposableBuffer<TokenAmount> {
 }
 
 export interface TokenPrice {
-  token: string // ---------------------| c = VarUInt{1-9 bytes}, + c bytes
-  prices: TokenAmount[] // -------------| 8 bytes
+  token: string // ---------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  prices: TokenAmount[] // -------------| c = VarUInt{1-9 bytes}, + c x TokenAmount
 }
 
 /**
