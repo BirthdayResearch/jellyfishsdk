@@ -3,6 +3,7 @@ import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { UtxosToAccount } from '@defichain/jellyfish-transaction/src/script/defi/dftx_account'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import {
@@ -10,7 +11,6 @@ import {
   fundEllipticPair,
   sendTransaction
 } from '../test.utils'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -71,7 +71,7 @@ describe('account.utxosToAccount()', () => {
 
     expect(outs.length).toStrictEqual(2)
     const encoded: string = OP_CODES.OP_DEFI_TX_UTXOS_TO_ACCOUNT(utxosToAccount).asBuffer().toString('hex')
-    // OP_RETURN + utxos full buffer
+    // OP_RETURN + DfTx full buffer
     const expectedRedeemScript = `6a${encoded}`
     expect(outs[0].value).toStrictEqual(conversionAmount)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
