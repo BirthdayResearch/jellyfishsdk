@@ -13,7 +13,6 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(15)
     await setup()
   })
 
@@ -41,11 +40,12 @@ describe('masternode', () => {
       tradeable: true,
       collateralAddress: address
     }
+    await container.waitForWalletBalanceGTE(101)
     await container.call('createtoken', [metadata])
     await container.generate(1)
 
     const payload: { [key: string]: string } = {}
-    payload[address] = '5@0'
+    payload[address] = '100@0'
     await container.call('utxostoaccount', [payload])
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])

@@ -162,3 +162,23 @@ interface UtxosToAccountUTXO {
   vout: number
 }
 ```
+
+## accountToAccount
+
+Creates and submits to a local node and transfer transaction from the specified account to the specfied accounts.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.accountToAccount()"
+interface account {
+  accountToAccount (from: string, payload: AccountToAccountPayload, utxos: AccountToAccountUTXO[] = []): Promise<string> {
+}
+
+interface AccountToAccountPayload {
+  [key: string]: string;
+}
+
+interface AccountToAccountUTXO {
+  txid: string
+  vout: number
+}
+```
