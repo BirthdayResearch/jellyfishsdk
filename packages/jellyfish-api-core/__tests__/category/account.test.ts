@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { AccountToAccountPayload, UtxosToAccountPayload } from '../../src/category/account'
+import { UtxosToAccountPayload, AccountToAccountPayload } from '../../src/category/account'
 import { RpcApiError } from '../../src'
 
 describe('masternode', () => {
