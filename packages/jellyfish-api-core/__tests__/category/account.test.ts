@@ -13,6 +13,7 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+
     await setup()
   })
 
