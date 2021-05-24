@@ -6,9 +6,9 @@ export function expectHexBufferToObject<T> (hex: string, data: T, asC: ((buffer:
     Buffer.from(hex, 'hex')
   ))
 
-  expect(composable.toObject()).toEqual(data)
+  expect(composable.toObject()).toStrictEqual(data)
   // parse and stringify due to JSON path inconsistent positioning
-  expect(JSON.parse(JSON.stringify(composable.toObject()))).toEqual(
+  expect(JSON.parse(JSON.stringify(composable.toObject()))).toStrictEqual(
     JSON.parse(JSON.stringify(data))
   )
 }
@@ -19,9 +19,9 @@ export function expectObjectToHexBuffer<T> (data: T, hex: string, asC: ((data: T
   const buffer = new SmartBuffer()
   txn.toBuffer(buffer)
 
-  expect(buffer.toBuffer().toString('hex')).toBe(hex)
+  expect(buffer.toBuffer().toString('hex')).toStrictEqual(hex)
   // parse and stringify due to JSON path inconsistent positioning
-  expect(JSON.parse(JSON.stringify(txn.toObject()))).toEqual(
+  expect(JSON.parse(JSON.stringify(txn.toObject()))).toStrictEqual(
     JSON.parse(JSON.stringify(data))
   )
 }

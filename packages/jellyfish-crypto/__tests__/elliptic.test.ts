@@ -8,7 +8,7 @@ it('should return privateKey from getEllipticPairFromPrivateKey ', async () => {
   const curvePair = Elliptic.fromPrivKey(privateKey)
 
   const getPrivKey: Buffer = await curvePair.privateKey()
-  expect(getPrivKey.toString('hex')).toBe(privateKeyHex)
+  expect(getPrivKey.toString('hex')).toStrictEqual(privateKeyHex)
 })
 
 describe('keypair', () => {
@@ -20,7 +20,7 @@ describe('keypair', () => {
     const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const getPubKey: Buffer = await curvePair.publicKey()
-    expect(getPubKey.toString('hex')).toBe(publicKeyHex)
+    expect(getPubKey.toString('hex')).toStrictEqual(publicKeyHex)
   })
 
   it('should return privateKey from getEllipticPairFromPrivateKey ', async () => {
@@ -28,7 +28,7 @@ describe('keypair', () => {
     const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const getPrivKey: Buffer = await curvePair.privateKey()
-    expect(getPrivKey.toString('hex')).toBe(privateKeyHex)
+    expect(getPrivKey.toString('hex')).toStrictEqual(privateKeyHex)
   })
 })
 
@@ -38,7 +38,7 @@ describe('DER Signature: sign and verify', () => {
     const curvePair = Elliptic.fromPrivKey(privateKey)
 
     const getPubKey: Buffer = await curvePair.publicKey()
-    expect(getPubKey.toString('hex')).toBe(publicKeyHex)
+    expect(getPubKey.toString('hex')).toStrictEqual(publicKeyHex)
   }
 
   async function shouldSignHashBufferGetSignature (privateKeyHex: string, hashHex: string, signatureHex: string): Promise<void> {
@@ -47,7 +47,7 @@ describe('DER Signature: sign and verify', () => {
 
     const hash = Buffer.from(hashHex, 'hex')
     const signature = await curvePair.sign(hash)
-    expect(signature.toString('hex')).toBe(signatureHex)
+    expect(signature.toString('hex')).toStrictEqual(signatureHex)
   }
 
   async function shouldVerifyHashWithSignature (privateKeyHex: string, hashHex: string, signatureHex: string): Promise<void> {
@@ -58,7 +58,7 @@ describe('DER Signature: sign and verify', () => {
     const signature = Buffer.from(signatureHex, 'hex')
 
     const isValid = await curvePair.verify(hash, signature)
-    expect(isValid).toBe(true)
+    expect(isValid).toStrictEqual(true)
   }
 
   describe('30 44<0220<>0220<>> 1', () => {

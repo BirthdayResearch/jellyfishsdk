@@ -1,8 +1,6 @@
-name: "CodeQL"
+name: CodeQL
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
   schedule:
@@ -19,8 +17,7 @@ jobs:
         language: [ javascript ]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1

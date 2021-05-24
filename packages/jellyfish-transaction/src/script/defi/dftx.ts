@@ -10,6 +10,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
+import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap
@@ -126,6 +127,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<UpdateOracle>(CUpdateOracle.OP_NAME, d => new CUpdateOracle(d))
       case CSetOracleData.OP_CODE:
         return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
+      case CAutoAuthPrep.OP_CODE:
+        return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

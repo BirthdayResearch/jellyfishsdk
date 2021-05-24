@@ -39,6 +39,7 @@ import {
   SetOracleData,
   CSetOracleData
 } from './defi/dftx_oracles'
+import { CAutoAuthPrep } from './defi/dftx_misc'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -222,6 +223,12 @@ export const OP_CODES = {
       type: CSetOracleData.OP_CODE,
       name: CSetOracleData.OP_NAME,
       data: setOracleData
+  OP_DEFI_TX_AUTO_AUTH_PREP: () => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAutoAuthPrep.OP_CODE,
+      name: CAutoAuthPrep.OP_NAME,
+      data: null
     })
   },
 

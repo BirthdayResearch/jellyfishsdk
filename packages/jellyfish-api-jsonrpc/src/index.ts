@@ -67,7 +67,7 @@ export class JsonRpcClient extends ApiClient {
     switch (response.status) {
       case 200:
       default:
-        return JsonRpcClient.parse(text, precision)
+        return JsonRpcClient.parse(method, text, precision)
 
       case 401:
       case 404:
@@ -84,13 +84,13 @@ export class JsonRpcClient extends ApiClient {
     })
   }
 
-  private static parse (text: string, precision: Precision | PrecisionPath): any {
+  private static parse (method: string, text: string, precision: Precision | PrecisionPath): any {
     const { result, error } = JellyfishJSON.parse(text, {
       result: precision
     })
 
-    if (error !== undefined && error !== null) {
-      throw new RpcApiError(error)
+    if (error != null) {
+      throw new RpcApiError({ ...error, method: method })
     }
 
     return result

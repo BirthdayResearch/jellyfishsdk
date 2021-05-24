@@ -76,13 +76,13 @@ describe('masternode', () => {
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
-        expect(typeof account.key).toBe('string')
-        expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof account.owner.asm).toBe('string')
-        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
-        expect(typeof account.owner.type).toBe('string')
+        expect(typeof account.key).toStrictEqual('string')
+        expect(typeof account.owner === 'object').toStrictEqual(true)
+        expect(typeof account.owner.asm).toStrictEqual('string')
+        expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
+        expect(typeof account.owner.type).toStrictEqual('string')
         expect(account.owner.addresses.length).toBeGreaterThan(0)
-        expect(typeof account.amount).toBe('string') // 10.00000000@DFI
+        expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
       }
     })
 
@@ -95,7 +95,7 @@ describe('masternode', () => {
       }
 
       const lastAccounts = await client.account.listAccounts(pagination)
-      expect(lastAccounts.length).toBe(1)
+      expect(lastAccounts.length).toStrictEqual(1)
     })
 
     it('should listAccounts with pagination.limit', async () => {
@@ -104,7 +104,7 @@ describe('masternode', () => {
           limit: 2
         }
         const accounts = await client.account.listAccounts(pagination)
-        expect(accounts.length).toBe(2)
+        expect(accounts.length).toStrictEqual(2)
       })
     })
 
@@ -115,9 +115,9 @@ describe('masternode', () => {
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
-        expect(typeof account.key).toBe('string')
-        expect(typeof account.owner).toBe('string')
-        expect(typeof account.amount).toBe('string') // 10.00000000@DFI
+        expect(typeof account.key).toStrictEqual('string')
+        expect(typeof account.owner).toStrictEqual('string')
+        expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
       }
     })
 
@@ -128,12 +128,12 @@ describe('masternode', () => {
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
-        expect(typeof account.key).toBe('string')
-        expect(typeof account.owner).toBe('string')
+        expect(typeof account.key).toStrictEqual('string')
+        expect(typeof account.owner).toStrictEqual('string')
 
-        expect(typeof account.amount === 'object').toBe(true)
+        expect(typeof account.amount === 'object').toStrictEqual(true)
         for (const k in account.amount) {
-          expect(account.amount[k] instanceof BigNumber).toBe(true) // [{'0': 100}]
+          expect(account.amount[k] instanceof BigNumber).toStrictEqual(true) // [{'0': 100}]
         }
       }
     })
@@ -145,16 +145,16 @@ describe('masternode', () => {
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
-        expect(typeof account.key).toBe('string')
-        expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof account.owner.asm).toBe('string')
-        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
-        expect(typeof account.owner.type).toBe('string')
+        expect(typeof account.key).toStrictEqual('string')
+        expect(typeof account.owner === 'object').toStrictEqual(true)
+        expect(typeof account.owner.asm).toStrictEqual('string')
+        expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
+        expect(typeof account.owner.type).toStrictEqual('string')
         expect(account.owner.addresses.length).toBeGreaterThan(0)
 
-        expect(typeof account.amount === 'object').toBe(true)
+        expect(typeof account.amount === 'object').toStrictEqual(true)
         for (const k in account.amount) {
-          expect(account.amount[k] instanceof BigNumber).toBe(true) // [{'0': 100}]
+          expect(account.amount[k] instanceof BigNumber).toStrictEqual(true) // [{'0': 100}]
         }
       }
     })
@@ -166,13 +166,13 @@ describe('masternode', () => {
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
-        expect(typeof account.key).toBe('string')
-        expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof account.owner.asm).toBe('string')
-        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
-        expect(typeof account.owner.type).toBe('string')
+        expect(typeof account.key).toStrictEqual('string')
+        expect(typeof account.owner === 'object').toStrictEqual(true)
+        expect(typeof account.owner.asm).toStrictEqual('string')
+        expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
+        expect(typeof account.owner.type).toStrictEqual('string')
         expect(account.owner.addresses.length).toBeGreaterThan(0)
-        expect(typeof account.amount).toBe('string') // 10.00000000@DFI
+        expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
       }
     })
 
@@ -183,13 +183,13 @@ describe('masternode', () => {
 
       for (let i = 0; i < accounts.length; i += 1) {
         const account = accounts[i]
-        expect(typeof account.key).toBe('string')
-        expect(typeof account.owner === 'object').toBe(true)
-        expect(typeof account.owner.asm).toBe('string')
-        expect(account.owner.reqSigs instanceof BigNumber).toBe(true)
-        expect(typeof account.owner.type).toBe('string')
+        expect(typeof account.key).toStrictEqual('string')
+        expect(typeof account.owner === 'object').toStrictEqual(true)
+        expect(typeof account.owner.asm).toStrictEqual('string')
+        expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
+        expect(typeof account.owner.type).toStrictEqual('string')
         expect(account.owner.addresses.length).toBeGreaterThan(0)
-        expect(typeof account.amount).toBe('string') // 10.00000000@DFI
+        expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
       }
     })
   })
@@ -202,7 +202,7 @@ describe('masternode', () => {
       const account = await client.account.getAccount(accounts[0].owner.addresses[0])
       expect(account.length).toBeGreaterThan(0)
       for (let i = 0; i < account.length; i += 1) {
-        expect(typeof account[i]).toBe('string')
+        expect(typeof account[i]).toStrictEqual('string')
       }
     })
 
@@ -225,10 +225,10 @@ describe('masternode', () => {
 
       // [ '187.00000000@DBTC', '154.00000000@DETH' ]
       const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
-      expect(account.length).toBe(1)
+      expect(account.length).toStrictEqual(1)
 
       for (let i = 0; i < account.length; i += 1) {
-        expect(typeof account[i]).toBe('string')
+        expect(typeof account[i]).toStrictEqual('string')
       }
     })
 
@@ -239,16 +239,16 @@ describe('masternode', () => {
         limit: 1
       }
       const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
-      expect(account.length).toBe(1)
+      expect(account.length).toStrictEqual(1)
     })
 
     it('should getAccount with indexedAmount true', async () => {
       const accounts = await waitForListingAccounts()
 
       const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: true })
-      expect(typeof account).toBe('object')
+      expect(typeof account).toStrictEqual('object')
       for (const k in account) {
-        expect(typeof account[k]).toBe('number')
+        expect(typeof account[k]).toStrictEqual('number')
       }
     })
   })
@@ -262,7 +262,7 @@ describe('masternode', () => {
 
       const tokenBalances = await client.account.getTokenBalances()
       for (let i = 0; i < tokenBalances.length; i += 1) {
-        expect(typeof tokenBalances[i]).toBe('string') // [ '300.00000000@0', '200.00000000@1' ]
+        expect(typeof tokenBalances[i]).toStrictEqual('string') // [ '300.00000000@0', '200.00000000@1' ]
       }
     })
 
@@ -281,27 +281,27 @@ describe('masternode', () => {
         including_start: true
       }
       const tokenBalances = await client.account.getTokenBalances(pagination)
-      expect(tokenBalances.length).toBe(1)
+      expect(tokenBalances.length).toStrictEqual(1)
     })
 
     it('should getTokenBalances with pagination limit', async () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances()
-        expect(tokenBalances.length).toBe(2)
+        expect(tokenBalances.length).toStrictEqual(2)
       })
       const pagination = {
         limit: 1
       }
       const tokenBalances = await client.account.getTokenBalances(pagination)
-      expect(tokenBalances.length).toBe(1)
+      expect(tokenBalances.length).toStrictEqual(1)
     })
 
     it('should getTokenBalances with indexedAmounts true', async () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances({}, true, { symbolLookup: false })
-        expect(typeof tokenBalances === 'object').toBe(true)
+        expect(typeof tokenBalances === 'object').toStrictEqual(true)
         for (const k in tokenBalances) {
-          expect(tokenBalances[k] instanceof BigNumber).toBe(true)
+          expect(tokenBalances[k] instanceof BigNumber).toStrictEqual(true)
         }
       })
     })
@@ -314,7 +314,7 @@ describe('masternode', () => {
 
       const tokenBalances = await client.account.getTokenBalances({}, false, { symbolLookup: true })
       for (let i = 0; i < tokenBalances.length; i += 1) {
-        expect(typeof tokenBalances[i]).toBe('string') // [ '300.00000000@DFI', '200.00000000@DBTC' ]
+        expect(typeof tokenBalances[i]).toStrictEqual('string') // [ '300.00000000@DFI', '200.00000000@DBTC' ]
       }
     })
   })
@@ -330,15 +330,15 @@ describe('masternode', () => {
 
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(typeof accountHistory.owner).toBe('string')
-        expect(typeof accountHistory.blockHeight).toBe('number')
-        expect(typeof accountHistory.blockHash).toBe('string')
-        expect(typeof accountHistory.blockTime).toBe('number')
-        expect(typeof accountHistory.type).toBe('string')
-        expect(typeof accountHistory.txn).toBe('number')
-        expect(typeof accountHistory.txid).toBe('string')
+        expect(typeof accountHistory.owner).toStrictEqual('string')
+        expect(typeof accountHistory.blockHeight).toStrictEqual('number')
+        expect(typeof accountHistory.blockHash).toStrictEqual('string')
+        expect(typeof accountHistory.blockTime).toStrictEqual('number')
+        expect(typeof accountHistory.type).toStrictEqual('string')
+        expect(typeof accountHistory.txn).toStrictEqual('number')
+        expect(typeof accountHistory.txid).toStrictEqual('string')
         expect(accountHistory.amounts.length).toBeGreaterThan(0)
-        expect(typeof accountHistory.amounts[0]).toBe('string') // [ '10.00000000@DFI' ]
+        expect(typeof accountHistory.amounts[0]).toStrictEqual('string') // [ '10.00000000@DFI' ]
       }
     })
 
@@ -352,15 +352,15 @@ describe('masternode', () => {
 
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(typeof accountHistory.owner).toBe('string')
-        expect(typeof accountHistory.blockHeight).toBe('number')
-        expect(typeof accountHistory.blockHash).toBe('string')
-        expect(typeof accountHistory.blockTime).toBe('number')
-        expect(typeof accountHistory.type).toBe('string')
-        expect(typeof accountHistory.txn).toBe('number')
-        expect(typeof accountHistory.txid).toBe('string')
+        expect(typeof accountHistory.owner).toStrictEqual('string')
+        expect(typeof accountHistory.blockHeight).toStrictEqual('number')
+        expect(typeof accountHistory.blockHash).toStrictEqual('string')
+        expect(typeof accountHistory.blockTime).toStrictEqual('number')
+        expect(typeof accountHistory.type).toStrictEqual('string')
+        expect(typeof accountHistory.txn).toStrictEqual('number')
+        expect(typeof accountHistory.txid).toStrictEqual('string')
         expect(accountHistory.amounts.length).toBeGreaterThan(0)
-        expect(typeof accountHistory.amounts[0]).toBe('string')
+        expect(typeof accountHistory.amounts[0]).toStrictEqual('string')
       }
     })
 
@@ -374,7 +374,7 @@ describe('masternode', () => {
 
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(addresses.includes(accountHistory.owner)).toBe(true)
+        expect(addresses.includes(accountHistory.owner)).toStrictEqual(true)
       }
     })
 
@@ -390,7 +390,7 @@ describe('masternode', () => {
       const accountHistories = await client.account.listAccountHistory(address)
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(accountHistory.owner).toBe(address)
+        expect(accountHistory.owner).toStrictEqual(address)
       }
     })
 
@@ -434,7 +434,7 @@ describe('masternode', () => {
       const accountHistories = await client.account.listAccountHistory('mine', options)
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(accountHistory.txn).not.toBe('blockReward')
+        expect(accountHistory.txn).not.toStrictEqual('blockReward')
       }
     })
 
@@ -454,7 +454,7 @@ describe('masternode', () => {
         for (let j = 0; j < accountHistory.amounts.length; j += 1) {
           const amount = accountHistory.amounts[j]
           const symbol = amount.split('@')[1]
-          expect(symbol).toBe('DBTC')
+          expect(symbol).toStrictEqual('DBTC')
         }
       }
     })
@@ -468,7 +468,7 @@ describe('masternode', () => {
       const accountHistories = await client.account.listAccountHistory('mine', { txtype: 'M' })
       for (let i = 0; i < accountHistories.length; i += 1) {
         const accountHistory = accountHistories[i]
-        expect(accountHistory.type).toBe('MintToken')
+        expect(accountHistory.type).toStrictEqual('MintToken')
       }
     })
 
@@ -478,7 +478,7 @@ describe('masternode', () => {
           limit: 1
         }
         const accountHistories = await client.account.listAccountHistory('mine', options)
-        expect(accountHistories.length).toBe(1)
+        expect(accountHistories.length).toStrictEqual(1)
       })
     })
   })
@@ -492,8 +492,8 @@ describe('masternode', () => {
 
       const data = await client.account.utxosToAccount(payload)
 
-      expect(typeof data).toBe('string')
-      expect(data.length).toBe(64)
+      expect(typeof data).toStrictEqual('string')
+      expect(data.length).toStrictEqual(64)
     })
 
     it('should utxosToAccount with utxos', async () => {
@@ -512,8 +512,8 @@ describe('masternode', () => {
 
       const data = await client.account.utxosToAccount(payload, inputs)
 
-      expect(typeof data).toBe('string')
-      expect(data.length).toBe(64)
+      expect(typeof data).toStrictEqual('string')
+      expect(data.length).toStrictEqual(64)
     })
   })
 })

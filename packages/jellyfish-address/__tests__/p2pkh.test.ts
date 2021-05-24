@@ -27,23 +27,23 @@ describe('P2PKH', () => {
     it('should get the type precisely', () => {
       const p2pkh = DeFiAddress.from('mainnet', p2pkhFixture.mainnet)
       expect(p2pkh.valid).toBeTruthy()
-      expect(p2pkh.type).toBe('P2PKH')
-      expect(p2pkh.constructor.name).toBe('P2PKH')
-      expect(p2pkh.network).toBe(MainNet)
+      expect(p2pkh.type).toStrictEqual('P2PKH')
+      expect(p2pkh.constructor.name).toStrictEqual('P2PKH')
+      expect(p2pkh.network).toStrictEqual(MainNet)
     })
 
     it('should work for all recognized network type', () => {
       const testnet = DeFiAddress.from('testnet', p2pkhFixture.testnet)
       expect(testnet.valid).toBeTruthy()
-      expect(testnet.type).toBe('P2PKH')
-      expect(testnet.constructor.name).toBe('P2PKH')
-      expect(testnet.network).toBe(TestNet)
+      expect(testnet.type).toStrictEqual('P2PKH')
+      expect(testnet.constructor.name).toStrictEqual('P2PKH')
+      expect(testnet.network).toStrictEqual(TestNet)
 
       const regtest = DeFiAddress.from('regtest', p2pkhFixture.regtest)
       expect(regtest.valid).toBeTruthy()
-      expect(regtest.type).toBe('P2PKH')
-      expect(regtest.constructor.name).toBe('P2PKH')
-      expect(regtest.network).toBe(RegTest)
+      expect(regtest.type).toStrictEqual('P2PKH')
+      expect(regtest.constructor.name).toStrictEqual('P2PKH')
+      expect(regtest.network).toStrictEqual(RegTest)
     })
   })
 
@@ -57,8 +57,8 @@ describe('P2PKH', () => {
       // valid address, used on different network
       const p2pkh = DeFiAddress.from('testnet', p2pkhFixture.mainnet)
       expect(p2pkh.valid).toBeFalsy()
-      // expect(p2pkh.type).toBe('P2PKH') // invalid address guessed type is not promising, as p2pkh and p2sh are versy similar
-      expect(p2pkh.network).toBe(TestNet)
+      // expect(p2pkh.type).toStrictEqual('P2PKH') // invalid address guessed type is not promising, as p2pkh and p2sh are versy similar
+      expect(p2pkh.network).toStrictEqual(TestNet)
     })
 
     it('should get the type precisely', () => {
@@ -70,24 +70,24 @@ describe('P2PKH', () => {
   describe('to()', () => {
     it('should be able to build a new address using a public key hash (20 bytes, 40 char hex string)', () => {
       const pubKeyHash = '134b0749882c225e8647df3a3417507c6f5b2797'
-      expect(pubKeyHash.length).toEqual(40)
+      expect(pubKeyHash.length).toStrictEqual(40)
 
       const p2pkh = P2PKH.to('regtest', pubKeyHash)
-      expect(p2pkh.type).toEqual('P2PKH')
+      expect(p2pkh.type).toStrictEqual('P2PKH')
       expect(p2pkh.valid).toBeTruthy()
 
       const scriptStack = p2pkh.getScript()
-      expect(scriptStack.stack.length).toEqual(5)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_DUP)
-      expect(scriptStack.stack[1]).toEqual(OP_CODES.OP_HASH160)
-      expect(scriptStack.stack[2]).toEqual(OP_CODES.OP_PUSHDATA_HEX_LE(pubKeyHash))
-      expect(scriptStack.stack[3]).toEqual(OP_CODES.OP_EQUALVERIFY)
-      expect(scriptStack.stack[4]).toEqual(OP_CODES.OP_CHECKSIG)
+      expect(scriptStack.stack.length).toStrictEqual(5)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_DUP)
+      expect(scriptStack.stack[1]).toStrictEqual(OP_CODES.OP_HASH160)
+      expect(scriptStack.stack[2]).toStrictEqual(OP_CODES.OP_PUSHDATA_HEX_LE(pubKeyHash))
+      expect(scriptStack.stack[3]).toStrictEqual(OP_CODES.OP_EQUALVERIFY)
+      expect(scriptStack.stack[4]).toStrictEqual(OP_CODES.OP_CHECKSIG)
     })
 
     it('should reject invalid data - not 20 bytes data', () => {
       const pubKeyHash = '134b0749882c225e8647df3a3417507c6f5b27'
-      expect(pubKeyHash.length).toEqual(38)
+      expect(pubKeyHash.length).toStrictEqual(38)
 
       expect(() => {
         P2PKH.to('regtest', pubKeyHash)
@@ -102,7 +102,7 @@ describe('P2PKH', () => {
       try {
         invalid.getScript()
       } catch (e) {
-        expect(e.message).toBe('InvalidDefiAddress')
+        expect(e.message).toStrictEqual('InvalidDefiAddress')
       }
     })
 
@@ -110,12 +110,12 @@ describe('P2PKH', () => {
       const p2pkh = DeFiAddress.from('mainnet', p2pkhFixture.mainnet)
       const scriptStack = p2pkh.getScript()
 
-      expect(scriptStack.stack.length).toEqual(5)
-      expect(scriptStack.stack[0]).toEqual(OP_CODES.OP_DUP)
-      expect(scriptStack.stack[1]).toEqual(OP_CODES.OP_HASH160)
-      expect(scriptStack.stack[2].type).toEqual('OP_PUSHDATA') // tested in `to()`
-      expect(scriptStack.stack[3]).toEqual(OP_CODES.OP_EQUALVERIFY)
-      expect(scriptStack.stack[4]).toEqual(OP_CODES.OP_CHECKSIG)
+      expect(scriptStack.stack.length).toStrictEqual(5)
+      expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_DUP)
+      expect(scriptStack.stack[1]).toStrictEqual(OP_CODES.OP_HASH160)
+      expect(scriptStack.stack[2].type).toStrictEqual('OP_PUSHDATA') // tested in `to()`
+      expect(scriptStack.stack[3]).toStrictEqual(OP_CODES.OP_EQUALVERIFY)
+      expect(scriptStack.stack[4]).toStrictEqual(OP_CODES.OP_CHECKSIG)
     })
   })
 
@@ -123,19 +123,19 @@ describe('P2PKH', () => {
     const hex = bs58.decode(p2pkhFixture.mainnet).toString('hex').substring(2, 42) // take 20 bytes data only
     const p2pkh = new P2PKH(MainNet, p2pkhFixture.mainnet, hex)
 
-    expect(p2pkh.validatorPassed).toEqual(0)
+    expect(p2pkh.validatorPassed).toStrictEqual(0)
     expect(p2pkh.valid).toBeFalsy()
 
     const isValid = p2pkh.validate()
-    expect(p2pkh.validatorPassed).toEqual(5)
+    expect(p2pkh.validatorPassed).toStrictEqual(5)
     expect(isValid).toBeTruthy()
   })
 
   it('guess()', () => {
     const p2pkh = DeFiAddress.guess(p2pkhFixture.mainnet)
     expect(p2pkh.valid).toBeTruthy()
-    expect(p2pkh.type).toBe('P2PKH')
-    expect(p2pkh.constructor.name).toBe('P2PKH')
-    expect(p2pkh.network).toBe(MainNet)
+    expect(p2pkh.type).toStrictEqual('P2PKH')
+    expect(p2pkh.constructor.name).toStrictEqual('P2PKH')
+    expect(p2pkh.network).toStrictEqual(MainNet)
   })
 })
