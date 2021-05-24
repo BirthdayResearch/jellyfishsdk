@@ -202,9 +202,10 @@ enum OwnerType {
    SET_GOV_VARIABLE = 'G',
    AUTO_AUTH_PREP = 'A'
 }
-interface  AccountHistoryCountOptions {
+
+interface AccountHistoryCountOptions {
   token?: string
-  txtype?:TxType | string
+  txtype?: TxType | string
   no_rewards?: boolean
 }
 ```
