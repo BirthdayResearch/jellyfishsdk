@@ -83,7 +83,7 @@ describe('ApiError', () => {
 
     await expect(promise).rejects.toThrow(ApiError)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid private key encoding\', code: -5')
+    await expect(promise).rejects.toThrow(/^RpcApiError: 'Invalid private key encoding', code: -5, method: importprivkey$/)
   })
 
   it('should throw ClientApiError: 404 - Not Found', async () => {
