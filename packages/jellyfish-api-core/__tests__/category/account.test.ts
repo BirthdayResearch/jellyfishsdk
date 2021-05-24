@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountPayload } from '../../src/category/account'
+import { AccountToAccountPayload, UtxosToAccountPayload } from '../../src/category/account'
 import { RpcApiError } from '../../src'
 
 describe('masternode', () => {
@@ -547,7 +547,7 @@ describe('masternode', () => {
       await createToken(from, 'DABC', 5)
       await createToken(from, 'DDEF', 5)
 
-      const payload: UtxosToAccountPayload = {}
+      const payload: AccountToAccountPayload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DABC'
       payload[await container.getNewAddress()] = '5@DDEF'
@@ -565,7 +565,7 @@ describe('masternode', () => {
 
       const { txid } = await container.fundAddress(from, 10)
 
-      const payload: UtxosToAccountPayload = {}
+      const payload: AccountToAccountPayload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DGHI'
       payload[await container.getNewAddress()] = '5@DJKL'
@@ -588,7 +588,7 @@ describe('masternode', () => {
     it('should not accountToAccount with utxos for DFI coin if does not own the recipient address', async () => {
       const from = await container.getNewAddress()
 
-      const payload: UtxosToAccountPayload = {}
+      const payload: AccountToAccountPayload = {}
       payload['2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz'] = '5@DFI'
 
       const { txid } = await container.fundAddress(from, 10)
