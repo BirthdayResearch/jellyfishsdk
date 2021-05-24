@@ -31,6 +31,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './defi/dftx_account'
+import { CAutoAuthPrep } from './defi/dftx_misc'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -190,6 +191,14 @@ export const OP_CODES = {
       type: CAnyAccountToAccount.OP_CODE,
       name: CAnyAccountToAccount.OP_NAME,
       data: anyAccountToAccount
+    })
+  },
+  OP_DEFI_TX_AUTO_AUTH_PREP: () => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAutoAuthPrep.OP_CODE,
+      name: CAutoAuthPrep.OP_NAME,
+      data: null
     })
   },
 

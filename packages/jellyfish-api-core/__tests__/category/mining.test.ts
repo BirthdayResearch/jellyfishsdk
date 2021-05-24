@@ -20,25 +20,25 @@ describe('non masternode', () => {
   it('should getMintingInfo', async () => {
     const info = await client.mining.getMintingInfo()
 
-    expect(info.blocks).toBe(0)
+    expect(info.blocks).toStrictEqual(0)
     expect(info.difficulty).toBeDefined()
-    expect(info.isoperator).toBe(false)
-    expect(info.networkhashps).toBe(0)
-    expect(info.pooledtx).toBe(0)
-    expect(info.chain).toBe('regtest')
-    expect(info.warnings).toBe('')
+    expect(info.isoperator).toStrictEqual(false)
+    expect(info.networkhashps).toStrictEqual(0)
+    expect(info.pooledtx).toStrictEqual(0)
+    expect(info.chain).toStrictEqual('regtest')
+    expect(info.warnings).toStrictEqual('')
   })
 
   it('should getNetworkHashPerSecond', async () => {
     const result = await client.mining.getNetworkHashPerSecond()
-    expect(result).toBe(0)
+    expect(result).toStrictEqual(0)
   })
 
   it('should have an error with estimateSmartFee', async () => {
     const result = await client.mining.estimateSmartFee(6)
     const errors = (result.errors != null) ? result.errors : []
     expect(errors.length).toBeGreaterThan(0)
-    expect(errors[0]).toEqual('Insufficient data or no feerate found')
+    expect(errors[0]).toStrictEqual('Insufficient data or no feerate found')
     expect(result.feerate).toBeUndefined()
   })
 })
@@ -67,21 +67,21 @@ describe('masternode', () => {
     expect(info.blocks).toBeGreaterThan(0)
 
     expect(info.currentblockweight).toBeGreaterThan(0)
-    expect(info.currentblocktx).toBe(0)
+    expect(info.currentblocktx).toStrictEqual(0)
 
     expect(info.difficulty).toBeDefined()
-    expect(info.isoperator).toBe(true)
+    expect(info.isoperator).toStrictEqual(true)
 
     expect(info.masternodeid).toBeDefined()
     expect(info.masternodeoperator).toBeDefined()
-    expect(info.masternodestate).toBe('ENABLED')
-    expect(info.generate).toBe(true)
-    expect(info.mintedblocks).toBe(0)
+    expect(info.masternodestate).toStrictEqual('ENABLED')
+    expect(info.generate).toStrictEqual(true)
+    expect(info.mintedblocks).toStrictEqual(0)
 
     expect(info.networkhashps).toBeGreaterThan(0)
-    expect(info.pooledtx).toBe(0)
-    expect(info.chain).toBe('regtest')
-    expect(info.warnings).toBe('')
+    expect(info.pooledtx).toStrictEqual(0)
+    expect(info.chain).toStrictEqual('regtest')
+    expect(info.warnings).toStrictEqual('')
   })
 
   it('should getNetworkHashPerSecond', async () => {
@@ -103,22 +103,22 @@ describe('masternode', () => {
     expect(info.blocks).toBeGreaterThan(0)
 
     expect(info.currentblockweight).toBeGreaterThan(0)
-    expect(info.currentblocktx).toBe(0)
+    expect(info.currentblocktx).toStrictEqual(0)
 
     expect(info.difficulty).toBeDefined()
-    expect(info.isoperator).toBe(true)
+    expect(info.isoperator).toStrictEqual(true)
 
     expect(mn1.masternodeid).toBeDefined()
     expect(mn1.masternodeoperator).toBeDefined()
-    expect(mn1.masternodestate).toBe('ENABLED')
-    expect(mn1.generate).toBe(true)
-    expect(mn1.mintedblocks).toBe(0)
-    expect(mn1.lastblockcreationattempt).toBe('0')
+    expect(mn1.masternodestate).toStrictEqual('ENABLED')
+    expect(mn1.generate).toStrictEqual(true)
+    expect(mn1.mintedblocks).toStrictEqual(0)
+    expect(mn1.lastblockcreationattempt).toStrictEqual('0')
 
     expect(info.networkhashps).toBeGreaterThan(0)
-    expect(info.pooledtx).toBe(0)
-    expect(info.chain).toBe('regtest')
-    expect(info.warnings).toBe('')
+    expect(info.pooledtx).toStrictEqual(0)
+    expect(info.chain).toStrictEqual('regtest')
+    expect(info.warnings).toStrictEqual('')
   })
 })
 

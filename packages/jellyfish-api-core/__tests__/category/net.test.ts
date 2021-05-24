@@ -23,23 +23,23 @@ describe('non masternode', () => {
   it('should getNetworkInfo', async () => {
     const info: net.NetworkInfo = await client.net.getNetworkInfo()
     expect(info.version).toBeGreaterThanOrEqual(0)
-    expect(typeof info.subversion).toBe('string')
+    expect(typeof info.subversion).toStrictEqual('string')
     expect(info.protocolversion).toBeGreaterThanOrEqual(0)
-    expect(typeof info.localservices).toBe('string')
-    expect(typeof info.localrelay).toBe('boolean')
+    expect(typeof info.localservices).toStrictEqual('string')
+    expect(typeof info.localrelay).toStrictEqual('boolean')
     expect(info.timeoffset).toBeGreaterThanOrEqual(0)
     expect(info.connections).toBeGreaterThanOrEqual(0)
-    expect(typeof info.networkactive).toBe('boolean')
+    expect(typeof info.networkactive).toStrictEqual('boolean')
 
     const networks = info.networks
 
     for (let i = 0; i < networks.length; i += 1) {
       const network = networks[i]
       expect(['ipv4', 'ipv6', 'onion']).toContain(network.name)
-      expect(typeof network.limited).toBe('boolean')
-      expect(typeof network.reachable).toBe('boolean')
-      expect(typeof network.proxy).toBe('string')
-      expect(typeof network.proxy_randomize_credentials).toBe('boolean')
+      expect(typeof network.limited).toStrictEqual('boolean')
+      expect(typeof network.reachable).toStrictEqual('boolean')
+      expect(typeof network.proxy).toStrictEqual('string')
+      expect(typeof network.proxy_randomize_credentials).toStrictEqual('boolean')
     }
 
     expect(info.relayfee).toBeGreaterThanOrEqual(0)
@@ -49,13 +49,13 @@ describe('non masternode', () => {
 
     for (let i = 0; i < localaddresses.length; i += 1) {
       const localaddress = localaddresses[i]
-      expect(localaddress.address).toBe('string')
+      expect(localaddress.address).toStrictEqual('string')
       expect(localaddress.port).toBeGreaterThanOrEqual(0)
       expect(localaddress.port).toBeLessThanOrEqual(65535)
       expect(localaddress.score).toBeGreaterThanOrEqual(0)
     }
 
-    expect(typeof info.warnings).toBe('string')
+    expect(typeof info.warnings).toStrictEqual('string')
   })
 })
 
@@ -81,23 +81,23 @@ describe('masternode', () => {
   it('should getNetworkInfo', async () => {
     const info: net.NetworkInfo = await client.net.getNetworkInfo()
     expect(info.version).toBeGreaterThanOrEqual(0)
-    expect(typeof info.subversion).toBe('string')
+    expect(typeof info.subversion).toStrictEqual('string')
     expect(info.protocolversion).toBeGreaterThanOrEqual(0)
-    expect(typeof info.localservices).toBe('string')
-    expect(typeof info.localrelay).toBe('boolean')
+    expect(typeof info.localservices).toStrictEqual('string')
+    expect(typeof info.localrelay).toStrictEqual('boolean')
     expect(info.timeoffset).toBeGreaterThanOrEqual(0)
     expect(info.connections).toBeGreaterThanOrEqual(0)
-    expect(typeof info.networkactive).toBe('boolean')
+    expect(typeof info.networkactive).toStrictEqual('boolean')
 
     const networks = info.networks
 
     for (let i = 0; i < networks.length; i += 1) {
       const network = networks[i]
       expect(['ipv4', 'ipv6', 'onion']).toContain(network.name)
-      expect(typeof network.limited).toBe('boolean')
-      expect(typeof network.reachable).toBe('boolean')
-      expect(typeof network.proxy).toBe('string')
-      expect(typeof network.proxy_randomize_credentials).toBe('boolean')
+      expect(typeof network.limited).toStrictEqual('boolean')
+      expect(typeof network.reachable).toStrictEqual('boolean')
+      expect(typeof network.proxy).toStrictEqual('string')
+      expect(typeof network.proxy_randomize_credentials).toStrictEqual('boolean')
     }
 
     expect(info.relayfee).toBeGreaterThanOrEqual(0)
@@ -107,12 +107,12 @@ describe('masternode', () => {
 
     for (let i = 0; i < localaddresses.length; i += 1) {
       const localaddress = localaddresses[i]
-      expect(localaddress.address).toBe('string')
+      expect(localaddress.address).toStrictEqual('string')
       expect(localaddress.port).toBeGreaterThanOrEqual(0)
       expect(localaddress.port).toBeLessThanOrEqual(65535)
       expect(localaddress.score).toBeGreaterThanOrEqual(0)
     }
 
-    expect(typeof info.warnings).toBe('string')
+    expect(typeof info.warnings).toStrictEqual('string')
   })
 })

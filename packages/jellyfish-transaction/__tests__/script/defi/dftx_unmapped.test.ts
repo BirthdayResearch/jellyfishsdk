@@ -11,7 +11,7 @@ it('should bi-directional map unmapped buffer-object-buffer', () => {
   )
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(hex)
+  expect(buffer.toString('hex')).toStrictEqual(hex)
 })
 
 it('should map as mapped if it is unmapped', () => {
@@ -21,14 +21,14 @@ it('should map as mapped if it is unmapped', () => {
     SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
   )
 
-  expect(stack[0].type).toBe('OP_RETURN')
-  expect(stack[1].type).toBe('OP_DEFI_TX')
+  expect(stack[0].type).toStrictEqual('OP_RETURN')
+  expect(stack[1].type).toStrictEqual('OP_DEFI_TX')
 
   const tx = (stack[1] as OP_DEFI_TX).tx
-  expect(tx.signature).toBe(1147556984)
-  expect(tx.type).toBe(0)
-  expect(tx.name).toBe('OP_DEFI_TX_UNMAPPED')
+  expect(tx.signature).toStrictEqual(1147556984)
+  expect(tx.type).toStrictEqual(0)
+  expect(tx.name).toStrictEqual('OP_DEFI_TX_UNMAPPED')
 
   const unmapped = tx.data as DeFiOpUnmapped
-  expect(unmapped.hex).toBe('001234')
+  expect(unmapped.hex).toStrictEqual('001234')
 })

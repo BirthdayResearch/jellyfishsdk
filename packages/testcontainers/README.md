@@ -45,7 +45,7 @@ describe('reg test container', () => {
   it('should getmintinginfo and chain should be regtest', async () => {
     // Using node.call('method', []), the built-in minimalistic rpc call
     const result = await container.call('getmintinginfo', [])
-    expect(result.chain).toBe('regtest')
+    expect(result.chain).toStrictEqual('regtest')
   })
 })
 ```

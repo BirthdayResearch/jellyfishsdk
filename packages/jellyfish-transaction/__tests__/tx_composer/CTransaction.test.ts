@@ -35,19 +35,19 @@ describe('CTransaction', () => {
     }
     const transaction = new CTransaction(data)
 
-    expect(transaction.version).toBe(data.version)
+    expect(transaction.version).toStrictEqual(data.version)
 
-    expect(transaction.vin.length).toBe(data.vin.length)
-    expect(transaction.vin[0].txid).toBe(data.vin[0].txid)
-    expect(transaction.vin[0].index).toBe(data.vin[0].index)
-    expect(transaction.vin[0].script.stack).toBe(data.vin[0].script.stack)
-    expect(transaction.vin[0].sequence).toBe(data.vin[0].sequence)
+    expect(transaction.vin.length).toStrictEqual(data.vin.length)
+    expect(transaction.vin[0].txid).toStrictEqual(data.vin[0].txid)
+    expect(transaction.vin[0].index).toStrictEqual(data.vin[0].index)
+    expect(transaction.vin[0].script.stack).toStrictEqual(data.vin[0].script.stack)
+    expect(transaction.vin[0].sequence).toStrictEqual(data.vin[0].sequence)
 
-    expect(transaction.vout.length).toBe(data.vout.length)
-    expect(transaction.vout[0].value).toBe(data.vout[0].value)
-    expect(transaction.vout[0].script.stack).toBe(data.vout[0].script.stack)
+    expect(transaction.vout.length).toStrictEqual(data.vout.length)
+    expect(transaction.vout[0].value).toStrictEqual(data.vout[0].value)
+    expect(transaction.vout[0].script.stack).toStrictEqual(data.vout[0].script.stack)
 
-    expect(transaction.lockTime).toBe(data.lockTime)
+    expect(transaction.lockTime).toStrictEqual(data.lockTime)
   })
 
   describe('P2WPKH (UNSIGNED)', () => {

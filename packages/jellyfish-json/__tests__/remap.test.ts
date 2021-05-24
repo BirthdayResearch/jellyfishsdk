@@ -34,26 +34,26 @@ it('should remap everything in the path', () => {
     }
   })
 
-  expect(remapped.a instanceof BigNumber).toBe(true)
+  expect(remapped.a instanceof BigNumber).toStrictEqual(true)
 
-  expect(remapped.b[0] instanceof BigNumber).toBe(true)
-  expect(remapped.b[1] instanceof BigNumber).toBe(true)
+  expect(remapped.b[0] instanceof BigNumber).toStrictEqual(true)
+  expect(remapped.b[1] instanceof BigNumber).toStrictEqual(true)
 
-  expect(remapped.c.c1 instanceof BigNumber).toBe(true)
-  expect(remapped.c.c2[0] instanceof BigNumber).toBe(true)
+  expect(remapped.c.c1 instanceof BigNumber).toStrictEqual(true)
+  expect(remapped.c.c2[0] instanceof BigNumber).toStrictEqual(true)
 
-  expect(remapped.d.e.e1 instanceof BigNumber).toBe(true)
-  expect(remapped.d.e.e2[0] instanceof BigNumber).toBe(true)
-  expect(remapped.d.e.e2[1] instanceof BigNumber).toBe(true)
+  expect(remapped.d.e.e1 instanceof BigNumber).toStrictEqual(true)
+  expect(remapped.d.e.e2[0] instanceof BigNumber).toStrictEqual(true)
+  expect(remapped.d.e.e2[1] instanceof BigNumber).toStrictEqual(true)
 
-  expect(remapped.d.e.e3.e3a instanceof BigNumber).toBe(true)
-  expect(remapped.d.e.e3.e3b[0] instanceof BigNumber).toBe(true)
+  expect(remapped.d.e.e3.e3a instanceof BigNumber).toStrictEqual(true)
+  expect(remapped.d.e.e3.e3b[0] instanceof BigNumber).toStrictEqual(true)
 
-  expect(remapped.d.f.g instanceof BigNumber).toBe(true)
+  expect(remapped.d.f.g instanceof BigNumber).toStrictEqual(true)
 
-  expect(remapped.d.f.f1).toBe(1.2)
+  expect(remapped.d.f.f1).toStrictEqual(1.2)
 
-  expect(remapped.h).toBe(1.2)
+  expect(remapped.h).toStrictEqual(1.2)
 })
 
 function parseAndRemap (text: string, precision: PrecisionPath): any {
@@ -69,8 +69,8 @@ describe('remap individually', () => {
     }`, {
       big: 'bignumber'
     })
-    expect(parsed.big instanceof BigNumber).toBe(true)
-    expect(parsed.num).toBe(1000)
+    expect(parsed.big instanceof BigNumber).toStrictEqual(true)
+    expect(parsed.num).toStrictEqual(1000)
   })
 
   it('should remap object deeply with precision', () => {
@@ -84,8 +84,8 @@ describe('remap individually', () => {
         big: 'bignumber'
       }
     })
-    expect(parsed.deeply.big instanceof BigNumber).toBe(true)
-    expect(parsed.deeply.num).toBe(1000)
+    expect(parsed.deeply.big instanceof BigNumber).toStrictEqual(true)
+    expect(parsed.deeply.num).toStrictEqual(1000)
   })
 
   it('should remap array value with precision', () => {
@@ -98,8 +98,8 @@ describe('remap individually', () => {
       array: 'bignumber'
     })
 
-    expect(remapped.array[0] instanceof BigNumber).toBe(true)
-    expect(remapped.array[1] instanceof BigNumber).toBe(true)
+    expect(remapped.array[0] instanceof BigNumber).toStrictEqual(true)
+    expect(remapped.array[1] instanceof BigNumber).toStrictEqual(true)
   })
 
   it('should remap array object with precision', () => {
@@ -114,8 +114,8 @@ describe('remap individually', () => {
       big: 'bignumber'
     })
 
-    expect(parsed[0].big instanceof BigNumber).toBe(true)
-    expect(parsed[1].big instanceof BigNumber).toBe(true)
+    expect(parsed[0].big instanceof BigNumber).toStrictEqual(true)
+    expect(parsed[1].big instanceof BigNumber).toStrictEqual(true)
   })
 
   it('should remap array object with precision deeply', () => {
@@ -138,10 +138,10 @@ describe('remap individually', () => {
       }
     })
 
-    expect(parsed[0].deeply.big instanceof BigNumber).toBe(true)
-    expect(parsed[0].deeply.num).toBe(1)
-    expect(parsed[1].deeply.big instanceof BigNumber).toBe(true)
-    expect(parsed[1].deeply.num).toBe(1)
+    expect(parsed[0].deeply.big instanceof BigNumber).toStrictEqual(true)
+    expect(parsed[0].deeply.num).toStrictEqual(1)
+    expect(parsed[1].deeply.big instanceof BigNumber).toStrictEqual(true)
+    expect(parsed[1].deeply.num).toStrictEqual(1)
   })
 })
 
@@ -156,13 +156,13 @@ it('should remap lossless | number | bignumber', () => {
     c: 'number'
   })
 
-  expect(parsed.a instanceof BigNumber).toBe(true)
-  expect(parsed.a.toString()).toBe('1')
+  expect(parsed.a instanceof BigNumber).toStrictEqual(true)
+  expect(parsed.a.toString()).toStrictEqual('1')
 
-  expect(parsed.b instanceof LosslessNumber).toBe(true)
-  expect(parsed.b.toString()).toBe('2')
+  expect(parsed.b instanceof LosslessNumber).toStrictEqual(true)
+  expect(parsed.b.toString()).toStrictEqual('2')
 
-  expect(parsed.c).toBe(3)
+  expect(parsed.c).toStrictEqual(3)
 })
 
 describe('remap invalid mapping should succeed', () => {
@@ -175,8 +175,8 @@ describe('remap invalid mapping should succeed', () => {
         a: 'bignumber'
       }
     })
-    expect(parsed.ignored).toBe(123.4)
-    expect(parsed.num).toBe(1000)
+    expect(parsed.ignored).toStrictEqual(123.4)
+    expect(parsed.num).toStrictEqual(1000)
   })
 
   it('should ignore invalid null object', () => {

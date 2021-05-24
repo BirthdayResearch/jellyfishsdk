@@ -29,12 +29,12 @@ describe('JSON-RPC 1.0 specification', () => {
     const client = new JsonRpcClient('http://intercepted.defichain.node')
     const result = await client.call('intercept', ['p1', 'p2'], 'number')
 
-    await expect(result).toBe('intercepted')
+    await expect(result).toStrictEqual('intercepted')
 
-    await expect(intercept.mock.calls[0][0].jsonrpc).toBe('1.0')
+    await expect(intercept.mock.calls[0][0].jsonrpc).toStrictEqual('1.0')
     await expect(intercept.mock.calls[0][0].id).toBeGreaterThan(-1)
-    await expect(intercept.mock.calls[0][0].method).toBe('intercept')
-    await expect(intercept.mock.calls[0][0].params).toEqual(['p1', 'p2'])
+    await expect(intercept.mock.calls[0][0].method).toStrictEqual('intercept')
+    await expect(intercept.mock.calls[0][0].params).toStrictEqual(['p1', 'p2'])
   })
 
   it('generated id must be positive as per the spec', async () => {
@@ -43,7 +43,7 @@ describe('JSON-RPC 1.0 specification', () => {
     for (const i of [...Array(100).keys()]) {
       await client.call(`generate${i}`, [], 'number')
       await expect(intercept.mock.calls[i][0].id).toBeGreaterThan(-1)
-      await expect(intercept.mock.calls[i][0].id.toString()).not.toEqual(
+      await expect(intercept.mock.calls[i][0].id.toString()).not.toStrictEqual(
         expect.not.stringMatching('.')
       )
     }
@@ -55,8 +55,8 @@ describe('JSON-RPC 1.0 specification', () => {
     await client.call('generate1', [], 'number')
     await client.call('generate2', [], 'number')
 
-    await expect(intercept.mock.calls[0][0].id).not.toBe(intercept.mock.calls[1][0].id)
-    await expect(intercept.mock.calls[1][0].id).not.toBe(intercept.mock.calls[2][0].id)
+    await expect(intercept.mock.calls[0][0].id).not.toStrictEqual(intercept.mock.calls[1][0].id)
+    await expect(intercept.mock.calls[1][0].id).not.toStrictEqual(intercept.mock.calls[2][0].id)
   })
 })
 
@@ -128,7 +128,7 @@ describe('ClientOptions', () => {
     })
 
     const result = await client.call('authorize', [], 'number')
-    await expect(result).toBe('authorized')
+    await expect(result).toStrictEqual('authorized')
   })
 
   it('should timeout in 2 second', async () => {
