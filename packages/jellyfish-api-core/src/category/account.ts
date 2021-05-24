@@ -10,6 +10,7 @@ enum OwnerType {
   MINE = 'mine',
   ALL = 'all'
 }
+
 export enum TxType {
   MINT_TOKEN ='M',
   POOL_SWAP = 's',
