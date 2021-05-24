@@ -223,6 +223,8 @@ export const OP_CODES = {
       type: CSetOracleData.OP_CODE,
       name: CSetOracleData.OP_NAME,
       data: setOracleData
+    })
+  },
   OP_DEFI_TX_AUTO_AUTH_PREP: () => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
