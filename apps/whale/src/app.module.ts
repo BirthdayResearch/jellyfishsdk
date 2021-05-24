@@ -5,11 +5,11 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { AppConfiguration } from '@src/app.configuration'
 
 import { ApiModule } from '@src/module.api/_module'
-import { DatabaseModule } from '@src/module.database/module'
-import { DeFiDModule } from '@src/module.defid'
-import { HealthModule } from '@src/module.health'
+import { DatabaseModule } from '@src/module.database/_module'
+import { DeFiDModule } from '@src/module.defid/_module'
+import { HealthModule } from '@src/module.health/_module'
+import { IndexerModule } from '@src/module.indexer/_module'
 import { ModelModule } from '@src/module.model/_module'
-import { IndexerModule } from '@src/module.indexer/module'
 
 @Module({})
 export class AppModule {
@@ -22,12 +22,12 @@ export class AppModule {
           load: [AppConfiguration]
         }),
         ScheduleModule.forRoot(),
+        ApiModule,
         DatabaseModule.forRoot(provider),
-        ModelModule,
         DeFiDModule,
         HealthModule,
-        ApiModule,
-        IndexerModule
+        IndexerModule,
+        ModelModule
       ]
     }
   }

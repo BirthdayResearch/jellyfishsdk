@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigModule } from '@nestjs/config'
-import { DatabaseModule } from '@src/module.database/module'
+import { DatabaseModule } from '@src/module.database/_module'
 import { Database } from '@src/module.database/database'
 import { LevelDatabase } from '@src/module.database/provider.level/level.database'
 import { MemoryDatabase } from '@src/module.database/provider.memory/memory.database'
