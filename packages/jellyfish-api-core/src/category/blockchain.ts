@@ -111,6 +111,14 @@ export class Blockchain {
   }
 
   /**
+   * Get difficulty of everything.
+   * Return difficulty as number.
+   */
+  async getDifficulty (): Promise<number> {
+    return await this.client.call('getdifficulty', [], 'number')
+  }
+
+  /**
    * Get details of unspent transaction output (UTXO).
    *
    * @param {string} txId the transaction id

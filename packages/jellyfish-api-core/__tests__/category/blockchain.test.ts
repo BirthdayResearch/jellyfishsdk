@@ -249,6 +249,27 @@ describe('masternode', () => {
     })
   })
 
+  // getDifficulty of masternode & non masternode
+  describe('getdifficulty', () => {
+    // const container = new DifficultyRegTest()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      // await container.waitForWalletCoinbaseMaturity()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should getDifficulty', async () => {
+      const getdifficulty = await client.blockchain.getDifficulty()
+      expect(getdifficulty).toBeGreaterThanOrEqual(0)
+    })
+  })
+
   describe('getRawMempool', () => {
     beforeAll(async () => {
       await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)

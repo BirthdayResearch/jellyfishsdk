@@ -188,6 +188,14 @@ interface ChainTip {
   status: string
 }
 ```
+## getDifficulty
+Return the proof-of-work difficulty as a multiple of the minimum difficulty.
+```ts tile="client.blockchain.getDifficulty()"
+interface difficulty {
+    getDifficulty (): Promise<number>
+}
+```
+
 
 ## getTxOut
 
