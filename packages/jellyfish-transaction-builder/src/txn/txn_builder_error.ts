@@ -18,7 +18,19 @@ export enum TxnBuilderErrorType {
   /**
    * Unable to sign transaction due to error in TransactionSigner
    */
-  SIGN_TRANSACTION_ERROR
+  SIGN_TRANSACTION_ERROR,
+  /**
+   * Invalid conversion output `TokenBalance`, must consist only valid DFI balance
+   */
+  INVALID_UTXOS_TO_ACCOUNT_OUTPUT,
+  /**
+   * Invalid input `TokenBalances` array length must be one
+   */
+  INVALID_ADD_LIQUIDITY_INPUT,
+  /**
+   * Invalid conversion input `TokenBalances`, must consist only valid DFI balance
+   */
+  INVALID_ACCOUNT_TO_UTXOS_INPUT
 }
 
 /**

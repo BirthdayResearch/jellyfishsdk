@@ -12,17 +12,17 @@ import {
 describe('dust amount', () => {
   it('0.00001 should be dust amount', () => {
     const amount = new BigNumber('0.00001')
-    expect(isDustAmount(amount)).toBe(true)
+    expect(isDustAmount(amount)).toStrictEqual(true)
   })
 
   it('0.00003 should be dust amount', () => {
     const amount = new BigNumber('0.00003')
-    expect(isDustAmount(amount)).toBe(true)
+    expect(isDustAmount(amount)).toStrictEqual(true)
   })
 
   it('0.000031 should not be dust amount', () => {
     const amount = new BigNumber('0.000031')
-    expect(isDustAmount(amount)).toBe(false)
+    expect(isDustAmount(amount)).toStrictEqual(false)
   })
 })
 
@@ -119,7 +119,7 @@ describe('calculate fee for p2wpkh', () => {
       vout: [P2WPKH_VOUT],
       lockTime: 0x00000000
     }
-    expect(calculateFeeP2WPKH(fee, transaction).toFixed(8)).toBe('0.00007425')
+    expect(calculateFeeP2WPKH(fee, transaction).toFixed(8)).toStrictEqual('0.00007425')
   })
 
   it('[P2WPKH_VIN] to [P2WPKH_VOUT, P2WPKH_VOUT] with fee 0.0006689 DFI/kb', () => {
@@ -130,7 +130,7 @@ describe('calculate fee for p2wpkh', () => {
       vout: [P2WPKH_VOUT, P2WPKH_VOUT],
       lockTime: 0x00000000
     }
-    expect(calculateFeeP2WPKH(fee, transaction).toFixed(8)).toBe('0.00009565')
+    expect(calculateFeeP2WPKH(fee, transaction).toFixed(8)).toStrictEqual('0.00009565')
   })
 })
 
@@ -146,7 +146,7 @@ describe('calculate fee', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateFee(fee, transaction, witness).toFixed(8)).toBe('0.00000333')
+    expect(calculateFee(fee, transaction, witness).toFixed(8)).toStrictEqual('0.00000333')
   })
 
   it('[P2WPKH_VIN] to [P2WPKH_VOUT] with fee 0.00010000 DFI/kb', () => {
@@ -160,7 +160,7 @@ describe('calculate fee', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateFee(fee, transaction, witness).toFixed(8)).toBe('0.00001110')
+    expect(calculateFee(fee, transaction, witness).toFixed(8)).toStrictEqual('0.00001110')
   })
 
   it('[P2WPKH_VIN] to [P2WPKH_VOUT] with fee 0.0006689 DFI/kb', () => {
@@ -174,7 +174,7 @@ describe('calculate fee', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateFee(fee, transaction, witness).toFixed(8)).toBe('0.00007425')
+    expect(calculateFee(fee, transaction, witness).toFixed(8)).toStrictEqual('0.00007425')
   })
 
   it('[P2WPKH_VIN] to [P2WPKH_VOUT, P2WPKH_VOUT] with fee 0.0006689 DFI/kb', () => {
@@ -188,7 +188,7 @@ describe('calculate fee', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateFee(fee, transaction, witness).toFixed(8)).toBe('0.00009565')
+    expect(calculateFee(fee, transaction, witness).toFixed(8)).toStrictEqual('0.00009565')
   })
 })
 
@@ -203,7 +203,7 @@ describe('virtual size', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateVirtual(transaction, witness)).toBe(111)
+    expect(calculateVirtual(transaction, witness)).toStrictEqual(111)
   })
 
   it('[P2SH_P2WPKH_VIN] to [P2SH_VOUT,P2SH_VOUT]', () => {
@@ -216,7 +216,7 @@ describe('virtual size', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateVirtual(transaction, witness)).toBe(168)
+    expect(calculateVirtual(transaction, witness)).toStrictEqual(168)
   })
 })
 
@@ -231,7 +231,7 @@ describe('weight', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateWeight(transaction, witness)).toBe(441)
+    expect(calculateWeight(transaction, witness)).toStrictEqual(441)
   })
 
   it('[P2WPKH_VIN] to [P2WSH_VOUT, P2PKH_VOUT]', () => {
@@ -242,7 +242,7 @@ describe('weight', () => {
       lockTime: 0x00000000
     }
     const witness: Witness[] = []
-    expect(calculateWeight(transaction, witness)).toBe(814)
+    expect(calculateWeight(transaction, witness)).toStrictEqual(814)
   })
 
   it('[P2SH_P2WPKH_VIN] to [P2SH_VOUT,P2SH_VOUT]', () => {
@@ -255,6 +255,6 @@ describe('weight', () => {
     const witness: Witness[] = [
       P2WPKH_WITNESS
     ]
-    expect(calculateWeight(transaction, witness)).toBe(669)
+    expect(calculateWeight(transaction, witness)).toStrictEqual(669)
   })
 })

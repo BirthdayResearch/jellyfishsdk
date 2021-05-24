@@ -14,7 +14,7 @@ describe('main', () => {
 
   it('should be able to getmintinginfo and chain should be main', async () => {
     const { chain } = await container.getMintingInfo()
-    expect(chain).toBe('main')
+    expect(chain).toStrictEqual('main')
   })
 })
 
@@ -32,7 +32,7 @@ describe('test', () => {
 
   it('should be able to getmintinginfo and chain should be test', async () => {
     const { chain } = await container.getMintingInfo()
-    expect(chain).toBe('test')
+    expect(chain).toStrictEqual('test')
   })
 })
 
@@ -50,7 +50,7 @@ describe('regtest', () => {
 
   it('should be able to getmintinginfo and chain should be regtest', async () => {
     const { chain } = await container.getMintingInfo()
-    expect(chain).toBe('regtest')
+    expect(chain).toStrictEqual('regtest')
   })
 })
 
@@ -65,6 +65,6 @@ describe('regtest: override docker image', () => {
     await container.start()
     await container.waitForReady()
     const { chain } = await container.getMintingInfo()
-    expect(chain).toBe('regtest')
+    expect(chain).toStrictEqual('regtest')
   })
 })

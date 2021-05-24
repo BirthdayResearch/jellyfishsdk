@@ -9,8 +9,8 @@ const fixture = {
 describe('toHash160()', () => {
   it('should convert base58 to hash160 + prefix', () => {
     const decoded = Bs58.toHash160(fixture.base58)
-    expect(decoded.prefix).toEqual(fixture.prefix)
-    expect(decoded.buffer.toString('hex')).toEqual(fixture.h160)
+    expect(decoded.prefix).toStrictEqual(fixture.prefix)
+    expect(decoded.buffer.toString('hex')).toStrictEqual(fixture.h160)
   })
 
   it('should reject invalid address, invalid charset', async () => {
@@ -31,12 +31,12 @@ describe('toHash160()', () => {
 describe('fromHash160()', () => {
   it('should convert prefix + hash160 to base58', () => {
     const address = Bs58.fromHash160(Buffer.from(fixture.h160, 'hex'), fixture.prefix)
-    expect(address).toEqual(fixture.base58)
+    expect(address).toStrictEqual(fixture.base58)
   })
 
   it('should be able to take in hash160 string', () => {
     const address = Bs58.fromHash160(fixture.h160, fixture.prefix)
-    expect(address).toEqual(fixture.base58)
+    expect(address).toStrictEqual(fixture.base58)
   })
 
   it('should reject non 20 bytes long data', () => {
@@ -58,12 +58,12 @@ describe('fromPubKey()', () => {
   const invalidPubKey = Buffer.from(thirdyThreeBytes.slice(2), 'hex') // less 1 byte
 
   beforeAll(() => {
-    expect(HASH160(pubKey).toString('hex')).toEqual(fixture.h160)
+    expect(HASH160(pubKey).toString('hex')).toStrictEqual(fixture.h160)
   })
 
   it('should convert prefix + hash160 to base58', () => {
     const address = Bs58.fromPubKey(pubKey, fixture.prefix)
-    expect(address).toEqual(fixture.base58)
+    expect(address).toStrictEqual(fixture.base58)
   })
 
   it('should reject non 33 bytes long data', () => {

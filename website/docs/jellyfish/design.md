@@ -43,7 +43,7 @@ cause precision to be lost. [DeFiCh/jellyfish/issues/18](https://github.com/DeFi
 it('lost precision converting DFI 😥', () => {
   const n = 1200000000.00000001
   const a = JSON.parse(JSON.stringify(n)) * 1.0e8
-  expect(a.toString()).toBe("120000000000000001")
+  expect(a.toString()).toStrictEqual("120000000000000001")
 });
 ```
 

@@ -17,7 +17,7 @@ it('url: string provider', async () => {
   const client = new Client(url)
   const info = await client.mining.getMintingInfo()
 
-  await expect(info.chain).toBe('regtest')
+  await expect(info.chain).toStrictEqual('regtest')
 })
 
 it('HttpProvider', async () => {
@@ -25,5 +25,5 @@ it('HttpProvider', async () => {
   const client = new Client(new HttpProvider(url))
   const info = await client.mining.getMintingInfo()
 
-  await expect(info.chain).toBe('regtest')
+  await expect(info.chain).toStrictEqual('regtest')
 })

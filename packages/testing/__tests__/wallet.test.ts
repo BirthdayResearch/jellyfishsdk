@@ -21,7 +21,7 @@ describe('wallet', () => {
     it('should getNewAddress', async () => {
       const address = await getNewAddress(container)
 
-      expect(typeof address).toBe('string')
+      expect(typeof address).toStrictEqual('string')
     })
   })
 })

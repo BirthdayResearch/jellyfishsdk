@@ -28,8 +28,8 @@ describe('rawtx', () => {
       const bEllipticPair = Elliptic.fromPrivKey(bPrivateKey)
 
       const signedTxnHex = await createSignedTxnHex(container, 10, 5, { aEllipticPair, bEllipticPair })
-      expect(signedTxnHex.substr(0, 14)).toBe('04000000000101')
-      expect(signedTxnHex.substr(86, 78)).toBe('00ffffffff010065cd1d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
+      expect(signedTxnHex.substr(0, 14)).toStrictEqual('04000000000101')
+      expect(signedTxnHex.substr(86, 78)).toStrictEqual('00ffffffff010065cd1d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
       expect(signedTxnHex).toContain('0121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635700000000')
     })
   })
