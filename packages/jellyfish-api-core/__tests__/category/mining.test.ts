@@ -113,7 +113,7 @@ describe('masternode', () => {
     expect(mn1.masternodestate).toStrictEqual('ENABLED')
     expect(mn1.generate).toStrictEqual(true)
     expect(mn1.mintedblocks).toStrictEqual(0)
-    expect(mn1.lastblockcreationattempt).toStrictEqual('0')
+    expect(mn1.lastblockcreationattempt).not.toStrictEqual('0')
 
     expect(info.networkhashps).toBeGreaterThan(0)
     expect(info.pooledtx).toStrictEqual(0)
