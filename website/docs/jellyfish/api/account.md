@@ -150,13 +150,13 @@ Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.utxosToAccount()"
 interface account {
-  utxosToAccount (payload: UtxosToAccountPayload, utxos: UTXO[] = []): Promise<string>
+  utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
 }
 
-type TokenType = `${string}@${string}`
+type AccountRegexType = `${string}@${string}`
 
-interface UtxosToAccountPayload {
-  [key: string]: TokenType
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
 }
 
 interface UTXO {
@@ -172,13 +172,13 @@ Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.accountToAccount()"
 interface account {
-  accountToAccount (from: string, payload: AccountToAccountPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string>
+  accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type TokenType = `${string}@${string}`
+type AccountRegexType = `${string}@${string}`
 
-interface AccountToAccountPayload {
-  [key: string]: TokenType
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
 }
 
 interface AccountToAccountOptions {

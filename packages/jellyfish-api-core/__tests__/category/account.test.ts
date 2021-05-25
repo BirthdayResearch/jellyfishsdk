@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 import { RpcApiError } from '../../src'
-import { UtxosToAccountPayload, AccountToAccountPayload, UTXO } from '../../src/category/account'
+import { BalanceTransferPayload, UTXO } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -490,7 +490,7 @@ describe('masternode', () => {
 
   describe('utxosToAccount', () => {
     it('should utxosToAccount', async () => {
-      const payload: UtxosToAccountPayload = {}
+      const payload: BalanceTransferPayload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -510,7 +510,7 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount with utxos', async () => {
-      const payload: UtxosToAccountPayload = {}
+      const payload: BalanceTransferPayload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -532,7 +532,7 @@ describe('masternode', () => {
 
   describe('accountToAccount', () => {
     it('should accountToAccount', async () => {
-      const payload: AccountToAccountPayload = {}
+      const payload: BalanceTransferPayload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DBTC'
       payload[await container.getNewAddress()] = '5@DETH'
@@ -553,7 +553,7 @@ describe('masternode', () => {
     it('should accountToAccount with utxos', async () => {
       const { txid } = await container.fundAddress(from, 10)
 
-      const payload: AccountToAccountPayload = {}
+      const payload: BalanceTransferPayload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DBTC'
       payload[await container.getNewAddress()] = '5@DETH'
