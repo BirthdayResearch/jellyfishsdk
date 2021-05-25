@@ -189,6 +189,16 @@ interface ChainTip {
 }
 ```
 
+## getDifficulty
+
+Return the proof-of-work difficulty as a multiple of the minimum difficulty.
+
+```ts tile="client.blockchain.getDifficulty()"
+interface blockchain {
+    getDifficulty (): Promise<number>
+}
+```
+
 ## getTxOut
 
 Get details of unspent transaction output (UTXO).
