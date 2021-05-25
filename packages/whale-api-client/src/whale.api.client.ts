@@ -28,15 +28,16 @@ export interface WhaleApiClientOptions {
 
   /**
    * Network that whale client is configured to
+   * Playground is a special network for testing, see https://github.com/DeFiCh/playground
    */
-  network?: 'mainnet' | 'testnet' | 'regtest'
+  network?: 'mainnet' | 'testnet' | 'regtest' | 'playground'
 }
 
 /**
  * WhaleApiClient default options
  */
 export const DefaultOptions: WhaleApiClientOptions = {
-  url: 'https://whale.ocean.defichain.com',
+  url: 'https://ocean.defichain.com',
   timeout: 60000,
   version: 'v1',
   network: 'mainnet'
