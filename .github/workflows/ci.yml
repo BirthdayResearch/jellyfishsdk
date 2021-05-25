@@ -16,6 +16,13 @@ jobs:
         with:
           node-version: '15'
 
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - run: npm ci
       - run: npm run build
 
@@ -31,6 +38,13 @@ jobs:
         with:
           node-version: '15'
 
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - run: npm ci
       - run: npm run build
       - run: npx --no-install ts-standard
@@ -43,6 +57,13 @@ jobs:
       - uses: actions/setup-node@46071b5c7a2e0c34e49c3cb8a0e792e86e18d5ea
         with:
           node-version: '15'
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - uses: andresz1/size-limit-action@c53e18c847d5eb13f61754c45f3fbfc3aa5c17cc
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
