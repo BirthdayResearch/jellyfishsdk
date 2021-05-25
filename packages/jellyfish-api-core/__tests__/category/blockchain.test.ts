@@ -320,7 +320,7 @@ describe('masternode', () => {
       const blockHash = await waitForBlockHash(1)
       const stats = await client.blockchain.getBlockStats(blockHash)
 
-      expect(stats.height).toBeGreaterThanOrEqual(1)
+      expect(stats.height).toStrictEqual(1)
       expect(stats.minfee).toBeLessThanOrEqual(stats.medianfee)
       expect(stats.medianfee).toBeLessThanOrEqual(stats.maxfee)
       expect(stats.mediantxsize).toBeLessThanOrEqual(stats.maxtxsize)
@@ -356,7 +356,7 @@ describe('masternode', () => {
 
       expect('height' in stats).toStrictEqual(true)
       expect('avgfee' in stats).toStrictEqual(true)
-      expect(stats.height).toBeGreaterThanOrEqual(1)
+      expect(stats.height).toStrictEqual(1)
       expect(Object.keys(stats).length).toStrictEqual(2)
     })
 
