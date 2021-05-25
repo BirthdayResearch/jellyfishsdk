@@ -561,7 +561,8 @@ describe('masternode', () => {
 
         expect(typeof countWithDBTC).toBe('number')
         expect(typeof countWithDETH).toBe('number')
-        expect(countWithDETH === countWithDBTC).toStrictEqual(false)
+        expect(countWithDBTC).toStrictEqual(5)
+        expect(countWithDETH).toStrictEqual(3)
       })
     })
 
