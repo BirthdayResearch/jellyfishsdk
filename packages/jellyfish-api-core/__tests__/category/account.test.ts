@@ -2,7 +2,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountPayload, AccountToAccountPayload } from '../../src/category/account'
 import { RpcApiError } from '../../src'
 
 describe('masternode', () => {
@@ -21,8 +20,10 @@ describe('masternode', () => {
     await container.stop()
   })
 
+  let from: any
+
   async function setup (): Promise<void> {
-    const from = await container.call('getnewaddress')
+    from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
     const to = await accountToAccount('DBTC', 5, from)
@@ -45,9 +46,7 @@ describe('masternode', () => {
     await container.call('createtoken', [metadata])
     await container.generate(1)
 
-    const payload: { [key: string]: string } = {}
-    payload[address] = '100@0'
-    await container.call('utxostoaccount', [payload])
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
     await container.generate(1)
@@ -490,7 +489,7 @@ describe('masternode', () => {
 
   describe('utxosToAccount', () => {
     it('should utxosToAccount', async () => {
-      const payload: UtxosToAccountPayload = {}
+      const payload: { [key: string]: string } = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -501,8 +500,16 @@ describe('masternode', () => {
       expect(data.length).toStrictEqual(64)
     })
 
+    it('should not utxosToAccount for DFI coin if does not own the recipient address', async () => {
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+      const promise = client.account.utxosToAccount({ '2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz': '5@DFI' })
+
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('The address (2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz) is not your own address')
+    })
+
     it('should utxosToAccount with utxos', async () => {
-      const payload: UtxosToAccountPayload = {}
+      const payload: { [key: string]: string } = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -520,37 +527,14 @@ describe('masternode', () => {
       expect(typeof data).toStrictEqual('string')
       expect(data.length).toStrictEqual(64)
     })
-
-    it('should not utxosToAccount with utxos for DFI coin if does not own the recipient address', async () => {
-      const payload: UtxosToAccountPayload = {}
-      // NOTE(jingyi2811): Only support sending utxos to DFI account.
-      payload['2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz'] = '5@DFI'
-
-      const utxos = await container.call('listunspent')
-      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-        return {
-          txid: utxo.txid,
-          vout: utxo.vout
-        }
-      })
-
-      const promise = client.account.utxosToAccount(payload, inputs)
-
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('The address (2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz) is not your own address')
-    })
   })
 
   describe('accountToAccount', () => {
     it('should accountToAccount', async () => {
-      const from = await container.getNewAddress()
-      await createToken(from, 'DABC', 5)
-      await createToken(from, 'DDEF', 5)
-
-      const payload: AccountToAccountPayload = {}
+      const payload: { [key: string]: string } = {}
       payload[await container.getNewAddress()] = '5@DFI'
-      payload[await container.getNewAddress()] = '5@DABC'
-      payload[await container.getNewAddress()] = '5@DDEF'
+      payload[await container.getNewAddress()] = '5@DBTC'
+      payload[await container.getNewAddress()] = '5@DETH'
 
       const data = await client.account.accountToAccount(from, payload)
 
@@ -558,52 +542,33 @@ describe('masternode', () => {
       expect(data.length).toStrictEqual(64)
     })
 
-    it('should accountToAccount with utxos', async () => {
-      const from = await container.getNewAddress()
-      await createToken(from, 'DGHI', 5)
-      await createToken(from, 'DJKL', 5)
-
-      const { txid } = await container.fundAddress(from, 10)
-
-      const payload: AccountToAccountPayload = {}
-      payload[await container.getNewAddress()] = '5@DFI'
-      payload[await container.getNewAddress()] = '5@DGHI'
-      payload[await container.getNewAddress()] = '5@DJKL'
-
-      const utxos = await container.call('listunspent')
-      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
-        return {
-          txid: utxo.txid,
-          vout: utxo.vout
-        }
-      })
-
-      const data = await client.account.accountToAccount(from, payload, inputs)
-
-      expect(typeof data).toStrictEqual('string')
-      expect(data.length).toStrictEqual(64)
-    })
-
-    it('should not accountToAccount with utxos for DFI coin if does not own the recipient address', async () => {
-      const from = await container.getNewAddress()
-
-      const { txid } = await container.fundAddress(from, 10)
-
-      const payload: AccountToAccountPayload = {}
-      payload['2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz'] = '5@DFI'
-
-      const utxos = await container.call('listunspent')
-      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
-        return {
-          txid: utxo.txid,
-          vout: utxo.vout
-        }
-      })
-
-      const promise = client.account.accountToAccount(from, payload, inputs)
+    it('should not accountToAccount for DFI coin if does not own the recipient address', async () => {
+      const promise = client.account.accountToAccount(from, { '2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz': '5@DFI' })
 
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('The address (2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz) is not your own address')
+    })
+
+    it('should accountToAccount with utxos', async () => {
+      const { txid } = await container.fundAddress(from, 10)
+
+      const payload: { [key: string]: string } = {}
+      payload[await container.getNewAddress()] = '5@DFI'
+      payload[await container.getNewAddress()] = '5@DBTC'
+      payload[await container.getNewAddress()] = '5@DETH'
+
+      const utxos = await container.call('listunspent')
+      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+
+      const data = await client.account.accountToAccount(from, payload, { utxos: inputs })
+
+      expect(typeof data).toStrictEqual('string')
+      expect(data.length).toStrictEqual(64)
     })
   })
 })

@@ -150,14 +150,14 @@ Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.utxosToAccount()"
 interface account {
-  utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string>
+  utxosToAccount (payload: Payload, utxos: UTXO[] = []): Promise<string>
 }
 
-interface UtxosToAccountPayload {
+interface Payload {
   [key: string]: string;
 }
 
-interface UtxosToAccountUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
@@ -170,14 +170,18 @@ Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.accountToAccount()"
 interface account {
-  accountToAccount (from: string, payload: AccountToAccountPayload, utxos: AccountToAccountUTXO[] = []): Promise<string>
+  accountToAccount (from: string, payload: Payload, options: AccountToAccountOptions = {}): Promise<string>
 }
 
-interface AccountToAccountPayload {
+interface Payload {
   [key: string]: string;
 }
 
-interface AccountToAccountUTXO {
+interface AccountToAccountOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
   txid: string
   vout: number
 }

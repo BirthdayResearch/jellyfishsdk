@@ -225,14 +225,14 @@ export class Account {
    * Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
-   * @param {UtxosToAccountPayload} payload
+   * @param {Payload} payload
    * @param {string} payload[address]
-   * @param {UtxosToAccountUTXO[]} [utxos=[]]
+   * @param {UTXO[]} [utxos=[]]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
    * @return {Promise<string>}
    */
-  async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
+  async utxosToAccount (payload: Payload, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
   }
 
@@ -241,15 +241,16 @@ export class Account {
    * Optionally, specific UTXOs to spend to create that transaction.
    *
    * @param {string} from
-   * @param {AccountToAccountPayload} payload
+   * @param {Payload} payload
    * @param {string} payload[address]
-   * @param {AccountToAccountUTXO[]} [utxos=[]]
-   * @param {string} [utxos.txid]
-   * @param {number} [utxos.vout]
+   * @param {AccountToAccountOptions} [options]
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async accountToAccount (from: string, payload: AccountToAccountPayload, utxos: AccountToAccountUTXO[] = []): Promise<string> {
-    return await this.client.call('accounttoaccount', [from, payload, utxos], 'number')
+  async accountToAccount (from: string, payload: Payload, options: AccountToAccountOptions = { utxos: [] }): Promise<string> {
+    return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
   }
 }
 
@@ -309,20 +310,15 @@ export interface AccountHistoryOptions {
   limit?: number
 }
 
-export interface UtxosToAccountPayload {
+export interface Payload {
   [key: string]: string
 }
 
-export interface UtxosToAccountUTXO {
-  txid: string
-  vout: number
+export interface AccountToAccountOptions {
+  utxos?: UTXO[]
 }
 
-export interface AccountToAccountPayload {
-  [key: string]: string
-}
-
-export interface AccountToAccountUTXO {
+export interface UTXO {
   txid: string
   vout: number
 }
