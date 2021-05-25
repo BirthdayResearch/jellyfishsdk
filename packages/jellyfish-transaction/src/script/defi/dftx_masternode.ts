@@ -44,7 +44,7 @@ export class CResignMasterNode extends ComposableBuffer<ResignMasterNode> {
 
   composers (cmn: ResignMasterNode): BufferComposer[] {
     return [
-      ComposableBuffer.hex(32, () => cmn.nodeId, v => cmn.nodeId = v)
+      ComposableBuffer.hexBEBufferLE(32, () => cmn.nodeId, v => cmn.nodeId = v)
     ]
   }
 }
