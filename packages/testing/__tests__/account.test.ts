@@ -39,6 +39,7 @@ describe('accountToAccount', () => {
     await mintTokens(container, symbol)
 
     const to = await container.call('getnewaddress')
+    await container.fundAddress(from, 1)
     await accountToAccount(container, symbol, 6, { from, to })
 
     const accounts = await container.call('listaccounts')
