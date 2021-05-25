@@ -28,9 +28,9 @@ export interface TokenAmount {
 }
 
 /**
-   * Composable TokenAmount, C stands for Composable.
-   * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
-   */
+ * Composable TokenAmount, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CTokenAmount extends ComposableBuffer<TokenAmount> {
   composers (tp: TokenAmount): BufferComposer[] {
     return [
@@ -46,9 +46,9 @@ export interface TokenPrice {
 }
 
 /**
-   * Composable TokenPrice, C stands for Composable.
-   * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
-   */
+ * Composable TokenPrice, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CTokenPrice extends ComposableBuffer<TokenPrice> {
   composers (sb: TokenPrice): BufferComposer[] {
     return [
