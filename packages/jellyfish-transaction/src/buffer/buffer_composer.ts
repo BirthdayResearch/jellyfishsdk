@@ -215,16 +215,19 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const buff = Buffer.from(buffer.readBuffer(length))
-        const hex = buff.toString('hex')
-        if (hex.length > 0) {
-          setter(hex)
+        if (buff.length > 0) {
+          setter(buff.toString('hex'))
         }
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        if (getter() === undefined) {
+        const hex = getter()
+        if (hex === undefined) {
           return
         }
-        return this.hex(length, getter as () => string, setter).toBuffer(buffer)
+        if (hex.length !== length * 2) {
+          throw new Error('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+        }
+        buffer.writeBuffer(Buffer.from(hex, 'hex'))
       }
     }
   }
