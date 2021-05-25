@@ -170,7 +170,6 @@ export class Blockchain {
   async getBestBlockHash (): Promise<string> {
     return await this.client.call('getbestblockhash', [], 'number')
   }
-  
 }
 
 /**
@@ -330,7 +329,7 @@ export interface BlockStats {
   avgfee: number
   avgfeerate: number
   avgtxsize: number
-  blockhash: number
+  blockhash: string
   height: number
   ins: number
   maxfee: number
@@ -355,11 +354,5 @@ export interface BlockStats {
   total_weight: number
   utxo_increase: number
   utxo_size_inc: number
-  feerate_percentiles: {
-    '10th_percentile_feerate': number
-    '25th_percentile_feerate': number
-    '50th_percentile_feerate': number
-    '75th_percentile_feerate': number
-    '90th_percentile_feerate': number
-  }
+  feerate_percentiles: [number, number, number, number, number]
 }
