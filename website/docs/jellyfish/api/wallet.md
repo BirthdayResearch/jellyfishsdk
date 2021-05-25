@@ -256,3 +256,26 @@ interface wallet {
   listAddressGroupings (): Promise<any[][][]>
 }
 ```
+
+## sendMany
+
+Send given amounts to multiple given address and return a transaction id.
+
+```ts title="client.wallet.sendMany()"
+interface wallet {
+  async sendMany (amounts: Record<string, number> , subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+}
+
+interface SendManyOptions {
+  comment?: string
+  replaceable?: boolean
+  confTarget?: number
+  estimateMode?: Mode
+}
+
+enum Mode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
+}
+```
