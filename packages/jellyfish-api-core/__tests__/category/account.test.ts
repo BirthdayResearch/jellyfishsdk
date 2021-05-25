@@ -550,13 +550,18 @@ describe('masternode', () => {
 
     it('should get accountHistoryCount with token option', async () => {
       await waitForExpect(async () => {
-        const options: AccountHistoryCountOptions = {
+        const options1: AccountHistoryCountOptions = {
           token: 'DBTC'
         }
-        const count = await client.account.historyCount('mine', options)
+        const options2: AccountHistoryCountOptions = {
+          token: 'DETH'
+        }
+        const countWithDBTC = await client.account.historyCount('mine', options1)
+        const countWithDETH = await client.account.historyCount('mine', options2)
 
-        expect(typeof count).toBe('number')
-        expect(count).toBeGreaterThanOrEqual(0)
+        expect(typeof countWithDBTC).toBe('number')
+        expect(typeof countWithDETH).toBe('number')
+        expect(countWithDETH === countWithDBTC).toStrictEqual(false)
       })
     })
 
@@ -569,6 +574,22 @@ describe('masternode', () => {
 
         expect(typeof count).toBe('number')
         expect(count).toBeGreaterThanOrEqual(0)
+      })
+    })
+
+    it('should get different count for different txtypes', async () => {
+      await waitForExpect(async () => {
+        const options1: AccountHistoryCountOptions = {
+          txtype: TxType.MINT_TOKEN
+        }
+        const options2: AccountHistoryCountOptions = {
+          txtype: TxType.POOL_SWAP
+
+        }
+        const count1 = await client.account.historyCount('mine', options1)
+        const count2 = await client.account.historyCount('mine', options2)
+
+        expect(count1 === count2).toStrictEqual(false)
       })
     })
   })
