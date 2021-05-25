@@ -249,6 +249,13 @@ describe('masternode', () => {
     })
   })
 
+  describe('getdifficulty', () => {
+    it('should getDifficulty', async () => {
+      const difficulty = await client.blockchain.getDifficulty()
+      expect(difficulty).toBeGreaterThanOrEqual(0)
+    })
+  })
+
   describe('getRawMempool', () => {
     beforeAll(async () => {
       await client.wallet.setWalletFlag(wallet.WalletFlag.AVOID_REUSE)
