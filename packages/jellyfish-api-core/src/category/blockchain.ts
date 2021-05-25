@@ -154,23 +154,23 @@ export class Blockchain {
   }
 
   /**
- *  Get block statistics for a given window.
- * @param {number} hashOrHeight  The block hash or height of the target block.
- * @param {Array<keyof BlockStats>} stats Default = all values. See BlockStats Interface.
- *@return {Promise<BlockStats>}
-**/
-
+   * Get block statistics for a given window.
+   * @param {number} hashOrHeight  The block hash or height of the target block.
+   * @param {Array<keyof BlockStats>} stats Default = all values. See BlockStats Interface.
+   * @return {Promise<BlockStats>}
+   */
   async getBlockStats (hashOrHeight: number | string, stats?: Array<keyof BlockStats>): Promise<BlockStats> {
     return await this.client.call('getblockstats', [hashOrHeight, stats], 'number')
   }
 
   /**
- * Get the hash of the best (tip) block in the most-work fully-validated chain
- * @returns {Promise<string>}
- */
+   * Get the hash of the best (tip) block in the most-work fully-validated chain
+   * @returns {Promise<string>}
+   */
   async getBestBlockHash (): Promise<string> {
     return await this.client.call('getbestblockhash', [], 'number')
   }
+  
 }
 
 /**
