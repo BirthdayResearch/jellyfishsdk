@@ -235,6 +235,23 @@ export class Account {
   async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
   }
+
+  /**
+   " Creates and submits to local node / network and transfer transaction from the specified account to UTXOs.
+   " The third optional argument (may be empty array) is an array of specific UTXOs to spend.
+   *
+   * @param {string} from
+   * @param {Payload} payload
+   * @param {string} payload[address]
+   * @param {AccountToUtxosOptions} [options]
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async accountToUtxos (from: string, payload: Payload, options: AccountToUtxosOptions = { utxos: [] }): Promise<string> {
+    return await this.client.call('accounttoutxos', [from, payload, options.utxos], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -298,6 +315,19 @@ export interface UtxosToAccountPayload {
 }
 
 export interface UtxosToAccountUTXO {
+  txid: string
+  vout: number
+}
+
+export interface Payload {
+  [key: string]: string
+}
+
+export interface AccountToUtxosOptions {
+  utxos?: UTXO[]
+}
+
+export interface UTXO {
   txid: string
   vout: number
 }

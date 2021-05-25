@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountPayload } from '../../src/category/account'
+import { Payload } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -20,8 +20,10 @@ describe('masternode', () => {
     await container.stop()
   })
 
+  let from: any
+
   async function setup (): Promise<void> {
-    const from = await container.call('getnewaddress')
+    from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
     const to = await accountToAccount('DBTC', 5, from)
@@ -43,6 +45,8 @@ describe('masternode', () => {
     await container.waitForWalletBalanceGTE(101)
     await container.call('createtoken', [metadata])
     await container.generate(1)
+
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
     await container.generate(1)
@@ -287,7 +291,7 @@ describe('masternode', () => {
     it('should getTokenBalances with pagination limit', async () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances()
-        expect(tokenBalances.length).toStrictEqual(2)
+        expect(tokenBalances.length).toStrictEqual(3)
       })
       const pagination = {
         limit: 1
@@ -483,34 +487,34 @@ describe('masternode', () => {
     })
   })
 
-  describe('utxosToAccount', () => {
-    it('should utxosToAccount', async () => {
-      const payload: UtxosToAccountPayload = {}
-      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+  describe('accountToUtxos', () => {
+    it('should accountToUtxos', async () => {
+      const payload: Payload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
 
-      const data = await client.account.utxosToAccount(payload)
+      const data = await client.account.accountToUtxos(from, payload)
 
       expect(typeof data).toStrictEqual('string')
       expect(data.length).toStrictEqual(64)
     })
 
-    it('should utxosToAccount with utxos', async () => {
-      const payload: UtxosToAccountPayload = {}
-      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+    it('should accountToUtxos with utxos', async () => {
+      const { txid } = await container.fundAddress(from, 10)
+
+      const payload: Payload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
         }
       })
 
-      const data = await client.account.utxosToAccount(payload, inputs)
+      const data = await client.account.accountToUtxos(from, payload, { utxos: inputs })
 
       expect(typeof data).toStrictEqual('string')
       expect(data.length).toStrictEqual(64)

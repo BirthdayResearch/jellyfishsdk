@@ -162,3 +162,27 @@ interface UtxosToAccountUTXO {
   vout: number
 }
 ```
+
+## accountToUtxos
+
+Creates and submits to local node / network and transfer transaction from the specified account to UTXOs.
+The third optional argument (may be empty array) is an array of specific UTXOs to spend.
+
+```ts title="client.account.accountToUtxos()"
+interface account {
+  accountToUtxos (from: string, payload: Payload, options: AccountToUtxosOptions = {}): Promise<string>
+}
+
+interface Payload {
+  [key: string]: string
+}
+
+interface AccountToUtxosOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
