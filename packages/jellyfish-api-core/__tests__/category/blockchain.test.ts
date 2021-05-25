@@ -315,35 +315,36 @@ describe('masternode', () => {
     })
   })
 
-  describe('getBlockStats', () => {
-    it('should get blockchain stats and return  all values', async () => {
-      const blockHash = await waitForBlockHash(1)
-      const stats = await client.blockchain.getBlockStats(blockHash)
+describe('getBlockStats', () => {
+  it('should get blockchain stats and return all values', async () => {
+    const blockHash = await waitForBlockHash(1)
+    const stats = await client.blockchain.getBlockStats(blockHash)
 
-      expect(stats.height).toBeGreaterThanOrEqual(1)
-      expect(stats.minfee).toBeLessThanOrEqual(stats.medianfee)
-      expect(stats.medianfee).toBeLessThanOrEqual(stats.maxfee)
-    })
-
-    it('should  get blockchain stats with specific values', async () => {
-      const blockHash = await waitForBlockHash(1)
-      const stats = await client.blockchain.getBlockStats(blockHash, ['avgfee', 'height'])
-
-      expect('height' in stats).toStrictEqual(true)
-      expect('avgfee' in stats).toStrictEqual(true)
-      expect(stats.height).toBeGreaterThanOrEqual(1)
-      expect(Object.keys(stats).length).toEqual(2)
-    })
-
-    it('should fail when a negative height is provided', async () => {
-      const promise = client.blockchain.getBlockStats(-1, ['avgfee', 'height'])
-      await expect(promise).rejects.toThrow('Target block height -1 is negative')
-    })
+    expect(stats.height).toBeGreaterThanOrEqual(1)
+    expect(stats.minfee).toBeLessThanOrEqual(stats.medianfee)
+    expect(stats.medianfee).toBeLessThanOrEqual(stats.maxfee)
   })
-  describe('getBestBlockHash', () => {
-    test('should Get hash of best block and return a string', async () => {
-      const bestBlockHash = await client.blockchain.getBestBlockHash()
-      expect(typeof bestBlockHash).toStrictEqual('string')
-    })
+
+  it('should get blockchain stats with specific values', async () => {
+    const blockHash = await waitForBlockHash(1)
+    const stats = await client.blockchain.getBlockStats(blockHash, ['avgfee', 'height'])
+
+    expect('height' in stats).toStrictEqual(true)
+    expect('avgfee' in stats).toStrictEqual(true)
+    expect(stats.height).toBeGreaterThanOrEqual(1)
+    expect(Object.keys(stats).length).toEqual(2)
   })
+
+  it('should fail when a negative height is provided', async () => {
+    const promise = client.blockchain.getBlockStats(-1, ['avgfee', 'height'])
+    await expect(promise).rejects.toThrow('Target block height -1 is negative')
+  })
+})
+
+describe('getBestBlockHash', () => {
+  test('should Get hash of best block and return a string', async () => {
+    const bestBlockHash = await client.blockchain.getBestBlockHash()
+    expect(typeof bestBlockHash).toStrictEqual('string')
+  })
+})
 })
