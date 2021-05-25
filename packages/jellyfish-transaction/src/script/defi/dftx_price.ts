@@ -10,9 +10,9 @@ export interface CurrencyPair {
 }
 
 /**
-   * Composable CurrencyPair, C stands for Composable.
-   * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
-   */
+ * Composable CurrencyPair, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CCurrencyPair extends ComposableBuffer<CurrencyPair> {
   composers (cp: CurrencyPair): BufferComposer[] {
     return [
