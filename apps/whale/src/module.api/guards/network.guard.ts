@@ -15,7 +15,8 @@ export class NetworkGuard implements CanActivate {
   static available: string[] = [
     'mainnet',
     'testnet',
-    'regtest'
+    'regtest',
+    'playground'
   ]
 
   private readonly network: string
