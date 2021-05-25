@@ -6,6 +6,7 @@ import { CResignMasterNode, ResignMasterNode } from '../../../../src/script/defi
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
+    // https://testnet.defichain.io/#/DFI/testnet/tx/5fe549cb230b0ec515de27d0bb7ae5642d47bfeb08b4210d9d2a5ddf2ef71f81
     '6a254466547852bea590236c7d994fbc2283a0e84934022afc1adb8472e409c35ef9a7aa9920a3',
     '6a2544665478525fe549cb230b0ec515de27d0bb7ae5642d47bfeb08b4210d9d2a5ddf2ef71f81'
   ]
@@ -21,9 +22,9 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a254466547852' // OP_RETURN, PUSH_DATA(44665478, 52)
-const data = 'bea590236c7d994fbc2283a0e84934022afc1adb8472e409c35ef9a7aa9920a3'
+const data = 'bea590236c7d994fbc2283a0e84934022afc1adb8472e409c35ef9a7aa9920a3' // reversed, after buffer
 const resignMasterNode: ResignMasterNode = {
-  nodeId: 'bea590236c7d994fbc2283a0e84934022afc1adb8472e409c35ef9a7aa9920a3'
+  nodeId: 'a32099aaa7f95ec309e47284db1afc2a023449e8a08322bc4f997d6c2390a5be' // txid when mn created
 }
 
 it('should craft dftx with OP_CODES._()', () => {
