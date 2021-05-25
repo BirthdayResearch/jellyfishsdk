@@ -21,7 +21,7 @@ describe('masternode', () => {
     await container.stop()
   })
 
-  let from: any
+  let from: string
 
   async function setup (): Promise<void> {
     from = await container.call('getnewaddress')
