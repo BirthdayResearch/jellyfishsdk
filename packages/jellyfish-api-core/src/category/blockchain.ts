@@ -111,6 +111,15 @@ export class Blockchain {
   }
 
   /**
+   * Get the proof-of-work difficulty as a multiple of the minimum difficulty.
+   *
+   * @return {Promise<number>}
+   */
+  async getDifficulty (): Promise<number> {
+    return await this.client.call('getdifficulty', [], 'number')
+  }
+
+  /**
    * Get details of unspent transaction output (UTXO).
    *
    * @param {string} txId the transaction id

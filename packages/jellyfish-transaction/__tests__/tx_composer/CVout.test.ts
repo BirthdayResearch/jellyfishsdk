@@ -177,7 +177,7 @@ describe('CVoutV4', () => {
       const composable = new CVoutV2(SmartBuffer.fromBuffer(
         Buffer.from(hex, 'hex')
       ))
-      expect(composable.value).toEqual(data.value)
+      expect(composable.value).toStrictEqual(data.value)
     })
 
     it('should compose from Object to Composable to Buffer', () => {
@@ -202,7 +202,7 @@ describe('CVoutV4', () => {
       const composable = new CVoutV2(SmartBuffer.fromBuffer(
         Buffer.from(hex, 'hex')
       ))
-      expect(composable.value).toEqual(data.value)
+      expect(composable.value).toStrictEqual(data.value)
     })
 
     it('should compose from Object to Composable to Buffer', () => {

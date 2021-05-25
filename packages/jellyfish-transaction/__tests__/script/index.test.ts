@@ -8,13 +8,13 @@ describe('[]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes.length).toBe(0)
+    expect(codes.length).toStrictEqual(0)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -25,14 +25,14 @@ describe('[OP_0]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_0')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_0')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_0], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -43,14 +43,14 @@ describe('[OP_1NEGATE]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_1NEGATE')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_1NEGATE')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_1NEGATE], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -61,14 +61,14 @@ describe('[OP_RESERVED]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_RESERVED')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_RESERVED')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_RESERVED], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -79,14 +79,14 @@ describe('[OP_1]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_1')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_1')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_1], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -97,14 +97,14 @@ describe('[OP_2]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_2')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_2')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_2], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -115,14 +115,14 @@ describe('[OP_3]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_3')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_3')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_3], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -133,14 +133,14 @@ describe('[OP_4]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_4')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_4')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_4], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -151,14 +151,14 @@ describe('[OP_5]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_5')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_5')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_5], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -169,14 +169,14 @@ describe('[OP_6]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_6')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_6')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_6], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -187,14 +187,14 @@ describe('[OP_7]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_7')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_7')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_7], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -205,14 +205,14 @@ describe('[OP_8]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_8')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_8')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_8], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -223,14 +223,14 @@ describe('[OP_9]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_9')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_9')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_9], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -241,14 +241,14 @@ describe('[OP_10]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_10')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_10')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_10], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -259,14 +259,14 @@ describe('[OP_11]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_11')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_11')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_11], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -277,14 +277,14 @@ describe('[OP_12]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_12')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_12')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_12], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -295,14 +295,14 @@ describe('[OP_13]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_13')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_13')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_13], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -313,14 +313,14 @@ describe('[OP_14]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_14')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_14')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_14], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -331,14 +331,14 @@ describe('[OP_15]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_15')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_15')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_15], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -349,14 +349,14 @@ describe('[OP_16]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_16')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_16')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_16], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -367,14 +367,14 @@ describe('[OP_RETURN]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_RETURN')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_RETURN')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_RETURN], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -385,14 +385,14 @@ describe('[OP_RIPEMD160]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_RIPEMD160')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_RIPEMD160')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -403,14 +403,14 @@ describe('[OP_SHA1]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_SHA1')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_SHA1')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_SHA1], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -421,14 +421,14 @@ describe('[OP_SHA256]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_SHA256')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_SHA256')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_SHA256], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -439,14 +439,14 @@ describe('[OP_HASH160]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_HASH160')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_HASH160')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_HASH160], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -457,14 +457,14 @@ describe('[OP_HASH256]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_HASH256')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_HASH256')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_HASH256], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -475,14 +475,14 @@ describe('[OP_CODESEPARATOR]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_CODESEPARATOR')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_CODESEPARATOR')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_CODESEPARATOR], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -493,14 +493,14 @@ describe('[OP_CHECKSIG]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_CHECKSIG')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_CHECKSIG')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_CHECKSIG], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -511,14 +511,14 @@ describe('[OP_CHECKSIGVERIFY]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_CHECKSIGVERIFY')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_CHECKSIGVERIFY')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_CHECKSIGVERIFY], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -529,14 +529,14 @@ describe('[OP_CHECKMULTISIG]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_CHECKMULTISIG')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_CHECKMULTISIG')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIG], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -547,14 +547,14 @@ describe('[OP_CHECKMULTISIGVERIFY]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_CHECKMULTISIGVERIFY')
-    expect(codes.length).toBe(1)
+    expect(codes[0].type).toStrictEqual('OP_CHECKMULTISIGVERIFY')
+    expect(codes.length).toStrictEqual(1)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIGVERIFY], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -565,15 +565,15 @@ describe('[OP_RETURN, OP_0]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_RETURN')
-    expect(codes[1].type).toBe('OP_0')
-    expect(codes.length).toBe(2)
+    expect(codes[0].type).toStrictEqual('OP_RETURN')
+    expect(codes[1].type).toStrictEqual('OP_0')
+    expect(codes.length).toStrictEqual(2)
   })
 
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_RETURN, OP_CODES.OP_0], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -585,10 +585,10 @@ describe('[OP_RETURN, OP_PUSHDATA, OP_0]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes[0].type).toBe('OP_RETURN')
-    expect((codes[1] as OP_PUSHDATA).hex).toBe(pushData)
-    expect(codes[2].type).toBe('OP_0')
-    expect(codes.length).toBe(3)
+    expect(codes[0].type).toStrictEqual('OP_RETURN')
+    expect((codes[1] as OP_PUSHDATA).hex).toStrictEqual(pushData)
+    expect(codes[2].type).toStrictEqual('OP_0')
+    expect(codes.length).toStrictEqual(3)
   })
 
   it('should map toBuffer', () => {
@@ -598,7 +598,7 @@ describe('[OP_RETURN, OP_PUSHDATA, OP_0]', () => {
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
       OP_CODES.OP_0
     ], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -610,9 +610,9 @@ describe('[OP_PUSHDATA, OP_0]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect((codes[0] as OP_PUSHDATA).hex).toBe(pushData)
-    expect(codes[1].type).toBe('OP_0')
-    expect(codes.length).toBe(2)
+    expect((codes[0] as OP_PUSHDATA).hex).toStrictEqual(pushData)
+    expect(codes[1].type).toStrictEqual('OP_0')
+    expect(codes.length).toStrictEqual(2)
   })
 
   it('should map toBuffer', () => {
@@ -621,7 +621,7 @@ describe('[OP_PUSHDATA, OP_0]', () => {
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
       OP_CODES.OP_0
     ], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -633,12 +633,12 @@ describe('P2PKH: [OP_DUP, OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>, OP
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes.length).toBe(5)
-    expect(codes[0].type).toBe('OP_DUP')
-    expect(codes[1].type).toBe('OP_HASH160')
-    expect((codes[2] as OP_PUSHDATA).hex).toBe(pushData)
-    expect(codes[3].type).toBe('OP_EQUALVERIFY')
-    expect(codes[4].type).toBe('OP_CHECKSIG')
+    expect(codes.length).toStrictEqual(5)
+    expect(codes[0].type).toStrictEqual('OP_DUP')
+    expect(codes[1].type).toStrictEqual('OP_HASH160')
+    expect((codes[2] as OP_PUSHDATA).hex).toStrictEqual(pushData)
+    expect(codes[3].type).toStrictEqual('OP_EQUALVERIFY')
+    expect(codes[4].type).toStrictEqual('OP_CHECKSIG')
   })
 
   it('should map toBuffer', () => {
@@ -650,7 +650,7 @@ describe('P2PKH: [OP_DUP, OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>, OP
       OP_CODES.OP_EQUALVERIFY,
       OP_CODES.OP_CHECKSIG
     ], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -662,10 +662,10 @@ describe('P2SH: [OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(script))>, OP_EQUAL]',
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes.length).toBe(3)
-    expect(codes[0].type).toBe('OP_HASH160')
-    expect((codes[1] as OP_PUSHDATA).hex).toBe(pushData)
-    expect(codes[2].type).toBe('OP_EQUAL')
+    expect(codes.length).toStrictEqual(3)
+    expect(codes[0].type).toStrictEqual('OP_HASH160')
+    expect((codes[1] as OP_PUSHDATA).hex).toStrictEqual(pushData)
+    expect(codes[2].type).toStrictEqual('OP_EQUAL')
   })
 
   it('should map toBuffer', () => {
@@ -675,7 +675,7 @@ describe('P2SH: [OP_HASH160, OP_PUSHDATA<RIPEMD160(SHA256(script))>, OP_EQUAL]',
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little'),
       OP_CODES.OP_EQUAL
     ], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -687,9 +687,9 @@ describe('P2WPKH: [OP_0, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes.length).toBe(2)
-    expect(codes[0].type).toBe('OP_0')
-    expect((codes[1] as OP_PUSHDATA).hex).toBe(pushData)
+    expect(codes.length).toStrictEqual(2)
+    expect(codes[0].type).toStrictEqual('OP_0')
+    expect((codes[1] as OP_PUSHDATA).hex).toStrictEqual(pushData)
   })
 
   it('should map toBuffer', () => {
@@ -698,7 +698,7 @@ describe('P2WPKH: [OP_0, OP_PUSHDATA<RIPEMD160(SHA256(pubkey))>]', () => {
       OP_CODES.OP_0,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little')
     ], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
 
@@ -710,10 +710,10 @@ describe('P2WSH: [OP_0, OP_PUSHDATA<SHA256(script)>]', () => {
     const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
       Buffer.from(hex, 'hex')
     ))
-    expect(codes.length).toBe(2)
-    expect(codes[0].type).toBe('OP_0')
-    expect((codes[1] as OP_PUSHDATA).hex.length).toBe(64)
-    expect((codes[1] as OP_PUSHDATA).hex).toBe(pushData)
+    expect(codes.length).toStrictEqual(2)
+    expect(codes[0].type).toStrictEqual('OP_0')
+    expect((codes[1] as OP_PUSHDATA).hex.length).toStrictEqual(64)
+    expect((codes[1] as OP_PUSHDATA).hex).toStrictEqual(pushData)
   })
 
   it('should map toBuffer', () => {
@@ -722,6 +722,6 @@ describe('P2WSH: [OP_0, OP_PUSHDATA<SHA256(script)>]', () => {
       OP_CODES.OP_0,
       new OP_PUSHDATA(Buffer.from(pushData, 'hex'), 'little')
     ], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toBe(hex)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })

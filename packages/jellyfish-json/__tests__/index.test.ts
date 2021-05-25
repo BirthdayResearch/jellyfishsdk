@@ -5,12 +5,12 @@ describe('parse', () => {
     /* eslint-disable @typescript-eslint/restrict-plus-operands */
     it('18 digit significant should parse as lossless without precision lost', () => {
       const obj = JellyfishJSON.parse('{"lossless":1200000000.00000001}', 'lossless')
-      expect(obj.lossless.toString()).toBe('1200000000.00000001')
+      expect(obj.lossless.toString()).toStrictEqual('1200000000.00000001')
     })
 
     it('10 digit significant should parse as lossless with math operators should not have an error', () => {
       const obj = JellyfishJSON.parse('{"lossless":1200000000}', 'lossless')
-      expect((obj.lossless + 1).toString()).toBe('1200000001')
+      expect((obj.lossless + 1).toString()).toStrictEqual('1200000001')
     })
 
     it('18 digit significant should parse as lossless with math operators should throw an error', () => {
@@ -25,19 +25,19 @@ describe('parse', () => {
   describe('bignumber', () => {
     it('18 digit significant should parse as bignumber without precision lost', () => {
       const obj = JellyfishJSON.parse('{"bignumber":1200000000.00000001}', 'bignumber')
-      expect(obj.bignumber.toString()).toBe('1200000000.00000001')
+      expect(obj.bignumber.toString()).toStrictEqual('1200000000.00000001')
     })
   })
 
   describe('number', () => {
     it('18 digit significant should parse as number with precision lost', () => {
       const obj = JellyfishJSON.parse('{"number":1200000000.00000001}', 'number')
-      expect(obj.number.toString()).not.toBe('1200000000.00000001')
+      expect(obj.number.toString()).not.toStrictEqual('1200000000.00000001')
     })
 
     it('10 digit significant should parse as number without precision lost', () => {
       const obj = JellyfishJSON.parse('{"number":1200000000}', 'number')
-      expect(obj.number.toString()).toBe('1200000000')
+      expect(obj.number.toString()).toStrictEqual('1200000000')
     })
   })
 })
@@ -47,21 +47,21 @@ describe('stringify', () => {
     const string = JellyfishJSON.stringify({
       number: Number('1200000000')
     })
-    expect(string).toBe('{"number":1200000000}')
+    expect(string).toStrictEqual('{"number":1200000000}')
   })
 
   it('should stringify lossless as json numeric', () => {
     const string = JellyfishJSON.stringify({
       lossless: new LosslessNumber('1200000000.00000001')
     })
-    expect(string).toBe('{"lossless":1200000000.00000001}')
+    expect(string).toStrictEqual('{"lossless":1200000000.00000001}')
   })
 
   it('should stringify bignumber as json number', () => {
     const string = JellyfishJSON.stringify({
       bignumber: new BigNumber('1200000000.00000001')
     })
-    expect(string).toBe('{"bignumber":1200000000.00000001}')
+    expect(string).toStrictEqual('{"bignumber":1200000000.00000001}')
   })
 })
 
@@ -73,6 +73,6 @@ it('should remap object at root with precision', () => {
     big: 'bignumber'
   })
 
-  expect(parsed.big instanceof BigNumber).toBe(true)
-  expect(parsed.num).toBe(1234)
+  expect(parsed.big instanceof BigNumber).toStrictEqual(true)
+  expect(parsed.num).toStrictEqual(1234)
 })

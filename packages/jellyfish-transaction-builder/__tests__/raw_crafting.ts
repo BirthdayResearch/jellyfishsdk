@@ -114,6 +114,6 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
   ])
 
   // Amount is exact to what I send and I can unlock it
-  expect(unspent[0].amount).toBe(9.999)
-  expect(unspent[0].spendable).toBe(true)
+  expect(unspent[0].amount).toStrictEqual(9.999)
+  expect(unspent[0].spendable).toStrictEqual(true)
 })
