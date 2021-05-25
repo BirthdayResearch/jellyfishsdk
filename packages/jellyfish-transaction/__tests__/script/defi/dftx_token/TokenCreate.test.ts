@@ -7,9 +7,9 @@ import BigNumber from 'bignumber.js'
 
 /**
  * using createToken sample from
- * https://explorer.defichain.io/#/DFI/mainnet/tx/8a5066b4ea77c8d0b705ba94f47585f944ae587700f0f43f8655d01f38921f40
- * https://explorer.defichain.io/#/DFI/mainnet/tx/baeddea27199a9e9001133f18942353dc79a765f0c437a1eda550f7675dc6b8b
- * https://explorer.defichain.io/#/DFI/mainnet/tx/11fb90953bbd2a8f8649c116e6071dc73d428c5eba97c5a4a6dac550df2ab78c
+ * https://explorer.defichain.com/#/DFI/mainnet/tx/8a5066b4ea77c8d0b705ba94f47585f944ae587700f0f43f8655d01f38921f40
+ * https://explorer.defichain.com/#/DFI/mainnet/tx/baeddea27199a9e9001133f18942353dc79a765f0c437a1eda550f7675dc6b8b
+ * https://explorer.defichain.com/#/DFI/mainnet/tx/11fb90953bbd2a8f8649c116e6071dc73d428c5eba97c5a4a6dac550df2ab78c
  */
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [

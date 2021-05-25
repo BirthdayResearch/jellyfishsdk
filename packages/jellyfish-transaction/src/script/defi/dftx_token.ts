@@ -34,7 +34,7 @@ export interface TokenCreate {
   symbol: string // ---------------------| VarUInt{1-9 bytes}, + n bytes
   name: string // -----------------------| VarUInt{1-9 bytes}, + n bytes
   decimal: number // --------------------| 1 byte
-  limit: BigNumber // -------------------| 64 bytes
+  limit: BigNumber // -------------------| 8 bytes
   isDAT: boolean // ---------------------| 1 byte bitmask start, position 0
   tradeable: boolean // -----------------| 1 byte bitmask, position 1
   mintable: boolean // ------------------| 1 byte bitmask end, position 2
