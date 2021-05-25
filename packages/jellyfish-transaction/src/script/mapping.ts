@@ -29,6 +29,16 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './defi/dftx_account'
+import {
+  CAppointOracle,
+  AppointOracle,
+  RemoveOracle,
+  CRemoveOracle,
+  UpdateOracle,
+  CUpdateOracle,
+  SetOracleData,
+  CSetOracleData
+} from './defi/dftx_oracles'
 import { CAutoAuthPrep } from './defi/dftx_misc'
 
 /**
@@ -181,6 +191,38 @@ export const OP_CODES = {
       type: CAnyAccountToAccount.OP_CODE,
       name: CAnyAccountToAccount.OP_NAME,
       data: anyAccountToAccount
+    })
+  },
+  OP_DEFI_TX_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAppointOracle.OP_CODE,
+      name: CAppointOracle.OP_NAME,
+      data: appointOracle
+    })
+  },
+  OP_DEFI_TX_REMOVE_ORACLE: (removeOracle: RemoveOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CRemoveOracle.OP_CODE,
+      name: CRemoveOracle.OP_NAME,
+      data: removeOracle
+    })
+  },
+  OP_DEFI_TX_UPDATE_ORACLE: (updateOracle: UpdateOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateOracle.OP_CODE,
+      name: CUpdateOracle.OP_NAME,
+      data: updateOracle
+    })
+  },
+  OP_DEFI_TX_SET_ORACLE_DATA: (setOracleData: SetOracleData): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetOracleData.OP_CODE,
+      name: CSetOracleData.OP_NAME,
+      data: setOracleData
     })
   },
   OP_DEFI_TX_AUTO_AUTH_PREP: () => {
