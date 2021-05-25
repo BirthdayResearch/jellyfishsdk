@@ -1,4 +1,3 @@
-import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -25,26 +24,7 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
     return [
       ComposableBuffer.uInt8(() => cmn.type, v => cmn.type = v),
       ComposableBuffer.hex(20, () => cmn.collateralPubKeyHash, v => cmn.collateralPubKeyHash = v),
-      {
-        fromBuffer: (buffer: SmartBuffer): void => {
-          const buff = Buffer.from(buffer.readBuffer(buffer.length))
-          if (buff.length > 0) {
-            cmn.operatorPubKeyHash = buff.toString('hex')
-          }
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          if (cmn.operatorPubKeyHash === undefined) {
-            return
-          }
-
-          if (cmn.operatorPubKeyHash.length !== 40) {
-            throw new Error('CreateMasterNode.operatorPubKeyHash must be 20 bytes long')
-          }
-
-          const buff = Buffer.from(cmn.operatorPubKeyHash, 'hex')
-          buffer.writeBuffer(buff)
-        }
-      }
+      ComposableBuffer.optionalHex(20, () => cmn.operatorPubKeyHash, v => cmn.operatorPubKeyHash = v)
     ]
   }
 }
