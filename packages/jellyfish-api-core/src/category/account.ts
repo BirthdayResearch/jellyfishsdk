@@ -222,12 +222,12 @@ export class Account {
   }
 
   /**
-   * Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account.
+   * Creates and submits to a connect node and transfer transaction from the wallet UTXOs to a specified account.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
    * @param {Payload} payload
    * @param {string} payload[address]
-   * @param {UTXO[]} [utxos=[]]
+   * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
    * @return {Promise<string>}

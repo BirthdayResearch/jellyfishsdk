@@ -3,6 +3,7 @@ import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 import { RpcApiError } from '../../src'
+import { Payload } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -489,7 +490,7 @@ describe('masternode', () => {
 
   describe('utxosToAccount', () => {
     it('should utxosToAccount', async () => {
-      const payload: { [key: string]: string } = {}
+      const payload: Payload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -509,7 +510,7 @@ describe('masternode', () => {
     })
 
     it('should utxosToAccount with utxos', async () => {
-      const payload: { [key: string]: string } = {}
+      const payload: Payload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -531,7 +532,7 @@ describe('masternode', () => {
 
   describe('accountToAccount', () => {
     it('should accountToAccount', async () => {
-      const payload: { [key: string]: string } = {}
+      const payload: Payload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DBTC'
       payload[await container.getNewAddress()] = '5@DETH'
@@ -552,7 +553,7 @@ describe('masternode', () => {
     it('should accountToAccount with utxos', async () => {
       const { txid } = await container.fundAddress(from, 10)
 
-      const payload: { [key: string]: string } = {}
+      const payload: Payload = {}
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DBTC'
       payload[await container.getNewAddress()] = '5@DETH'
