@@ -132,7 +132,7 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
       ComposableBuffer.varUInt(() => p.tokenB, v => p.tokenB = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.boolean(() => p.status, v => p.status = v),
+      ComposableBuffer.bool(() => p.status, v => p.status = v),
       ComposableBuffer.varUIntUtf8BE(() => p.pairSymbol, v => p.pairSymbol = v),
       ComposableBuffer.varUIntArray(() => p.customRewards, v => p.customRewards = v, v => new CTokenBalance(v))
     ]
