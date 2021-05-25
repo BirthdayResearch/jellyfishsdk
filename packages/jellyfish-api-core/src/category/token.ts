@@ -81,6 +81,21 @@ export class Token {
   async getToken (symbolKey: string): Promise<TokenResult> {
     return await this.client.call('gettoken', [symbolKey], 'number')
   }
+
+  /**
+   * Creates a transaction minting your token (for accounts and/or UTXOs).
+   * The second optional argument (may be empty array) is an array of specific UTXOs to spend.
+   * One of UTXO's must belong to the token's owner (collateral) address.
+   *
+   * @param {string[]} payload
+   * @param {UtxosToAccountUTXO[]} [utxos=[]]
+   * @param {string} [utxos.txid]
+   * @param {number} [utxos.vout]
+   * @return {Promise<string>}
+   */
+  async mintTokens (payload: string[], utxos: UTXO[] = []): Promise<String> {
+    return await this.client.call('minttokens', [payload, utxos], 'number')
+  }
 }
 
 export interface TokenResult {
@@ -133,4 +148,9 @@ export interface TokenPagination {
   start: number
   including_start: boolean
   limit: number
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
 }

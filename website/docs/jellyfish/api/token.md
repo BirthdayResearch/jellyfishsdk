@@ -134,3 +134,21 @@ interface TokenInfo {
   collateralAddress: string
 }
 ```
+
+## mintTokens
+
+Creates a transaction minting your token (for accounts and/or UTXOs).
+The second optional argument (may be empty array) is an array of specific UTXOs to spend.
+One of UTXO's must belong to the token's owner (collateral) address.
+
+```ts title="client.token.mintToken()"
+interface token {
+  mintTokens (payload: string[], utxos: UTXO[] = []): Promise<String>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+
+```

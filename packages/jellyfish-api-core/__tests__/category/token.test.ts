@@ -469,4 +469,38 @@ describe('masternode', () => {
       expect(data.collateralAddress).toStrictEqual('')
     })
   })
+
+  describe('mintTokens', () => {
+    let from: any
+
+    beforeAll(async () => {
+      from = await container.getNewAddress()
+      await createToken('DXYZ', { isDAT: true, collateralAddress: from })
+      await container.generate(1)
+    })
+
+    it('should mintTokens', async () => {
+      const data = await client.token.mintTokens(['5@DXYZ'])
+
+      expect(typeof data).toStrictEqual('string')
+      expect(data.length).toStrictEqual(64)
+    })
+
+    it('should mintTokens with utxos', async () => {
+      const { txid } = await container.fundAddress(from, 10)
+
+      const utxos = await container.call('listunspent')
+      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
+        return {
+          txid: utxo.txid,
+          vout: utxo.vout
+        }
+      })
+
+      const data = await client.token.mintTokens(['5@DXYZ'], inputs)
+
+      expect(typeof data).toStrictEqual('string')
+      expect(data.length).toStrictEqual(64)
+    })
+  })
 })
