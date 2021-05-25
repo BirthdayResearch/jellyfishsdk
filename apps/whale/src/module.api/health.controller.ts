@@ -1,12 +1,12 @@
 import { Controller, Get } from '@nestjs/common'
 import { HealthCheck, HealthCheckResult, HealthCheckService } from '@nestjs/terminus'
-import { DeFiDHealthIndicator } from '@src/module.defid/defid.indicator'
+import { DeFiDProbeIndicator } from '@src/module.defid/defid.indicator'
 
 @Controller('/_health')
 export class HealthController {
   constructor (
     private readonly health: HealthCheckService,
-    private readonly defid: DeFiDHealthIndicator) {
+    private readonly defid: DeFiDProbeIndicator) {
   }
 
   /**

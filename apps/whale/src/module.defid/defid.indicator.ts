@@ -4,7 +4,7 @@ import { ProbeIndicator, HealthIndicatorResult } from '@src/module.health/probe.
 import { blockchain as bc } from '@defichain/jellyfish-api-core'
 
 @Injectable()
-export class DeFiDHealthIndicator extends ProbeIndicator {
+export class DeFiDProbeIndicator extends ProbeIndicator {
   constructor (private readonly client: JsonRpcClient) {
     super()
   }
