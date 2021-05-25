@@ -18,7 +18,7 @@ import {
   PoolRemoveLiquidity,
   PoolSwap
 } from './defi/dftx_pool'
-import { CTokenMint, TokenMint } from './defi/dftx_token'
+import { CTokenCreate, CTokenMint, TokenCreate, TokenMint } from './defi/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -159,6 +159,14 @@ export const OP_CODES = {
       type: CTokenMint.OP_CODE,
       name: CTokenMint.OP_NAME,
       data: tokenMint
+    })
+  },
+  OP_DEFI_TX_TOKEN_CREATE: (tokenCreate: TokenCreate): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenCreate.OP_CODE,
+      name: CTokenCreate.OP_NAME,
+      data: tokenCreate
     })
   },
   OP_DEFI_TX_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
