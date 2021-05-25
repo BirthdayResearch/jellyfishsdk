@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 import { RpcApiError } from '../../src'
-import { UtxosToAccountPayload, AccountToAccountPayload } from '../../src/category/account'
+import { UtxosToAccountPayload, AccountToAccountPayload, UTXO } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -516,7 +516,7 @@ describe('masternode', () => {
       payload[await container.getNewAddress()] = '5@DFI'
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+      const inputs: UTXO[] = utxos.map((utxo: { txid: string, vout: number }) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
@@ -559,7 +559,7 @@ describe('masternode', () => {
       payload[await container.getNewAddress()] = '5@DETH'
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
+      const inputs: UTXO[] = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
