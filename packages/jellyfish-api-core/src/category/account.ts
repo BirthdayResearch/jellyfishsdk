@@ -7,6 +7,7 @@ import { ApiClient } from '../.'
  * - 'all' to list the whole DB
  */
 type OwnerType = 'mine' | 'all' | string
+type TokenType = `${string}@${string}`
 
 /**
  * Account RPCs for DeFi Blockchain
@@ -225,14 +226,14 @@ export class Account {
    * Creates and submits to a connect node and transfer transaction from the wallet UTXOs to a specified account.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
-   * @param {Payload} payload
+   * @param {UtxosToAccountPayload} payload
    * @param {string} payload[address]
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
    * @return {Promise<string>}
    */
-  async utxosToAccount (payload: Payload, utxos: UTXO[] = []): Promise<string> {
+  async utxosToAccount (payload: UtxosToAccountPayload, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
   }
 
@@ -241,7 +242,7 @@ export class Account {
    * Optionally, specific UTXOs to spend to create that transaction.
    *
    * @param {string} from
-   * @param {Payload} payload
+   * @param {AccountToAccountPayload} payload
    * @param {string} payload[address]
    * @param {AccountToAccountOptions} [options]
    * @param {UTXO[]} [options.utxos = []]
@@ -249,7 +250,7 @@ export class Account {
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async accountToAccount (from: string, payload: Payload, options: AccountToAccountOptions = { utxos: [] }): Promise<string> {
+  async accountToAccount (from: string, payload: AccountToAccountPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string> {
     return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
   }
 }
@@ -310,8 +311,12 @@ export interface AccountHistoryOptions {
   limit?: number
 }
 
-export interface Payload {
-  [key: string]: string
+export interface UtxosToAccountPayload {
+  [key: string]: TokenType
+}
+
+export interface AccountToAccountPayload {
+  [key: string]: TokenType
 }
 
 export interface AccountToAccountOptions {
