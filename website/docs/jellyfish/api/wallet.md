@@ -272,4 +272,10 @@ interface SendManyOptions {
   confTarget?: number
   estimateMode?: Mode
 }
+
+enum Mode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
+}
 ```
