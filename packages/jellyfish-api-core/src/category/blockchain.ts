@@ -325,6 +325,7 @@ export interface MempoolTx {
     'bip125-replaceable': boolean
   }
 }
+
 export interface BlockStats {
   avgfee: number
   avgfeerate: number
