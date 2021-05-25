@@ -1,3 +1,4 @@
+import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -9,6 +10,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 export interface CreateMasterNode {
   type: number // ----------------------------------| 1 byte, if 0x01 p2pkh, otherwise = p2wpkh
   collateralPubKeyHash: string // ------------------| VarUInt{20 bytes}
+  operatorPubKeyHash?: string // -------------------| VarUInt{20 bytes}, p2pkh only, optional, use collateral pkh as default
 }
 
 /**
@@ -22,7 +24,27 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
   composers (cmn: CreateMasterNode): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => cmn.type, v => cmn.type = v),
-      ComposableBuffer.hex(20, () => cmn.collateralPubKeyHash, v => cmn.collateralPubKeyHash = v)
+      ComposableBuffer.hex(20, () => cmn.collateralPubKeyHash, v => cmn.collateralPubKeyHash = v),
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          const buff = Buffer.from(buffer.readBuffer(buffer.length))
+          if (buff.length > 0) {
+            cmn.operatorPubKeyHash = buff.toString('hex')
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          if (cmn.operatorPubKeyHash === undefined) {
+            return
+          }
+
+          if (cmn.operatorPubKeyHash.length !== 40) {
+            throw new Error('CreateMasterNode.operatorPubKeyHash must be 20 bytes long')
+          }
+
+          const buff = Buffer.from(cmn.operatorPubKeyHash, 'hex')
+          buffer.writeBuffer(buff)
+        }
+      }
     ]
   }
 }
