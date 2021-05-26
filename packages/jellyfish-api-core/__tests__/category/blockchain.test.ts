@@ -325,6 +325,7 @@ describe('masternode', () => {
       expect(stats.medianfee).toBeLessThanOrEqual(stats.maxfee)
       expect(stats.mediantxsize).toBeLessThanOrEqual(stats.maxtxsize)
       expect(stats.avgfeerate).toBeLessThanOrEqual(stats.maxfeerate)
+      expect(stats.minfeerate).toBeLessThanOrEqual(stats.maxfeerate)
       expect(stats.mintxsize).toBeLessThanOrEqual(stats.mediantxsize)
       expect(stats.utxo_increase).toStrictEqual(stats.outs - stats.ins)
 
@@ -341,7 +342,10 @@ describe('masternode', () => {
       expect(typeof stats.swtotal_size).toStrictEqual('number')
       expect(typeof stats.swtxs).toStrictEqual('number')
       expect(typeof stats.swtxs).toStrictEqual('number')
+      expect(typeof stats.swtotal_weight).toStrictEqual('number')
       expect(typeof stats.subsidy).toStrictEqual('number')
+      expect(typeof stats.txs).toStrictEqual('number')
+      expect(typeof stats.minfeerate).toStrictEqual('number')
 
       expect(stats.feerate_percentiles.length).toStrictEqual(5)
       expect(stats.feerate_percentiles[0]).toBeLessThanOrEqual(stats.feerate_percentiles[1])
