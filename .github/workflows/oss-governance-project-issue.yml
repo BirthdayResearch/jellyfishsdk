@@ -1,4 +1,4 @@
-name: Governance
+name: Governance Issues
 
 on:
   issues:
@@ -10,16 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     if: contains(github.event.issue.labels.*.name, 'triage/accepted')
     steps:
-      - if: contains(github.event.issue.labels.*.name, 'priority/urgent-now') || contains(github.event.issue.labels.*.name, 'priority/important-soon')
-        uses: peter-evans/create-or-update-project-card@c75ba6ac3c7c432dedd22a553951c216a4664b5f
+      - uses: peter-evans/create-or-update-project-card@c75ba6ac3c7c432dedd22a553951c216a4664b5f
+        if: contains(github.event.issue.labels.*.name, 'priority/urgent-now') || contains(github.event.issue.labels.*.name, 'priority/important-soon')
         with:
           token: ${{ secrets.DEFICHAIN_BOT_GITHUB_TOKEN }}
           project-location: defich
           project-name: DeFi Products
           column-name: Prioritized
 
-      - if: !contains(github.event.issue.labels.*.name, 'priority/urgent-now') && !contains(github.event.issue.labels.*.name, 'priority/important-soon')
-        uses: peter-evans/create-or-update-project-card@c75ba6ac3c7c432dedd22a553951c216a4664b5f
+      - uses: peter-evans/create-or-update-project-card@c75ba6ac3c7c432dedd22a553951c216a4664b5f
+        if: "!contains(github.event.issue.labels.*.name, 'priority/urgent-now') && !contains(github.event.issue.labels.*.name, 'priority/important-soon')"
         with:
           token: ${{ secrets.DEFICHAIN_BOT_GITHUB_TOKEN }}
           project-location: defich
