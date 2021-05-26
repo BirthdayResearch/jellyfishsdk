@@ -63,7 +63,7 @@ describe('balance', () => {
   })
 
   it('should sum getBalance', async () => {
-    const address = await container.getNewAddress()
+    const address = 'bcrt1qeq2g82kj99mqfvnwc2g5w0azzd298q0t84tc6s'
 
     await container.fundAddress(address, 0.12340001)
     await container.fundAddress(address, 4.32412313)
