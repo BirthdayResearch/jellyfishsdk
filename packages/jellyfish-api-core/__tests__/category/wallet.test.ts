@@ -222,23 +222,6 @@ describe('non masternode', () => {
       })
     })
   })
-  describe('dumpPrivKey', () => {
-    it('should reveal private key of given address', async () => {
-      await waitForExpect(async () => {
-        const address = await client.wallet.getNewAddress()
-        const privateKey = await client.wallet.dumpPrivKey(address)
-
-        expect(typeof privateKey).toStrictEqual('string')
-      })
-    })
-
-    it('should throw and error when invalid DFI address is provided', async () => {
-      await waitForExpect(async () => {
-        const invalidAddress = 'invalidAddress'
-        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
-      })
-    })
-  })
 })
 
 describe('masternode', () => {
@@ -648,8 +631,55 @@ describe('masternode', () => {
       })
     })
   })
+})
 
-  describe('dumpPrivKey', () => {
+describe('dumpPrivKey', () => {
+  describe('regTest', () => {
+    const container = new RegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should reveal private key of given address', async () => {
+      await waitForExpect(async () => {
+        const address = await client.wallet.getNewAddress()
+        const privateKey = await client.wallet.dumpPrivKey(address)
+
+        expect(typeof privateKey).toStrictEqual('string')
+      })
+    })
+
+    it('should throw and error when invalid DFI address is provided', async () => {
+      await waitForExpect(async () => {
+        const invalidAddress = 'invalidAddress'
+
+        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
+      })
+    })
+  })
+
+  describe('Masternode', () => {
+    const container = new MasterNodeRegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      await container.waitForWalletCoinbaseMaturity()
+      await container.waitForWalletBalanceGTE(101)
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
     it('should reveal private key of given address', async () => {
       await waitForExpect(async () => {
         const address = await client.wallet.getNewAddress()
