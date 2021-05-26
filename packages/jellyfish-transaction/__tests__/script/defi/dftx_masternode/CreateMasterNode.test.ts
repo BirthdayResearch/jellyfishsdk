@@ -98,7 +98,7 @@ describe('with `operatorPubKeyHash`', () => {
       const buffer = new SmartBuffer()
       expect(() =>
         composable.toBuffer(buffer)
-      ).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
+      ).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
     })
   })
 })
