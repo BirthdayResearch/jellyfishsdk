@@ -474,7 +474,7 @@ describe('ComposableBuffer.optionalHex', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
     })
   })
 
@@ -511,7 +511,7 @@ describe('ComposableBuffer.optionalHex', () => {
 
       expect(() => {
         composer.toBuffer(new SmartBuffer())
-      }).toThrow('ComposableBuffer.hex.toBuffer invalid as length != getter().length')
+      }).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
     })
   })
 })
