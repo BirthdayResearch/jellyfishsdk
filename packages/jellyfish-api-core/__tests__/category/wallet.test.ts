@@ -272,7 +272,7 @@ describe('sendMany', () => {
   it('should send one address using sendMany', async () => {
     const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001 }
     const transactionId = await client.wallet.sendMany(amounts)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
 
     // generate one block
     await container.generate(1)
@@ -293,7 +293,7 @@ describe('sendMany', () => {
       mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002
     }
     const transactionId = await client.wallet.sendMany(amounts)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
 
     // generate one block
     await container.generate(1)
@@ -325,7 +325,7 @@ describe('sendMany', () => {
       comment: 'test comment'
     }
     const transactionId = await client.wallet.sendMany(amounts, [], options)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
   })
 
   it('should sendMany with replaceable', async () => {
@@ -337,7 +337,7 @@ describe('sendMany', () => {
       replaceable: true
     }
     const transactionId = await client.wallet.sendMany(amounts, [], options)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
   })
 
   it('should sendMany with confTarget', async () => {
@@ -349,7 +349,7 @@ describe('sendMany', () => {
       confTarget: 60
     }
     const transactionId = await client.wallet.sendMany(amounts, [], options)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
   })
 
   it('should sendMany with estimateMode', async () => {
@@ -361,7 +361,7 @@ describe('sendMany', () => {
       estimateMode: Mode.ECONOMICAL
     }
     const transactionId = await client.wallet.sendMany(amounts, [], options)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
   })
 
   it('should sendMany with fee substracted from mentioned recipients', async () => {
@@ -371,7 +371,7 @@ describe('sendMany', () => {
     }
     const subtractFeeFrom: string [] = ['mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy']
     const transactionId = await client.wallet.sendMany(amounts, subtractFeeFrom)
-    expect(typeof transactionId).toBe('string')
+    expect(typeof transactionId).toStrictEqual('string')
 
     // generate one block
     await container.generate(1)
@@ -392,7 +392,7 @@ describe('sendMany', () => {
     utxos2.forEach(utxo => {
       expect(utxo.address).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
       // amount should be less than 10.5
-      expect(utxo.amount.isLessThan(10.5)).toBe(true)
+      expect(utxo.amount.isLessThan(10.5)).toStrictEqual(true)
     })
   })
 })
