@@ -35,7 +35,7 @@ export class Indexer {
         await this.cleanup()
         this.indexing = await this.synchronize()
       } catch (err) {
-        this.logger.error('failed exceptionally', err, 'synchronize')
+        this.logger.error('failed exceptionally', err)
         this.indexing = false
       }
     }
@@ -98,12 +98,12 @@ export class Indexer {
         return
     }
 
-    this.logger.log(`hash: ${status.hash} - height: ${status.height} - status: ${status.status}`, 'cleanup')
+    this.logger.log(`Cleanup - hash: ${status.hash} - height: ${status.height} - status: ${status.status}`)
     await this.invalidate(status.hash, status.height)
   }
 
   private async index (hash: string, height: number): Promise<void> {
-    this.logger.log(`hash: ${hash} - height: ${height}`, 'index')
+    this.logger.log(`Index - hash: ${hash} - height: ${height}`)
     await this.statusMapper.put(hash, height, Status.INDEXING)
 
     try {
@@ -116,7 +116,7 @@ export class Indexer {
   }
 
   private async invalidate (hash: string, height: number): Promise<void> {
-    this.logger.log(`hash: ${hash} - height: ${height}`, 'invalidate')
+    this.logger.log(`Invalidate - hash: ${hash} - height: ${height}`)
     await this.statusMapper.put(hash, height, Status.INVALIDATING)
 
     try {
