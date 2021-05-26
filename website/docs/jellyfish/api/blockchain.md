@@ -264,7 +264,6 @@ Get block statistics for a given window. Returns all stats values if nothing is 
 
 
 ```ts title="client.blockchain.getBlockStats()"
-
 interface blockchain {
   getBlockStats(hashOrHeight: number | string): Promise<BlockStats>
   getBlockStats(hashOrHeight: number | string, stats: Array<keyof BlockStats>): Promise<BlockStats>
@@ -301,7 +300,6 @@ interface BlockStats {
   utxo_size_inc: number
   feerate_percentiles: [number, number, number, number, number] 
 }
-
 ```
 
 ## getBestBlockHash
@@ -312,5 +310,4 @@ Get the hash of the best (tip) block in the most-work fully-validated chain.
 interface blockchain {
   getBestBlockHash (): Promise<string>
 }
-
 ```
