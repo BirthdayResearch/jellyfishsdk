@@ -222,23 +222,6 @@ describe('non masternode', () => {
       })
     })
   })
-  describe('dumpPrivKey', () => {
-    it('should reveal private key of given address', async () => {
-      await waitForExpect(async () => {
-        const address = await client.wallet.getNewAddress()
-        const privateKey = await client.wallet.dumpPrivKey(address)
-
-        expect(typeof privateKey).toStrictEqual('string')
-      })
-    })
-
-    it('should throw and error when invalid DFI address is provided', async () => {
-      await waitForExpect(async () => {
-        const invalidAddress = 'invalidAddress'
-        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
-      })
-    })
-  })
 })
 
 describe('masternode', () => {
@@ -648,25 +631,6 @@ describe('masternode', () => {
       })
     })
   })
-
-  describe('dumpPrivKey', () => {
-    it('should reveal private key of given address', async () => {
-      await waitForExpect(async () => {
-        const address = await client.wallet.getNewAddress()
-        const privateKey = await client.wallet.dumpPrivKey(address)
-
-        expect(typeof privateKey).toStrictEqual('string')
-      })
-    })
-
-    it('should throw and error when invalid DFI address is provided', async () => {
-      await waitForExpect(async () => {
-        const invalidAddress = 'invalidAddress'
-
-        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
-      })
-    })
-  })
 })
 
 describe('dumpPrivKey', () => {
@@ -701,7 +665,7 @@ describe('dumpPrivKey', () => {
     })
   })
 
-  describe('Masternode', () => {
+  describe('masternode', () => {
     const container = new MasterNodeRegTestContainer()
     const client = new ContainerAdapterClient(container)
 
