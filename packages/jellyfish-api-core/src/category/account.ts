@@ -6,8 +6,30 @@ import { ApiClient } from '../.'
  * - 'mine' to list history for all owned accounts or
  * - 'all' to list the whole DB
  */
-type OwnerType = 'mine' | 'all' | string
+export enum OwnerType {
+  MINE = 'mine',
+  ALL = 'all'
+}
 
+export enum TxType {
+  MINT_TOKEN ='M',
+  POOL_SWAP = 's',
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTXOS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a',
+  CREATE_MASTERNODE = 'C',
+  RESIGN_MASTERNODE = 'R',
+  CREATE_TOKEN = 'T',
+  UPDATE_TOKEN = 'N',
+  UPDATE_TOKEN_ANY = 'n',
+  CREATE_POOL_PAIR = 'p',
+  UPDATE_POOL_PAIR = 'u',
+  SET_GOV_VARIABLE = 'G',
+  AUTO_AUTH_PREP = 'A'
+}
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -202,7 +224,7 @@ export class Account {
   /**
    * Returns information about account history
    *
-   * @param {OwnerType} [owner='mine'] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
    * @param {AccountHistoryOptions} [options]
    * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
@@ -213,7 +235,7 @@ export class Account {
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
-    owner: OwnerType = 'mine',
+    owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
@@ -234,6 +256,23 @@ export class Account {
    */
   async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
+  }
+
+  /**
+   * Returns count of account history
+   *
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
+   * @param {AccountHistoryCountOptions} [options]
+   * @param {boolean} [options.no_rewards] Filter out rewards
+   * @param {string} [options.token] Filter by token
+   * @param {TxType | string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @return {Promise<number>} count of account history
+   */
+  async historyCount (
+    owner: OwnerType | string = OwnerType.MINE,
+    options: AccountHistoryCountOptions = {}
+  ): Promise<number> {
+    return await this.client.call('accounthistorycount', [owner, options], 'number')
   }
 }
 
@@ -300,4 +339,10 @@ export interface UtxosToAccountPayload {
 export interface UtxosToAccountUTXO {
   txid: string
   vout: number
+}
+
+export interface AccountHistoryCountOptions {
+  token?: string
+  txtype?: TxType | string
+  no_rewards?: boolean
 }
