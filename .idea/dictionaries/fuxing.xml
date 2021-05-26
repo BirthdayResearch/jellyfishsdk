@@ -159,6 +159,7 @@
       <w>scripthash</w>
       <w>secp</w>
       <w>segwit</w>
+      <w>sendmany</w>
       <w>sendrawtransaction</w>
       <w>sendtoaddress</w>
       <w>sendtokenstoaddress</w>
@@ -172,6 +173,7 @@
       <w>softforks</w>
       <w>spentby</w>
       <w>strippedsize</w>
+      <w>surangap</w>
       <w>testcontainers</w>
       <w>testmempoolaccept</w>
       <w>thedoublejay</w>
