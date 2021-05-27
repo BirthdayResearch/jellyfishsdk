@@ -312,8 +312,10 @@ describe('masternode', () => {
       await client.token.updateToken(tokenDABCId, { mintable: false })
       await container.generate(1)
 
-      const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
-      expect(tokenAfter.mintable).toStrictEqual(false)
+      await waitForExpect(async () => {
+        const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
+        expect(tokenAfter.mintable).toStrictEqual(false)
+      })
     })
 
     it('should updateToken by creationTx', async () => {
@@ -324,8 +326,10 @@ describe('masternode', () => {
       await client.token.updateToken(creationTx, { tradeable: false })
       await container.generate(1)
 
-      const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
-      expect(tokenAfter.tradeable).toStrictEqual(false)
+      await waitForExpect(async () => {
+        const { [tokenDABCId]: tokenAfter } = await client.token.getToken(`DABC#${tokenDABCId}`)
+        expect(tokenAfter.tradeable).toStrictEqual(false)
+      })
     })
   })
 

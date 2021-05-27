@@ -50,7 +50,6 @@ beforeEach(async () => {
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
   // Fund 10 DFI TOKEN
-  await fundEllipticPair(container, providers.ellipticPair, 10)
   await providers.setupMocks() // required to move utxos
   await utxosToAccount(container, 10, { address: await providers.getAddress() })
 
