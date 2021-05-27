@@ -11,7 +11,7 @@ describe('masternode', () => {
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
-    await createToken(await container.call('getnewaddress'), 'DBTC', 200)
+    await createToken(await container.getNewAddress(), 'DBTC', 200)
   })
 
   afterAll(async () => {
@@ -34,62 +34,60 @@ describe('masternode', () => {
     await container.generate(1)
   }
 
-  describe('getAccount', () => {
-    it('should getAccount', async () => {
-      const accounts = await client.account.listAccounts()
+  it('should getAccount', async () => {
+    const accounts = await client.account.listAccounts()
 
-      // [ '187.00000000@DBTC', '154.00000000@DETH' ]
+    // [ '187.00000000@DBTC', '154.00000000@DETH' ]
+    const account = await client.account.getAccount(accounts[0].owner.addresses[0])
+    expect(account.length).toBeGreaterThan(0)
+    for (let i = 0; i < account.length; i += 1) {
+      expect(typeof account[i]).toStrictEqual('string')
+    }
+  })
+
+  it('should getAccount with pagination start and including_start', async () => {
+    let accounts: any[] = []
+    let beforeAccountCount = 0
+
+    await waitForExpect(async () => {
+      accounts = await client.account.listAccounts()
+      expect(accounts.length).toBeGreaterThan(0)
+
       const account = await client.account.getAccount(accounts[0].owner.addresses[0])
-      expect(account.length).toBeGreaterThan(0)
-      for (let i = 0; i < account.length; i += 1) {
-        expect(typeof account[i]).toStrictEqual('string')
-      }
+      beforeAccountCount = account.length
     })
 
-    it('should getAccount with pagination start and including_start', async () => {
-      let accounts: any[] = []
-      let beforeAccountCount = 0
+    const pagination = {
+      start: beforeAccountCount,
+      including_start: true
+    }
 
-      await waitForExpect(async () => {
-        accounts = await client.account.listAccounts()
-        expect(accounts.length).toBeGreaterThan(0)
+    // [ '187.00000000@DBTC', '154.00000000@DETH' ]
+    const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
+    expect(account.length).toStrictEqual(1)
 
-        const account = await client.account.getAccount(accounts[0].owner.addresses[0])
-        beforeAccountCount = account.length
-      })
+    for (let i = 0; i < account.length; i += 1) {
+      expect(typeof account[i]).toStrictEqual('string')
+    }
+  })
 
-      const pagination = {
-        start: beforeAccountCount,
-        including_start: true
-      }
+  it('should getAccount with pagination.limit', async () => {
+    const accounts = await client.account.listAccounts()
 
-      // [ '187.00000000@DBTC', '154.00000000@DETH' ]
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
-      expect(account.length).toStrictEqual(1)
+    const pagination = {
+      limit: 1
+    }
+    const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
+    expect(account.length).toStrictEqual(1)
+  })
 
-      for (let i = 0; i < account.length; i += 1) {
-        expect(typeof account[i]).toStrictEqual('string')
-      }
-    })
+  it('should getAccount with indexedAmount true', async () => {
+    const accounts = await client.account.listAccounts()
 
-    it('should getAccount with pagination.limit', async () => {
-      const accounts = await client.account.listAccounts()
-
-      const pagination = {
-        limit: 1
-      }
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
-      expect(account.length).toStrictEqual(1)
-    })
-
-    it('should getAccount with indexedAmount true', async () => {
-      const accounts = await client.account.listAccounts()
-
-      const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: true })
-      expect(typeof account).toStrictEqual('object')
-      for (const k in account) {
-        expect(typeof account[k]).toStrictEqual('number')
-      }
-    })
+    const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: true })
+    expect(typeof account).toStrictEqual('object')
+    for (const k in account) {
+      expect(typeof account[k]).toStrictEqual('number')
+    }
   })
 })
