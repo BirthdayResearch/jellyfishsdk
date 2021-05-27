@@ -926,10 +926,11 @@ describe('dumpPrivKey', () => {
 
     it('should reveal private key of given address', async () => {
       await waitForExpect(async () => {
-        const address = await client.wallet.getNewAddress()
+        const address = 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
         const privateKey = await client.wallet.dumpPrivKey(address)
 
         expect(typeof privateKey).toStrictEqual('string')
+        expect(privateKey).toStrictEqual('cRiRQ9cHmy5evDqNDdEV8f6zfbK6epi9Fpz4CRZsmLEmkwy54dWz')
       })
     })
 
