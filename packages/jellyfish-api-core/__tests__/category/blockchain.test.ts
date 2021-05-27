@@ -249,7 +249,7 @@ describe('masternode', () => {
     })
   })
 
-  describe('getDifficulty', () => {
+  describe('getdifficulty', () => {
     it('should getDifficulty', async () => {
       const difficulty = await client.blockchain.getDifficulty()
       expect(difficulty).toBeGreaterThanOrEqual(0)
