@@ -48,7 +48,7 @@ export abstract class WalletAccount {
    * @return {Script} parsed from address
    */
   addressToScript (address: string): Script {
-    const parsed = DeFiAddress.from(this.network.name, address)
+    const parsed = DeFiAddress.from(address)
     return parsed.getScript()
   }
 

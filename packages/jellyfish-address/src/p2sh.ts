@@ -1,25 +1,23 @@
 import { Bs58 } from '@defichain/jellyfish-crypto'
-import { getNetwork, Network, NetworkName } from '@defichain/jellyfish-network'
+import { getNetwork, MainNet, Network, NetworkName, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
+import { Address } from './address'
 
-import { Base58Address } from './base58_address'
+export class P2SH extends Address {
+  readonly scriptHash: Buffer | undefined // dSHA256()
 
-export class P2SH extends Base58Address {
-  static SCRIPT_HASH_LENGTH = 50 // 25 bytes, 50 char
+  constructor (network: Network | undefined, utf8String: string, scriptHash: Buffer | undefined, valid: boolean = false) {
+    super(network, utf8String, valid, 'P2SH')
 
-  constructor (network: Network, utf8String: string, hex: string, validated: boolean = false) {
-    super(network, utf8String, hex, validated, 'P2SH')
-  }
+    // safety precaution
+    if (valid && (utf8String.length < 26 || utf8String.length > 35 || scriptHash?.length !== 20)) {
+      throw new Error('Invalid P2SH address marked valid')
+    }
 
-  getPrefix (): number {
-    return this.network.scriptHashPrefix
+    this.scriptHash = scriptHash
   }
 
   getScript (): Script {
-    if (!this.valid) {
-      this.validate()
-    }
-
     if (!this.valid) {
       throw new Error('InvalidDefiAddress')
     }
@@ -27,19 +25,31 @@ export class P2SH extends Base58Address {
     return {
       stack: [
         OP_CODES.OP_HASH160,
-        new OP_PUSHDATA(Buffer.from(this.hex, 'hex'), 'little'),
+        new OP_PUSHDATA(this.scriptHash as Buffer, 'little'),
         OP_CODES.OP_EQUAL
       ]
     }
   }
 
-  static to (net: NetworkName | Network, h160: string): P2SH {
-    if (h160.length !== Base58Address.DATA_HEX_LENGTH) {
-      throw new Error('InvalidDataLength')
-    }
-
+  static to (net: NetworkName | Network, h160: string | Buffer): P2SH {
     const network = typeof net === 'string' ? getNetwork(net) : net
     const address = Bs58.fromHash160(h160, network.scriptHashPrefix)
-    return new P2SH(network, address, h160, true)
+    const buffer = typeof h160 === 'string' ? Buffer.from(h160, 'hex') : h160
+    return new P2SH(network, address, buffer, true)
+  }
+
+  static from (utf8String: string): P2SH {
+    let network: Network | undefined
+    let buffer: Buffer | undefined
+    let valid = false
+    try {
+      const decoded = Bs58.toHash160(utf8String)
+      buffer = decoded.buffer
+      network = [MainNet, TestNet, RegTest].find(net => net.scriptHashPrefix === decoded.prefix)
+      valid = true
+    } catch {
+      // non b58 string, invalid address
+    }
+    return new P2SH(network, utf8String, buffer, valid)
   }
 }

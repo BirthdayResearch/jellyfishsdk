@@ -1,6 +1,5 @@
 import BigNumber from 'bignumber.js'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { RegTest } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
@@ -133,7 +132,7 @@ describe('liqPool.addLiquidity()', () => {
     const script = await providers.elliptic.script()
 
     const shareDestAddress = await container.getNewAddress()
-    const shareDest = P2WPKH.fromAddress(RegTest, shareDestAddress, P2WPKH)
+    const shareDest = P2WPKH.from(shareDestAddress)
 
     const tokenAAmount = 2.34
     const tokenBAmount = 90.87

@@ -13,7 +13,6 @@ import {
   sendTransaction
 } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
-import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -72,7 +71,7 @@ describe('account.accountToAccount()', () => {
     const newAddress = await container.getNewAddress()
 
     // output token address
-    const newP2wpkh = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
+    const newP2wpkh = P2WPKH.from(newAddress)
 
     const destPubKey = await providers.ellipticPair.publicKey()
     const script = await providers.elliptic.script()
@@ -120,7 +119,7 @@ describe('account.accountToAccount()', () => {
     const newAddress = await container.getNewAddress()
 
     // output token address
-    const newP2wpkh = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH)
+    const newP2wpkh = P2WPKH.from(newAddress)
 
     const destPubKey = await providers.ellipticPair.publicKey()
     const script = await providers.elliptic.script()
@@ -176,8 +175,8 @@ describe('account.accountToAccount()', () => {
     const destTwoAddress = await container.getNewAddress()
 
     // output token addresses
-    const destOneP2wpkh = P2WPKH.fromAddress(RegTest, destOneAddress, P2WPKH)
-    const destTwoP2wpkh = P2WPKH.fromAddress(RegTest, destTwoAddress, P2WPKH)
+    const destOneP2wpkh = P2WPKH.from(destOneAddress)
+    const destTwoP2wpkh = P2WPKH.from(destTwoAddress)
 
     const destPubKey = await providers.ellipticPair.publicKey()
     const script = await providers.elliptic.script()

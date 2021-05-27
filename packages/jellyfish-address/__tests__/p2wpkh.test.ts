@@ -24,7 +24,7 @@ describe('P2WPKH', () => {
 
   describe('from() - valid address', () => {
     it('should get the type precisely', () => {
-      const p2wpkh = DeFiAddress.from('mainnet', p2wpkhFixture.mainnet)
+      const p2wpkh = DeFiAddress.from(p2wpkhFixture.mainnet)
       expect(p2wpkh.valid).toBeTruthy()
       expect(p2wpkh.type).toStrictEqual('P2WPKH')
       expect(p2wpkh.constructor.name).toStrictEqual('P2WPKH')
@@ -32,13 +32,13 @@ describe('P2WPKH', () => {
     })
 
     it('should work for all recognized network type', () => {
-      const testnet = DeFiAddress.from('testnet', p2wpkhFixture.testnet)
+      const testnet = DeFiAddress.from(p2wpkhFixture.testnet)
       expect(testnet.valid).toBeTruthy()
       expect(testnet.type).toStrictEqual('P2WPKH')
       expect(testnet.constructor.name).toStrictEqual('P2WPKH')
       expect(testnet.network).toStrictEqual(TestNet)
 
-      const regtest = DeFiAddress.from('regtest', p2wpkhFixture.regtest)
+      const regtest = DeFiAddress.from(p2wpkhFixture.regtest)
       expect(regtest.valid).toBeTruthy()
       expect(regtest.type).toStrictEqual('P2WPKH')
       expect(regtest.constructor.name).toStrictEqual('P2WPKH')
@@ -48,18 +48,18 @@ describe('P2WPKH', () => {
 
   describe('from() - invalid address', () => {
     it('trimmed prefix', () => {
-      const invalid = DeFiAddress.from('mainnet', p2wpkhFixture.trimmedPrefix)
+      const invalid = DeFiAddress.from(p2wpkhFixture.trimmedPrefix)
       expect(invalid.valid).toBeFalsy()
     })
 
     it('invalid character set', () => {
-      const invalid = DeFiAddress.from('mainnet', p2wpkhFixture.invalid)
+      const invalid = DeFiAddress.from(p2wpkhFixture.invalid)
       expect(invalid.valid).toBeFalsy()
     })
 
     it('should be able to validate in address prefix with network', () => {
       // valid address, used on different network
-      const p2wpkh = DeFiAddress.from('testnet', p2wpkhFixture.mainnet)
+      const p2wpkh = DeFiAddress.from(p2wpkhFixture.mainnet)
       expect(p2wpkh.valid).toBeFalsy()
       // expect(p2wpkh.type).toStrictEqual('P2WPKH') // invalid address guessed type is not promising, as p2wpkh and p2wpkh are versy similar
       expect(p2wpkh.network).toStrictEqual(TestNet)
@@ -96,7 +96,7 @@ describe('P2WPKH', () => {
 
   describe('getScript()', () => {
     it('should refuse to build ops code stack for invalid address', () => {
-      const invalid = DeFiAddress.from('testnet', p2wpkhFixture.mainnet)
+      const invalid = DeFiAddress.from(p2wpkhFixture.mainnet)
       expect(invalid.valid).toBeFalsy()
       try {
         invalid.getScript()
@@ -106,32 +106,12 @@ describe('P2WPKH', () => {
     })
 
     it('should be able to build script', async () => {
-      const p2wpkh = DeFiAddress.from('mainnet', p2wpkhFixture.mainnet)
+      const p2wpkh = DeFiAddress.from(p2wpkhFixture.mainnet)
       const scriptStack = p2wpkh.getScript()
 
       expect(scriptStack.stack.length).toStrictEqual(2)
       expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
       expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
     })
-  })
-
-  it('validate()', () => {
-    const data = '0e7c0ab18b305bc987a266dc06de26fcfab4b56a' // 20 bytes
-
-    const p2wpkh = new P2WPKH(RegTest, p2wpkhFixture.regtest, data)
-    expect(p2wpkh.validatorPassed).toStrictEqual(0)
-    expect(p2wpkh.valid).toBeFalsy()
-
-    const isValid = p2wpkh.validate()
-    expect(p2wpkh.validatorPassed).toStrictEqual(5) // length, network prefix, data character set
-    expect(isValid).toBeTruthy()
-  })
-
-  it('guess()', () => {
-    const p2wpkh = DeFiAddress.guess(p2wpkhFixture.mainnet)
-    expect(p2wpkh.valid).toBeTruthy()
-    expect(p2wpkh.type).toStrictEqual('P2WPKH')
-    expect(p2wpkh.constructor.name).toStrictEqual('P2WPKH')
-    expect(p2wpkh.network).toStrictEqual(MainNet)
   })
 })
