@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 
-describe('masternode', () => {
+describe('Account with DBTC', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -37,7 +37,6 @@ describe('masternode', () => {
   it('should getAccount', async () => {
     const accounts = await client.account.listAccounts()
 
-    // [ '187.00000000@DBTC', '154.00000000@DETH' ]
     const account = await client.account.getAccount(accounts[0].owner.addresses[0])
     expect(account.length).toBeGreaterThan(0)
     for (let i = 0; i < account.length; i += 1) {
@@ -62,7 +61,6 @@ describe('masternode', () => {
       including_start: true
     }
 
-    // [ '187.00000000@DBTC', '154.00000000@DETH' ]
     const account = await client.account.getAccount(accounts[0].owner.addresses[0], pagination)
     expect(account.length).toStrictEqual(1)
 

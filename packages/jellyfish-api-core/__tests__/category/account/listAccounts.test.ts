@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 
-describe('masternode', () => {
+describe('Account with DBTC and DETH', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -47,7 +47,7 @@ describe('masternode', () => {
       expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
       expect(typeof account.owner.type).toStrictEqual('string')
       expect(account.owner.addresses.length).toBeGreaterThan(0)
-      expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
+      expect(typeof account.amount).toStrictEqual('string')
     }
   })
 
@@ -80,7 +80,7 @@ describe('masternode', () => {
       const account = accounts[i]
       expect(typeof account.key).toStrictEqual('string')
       expect(typeof account.owner).toStrictEqual('string')
-      expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
+      expect(typeof account.amount).toStrictEqual('string')
     }
   })
 
@@ -129,7 +129,7 @@ describe('masternode', () => {
       expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
       expect(typeof account.owner.type).toStrictEqual('string')
       expect(account.owner.addresses.length).toBeGreaterThan(0)
-      expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
+      expect(typeof account.amount).toStrictEqual('string')
     }
   })
 
@@ -144,7 +144,7 @@ describe('masternode', () => {
       expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
       expect(typeof account.owner.type).toStrictEqual('string')
       expect(account.owner.addresses.length).toBeGreaterThan(0)
-      expect(typeof account.amount).toStrictEqual('string') // 10.00000000@DFI
+      expect(typeof account.amount).toStrictEqual('string')
     }
   })
 })

@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
 
-describe('masternode', () => {
+describe('Account with DBTC and DETH', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -96,7 +96,7 @@ describe('masternode', () => {
 
     const tokenBalances = await client.account.getTokenBalances({}, false, { symbolLookup: true })
     for (let i = 0; i < tokenBalances.length; i += 1) {
-      expect(typeof tokenBalances[i]).toStrictEqual('string') // [ '300.00000000@DFI', '200.00000000@DBTC' ]
+      expect(typeof tokenBalances[i]).toStrictEqual('string')
     }
   })
 })
