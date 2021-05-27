@@ -10,24 +10,12 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-
-    await setup()
+    await createToken(await container.call('getnewaddress'), 'DBTC', 200)
   })
 
   afterAll(async () => {
     await container.stop()
   })
-
-  async function setup (): Promise<void> {
-    const from = await container.call('getnewaddress')
-    await createToken(from, 'DBTC', 200)
-
-    const to = await accountToAccount('DBTC', 5, from)
-    await accountToAccount('DBTC', 18, from, to)
-
-    await createToken(from, 'DETH', 200)
-    await accountToAccount('DETH', 46, from)
-  }
 
   async function createToken (address: string, symbol: string, amount: number): Promise<void> {
     const metadata = {
@@ -38,7 +26,7 @@ describe('masternode', () => {
       tradeable: true,
       collateralAddress: address
     }
-    await container.waitForWalletBalanceGTE(101)
+    await container.waitForWalletBalanceGTE(100)
     await container.call('createtoken', [metadata])
     await container.generate(1)
 
@@ -46,29 +34,9 @@ describe('masternode', () => {
     await container.generate(1)
   }
 
-  async function accountToAccount (symbol: string, amount: number, from: string, _to = ''): Promise<string> {
-    const to = _to !== '' ? _to : await container.call('getnewaddress')
-
-    await container.call('accounttoaccount', [from, { [to]: `${amount.toString()}@${symbol}` }])
-    await container.generate(1)
-
-    return to
-  }
-
-  async function waitForListingAccounts (): Promise<any[]> {
-    let accounts: any[] = []
-
-    await waitForExpect(async () => {
-      accounts = await client.account.listAccounts()
-      expect(accounts.length).toBeGreaterThan(0)
-    })
-
-    return accounts
-  }
-
   describe('getAccount', () => {
     it('should getAccount', async () => {
-      const accounts = await waitForListingAccounts()
+      const accounts = await client.account.listAccounts()
 
       // [ '187.00000000@DBTC', '154.00000000@DETH' ]
       const account = await client.account.getAccount(accounts[0].owner.addresses[0])
@@ -105,7 +73,7 @@ describe('masternode', () => {
     })
 
     it('should getAccount with pagination.limit', async () => {
-      const accounts = await waitForListingAccounts()
+      const accounts = await client.account.listAccounts()
 
       const pagination = {
         limit: 1
@@ -115,7 +83,7 @@ describe('masternode', () => {
     })
 
     it('should getAccount with indexedAmount true', async () => {
-      const accounts = await waitForListingAccounts()
+      const accounts = await client.account.listAccounts()
 
       const account = await client.account.getAccount(accounts[0].owner.addresses[0], {}, { indexedAmounts: true })
       expect(typeof account).toStrictEqual('object')

@@ -11,24 +11,13 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-
-    await setup()
+    await createToken(await container.call('getnewaddress'), 'DBTC', 200)
+    await createToken(await container.call('getnewaddress'), 'DETH', 200)
   })
 
   afterAll(async () => {
     await container.stop()
   })
-
-  async function setup (): Promise<void> {
-    const from = await container.call('getnewaddress')
-    await createToken(from, 'DBTC', 200)
-
-    const to = await accountToAccount('DBTC', 5, from)
-    await accountToAccount('DBTC', 18, from, to)
-
-    await createToken(from, 'DETH', 200)
-    await accountToAccount('DETH', 46, from)
-  }
 
   async function createToken (address: string, symbol: string, amount: number): Promise<void> {
     const metadata = {
@@ -47,30 +36,8 @@ describe('masternode', () => {
     await container.generate(1)
   }
 
-  async function accountToAccount (symbol: string, amount: number, from: string, _to = ''): Promise<string> {
-    const to = _to !== '' ? _to : await container.call('getnewaddress')
-
-    await container.call('accounttoaccount', [from, { [to]: `${amount.toString()}@${symbol}` }])
-    await container.generate(1)
-
-    return to
-  }
-
-  async function waitForListingAccounts (): Promise<any[]> {
-    let accounts: any[] = []
-
-    await waitForExpect(async () => {
-      accounts = await client.account.listAccounts()
-      expect(accounts.length).toBeGreaterThan(0)
-    })
-
-    return accounts
-  }
-
   describe('listAccounts', () => {
     it('should listAccounts', async () => {
-      await waitForListingAccounts()
-
       const accounts = await client.account.listAccounts()
 
       for (let i = 0; i < accounts.length; i += 1) {
@@ -86,7 +53,7 @@ describe('masternode', () => {
     })
 
     it('should listAccounts with pagination start and including_start', async () => {
-      const accounts = await waitForListingAccounts()
+      const accounts: any[] = await client.account.listAccounts()
 
       const pagination = {
         start: accounts[accounts.length - 1].key,
@@ -108,8 +75,6 @@ describe('masternode', () => {
     })
 
     it('should listAccounts with verbose false and indexed_amounts false', async () => {
-      await waitForListingAccounts()
-
       const accounts = await client.account.listAccounts({}, false, { indexedAmounts: false, isMineOnly: false })
 
       for (let i = 0; i < accounts.length; i += 1) {
@@ -121,8 +86,6 @@ describe('masternode', () => {
     })
 
     it('should listAccounts with verbose false and indexed_amounts true', async () => {
-      await waitForListingAccounts()
-
       const accounts = await client.account.listAccounts({}, false, { indexedAmounts: true, isMineOnly: false })
 
       for (let i = 0; i < accounts.length; i += 1) {
@@ -138,8 +101,6 @@ describe('masternode', () => {
     })
 
     it('should listAccounts with verbose true and indexed_amounts true', async () => {
-      await waitForListingAccounts()
-
       const accounts = await client.account.listAccounts({}, true, { indexedAmounts: true, isMineOnly: false })
 
       for (let i = 0; i < accounts.length; i += 1) {
@@ -159,8 +120,6 @@ describe('masternode', () => {
     })
 
     it('should listAccounts with verbose true and indexed_amounts false', async () => {
-      await waitForListingAccounts()
-
       const accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: false })
 
       for (let i = 0; i < accounts.length; i += 1) {
@@ -176,8 +135,6 @@ describe('masternode', () => {
     })
 
     it('should listAccounts with isMineOnly true', async () => {
-      await waitForListingAccounts()
-
       const accounts = await client.account.listAccounts({}, true, { indexedAmounts: false, isMineOnly: true })
 
       for (let i = 0; i < accounts.length; i += 1) {
