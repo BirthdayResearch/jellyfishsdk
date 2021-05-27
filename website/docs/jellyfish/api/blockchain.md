@@ -262,7 +262,6 @@ interface MempoolTx {
 
 Get block statistics for a given window. Returns all stats values if nothing is passed in the second param.  
 
-
 ```ts title="client.blockchain.getBlockStats()"
 interface blockchain {
   getBlockStats(hashOrHeight: number | string): Promise<BlockStats>
