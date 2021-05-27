@@ -1,11 +1,11 @@
-import { AppointOracle } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_oracles'
+import { AppointOracle, RemoveOracle } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_oracles'
 import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
 export class TxnBuilderOracles extends P2WPKHTxnBuilder {
   /**
-   * Requires UTXO in the same amount + fees to create a transaction.
+   * Appoints an oracle. Currently requires Foundation Authorization.
    *
    * @param {AppointOracle} appointOracle txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
@@ -21,6 +21,20 @@ export class TxnBuilderOracles extends P2WPKHTxnBuilder {
 
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_APPOINT_ORACLE(appointOracle),
+      changeScript
+    )
+  }
+
+  /**
+   * Removes an oracle. Currently requires Foundation Authorization.
+   *
+   * @param {RemoveOracle} removeOracle txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async removeOracle (removeOracle: RemoveOracle, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_REMOVE_ORACLE(removeOracle),
       changeScript
     )
   }
