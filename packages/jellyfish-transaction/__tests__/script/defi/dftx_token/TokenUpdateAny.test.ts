@@ -41,7 +41,6 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  console.log('ddd: ', buffer.toString('hex'))
   expect(buffer.toString('hex')).toBe(header + data)
 })
 

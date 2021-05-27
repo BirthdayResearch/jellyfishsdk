@@ -14,7 +14,6 @@ it('should bi-directional buffer-object-buffer', () => {
     const stack: any = toOPCodes(
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
-    console.log('stack: ', stack[1])
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toBe(hex)
     expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x4e)
@@ -35,7 +34,6 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  console.log('ddd: ', buffer.toString('hex'))
   expect(buffer.toString('hex')).toBe(header + data)
 })
 
