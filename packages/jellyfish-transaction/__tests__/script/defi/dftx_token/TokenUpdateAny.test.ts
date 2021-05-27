@@ -16,8 +16,6 @@ it('should bi-directional buffer-object-buffer', () => {
 
     // name
     '6a39446654786effe50b27cd4325e9a87401e833a9caccf256e0b4ea37b6c4fb038bedc1cb2471034f574c054e4947485408000000000000000007'
-
-    // Note(canonbrother): collateralAddress and creationTx are not updated after modified
   ]
 
   fixtures.forEach(hex => {
@@ -40,7 +38,7 @@ const tokenUpdateAny: TokenUpdateAny = {
   mintable: true,
   tradeable: true,
   isDAT: true,
-  creationTx: 'd819f622ced3616e3c02e5337b54cbf921c364e182a80925219e1f60461ee5fc'
+  creationTx: 'fce51e46601f9e212509a882e164c321f9cb547b33e5023c6e61d3ce22f619d8'
 }
 
 it('should craft dftx with OP_CODES._()', () => {

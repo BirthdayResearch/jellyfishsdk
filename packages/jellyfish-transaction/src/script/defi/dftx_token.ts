@@ -68,7 +68,7 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
  * Note(canonbrother): Only 'isDAT' flag modification allowed before Bayfront fork (<10000)
  */
 export interface TokenUpdate {
-  creationTx: string // -----------------| hex
+  creationTx: string // -----------------| 32 bytes hex string
   isDAT: boolean // ---------------------| 1 byte bitmask start, position 0
 }
 
@@ -82,8 +82,8 @@ export class CTokenUpdate extends ComposableBuffer<TokenUpdate> {
 
   composers (tu: TokenUpdate): BufferComposer[] {
     return [
-      ComposableBuffer.hex(32, () => tu.creationTx, v => tu.creationTx = v),
-      ComposableBuffer.bitmask1Byte(3, () => [tu.isDAT], v => {
+      ComposableBuffer.hexBEBufferLE(32, () => tu.creationTx, v => tu.creationTx = v),
+      ComposableBuffer.bitmask1Byte(1, () => [tu.isDAT], v => {
         tu.isDAT = v[0]
       })
     ]
@@ -92,9 +92,11 @@ export class CTokenUpdate extends ComposableBuffer<TokenUpdate> {
 
 /**
  * TokenUpdateAny DeFi Transaction
+ *
+ * Note(canonbrother): collateralAddress and creationTx are be able to be updated
  */
 export interface TokenUpdateAny extends TokenCreate {
-  creationTx: string // -----------------| hex
+  creationTx: string // -----------------| 32 bytes hex string
 }
 
 /**
@@ -107,7 +109,7 @@ export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
 
   composers (tua: TokenUpdateAny): BufferComposer[] {
     return [
-      ComposableBuffer.hex(32, () => tua.creationTx, v => tua.creationTx = v),
+      ComposableBuffer.hexBEBufferLE(32, () => tua.creationTx, v => tua.creationTx = v),
       ComposableBuffer.varUIntUtf8BE(() => tua.symbol, v => tua.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => tua.name, v => tua.name = v),
       ComposableBuffer.uInt8(() => tua.decimal, v => tua.decimal = v),
