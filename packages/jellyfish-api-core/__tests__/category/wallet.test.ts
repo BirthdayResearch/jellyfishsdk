@@ -876,3 +876,156 @@ describe('masternode', () => {
     })
   })
 })
+
+describe('dumpPrivKey', () => {
+  describe('regTest', () => {
+    const container = new RegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should reveal private key of given address', async () => {
+      await waitForExpect(async () => {
+        const address = await client.wallet.getNewAddress()
+        const privateKey = await client.wallet.dumpPrivKey(address)
+
+        expect(typeof privateKey).toStrictEqual('string')
+      })
+    })
+
+    it('should throw and error when invalid DFI address is provided', async () => {
+      await waitForExpect(async () => {
+        const invalidAddress = 'invalidAddress'
+
+        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
+      })
+    })
+  })
+
+  describe('masternode', () => {
+    const container = new MasterNodeRegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      await container.waitForWalletCoinbaseMaturity()
+      await container.waitForWalletBalanceGTE(101)
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should reveal private key of given address', async () => {
+      await waitForExpect(async () => {
+        const address = await client.wallet.getNewAddress()
+        const privateKey = await client.wallet.dumpPrivKey(address)
+
+        expect(typeof privateKey).toStrictEqual('string')
+      })
+    })
+
+    it('should throw and error when invalid DFI address is provided', async () => {
+      await waitForExpect(async () => {
+        const invalidAddress = 'invalidAddress'
+
+        await expect(client.wallet.dumpPrivKey(invalidAddress)).rejects.toThrow('Invalid Defi address')
+      })
+    })
+  })
+})
+
+describe('importPrivKey', () => {
+  describe('regTest', () => {
+    const container = new RegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should should import private key without failing ', async () => {
+      const privatekey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
+      const promise = client.wallet.importPrivKey(privatekey)
+
+      await expect(promise).resolves.not.toThrow()
+    })
+
+    it('should import private key with rescan set to false', async () => {
+      const privateKey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
+      const promise = client.wallet.importPrivKey(privateKey, '', false)
+
+      await expect(promise).resolves.not.toThrow()
+    })
+
+    it('should import private key with label passed', async () => {
+      const privateKey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress('testing'))
+      const promise = client.wallet.importPrivKey(privateKey, 'testing')
+
+      await expect(promise).resolves.not.toThrow()
+    })
+
+    it('should fail and throw an error with invalid private key', async () => {
+      const privateKey = 'invalidPrivateKey'
+      const promise = client.wallet.importPrivKey(privateKey)
+
+      await expect(promise).rejects.toThrow('Invalid private key encoding')
+    })
+  })
+
+  describe('masternode', () => {
+    const container = new MasterNodeRegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      await container.waitForWalletCoinbaseMaturity()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should should import private key without failing ', async () => {
+      const privatekey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
+      const promise = client.wallet.importPrivKey(privatekey)
+
+      await expect(promise).resolves.not.toThrow()
+    })
+
+    it('should import private key with rescan set to false', async () => {
+      const privateKey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
+      const promise = client.wallet.importPrivKey(privateKey, '', false)
+
+      await expect(promise).resolves.not.toThrow()
+    })
+
+    it('should import private key with label passed', async () => {
+      const privateKey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress('testing'))
+      const promise = client.wallet.importPrivKey(privateKey, 'testing')
+
+      await expect(promise).resolves.not.toThrow()
+    })
+
+    it('should fail and throw an error with invalid private key', async () => {
+      const privateKey = 'invalidPrivateKey'
+      const promise = client.wallet.importPrivKey(privateKey)
+
+      await expect(promise).rejects.toThrow('Invalid private key encoding')
+    })
+  })
+})
