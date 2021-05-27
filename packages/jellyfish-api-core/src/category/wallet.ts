@@ -262,7 +262,7 @@ export class Wallet {
   }
 
   /**
-   *Adds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.
+   * Adds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.
    *
    * @param {string} privkey The private key (see dumpprivkey)
    * @param {string}  [label=""] current label if address exists, otherwise "".
