@@ -64,14 +64,41 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
 }
 
 /**
- * TokenUpdateAny DeFi Transaction
+ * TokenUpdate DeFi Transaction
+ * Note(canonbrother): Only 'isDAT' flag modification allowed before Bayfront fork (<10000)
  */
-export interface TokenUpdateAny extends TokenCreate {
-  creationTx: string
+export interface TokenUpdate {
+  creationTx: string // -----------------| hex
+  isDAT: boolean // ---------------------| 1 byte bitmask start, position 0
 }
 
 /**
- * Composable TokenMint, C stands for Composable.
+ * Composable CTokenUpdate, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenUpdate extends ComposableBuffer<TokenUpdate> {
+  static OP_CODE = 0x4e /// 'N'
+  static OP_NAME = 'OP_DEFI_TX_TOKEN_UPDATE'
+
+  composers (tu: TokenUpdate): BufferComposer[] {
+    return [
+      ComposableBuffer.hex(32, () => tu.creationTx, v => tu.creationTx = v),
+      ComposableBuffer.bitmask1Byte(3, () => [tu.isDAT], v => {
+        tu.isDAT = v[0]
+      })
+    ]
+  }
+}
+
+/**
+ * TokenUpdateAny DeFi Transaction
+ */
+export interface TokenUpdateAny extends TokenCreate {
+  creationTx: string // -----------------| hex
+}
+
+/**
+ * Composable TokenUpdateAny, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
