@@ -10,6 +10,7 @@ describe('masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
     await createToken(await container.call('getnewaddress'), 'DBTC', 200)
   })
 
@@ -26,7 +27,6 @@ describe('masternode', () => {
       tradeable: true,
       collateralAddress: address
     }
-    await container.waitForWalletBalanceGTE(100)
     await container.call('createtoken', [metadata])
     await container.generate(1)
 
