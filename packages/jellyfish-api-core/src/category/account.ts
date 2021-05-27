@@ -6,7 +6,6 @@ import { ApiClient } from '../.'
  * - 'mine' to list history for all owned accounts or
  * - 'all' to list the whole DB
  */
-
 export enum OwnerType {
   MINE = 'mine',
   ALL = 'all'

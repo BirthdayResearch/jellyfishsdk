@@ -89,7 +89,7 @@ describe('masternode', () => {
       payload[await container.getNewAddress()] = '5@DETH'
 
       const utxos = await container.call('listunspent')
-      const inputs: UTXO[] = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
+      const inputs: UTXO[] = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: { txid: string, vout: number }) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
