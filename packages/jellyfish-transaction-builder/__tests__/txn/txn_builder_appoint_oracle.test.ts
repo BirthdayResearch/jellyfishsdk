@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontaine
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
-import { WIF } from '@defichain/jellyfish-crypto/src'
+import { WIF } from '@defichain/jellyfish-crypto'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -14,7 +14,7 @@ beforeAll(async () => {
   await container.waitForWalletCoinbaseMaturity()
 
   providers = await getProviders(container)
-  providers.overrideEllipticPair(WIF.asEllipticPair(GenesisKeys[0].operator.privKey))
+  providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
   // Prep 1000 DFI Token for testing
@@ -27,7 +27,6 @@ afterAll(async () => {
 
 describe('appoint oracle', () => {
   beforeEach(async () => {
-    await providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
   })
 
@@ -58,7 +57,7 @@ describe('appoint oracle', () => {
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(providers.getAddress())
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
     // Ensure you don't send all your balance away during appoint oracle
     const prevouts = await providers.prevout.all()
@@ -67,3 +66,5 @@ describe('appoint oracle', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 })
+
+// TODO(monstrobishi): test account state once RPC calls are in place

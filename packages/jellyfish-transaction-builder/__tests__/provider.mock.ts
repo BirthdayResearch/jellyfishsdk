@@ -120,7 +120,7 @@ export class MockProviders {
   /**
    * Sets a new elliptic pair on the provider
    */
-  overrideEllipticPair (ellipticPair: EllipticPair): void {
+  setEllipticPair (ellipticPair: EllipticPair): void {
     this.ellipticPair = ellipticPair
     this.elliptic.ellipticPair = this.ellipticPair
     this.prevout.ellipticPair = this.ellipticPair
