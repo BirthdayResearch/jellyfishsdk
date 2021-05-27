@@ -41,6 +41,7 @@ import {
 } from './defi/dftx_oracles'
 import { CAutoAuthPrep } from './defi/dftx_misc'
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './defi/dftx_masternode'
+import { CSetGovernance, SetGovernance } from './defi/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -256,6 +257,14 @@ export const OP_CODES = {
       type: CResignMasterNode.OP_CODE,
       name: CResignMasterNode.OP_NAME,
       data: resignMasterNode
+    })
+  },
+  OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetGovernance.OP_CODE,
+      name: CSetGovernance.OP_NAME,
+      data: setGovernance
     })
   },
 
