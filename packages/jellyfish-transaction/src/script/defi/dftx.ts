@@ -10,6 +10,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
@@ -131,6 +132,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
+      case CCreateMasterNode.OP_CODE:
+        return compose<CreateMasterNode>(CCreateMasterNode.OP_NAME, d => new CCreateMasterNode(d))
+      case CResignMasterNode.OP_CODE:
+        return compose<ResignMasterNode>(CResignMasterNode.OP_NAME, d => new CResignMasterNode(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

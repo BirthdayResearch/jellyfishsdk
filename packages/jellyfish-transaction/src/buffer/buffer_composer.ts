@@ -204,6 +204,36 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * Same behavior with `hex` when the field is defined
+   * `toBuffer` resulted empty SmartBuffer
+   *
+   * @param length of the bytes to read/set
+   * @param getter to read HEX String and write as the same ordered Buffer
+   * @param setter to read ordered Buffer and set as the same ordered HEX String
+   * @throws Error if getter() is defined && length != getter().length in set
+   */
+  static optionalHex (length: number, getter: () => string | undefined, setter: (data: string | undefined) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const buff = Buffer.from(buffer.readBuffer(length))
+        if (buff.length > 0) {
+          setter(buff.toString('hex'))
+        }
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const hex = getter()
+        if (hex === undefined) {
+          return
+        }
+        if (hex.length !== length * 2) {
+          throw new Error('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+        }
+        buffer.writeBuffer(Buffer.from(hex, 'hex'))
+      }
+    }
+  }
+
+  /**
    * BE ordered HEX String with length specified, encoded in LE order buffer.
    * Different from BufferComposer.hex, this will reorder the Buffer from LE to BE and BE to LE.
    *
