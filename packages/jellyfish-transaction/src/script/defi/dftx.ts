@@ -27,6 +27,7 @@ import {
   SetOracleData
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
+import { CSetGovernance, SetGovernance } from './dftx_governance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -131,6 +132,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
+      case CSetGovernance.OP_CODE:
+        return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

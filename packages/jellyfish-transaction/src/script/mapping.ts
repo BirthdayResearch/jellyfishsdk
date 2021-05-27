@@ -40,6 +40,7 @@ import {
   CSetOracleData
 } from './defi/dftx_oracles'
 import { CAutoAuthPrep } from './defi/dftx_misc'
+import { CSetGovernance, SetGovernance } from './defi/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -239,6 +240,14 @@ export const OP_CODES = {
       type: CAutoAuthPrep.OP_CODE,
       name: CAutoAuthPrep.OP_NAME,
       data: null
+    })
+  },
+  OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetGovernance.OP_CODE,
+      name: CSetGovernance.OP_NAME,
+      data: setGovernance
     })
   },
 
