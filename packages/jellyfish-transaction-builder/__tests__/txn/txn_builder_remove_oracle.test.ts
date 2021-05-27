@@ -53,6 +53,7 @@ describe('remove oracle', () => {
     }, script)
 
     const txid = calculateTxid(txn)
+    await sendTransaction(container, txn)
 
     // Remove Oracle
     script = await providers.elliptic.script()
