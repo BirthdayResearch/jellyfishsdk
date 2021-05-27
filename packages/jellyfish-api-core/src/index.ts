@@ -9,6 +9,7 @@ import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
 import { Oracle } from './category/oracle'
 import { Server } from './category/server'
+import { ICXOrderBook } from './category/icxorderbook'
 
 export * from '@defichain/jellyfish-json'
 
@@ -37,6 +38,7 @@ export abstract class ApiClient {
   public readonly token = new Token(this)
   public readonly oracle = new Oracle(this)
   public readonly server = new Server(this)
+  public readonly icxorderbook = new ICXOrderBook(this)
 
   /**
    * A promise based procedure call handling
