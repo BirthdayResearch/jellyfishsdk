@@ -145,7 +145,7 @@ interface AccountHistoryOptions {
 
 ## utxosToAccount
 
-Creates and submits to a connect node and transfer transaction from the wallet UTXOs to a specified account.
+Create an UTXOs to Account transaction submitted to a connected node.
 Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.utxosToAccount()"
@@ -167,7 +167,7 @@ interface UTXO {
 
 ## accountToAccount
 
-Creates and submits to a local node and transfer transaction from the specified account to the specfied accounts.
+Create an Account to Account transaction submitted to a connected node.
 Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.accountToAccount()"
