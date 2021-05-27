@@ -29,7 +29,8 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-/**
+describe('multiple variable', () => {
+  /**
    * this test data is created by:
    * createToken() // id = 1
    * createPoolPair() // id = 2
@@ -43,53 +44,116 @@ it('should bi-directional buffer-object-buffer', () => {
    *  LP_DAILY_DFI_REWARD: 1.55
    * }])
    */
-const header = '6a444466547847' // OP_RETURN, PUSH_DATA(44665478, 47)
-const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000134c505f4441494c595f4446495f524557415244c01c3d0900000000'
-const setGovernance: SetGovernance = {
-  governanceVars: [
-    {
-      key: 'LP_SPLITS',
-      value: [
-        {
-          tokenId: 2,
-          value: new BigNumber(0.3)
-        },
-        {
-          tokenId: 4,
-          value: new BigNumber(0.7)
-        }
-      ]
-    },
-    {
-      key: 'LP_DAILY_DFI_REWARD',
-      value: new BigNumber(1.55)
-    }
-  ]
-}
+  const header = '6a444466547847' // OP_RETURN, PUSH_DATA(44665478, 47)
+  const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000134c505f4441494c595f4446495f524557415244c01c3d0900000000'
+  const setGovernance: SetGovernance = {
+    governanceVars: [
+      {
+        key: 'LP_SPLITS',
+        value: [
+          {
+            tokenId: 2,
+            value: new BigNumber(0.3)
+          },
+          {
+            tokenId: 4,
+            value: new BigNumber(0.7)
+          }
+        ]
+      },
+      {
+        key: 'LP_DAILY_DFI_REWARD',
+        value: new BigNumber(1.55)
+      }
+    ]
+  }
 
-it('should craft dftx with OP_CODES._()', () => {
-  const stack = [
-    OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_SET_GOVERNANCE(setGovernance)
-  ]
+  it('should craft dftx with OP_CODES._()', () => {
+    const stack = [
+      OP_CODES.OP_RETURN,
+      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE(setGovernance)
+    ]
 
-  const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
-})
-
-describe('Composable', () => {
-  it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CSetGovernance(buffer)
-
-    expect(composable.toObject()).toEqual(setGovernance)
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toBe(header + data)
   })
 
-  it('should compose from composable to buffer', () => {
-    const composable = new CSetGovernance(setGovernance)
-    const buffer = new SmartBuffer()
-    composable.toBuffer(buffer)
+  describe('Composable', () => {
+    it('should compose from buffer to composable', () => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+      const composable = new CSetGovernance(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+      expect(composable.toObject()).toEqual(setGovernance)
+    })
+
+    it('should compose from composable to buffer', () => {
+      const composable = new CSetGovernance(setGovernance)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    })
+  })
+})
+
+describe('single variable', () => {
+  /**
+   * this test data is created by:
+   * createToken() // id = 1
+   * createPoolPair() // id = 2
+   * createToken() // id = 3
+   * createPoolPair() // id = 4
+   * await container.call('setgov', [{
+   *  LP_SPLITS: {
+   *    2: 0.3,
+   *    4: 0.7
+   *  }
+   * }])
+   */
+  const header = '6a284466547847' // OP_RETURN, PUSH_DATA(44665478, 47)
+  const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000'
+  const setGovernance: SetGovernance = {
+    governanceVars: [
+      {
+        key: 'LP_SPLITS',
+        value: [
+          {
+            tokenId: 2,
+            value: new BigNumber(0.3)
+          },
+          {
+            tokenId: 4,
+            value: new BigNumber(0.7)
+          }
+        ]
+      }
+    ]
+  }
+
+  it('should craft dftx with OP_CODES._()', () => {
+    const stack = [
+      OP_CODES.OP_RETURN,
+      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE(setGovernance)
+    ]
+
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toBe(header + data)
+  })
+
+  describe('Composable', () => {
+    it('should compose from buffer to composable', () => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+      const composable = new CSetGovernance(buffer)
+
+      expect(composable.toObject()).toEqual(setGovernance)
+    })
+
+    it('should compose from composable to buffer', () => {
+      const composable = new CSetGovernance(setGovernance)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    })
   })
 })
