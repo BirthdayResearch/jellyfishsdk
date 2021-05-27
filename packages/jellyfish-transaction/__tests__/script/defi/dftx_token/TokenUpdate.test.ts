@@ -7,7 +7,12 @@ import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     // regtest fixtures
+    // 1 fixture as only 'isDAT' flag modification allowed before Bayfront fork
+    // and only 'UpdateToken' is triggered while before Bayfront fork
+    // https://github.com/DeFiCh/ain/blob/c7b13959cc84c6d6210927b0e2377432c0dcadeb/src/masternodes/rpc_tokens.cpp#L278
     '6a26446654784effe50b27cd4325e9a87401e833a9caccf256e0b4ea37b6c4fb038bedc1cb247100'
+
+    // Note(canonbrother): isDAT is not updated after modified
   ]
 
   fixtures.forEach(hex => {

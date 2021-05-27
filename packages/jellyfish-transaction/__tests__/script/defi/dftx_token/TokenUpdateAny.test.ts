@@ -8,7 +8,16 @@ import BigNumber from 'bignumber.js'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     // regtest fixtures
-    '6a37446654786ed819f622ced3616e3c02e5337b54cbf921c364e182a80925219e1f60461ee5fc034341540343415408000000000000000001'
+    // flags
+    '6a37446654786ed819f622ced3616e3c02e5337b54cbf921c364e182a80925219e1f60461ee5fc034341540343415408000000000000000001',
+
+    // symbol (symbolKey)
+    '6a38446654786effe50b27cd4325e9a87401e833a9caccf256e0b4ea37b6c4fb038bedc1cb2471044f57574c034f574c08000000000000000007',
+
+    // name
+    '6a39446654786effe50b27cd4325e9a87401e833a9caccf256e0b4ea37b6c4fb038bedc1cb2471034f574c054e4947485408000000000000000007'
+
+    // Note(canonbrother): collateralAddress and creationTx are not updated after modified
   ]
 
   fixtures.forEach(hex => {
