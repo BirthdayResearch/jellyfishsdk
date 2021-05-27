@@ -67,4 +67,19 @@ describe('appoint oracle', () => {
   })
 })
 
+it('should reject invalid appoint oracle arg - weightage over 100', async () => {
+  // Appoint Oracle
+  const script = await providers.elliptic.script()
+  await expect(builder.oracles.appointOracle({
+    script: script,
+    weightage: 200,
+    priceFeeds: [
+      {
+        token: 'TEST',
+        currency: 'USD'
+      }
+    ]
+  }, script)).rejects.toThrow('Conversion input `appointOracle.weightage` must be above `0` and below `101`')
+})
+
 // TODO(monstrobishi): test account state once RPC calls are in place
