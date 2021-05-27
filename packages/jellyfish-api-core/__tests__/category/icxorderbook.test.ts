@@ -1,6 +1,6 @@
 import { ContainerAdapterClient } from '../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { Order } from '../../src/category/icxorderbook'
+import { ICXGenericResult, Offer, Order } from '../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 
 describe('ICXOrderBook Test', () => {
@@ -90,7 +90,7 @@ describe('ICXOrderBook Test', () => {
       orderPrice: new BigNumber(0.01)
     }
 
-    const result: any = await client.icxorderbook.ICXCreateOrder(order, [])
+    const result: ICXGenericResult = await client.icxorderbook.ICXCreateOrder(order, [])
     const txId = result.txid
     // console.log("txid: "+ txId)
 
@@ -100,5 +100,40 @@ describe('ICXOrderBook Test', () => {
     const tx = await container.call('gettransaction', [txId])
     expect(tx.txid).toStrictEqual(txId)
     // console.log(JSON.stringify(tx))
+  })
+
+  it('ICXCreateOrder and ICXMakeOffer to partial', async () => {
+    const order: Order = {
+      tokenFrom: symbolDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(10),
+      orderPrice: new BigNumber(0.01)
+    }
+
+    let result: ICXGenericResult = await client.icxorderbook.ICXCreateOrder(order, [])
+    const createOrderTxId = result.txid
+
+    await container.generate(1)
+
+    // check the transaction exists
+    let tx = await container.call('gettransaction', [createOrderTxId])
+    expect(tx.txid).toStrictEqual(createOrderTxId)
+
+    // make ICXMakeOffer to partial amout 5 DFI
+    const offer: Offer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(5),
+      ownerAddress: accountBTC
+    }
+
+    result = await client.icxorderbook.ICXMakeOffer(offer, [])
+    const makeOfferTxId = result.txid
+    await container.generate(1)
+
+    // check the transaction exists
+    tx = await container.call('gettransaction', [makeOfferTxId])
+    expect(tx.txid).toStrictEqual(makeOfferTxId)
   })
 })
