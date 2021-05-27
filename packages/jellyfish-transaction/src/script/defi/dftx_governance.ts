@@ -26,19 +26,9 @@ export interface GovernanceVar {
 }
 
 export class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
-  private keyLength!: number
-
   composers (gv: GovernanceVar): BufferComposer[] {
     return [
-      ComposableBuffer.uInt8(() => gv.key.length, v => this.keyLength = v),
-      {
-        fromBuffer: (buffer: SmartBuffer): void => {
-          gv.key = Buffer.from(buffer.readBuffer(this.keyLength)).toString('utf-8')
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          buffer.writeBuffer(Buffer.from(gv.key, 'utf-8'))
-        }
-      },
+      ComposableBuffer.varUIntUtf8BE(() => gv.key, v => gv.key = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (gv.key === 'LP_DAILY_DFI_REWARD') {
@@ -59,9 +49,7 @@ export class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
           } else if (gv.key === 'LP_SPLITS') {
             const lpss = gv.value as LiqPoolSplit[]
             buffer.writeUInt8(lpss.length)
-            lpss.forEach(lps =>
-              new CLiqPoolSplit(lps).toBuffer(buffer)
-            )
+            lpss.forEach(lps => new CLiqPoolSplit(lps).toBuffer(buffer))
           } else {
             throw new Error(`Unrecognized Governance Variable type: ${gv.key}`)
           }
