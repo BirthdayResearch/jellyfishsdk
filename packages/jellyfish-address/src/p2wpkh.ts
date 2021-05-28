@@ -33,7 +33,7 @@ export class P2WPKH extends Address {
    * @throws when h160 input string is not 40 characters long (20 bytes)
    * @returns
    */
-  static to (net: Network | NetworkName, h160: string, witnessVersion = 0x00): P2WPKH | never {
+  static to (net: Network | NetworkName, h160: string, witnessVersion = 0x00): P2WPKH {
     const network: Network = typeof net === 'string' ? getNetwork(net) : net
 
     if (h160.length !== P2WPKH.PUB_KEY_HASH_LENGTH) {
