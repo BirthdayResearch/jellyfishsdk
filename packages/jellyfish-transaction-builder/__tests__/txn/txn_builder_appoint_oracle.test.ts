@@ -30,10 +30,6 @@ describe('appoint oracle', () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  afterEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
-  })
-
   it('should appoint oracle', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
