@@ -5,7 +5,7 @@ import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
 export class TxnBuilderOracles extends P2WPKHTxnBuilder {
   /**
-   * Requires UTXO in the same amount + fees to create a transaction.
+   * Appoints an oracle. Currently requires Foundation Authorization.
    *
    * @param {AppointOracle} appointOracle txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
