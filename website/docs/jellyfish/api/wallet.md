@@ -282,7 +282,7 @@ enum Mode {
 
 ## dumpPrivKey
 
-Reveals the private key corresponding to 'address'. Then the importprivkey can be used with this output.
+Reveals the private key corresponding to an address.
 
 ```ts title="client.wallet.dumpPrivKey()"
 interface wallet {
