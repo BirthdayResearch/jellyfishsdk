@@ -105,7 +105,7 @@ describe('P2WSH', () => {
       expect(() => {
         // eslint-disable-next-line no-new
         new P2WSH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
-      }).toThrow('Invalid P2WSH address marked valid')
+      }).toThrow('InvalidDefiAddress')
     })
   })
 })

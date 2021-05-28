@@ -117,14 +117,14 @@ describe('P2SH', () => {
       expect(() => {
         // eslint-disable-next-line no-new
         new P2SH(MainNet, validAddress.utf8String.slice(10), validAddress.buffer, true) // less than min length
-      }).toThrow('Invalid P2SH address marked valid')
+      }).toThrow('InvalidDefiAddress')
     })
 
     it('should not be able to instantiate `valid` address - with invalid buffer length', () => {
       expect(() => {
         // eslint-disable-next-line no-new
         new P2SH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
-      }).toThrow('Invalid P2SH address marked valid')
+      }).toThrow('InvalidDefiAddress')
     })
   })
 })

@@ -116,15 +116,15 @@ describe('P2PKH', () => {
     it('should not be able to instantiate `valid` address - with invalid address length', () => {
       expect(() => {
         // eslint-disable-next-line no-new
-        new P2PKH(MainNet, validAddress.utf8String.slice(1), validAddress.buffer, true)
-      }).toThrow('Invalid P2PKH address marked valid')
+        new P2PKH(MainNet, validAddress.utf8String.slice(10), validAddress.buffer, true)
+      }).toThrow('InvalidDefiAddress')
     })
 
     it('should not be able to instantiate `valid` address - with invalid buffer length', () => {
       expect(() => {
         // eslint-disable-next-line no-new
         new P2PKH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
-      }).toThrow('Invalid P2PKH address marked valid')
+      }).toThrow('InvalidDefiAddress')
     })
   })
 })

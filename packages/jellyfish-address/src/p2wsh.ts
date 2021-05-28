@@ -10,7 +10,7 @@ export class P2WSH extends Address {
     super(network, utf8String, scriptHash, valid, 'P2WSH')
 
     if (valid && scriptHash?.length !== P2WSH.SCRIPT_HASH_LENGTH) {
-      throw new Error('Invalid P2WSH address marked valid')
+      throw new Error('InvalidDefiAddress')
     }
   }
 

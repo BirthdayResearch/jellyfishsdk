@@ -115,7 +115,7 @@ describe('P2WPKH', () => {
       expect(() => {
         // eslint-disable-next-line no-new
         new P2WPKH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
-      }).toThrow('Invalid P2WPKH address marked valid')
+      }).toThrow('InvalidDefiAddress')
     })
   })
 })
