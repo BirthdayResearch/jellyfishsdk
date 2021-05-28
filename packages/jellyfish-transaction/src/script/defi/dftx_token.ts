@@ -41,7 +41,7 @@ export interface TokenCreate {
 }
 
 /**
- * Composable TokenMint, C stands for Composable.
+ * Composable TokenCreate, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CTokenCreate extends ComposableBuffer<TokenCreate> {
@@ -58,6 +58,64 @@ export class CTokenCreate extends ComposableBuffer<TokenCreate> {
         tc.isDAT = v[0]
         tc.tradeable = v[1]
         tc.mintable = v[2]
+      })
+    ]
+  }
+}
+
+/**
+ * TokenUpdate DeFi Transaction
+ * Note(canonbrother): Only 'isDAT' flag modification allowed before Bayfront fork (<10000)
+ */
+export interface TokenUpdate {
+  creationTx: string // -----------------| 32 bytes hex string
+  isDAT: boolean // ---------------------| 1 byte bitmask start, position 0
+}
+
+/**
+ * Composable CTokenUpdate, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenUpdate extends ComposableBuffer<TokenUpdate> {
+  static OP_CODE = 0x4e /// 'N'
+  static OP_NAME = 'OP_DEFI_TX_TOKEN_UPDATE'
+
+  composers (tu: TokenUpdate): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => tu.creationTx, v => tu.creationTx = v),
+      ComposableBuffer.bitmask1Byte(1, () => [tu.isDAT], v => {
+        tu.isDAT = v[0]
+      })
+    ]
+  }
+}
+
+/**
+ * TokenUpdateAny DeFi Transaction
+ */
+export interface TokenUpdateAny extends TokenCreate {
+  creationTx: string // -----------------| 32 bytes hex string
+}
+
+/**
+ * Composable TokenUpdateAny, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenUpdateAny extends ComposableBuffer<TokenUpdateAny> {
+  static OP_CODE = 0x6e /// 'n'
+  static OP_NAME = 'OP_DEFI_TX_TOKEN_UPDATE_ANY'
+
+  composers (tua: TokenUpdateAny): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => tua.creationTx, v => tua.creationTx = v),
+      ComposableBuffer.varUIntUtf8BE(() => tua.symbol, v => tua.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => tua.name, v => tua.name = v),
+      ComposableBuffer.uInt8(() => tua.decimal, v => tua.decimal = v),
+      ComposableBuffer.bigNumberUInt64(() => tua.limit, v => tua.limit = v),
+      ComposableBuffer.bitmask1Byte(3, () => [tua.isDAT, tua.tradeable, tua.mintable], v => {
+        tua.isDAT = v[0]
+        tua.tradeable = v[1]
+        tua.mintable = v[2]
       })
     ]
   }

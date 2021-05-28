@@ -16,7 +16,7 @@ import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap
 } from './dftx_pool'
-import { CTokenCreate, CTokenMint, TokenCreate, TokenMint } from './dftx_token'
+import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
 import {
   CAppointOracle,
   AppointOracle,
@@ -114,6 +114,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
       case CTokenCreate.OP_CODE:
         return compose<TokenCreate>(CTokenCreate.OP_NAME, d => new CTokenCreate(d))
+      case CTokenUpdate.OP_CODE:
+        return compose<TokenUpdate>(CTokenUpdate.OP_NAME, d => new CTokenUpdate(d))
+      case CTokenUpdateAny.OP_CODE:
+        return compose<TokenUpdateAny>(CTokenUpdateAny.OP_NAME, d => new CTokenUpdateAny(d))
       case CUtxosToAccount.OP_CODE:
         return compose<UtxosToAccount>(CUtxosToAccount.OP_NAME, d => new CUtxosToAccount(d))
       case CAccountToUtxos.OP_CODE:

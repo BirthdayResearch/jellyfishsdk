@@ -117,6 +117,15 @@ export class MockProviders {
     this.prevout.ellipticPair = this.ellipticPair
   }
 
+  /**
+   * Sets a new elliptic pair on the provider
+   */
+  setEllipticPair (ellipticPair: EllipticPair): void {
+    this.ellipticPair = ellipticPair
+    this.elliptic.ellipticPair = this.ellipticPair
+    this.prevout.ellipticPair = this.ellipticPair
+  }
+
   async getAddress (): Promise<string> {
     const pubKey = await this.ellipticPair.publicKey()
     return Bech32.fromPubKey(pubKey, 'bcrt', 0x00)
