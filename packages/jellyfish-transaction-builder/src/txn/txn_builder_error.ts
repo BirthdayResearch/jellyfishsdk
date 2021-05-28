@@ -30,7 +30,11 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid conversion input `TokenBalances`, must consist only valid DFI balance
    */
-  INVALID_ACCOUNT_TO_UTXOS_INPUT
+  INVALID_ACCOUNT_TO_UTXOS_INPUT,
+  /**
+   * Invalid `AppointOracle` input
+   */
+  INVALID_APPOINT_ORACLE_INPUT
 }
 
 /**
