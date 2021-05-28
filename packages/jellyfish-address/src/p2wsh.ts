@@ -8,7 +8,7 @@ export class P2WSH extends Address {
   data: string
   static SCRIPT_HASH_LENGTH = 64
 
-  constructor (network: Network, utf8String: string, data: string, valid: boolean = false) {
+  constructor (network: Network | undefined, utf8String: string, data: string, valid: boolean = false) {
     super(network, utf8String, valid, 'P2WSH')
     this.data = data
   }
@@ -72,10 +72,6 @@ export class P2WSH extends Address {
     const network = (['mainnet', 'testnet', 'regtest'] as NetworkName[])
       .map(netName => getNetwork(netName))
       .find(net => net.bech32.hrp === prefix)
-
-    if (network === undefined) {
-      throw new Error('Unexpected network prefix')
-    }
 
     return new P2WSH(network, raw, data, valid)
   }

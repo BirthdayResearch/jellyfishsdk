@@ -9,7 +9,8 @@ describe('P2WSH', () => {
     regtest: 'bcrt1qncd7qa2cafwv3cpw68vqczg3qj904k2f4lard4wrj50rzkwmagvssfsq3t',
 
     trimmedPrefix: 'f1qncd7qa2cafwv3cpw68vqczg3qj904k2f4lard4wrj50rzkwmagvsfkkf88', // edited mainnet valid address, broken prefix
-    invalid: 'df1qncd7qa2cafwv3cpw68vqczg3qj904k2f4lard4wrj50rzkwmagvsfkkf8o' // edited mainnet address, letter 'o'
+    invalid: 'df1qncd7qa2cafwv3cpw68vqczg3qj904k2f4lard4wrj50rzkwmagvsfkkf8o', // edited mainnet address, letter 'o'
+    validBtcAddress: 'bc1qncd7qa2cafwv3cpw68vqczg3qj904k2f4lard4wrj50rzkwmagvsfkkf8o'
   }
 
   describe('from() - valid address', () => {
@@ -34,6 +35,11 @@ describe('P2WSH', () => {
       expect(regtest.constructor.name).toStrictEqual('P2WSH')
       expect(regtest.network).toStrictEqual(RegTest)
     })
+
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2wshFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
+    })
   })
 
   describe('from() - invalid address', () => {
@@ -45,14 +51,6 @@ describe('P2WSH', () => {
     it('invalid character set', () => {
       const invalid = DeFiAddress.from(p2wshFixture.invalid)
       expect(invalid.valid).toBeFalsy()
-    })
-
-    it('should be able to validate in address prefix with network', () => {
-      // valid address, used on different network
-      const p2sh = DeFiAddress.from(p2wshFixture.mainnet)
-      expect(p2sh.valid).toBeFalsy()
-      // expect(p2sh.type).toStrictEqual('P2WSH') // invalid address guessed type is not promising, as p2wsh and p2sh are versy similar
-      expect(p2sh.network).toStrictEqual(TestNet)
     })
   })
 
@@ -85,16 +83,6 @@ describe('P2WSH', () => {
   })
 
   describe('getScript()', () => {
-    it('should refuse to build ops code stack for invalid address', () => {
-      const invalid = DeFiAddress.from(p2wshFixture.mainnet)
-      expect(invalid.valid).toBeFalsy()
-      try {
-        invalid.getScript()
-      } catch (e) {
-        expect(e.message).toStrictEqual('InvalidDefiAddress')
-      }
-    })
-
     it('should be able to build script', async () => {
       const p2wsh = DeFiAddress.from(p2wshFixture.mainnet)
       const scriptStack = p2wsh.getScript()

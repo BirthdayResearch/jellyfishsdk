@@ -11,7 +11,8 @@ describe('P2SH', () => {
     regtest: '',
 
     invalid: 'FFPENo7FPMJpDV6fUcfo4QfkZrfrV1Uf8', // edited mainnet address, removed prefix
-    invalidChecksum: 'dFFPENo7FPMJpDV6fUcfo4QfkZrfrV1Uf' // edited mainnet address, trim checksum
+    invalidChecksum: 'dFFPENo7FPMJpDV6fUcfo4QfkZrfrV1Uf', // edited mainnet address, trim checksum
+    validBtcAddress: '3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy' // valid btc p2sh
   }
 
   beforeAll(async () => {
@@ -44,20 +45,17 @@ describe('P2SH', () => {
       expect(regtest.constructor.name).toStrictEqual('P2SH')
       expect(regtest.network).toStrictEqual(RegTest)
     })
+
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2shFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
+    })
   })
 
   describe('from() - invalid address', () => {
     it('trimmed prefix', () => {
       const invalid = DeFiAddress.from(p2shFixture.invalid)
       expect(invalid.valid).toBeFalsy()
-    })
-
-    it('should be able to validate in address prefix with network', () => {
-      // valid address, used on different network
-      const p2sh = DeFiAddress.from(p2shFixture.mainnet)
-      expect(p2sh.valid).toBeFalsy()
-      // expect(p2sh.type).toStrictEqual('P2SH') // invalid address guessed type is not promising, as p2sh and p2sh are versy similar
-      expect(p2sh.network).toStrictEqual(TestNet)
     })
 
     it('should get the type precisely', () => {
@@ -96,16 +94,6 @@ describe('P2SH', () => {
   })
 
   describe('getScript()', () => {
-    it('should refuse to build ops code stack for invalid address', () => {
-      const invalid = DeFiAddress.from(p2shFixture.mainnet)
-      expect(invalid.valid).toBeFalsy()
-      try {
-        invalid.getScript()
-      } catch (e) {
-        expect(e.message).toStrictEqual('InvalidDefiAddress')
-      }
-    })
-
     it('should be able to build script', async () => {
       const p2sh = DeFiAddress.from(p2shFixture.mainnet)
       const scriptStack = p2sh.getScript()

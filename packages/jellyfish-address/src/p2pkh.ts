@@ -1,4 +1,4 @@
-import { Bs58 } from '@defichain/jellyfish-crypto/src'
+import { Bs58 } from '@defichain/jellyfish-crypto'
 import { getNetwork, MainNet, Network, NetworkName, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
 import { Address } from './address'
@@ -11,7 +11,7 @@ export class P2PKH extends Address {
     this.pubKeyHash = pubKeyHash
 
     // safety precaution
-    if (valid && (utf8String.length < 26 || utf8String.length > 35 || pubKeyHash?.length !== 20)) {
+    if (valid && (network === undefined || utf8String.length < 26 || utf8String.length > 35 || pubKeyHash?.length !== 20)) {
       throw new Error('Invalid P2PKH address marked valid')
     }
   }
@@ -47,7 +47,7 @@ export class P2PKH extends Address {
       const decoded = Bs58.toHash160(utf8String)
       buffer = decoded.buffer
       network = [MainNet, TestNet, RegTest].find(net => net.pubKeyHashPrefix === decoded.prefix)
-      valid = true
+      valid = network !== undefined
     } catch {
       // non b58 string, invalid address
     }

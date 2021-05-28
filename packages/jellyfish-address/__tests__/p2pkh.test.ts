@@ -11,7 +11,8 @@ describe('P2PKH', () => {
     regtest: '',
 
     invalid: 'JBuS81VT8ouPrT6YS55qoS74D13Cw7h1Y', // edited, removed prefix
-    invalidChecksum: '8JBuS81VT8ouPrT6YS55qoS74D13Cw7h1X' // edited checksum (last char)
+    invalidChecksum: '8JBuS81VT8ouPrT6YS55qoS74D13Cw7h1X', // edited checksum (last char)
+    validBtcAddress: '1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2' // valid btc p2pkh
   }
 
   beforeAll(async () => {
@@ -44,20 +45,17 @@ describe('P2PKH', () => {
       expect(regtest.constructor.name).toStrictEqual('P2PKH')
       expect(regtest.network).toStrictEqual(RegTest)
     })
+
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2pkhFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
+    })
   })
 
   describe('from() - invalid address', () => {
     it('should be able to validate in address prefix with network', () => {
       const invalid = DeFiAddress.from(p2pkhFixture.invalid)
       expect(invalid.valid).toBeFalsy()
-    })
-
-    it('should be able to validate in address prefix with network', () => {
-      // valid address, used on different network
-      const p2pkh = DeFiAddress.from(p2pkhFixture.mainnet)
-      expect(p2pkh.valid).toBeFalsy()
-      // expect(p2pkh.type).toStrictEqual('P2PKH') // invalid address guessed type is not promising, as p2pkh and p2sh are versy similar
-      expect(p2pkh.network).toStrictEqual(TestNet)
     })
 
     it('should get the type precisely', () => {
@@ -95,16 +93,6 @@ describe('P2PKH', () => {
   })
 
   describe('getScript()', () => {
-    it('should refuse to build ops code stack for invalid address', () => {
-      const invalid = DeFiAddress.from(p2pkhFixture.mainnet)
-      expect(invalid.valid).toBeFalsy()
-      try {
-        invalid.getScript()
-      } catch (e) {
-        expect(e.message).toStrictEqual('InvalidDefiAddress')
-      }
-    })
-
     it('should be able to build script', async () => {
       const p2pkh = DeFiAddress.from(p2pkhFixture.mainnet)
       const scriptStack = p2pkh.getScript()

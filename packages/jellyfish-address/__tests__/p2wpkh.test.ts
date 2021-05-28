@@ -11,7 +11,8 @@ describe('P2WPKH', () => {
     regtest: '',
 
     trimmedPrefix: 'f1qpe7q4vvtxpdunpazvmwqdh3xlnatfdt2xr8mpv', // edited mainnet address with broken prefix
-    invalid: 'df1pe7q4vvtxpdunpazvmwqdh3xlnatfdt2ncrpqo' // edited mainnet address, letter 'o'
+    invalid: 'df1pe7q4vvtxpdunpazvmwqdh3xlnatfdt2ncrpqo', // edited mainnet address, letter 'o'
+    validBtcAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' // valid btc p2wph
   }
 
   beforeAll(async () => {
@@ -43,6 +44,11 @@ describe('P2WPKH', () => {
       expect(regtest.type).toStrictEqual('P2WPKH')
       expect(regtest.constructor.name).toStrictEqual('P2WPKH')
       expect(regtest.network).toStrictEqual(RegTest)
+    })
+
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2wpkhFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
     })
   })
 
@@ -95,16 +101,6 @@ describe('P2WPKH', () => {
   })
 
   describe('getScript()', () => {
-    it('should refuse to build ops code stack for invalid address', () => {
-      const invalid = DeFiAddress.from(p2wpkhFixture.mainnet)
-      expect(invalid.valid).toBeFalsy()
-      try {
-        invalid.getScript()
-      } catch (e) {
-        expect(e.message).toStrictEqual('InvalidDefiAddress')
-      }
-    })
-
     it('should be able to build script', async () => {
       const p2wpkh = DeFiAddress.from(p2wpkhFixture.mainnet)
       const scriptStack = p2wpkh.getScript()

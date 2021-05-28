@@ -46,7 +46,7 @@ export class P2SH extends Address {
       const decoded = Bs58.toHash160(utf8String)
       buffer = decoded.buffer
       network = [MainNet, TestNet, RegTest].find(net => net.scriptHashPrefix === decoded.prefix)
-      valid = true
+      valid = network !== undefined
     } catch {
       // non b58 string, invalid address
     }
