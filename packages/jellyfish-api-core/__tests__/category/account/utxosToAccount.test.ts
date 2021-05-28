@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { UtxosToAccountPayload } from '../../../src/category/account'
+import { BalanceTransferPayload } from '../../../src/category/account'
 
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
@@ -17,7 +17,7 @@ describe('Account', () => {
   })
 
   it('should utxosToAccount', async () => {
-    const payload: UtxosToAccountPayload = {}
+    const payload: BalanceTransferPayload = {}
     // NOTE(jingyi2811): Only support sending utxos to DFI account.
     payload[await container.getNewAddress()] = '5@DFI'
     payload[await container.getNewAddress()] = '5@DFI'
@@ -29,7 +29,7 @@ describe('Account', () => {
   })
 
   it('should utxosToAccount with utxos', async () => {
-    const payload: UtxosToAccountPayload = {}
+    const payload: BalanceTransferPayload = {}
     // NOTE(jingyi2811): Only support sending utxos to DFI account.
     payload[await container.getNewAddress()] = '5@DFI'
     payload[await container.getNewAddress()] = '5@DFI'
