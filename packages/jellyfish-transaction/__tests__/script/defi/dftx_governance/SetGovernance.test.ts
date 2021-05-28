@@ -157,3 +157,36 @@ describe('single variable', () => {
     })
   })
 })
+
+describe('Unmapped Governance Variable handling', () => {
+  const setGovernance: SetGovernance = {
+    governanceVars: [
+      {
+        key: 'LP_DAILY_DFI_REWARD',
+        value: new BigNumber(1.55)
+      },
+      {
+        key: 'FOO',
+        value: '0123456789abcdef'
+      }
+    ]
+  }
+
+  const lpRewards = '134c505f4441494c595f4446495f524557415244c01c3d0900000000'
+  const fooBaz = '03464f4f0123456789abcdef' // [0x03 FOO {raw hex}]
+
+  it('should compose from buffer to composable', () => {
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(lpRewards + fooBaz, 'hex'))
+    const composable = new CSetGovernance(buffer)
+
+    expect(composable.toObject()).toEqual(setGovernance)
+  })
+
+  it('should compose from composable to buffer', () => {
+    const composable = new CSetGovernance(setGovernance)
+    const buffer = new SmartBuffer()
+    composable.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toEqual(lpRewards + fooBaz)
+  })
+})
