@@ -10,24 +10,16 @@ export class P2WPKH extends Address {
     super(network, utf8String, pubKeyHash, valid, 'P2WPKH')
 
     // safety precaution
-    if (valid && (
-      network === undefined ||
-      pubKeyHash?.length !== P2WPKH.PUB_KEY_HASH_LENGTH
-    )) {
-      console.log(this)
-      throw new Error('Invalid P2WPKH address marked valid')
+    if (valid && pubKeyHash?.length !== P2WPKH.PUB_KEY_HASH_LENGTH) {
+      throw new Error('InvalidDefiAddress')
     }
   }
 
   getScript (): Script {
-    if (!this.valid) {
-      throw new Error('InvalidDefiAddress')
-    }
-
     return {
       stack: [
         OP_CODES.OP_0,
-        new OP_PUSHDATA(this.buffer as Buffer, 'little')
+        new OP_PUSHDATA(this.getBuffer(), 'little')
       ]
     }
   }

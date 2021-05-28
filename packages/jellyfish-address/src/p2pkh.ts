@@ -9,25 +9,20 @@ export class P2PKH extends Address {
 
     // safety precaution
     if (valid && (
-      network === undefined ||
       utf8String.length < 26 ||
       utf8String.length > 35 ||
       pubKeyHash?.length !== 20
     )) {
-      throw new Error('Invalid P2PKH address marked valid')
+      throw new Error('InvalidDefiAddress')
     }
   }
 
   getScript (): Script {
-    if (!this.valid) {
-      throw new Error('InvalidDefiAddress')
-    }
-
     return {
       stack: [
         OP_CODES.OP_DUP,
         OP_CODES.OP_HASH160,
-        new OP_PUSHDATA(this.buffer as Buffer, 'little'),
+        new OP_PUSHDATA(this.getBuffer(), 'little'),
         OP_CODES.OP_EQUALVERIFY,
         OP_CODES.OP_CHECKSIG
       ]

@@ -9,24 +9,16 @@ export class P2WSH extends Address {
   constructor (network: Network | undefined, utf8String: string, scriptHash: Buffer | undefined, valid: boolean = false) {
     super(network, utf8String, scriptHash, valid, 'P2WSH')
 
-    // safety precaution
-    if (valid && (
-      network === undefined ||
-      scriptHash?.length !== P2WSH.SCRIPT_HASH_LENGTH
-    )) {
+    if (valid && scriptHash?.length !== P2WSH.SCRIPT_HASH_LENGTH) {
       throw new Error('Invalid P2WSH address marked valid')
     }
   }
 
   getScript (): Script {
-    if (!this.valid) {
-      throw new Error('InvalidDefiAddress')
-    }
-
     return {
       stack: [
         OP_CODES.OP_0,
-        new OP_PUSHDATA(this.buffer as Buffer, 'little')
+        new OP_PUSHDATA(this.getBuffer(), 'little')
       ]
     }
   }

@@ -110,12 +110,6 @@ describe('P2WPKH', () => {
       validAddress = DeFiAddress.from(p2wpkhFixture.mainnet)
       expect(validAddress.valid).toBeTruthy()
     })
-    it('should not be able to instantiate `valid` address - without network', () => {
-      expect(() => {
-        // eslint-disable-next-line no-new
-        new P2WPKH(undefined, validAddress.utf8String, validAddress.buffer, true)
-      }).toThrow('Invalid P2WPKH address marked valid')
-    })
 
     it('should not be able to instantiate `valid` address - with invalid buffer length', () => {
       expect(() => {

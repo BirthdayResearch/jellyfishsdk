@@ -112,12 +112,6 @@ describe('P2SH', () => {
       validAddress = DeFiAddress.from(p2shFixture.mainnet)
       expect(validAddress.valid).toBeTruthy()
     })
-    it('should not be able to instantiate `valid` address - without network', () => {
-      expect(() => {
-        // eslint-disable-next-line no-new
-        new P2SH(undefined, validAddress.utf8String, validAddress.buffer, true)
-      }).toThrow('Invalid P2SH address marked valid')
-    })
 
     it('should not be able to instantiate `valid` address - with invalid address length', () => {
       expect(() => {
