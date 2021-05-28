@@ -30,10 +30,6 @@ describe('remove oracle', () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  afterEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
-  })
-
   it('should appoint and then remove oracle', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
