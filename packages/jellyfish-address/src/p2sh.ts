@@ -9,6 +9,7 @@ export class P2SH extends Address {
 
     // safety precaution
     if (valid && (
+      network === undefined ||
       utf8String.length < 26 ||
       utf8String.length > 35 ||
       scriptHash?.length !== 20

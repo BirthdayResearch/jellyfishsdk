@@ -10,8 +10,11 @@ export class P2WSH extends Address {
     super(network, utf8String, scriptHash, valid, 'P2WSH')
 
     // safety precaution
-    if (valid && (network === undefined || scriptHash?.length !== P2WSH.SCRIPT_HASH_LENGTH)) {
-      throw new Error('Invalid P2WPKH address marked valid')
+    if (valid && (
+      network === undefined ||
+      scriptHash?.length !== P2WSH.SCRIPT_HASH_LENGTH
+    )) {
+      throw new Error('Invalid P2WSH address marked valid')
     }
   }
 

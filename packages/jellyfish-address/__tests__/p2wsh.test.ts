@@ -1,6 +1,6 @@
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { DeFiAddress, P2WSH } from '../src'
+import { Address, DeFiAddress, P2WSH } from '../src'
 
 describe('P2WSH', () => {
   const p2wshFixture = {
@@ -90,6 +90,28 @@ describe('P2WSH', () => {
       expect(scriptStack.stack.length).toStrictEqual(2)
       expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
       expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
+    })
+  })
+
+  describe('constructor()', () => {
+    let validAddress: Address
+
+    beforeAll(() => {
+      validAddress = DeFiAddress.from(p2wshFixture.mainnet)
+      expect(validAddress.valid).toBeTruthy()
+    })
+    it('should not be able to instantiate `valid` address - without network', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2WSH(undefined, validAddress.utf8String, validAddress.buffer, true)
+      }).toThrow('Invalid P2WSH address marked valid')
+    })
+
+    it('should not be able to instantiate `valid` address - with invalid buffer length', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2WSH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
+      }).toThrow('Invalid P2WSH address marked valid')
     })
   })
 })

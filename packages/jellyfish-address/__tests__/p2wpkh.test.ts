@@ -1,7 +1,7 @@
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { RegTestContainer } from '@defichain/testcontainers'
-import { DeFiAddress, P2WPKH } from '../src'
+import { Address, DeFiAddress, P2WPKH } from '../src'
 
 describe('P2WPKH', () => {
   const container = new RegTestContainer()
@@ -100,6 +100,28 @@ describe('P2WPKH', () => {
       expect(scriptStack.stack.length).toStrictEqual(2)
       expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_0)
       expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
+    })
+  })
+
+  describe('constructor()', () => {
+    let validAddress: Address
+
+    beforeAll(() => {
+      validAddress = DeFiAddress.from(p2wpkhFixture.mainnet)
+      expect(validAddress.valid).toBeTruthy()
+    })
+    it('should not be able to instantiate `valid` address - without network', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2WPKH(undefined, validAddress.utf8String, validAddress.buffer, true)
+      }).toThrow('Invalid P2WPKH address marked valid')
+    })
+
+    it('should not be able to instantiate `valid` address - with invalid buffer length', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2WPKH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
+      }).toThrow('Invalid P2WPKH address marked valid')
     })
   })
 })

@@ -1,7 +1,7 @@
 import { MainNet, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { RegTestContainer } from '@defichain/testcontainers'
-import { DeFiAddress, P2SH } from '../src'
+import { Address, DeFiAddress, P2SH } from '../src'
 
 describe('P2SH', () => {
   const container = new RegTestContainer()
@@ -102,6 +102,35 @@ describe('P2SH', () => {
       expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_HASH160)
       expect(scriptStack.stack[1].type).toStrictEqual('OP_PUSHDATA')
       expect(scriptStack.stack[2]).toStrictEqual(OP_CODES.OP_EQUAL)
+    })
+  })
+
+  describe('constructor()', () => {
+    let validAddress: Address
+
+    beforeAll(() => {
+      validAddress = DeFiAddress.from(p2shFixture.mainnet)
+      expect(validAddress.valid).toBeTruthy()
+    })
+    it('should not be able to instantiate `valid` address - without network', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2SH(undefined, validAddress.utf8String, validAddress.buffer, true)
+      }).toThrow('Invalid P2SH address marked valid')
+    })
+
+    it('should not be able to instantiate `valid` address - with invalid address length', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2SH(MainNet, validAddress.utf8String.slice(10), validAddress.buffer, true) // less than min length
+      }).toThrow('Invalid P2SH address marked valid')
+    })
+
+    it('should not be able to instantiate `valid` address - with invalid buffer length', () => {
+      expect(() => {
+        // eslint-disable-next-line no-new
+        new P2SH(MainNet, validAddress.utf8String, (validAddress.buffer as Buffer).slice(1), true)
+      }).toThrow('Invalid P2SH address marked valid')
     })
   })
 })
