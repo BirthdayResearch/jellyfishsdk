@@ -1,12 +1,14 @@
 import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { fundEllipticPair, sendTransaction } from '../test.utils'
+import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
+
+let oracleId: string
 
 beforeAll(async () => {
   await container.start()
@@ -25,19 +27,19 @@ afterAll(async () => {
   await container.stop()
 })
 
-describe('appoint oracle', () => {
+describe('update oracle', () => {
   beforeEach(async () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  it('should appoint oracle', async () => {
+  it('should appoint and then update oracle', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
 
     // Appoint Oracle
-    const script = await providers.elliptic.script()
-    const txn = await builder.oracles.appointOracle({
+    let script = await providers.elliptic.script()
+    let txn = await builder.oracles.appointOracle({
       script: script,
       weightage: 1,
       priceFeeds: [
@@ -48,30 +50,15 @@ describe('appoint oracle', () => {
       ]
     }, script)
 
-    // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(10)
-    expect(outs[1].value).toBeGreaterThan(9.999)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    oracleId = calculateTxid(txn)
+    await sendTransaction(container, txn)
 
-    // Ensure you don't send all your balance away during appoint oracle
-    const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toStrictEqual(1)
-    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
-  })
-
-  it('should appoint oracle with multiple currencies', async () => {
-    // Fund 10 DFI UTXO
-    await fundEllipticPair(container, providers.ellipticPair, 10)
-    await providers.setupMocks() // required to move utxos
-
-    // Appoint Oracle
-    const script = await providers.elliptic.script()
-    const txn = await builder.oracles.appointOracle({
+    // Update Oracle
+    script = await providers.elliptic.script()
+    txn = await builder.oracles.updateOracle({
+      oracleId: oracleId,
       script: script,
-      weightage: 1,
+      weightage: 100,
       priceFeeds: [
         {
           token: 'TEST',
@@ -95,17 +82,18 @@ describe('appoint oracle', () => {
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    // Ensure you don't send all your balance away during appoint oracle
+    // Ensure you don't send all your balance away during update oracle
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 
-  it('should reject invalid appoint oracle arg - weightage over 100', async () => {
-    // Appoint Oracle
+  it('should reject invalid update oracle arg - weightage over 100', async () => {
+    // Update Oracle
     const script = await providers.elliptic.script()
-    await expect(builder.oracles.appointOracle({
+    await expect(builder.oracles.updateOracle({
+      oracleId: oracleId,
       script: script,
       weightage: 200,
       priceFeeds: [
@@ -114,7 +102,7 @@ describe('appoint oracle', () => {
           currency: 'USD'
         }
       ]
-    }, script)).rejects.toThrow('Conversion input `appointOracle.weightage` must be above `0` and below `101`')
+    }, script)).rejects.toThrow('Conversion input `updateOracle.weightage` must be above `0` and below `101`')
   })
 })
 

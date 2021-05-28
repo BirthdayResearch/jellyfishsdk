@@ -34,7 +34,11 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid `AppointOracle` input
    */
-  INVALID_APPOINT_ORACLE_INPUT
+  INVALID_APPOINT_ORACLE_INPUT,
+  /**
+   * Invalid `UpdateOracle` input
+   */
+  INVALID_UPDATE_ORACLE_INPUT
 }
 
 /**

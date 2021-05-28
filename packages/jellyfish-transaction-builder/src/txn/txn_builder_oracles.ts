@@ -1,4 +1,4 @@
-import { AppointOracle, RemoveOracle } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_oracles'
+import { AppointOracle, RemoveOracle, UpdateOracle } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_oracles'
 import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
@@ -35,6 +35,27 @@ export class TxnBuilderOracles extends P2WPKHTxnBuilder {
   async removeOracle (removeOracle: RemoveOracle, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_REMOVE_ORACLE(removeOracle),
+      changeScript
+    )
+  }
+
+  /**
+   * Updates an oracle. Currently requires Foundation Authorization.
+   *
+   * @param {UpdateOracle} updateOracle txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @throws {TxnBuilderError} if 'updateOracle.weightage' is below `1` or over `100`
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async updateOracle (updateOracle: UpdateOracle, changeScript: Script): Promise<TransactionSegWit> {
+    if (updateOracle.weightage < 1 || updateOracle.weightage > 100) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_UPDATE_ORACLE_INPUT,
+        'Conversion input `updateOracle.weightage` must be above `0` and below `101`'
+      )
+    }
+
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_UPDATE_ORACLE(updateOracle),
       changeScript
     )
   }
