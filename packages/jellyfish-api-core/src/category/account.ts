@@ -30,6 +30,9 @@ export enum TxType {
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A'
 }
+
+type AccountRegexType = `${string}@${string}`
+
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -244,18 +247,35 @@ export class Account {
   }
 
   /**
-   * Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account.
+   * Create an UTXOs to Account transaction submitted to a connected node.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
-   * @param {UtxosToAccountPayload} payload
+   * @param {BalanceTransferPayload} payload
    * @param {string} payload[address]
-   * @param {UtxosToAccountUTXO[]} [utxos=[]]
+   * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
    * @return {Promise<string>}
    */
-  async utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string> {
+  async utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('utxostoaccount', [payload, utxos], 'number')
+  }
+
+  /**
+   * Create an Account to Account transaction submitted to a connected node.
+   * Optionally, specific UTXOs to spend to create that transaction.
+   *
+   * @param {string} from
+   * @param {BalanceTransferPayload} payload
+   * @param {string} payload[address]
+   * @param {AccountToAccountOptions} [options]
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string> {
+    return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
   }
 
   /**
@@ -332,11 +352,15 @@ export interface AccountHistoryOptions {
   limit?: number
 }
 
-export interface UtxosToAccountPayload {
-  [key: string]: string
+export interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
 }
 
-export interface UtxosToAccountUTXO {
+export interface AccountToAccountOptions {
+  utxos?: UTXO[]
+}
+
+export interface UTXO {
   txid: string
   vout: number
 }
