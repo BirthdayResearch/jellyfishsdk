@@ -92,8 +92,6 @@ export class CTokenUpdate extends ComposableBuffer<TokenUpdate> {
 
 /**
  * TokenUpdateAny DeFi Transaction
- *
- * Note(canonbrother): collateralAddress and creationTx are be able to be updated
  */
 export interface TokenUpdateAny extends TokenCreate {
   creationTx: string // -----------------| 32 bytes hex string
