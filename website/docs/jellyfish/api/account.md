@@ -148,19 +148,47 @@ interface AccountHistoryOptions {
 
 ## utxosToAccount
 
-Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account. 
+Create an UTXOs to Account transaction submitted to a connected node.
 Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.utxosToAccount()"
 interface account {
-  utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string>
+  utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
 }
 
-interface UtxosToAccountPayload {
-  [key: string]: string;
+type AccountRegexType = `${string}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
 }
 
-interface UtxosToAccountUTXO {
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## accountToAccount
+
+Create an Account to Account transaction submitted to a connected node.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.accountToAccount()"
+interface account {
+  accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string>
+}
+
+type AccountRegexType = `${string}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+interface AccountToAccountOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
   txid: string
   vout: number
 }

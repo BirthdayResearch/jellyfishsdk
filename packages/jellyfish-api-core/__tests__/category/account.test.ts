@@ -2,7 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { UtxosToAccountPayload, AccountHistoryCountOptions, TxType } from '../../src/category/account'
+import { RpcApiError } from '../../src'
+import { BalanceTransferPayload, UTXO, AccountHistoryCountOptions, TxType } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -485,7 +486,7 @@ describe('masternode', () => {
 
   describe('utxosToAccount', () => {
     it('should utxosToAccount', async () => {
-      const payload: UtxosToAccountPayload = {}
+      const payload: BalanceTransferPayload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
@@ -496,14 +497,22 @@ describe('masternode', () => {
       expect(data.length).toStrictEqual(64)
     })
 
+    it('should not utxosToAccount for DFI coin if does not own the recipient address', async () => {
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+      const promise = client.account.utxosToAccount({ '2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz': '5@DFI' })
+
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('The address (2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz) is not your own address')
+    })
+
     it('should utxosToAccount with utxos', async () => {
-      const payload: UtxosToAccountPayload = {}
+      const payload: BalanceTransferPayload = {}
       // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+      const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
