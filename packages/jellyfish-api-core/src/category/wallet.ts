@@ -251,9 +251,8 @@ export class Wallet {
   }
 
   /**
-   * Reveals the private key corresponding to 'address'.
+   * Reveals the private key corresponding to an address.
    *
-   * Then the importprivkey can be used with this output.
    * @param {string} address The DFI address for the private key.
    * @return {Promise<string>}
    */
