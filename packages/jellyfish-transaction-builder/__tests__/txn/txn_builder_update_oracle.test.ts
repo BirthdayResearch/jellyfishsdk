@@ -38,8 +38,8 @@ describe('update oracle', () => {
     await providers.setupMocks() // required to move utxos
 
     // Appoint Oracle
-    let script = await providers.elliptic.script()
-    let txn = await builder.oracles.appointOracle({
+    const script = await providers.elliptic.script()
+    const appointTxn = await builder.oracles.appointOracle({
       script: script,
       weightage: 1,
       priceFeeds: [
@@ -50,12 +50,11 @@ describe('update oracle', () => {
       ]
     }, script)
 
-    oracleId = calculateTxid(txn)
-    await sendTransaction(container, txn)
+    oracleId = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
 
     // Update Oracle
-    script = await providers.elliptic.script()
-    txn = await builder.oracles.updateOracle({
+    const updateTxn = await builder.oracles.updateOracle({
       oracleId: oracleId,
       script: script,
       weightage: 100,
@@ -76,7 +75,7 @@ describe('update oracle', () => {
     }, script)
 
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(container, updateTxn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
