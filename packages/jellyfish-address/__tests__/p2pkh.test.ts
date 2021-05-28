@@ -45,11 +45,6 @@ describe('P2PKH', () => {
       expect(regtest.constructor.name).toStrictEqual('P2PKH')
       expect(regtest.network).toStrictEqual(RegTest)
     })
-
-    it('non DFI (network) address should be invalid', () => {
-      const btc = DeFiAddress.from(p2pkhFixture.validBtcAddress)
-      expect(btc.valid).toBeFalsy()
-    })
   })
 
   describe('from() - invalid address', () => {
@@ -58,9 +53,14 @@ describe('P2PKH', () => {
       expect(invalid.valid).toBeFalsy()
     })
 
-    it('should get the type precisely', () => {
+    it('invalid checksum', () => {
       const invalid = DeFiAddress.from(p2pkhFixture.invalidChecksum)
       expect(invalid.valid).toBeFalsy()
+    })
+
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2pkhFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
     })
   })
 

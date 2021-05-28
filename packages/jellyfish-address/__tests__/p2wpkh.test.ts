@@ -45,11 +45,6 @@ describe('P2WPKH', () => {
       expect(regtest.constructor.name).toStrictEqual('P2WPKH')
       expect(regtest.network).toStrictEqual(RegTest)
     })
-
-    it('non DFI (network) address should be invalid', () => {
-      const btc = DeFiAddress.from(p2wpkhFixture.validBtcAddress)
-      expect(btc.valid).toBeFalsy()
-    })
   })
 
   describe('from() - invalid address', () => {
@@ -63,12 +58,9 @@ describe('P2WPKH', () => {
       expect(invalid.valid).toBeFalsy()
     })
 
-    it('should be able to validate in address prefix with network', () => {
-      // valid address, used on different network
-      const p2wpkh = DeFiAddress.from(p2wpkhFixture.mainnet)
-      expect(p2wpkh.valid).toBeFalsy()
-      // expect(p2wpkh.type).toStrictEqual('P2WPKH') // invalid address guessed type is not promising, as p2wpkh and p2wpkh are versy similar
-      expect(p2wpkh.network).toStrictEqual(TestNet)
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2wpkhFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
     })
   })
 

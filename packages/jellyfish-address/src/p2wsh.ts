@@ -1,16 +1,18 @@
 import { bech32 } from 'bech32'
-import { getNetwork, Network, NetworkName } from '@defichain/jellyfish-network'
+import { getNetwork, MainNet, Network, NetworkName, RegTest, TestNet } from '@defichain/jellyfish-network'
 import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
 import { Address } from './address'
 
 export class P2WSH extends Address {
-  // 32 bytes, data only, 64 char
-  data: string
-  static SCRIPT_HASH_LENGTH = 64
+  static SCRIPT_HASH_LENGTH = 32 // count in bytes
 
-  constructor (network: Network | undefined, utf8String: string, data: string, valid: boolean = false) {
-    super(network, utf8String, valid, 'P2WSH')
-    this.data = data
+  constructor (network: Network | undefined, utf8String: string, scriptHash: Buffer | undefined, valid: boolean = false) {
+    super(network, utf8String, scriptHash, valid, 'P2WSH')
+
+    // safety precaution
+    if (valid && (network === undefined || scriptHash?.length !== P2WSH.SCRIPT_HASH_LENGTH)) {
+      throw new Error('Invalid P2WPKH address marked valid')
+    }
   }
 
   getScript (): Script {
@@ -21,57 +23,52 @@ export class P2WSH extends Address {
     return {
       stack: [
         OP_CODES.OP_0,
-        new OP_PUSHDATA(Buffer.from(this.data, 'hex'), 'little')
+        new OP_PUSHDATA(this.buffer as Buffer, 'little')
       ]
     }
   }
 
   /**
-   * @param net network
-   * @param hex data, redeem script (32 bytes, 64 characters)
-   * @param witnessVersion default 0
-   * @returns
+   * @param {NetworkName|Network} net mainnet | testnet | regtest
+   * @param {Buffer|string} data data, script hash (32 bytes, 64 characters)
+   * @throws when data input string is not 64 characters long (32 bytes)
+   * @returns {P2WSH}
    */
-  static to (net: Network | NetworkName, hex: string, witnessVersion = 0x00): P2WSH {
+  static to (net: Network | NetworkName, data: string | Buffer, witnessVersion = 0x00): P2WSH {
     const network: Network = typeof net === 'string' ? getNetwork(net) : net
+    const numbers = typeof data === 'string' ? Buffer.from(data, 'hex') : data
 
-    if (hex.length !== P2WSH.SCRIPT_HASH_LENGTH) {
+    if (numbers.length !== P2WSH.SCRIPT_HASH_LENGTH) {
       throw new Error('InvalidScriptHashLength')
     }
 
-    const numbers = Buffer.from(hex, 'hex')
     const fiveBitsWords = bech32.toWords(numbers)
     const includeVersion = [witnessVersion, ...fiveBitsWords]
     const utf8 = bech32.encode(network.bech32.hrp, includeVersion)
-    return new P2WSH(network, utf8, hex, true)
+    return new P2WSH(network, utf8, numbers, true)
   }
 
   /**
    * @param {string} raw jellyfish p2wpkh (bech32 address) string
-   * @throws when decoded prefix is not found in DeFiChain ecosystem (mainnet / testnet / regtest)
    * @returns {P2WSH}
    */
   static from (raw: string): P2WSH {
     let valid: boolean
     let prefix: string
-    let data: string = ''
+    let data: Buffer | undefined
+    let network: Network | undefined
     try {
       const decoded = bech32.decode(raw)
       valid = true
       prefix = decoded.prefix
       const trimmedVersion = decoded.words.slice(1)
-      data = Buffer.from(bech32.fromWords(trimmedVersion)).toString('hex')
+      data = Buffer.from(bech32.fromWords(trimmedVersion))
 
-      if (data.length !== P2WSH.SCRIPT_HASH_LENGTH) {
-        valid = false
-      }
+      network = [MainNet, TestNet, RegTest].find(net => net.bech32.hrp === prefix)
+      valid = data.length === P2WSH.SCRIPT_HASH_LENGTH && network !== undefined
     } catch (e) {
       valid = false
     }
-
-    const network = (['mainnet', 'testnet', 'regtest'] as NetworkName[])
-      .map(netName => getNetwork(netName))
-      .find(net => net.bech32.hrp === prefix)
 
     return new P2WSH(network, raw, data, valid)
   }

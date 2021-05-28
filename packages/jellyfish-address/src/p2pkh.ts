@@ -4,14 +4,16 @@ import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
 import { Address } from './address'
 
 export class P2PKH extends Address {
-  readonly pubKeyHash: Buffer | undefined // H160(33 bytes pubKey)
-
   constructor (network: Network | undefined, utf8String: string, pubKeyHash: Buffer | undefined, valid: boolean) {
-    super(network, utf8String, valid, 'P2PKH')
-    this.pubKeyHash = pubKeyHash
+    super(network, utf8String, pubKeyHash, valid, 'P2PKH')
 
     // safety precaution
-    if (valid && (network === undefined || utf8String.length < 26 || utf8String.length > 35 || pubKeyHash?.length !== 20)) {
+    if (valid && (
+      network === undefined ||
+      utf8String.length < 26 ||
+      utf8String.length > 35 ||
+      pubKeyHash?.length !== 20
+    )) {
       throw new Error('Invalid P2PKH address marked valid')
     }
   }
@@ -25,13 +27,20 @@ export class P2PKH extends Address {
       stack: [
         OP_CODES.OP_DUP,
         OP_CODES.OP_HASH160,
-        new OP_PUSHDATA(this.pubKeyHash as Buffer, 'little'),
+        new OP_PUSHDATA(this.buffer as Buffer, 'little'),
         OP_CODES.OP_EQUALVERIFY,
         OP_CODES.OP_CHECKSIG
       ]
     }
   }
 
+  /**
+   * @param {NetworkName|Network} net mainnet | testnet | regtest
+   * @param {Buffer|string} h160 data, public key hash (20 bytes, 40 characters)
+   * @param {number} witnessVersion default 0, not more than 1 byte
+   * @throws when h160 input string is not 40 characters long (20 bytes)
+   * @returns {P2WSH}
+   */
   static to (net: NetworkName | Network, h160: string | Buffer): P2PKH {
     const network = typeof net === 'string' ? getNetwork(net) : net
     const address = Bs58.fromHash160(h160, network.pubKeyHashPrefix)
@@ -39,6 +48,10 @@ export class P2PKH extends Address {
     return new P2PKH(network, address, buffer, true)
   }
 
+  /**
+   * @param {string} utf8String jellyfish p2pkh (base58 address) string, 26-35 characters
+   * @returns {P2PKH}
+   */
   static from (utf8String: string): P2PKH {
     let network: Network | undefined
     let buffer: Buffer | undefined

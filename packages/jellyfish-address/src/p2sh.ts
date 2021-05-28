@@ -4,17 +4,17 @@ import { Script, OP_CODES, OP_PUSHDATA } from '@defichain/jellyfish-transaction'
 import { Address } from './address'
 
 export class P2SH extends Address {
-  readonly scriptHash: Buffer | undefined // dSHA256()
-
   constructor (network: Network | undefined, utf8String: string, scriptHash: Buffer | undefined, valid: boolean = false) {
-    super(network, utf8String, valid, 'P2SH')
+    super(network, utf8String, scriptHash, valid, 'P2SH')
 
     // safety precaution
-    if (valid && (utf8String.length < 26 || utf8String.length > 35 || scriptHash?.length !== 20)) {
+    if (valid && (
+      utf8String.length < 26 ||
+      utf8String.length > 35 ||
+      scriptHash?.length !== 20
+    )) {
       throw new Error('Invalid P2SH address marked valid')
     }
-
-    this.scriptHash = scriptHash
   }
 
   getScript (): Script {
@@ -25,12 +25,18 @@ export class P2SH extends Address {
     return {
       stack: [
         OP_CODES.OP_HASH160,
-        new OP_PUSHDATA(this.scriptHash as Buffer, 'little'),
+        new OP_PUSHDATA(this.buffer as Buffer, 'little'),
         OP_CODES.OP_EQUAL
       ]
     }
   }
 
+  /**
+   * @param {NetworkName|Network} net mainnet | testnet | regtest
+   * @param {Buffer|string} h160 data, script hash (32 bytes, 64 characters)
+   * @throws when h160 input string is not 64 characters long (32 bytes)
+   * @returns {P2SH}
+   */
   static to (net: NetworkName | Network, h160: string | Buffer): P2SH {
     const network = typeof net === 'string' ? getNetwork(net) : net
     const address = Bs58.fromHash160(h160, network.scriptHashPrefix)
@@ -38,6 +44,10 @@ export class P2SH extends Address {
     return new P2SH(network, address, buffer, true)
   }
 
+  /**
+   * @param {string} raw jellyfish p2sh (base58 address) string, 26-35 characters
+   * @returns {P2SH}
+   */
   static from (utf8String: string): P2SH {
     let network: Network | undefined
     let buffer: Buffer | undefined

@@ -35,11 +35,6 @@ describe('P2WSH', () => {
       expect(regtest.constructor.name).toStrictEqual('P2WSH')
       expect(regtest.network).toStrictEqual(RegTest)
     })
-
-    it('non DFI (network) address should be invalid', () => {
-      const btc = DeFiAddress.from(p2wshFixture.validBtcAddress)
-      expect(btc.valid).toBeFalsy()
-    })
   })
 
   describe('from() - invalid address', () => {
@@ -51,6 +46,11 @@ describe('P2WSH', () => {
     it('invalid character set', () => {
       const invalid = DeFiAddress.from(p2wshFixture.invalid)
       expect(invalid.valid).toBeFalsy()
+    })
+
+    it('non DFI (network) address should be invalid', () => {
+      const btc = DeFiAddress.from(p2wshFixture.validBtcAddress)
+      expect(btc.valid).toBeFalsy()
     })
   })
 
