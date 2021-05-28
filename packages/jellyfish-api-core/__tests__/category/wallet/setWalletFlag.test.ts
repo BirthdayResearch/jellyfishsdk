@@ -1,9 +1,9 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { WalletFlag } from '../../../src/category/wallet'
 
-describe('Wallet flag without masternode', () => {
+describe('Wallet without masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -32,7 +32,7 @@ describe('Wallet flag without masternode', () => {
   })
 })
 
-describe('Wallet flag on masternode', () => {
+describe('Wallet on masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 

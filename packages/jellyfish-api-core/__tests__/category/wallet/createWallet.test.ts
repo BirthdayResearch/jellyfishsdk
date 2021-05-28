@@ -1,5 +1,5 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 
 describe('Wallet without masternode', () => {

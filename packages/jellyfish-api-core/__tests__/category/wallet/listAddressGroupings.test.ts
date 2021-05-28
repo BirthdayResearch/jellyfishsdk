@@ -1,9 +1,9 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { BigNumber } from '../../../src'
 
-describe('Address grouping without masternode', () => {
+describe('Address without masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -25,7 +25,7 @@ describe('Address grouping without masternode', () => {
   })
 })
 
-describe('Address grouping on masternode', () => {
+describe('Address on masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
