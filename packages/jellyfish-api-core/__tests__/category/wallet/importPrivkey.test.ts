@@ -15,7 +15,7 @@ describe('ImportPrivKey', () => {
     await container.stop()
   })
 
-  it('should should import private key without failing ', async () => {
+  it('should import private key without failing ', async () => {
     const privatekey = await client.wallet.dumpPrivKey(await client.wallet.getNewAddress())
     const promise = client.wallet.importPrivKey(privatekey)
 

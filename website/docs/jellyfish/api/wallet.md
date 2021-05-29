@@ -286,7 +286,7 @@ Reveals the private key corresponding to an address.
 
 ```ts title="client.wallet.dumpPrivKey()"
 interface wallet {
-  dumpPrivKey(address: string): Promise<string>
+  dumpPrivKey (address: string): Promise<string>
 }
 ```
 
@@ -296,6 +296,6 @@ Adds a private key (as returned by dumpprivkey) to your wallet. Requires a new w
 
 ```ts title="client.wallet.importPrivKey()"
 interface wallet {
-  importPrivKey(privkey: string, label: string = "", rescan: boolean = true): Promise<void>
+  importPrivKey (privkey: string, label: string = "", rescan: boolean = true): Promise<void>
 }
 ```
