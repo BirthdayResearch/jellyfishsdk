@@ -450,7 +450,6 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const uint = readVarUInt(buffer)
-        console.log('boolean fromBuffer: ', uint)
         setter(uint === 1)
       },
       toBuffer: (buffer: SmartBuffer): void => {

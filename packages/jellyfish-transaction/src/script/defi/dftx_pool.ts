@@ -149,9 +149,8 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
         },
         toBuffer: (buffer: SmartBuffer): void => {
           if (p.customRewards !== undefined) {
-            const array = p.customRewards
-            writeVarUInt(array.length, buffer)
-            array.forEach(data => new CTokenBalance(data).toBuffer(buffer))
+            writeVarUInt(p.customRewards.length, buffer)
+            p.customRewards.forEach(data => new CTokenBalance(data).toBuffer(buffer))
           }
         }
       }
