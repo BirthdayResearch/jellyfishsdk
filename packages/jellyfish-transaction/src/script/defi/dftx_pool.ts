@@ -125,7 +125,7 @@ export interface PoolCreatePair {
  */
 export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
   static OP_CODE = 0x70
-  static OP_NAME = 'DEFI_OP_POOL_CREATE_PAIR'
+  static OP_NAME = 'OP_DEFI_TX_POOL_CREATE_PAIR'
 
   composers (p: PoolCreatePair): BufferComposer[] {
     return [
