@@ -498,4 +498,25 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       }
     }
   }
+
+  /**
+   * Unsigned Boolean 4 bytes, 1 = true, 0 = false
+   *
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   * @returns
+   */
+  static bool (getter: () => boolean, setter: (data: boolean) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const int32 = buffer.readInt32BE()
+        setter(int32 === 1)
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        var v = getter().toString().toLowerCase() === 'true' ? 1 : 0
+        const buff = Buffer.from([0, 0, 0, v]) // 4 bytes
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
 }
