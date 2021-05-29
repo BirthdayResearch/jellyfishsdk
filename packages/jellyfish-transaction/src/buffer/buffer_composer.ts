@@ -446,16 +446,14 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    * @param setter to set to from buffer
    * @returns
    */
-  static bool (getter: () => boolean, setter: (data: boolean) => void): BufferComposer {
+  static uBool8 (getter: () => boolean, setter: (data: boolean) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        const uint = readVarUInt(buffer)
-        setter(uint === 1)
+        setter(buffer.readUInt8() === 1)
       },
       toBuffer: (buffer: SmartBuffer): void => {
         var v = getter().toString().toLowerCase() === 'true' ? 1 : 0
-        const buff = Buffer.from([v])
-        buffer.writeBuffer(buff)
+        buffer.writeBuffer(Buffer.from([v]))
       }
     }
   }
