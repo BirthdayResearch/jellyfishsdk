@@ -128,7 +128,7 @@ export class CPoolUpdatePair extends ComposableBuffer<PoolUpdatePair> {
   composers (p: PoolUpdatePair): BufferComposer[] {
     return [
       ComposableBuffer.varUInt(() => p.poolId, v => p.poolId = v),
-      ComposableBuffer.bool(() => p.status, v => p.status = v),
+      ComposableBuffer.uBool32(() => p.status, v => p.status = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
       // Note(canonbrother): special fix for inconsistent bytes in "block height >= ClarkeQuayHeight" condition

@@ -8,6 +8,7 @@ import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     // regtest fixtures
+    // height >= ClarkeQuayHeight (include customRewards)
     // status, commission
     '6a144466547875020000000100e1f505000000000000',
     // ownerAddress
@@ -17,7 +18,11 @@ it('should bi-directional buffer-object-buffer', () => {
     // customRewards 1 token
     '6a2044665478750200000000ffffffffffffffff0001000000000008af2f00000000',
     // all
-    '6a434466547875020000000120a107000000000017a914fd190704714762e6c30eb5b39071c1a52e6130ad87020000000000ca9a3b00000000010000000094357700000000'
+    '6a434466547875020000000120a107000000000017a914fd190704714762e6c30eb5b39071c1a52e6130ad87020000000000ca9a3b00000000010000000094357700000000',
+
+    // height < ClarkeQuayHeight (exclude customRewards)
+    // all
+    '6a2a44665478750300000001c0cf6a000000000017a9141205616a55fbbdd91ec97e222fae709acc4fd2c887'
   ]
 
   fixtures.forEach(hex => {
