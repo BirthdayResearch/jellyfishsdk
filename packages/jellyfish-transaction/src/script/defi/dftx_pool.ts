@@ -4,7 +4,7 @@ import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
-import { CScriptBalances, ScriptBalances, TokenBalance, CTokenBalance } from './dftx_balance'
+import { CScriptBalances, ScriptBalances, CTokenBalance, TokenBalance } from './dftx_balance'
 import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */

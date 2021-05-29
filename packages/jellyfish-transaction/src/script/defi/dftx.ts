@@ -12,7 +12,7 @@ import {
 } from './dftx_account'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
-  CPoolAddLiquidity, CPoolCreatePair, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
+  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolCreatePair, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap, PoolCreatePair
 } from './dftx_pool'
 import { CTokenMint, TokenMint } from './dftx_token'
