@@ -11,6 +11,7 @@ async function bootstrap (): Promise<void> {
     AppModule.forRoot(),
     newFastifyAdapter()
   )
+  app.enableCors()
   await app.listen(3000, '0.0.0.0')
 }
 
