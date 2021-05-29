@@ -5,6 +5,7 @@ import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { CScriptBalances, ScriptBalances, TokenBalance, CTokenBalance } from './dftx_balance'
+import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -134,7 +135,26 @@ export class CPoolCreatePair extends ComposableBuffer<PoolCreatePair> {
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.bool(() => p.status, v => p.status = v),
       ComposableBuffer.varUIntUtf8BE(() => p.pairSymbol, v => p.pairSymbol = v),
-      ComposableBuffer.varUIntArray(() => p.customRewards, v => p.customRewards = v, v => new CTokenBalance(v))
+      // Note(canonbrother): special fix for inconsistent bytes in "block height >= ClarkeQuayHeight" condition
+      // https://github.com/DeFiCh/ain/blob/4b70ecd8ee32d00c75be04a786dc75ec4a3c91dd/src/masternodes/rpc_poolpair.cpp#L571-L573
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          if (buffer.remaining() > 0) {
+            const length = readVarUInt(buffer)
+            p.customRewards = []
+            for (let i = 0; i < length; i++) {
+              p.customRewards.push(new CTokenBalance(buffer).toObject())
+            }
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          if (p.customRewards !== undefined) {
+            const array = p.customRewards
+            writeVarUInt(array.length, buffer)
+            array.forEach(data => new CTokenBalance(data).toBuffer(buffer))
+          }
+        }
+      }
     ]
   }
 }
