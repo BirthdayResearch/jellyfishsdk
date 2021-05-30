@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcon
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 
-describe('Tokens without masternode', () => {
+describe('Token without masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -75,7 +75,7 @@ describe('Tokens without masternode', () => {
   })
 })
 
-describe('Tokens on masternode', () => {
+describe('Token on masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -86,7 +86,6 @@ describe('Tokens on masternode', () => {
     await createToken('DBTC', { isDAT: true })
     await createToken('DNOTMINT', { mintable: false })
     await createToken('DNOTTRAD', { tradeable: false })
-    await container.generate(1)
   })
 
   async function createToken (symbol: string, metadata?: any): Promise<void> {
