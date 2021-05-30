@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BigNumber } from '@defichain/jellyfish-json'
+import BigNumber from 'bignumber.js'
 
 describe('Pool', () => {
   const container = new MasterNodeRegTestContainer()
