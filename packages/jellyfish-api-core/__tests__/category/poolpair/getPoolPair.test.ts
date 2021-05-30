@@ -10,7 +10,6 @@ describe('Pool', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(200)
     await createToken('DBCH')
     await createPoolPair('DBCH')
   })

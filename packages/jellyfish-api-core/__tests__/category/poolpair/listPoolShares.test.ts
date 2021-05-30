@@ -24,7 +24,6 @@ describe('Pool', () => {
     await createPoolPair('DSWAP')
     await addPoolLiquidity()
     await addPoolLiquidity()
-    await addPoolLiquidity()
   }
 
   async function createToken (symbol: string): Promise<void> {
