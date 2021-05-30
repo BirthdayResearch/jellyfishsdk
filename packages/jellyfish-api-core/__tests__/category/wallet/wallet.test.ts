@@ -1,6 +1,6 @@
-import { ContainerAdapterClient } from '../container_adapter_client'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber, wallet } from '../../src'
+import { BigNumber, wallet } from '../../../src'
 import waitForExpect from 'wait-for-expect'
 import {
   UTXO,
@@ -9,7 +9,7 @@ import {
   SendToAddressOptions,
   Mode,
   SendManyOptions
-} from '../../src/category/wallet'
+} from '../../../src/category/wallet'
 
 describe('getBalance', () => {
   describe('regtest', () => {
