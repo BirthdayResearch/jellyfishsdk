@@ -132,7 +132,7 @@ export class CPoolUpdatePair extends ComposableBuffer<PoolUpdatePair> {
       ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
       ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
       // Note(canonbrother): special fix for inconsistent bytes in "block height >= ClarkeQuayHeight" condition
-      // https://github.com/DeFiCh/ain/blob/4b70ecd8ee32d00c75be04a786dc75ec4a3c91dd/src/masternodes/rpc_poolpair.cpp#L571-L573
+      // https://github.com/DeFiCh/ain/blob/4b70ecd8ee32d00c75be04a786dc75ec4a3c91dd/src/masternodes/rpc_poolpair.cpp#L719-721
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (buffer.remaining() > 0) {
