@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { fundEllipticPair, sendTransaction } from '../test.utils'
+import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 
 const container = new MasterNodeRegTestContainer()
@@ -30,7 +30,7 @@ describe('appoint oracle', () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  it('should appoint oracle', async () => {
+  it('should appoint oracle(s)', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
@@ -60,6 +60,16 @@ describe('appoint oracle', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is created and has correct values
+    const listOraclesResult = await container.call('listoracles')
+    expect(listOraclesResult.length).toBeGreaterThanOrEqual(1)
+
+    const txid = calculateTxid(txn)
+    const getOracleDataResult = await container.call('getoracledata', [txid])
+    expect(getOracleDataResult.priceFeeds.length).toStrictEqual(1)
+    expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('USD')
   })
 
   it('should appoint oracle with multiple currencies', async () => {
@@ -100,6 +110,16 @@ describe('appoint oracle', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is created and has correct values
+    const listOraclesResult = await container.call('listoracles')
+    expect(listOraclesResult.length).toBeGreaterThanOrEqual(1)
+
+    const txid = calculateTxid(txn)
+    const getOracleDataResult = await container.call('getoracledata', [txid])
+    expect(getOracleDataResult.priceFeeds.length).toStrictEqual(3)
+    expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('EUR')
   })
 
   it('should reject invalid appoint oracle arg - weightage over 100', async () => {
