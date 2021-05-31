@@ -11,9 +11,8 @@ export * from './p2wpkh'
 export * from './p2wsh'
 
 /**
- * @param net to be validated against the decoded one from the raw address
- * @param address raw human readable address (utf-8)
- * @returns DefiAddress or a child class
+ * @param {string} address raw human readable address (utf-8)
+ * @returns DefiAddress child class
  */
 function from (address: string): Address {
   let guess: Address = P2PKH.from(address)
