@@ -31,7 +31,7 @@
     "test:ci": "jest --ci --coverage --forceExit --maxWorkers=4",
     "all": "npm run build && npm run standard && npm run test",
     "compile": "tsc -b -v ./tsconfig.build.json",
-    "clean": "rm -rf ./packages/**/.dist && rm -rf ./packages/**/tsconfig.tsbuildinfo"
+    "clean": "rm -rf ./packages/**/dist"
   },
   "devDependencies": {
     "@size-limit/preset-app": "^4.10.1",
