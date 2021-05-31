@@ -1,0 +1,18 @@
+{
+  "files": [],
+  "references": [
+    {"path": "./packages/jellyfish"},
+    {"path": "./packages/jellyfish-address"},
+    {"path": "./packages/jellyfish-api-core"},
+    {"path": "./packages/jellyfish-api-jsonrpc"},
+    {"path": "./packages/jellyfish-crypto"},
+    {"path": "./packages/jellyfish-json"},
+    {"path": "./packages/jellyfish-network"},
+    {"path": "./packages/jellyfish-transaction"},
+    {"path": "./packages/jellyfish-transaction-builder"},
+    {"path": "./packages/jellyfish-wallet"},
+    {"path": "./packages/jellyfish-wallet-mnemonic"},
+    {"path": "./packages/testcontainers"},
+    {"path": "./packages/testing"},
+ ]
+}

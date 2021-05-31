@@ -7,6 +7,24 @@
     ],
     "module": "commonjs",
     "strict": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./packages",
+    "composite": true,
+    "declarationMap": true,
+    "paths": {
+      "@defichain/jellyfish": ["jellyfish"],
+      "@defichain/jellyfish-address": ["jellyfish-address"],
+      "@defichain/jellyfish-api-core": ["jellyfish-api-core"],
+      "@defichain/jellyfish-api-jsonrpc": ["jellyfish-api-jsonrpc"],
+      "@defichain/jellyfish-crypto": ["jellyfish-crypto"],
+      "@defichain/jellyfish-json": ["jellyfish-json"],
+      "@defichain/jellyfish-network": ["jellyfish-network"],
+      "@defichain/jellyfish-transaction": ["jellyfish-transaction"],
+      "@defichain/jellyfish-transaction-builder": ["jellyfish-transaction-builder"],
+      "@defichain/jellyfish-wallet": ["jellyfish-wallet"],
+      "@defichain/jellyfish-wallet-mnemonic": ["jellyfish-wallet-mnemonic"],
+      "@defichain/testcontainers": ["testcontainers"],
+      "@defichain/testing": ["testing"],
+    }
   }
 }
