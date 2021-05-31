@@ -70,7 +70,7 @@ describe('utxo.send', () => {
 
     expect(prevouts[0].script.stack.length).toStrictEqual(2)
     expect(prevouts[0].script.stack[0].type).toStrictEqual('OP_0')
-    expect(((prevouts[0].script.stack[1]) as OP_PUSHDATA).hex).toStrictEqual(HASH160(changePubKey).toString('hex'))
+    expect((prevouts[0].script.stack[1] as OP_PUSHDATA).hex).toStrictEqual(HASH160(changePubKey).toString('hex'))
   })
 
   // TODO(ivan-zynesis): other address types
