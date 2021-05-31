@@ -20,7 +20,7 @@ jobs:
         with:
           script: |
             const semver = context.ref.replace('refs/tags/v', '')
-            if (semver.match(/[0-9]\.[0-9]\.[0-9]/)) {
+            if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)) {
               return semver
             }
 

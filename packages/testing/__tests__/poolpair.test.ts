@@ -1,5 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity } from '../src'
+import waitForExpect from 'wait-for-expect'
 
 const container = new MasterNodeRegTestContainer()
 
@@ -60,7 +61,9 @@ describe('add/remove pool pair liquidity', () => {
       tokenLP: 'DFI-LPT'
     })
 
-    const shares: Record<string, any> = await container.call('listpoolshares')
-    expect(Object.keys(shares).length).toStrictEqual(0)
+    await waitForExpect(async () => {
+      const shares: Record<string, any> = await container.call('listpoolshares')
+      expect(Object.keys(shares).length).toStrictEqual(0)
+    })
   })
 })

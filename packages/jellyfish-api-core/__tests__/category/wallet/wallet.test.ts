@@ -1,10 +1,404 @@
-import { ContainerAdapterClient } from '../container_adapter_client'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber, wallet } from '../../src'
+import { BigNumber, wallet } from '../../../src'
 import waitForExpect from 'wait-for-expect'
-import { UTXO, ListUnspentOptions, WalletFlag, SendToAddressOptions, Mode } from '../../src/category/wallet'
+import {
+  UTXO,
+  ListUnspentOptions,
+  WalletFlag,
+  SendToAddressOptions,
+  Mode,
+  SendManyOptions
+} from '../../../src/category/wallet'
 
-describe('non masternode', () => {
+describe('getBalance', () => {
+  describe('regtest', () => {
+    const container = new RegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should getBalance = 0', async () => {
+      const balance: BigNumber = await client.wallet.getBalance()
+      expect(balance.toString()).toStrictEqual('0')
+    })
+  })
+
+  describe('masternode', () => {
+    const container = new MasterNodeRegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      await container.waitForWalletCoinbaseMaturity()
+      await container.waitForWalletBalanceGTE(100)
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should getBalance >= 100', async () => {
+      const balance: BigNumber = await client.wallet.getBalance()
+      expect(balance.isGreaterThan(new BigNumber('100'))).toStrictEqual(true)
+    })
+  })
+})
+
+describe('setWalletFlag', () => {
+  describe('regtest', () => {
+    const container = new RegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should setWalletFlag', async () => {
+      return await waitForExpect(async () => {
+        const walletInfoBefore = await client.wallet.getWalletInfo()
+        expect(walletInfoBefore.avoid_reuse).toStrictEqual(false)
+
+        const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+        expect(result.flag_name).toStrictEqual('avoid_reuse')
+        expect(result.flag_state).toStrictEqual(true)
+        expect(result.warnings).toStrictEqual('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
+
+        const walletInfoAfter = await client.wallet.getWalletInfo()
+        expect(walletInfoAfter.avoid_reuse).toStrictEqual(true)
+      })
+    })
+  })
+
+  describe('masternode', () => {
+    const container = new MasterNodeRegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      await container.waitForWalletCoinbaseMaturity()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should setWalletFlag', async () => {
+      return await waitForExpect(async () => {
+        const walletInfoBefore = await client.wallet.getWalletInfo()
+        expect(walletInfoBefore.avoid_reuse).toStrictEqual(false)
+
+        const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+        expect(result.flag_name).toStrictEqual('avoid_reuse')
+        expect(result.flag_state).toStrictEqual(true)
+        expect(result.warnings).toStrictEqual('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
+
+        const walletInfoAfter = await client.wallet.getWalletInfo()
+        expect(walletInfoAfter.avoid_reuse).toStrictEqual(true)
+      })
+    })
+  })
+})
+
+describe('createWallet', () => {
+  describe('regtest', () => {
+    const container = new RegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should createWallet', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('alice')
+
+        expect(wallet.name).toStrictEqual('alice')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with disablePrivateKeys true', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('bob', true)
+
+        expect(wallet.name).toStrictEqual('bob')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with blank true', async () => {
+      return await waitForExpect(async () => {
+        const options = { blank: true }
+        const wallet = await client.wallet.createWallet('charlie', false, options)
+
+        expect(wallet.name).toStrictEqual('charlie')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with passphrase', async () => {
+      return await waitForExpect(async () => {
+        const options = { passphrase: 'shhh...' }
+        const wallet = await client.wallet.createWallet('david', false, options)
+
+        expect(wallet.name).toStrictEqual('david')
+        expect(wallet.warning).toStrictEqual('')
+      })
+    })
+
+    it('should createWallet with avoidReuse true', async () => {
+      return await waitForExpect(async () => {
+        const options = { avoidReuse: true }
+        const wallet = await client.wallet.createWallet('eve', false, options)
+
+        expect(wallet.name).toStrictEqual('eve')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+  })
+
+  describe('masternode', () => {
+    const container = new MasterNodeRegTestContainer()
+    const client = new ContainerAdapterClient(container)
+
+    beforeAll(async () => {
+      await container.start()
+      await container.waitForReady()
+      await container.waitForWalletCoinbaseMaturity()
+    })
+
+    afterAll(async () => {
+      await container.stop()
+    })
+
+    it('should createWallet', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('alice')
+
+        expect(wallet.name).toStrictEqual('alice')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with disablePrivateKeys true', async () => {
+      return await waitForExpect(async () => {
+        const wallet = await client.wallet.createWallet('bob', true)
+
+        expect(wallet.name).toStrictEqual('bob')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with blank true', async () => {
+      return await waitForExpect(async () => {
+        const options = { blank: true }
+        const wallet = await client.wallet.createWallet('charlie', false, options)
+
+        expect(wallet.name).toStrictEqual('charlie')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+
+    it('should createWallet with passphrase', async () => {
+      return await waitForExpect(async () => {
+        const options = { passphrase: 'shhh...' }
+        const wallet = await client.wallet.createWallet('david', false, options)
+
+        expect(wallet.name).toStrictEqual('david')
+        expect(wallet.warning).toStrictEqual('')
+      })
+    })
+
+    it('should createWallet with avoidReuse true', async () => {
+      return await waitForExpect(async () => {
+        const options = { avoidReuse: true }
+        const wallet = await client.wallet.createWallet('eve', false, options)
+
+        expect(wallet.name).toStrictEqual('eve')
+        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
+      })
+    })
+  })
+})
+
+describe('sendMany', () => {
+  // NOTE(surangap): defid side(c++) does not have much tests for sendmany RPC atm.
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(101)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  // Returns matching utxos for given transaction id and address.
+  const getMatchingUTXO = async (txId: string, address: string): Promise<UTXO[]> => {
+    const options: ListUnspentOptions = {
+      addresses: [address]
+    }
+
+    const utxos: UTXO[] = await client.wallet.listUnspent(1, 9999999, options)
+    return utxos.filter((utxo) => {
+      return (utxo.address === address) && (utxo.txid === txId)
+    })
+  }
+
+  it('should send one address using sendMany', async () => {
+    const amounts: Record<string, number> = { mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001 }
+    const transactionId = await client.wallet.sendMany(amounts)
+    expect(typeof transactionId).toStrictEqual('string')
+
+    // generate one block
+    await container.generate(1)
+
+    // check the corresponding UTXO
+    const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    // In this case the we should only have one matching utxo
+    expect(utxos.length).toStrictEqual(1)
+    utxos.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00001))
+    })
+  })
+
+  it('should send multiple address using sendMany', async () => {
+    const amounts: Record<string, number> = {
+      mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001,
+      mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002
+    }
+    const transactionId = await client.wallet.sendMany(amounts)
+    expect(typeof transactionId).toStrictEqual('string')
+
+    // generate one block
+    await container.generate(1)
+
+    // check the corresponding UTXOs
+    const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    // In this case the we should only have one matching utxo
+    expect(utxos.length).toStrictEqual(1)
+    utxos.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00001))
+    })
+
+    const utxos2 = await getMatchingUTXO(transactionId, 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+    // In this case the we should only have one matching utxo
+    expect(utxos2.length).toStrictEqual(1)
+    utxos2.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00002))
+    })
+  })
+
+  it('should sendMany with comment', async () => {
+    const amounts: Record<string, number> = {
+      mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001,
+      mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002
+    }
+    const options: SendManyOptions = {
+      comment: 'test comment'
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toStrictEqual('string')
+  })
+
+  it('should sendMany with replaceable', async () => {
+    const amounts: Record<string, number> = {
+      mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001,
+      mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002
+    }
+    const options: SendManyOptions = {
+      replaceable: true
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toStrictEqual('string')
+  })
+
+  it('should sendMany with confTarget', async () => {
+    const amounts: Record<string, number> = {
+      mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001,
+      mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002
+    }
+    const options: SendManyOptions = {
+      confTarget: 60
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toStrictEqual('string')
+  })
+
+  it('should sendMany with estimateMode', async () => {
+    const amounts: Record<string, number> = {
+      mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001,
+      mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 0.00002
+    }
+    const options: SendManyOptions = {
+      estimateMode: Mode.ECONOMICAL
+    }
+    const transactionId = await client.wallet.sendMany(amounts, [], options)
+    expect(typeof transactionId).toStrictEqual('string')
+  })
+
+  it('should sendMany with fee substracted from mentioned recipients', async () => {
+    const amounts: Record<string, number> = {
+      mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU: 0.00001,
+      mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy: 10.5
+    }
+    const subtractFeeFrom: string [] = ['mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy']
+    const transactionId = await client.wallet.sendMany(amounts, subtractFeeFrom)
+    expect(typeof transactionId).toStrictEqual('string')
+
+    // generate one block
+    await container.generate(1)
+
+    // check the corresponding UTXOs
+    const utxos = await getMatchingUTXO(transactionId, 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+    // In this case the we should only have one matching utxo
+    expect(utxos.length).toStrictEqual(1)
+    utxos.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
+      // amount should be equal to 0.00001
+      expect(utxo.amount).toStrictEqual(new BigNumber(0.00001))
+    })
+
+    const utxos2 = await getMatchingUTXO(transactionId, 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+    // In this case the we should only have one matching utxo
+    expect(utxos2.length).toStrictEqual(1)
+    utxos2.forEach(utxo => {
+      expect(utxo.address).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
+      // amount should be less than 10.5
+      expect(utxo.amount.isLessThan(10.5)).toStrictEqual(true)
+    })
+  })
+})
+
+describe('regtest (non-mn)', () => {
+  // TODO(jellyfish): refactor test to be stand alone without using same container
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -15,14 +409,6 @@ describe('non masternode', () => {
 
   afterAll(async () => {
     await container.stop()
-  })
-
-  describe('getBalance', () => {
-    it('should getBalance = 0', async () => {
-      const balance: BigNumber = await client.wallet.getBalance()
-
-      expect(balance.toString()).toStrictEqual('0')
-    })
   })
 
   describe('getNewAddress', () => {
@@ -155,76 +541,10 @@ describe('non masternode', () => {
       })
     })
   })
-
-  describe('setWalletFlag', () => {
-    it('should setWalletFlag', async () => {
-      return await waitForExpect(async () => {
-        const walletInfoBefore = await client.wallet.getWalletInfo()
-        expect(walletInfoBefore.avoid_reuse).toStrictEqual(false)
-
-        const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
-        expect(result.flag_name).toStrictEqual('avoid_reuse')
-        expect(result.flag_state).toStrictEqual(true)
-        expect(result.warnings).toStrictEqual('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
-
-        const walletInfoAfter = await client.wallet.getWalletInfo()
-        expect(walletInfoAfter.avoid_reuse).toStrictEqual(true)
-      })
-    })
-  })
-
-  describe('createWallet', () => {
-    it('should createWallet', async () => {
-      return await waitForExpect(async () => {
-        const wallet = await client.wallet.createWallet('alice')
-
-        expect(wallet.name).toStrictEqual('alice')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-
-    it('should createWallet with disablePrivateKeys true', async () => {
-      return await waitForExpect(async () => {
-        const wallet = await client.wallet.createWallet('bob', true)
-
-        expect(wallet.name).toStrictEqual('bob')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-
-    it('should createWallet with blank true', async () => {
-      return await waitForExpect(async () => {
-        const options = { blank: true }
-        const wallet = await client.wallet.createWallet('charlie', false, options)
-
-        expect(wallet.name).toStrictEqual('charlie')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-
-    it('should createWallet with passphrase', async () => {
-      return await waitForExpect(async () => {
-        const options = { passphrase: 'shhh...' }
-        const wallet = await client.wallet.createWallet('david', false, options)
-
-        expect(wallet.name).toStrictEqual('david')
-        expect(wallet.warning).toStrictEqual('')
-      })
-    })
-
-    it('should createWallet with avoidReuse true', async () => {
-      return await waitForExpect(async () => {
-        const options = { avoidReuse: true }
-        const wallet = await client.wallet.createWallet('eve', false, options)
-
-        expect(wallet.name).toStrictEqual('eve')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-  })
 })
 
 describe('masternode', () => {
+  // TODO(jellyfish): refactor test to be stand alone without using same container
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -236,15 +556,6 @@ describe('masternode', () => {
 
   afterAll(async () => {
     await container.stop()
-  })
-
-  describe('getBalance', () => {
-    it('should getBalance >= 100', async () => {
-      return await waitForExpect(async () => {
-        const balance: BigNumber = await client.wallet.getBalance()
-        expect(balance.isGreaterThan(new BigNumber('100'))).toStrictEqual(true)
-      })
-    })
   })
 
   describe('listUnspent', () => {
@@ -497,23 +808,6 @@ describe('masternode', () => {
     })
   })
 
-  describe('setWalletFlag', () => {
-    it('should setWalletFlag', async () => {
-      return await waitForExpect(async () => {
-        const walletInfoBefore = await client.wallet.getWalletInfo()
-        expect(walletInfoBefore.avoid_reuse).toStrictEqual(false)
-
-        const result = await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
-        expect(result.flag_name).toStrictEqual('avoid_reuse')
-        expect(result.flag_state).toStrictEqual(true)
-        expect(result.warnings).toStrictEqual('You need to rescan the blockchain in order to correctly mark used destinations in the past. Until this is done, some destinations may be considered unused, even if the opposite is the case.')
-
-        const walletInfoAfter = await client.wallet.getWalletInfo()
-        expect(walletInfoAfter.avoid_reuse).toStrictEqual(true)
-      })
-    })
-  })
-
   describe('sendToAddress', () => {
     const address = 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
 
@@ -578,56 +872,6 @@ describe('masternode', () => {
         const transactionId = await client.wallet.sendToAddress(address, 0.00001, options)
 
         expect(typeof transactionId).toStrictEqual('string')
-      })
-    })
-  })
-
-  describe('createWallet', () => {
-    it('should createWallet', async () => {
-      return await waitForExpect(async () => {
-        const wallet = await client.wallet.createWallet('alice')
-
-        expect(wallet.name).toStrictEqual('alice')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-
-    it('should createWallet with disablePrivateKeys true', async () => {
-      return await waitForExpect(async () => {
-        const wallet = await client.wallet.createWallet('bob', true)
-
-        expect(wallet.name).toStrictEqual('bob')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-
-    it('should createWallet with blank true', async () => {
-      return await waitForExpect(async () => {
-        const options = { blank: true }
-        const wallet = await client.wallet.createWallet('charlie', false, options)
-
-        expect(wallet.name).toStrictEqual('charlie')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
-      })
-    })
-
-    it('should createWallet with passphrase', async () => {
-      return await waitForExpect(async () => {
-        const options = { passphrase: 'shhh...' }
-        const wallet = await client.wallet.createWallet('david', false, options)
-
-        expect(wallet.name).toStrictEqual('david')
-        expect(wallet.warning).toStrictEqual('')
-      })
-    })
-
-    it('should createWallet with avoidReuse true', async () => {
-      return await waitForExpect(async () => {
-        const options = { avoidReuse: true }
-        const wallet = await client.wallet.createWallet('eve', false, options)
-
-        expect(wallet.name).toStrictEqual('eve')
-        expect(wallet.warning).toStrictEqual('Empty string given as passphrase, wallet will not be encrypted.')
       })
     })
   })

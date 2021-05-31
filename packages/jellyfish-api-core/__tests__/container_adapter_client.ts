@@ -31,7 +31,7 @@ export class ContainerAdapterClient extends ApiClient {
     })
 
     if (error != null) {
-      throw new RpcApiError({ ...error, rpcMethod: method })
+      throw new RpcApiError({ ...error, method: method })
     }
 
     return result

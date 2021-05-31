@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import {
   findOut,
@@ -78,7 +78,7 @@ describe('utxo.send', () => {
 
     expect(prevouts[0].script.stack.length).toStrictEqual(2)
     expect(prevouts[0].script.stack[0].type).toStrictEqual('OP_0')
-    expect((prevouts[0].script.stack[1] as OP_PUSHDATA).hex).toStrictEqual(HASH160(changePubKey).toString('hex'))
+    expect((prevouts[0].script.stack[1]).hex).toStrictEqual(HASH160(changePubKey).toString('hex'))
   })
 })
 

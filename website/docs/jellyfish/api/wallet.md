@@ -256,3 +256,46 @@ interface wallet {
   listAddressGroupings (): Promise<any[][][]>
 }
 ```
+
+## sendMany
+
+Send given amounts to multiple given address and return a transaction id.
+
+```ts title="client.wallet.sendMany()"
+interface wallet {
+  async sendMany (amounts: Record<string, number> , subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+}
+
+interface SendManyOptions {
+  comment?: string
+  replaceable?: boolean
+  confTarget?: number
+  estimateMode?: Mode
+}
+
+enum Mode {
+  UNSET = 'UNSET',
+  ECONOMICAL = 'ECONOMICAL',
+  CONSERVATIVE = 'CONSERVATIVE'
+}
+```
+
+## dumpPrivKey
+
+Reveals the private key corresponding to an address.
+
+```ts title="client.wallet.dumpPrivKey()"
+interface wallet {
+  dumpPrivKey (address: string): Promise<string>
+}
+```
+
+## importPrivKey
+
+Adds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.
+
+```ts title="client.wallet.importPrivKey()"
+interface wallet {
+  importPrivKey (privkey: string, label: string = "", rescan: boolean = true): Promise<void>
+}
+```

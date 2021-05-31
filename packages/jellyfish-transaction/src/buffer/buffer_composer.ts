@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { writeVarUInt, readVarUInt } from './buffer_varuint'
+import { getBitsFrom } from './buffer_bitmask'
 import { ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
 
 export interface BufferComposer {
@@ -198,6 +199,36 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         }
         const buff: Buffer = Buffer.from(hex, 'hex')
         buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
+   * Same behavior with `hex` when the field is defined
+   * `toBuffer` resulted empty SmartBuffer
+   *
+   * @param length of the bytes to read/set
+   * @param getter to read HEX String and write as the same ordered Buffer
+   * @param setter to read ordered Buffer and set as the same ordered HEX String
+   * @throws Error if getter() is defined && length != getter().length in set
+   */
+  static optionalHex (length: number, getter: () => string | undefined, setter: (data: string | undefined) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const buff = Buffer.from(buffer.readBuffer(length))
+        if (buff.length > 0) {
+          setter(buff.toString('hex'))
+        }
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const hex = getter()
+        if (hex === undefined) {
+          return
+        }
+        if (hex.length !== length * 2) {
+          throw new Error('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+        }
+        buffer.writeBuffer(Buffer.from(hex, 'hex'))
       }
     }
   }
@@ -435,6 +466,35 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       },
       toBuffer: (buffer: SmartBuffer): void => {
         writeVarUInt(getter(), buffer)
+      }
+    }
+  }
+
+  /**
+   * Imposing mask over bits method, 1 byte
+   *
+   * @param length of the input array to read/set
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   */
+  static bitmask1Byte (
+    length: number,
+    getter: () => boolean[],
+    setter: (data: boolean[]) => void
+  ): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const num = buffer.readUInt8()
+        const array: boolean[] = []
+        for (let i = 0; i < length; i += 1) {
+          array.unshift(getBitsFrom(num, i))
+        }
+        setter(array)
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const bools = getter().map(bool => bool.toString().toLowerCase() === 'true' ? 1 : 0)
+        const num = parseInt(bools.join(''), 2)
+        buffer.writeBuffer(Buffer.from([num]))
       }
     }
   }

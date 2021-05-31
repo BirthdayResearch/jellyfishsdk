@@ -72,7 +72,7 @@ describe('createDeFiTx()', () => {
     expect(result.vout[0].script.stack[0]).toStrictEqual(OP_CODES.OP_RETURN)
     expect(result.vout[0].script.stack[1].type).toStrictEqual('OP_DEFI_TX')
 
-    const tx = (result.vout[0].script.stack[1] as OP_DEFI_TX).tx
+    const tx = (result.vout[0].script.stack[1]).tx
     expect(tx.signature).toStrictEqual(1147556984)
     expect(tx.type).toStrictEqual(0x01)
     expect(tx.name).toStrictEqual('OP_DEFI_TX_UNMAPPED')

@@ -10,13 +10,25 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolCreatePair, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap, PoolCreatePair
 } from './dftx_pool'
-import { CTokenMint, TokenMint } from './dftx_token'
+import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
+import {
+  CAppointOracle,
+  AppointOracle,
+  CUpdateOracle,
+  UpdateOracle,
+  CRemoveOracle,
+  RemoveOracle,
+  CSetOracleData,
+  SetOracleData
+} from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
+import { CSetGovernance, SetGovernance } from './dftx_governance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -103,6 +115,12 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PoolCreatePair>(CPoolCreatePair.OP_NAME, d => new CPoolCreatePair(d))
       case CTokenMint.OP_CODE:
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
+      case CTokenCreate.OP_CODE:
+        return compose<TokenCreate>(CTokenCreate.OP_NAME, d => new CTokenCreate(d))
+      case CTokenUpdate.OP_CODE:
+        return compose<TokenUpdate>(CTokenUpdate.OP_NAME, d => new CTokenUpdate(d))
+      case CTokenUpdateAny.OP_CODE:
+        return compose<TokenUpdateAny>(CTokenUpdateAny.OP_NAME, d => new CTokenUpdateAny(d))
       case CUtxosToAccount.OP_CODE:
         return compose<UtxosToAccount>(CUtxosToAccount.OP_NAME, d => new CUtxosToAccount(d))
       case CAccountToUtxos.OP_CODE:
@@ -111,8 +129,22 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
       case CAnyAccountToAccount.OP_CODE:
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
+      case CAppointOracle.OP_CODE:
+        return compose<AppointOracle>(CAppointOracle.OP_NAME, d => new CAppointOracle(d))
+      case CRemoveOracle.OP_CODE:
+        return compose<RemoveOracle>(CRemoveOracle.OP_NAME, d => new CRemoveOracle(d))
+      case CUpdateOracle.OP_CODE:
+        return compose<UpdateOracle>(CUpdateOracle.OP_NAME, d => new CUpdateOracle(d))
+      case CSetOracleData.OP_CODE:
+        return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
+      case CCreateMasterNode.OP_CODE:
+        return compose<CreateMasterNode>(CCreateMasterNode.OP_NAME, d => new CCreateMasterNode(d))
+      case CResignMasterNode.OP_CODE:
+        return compose<ResignMasterNode>(CResignMasterNode.OP_NAME, d => new CResignMasterNode(d))
+      case CSetGovernance.OP_CODE:
+        return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

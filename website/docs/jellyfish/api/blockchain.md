@@ -189,6 +189,16 @@ interface ChainTip {
 }
 ```
 
+## getDifficulty
+
+Return the proof-of-work difficulty as a multiple of the minimum difficulty.
+
+```ts tile="client.blockchain.getDifficulty()"
+interface blockchain {
+    getDifficulty (): Promise<number>
+}
+```
+
 ## getTxOut
 
 Get details of unspent transaction output (UTXO).
@@ -255,5 +265,58 @@ interface MempoolTx {
     spentby: string[]
     'bip125-replaceable': boolean
   }
+}
+```
+
+## getBlockStats
+
+Get block statistics for a given window. Returns all stats values if nothing is passed in the second param.  
+
+```ts title="client.blockchain.getBlockStats()"
+interface blockchain {
+  getBlockStats(hashOrHeight: number | string): Promise<BlockStats>
+  getBlockStats(hashOrHeight: number | string, stats: Array<keyof BlockStats>): Promise<BlockStats>
+}
+
+interface BlockStats {
+  avgfee: number
+  avgfeerate: number
+  avgtxsize: number
+  blockhash: string
+  height: number
+  ins: number
+  maxfee: number
+  maxfeerate: number
+  maxtxsize: number
+  medianfee: number
+  mediantime: number
+  mediantxsize: number
+  minfee: number
+  minfeerate: number
+  mintxsize: number
+  outs: number
+  subsidy: number
+  swtxs: number
+  time: number
+  totalfee: number
+  txs: number
+  swtotal_size: number
+  swtotal_weight: number
+  total_out: number
+  total_size: number
+  total_weight: number
+  utxo_increase: number
+  utxo_size_inc: number
+  feerate_percentiles: [number, number, number, number, number] 
+}
+```
+
+## getBestBlockHash
+
+Get the hash of the best (tip) block in the most-work fully-validated chain.
+
+```ts title="client.blockchain.getBestBlockHash()"
+interface blockchain {
+  getBestBlockHash (): Promise<string>
 }
 ```

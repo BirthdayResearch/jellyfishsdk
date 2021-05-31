@@ -213,6 +213,63 @@ export class Wallet {
   async listAddressGroupings (): Promise<any[][][]> {
     return await this.client.call('listaddressgroupings', [], 'bignumber')
   }
+
+  /**
+   * Send given amounts to multiple given address and return a transaction id.
+   *
+   * @param {Record<string, number>} amounts Dictionary/map with individual addresses and amounts
+   * @param {string[]} subtractfeefrom Array of addresses from which fee needs to be deducted.
+   * @param {SendManyOptions} options
+   * @param {string} [options.comment] A comment
+   * @param {boolean} [options.replaceable] Allow this transaction to be replaced by a transaction with higher fees via BIP 125
+   * @param {number} [options.confTarget] Confirmation target (in blocks)
+   * @param {Mode} [options.estimateMode] The fee estimate mode, must be one of (Mode.UNSET, Mode.ECONOMICAL, Mode.CONSERVATIVE)
+   * @return {Promise<string>} hex string of the transaction
+   */
+  async sendMany (
+    amounts: Record<string, number>,
+    subtractfeefrom: string [] = [],
+    options: SendManyOptions = {}): Promise<string> {
+    const {
+      comment = '',
+      replaceable = false,
+      confTarget = 6,
+      estimateMode = Mode.UNSET
+    } = options
+
+    const dummy: string = '' // Must be set to '' for backward compatibality.
+    const minconf: number = 0 // Ignored dummy value
+
+    return await this.client.call(
+      'sendmany',
+      [
+        dummy, amounts, minconf, comment, subtractfeefrom,
+        replaceable, confTarget, estimateMode
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
+   * Reveals the private key corresponding to an address.
+   *
+   * @param {string} address The DFI address for the private key.
+   * @return {Promise<string>}
+   */
+  async dumpPrivKey (address: string): Promise<string> {
+    return await this.client.call('dumpprivkey', [address], 'number')
+  }
+
+  /**
+   * Adds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.
+   *
+   * @param {string} privkey The private key (see dumpprivkey)
+   * @param {string}  [label=""] current label if address exists, otherwise "".
+   * @param {boolean} [rescan=true] Rescan the wallet for transactions
+   */
+  async importPrivKey (privkey: string, label: string = '', rescan: boolean = true): Promise<void> {
+    return await this.client.call('importprivkey', [privkey, label, rescan], 'number')
+  }
 }
 
 export interface UTXO {
@@ -261,6 +318,13 @@ export interface SendToAddressOptions {
   confTarget?: number
   estimateMode?: Mode
   avoidReuse?: boolean
+}
+
+export interface SendManyOptions {
+  comment?: string
+  replaceable?: boolean
+  confTarget?: number
+  estimateMode?: Mode
 }
 
 export interface CreateWalletResult {

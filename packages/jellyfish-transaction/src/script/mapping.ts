@@ -20,7 +20,7 @@ import {
   PoolRemoveLiquidity,
   PoolSwap
 } from './defi/dftx_pool'
-import { CTokenMint, TokenMint } from './defi/dftx_token'
+import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './defi/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -31,7 +31,19 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './defi/dftx_account'
+import {
+  CAppointOracle,
+  AppointOracle,
+  RemoveOracle,
+  CRemoveOracle,
+  UpdateOracle,
+  CUpdateOracle,
+  SetOracleData,
+  CSetOracleData
+} from './defi/dftx_oracles'
 import { CAutoAuthPrep } from './defi/dftx_misc'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './defi/dftx_masternode'
+import { CSetGovernance, SetGovernance } from './defi/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -161,6 +173,30 @@ export const OP_CODES = {
       data: tokenMint
     })
   },
+  OP_DEFI_TX_TOKEN_CREATE: (tokenCreate: TokenCreate): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenCreate.OP_CODE,
+      name: CTokenCreate.OP_NAME,
+      data: tokenCreate
+    })
+  },
+  OP_DEFI_TX_TOKEN_UPDATE: (tokenUpdate: TokenUpdate): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenUpdate.OP_CODE,
+      name: CTokenUpdate.OP_NAME,
+      data: tokenUpdate
+    })
+  },
+  OP_DEFI_TX_TOKEN_UPDATE_ANY: (tokenUpdateAny: TokenUpdateAny): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenUpdateAny.OP_CODE,
+      name: CTokenUpdateAny.OP_NAME,
+      data: tokenUpdateAny
+    })
+  },
   OP_DEFI_TX_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -193,12 +229,68 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
+  OP_DEFI_TX_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAppointOracle.OP_CODE,
+      name: CAppointOracle.OP_NAME,
+      data: appointOracle
+    })
+  },
+  OP_DEFI_TX_REMOVE_ORACLE: (removeOracle: RemoveOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CRemoveOracle.OP_CODE,
+      name: CRemoveOracle.OP_NAME,
+      data: removeOracle
+    })
+  },
+  OP_DEFI_TX_UPDATE_ORACLE: (updateOracle: UpdateOracle): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateOracle.OP_CODE,
+      name: CUpdateOracle.OP_NAME,
+      data: updateOracle
+    })
+  },
+  OP_DEFI_TX_SET_ORACLE_DATA: (setOracleData: SetOracleData): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetOracleData.OP_CODE,
+      name: CSetOracleData.OP_NAME,
+      data: setOracleData
+    })
+  },
   OP_DEFI_TX_AUTO_AUTH_PREP: () => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CAutoAuthPrep.OP_CODE,
       name: CAutoAuthPrep.OP_NAME,
       data: null
+    })
+  },
+  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasterNode): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateMasterNode.OP_CODE,
+      name: CCreateMasterNode.OP_NAME,
+      data: createMasterNode
+    })
+  },
+  OP_DEFI_TX_RESIGN_MASTER_NODE: (resignMasterNode: ResignMasterNode): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CResignMasterNode.OP_CODE,
+      name: CResignMasterNode.OP_NAME,
+      data: resignMasterNode
+    })
+  },
+  OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetGovernance.OP_CODE,
+      name: CSetGovernance.OP_NAME,
+      data: setGovernance
     })
   },
 

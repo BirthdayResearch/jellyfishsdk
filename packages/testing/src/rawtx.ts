@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { EllipticPair, Elliptic, Bech32, HRP, WIF } from '@defichain/jellyfish-crypto'
+import { EllipticPair, Elliptic, Bech32, WIF } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
 
 /**
@@ -23,8 +23,8 @@ export async function createSignedTxnHex (
     bEllipticPair: Elliptic.fromPrivKey(Buffer.alloc(32, Math.random().toString(), 'ascii'))
   }
 ): Promise<string> {
-  const aBech32 = Bech32.fromPubKey(await options.aEllipticPair.publicKey(), RegTest.bech32.hrp as HRP)
-  const bBech32 = Bech32.fromPubKey(await options.bEllipticPair.publicKey(), RegTest.bech32.hrp as HRP)
+  const aBech32 = Bech32.fromPubKey(await options.aEllipticPair.publicKey(), RegTest.bech32.hrp)
+  const bBech32 = Bech32.fromPubKey(await options.bEllipticPair.publicKey(), RegTest.bech32.hrp)
 
   const { txid, vout } = await container.fundAddress(aBech32, aAmount)
   const inputs = [{ txid: txid, vout: vout }]

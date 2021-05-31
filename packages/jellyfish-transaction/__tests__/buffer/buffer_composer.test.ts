@@ -439,6 +439,83 @@ describe('ComposableBuffer.hex', () => {
   })
 })
 
+describe('ComposableBuffer.optionalHex', () => {
+  describe('has value', () => {
+    const composer = ComposableBuffer.optionalHex(16, () => value, (v?: string) => value = v)
+    const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
+    let value: string | undefined = ''
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+      expect(value).toStrictEqual('9ea83a5c6579d282d189cc04b8e151ef')
+    })
+
+    it('should toBuffer', () => {
+      value = '9ea83a5c6579d282d189cc04b8e151ef'
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+    })
+
+    it('should not have side effect when reading and writing', () => {
+      const from = SmartBuffer.fromBuffer(expectedBuffer)
+      composer.fromBuffer(from)
+      const to = new SmartBuffer()
+      composer.toBuffer(to)
+
+      expect(from.toString()).toStrictEqual(to.toString())
+    })
+
+    it('should fail toBuffer validate', () => {
+      value = 'ef'
+
+      expect(() => {
+        composer.toBuffer(new SmartBuffer())
+      }).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+    })
+  })
+
+  describe('has NO value', () => {
+    const composer = ComposableBuffer.optionalHex(16, () => value, (v?: string) => value = v)
+    const expectedBuffer = Buffer.from('', 'hex')
+    let value: string | undefined
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+      expect(value).toBeUndefined()
+    })
+
+    it('should toBuffer', () => {
+      value = undefined
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+    })
+
+    it('should not have side effect when reading and writing', () => {
+      const from = SmartBuffer.fromBuffer(expectedBuffer)
+      composer.fromBuffer(from)
+      const to = new SmartBuffer()
+      composer.toBuffer(to)
+
+      expect(from.toString()).toStrictEqual(to.toString())
+    })
+
+    it('should fail toBuffer validate', () => {
+      value = 'ef'
+
+      expect(() => {
+        composer.toBuffer(new SmartBuffer())
+      }).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+    })
+  })
+})
+
 describe('ComposableBuffer.hexBE', () => {
   const composer = ComposableBuffer.hexBEBufferLE(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
@@ -1005,6 +1082,125 @@ describe('ComposableBuffer.varUInt', () => {
     expect(() => {
       composer.fromBuffer(buffer)
     }).toThrow('out of Number.MAX_SAFE_INTEGER range')
+  })
+})
+
+describe('ComposableBuffer.bitmask1Byte', () => {
+  describe('bitmask 1 byte with 3 positional bits', () => {
+    const obj = { isA: false, isB: true, isC: false }
+
+    const composer = ComposableBuffer.bitmask1Byte(
+      3,
+      () => [obj.isA, obj.isB, obj.isC],
+      v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+      }
+    )
+
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '02', [false, true, false], () => [obj.isA, obj.isB, obj.isC])
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '02', [false, true, false], v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+      })
+    })
+  })
+
+  describe('bitmask 1 byte with 8 positional bits', () => {
+    const obj = {
+      isA: true,
+      isB: true,
+      isC: true,
+      isD: true,
+      isE: true,
+      isF: true,
+      isG: true,
+      isH: true
+    }
+
+    const composer = ComposableBuffer.bitmask1Byte(
+      8, () => Object.values(obj), v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+        obj.isD = v[3]
+        obj.isE = v[4]
+        obj.isF = v[5]
+        obj.isG = v[6]
+        obj.isH = v[7]
+      })
+
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, 'FF',
+        [true, true, true, true, true, true, true, true],
+        () => Object.values(obj))
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(
+        composer, 'FF',
+        [true, true, true, true, true, true, true, true],
+        v => {
+          obj.isA = v[0]
+          obj.isB = v[1]
+          obj.isC = v[2]
+          obj.isD = v[3]
+          obj.isE = v[4]
+          obj.isF = v[5]
+          obj.isG = v[6]
+          obj.isH = v[7]
+        })
+    })
+  })
+
+  describe('bitmask 1 byte with 7 positional bits', () => {
+    const obj = {
+      isA: false,
+      isB: true,
+      isC: false,
+      isD: true,
+      isE: false,
+      isF: true,
+      isG: false
+    }
+
+    const composer = ComposableBuffer.bitmask1Byte(
+      7, () => Object.values(obj), v => {
+        obj.isA = v[0]
+        obj.isB = v[1]
+        obj.isC = v[2]
+        obj.isD = v[3]
+        obj.isE = v[4]
+        obj.isF = v[5]
+        obj.isG = v[6]
+      })
+
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '2A',
+        [false, true, false, true, false, true, false],
+        () => Object.values(obj))
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(
+        composer, '2A',
+        [false, true, false, true, false, true, false],
+        v => {
+          obj.isA = v[0]
+          obj.isB = v[1]
+          obj.isC = v[2]
+          obj.isD = v[3]
+          obj.isE = v[4]
+          obj.isF = v[5]
+          obj.isG = v[6]
+        })
+    })
   })
 })
 
