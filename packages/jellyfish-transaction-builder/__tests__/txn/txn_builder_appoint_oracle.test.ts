@@ -137,5 +137,3 @@ describe('appoint oracle', () => {
     }, script)).rejects.toThrow('Conversion input `appointOracle.weightage` must be above `0` and below `101`')
   })
 })
-
-// TODO(monstrobishi): test account state once RPC calls are in place

@@ -86,6 +86,12 @@ describe('update oracle', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is updated and has correct values
+    const getOracleDataResult = await container.call('getoracledata', [oracleId])
+    expect(getOracleDataResult.priceFeeds.length).toStrictEqual(3)
+    expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('EUR')
   })
 
   it('should reject invalid update oracle arg - weightage over 100', async () => {
@@ -104,5 +110,3 @@ describe('update oracle', () => {
     }, script)).rejects.toThrow('Conversion input `updateOracle.weightage` must be above `0` and below `101`')
   })
 })
-
-// TODO(monstrobishi): test account state once RPC calls are in place
