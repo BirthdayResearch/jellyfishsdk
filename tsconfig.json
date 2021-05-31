@@ -1,17 +1,7 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "lib": [
-      "es2020"
-    ],
-    "strict": true,
-    "esModuleInterop": true,
     "baseUrl": "./packages",
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "paths": {
       "@defichain/jellyfish": ["jellyfish"],
       "@defichain/jellyfish-address": ["jellyfish-address"],

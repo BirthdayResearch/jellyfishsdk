@@ -1,0 +1,35 @@
+// Build (not dev) tsconfig
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    // monorepo  compilerOptions
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+
+    // NOTE(canonbrother): without this the compiler will complain it cannot find reference package during a build
+    "moduleResolution": "node"
+  },
+
+  // monorepo settings
+  // NOTE(canonbrother): empty files so we never build this folder by mistake
+  "files": [],
+
+  // NOTE(canonbrother): all the packages that needs building
+  "references": [
+    {"path": "./packages/jellyfish"},
+    {"path": "./packages/jellyfish-address"},
+    {"path": "./packages/jellyfish-api-core"},
+    {"path": "./packages/jellyfish-api-jsonrpc"},
+    {"path": "./packages/jellyfish-crypto"},
+    {"path": "./packages/jellyfish-json"},
+    {"path": "./packages/jellyfish-network"},
+    {"path": "./packages/jellyfish-transaction"},
+    {"path": "./packages/jellyfish-transaction-builder"},
+    {"path": "./packages/jellyfish-wallet"},
+    {"path": "./packages/jellyfish-wallet-mnemonic"},
+    {"path": "./packages/testcontainers"},
+    {"path": "./packages/testing"}
+ ]
+}

@@ -1,0 +1,11 @@
+// tsconfig global project options - build or dev
+{
+  "compilerOptions": {
+    "lib": ["es2020"],
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "noUnusedLocals": true
+  }
+}
