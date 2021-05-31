@@ -11,7 +11,12 @@ async function bootstrap (): Promise<void> {
     AppModule.forRoot(),
     newFastifyAdapter()
   )
-  app.enableCors()
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'PUT', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type'],
+    maxAge: 60 * 24 * 7
+  })
   await app.listen(3000, '0.0.0.0')
 }
 
