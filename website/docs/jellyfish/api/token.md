@@ -137,9 +137,7 @@ interface TokenInfo {
 
 ## mintTokens
 
-Creates a transaction minting your token (for accounts and/or UTXOs).
-The second optional argument (may be empty array) is an array of specific UTXOs to spend.
-One of UTXO's must belong to the token's owner (collateral) address.
+Creates a transaction to mint tokens.
 
 ```ts title="client.token.mintTokens()"
 interface token {
