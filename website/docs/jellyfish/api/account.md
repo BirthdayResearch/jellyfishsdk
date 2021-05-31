@@ -175,7 +175,7 @@ Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.accountToAccount()"
 interface account {
-  accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string>
+  accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
 type AccountRegexType = `${string}@${string}`
@@ -184,7 +184,33 @@ interface BalanceTransferPayload {
   [key: string]: AccountRegexType
 }
 
-interface AccountToAccountOptions {
+interface BalanceTransferAccountOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## accountToUtxos
+
+Create an Account to UTXOS transaction submitted to a connected node.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.accountToUtxos()"
+interface account {
+  accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
+}
+
+type AccountRegexType = `${string}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+interface BalanceTransferAccountOptions {
   utxos?: UTXO[]
 }
 

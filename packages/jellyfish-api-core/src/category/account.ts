@@ -268,14 +268,31 @@ export class Account {
    * @param {string} from
    * @param {BalanceTransferPayload} payload
    * @param {string} payload[address]
-   * @param {AccountToAccountOptions} [options]
+   * @param {BalanceTransferAccountOptions} [options]
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string> {
+  async accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
     return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
+  }
+
+  /**
+   * Create an Account to UXTOS transaction submitted to a connected node.
+   * Optionally, specific UTXOs to spend to create that transaction.
+   *
+   * @param {string} from
+   * @param {BalanceTransferPayload} payload
+   * @param {string} payload[address]
+   * @param {BalanceTransferAccountOptions} [options]
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
+    return await this.client.call('accounttoutxos', [from, payload, options.utxos], 'number')
   }
 
   /**
@@ -356,7 +373,7 @@ export interface BalanceTransferPayload {
   [key: string]: AccountRegexType
 }
 
-export interface AccountToAccountOptions {
+export interface BalanceTransferAccountOptions {
   utxos?: UTXO[]
 }
 
