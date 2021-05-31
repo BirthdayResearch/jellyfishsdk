@@ -1,5 +1,7 @@
 import { ApiClient } from '../.'
 
+type TokenRegexType = `${string}@${string}`
+
 /**
  * Token RPCs for DeFi Blockchain
  */
@@ -20,12 +22,12 @@ export class Token {
    * @param {boolean} metadata.mintable default = true
    * @param {boolean} metadata.tradeable default = true
    * @param {string} metadata.collateralAddress for keeping collateral amount
-   * @param {CreateTokenUTXO[]} utxos array of specific UTXOs to spend
+   * @param {UTXO[]} utxos array of specific UTXOs to spend
    * @param {string} utxos.txid
    * @param {number} utxos.vout
    * @return {Promise<string>}
    */
-  async createToken (metadata: CreateTokenMetadata, utxos: CreateTokenUTXO[] = []): Promise<string> {
+  async createToken (metadata: CreateTokenMetadata, utxos: UTXO[] = []): Promise<string> {
     const defaultMetadata = {
       isDAT: false,
       mintable: true,
@@ -87,13 +89,13 @@ export class Token {
    * The second optional argument (may be empty array) is an array of specific UTXOs to spend.
    * One of UTXO's must belong to the token's owner (collateral) address.
    *
-   * @param {string[]} payload
-   * @param {UtxosToAccountUTXO[]} [utxos=[]]
+   * @param {TokenRegexType} payload
+   * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
    * @return {Promise<string>}
    */
-  async mintTokens (payload: string[], utxos: UTXO[] = []): Promise<String> {
+  async mintTokens (payload: TokenRegexType, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('minttokens', [payload, utxos], 'number')
   }
 }
@@ -137,11 +139,6 @@ export interface UpdateTokenMetadata {
   mintable?: boolean
   tradeable?: boolean
   finalize?: boolean
-}
-
-export interface CreateTokenUTXO {
-  txid: string
-  vout: number
 }
 
 export interface TokenPagination {
