@@ -504,7 +504,6 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
    *
    * @param getter to read from to buffer
    * @param setter to set to from buffer
-   * @returns
    */
   static uBool32 (getter: () => boolean, setter: (data: boolean) => void): BufferComposer {
     return {
