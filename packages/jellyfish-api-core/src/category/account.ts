@@ -31,6 +31,12 @@ export enum TxType {
   AUTO_AUTH_PREP = 'A'
 }
 
+export enum SelectionModeType {
+  PIE = 'pie',
+  CRUMBS = 'crumbs',
+  FORWARD = 'forward'
+}
+
 type AccountRegexType = `${string}@${string}`
 
 /**
@@ -294,6 +300,18 @@ export class Account {
   ): Promise<number> {
     return await this.client.call('accounthistorycount', [owner, options], 'number')
   }
+
+  /**
+   * Creates a transfer transaction from your accounts balances.
+   *
+   * @param {Address} from The source defi address is the key, the value is amount in amount amount@token format
+   * @param {Address} to The defi address is the key, the value is amount in amount amount@token format
+   * @param {SelectionModeTyoe} [selectionMode=SelectionModeType.PIE] account selection mode. If "from" param is empty, it will autoselect.
+   * @return {Promise<string>}
+   */
+  async sendTokensToAddress (from: Address, to: Address, selectionMode: SelectionModeType = SelectionModeType.PIE): Promise<string> {
+    return await this.client.call('sendtokenstoaddress', [from, to, selectionMode], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -369,4 +387,8 @@ export interface AccountHistoryCountOptions {
   token?: string
   txtype?: TxType | string
   no_rewards?: boolean
+}
+
+export interface Address {
+  [key: string]: string | string[]
 }
