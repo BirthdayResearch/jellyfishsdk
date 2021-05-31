@@ -1,16 +1,15 @@
 // Build (not dev) tsconfig
 {
   "extends": "./tsconfig.base.json",
+  // monorepo settings
   "compilerOptions": {
-    // monorepo  compilerOptions
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
   },
 
-  // monorepo settings
-  // NOTE(canonbrother): empty files so we never build this folder by mistake
+  // Note(canonbrother): Intentionally blank to prevent output unnecessary files
   "files": [],
 
   "references": [
