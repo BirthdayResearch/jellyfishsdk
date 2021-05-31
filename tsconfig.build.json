@@ -7,16 +7,12 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-
-    // NOTE(canonbrother): without this the compiler will complain it cannot find reference package during a build
-    "moduleResolution": "node"
   },
 
   // monorepo settings
   // NOTE(canonbrother): empty files so we never build this folder by mistake
   "files": [],
 
-  // NOTE(canonbrother): all the packages that needs building
   "references": [
     {"path": "./packages/jellyfish"},
     {"path": "./packages/jellyfish-address"},

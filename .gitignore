@@ -35,6 +35,3 @@ coverage
 
 # vscode
 .vscode
-
-# typescript
-tsconfig.tsbuildinfo
