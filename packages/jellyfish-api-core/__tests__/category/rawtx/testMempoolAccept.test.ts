@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { CreateRawTxOut, TestMempoolAcceptResult } from '../../../src/category/rawtx'
 import BigNumber from 'bignumber.js'
 
-describe('Raw tx', () => {
+describe('Raw transaction', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
