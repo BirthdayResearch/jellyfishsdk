@@ -22,7 +22,7 @@ function mkdir (location: string): void {
       useFactory: (configService: ConfigService): string => {
         const location = configService.get(
           'database.level.location',
-          `.level/unnamed/${Date.now()}`
+          process.env.NODE_ENV === 'production ' ? '.level/index' : `.level/unnamed/${Date.now()}`
         )
         mkdir(location)
         return location
