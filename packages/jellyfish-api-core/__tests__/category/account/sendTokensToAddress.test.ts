@@ -99,11 +99,4 @@ describe('SendTokenToAddress', () => {
 
     await expect(promise).rejects.toThrow('zero amounts in "to" param')
   })
-
-  it('should fail and throw an exception when insufficient funds in wallet', async () => {
-    const to = await client.wallet.getNewAddress()
-    const promise = client.account.sendTokensToAddress({ [from]: '500@ETH' }, { [to]: '500@ETH' })
-
-    await expect(promise).rejects.toThrow("Execution test failed: not enough balance on owner's account, call utxostoaccount to increase it")
-  })
 })
