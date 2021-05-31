@@ -113,14 +113,17 @@ Returns information about account history
 ```ts title="client.account.listAccountHistory()"
 interface account {
   listAccountHistory (
-    owner: OwnerType = 'mine',
+    owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryOptions = {
       limit: 100
     }
   ): Promise<AccountHistory[]>
 }
 
-type OwnerType = 'mine' | 'all' | string
+enum OwnerType {
+  MINE = "mine",
+  ALL = "all"
+}
 
 interface AccountHistory {
   owner: string
@@ -145,20 +148,92 @@ interface AccountHistoryOptions {
 
 ## utxosToAccount
 
-Creates and submits to a connect node; a transfer transaction from the wallet UTXOs to a specified account. 
+Create an UTXOs to Account transaction submitted to a connected node.
 Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.utxosToAccount()"
 interface account {
-  utxosToAccount (payload: UtxosToAccountPayload, utxos: UtxosToAccountUTXO[] = []): Promise<string>
+  utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
 }
 
-interface UtxosToAccountPayload {
-  [key: string]: string;
+type AccountRegexType = `${string}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
 }
 
-interface UtxosToAccountUTXO {
+interface UTXO {
   txid: string
   vout: number
+}
+```
+
+## accountToAccount
+
+Create an Account to Account transaction submitted to a connected node.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.accountToAccount()"
+interface account {
+  accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string>
+}
+
+type AccountRegexType = `${string}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+interface AccountToAccountOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## historyCount 
+
+Returns count of account history
+
+```ts title="client.account.historyCount()"
+interface account {
+  historyCount (
+    owner: OwnerType | string = OwnerType.MINE,
+    options: AccountHistoryCountOptions = {}
+  ): Promise<number>
+}
+
+enum OwnerType {
+  MINE = "mine",
+  ALL = "all"
+}
+
+enum TxType {
+  MINT_TOKEN = 'M',
+  POOL_SWAP = 's',
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTXOS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a',
+  CREATE_MASTERNODE = 'C',
+  RESIGN_MASTERNODE = 'R',
+  CREATE_TOKEN = 'T',
+  UPDATE_TOKEN = 'N',
+  UPDATE_TOKEN_ANY = 'n',
+  CREATE_POOL_PAIR = 'p',
+  UPDATE_POOL_PAIR = 'u',
+  SET_GOV_VARIABLE = 'G',
+  AUTO_AUTH_PREP = 'A'
+}
+
+interface AccountHistoryCountOptions {
+  token?: string
+  txtype?: TxType | string
+  no_rewards?: boolean
 }
 ```
