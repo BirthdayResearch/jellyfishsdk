@@ -23,8 +23,9 @@ describe('Token', () => {
     from = await container.getNewAddress()
 
     await createToken(from, 'DBTC')
-    await createToken(from, 'DETH')
+    await container.generate(1)
 
+    await createToken(from, 'DETH')
     await container.generate(1)
   }
 
