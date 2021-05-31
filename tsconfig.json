@@ -3,19 +3,19 @@
   "compilerOptions": {
     "baseUrl": "./packages",
     "paths": {
-      "@defichain/jellyfish": ["jellyfish"],
-      "@defichain/jellyfish-address": ["jellyfish-address"],
-      "@defichain/jellyfish-api-core": ["jellyfish-api-core"],
-      "@defichain/jellyfish-api-jsonrpc": ["jellyfish-api-jsonrpc"],
-      "@defichain/jellyfish-crypto": ["jellyfish-crypto"],
-      "@defichain/jellyfish-json": ["jellyfish-json"],
-      "@defichain/jellyfish-network": ["jellyfish-network"],
-      "@defichain/jellyfish-transaction": ["jellyfish-transaction"],
-      "@defichain/jellyfish-transaction-builder": ["jellyfish-transaction-builder"],
-      "@defichain/jellyfish-wallet": ["jellyfish-wallet"],
-      "@defichain/jellyfish-wallet-mnemonic": ["jellyfish-wallet-mnemonic"],
-      "@defichain/testcontainers": ["testcontainers"],
-      "@defichain/testing": ["testing"],
+      "@defichain/jellyfish": ["jellyfish/src"],
+      "@defichain/jellyfish-address": ["jellyfish-address/src"],
+      "@defichain/jellyfish-api-core": ["jellyfish-api-core/src"],
+      "@defichain/jellyfish-api-jsonrpc": ["jellyfish-api-jsonrpc/src"],
+      "@defichain/jellyfish-crypto": ["jellyfish-crypto/src"],
+      "@defichain/jellyfish-json": ["jellyfish-json/src"],
+      "@defichain/jellyfish-network": ["jellyfish-network/src"],
+      "@defichain/jellyfish-transaction": ["jellyfish-transaction/src"],
+      "@defichain/jellyfish-transaction-builder": ["jellyfish-transaction-builder/src"],
+      "@defichain/jellyfish-wallet": ["jellyfish-wallet/src"],
+      "@defichain/jellyfish-wallet-mnemonic": ["jellyfish-wallet-mnemonic/src"],
+      "@defichain/testcontainers": ["testcontainers/src"],
+      "@defichain/testing": ["testing/src"],
     }
   }
 }

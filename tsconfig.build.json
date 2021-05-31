@@ -14,18 +14,18 @@
   "files": [],
 
   "references": [
-    {"path": "./packages/jellyfish"},
-    {"path": "./packages/jellyfish-address"},
-    {"path": "./packages/jellyfish-api-core"},
-    {"path": "./packages/jellyfish-api-jsonrpc"},
-    {"path": "./packages/jellyfish-crypto"},
-    {"path": "./packages/jellyfish-json"},
-    {"path": "./packages/jellyfish-network"},
-    {"path": "./packages/jellyfish-transaction"},
-    {"path": "./packages/jellyfish-transaction-builder"},
-    {"path": "./packages/jellyfish-wallet"},
-    {"path": "./packages/jellyfish-wallet-mnemonic"},
-    {"path": "./packages/testcontainers"},
-    {"path": "./packages/testing"}
+    {"path": "./packages/jellyfish/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-address/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-api-core/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-api-jsonrpc/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-crypto/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-json/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-network/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-transaction/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-transaction-builder/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-wallet/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-wallet-mnemonic/tsconfig.build.json"},
+    {"path": "./packages/testcontainers/tsconfig.build.json"},
+    {"path": "./packages/testing/tsconfig.build.json"}
  ]
 }
