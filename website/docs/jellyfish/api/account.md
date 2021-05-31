@@ -237,3 +237,26 @@ interface AccountHistoryCountOptions {
   no_rewards?: boolean
 }
 ```
+
+## sendTokensToAddress
+
+Creates a transfer transaction from your accounts balances.
+
+```ts title="client.account.sendTokensToAddress()"
+
+interface Account {
+  sendTokensToAddress(from: Address, to: Address, selectionMode: SelectionModeType = SelectionModeType.PIE): Promise<string>
+}
+
+type AccountRegexType = `${string}@${string}`
+
+enum SelectionModeType {
+  PIE = 'pie',
+  CRUMBS = 'crumbs',
+  FORWARD = 'forward'
+}
+
+interface Address {
+  [key: string]: AccountRegexType | AccountRegexType[]
+}
+```

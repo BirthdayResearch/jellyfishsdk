@@ -306,7 +306,7 @@ export class Account {
    *
    * @param {Address} from The source defi address is the key, the value is amount in amount amount@token format
    * @param {Address} to The defi address is the key, the value is amount in amount amount@token format
-   * @param {SelectionModeTyoe} [selectionMode=SelectionModeType.PIE] account selection mode. If "from" param is empty, it will autoselect.
+   * @param {SelectionModeType} [selectionMode=SelectionModeType.PIE] account selection mode. If "from" param is empty, it will auto select.
    * @return {Promise<string>}
    */
   async sendTokensToAddress (from: Address, to: Address, selectionMode: SelectionModeType = SelectionModeType.PIE): Promise<string> {
@@ -390,5 +390,5 @@ export interface AccountHistoryCountOptions {
 }
 
 export interface Address {
-  [key: string]: string | string[]
+  [key: string]: AccountRegexType | AccountRegexType[]
 }

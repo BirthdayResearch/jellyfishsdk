@@ -45,7 +45,7 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
   }
 
-  it('should create a transaction with autoselect (empty source address)', async () => {
+  it('should create a transaction with auto select (empty source address)', async () => {
     const to = await client.wallet.getNewAddress()
     const transactionHex = await client.account.sendTokensToAddress({}, { [to]: '2@DFI' })
 
