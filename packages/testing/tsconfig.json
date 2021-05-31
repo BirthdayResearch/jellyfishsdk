@@ -6,5 +6,11 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-  }
+  },
+  "references": [
+    {"path": "../jellyfish-api-core"},
+    {"path": "../jellyfish-network"},
+    {"path": "../jellyfish-crypto"},
+    {"path": "../testcontainers"}
+  ]
 }

@@ -5,9 +5,11 @@
   ],
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
   },
   "references": [
-    {"path": "../"}
+    {"path": "../jellyfish-api-core"},
+    {"path": "../jellyfish-api-jsonrpc"},
+    {"path": "../testcontainers"}
   ]
 }

@@ -6,5 +6,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-  }
+  },
+  "references": [
+    {"path": "../jellyfish-crypto"},
+    {"path": "../jellyfish-network"},
+    {"path": "../jellyfish-transaction"}
+  ]
 }
