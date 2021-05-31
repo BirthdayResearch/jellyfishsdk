@@ -439,6 +439,83 @@ describe('ComposableBuffer.hex', () => {
   })
 })
 
+describe('ComposableBuffer.optionalHex', () => {
+  describe('has value', () => {
+    const composer = ComposableBuffer.optionalHex(16, () => value, (v?: string) => value = v)
+    const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
+    let value: string | undefined = ''
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+      expect(value).toStrictEqual('9ea83a5c6579d282d189cc04b8e151ef')
+    })
+
+    it('should toBuffer', () => {
+      value = '9ea83a5c6579d282d189cc04b8e151ef'
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+    })
+
+    it('should not have side effect when reading and writing', () => {
+      const from = SmartBuffer.fromBuffer(expectedBuffer)
+      composer.fromBuffer(from)
+      const to = new SmartBuffer()
+      composer.toBuffer(to)
+
+      expect(from.toString()).toStrictEqual(to.toString())
+    })
+
+    it('should fail toBuffer validate', () => {
+      value = 'ef'
+
+      expect(() => {
+        composer.toBuffer(new SmartBuffer())
+      }).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+    })
+  })
+
+  describe('has NO value', () => {
+    const composer = ComposableBuffer.optionalHex(16, () => value, (v?: string) => value = v)
+    const expectedBuffer = Buffer.from('', 'hex')
+    let value: string | undefined
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+      expect(value).toBeUndefined()
+    })
+
+    it('should toBuffer', () => {
+      value = undefined
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+    })
+
+    it('should not have side effect when reading and writing', () => {
+      const from = SmartBuffer.fromBuffer(expectedBuffer)
+      composer.fromBuffer(from)
+      const to = new SmartBuffer()
+      composer.toBuffer(to)
+
+      expect(from.toString()).toStrictEqual(to.toString())
+    })
+
+    it('should fail toBuffer validate', () => {
+      value = 'ef'
+
+      expect(() => {
+        composer.toBuffer(new SmartBuffer())
+      }).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
+    })
+  })
+})
+
 describe('ComposableBuffer.hexBE', () => {
   const composer = ComposableBuffer.hexBEBufferLE(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')

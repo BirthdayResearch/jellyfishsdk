@@ -77,13 +77,14 @@ describe('DFI to DOG', () => {
   })
 
   it('should poolSwap from DFI to DOG', async () => {
-    // Fund 10 DFI UTXO
-    await fundEllipticPair(container, providers.ellipticPair, 10)
-    // Fund 10 DFI TOKEN
+    // Fund 100 DFI TOKEN
     await providers.setupMocks() // required to move utxos
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
     // Fund 10 DOG TOKEN
     await sendTokensToAddress(container, await providers.getAddress(), 10, 'DOG')
+
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(container, providers.ellipticPair, 10)
 
     // Perform SWAP
     const script = await providers.elliptic.script()

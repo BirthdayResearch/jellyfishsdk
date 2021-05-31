@@ -18,7 +18,7 @@ import {
   PoolRemoveLiquidity,
   PoolSwap
 } from './defi/dftx_pool'
-import { CTokenCreate, CTokenMint, TokenCreate, TokenMint } from './defi/dftx_token'
+import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './defi/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -40,6 +40,8 @@ import {
   CSetOracleData
 } from './defi/dftx_oracles'
 import { CAutoAuthPrep } from './defi/dftx_misc'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './defi/dftx_masternode'
+import { CSetGovernance, SetGovernance } from './defi/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -169,6 +171,22 @@ export const OP_CODES = {
       data: tokenCreate
     })
   },
+  OP_DEFI_TX_TOKEN_UPDATE: (tokenUpdate: TokenUpdate): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenUpdate.OP_CODE,
+      name: CTokenUpdate.OP_NAME,
+      data: tokenUpdate
+    })
+  },
+  OP_DEFI_TX_TOKEN_UPDATE_ANY: (tokenUpdateAny: TokenUpdateAny): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTokenUpdateAny.OP_CODE,
+      name: CTokenUpdateAny.OP_NAME,
+      data: tokenUpdateAny
+    })
+  },
   OP_DEFI_TX_UTXOS_TO_ACCOUNT: (utxosToAccount: UtxosToAccount): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -239,6 +257,30 @@ export const OP_CODES = {
       type: CAutoAuthPrep.OP_CODE,
       name: CAutoAuthPrep.OP_NAME,
       data: null
+    })
+  },
+  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasterNode): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateMasterNode.OP_CODE,
+      name: CCreateMasterNode.OP_NAME,
+      data: createMasterNode
+    })
+  },
+  OP_DEFI_TX_RESIGN_MASTER_NODE: (resignMasterNode: ResignMasterNode): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CResignMasterNode.OP_CODE,
+      name: CResignMasterNode.OP_NAME,
+      data: resignMasterNode
+    })
+  },
+  OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetGovernance.OP_CODE,
+      name: CSetGovernance.OP_NAME,
+      data: setGovernance
     })
   },
 

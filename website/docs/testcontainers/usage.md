@@ -82,6 +82,8 @@ describe('master node pos minting', () => {
 })
 ```
 
+`GenesisKeys` is provided as a reference to the Genesis masternodes used in regtest. The `owner` keys of the first 2 and last 2 `GenesisKeys` have Foundation Authorization, and can be used to test functionality that requires Foundation Authorization.
+
 ## Convenience methods
 
 ### getCachedRpcUrl

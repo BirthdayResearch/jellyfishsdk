@@ -2,7 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import BigNumber from 'bignumber.js'
-import { Payload } from '../../src/category/account'
+import { RpcApiError } from '../../src'
+import { BalanceTransferPayload, UTXO, AccountHistoryCountOptions, TxType } from '../../src/category/account'
 
 describe('masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -20,10 +21,8 @@ describe('masternode', () => {
     await container.stop()
   })
 
-  let from: any
-
   async function setup (): Promise<void> {
-    from = await container.call('getnewaddress')
+    const from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 200)
 
     const to = await accountToAccount('DBTC', 5, from)
@@ -45,8 +44,6 @@ describe('masternode', () => {
     await container.waitForWalletBalanceGTE(101)
     await container.call('createtoken', [metadata])
     await container.generate(1)
-
-    await container.call('utxostoaccount', [{ [address]: '100@0' }])
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
     await container.generate(1)
@@ -291,7 +288,7 @@ describe('masternode', () => {
     it('should getTokenBalances with pagination limit', async () => {
       await waitForExpect(async () => {
         const tokenBalances = await client.account.getTokenBalances()
-        expect(tokenBalances.length).toStrictEqual(3)
+        expect(tokenBalances.length).toStrictEqual(2)
       })
       const pagination = {
         limit: 1
@@ -487,37 +484,123 @@ describe('masternode', () => {
     })
   })
 
-  describe('accountToUtxos', () => {
-    it('should accountToUtxos', async () => {
-      const payload: Payload = {}
+  describe('utxosToAccount', () => {
+    it('should utxosToAccount', async () => {
+      const payload: BalanceTransferPayload = {}
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
 
-      const data = await client.account.accountToUtxos(from, payload)
+      const data = await client.account.utxosToAccount(payload)
 
       expect(typeof data).toStrictEqual('string')
       expect(data.length).toStrictEqual(64)
     })
 
-    it('should accountToUtxos with utxos', async () => {
-      const { txid } = await container.fundAddress(from, 10)
+    it('should not utxosToAccount for DFI coin if does not own the recipient address', async () => {
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
+      const promise = client.account.utxosToAccount({ '2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz': '5@DFI' })
 
-      const payload: Payload = {}
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('The address (2Mywjs9zEU4NtLknXQJZgozaxMvPn2Bb3qz) is not your own address')
+    })
+
+    it('should utxosToAccount with utxos', async () => {
+      const payload: BalanceTransferPayload = {}
+      // NOTE(jingyi2811): Only support sending utxos to DFI account.
       payload[await container.getNewAddress()] = '5@DFI'
       payload[await container.getNewAddress()] = '5@DFI'
 
       const utxos = await container.call('listunspent')
-      const inputs = utxos.filter((utxo: { txid: string, vout: number }) => utxo.txid === txid).map((utxo: any) => {
+      const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
         return {
           txid: utxo.txid,
           vout: utxo.vout
         }
       })
 
-      const data = await client.account.accountToUtxos(from, payload, { utxos: inputs })
+      const data = await client.account.utxosToAccount(payload, inputs)
 
       expect(typeof data).toStrictEqual('string')
       expect(data.length).toStrictEqual(64)
+    })
+  })
+
+  describe('accountHistoryCount', () => {
+    it('should get accountHistoryCount', async () => {
+      await waitForExpect(async () => {
+        const count = await client.account.historyCount()
+
+        expect(typeof count).toBe('number')
+        expect(count).toBeGreaterThanOrEqual(0)
+      })
+    })
+
+    it('should get accountHistoryCount with owner as all', async () => {
+      await waitForExpect(async () => {
+        const count = await client.account.historyCount('all')
+
+        expect(typeof count).toBe('number')
+        expect(count).toBeGreaterThanOrEqual(0)
+      })
+    })
+
+    it('should get accountHistoryCount with no_rewards option', async () => {
+      await waitForExpect(async () => {
+        const options: AccountHistoryCountOptions = {
+          no_rewards: true
+        }
+        const count = await client.account.historyCount('mine', options)
+
+        expect(typeof count).toBe('number')
+        expect(count).toBeGreaterThanOrEqual(0)
+      })
+    })
+
+    it('should get accountHistoryCount with token option', async () => {
+      await waitForExpect(async () => {
+        const options1: AccountHistoryCountOptions = {
+          token: 'DBTC'
+        }
+        const options2: AccountHistoryCountOptions = {
+          token: 'DETH'
+        }
+        const countWithDBTC = await client.account.historyCount('mine', options1)
+        const countWithDETH = await client.account.historyCount('mine', options2)
+
+        expect(typeof countWithDBTC).toBe('number')
+        expect(typeof countWithDETH).toBe('number')
+        expect(countWithDBTC).toStrictEqual(5)
+        expect(countWithDETH).toStrictEqual(3)
+      })
+    })
+
+    it('should get accountHistory with txtype option', async () => {
+      await waitForExpect(async () => {
+        const options: AccountHistoryCountOptions = {
+          txtype: TxType.MINT_TOKEN
+        }
+        const count = await client.account.historyCount('mine', options)
+
+        expect(typeof count).toBe('number')
+        expect(count).toBeGreaterThanOrEqual(0)
+      })
+    })
+
+    it('should get different count for different txtypes', async () => {
+      await waitForExpect(async () => {
+        const options1: AccountHistoryCountOptions = {
+          txtype: TxType.MINT_TOKEN
+        }
+        const options2: AccountHistoryCountOptions = {
+          txtype: TxType.POOL_SWAP
+
+        }
+        const count1 = await client.account.historyCount('mine', options1)
+        const count2 = await client.account.historyCount('mine', options2)
+
+        expect(count1 === count2).toStrictEqual(false)
+      })
     })
   })
 })

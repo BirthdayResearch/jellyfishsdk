@@ -1,6 +1,6 @@
-import { Bech32, Elliptic, EllipticPair } from '@defichain/jellyfish-crypto'
+import { Bech32, Elliptic, EllipticPair, dSHA256 } from '@defichain/jellyfish-crypto'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { CTransactionSegWit, TransactionSegWit } from '@defichain/jellyfish-transaction'
+import { CTransaction, CTransactionSegWit, Transaction, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
 import { BigNumber } from 'bignumber.js'
 
@@ -57,6 +57,12 @@ export async function sendTransaction (container: MasterNodeRegTestContainer, tr
 
   const tx = await container.call('getrawtransaction', [txid, true])
   return tx.vout as TxOut[]
+}
+
+export function calculateTxid (transaction: Transaction): string {
+  const buffer = new SmartBuffer()
+  new CTransaction(transaction).toBuffer(buffer)
+  return dSHA256(buffer.toBuffer()).reverse().toString('hex')
 }
 
 export interface TxOut {

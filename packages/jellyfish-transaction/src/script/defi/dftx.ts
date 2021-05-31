@@ -10,12 +10,13 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
   PoolSwap
 } from './dftx_pool'
-import { CTokenCreate, CTokenMint, TokenCreate, TokenMint } from './dftx_token'
+import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
 import {
   CAppointOracle,
   AppointOracle,
@@ -27,6 +28,7 @@ import {
   SetOracleData
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
+import { CSetGovernance, SetGovernance } from './dftx_governance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -113,6 +115,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
       case CTokenCreate.OP_CODE:
         return compose<TokenCreate>(CTokenCreate.OP_NAME, d => new CTokenCreate(d))
+      case CTokenUpdate.OP_CODE:
+        return compose<TokenUpdate>(CTokenUpdate.OP_NAME, d => new CTokenUpdate(d))
+      case CTokenUpdateAny.OP_CODE:
+        return compose<TokenUpdateAny>(CTokenUpdateAny.OP_NAME, d => new CTokenUpdateAny(d))
       case CUtxosToAccount.OP_CODE:
         return compose<UtxosToAccount>(CUtxosToAccount.OP_NAME, d => new CUtxosToAccount(d))
       case CAccountToUtxos.OP_CODE:
@@ -131,6 +137,12 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
+      case CCreateMasterNode.OP_CODE:
+        return compose<CreateMasterNode>(CCreateMasterNode.OP_NAME, d => new CCreateMasterNode(d))
+      case CResignMasterNode.OP_CODE:
+        return compose<ResignMasterNode>(CResignMasterNode.OP_NAME, d => new CResignMasterNode(d))
+      case CSetGovernance.OP_CODE:
+        return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

@@ -249,6 +249,27 @@ export class Wallet {
       'bignumber'
     )
   }
+
+  /**
+   * Reveals the private key corresponding to an address.
+   *
+   * @param {string} address The DFI address for the private key.
+   * @return {Promise<string>}
+   */
+  async dumpPrivKey (address: string): Promise<string> {
+    return await this.client.call('dumpprivkey', [address], 'number')
+  }
+
+  /**
+   * Adds a private key (as returned by dumpprivkey) to your wallet. Requires a new wallet backup.
+   *
+   * @param {string} privkey The private key (see dumpprivkey)
+   * @param {string}  [label=""] current label if address exists, otherwise "".
+   * @param {boolean} [rescan=true] Rescan the wallet for transactions
+   */
+  async importPrivKey (privkey: string, label: string = '', rescan: boolean = true): Promise<void> {
+    return await this.client.call('importprivkey', [privkey, label, rescan], 'number')
+  }
 }
 
 export interface UTXO {
