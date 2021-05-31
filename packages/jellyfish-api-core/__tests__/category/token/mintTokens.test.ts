@@ -22,20 +22,20 @@ describe('Token', () => {
   async function setup (): Promise<void> {
     from = await container.getNewAddress()
 
-    await createToken('DBTC')
-    await createToken('DETH')
+    await createToken(from, 'DBTC')
+    await createToken(from, 'DETH')
 
     await container.generate(1)
   }
 
-  async function createToken (symbol: string): Promise<void> {
+  async function createToken (address: string, symbol: string): Promise<void> {
     const defaultMetadata = {
       symbol,
       name: symbol,
       isDAT: true,
       mintable: true,
       tradeable: true,
-      collateralAddress: from
+      collateralAddress: address
     }
     await client.token.createToken({ ...defaultMetadata })
   }
