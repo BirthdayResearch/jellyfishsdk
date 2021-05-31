@@ -36,8 +36,8 @@ describe('remove oracle', () => {
     await providers.setupMocks() // required to move utxos
 
     // Appoint Oracle
-    let script = await providers.elliptic.script()
-    let txn = await builder.oracles.appointOracle({
+    const script = await providers.elliptic.script()
+    const appointTxn = await builder.oracles.appointOracle({
       script: script,
       weightage: 1,
       priceFeeds: [
@@ -48,17 +48,20 @@ describe('remove oracle', () => {
       ]
     }, script)
 
-    const txid = calculateTxid(txn)
-    await sendTransaction(container, txn)
+    const txid = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
+
+    // Ensure oracle is created
+    const listOraclesResult = await container.call('listoracles')
+    expect(listOraclesResult.length).toStrictEqual(1)
 
     // Remove Oracle
-    script = await providers.elliptic.script()
-    txn = await builder.oracles.removeOracle({
+    const removeTxn = await builder.oracles.removeOracle({
       oracleId: txid
     }, script)
 
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(container, removeTxn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
@@ -69,7 +72,9 @@ describe('remove oracle', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is removed
+    const removedlistOraclesResult = await container.call('listoracles')
+    expect(removedlistOraclesResult.length).toStrictEqual(0)
   })
 })
-
-// TODO(monstrobishi): test account state once RPC calls are in place
