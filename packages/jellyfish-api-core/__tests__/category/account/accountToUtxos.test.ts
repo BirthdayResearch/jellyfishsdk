@@ -43,6 +43,7 @@ describe('Account with DBTC', () => {
 
   it('should accountToUtxos', async () => {
     const payload: BalanceTransferPayload = {}
+    // NOTE(jingyi2811): Only support sending utxos to DFI account.
     payload[await container.getNewAddress()] = '5@DFI'
     payload[await container.getNewAddress()] = '5@DFI'
 

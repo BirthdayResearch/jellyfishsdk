@@ -225,28 +225,6 @@ export class Account {
   }
 
   /**
-   * Returns information about account history
-   *
-   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
-   * @param {AccountHistoryOptions} [options]
-   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
-   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
-   * @param {boolean} [options.no_rewards] Filter out rewards
-   * @param {string} [options.token] Filter by token
-   * @param {string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG
-   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
-   * @return {Promise<AccountHistory[]>}
-   */
-  async listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
-    options: AccountHistoryOptions = {
-      limit: 100
-    }
-  ): Promise<AccountHistory[]> {
-    return await this.client.call('listaccounthistory', [owner, options], 'number')
-  }
-
-  /**
    * Create an UTXOs to Account transaction submitted to a connected node.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
@@ -293,6 +271,28 @@ export class Account {
    */
   async accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
     return await this.client.call('accounttoutxos', [from, payload, options.utxos], 'number')
+  }
+
+  /**
+   * Returns information about account history
+   *
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {AccountHistoryOptions} [options]
+   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
+   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
+   * @param {boolean} [options.no_rewards] Filter out rewards
+   * @param {string} [options.token] Filter by token
+   * @param {string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG
+   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @return {Promise<AccountHistory[]>}
+   */
+  async listAccountHistory (
+    owner: OwnerType | string = OwnerType.MINE,
+    options: AccountHistoryOptions = {
+      limit: 100
+    }
+  ): Promise<AccountHistory[]> {
+    return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 
   /**
@@ -349,6 +349,19 @@ export interface GetTokenBalancesOptions {
   symbolLookup?: boolean
 }
 
+export interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+export interface BalanceTransferAccountOptions {
+  utxos?: UTXO[]
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
+}
+
 export interface AccountHistory {
   owner: string
   blockHeight: number
@@ -367,19 +380,6 @@ export interface AccountHistoryOptions {
   token?: string
   txtype?: string
   limit?: number
-}
-
-export interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
-}
-
-export interface BalanceTransferAccountOptions {
-  utxos?: UTXO[]
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
 }
 
 export interface AccountHistoryCountOptions {
