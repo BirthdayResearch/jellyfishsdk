@@ -42,6 +42,10 @@ describe('Token', () => {
   }
 
   it('should mintTokens', async () => {
+    let tokenBalances = await client.account.getTokenBalances()
+
+    expect(tokenBalances.length).toStrictEqual(0)
+
     const data = await client.token.mintTokens('5@DBTC')
 
     expect(typeof data).toStrictEqual('string')
@@ -49,11 +53,17 @@ describe('Token', () => {
 
     await container.generate(1)
 
-    const tokenBalances = await client.account.getTokenBalances()
+    tokenBalances = await client.account.getTokenBalances()
+
+    expect(tokenBalances.length).toStrictEqual(1)
     expect(tokenBalances[0]).toStrictEqual('5.00000000@1')
   })
 
   it('should mintTokens with utxos', async () => {
+    let tokenBalances = await client.account.getTokenBalances()
+
+    expect(tokenBalances.length).toStrictEqual(1)
+
     const { txid } = await container.fundAddress(from, 10)
 
     const utxos = await container.call('listunspent')
@@ -71,7 +81,9 @@ describe('Token', () => {
 
     await container.generate(1)
 
-    const tokenBalances = await client.account.getTokenBalances()
+    tokenBalances = await client.account.getTokenBalances()
+
+    expect(tokenBalances.length).toStrictEqual(2)
     expect(tokenBalances[1]).toStrictEqual('5.00000000@2')
   })
 })
