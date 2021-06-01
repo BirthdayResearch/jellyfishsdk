@@ -51,6 +51,10 @@ describe('remove oracle', () => {
     const txid = calculateTxid(appointTxn)
     await sendTransaction(container, appointTxn)
 
+    // Ensure oracle is created
+    const listOraclesResult = await container.call('listoracles')
+    expect(listOraclesResult.length).toStrictEqual(1)
+
     // Remove Oracle
     const removeTxn = await builder.oracles.removeOracle({
       oracleId: txid
@@ -68,7 +72,9 @@ describe('remove oracle', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is removed
+    const removedlistOraclesResult = await container.call('listoracles')
+    expect(removedlistOraclesResult.length).toStrictEqual(0)
   })
 })
-
-// TODO(monstrobishi): test account state once RPC calls are in place
