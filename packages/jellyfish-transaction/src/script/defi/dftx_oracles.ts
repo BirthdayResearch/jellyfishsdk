@@ -62,7 +62,7 @@ export interface UpdateOracle {
   oracleId: string // -------------------| 32 bytes hex string
   script: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes
   weightage: number // ------------------| 1 byte unsigned int
-  pricefeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c x CurrencyPair
+  priceFeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c x CurrencyPair
 }
 
 /**
@@ -78,7 +78,7 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
       ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v),
       ComposableBuffer.single<Script>(() => ao.script, v => ao.script = v, v => new CScript(v)),
       ComposableBuffer.uInt8(() => ao.weightage, v => ao.weightage = v),
-      ComposableBuffer.varUIntArray(() => ao.pricefeeds, v => ao.pricefeeds = v, v => new CCurrencyPair(v))
+      ComposableBuffer.varUIntArray(() => ao.priceFeeds, v => ao.priceFeeds = v, v => new CCurrencyPair(v))
     ]
   }
 }

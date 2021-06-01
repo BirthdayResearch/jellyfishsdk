@@ -4,7 +4,8 @@ import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
-import { CScriptBalances, ScriptBalances } from './dftx_balance'
+import { CScriptBalances, ScriptBalances, CTokenBalance, TokenBalance } from './dftx_balance'
+import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -101,6 +102,54 @@ export class CPoolRemoveLiquidity extends ComposableBuffer<PoolRemoveLiquidity> 
       ComposableBuffer.single<Script>(() => p.script, v => p.script = v, v => new CScript(v)),
       ComposableBuffer.varUInt(() => p.tokenId, v => p.tokenId = v),
       ComposableBuffer.satoshiAsBigNumber(() => p.amount, v => p.amount = v)
+    ]
+  }
+}
+
+/**
+ * PoolUpdatePair DeFi Transaction
+ */
+export interface PoolUpdatePair {
+  poolId: number // -----------------------| VarUInt{1-9 bytes}
+  status: boolean // ----------------------| 4 bytes
+  commission: BigNumber // ----------------| 8 bytes
+  ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
+  customRewards: TokenBalance[] // --------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+}
+
+/**
+ * Composable PoolUpdatePair, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPoolUpdatePair extends ComposableBuffer<PoolUpdatePair> {
+  static OP_CODE = 0x75
+  static OP_NAME = 'OP_DEFI_TX_POOL_UPDATE_PAIR'
+
+  composers (p: PoolUpdatePair): BufferComposer[] {
+    return [
+      ComposableBuffer.varUInt(() => p.poolId, v => p.poolId = v),
+      ComposableBuffer.uBool32(() => p.status, v => p.status = v),
+      ComposableBuffer.satoshiAsBigNumber(() => p.commission, v => p.commission = v),
+      ComposableBuffer.single<Script>(() => p.ownerAddress, v => p.ownerAddress = v, v => new CScript(v)),
+      // Note(canonbrother): special fix for inconsistent bytes in "block height >= ClarkeQuayHeight" condition
+      // https://github.com/DeFiCh/ain/blob/4b70ecd8ee32d00c75be04a786dc75ec4a3c91dd/src/masternodes/rpc_poolpair.cpp#L719-721
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          if (buffer.remaining() > 0) {
+            const length = readVarUInt(buffer)
+            p.customRewards = []
+            for (let i = 0; i < length; i++) {
+              p.customRewards.push(new CTokenBalance(buffer).toObject())
+            }
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          if (p.customRewards !== undefined) {
+            writeVarUInt(p.customRewards.length, buffer)
+            p.customRewards.forEach(data => new CTokenBalance(data).toBuffer(buffer))
+          }
+        }
+      }
     ]
   }
 }

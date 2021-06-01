@@ -36,7 +36,7 @@ const updateOracle: UpdateOracle = {
   },
   oracleId: 'd1248472d78681257637f6cafb6eab9b89f4a64eb8c425208b52258994351d06',
   weightage: 5,
-  pricefeeds: [
+  priceFeeds: [
     {
       token: 'TESLA',
       currency: 'EUR'
