@@ -1,8 +1,8 @@
-import { RegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ContainerAdapterClient } from '../container_adapter_client'
-import { net } from '../../src'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
+import { ContainerAdapterClient } from '../../container_adapter_client'
+import { net } from '../../../src'
 
-describe('non masternode', () => {
+describe('Network without masternode', () => {
   const container = new RegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -13,11 +13,6 @@ describe('non masternode', () => {
 
   afterAll(async () => {
     await container.stop()
-  })
-
-  it('should getConnectionCount', async () => {
-    const count = await client.net.getConnectionCount()
-    expect(count).toBeGreaterThanOrEqual(0)
   })
 
   it('should getNetworkInfo', async () => {
@@ -59,23 +54,17 @@ describe('non masternode', () => {
   })
 })
 
-describe('masternode', () => {
+describe('Network on masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
     await container.stop()
-  })
-
-  it('should getConnectionCount', async () => {
-    const count = await client.net.getConnectionCount()
-    expect(count).toBeGreaterThanOrEqual(0)
   })
 
   it('should getNetworkInfo', async () => {
