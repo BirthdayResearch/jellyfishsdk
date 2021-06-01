@@ -46,7 +46,7 @@ describe('Account with DBTC', () => {
     const balanceBefore = await container.call('getbalance')
 
     const payload: BalanceTransferPayload = {}
-    // NOTE(jingyi2811): Only support sending from account to DFI Utxos.
+    // NOTE(jingyi2811): Only support sending DFI from account to Utxos.
     payload[await container.getNewAddress()] = '5@DFI'
     payload[await container.getNewAddress()] = '5@DFI'
 
@@ -75,7 +75,7 @@ describe('Account with DBTC', () => {
     const { txid } = await container.fundAddress(from, 10)
 
     const payload: BalanceTransferPayload = {}
-    // NOTE(jingyi2811): Only support sending from account to DFI Utxos.
+    // NOTE(jingyi2811): Only support sending DFI from account to Utxos.
     payload[await container.getNewAddress()] = '5@DFI'
     payload[await container.getNewAddress()] = '5@DFI'
 
