@@ -511,7 +511,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         setter(buffer.readInt32BE() === 1)
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        var v = getter().toString().toLowerCase() === 'true' ? 1 : 0
+        const v = getter() ? 1 : 0
         buffer.writeBuffer(Buffer.from([0, 0, 0, v]))
       }
     }
