@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BalanceTransferPayload, UTXO } from '../../../src/category/account'
+import { RpcApiError } from '../../../src'
 
 describe('Account with DBTC', () => {
   const container = new MasterNodeRegTestContainer()
@@ -42,6 +43,8 @@ describe('Account with DBTC', () => {
   }
 
   it('should accountToUtxos', async () => {
+    const balanceBefore = await container.call('getbalance')
+
     const payload: BalanceTransferPayload = {}
     // NOTE(jingyi2811): Only support sending from account to DFI Utxos.
     payload[await container.getNewAddress()] = '5@DFI'
@@ -51,9 +54,24 @@ describe('Account with DBTC', () => {
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
+
+    const balanceAfter = await container.call('getbalance')
+    expect(balanceAfter).toBeGreaterThan(balanceBefore)
+  })
+
+  it('should not accountToUtxos for token', async () => {
+    const payload: BalanceTransferPayload = {}
+    payload[await container.getNewAddress()] = '5@DBTC'
+
+    const promise = client.account.accountToUtxos(from, payload)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test AccountToUtxosTx execution failed:only available for DFI transactions\', code: -32600, method: accounttoutxos')
   })
 
   it('should accountToUtxos with utxos', async () => {
+    const balanceBefore = await container.call('getbalance')
+
     const { txid } = await container.fundAddress(from, 10)
 
     const payload: BalanceTransferPayload = {}
@@ -73,5 +91,8 @@ describe('Account with DBTC', () => {
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
+
+    const balanceAfter = await container.call('getbalance')
+    expect(balanceAfter).toBeGreaterThan(balanceBefore)
   })
 })
