@@ -13,8 +13,8 @@ import {
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
-  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, PoolAddLiquidity, PoolRemoveLiquidity,
-  PoolSwap
+  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolUpdatePair, PoolAddLiquidity, PoolRemoveLiquidity,
+  PoolSwap, PoolUpdatePair
 } from './dftx_pool'
 import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
 import {
@@ -111,6 +111,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<PoolAddLiquidity>(CPoolAddLiquidity.OP_NAME, d => new CPoolAddLiquidity(d))
       case CPoolRemoveLiquidity.OP_CODE:
         return compose<PoolRemoveLiquidity>(CPoolRemoveLiquidity.OP_NAME, d => new CPoolRemoveLiquidity(d))
+      case CPoolUpdatePair.OP_CODE:
+        return compose<PoolUpdatePair>(CPoolUpdatePair.OP_NAME, d => new CPoolUpdatePair(d))
       case CTokenMint.OP_CODE:
         return compose<TokenMint>(CTokenMint.OP_NAME, d => new CTokenMint(d))
       case CTokenCreate.OP_CODE:

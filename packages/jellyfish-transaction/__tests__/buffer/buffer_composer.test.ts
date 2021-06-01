@@ -1203,3 +1203,25 @@ describe('ComposableBuffer.bitmask1Byte', () => {
     })
   })
 })
+
+describe('ComposableBuffer.uBool32', () => {
+  let bool = true
+  const composer = ComposableBuffer.uBool32(() => bool, (v: boolean) => bool = v)
+  const expectedFalseBuffer = Buffer.from('00000000', 'hex')
+  const expectedTrueBuffer = Buffer.from('00000001', 'hex')
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedFalseBuffer))
+    expect(bool).toStrictEqual(false)
+
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedTrueBuffer))
+    expect(bool).toStrictEqual(true)
+  })
+
+  it('should toBuffer', () => {
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual('00000001')
+  })
+})

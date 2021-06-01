@@ -32,3 +32,6 @@ dist
 lerna-debug.log
 
 coverage
+
+# vscode
+.vscode
