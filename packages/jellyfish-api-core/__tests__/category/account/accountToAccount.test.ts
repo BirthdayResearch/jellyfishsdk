@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { BalanceTransferPayload, UTXO } from '../../../src/category/account'
 
-describe('Account with DBTC and DETH', () => {
+describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 

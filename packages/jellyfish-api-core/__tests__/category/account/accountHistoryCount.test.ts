@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { AccountHistoryCountOptions, TxType } from '../../../src/category/account'
 
-describe('Account with DBTC and DETH', () => {
+describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -50,7 +50,6 @@ describe('Account with DBTC and DETH', () => {
     const to = _to !== '' ? _to : await container.call('getnewaddress')
 
     await container.call('accounttoaccount', [from, { [to]: `${amount.toString()}@${symbol}` }])
-    await container.generate(1)
 
     return to
   }
