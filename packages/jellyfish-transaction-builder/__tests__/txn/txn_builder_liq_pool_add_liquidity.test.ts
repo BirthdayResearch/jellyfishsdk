@@ -13,7 +13,7 @@ import {
   sendTransaction
 } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
-import { PoolAddLiquidity } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_pool'
+import { PoolAddLiquidity } from '@defichain/jellyfish-transaction/src/script/defi/dftx_pool'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders

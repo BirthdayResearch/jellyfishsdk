@@ -76,7 +76,7 @@ describe('DFI to DOG', () => {
     })
   })
 
-  it('should poolSwap from DFI to DOG', async () => {
+  it.only('should poolSwap from DFI to DOG', async () => {
     // Fund 100 DFI TOKEN
     await providers.setupMocks() // required to move utxos
     await utxosToAccount(container, 100, { address: await providers.getAddress() })

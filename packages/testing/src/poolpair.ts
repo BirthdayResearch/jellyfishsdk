@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { CreatePoolPairUTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { CreatePoolPairUTXO } from '@defichain/jellyfish-api-core/src/category/poolpair'
 import { getNewAddress } from './wallet'
 
 /**

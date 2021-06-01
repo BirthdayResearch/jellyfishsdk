@@ -3,12 +3,12 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTxnBuilder } from '../../src'
 import { fundEllipticPair } from '../test.utils'
-import { OP_DEFI_TX } from '@defichain/jellyfish-transaction/dist/script/defi'
-import { CDfTx } from '@defichain/jellyfish-transaction/dist/script/defi/dftx'
-import { OP_CODES } from '@defichain/jellyfish-transaction/dist'
+import { OP_DEFI_TX } from '@defichain/jellyfish-transaction/src/script/defi'
+import { CDfTx } from '@defichain/jellyfish-transaction/src/script/defi/dftx'
+import { OP_CODES } from '@defichain/jellyfish-transaction/src'
 import { DeFiOpUnmapped } from '@defichain/jellyfish-transaction/src/script/defi/dftx_unmapped'
 
-// P2WPKHTxnBuilder is abstact and not instantiable
+// P2WPKHTxnBuilder is abstract and not instantiable
 class TestBuilder extends P2WPKHTxnBuilder {}
 
 const container = new MasterNodeRegTestContainer()

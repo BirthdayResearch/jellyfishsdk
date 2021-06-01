@@ -1,4 +1,4 @@
-import { AppointOracle, RemoveOracle } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_oracles'
+import { AppointOracle, RemoveOracle } from '@defichain/jellyfish-transaction/src/script/defi/dftx_oracles'
 import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
