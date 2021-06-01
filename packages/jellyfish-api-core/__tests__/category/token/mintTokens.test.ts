@@ -60,7 +60,7 @@ describe('Token', () => {
     expect(tokenBalances[0]).toStrictEqual('5.00000000@1')
   })
 
-  it('should not mintTokens for non-existence coin', async () => {
+  it('should not mintTokens for non-existence token', async () => {
     const promise = client.token.mintTokens('5@ETH')
 
     await expect(promise).rejects.toThrow(RpcApiError)
