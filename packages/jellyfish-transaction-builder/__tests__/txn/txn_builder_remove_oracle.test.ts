@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { fundEllipticPair, sendTransaction } from '../test.utils'
+import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 
 const container = new MasterNodeRegTestContainer()
@@ -25,19 +25,19 @@ afterAll(async () => {
   await container.stop()
 })
 
-describe('appoint oracle', () => {
+describe('remove oracle', () => {
   beforeEach(async () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  it('should appoint oracle', async () => {
+  it('should appoint and then remove oracle', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
 
     // Appoint Oracle
     const script = await providers.elliptic.script()
-    const txn = await builder.oracles.appointOracle({
+    const appointTxn = await builder.oracles.appointOracle({
       script: script,
       weightage: 1,
       priceFeeds: [
@@ -48,8 +48,16 @@ describe('appoint oracle', () => {
       ]
     }, script)
 
+    const txid = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
+
+    // Remove Oracle
+    const removeTxn = await builder.oracles.removeOracle({
+      oracleId: txid
+    }, script)
+
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(container, removeTxn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
@@ -60,21 +68,6 @@ describe('appoint oracle', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
-  })
-
-  it('should reject invalid appoint oracle arg - weightage over 100', async () => {
-    // Appoint Oracle
-    const script = await providers.elliptic.script()
-    await expect(builder.oracles.appointOracle({
-      script: script,
-      weightage: 200,
-      priceFeeds: [
-        {
-          token: 'TEST',
-          currency: 'USD'
-        }
-      ]
-    }, script)).rejects.toThrow('Conversion input `appointOracle.weightage` must be above `0` and below `101`')
   })
 })
 
