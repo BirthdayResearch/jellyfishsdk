@@ -81,6 +81,16 @@ describe('set oracle data', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is updated and has correct values
+    const getOracleDataResult = await container.call('getoracledata', [oracleId])
+    expect(getOracleDataResult.priceFeeds.length).toStrictEqual(1)
+    expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('USD')
+    expect(getOracleDataResult.tokenPrices[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.tokenPrices[0].currency).toStrictEqual('USD')
+    expect(getOracleDataResult.tokenPrices[0].amount).toStrictEqual(1.0)
+    expect(getOracleDataResult.tokenPrices[0].timestamp).toStrictEqual(1621567932)
   })
 })
 
