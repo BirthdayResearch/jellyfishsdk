@@ -106,46 +106,6 @@ interface GetTokenBalancesOptions {
 }
 ```
 
-## listAccountHistory
-
-Returns information about account history
-
-```ts title="client.account.listAccountHistory()"
-interface account {
-  listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
-    options: AccountHistoryOptions = {
-      limit: 100
-    }
-  ): Promise<AccountHistory[]>
-}
-
-enum OwnerType {
-  MINE = "mine",
-  ALL = "all"
-}
-
-interface AccountHistory {
-  owner: string
-  blockHeight: number
-  blockHash: string
-  blockTime: number
-  type: string
-  txn: number
-  txid: string
-  amounts: string[]
-}
-
-interface AccountHistoryOptions {
-  maxBlockHeight?: number
-  depth?: number
-  no_rewards?: boolean
-  token?: string
-  txtype?: string
-  limit?: number
-}
-```
-
 ## utxosToAccount
 
 Create an UTXOs to Account transaction submitted to a connected node.
@@ -217,6 +177,46 @@ interface BalanceTransferAccountOptions {
 interface UTXO {
   txid: string
   vout: number
+}
+```
+
+## listAccountHistory
+
+Returns information about account history
+
+```ts title="client.account.listAccountHistory()"
+interface account {
+  listAccountHistory (
+    owner: OwnerType | string = OwnerType.MINE,
+    options: AccountHistoryOptions = {
+      limit: 100
+    }
+  ): Promise<AccountHistory[]>
+}
+
+enum OwnerType {
+  MINE = "mine",
+  ALL = "all"
+}
+
+interface AccountHistory {
+  owner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txn: number
+  txid: string
+  amounts: string[]
+}
+
+interface AccountHistoryOptions {
+  maxBlockHeight?: number
+  depth?: number
+  no_rewards?: boolean
+  token?: string
+  txtype?: string
+  limit?: number
 }
 ```
 
