@@ -1,5 +1,4 @@
-import { SmartBuffer } from 'smart-buffer'
-import { CTransaction, CTransactionSegWit, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
+import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { EllipticPair } from '@defichain/jellyfish-crypto'
 
 /**
@@ -31,48 +30,6 @@ export interface SigningInterface {
  * This design keep WalletHdNode derivation agnostic of any implementation, allowing a lite
  * implementation where WalletHdNode are derived on demand.
  */
-export abstract class WalletHdNodeProvider<T extends WalletHdNode> {
-  signingCb?: SigningInterface
-  private walletHdNode?: T
-
-  constructor (signingCb?: SigningInterface) {
-    this.signingCb = signingCb
-  }
-
-  abstract derive (path: string): T
-
-  /**
-   * Derive wallet hd node and store with this provider
-   * @param {string} path
-   * @returns {T}
-   */
-  deriveAndAssign (path: string): T {
-    this.walletHdNode = this.derive(path)
-    return this.walletHdNode
-  }
-
-  /**
-   * @see WalletHdNode.signTx extended to work with SigningInterface callback
-   * @param {Transaction} transaction
-   * @param {Vout[]} prevouts
-   * @returns {TransactionSegWit}
-   */
-  async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
-    if (this.walletHdNode === undefined) {
-      throw new Error('WalletHdNode is not derived, instantiate one by using via `deriveAndAssign` before calling `WalletHdNodeProvider.signTx`')
-    }
-
-    const signed = await this.walletHdNode.signTx(transaction, prevouts)
-    if (this.signingCb !== undefined) {
-      const unsignedBuffer = new SmartBuffer()
-      new CTransaction(transaction).toBuffer(unsignedBuffer)
-
-      const signedBuffer = new SmartBuffer()
-      new CTransactionSegWit(signed).toBuffer(signedBuffer)
-
-      await this.signingCb.unsigned(unsignedBuffer.toBuffer(), transaction)
-      await this.signingCb.signed(signedBuffer.toBuffer(), signed)
-    }
-    return signed
-  }
+export interface WalletHdNodeProvider<T extends WalletHdNode> {
+  derive: (path: string) => T
 }

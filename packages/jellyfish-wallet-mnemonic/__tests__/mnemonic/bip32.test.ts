@@ -1,8 +1,10 @@
+import { SmartBuffer } from 'smart-buffer'
 import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemonic } from '../../src'
 import BigNumber from 'bignumber.js'
-import { Transaction, Vout } from '@defichain/jellyfish-transaction'
+import { CTransaction, CTransactionSegWit, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { OP_CODES } from '@defichain/jellyfish-transaction/dist/script'
 import { HASH160 } from '@defichain/jellyfish-crypto'
+import { SigningInterface } from '@defichain/jellyfish-wallet/src'
 
 const regTestBip32Options = {
   bip32: {
@@ -203,5 +205,58 @@ describe('24 words: abandon x23 art', () => {
       expect(signed.witness[0].scripts[0].hex).toStrictEqual('30440220403d4733c626866ba4117cbf725cc7f6d547cc8bc012786345cb1e58a2693426022039597dd1c39c1a528b884b97a246dd24b6fc7a103ce29a15ef8402ca691b5b0901')
       expect(signed.witness[0].scripts[1].hex).toStrictEqual(pubKey)
     })
+  })
+})
+
+describe('MnemonicHdNodeProvider - should be able to attach with SigningInterface callback', () => {
+  let unsignedCalled: Array<{ buffer: Buffer, tx: Transaction }> = []
+  let signedCalled: Array<{ buffer: Buffer, tx: TransactionSegWit }> = []
+
+  const cb: SigningInterface = {
+    unsigned: async (buffer, tx) => {
+      unsignedCalled.push({ buffer, tx })
+    },
+    signed: async (buffer, tx) => {
+      signedCalled.push({ buffer, tx })
+    }
+  }
+
+  let provider: MnemonicHdNodeProvider
+
+  beforeAll(() => {
+    const words = generateMnemonic(24)
+    const seed = mnemonicToSeed(words)
+    provider = MnemonicHdNodeProvider.fromSeed(seed, regTestBip32Options, cb)
+  })
+
+  beforeEach(() => {
+    unsignedCalled = []
+    signedCalled = []
+  })
+
+  it('should be derive wallet hd node with SigningInterface attached', async () => {
+    const node = provider.derive("44'/1129'/0'/0/0")
+    expect(node).toBeTruthy()
+
+    const signedTx = await node.signTx(transaction, [{
+      ...prevout,
+      script: {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+        ]
+      }
+    }])
+    expect(unsignedCalled.length).toStrictEqual(1)
+    expect(unsignedCalled[0].tx).toMatchObject(transaction)
+    const expectedUnsignedBuffer = new SmartBuffer()
+    new CTransaction(unsignedCalled[0].tx).toBuffer(expectedUnsignedBuffer)
+    expect(unsignedCalled[0].buffer.compare(expectedUnsignedBuffer.toBuffer()))
+
+    expect(signedCalled.length).toStrictEqual(1)
+    expect(signedCalled[0].tx).toMatchObject(signedTx)
+    const expectedSignedBuffer = new SmartBuffer()
+    new CTransactionSegWit(signedCalled[0].tx).toBuffer(expectedSignedBuffer)
+    expect(signedCalled[0].buffer.compare(expectedUnsignedBuffer.toBuffer()))
   })
 })
