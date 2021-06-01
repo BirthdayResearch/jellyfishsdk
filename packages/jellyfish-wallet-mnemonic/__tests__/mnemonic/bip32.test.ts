@@ -1,10 +1,9 @@
 import { SmartBuffer } from 'smart-buffer'
-import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemonic } from '../../src'
+import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemonic, SigningInterface } from '../../src'
 import BigNumber from 'bignumber.js'
 import { CTransaction, CTransactionSegWit, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { OP_CODES } from '@defichain/jellyfish-transaction/dist/script'
 import { HASH160 } from '@defichain/jellyfish-crypto'
-import { SigningInterface } from '@defichain/jellyfish-wallet/src'
 
 const regTestBip32Options = {
   bip32: {

@@ -20,16 +20,15 @@ export interface WalletHdNode extends EllipticPair {
 
 }
 
-export interface SigningInterface {
-  unsigned: (buffer: Buffer, tx: Transaction) => Promise<void>
-  signed: (buffer: Buffer, tx: TransactionSegWit) => Promise<void>
-}
-
 /**
  * WalletHdNode uses the provider model to allow jellyfish-wallet to derive/provide a WalletHdNode from any sources.
  * This design keep WalletHdNode derivation agnostic of any implementation, allowing a lite
  * implementation where WalletHdNode are derived on demand.
  */
 export interface WalletHdNodeProvider<T extends WalletHdNode> {
+  /**
+   * @param {string} path to derive
+   * @return WalletHdNode
+   */
   derive: (path: string) => T
 }
