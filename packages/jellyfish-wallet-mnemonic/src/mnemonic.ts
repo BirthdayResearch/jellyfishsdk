@@ -1,4 +1,4 @@
-import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
+import { SigningInterface, WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
 import {
   Transaction,
@@ -154,7 +154,7 @@ export class MnemonicHdNode implements WalletHdNode {
 /**
  * Provider that derive MnemonicHdNode from root. Uses a lite on demand derivation.
  */
-export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNode> {
+export class MnemonicHdNodeProvider extends WalletHdNodeProvider<MnemonicHdNode> {
   /**
    * @param {Buffer} seed of the hd node
    * @param {Bip32Options} options for chain agnostic generation of public/private keys
@@ -166,7 +166,8 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
 
   private readonly root: bip32.BIP32Interface
 
-  private constructor (root: bip32.BIP32Interface) {
+  private constructor (root: bip32.BIP32Interface, signingCb?: SigningInterface) {
+    super(signingCb)
     this.root = root
   }
 

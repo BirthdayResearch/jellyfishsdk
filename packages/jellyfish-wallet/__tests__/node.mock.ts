@@ -46,7 +46,7 @@ export class TestNode implements WalletHdNode {
   }
 }
 
-export class TestNodeProvider implements WalletHdNodeProvider<TestNode> {
+export class TestNodeProvider extends WalletHdNodeProvider<TestNode> {
   derive (path: string): TestNode {
     return new TestNode(path)
   }

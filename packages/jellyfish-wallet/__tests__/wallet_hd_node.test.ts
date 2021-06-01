@@ -1,5 +1,9 @@
+import { SmartBuffer } from 'smart-buffer'
 import { TestNodeProvider } from './node.mock'
-import { WalletHdNode } from '../src'
+import { SigningInterface, WalletHdNode } from '../src'
+import { CTransaction, OP_CODES, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction/dist'
+import BigNumber from 'bignumber.js'
+import { HASH160 } from '@defichain/jellyfish-crypto'
 
 it('should derive', () => {
   const provider = new TestNodeProvider()
@@ -46,5 +50,100 @@ describe("WalletHdNode: 44'/1129'/0'", () => {
       lockTime: 0
     }, [])
     ).rejects.toThrow()
+  })
+})
+
+const transaction: Transaction = {
+  version: 0x00000004,
+  lockTime: 0x00000000,
+  vin: [{
+    index: 0,
+    script: { stack: [] },
+    sequence: 4294967278,
+    txid: '9f96ade4b41d5433f4eda31e1738ec2b36f6e7d1420d94a6af99801a88f7f7ff'
+  }],
+  vout: [{
+    script: {
+      stack: [
+        OP_CODES.OP_0,
+        OP_CODES.OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
+      ]
+    },
+    value: new BigNumber('5.98'),
+    tokenId: 0x00
+  }]
+}
+
+const prevout: Vout = {
+  script: {
+    stack: [
+      OP_CODES.OP_0,
+      OP_CODES.OP_PUSHDATA(Buffer.from('1d0f172a0ecb48aee1be1f2687d2963ae33f71a1', 'hex'), 'little')
+    ]
+  },
+  value: new BigNumber('6'),
+  tokenId: 0x00
+}
+
+describe('WalletHdNodeProvider', () => {
+  let unsignedCalled: Array<{ buffer: Buffer, tx: Transaction }> = []
+  let signedCalled: Array<{ buffer: Buffer, tx: TransactionSegWit }> = []
+
+  const cb: SigningInterface = {
+    unsigned: async (buffer, tx) => {
+      unsignedCalled.push({ buffer, tx })
+    },
+    signed: async (buffer, tx) => {
+      signedCalled.push({ buffer, tx })
+    }
+  }
+
+  beforeEach(() => {
+    unsignedCalled = []
+    signedCalled = []
+  })
+
+  it('should throw if wallet hd node instance not stored in provider', async () => {
+    const provider = new TestNodeProvider(cb)
+    const node = provider.derive("44'/1129'/0'/0/0")
+    expect(node).toBeTruthy()
+
+    const pubKey = await node.publicKey()
+    await expect(provider.signTx(transaction, [{
+      ...prevout,
+      script: {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA(HASH160(pubKey), 'little')
+        ]
+      }
+    }])).rejects.toThrow('WalletHdNode is not derived, instantiate one by using via `deriveAndAssign` before calling `WalletHdNodeProvider.signTx`')
+  })
+
+  it('should be instantiable with SigningInterface callback', async () => {
+    const provider = new TestNodeProvider(cb)
+    const node = provider.deriveAndAssign("44'/1129'/0'/0/0")
+    expect(node).toBeTruthy()
+
+    const signedTx = await provider.signTx(transaction, [{
+      ...prevout,
+      script: {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+        ]
+      }
+    }])
+    expect(unsignedCalled.length).toStrictEqual(1)
+    expect(unsignedCalled[0].tx).toMatchObject(transaction)
+    const expectedUnsignedBuffer = new SmartBuffer()
+    new CTransaction(unsignedCalled[0].tx).toBuffer(expectedUnsignedBuffer)
+    expect(unsignedCalled[0].buffer.compare(expectedUnsignedBuffer.toBuffer()))
+
+    expect(signedCalled.length).toStrictEqual(1)
+    expect(signedCalled[0].tx).toMatchObject(signedTx)
+    const expectedSignedBuffer = new SmartBuffer()
+    new CTransaction(signedCalled[0].tx).toBuffer(expectedSignedBuffer)
+    expect(signedCalled[0].buffer.compare(expectedUnsignedBuffer.toBuffer()))
   })
 })
