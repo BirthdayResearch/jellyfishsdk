@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { UTXO } from '../../../src/category/token'
+import { RpcApiError } from '../../../src'
 
 describe('Token', () => {
   const container = new MasterNodeRegTestContainer()
@@ -57,6 +58,13 @@ describe('Token', () => {
 
     expect(tokenBalances.length).toStrictEqual(1)
     expect(tokenBalances[0]).toStrictEqual('5.00000000@1')
+  })
+
+  it('should not mintTokens for non-existence coin', async () => {
+    const promise = client.token.mintTokens('5@ETH')
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Invalid Defi token: ETH\', code: 0, method: minttokens')
   })
 
   it('should mintTokens with utxos', async () => {
