@@ -66,7 +66,7 @@ describe('Account with DBTC', () => {
     const promise = client.account.accountToUtxos(from, payload)
 
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test AccountToUtxosTx execution failed:only available for DFI transactions\', code: -32600, method: accounttoutxos')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test AccountToUtxosTx execution failed:\nonly available for DFI transactions\', code: -32600, method: accounttoutxos')
   })
 
   it('should accountToUtxos with utxos', async () => {
