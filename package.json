@@ -22,14 +22,14 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build": "tsc -b -v ./tsconfig.build.json",
+    "build": "lerna run build",
     "version": "lerna version $1 --yes --no-push --no-git-tag-version",
     "publish:next": "lerna exec -- npm publish --tag next --access public",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "standard": "ts-standard --fix",
     "test": "jest",
     "test:ci": "jest --ci --coverage --forceExit --maxWorkers=4",
-    "all": "npm run clean && npm run build && npm run standard && npm run test",
+    "all": "npm run build && npm run standard && npm run test",
     "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo"
   },
   "devDependencies": {
