@@ -7,11 +7,6 @@ const passphrase = Buffer.from('password', 'ascii')
 describe('Aes256', () => {
   let encrypted: Buffer
 
-  it('', () => {
-    encrypted = Aes256.encrypt(passphrase, privateKey)
-    expect(encrypted.length).toStrictEqual(48) // [16 bytes salt, 32 bytes cipher]
-  })
-
   it('encrypt', () => {
     encrypted = Aes256.encrypt(passphrase, privateKey)
     expect(encrypted.length).toStrictEqual(48) // [16 bytes salt, 32 bytes cipher]

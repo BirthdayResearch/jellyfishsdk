@@ -13,7 +13,6 @@ function encrypt (key: Buffer, data: Buffer): Buffer {
   sha256.update(key)
 
   const iv = crypto.randomBytes(16)
-  console.log('enc iv', iv.toString('hex'))
   const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, sha256.digest(), iv)
   const ciphertext = cipher.update(data)
   return Buffer.concat([iv, ciphertext, cipher.final()])
