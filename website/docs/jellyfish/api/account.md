@@ -259,7 +259,7 @@ enum TxType {
 
 interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: TxType
   no_rewards?: boolean
 }
 ```
