@@ -112,6 +112,10 @@ describe('update oracle', () => {
     const newProviders = await getProviders(container)
     const newScript = await newProviders.elliptic.script()
 
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    await providers.setupMocks() // required to move utxos
+
     // Store old address
     const oldOracleAddress = (await container.call('getoracledata', [oracleId])).address
 
