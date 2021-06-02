@@ -1,3 +1,6 @@
+/**
+ * Implementation reference: https://github.com/JamesMGreene/node-aes256
+ */
 import crypto from 'crypto'
 
 const CIPHER_ALGORITHM = 'aes-256-ctr'
@@ -20,9 +23,9 @@ function encrypt (key: Buffer, data: Buffer): Buffer {
 
 /**
  * Decrypt an encrypted message back to clear-text using AES-256 plus a random Initialization Vector.
- * @param {String} key  A passphrase of any length to used to generate a symmetric session key.
- * @param {String|Buffer} encrypted  The encrypted message to be decrypted.
- * @returns {String|Buffer} The original plain-text message or buffer.
+ * @param {Buffer} key A passphrase of any length to used to generate a symmetric session key.
+ * @param {Buffer} encrypted The encrypted message to be decrypted.
+ * @returns {Buffer} The original plain-text message or buffer.
  */
 function decrypt (key: Buffer, encrypted: Buffer): Buffer {
   if (encrypted.length < 17) {
