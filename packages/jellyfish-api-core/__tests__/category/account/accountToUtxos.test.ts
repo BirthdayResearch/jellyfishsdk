@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BalanceTransferPayload, UTXO } from '../../../src/category/account'
+import { BalanceTransferPayload } from '../../../src/category/account'
 import { RpcApiError } from '../../../src'
 
 describe('Account with DBTC', () => {
@@ -51,6 +51,7 @@ describe('Account with DBTC', () => {
     payload[await container.getNewAddress()] = '5@DFI'
 
     const data = await client.account.accountToUtxos(from, payload)
+    await container.generate(1)
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -72,22 +73,15 @@ describe('Account with DBTC', () => {
   it('should accountToUtxos with utxos', async () => {
     const balanceBefore = await container.call('getbalance')
 
-    const { txid } = await container.fundAddress(from, 10)
+    const { txid, vout } = await container.fundAddress(from, 10)
 
     const payload: BalanceTransferPayload = {}
     // NOTE(jingyi2811): Only support sending DFI from account to Utxos.
     payload[await container.getNewAddress()] = '5@DFI'
     payload[await container.getNewAddress()] = '5@DFI'
 
-    const utxos = await container.call('listunspent')
-    const inputs: UTXO[] = utxos.filter((utxo: UTXO) => utxo.txid === txid).map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    const data = await client.account.accountToUtxos(from, payload, { utxos: inputs })
+    const data = await client.account.accountToUtxos(from, payload, { utxos: [{ txid, vout }] })
+    await container.generate(1)
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
