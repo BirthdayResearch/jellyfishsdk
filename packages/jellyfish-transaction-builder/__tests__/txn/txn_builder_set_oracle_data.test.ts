@@ -8,6 +8,7 @@ import BigNumber from 'bignumber.js'
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
+let oracleId: string
 
 beforeAll(async () => {
   await container.start()
@@ -28,7 +29,7 @@ afterAll(async () => {
 
 describe('set oracle data', () => {
   beforeEach(async () => {
-    await container.waitForWalletBalanceGTE(11)
+    await container.waitForWalletBalanceGTE(12)
 
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
@@ -49,7 +50,7 @@ describe('set oracle data', () => {
       ]
     }, script)
 
-    const oracleId = calculateTxid(appointTxn)
+    oracleId = calculateTxid(appointTxn)
     await sendTransaction(container, appointTxn)
 
     // Set Oracle Data
@@ -91,5 +92,59 @@ describe('set oracle data', () => {
     expect(getOracleDataResult.tokenPrices[0].currency).toStrictEqual('USD')
     expect(getOracleDataResult.tokenPrices[0].amount).toStrictEqual(1.0)
     expect(getOracleDataResult.tokenPrices[0].timestamp).toStrictEqual(1621567932)
+  })
+
+  it('should update owner and then set oracle data', async () => {
+    const newProviders = await getProviders(container)
+    const newBuilder = new P2WPKHTransactionBuilder(newProviders.fee, newProviders.prevout, newProviders.elliptic)
+    const newAddressScript = await newProviders.elliptic.script()
+
+    // Fund 1 DFI UTXO
+    await fundEllipticPair(container, newProviders.ellipticPair, 1)
+    await newProviders.setupMocks() // required to move utxos
+
+    // Update Oracle
+    const updateTxn = await builder.oracles.updateOracle({
+      oracleId: oracleId,
+      script: newAddressScript,
+      weightage: 100,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        },
+        {
+          token: 'TEST',
+          currency: 'EUR'
+        },
+        {
+          token: 'TEST',
+          currency: 'JPY'
+        }
+      ]
+    }, newAddressScript)
+    await sendTransaction(container, updateTxn)
+
+    // Set Oracle Data
+    const setDataTxn = await newBuilder.oracles.setOracleData({
+      oracleId: oracleId,
+      timestamp: new BigNumber('1621567932'),
+      tokens: [
+        {
+          token: 'TEST',
+          prices: [
+            {
+              currency: 'USD',
+              amount: new BigNumber('2.0')
+            }
+          ]
+        }
+      ]
+    }, newAddressScript)
+    await sendTransaction(container, setDataTxn)
+
+    // Ensure oracle is updated and has correct values
+    const postUpdateOracleDataResult = await container.call('getoracledata', [oracleId])
+    expect(postUpdateOracleDataResult.tokenPrices[0].amount).toStrictEqual(2.0)
   })
 })

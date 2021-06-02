@@ -94,6 +94,52 @@ describe('update oracle', () => {
     expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('EUR')
   })
 
+  it('should update to new owner', async () => {
+    const newProviders = await getProviders(container)
+    const script = await newProviders.elliptic.script()
+
+    // Store old address
+    const oldOracleAddress = (await container.call('getoracledata', [oracleId])).address
+
+    // Update Oracle
+    const updateTxn = await builder.oracles.updateOracle({
+      oracleId: oracleId,
+      script: script,
+      weightage: 100,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        },
+        {
+          token: 'TEST',
+          currency: 'EUR'
+        },
+        {
+          token: 'TEST',
+          currency: 'JPY'
+        }
+      ]
+    }, script)
+
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, updateTxn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await newProviders.getAddress())
+
+    // Ensure you don't send all your balance away during update oracle
+    const prevouts = await newProviders.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    // Ensure oracle is updated and has correct values
+    const getOracleDataResult = await container.call('getoracledata', [oracleId])
+    expect(getOracleDataResult.address).not.toStrictEqual(oldOracleAddress)
+  })
+
   it('should reject invalid update oracle arg - weightage over 100', async () => {
     // Update Oracle
     const script = await providers.elliptic.script()
