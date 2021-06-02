@@ -31,7 +31,7 @@ export enum TxType {
   AUTO_AUTH_PREP = 'A'
 }
 
-type AccountRegexType = `${string}@${string}`
+type AccountRegexType = `${number}@${string}`
 
 /**
  * Account RPCs for DeFi Blockchain

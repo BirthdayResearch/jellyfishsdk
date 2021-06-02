@@ -116,7 +116,7 @@ interface account {
   utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
 }
 
-type AccountRegexType = `${string}@${string}`
+type AccountRegexType = `${number}@${string}`
 
 interface BalanceTransferPayload {
   [key: string]: AccountRegexType
@@ -138,7 +138,7 @@ interface account {
   accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type AccountRegexType = `${string}@${string}`
+type AccountRegexType = `${number}@${string}`
 
 interface BalanceTransferPayload {
   [key: string]: AccountRegexType
@@ -164,7 +164,7 @@ interface account {
   accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type AccountRegexType = `${string}@${string}`
+type AccountRegexType = `${number}@${string}`
 
 interface BalanceTransferPayload {
   [key: string]: AccountRegexType
