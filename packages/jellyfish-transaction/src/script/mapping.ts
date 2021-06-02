@@ -12,10 +12,12 @@ import * as stack from './stack'
 import * as bitwise from './bitwise'
 import {
   CPoolAddLiquidity,
+  CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
+  PoolCreatePair,
   PoolRemoveLiquidity,
   PoolSwap,
   PoolUpdatePair
@@ -155,6 +157,14 @@ export const OP_CODES = {
       type: CPoolRemoveLiquidity.OP_CODE,
       name: CPoolRemoveLiquidity.OP_NAME,
       data: poolRemoveLiquidity
+    })
+  },
+  OP_DEFI_TX_POOL_CREATE_PAIR: (poolCreatePair: PoolCreatePair): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPoolCreatePair.OP_CODE,
+      name: CPoolCreatePair.OP_NAME,
+      data: poolCreatePair
     })
   },
   OP_DEFI_TX_POOL_UPDATE_PAIR: (poolCreatePair: PoolUpdatePair): OP_DEFI_TX => {
