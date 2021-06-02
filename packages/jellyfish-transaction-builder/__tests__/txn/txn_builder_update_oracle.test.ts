@@ -135,19 +135,7 @@ describe('update oracle', () => {
         }
       ]
     }, newScript)
-
-    // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, updateTxn)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(10)
-    expect(outs[1].value).toBeGreaterThan(9.999)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await newProviders.getAddress())
-
-    // Ensure you don't send all your balance away during update oracle
-    const prevouts = await newProviders.prevout.all()
-    expect(prevouts.length).toStrictEqual(1)
-    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+    await sendTransaction(container, updateTxn)
 
     // Ensure oracle is updated and has correct values
     const getOracleDataResult = await container.call('getoracledata', [oracleId])
