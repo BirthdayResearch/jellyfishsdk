@@ -233,7 +233,7 @@ export class Account {
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
-   * @param {TxType | string} [options.txtype] Filter by transaction type. See TxType.
+   * @param {TxType} [options.txtype] Filter by transaction type. See TxType.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @return {Promise<AccountHistory[]>}
    */
@@ -285,7 +285,7 @@ export class Account {
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
-   * @param {TxType | string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @param {TxType} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
    * @return {Promise<number>} count of account history
    */
   async historyCount (
