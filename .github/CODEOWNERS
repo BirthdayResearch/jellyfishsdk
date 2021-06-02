@@ -18,6 +18,7 @@
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
+/packages/jellyfish-secured-storage             @ivan-zynesis
 
 /packages/jellyfish-transaction/                            @fuxingloh
 /packages/jellyfish-transaction/src/script/                 @fuxingloh @canonbrother @jingyi2811
