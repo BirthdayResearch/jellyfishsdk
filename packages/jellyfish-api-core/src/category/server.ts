@@ -9,6 +9,7 @@ export class Server {
 
   /**
    * Returns details of the RPC server
+   *
    * @return {Promise<RpcInfo>}
    */
   async getRpcInfo (): Promise<RpcInfo> {
