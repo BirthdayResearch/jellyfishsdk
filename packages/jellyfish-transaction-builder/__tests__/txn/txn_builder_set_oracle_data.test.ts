@@ -28,14 +28,14 @@ afterAll(async () => {
 
 describe('set oracle data', () => {
   beforeEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
-  })
+    await container.waitForWalletBalanceGTE(11)
 
-  it('should appoint and then set oracle data', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
+  })
 
+  it('should appoint and then set oracle data', async () => {
     // Appoint Oracle
     const script = await providers.elliptic.script()
     const appointTxn = await builder.oracles.appointOracle({
@@ -93,5 +93,3 @@ describe('set oracle data', () => {
     expect(getOracleDataResult.tokenPrices[0].timestamp).toStrictEqual(1621567932)
   })
 })
-
-// TODO(monstrobishi): test account state once RPC calls are in place
