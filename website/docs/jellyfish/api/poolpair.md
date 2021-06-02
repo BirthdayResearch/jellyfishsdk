@@ -160,3 +160,27 @@ interface PoolShareOptions {
   isMineOnly?: boolean
 }
 ```
+
+## poolSwap 
+
+Creates a poolswap transaction with given metadata.
+
+```ts title="client.poolpair.poolSwap()"
+interface PoolSwap {
+  poolSwap (metadata: PoolSwapMetadata, inputs?: PoolSwapInputs): Promise<string>
+}
+
+interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice: number
+}
+
+interface PoolSwapInputs {
+  txid: string
+  vout: number
+}
+```

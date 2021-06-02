@@ -104,6 +104,25 @@ export class PoolPair {
     const { isMineOnly = true } = options
     return await this.client.call('listpoolshares', [pagination, verbose, isMineOnly], 'bignumber')
   }
+
+  /**
+   * Creates a poolswap transaction with given metadata.
+   *
+   * @param {PoolSwapMetadata} metadata
+   * @param {string} [metadata.from] Address of the owner of tokenA.
+   * @param {string} [metadata.tokenFrom] One of the keys may be specified (id/symbol).
+   * @param {number} [metadata.amountFrom] tokenFrom coins amount.
+   * @param {string} [metadata.to] Address of the owner of tokenB.
+   * @param {string} [metadata.tokenTo] One of the keys may be specified (id/symbol).
+   * @param {number} [metadata.maxPrice] Maximum acceptable price.
+   * @param {Array<PoolSwapInputs>} inputs A json array of json objects.
+   * @param {string} [inputs.txid] The transaction id.
+   * @param {number} [inputs.vout] The output number.
+   * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
+   */
+  async poolSwap (metadata: PoolSwapMetadata, inputs?: PoolSwapInputs): Promise<string> {
+    return await this.client.call('poolswap', [metadata, inputs], 'bignumber')
+  }
 }
 
 export interface CreatePoolPairMetadata {
@@ -180,4 +199,18 @@ export interface AddPoolLiquidityUTXO {
 
 export interface PoolShareOptions {
   isMineOnly?: boolean
+}
+
+export interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice: number
+}
+
+export interface PoolSwapInputs {
+  txid: string
+  vout: number
 }
