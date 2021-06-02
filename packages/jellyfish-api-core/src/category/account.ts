@@ -378,7 +378,7 @@ export interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: string
+  txtype?: TxType | string
   limit?: number
 }
 
