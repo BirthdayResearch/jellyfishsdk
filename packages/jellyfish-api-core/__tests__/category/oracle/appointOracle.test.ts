@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { UTXO } from '../../../src/category/oracle'
+import { AppointOracleOptions, UTXO } from '../../../src/category/oracle'
 import { RpcApiError } from '../../../src'
 
 describe('Oracle', () => {
@@ -23,7 +23,11 @@ describe('Oracle', () => {
       { currency: 'EUR', token: 'TESLA' }
     ]
 
-    const data = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+    const options: AppointOracleOptions = {
+      weightage: 1
+    }
+
+    const data = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, options)
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -37,35 +41,14 @@ describe('Oracle', () => {
 
     const address = await container.getNewAddress()
     const utxos = await container.call('listunspent', [1, 9999999, [address], true])
-    const inputs: UTXO = utxos.map((utxo: UTXO) => {
+    const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
         vout: utxo.vout
       }
     })
 
-    const data = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: [inputs] })
-
-    expect(typeof data).toStrictEqual('string')
-    expect(data.length).toStrictEqual(64)
-  })
-
-  it('should appointOracle with utxos', async () => {
-    const priceFeeds = [
-      { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'TESLA' }
-    ]
-
-    const address = await container.getNewAddress()
-    const utxos = await container.call('listunspent', [1, 9999999, [address], true])
-    const inputs: UTXO = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    const data = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: [inputs] })
+    const data = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: inputs })
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -78,17 +61,9 @@ describe('Oracle', () => {
     ]
 
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
-    // const utxos = await container.call('listunspent')
-    // const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
-    //   return {
-    //     txid: utxo.txid,
-    //     vout: utxo.vout
-    //   }
-    // })
-
     const promise = client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1, utxos: [{ txid, vout }] })
 
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test AccountToUtxosTx execution failed:\nonly available for DFI transactions\', code: -32600, method: accounttoutxos')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test AppointOracleTx execution failed:\ntx not from foundation member\', code: -32600, method: appointoracle')
   })
 })

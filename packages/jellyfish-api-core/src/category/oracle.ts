@@ -11,7 +11,7 @@ export class Oracle {
   }
 
   /**
-   * Creates a appoint oracle transaction and saves oracle to database.
+   * Creates an appoint oracle transaction and saves the oracle to database.
    * @param {string} [address]
    * @param {PriceFeeds} priceFeeds
    * @param {AppointOracleOptions} [options]
@@ -22,9 +22,9 @@ export class Oracle {
    *
    * @return {Promise<string>}
    */
-  async appointOracle (address: string, pricefeeds: PriceFeeds[], options: AppointOracleOptions): Promise<string> {
-    // return await this.client.call('appointoracle', [address, pricefeeds, options.weightage, options.utxos = []], 'number')
-    return 'abc'
+  async appointOracle (address: string, pricefeeds: PriceFeeds[], options: AppointOracleOptions = {}): Promise<string> {
+    const { utxos = [] } = options
+    return await this.client.call('appointoracle', [address, pricefeeds, options.weightage, utxos], 'number')
   }
 }
 
@@ -34,7 +34,7 @@ export interface PriceFeeds {
 }
 
 export interface AppointOracleOptions {
-  weightage: number
+  weightage?: number
   utxos?: UTXO[]
 }
 
