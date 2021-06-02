@@ -30,8 +30,5 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist"
-  ],
-  "scripts": {
-    "build": "tsc -b ./tsconfig.build.json"
-  }
+  ]
 }

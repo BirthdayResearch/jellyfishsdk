@@ -31,9 +31,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "tsc -b ./tsconfig.build.json"
-  },
   "peerDependencies": {
     "bignumber.js": "^9.0.1"
   },

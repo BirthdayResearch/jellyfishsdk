@@ -31,9 +31,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "build": "tsc -b ./tsconfig.build.json"
-  },
   "dependencies": {
     "@defichain/jellyfish-json": "0.0.0"
   },
