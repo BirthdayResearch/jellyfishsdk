@@ -15,7 +15,8 @@ module.exports = {
         'jellyfish/api/wallet',
         'jellyfish/api/poolpair',
         'jellyfish/api/token',
-        'jellyfish/api/account'
+        'jellyfish/api/account',
+        'jellyfish/api/oracle'
       ]
     }
   ],

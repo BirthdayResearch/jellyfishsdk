@@ -8,21 +8,20 @@ slug: /jellyfish/api/oracle
 ```js
 import {Client} from '@defichain/jellyfish'
 const client = new Client()
-
 // Using client.oracle.
 const something = await client.oracle.method()
 ```
 
 ## appointOracle
 
-Creates an appoint oracle transaction and saves the oracle to database.
+Creates an oracle appointment transaction and saves it to the database.
 
 ```ts title="client.oracle.appointOracle()"
 interface oracle {
-  appointOracle (address: string, pricefeeds: PriceFeeds[], options: AppointOracleOptions = {}): Promise<string>
+  appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string>
 }
 
-interface PriceFeeds {
+interface PriceFeed {
   currency: string
   token: string
 }

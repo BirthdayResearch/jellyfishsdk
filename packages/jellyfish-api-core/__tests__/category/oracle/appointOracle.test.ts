@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { AppointOracleOptions, UTXO } from '../../../src/category/oracle'
+import { UTXO } from '../../../src/category/oracle'
 import { RpcApiError } from '../../../src'
 
 describe('Oracle', () => {
@@ -20,14 +20,10 @@ describe('Oracle', () => {
   it('should appointOracle', async () => {
     const priceFeeds = [
       { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'TESLA' }
+      { currency: 'EUR', token: 'APPLE' }
     ]
 
-    const options: AppointOracleOptions = {
-      weightage: 1
-    }
-
-    const data = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, options)
+    const data = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -36,7 +32,7 @@ describe('Oracle', () => {
   it('should appointOracle with utxos', async () => {
     const priceFeeds = [
       { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'TESLA' }
+      { currency: 'EUR', token: 'APPLE' }
     ]
 
     const address = await container.getNewAddress()
@@ -54,14 +50,17 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(64)
   })
 
-  it('should not accountToUtxos with utxos for arbitrary utxos', async () => {
+  it('should not appointOracle with arbitrary utxos', async () => {
     const priceFeeds = [
       { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'TESLA' }
+      { currency: 'EUR', token: 'APPLE' }
     ]
 
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
-    const promise = client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1, utxos: [{ txid, vout }] })
+    const promise = client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, {
+      weightage: 1,
+      utxos: [{ txid, vout }]
+    })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test AppointOracleTx execution failed:\ntx not from foundation member\', code: -32600, method: appointoracle')
