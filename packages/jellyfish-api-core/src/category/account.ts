@@ -348,7 +348,7 @@ export interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: TxType | string
+  txtype?: TxType
   limit?: number
 }
 
@@ -367,6 +367,6 @@ export interface UTXO {
 
 export interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: TxType
   no_rewards?: boolean
 }

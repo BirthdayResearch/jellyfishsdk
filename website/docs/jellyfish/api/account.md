@@ -161,7 +161,7 @@ interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: TxType | string
+  txtype?: TxType
   limit?: number
 }
 ```
@@ -253,7 +253,7 @@ enum TxType {
 
 interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: TxType
   no_rewards?: boolean
 }
 ```
