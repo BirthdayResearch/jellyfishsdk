@@ -8,8 +8,6 @@ const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
-let oracleId: string
-
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
@@ -50,7 +48,7 @@ describe('update oracle', () => {
       ]
     }, script)
 
-    oracleId = calculateTxid(appointTxn)
+    const oracleId = calculateTxid(appointTxn)
     await sendTransaction(container, appointTxn)
 
     // Update Oracle
@@ -95,8 +93,24 @@ describe('update oracle', () => {
   })
 
   it('should update to new owner', async () => {
+    // Appoint Oracle
+    const script = await providers.elliptic.script()
+    const appointTxn = await builder.oracles.appointOracle({
+      script: script,
+      weightage: 1,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        }
+      ]
+    }, script)
+
+    const oracleId = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
+
     const newProviders = await getProviders(container)
-    const script = await newProviders.elliptic.script()
+    const newScript = await newProviders.elliptic.script()
 
     // Store old address
     const oldOracleAddress = (await container.call('getoracledata', [oracleId])).address
@@ -104,7 +118,7 @@ describe('update oracle', () => {
     // Update Oracle
     const updateTxn = await builder.oracles.updateOracle({
       oracleId: oracleId,
-      script: script,
+      script: newScript,
       weightage: 100,
       priceFeeds: [
         {
@@ -120,7 +134,7 @@ describe('update oracle', () => {
           currency: 'JPY'
         }
       ]
-    }, script)
+    }, newScript)
 
     // Ensure the created txn is correct.
     const outs = await sendTransaction(container, updateTxn)
@@ -144,7 +158,7 @@ describe('update oracle', () => {
     // Update Oracle
     const script = await providers.elliptic.script()
     await expect(builder.oracles.updateOracle({
-      oracleId: oracleId,
+      oracleId: '80efea267c9901ab37ee5a57045ee61fc86c988a207b8b4c7bab4e59e4b1b71b',
       script: script,
       weightage: 200,
       priceFeeds: [

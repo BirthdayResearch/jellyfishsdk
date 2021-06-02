@@ -8,7 +8,6 @@ import BigNumber from 'bignumber.js'
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
-let oracleId: string
 
 beforeAll(async () => {
   await container.start()
@@ -50,7 +49,7 @@ describe('set oracle data', () => {
       ]
     }, script)
 
-    oracleId = calculateTxid(appointTxn)
+    const oracleId = calculateTxid(appointTxn)
     await sendTransaction(container, appointTxn)
 
     // Set Oracle Data
@@ -95,6 +94,22 @@ describe('set oracle data', () => {
   })
 
   it('should update owner and then set oracle data', async () => {
+    // Appoint Oracle
+    const script = await providers.elliptic.script()
+    const appointTxn = await builder.oracles.appointOracle({
+      script: script,
+      weightage: 1,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        }
+      ]
+    }, script)
+
+    const oracleId = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
+
     const newProviders = await getProviders(container)
     const newBuilder = new P2WPKHTransactionBuilder(newProviders.fee, newProviders.prevout, newProviders.elliptic)
     const newAddressScript = await newProviders.elliptic.script()
