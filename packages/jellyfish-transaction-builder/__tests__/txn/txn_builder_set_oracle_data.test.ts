@@ -3,6 +3,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
+import BigNumber from 'bignumber.js'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -25,12 +26,12 @@ afterAll(async () => {
   await container.stop()
 })
 
-describe('remove oracle', () => {
+describe('set oracle data', () => {
   beforeEach(async () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  it('should appoint and then remove oracle', async () => {
+  it('should appoint and then set oracle data', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
@@ -48,33 +49,49 @@ describe('remove oracle', () => {
       ]
     }, script)
 
-    const txid = calculateTxid(appointTxn)
+    const oracleId = calculateTxid(appointTxn)
     await sendTransaction(container, appointTxn)
 
-    // Ensure oracle is created
-    const listOraclesResult = await container.call('listoracles')
-    expect(listOraclesResult.length).toStrictEqual(1)
-
-    // Remove Oracle
-    const removeTxn = await builder.oracles.removeOracle({
-      oracleId: txid
+    // Set Oracle Data
+    const setDataTxn = await builder.oracles.setOracleData({
+      oracleId: oracleId,
+      timestamp: new BigNumber('1621567932'),
+      tokens: [
+        {
+          token: 'TEST',
+          prices: [
+            {
+              currency: 'USD',
+              amount: new BigNumber('1.0')
+            }
+          ]
+        }
+      ]
     }, script)
 
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, removeTxn)
+    const outs = await sendTransaction(container, setDataTxn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    // Ensure you don't send all your balance away during appoint oracle
+    // Ensure you don't send all your balance away during set oracle data
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-    // Ensure oracle is removed
-    const removedlistOraclesResult = await container.call('listoracles')
-    expect(removedlistOraclesResult.length).toStrictEqual(0)
+    // Ensure oracle is updated and has correct values
+    const getOracleDataResult = await container.call('getoracledata', [oracleId])
+    expect(getOracleDataResult.priceFeeds.length).toStrictEqual(1)
+    expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('USD')
+    expect(getOracleDataResult.tokenPrices[0].token).toStrictEqual('TEST')
+    expect(getOracleDataResult.tokenPrices[0].currency).toStrictEqual('USD')
+    expect(getOracleDataResult.tokenPrices[0].amount).toStrictEqual(1.0)
+    expect(getOracleDataResult.tokenPrices[0].timestamp).toStrictEqual(1621567932)
   })
 })
+
+// TODO(monstrobishi): test account state once RPC calls are in place

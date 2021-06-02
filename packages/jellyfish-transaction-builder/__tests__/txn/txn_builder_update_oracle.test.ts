@@ -8,6 +8,8 @@ const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
+let oracleId: string
+
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
@@ -25,19 +27,19 @@ afterAll(async () => {
   await container.stop()
 })
 
-describe('appoint oracle', () => {
+describe('update oracle', () => {
   beforeEach(async () => {
     await container.waitForWalletBalanceGTE(1)
   })
 
-  it('should appoint oracle(s)', async () => {
+  it('should appoint and then update oracle', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
 
     // Appoint Oracle
     const script = await providers.elliptic.script()
-    const txn = await builder.oracles.appointOracle({
+    const appointTxn = await builder.oracles.appointOracle({
       script: script,
       weightage: 1,
       priceFeeds: [
@@ -48,40 +50,14 @@ describe('appoint oracle', () => {
       ]
     }, script)
 
-    // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(10)
-    expect(outs[1].value).toBeGreaterThan(9.999)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    oracleId = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
 
-    // Ensure you don't send all your balance away during appoint oracle
-    const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toStrictEqual(1)
-    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
-
-    // Ensure oracle is created and has correct values
-    const listOraclesResult = await container.call('listoracles')
-    expect(listOraclesResult.length).toBeGreaterThanOrEqual(1)
-
-    const txid = calculateTxid(txn)
-    const getOracleDataResult = await container.call('getoracledata', [txid])
-    expect(getOracleDataResult.priceFeeds.length).toStrictEqual(1)
-    expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
-    expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('USD')
-  })
-
-  it('should appoint oracle with multiple currencies', async () => {
-    // Fund 10 DFI UTXO
-    await fundEllipticPair(container, providers.ellipticPair, 10)
-    await providers.setupMocks() // required to move utxos
-
-    // Appoint Oracle
-    const script = await providers.elliptic.script()
-    const txn = await builder.oracles.appointOracle({
+    // Update Oracle
+    const updateTxn = await builder.oracles.updateOracle({
+      oracleId: oracleId,
       script: script,
-      weightage: 1,
+      weightage: 100,
       priceFeeds: [
         {
           token: 'TEST',
@@ -99,33 +75,30 @@ describe('appoint oracle', () => {
     }, script)
 
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(container, updateTxn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    // Ensure you don't send all your balance away during appoint oracle
+    // Ensure you don't send all your balance away during update oracle
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-    // Ensure oracle is created and has correct values
-    const listOraclesResult = await container.call('listoracles')
-    expect(listOraclesResult.length).toBeGreaterThanOrEqual(1)
-
-    const txid = calculateTxid(txn)
-    const getOracleDataResult = await container.call('getoracledata', [txid])
+    // Ensure oracle is updated and has correct values
+    const getOracleDataResult = await container.call('getoracledata', [oracleId])
     expect(getOracleDataResult.priceFeeds.length).toStrictEqual(3)
     expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
     expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('EUR')
   })
 
-  it('should reject invalid appoint oracle arg - weightage over 100', async () => {
-    // Appoint Oracle
+  it('should reject invalid update oracle arg - weightage over 100', async () => {
+    // Update Oracle
     const script = await providers.elliptic.script()
-    await expect(builder.oracles.appointOracle({
+    await expect(builder.oracles.updateOracle({
+      oracleId: oracleId,
       script: script,
       weightage: 200,
       priceFeeds: [
@@ -134,6 +107,6 @@ describe('appoint oracle', () => {
           currency: 'USD'
         }
       ]
-    }, script)).rejects.toThrow('Conversion input `appointOracle.weightage` must be above `0` and below `101`')
+    }, script)).rejects.toThrow('Conversion input `updateOracle.weightage` must be above `0` and below `101`')
   })
 })
