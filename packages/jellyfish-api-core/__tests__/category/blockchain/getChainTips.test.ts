@@ -9,6 +9,7 @@ describe('ChainTips', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
+    await container.waitForBlock(1)
   })
 
   afterAll(async () => {
