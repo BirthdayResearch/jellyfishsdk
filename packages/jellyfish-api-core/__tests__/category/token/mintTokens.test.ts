@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { UTXO } from '../../../src/category/token'
 import { RpcApiError } from '../../../src'
 
 describe('Token', () => {
@@ -72,17 +71,9 @@ describe('Token', () => {
 
     expect(tokenBalances.length).toStrictEqual(1)
 
-    const { txid } = await container.fundAddress(from, 10)
+    const { txid, vout } = await container.fundAddress(from, 10)
 
-    const utxos = await container.call('listunspent')
-    const inputs: UTXO[] = utxos.filter((utxo: UTXO) => utxo.txid === txid).map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    const data = await client.token.mintTokens('5@DETH', inputs)
+    const data = await client.token.mintTokens('5@DETH', [{ txid, vout }])
 
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)

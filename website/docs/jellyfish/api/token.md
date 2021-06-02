@@ -144,7 +144,7 @@ interface token {
   mintTokens (payload: TokenRegexType, utxos: UTXO[] = []): Promise<string>
 }
 
-type TokenRegexType = `${string}@${string}`
+type TokenRegexType = `${number}@${string}`
 
 interface UTXO {
   txid: string

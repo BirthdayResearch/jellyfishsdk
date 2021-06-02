@@ -1,6 +1,6 @@
 import { ApiClient } from '../.'
 
-type TokenRegexType = `${string}@${string}`
+type TokenRegexType = `${number}@${string}`
 
 /**
  * Token RPCs for DeFi Blockchain
