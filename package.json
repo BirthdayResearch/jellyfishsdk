@@ -22,7 +22,7 @@
   },
   "scripts": {
     "prepare": "husky install",
-    "build": "tsc -b -v ./tsconfig.build.json && cd ./packages/jellyfish && npm run build",
+    "build": "tsc -b -v ./tsconfig.build.json",
     "version": "lerna version $1 --yes --no-push --no-git-tag-version",
     "publish:next": "lerna exec -- npm publish --tag next --access public",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
