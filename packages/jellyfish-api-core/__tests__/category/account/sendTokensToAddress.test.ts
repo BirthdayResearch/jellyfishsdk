@@ -47,28 +47,28 @@ describe('SendTokenToAddress', () => {
 
   it('should create a transaction with auto select (empty source address)', async () => {
     const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: '2@DFI' })
+    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] })
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Pie selection Mode', async () => {
     const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: '2@DFI' }, SelectionModeType.PIE)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] }, SelectionModeType.PIE)
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Forward selection mode', async () => {
     const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: '2@DFI' }, SelectionModeType.FORWARD)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] }, SelectionModeType.FORWARD)
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Crumbs selection mode', async () => {
     const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: '2@DFI' }, SelectionModeType.CRUMBS)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] }, SelectionModeType.CRUMBS)
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
@@ -82,7 +82,7 @@ describe('SendTokenToAddress', () => {
 
   it('should create a transaction with source address provided', async () => {
     const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [from]: '10@ETH' }, { [to]: '10@ETH' })
+    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['10@ETH'] }, { [to]: ['10@ETH'] })
 
     expect(typeof transactionHex).toStrictEqual('string')
   })

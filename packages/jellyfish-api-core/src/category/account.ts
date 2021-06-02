@@ -390,5 +390,5 @@ export interface AccountHistoryCountOptions {
 }
 
 export interface Address {
-  [key: string]: AccountRegexType | AccountRegexType[]
+  [key: string]: AccountRegexType[]
 }
