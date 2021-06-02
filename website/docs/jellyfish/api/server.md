@@ -13,7 +13,6 @@ const client = new Client()
 const something = await client.server.method()
 ```
 
-
 ## getRpcInfo
 
 Returns details of the RPC server.
@@ -25,13 +24,13 @@ interface server {
   getRpcInfo (): Promise<RpcInfo>
 }
 
-interface ActiveCommand {
-  method: string
-  duration: number
-}
-
 interface RpcInfo {
   active_commands: ActiveCommand[]
   logpath: string
+}
+
+interface ActiveCommand {
+  method: string
+  duration: number
 }
 ```
