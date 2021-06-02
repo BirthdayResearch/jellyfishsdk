@@ -86,6 +86,11 @@ describe('Token on masternode', () => {
     await createToken('DBTC', { isDAT: true })
     await createToken('DNOTMINT', { mintable: false })
     await createToken('DNOTTRAD', { tradeable: false })
+    await container.generate(1)
+  })
+
+  afterAll(async () => {
+    await container.stop()
   })
 
   async function createToken (symbol: string, metadata?: any): Promise<void> {
@@ -100,10 +105,6 @@ describe('Token on masternode', () => {
     }
     await client.token.createToken({ ...defaultMetadata, ...metadata })
   }
-
-  afterAll(async () => {
-    await container.stop()
-  })
 
   it('should listTokens', async () => {
     await waitForExpect(async () => {
