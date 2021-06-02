@@ -1,36 +1,41 @@
-# Define individuals that are responsible for code in a repository.
+# Define individuals that are responsible for code in this repository.
 # More details are here: https://help.github.com/articles/about-codeowners/
 
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh
 /.idea/                                         @fuxingloh @jingyi2811 @thedoublejay
 
-/website/                                       @fuxingloh @canonbrother
+/website/                                       @fuxingloh @canonbrother @jingyi2811
 
 /packages/jellyfish/                            @fuxingloh
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
-/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @thedoublejay
+
+/packages/jellyfish-api-core/                               @fuxingloh @canonbrother @jingyi2811 @thedoublejay
+/packages/jellyfish-api-core/src/category/icx.ts            @fuxingloh @canonbrother @jingyi2811 @thedoublejay @monstrobishi @surangap
+/packages/jellyfish-api-core/src/category/oracle.ts         @fuxingloh @canonbrother @jingyi2811 @thedoublejay @monstrobishi @surangap
+
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
-/packages/jellyfish-crypto/                     @fuxingloh
+/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
 
-/packages/jellyfish-transaction/                          @fuxingloh
-/packages/jellyfish-transaction/src/script/               @fuxingloh @canonbrother @jingyi2811
-/packages/jellyfish-transaction/src/script/defi/          @fuxingloh @canonbrother
+/packages/jellyfish-transaction/                            @fuxingloh
+/packages/jellyfish-transaction/src/script/                 @fuxingloh @canonbrother @jingyi2811
+/packages/jellyfish-transaction/src/script/buffer/          @fuxingloh @canonbrother @ivan-zynesis
+/packages/jellyfish-transaction/src/script/defi/            @fuxingloh @canonbrother @ivan-zynesis @monstrobishi
 
-/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis
+/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/testcontainers/                       @fuxingloh
 /packages/testing/                              @fuxingloh @canonbrother
 
-lerna.json                                      @fuxingloh
-tsconfig.json                                   @fuxingloh
-jest.config.js                                  @fuxingloh
+lerna.json                                      @fuxingloh @canonbrother
+tsconfig.json                                   @fuxingloh @canonbrother
+jest.config.js                                  @fuxingloh @canonbrother
 package.json                                    @fuxingloh
 package-lock.json                               @fuxingloh
 
-CONTRIBUTING.md                                 @fuxingloh @canonbrother
+CONTRIBUTING.md                                 @fuxingloh @canonbrother @jingyi2811
 README.md                                       @fuxingloh
 LICENSE                                         @fuxingloh
