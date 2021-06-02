@@ -4,37 +4,37 @@ import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 
-const container = new MasterNodeRegTestContainer()
-let providers: MockProviders
-let builder: P2WPKHTransactionBuilder
-
-beforeAll(async () => {
-  await container.start()
-  await container.waitForReady()
-  await container.waitForWalletCoinbaseMaturity()
-
-  providers = await getProviders(container)
-  providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
-
-  // Prep 1000 DFI Token for testing
-  await container.waitForWalletBalanceGTE(1001)
-})
-
-afterAll(async () => {
-  await container.stop()
-})
-
 describe('appoint oracle', () => {
-  beforeEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
+  const container = new MasterNodeRegTestContainer()
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+
+    // Prep 1000 DFI Token for testing
+    await container.waitForWalletBalanceGTE(1001)
   })
 
-  it('should appoint oracle(s)', async () => {
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  beforeEach(async () => {
+    await container.waitForWalletBalanceGTE(11)
+
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
+  })
 
+  it('should appoint oracle(s)', async () => {
     // Appoint Oracle
     const script = await providers.elliptic.script()
     const txn = await builder.oracles.appointOracle({
@@ -72,11 +72,53 @@ describe('appoint oracle', () => {
     expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('USD')
   })
 
-  it('should appoint oracle with multiple currencies', async () => {
+  it('should reject invalid appoint oracle arg - weightage over 100', async () => {
+    // Appoint Oracle
+    const script = await providers.elliptic.script()
+    await expect(builder.oracles.appointOracle({
+      script: script,
+      weightage: 200,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        }
+      ]
+    }, script)).rejects.toThrow('Conversion input `appointOracle.weightage` must be above `0` and below `101`')
+  })
+})
+
+describe('appoint oracle', () => {
+  const container = new MasterNodeRegTestContainer()
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+
+    // Prep 1000 DFI Token for testing
+    await container.waitForWalletBalanceGTE(1001)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  beforeEach(async () => {
+    await container.waitForWalletBalanceGTE(11)
+
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
+  })
 
+  it('should appoint oracle with multiple currencies', async () => {
     // Appoint Oracle
     const script = await providers.elliptic.script()
     const txn = await builder.oracles.appointOracle({

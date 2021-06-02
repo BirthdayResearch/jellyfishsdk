@@ -1203,3 +1203,47 @@ describe('ComposableBuffer.bitmask1Byte', () => {
     })
   })
 })
+
+describe('ComposableBuffer.uBool8', () => {
+  let bool = true
+  const composer = ComposableBuffer.uBool8(() => bool, (v: boolean) => bool = v)
+  const expectedFalseBuffer = Buffer.from('00', 'hex')
+  const expectedTrueBuffer = Buffer.from('01', 'hex')
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedFalseBuffer))
+    expect(bool).toStrictEqual(false)
+
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedTrueBuffer))
+    expect(bool).toStrictEqual(true)
+  })
+
+  it('should toBuffer', () => {
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual('01')
+  })
+})
+
+describe('ComposableBuffer.uBool32', () => {
+  let bool = true
+  const composer = ComposableBuffer.uBool32(() => bool, (v: boolean) => bool = v)
+  const expectedFalseBuffer = Buffer.from('00000000', 'hex')
+  const expectedTrueBuffer = Buffer.from('00000001', 'hex')
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedFalseBuffer))
+    expect(bool).toStrictEqual(false)
+
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedTrueBuffer))
+    expect(bool).toStrictEqual(true)
+  })
+
+  it('should toBuffer', () => {
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual('00000001')
+  })
+})

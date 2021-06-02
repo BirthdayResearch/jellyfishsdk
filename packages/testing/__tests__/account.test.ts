@@ -12,7 +12,7 @@ beforeAll(async () => {
   await container.start()
   await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(300)
+  await container.waitForWalletBalanceGTE(1000000)
 })
 
 afterAll(async () => {
@@ -22,12 +22,12 @@ afterAll(async () => {
 describe('utxosToAccount', () => {
   it('should utxosToAccount', async () => {
     const balanceBefore = await container.call('getbalance')
-    expect(balanceBefore).toBeGreaterThanOrEqual(300)
+    expect(balanceBefore).toBeGreaterThanOrEqual(1000000)
 
-    await utxosToAccount(container, 100)
+    await utxosToAccount(container, 1000000)
 
     const balanceAfter = await container.call('getbalance')
-    expect(balanceAfter).toBeLessThan(300)
+    expect(balanceAfter).toBeLessThan(balanceBefore - 1000000 + 1000) // extra 1000 due to block gen
   })
 })
 

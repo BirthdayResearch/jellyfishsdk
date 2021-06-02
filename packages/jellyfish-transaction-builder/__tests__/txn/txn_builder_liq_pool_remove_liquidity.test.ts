@@ -48,7 +48,6 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await providers.randomizeEllipticPair()
-  await providers.setupMocks() // required to move utxos
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
   await container.waitForWalletBalanceGTE(1)
@@ -64,6 +63,7 @@ beforeEach(async () => {
 
   // Fund 1 DFI UTXOS for fee
   await fundEllipticPair(container, providers.ellipticPair, 1)
+  await providers.setupMocks() // required to move utxos
 
   // Ensure starting balances
   await container.generate(1)

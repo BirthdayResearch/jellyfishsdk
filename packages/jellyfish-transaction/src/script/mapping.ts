@@ -12,11 +12,15 @@ import * as stack from './stack'
 import * as bitwise from './bitwise'
 import {
   CPoolAddLiquidity,
+  CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CPoolUpdatePair,
   PoolAddLiquidity,
+  PoolCreatePair,
   PoolRemoveLiquidity,
-  PoolSwap
+  PoolSwap,
+  PoolUpdatePair
 } from './defi/dftx_pool'
 import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './defi/dftx_token'
 import {
@@ -153,6 +157,22 @@ export const OP_CODES = {
       type: CPoolRemoveLiquidity.OP_CODE,
       name: CPoolRemoveLiquidity.OP_NAME,
       data: poolRemoveLiquidity
+    })
+  },
+  OP_DEFI_TX_POOL_CREATE_PAIR: (poolCreatePair: PoolCreatePair): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPoolCreatePair.OP_CODE,
+      name: CPoolCreatePair.OP_NAME,
+      data: poolCreatePair
+    })
+  },
+  OP_DEFI_TX_POOL_UPDATE_PAIR: (poolCreatePair: PoolUpdatePair): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPoolUpdatePair.OP_CODE,
+      name: CPoolUpdatePair.OP_NAME,
+      data: poolCreatePair
     })
   },
   OP_DEFI_TX_TOKEN_MINT: (tokenMint: TokenMint): OP_DEFI_TX => {
