@@ -1,4 +1,4 @@
-import { Storage, ScryptStorage } from '../src'
+import { ScryptStorage, Storage, SimpleScryptsy } from '../src'
 
 // Mock storage
 let inMemory: string | undefined
@@ -7,12 +7,14 @@ const storage: Storage = {
   setter: async (encrypted: string | undefined) => { inMemory = encrypted }
 }
 
+const scryptProvider = new SimpleScryptsy()
+
 // 32 bytes
 const samplePublicKey = 'e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
 
 it('Should be able to encrypt / decrypt', async () => {
   const pass = 'password'
-  const scryptStorage = new ScryptStorage(storage)
+  const scryptStorage = new ScryptStorage(scryptProvider, storage)
 
   const privateKey = Buffer.from(samplePublicKey, 'hex')
   await scryptStorage.encrypt(privateKey, pass)
@@ -27,7 +29,7 @@ it('Should be able to encrypt / decrypt', async () => {
 it('Should be able to encrypt / decrypt - simple passphrase', async () => {
   // let say a 6 digit pin
   const pass = '135790'
-  const scryptStorage = new ScryptStorage(storage)
+  const scryptStorage = new ScryptStorage(scryptProvider, storage)
 
   const privateKey = Buffer.from(samplePublicKey, 'hex')
   await scryptStorage.encrypt(privateKey, pass)
@@ -39,7 +41,7 @@ it('Should be able to encrypt / decrypt - simple passphrase', async () => {
 it('decrypt() - should return null when no data in storage', async () => {
   // let say a 6 digit pin
   const pass = 'password'
-  const scryptStorage = new ScryptStorage(storage)
+  const scryptStorage = new ScryptStorage(scryptProvider, storage)
 
   const decrypted = await scryptStorage.decrypt(pass)
   expect(decrypted).toStrictEqual(null)
@@ -48,7 +50,7 @@ it('decrypt() - should return null when no data in storage', async () => {
 it('Should work with variable data length', async () => {
   const longData = 'aabbccddeeffe9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
   const pass = 'password'
-  const scryptStorage = new ScryptStorage(storage)
+  const scryptStorage = new ScryptStorage(scryptProvider, storage)
 
   const data = Buffer.from(longData, 'hex')
   await scryptStorage.encrypt(data, pass)
@@ -60,7 +62,7 @@ it('Should work with variable data length', async () => {
 it('Should work with variable data length', async () => {
   const shortData = 'ffaa'
   const pass = 'password'
-  const scryptStorage = new ScryptStorage(storage)
+  const scryptStorage = new ScryptStorage(scryptProvider, storage)
 
   const data = Buffer.from(shortData, 'hex')
   await scryptStorage.encrypt(data, pass)
@@ -72,7 +74,7 @@ it('Should work with variable data length', async () => {
 it('Should reject odd number data length', async () => {
   const oddNumberLen = 'ffaabb'
   const pass = 'password'
-  const scryptStorage = new ScryptStorage(storage)
+  const scryptStorage = new ScryptStorage(scryptProvider, storage)
 
   const data = Buffer.from(oddNumberLen, 'hex')
   await expect(async () => {
