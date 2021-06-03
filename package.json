@@ -35,7 +35,6 @@
   "devDependencies": {
     "@size-limit/preset-app": "^4.10.1",
     "@types/jest": "^26.0.22",
-    "@types/scryptsy": "^2.0.0",
     "husky": "^6.0.0",
     "jest": "^26.6.3",
     "lerna": "^4.0.0",
@@ -56,8 +55,5 @@
       "path": "packages/jellyfish/dist/index.umd.js",
       "limit": "1000 ms"
     }
-  ],
-  "dependencies": {
-    "scryptsy": "^2.1.0"
-  }
+  ]
 }
