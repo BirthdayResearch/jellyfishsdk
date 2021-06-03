@@ -1,14 +1,5 @@
 import { StaticCode } from './opcode'
 
-/**
- * Marks transaction as invalid.
- */
-export class OP_RETURN extends StaticCode {
-  constructor () {
-    super(0x6a, 'OP_RETURN')
-  }
-}
-
 export class OP_NOP extends StaticCode {
   constructor () {
     super(0x61, 'OP_NOP')
@@ -60,5 +51,14 @@ export class OP_ENDIF extends StaticCode {
 export class OP_VERIFY extends StaticCode {
   constructor () {
     super(0x69, 'OP_VERIFY')
+  }
+}
+
+/**
+ * Marks transaction as invalid.
+ */
+export class OP_RETURN extends StaticCode {
+  constructor () {
+    super(0x6a, 'OP_RETURN')
   }
 }
