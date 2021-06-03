@@ -11,7 +11,7 @@ export class Oracle {
   }
 
   /**
-   * Creates an oracle appointment transaction and saves it to the database.
+   * Creates a price oracle for rely of real time price data.
    *
    * @param {string} address
    * @param {PriceFeed[]} priceFeeds

@@ -23,10 +23,26 @@ describe('Oracle', () => {
       { currency: 'EUR', token: 'APPLE' }
     ]
 
-    const data = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+    const txid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
 
-    expect(typeof data).toStrictEqual('string')
-    expect(data.length).toStrictEqual(64)
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const result = await container.call('getoracledata', [txid])
+    expect(result).toStrictEqual(
+      {
+        weightage: 1,
+        oracleid: txid,
+        address: expect.any(String), // This is an oracle address, not the address in line 26
+        priceFeeds: [
+          { token: 'APPLE', currency: 'EUR' },
+          { token: 'TESLA', currency: 'USD' }
+        ],
+        tokenPrices: []
+      }
+    )
   })
 
   it('should appointOracle with utxos', async () => {
@@ -44,10 +60,26 @@ describe('Oracle', () => {
       }
     })
 
-    const data = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: inputs })
+    const txid = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: inputs })
 
-    expect(typeof data).toStrictEqual('string')
-    expect(data.length).toStrictEqual(64)
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const result = await container.call('getoracledata', [txid])
+    expect(result).toStrictEqual(
+      {
+        weightage: 1,
+        oracleid: txid,
+        address: expect.any(String), // This is an oracle address, not the address in line 54
+        priceFeeds: [
+          { token: 'APPLE', currency: 'EUR' },
+          { token: 'TESLA', currency: 'USD' }
+        ],
+        tokenPrices: []
+      }
+    )
   })
 
   it('should not appointOracle with arbitrary utxos', async () => {
