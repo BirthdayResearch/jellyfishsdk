@@ -94,6 +94,56 @@ interface CreateWalletResult {
 }
 ```
 
+## getTransaction
+
+Get detailed information about in-wallet transaction
+
+```ts title="client.wallet.getTransaction()"
+interface wallet {
+  getTransaction (txid: string, includeWatchOnly: boolean = true): Promise<InWalletTransaction>
+}
+
+interface InWalletTransaction {
+  amount: number
+  fee: number
+  confirmations: number
+  blockhash: string
+  blockindex: number
+  blocktime: number
+  txid: string
+  time: number
+  timereceived: number
+  bip125replaceable: BIP125
+  details: WalletTransactionDetail[]
+  hex: string
+}
+
+interface InWalletTransactionDetail {
+  address: string
+  category: WalletTransactionCategory
+  amount: number
+  label: string
+  vout: number
+  fee: number
+  abandoned: boolean
+}
+
+enum BIP125 {
+  YES = 'YES',
+  NO = 'NO',
+  UNKNOWN = 'UNKNOWN'
+
+}
+
+enum InWalletTransactionCategory {
+    SEND = "SEND",
+    RECEIVE = "RECEIVE",
+    GENERATE = "GENERATE",
+    IMMATURE = "IMMATURE",
+    ORPHAN = "ORPHAN"
+}
+```
+
 ## getWalletInfo
 
 Return object containing various wallet state info.
