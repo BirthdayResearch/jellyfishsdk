@@ -46,10 +46,10 @@ labels:
     matcher:
       files: "packages/jellyfish-network/**"
 
-  - label: area/jellyfish-secured-storage
+  - label: area/jellyfish-wallet-encrypted
     sync: true
     matcher:
-      files: "packages/jellyfish-secured-storage/**"
+      files: "packages/jellyfish-wallet-encrypted/**"
 
   - label: area/jellyfish-transaction
     sync: true

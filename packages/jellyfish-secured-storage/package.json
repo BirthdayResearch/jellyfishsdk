@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/jellyfish-secured-storage",
+  "name": "@defichain/jellyfish-wallet-encrypted",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
   "keywords": [
