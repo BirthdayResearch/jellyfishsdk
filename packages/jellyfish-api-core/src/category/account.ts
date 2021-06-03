@@ -37,7 +37,7 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
-type AccountRegexType = `${string}@${string}`
+type AccountRegexType = `${number}@${string}`
 
 /**
  * Account RPCs for DeFi Blockchain

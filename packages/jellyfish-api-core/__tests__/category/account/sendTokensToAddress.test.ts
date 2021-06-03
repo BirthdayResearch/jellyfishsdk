@@ -46,50 +46,43 @@ describe('SendTokenToAddress', () => {
   }
 
   it('should create a transaction with auto select (empty source address)', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] })
+    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] })
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Pie selection Mode', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] }, SelectionModeType.PIE)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] }, SelectionModeType.PIE)
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Forward selection mode', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] }, SelectionModeType.FORWARD)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] }, SelectionModeType.FORWARD)
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Crumbs selection mode', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@DFI'] }, SelectionModeType.CRUMBS)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] }, SelectionModeType.CRUMBS)
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with multiple destination address tokens', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [to]: ['2@ETH', '0.1@DBTC', '10@DFI'] })
+    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@ETH', '0.1@DBTC', '10@DFI'] })
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with source address provided', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['10@ETH'] }, { [to]: ['10@ETH'] })
+    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['10@ETH'] }, { [await client.wallet.getNewAddress()]: ['10@ETH'] })
 
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with multiple source address tokens provided', async () => {
-    const to = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['2@DBTC', '10@ETH'] }, { [to]: ['2@DBTC', '10@ETH'] })
+    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['2@DBTC', '10@ETH'] }, { [await client.wallet.getNewAddress()]: ['2@DBTC', '10@ETH'] })
 
     expect(typeof transactionHex).toStrictEqual('string')
   })

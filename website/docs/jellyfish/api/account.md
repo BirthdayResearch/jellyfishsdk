@@ -274,7 +274,7 @@ interface Account {
   sendTokensToAddress (from: AddressBalances, to: AddressBalances, selectionMode: SelectionModeType = SelectionModeType.PIE): Promise<string>
 }
 
-type AccountRegexType = `${string}@${string}`
+type AccountRegexType = `${number}@${string}`
 
 enum SelectionModeType {
   PIE = 'pie',
