@@ -34,3 +34,13 @@ interface ActiveCommand {
   duration: number
 }
 ```
+
+## uptime
+
+Returns the total uptime of the server in seconds.
+
+```ts title="client.server.uptime()"
+interface server {
+  uptime (): Promise<number>
+}
+```
