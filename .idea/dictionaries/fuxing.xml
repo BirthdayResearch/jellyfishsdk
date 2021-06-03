@@ -80,6 +80,7 @@
       <w>hdkeypath</w>
       <w>hdmasterfingerprint</w>
       <w>hdseedid</w>
+      <w>icxorderbook</w>
       <w>ifdup</w>
       <w>importprivkey</w>
       <w>infima</w>
