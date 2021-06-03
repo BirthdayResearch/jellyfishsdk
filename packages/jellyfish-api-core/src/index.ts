@@ -7,6 +7,7 @@ import { Wallet } from './category/wallet'
 import { Account } from './category/account'
 import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
+import { Oracle } from './category/oracle'
 import { Server } from './category/server'
 
 export * from '@defichain/jellyfish-json'
@@ -19,6 +20,7 @@ export * as wallet from './category/wallet'
 export * as poolpair from './category/poolpair'
 export * as token from './category/token'
 export * as account from './category/account'
+export * as oracle from './category/oracle'
 export * as server from './category/server'
 
 /**
@@ -33,6 +35,7 @@ export abstract class ApiClient {
   public readonly account = new Account(this)
   public readonly poolpair = new PoolPair(this)
   public readonly token = new Token(this)
+  public readonly oracle = new Oracle(this)
   public readonly server = new Server(this)
 
   /**

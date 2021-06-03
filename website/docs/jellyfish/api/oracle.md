@@ -12,23 +12,24 @@ const client = new Client()
 const something = await client.oracle.method()
 ```
 
-## appointOracle
+## updateOracle
 
-Creates a price oracle for rely of real time price data.
+Update a price oracle for rely of real time price data.
 
-```ts title="client.oracle.appointOracle()"
+```ts title="client.oracle.updateOracle()"
 interface oracle {
-  appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string>
+  updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string>
+}
+
+interface UpdateOracleOptions {
+  priceFeeds?: PriceFeed[],
+  weightage?: number
+  utxos?: UTXO[]
 }
 
 interface PriceFeed {
   currency: string
   token: string
-}
-
-interface AppointOracleOptions {
-  weightage?: number
-  utxos?: UTXO[]
 }
 
 interface UTXO {
