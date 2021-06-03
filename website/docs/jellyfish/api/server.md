@@ -1,4 +1,3 @@
-
 ---
 id: server
 title: Server API
