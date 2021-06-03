@@ -39,7 +39,6 @@ export enum SelectionModeType {
 
 type AccountRegexType = `${string}@${string}`
 
-
 /**
  * Account RPCs for DeFi Blockchain
  */
