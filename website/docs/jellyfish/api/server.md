@@ -1,3 +1,4 @@
+
 ---
 id: server
 title: Server API
@@ -32,5 +33,15 @@ interface RpcInfo {
 interface ActiveCommand {
   method: string
   duration: number
+}
+```
+
+## upTime
+
+Returns the total uptime of the server in seconds.
+
+```ts title="client.server.upTime()"
+interface server {
+  upTime (): Promise<number>
 }
 ```
