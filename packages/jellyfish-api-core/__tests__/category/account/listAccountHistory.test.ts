@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { TxType } from '../../../src/category/account'
+import { DfTxType } from '../../../src/category/account'
 
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
@@ -176,11 +176,11 @@ describe('Account', () => {
 
   it('should listAccountHistory with options txtype', async () => {
     await waitForExpect(async () => {
-      const accountHistories = await client.account.listAccountHistory('mine', { txtype: TxType.MINT_TOKEN })
+      const accountHistories = await client.account.listAccountHistory('mine', { txtype: DfTxType.MINT_TOKEN })
       expect(accountHistories.length).toBeGreaterThan(0)
     })
 
-    const accountHistories = await client.account.listAccountHistory('mine', { txtype: TxType.MINT_TOKEN })
+    const accountHistories = await client.account.listAccountHistory('mine', { txtype: DfTxType.MINT_TOKEN })
     for (let i = 0; i < accountHistories.length; i += 1) {
       const accountHistory = accountHistories[i]
       expect(accountHistory.type).toStrictEqual('MintToken')
