@@ -40,7 +40,7 @@ issue:
         - jellyfish-crypto
         - jellyfish-json
         - jellyfish-network
-        - jellyfish-secured-storage
+        - jellyfish-wallet-encrypted
         - jellyfish-transaction
         - jellyfish-transaction-builder
         - jellyfish-wallet
