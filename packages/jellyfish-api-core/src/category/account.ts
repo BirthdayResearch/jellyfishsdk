@@ -302,7 +302,7 @@ export class Account {
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
-   * @param {TxType} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @param {TxType} [options.txtype] Filter by transaction type. See TxType.
    * @return {Promise<number>} count of account history
    */
   async historyCount (
