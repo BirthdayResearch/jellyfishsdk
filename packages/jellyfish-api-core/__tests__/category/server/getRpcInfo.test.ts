@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('Server on masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,12 +15,10 @@ describe('Server on masternode', () => {
   })
 
   it('should getRpcInfo', async () => {
-    await waitForExpect(async () => {
-      const info = await client.server.getRpcInfo()
-      expect(info.active_commands[0].method).toStrictEqual('getrpcinfo')
-      expect(info.active_commands[0].duration).toBeGreaterThanOrEqual(0)
-      expect(typeof info.logpath).toBe('string')
-      expect(info.logpath).toContain('regtest/debug.log')
-    })
+    const info = await client.server.getRpcInfo()
+    expect(info.active_commands[0].method).toStrictEqual('getrpcinfo')
+    expect(info.active_commands[0].duration).toBeGreaterThanOrEqual(0)
+    expect(typeof info.logpath).toBe('string')
+    expect(info.logpath).toContain('regtest/debug.log')
   })
 })
