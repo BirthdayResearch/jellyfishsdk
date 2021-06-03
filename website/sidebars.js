@@ -16,7 +16,9 @@ module.exports = {
         'jellyfish/api/poolpair',
         'jellyfish/api/token',
         'jellyfish/api/account',
-        'jellyfish/api/oracle'
+        'jellyfish/api/oracle',
+        'jellyfish/api/account',
+        'jellyfish/api/server'
       ]
     }
   ],

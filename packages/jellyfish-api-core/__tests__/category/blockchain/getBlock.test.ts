@@ -79,7 +79,7 @@ describe('Block', () => {
     expect(block.tx[0].vin[0].sequence).toBeGreaterThanOrEqual(4294967295)
 
     expect(block.tx[0].vout[0].n).toStrictEqual(0)
-    expect(block.tx[0].vout[0].value.toString(10)).toStrictEqual('38')
+    expect(block.tx[0].vout[0].value.toString(10)).toStrictEqual('76')
     expect(block.tx[0].vout[0].value instanceof BigNumber).toBeTruthy()
 
     expect(block.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
