@@ -125,7 +125,7 @@ enum OwnerType {
   ALL = "all"
 }
 
-enum TxType {
+enum DfTxType {
   MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
