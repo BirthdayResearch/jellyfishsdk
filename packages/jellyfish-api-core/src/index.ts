@@ -7,6 +7,8 @@ import { Wallet } from './category/wallet'
 import { Account } from './category/account'
 import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
+import { Oracle } from './category/oracle'
+import { Server } from './category/server'
 
 export * from '@defichain/jellyfish-json'
 
