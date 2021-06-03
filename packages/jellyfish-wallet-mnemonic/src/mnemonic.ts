@@ -128,18 +128,20 @@ export class MnemonicHdNode implements WalletHdNode {
       return { prevout: prevout, ellipticPair: this }
     })
 
+    if (this.signingCb !== undefined) {
+      const unsignedBuffer = new SmartBuffer()
+      new CTransaction(transaction).toBuffer(unsignedBuffer)
+      await this.signingCb.beforeSign(unsignedBuffer.toBuffer(), transaction)
+    }
+
     const signed = await TransactionSigner.sign(transaction, inputs, {
       sigHashType: SIGHASH.ALL
     })
 
     if (this.signingCb !== undefined) {
-      const unsignedBuffer = new SmartBuffer()
-      new CTransaction(transaction).toBuffer(unsignedBuffer)
-      await this.signingCb.unsigned(unsignedBuffer.toBuffer(), transaction)
-
       const signedBuffer = new SmartBuffer()
       new CTransaction(signed).toBuffer(signedBuffer)
-      await this.signingCb.signed(signedBuffer.toBuffer(), signed)
+      await this.signingCb.afterSign(signedBuffer.toBuffer(), signed)
     }
 
     return signed
@@ -168,15 +170,14 @@ export class MnemonicHdNode implements WalletHdNode {
 }
 
 export interface SigningInterface {
-  unsigned: (buffer: Buffer, tx: Transaction) => Promise<void>
-  signed: (buffer: Buffer, tx: TransactionSegWit) => Promise<void>
+  beforeSign: (buffer: Buffer, tx: Transaction) => Promise<void>
+  afterSign: (buffer: Buffer, tx: TransactionSegWit) => Promise<void>
 }
 
 /**
  * Provider that derive MnemonicHdNode from root. Uses a lite on demand derivation.
  */
 export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNode> {
-  walletHdNode?: MnemonicHdNode
   signingCb?: SigningInterface
 
   /**
