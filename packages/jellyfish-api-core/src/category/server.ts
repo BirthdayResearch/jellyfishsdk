@@ -19,7 +19,7 @@ export class Server {
   /**
    * Returns the total uptime of the server in seconds.
    */
-  async upTime (): Promise<number> {
+  async uptime (): Promise<number> {
     return await this.client.call('uptime', [], 'number')
   }
 }
