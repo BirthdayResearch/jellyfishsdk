@@ -199,6 +199,26 @@ enum OwnerType {
   ALL = "all"
 }
 
+enum DfTxType {
+  MINT_TOKEN = 'M',
+  POOL_SWAP = 's',
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTXOS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a',
+  CREATE_MASTERNODE = 'C',
+  RESIGN_MASTERNODE = 'R',
+  CREATE_TOKEN = 'T',
+  UPDATE_TOKEN = 'N',
+  UPDATE_TOKEN_ANY = 'n',
+  CREATE_POOL_PAIR = 'p',
+  UPDATE_POOL_PAIR = 'u',
+  SET_GOV_VARIABLE = 'G',
+  AUTO_AUTH_PREP = 'A'
+}
+
 interface AccountHistory {
   owner: string
   blockHeight: number
@@ -215,7 +235,7 @@ interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: string
+  txtype?: DfTxType
   limit?: number
 }
 ```
@@ -237,7 +257,7 @@ enum OwnerType {
   ALL = "all"
 }
 
-enum TxType {
+enum DfTxType {
   MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
@@ -259,7 +279,7 @@ enum TxType {
 
 interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: DfTxType
   no_rewards?: boolean
 }
 ```
