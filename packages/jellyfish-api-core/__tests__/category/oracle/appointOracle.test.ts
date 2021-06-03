@@ -35,7 +35,7 @@ describe('Oracle', () => {
       {
         weightage: 1,
         oracleid: txid,
-        address: expect.any(String), // This is an oracle address, not the address in line 26
+        address: expect.any(String),
         priceFeeds: [
           { token: 'APPLE', currency: 'EUR' },
           { token: 'TESLA', currency: 'USD' }
@@ -72,7 +72,7 @@ describe('Oracle', () => {
       {
         weightage: 1,
         oracleid: txid,
-        address: expect.any(String), // This is an oracle address, not the address in line 54
+        address: expect.any(String),
         priceFeeds: [
           { token: 'APPLE', currency: 'EUR' },
           { token: 'TESLA', currency: 'USD' }
