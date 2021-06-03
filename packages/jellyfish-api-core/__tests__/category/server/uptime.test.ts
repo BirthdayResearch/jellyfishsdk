@@ -17,6 +17,5 @@ describe('Server on masternode', () => {
   it('should get uptime', async () => {
     const uptime = await client.server.uptime()
     expect(typeof uptime).toBe('number')
-    expect(uptime).toBeGreaterThanOrEqual(0)
   })
 })
