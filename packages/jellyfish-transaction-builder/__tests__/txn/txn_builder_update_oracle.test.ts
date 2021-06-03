@@ -29,14 +29,14 @@ afterAll(async () => {
 
 describe('update oracle', () => {
   beforeEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
-  })
+    await container.waitForWalletBalanceGTE(11)
 
-  it('should appoint and then update oracle', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
+  })
 
+  it('should appoint and then update oracle', async () => {
     // Appoint Oracle
     const script = await providers.elliptic.script()
     const appointTxn = await builder.oracles.appointOracle({
