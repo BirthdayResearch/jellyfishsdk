@@ -1,5 +1,4 @@
-import { PoolAddLiquidity, PoolRemoveLiquidity } from '@defichain/jellyfish-transaction/src/script/defi/dftx_pool'
-import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Script, TransactionSegWit, PoolAddLiquidity, PoolRemoveLiquidity } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 

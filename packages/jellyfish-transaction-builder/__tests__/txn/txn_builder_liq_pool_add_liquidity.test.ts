@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { OP_CODES, PoolAddLiquidity } from '@defichain/jellyfish-transaction'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken, mintTokens, sendTokensToAddress, utxosToAccount } from '@defichain/testing'
@@ -13,7 +13,6 @@ import {
   sendTransaction
 } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
-import { PoolAddLiquidity } from '@defichain/jellyfish-transaction/src/script/defi/dftx_pool'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
