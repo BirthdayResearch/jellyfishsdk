@@ -132,7 +132,6 @@ enum BIP125 {
   YES = 'YES',
   NO = 'NO',
   UNKNOWN = 'UNKNOWN'
-
 }
 
 enum InWalletTransactionCategory {
