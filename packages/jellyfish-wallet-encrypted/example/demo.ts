@@ -45,7 +45,9 @@ class CreateMnemoniceWalletPage {
       }
     })
 
-    const myMnemonicNode = await provider.unlockAndDerive("44'/1129'/0'/0/0", this.state.textInput)
+    // once lost the in memory raw seed instance, use passphrase instead
+    // const myMnemonicNode = await provider.unlockAndDerive("44'/1129'/0'/0/0", this.state.textInput)
+    const myMnemonicNode = await provider.deriveWithSeed("44'/1129'/0'/0/0", mnemonic.seed)
     await myMnemonicNode.publicKey() // this can now be used for address derivation and receive fund
 
     console.log('Created new wallet, jot down your mnemonic phrases: ', mnemonic.words)

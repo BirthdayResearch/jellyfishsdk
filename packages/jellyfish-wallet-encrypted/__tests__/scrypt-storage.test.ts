@@ -2,7 +2,7 @@ import { ScryptStorage, Storage, SimpleScryptsy } from '../src'
 
 class MockStorage implements Storage {
   inMemory: string | undefined
-  async getter (): Promise<string> {
+  async getter (): Promise<string|undefined> {
     return this.inMemory
   }
 
