@@ -95,12 +95,13 @@ describe('Oracle', () => {
   })
 
   it('should appointOracle with utxos', async () => {
+    const address = await container.getNewAddress()
+
     const priceFeeds = [
       { currency: 'USD', token: 'TESLA' },
       { currency: 'EUR', token: 'APPLE' }
     ]
 
-    const address = await container.getNewAddress()
     const utxos = await container.call('listunspent', [1, 9999999, [address], true])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
