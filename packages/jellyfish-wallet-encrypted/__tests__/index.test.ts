@@ -53,6 +53,34 @@ describe('EncryptedMnemonicProvider', () => {
     expect(privKey.length).toStrictEqual(32)
   })
 
+  it('EncryptedMnemonicProvider.load() - should be able to load/restore a provider instance', async () => {
+    const loaded = await EncryptedMnemonicProvider.load({
+      scryptStorage: new ScryptStorage(
+        scryptPovider, // must have same Scrypt logic
+        seedStore, // already holding the encrypted seed
+        seedHashStore // already holding the seed hash
+      ),
+      passphrase: passphrase,
+      options: {
+        bip32: {
+          public: 0x00000000,
+          private: 0x00000000
+        },
+        wif: 0x00
+      }
+    })
+
+    const pubKey = await node.publicKey()
+    const privKey = await node.privateKey(passphrase)
+
+    const loadedNode = await loaded.unlockAndDerive("44'/1129'/0'/0/0", passphrase)
+    const loadPubKey = await loadedNode.publicKey()
+    const loadPrivKey = await loadedNode.privateKey(passphrase)
+
+    expect(pubKey.toString('hex')).toStrictEqual(loadPubKey.toString('hex'))
+    expect(privKey.toString('hex')).toStrictEqual(loadPrivKey.toString('hex'))
+  })
+
   it('deriveWithSeed() - invalid seed', async () => {
     await expect(provider.deriveWithSeed("44'/1129'/0'/0/0", Buffer.from('e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33261'))).rejects
       .toThrow('InvalidSeedHash')
