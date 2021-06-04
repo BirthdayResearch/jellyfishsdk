@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { UTXO } from '../../../src/category/oracle'
 import { RpcApiError } from '../../../src'
+import { UTXO } from '../../../src/category/oracle'
 
 describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
