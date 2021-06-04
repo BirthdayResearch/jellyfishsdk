@@ -34,9 +34,8 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const promise = container.call('getoracledata', [oracleid])
-
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'oracle <${oracleid as string}> not found', code: -20`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'oracle <${oracleid as string}> not found', code: -20`) // Removed
   })
 
   it('should not removeOracle if oracleid is invalid', async () => {
@@ -48,12 +47,15 @@ describe('Oracle', () => {
   })
 
   it('should removeOracle with utxos', async () => {
+    const address = await container.getNewAddress()
     const priceFeeds = [
       { currency: 'USD', token: 'TESLA' },
       { currency: 'EUR', token: 'APPLE' }
     ]
+    const oracleid = await container.call('appointoracle', [address, priceFeeds, 1])
 
-    const address = await container.getNewAddress()
+    await container.generate(1)
+
     const utxos = await container.call('listunspent', [1, 9999999, [address], true])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
@@ -61,11 +63,6 @@ describe('Oracle', () => {
         vout: utxo.vout
       }
     })
-
-    const oracleid = await container.call('appointoracle', [address, priceFeeds, 1])
-
-    await container.generate(1)
-
     const data = await client.oracle.removeOracle(oracleid, inputs)
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
@@ -75,5 +72,21 @@ describe('Oracle', () => {
     const promise = container.call('getoracledata', [oracleid])
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow(`DeFiDRpcError: 'oracle <${oracleid as string}> not found', code: -20`)
+  })
+
+  it('should not removeOracle with arbitrary utxos', async () => {
+    const address = await container.getNewAddress()
+    const priceFeeds = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
+    ]
+    const oracleid = await container.call('appointoracle', [address, priceFeeds, 1])
+
+    await container.generate(1)
+
+    const { txid, vout } = await container.fundAddress(address, 10)
+    const promise = client.oracle.removeOracle(oracleid, [{ txid, vout }])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Test RemoveOracleAppointTx execution failed:\ntx not from foundation member\', code: -32600, method: removeoracle')
   })
 })
