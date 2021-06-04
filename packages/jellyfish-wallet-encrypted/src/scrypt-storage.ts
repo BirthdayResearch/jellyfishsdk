@@ -60,12 +60,19 @@ export class EncryptedData {
 }
 
 export class ScryptStorage {
+  /**
+   * @param {ScryptProvider} scryptProvider to convert a utf8 string into a secret, cryptographically secured
+   * @param {Storage} encryptedStorage to store encrypted data
+   * @param {Storage} hashStorage to store hash of the data, for passphrase verification use
+   */
   constructor (
     readonly scryptProvider: ScryptProvider,
-    readonly encryptedStorage: Storage
+    readonly encryptedStorage: Storage,
+    readonly hashStorage: Storage
   ) {
     this.scryptProvider = scryptProvider
     this.encryptedStorage = encryptedStorage
+    this.hashStorage = hashStorage
   }
 
   /**
@@ -98,6 +105,9 @@ export class ScryptStorage {
 
     const encrypted = new EncryptedData(0x01, 0x42, 0xc0, hash, b1, b2)
     await this.encryptedStorage.setter(encrypted.encode())
+
+    const dataHash = dSHA256(data).slice(0, 4)
+    await this.hashStorage.setter(dataHash.toString('hex'))
   }
 
   /**
@@ -125,6 +135,13 @@ export class ScryptStorage {
     const d1 = this._xor(k1a, dec1)
     const d2 = this._xor(k1b, dec2)
     const decrypted = Buffer.from([...d1, ...d2])
+
+    const dataHash = dSHA256(decrypted).slice(0, 4)
+    const expected = await this.hashStorage.getter()
+    if (dataHash.toString('hex') !== expected) {
+      throw new Error('InvalidPassphrase')
+    }
+
     return decrypted
   }
 

@@ -3,4 +3,5 @@
 
 # @defichain/jellyfish-wallet-encrypted
 
-Library to perform buffer encryption and decryption using a performing party known passphrase.
+This is an extended wallet hd node which has similar interface as @defichain/jellyfish-wallet-mnemonic. The library assists caller to encrypt mnemonic seed into provided storage. See example/demo.ts for more detail.
+

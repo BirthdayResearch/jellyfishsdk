@@ -15,7 +15,7 @@ class MockStore implements Storage {
   }
 }
 
-const samplePrivateKey = 'e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
+const sampleMnemonicSeed = 'e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
 const passphrase = 'password'
 const scryptPovider = new SimpleScryptsy({
   N: 16384,
@@ -26,12 +26,13 @@ const scryptPovider = new SimpleScryptsy({
 describe('EncryptedMnemonicProvider', () => {
   let provider: EncryptedMnemonicProvider
   const seedStore = new MockStore()
+  const seedHashStore = new MockStore()
   let node: EncryptedMnemonicHdNode
 
   beforeEach(async () => {
-    const seed = Buffer.from(samplePrivateKey, 'hex')
+    const seed = Buffer.from(sampleMnemonicSeed, 'hex')
     provider = await EncryptedMnemonicProvider.create({
-      scryptStorage: new ScryptStorage(scryptPovider, seedStore),
+      scryptStorage: new ScryptStorage(scryptPovider, seedStore, seedHashStore),
       seed,
       passphrase: passphrase,
       options: {

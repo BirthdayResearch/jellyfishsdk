@@ -1,21 +1,29 @@
 import { ScryptStorage, Storage, SimpleScryptsy } from '../src'
 
+class MockStorage implements Storage {
+  inMemory: string | undefined
+  async getter (): Promise<string> {
+    return this.inMemory
+  }
+
+  async setter (encrypted: string | undefined): Promise<void> {
+    this.inMemory = encrypted
+  }
+}
 // Mock storage
 let scryptStorage: ScryptStorage
-let inMemory: string | undefined
-const storage: Storage = {
-  getter: async () => inMemory,
-  setter: async (encrypted: string | undefined) => { inMemory = encrypted }
-}
+const encryptedSeedStorage = new MockStorage()
+const seedHashStorage = new MockStorage()
 
 const scryptProvider = new SimpleScryptsy()
 
 // 32 bytes
 const samplePrivateKey = 'e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
 
-beforeEach(() => {
-  scryptStorage = new ScryptStorage(scryptProvider, storage)
-  inMemory = undefined
+beforeEach(async () => {
+  scryptStorage = new ScryptStorage(scryptProvider, encryptedSeedStorage, seedHashStorage)
+  await encryptedSeedStorage.setter(undefined)
+  await seedHashStorage.setter(undefined)
 })
 
 it('Should be able to encrypt / decrypt', async () => {
@@ -25,7 +33,7 @@ it('Should be able to encrypt / decrypt', async () => {
   await scryptStorage.encrypt(privateKey, pass)
 
   // encrypted data stored
-  expect(await storage.getter()).not.toStrictEqual(null)
+  expect(await encryptedSeedStorage.getter()).not.toStrictEqual(null)
 
   const decrypted = await scryptStorage.decrypt(pass)
   expect(decrypted?.toString('hex')).toStrictEqual(samplePrivateKey)

@@ -3,7 +3,7 @@ import { ScryptStorage } from './scrypt-storage'
 import secp256k1 from 'tiny-secp256k1'
 import * as bip32 from 'bip32'
 import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction/dist'
-import { DERSignature, dSHA256 } from '@defichain/jellyfish-crypto'
+import { DERSignature } from '@defichain/jellyfish-crypto'
 
 export * from './scryptsy'
 export * from './scrypt-storage'
@@ -13,8 +13,7 @@ export class EncryptedMnemonicHdNode {
     private readonly pubKey: Buffer,
     private readonly options: Bip32Options,
     private readonly path: string,
-    private readonly scryptStorage: ScryptStorage,
-    private readonly seedHash: Buffer
+    private readonly scryptStorage: ScryptStorage
   ) {
     this.pubKey = pubKey
     this.options = options
@@ -50,11 +49,6 @@ export class EncryptedMnemonicHdNode {
     const seed = await this.scryptStorage.decrypt(passphrase)
     if (seed === null) {
       throw new Error('No encrypted seed found in storage')
-    }
-
-    const seedHash = dSHA256(seed).slice(0, 4)
-    if (Buffer.compare(seedHash, this.seedHash) !== 0) {
-      throw new Error('InvalidPassphrase')
     }
     return bip32.fromSeed(seed, this.options)
   }
@@ -104,44 +98,52 @@ export class EncryptedMnemonicHdNode {
   }
 }
 
-export interface EncryptedMnemonicOptions {
-  scryptStorage: ScryptStorage
-  seed: Buffer
+export interface LoadMnemonicOptions {
   passphrase: string
+  scryptStorage: ScryptStorage
   options: Bip32Options
+}
+
+export interface CreateEncryptedMnemonicOptions extends LoadMnemonicOptions {
+  seed: Buffer
 }
 
 export class EncryptedMnemonicProvider {
   /**
    * @param {ScryptStorage} scryptStorage to store encrypted mnemonic seed
    * @param {Bip32Options} prefixOptions to reconstruct Bip32Interface when hdnode unlocked with passphrase
-   * @param {Buffer} seedHash 4 bytes hash, SHA256(rawSeed), to verify decrypted seed
    */
   private constructor (
     private readonly scryptStorage: ScryptStorage,
-    private readonly options: Bip32Options,
-    private readonly seedHash: Buffer
+    private readonly options: Bip32Options
   ) {
     this.scryptStorage = scryptStorage
     this.options = options
-    this.seedHash = seedHash
   }
 
   /**
    * To create a provider which able to derive { @see EncryptedMnemonicHdNode } which has similar function as MnemonicHdNode
    *
-   * @param {EncryptedMnemonicOptions} encryptedMnemonicOptions
+   * @param {CreateEncryptedMnemonicOptions} encryptedMnemonicOptions
    * @param {ScryptStorage} encryptedMnemonicOptions.scryptStorage to store encrypted mnemonic seed
    * @param {string} encryptedMnemonicOptions.passphrase utf8 string in normalization format C
    * @param {Buffer} encryptedMnemonicOptions.seed to derive Bip32Interface
    * @param {Bip32Options} encryptedMnemonicOptions.options to derive Bip32Interface
    * @returns {EncryptedMnemonicProvider}
    */
-  static async create (encryptedMnemonicOptions: EncryptedMnemonicOptions): Promise<EncryptedMnemonicProvider> {
+  static async create (encryptedMnemonicOptions: CreateEncryptedMnemonicOptions): Promise<EncryptedMnemonicProvider> {
     const { seed, passphrase, scryptStorage, options } = encryptedMnemonicOptions
     await scryptStorage.encrypt(seed, passphrase)
-    const hash = dSHA256(seed).slice(0, 4)
-    return new EncryptedMnemonicProvider(scryptStorage, options, hash)
+    return new EncryptedMnemonicProvider(scryptStorage, options)
+  }
+
+  static async load (encryptedMnemonicOptions: LoadMnemonicOptions): Promise<EncryptedMnemonicProvider> {
+    const { passphrase, scryptStorage, options } = encryptedMnemonicOptions
+    const seed = await scryptStorage.decrypt(passphrase)
+    if (seed === null) {
+      throw new Error('No seed found in storage')
+    }
+    return new EncryptedMnemonicProvider(scryptStorage, options)
   }
 
   /**
@@ -151,16 +153,11 @@ export class EncryptedMnemonicProvider {
    */
   async deriveWithSeed (path: string, seed: Buffer): Promise<EncryptedMnemonicHdNode> {
     const root = bip32.fromSeed(seed)
-    const hash = dSHA256(seed).slice(0, 4)
-    if (Buffer.compare(this.seedHash, hash) !== 0) {
-      throw new Error('InvalidSeedHash')
-    }
     return new EncryptedMnemonicHdNode(
       root.derivePath(path).publicKey,
       this.options,
       path,
-      this.scryptStorage,
-      hash
+      this.scryptStorage
     )
   }
 
@@ -175,14 +172,6 @@ export class EncryptedMnemonicProvider {
     if (seed === null) {
       throw new Error('No encrypted seed found in storage')
     }
-    try {
-      const derived = await this.deriveWithSeed(path, seed)
-      return derived
-    } catch (e) {
-      if (e.message === 'InvalidSeedHash') {
-        throw new Error('InvalidPassphrase')
-      }
-      throw e
-    }
+    return await this.deriveWithSeed(path, seed)
   }
 }
