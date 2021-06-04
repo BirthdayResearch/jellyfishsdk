@@ -39,6 +39,16 @@ export class Oracle {
   async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('removeoracle', [oracleid, utxos], 'number')
   }
+
+  /**
+   * Returns oracle data in json form.
+   *
+   * @param {string} oracleid
+   * @return {Promise<string>} txn id for txn created to remove oracle
+   */
+  async getOracleData (oracleid: string): Promise<string> {
+    return await this.client.call('getoracledata', [oracleid], 'number')
+  }
 }
 
 export interface PriceFeed {

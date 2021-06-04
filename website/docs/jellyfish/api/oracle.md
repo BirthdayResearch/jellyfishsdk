@@ -52,3 +52,13 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getOracleData
+
+Returns oracle data in json form.
+
+```ts title="client.oracle.getOracleData()"
+interface oracle {
+  getOracleData (oracleid: string): Promise<string>
+}
+```
