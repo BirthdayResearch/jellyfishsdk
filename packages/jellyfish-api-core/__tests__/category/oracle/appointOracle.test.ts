@@ -24,12 +24,14 @@ describe('Oracle', () => {
     ]
 
     const txid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+
     expect(typeof txid).toStrictEqual('string')
     expect(txid.length).toStrictEqual(64)
 
     await container.generate(1)
 
     const result = await container.call('getoracledata', [txid])
+
     expect(result).toStrictEqual(
       {
         weightage: 1,
@@ -55,6 +57,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const result = await container.call('getoracledata', [txid])
+
     expect(result.priceFeeds).toStrictEqual([{ token: 'APPLE', currency: 'EUR' }]) // Only return 1 price feed
   })
 
@@ -69,6 +72,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const result = await container.call('getoracledata', [txid])
+
     expect(result.priceFeeds).toStrictEqual(priceFeeds)
   })
 
@@ -83,6 +87,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const result = await container.call('getoracledata', [txid])
+
     expect(result.priceFeeds).toStrictEqual([
       { token: '12345678', currency: '12345678' }, // Only return first 8 letters
       { token: 'ABCDEFGH', currency: 'ABCDEFGH' } // Only return first 8 letters
@@ -105,6 +110,7 @@ describe('Oracle', () => {
     })
 
     const txid = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: inputs })
+
     expect(typeof txid).toStrictEqual('string')
     expect(txid.length).toStrictEqual(64)
 

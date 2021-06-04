@@ -28,12 +28,14 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const data = await client.oracle.removeOracle(oracleid)
+
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
 
     await container.generate(1)
 
     const promise = container.call('getoracledata', [oracleid])
+
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow(`DeFiDRpcError: 'oracle <${oracleid as string}> not found', code: -20`) // Removed
   })
@@ -64,12 +66,14 @@ describe('Oracle', () => {
       }
     })
     const data = await client.oracle.removeOracle(oracleid, inputs)
+
     expect(typeof data).toStrictEqual('string')
     expect(data.length).toStrictEqual(64)
 
     await container.generate(1)
 
     const promise = container.call('getoracledata', [oracleid])
+
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow(`DeFiDRpcError: 'oracle <${oracleid as string}> not found', code: -20`)
   })
@@ -86,6 +90,7 @@ describe('Oracle', () => {
 
     const { txid, vout } = await container.fundAddress(address, 10)
     const promise = client.oracle.removeOracle(oracleid, [{ txid, vout }])
+
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Test RemoveOracleAppointTx execution failed:\ntx not from foundation member\', code: -32600, method: removeoracle')
   })
