@@ -15,6 +15,15 @@ export class Server {
   async getRpcInfo (): Promise<RpcInfo> {
     return await this.client.call('getrpcinfo', [], 'number')
   }
+
+  /**
+   * Returns the total uptime of the server in seconds
+   *
+   * @return {Promise<number>}
+   */
+  async uptime (): Promise<number> {
+    return await this.client.call('uptime', [], 'number')
+  }
 }
 
 export interface ActiveCommand {

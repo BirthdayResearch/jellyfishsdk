@@ -11,6 +11,23 @@ export class Oracle {
   }
 
   /**
+   * Creates a price oracle for rely of real time price data.
+   *
+   * @param {string} address
+   * @param {PriceFeed[]} priceFeeds
+   * @param {AppointOracleOptions} [options]
+   * @param {number} options.weightage
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
+    const { utxos = [] } = options
+    return await this.client.call('appointoracle', [address, priceFeeds, options.weightage, utxos], 'number')
+  }
+
+  /**
    * Update a price oracle for rely of real time price data.
    *
    * @param {string} oracleid
@@ -27,6 +44,11 @@ export class Oracle {
     const { utxos = [] } = options
     return await this.client.call('updateoracle', [oracleid, address, options.priceFeeds, options.weightage, utxos], 'number')
   }
+}
+
+export interface AppointOracleOptions {
+  weightage?: number
+  utxos?: UTXO[]
 }
 
 export interface UpdateOracleOptions {
