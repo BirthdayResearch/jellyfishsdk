@@ -52,3 +52,13 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listOracles
+
+Returns list of oracle ids.
+
+```ts title="client.oracle.listOracles()"
+interface oracle {
+  listOracles (): Promise<string>
+}
+```

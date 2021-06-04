@@ -39,6 +39,15 @@ export class Oracle {
   async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('removeoracle', [oracleid, utxos], 'number')
   }
+
+  /**
+   * Returns list of oracle ids.
+   *
+   * @return {Promise<string>} txn id for txn created to remove oracle
+   */
+  async listOracles (): Promise<string> {
+    return await this.client.call('listoracles', [], 'number')
+  }
 }
 
 export interface PriceFeed {
