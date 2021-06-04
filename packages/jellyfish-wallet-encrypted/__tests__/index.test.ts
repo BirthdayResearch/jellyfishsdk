@@ -25,12 +25,13 @@ const scryptPovider = new SimpleScryptsy({
 
 describe('EncryptedMnemonicProvider', () => {
   let provider: EncryptedMnemonicProvider
+  const seedStore = new MockStore()
   let node: EncryptedMnemonicHdNode
 
   beforeEach(async () => {
     const seed = Buffer.from(samplePrivateKey, 'hex')
     provider = await EncryptedMnemonicProvider.create({
-      scryptStorage: new ScryptStorage(scryptPovider, new MockStore()),
+      scryptStorage: new ScryptStorage(scryptPovider, seedStore),
       seed,
       passphrase: passphrase,
       options: {
@@ -59,6 +60,13 @@ describe('EncryptedMnemonicProvider', () => {
   it('unlockAndDerive() - invalid passphrase', async () => {
     await expect(provider.unlockAndDerive("44'/1129'/0'/0/0", 'incorrect password')).rejects
       .toThrow('InvalidPassphrase')
+  })
+
+  it('unlockAndDerive() - encrypted key missing', async () => {
+    // delete encrypted seed
+    await seedStore.setter(undefined)
+    await expect(provider.unlockAndDerive("44'/1129'/0'/0/0", 'incorrect password')).rejects
+      .toThrow('No encrypted seed found in storage')
   })
 
   it('unlockAndDerive() - should behave the same as deriveWithSeed() when valid passphrase provided', async () => {
@@ -94,6 +102,12 @@ describe('EncryptedMnemonicProvider', () => {
     const unlocked = await node.unlock(passphrase)
     expect(unlocked).toBeTruthy()
     expect(await unlocked.publicKey()).toBeTruthy()
+  })
+
+  it('Should be able to unlock with valid passphrase', async () => {
+    await seedStore.setter(undefined)
+    await expect(node.unlock(passphrase)).rejects
+      .toThrow('No encrypted seed found in storage')
   })
 
   it('Should be able to sign and verify', async () => {
