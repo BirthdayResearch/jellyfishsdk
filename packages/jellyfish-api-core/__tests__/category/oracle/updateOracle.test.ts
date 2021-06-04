@@ -21,118 +21,121 @@ describe('Oracle', () => {
     const address = await container.getNewAddress()
 
     // Appoint oracle
-    const appointOraclePriceFeed = [{ currency: 'USD', token: 'TESLA' }, { currency: 'EUR', token: 'APPLE' }]
-    const oracleTxid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
+    const appointOraclePriceFeed = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
+    ]
 
-    await container.generate(1)
-
-    let result = await container.call('getoracledata', [oracleTxid])
-    expect(result.weightage).toStrictEqual(1)
-    expect(result.priceFeeds).toStrictEqual([
-      { token: 'APPLE', currency: 'EUR' },
-      { token: 'TESLA', currency: 'USD' }
-    ])
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
 
     await container.generate(1)
 
     // Update oracle
-    const updateOraclePriceFeed = [{ currency: 'SGD', token: 'MSFT' }, { currency: 'CNY', token: 'FB' }]
-    await client.oracle.updateOracle(oracleTxid, result.address, { priceFeeds: updateOraclePriceFeed, weightage: 2 })
+    const updateOraclePriceFeed = [
+      { currency: 'CNY', token: 'FB' },
+      { currency: 'SGD', token: 'MSFT' }
+    ]
+
+    await client.oracle.updateOracle(oracleid, address, { priceFeeds: updateOraclePriceFeed, weightage: 2 })
 
     await container.generate(1)
 
-    result = await container.call('getoracledata', [oracleTxid])
-    expect(result.weightage).toStrictEqual(2)
-    expect(result.priceFeeds).toStrictEqual([
-      { token: 'FB', currency: 'CNY' },
-      { token: 'MSFT', currency: 'SGD' }
-    ])
+    const data = await container.call('getoracledata', [oracleid])
+
+    expect(data.weightage).toStrictEqual(2)
+    expect(data.priceFeeds).toStrictEqual(updateOraclePriceFeed)
   })
 
   it('should updateOracle using same tokens and currencies', async () => {
-    const priceFeeds = [
-      { token: 'APPLE', currency: 'EUR' },
-      { token: 'APPLE', currency: 'EUR' }
+    const address = await container.getNewAddress()
+
+    // Appoint oracle
+    const appointOraclePriceFeed = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
     ]
 
-    const oracleid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
 
     await container.generate(1)
 
-    const result = await container.call('getoracledata', [oracleid])
-
-    expect(result.priceFeeds).toStrictEqual([{ token: 'APPLE', currency: 'EUR' }]) // Only return 1 price feed
-  })
-
-  it('should appointOracle using random tokens and currencies with 1 letter', async () => {
-    const priceFeeds = [
-      { token: 'A', currency: 'C' },
-      { token: 'B', currency: 'D' }
+    // Update oracle
+    const updateOraclePriceFeed = [
+      { currency: 'CNY', token: 'FB' },
+      { currency: 'CNY', token: 'FB' }
     ]
 
-    const oracleid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+    await client.oracle.updateOracle(oracleid, address, { priceFeeds: updateOraclePriceFeed, weightage: 2 })
 
     await container.generate(1)
 
-    const result = await container.call('getoracledata', [oracleid])
+    const data = await container.call('getoracledata', [oracleid])
 
-    expect(result.priceFeeds).toStrictEqual(priceFeeds)
+    expect(data.weightage).toStrictEqual(2)
+    expect(data.priceFeeds).toStrictEqual(
+      [{ currency: 'CNY', token: 'FB' }]
+    )
   })
 
-  it('should appointOracle using random tokens and currencies with 15 letters', async () => {
-    const priceFeeds = [
+  it('should updateOracle using random tokens and currencies with 1 letter', async () => {
+    const address = await container.getNewAddress()
+
+    // Appoint oracle
+    const appointOraclePriceFeed = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
+    ]
+
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeed = [
+      { currency: 'A', token: 'C' },
+      { currency: 'B', token: 'D' }
+    ]
+
+    await client.oracle.updateOracle(oracleid, address, { priceFeeds: updateOraclePriceFeed, weightage: 2 })
+
+    await container.generate(1)
+
+    const data = await container.call('getoracledata', [oracleid])
+
+    expect(data.weightage).toStrictEqual(2)
+    expect(data.priceFeeds).toStrictEqual(updateOraclePriceFeed)
+  })
+
+  it('should udpateOracle using random tokens and currencies with 15 letters', async () => {
+    const address = await container.getNewAddress()
+
+    // Appoint oracle
+    const appointOraclePriceFeed = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
+    ]
+
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeed = [
       { token: '123456789012345', currency: '123456789012345' },
       { token: 'ABCDEFGHIJKLMNO', currency: 'ABCDEFGHIJKLMNO' }
     ]
 
-    const oracleid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+    await client.oracle.updateOracle(oracleid, address, { priceFeeds: updateOraclePriceFeed, weightage: 2 })
 
     await container.generate(1)
 
-    const result = await container.call('getoracledata', [oracleid])
+    const data = await container.call('getoracledata', [oracleid])
 
-    expect(result.priceFeeds).toStrictEqual([
-      { token: '12345678', currency: '12345678' }, // Only return first 8 letters
-      { token: 'ABCDEFGH', currency: 'ABCDEFGH' } // Only return first 8 letters
+    expect(data.weightage).toStrictEqual(2)
+    expect(data.priceFeeds).toStrictEqual([
+      { token: '12345678', currency: '12345678' },
+      { token: 'ABCDEFGH', currency: 'ABCDEFGH' }
     ])
-  })
-
-  it('should appointOracle with utxos', async () => {
-    const address = await container.getNewAddress()
-
-    const priceFeeds = [
-      { token: 'APPLE', currency: 'EUR' },
-      { token: 'TESLA', currency: 'USD' }
-    ]
-
-    const utxos = await container.call('listunspent', [1, 9999999, [address], true])
-    const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    const oracleid = await client.oracle.appointOracle(address, priceFeeds, { weightage: 1, utxos: inputs })
-
-    expect(typeof oracleid).toStrictEqual('string')
-    expect(oracleid.length).toStrictEqual(64)
-
-    await container.generate(1)
-
-    const result = await container.call('getoracledata', [oracleid])
-    expect(result).toStrictEqual(
-      {
-        weightage: 1,
-        oracleid,
-        address: expect.any(String),
-        priceFeeds: [
-          { token: 'APPLE', currency: 'EUR' },
-          { token: 'TESLA', currency: 'USD' }
-        ],
-        tokenPrices: []
-      }
-    )
   })
 
   it('should not updateOracle for invalid oracleid', async () => {
@@ -149,21 +152,21 @@ describe('Oracle', () => {
     const address = await container.getNewAddress()
 
     // Appoint oracle
-    const appointOraclePriceFeed = [{ currency: 'USD', token: 'TESLA' }, { currency: 'EUR', token: 'APPLE' }]
-    const oracleTxid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
+    const appointOraclePriceFeed = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
+    ]
 
-    await container.generate(1)
-
-    let result = await container.call('getoracledata', [oracleTxid])
-    expect(result.weightage).toStrictEqual(1)
-    expect(result.priceFeeds).toStrictEqual([
-      { token: 'APPLE', currency: 'EUR' },
-      { token: 'TESLA', currency: 'USD' }
-    ])
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
 
     await container.generate(1)
 
     // Update oracle
+    const updateOraclePriceFeed = [
+      { currency: 'CNY', token: 'FB' },
+      { currency: 'SGD', token: 'MSFT' }
+    ]
+
     const utxos = await container.call('listunspent', [1, 9999999, [address], true])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
@@ -172,16 +175,49 @@ describe('Oracle', () => {
       }
     })
 
-    const updateOraclePriceFeed = [{ currency: 'SGD', token: 'MSFT' }, { currency: 'CNY', token: 'FB' }]
-    await client.oracle.updateOracle(oracleTxid, result.address, { priceFeeds: updateOraclePriceFeed, weightage: 2, utxos: inputs })
+    await client.oracle.updateOracle(oracleid, address, {
+      priceFeeds: updateOraclePriceFeed,
+      weightage: 2,
+      utxos: inputs
+    })
 
     await container.generate(1)
 
-    result = await container.call('getoracledata', [oracleTxid])
-    expect(result.weightage).toStrictEqual(2)
-    expect(result.priceFeeds).toStrictEqual([
+    const data = await container.call('getoracledata', [oracleid])
+    expect(data.weightage).toStrictEqual(2)
+    expect(data.priceFeeds).toStrictEqual([
       { token: 'FB', currency: 'CNY' },
       { token: 'MSFT', currency: 'SGD' }
     ])
+  })
+
+  it('should not updateOracle with arbitrary utxos', async () => {
+    const address = await container.getNewAddress()
+
+    // Appoint oracle
+    const appointOraclePriceFeed = [
+      { currency: 'USD', token: 'TESLA' },
+      { currency: 'EUR', token: 'APPLE' }
+    ]
+
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeed, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeed = [
+      { currency: 'CNY', token: 'FB' },
+      { currency: 'SGD', token: 'MSFT' }
+    ]
+
+    const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
+    const promise = client.oracle.updateOracle(oracleid, address, {
+      priceFeeds: updateOraclePriceFeed,
+      weightage: 2,
+      utxos: [{ txid, vout }]
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateOracleAppointTx execution failed:\ntx not from foundation member\', code: -32600, method: updateoracle')
   })
 })
