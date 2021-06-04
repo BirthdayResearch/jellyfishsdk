@@ -15,7 +15,7 @@ describe('Server on masternode', () => {
     await container.stop()
   })
 
-  it.only('should getTransaction', async () => {
+  it('should getTransaction', async () => {
     const txid = 'e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4'
     const inWalletTransaction = await client.wallet.getTransaction(txid)
     expect(inWalletTransaction.details[0].address).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
@@ -30,7 +30,6 @@ describe('Server on masternode', () => {
 
     expect(typeof inWalletTransaction.details[0].vout).toStrictEqual('number')
     expect(typeof inWalletTransaction.details[0].address).toStrictEqual('string')
-    console.log('inWalletTransaction.details[0].category', inWalletTransaction.details[0].category)
     expect(Object.values(InWalletTransactionCategory).includes(inWalletTransaction.details[0].category)).toBe(true)
   })
 })
