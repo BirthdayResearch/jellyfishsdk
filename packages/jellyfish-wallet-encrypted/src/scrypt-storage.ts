@@ -10,24 +10,23 @@ export interface Storage {
 }
 
 export class EncryptedData {
-  // 71 bytes
-  readonly prefix: number // 0x01
-  readonly type: number // 0x42 or 0x43
-
-  readonly flags: number // 1 byte
-  readonly hash: Buffer // 4 bytes, checksum and salt
-  readonly encryptedFirstHalf: Buffer
-  readonly encryptedSecondHalf: Buffer
-
-  constructor (prefix: number, type: number, flags: number, hash: Buffer, encrypted1: Buffer, encrypted2: Buffer) {
+  constructor (
+    // total = 7 + 2n bytes
+    readonly prefix: number, // 0x01
+    readonly type: number, // 0x42 or 0x43 (only 0x42 for now)
+    readonly flags: number, // 1 byte (only true for 2 most significant bit for now)
+    readonly hash: Buffer, // 4 bytes, checksum and salt
+    readonly encryptedFirstHalf: Buffer, // n bytes
+    readonly encryptedSecondHalf: Buffer // n bytes
+  ) {
     this.prefix = prefix
     this.type = type
     this.flags = flags
     this.hash = hash
-    this.encryptedFirstHalf = encrypted1
-    this.encryptedSecondHalf = encrypted2
+    this.encryptedFirstHalf = encryptedFirstHalf
+    this.encryptedSecondHalf = encryptedSecondHalf
 
-    if (encrypted1.length !== encrypted2.length) {
+    if (encryptedFirstHalf.length !== encryptedSecondHalf.length) {
       throw new Error('Unxpected data size, first and second half should have same length')
     }
   }
@@ -61,12 +60,12 @@ export class EncryptedData {
 }
 
 export class ScryptStorage {
-  readonly scryptProvider: ScryptProvider
-  readonly encryptedStorage: Storage
-
-  constructor (scryptProvider: ScryptProvider, readonly storage: Storage) {
+  constructor (
+    readonly scryptProvider: ScryptProvider,
+    readonly encryptedStorage: Storage
+  ) {
     this.scryptProvider = scryptProvider
-    this.encryptedStorage = storage
+    this.encryptedStorage = encryptedStorage
   }
 
   /**
