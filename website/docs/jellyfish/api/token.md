@@ -19,7 +19,7 @@ Creates a token with given metadata.
 
 ```ts title="client.token.createToken()"
 interface token {
-  createToken (metadata: CreateTokenMetadata, utxos: CreateTokenUTXO[] = []): Promise<string>
+  createToken (metadata: CreateTokenMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
 interface CreateTokenMetadata {
@@ -31,7 +31,7 @@ interface CreateTokenMetadata {
   collateralAddress: string
 }
 
-interface CreateTokenUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
@@ -132,5 +132,22 @@ interface TokenInfo {
   destructionTx: string
   destructionHeight: number
   collateralAddress: string
+}
+```
+
+## mintTokens
+
+Creates a transaction to mint tokens.
+
+```ts title="client.token.mintTokens()"
+interface token {
+  mintTokens (payload: TokenRegexType, utxos: UTXO[] = []): Promise<string>
+}
+
+type TokenRegexType = `${number}@${string}`
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```
