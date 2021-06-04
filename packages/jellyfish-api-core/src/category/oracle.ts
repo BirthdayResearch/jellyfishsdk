@@ -20,7 +20,7 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} txid
+   * @return {Promise<string>} oracleid
    */
   async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
@@ -34,7 +34,7 @@ export class Oracle {
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
-   * @return {Promise<string>} txid
+   * @return {Promise<string>} oracleid
    */
   async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('removeoracle', [oracleid, utxos], 'number')
