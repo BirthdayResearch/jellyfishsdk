@@ -20,11 +20,24 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>}
+   * @return {Promise<string>} oracleid
    */
   async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('appointoracle', [address, priceFeeds, options.weightage, utxos], 'number')
+  }
+
+  /**
+   * Removes oracle.
+   *
+   * @param {string} oracleid
+   * @param {UTXO[]} [utxos = []]
+   * @param {string} [utxos.txid]
+   * @param {number} [utxos.vout]
+   * @return {Promise<string>} oracleid
+   */
+  async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('removeoracle', [oracleid, utxos], 'number')
   }
 }
 

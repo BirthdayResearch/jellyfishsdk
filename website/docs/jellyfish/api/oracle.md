@@ -8,6 +8,7 @@ slug: /jellyfish/api/oracle
 ```js
 import {Client} from '@defichain/jellyfish'
 const client = new Client()
+
 // Using client.oracle.
 const something = await client.oracle.method()
 ```
@@ -29,6 +30,21 @@ interface PriceFeed {
 interface AppointOracleOptions {
   weightage?: number
   utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## removeOracle
+
+Removes oracle.
+
+```ts title="client.oracle.removeOracle()"
+interface oracle {
+  removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {
