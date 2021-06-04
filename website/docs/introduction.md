@@ -34,10 +34,10 @@ Package                                            | Description
 `@defichain/jellyfish-crypto`                      | Cryptography operations for jellyfish, includes a simple 'secp256k1' EllipticPair.
 `@defichain/jellyfish-json`                        | Allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
 `@defichain/jellyfish-network`                     | Contains DeFi blockchain various network configuration for mainnet, testnet and regtest.
-`@defichain/jellyfish-wallet-encrypted`            | Library to perform buffer encryption and decryption using a performing party known passphrase.
 `@defichain/jellyfish-transaction`                 | Dead simple modern stateless raw transaction composer for the DeFi Blockchain.
 `@defichain/jellyfish-transaction-builder`         | Provides a high-high level abstraction for constructing transaction ready to be broadcast for DeFi Blockchain.
 `@defichain/jellyfish-wallet`                      | Jellyfish wallet is a managed wallet, where account can get discovered from an HD seed.
+`@defichain/jellyfish-wallet-encrypted`            | Library to perform buffer encryption and decryption using a performing party known passphrase.
 `@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
 `@defichain/testing`                               | Provides rich test fixture setup functions for effective and effortless testing.

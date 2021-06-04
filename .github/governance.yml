@@ -40,10 +40,10 @@ issue:
         - jellyfish-crypto
         - jellyfish-json
         - jellyfish-network
-        - jellyfish-wallet-encrypted
         - jellyfish-transaction
         - jellyfish-transaction-builder
         - jellyfish-wallet
+        - jellyfish-wallet-encrypted
         - jellyfish-wallet-mnemonic
         - testcontainers
         - testing
