@@ -26,6 +26,11 @@ export class Oracle {
     const { utxos = [] } = options
     return await this.client.call('appointoracle', [address, priceFeeds, options.weightage, utxos], 'number')
   }
+
+  async setOracleData (oracleid: string, timestamp: number, options: SetOracleDataOptions = {}): Promise<string> {
+    const { utxos = [] } = options
+    return await this.client.call('setoracledata', [oracleid, timestamp, options.price, utxos], 'number')
+  }
 }
 
 export interface PriceFeed {
@@ -33,8 +38,18 @@ export interface PriceFeed {
   token: string
 }
 
+export interface Price {
+  currency: string
+  tokenAmount: string
+}
+
 export interface AppointOracleOptions {
   weightage?: number
+  utxos?: UTXO[]
+}
+
+export interface SetOracleDataOptions {
+  price?: Price[]
   utxos?: UTXO[]
 }
 
