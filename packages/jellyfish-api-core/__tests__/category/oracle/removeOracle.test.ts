@@ -1,7 +1,7 @@
-import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, DeFiDRpcError } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { RpcApiError } from '../../../src'
 import { UTXO } from '../../../src/category/oracle'
+import { RpcApiError } from '../../../src'
 
 describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -19,8 +19,8 @@ describe('Oracle', () => {
 
   it('should removeOracle', async () => {
     const priceFeeds = [
-      { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'APPLE' }
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
     ]
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
@@ -50,10 +50,12 @@ describe('Oracle', () => {
 
   it('should removeOracle with utxos', async () => {
     const address = await container.getNewAddress()
+
     const priceFeeds = [
-      { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'APPLE' }
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
     ]
+
     const oracleid = await container.call('appointoracle', [address, priceFeeds, 1])
 
     await container.generate(1)
@@ -65,6 +67,7 @@ describe('Oracle', () => {
         vout: utxo.vout
       }
     })
+
     const data = await client.oracle.removeOracle(oracleid, inputs)
 
     expect(typeof data).toStrictEqual('string')
@@ -80,15 +83,18 @@ describe('Oracle', () => {
 
   it('should not removeOracle with arbitrary utxos', async () => {
     const address = await container.getNewAddress()
+
     const priceFeeds = [
-      { currency: 'USD', token: 'TESLA' },
-      { currency: 'EUR', token: 'APPLE' }
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
     ]
+
     const oracleid = await container.call('appointoracle', [address, priceFeeds, 1])
 
     await container.generate(1)
 
     const { txid, vout } = await container.fundAddress(address, 10)
+
     const promise = client.oracle.removeOracle(oracleid, [{ txid, vout }])
 
     await expect(promise).rejects.toThrow(RpcApiError)
