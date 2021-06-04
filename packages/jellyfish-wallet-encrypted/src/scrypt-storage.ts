@@ -62,13 +62,20 @@ export class EncryptedData {
 
 export class ScryptStorage {
   readonly scryptProvider: ScryptProvider
-  readonly storage: Storage
+  readonly encryptedStorage: Storage
 
-  constructor (scryptProvider: ScryptProvider, storage: Storage) {
+  constructor (scryptProvider: ScryptProvider, readonly storage: Storage) {
     this.scryptProvider = scryptProvider
-    this.storage = storage
+    this.encryptedStorage = storage
   }
 
+  /**
+   * To encrypt `data` with a `passphrase` derived secret (derivation based on provided `ScryptProvider`)
+   * @see https://github.com/bitcoin/bips/blob/master/bip-0038.mediawiki#Encryption_when_EC_multiply_flag_is_not_used for encryption methodology
+   *
+   * @param {Buffer} data data with even number length
+   * @param {string} passphrase to derived encryption secret, utf8 string in normalization format C
+   */
   async encrypt (data: Buffer, passphrase: string): Promise<void> {
     if (data.length % 2 !== 0) {
       throw new Error('Data length must be even number')
@@ -91,11 +98,16 @@ export class ScryptStorage {
     const b2 = Aes256.encrypt(k2, xor2)
 
     const encrypted = new EncryptedData(0x01, 0x42, 0xc0, hash, b1, b2)
-    await this.storage.setter(encrypted.encode())
+    await this.encryptedStorage.setter(encrypted.encode())
   }
 
+  /**
+   * To decrypt raw data
+   * @param {string} passphrase to decrypted data, utf8 string in normalization format C
+   * @returns {Promise<Buffer|null>} null if no data found in storage
+   */
   async decrypt (passphrase: string): Promise<Buffer|null> {
-    const encrypted = await this.storage.getter()
+    const encrypted = await this.encryptedStorage.getter()
 
     if (encrypted === undefined) {
       return null
@@ -113,7 +125,8 @@ export class ScryptStorage {
 
     const d1 = this._xor(k1a, dec1)
     const d2 = this._xor(k1b, dec2)
-    return Buffer.from([...d1, ...d2])
+    const decrypted = Buffer.from([...d1, ...d2])
+    return decrypted
   }
 
   private _xor (key: Buffer, data: Buffer): Buffer {
