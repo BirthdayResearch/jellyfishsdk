@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { SelectionModeType } from '../../../src/category/account'
+import { AddressBalances, SelectionModeType } from '../../../src/category/account'
 
 describe('SendTokenToAddress', () => {
   const container = new MasterNodeRegTestContainer()
@@ -45,45 +45,72 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
   }
 
-  it('should create a transaction with auto select (empty source address)', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] })
+  async function sendTokensToAddress (from: AddressBalances, to: AddressBalances, selectionMode?: SelectionModeType): Promise<string> {
+    const transactionHex = await client.account.sendTokensToAddress(from, to, selectionMode)
+    await container.generate(1)
+    return transactionHex
+  }
 
+  it('should create a transaction with auto select (empty source address)', async () => {
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({}, { [address]: ['2@DFI'] })
+    const account = await client.account.getAccount(address)
+
+    expect(account).toStrictEqual(['2.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Pie selection Mode', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] }, SelectionModeType.PIE)
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({}, { [address]: ['2@DFI'] }, SelectionModeType.PIE)
+    const account = await client.account.getAccount(address)
 
+    expect(account).toStrictEqual(['2.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Forward selection mode', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] }, SelectionModeType.FORWARD)
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({}, { [address]: ['2@DFI'] }, SelectionModeType.FORWARD)
+    const account = await client.account.getAccount(address)
 
+    expect(account).toStrictEqual(['2.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with Crumbs selection mode', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@DFI'] }, SelectionModeType.CRUMBS)
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({}, { [address]: ['2@DFI'] }, SelectionModeType.CRUMBS)
+    const account = await client.account.getAccount(address)
 
+    expect(account).toStrictEqual(['2.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with multiple destination address tokens', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['2@ETH', '0.1@DBTC', '10@DFI'] })
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({}, { [address]: ['2@ETH', '0.1@DBTC', '10@DFI'] })
+    const account = await client.account.getAccount(address)
 
+    expect(account).toStrictEqual(['10.00000000@DFI', '0.10000000@DBTC', '2.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with source address provided', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['10@ETH'] }, { [await client.wallet.getNewAddress()]: ['10@ETH'] })
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({ [from]: ['10@ETH'] }, { [address]: ['10@ETH'] })
+    const account = await client.account.getAccount(address)
 
+    expect(account).toStrictEqual(['10.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
   it('should create a transaction with multiple source address tokens provided', async () => {
-    const transactionHex = await client.account.sendTokensToAddress({ [from]: ['2@DBTC', '10@ETH'] }, { [await client.wallet.getNewAddress()]: ['2@DBTC', '10@ETH'] })
+    const address = await client.wallet.getNewAddress()
+    const transactionHex = await sendTokensToAddress({ [from]: ['2@DBTC', '10@ETH'] }, { [address]: ['2@DBTC', '10@ETH'] })
+    const account = await client.account.getAccount(address)
 
+    expect(account).toStrictEqual(['2.00000000@DBTC', '10.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
