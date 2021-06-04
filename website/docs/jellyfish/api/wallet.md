@@ -1,12 +1,10 @@
 ---
-id: wallet
-title: Wallet API
-sidebar_label: Wallet API
-slug: /jellyfish/api/wallet
+id: wallet title: Wallet API sidebar_label: Wallet API slug: /jellyfish/api/wallet
 ---
 
 ```js
 import {Client} from '@defichain/jellyfish'
+
 const client = new Client()
 
 // Using client.wallet.
@@ -16,14 +14,15 @@ const something = await client.wallet.method()
 ## getBalance
 
 Returns the total available balance in wallet.
+
 - `minimumConfirmation` to include transactions confirmed at least this many times.
 - `includeWatchOnly` for watch-only wallets, otherwise
   - Include balance in watch-only addresses (see `importAddress`)
 
 ```ts title="client.wallet.getBalance()"
 interface wallet {
-  getBalance (minimumConfirmation: number = 0, 
-              includeWatchOnly: boolean = false): Promise<BigNumber>   
+  getBalance (minimumConfirmation: number = 0,
+              includeWatchOnly: boolean = false): Promise<BigNumber>
 }
 ```
 
@@ -135,11 +134,11 @@ enum BIP125 {
 }
 
 enum InWalletTransactionCategory {
-    SEND = "SEND",
-    RECEIVE = "RECEIVE",
-    GENERATE = "GENERATE",
-    IMMATURE = "IMMATURE",
-    ORPHAN = "ORPHAN"
+  SEND = "SEND",
+  RECEIVE = "RECEIVE",
+  GENERATE = "GENERATE",
+  IMMATURE = "IMMATURE",
+  ORPHAN = "ORPHAN"
 }
 ```
 
@@ -192,9 +191,8 @@ interface WalletFlagResult {
 
 ## getNewAddress
 
-Returns a new DeFi address for receiving payments.
-If 'label' is specified, it's added to the address book.
-So payments received with the address will be associated with 'label'.
+Returns a new DeFi address for receiving payments. If 'label' is specified, it's added to the address book. So payments
+received with the address will be associated with 'label'.
 
 ```ts title="client.wallet.getNewAddress()"
 interface wallet {
@@ -298,7 +296,8 @@ interface SendToAddressOptions {
 
 ## listAddressGroupings
 
-List groups of addresses which have had their common ownership made public by common use as inputs or as the resulting change in past transactions.
+List groups of addresses which have had their common ownership made public by common use as inputs or as the resulting
+change in past transactions.
 
 ```ts title="client.wallet.listAddressGroupings()"
 interface wallet {
@@ -312,7 +311,9 @@ Send given amounts to multiple given address and return a transaction id.
 
 ```ts title="client.wallet.sendMany()"
 interface wallet {
-  async sendMany (amounts: Record<string, number> , subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+  async
+
+  sendMany (amounts: Record<string, number>, subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
 }
 
 interface SendManyOptions {
