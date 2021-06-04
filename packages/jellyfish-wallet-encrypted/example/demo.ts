@@ -1,10 +1,10 @@
 import { Transaction } from '@defichain/jellyfish-transaction/dist'
 import { EncryptedMnemonicProvider, ScryptStorage, ScryptProvider, Storage, SimpleScryptsy } from '../src'
 
+// Implementation of ScryptProvider depend on your platform, eg: react-native-scrypt
+// if npm package `scryptsy` available on your platform, can use `SimpleScryptsy` direct
 class MyScryptProvider implements ScryptProvider {
   passphraseToKey (passphrase: string, salt: Buffer, keyLength: number): Buffer {
-    // if npm package `scryptsy` available on your platform, can use this direct
-    // otherwise, build your own ScryptProvider depend on available libray, eg: react-native-scrypt
     return new SimpleScryptsy().passphraseToKey(passphrase, salt, keyLength)
   }
 }
@@ -20,6 +20,7 @@ class MockSecuredStorage implements Storage {
     this.inMemory = data
   }
 }
+// create 2 string storages, for encrypted data and dSHA256(data) storing purpose
 const mySecuredStorage = new MockSecuredStorage()
 const mySecuredStorage2 = new MockSecuredStorage()
 
