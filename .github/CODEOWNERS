@@ -14,7 +14,6 @@
 /packages/jellyfish-crypto/                     @fuxingloh
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh
-/packages/jellyfish-wallet-encrypted/           @ivan-zynesis
 
 /packages/jellyfish-transaction/                          @fuxingloh
 /packages/jellyfish-transaction/src/script/               @fuxingloh @canonbrother @jingyi2811
@@ -22,6 +21,7 @@
 
 /packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet/                     @fuxingloh
+/packages/jellyfish-wallet-encrypted/           @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh
 /packages/testcontainers/                       @fuxingloh
 /packages/testing/                              @fuxingloh @canonbrother
