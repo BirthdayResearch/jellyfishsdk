@@ -426,7 +426,7 @@ export interface WalletFlagResult {
 
 export interface InWalletTransaction {
   amount: number
-  fee: number
+  fee?: number
   confirmations: number
   blockhash: string
   blockindex: number
@@ -434,7 +434,7 @@ export interface InWalletTransaction {
   txid: string
   time: number
   timereceived: number
-  bip125replaceable: BIP125
+  bip125replaceable?: BIP125
   details: InWalletTransactionDetail[]
   hex: string
 }
@@ -449,17 +449,17 @@ interface InWalletTransactionDetail {
   abandoned: boolean
 }
 
-enum BIP125 {
-  YES = 'YES',
-  NO = 'NO',
-  UNKNOWN = 'UNKNOWN'
+export enum BIP125 {
+  YES = 'yes',
+  NO = 'no',
+  UNKNOWN = 'unknown'
 
 }
 
-enum InWalletTransactionCategory {
-  SEND = 'SEND',
-  RECEIVE = 'RECEIVE',
-  GENERATE = 'GENERATE',
-  IMMATURE = 'IMMATURE',
-  ORPHAN = 'ORPHAN'
+export enum InWalletTransactionCategory {
+  SEND = 'send',
+  RECEIVE = 'receive',
+  GENERATE = 'generate',
+  IMMATURE = 'immature',
+  ORPHAN = 'orphan'
 }
