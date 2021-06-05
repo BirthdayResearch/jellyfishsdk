@@ -20,7 +20,7 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>}
+   * @return {Promise<string>} txn id for txn created to remove oracle
    */
   async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
@@ -34,7 +34,7 @@ export class Oracle {
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
-   * @return {Promise<string>} oracleid
+   * @return {Promise<string>} txn id for txn created to remove oracle
    */
   async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('removeoracle', [oracleid, utxos], 'number')
@@ -51,17 +51,12 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>}
+   * @return {Promise<string>} txn id for txn created to remove oracle
    */
   async updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('updateoracle', [oracleid, address, options.priceFeeds, options.weightage, utxos], 'number')
   }
-}
-
-export interface PriceFeed {
-  currency: string
-  token: string
 }
 
 export interface AppointOracleOptions {
@@ -73,6 +68,11 @@ export interface UpdateOracleOptions {
   priceFeeds?: PriceFeed[]
   weightage?: number
   utxos?: UTXO[]
+}
+
+export interface PriceFeed {
+  currency: string
+  token: string
 }
 
 export interface UTXO {

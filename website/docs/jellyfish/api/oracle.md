@@ -52,16 +52,6 @@ interface UTXO {
 }
 ```
 
-## getOracleData
-
-Returns oracle data in json form.
-
-```ts title="client.oracle.getOracleData()"
-interface oracle {
-  getOracleData (oracleid: string): Promise<string>
-}
-```
-
 ## updateOracle
 
 Update a price oracle for rely of real time price data.
@@ -72,7 +62,7 @@ interface oracle {
 }
 
 interface UpdateOracleOptions {
-  priceFeeds?: PriceFeed[],
+  priceFeeds?: PriceFeed[]
   weightage?: number
   utxos?: UTXO[]
 }
