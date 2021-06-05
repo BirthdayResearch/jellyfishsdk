@@ -202,14 +202,12 @@ describe('Oracle', () => {
 
   it('should not updateOracle with arbitrary utxos', async () => {
     // Appoint oracle
-    const address = await container.getNewAddress()
-
     const appointOraclePriceFeeds = [
       { token: 'APPLE', currency: 'EUR' },
       { token: 'TESLA', currency: 'USD' }
     ]
 
-    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
 
     await container.generate(1)
 
@@ -220,7 +218,7 @@ describe('Oracle', () => {
     ]
 
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
-    const promise = client.oracle.updateOracle(oracleid, address, {
+    const promise = client.oracle.updateOracle(oracleid, await container.getNewAddress(), {
       priceFeeds: updateOraclePriceFeeds,
       weightage: 2,
       utxos: [{ txid, vout }]
