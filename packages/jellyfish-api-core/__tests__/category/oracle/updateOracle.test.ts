@@ -158,12 +158,14 @@ describe('Oracle', () => {
 
   it('should updateOracle with utxos', async () => {
     // Appoint oracle
+    const address = await container.getNewAddress()
+
     const appointOraclePriceFeeds = [
       { token: 'APPLE', currency: 'EUR' },
       { token: 'TESLA', currency: 'USD' }
     ]
 
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeeds, 1])
 
     await container.generate(1)
 
@@ -173,7 +175,7 @@ describe('Oracle', () => {
       { token: 'MSFT', currency: 'SGD' }
     ]
 
-    const utxos = await container.call('listunspent', [1, 9999999, [await container.getNewAddress()], true])
+    const utxos = await container.call('listunspent', [1, 9999999, [address], true])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
