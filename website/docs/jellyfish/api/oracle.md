@@ -37,6 +37,31 @@ interface UTXO {
 }
 ```
 
+## removeOracle
+
+Removes oracle.
+
+```ts title="client.oracle.removeOracle()"
+interface oracle {
+  removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## getOracleData
+
+Returns oracle data in json form.
+
+```ts title="client.oracle.getOracleData()"
+interface oracle {
+  getOracleData (oracleid: string): Promise<string>
+}
+```
+
 ## updateOracle
 
 Update a price oracle for rely of real time price data.

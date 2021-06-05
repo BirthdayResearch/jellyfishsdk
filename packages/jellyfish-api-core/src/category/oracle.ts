@@ -28,6 +28,19 @@ export class Oracle {
   }
 
   /**
+   * Removes oracle.
+   *
+   * @param {string} oracleid
+   * @param {UTXO[]} [utxos = []]
+   * @param {string} [utxos.txid]
+   * @param {number} [utxos.vout]
+   * @return {Promise<string>} oracleid
+   */
+  async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('removeoracle', [oracleid, utxos], 'number')
+  }
+
+  /**
    * Update a price oracle for rely of real time price data.
    *
    * @param {string} oracleid
@@ -46,6 +59,11 @@ export class Oracle {
   }
 }
 
+export interface PriceFeed {
+  currency: string
+  token: string
+}
+
 export interface AppointOracleOptions {
   weightage?: number
   utxos?: UTXO[]
@@ -55,11 +73,6 @@ export interface UpdateOracleOptions {
   priceFeeds?: PriceFeed[]
   weightage?: number
   utxos?: UTXO[]
-}
-
-export interface PriceFeed {
-  currency: string
-  token: string
 }
 
 export interface UTXO {
