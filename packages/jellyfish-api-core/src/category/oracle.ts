@@ -20,7 +20,7 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} txn id for txn created to remove oracle
+   * @return {Promise<string>} txn id for txn created to appoint oracle
    */
   async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
@@ -51,7 +51,7 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} txn id for txn created to remove oracle
+   * @return {Promise<string>} txn id for txn created to update oracle
    */
   async updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
