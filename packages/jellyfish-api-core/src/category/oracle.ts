@@ -38,18 +38,8 @@ export interface PriceFeed {
   token: string
 }
 
-export interface Price {
-  currency: string
-  tokenAmount: string
-}
-
 export interface AppointOracleOptions {
   weightage?: number
-  utxos?: UTXO[]
-}
-
-export interface SetOracleDataOptions {
-  price?: Price[]
   utxos?: UTXO[]
 }
 

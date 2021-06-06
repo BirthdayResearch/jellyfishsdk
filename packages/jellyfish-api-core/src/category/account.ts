@@ -11,7 +11,7 @@ export enum OwnerType {
   ALL = 'all'
 }
 
-export enum TxType {
+export enum DfTxType {
   MINT_TOKEN ='M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
@@ -282,7 +282,7 @@ export class Account {
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
-   * @param {string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG
+   * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
    * @return {Promise<AccountHistory[]>}
    */
@@ -302,7 +302,7 @@ export class Account {
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
-   * @param {TxType | string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @return {Promise<number>} count of account history
    */
   async historyCount (
@@ -378,12 +378,12 @@ export interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: string
+  txtype?: DfTxType
   limit?: number
 }
 
 export interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: DfTxType
   no_rewards?: boolean
 }
