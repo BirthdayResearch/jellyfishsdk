@@ -477,7 +477,6 @@ const HEX_MAPPING: {
   0x5f: OP_CODES.OP_15,
   0x60: OP_CODES.OP_16,
   // control
-  0x6a: OP_CODES.OP_RETURN,
   0x61: OP_CODES.OP_NOP,
   0x62: OP_CODES.OP_VER,
   0x63: OP_CODES.OP_IF,
@@ -487,6 +486,7 @@ const HEX_MAPPING: {
   0x67: OP_CODES.OP_ELSE,
   0x68: OP_CODES.OP_ENDIF,
   0x69: OP_CODES.OP_VERIFY,
+  0x6a: OP_CODES.OP_RETURN,
   // stack
   0x76: OP_CODES.OP_DUP,
   // bitwise
