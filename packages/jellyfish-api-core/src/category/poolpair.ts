@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { ApiClient } from '..'
 
+export type PoolSwapResultType = `${number}&${string}`
+
 /**
  * PoolPair RPCs for DeFi Blockchain
  */
@@ -120,8 +122,24 @@ export class PoolPair {
    * @param {number} [inputs.vout] The output number.
    * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
    */
-  async poolSwap (metadata: PoolSwapMetadata, inputs?: PoolSwapInputs): Promise<string> {
+  async poolSwap (metadata: PoolSwapMetadata, inputs: PoolSwapInputs[] = []): Promise<string> {
     return await this.client.call('poolswap', [metadata, inputs], 'bignumber')
+  }
+
+  /**
+   * Tests a poolswap transaction with given metadata and returns poolswap result. See PoolSwapResultType.
+   *
+   * @param {PoolSwapMetadata} metadata
+   * @param {string} [metadata.from] Address of the owner of tokenA.
+   * @param {string} [metadata.tokenFrom] One of the keys may be specified (id/symbol).
+   * @param {number} [metadata.amountFrom] tokenFrom coins amount.
+   * @param {string} [metadata.to] Address of the owner of tokenB.
+   * @param {string} [metadata.tokenTo] One of the keys may be specified (id/symbol).
+   * @param {number} [metadata.maxPrice] Maximum acceptable price.
+   * @return {Promise<PoolSwapResult>} TThe string with amount result of poolswap.
+   */
+  async testPoolSwap (metadata?: PoolSwapMetadata): Promise<PoolSwapResultType> {
+    return await this.client.call('testpoolswap', [metadata], 'bignumber')
   }
 }
 
@@ -207,7 +225,7 @@ export interface PoolSwapMetadata {
   amountFrom: number
   to: string
   tokenTo: string
-  maxPrice: number
+  maxPrice?: number
 }
 
 export interface PoolSwapInputs {

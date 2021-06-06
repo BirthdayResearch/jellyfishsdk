@@ -184,3 +184,24 @@ interface PoolSwapInputs {
   vout: number
 }
 ```
+
+## testPoolSwap 
+
+Tests a poolswap transaction with given metadata and returns poolswap result. See PoolswapResultType.
+
+```ts title="client.poolpair.testPoolSwap()"
+interface testPoolSwap {
+  poolSwap (metadata: PoolSwapMetadata): Promise<PoolSwapResultType>
+}
+
+export type PoolSwapResultType = `${number}&${string}`
+
+interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice: number
+}
+```

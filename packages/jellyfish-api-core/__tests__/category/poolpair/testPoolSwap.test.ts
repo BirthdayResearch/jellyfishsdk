@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { PoolSwapMetadata, PoolSwapResultType } from '../../../src/category/poolpair'
+import { PoolSwapInputs, PoolSwapMetadata } from '../../../src/category/poolpair'
 
 describe('poolpair', () => {
   const container = new MasterNodeRegTestContainer()
@@ -21,9 +21,9 @@ describe('poolpair', () => {
   let address: string
 
   async function setup (): Promise<void> {
-    await createToken('ETH')
-    await mintTokens('ETH')
-    await createPoolPair('ETH')
+    await createToken('DDAI')
+    await mintTokens('DDAI')
+    await createPoolPair('DDAI')
     await addPoolLiquidity()
   }
 
@@ -41,8 +41,8 @@ describe('poolpair', () => {
     await container.generate(1)
   }
 
-  async function testPoolSwap (metadata: PoolSwapMetadata): Promise<PoolSwapResultType> {
-    return await client.poolpair.testPoolSwap(metadata)
+  async function poolSwap (metadata: PoolSwapMetadata, inputs?: PoolSwapInputs[]): Promise<string> {
+    return await client.poolpair.poolSwap(metadata, inputs)
   }
 
   async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
@@ -60,7 +60,7 @@ describe('poolpair', () => {
   async function addPoolLiquidity (): Promise<void> {
     const shareAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
-      '*': ['10@DFI', '200@ETH']
+      '*': ['10@DFI', '200@DDAI']
     }, shareAddress)
 
     await container.generate(1)
@@ -69,16 +69,17 @@ describe('poolpair', () => {
   async function mintTokens (symbol: string): Promise<void> {
     await container.call('utxostoaccount', [{ [address]: '100@0' }])
     await container.call('minttokens', [`2000@${symbol}`])
+
     await container.generate(1)
   }
 
-  it('should create a poolswap transaction with specified UTOXS to spend', async () => {
+  it('should test and check a poolswap transaction with UTXO inputs specified', async () => {
     const metadata: PoolSwapMetadata = {
       from: address,
       amountFrom: 2,
-      tokenFrom: 'DFI',
-      tokenTo: 'ETH',
-      maxPrice: 20,
+      tokenFrom: 'DDAI',
+      tokenTo: 'DFI',
+      maxPrice: 35,
       to: await client.wallet.getNewAddress()
     }
     const utxos = await container.call('listunspent')
@@ -88,51 +89,35 @@ describe('poolpair', () => {
         vout: utxo.vout
       }
     })
-    const poolSwapHex = await client.poolpair.poolSwap(metadata, inputs)
-    const swapAmount = await client.poolpair.testPoolSwap(metadata)
-
-    expect(typeof poolSwapHex).toStrictEqual('string')
-    expect(swapAmount).toStrictEqual('33.36113339@1')
-  })
-
-  it('should create a poolswap transaction', async () => {
-    const metadata: PoolSwapMetadata = {
-      from: address, amountFrom: 2, tokenFrom: 'DFI', tokenTo: 'ETH', to: await client.wallet.getNewAddress()
-    }
-    const poolswapHex = await client.poolpair.poolSwap(metadata)
-    const swapAmount = await testPoolSwap(metadata)
-
-    expect(swapAmount).toStrictEqual('33.36113339@1')
-    expect(typeof poolswapHex).toStrictEqual('string')
-  })
-
-  it('should create a poolswap transaction with max price specified', async () => {
-    const metadata: PoolSwapMetadata = {
-      from: address,
-      amountFrom: 2,
-      tokenFrom: 'ETH',
-      tokenTo: 'DFI',
-      maxPrice: 20,
-      to: await client.wallet.getNewAddress()
-    }
-    const poolswapHex = await client.poolpair.poolSwap(metadata)
+    await client.poolpair.poolSwap(metadata, inputs)
     const swapAmount = await client.poolpair.testPoolSwap(metadata)
 
     expect(swapAmount).toStrictEqual('0.09910797@0')
-    expect(typeof poolswapHex).toStrictEqual('string')
   })
 
-  it('should throw an error when invalid token is specified', async () => {
-    const invalidToken = 'INVALID'
-    const metadata = {
+  it('should test and check a poolswap transaction', async () => {
+    const to = await client.wallet.getNewAddress()
+    const metadata: PoolSwapMetadata = { from: address, amountFrom: 2, tokenFrom: 'DDAI', tokenTo: 'DFI', to }
+
+    await poolSwap(metadata)
+    const swapAmount = await client.poolpair.testPoolSwap(metadata)
+
+    expect(swapAmount).toStrictEqual('0.09910797@0')
+  })
+
+  it('should test and check a poolswap transaction with max price', async () => {
+    const to = await client.wallet.getNewAddress()
+    const metadata: PoolSwapMetadata = {
       from: address,
       amountFrom: 2,
-      tokenFrom: invalidToken,
+      tokenFrom: 'DDAI',
       tokenTo: 'DFI',
-      maxPrice: 20,
-      to: await client.wallet.getNewAddress()
+      to,
+      maxPrice: 35
     }
+    await poolSwap(metadata)
+    const swapAmount = await client.poolpair.testPoolSwap(metadata)
 
-    await expect(client.poolpair.poolSwap(metadata)).rejects.toThrow('TokenFrom was not found')
+    expect(swapAmount).toStrictEqual('0.09910797@0')
   })
 })
