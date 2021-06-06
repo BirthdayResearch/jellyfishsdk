@@ -34,7 +34,7 @@ export class Oracle {
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
-   * @return {Promise<string>} oracleid, also the txn id for txn created to remove oracle
+   * @return {Promise<string>} txid
    */
   async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('removeoracle', [oracleid, utxos], 'number')
@@ -51,7 +51,7 @@ export class Oracle {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} oracleid, also the txn id for txn created to update oracle
+   * @return {Promise<string>} txid
    */
   async updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
