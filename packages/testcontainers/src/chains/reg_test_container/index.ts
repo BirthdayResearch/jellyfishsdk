@@ -16,6 +16,7 @@ export class RegTestContainer extends DeFiDContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [...super.getCmd(opts),
       '-regtest=1',
+      '-jellyfish_regtest=1',
       '-txnotokens=0',
       '-logtimemicros',
       '-txindex=1',
