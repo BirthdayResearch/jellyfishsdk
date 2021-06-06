@@ -15,25 +15,32 @@ describe('Oracle', () => {
     await container.stop()
   })
 
-  it('should listOracleData', async () => {
+  it('should listOracles', async () => {
     const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' },
       { token: 'TESLA', currency: 'USD' }
     ]
 
     const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
+    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 2])
 
     await container.generate(1)
 
     const data = await client.oracle.listOracles()
 
     expect(data.length).toStrictEqual(2)
-    expect(data[0]).toStrictEqual(oracleid1)
-    expect(data[1]).toStrictEqual(oracleid2)
+    expect(typeof data[0]).toStrictEqual('string')
+    expect(data[0].length).toStrictEqual(64)
+    expect(typeof data[1]).toStrictEqual('string')
+    expect(data[1].length).toStrictEqual(64)
+
+    await container.call('removeoracle', [oracleid1])
+    await container.call('removeoracle', [oracleid2])
+
+    await container.generate(1)
   })
 
-  it('should listOracleData with empty result if there is no oracle created before', async () => {
+  it('should listOracles with empty result if there is no oracle created before', async () => {
     const data = await client.oracle.listOracles()
     expect(data.length).toStrictEqual(0)
   })
