@@ -19,7 +19,7 @@ export class OP_VER extends StaticCode {
 }
 
 /**
- * If the top stack value is not False, the statements are executed
+ * If the top stack value is true, the statements are executed
  */
 export class OP_IF extends StaticCode {
   constructor () {
@@ -28,7 +28,7 @@ export class OP_IF extends StaticCode {
 }
 
 /**
- * If the top stack value is False, the statements are executed.
+ * If the top stack value is false, the statements are executed.
  */
 export class OP_NOTIF extends StaticCode {
   constructor () {
@@ -37,7 +37,7 @@ export class OP_NOTIF extends StaticCode {
 }
 
 /**
- * If the top stack value is EQUAL to the version of the protocol under which
+ * If the top stack value is equal to the version of the protocol under which
  * this transaction will be evaluated, the statements between IF and ELSE are executed.
  */
 export class OP_VERIF extends StaticCode {
@@ -47,7 +47,7 @@ export class OP_VERIF extends StaticCode {
 }
 
 /**
- *  If the top stack value is NOT EQUAL to the version of the protocol under which this
+ *  If the top stack value is not equal to the version of the protocol under which this
  *  transaction will be evaluated, the statements between IF and ELSE are executed.
  */
 export class OP_VERNOTIF extends StaticCode {
