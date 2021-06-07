@@ -17,9 +17,10 @@ describe('Server on masternode', () => {
   })
 
   const address = 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU'
+  const amount = 0.00001
 
   it('should getTransaction', async () => {
-    const txid = await client.wallet.sendToAddress(address, 0.00001)
+    const txid = await client.wallet.sendToAddress(address, amount)
     await container.generate(1)
 
     const inWalletTransaction = await client.wallet.getTransaction(txid)
@@ -47,7 +48,7 @@ describe('Server on masternode', () => {
   })
 
   it('should getTransaction with includesWatch false', async () => {
-    const txid = await client.wallet.sendToAddress(address, 0.00001)
+    const txid = await client.wallet.sendToAddress(address, amount)
     await container.generate(1)
 
     const inWalletTransaction = await client.wallet.getTransaction(txid, false)
