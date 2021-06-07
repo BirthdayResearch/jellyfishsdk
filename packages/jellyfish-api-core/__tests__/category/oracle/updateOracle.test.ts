@@ -52,7 +52,7 @@ describe('Oracle', () => {
     })
   })
 
-  it('should not updateOracle for invalid oracleid', async () => {
+  it('should not updateOracle if oracleid is invalid', async () => {
     const oracleid = '8430ac5711d78dc6f98591e144916d27f80952271c62cc15410f878d9b08300d'
 
     const priceFeeds = [
