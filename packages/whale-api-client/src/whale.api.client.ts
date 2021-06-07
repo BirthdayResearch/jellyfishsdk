@@ -28,9 +28,8 @@ export interface WhaleApiClientOptions {
 
   /**
    * Network that whale client is configured to
-   * Playground is a special network for testing, see https://github.com/DeFiCh/playground
    */
-  network?: 'mainnet' | 'testnet' | 'regtest' | 'playground'
+  network?: 'mainnet' | 'testnet' | 'regtest'
 }
 
 /**
