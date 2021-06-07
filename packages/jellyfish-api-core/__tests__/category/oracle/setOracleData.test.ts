@@ -53,7 +53,7 @@ describe('Oracle', () => {
     )
   })
 
-  it('should not setOracleData if oracleid is invalid', async () => {
+  it('should not setOracleData for invalid oracleid', async () => {
     const oracleid = 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
 
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]

@@ -89,7 +89,7 @@ interface oracle {
 }
 
 interface SetOracleDataOptions {
-  price?: OraclePrice[]
+  prices?: OraclePrice[]
   utxos?: UTXO[]
 }
 
