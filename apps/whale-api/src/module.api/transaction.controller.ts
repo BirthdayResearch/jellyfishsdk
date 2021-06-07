@@ -59,6 +59,14 @@ export class TransactionsController {
       return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
     } catch (e) {
       // TODO(fuxingloh): more meaningful error
+      if (e.payload.message === 'TX decode failed') {
+        throw new BadRequestApiException('Transaction decode failed')
+      }
+      if (e.payload.message.indexOf('absurdly-high-fee') !== -1) {
+        // message: 'absurdly-high-fee, 100000000 > 11100000 (code 256)'
+        throw new BadRequestApiException('Absurdly high fee')
+      }
+      /* istanbul ignore next */
       throw new BadRequestApiException()
     }
   }
@@ -74,12 +82,19 @@ export class TransactionsController {
     const maxFeeRate = this.getMaxFeeRate(tx)
     try {
       const result = await this.client.rawtx.testMempoolAccept(tx.hex, maxFeeRate)
-      if (result.allowed) {
-        return
+      if (!result.allowed) {
+        throw new Error('Transaction is not allowed to be inserted')
       }
     } catch (e) {
+      if (e.message === 'Transaction is not allowed to be inserted') {
+        throw new BadRequestApiException('Transaction is not allowed to be inserted')
+      }
+      if (e.payload.message === 'TX decode failed') {
+        throw new BadRequestApiException('Transaction decode failed')
+      }
+      /* istanbul ignore next */
+      throw new BadRequestApiException()
     }
-    throw new BadRequestApiException()
   }
 
   private getMaxFeeRate (tx: RawTxDto): BigNumber {

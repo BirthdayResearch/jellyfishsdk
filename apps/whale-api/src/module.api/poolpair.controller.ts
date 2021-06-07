@@ -1,4 +1,4 @@
-import { NotFoundException, Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common'
+import { BadRequestException, NotFoundException, Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
@@ -56,7 +56,12 @@ export class PoolPairController {
       await this.poolPairInfoCache.set(id, poolPairData)
       return poolPairData
     } catch (e) {
-      throw new NotFoundException('unable to find poolpair')
+      /* istanbul ignore else */
+      if (e.payload.message === 'Pool not found') {
+        throw new NotFoundException('Unable to find poolpair')
+      } else {
+        throw new BadRequestException(e)
+      }
     }
   }
 }

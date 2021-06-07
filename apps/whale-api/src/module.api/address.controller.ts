@@ -48,7 +48,7 @@ export class AddressController {
    * @param {PaginationQuery} query
    */
   @Get('/tokens')
-  async listToken (
+  async listTokens (
     @Param('address') address: string,
       @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<AddressToken>> {
@@ -77,7 +77,7 @@ export class AddressController {
   }
 
   @Get('/transactions')
-  async listTransaction (
+  async listTransactions (
     @Param('network') network: NetworkName,
       @Param('address') address: string,
       @Query() query: PaginationQuery
@@ -91,7 +91,7 @@ export class AddressController {
   }
 
   @Get('/transactions/unspent')
-  async listTransactionUnspent (
+  async listTransactionsUnspent (
     @Param('network') network: NetworkName,
       @Param('address') address: string,
       @Query() query: PaginationQuery

@@ -10,6 +10,7 @@ import { DatabaseModule } from '@src/module.database/_module'
 import { ModelModule } from '@src/module.model/_module'
 import { DeFiDModule } from '@src/module.defid/_module'
 import { IndexerModule } from '@src/module.indexer/_module'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 const container = new MasterNodeRegTestContainer()
 let controller: AddressController
@@ -48,7 +49,7 @@ afterAll(async () => {
   await container.stop()
 })
 
-describe('tokens', () => {
+describe('listTokens', () => {
   const address = 'bcrt1qf5v8n3kfe6v5mharuvj0qnr7g74xnu9leut39r'
 
   beforeAll(async () => {
@@ -61,8 +62,8 @@ describe('tokens', () => {
     await container.generate(1)
   })
 
-  it('should listToken', async () => {
-    const response = await controller.listToken(address, {
+  it('should listTokens', async () => {
+    const response = await controller.listTokens(address, {
       size: 30
     })
 
@@ -80,8 +81,8 @@ describe('tokens', () => {
     })
   })
 
-  it('should listToken with pagination', async () => {
-    const first = await controller.listToken(address, {
+  it('should listTokens with pagination', async () => {
+    const first = await controller.listTokens(address, {
       size: 2
     })
     expect(first.data.length).toStrictEqual(2)
@@ -89,7 +90,7 @@ describe('tokens', () => {
     expect(first.data[0].symbol).toStrictEqual('A')
     expect(first.data[1].symbol).toStrictEqual('B')
 
-    const next = await controller.listToken(address, {
+    const next = await controller.listTokens(address, {
       size: 10,
       next: first.page?.next
     })
@@ -102,13 +103,21 @@ describe('tokens', () => {
     expect(next.data[3].symbol).toStrictEqual('F')
   })
 
-  it('should listToken with undefined next pagination', async () => {
-    const first = await controller.listToken(address, {
+  it('should listTokens with undefined next pagination', async () => {
+    const first = await controller.listTokens(address, {
       size: 2,
       next: undefined
     })
 
     expect(first.data.length).toStrictEqual(2)
     expect(first.page?.next).toStrictEqual('2')
+  })
+
+  it('should throw error while listTokens with invalid address', async () => {
+    await expect(controller.listTokens('invalid', { size: 30 }))
+      .rejects.toThrow(RpcApiError)
+
+    await expect(controller.listTokens('invalid', { size: 30 }))
+      .rejects.toThrow('recipient (invalid) does not refer to any valid address')
   })
 })
