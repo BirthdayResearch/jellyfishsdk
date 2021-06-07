@@ -32,7 +32,7 @@ it('should wait for block 0', async () => {
   const block = await blockMapper.getByHeight(0)
 
   expect(block?.height).toStrictEqual(0)
-  expect(block?.hash).toStrictEqual('0091f00915b263d08eba2091ba70ba40cea75242b3f51ea29f4a1b8d7814cd01')
+  expect(block?.hash).toStrictEqual('d744db74fb70ed42767ae028a129365fb4d7de54ba1b6575fb047490554f8a7b')
   expect(block?.stakeModifier).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000000')
   expect(block?.transactionCount).toBeGreaterThan(0)
 })

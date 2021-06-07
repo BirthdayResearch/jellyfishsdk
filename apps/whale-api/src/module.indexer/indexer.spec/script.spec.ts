@@ -52,77 +52,81 @@ async function expectUnspent (scriptHex: string): Promise<void> {
   }
 }
 
-it('should wait for block height 1', async () => {
-  await waitForHeight(app, 1)
-
-  const scriptHex = '76a914b36814fd26190b321aa985809293a41273cfe15e88ac'
-  const hid = HexEncoder.asSHA256(scriptHex)
-
-  await expectActivities(scriptHex)
-  await expectUnspent(scriptHex)
-
-  const aggregationMapper = app.get(ScriptAggregationMapper)
-  const aggregation = await aggregationMapper.get(hid, 1)
-
-  expect(aggregation?.hid).toStrictEqual(hid)
-  expect(aggregation?.block.height).toStrictEqual(1)
-  expect(aggregation?.script.hex).toStrictEqual(scriptHex)
-
-  expect(aggregation?.statistic.txCount).toStrictEqual(2)
-  expect(aggregation?.statistic.txInCount).toStrictEqual(2)
-  expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
-
-  expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
-  expect(aggregation?.amount.txIn).toStrictEqual('48.00000000')
-  expect(aggregation?.amount.unspent).toStrictEqual('48.00000000')
-})
-
-it('should wait for block height 2', async () => {
-  await waitForHeight(app, 2)
-
+describe('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac', () => {
   const scriptHex = '76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac'
   const hid = HexEncoder.asSHA256(scriptHex)
 
-  await expectActivities(scriptHex)
-  await expectUnspent(scriptHex)
+  it('should wait for block height 0', async () => {
+    await waitForHeight(app, 0)
+    await expectActivities(scriptHex)
+    await expectUnspent(scriptHex)
 
-  const aggregationMapper = app.get(ScriptAggregationMapper)
-  const aggregation = await aggregationMapper.get(hid, 2)
+    const aggregationMapper = app.get(ScriptAggregationMapper)
+    const aggregation = await aggregationMapper.get(hid, 0)
 
-  expect(aggregation?.hid).toStrictEqual(hid)
-  expect(aggregation?.block.height).toStrictEqual(2)
-  expect(aggregation?.script.hex).toStrictEqual(scriptHex)
+    expect(aggregation?.hid).toStrictEqual(hid)
+    expect(aggregation?.script.hex).toStrictEqual(scriptHex)
+    expect(aggregation?.block.height).toStrictEqual(0)
 
-  expect(aggregation?.statistic.txCount).toStrictEqual(1)
-  expect(aggregation?.statistic.txInCount).toStrictEqual(1)
-  expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
+    expect(aggregation?.statistic.txCount).toStrictEqual(1)
+    expect(aggregation?.statistic.txInCount).toStrictEqual(1)
+    expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
 
-  expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
-  expect(aggregation?.amount.txIn).toStrictEqual('38.00000000')
-  expect(aggregation?.amount.unspent).toStrictEqual('38.00000000')
-})
+    expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
+    expect(aggregation?.amount.txIn).toStrictEqual('100000000.00000000')
+    expect(aggregation?.amount.unspent).toStrictEqual('100000000.00000000')
+  })
 
-it('should wait for block height 3', async () => {
-  await waitForHeight(app, 3)
+  it('should wait for block height 1', async () => {
+    await waitForHeight(app, 1)
+    await expectActivities(scriptHex)
+    await expectUnspent(scriptHex)
 
-  const scriptHex = '76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac'
-  const hid = HexEncoder.asSHA256(scriptHex)
+    const aggregationMapper = app.get(ScriptAggregationMapper)
+    const aggregation = await aggregationMapper.get(hid, 1)
 
-  await expectActivities(scriptHex)
-  await expectUnspent(scriptHex)
+    expect(aggregation).toBeUndefined()
+  })
 
-  const aggregationMapper = app.get(ScriptAggregationMapper)
-  const aggregation = await aggregationMapper.get(hid, 3)
+  it('should wait for block height 2', async () => {
+    await waitForHeight(app, 2)
+    await expectActivities(scriptHex)
+    await expectUnspent(scriptHex)
 
-  expect(aggregation?.hid).toStrictEqual(hid)
-  expect(aggregation?.block.height).toStrictEqual(3)
-  expect(aggregation?.script.hex).toStrictEqual(scriptHex)
+    const aggregationMapper = app.get(ScriptAggregationMapper)
+    const aggregation = await aggregationMapper.get(hid, 2)
 
-  expect(aggregation?.statistic.txCount).toStrictEqual(2)
-  expect(aggregation?.statistic.txInCount).toStrictEqual(2)
-  expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
+    expect(aggregation?.hid).toStrictEqual(hid)
+    expect(aggregation?.script.hex).toStrictEqual(scriptHex)
+    expect(aggregation?.block.height).toStrictEqual(2)
 
-  expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
-  expect(aggregation?.amount.txIn).toStrictEqual('76.00000000')
-  expect(aggregation?.amount.unspent).toStrictEqual('76.00000000')
+    expect(aggregation?.statistic.txCount).toStrictEqual(2)
+    expect(aggregation?.statistic.txInCount).toStrictEqual(2)
+    expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
+
+    expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
+    expect(aggregation?.amount.txIn).toStrictEqual('100000076.00000000')
+    expect(aggregation?.amount.unspent).toStrictEqual('100000076.00000000')
+  })
+
+  it('should wait for block height 3', async () => {
+    await waitForHeight(app, 3)
+    await expectActivities(scriptHex)
+    await expectUnspent(scriptHex)
+
+    const aggregationMapper = app.get(ScriptAggregationMapper)
+    const aggregation = await aggregationMapper.get(hid, 3)
+
+    expect(aggregation?.hid).toStrictEqual(hid)
+    expect(aggregation?.script.hex).toStrictEqual(scriptHex)
+    expect(aggregation?.block.height).toStrictEqual(3)
+
+    expect(aggregation?.statistic.txCount).toStrictEqual(3)
+    expect(aggregation?.statistic.txInCount).toStrictEqual(3)
+    expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
+
+    expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
+    expect(aggregation?.amount.txIn).toStrictEqual('100000152.00000000')
+    expect(aggregation?.amount.unspent).toStrictEqual('100000152.00000000')
+  })
 })
