@@ -439,7 +439,7 @@ export interface InWalletTransaction {
   hex: string
 }
 
-interface InWalletTransactionDetail {
+export interface InWalletTransactionDetail {
   address: string
   category: InWalletTransactionCategory
   amount: number
