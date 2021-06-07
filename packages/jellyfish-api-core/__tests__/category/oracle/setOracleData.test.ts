@@ -18,11 +18,11 @@ describe('Oracle', () => {
   })
 
   it('should setOracleData', async () => {
-    const appointOraclePriceFeeds = [
+    const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]
 
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
 
     await container.generate(1)
 
@@ -40,7 +40,7 @@ describe('Oracle', () => {
         weightage: 1,
         oracleid,
         address: expect.any(String),
-        priceFeeds: appointOraclePriceFeeds,
+        priceFeeds,
         tokenPrices: [
           {
             token: 'APPLE',
@@ -53,7 +53,7 @@ describe('Oracle', () => {
     )
   })
 
-  it('should not setOracleData for invalid oracleid', async () => {
+  it('should not setOracleData if oracleid is invalid', async () => {
     const oracleid = 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
 
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
@@ -64,11 +64,11 @@ describe('Oracle', () => {
   })
 
   it('should not setOracleData if token and currency are not exists', async () => {
-    const appointOraclePriceFeeds = [
+    const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]
 
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
 
     await container.generate(1)
 
@@ -81,11 +81,11 @@ describe('Oracle', () => {
   })
 
   it('should not setOracleData if the token amount is 1 trillion', async () => {
-    const appointOraclePriceFeeds = [
+    const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]
 
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
 
     await container.generate(1)
 
@@ -100,11 +100,11 @@ describe('Oracle', () => {
   it('should setOracleData with UTXOs', async () => {
     const address = await container.getNewAddress()
 
-    const appointOraclePriceFeeds = [
+    const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]
 
-    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [address, priceFeeds, 1])
 
     await container.generate(1)
 
@@ -130,7 +130,7 @@ describe('Oracle', () => {
         weightage: 1,
         oracleid,
         address: expect.any(String),
-        priceFeeds: appointOraclePriceFeeds,
+        priceFeeds,
         tokenPrices: [
           {
             token: 'APPLE',
@@ -144,11 +144,11 @@ describe('Oracle', () => {
   })
 
   it('should not setOracleData with arbritary UTXOs', async () => {
-    const appointOraclePriceFeeds = [
+    const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]
 
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
 
     await container.generate(1)
 
