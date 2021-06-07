@@ -426,7 +426,7 @@ export interface WalletFlagResult {
 
 export interface InWalletTransaction {
   amount: number
-  fee?: number
+  fee: number
   confirmations: number
   blockhash: string
   blockindex: number
