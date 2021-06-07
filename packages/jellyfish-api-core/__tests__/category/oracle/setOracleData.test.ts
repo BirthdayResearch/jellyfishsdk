@@ -19,7 +19,7 @@ describe('Oracle', () => {
 
   it('should setOracleData', async () => {
     const appointOraclePriceFeeds = [
-      { token: 'TESLA', currency: 'EUR' }
+      { token: 'APPLE', currency: 'EUR' }
     ]
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
@@ -27,7 +27,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const timestamp = new Date().getTime()
-    const price = [{ tokenAmount: '0.5@TESLA', currency: 'EUR' }]
+    const price = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     await client.oracle.setOracleData(oracleid, timestamp, { price })
 
@@ -43,7 +43,7 @@ describe('Oracle', () => {
         priceFeeds: appointOraclePriceFeeds,
         tokenPrices: [
           {
-            token: 'TESLA',
+            token: 'APPLE',
             currency: 'EUR',
             amount: 0.5,
             timestamp
@@ -56,7 +56,7 @@ describe('Oracle', () => {
   it('should not setOracleData if oracleid is invalid', async () => {
     const oracleid = 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
 
-    const price = [{ tokenAmount: '0.5@TESLA', currency: 'EUR' }]
+    const price = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
     const promise = client.oracle.setOracleData(oracleid, new Date().getTime(), { price })
 
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -65,7 +65,7 @@ describe('Oracle', () => {
 
   it('should not setOracleData if token and currency is not exists', async () => {
     const appointOraclePriceFeeds = [
-      { token: 'TESLA', currency: 'EUR' }
+      { token: 'APPLE', currency: 'EUR' }
     ]
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
@@ -82,14 +82,14 @@ describe('Oracle', () => {
 
   it('should not setOracleData if the token amount is 1 trillion', async () => {
     const appointOraclePriceFeeds = [
-      { token: 'TESLA', currency: 'EUR' }
+      { token: 'APPLE', currency: 'EUR' }
     ]
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
 
     await container.generate(1)
 
-    const price = [{ tokenAmount: '1000000000000@TESLA', currency: 'EUR' }]
+    const price = [{ tokenAmount: '1000000000000@APPLE', currency: 'EUR' }]
 
     const promise = client.oracle.setOracleData(oracleid, new Date().getTime(), { price })
 
@@ -101,7 +101,7 @@ describe('Oracle', () => {
     const address = await container.getNewAddress()
 
     const appointOraclePriceFeeds = [
-      { token: 'TESLA', currency: 'EUR' }
+      { token: 'APPLE', currency: 'EUR' }
     ]
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
@@ -109,7 +109,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const timestamp = new Date().getTime()
-    const price = [{ tokenAmount: '0.5@TESLA', currency: 'EUR' }]
+    const price = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     const utxos = await container.call('listunspent', [1, 9999999, [address], true])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
@@ -133,7 +133,7 @@ describe('Oracle', () => {
         priceFeeds: appointOraclePriceFeeds,
         tokenPrices: [
           {
-            token: 'TESLA',
+            token: 'APPLE',
             currency: 'EUR',
             amount: 0.5,
             timestamp
@@ -145,7 +145,7 @@ describe('Oracle', () => {
 
   it('should not setOracleData with arbritary UTXOs', async () => {
     const appointOraclePriceFeeds = [
-      { token: 'TESLA', currency: 'EUR' }
+      { token: 'APPLE', currency: 'EUR' }
     ]
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
@@ -153,7 +153,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const timestamp = new Date().getTime()
-    const price = [{ tokenAmount: '0.5@TESLA', currency: 'EUR' }]
+    const price = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
 
