@@ -5,6 +5,7 @@
  * replacing the config module.
  */
 export const AppConfiguration = (): any => ({
+  isProd: process.env.NODE_ENV === 'production',
   defid: {
     url: process.env.WHALE_DEFID_URL
   },

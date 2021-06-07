@@ -19,11 +19,16 @@ function mkdir (location: string): void {
   providers: [
     {
       provide: 'LEVEL_UP_LOCATION',
+      /**
+       * if isProd, resolve to .leveldb/{network}
+       * else, resolve to .leveldb/{network}/time-now
+       */
       useFactory: (configService: ConfigService): string => {
-        const location = configService.get(
-          'database.level.location',
-          process.env.NODE_ENV === 'production ' ? '.level/index' : `.level/unnamed/${Date.now()}`
-        )
+        const isProd = configService.get<boolean>('isProd', false)
+        const network = configService.get<string>('network', 'unknown')
+        const defaultLocation = isProd ? `.leveldb/${network}` : `.leveldb/${network}/${Date.now()}`
+
+        const location = configService.get('database.level.location', defaultLocation)
         mkdir(location)
         return location
       },
