@@ -115,7 +115,7 @@ interface InWalletTransaction {
   txid: string
   time: number
   timereceived: number
-  bip125replaceable: BIP125
+  bip125replaceable?: BIP125
   details: InWalletTransactionDetail[]
   hex: string
 }
