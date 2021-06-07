@@ -14,7 +14,7 @@ export class Oracle {
    * Creates a price oracle for rely of real time price data.
    *
    * @param {string} address
-   * @param {PriceFeed[]} priceFeeds
+   * @param {OraclePriceFeed[]} priceFeeds
    * @param {AppointOracleOptions} [options]
    * @param {number} options.weightage
    * @param {UTXO[]} [options.utxos = []]
@@ -22,7 +22,7 @@ export class Oracle {
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>} oracleid
    */
-  async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
+  async appointOracle (address: string, priceFeeds: OraclePriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('appointoracle', [address, priceFeeds, options.weightage, utxos], 'number')
   }
@@ -46,7 +46,7 @@ export class Oracle {
    * @param {string} oracleid
    * @param {string} address
    * @param {UpdateOracleOptions} [options]
-   * @param {PriceFeed[]} options.priceFeeds
+   * @param {OraclePriceFeed[]} options.priceFeeds
    * @param {number} options.weightage
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
@@ -58,20 +58,48 @@ export class Oracle {
     return await this.client.call('updateoracle', [oracleid, address, options.priceFeeds, options.weightage, utxos], 'number')
   }
 
+  /**
+   * Set oracle data transaction.
+   *
+   * @param {string} oracleid
+   * @param {number} timestamp
+   * @param {SetOracleDataOptions} [options]
+   * @param {OraclePrice[]} options.prices
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>} txid
+   */
   async setOracleData (oracleid: string, timestamp: number, options: SetOracleDataOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('setoracledata', [oracleid, timestamp, options.price, utxos], 'number')
   }
 }
 
-export interface PriceFeed {
-  currency: string
-  token: string
-}
-
 export interface AppointOracleOptions {
   weightage?: number
   utxos?: UTXO[]
+}
+
+export interface UpdateOracleOptions {
+  priceFeeds?: OraclePriceFeed[]
+  weightage?: number
+  utxos?: UTXO[]
+}
+
+export interface SetOracleDataOptions {
+  price?: OraclePrice[]
+  utxos?: UTXO[]
+}
+
+export interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+
+export interface OraclePrice {
+  tokenAmount: string
+  currency: string
 }
 
 export interface UTXO {
