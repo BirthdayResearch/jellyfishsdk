@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { PoolSwapInputs, PoolSwapMetadata } from '../../../src/category/poolpair'
+import { PoolSwapMetadata } from '../../../src/category/poolpair'
 
 describe('poolpair', () => {
   const container = new MasterNodeRegTestContainer()
@@ -39,10 +39,6 @@ describe('poolpair', () => {
     }
     await container.call('createtoken', [metadata])
     await container.generate(1)
-  }
-
-  async function poolSwap (metadata: PoolSwapMetadata, inputs?: PoolSwapInputs[]): Promise<string> {
-    return await client.poolpair.poolSwap(metadata, inputs)
   }
 
   async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
@@ -99,7 +95,7 @@ describe('poolpair', () => {
     const to = await client.wallet.getNewAddress()
     const metadata: PoolSwapMetadata = { from: address, amountFrom: 2, tokenFrom: 'DDAI', tokenTo: 'DFI', to }
 
-    await poolSwap(metadata)
+    await client.poolpair.poolSwap(metadata)
     const swapAmount = await client.poolpair.testPoolSwap(metadata)
 
     expect(swapAmount).toStrictEqual('0.09910797@0')
@@ -115,7 +111,7 @@ describe('poolpair', () => {
       to,
       maxPrice: 35
     }
-    await poolSwap(metadata)
+    await client.poolpair.poolSwap(metadata)
     const swapAmount = await client.poolpair.testPoolSwap(metadata)
 
     expect(swapAmount).toStrictEqual('0.09910797@0')
