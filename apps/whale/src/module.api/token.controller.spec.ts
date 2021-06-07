@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { TokensController } from '@src/module.api/tokens.controller'
+import { TokensController } from '@src/module.api/token.controller'
 import { createToken, createPoolPair } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
 
@@ -17,13 +17,7 @@ beforeAll(async () => {
   await createToken(container, 'DBTC')
   await createToken(container, 'DETH')
   await createPoolPair(container, 'DBTC', 'DETH')
-})
 
-afterAll(async () => {
-  await container.stop()
-})
-
-beforeEach(async () => {
   const app: TestingModule = await Test.createTestingModule({
     controllers: [TokensController],
     providers: [{ provide: JsonRpcClient, useValue: client }]
@@ -31,8 +25,12 @@ beforeEach(async () => {
   controller = app.get<TokensController>(TokensController)
 })
 
-describe('controller.list() for all tokens', () => {
-  it('should listTokens', async () => {
+afterAll(async () => {
+  await container.stop()
+})
+
+describe('list', () => {
+  it('should list', async () => {
     const result = await controller.list({ size: 100 })
     expect(result.data.length).toStrictEqual(4)
 
@@ -133,7 +131,7 @@ describe('controller.list() for all tokens', () => {
     })
   })
 
-  it('should listTokens with pagination', async () => {
+  it('should list with pagination', async () => {
     const first = await controller.list({ size: 2 })
 
     expect(first.data.length).toStrictEqual(2)
@@ -162,7 +160,7 @@ describe('controller.list() for all tokens', () => {
     expect(last.page).toBeUndefined()
   })
 
-  it('should listTokens with an empty object if size 100 next 300 which is out of range', async () => {
+  it('should list empty object as out of range', async () => {
     const result = await controller.list({ size: 100, next: '300' })
 
     expect(result.data.length).toStrictEqual(0)
@@ -170,8 +168,8 @@ describe('controller.list() for all tokens', () => {
   })
 })
 
-describe('controller.get()', () => {
-  it('should return DFI coin with id as param', async () => {
+describe('get', () => {
+  it('should get DFI with by DFI numeric id', async () => {
     const data = await controller.get('0')
     expect(data).toStrictEqual({
       id: '0',
@@ -198,7 +196,7 @@ describe('controller.get()', () => {
     })
   })
 
-  it('should return DBTC token with id as param', async () => {
+  it('should get DBTC by DBTC numeric id', async () => {
     const data = await controller.get('1')
     expect(data).toStrictEqual({
       id: '1',
@@ -225,7 +223,7 @@ describe('controller.get()', () => {
     })
   })
 
-  it('should return DETH token with id as param', async () => {
+  it('should get DETH by DETH numeric id', async () => {
     const data = await controller.get('2')
     expect(data).toStrictEqual({
       id: '2',
@@ -252,7 +250,7 @@ describe('controller.get()', () => {
     })
   })
 
-  it('should return DBTC-DETH LP token with id as param', async () => {
+  it('should get DBTC-DETH by DBTC-DETH numeric id', async () => {
     const data = await controller.get('3')
     expect(data).toStrictEqual({
       id: '3',
@@ -278,11 +276,18 @@ describe('controller.get()', () => {
       collateralAddress: expect.any(String)
     })
   })
-})
 
-describe('controller.get() for token which is not found', () => {
-  it('should fail with id as param', async () => {
-    await expect(controller.get('4')).rejects.toThrow(NotFoundException)
-    await expect(controller.get('4')).rejects.toThrow('Unable to find token')
+  it('should throw error while getting non-existent token', async () => {
+    expect.assertions(2)
+    try {
+      await controller.get('999')
+    } catch (err) {
+      expect(err).toBeInstanceOf(NotFoundException)
+      expect(err.response).toStrictEqual({
+        statusCode: 404,
+        message: 'Unable to find token',
+        error: 'Not Found'
+      })
+    }
   })
 })

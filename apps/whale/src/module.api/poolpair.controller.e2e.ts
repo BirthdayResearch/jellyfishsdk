@@ -1,33 +1,25 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { createPoolPair, createToken, addPoolLiquidity, getNewAddress, mintTokens } from '@defichain/testing'
-import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
-import { CacheModule, NotFoundException } from '@nestjs/common'
+import { NotFoundException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
 
 const container = new MasterNodeRegTestContainer()
+let app: NestFastifyApplication
 let controller: PoolPairController
 
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
-  const client = new JsonRpcClient(await container.getCachedRpcUrl())
+  await container.waitForWalletBalanceGTE(100)
 
-  const app: TestingModule = await Test.createTestingModule({
-    imports: [
-      CacheModule.register()
-    ],
-    controllers: [PoolPairController],
-    providers: [
-      { provide: JsonRpcClient, useValue: client },
-      PoolPairInfoCache
-    ]
-  }).compile()
-
+  app = await createTestingApp(container)
   controller = app.get(PoolPairController)
+
+  await waitForIndexedHeight(app, 100)
 
   const tokens = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -70,7 +62,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await container.stop()
+  await stopTestingApp(container, app)
 })
 
 describe('list', () => {
