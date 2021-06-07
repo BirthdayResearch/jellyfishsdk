@@ -27,6 +27,20 @@ export enum WalletFlag {
   AVOID_REUSE = 'avoid_reuse'
 }
 
+export enum BIP125 {
+  YES = 'yes',
+  NO = 'no',
+  UNKNOWN = 'unknown'
+}
+
+export enum InWalletTransactionCategory {
+  SEND = 'send',
+  RECEIVE = 'receive',
+  GENERATE = 'generate',
+  IMMATURE = 'immature',
+  ORPHAN = 'orphan'
+}
+
 /**
  * Wallet RPCs for DeFi Blockchain
  */
@@ -447,18 +461,4 @@ export interface InWalletTransactionDetail {
   vout: number
   fee: number
   abandoned: boolean
-}
-
-export enum BIP125 {
-  YES = 'yes',
-  NO = 'no',
-  UNKNOWN = 'unknown'
-}
-
-export enum InWalletTransactionCategory {
-  SEND = 'send',
-  RECEIVE = 'receive',
-  GENERATE = 'generate',
-  IMMATURE = 'immature',
-  ORPHAN = 'orphan'
 }
