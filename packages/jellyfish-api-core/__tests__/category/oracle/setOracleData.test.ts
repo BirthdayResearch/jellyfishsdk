@@ -156,7 +156,6 @@ describe('Oracle', () => {
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
-
     const promise = client.oracle.setOracleData(oracleid, timestamp, { prices, utxos: [{ txid, vout }] })
 
     await expect(promise).rejects.toThrow(RpcApiError)
