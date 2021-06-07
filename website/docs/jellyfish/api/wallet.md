@@ -116,13 +116,13 @@ interface InWalletTransaction {
   time: number
   timereceived: number
   bip125replaceable: BIP125
-  details: WalletTransactionDetail[]
+  details: InWalletTransactionDetail[]
   hex: string
 }
 
 interface InWalletTransactionDetail {
   address: string
-  category: WalletTransactionCategory
+  category: InWalletTransactionCategory
   amount: number
   label: string
   vout: number
@@ -131,17 +131,17 @@ interface InWalletTransactionDetail {
 }
 
 enum BIP125 {
-  YES = 'YES',
-  NO = 'NO',
-  UNKNOWN = 'UNKNOWN'
+  YES = 'yes',
+  NO = 'no',
+  UNKNOWN = 'unknown'
 }
 
 enum InWalletTransactionCategory {
-  SEND = "SEND",
-  RECEIVE = "RECEIVE",
-  GENERATE = "GENERATE",
-  IMMATURE = "IMMATURE",
-  ORPHAN = "ORPHAN"
+  SEND = "send",
+  RECEIVE = "receive",
+  GENERATE = "generate",
+  IMMATURE = "immature",
+  ORPHAN = "orphan"
 }
 ```
 
