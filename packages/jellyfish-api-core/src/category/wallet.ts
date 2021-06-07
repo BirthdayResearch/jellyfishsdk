@@ -453,7 +453,6 @@ export enum BIP125 {
   YES = 'yes',
   NO = 'no',
   UNKNOWN = 'unknown'
-
 }
 
 export enum InWalletTransactionCategory {

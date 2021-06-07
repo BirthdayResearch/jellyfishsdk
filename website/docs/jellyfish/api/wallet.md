@@ -137,11 +137,11 @@ enum BIP125 {
 }
 
 enum InWalletTransactionCategory {
-  SEND = "send",
-  RECEIVE = "receive",
-  GENERATE = "generate",
-  IMMATURE = "immature",
-  ORPHAN = "orphan"
+  SEND = 'send',
+  RECEIVE = 'receive',
+  GENERATE = 'generate',
+  IMMATURE = 'immature',
+  ORPHAN = 'orphan'
 }
 ```
 
