@@ -52,3 +52,29 @@ interface UTXO {
   vout: number
 }
 ```
+
+## updateOracle
+
+Update a price oracle for rely of real time price data.
+
+```ts title="client.oracle.updateOracle()"
+interface oracle {
+  updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string>
+}
+
+interface UpdateOracleOptions {
+  priceFeeds?: PriceFeed[]
+  weightage?: number
+  utxos?: UTXO[]
+}
+
+interface PriceFeed {
+  currency: string
+  token: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
