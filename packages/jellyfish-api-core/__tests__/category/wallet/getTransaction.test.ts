@@ -35,6 +35,7 @@ describe('Server on masternode', () => {
     expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
     expect(typeof inWalletTransaction.time).toStrictEqual('number')
     expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
+    expect('bip125replaceable' in inWalletTransaction).toStrictEqual(false)
 
     expect(typeof inWalletTransaction.hex).toStrictEqual('string')
     expect(typeof inWalletTransaction.details.length).toStrictEqual('number')
@@ -63,6 +64,7 @@ describe('Server on masternode', () => {
     expect(typeof inWalletTransaction.blockindex).toStrictEqual('number')
     expect(typeof inWalletTransaction.time).toStrictEqual('number')
     expect(typeof inWalletTransaction.timereceived).toStrictEqual('number')
+    expect('bip125replaceable' in inWalletTransaction).toStrictEqual(false)
     expect(typeof inWalletTransaction.hex).toStrictEqual('string')
 
     expect(typeof inWalletTransaction.details[0].address).toStrictEqual('string')
