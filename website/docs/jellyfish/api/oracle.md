@@ -110,6 +110,26 @@ Returns oracle data.
 
 ```ts title="client.oracle.getOracleData()"
 interface oracle {
-  getOracleData (oracleid: string): Promise<string>
+  getOracleData (oracleid: string): Promise<OracleData>
+}
+
+interface OracleData {
+  oracleid: string
+  address: string
+  priceFeeds: OraclePriceFeed[]
+  tokenPrices: OracleTokenPrices[]
+  weightage: number
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+
+interface OracleTokenPrices {
+  token: string
+  currency: string
+  amount: number
+  timestamp: number
 }
 ```
