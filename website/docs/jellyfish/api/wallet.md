@@ -7,6 +7,7 @@ slug: /jellyfish/api/wallet
 
 ```js
 import {Client} from '@defichain/jellyfish'
+
 const client = new Client()
 
 // Using client.wallet.
@@ -16,14 +17,15 @@ const something = await client.wallet.method()
 ## getBalance
 
 Returns the total available balance in wallet.
+
 - `minimumConfirmation` to include transactions confirmed at least this many times.
 - `includeWatchOnly` for watch-only wallets, otherwise
   - Include balance in watch-only addresses (see `importAddress`)
 
 ```ts title="client.wallet.getBalance()"
 interface wallet {
-  getBalance (minimumConfirmation: number = 0, 
-              includeWatchOnly: boolean = false): Promise<BigNumber>   
+  getBalance (minimumConfirmation: number = 0,
+              includeWatchOnly: boolean = false): Promise<BigNumber>
 }
 ```
 
@@ -94,6 +96,55 @@ interface CreateWalletResult {
 }
 ```
 
+## getTransaction
+
+Get detailed information about in-wallet transaction
+
+```ts title="client.wallet.getTransaction()"
+interface wallet {
+  getTransaction (txid: string, includeWatchOnly: boolean = true): Promise<InWalletTransaction>
+}
+
+interface InWalletTransaction {
+  amount: BigNumber
+  fee: number
+  confirmations: number
+  blockhash: string
+  blockindex: number
+  blocktime: number
+  txid: string
+  time: number
+  timereceived: number
+  bip125replaceable?: BIP125
+  details: InWalletTransactionDetail[]
+  hex: string
+}
+
+interface InWalletTransactionDetail {
+  address: string
+  category: InWalletTransactionCategory
+  amount: number
+  label: string
+  vout: number
+  fee: number
+  abandoned: boolean
+}
+
+enum BIP125 {
+  YES = 'yes',
+  NO = 'no',
+  UNKNOWN = 'unknown'
+}
+
+enum InWalletTransactionCategory {
+  SEND = 'send',
+  RECEIVE = 'receive',
+  GENERATE = 'generate',
+  IMMATURE = 'immature',
+  ORPHAN = 'orphan'
+}
+```
+
 ## getWalletInfo
 
 Return object containing various wallet state info.
@@ -143,9 +194,7 @@ interface WalletFlagResult {
 
 ## getNewAddress
 
-Returns a new DeFi address for receiving payments.
-If 'label' is specified, it's added to the address book.
-So payments received with the address will be associated with 'label'.
+Returns a new DeFi address for receiving payments. If 'label' is specified, it's added to the address book. So payments received with the address will be associated with 'label'.
 
 ```ts title="client.wallet.getNewAddress()"
 interface wallet {
@@ -263,7 +312,7 @@ Send given amounts to multiple given address and return a transaction id.
 
 ```ts title="client.wallet.sendMany()"
 interface wallet {
-  async sendMany (amounts: Record<string, number> , subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+  async sendMany (amounts: Record<string, number>, subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
 }
 
 interface SendManyOptions {
