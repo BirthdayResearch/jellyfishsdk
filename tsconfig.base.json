@@ -1,4 +1,3 @@
-// tsconfig global project options - build or dev
 {
   "compilerOptions": {
     "lib": ["es2020"],
