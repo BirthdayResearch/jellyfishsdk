@@ -40,7 +40,7 @@ describe('Oracle', () => {
     await container.generate(1)
   })
 
-  it('should listOracles with empty array if there is no oracle created', async () => {
+  it('should listOracles with empty array if there is no oracle available', async () => {
     const data = await client.oracle.listOracles()
     expect(data.length).toStrictEqual(0)
   })
