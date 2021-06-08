@@ -63,7 +63,7 @@ describe('Oracle', () => {
     await expect(promise).rejects.toThrow(`RpcApiError: 'oracle <${oracleid as string}> not found', code: -32600, method: setoracledata`)
   })
 
-  it('should not setOracleData if token and currency are not exists', async () => {
+  it('should not setOracleData if token and currency do not exists', async () => {
     const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]

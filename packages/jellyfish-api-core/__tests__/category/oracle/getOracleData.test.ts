@@ -33,10 +33,7 @@ describe('Oracle', () => {
         weightage: 1,
         oracleid,
         address: expect.any(String),
-        priceFeeds: [
-          { token: 'APPLE', currency: 'EUR' },
-          { token: 'TESLA', currency: 'USD' }
-        ],
+        priceFeeds,
         tokenPrices: []
       }
     )

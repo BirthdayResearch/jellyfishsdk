@@ -104,10 +104,9 @@ interface UTXO {
 }
 ```
 
-
 ## getOracleData
 
-Returns oracle data in json form.
+Returns oracle data.
 
 ```ts title="client.oracle.getOracleData()"
 interface oracle {

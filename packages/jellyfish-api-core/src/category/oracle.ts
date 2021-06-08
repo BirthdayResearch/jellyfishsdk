@@ -41,10 +41,45 @@ export class Oracle {
   }
 
   /**
-   * Returns oracle data in json form.
+   * Update a price oracle for rely of real time price data.
    *
    * @param {string} oracleid
-   * @return {Promise<string>} txn id for txn created to remove oracle
+   * @param {string} address
+   * @param {UpdateOracleOptions} [options]
+   * @param {OraclePriceFeed[]} options.priceFeeds
+   * @param {number} options.weightage
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>} txid
+   */
+  async updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string> {
+    const { utxos = [] } = options
+    return await this.client.call('updateoracle', [oracleid, address, options.priceFeeds, options.weightage, utxos], 'number')
+  }
+
+  /**
+   * Set oracle data transaction.
+   *
+   * @param {string} oracleid
+   * @param {number} timestamp
+   * @param {SetOracleDataOptions} [options]
+   * @param {OraclePrice[]} options.prices
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>} txid
+   */
+  async setOracleData (oracleid: string, timestamp: number, options: SetOracleDataOptions = {}): Promise<string> {
+    const { utxos = [] } = options
+    return await this.client.call('setoracledata', [oracleid, timestamp, options.prices, utxos], 'number')
+  }
+
+  /**
+   * Returns oracle data.
+   *
+   * @param {string} oracleid
+   * @return {Promise<string>} txid
    */
   async getOracleData (oracleid: string): Promise<string> {
     return await this.client.call('getoracledata', [oracleid], 'number')
