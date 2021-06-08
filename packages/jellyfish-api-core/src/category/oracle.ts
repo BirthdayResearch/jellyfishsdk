@@ -86,11 +86,6 @@ export class Oracle {
   }
 }
 
-export interface PriceFeed {
-  currency: string
-  token: string
-}
-
 export interface AppointOracleOptions {
   weightage?: number
   utxos?: UTXO[]
