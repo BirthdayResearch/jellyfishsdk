@@ -74,6 +74,16 @@ export class Oracle {
     const { utxos = [] } = options
     return await this.client.call('setoracledata', [oracleid, timestamp, options.prices, utxos], 'number')
   }
+
+  /**
+   * Returns latest raw price updates from oracles.
+   *
+   * @param {OraclePriceFeed} priceFeeds
+   * @return {Promise<any>}
+   */
+  async listLatestRawPrices (priceFeeds: OraclePriceFeed): Promise<any> {
+    return await this.client.call('listlatestrawprices', [priceFeeds], 'number')
+  }
 }
 
 export interface AppointOracleOptions {
