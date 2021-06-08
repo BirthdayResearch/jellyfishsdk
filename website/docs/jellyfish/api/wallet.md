@@ -194,8 +194,7 @@ interface WalletFlagResult {
 
 ## getNewAddress
 
-Returns a new DeFi address for receiving payments. If 'label' is specified, it's added to the address book. So payments
-received with the address will be associated with 'label'.
+Returns a new DeFi address for receiving payments. If 'label' is specified, it's added to the address book. So payments received with the address will be associated with 'label'.
 
 ```ts title="client.wallet.getNewAddress()"
 interface wallet {
@@ -299,8 +298,7 @@ interface SendToAddressOptions {
 
 ## listAddressGroupings
 
-List groups of addresses which have had their common ownership made public by common use as inputs or as the resulting
-change in past transactions.
+List groups of addresses which have had their common ownership made public by common use as inputs or as the resulting change in past transactions.
 
 ```ts title="client.wallet.listAddressGroupings()"
 interface wallet {
@@ -314,9 +312,7 @@ Send given amounts to multiple given address and return a transaction id.
 
 ```ts title="client.wallet.sendMany()"
 interface wallet {
-  async
-
-  sendMany (amounts: Record<string, number>, subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+  async sendMany (amounts: Record<string, number>, subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
 }
 
 interface SendManyOptions {
