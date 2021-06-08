@@ -106,7 +106,7 @@ interface wallet {
 }
 
 interface InWalletTransaction {
-  amount: number
+  amount: BigNumber
   fee: number
   confirmations: number
   blockhash: string
