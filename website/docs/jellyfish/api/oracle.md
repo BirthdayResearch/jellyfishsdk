@@ -19,10 +19,10 @@ Creates a price oracle for rely of real time price data.
 
 ```ts title="client.oracle.appointOracle()"
 interface oracle {
-  appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string>
+  appointOracle (address: string, priceFeeds: OraclePriceFeed[], options: AppointOracleOptions = {}): Promise<string>
 }
 
-interface PriceFeed {
+interface OraclePriceFeed {
   currency: string
   token: string
 }
