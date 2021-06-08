@@ -1,7 +1,9 @@
 /**
  * Implementation reference: https://github.com/JamesMGreene/node-aes256
  */
-import crypto from 'crypto'
+import createHash from 'create-hash'
+import randomBytes from 'randombytes'
+import aes from 'browserify-aes'
 
 const CIPHER_ALGORITHM = 'aes-256-ctr'
 
@@ -12,11 +14,11 @@ const CIPHER_ALGORITHM = 'aes-256-ctr'
  * @returns {Buffer}
  */
 function encrypt (key: Buffer, data: Buffer): Buffer {
-  const sha256 = crypto.createHash('sha256')
+  const sha256 = createHash('sha256')
   sha256.update(key)
 
-  const iv = crypto.randomBytes(16)
-  const cipher = crypto.createCipheriv(CIPHER_ALGORITHM, sha256.digest(), iv)
+  const iv = randomBytes(16)
+  const cipher = aes.createCipheriv(CIPHER_ALGORITHM, sha256.digest(), iv)
   const ciphertext = cipher.update(data)
   return Buffer.concat([iv, ciphertext, cipher.final()])
 }
@@ -32,12 +34,12 @@ function decrypt (key: Buffer, encrypted: Buffer): Buffer {
     throw new Error('Provided "encrypted" must decrypt to a non-empty string or buffer')
   }
 
-  const sha256 = crypto.createHash('sha256')
+  const sha256 = createHash('sha256')
   sha256.update(key)
 
   // Initialization Vector
   const iv = encrypted.slice(0, 16)
-  const decipher = crypto.createDecipheriv(CIPHER_ALGORITHM, sha256.digest(), iv)
+  const decipher = aes.createDecipheriv(CIPHER_ALGORITHM, sha256.digest(), iv)
 
   const ciphertext = encrypted.slice(16)
   const deciphered = decipher.update(ciphertext)
@@ -45,7 +47,7 @@ function decrypt (key: Buffer, encrypted: Buffer): Buffer {
   return Buffer.concat([deciphered, decipherFinal])
 }
 
-export const Aes256 = {
+export const AES256 = {
   encrypt,
   decrypt
 }
