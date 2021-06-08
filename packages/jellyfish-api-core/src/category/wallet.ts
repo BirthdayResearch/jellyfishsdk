@@ -456,7 +456,7 @@ export interface InWalletTransaction {
 export interface InWalletTransactionDetail {
   address: string
   category: InWalletTransactionCategory
-  amount: BigNumber
+  amount: number
   label: string
   vout: number
   fee: number
