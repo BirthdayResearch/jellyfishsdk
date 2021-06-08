@@ -103,3 +103,13 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getPrice
+
+Returns aggregrated price from oracles.
+
+```ts title="client.oracle.getPrice()"
+interface oracle {
+  getPrice (priceFeeds: OraclePriceFeed): Promise<number>
+}
+```
