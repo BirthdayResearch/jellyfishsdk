@@ -20,15 +20,13 @@ export class ICXOrderBook {
    * @param {string} [order.tokenTo]                Symbol or id of buying token
    * @param {string} [order.ownerAddress]           Address of DFI token for fees and selling tokens in case of DFC/BTC order type
    * @param {string} [order.receivePubkey]          pubkey which can claim external HTLC in case of EXT/DFC order type
-   * @param {BigInt} [order.amountFrom]             tokenFrom coins amount
-   * @param {} [order.orderPrice]                   Price per unit spk
-   * @param {BigNumber} [order.orderPrice.integer]  --------------| 8 bytes
-   * @param {BigNumber} [order.orderPrice.fraction] --------------| 8 bytes
+   * @param {BigNumber} [order.amountFrom]          tokenFrom coins amount
+   * @param {BigNumber} [order.orderPrice]          Price per unit
    * @param {number} [order.expiry]                 Number of blocks until the order expires, default 2880 DFI blocks
    * @param {InputUTXO[]} inputUTXOs                Specific utxos to spend
    * @param {string} [inputUTXOs.txid]              transaction Id
    * @param {number} [inputUTXOs.vout]              The output number
-   * @return {Promise<ICXGenericResult>}            Object indluding transaction id of the the transaction
+   * @return {Promise<ICXGenericResult>}            Object indluding transaction id of the the result transaction
    */
   async ICXCreateOrder (order: Order, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
@@ -84,7 +82,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Create and submits a dfc htlc transaction
+   * Create and submits a DFC HTLC transaction
    *
    * @param {HTLC} htlc
    * @param {string} [htlc.offerTx]                 Transaction Id of the offer transaction for which the HTLC is
@@ -107,7 +105,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Create and submits a external(ext) htlc transaction
+   * Create and submits a external(EXT) HTLC transaction
    *
    * @param {ExtHTLC} htlc
    * @param {string} [htlc.offerTx]                 Transaction Id of the offer transaction for which the HTLC is
@@ -132,7 +130,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Claims a dfc HTLC transaction //spk
+   * Claims a DFC HTLC
    *
    * @param {string} [DFCHTLCTx]                    Transaction id of DFC HTLC transaction for which the claim is
    * @param {string} [seed]                         Secret seed for claiming HTLC
@@ -156,7 +154,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Closes order transaction
+   * Closes ICX order
    *
    * @param {string} [orderTx]                      Transaction id of maker order
    * @param {InputUTXO[]} inputUTXOs                Specific utxos to spend
@@ -178,9 +176,9 @@ export class ICXOrderBook {
    * Returns information about order or fillorder
    *
    * @param {string} [orderTx]                                              Transaction id of createorder or fulfillorder transaction
-   * @return {Promise<Record<string, ICXOrderInfo| ICXMakeOfferInfo>[]>}    Object indluding details of the transaction.
+   * @return {Promise<Record<string, ICXOrderInfo| ICXMakeOfferInfo>>}    Object indluding details of the transaction.
    */
-  async ICXGetOrder (orderTx: string): Promise<Array<Record<string, ICXOrderInfo| ICXMakeOfferInfo>>> {
+  async ICXGetOrder (orderTx: string): Promise<Record<string, ICXOrderInfo| ICXMakeOfferInfo>> {
     return await this.client.call(
       'icx_getorder',
       [
@@ -199,9 +197,9 @@ export class ICXOrderBook {
    * @param {string}  [options.orderTx]                    Order txid to list all offers for this order
    * @param {number}  [options.limit]                      Maximum number of orders to return (default: 50)
    * @param {boolean} [options.closed]                     Display closed orders (default: false)
-   * @return {Promise<Record<string, ICXOrderInfo| ICXMakeOfferInfo>[]>}    Object indluding details of the transaction.
+   * @return {Promise<Record<string, ICXOrderInfo | ICXMakeOfferInfo>>}    Object indluding details of the transaction.
    */
-  async ICXListOrders (options: ICXListOrderOptions = {}): Promise<Array<Record<string, ICXOrderInfo| ICXMakeOfferInfo>>> {
+  async ICXListOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXMakeOfferInfo>> {
     return await this.client.call(
       'icx_listorders',
       [
@@ -218,10 +216,10 @@ export class ICXOrderBook {
    * @param {string} [options.offerTx]                     Offer txid  for which to list all HTLCS
    * @param {number} [options.limit]                       Maximum number of orders to return (default: 20)
    * @param {boolean} [options.refunded]                   Display refunded HTLC (default: false)
-   * @param {boolean} [options.claimed]                    Display claimed HTLCs (default: false)
-   * @return {Promise<Record<string, ICXSubmitDFCHTLCInfo| ICXSubmitEXTHTLCInfo| ICXClaimDFCHTLCInfo| string>[]>}    Object indluding details of the HTLCS.
+   * @param {boolean} [options.closed]                     Display claimed HTLCs (default: false)
+   * @return {Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>}    Object indluding details of the HTLCS.
    */
-  async ICXListHTLCs (options: ICXListHTLCOptions = {}): Promise<Array<Record<string, ICXSubmitDFCHTLCInfo| ICXSubmitEXTHTLCInfo| ICXClaimDFCHTLCInfo| string>>> {
+  async ICXListHTLCs (options: ICXListHTLCOptions = {}): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>> {
     return await this.client.call(
       'icx_listhtlcs',
       [
@@ -238,13 +236,9 @@ export interface Order {
   chainTo?: string // Symbol or id of buying chain
   tokenTo?: string // Symbol or id of buying token
   ownerAddress?: string // Address of DFI token for fees and selling tokens in case of DFC/BTC order type
-  receivePubkey: string // pubkey which can claim external HTLC in case of EXT/DFC order type
+  receivePubkey?: string // pubkey which can claim external HTLC in case of EXT/DFC order type
   // NOTE(surangap): c++ side this as number, but no type checks done. should be corrected from c++ side?
   amountFrom: BigNumber // tokenFrom coins amount
-  // orderPrice: {           // Price per unit
-  //   integer: BigNumber    // --------------| 8 bytes
-  //   fraction: BigNumber   // -------------| 8 bytes
-  // },
   orderPrice: BigNumber // Price per unit
   expiry?: number // Number of blocks until the order expires, default 2880 DFI blocks
 }
@@ -312,9 +306,9 @@ export enum ICXHTLCStatus {
 export interface ICXOrderInfo {
   status: ICXOrderStatus // Order status
   type: ICXOrderType // Order type. DFI as [ICXOrderType.INTERNAL]
-  tokenFrom?: string // Symbol or id of selling token
+  tokenFrom: string // Symbol or id of selling token
   chainTo?: string // Symbol or id of buying chain
-  receivePubkey?: string // Pubkey which can claim external HTLC in case of EXT/DFC order type //spk is it optional?
+  receivePubkey?: string // Pubkey which can claim external HTLC in case of EXT/DFC order type
   chainFrom?: string // Symbol or id of selling chain
   tokenTo?: string // Symbol or id of buying token
   ownerAddress: string // Address of DFI token for fees and selling tokens in case of DFC/BTC order type
@@ -322,7 +316,7 @@ export interface ICXOrderInfo {
   amountToFill: BigNumber // Remaining amount to fill
   orderPrice: BigNumber // Price per unit
   amountToFillInToAsset: BigNumber //
-  height: number //
+  height: number // creation height
   expireHeight: number // Number of blocks until the order expires
   closeHeight?: number // Close height
   expired?: boolean // Expired or not
@@ -332,7 +326,7 @@ export interface ICXMakeOfferInfo {
   orderTx: string // Transaction id of the order tx for which is the offer
   status: ICXOrderStatus // Offer status
   amount: BigNumber // Amount fulfilling the order
-  amountInFromAsset: BigNumber
+  amountInFromAsset: BigNumber // Amount fulfilling from asset
   ownerAddress: string // Address of DFI token and for receiving tokens in case of EXT/DFC order
   receivePubkey?: string // Pubkey which can claim external HTLC in case of EXT/DFC order type
   takerFee: BigNumber // Taker fee
@@ -351,37 +345,37 @@ export interface ICXListHTLCOptions {
   offerTx?: string // Offer txid  for which to list all HTLCS
   limit?: number // Maximum number of orders to return (default: 20)
   refunded?: boolean // Display refunded HTLC (default: false)
-  claimed?: boolean // Display claimed HTLCs (default: false)
+  closed?: boolean // Display claimed HTLCs (default: false) NOTE(surangap): in c++ side desciption this is mentioned as "claimed". should be corrected
 }
 
 export interface ICXClaimDFCHTLCInfo {
   type: ICXHTLCType // HTLC type
   dfchtlcTx: string // HTLC Transaction Id
   seed: string // HTLC claim secret
-  height: number // HTLC creation height //spk
+  height: number // HTLC creation height
 }
 
-export interface ICXSubmitDFCHTLCInfo {
+export interface ICXDFCHTLCInfo {
   type: ICXHTLCType // HTLC type
   status: ICXHTLCStatus // Status of the HTLC
   offerTx: string // Offer Transaction Id
   amount: BigNumber // Amount
   amountInEXTAsset: BigNumber // Amount in external asset
-  hash: string // Hash of HTLC //spk
-  timeout: number // Timeout in blocks //spk
+  hash: string // Hash of DFCHTLC
+  timeout: number // Timeout in blocks
   height: number // HTLC creation height
   refundHeight: number // HTLC refund height
 }
 
-export interface ICXSubmitEXTHTLCInfo {
+export interface ICXEXTHTLCInfo {
   type: ICXHTLCType // HTLC type
   status: ICXHTLCStatus // Status of the HTLC
   offerTx: string // Offer Transaction Id
   amount: BigNumber // Amount
   amountInDFCAsset: BigNumber // Amount in external asset
-  hash: string // Hash of HTLC //spk
+  hash: string // Hash of EXTHTLC
   htlcScriptAddress: string // HTLC script address
   ownerPubkey: string // Pubkey of the owner to which the funds are refunded if HTLC timeouts
-  timeout: number // Timeout in blocks //spk
+  timeout: number // Timeout in blocks
   height: number // HTLC creation height
 }
