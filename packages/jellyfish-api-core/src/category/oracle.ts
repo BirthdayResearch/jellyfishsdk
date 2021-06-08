@@ -79,9 +79,9 @@ export class Oracle {
    * Returns latest raw price updates from oracles.
    *
    * @param {OraclePriceFeed} priceFeeds
-   * @return {Promise<any>}
+   * @return {Promise<OracleRawPrice[]>}
    */
-  async listLatestRawPrices (priceFeeds: OraclePriceFeed): Promise<any> {
+  async listLatestRawPrices (priceFeeds: OraclePriceFeed): Promise<OracleRawPrice[]> {
     return await this.client.call('listlatestrawprices', [priceFeeds], 'number')
   }
 }
@@ -100,6 +100,15 @@ export interface UpdateOracleOptions {
 export interface SetOracleDataOptions {
   prices?: OraclePrice[]
   utxos?: UTXO[]
+}
+
+export interface OracleRawPrice{
+  priceFeeds: OraclePriceFeed[]
+  oracleid: string
+  weightage: number
+  timestamp: number
+  rawprice: number
+  state: string
 }
 
 export interface OraclePriceFeed {

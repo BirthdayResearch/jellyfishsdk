@@ -36,8 +36,10 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const data = await client.oracle.listLatestRawPrices(priceFeeds[0])
+    expect(data.length).toStrictEqual(2)
 
-    expect(data).toStrictEqual([
+    const result1 = data.find((element: { oracleid: any }) => element.oracleid === oracleid1)
+    expect(result1).toStrictEqual(
       {
         priceFeeds: priceFeeds[0],
         oracleid: oracleid1,
@@ -45,20 +47,22 @@ describe('Oracle', () => {
         timestamp: timestamp1,
         rawprice: 0.5,
         state: 'expired'
-      },
+      })
+
+    const result2 = data.find((element: { oracleid: any }) => element.oracleid === oracleid2)
+    expect(result2).toStrictEqual(
       {
         priceFeeds: priceFeeds[0],
         oracleid: oracleid2,
         weightage: 2,
         timestamp: timestamp2,
-        rawprice: 1.0,
+        rawprice: 1,
         state: 'expired'
-      }
-    ])
+      })
   })
 
-  // it('should not listLatestRawPrices if token and currency do not exists', async () => {
-  //   const data = await client.oracle.listLatestRawPrices( { token: 'TESLA', currency: 'USD' })
-  //   expect(data.length).toStrictEqual(0)
-  // })
+  it('should not listLatestRawPrices if token and currency do not exist', async () => {
+    const data = await client.oracle.listLatestRawPrices({ token: 'TESLA', currency: 'USD' })
+    expect(data.length).toStrictEqual(0)
+  })
 })

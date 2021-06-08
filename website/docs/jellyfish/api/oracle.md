@@ -103,3 +103,27 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listLatestRawPrices
+
+Returns latest raw price updates from oracles.
+
+```ts title="client.oracle.listLatestRawPrices()"
+interface listLatestRawPrices {
+  listLatestRawPrices (priceFeeds: OraclePriceFeed): Promise<OracleRawPrice[]>
+}
+
+interface OracleRawPrice{
+  priceFeeds: OraclePriceFeed[],
+  oracleid: string,
+  weightage: number,
+  timestamp: number,
+  rawprice: number,
+  state: string
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+```
