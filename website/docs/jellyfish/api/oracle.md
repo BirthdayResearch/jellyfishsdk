@@ -103,3 +103,33 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getOracleData
+
+Returns oracle data.
+
+```ts title="client.oracle.getOracleData()"
+interface oracle {
+  getOracleData (oracleid: string): Promise<OracleData>
+}
+
+interface OracleData {
+  oracleid: string
+  address: string
+  priceFeeds: OraclePriceFeed[]
+  tokenPrices: OracleTokenPrice[]
+  weightage: number
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+
+interface OracleTokenPrice {
+  token: string
+  currency: string
+  amount: number
+  timestamp: number
+}
+```
