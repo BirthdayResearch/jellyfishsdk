@@ -136,10 +136,10 @@ interface OracleTokenPrice {
 
 ## listOracles
 
-Returns list of oracle ids.
+Returns array of oracle ids.
 
 ```ts title="client.oracle.listOracles()"
 interface oracle {
-  listOracles (): Promise<string>
+  listOracles (): Promise<string[]>
 }
 ```

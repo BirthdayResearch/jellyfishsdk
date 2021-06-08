@@ -86,11 +86,11 @@ export class Oracle {
   }
 
   /**
-   * Returns list of oracle ids.
+   * Returns array of oracle ids.
    *
-   * @return {Promise<string>} txid
+   * @return {Promise<string[]>}
    */
-  async listOracles (): Promise<string> {
+  async listOracles (): Promise<string[]> {
     return await this.client.call('listoracles', [], 'number')
   }
 }
@@ -137,6 +137,6 @@ export interface UTXO {
 export interface OracleTokenPrice {
   token: string
   currency: string
-  amount: number
-  timestamp: number
+  amount: number // example: 0.5
+  timestamp: number // example: 1623161076073
 }
