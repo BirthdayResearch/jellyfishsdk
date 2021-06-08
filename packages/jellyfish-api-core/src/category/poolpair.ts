@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { ApiClient } from '..'
 
-export type PoolSwapResultType = `${number}&${string}`
+type PoolSwapResultType = `${number}&${string}`
 
 /**
  * PoolPair RPCs for DeFi Blockchain
@@ -117,12 +117,12 @@ export class PoolPair {
    * @param {string} [metadata.to] Address of the owner of tokenB.
    * @param {string} [metadata.tokenTo] One of the keys may be specified (id/symbol).
    * @param {number} [metadata.maxPrice] Maximum acceptable price.
-   * @param {Array<PoolSwapInputs>} inputs A json array of json objects.
+   * @param {Array<UTXO>} inputs A json array of json objects.
    * @param {string} [inputs.txid] The transaction id.
    * @param {number} [inputs.vout] The output number.
    * @return {Promise<string>} The hex-encoded hash of broadcasted transaction
    */
-  async poolSwap (metadata: PoolSwapMetadata, inputs: PoolSwapInputs[] = []): Promise<string> {
+  async poolSwap (metadata: PoolSwapMetadata, inputs: UTXO[] = []): Promise<string> {
     return await this.client.call('poolswap', [metadata, inputs], 'bignumber')
   }
 
@@ -228,7 +228,7 @@ export interface PoolSwapMetadata {
   maxPrice?: number
 }
 
-export interface PoolSwapInputs {
+export interface UTXO {
   txid: string
   vout: number
 }

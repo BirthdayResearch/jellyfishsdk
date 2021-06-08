@@ -18,14 +18,14 @@ describe('poolpair', () => {
     await container.stop()
   })
 
-  let address: string
-
   async function setup (): Promise<void> {
     await createToken('DDAI')
     await mintTokens('DDAI')
     await createPoolPair('DDAI')
     await addPoolLiquidity()
   }
+
+  let address: string
 
   async function createToken (symbol: string): Promise<void> {
     address = await container.call('getnewaddress')

@@ -167,7 +167,7 @@ Creates a poolswap transaction with given metadata.
 
 ```ts title="client.poolpair.poolSwap()"
 interface PoolSwap {
-  poolSwap (metadata: PoolSwapMetadata, inputs?: PoolSwapInputs): Promise<string>
+  poolSwap (metadata: PoolSwapMetadata, inputs: UTXO[] = []): Promise<string>
 }
 
 interface PoolSwapMetadata {
@@ -179,7 +179,7 @@ interface PoolSwapMetadata {
   maxPrice: number
 }
 
-interface PoolSwapInputs {
+interface UTXO {
   txid: string
   vout: number
 }
