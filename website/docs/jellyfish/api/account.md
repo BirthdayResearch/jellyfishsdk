@@ -271,7 +271,11 @@ Creates a transfer transaction from your accounts balances.
 ```ts title="client.account.sendTokensToAddress()"
 
 interface Account {
-  sendTokensToAddress (from: AddressBalances, to: AddressBalances, selectionMode: SelectionModeType = SelectionModeType.PIE): Promise<string>
+  sendTokensToAddress (
+      from: AddressBalances,
+      to: AddressBalances, 
+      options: SendTokensOptions ={selectionMode: SelectionModeType}
+  ): Promise<string>
 }
 
 type AccountRegexType = `${number}@${string}`
@@ -284,5 +288,9 @@ enum SelectionModeType {
 
 interface AddressBalances {
   [key: string]: AccountRegexType[]
+}
+
+interface SendTokensOptions {
+  selectionMode: SelectionModeType
 }
 ```

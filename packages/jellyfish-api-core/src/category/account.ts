@@ -323,11 +323,16 @@ export class Account {
    *
    * @param {AddressBalances} from The source defi address is the key, the value is amount in amount amount@token format
    * @param {AddressBalances} to The defi address is the key, the value is amount in amount amount@token format
-   * @param {SelectionModeType} [selectionMode=SelectionModeType.PIE] account selection mode. If "from" param is empty, it will auto select.
+   * @param {SendTokensOptions} [options]
+   * @param {SelectionModeType} [options.selectionMode] Account selection mode. If "from" param is empty, it will auto select.
    * @return {Promise<string>}
    */
-  async sendTokensToAddress (from: AddressBalances, to: AddressBalances, selectionMode: SelectionModeType = SelectionModeType.PIE): Promise<string> {
-    return await this.client.call('sendtokenstoaddress', [from, to, selectionMode], 'number')
+  async sendTokensToAddress (
+    from: AddressBalances,
+    to: AddressBalances,
+    options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
+  ): Promise<string> {
+    return await this.client.call('sendtokenstoaddress', [from, to, options.selectionMode], 'number')
   }
 }
 
@@ -408,4 +413,8 @@ export interface AccountHistoryCountOptions {
 
 export interface AddressBalances {
   [key: string]: AccountRegexType[]
+}
+
+export interface SendTokensOptions {
+  selectionMode: SelectionModeType
 }
