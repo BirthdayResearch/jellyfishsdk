@@ -23,8 +23,8 @@ interface oracle {
 }
 
 interface OraclePriceFeed {
-  currency: string
   token: string
+  currency: string
 }
 
 interface AppointOracleOptions {
