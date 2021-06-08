@@ -117,7 +117,7 @@ interface OracleData {
   oracleid: string
   address: string
   priceFeeds: OraclePriceFeed[]
-  tokenPrices: OracleTokenPrices[]
+  tokenPrices: OracleTokenPrice[]
   weightage: number
 }
 
@@ -126,7 +126,7 @@ interface OraclePriceFeed {
   currency: string
 }
 
-interface OracleTokenPrices {
+interface OracleTokenPrice {
   token: string
   currency: string
   amount: number

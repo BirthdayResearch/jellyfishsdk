@@ -106,7 +106,7 @@ export interface OracleData {
   oracleid: string
   address: string
   priceFeeds: OraclePriceFeed[]
-  tokenPrices: OracleTokenPrices[]
+  tokenPrices: OracleTokenPrice[]
   weightage: number
 }
 
@@ -125,7 +125,7 @@ export interface UTXO {
   vout: number
 }
 
-export interface OracleTokenPrices {
+export interface OracleTokenPrice {
   token: string
   currency: string
   amount: number
