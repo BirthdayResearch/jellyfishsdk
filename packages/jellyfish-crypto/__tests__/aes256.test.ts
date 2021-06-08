@@ -13,13 +13,13 @@ describe('Aes256', () => {
   })
 
   it('encrypt - should be able to overwrite cipher iv for better security measure', () => {
-    const iv = Buffer.from('0102030405060708090a0b0c0d0e0f10', 'hex')
+    const iv = (): Buffer => Buffer.from('0102030405060708090a0b0c0d0e0f10', 'hex')
     encrypted = AES256.encrypt(passphrase, privateKey, iv)
     expect(encrypted.length).toStrictEqual(48) // [16 bytes salt, 32 bytes cipher]
   })
 
   it('encrypt - should reject non 16 bytes long iv', () => {
-    const iv = Buffer.from('0102030405060708090a0b0c0d0e0f', 'hex')
+    const iv = (): Buffer => Buffer.from('0102030405060708090a0b0c0d0e0f', 'hex')
     expect(() => AES256.encrypt(passphrase, privateKey, iv)).toThrow('Initialization vector must be 16 bytes long')
   })
 
