@@ -147,10 +147,7 @@ describe('account.utxosToAccount()', () => {
   it('should reject invalid utxosToAccount arg - less than 1 token in balance destination', async () => {
     const dest = await providers.elliptic.script()
     await expect(builder.account.utxosToAccount({
-      to: [{
-        balances: [],
-        script: dest
-      }]
+      to: []
     }, dest)).rejects.toThrow('Conversion output `utxosToAccount.to` array length must be greater than or equal to one')
   })
 
