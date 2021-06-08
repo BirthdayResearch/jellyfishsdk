@@ -19,12 +19,12 @@ Creates a price oracle for rely of real time price data.
 
 ```ts title="client.oracle.appointOracle()"
 interface oracle {
-  appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string>
+  appointOracle (address: string, priceFeeds: OraclePriceFeed[], options: AppointOracleOptions = {}): Promise<string>
 }
 
-interface PriceFeed {
-  currency: string
+interface OraclePriceFeed {
   token: string
+  currency: string
 }
 
 interface AppointOracleOptions {
@@ -45,6 +45,57 @@ Removes oracle.
 ```ts title="client.oracle.removeOracle()"
 interface oracle {
   removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## updateOracle
+
+Update a price oracle for rely of real time price data.
+
+```ts title="client.oracle.updateOracle()"
+interface oracle {
+  updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string>
+}
+
+interface UpdateOracleOptions {
+  priceFeeds?: OraclePriceFeed[]
+  weightage?: number
+  utxos?: UTXO[]
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## setOracleData
+
+Set oracle data transaction.
+
+```ts title="client.oracle.setOracleData()"
+interface oracle {
+  setOracleData (oracleid: string, timestamp: number, options: SetOracleDataOptions = {}): Promise<string>
+}
+
+interface SetOracleDataOptions {
+  prices?: OraclePrice[]
+  utxos?: UTXO[]
+}
+
+interface OraclePrice {
+  tokenAmount: string
+  currency: string
 }
 
 interface UTXO {
