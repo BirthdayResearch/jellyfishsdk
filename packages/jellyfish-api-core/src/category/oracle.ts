@@ -14,15 +14,15 @@ export class Oracle {
    * Creates a price oracle for rely of real time price data.
    *
    * @param {string} address
-   * @param {PriceFeed[]} priceFeeds
+   * @param {OraclePriceFeed[]} priceFeeds
    * @param {AppointOracleOptions} [options]
    * @param {number} options.weightage
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} oracleid
+   * @return {Promise<string>} oracleid, also the txn id for txn created to appoint oracle
    */
-  async appointOracle (address: string, priceFeeds: PriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
+  async appointOracle (address: string, priceFeeds: OraclePriceFeed[], options: AppointOracleOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('appointoracle', [address, priceFeeds, options.weightage, utxos], 'number')
   }
@@ -34,7 +34,7 @@ export class Oracle {
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
-   * @return {Promise<string>} oracleid
+   * @return {Promise<string>} txid
    */
   async removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('removeoracle', [oracleid, utxos], 'number')
