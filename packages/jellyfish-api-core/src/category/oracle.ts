@@ -74,6 +74,10 @@ export class Oracle {
     const { utxos = [] } = options
     return await this.client.call('setoracledata', [oracleid, timestamp, options.prices, utxos], 'number')
   }
+
+  async listPrices (): Promise<string> {
+    return await this.client.call('listprices', [], 'bignumber')
+  }
 }
 
 export interface AppointOracleOptions {
