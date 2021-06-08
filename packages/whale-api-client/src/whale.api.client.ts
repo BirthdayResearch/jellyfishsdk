@@ -1,6 +1,5 @@
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
-import { URLSearchParams } from 'url'
 import { raiseIfError, WhaleClientException, WhaleClientTimeoutException } from './errors'
 import { WhaleApiResponse, ApiPagedResponse } from './whale.api.response'
 import { Address } from './api/address'
