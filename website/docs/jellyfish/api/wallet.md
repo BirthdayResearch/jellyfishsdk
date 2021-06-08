@@ -29,6 +29,17 @@ interface wallet {
 }
 ```
 
+## getUnconfirmedBalance
+
+Identical to getBalance to get untrusted pending balance
+- `withTokens` to include token balances, default is false for backward compatibility
+
+```ts title="client.wallet.getUnconfirmedBalance()"
+interface wallet {
+  getUnconfirmedBalance(withTokens = false): Promise<number>
+}
+```
+
 ## listUnspent
 
 Get list of UTXOs in wallet.
