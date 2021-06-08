@@ -78,11 +78,11 @@ export function mnemonicToSeed (mnemonic: string[]): Buffer {
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
 export class MnemonicHdNode implements WalletHdNode {
-  private readonly root: bip32.BIP32Interface
-  private readonly path: string
-  private readonly signingCb?: SigningInterface
-
-  constructor (root: bip32.BIP32Interface, path: string, signingCb?: SigningInterface) {
+  constructor (
+    private readonly root: bip32.BIP32Interface,
+    private readonly path: string,
+    private readonly signingCb?: SigningInterface
+  ) {
     this.root = root
     this.path = path
     this.signingCb = signingCb
@@ -178,8 +178,6 @@ export interface SigningInterface {
  * Provider that derive MnemonicHdNode from root. Uses a lite on demand derivation.
  */
 export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNode> {
-  signingCb?: SigningInterface
-
   /**
    * @param {Buffer} seed of the hd node
    * @param {Bip32Options} options for chain agnostic generation of public/private keys
@@ -189,9 +187,10 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
     return new MnemonicHdNodeProvider(node, signingCb)
   }
 
-  private readonly root: bip32.BIP32Interface
-
-  private constructor (root: bip32.BIP32Interface, signingCb?: SigningInterface) {
+  private constructor (
+    private readonly root: bip32.BIP32Interface,
+    private readonly signingCb?: SigningInterface
+  ) {
     this.root = root
     this.signingCb = signingCb
   }

@@ -212,10 +212,10 @@ describe('MnemonicHdNodeProvider - should be able to attach with SigningInterfac
   let signedCalled: Array<{ buffer: Buffer, tx: TransactionSegWit }> = []
 
   const cb: SigningInterface = {
-    unsigned: async (buffer, tx) => {
+    beforeSign: async (buffer, tx) => {
       unsignedCalled.push({ buffer, tx })
     },
-    signed: async (buffer, tx) => {
+    afterSign: async (buffer, tx) => {
       signedCalled.push({ buffer, tx })
     }
   }
