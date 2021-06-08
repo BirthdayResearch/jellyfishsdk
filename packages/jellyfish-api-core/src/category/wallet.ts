@@ -293,7 +293,7 @@ export class Wallet {
    * @return {Promise<InWalletTransaction>}
    */
   async getTransaction (txid: string, includeWatchOnly: boolean = true): Promise<InWalletTransaction> {
-    return await this.client.call('gettransaction', [txid, includeWatchOnly], 'number')
+    return await this.client.call('gettransaction', [txid, includeWatchOnly], { amount: 'bignumber' })
   }
 }
 
@@ -439,7 +439,7 @@ export interface WalletFlagResult {
 }
 
 export interface InWalletTransaction {
-  amount: number
+  amount: BigNumber
   fee: number
   confirmations: number
   blockhash: string
@@ -456,7 +456,7 @@ export interface InWalletTransaction {
 export interface InWalletTransactionDetail {
   address: string
   category: InWalletTransactionCategory
-  amount: number
+  amount: BigNumber
   label: string
   vout: number
   fee: number

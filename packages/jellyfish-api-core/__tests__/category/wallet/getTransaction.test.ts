@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { InWalletTransactionCategory } from '../../../src/category/wallet'
+import BigNumber from 'bignumber.js'
 
 describe('Server on masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -26,7 +27,7 @@ describe('Server on masternode', () => {
 
     expect(inWalletTransaction.details[0].address).toStrictEqual(address)
     expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-    expect(typeof inWalletTransaction.amount).toStrictEqual('number')
+    expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
     expect(typeof inWalletTransaction.fee).toStrictEqual('number')
     expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
     expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
@@ -54,7 +55,7 @@ describe('Server on masternode', () => {
 
     expect(inWalletTransaction.details[0].address).toStrictEqual(address)
     expect(typeof inWalletTransaction.txid).toStrictEqual('string')
-    expect(typeof inWalletTransaction.amount).toStrictEqual('number')
+    expect(inWalletTransaction.amount).toBeInstanceOf(BigNumber)
     expect(typeof inWalletTransaction.fee).toStrictEqual('number')
     expect(typeof inWalletTransaction.confirmations).toStrictEqual('number')
     expect(typeof inWalletTransaction.blockhash).toStrictEqual('string')
