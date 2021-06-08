@@ -4,6 +4,8 @@ export interface ScryptProvider {
   passphraseToKey: (nfcUtf8: string, salt: Buffer, desiredKeyLen: number) => Buffer
 }
 
+export type InitVectorProvider = () => Buffer
+
 export interface Storage {
   getter: () => Promise<string | undefined>
   setter: (encrypted: string | undefined) => Promise<void>
@@ -64,15 +66,18 @@ export class ScryptStorage {
    * @param {ScryptProvider} scryptProvider to convert a utf8 string into a secret, cryptographically secured
    * @param {Storage} encryptedStorage to store encrypted data
    * @param {Storage} hashStorage to store hash of the data, for passphrase verification use
+   * @param {InitVectorProvider} ivProvider `() => Buffer` as AES encryption iv randomizer, default = `crypto-js.randomBytes`
    */
   constructor (
     readonly scryptProvider: ScryptProvider,
     readonly encryptedStorage: Storage,
-    readonly hashStorage: Storage
+    readonly hashStorage: Storage,
+    readonly ivProvider?: InitVectorProvider
   ) {
     this.scryptProvider = scryptProvider
     this.encryptedStorage = encryptedStorage
     this.hashStorage = hashStorage
+    this.ivProvider = ivProvider
   }
 
   /**
@@ -100,8 +105,8 @@ export class ScryptStorage {
     const xor1 = this._xor(k1a, d1)
     const xor2 = this._xor(k1b, d2)
 
-    const b1 = AES256.encrypt(k2, xor1)
-    const b2 = AES256.encrypt(k2, xor2)
+    const b1 = AES256.encrypt(k2, xor1, this.ivProvider)
+    const b2 = AES256.encrypt(k2, xor2, this.ivProvider)
 
     const encrypted = new EncryptedData(0x01, 0x42, 0xc0, hash, b1, b2)
     await this.encryptedStorage.setter(encrypted.encode())
