@@ -61,6 +61,27 @@ export interface AppointOracleOptions {
   utxos?: UTXO[]
 }
 
+export interface UpdateOracleOptions {
+  priceFeeds?: OraclePriceFeed[]
+  weightage?: number
+  utxos?: UTXO[]
+}
+
+export interface SetOracleDataOptions {
+  prices?: OraclePrice[]
+  utxos?: UTXO[]
+}
+
+export interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+
+export interface OraclePrice {
+  tokenAmount: string
+  currency: string
+}
+
 export interface UTXO {
   txid: string
   vout: number

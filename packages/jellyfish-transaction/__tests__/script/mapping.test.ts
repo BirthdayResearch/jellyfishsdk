@@ -98,6 +98,42 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_16, script.OP_16, 'OP_16', 0x60, '60')
   })
 
+  it('OP_NOP', () => {
+    expectOPCode(script.OP_CODES.OP_NOP, script.OP_NOP, 'OP_NOP', 0x61, '61')
+  })
+
+  it('OP_VER', () => {
+    expectOPCode(script.OP_CODES.OP_VER, script.OP_VER, 'OP_VER', 0x62, '62')
+  })
+
+  it('OP_IF', () => {
+    expectOPCode(script.OP_CODES.OP_IF, script.OP_IF, 'OP_IF', 0x63, '63')
+  })
+
+  it('OP_NOTIF', () => {
+    expectOPCode(script.OP_CODES.OP_NOTIF, script.OP_NOTIF, 'OP_NOTIF', 0x64, '64')
+  })
+
+  it('OP_VERIF', () => {
+    expectOPCode(script.OP_CODES.OP_VERIF, script.OP_VERIF, 'OP_VERIF', 0x65, '65')
+  })
+
+  it('OP_VERNOTIF', () => {
+    expectOPCode(script.OP_CODES.OP_VERNOTIF, script.OP_VERNOTIF, 'OP_VERNOTIF', 0x66, '66')
+  })
+
+  it('OP_ELSE', () => {
+    expectOPCode(script.OP_CODES.OP_ELSE, script.OP_ELSE, 'OP_ELSE', 0x67, '67')
+  })
+
+  it('OP_ENDIF', () => {
+    expectOPCode(script.OP_CODES.OP_ENDIF, script.OP_ENDIF, 'OP_ENDIF', 0x68, '68')
+  })
+
+  it('OP_VERIFY', () => {
+    expectOPCode(script.OP_CODES.OP_VERIFY, script.OP_VERIFY, 'OP_VERIFY', 0x69, '69')
+  })
+
   it('OP_RETURN', () => {
     expectOPCode(script.OP_CODES.OP_RETURN, script.OP_RETURN, 'OP_RETURN', 0x6a, '6a')
   })

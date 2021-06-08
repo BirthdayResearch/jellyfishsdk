@@ -353,15 +353,15 @@ export const OP_CODES = {
   OP_16: new constants.OP_16(),
 
   // control
-  //  OP_NOP = 0x61,
-  //  OP_VER = 0x62,
-  //  OP_IF = 0x63,
-  //  OP_NOTIF = 0x64,
-  //  OP_VERIF = 0x65,
-  //  OP_VERNOTIF = 0x66,
-  //  OP_ELSE = 0x67,
-  //  OP_ENDIF = 0x68,
-  //  OP_VERIFY = 0x69,
+  OP_NOP: new control.OP_NOP(),
+  OP_VER: new control.OP_VER(),
+  OP_IF: new control.OP_IF(),
+  OP_NOTIF: new control.OP_NOTIF(),
+  OP_VERIF: new control.OP_VERIF(),
+  OP_VERNOTIF: new control.OP_VERNOTIF(),
+  OP_ELSE: new control.OP_ELSE(),
+  OP_ENDIF: new control.OP_ENDIF(),
+  OP_VERIFY: new control.OP_VERIFY(),
   OP_RETURN: new control.OP_RETURN(),
 
   // stack
@@ -487,6 +487,15 @@ const HEX_MAPPING: {
   0x5f: OP_CODES.OP_15,
   0x60: OP_CODES.OP_16,
   // control
+  0x61: OP_CODES.OP_NOP,
+  0x62: OP_CODES.OP_VER,
+  0x63: OP_CODES.OP_IF,
+  0x64: OP_CODES.OP_NOTIF,
+  0x65: OP_CODES.OP_VERIF,
+  0x66: OP_CODES.OP_VERNOTIF,
+  0x67: OP_CODES.OP_ELSE,
+  0x68: OP_CODES.OP_ENDIF,
+  0x69: OP_CODES.OP_VERIFY,
   0x6a: OP_CODES.OP_RETURN,
   // stack
   0x76: OP_CODES.OP_DUP,
