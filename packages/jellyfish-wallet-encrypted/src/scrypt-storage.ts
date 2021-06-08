@@ -1,4 +1,4 @@
-import { dSHA256, Aes256 } from '../../jellyfish-crypto/dist'
+import { dSHA256, AES256 } from '../../jellyfish-crypto/dist'
 
 export interface ScryptProvider {
   passphraseToKey: (nfcUtf8: string, salt: Buffer, desiredKeyLen: number) => Buffer
@@ -100,8 +100,8 @@ export class ScryptStorage {
     const xor1 = this._xor(k1a, d1)
     const xor2 = this._xor(k1b, d2)
 
-    const b1 = Aes256.encrypt(k2, xor1)
-    const b2 = Aes256.encrypt(k2, xor2)
+    const b1 = AES256.encrypt(k2, xor1)
+    const b2 = AES256.encrypt(k2, xor2)
 
     const encrypted = new EncryptedData(0x01, 0x42, 0xc0, hash, b1, b2)
     await this.encryptedStorage.setter(encrypted.encode())
@@ -129,8 +129,8 @@ export class ScryptStorage {
     const k1b = Buffer.from(key.toString('hex').slice(32, 64), 'hex') // 16 bytes
     const k2 = Buffer.from(key.toString('hex').slice(64), 'hex') // 32 bytes
 
-    const dec1 = Aes256.decrypt(k2, data.encryptedFirstHalf) // 16 bytes = decipher(32 bytes) - salt
-    const dec2 = Aes256.decrypt(k2, data.encryptedSecondHalf)
+    const dec1 = AES256.decrypt(k2, data.encryptedFirstHalf) // 16 bytes = decipher(32 bytes) - salt
+    const dec2 = AES256.decrypt(k2, data.encryptedSecondHalf)
 
     const d1 = this._xor(k1a, dec1)
     const d2 = this._xor(k1b, dec2)
