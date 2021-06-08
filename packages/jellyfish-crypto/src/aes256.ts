@@ -11,13 +11,18 @@ const CIPHER_ALGORITHM = 'aes-256-ctr'
  * Encrypt a clear-text message using AES-256 plus a random Initialization Vector.
  * @param {Buffer} key  A passphrase of any length to used to generate a symmetric session key.
  * @param {Buffer} data  The clear-text message or buffer to be encrypted.
+ * @param {Buffer} initVector Initialization vector to create AES cipher, default using `crypto` or browserify `random-bytes` package
  * @returns {Buffer}
  */
-function encrypt (key: Buffer, data: Buffer): Buffer {
+function encrypt (key: Buffer, data: Buffer, initVector?: Buffer): Buffer {
   const sha256 = createHash('sha256')
   sha256.update(key)
 
-  const iv = randomBytes(16)
+  const iv = initVector === undefined ? randomBytes(16) : initVector
+
+  if (iv.length !== 16) {
+    throw new Error('Initialization vector must be 16 bytes long')
+  }
   const cipher = aes.createCipheriv(CIPHER_ALGORITHM, sha256.digest(), iv)
   const ciphertext = cipher.update(data)
   return Buffer.concat([iv, ciphertext, cipher.final()])
