@@ -52,7 +52,7 @@
   },
   "size-limit": [
     {
-      "path": "packages/jellyfish/dist/jellyfish.umd.js",
+      "path": "packages/jellyfish/dist/index.umd.js",
       "limit": "1000 ms"
     }
   ]
