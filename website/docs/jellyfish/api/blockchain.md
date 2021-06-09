@@ -271,7 +271,7 @@ interface MempoolTx {
 
 ## getMempoolInfo
 
-Returns details on the active state of the TX memory pool.o
+Returns details on the active state of the TX memory pool.
 
 ```ts="client.blockchain.getMempoolInfo"
 interface blockchain {
