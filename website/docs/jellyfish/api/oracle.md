@@ -140,7 +140,7 @@ Returns latest raw price updates from oracles.
 
 ```ts title="client.oracle.listLatestRawPrices()"
 interface oracle {
-  listLatestRawPrices (priceFeed: OraclePriceFeed): Promise<OracleRawPrice[]>
+  listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]>
 }
 
 interface OracleRawPrice{
