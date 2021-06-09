@@ -1,7 +1,6 @@
 import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemonic } from '../../src'
 import BigNumber from 'bignumber.js'
-import { Transaction, Vout } from '@defichain/jellyfish-transaction'
-import { OP_CODES } from '@defichain/jellyfish-transaction/dist/script'
+import { Transaction, Vout, OP_CODES } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 
 const regTestBip32Options = {

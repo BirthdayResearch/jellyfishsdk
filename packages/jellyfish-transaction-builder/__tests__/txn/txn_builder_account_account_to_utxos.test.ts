@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { AccountToUtxos } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_account'
+import { OP_CODES, AccountToUtxos } from '@defichain/jellyfish-transaction'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { utxosToAccount } from '@defichain/testing'
 import { getProviders, MockProviders } from '../provider.mock'

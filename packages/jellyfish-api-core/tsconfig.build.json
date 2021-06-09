@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "include": [
+    "./src/**/*"
+  ],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+  },
+  "references": [
+    {"path": "../jellyfish-json/tsconfig.build.json"},
+    {"path": "../testcontainers/tsconfig.build.json"}
+  ]
+}
