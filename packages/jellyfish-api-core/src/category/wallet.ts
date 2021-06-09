@@ -73,6 +73,13 @@ export class Wallet {
   }
 
   /**
+   * Returns an object with all balances
+   */
+  async getBalances (withTokens = false): Promise<WalletBalance> {
+    return await this.client.call('getbalances', [withTokens], 'bignumber')
+  }
+
+  /**
    * Get list of UTXOs in wallet.
    *
    * @param {number} minimumConfirmation default = 1, to filter
@@ -471,4 +478,22 @@ export interface InWalletTransactionDetail {
   vout: number
   fee: number
   abandoned: boolean
+}
+
+export interface WalletBalance {
+  mine: WalletMineBalance
+  watchonly?: WalletWatchOnlyBalance
+}
+
+export interface WalletMineBalance {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
+  used?: BigNumber
+}
+
+export interface WalletWatchOnlyBalance {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
 }
