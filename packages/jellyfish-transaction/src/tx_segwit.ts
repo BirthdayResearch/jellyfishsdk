@@ -1,9 +1,18 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Script } from './tx'
-import { SIGHASH } from './tx_signature'
 import { BufferComposer, ComposableBuffer } from './buffer/buffer_composer'
 import { CScript } from './tx_composer'
+
+export enum SIGHASH {
+  ALL = 0x01,
+  NONE = 0x02,
+  SINGLE = 0x03,
+  ANYONECANPAY = 0x80,
+  ALL_ANYONECANPAY = SIGHASH.ALL | SIGHASH.ANYONECANPAY,
+  NONE_ANYONECANPAY = SIGHASH.NONE | SIGHASH.ANYONECANPAY,
+  SINGLE_ANYONECANPAY = SIGHASH.SINGLE | SIGHASH.ANYONECANPAY,
+}
 
 /**
  * V0 Witness program for SegWit WitnessScript.

@@ -1,11 +1,20 @@
 import { EllipticPair, dSHA256, HASH160 } from '@defichain/jellyfish-crypto'
+import {
+  Script,
+  Transaction,
+  TransactionSegWit,
+  Vin,
+  Vout,
+  Witness,
+  OP_CODES,
+  OP_PUSHDATA,
+  CWitnessProgram,
+  WitnessProgram,
+  DeFiTransactionConstants,
+  SIGHASH,
+  CVoutV4
+} from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
-import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness } from './tx'
-import { OP_CODES, OP_PUSHDATA } from './script'
-import { CWitnessProgram, WitnessProgram, SIGHASH } from './tx_segwit'
-import { DeFiTransactionConstants } from './index'
-import { writeVarUInt } from './buffer/buffer_varuint'
-import { ONE_HUNDRED_MILLION, writeBigNumberUInt64 } from './buffer/buffer_bignumber'
 
 export interface SignInputOption {
   /**
@@ -63,12 +72,8 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
   }
 
   const buffer = new SmartBuffer()
-  for (const vout of transaction.vout) {
-    const satoshi = vout.value.multipliedBy(ONE_HUNDRED_MILLION)
-    writeBigNumberUInt64(satoshi, buffer)
-    OP_CODES.toBuffer(vout.script.stack, buffer)
-    writeVarUInt(vout.tokenId, buffer)
-  }
+  transaction.vout.forEach(vout => (new CVoutV4(vout)).toBuffer(buffer))
+
   return dSHA256(buffer.toBuffer()).toString('hex')
 }
 
