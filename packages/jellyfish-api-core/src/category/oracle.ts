@@ -142,7 +142,7 @@ export interface OracleTokenPrice {
    */
   amount: number
   /**
-   * @example 1623161076073
+   * @example 1623161076 is an Epoch time which every digit represents a second.
    */
   timestamp: number
 }
