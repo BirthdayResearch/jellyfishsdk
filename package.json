@@ -21,6 +21,7 @@
     "node": ">=14.x"
   },
   "scripts": {
+    "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
     "build": "lerna run build",
     "version": "lerna version $1 --yes --no-push --no-git-tag-version",
@@ -29,8 +30,7 @@
     "standard": "ts-standard --fix",
     "test": "jest --maxWorkers=100%",
     "test:ci": "jest --ci --coverage --forceExit --maxWorkers=4",
-    "all": "npm run build && npm run standard && npm run test",
-    "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo"
+    "all": "npm run clean && npm run build && npm run standard && npm run test"
   },
   "devDependencies": {
     "@size-limit/preset-app": "^4.10.1",

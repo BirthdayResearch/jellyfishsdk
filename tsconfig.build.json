@@ -1,19 +1,13 @@
-// Build (not dev) tsconfig
 {
   "extends": "./tsconfig.base.json",
-  // monorepo settings
   "compilerOptions": {
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
   },
-
-  // Note(canonbrother): Intentionally blank to prevent output unnecessary files
   "files": [],
-
   "references": [
-    {"path": "./packages/jellyfish/tsconfig.build.json"},
     {"path": "./packages/jellyfish-address/tsconfig.build.json"},
     {"path": "./packages/jellyfish-api-core/tsconfig.build.json"},
     {"path": "./packages/jellyfish-api-jsonrpc/tsconfig.build.json"},

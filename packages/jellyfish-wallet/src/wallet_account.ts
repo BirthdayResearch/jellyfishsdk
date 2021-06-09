@@ -1,5 +1,4 @@
-import { Script } from '@defichain/jellyfish-transaction'
-import { OP_CODES } from '@defichain/jellyfish-transaction/src/script'
+import { Script, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WalletHdNode } from './wallet_hd_node'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'

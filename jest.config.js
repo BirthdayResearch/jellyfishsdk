@@ -2,8 +2,6 @@ module.exports = {
   preset: 'ts-jest',
   testRegex: '((\\.|/)(e2e|test|spec))\\.[jt]sx?$',
   moduleNameMapper: {
-    // NOTE(canonbrother): uncomment it only while test running with this dependency
-    // '@defichain/jellyfish': '<rootDir>/packages/jellyfish/src/jellyfish/src',
     '@defichain/jellyfish-address': '<rootDir>/packages/jellyfish-address/src',
     '@defichain/jellyfish-api-core': '<rootDir>/packages/jellyfish-api-core/src',
     '@defichain/jellyfish-api-jsonrpc': '<rootDir>/packages/jellyfish-api-jsonrpc/src',
@@ -17,5 +15,9 @@ module.exports = {
     '@defichain/testcontainers': '<rootDir>/packages/testcontainers/src',
     '@defichain/testing': '<rootDir>/packages/testing/src'
   },
-  testTimeout: 240000
+  testTimeout: 240000,
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '.*/__tests__/.*'
+  ]
 }
