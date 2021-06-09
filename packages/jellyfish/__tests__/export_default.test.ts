@@ -1,5 +1,5 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
-import Jellyfish from '../src/jellyfish'
+import Jellyfish from '../src'
 
 describe('with new keyword', () => {
   it('should be able to create Client without params', () => {
