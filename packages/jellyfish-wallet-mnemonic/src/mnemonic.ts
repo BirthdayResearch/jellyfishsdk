@@ -4,9 +4,9 @@ import {
   Transaction,
   Vout,
   TransactionSegWit,
-  TransactionSigner,
-  SignInputOption, SIGHASH
+  SIGHASH
 } from '@defichain/jellyfish-transaction'
+import { TransactionSigner, SignInputOption } from '@defichain/jellyfish-transaction-signature'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 
