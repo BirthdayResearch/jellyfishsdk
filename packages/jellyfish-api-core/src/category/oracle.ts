@@ -88,7 +88,7 @@ export class Oracle {
   /**
    * Returns latest raw price updates from oracles.
    *
-   * @param {OraclePriceFeed} priceFeed
+   * @param {OraclePriceFeed} [priceFeed]
    * @return {Promise<OracleRawPrice[]>}
    */
   async listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]> {

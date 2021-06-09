@@ -36,13 +36,13 @@ describe('Oracle', () => {
     const prices1 = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
     await container.call('setoracledata', [oracleid1, timestamp1, prices1])
 
-    const prices2 = [{ tokenAmount: '0.5@APPLE', currency: 'USD' }]
+    const prices2 = [{ tokenAmount: '1@APPLE', currency: 'USD' }]
     await container.call('setoracledata', [oracleid1, timestamp1, prices2])
 
-    const prices3 = [{ tokenAmount: '1@TESLA', currency: 'EUR' }]
+    const prices3 = [{ tokenAmount: '1.5@TESLA', currency: 'EUR' }]
     await container.call('setoracledata', [oracleid2, timestamp2, prices3])
 
-    const prices4 = [{ tokenAmount: '1@TESLA', currency: 'USD' }]
+    const prices4 = [{ tokenAmount: '2@TESLA', currency: 'USD' }]
     await container.call('setoracledata', [oracleid2, timestamp2, prices4])
 
     await container.generate(1)
@@ -51,6 +51,7 @@ describe('Oracle', () => {
     const data = await client.oracle.listLatestRawPrices()
 
     const result1 = data.filter(element => element.oracleid === oracleid1)
+
     expect(result1).toStrictEqual(
       [
         {
@@ -66,13 +67,14 @@ describe('Oracle', () => {
           oracleid: oracleid1,
           weightage: 1,
           timestamp: timestamp1,
-          rawprice: 0.5,
+          rawprice: 1,
           state: 'live'
         }
       ]
     )
 
     const result2 = data.filter(element => element.oracleid === oracleid2)
+
     expect(result2).toStrictEqual(
       [
         {
@@ -80,7 +82,7 @@ describe('Oracle', () => {
           oracleid: oracleid2,
           weightage: 2,
           timestamp: timestamp2,
-          rawprice: 1,
+          rawprice: 1.5,
           state: 'live'
         },
         {
@@ -88,7 +90,7 @@ describe('Oracle', () => {
           oracleid: oracleid2,
           weightage: 2,
           timestamp: timestamp2,
-          rawprice: 1,
+          rawprice: 2,
           state: 'live'
         }
       ]
@@ -100,7 +102,7 @@ describe('Oracle', () => {
     await container.generate(1)
   })
 
-  it('should listLatestRawPrices with various timestamp', async () => {
+  it('should listLatestRawPrices with various timestamps', async () => {
     const priceFeed = { token: 'APPLE', currency: 'EUR' }
 
     const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
@@ -144,6 +146,7 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(5)
 
     const result1 = data.find(element => element.oracleid === oracleid1)
+
     expect(result1).toStrictEqual(
       {
         priceFeeds: priceFeed,
@@ -155,6 +158,7 @@ describe('Oracle', () => {
       })
 
     const result2 = data.find(element => element.oracleid === oracleid2)
+
     expect(result2).toStrictEqual(
       {
         priceFeeds: priceFeed,
@@ -166,6 +170,7 @@ describe('Oracle', () => {
       })
 
     const result3 = data.find(element => element.oracleid === oracleid3)
+
     expect(result3).toStrictEqual(
       {
         priceFeeds: priceFeed,
@@ -177,6 +182,7 @@ describe('Oracle', () => {
       })
 
     const result4 = data.find(element => element.oracleid === oracleid4)
+
     expect(result4).toStrictEqual(
       {
         priceFeeds: priceFeed,
@@ -188,6 +194,7 @@ describe('Oracle', () => {
       })
 
     const result5 = data.find(element => element.oracleid === oracleid5)
+
     expect(result5).toStrictEqual(
       {
         priceFeeds: priceFeed,
@@ -210,10 +217,11 @@ describe('Oracle', () => {
   it('should listLatestRawPrices with empty array if there is no oracle appointed', async () => {
     // NOTE(jingyi2811): Pagination is not supported.
     const data = await client.oracle.listLatestRawPrices()
+
     expect(data.length).toStrictEqual(0)
   })
 
-  it('should listLatestRawPrices with priceFeed', async () => {
+  it('should listLatestRawPrices with priceFeed as input parameter', async () => {
     const priceFeed = { token: 'APPLE', currency: 'EUR' }
 
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
@@ -221,7 +229,6 @@ describe('Oracle', () => {
     await container.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
     await container.call('setoracledata', [oracleid, timestamp, prices])
 
@@ -229,6 +236,7 @@ describe('Oracle', () => {
 
     // NOTE(jingyi2811): Pagination is not supported.
     const data = await client.oracle.listLatestRawPrices(priceFeed)
+
     expect(data).toStrictEqual(
       [
         {
