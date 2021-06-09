@@ -121,11 +121,11 @@ export interface OracleData {
 }
 
 export interface OracleRawPrice{
-  priceFeeds: OraclePriceFeed[]
   oracleid: string
-  weightage: number
-  timestamp: number
+  priceFeeds: OraclePriceFeed[]
   rawprice: number
+  timestamp: number
+  weightage: number
   state: string
 }
 

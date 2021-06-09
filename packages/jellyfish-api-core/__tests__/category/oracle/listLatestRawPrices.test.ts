@@ -25,7 +25,9 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
-    const timestamp1 = new Date().getTime()
+    const bestBlockHash = await client.blockchain.getBestBlockHash()
+    const block = await container.call('getblock', [bestBlockHash])
+    const timestamp1 = block.time
     const prices1 = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
     await container.call('setoracledata', [oracleid1, timestamp1, prices1])
 
@@ -38,7 +40,7 @@ describe('Oracle', () => {
     const data = await client.oracle.listLatestRawPrices(priceFeeds[0])
     expect(data.length).toStrictEqual(2)
 
-    const result1 = data.find((element: { oracleid: any }) => element.oracleid === oracleid1)
+    const result1 = data.find(element => element.oracleid === oracleid1)
     expect(result1).toStrictEqual(
       {
         priceFeeds: priceFeeds[0],
@@ -46,10 +48,10 @@ describe('Oracle', () => {
         weightage: 1,
         timestamp: timestamp1,
         rawprice: 0.5,
-        state: 'expired'
+        state: 'live'
       })
 
-    const result2 = data.find((element: { oracleid: any }) => element.oracleid === oracleid2)
+    const result2 = data.find(element => element.oracleid === oracleid2)
     expect(result2).toStrictEqual(
       {
         priceFeeds: priceFeeds[0],
@@ -61,7 +63,7 @@ describe('Oracle', () => {
       })
   })
 
-  it('should not listLatestRawPrices if token and currency do not exist', async () => {
+  it('should listLatestRawPrices with empty array if token and currency do not exist', async () => {
     const data = await client.oracle.listLatestRawPrices({ token: 'TESLA', currency: 'USD' })
     expect(data.length).toStrictEqual(0)
   })
