@@ -88,11 +88,15 @@ export class Oracle {
   /**
    * Returns latest raw price updates from oracles.
    *
-   * @param {OraclePriceFeed} priceFeeds
+   * @param {OraclePriceFeed} priceFeed
    * @return {Promise<OracleRawPrice[]>}
    */
-  async listLatestRawPrices (priceFeeds: OraclePriceFeed): Promise<OracleRawPrice[]> {
-    return await this.client.call('listlatestrawprices', [priceFeeds], 'number')
+  async listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]> {
+    if (priceFeed != null) {
+      return await this.client.call('listlatestrawprices', [priceFeed], 'number')
+    } else {
+      return await this.client.call('listlatestrawprices', [], 'number')
+    }
   }
 }
 
@@ -124,14 +128,14 @@ export interface OracleRawPrice{
   oracleid: string
   priceFeeds: OraclePriceFeed[]
   rawprice: number
-  timestamp: number
   weightage: number
   state: string
+  timestamp: number
 }
 
 export interface OraclePriceFeed {
-  token: string
-  currency: string
+  token?: string
+  currency?: string
 }
 
 export interface OraclePrice {

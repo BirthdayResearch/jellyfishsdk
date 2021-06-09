@@ -139,17 +139,17 @@ interface OracleTokenPrice {
 Returns latest raw price updates from oracles.
 
 ```ts title="client.oracle.listLatestRawPrices()"
-interface listLatestRawPrices {
-  listLatestRawPrices (priceFeeds: OraclePriceFeed): Promise<OracleRawPrice[]>
+interface oracle {
+  listLatestRawPrices (priceFeed: OraclePriceFeed): Promise<OracleRawPrice[]>
 }
 
 interface OracleRawPrice{
-  priceFeeds: OraclePriceFeed[],
-  oracleid: string,
-  weightage: number,
-  timestamp: number,
-  rawprice: number,
+  oracleid: string
+  priceFeeds: OraclePriceFeed
+  rawprice: number
+  weightage: number
   state: string
+  timestamp: number
 }
 
 interface OraclePriceFeed {
