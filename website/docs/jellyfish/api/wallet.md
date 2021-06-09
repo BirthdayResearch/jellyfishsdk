@@ -36,6 +36,33 @@ Identical to getBalance to get untrusted pending balance.
 ```ts title="client.wallet.getUnconfirmedBalance()"
 interface wallet {
   getUnconfirmedBalance (): Promise<BigNumber>
+```
+
+## getBalances
+
+Returns an object with all balances.
+
+```ts title="client.wallet.getBalances()"
+interface wallet {
+  getBalances(withTokens = false): Promise<WalletBalance>
+}
+
+interface WalletBalance {
+  mine: WalletMineBalance
+  watchonly?: WalletWatchOnlyBalance
+}
+
+interface WalletMineBalance {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
+  used?: BigNumber
+}
+
+interface WalletWatchOnlyBalance {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
 }
 ```
 

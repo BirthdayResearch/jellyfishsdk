@@ -74,6 +74,9 @@ export class Wallet {
 
   /**
    * Returns an object with all balances
+   *
+   * @param {boolean} withTokens = false, Include tokens balances; Default is 'false' for backward compatibility.
+   * @return {Promise<WalletBalance>}
    */
   async getBalances (withTokens = false): Promise<WalletBalance> {
     return await this.client.call('getbalances', [withTokens], 'bignumber')
