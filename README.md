@@ -113,9 +113,10 @@ npm install
 
 ### Project References
 
-Require a bit of configuration to make monorepo work seamlessly. It's super cool as your code can jump across all sub-projects and you won't need to build the project in every packages update or fresh clone.
+For monorepo to work seamlessly, some configuration is required. It's amazing as your code can jump across all sub-packages, you don't need to build the project in every packages when you update or clone.
 
-Configurations to be updated while new dependency is created
+Configurations required when introducing new package:
+
 1. root `tsconfig.json` - `paths` - add to map absolute packages name back to the source code
 2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.ts here
 3. sub-package `tsconfig.build.json` - `references` - add package dependencies tsconfig.build.ts location
