@@ -1,6 +1,3 @@
-/**
- * Implementation reference: https://github.com/JamesMGreene/node-aes256
- */
 import randomBytes from 'randombytes'
 import aes from 'browserify-aes'
 import { SHA256 } from './hash'
@@ -10,6 +7,7 @@ const CIPHER_ALGORITHM = 'aes-256-ctr'
 /**
  * Encrypt a clear-text message using AES-256 plus a random Initialization Vector.
  * @see https://github.com/JamesMGreene/node-aes256
+ *
  * @param {Buffer} key  A passphrase of any length to used to generate a symmetric session key.
  * @param {Buffer} data  The clear-text message or buffer to be encrypted.
  * @param {(lengthOfBytes: number) => Buffer} rng Initialization vector generator, default using `crypto` or browserify `random-bytes` package
