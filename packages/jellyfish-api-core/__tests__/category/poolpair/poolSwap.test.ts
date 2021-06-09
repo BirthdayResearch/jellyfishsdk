@@ -17,18 +17,20 @@ describe('poolpair', () => {
   afterAll(async () => {
     await container.stop()
   })
+  let address: string
 
   async function setup (): Promise<void> {
-    await createToken('ETH')
+    address = await container.call('getnewaddress')
+    await createToken(address, 'ETH')
+    await createToken(address, 'DDAI')
     await mintTokens('ETH')
+    await mintTokens('DDAI')
     await createPoolPair('ETH')
+    await createPoolPair('DDAI', { status: false })
     await addPoolLiquidity()
   }
 
-  let address: string
-
-  async function createToken (symbol: string): Promise<void> {
-    address = await container.call('getnewaddress')
+  async function createToken (address: string, symbol: string): Promise<void> {
     const metadata = {
       symbol,
       name: symbol,
@@ -130,5 +132,17 @@ describe('poolpair', () => {
     }
 
     await expect(client.poolpair.poolSwap(metadata)).rejects.toThrow('TokenFrom was not found')
+  })
+
+  it('should create a poolswap transaction with pool pair status set as false', async () => {
+    const metadata: PoolSwapMetadata = {
+      from: address,
+      amountFrom: 2,
+      tokenFrom: 'DDAI',
+      tokenTo: 'DFI',
+      to: await client.wallet.getNewAddress()
+    }
+
+    await expect(client.poolpair.poolSwap(metadata)).rejects.toThrow('Pool trading is turned off!')
   })
 })
