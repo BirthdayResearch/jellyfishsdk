@@ -76,9 +76,9 @@ export class Wallet {
    * Returns an object with all balances
    *
    * @param {boolean} withTokens = false, Include tokens balances; Default is 'false' for backward compatibility.
-   * @return {Promise<WalletBalance>}
+   * @return {Promise<WalletBalances>}
    */
-  async getBalances (withTokens = false): Promise<WalletBalance> {
+  async getBalances (withTokens = false): Promise<WalletBalances> {
     return await this.client.call('getbalances', [withTokens], 'bignumber')
   }
 
@@ -483,19 +483,19 @@ export interface InWalletTransactionDetail {
   abandoned: boolean
 }
 
-export interface WalletBalance {
-  mine: WalletMineBalance
-  watchonly?: WalletWatchOnlyBalance
+export interface WalletBalances {
+  mine: WalletMineBalances
+  watchonly?: WalletWatchOnlyBalances
 }
 
-export interface WalletMineBalance {
+export interface WalletMineBalances {
   trusted: BigNumber
   untrusted_pending: BigNumber
   immature: BigNumber
   used?: BigNumber
 }
 
-export interface WalletWatchOnlyBalance {
+export interface WalletWatchOnlyBalances {
   trusted: BigNumber
   untrusted_pending: BigNumber
   immature: BigNumber

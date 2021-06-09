@@ -44,22 +44,22 @@ Returns an object with all balances.
 
 ```ts title="client.wallet.getBalances()"
 interface wallet {
-  getBalances(withTokens = false): Promise<WalletBalance>
+  getBalances(withTokens = false): Promise<WalletBalances>
 }
 
-interface WalletBalance {
-  mine: WalletMineBalance
-  watchonly?: WalletWatchOnlyBalance
+interface WalletBalances {
+  mine: WalletMineBalances
+  watchonly?: WalletWatchOnlyBalances
 }
 
-interface WalletMineBalance {
+interface WalletMineBalances {
   trusted: BigNumber
   untrusted_pending: BigNumber
   immature: BigNumber
   used?: BigNumber
 }
 
-interface WalletWatchOnlyBalance {
+interface WalletWatchOnlyBalances {
   trusted: BigNumber
   untrusted_pending: BigNumber
   immature: BigNumber
