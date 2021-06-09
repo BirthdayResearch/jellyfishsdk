@@ -137,6 +137,12 @@ export interface UTXO {
 export interface OracleTokenPrice {
   token: string
   currency: string
-  amount: number // example: 0.5
-  timestamp: number // example: 1623161076073
+  /**
+   * @example 0.5
+   */
+  amount: number
+  /**
+   * @example 1623161076073
+   */
+  timestamp: number
 }

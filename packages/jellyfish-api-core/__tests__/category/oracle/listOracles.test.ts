@@ -26,6 +26,7 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
+    // NOTE(jingyi2811): Pagination is not supported.
     const data = await client.oracle.listOracles()
 
     expect(data.length).toStrictEqual(2)
