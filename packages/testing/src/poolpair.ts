@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { CreatePoolPairUTXO } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { poolpair } from '@defichain/jellyfish-api-core'
 import { getNewAddress } from './wallet'
 
 /**
@@ -37,7 +37,7 @@ export interface CreatePoolPairOptions {
   commission?: number
   status?: boolean
   ownerAddress?: string
-  utxos?: CreatePoolPairUTXO[]
+  utxos?: poolpair.CreatePoolPairUTXO[]
 }
 
 /**

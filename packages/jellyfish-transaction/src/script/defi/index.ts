@@ -5,6 +5,18 @@ import { OP_RETURN } from '../control'
 import { CDfTx, DfTx } from './dftx'
 import { OP_CODES } from '../mapping'
 
+export * from './dftx_account'
+export * from './dftx_balance'
+export * from './dftx_governance'
+export * from './dftx_masternode'
+export * from './dftx_misc'
+export * from './dftx_oracles'
+export * from './dftx_pool'
+export * from './dftx_price'
+export * from './dftx_token'
+export * from './dftx_unmapped'
+export * from './dftx'
+
 const DEFI_SIGNATURE = '44665478' // DfTx
 
 /**

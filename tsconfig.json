@@ -1,12 +1,20 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "declaration": true,
-    "target": "es6",
-    "lib": [
-      "es2020"
-    ],
-    "module": "commonjs",
-    "strict": true,
-    "esModuleInterop": true
+    "baseUrl": "./packages",
+    "paths": {
+      "@defichain/jellyfish-address/*": ["jellyfish-address/src/*"],
+      "@defichain/jellyfish-api-core/*": ["jellyfish-api-core/src/*"],
+      "@defichain/jellyfish-api-jsonrpc/*": ["jellyfish-api-jsonrpc/src/*"],
+      "@defichain/jellyfish-crypto/*": ["jellyfish-crypto/src/*"],
+      "@defichain/jellyfish-json/*": ["jellyfish-json/src/*"],
+      "@defichain/jellyfish-network/*": ["jellyfish-network/src/*"],
+      "@defichain/jellyfish-transaction/*": ["jellyfish-transaction/src/*"],
+      "@defichain/jellyfish-transaction-builder/*": ["jellyfish-transaction-builder/src/*"],
+      "@defichain/jellyfish-wallet/*": ["jellyfish-wallet/src/*"],
+      "@defichain/jellyfish-wallet-mnemonic/*": ["jellyfish-wallet-mnemonic/src/*"],
+      "@defichain/testcontainers/*": ["testcontainers/src/*"],
+      "@defichain/testing/*": ["testing/src/*"],
+    }
   }
 }
