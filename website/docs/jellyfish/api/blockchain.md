@@ -280,12 +280,12 @@ interface blockchain {
 
 interface MempoolInfo {
   loaded: boolean
-  size: number
-  bytes: number
-  usage: number
-  maxmempool: number
-  mempoolminfee: number
-  minrelaytxfee: number
+  size: BigNumber
+  bytes: BigNumber
+  usage: BigNumber
+  maxmempool: BigNumber
+  mempoolminfee: BigNumber
+  minrelaytxfee: BigNumber
 }
 ```
 
