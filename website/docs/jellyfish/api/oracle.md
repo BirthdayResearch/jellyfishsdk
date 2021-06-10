@@ -134,6 +134,16 @@ interface OracleTokenPrice {
 }
 ```
 
+## listOracles
+
+Returns array of oracle ids.
+
+```ts title="client.oracle.listOracles()"
+interface oracle {
+  listOracles (): Promise<string[]>
+}
+```
+
 ## getPrice
 
 Returns aggregated price from oracles.

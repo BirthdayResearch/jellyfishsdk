@@ -87,6 +87,15 @@ export class Oracle {
   }
 
   /**
+   * Returns array of oracle ids.
+   *
+   * @return {Promise<string[]>}
+   */
+  async listOracles (): Promise<string[]> {
+    return await this.client.call('listoracles', [], 'number')
+  }
+
+  /**
    * Returns aggregated price from oracles.
    *
    * @param {OraclePriceFeed} priceFeed
@@ -139,6 +148,12 @@ export interface UTXO {
 export interface OracleTokenPrice {
   token: string
   currency: string
+  /**
+   * @example 0.5
+   */
   amount: number
+  /**
+   * @example 1623161076 is an Epoch time which every digit represents a second.
+   */
   timestamp: number
 }
