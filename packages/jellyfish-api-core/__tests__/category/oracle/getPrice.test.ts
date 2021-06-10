@@ -58,11 +58,11 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
-    const timestamp1 = Math.floor(new Date().getTime() / 1000) + 3600
+    const timestamp1 = Math.floor(new Date().getTime() / 1000) + 4200
     const prices1 = [{ tokenAmount: '0.5@FB', currency: 'CNY' }]
     await container.call('setoracledata', [oracleid1, timestamp1, prices1])
 
-    const timestamp2 = Math.floor(new Date().getTime() / 1000) - 3600
+    const timestamp2 = Math.floor(new Date().getTime() / 1000) - 4200
     const prices2 = [{ tokenAmount: '1.0@FB', currency: 'CNY' }]
     await container.call('setoracledata', [oracleid2, timestamp2, prices2])
 
