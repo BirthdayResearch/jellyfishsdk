@@ -284,3 +284,19 @@ interface AccountHistoryCountOptions {
 }
 ```
 
+
+## listCommunityBalances
+
+Returns information about current anchor bonus
+
+```ts title="client.account.listCommunityBalances()"
+interface account {
+  listCommunityBalances (): Promise<CommunityBalanceData>
+}
+
+interface CommunityBalanceData {
+  AnchorReward: number
+  IncentiveFunding?: number
+  Burnt: number
+}
+```

@@ -311,6 +311,15 @@ export class Account {
   ): Promise<number> {
     return await this.client.call('accounthistorycount', [owner, options], 'number')
   }
+
+  /**
+   * Returns information about current anchor bonus, incentive funding, burnt token(s)
+   *
+   * @return {Promise<CommunityBalanceData>}
+   */
+  async listCommunityBalances (): Promise<CommunityBalanceData> {
+    return await this.client.call('listcommunitybalances', [], 'number')
+  }
 }
 
 export interface AccountPagination {
