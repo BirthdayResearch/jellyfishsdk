@@ -153,12 +153,17 @@ interface oracle {
   listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]>
 }
 
+enum OracleRawPriceState {
+  LIVE = 'live',
+  EXPIRED = 'expired'
+}
+
 interface OracleRawPrice{
   oracleid: string
   priceFeeds: OraclePriceFeed
   rawprice: number
   weightage: number
-  state: string
+  state: OracleRawPriceState
   timestamp: number
 }
 

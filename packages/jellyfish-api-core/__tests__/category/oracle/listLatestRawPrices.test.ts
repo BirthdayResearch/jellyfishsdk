@@ -1,5 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import BigNumber from 'bignumber.js'
+import { OracleRawPriceState } from '../../../src/category/oracle'
 
 describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -57,18 +59,18 @@ describe('Oracle', () => {
         {
           priceFeeds: priceFeed1[0],
           oracleid: oracleid1,
-          weightage: 1,
-          timestamp: timestamp1,
-          rawprice: 0.5,
-          state: 'live'
+          weightage: new BigNumber(1),
+          timestamp: new BigNumber(timestamp1),
+          rawprice: new BigNumber(0.5),
+          state: OracleRawPriceState.LIVE
         },
         {
           priceFeeds: priceFeed1[1],
           oracleid: oracleid1,
-          weightage: 1,
-          timestamp: timestamp1,
-          rawprice: 1,
-          state: 'live'
+          weightage: new BigNumber(1),
+          timestamp: new BigNumber(timestamp1),
+          rawprice: new BigNumber(1),
+          state: OracleRawPriceState.LIVE
         }
       ]
     )
@@ -80,18 +82,18 @@ describe('Oracle', () => {
         {
           priceFeeds: priceFeed2[0],
           oracleid: oracleid2,
-          weightage: 2,
-          timestamp: timestamp2,
-          rawprice: 1.5,
-          state: 'live'
+          weightage: new BigNumber(2),
+          timestamp: new BigNumber(timestamp2),
+          rawprice: new BigNumber(1.5),
+          state: OracleRawPriceState.LIVE
         },
         {
           priceFeeds: priceFeed2[1],
           oracleid: oracleid2,
-          weightage: 2,
-          timestamp: timestamp2,
-          rawprice: 2,
-          state: 'live'
+          weightage: new BigNumber(2),
+          timestamp: new BigNumber(timestamp2),
+          rawprice: new BigNumber(2),
+          state: OracleRawPriceState.LIVE
         }
       ]
     )
@@ -151,10 +153,10 @@ describe('Oracle', () => {
       {
         priceFeeds: priceFeed,
         oracleid: oracleid1,
-        weightage: 1,
-        timestamp: timestamp1,
-        rawprice: 0.5,
-        state: 'live'
+        weightage: new BigNumber(1),
+        timestamp: new BigNumber(timestamp1),
+        rawprice: new BigNumber(0.5),
+        state: OracleRawPriceState.LIVE
       })
 
     const result2 = data.find(element => element.oracleid === oracleid2)
@@ -163,10 +165,10 @@ describe('Oracle', () => {
       {
         priceFeeds: priceFeed,
         oracleid: oracleid2,
-        weightage: 2,
-        timestamp: timestamp2,
-        rawprice: 1,
-        state: 'live'
+        weightage: new BigNumber(2),
+        timestamp: new BigNumber(timestamp2),
+        rawprice: new BigNumber(1),
+        state: OracleRawPriceState.LIVE
       })
 
     const result3 = data.find(element => element.oracleid === oracleid3)
@@ -175,10 +177,10 @@ describe('Oracle', () => {
       {
         priceFeeds: priceFeed,
         oracleid: oracleid3,
-        weightage: 3,
-        timestamp: timestamp3,
-        rawprice: 1.5,
-        state: 'expired'
+        weightage: new BigNumber(3),
+        timestamp: new BigNumber(timestamp3),
+        rawprice: new BigNumber(1.5),
+        state: OracleRawPriceState.EXPIRED
       })
 
     const result4 = data.find(element => element.oracleid === oracleid4)
@@ -187,10 +189,10 @@ describe('Oracle', () => {
       {
         priceFeeds: priceFeed,
         oracleid: oracleid4,
-        weightage: 4,
-        timestamp: timestamp4,
-        rawprice: 2,
-        state: 'live'
+        weightage: new BigNumber(4),
+        timestamp: new BigNumber(timestamp4),
+        rawprice: new BigNumber(2),
+        state: OracleRawPriceState.LIVE
       })
 
     const result5 = data.find(element => element.oracleid === oracleid5)
@@ -199,10 +201,10 @@ describe('Oracle', () => {
       {
         priceFeeds: priceFeed,
         oracleid: oracleid5,
-        weightage: 5,
-        timestamp: timestamp5,
-        rawprice: 2.5,
-        state: 'expired'
+        weightage: new BigNumber(5),
+        timestamp: new BigNumber(timestamp5),
+        rawprice: new BigNumber(2.5),
+        state: OracleRawPriceState.EXPIRED
       })
 
     await container.call('removeoracle', [oracleid1])
@@ -242,10 +244,10 @@ describe('Oracle', () => {
         {
           priceFeeds: priceFeed,
           oracleid,
-          weightage: 1,
-          timestamp,
-          rawprice: 0.5,
-          state: 'live'
+          weightage: new BigNumber(1),
+          timestamp: new BigNumber(timestamp),
+          rawprice: new BigNumber(0.5),
+          state: OracleRawPriceState.LIVE
         }
       ]
     )

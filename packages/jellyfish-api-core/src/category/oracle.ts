@@ -1,5 +1,10 @@
 import { ApiClient } from '../.'
 
+export enum OracleRawPriceState {
+  LIVE = 'live',
+  EXPIRED = 'expired'
+}
+
 /**
  * Oracle RPCs for DeFi Blockchain
  */
@@ -102,9 +107,9 @@ export class Oracle {
    */
   async listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]> {
     if (priceFeed != null) {
-      return await this.client.call('listlatestrawprices', [priceFeed], 'number')
+      return await this.client.call('listlatestrawprices', [priceFeed], 'bignumber')
     } else {
-      return await this.client.call('listlatestrawprices', [], 'number')
+      return await this.client.call('listlatestrawprices', [], 'bignumber')
     }
   }
 }
@@ -138,7 +143,7 @@ export interface OracleRawPrice{
   priceFeeds: OraclePriceFeed
   rawprice: number
   weightage: number
-  state: string
+  state: OracleRawPriceState
   timestamp: number
 }
 
