@@ -11,6 +11,7 @@ module.exports = {
     '@defichain/jellyfish-transaction': '<rootDir>/packages/jellyfish-transaction/src',
     '@defichain/jellyfish-transaction-builder': '<rootDir>/packages/jellyfish-transaction-builder/src',
     '@defichain/jellyfish-wallet': '<rootDir>/packages/jellyfish-wallet/src',
+    '@defichain/jellyfish-wallet-encrypted': '<rootDir>/packages/jellyfish-wallet-encrypted/src',
     '@defichain/jellyfish-wallet-mnemonic': '<rootDir>/packages/jellyfish-wallet-mnemonic/src',
     '@defichain/testcontainers': '<rootDir>/packages/testcontainers/src',
     '@defichain/testing': '<rootDir>/packages/testing/src'
