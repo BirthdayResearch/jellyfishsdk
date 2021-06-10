@@ -29,7 +29,7 @@
       "@defichain/jellyfish-wallet/*": ["jellyfish-wallet/src/*"],
       "@defichain/jellyfish-wallet-mnemonic/*": ["jellyfish-wallet-mnemonic/src/*"],
       "@defichain/testcontainers/*": ["testcontainers/src/*"],
-      "@defichain/testing/*": ["testing/src/*"],
+      "@defichain/testing/*": ["testing/src/*"]
     }
   }
 }
