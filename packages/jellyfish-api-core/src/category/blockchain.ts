@@ -188,7 +188,7 @@ export class Blockchain {
    * @return {Promise<MempoolInfo>}
    */
   async getMempoolInfo (): Promise<MempoolInfo> {
-    return await this.client.call('getmempoolinfo', [], 'number')
+    return await this.client.call('getmempoolinfo', [], 'bignumber')
   }
 }
 
