@@ -1,4 +1,4 @@
-import { dSHA256, AES256 } from '../../jellyfish-crypto/dist'
+import { dSHA256, AES256 } from '@defichain/jellyfish-crypto'
 
 export interface ScryptProvider {
   passphraseToKey: (nfcUtf8: string, salt: Buffer, desiredKeyLen: number) => Buffer
