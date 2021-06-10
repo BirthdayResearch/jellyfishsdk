@@ -112,6 +112,14 @@ export interface SetOracleDataOptions {
   utxos?: UTXO[]
 }
 
+export interface OracleData {
+  oracleid: string
+  address: string
+  priceFeeds: OraclePriceFeed[]
+  tokenPrices: OracleTokenPrice[]
+  weightage: number
+}
+
 export interface OraclePriceFeed {
   token: string
   currency: string
