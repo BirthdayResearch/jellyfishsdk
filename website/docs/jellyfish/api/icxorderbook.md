@@ -13,16 +13,16 @@ const client = new Client()
 const something = await client.icxorderbook.method()
 ```
 
-## ICXCreateOrder
+## createOrder
 
 Create and submits an ICX order creation transaction.
 
-```ts title="client.icxorderbook.ICXCreateOrder()"
+```ts title="client.icxorderbook.createOrder()"
 interface icxorderbook {
-  ICXCreateOrder (order: Order, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  createOrder (order: ICXOrder, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
 }
 
-interface Order {
+interface ICXOrder {
   tokenFrom?: string
   chainFrom?: string
   chainTo?: string
@@ -45,16 +45,16 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXMakeOffer
+## makeOffer
 
 Create and submits a makeoffer transaction.
 
-```ts title="client.icxorderbook.ICXMakeOffer()"
+```ts title="client.icxorderbook.makeOffer()"
 interface icxorderbook {
-  ICXMakeOffer (offer: Offer, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  makeOffer (offer: ICXOffer, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
 }
 
-interface Offer {
+interface ICXOffer {
   orderTx: string
   amount: BigNumber
   ownerAddress: string
@@ -73,13 +73,13 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXCloseOffer
+## closeOffer
 
 Closes offer transaction.
 
-```ts title="client.icxorderbook.ICXCloseOffer()"
+```ts title="client.icxorderbook.closeOffer()"
 interface icxorderbook {
-  ICXCloseOffer (offerTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  closeOffer (offerTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface InputUTXO {
@@ -93,13 +93,13 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXSubmitDFCHTLC
+## submitDFCHTLC
 
 Create and submits a DFC HTLC transaction
 
-```ts title="client.icxorderbook.ICXSubmitDFCHTLC()"
+```ts title="client.icxorderbook.submitDFCHTLC()"
 interface icxorderbook {
-  ICXSubmitDFCHTLC (htlc: HTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> 
+  submitDFCHTLC (htlc: HTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> 
 }
 
 interface HTLC {
@@ -120,13 +120,13 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXSubmitExtHTLC
+## submitExtHTLC
 
 Create and submits a external(EXT) HTLC transaction
 
-```ts title="client.icxorderbook.ICXSubmitExtHTLC()"
+```ts title="client.icxorderbook.submitExtHTLC()"
 interface icxorderbook {
-  ICXSubmitExtHTLC (htlc: ExtHTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  submitExtHTLC (htlc: ExtHTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface ExtHTLC {
@@ -149,13 +149,13 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXClaimDFCHTLC
+## claimDFCHTLC
 
 Claims a DFC HTLC
 
-```ts title="client.icxorderbook.ICXClaimDFCHTLC()"
+```ts title="client.icxorderbook.claimDFCHTLC()"
 interface icxorderbook {
-  ICXClaimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface InputUTXO {
@@ -169,13 +169,13 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXCloseOrder
+## closeOrder
 
 Closes ICX order
 
-```ts title="client.icxorderbook.ICXCloseOrder()"
+```ts title="client.icxorderbook.closeOrder()"
 interface icxorderbook {
-  ICXCloseOrder (orderTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  closeOrder (orderTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface InputUTXO {
@@ -189,13 +189,13 @@ interface ICXGenericResult {
 }
 ```
 
-## ICXGetOrder
+## getOrder
 
 Returns information about order or fillorder
 
-```ts title="client.icxorderbook.ICXGetOrder()"
+```ts title="client.icxorderbook.getOrder()"
 interface icxorderbook {
-  ICXGetOrder (orderTx: string): Promise<Record<string, ICXOrderInfo| ICXMakeOfferInfo>>
+  getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo| ICXOfferInfo>>
 }
 
 interface ICXOrderInfo {
@@ -217,7 +217,7 @@ interface ICXOrderInfo {
   expired?: boolean
 }
 
-interface ICXMakeOfferInfo {
+interface ICXOfferInfo {
   orderTx: string
   status: ICXOrderStatus
   amount: BigNumber
@@ -229,13 +229,13 @@ interface ICXMakeOfferInfo {
 }
 ```
 
-## ICXListOrders
+## listOrders
 
 Returns information about orders or fillorders based on ICXListOrderOptions passed
 
-```ts title="client.icxorderbook.ICXListOrders()"
+```ts title="client.icxorderbook.listOrders()"
 interface icxorderbook {
-  ICXListOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXMakeOfferInfo>>
+  listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
 }
 
 interface ICXListOrderOptions {
@@ -265,7 +265,7 @@ interface ICXOrderInfo {
   expired?: boolean
 }
 
-interface ICXMakeOfferInfo {
+interface ICXOfferInfo {
   orderTx: string
   status: ICXOrderStatus
   amount: BigNumber
@@ -277,13 +277,13 @@ interface ICXMakeOfferInfo {
 }
 ```
 
-## ICXListHTLCs
+## listHTLCs
 
 Returns information about HTLCs based on ICXListHTLCOptions passed
 
-```ts title="client.icxorderbook.ICXListHTLCs()"
+```ts title="client.icxorderbook.listHTLCs()"
 interface icxorderbook {
-  ICXListHTLCs (options: ICXListHTLCOptions = {}): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>
+  listHTLCs (options: ICXListHTLCOptions = {}): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>
 }
 
 interface ICXListHTLCOptions {

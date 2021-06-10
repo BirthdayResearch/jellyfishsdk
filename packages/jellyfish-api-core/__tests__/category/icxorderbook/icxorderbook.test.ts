@@ -2,7 +2,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
   ExtHTLC, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXGenericResult, ICXHTLCStatus,
-  ICXHTLCType, ICXListHTLCOptions, ICXMakeOfferInfo, ICXOrderInfo, Offer, Order
+  ICXHTLCType, ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { createToken, mintTokens, accountToAccount } from '@defichain/testing'
@@ -119,7 +119,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
   it('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICXCloseOrder', async () => {
     // accountDFI start balance
     const accountDFIStartBalance = await container.call('getaccount', [accountDFI, {}, true])
-    const order: Order = {
+    const order: ICXOrder = {
       tokenFrom: idDFI,
       chainTo: 'BTC',
       ownerAddress: accountDFI,
@@ -128,13 +128,13 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
       orderPrice: new BigNumber(0.01)
     }
 
-    let result: ICXGenericResult = await client.icxorderbook.ICXCreateOrder(order, [])
+    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
     const createOrderTxId = result.txid
 
     await container.generate(1)
 
     // list ICX orders
-    let orders: Record<string, ICXOrderInfo| ICXMakeOfferInfo> = await client.icxorderbook.ICXListOrders()
+    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
     // check details
     expect(Object.keys(orders).length).toBe(2)
     // we know that only ICXOrderInfo will be returned, so cast
@@ -151,7 +151,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     expect(orderInfo[createOrderTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 2880)) // NOTE(surangap) why BigNumber?
 
     // make ICXMakeOffer to partial amout 10 DFI
-    const offer: Offer = {
+    const offer: ICXOffer = {
       orderTx: createOrderTxId,
       amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
       ownerAddress: accountBTC
@@ -159,7 +159,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     // accountBTC before partial make offer
     const accountBTCBefore = await container.call('getaccount', [accountBTC, {}, true])
 
-    result = await client.icxorderbook.ICXMakeOffer(offer, [])
+    result = await client.icxorderbook.makeOffer(offer, [])
     const makeOfferTxId = result.txid
     await container.generate(1)
 
@@ -171,11 +171,11 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     expect(accountBTCAfter[idDFI]).toStrictEqual(accountBTCBefore[idDFI] - Number('0.01000000'))
 
     // List the ICX orders
-    orders = await client.icxorderbook.ICXListOrders({ orderTx: createOrderTxId })
+    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
 
     // close offer
-    await client.icxorderbook.ICXCloseOffer(makeOfferTxId)
+    await client.icxorderbook.closeOffer(makeOfferTxId)
     await container.generate(1)
 
     // check accountBTC has accountBTCBefore[idDFI] amount
@@ -183,19 +183,19 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     expect(accountBTCBalance[idDFI]).toStrictEqual(accountBTCBefore[idDFI])
 
     // check no offes for orderTx = createOrderTxId
-    orders = await client.icxorderbook.ICXListOrders({ orderTx: createOrderTxId })
+    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
 
     // check createOrderTxId order still exists
-    orders = await client.icxorderbook.ICXListOrders()
+    orders = await client.icxorderbook.listOrders()
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
 
     // close order createOrderTxId
-    await client.icxorderbook.ICXCloseOrder(createOrderTxId)
+    await client.icxorderbook.closeOrder(createOrderTxId)
     await container.generate(1)
 
     // check no more ICX orders
-    orders = await client.icxorderbook.ICXListOrders()
+    orders = await client.icxorderbook.listOrders()
     expect(Object.keys(orders).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
 
     // check accountDFI [idDFI] balance
@@ -221,7 +221,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
 
   it('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICXSubmitExtHTLC then ICXClaimDFCHTLC', async () => {
     // accountDFI start balance
-    const order: Order = {
+    const order: ICXOrder = {
       tokenFrom: idDFI,
       chainTo: 'BTC',
       ownerAddress: accountDFI,
@@ -230,13 +230,13 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
       orderPrice: new BigNumber(0.01)
     }
 
-    let result: ICXGenericResult = await client.icxorderbook.ICXCreateOrder(order, [])
+    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
     const createOrderTxId = result.txid
 
     await container.generate(1)
 
     // list ICX orders
-    let orders: Record<string, ICXOrderInfo| ICXMakeOfferInfo> = await client.icxorderbook.ICXListOrders()
+    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
     // check details
     expect(Object.keys(orders).length).toBe(2)
     // we know that only ICXOrderInfo will be returned, so cast
@@ -253,7 +253,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     expect(orderInfo[createOrderTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 2880))
 
     // make ICXMakeOffer to partial amout 10 DFI
-    const offer: Offer = {
+    const offer: ICXOffer = {
       orderTx: createOrderTxId,
       amount: new BigNumber(0.10), // 0.10 BTC = 10 DFI
       ownerAddress: accountBTC
@@ -261,7 +261,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     // accountBTC before partial make offer
     const accountBTCBefore = await container.call('getaccount', [accountBTC, {}, true])
 
-    result = await client.icxorderbook.ICXMakeOffer(offer, [])
+    result = await client.icxorderbook.makeOffer(offer, [])
     const makeOfferTxId = result.txid
     await container.generate(1)
 
@@ -273,10 +273,10 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     expect(accountBTCAfter[idDFI]).toStrictEqual(accountBTCBefore[idDFI] - 0.01)
 
     // List the ICX offers for orderTx = createOrderTxId and check
-    orders = await client.icxorderbook.ICXListOrders({ orderTx: createOrderTxId })
+    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    // we know that only ICXMakeOfferInfo will be returned, so cast
-    const makeOfferInfo: Record<string, ICXMakeOfferInfo> = orders as Record<string, ICXMakeOfferInfo>
+    // we know that only ICXOfferInfo will be returned, so cast
+    const makeOfferInfo: Record<string, ICXOfferInfo> = orders as Record<string, ICXOfferInfo>
     expect(makeOfferInfo[makeOfferTxId].orderTx).toStrictEqual(createOrderTxId)
     expect(makeOfferInfo[makeOfferTxId].amount).toStrictEqual(new BigNumber(0.1))
     expect(makeOfferInfo[makeOfferTxId].ownerAddress).toStrictEqual(accountBTC)
@@ -294,7 +294,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       timeout: 500
     }
-    const DFCHTLCTxId = (await client.icxorderbook.ICXSubmitDFCHTLC(DFCHTLC)).txid
+    const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
 
     // accountDFI balance after DFCHTLC
@@ -305,7 +305,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     let listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    let HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.ICXListHTLCs(listHTLCOptions)
+    let HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
 
     // check htlc
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
@@ -330,14 +330,14 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
       timeout: 15
     }
-    const ExtHTLCTxId = (await client.icxorderbook.ICXSubmitExtHTLC(extHTLC)).txid
+    const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(extHTLC)).txid
     await container.generate(1)
 
     // List htlc
     listHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    HTLCs = await client.icxorderbook.ICXListHTLCs(listHTLCOptions)
+    HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
 
     // check  EXT htlc
     expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
@@ -364,7 +364,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     const accountBTCBeforeClaim = await container.call('getaccount', [accountBTC, {}, true])
 
     // claim
-    const claimTxId = (await client.icxorderbook.ICXClaimDFCHTLC(DFCHTLCTxId, 'f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef')).txid
+    const claimTxId = (await client.icxorderbook.claimDFCHTLC(DFCHTLCTxId, 'f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef')).txid
     await container.generate(1)
 
     // List htlc
@@ -372,7 +372,7 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
       offerTx: makeOfferTxId,
       closed: true
     }
-    HTLCs = await client.icxorderbook.ICXListHTLCs(listHTLCOptions)
+    HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
 
     // check  EXT htlc
     expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
@@ -399,11 +399,11 @@ describe('ICXCreateOrder and ICXMakeOffer to partial then ICXCloseOffer then ICX
     expect(accountBTCAfterClaim[idDFI]).toStrictEqual(Number(accountBTCBeforeClaim[idDFI]) + Number('10'))
 
     // offer should be close by now
-    orders = await client.icxorderbook.ICXListOrders({ orderTx: createOrderTxId })
+    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
 
     // check partial order remaining
-    orders = await client.icxorderbook.ICXListOrders()
+    orders = await client.icxorderbook.listOrders()
     // check details
     expect(Object.keys(orders).length).toBe(2)
     // we know that only ICXOrderInfo will be returned, so cast
