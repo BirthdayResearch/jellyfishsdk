@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 /**
  * Oracle RPCs for DeFi Blockchain
@@ -86,13 +87,13 @@ export class Oracle {
   }
 
   /**
-   * Returns aggregrated price from oracles.
+   * Returns aggregated price from oracles.
    *
-   * @param {OraclePriceFeed} priceFeeds
-   * @return {Promise<number>}
+   * @param {OraclePriceFeed} priceFeed
+   * @return {Promise<BigNumber>}
    */
-  async getPrice (priceFeeds: OraclePriceFeed): Promise<number> {
-    return await this.client.call('getprice', [priceFeeds], 'bignumber')
+  async getPrice (priceFeed: OraclePriceFeed): Promise<BigNumber> {
+    return await this.client.call('getprice', [priceFeed], 'bignumber')
   }
 }
 

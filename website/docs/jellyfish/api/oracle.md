@@ -136,10 +136,15 @@ interface OracleTokenPrice {
 
 ## getPrice
 
-Returns aggregrated price from oracles.
+Returns aggregated price from oracles.
 
 ```ts title="client.oracle.getPrice()"
 interface oracle {
-  getPrice (priceFeeds: OraclePriceFeed): Promise<number>
+  getPrice (priceFeed: OraclePriceFeed): Promise<BigNumber>
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
 }
 ```
