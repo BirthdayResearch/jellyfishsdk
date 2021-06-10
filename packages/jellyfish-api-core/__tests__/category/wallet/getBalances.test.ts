@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BigNumber } from '../../../src'
 import { WalletFlag } from '../../../src/category/wallet'
@@ -38,5 +38,41 @@ describe('getBalances on masternode', () => {
     expect(balances.mine.used).toBeInstanceOf(BigNumber)
 
     expect(typeof balances.watchonly).toStrictEqual('undefined')
+  })
+
+  it('should show balances after transfer', async () => {
+    const balance = await client.wallet.getBalances()
+
+    const address = await client.wallet.getNewAddress()
+
+    await client.wallet.sendToAddress(address, 10000)
+    await container.generate(1)
+
+    const newBalance = await client.wallet.getBalances()
+
+    console.log('balance.mine.trusted', balance.mine.trusted.toNumber())
+    console.log('newBalance.mine.trusted', balance.mine.trusted.toNumber())
+
+    expect(newBalance.mine.trusted.toNumber() - balance.mine.trusted.toNumber()).toBeGreaterThan(10000)
+  })
+})
+
+describe('getBalances without masternode', () => {
+  const container = new RegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should getBalances.mine.trusted = 0', async () => {
+    const balances = await client.wallet.getBalances()
+
+    expect(balances.mine.trusted.toNumber()).toStrictEqual(0)
   })
 })
