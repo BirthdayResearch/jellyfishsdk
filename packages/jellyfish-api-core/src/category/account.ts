@@ -12,7 +12,7 @@ export enum OwnerType {
 }
 
 export enum DfTxType {
-  MINT_TOKEN ='M',
+  MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -73,7 +73,7 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<Array<AccountResult<string, string>>>}
    */
-  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<string, string>>>
+  listAccounts (pagination: AccountPagination, verbose: false, options: { indexedAmounts: false, isMineOnly: boolean }): Promise<Array<AccountResult<string, string>>>
 
   /**
    * Get information about all accounts on chain
@@ -89,7 +89,7 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<Array<AccountResult<AccountOwner, AccountAmount>>>}
    */
-  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
+  listAccounts (pagination: AccountPagination, verbose: true, options: { indexedAmounts: true, isMineOnly: boolean }): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
 
   /**
    * Get information about all accounts on chain
@@ -105,7 +105,7 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<Array<AccountResult<string, AccountAmount>>>}
    */
-  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
+  listAccounts (pagination: AccountPagination, verbose: false, options: { indexedAmounts: true, isMineOnly: boolean }): Promise<Array<AccountResult<string, AccountAmount>>>
 
   async listAccounts<T, U> (
     pagination: AccountPagination = { limit: 100 },
@@ -386,4 +386,10 @@ export interface AccountHistoryCountOptions {
   token?: string
   txtype?: DfTxType
   no_rewards?: boolean
+}
+
+export interface CommunityBalanceData {
+  AnchorReward: number
+  IncentiveFunding?: number
+  Burnt: number
 }
