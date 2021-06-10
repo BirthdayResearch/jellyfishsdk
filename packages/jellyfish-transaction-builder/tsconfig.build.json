@@ -8,6 +8,10 @@
     "rootDir": "./src",
   },
   "references": [
+    {"path": "../jellyfish-address/tsconfig.build.json"},
+    {"path": "../jellyfish-crypto/tsconfig.build.json"},
+    {"path": "../jellyfish-transaction/tsconfig.build.json"},
+    {"path": "../jellyfish-transaction-signature/tsconfig.build.json"},
     {"path": "../jellyfish-api-jsonrpc/tsconfig.build.json"},
     {"path": "../testcontainers/tsconfig.build.json"},
     {"path": "../testing/tsconfig.build.json"}
