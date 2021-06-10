@@ -140,12 +140,12 @@ export interface OracleData {
 }
 
 export interface OracleRawPrice{
-  oracleid: BigNumber
+  oracleid: string
   priceFeeds: OraclePriceFeed
   rawprice: BigNumber
   weightage: BigNumber
   state: OracleRawPriceState
-  timestamp: number
+  timestamp: BigNumber
 }
 
 export interface OraclePriceFeed {
