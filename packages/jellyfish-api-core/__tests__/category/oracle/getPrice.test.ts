@@ -37,7 +37,7 @@ describe('Oracle', () => {
 
     const data = await client.oracle.getPrice(priceFeed)
 
-    // NOTE(jingyi2811): 0.83333333 = (0.5 * 1 + 1 * 2) / 3
+    // NOTE(jingyi2811): 0.83333333 = (0.5 * 1 + 1.0 * 2) / 3
     expect(data.toString()).toStrictEqual(new BigNumber('0.83333333').toString())
   })
 
@@ -50,7 +50,7 @@ describe('Oracle', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'no live oracles for specified request\', code: -1, method: getprice')
   })
 
-  it('should not getPrice for oracles created 1 hour ago or before', async () => {
+  it('should not getPrice for oracles created 1 hour later or before', async () => {
     const priceFeed = { token: 'FB', currency: 'CNY' }
 
     const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
