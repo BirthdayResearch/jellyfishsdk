@@ -17,15 +17,21 @@ describe('SendTokenToAddress', () => {
     await container.stop()
   })
 
-  let addA: string
+  let addressA: string
+  let addressB: string
+  let addressC: string
 
   async function setup (): Promise<void> {
-    addA = await container.call('getnewaddress')
-    await createToken(addA, 'DBTC', 200)
-    await createToken(addA, 'ETH', 200)
+    addressB = await container.call('getnewaddress')
+    addressA = await container.call('getnewaddress')
+    addressC = await container.call('getnewaddress')
+
+    await createToken(addressB, 'DBTC', 200, 100)
+    await createToken(addressC, 'DETH', 200, 50)
+    await createToken(addressA, 'ETH', 200, 200)
   }
 
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
+  async function createToken (address: string, symbol: string, amount: number, uxtoAmount: number = 100): Promise<void> {
     const metadata = {
       symbol,
       name: symbol,
@@ -34,11 +40,11 @@ describe('SendTokenToAddress', () => {
       tradeable: true,
       collateralAddress: address
     }
-    await container.waitForWalletBalanceGTE(101)
+    await container.waitForWalletBalanceGTE(200)
     await container.call('createtoken', [metadata])
     await container.generate(1)
 
-    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+    await container.call('utxostoaccount', [{ [address]: `${uxtoAmount.toString()}@0` }])
     await container.generate(1)
 
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
@@ -47,12 +53,12 @@ describe('SendTokenToAddress', () => {
 
   it('should create a transaction with auto select (empty source address)', async () => {
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@DFI'] })
+    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@ETH'] })
     await container.generate(1)
 
     const account = await client.account.getAccount(address)
 
-    expect(account).toStrictEqual(['2.00000000@DFI'])
+    expect(account).toStrictEqual(['2.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
@@ -64,11 +70,12 @@ describe('SendTokenToAddress', () => {
     const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['4@DFI'] }, options)
     await container.generate(1)
 
-    const account = await client.account.getAccount(address)
-    const balanceDeducted = await client.account.getAccount(addA)
+    const accountTo = await client.account.getAccount(address)
+    const accountFrom = await client.account.getAccount(addressA)
+    const accountFromAmount = Number(accountFrom[0].split('@')[0])
 
-    expect(balanceDeducted[0]).toStrictEqual('194.00000000@DFI')
-    expect(account).toStrictEqual(['4.00000000@DFI'])
+    expect(accountFromAmount).toBeLessThan(200)
+    expect(accountTo).toStrictEqual(['4.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
@@ -77,12 +84,12 @@ describe('SendTokenToAddress', () => {
       selectionMode: SelectionModeType.FORWARD
     }
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@DFI'] }, options)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['5@DFI'] }, options)
     await container.generate(1)
 
-    const account = await client.account.getAccount(address)
+    const accountTo = await client.account.getAccount(address)
 
-    expect(account).toStrictEqual(['2.00000000@DFI'])
+    expect(accountTo).toStrictEqual(['5.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
@@ -91,12 +98,15 @@ describe('SendTokenToAddress', () => {
       selectionMode: SelectionModeType.CRUMBS
     }
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@DFI'] }, options)
+    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['30@DFI'] }, options)
     await container.generate(1)
 
-    const account = await client.account.getAccount(address)
+    const accountToBalance = await client.account.getAccount(address)
+    const accountFrom = await client.account.getAccount(addressC)
+    const accountFromAmount = Number(accountFrom[0].split('@')[0])
 
-    expect(account).toStrictEqual(['2.00000000@DFI'])
+    expect(accountFromAmount).toBeLessThan(50)
+    expect(accountToBalance).toStrictEqual(['30.00000000@DFI'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
@@ -112,7 +122,7 @@ describe('SendTokenToAddress', () => {
 
   it('should create a transaction with source address provided', async () => {
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [addA]: ['10@ETH'] }, { [address]: ['10@ETH'] })
+    const transactionHex = await client.account.sendTokensToAddress({ [addressA]: ['10@ETH'] }, { [address]: ['10@ETH'] })
     await container.generate(1)
 
     const account = await client.account.getAccount(address)
@@ -123,12 +133,12 @@ describe('SendTokenToAddress', () => {
 
   it('should create a transaction with multiple source address tokens provided', async () => {
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [addA]: ['2@DBTC', '10@ETH'] }, { [address]: ['2@DBTC', '10@ETH'] })
+    const transactionHex = await client.account.sendTokensToAddress({ [addressA]: ['2@DFI', '10@ETH'] }, { [address]: ['2@DFI', '10@ETH'] })
     await container.generate(1)
 
     const account = await client.account.getAccount(address)
 
-    expect(account).toStrictEqual(['2.00000000@DBTC', '10.00000000@ETH'])
+    expect(account).toStrictEqual(['2.00000000@DFI', '10.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
   })
 
@@ -137,8 +147,8 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should throw an error with insufficient fund', async () => {
-    const promise = client.account.sendTokensToAddress({ [addA]: ['500@DBTC'] }, { [await client.wallet.getNewAddress()]: ['500@DBTC'] })
+    const promise = client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['500@ETH'] })
 
-    await expect(promise).rejects.toThrow('amount 197.90000000 is less than 500.00000000')
+    await expect(promise).rejects.toThrow()
   })
 })
