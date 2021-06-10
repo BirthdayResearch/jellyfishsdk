@@ -40,20 +40,17 @@ describe('getBalances on masternode', () => {
     expect(typeof balances.watchonly).toStrictEqual('undefined')
   })
 
-  it('should show balances after transfer', async () => {
+  it('should show balances after sending the amount out', async () => {
     const balance = await client.wallet.getBalances()
 
-    const address = await client.wallet.getNewAddress()
+    const address = 'bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'
 
     await client.wallet.sendToAddress(address, 10000)
     await container.generate(1)
 
     const newBalance = await client.wallet.getBalances()
 
-    console.log('balance.mine.trusted', balance.mine.trusted.toNumber())
-    console.log('newBalance.mine.trusted', balance.mine.trusted.toNumber())
-
-    expect(newBalance.mine.trusted.toNumber() - balance.mine.trusted.toNumber()).toBeGreaterThan(10000)
+    expect(balance.mine.trusted.toNumber() - newBalance.mine.trusted.toNumber()).toBeGreaterThan(10000)
   })
 })
 
