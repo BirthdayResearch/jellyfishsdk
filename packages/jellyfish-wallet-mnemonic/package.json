@@ -35,6 +35,7 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
+    "@defichain/jellyfish-crypto": "0.0.0",
     "@defichain/jellyfish-wallet": "0.0.0",
     "@defichain/jellyfish-transaction": "0.0.0",
     "@defichain/jellyfish-transaction-signature": "0.0.0",
