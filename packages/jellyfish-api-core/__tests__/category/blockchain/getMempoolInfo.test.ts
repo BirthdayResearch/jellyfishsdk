@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BigNumber } from '../../../src'
+import { MempoolInfo } from '../../../src/category/blockchain'
 
 describe('getMempoolInfo', () => {
   const container = new MasterNodeRegTestContainer()
@@ -17,7 +18,7 @@ describe('getMempoolInfo', () => {
   })
 
   it('should getMempoolInfo', async () => {
-    const mempoolInfo = await client.blockchain.getMempoolInfo()
+    const mempoolInfo: MempoolInfo = await client.blockchain.getMempoolInfo()
 
     expect(typeof mempoolInfo.loaded).toStrictEqual('boolean')
     expect(mempoolInfo.size).toBeInstanceOf(BigNumber)
