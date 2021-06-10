@@ -84,6 +84,15 @@ export class Oracle {
   async getOracleData (oracleid: string): Promise<OracleData> {
     return await this.client.call('getoracledata', [oracleid], 'number')
   }
+
+  /**
+   * Returns array of oracle ids.
+   *
+   * @return {Promise<string[]>}
+   */
+  async listOracles (): Promise<string[]> {
+    return await this.client.call('listoracles', [], 'number')
+  }
 }
 
 export interface AppointOracleOptions {
@@ -128,6 +137,12 @@ export interface UTXO {
 export interface OracleTokenPrice {
   token: string
   currency: string
+  /**
+   * @example 0.5
+   */
   amount: number
+  /**
+   * @example 1623161076 is an Epoch time which every digit represents a second.
+   */
   timestamp: number
 }

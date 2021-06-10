@@ -133,3 +133,13 @@ interface OracleTokenPrice {
   timestamp: number
 }
 ```
+
+## listOracles
+
+Returns array of oracle ids.
+
+```ts title="client.oracle.listOracles()"
+interface oracle {
+  listOracles (): Promise<string[]>
+}
+```
