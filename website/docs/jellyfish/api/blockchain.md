@@ -275,7 +275,7 @@ Returns details on the active state of the TX memory pool.
 
 ```ts="client.blockchain.getMempoolInfo"
 interface blockchain {
-  getMempoolInfo(): Promise<MempoolInfo>
+  getMempoolInfo (): Promise<MempoolInfo>
 }
 
 interface MempoolInfo {
