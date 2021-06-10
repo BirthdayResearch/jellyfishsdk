@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 export enum OracleRawPriceState {
   LIVE = 'live',
@@ -139,10 +140,10 @@ export interface OracleData {
 }
 
 export interface OracleRawPrice{
-  oracleid: string
+  oracleid: BigNumber
   priceFeeds: OraclePriceFeed
-  rawprice: number
-  weightage: number
+  rawprice: BigNumber
+  weightage: BigNumber
   state: OracleRawPriceState
   timestamp: number
 }
