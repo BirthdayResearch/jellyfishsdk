@@ -1,7 +1,7 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const Jellyfish = require('../src/jellyfish')
+const Jellyfish = require('../src')
 
 describe('with new keyword', () => {
   it('should be able to create new Client without params', () => {

@@ -1,5 +1,4 @@
-import { OP_CODES, Script, TransactionSegWit } from '@defichain/jellyfish-transaction'
-import { PoolSwap } from '@defichain/jellyfish-transaction/dist/script/defi/dftx_pool'
+import { OP_CODES, Script, TransactionSegWit, PoolSwap } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
 export class TxnBuilderDex extends P2WPKHTxnBuilder {

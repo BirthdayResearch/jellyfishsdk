@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.build.json",
+  "include": [
+    "./src/**/*"
+  ],
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+  },
+  "references": [
+    {"path": "../jellyfish-wallet/tsconfig.build.json"},
+    {"path": "../jellyfish-transaction/tsconfig.build.json"}
+  ]
+}
