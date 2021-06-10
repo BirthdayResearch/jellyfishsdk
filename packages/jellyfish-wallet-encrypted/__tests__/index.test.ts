@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction/dist'
+import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { EncryptedMnemonicHdNode, EncryptedMnemonicProvider, ScryptStorage, SimpleScryptsy, Storage } from '../src'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 

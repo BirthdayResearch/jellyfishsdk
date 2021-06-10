@@ -1,4 +1,4 @@
-import { Transaction } from '@defichain/jellyfish-transaction/dist'
+import { Transaction } from '@defichain/jellyfish-transaction'
 import { EncryptedMnemonicProvider, ScryptStorage, ScryptProvider, Storage, SimpleScryptsy } from '../src'
 
 // Implementation of ScryptProvider depend on your platform, eg: react-native-scrypt
