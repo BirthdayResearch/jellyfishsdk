@@ -103,3 +103,20 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listPrices
+
+List all aggregated prices.
+
+```ts title="client.oracle.listPrices()"
+interface oracle {
+  listPrices (): Promise<ListPricesData[]>
+}
+
+interface ListPricesData {
+  token: string
+  currency: string
+  price?: BigNumber
+  ok: boolean | string
+}
+```

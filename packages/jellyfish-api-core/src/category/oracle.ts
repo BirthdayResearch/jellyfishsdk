@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 /**
  * Oracle RPCs for DeFi Blockchain
@@ -75,7 +76,12 @@ export class Oracle {
     return await this.client.call('setoracledata', [oracleid, timestamp, options.prices, utxos], 'number')
   }
 
-  async listPrices (): Promise<string> {
+  /**
+   * List all aggregated prices.
+   *
+   * @return {Promise<ListPricesData[]>}
+   */
+  async listPrices (): Promise<ListPricesData[]> {
     return await this.client.call('listprices', [], 'bignumber')
   }
 }
@@ -109,4 +115,17 @@ export interface OraclePrice {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface ListPricesData {
+  token: string
+  currency: string
+  /**
+   * @example new BigNumber(0.83333333000000)
+   */
+  price?: BigNumber
+  /**
+   * @example true or display error msg if false
+   */
+  ok: boolean | string
 }
