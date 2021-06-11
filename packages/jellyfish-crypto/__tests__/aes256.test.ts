@@ -43,19 +43,21 @@ describe('Aes256', () => {
   })
 })
 
-it('AES256 with 1000 random vectors - should be consistent', () => {
-  const sampleData = randomBytes(1000)
-  const passphrase = randomBytes(60)
+it('Repeat 1000 times with random data - should be consistent', () => {
+  for (let i = 0; i < 1000; i++) {
+    const sampleData = randomBytes(1000)
+    const passphrase = randomBytes(60)
 
-  const encrypted = AES256.encrypt(passphrase, sampleData)
-  const decrypted = AES256.decrypt(passphrase, encrypted)
+    const encrypted = AES256.encrypt(passphrase, sampleData)
+    const decrypted = AES256.decrypt(passphrase, encrypted)
 
-  const encryptedAgain = AES256.encrypt(passphrase, decrypted)
-  const decryptedAgain = AES256.decrypt(passphrase, encryptedAgain)
+    const encryptedAgain = AES256.encrypt(passphrase, decrypted)
+    const decryptedAgain = AES256.decrypt(passphrase, encryptedAgain)
 
-  // encrypted value are salted, it will be never the same
-  expect(encryptedAgain.toString('hex')).not.toStrictEqual(encrypted.toString('hex'))
-  // decrypted value are raw, recoverable using passphrase
-  expect(decryptedAgain.toString('hex')).toStrictEqual(decrypted.toString('hex'))
-  expect(decryptedAgain.toString('hex')).toStrictEqual(sampleData.toString('hex'))
+    // encrypted value are salted, it will be never the same
+    expect(encryptedAgain.toString('hex')).not.toStrictEqual(encrypted.toString('hex'))
+    // decrypted value are raw, recoverable using passphrase
+    expect(decryptedAgain.toString('hex')).toStrictEqual(decrypted.toString('hex'))
+    expect(decryptedAgain.toString('hex')).toStrictEqual(sampleData.toString('hex'))
+  }
 })
