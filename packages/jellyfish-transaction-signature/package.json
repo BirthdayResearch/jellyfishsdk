@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/jellyfish-crypto",
+  "name": "@defichain/jellyfish-transaction-signature",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -26,30 +26,25 @@
       "name": "DeFi Jellyfish Contributors"
     }
   ],
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist",
+  "types": "dist",
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "tsc -b ./tsconfig.build.json"
   },
+  "peerDependencies": {
+    "bignumber.js": "^9.0.1"
+  },
   "dependencies": {
-    "bech32": "^2.0.0",
-    "bip66": "^1.1.5",
-    "browserify-aes": "^1.2.0",
-    "bs58": "^4.0.1",
-    "create-hash": "^1.2.0",
-    "randombytes": "^2.1.0",
-    "tiny-secp256k1": "^1.1.6",
-    "wif": "^2.0.6"
+    "@defichain/jellyfish-crypto": "0.0.0",
+    "@defichain/jellyfish-transaction": "0.0.0",
+    "smart-buffer": "^4.1.0"
   },
   "devDependencies": {
-    "@types/bech32": "^1.1.2",
-    "@types/bs58": "^4.0.1",
-    "@types/create-hash": "^1.2.2",
-    "@types/randombytes": "^2.0.0",
-    "@types/tiny-secp256k1": "^1.0.0",
-    "@types/wif": "^2.0.2"
+    "@defichain/jellyfish-api-core": "0.0.0",
+    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
+    "@defichain/testcontainers": "0.0.0"
   }
 }
