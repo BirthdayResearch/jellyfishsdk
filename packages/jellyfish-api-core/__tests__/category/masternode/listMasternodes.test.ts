@@ -17,10 +17,11 @@ describe('Masternode', () => {
   })
 
   it('should list masternodes', async () => {
-    const masternodes = await client.masternode.listMasternodes()
+    const masternodeTransaction = await client.masternode.listMasternodes()
 
-    for (const masternode in masternodes) {
-      const currentMasternode = masternodes[masternode]
+    expect(Object.keys(masternodeTransaction).length).toBeGreaterThanOrEqual(1)
+    for (const masternode in masternodeTransaction) {
+      const currentMasternode = masternodeTransaction[masternode]
       expect(typeof currentMasternode.ownerAuthAddress).toStrictEqual('string')
       expect(typeof currentMasternode.operatorAuthAddress).toStrictEqual('string')
       expect(typeof currentMasternode.creationHeight).toStrictEqual('number')

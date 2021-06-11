@@ -31,10 +31,11 @@ describe('Masternode', () => {
       }
     }
 
-    const masternode = await client.masternode.getMasternode(id)
+    const masternodeTransaction = await client.masternode.getMasternode(id)
 
-    for (const masternodeKey in masternode) {
-      const data = masternode[masternodeKey]
+    expect(Object.keys(masternodeTransaction).length).toStrictEqual(1)
+    for (const masternodeKey in masternodeTransaction) {
+      const data = masternodeTransaction[masternodeKey]
       expect(typeof data.operatorAuthAddress).toStrictEqual('string')
       expect(typeof data.ownerAuthAddress).toStrictEqual('string')
       expect(typeof data.creationHeight).toStrictEqual('number')

@@ -21,7 +21,7 @@ describe('Masternode', () => {
     const masternodesLengthBefore = Object.keys(masternodesBefore).length
 
     const address = await client.wallet.getNewAddress()
-    const masternode = await client.masternode.createMasternode(address)
+    const masternodeTransaction = await client.masternode.createMasternode(address)
 
     await container.generate(1)
 
@@ -29,7 +29,8 @@ describe('Masternode', () => {
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
 
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
-    expect(typeof masternode).toStrictEqual('string')
+    expect(typeof masternodeTransaction).toStrictEqual('string')
+    expect(masternodeTransaction.length).toStrictEqual(64)
 
     for (const masternode in masternodesAfter) {
       const createdMasternode = masternodesAfter[masternode]
@@ -59,6 +60,7 @@ describe('Masternode', () => {
     const masternodeTransaction = await client.masternode.createMasternode(await client.wallet.getNewAddress(), undefined, { inputs })
 
     expect(typeof masternodeTransaction).toStrictEqual('string')
+    expect(masternodeTransaction.length).toStrictEqual(64)
   })
 
   it('should throw an error with invalid owner address', async () => {
