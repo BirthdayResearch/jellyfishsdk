@@ -295,8 +295,8 @@ interface account {
 }
 
 interface CommunityBalanceData {
-  AnchorReward: number
-  IncentiveFunding?: number
-  Burnt: number
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
 }
 ```

@@ -1,5 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { BigNumber } from '@defichain/jellyfish-json'
 
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
@@ -17,8 +18,8 @@ describe('Account', () => {
   it('should listCommunityBalances', async () => {
     const data = await client.account.listCommunityBalances()
 
-    expect(data.AnchorReward).toBeGreaterThanOrEqual(0)
-    expect(data.IncentiveFunding).toBeGreaterThanOrEqual(0)
-    expect(data.Burnt).toBeGreaterThanOrEqual(0)
+    expect(data.AnchorReward instanceof BigNumber).toStrictEqual(true)
+    expect(data.IncentiveFunding instanceof BigNumber).toStrictEqual(true)
+    expect(data.Burnt instanceof BigNumber).toStrictEqual(true)
   })
 })

@@ -318,7 +318,7 @@ export class Account {
    * @return {Promise<CommunityBalanceData>}
    */
   async listCommunityBalances (): Promise<CommunityBalanceData> {
-    return await this.client.call('listcommunitybalances', [], 'number')
+    return await this.client.call('listcommunitybalances', [], 'bignumber')
   }
 }
 
@@ -398,7 +398,7 @@ export interface AccountHistoryCountOptions {
 }
 
 export interface CommunityBalanceData {
-  AnchorReward: number
-  IncentiveFunding?: number
-  Burnt: number
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
 }
