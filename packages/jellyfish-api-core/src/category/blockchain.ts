@@ -181,6 +181,15 @@ export class Blockchain {
   async getBestBlockHash (): Promise<string> {
     return await this.client.call('getbestblockhash', [], 'number')
   }
+
+  /**
+   * Returns details on the active state of the TX memory pool.
+   *
+   * @return {Promise<MempoolInfo>}
+   */
+  async getMempoolInfo (): Promise<MempoolInfo> {
+    return await this.client.call('getmempoolinfo', [], 'bignumber')
+  }
 }
 
 /**
@@ -366,4 +375,14 @@ export interface BlockStats {
   utxo_increase: number
   utxo_size_inc: number
   feerate_percentiles: [number, number, number, number, number]
+}
+
+export interface MempoolInfo {
+  loaded: boolean
+  size: BigNumber
+  bytes: BigNumber
+  usage: BigNumber
+  maxmempool: BigNumber
+  mempoolminfee: BigNumber
+  minrelaytxfee: BigNumber
 }

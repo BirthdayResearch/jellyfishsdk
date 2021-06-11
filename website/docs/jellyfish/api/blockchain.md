@@ -225,6 +225,7 @@ interface ScriptPubKey {
   tokenId: string
 }
 ```
+
 ## getRawMempool
 
 Get all transaction ids in memory pool as string[] if verbose is false else as json object
@@ -265,6 +266,26 @@ interface MempoolTx {
     spentby: string[]
     'bip125-replaceable': boolean
   }
+}
+```
+
+## getMempoolInfo
+
+Returns details on the active state of the TX memory pool.
+
+```ts="client.blockchain.getMempoolInfo"
+interface blockchain {
+  getMempoolInfo (): Promise<MempoolInfo>
+}
+
+interface MempoolInfo {
+  loaded: boolean
+  size: BigNumber
+  bytes: BigNumber
+  usage: BigNumber
+  maxmempool: BigNumber
+  mempoolminfee: BigNumber
+  minrelaytxfee: BigNumber
 }
 ```
 

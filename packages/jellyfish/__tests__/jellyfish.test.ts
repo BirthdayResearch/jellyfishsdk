@@ -1,5 +1,5 @@
 import { RegTestContainer } from '@defichain/testcontainers'
-import { Client, HttpProvider } from '../src/jellyfish'
+import { Client, HttpProvider } from '../src'
 
 const container = new RegTestContainer()
 

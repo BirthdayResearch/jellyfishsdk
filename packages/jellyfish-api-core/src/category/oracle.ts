@@ -77,6 +77,25 @@ export class Oracle {
   }
 
   /**
+   * Returns oracle data.
+   *
+   * @param {string} oracleid
+   * @return {Promise<OracleData>}
+   */
+  async getOracleData (oracleid: string): Promise<OracleData> {
+    return await this.client.call('getoracledata', [oracleid], 'number')
+  }
+
+  /**
+   * Returns array of oracle ids.
+   *
+   * @return {Promise<string[]>}
+   */
+  async listOracles (): Promise<string[]> {
+    return await this.client.call('listoracles', [], 'number')
+  }
+
+  /**
    * List all aggregated prices.
    *
    * @return {Promise<ListPricesData[]>}
@@ -102,6 +121,14 @@ export interface SetOracleDataOptions {
   utxos?: UTXO[]
 }
 
+export interface OracleData {
+  oracleid: string
+  address: string
+  priceFeeds: OraclePriceFeed[]
+  tokenPrices: OracleTokenPrice[]
+  weightage: number
+}
+
 export interface OraclePriceFeed {
   token: string
   currency: string
@@ -115,6 +142,19 @@ export interface OraclePrice {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface OracleTokenPrice {
+  token: string
+  currency: string
+  /**
+   * @example 0.5
+   */
+  amount: number
+  /**
+   * @example 1623161076 is an Epoch time which every digit represents a second.
+   */
+  timestamp: number
 }
 
 export interface ListPricesData {

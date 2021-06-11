@@ -30,11 +30,19 @@ export interface Bip32Options {
  * @param {string} mnemonic sentence to validate
  * @return {boolean} validity
  */
-export function validateMnemonic (mnemonic: string | string[]): boolean {
+export function validateMnemonicSentence (mnemonic: string | string[]): boolean {
   if (Array.isArray(mnemonic)) {
     return bip39.validateMnemonic(mnemonic.join(' '))
   }
   return bip39.validateMnemonic(mnemonic)
+}
+
+/**
+ * @param {string} word to check if exist in mnemonic english word list
+ * @return {boolean} validity
+ */
+export function validateMnemonicWord (word: string): boolean {
+  return bip39.wordlists.english.includes(word)
 }
 
 /**
