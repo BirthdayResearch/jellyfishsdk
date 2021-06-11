@@ -1,4 +1,10 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
+
+export enum OracleRawPriceState {
+  LIVE = 'live',
+  EXPIRED = 'expired'
+}
 
 /**
  * Oracle RPCs for DeFi Blockchain
@@ -93,6 +99,17 @@ export class Oracle {
   async listOracles (): Promise<string[]> {
     return await this.client.call('listoracles', [], 'number')
   }
+
+  /**
+   * Returns latest raw price updates from oracles.
+   *
+   * @param {OraclePriceFeed} [priceFeed]
+   * @return {Promise<OracleRawPrice[]>}
+   */
+  async listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]> {
+    const params = priceFeed !== undefined && priceFeed !== null ? [priceFeed] : []
+    return await this.client.call('listlatestrawprices', params, 'bignumber')
+  }
 }
 
 export interface AppointOracleOptions {
@@ -117,6 +134,15 @@ export interface OracleData {
   priceFeeds: OraclePriceFeed[]
   tokenPrices: OracleTokenPrice[]
   weightage: number
+}
+
+export interface OracleRawPrice {
+  oracleid: string
+  priceFeeds: OraclePriceFeed
+  rawprice: BigNumber
+  weightage: BigNumber
+  state: OracleRawPriceState
+  timestamp: BigNumber
 }
 
 export interface OraclePriceFeed {
