@@ -6,7 +6,8 @@ export enum MasternodeState {
   PRE_RESIGNED = 'PRE_RESIGNED',
   RESIGNED = 'RESIGNED',
   PRE_BANNED = 'PRE_BANNED',
-  BANNED = 'BANNED'
+  BANNED = 'BANNED',
+  UNKNOWN = 'UNKNOWN'
 }
 
 export class Masternode {
@@ -41,7 +42,7 @@ export class Masternode {
    *
    * @param {MasternodePagination} pagination
    * @param {string} [pagination.start]
-   * @param {boolean} [pagination.including_star = true] Include starting position.
+   * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 10000] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
    */
@@ -91,7 +92,9 @@ export interface MasternodeInfo {
   banTx: string
   state: MasternodeState
   mintedBlocks: number
-  targetMultiplier: number
+  ownerIsMine: boolean
+  operatorIsMine: boolean
+  localMasternode: boolean
 }
 
 export interface MasternodeResult {

@@ -44,7 +44,11 @@ describe('Masternode', () => {
         expect(createdMasternode.state).toStrictEqual(MasternodeState.PRE_ENABLED)
         expect(typeof createdMasternode.state).toStrictEqual('string')
         expect(typeof createdMasternode.mintedBlocks).toStrictEqual('number')
-        expect(typeof createdMasternode.targetMultiplier).toStrictEqual('number')
+        expect(typeof createdMasternode.ownerIsMine).toStrictEqual('boolean')
+        expect(createdMasternode.ownerIsMine).toStrictEqual(true)
+        expect(typeof createdMasternode.localMasternode).toStrictEqual('boolean')
+        expect(typeof createdMasternode.operatorIsMine).toStrictEqual('boolean')
+        expect(createdMasternode.operatorIsMine).toStrictEqual(true)
       }
     }
   })

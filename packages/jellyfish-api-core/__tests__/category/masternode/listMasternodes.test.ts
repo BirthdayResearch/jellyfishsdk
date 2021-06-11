@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { MasternodePagination } from '../../../src/category/masternode'
+import { MasternodePagination, MasternodeState } from '../../../src/category/masternode'
 
 describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -20,17 +20,19 @@ describe('Masternode', () => {
     const masternodes = await client.masternode.listMasternodes()
 
     for (const masternode in masternodes) {
-      const createdMasternode = masternodes[masternode]
-      expect(typeof createdMasternode.ownerAuthAddress).toStrictEqual('string')
-      expect(typeof createdMasternode.operatorAuthAddress).toStrictEqual('string')
-      expect(typeof createdMasternode.creationHeight).toStrictEqual('number')
-      expect(typeof createdMasternode.resignHeight).toStrictEqual('number')
-      expect(typeof createdMasternode.resignTx).toStrictEqual('string')
-      expect(typeof createdMasternode.banHeight).toStrictEqual('number')
-      expect(typeof createdMasternode.banTx).toStrictEqual('string')
-      expect(typeof createdMasternode.state).toStrictEqual('string')
-      expect(typeof createdMasternode.mintedBlocks).toStrictEqual('number')
-      expect(typeof createdMasternode.targetMultiplier).toStrictEqual('number')
+      const currentMasternode = masternodes[masternode]
+      expect(typeof currentMasternode.ownerAuthAddress).toStrictEqual('string')
+      expect(typeof currentMasternode.operatorAuthAddress).toStrictEqual('string')
+      expect(typeof currentMasternode.creationHeight).toStrictEqual('number')
+      expect(typeof currentMasternode.resignHeight).toStrictEqual('number')
+      expect(typeof currentMasternode.resignTx).toStrictEqual('string')
+      expect(typeof currentMasternode.banHeight).toStrictEqual('number')
+      expect(typeof currentMasternode.banTx).toStrictEqual('string')
+      expect(currentMasternode.state).toStrictEqual(MasternodeState.ENABLED)
+      expect(typeof currentMasternode.mintedBlocks).toStrictEqual('number')
+      expect(typeof currentMasternode.ownerIsMine).toStrictEqual('boolean')
+      expect(typeof currentMasternode.localMasternode).toStrictEqual('boolean')
+      expect(typeof currentMasternode.operatorIsMine).toStrictEqual('boolean')
     }
   })
 

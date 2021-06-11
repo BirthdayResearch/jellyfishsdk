@@ -1,7 +1,7 @@
 ---
 id: masternode
-title: Masternode API
-API sidebar_label: Masternode API
+title: Masternode
+sidebar_label: Masternode API
 API slug: /jellyfish/api/masternode
 ---
 
@@ -10,7 +10,7 @@ import {Client} from '@defichain/jellyfish'
 
 const client = new Client()
 // Using client.account.
-const something = await client.account.method()
+const something = await client.masternode.method()
 ```
 
 ## createMasternode
@@ -67,7 +67,9 @@ interface MasternodeInfo {
   banTx: string,
   state: MasternodeState,
   mintedBlocks: number,
-  targetMultiplier: number
+  ownerIsMine: boolean,
+  operatorIsMine: boolean,
+  localMasternode: boolean
 }
 
 interface MasternodeResult {
@@ -94,7 +96,9 @@ interface MasternodeInfo {
   banTx: string,
   state: MasternodeState,
   mintedBlocks: number,
-  targetMultiplier: number
+  ownerIsMine: boolean,
+  operatorIsMine: boolean,
+  localMasternode: boolean
 }
 
 interface MasternodeResult {
