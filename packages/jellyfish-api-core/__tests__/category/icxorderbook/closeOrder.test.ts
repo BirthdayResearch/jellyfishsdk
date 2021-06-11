@@ -14,7 +14,7 @@ describe('Should test ICXOrderBook.closeOrder', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForBlock(1)
+    await container.waitForWalletCoinbaseMaturity()
     await setup(container)
   })
 
