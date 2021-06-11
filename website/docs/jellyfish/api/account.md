@@ -284,10 +284,9 @@ interface AccountHistoryCountOptions {
 }
 ```
 
-
 ## listCommunityBalances
 
-Returns information about current anchor bonus
+Returns information about current anchor bonus, incentive funding, burnt token(s)
 
 ```ts title="client.account.listCommunityBalances()"
 interface account {
