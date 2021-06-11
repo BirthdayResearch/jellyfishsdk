@@ -136,7 +136,7 @@ export interface OracleData {
   weightage: number
 }
 
-export interface OracleRawPrice{
+export interface OracleRawPrice {
   oracleid: string
   priceFeeds: OraclePriceFeed
   rawprice: BigNumber
