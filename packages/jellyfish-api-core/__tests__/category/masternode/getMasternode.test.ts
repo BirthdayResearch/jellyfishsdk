@@ -45,7 +45,11 @@ describe('Masternode', () => {
       expect(data.state).toStrictEqual(MasternodeState.PRE_ENABLED)
       expect(typeof data.state).toStrictEqual('string')
       expect(typeof data.mintedBlocks).toStrictEqual('number')
-      expect(typeof data.targetMultiplier).toStrictEqual('number')
+      expect(typeof data.ownerIsMine).toStrictEqual('boolean')
+      expect(typeof data.localMasternode).toStrictEqual('boolean')
+      expect(typeof data.operatorIsMine).toStrictEqual('boolean')
+      expect(data.operatorIsMine).toStrictEqual(true)
+      expect(data.operatorIsMine).toStrictEqual(true)
     }
   })
 
