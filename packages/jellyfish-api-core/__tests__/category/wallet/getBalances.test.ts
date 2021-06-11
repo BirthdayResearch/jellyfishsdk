@@ -3,6 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BigNumber } from '../../../src'
 import { WalletFlag } from '../../../src/category/wallet'
 
+// TODO(aikchun): Add behavior tests for untrusted_pending, immature, used. Currently unable to do multi-node testing
 describe('getBalances on masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
@@ -53,15 +54,7 @@ describe('getBalances on masternode', () => {
     expect(balance.mine.trusted.toNumber() - newBalance.mine.trusted.toNumber()).toBeGreaterThan(10000)
   })
 
-  it('should show immature changes', async () => {
-    const address = 'bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'
-
-    await client.wallet.sendToAddress(address, 1)
-
-    const newBalance = await client.wallet.getBalances()
-
-    expect(newBalance.mine.immature.toNumber()).toBeGreaterThanOrEqual(10000)
-  })
+  // TODO(aikchun)
 })
 
 describe('getBalances without masternode', () => {
