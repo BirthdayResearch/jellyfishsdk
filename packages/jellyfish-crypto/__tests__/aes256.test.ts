@@ -1,10 +1,11 @@
+import randomBytes from 'randombytes'
 import { AES256 } from '../src'
 
-const raw = 'e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
-const privateKey = Buffer.from(raw, 'hex')
-const passphrase = Buffer.from('password', 'ascii')
-
 describe('Aes256', () => {
+  const raw = 'e9873d79c6d87dc0fb6a5778633389f4e93213303da61f20bd67fc233aa33262'
+  const privateKey = Buffer.from(raw, 'hex')
+  const passphrase = Buffer.from('password', 'ascii')
+
   let encrypted: Buffer
 
   it('encrypt', () => {
@@ -40,4 +41,21 @@ describe('Aes256', () => {
       AES256.decrypt(passphrase, invalidData)
     }).toThrow('Provided "encrypted" must decrypt to a non-empty string or buffer')
   })
+})
+
+it('AES256 with 1000 random vectors - should be consistent', () => {
+  const sampleData = randomBytes(1000)
+  const passphrase = randomBytes(60)
+
+  const encrypted = AES256.encrypt(passphrase, sampleData)
+  const decrypted = AES256.decrypt(passphrase, encrypted)
+
+  const encryptedAgain = AES256.encrypt(passphrase, decrypted)
+  const decryptedAgain = AES256.decrypt(passphrase, encryptedAgain)
+
+  // encrypted value are salted, it will be never the same
+  expect(encryptedAgain.toString('hex')).not.toStrictEqual(encrypted.toString('hex'))
+  // decrypted value are raw, recoverable using passphrase
+  expect(decryptedAgain.toString('hex')).toStrictEqual(decrypted.toString('hex'))
+  expect(decryptedAgain.toString('hex')).toStrictEqual(sampleData.toString('hex'))
 })
