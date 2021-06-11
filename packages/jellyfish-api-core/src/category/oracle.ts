@@ -107,7 +107,7 @@ export class Oracle {
    * @return {Promise<OracleRawPrice[]>}
    */
   async listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]> {
-    const params = priceFeed != null ? [priceFeed] : []
+    const params = priceFeed !== undefined && priceFeed !== null ? [priceFeed] : []
     return await this.client.call('listlatestrawprices', params, 'bignumber')
   }
 }
