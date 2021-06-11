@@ -13,10 +13,6 @@ const client = new Client()
 const something = await client.oracle.method()
 ```
 
-// Using client.oracle.
-const something = await client.oracle.method()
-```
-
 ## appointOracle
 
 Creates a price oracle for rely of real time price data.
