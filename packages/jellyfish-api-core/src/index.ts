@@ -9,6 +9,7 @@ import { PoolPair } from './category/poolpair'
 import { Token } from './category/token'
 import { Oracle } from './category/oracle'
 import { Server } from './category/server'
+import { Masternode } from './category/masternode'
 
 export * from '@defichain/jellyfish-json'
 
@@ -22,6 +23,7 @@ export * as token from './category/token'
 export * as account from './category/account'
 export * as oracle from './category/oracle'
 export * as server from './category/server'
+export * as masternode from './category/masternode'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -37,6 +39,7 @@ export abstract class ApiClient {
   public readonly token = new Token(this)
   public readonly oracle = new Oracle(this)
   public readonly server = new Server(this)
+  public readonly masternode = new Masternode(this)
 
   /**
    * A promise based procedure call handling
