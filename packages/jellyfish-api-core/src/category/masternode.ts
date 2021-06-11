@@ -20,7 +20,7 @@ export class Masternode {
    * Creates a masternode creation transaction with given owner and operator addresses.
    *
    * @param {string} ownerAddress Any valid address for keeping collateral amount
-   * @param {string} operatorAddress  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
+   * @param {string} [operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {CreateMasternodeOptions} options
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.inputs.txid] The transaction id
