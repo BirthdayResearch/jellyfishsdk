@@ -25,6 +25,7 @@
 /packages/jellyfish-transaction/src/script/defi/            @fuxingloh @canonbrother @ivan-zynesis @monstrobishi
 
 /packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @monstrobishi
+/packages/jellyfish-transaction-signature/      @ivan-zynesis
 /packages/jellyfish-wallet/                     @fuxingloh
 /packages/jellyfish-wallet-encrypted/           @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh

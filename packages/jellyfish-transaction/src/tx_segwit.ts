@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { Script } from './tx'
-import { SIGHASH } from './tx_signature'
+import { Script, SIGHASH } from './tx'
 import { BufferComposer, ComposableBuffer } from './buffer/buffer_composer'
 import { CScript } from './tx_composer'
 

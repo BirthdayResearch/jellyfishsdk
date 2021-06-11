@@ -1,6 +1,16 @@
 import BigNumber from 'bignumber.js'
 import { OPCode } from './script'
 
+export enum SIGHASH {
+  ALL = 0x01,
+  NONE = 0x02,
+  SINGLE = 0x03,
+  ANYONECANPAY = 0x80,
+  ALL_ANYONECANPAY = SIGHASH.ALL | SIGHASH.ANYONECANPAY,
+  NONE_ANYONECANPAY = SIGHASH.NONE | SIGHASH.ANYONECANPAY,
+  SINGLE_ANYONECANPAY = SIGHASH.SINGLE | SIGHASH.ANYONECANPAY,
+}
+
 /**
  * A transaction is a transfer of DeFi values that is broadcast to the DeFi network and collected into blocks.
  * The transfer of value in DeFi includes unspent, account token, liquidity, masternode creation, etc...

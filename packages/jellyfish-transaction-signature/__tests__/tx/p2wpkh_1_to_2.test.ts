@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Bech32, WIF } from '@defichain/jellyfish-crypto'
-import { TransactionSigner, SignInputOption } from '@defichain/jellyfish-transaction-signature'
-import { OP_CODES, CTransaction, CTransactionSegWit } from '../../src'
+import { OP_CODES, CTransaction, CTransactionSegWit } from '@defichain/jellyfish-transaction'
+import { SignInputOption, TransactionSigner } from '../../src'
 
 // From Address P2WPKH
 const input = {

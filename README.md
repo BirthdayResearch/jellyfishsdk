@@ -119,8 +119,10 @@ For monorepo to work seamlessly, some configuration is required. It's amazing as
 Configurations required when introducing new package:
 
 1. root `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
-2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.ts here
-3. sub-package `tsconfig.build.json` - `references` - add package dependencies tsconfig.build.ts location
+2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.json here
+3. sub-package `tsconfig.build.json` - `references` - add package dependencies tsconfig.build.json location
+4. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is configured "tsc -b ./tsconfig.build.json"
+5. root `jest.config.js` - `moduleNameMapper` - update accordingly for allowing test case to use same `import from <sub-package-name>` syntax
 
 ### Testing
 
