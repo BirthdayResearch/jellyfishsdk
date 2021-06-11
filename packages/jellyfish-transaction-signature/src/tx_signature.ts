@@ -12,18 +12,9 @@ import {
   CWitnessProgram,
   WitnessProgram,
   DeFiTransactionConstants,
+  SIGHASH,
   CVoutV4
 } from '@defichain/jellyfish-transaction'
-
-export enum SIGHASH {
-  ALL = 0x01,
-  NONE = 0x02,
-  SINGLE = 0x03,
-  ANYONECANPAY = 0x80,
-  ALL_ANYONECANPAY = SIGHASH.ALL | SIGHASH.ANYONECANPAY,
-  NONE_ANYONECANPAY = SIGHASH.NONE | SIGHASH.ANYONECANPAY,
-  SINGLE_ANYONECANPAY = SIGHASH.SINGLE | SIGHASH.ANYONECANPAY,
-}
 
 export interface SignInputOption {
   /**
