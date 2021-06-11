@@ -1,3 +1,4 @@
+export * from './aes256'
 export * from './bech32'
 export * from './bs58'
 export * from './der'
