@@ -19,10 +19,10 @@ describe('getBalances on masternode', () => {
   })
 
   it('should getBalances', async () => {
-    const balances = await client.wallet.getBalances()
-    expect(balances.mine.trusted).toBeInstanceOf(BigNumber)
-    expect(balances.mine.untrusted_pending).toBeInstanceOf(BigNumber)
-    expect(balances.mine.immature).toBeInstanceOf(BigNumber)
+    const balances: WalletBalances = await client.wallet.getBalances()
+    expect(balances.mine.trusted instanceof BigNumber).toStrictEqual(true)
+    expect(balances.mine.untrusted_pending instanceof BigNumber).toStrictEqual(true)
+    expect(balances.mine.immature instanceof BigNumber).toStrictEqual(true)
     expect(typeof balances.mine.used).toStrictEqual('undefined')
 
     expect(typeof balances.watchonly).toStrictEqual('undefined')
@@ -31,25 +31,25 @@ describe('getBalances on masternode', () => {
   it('should have used in getBalances when wallet is set to avoid_reuse', async () => {
     await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
     await container.generate(1)
-    const balances = await client.wallet.getBalances()
+    const balances: WalletBalances = await client.wallet.getBalances()
 
-    expect(balances.mine.trusted).toBeInstanceOf(BigNumber)
-    expect(balances.mine.untrusted_pending).toBeInstanceOf(BigNumber)
-    expect(balances.mine.immature).toBeInstanceOf(BigNumber)
-    expect(balances.mine.used).toBeInstanceOf(BigNumber)
+    expect(balances.mine.trusted instanceof BigNumber).toStrictEqual(true)
+    expect(balances.mine.untrusted_pending instanceof BigNumber).toStrictEqual(true)
+    expect(balances.mine.immature instanceof BigNumber).toStrictEqual(true)
+    expect(balances.mine.used instanceof BigNumber).toStrictEqual(true)
 
     expect(typeof balances.watchonly).toStrictEqual('undefined')
   })
 
   it('should show balances after sending the amount out', async () => {
-    const balance = await client.wallet.getBalances()
+    const balance: WalletBalances = await client.wallet.getBalances()
 
     const address = 'bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'
 
     await client.wallet.sendToAddress(address, 10000)
     await container.generate(1)
 
-    const newBalance = await client.wallet.getBalances()
+    const newBalance: WalletBalances = await client.wallet.getBalances()
 
     expect(balance.mine.trusted.toNumber() - newBalance.mine.trusted.toNumber()).toBeGreaterThan(10000)
   })
@@ -82,7 +82,7 @@ describe('getBalances without masternode', () => {
   })
 
   it('should getBalances.mine.trusted = 0', async () => {
-    const balances = await client.wallet.getBalances()
+    const balances: WalletBalances = await client.wallet.getBalances()
 
     expect(balances.mine.trusted.toNumber()).toStrictEqual(0)
   })
