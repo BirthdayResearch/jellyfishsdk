@@ -159,27 +159,12 @@ enum OracleRawPriceState {
 }
 
 interface OracleRawPrice {
-  priceFeeds: OraclePriceFeed
   oracleid: string
-  weightage: BigNumber
-  timestamp: BigNumber
+  priceFeeds: OraclePriceFeed
   rawprice: BigNumber
+  weightage: BigNumber
   state: OracleRawPriceState
-}
-
-interface OraclePriceFeed {
-  token: string
-  currency: string
-}
-```
-
-## getPrice
-
-Returns aggregated price from oracles.
-
-```ts title="client.oracle.getPrice()"
-interface oracle {
-  getPrice (priceFeed: OraclePriceFeed): Promise<BigNumber>
+  timestamp: BigNumber
 }
 
 interface OraclePriceFeed {

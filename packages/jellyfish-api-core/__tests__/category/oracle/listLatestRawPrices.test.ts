@@ -136,9 +136,7 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices with 4200 seconds after current time', async () => {
-    const priceFeed = { token: 'APPLE', currency: 'EUR' }
-
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
 
     await container.generate(1)
 
@@ -169,9 +167,7 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices with 4200 seconds before current time', async () => {
-    const priceFeed = { token: 'APPLE', currency: 'EUR' }
-
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
 
     await container.generate(1)
 
@@ -209,9 +205,7 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices with priceFeed as input parameter', async () => {
-    const priceFeed = { token: 'APPLE', currency: 'EUR' }
-
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
 
     await container.generate(1)
 
@@ -222,7 +216,7 @@ describe('Oracle', () => {
     await container.generate(1)
 
     // NOTE(jingyi2811): Pagination is not supported.
-    const data = await client.oracle.listLatestRawPrices(priceFeed)
+    const data = await client.oracle.listLatestRawPrices({ token: 'APPLE', currency: 'EUR' })
 
     expect(data).toStrictEqual(
       [
