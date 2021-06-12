@@ -18,10 +18,8 @@ describe('Oracle', () => {
   })
 
   it('should getPrice', async () => {
-    const priceFeed = { token: 'APPLE', currency: 'EUR' }
-
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 2])
+    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
+    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 2])
 
     await container.generate(1)
 
@@ -35,7 +33,7 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
-    const data = await client.oracle.getPrice(priceFeed)
+    const data = await client.oracle.getPrice({ token: 'APPLE', currency: 'EUR' })
 
     // NOTE(jingyi2811): 0.83333333 = (0.5 * 1 + 1.0 * 2) / 3
     expect(data.toString()).toStrictEqual(new BigNumber('0.83333333').toString())
@@ -76,9 +74,7 @@ describe('Oracle', () => {
   })
 
   it('should not getPrice if priceFeed does not exists', async () => {
-    const priceFeed = { token: 'MSFT', currency: 'SGD' }
-
-    const promise = client.oracle.getPrice(priceFeed)
+    const promise = client.oracle.getPrice({ token: 'MSFT', currency: 'SGD' })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'no live oracles for specified request\', code: -1, method: getprice')
