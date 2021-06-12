@@ -18,17 +18,17 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices', async () => {
-    const priceFeeds1 = [
+    const priceFeed1 = [
       { token: 'APPLE', currency: 'EUR' },
       { token: 'APPLE', currency: 'USD' }
     ]
-    const priceFeeds2 = [
+    const priceFeed2 = [
       { token: 'TESLA', currency: 'EUR' },
       { token: 'TESLA', currency: 'USD' }
     ]
 
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds1, 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds2, 2])
+    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), priceFeed1, 1])
+    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeed2, 2])
 
     await container.generate(1)
 
@@ -199,6 +199,10 @@ describe('Oracle', () => {
         }
       ]
     )
+
+    await container.call('removeoracle', [oracleid])
+
+    await container.generate(1)
   })
 
   it('should listLatestRawPrices with priceFeed as input parameter if there are 2 oracles with different priceFeeds created', async () => {
