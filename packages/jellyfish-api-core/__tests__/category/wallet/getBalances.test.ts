@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BigNumber } from '../../../src'
-import { WalletFlag } from '../../../src/category/wallet'
+import { WalletFlag, WalletBalances } from '../../../src/category/wallet'
 
 // TODO(aikchun): Add behavior tests for untrusted_pending, immature, used. Currently unable to do multi-node testing
 describe('getBalances on masternode', () => {
@@ -54,7 +54,18 @@ describe('getBalances on masternode', () => {
     expect(balance.mine.trusted.toNumber() - newBalance.mine.trusted.toNumber()).toBeGreaterThan(10000)
   })
 
-  // TODO(aikchun)
+  it('test watchOnly', async () => {
+    await container.call('importaddress', ['bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'])
+    const balances: WalletBalances = await client.wallet.getBalances()
+
+    if (balances.watchonly != null) {
+      expect(balances.watchonly.trusted instanceof BigNumber).toStrictEqual(true)
+      expect(balances.watchonly.untrusted_pending instanceof BigNumber).toStrictEqual(true)
+      expect(balances.watchonly.immature instanceof BigNumber).toStrictEqual(true)
+    } else {
+      throw new Error('expected watchonly to be truthy')
+    }
+  })
 })
 
 describe('getBalances without masternode', () => {
