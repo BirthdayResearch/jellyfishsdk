@@ -159,12 +159,12 @@ enum OracleRawPriceState {
 }
 
 interface OracleRawPrice {
-  oracleid: string
   priceFeeds: OraclePriceFeed
-  rawprice: BigNumber
+  oracleid: string
   weightage: BigNumber
-  state: OracleRawPriceState
   timestamp: BigNumber
+  rawprice: BigNumber
+  state: OracleRawPriceState
 }
 
 interface OraclePriceFeed {
