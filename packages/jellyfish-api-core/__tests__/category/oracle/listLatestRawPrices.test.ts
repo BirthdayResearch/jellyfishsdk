@@ -18,17 +18,17 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices', async () => {
-    const priceFeed1 = [
+    const priceFeeds1 = [
       { token: 'APPLE', currency: 'EUR' },
       { token: 'APPLE', currency: 'USD' }
     ]
-    const priceFeed2 = [
+    const priceFeeds2 = [
       { token: 'TESLA', currency: 'EUR' },
       { token: 'TESLA', currency: 'USD' }
     ]
 
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), priceFeed1, 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeed2, 2])
+    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds1, 1])
+    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds2, 2])
 
     await container.generate(1)
 
@@ -97,37 +97,6 @@ describe('Oracle', () => {
         }
       ]
     )
-
-    await container.call('removeoracle', [oracleid1])
-    await container.call('removeoracle', [oracleid2])
-
-    await container.generate(1)
-  })
-
-  it('should listLatestRawPrices if there are 2 oracles with different priceFeeds created', async () => {
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 2])
-
-    await container.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid1, timestamp, prices])
-
-    await container.generate(1)
-
-    // NOTE(jingyi2811): Pagination is not supported.
-    const data = await client.oracle.listLatestRawPrices({ token: 'APPLE', currency: 'EUR' })
-
-    expect(data).toStrictEqual(
-      [{
-        priceFeeds: { token: 'APPLE', currency: 'EUR' },
-        oracleid: oracleid1,
-        weightage: new BigNumber(1),
-        timestamp: new BigNumber(timestamp),
-        rawprice: new BigNumber(0.5),
-        state: OracleRawPriceState.LIVE
-      }])
 
     await container.call('removeoracle', [oracleid1])
     await container.call('removeoracle', [oracleid2])
@@ -230,5 +199,36 @@ describe('Oracle', () => {
         }
       ]
     )
+  })
+
+  it('should listLatestRawPrices with priceFeed as input parameter if there are 2 oracles with different priceFeeds created', async () => {
+    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
+    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 2])
+
+    await container.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
+    await container.call('setoracledata', [oracleid1, timestamp, prices])
+
+    await container.generate(1)
+
+    // NOTE(jingyi2811): Pagination is not supported.
+    const data = await client.oracle.listLatestRawPrices({ token: 'APPLE', currency: 'EUR' })
+
+    expect(data).toStrictEqual(
+      [{
+        priceFeeds: { token: 'APPLE', currency: 'EUR' },
+        oracleid: oracleid1,
+        weightage: new BigNumber(1),
+        timestamp: new BigNumber(timestamp),
+        rawprice: new BigNumber(0.5),
+        state: OracleRawPriceState.LIVE
+      }])
+
+    await container.call('removeoracle', [oracleid1])
+    await container.call('removeoracle', [oracleid2])
+
+    await container.generate(1)
   })
 })
