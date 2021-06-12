@@ -121,14 +121,17 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(1)
 
     expect(data).toStrictEqual(
-      [{
-        priceFeeds: { token: 'APPLE', currency: 'EUR' },
-        oracleid: oracleid,
-        weightage: new BigNumber(1),
-        timestamp: new BigNumber(timestamp),
-        rawprice: new BigNumber(0.5),
-        state: OracleRawPriceState.EXPIRED
-      }])
+      [
+        {
+          priceFeeds: { token: 'APPLE', currency: 'EUR' },
+          oracleid: oracleid,
+          weightage: new BigNumber(1),
+          timestamp: new BigNumber(timestamp),
+          rawprice: new BigNumber(0.5),
+          state: OracleRawPriceState.EXPIRED
+        }
+      ]
+    )
 
     await container.call('removeoracle', [oracleid])
 
@@ -152,14 +155,17 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(1)
 
     expect(data).toStrictEqual(
-      [{
-        priceFeeds: { token: 'APPLE', currency: 'EUR' },
-        oracleid: oracleid,
-        weightage: new BigNumber(1),
-        timestamp: new BigNumber(timestamp),
-        rawprice: new BigNumber(0.5),
-        state: OracleRawPriceState.EXPIRED
-      }])
+      [
+        {
+          priceFeeds: { token: 'APPLE', currency: 'EUR' },
+          oracleid: oracleid,
+          weightage: new BigNumber(1),
+          timestamp: new BigNumber(timestamp),
+          rawprice: new BigNumber(0.5),
+          state: OracleRawPriceState.EXPIRED
+        }
+      ]
+    )
 
     await container.call('removeoracle', [oracleid])
 
@@ -221,14 +227,17 @@ describe('Oracle', () => {
     const data = await client.oracle.listLatestRawPrices({ token: 'APPLE', currency: 'EUR' })
 
     expect(data).toStrictEqual(
-      [{
-        priceFeeds: { token: 'APPLE', currency: 'EUR' },
-        oracleid: oracleid1,
-        weightage: new BigNumber(1),
-        timestamp: new BigNumber(timestamp),
-        rawprice: new BigNumber(0.5),
-        state: OracleRawPriceState.LIVE
-      }])
+      [
+        {
+          priceFeeds: { token: 'APPLE', currency: 'EUR' },
+          oracleid: oracleid1,
+          weightage: new BigNumber(1),
+          timestamp: new BigNumber(timestamp),
+          rawprice: new BigNumber(0.5),
+          state: OracleRawPriceState.LIVE
+        }
+      ]
+    )
 
     await container.call('removeoracle', [oracleid1])
     await container.call('removeoracle', [oracleid2])
