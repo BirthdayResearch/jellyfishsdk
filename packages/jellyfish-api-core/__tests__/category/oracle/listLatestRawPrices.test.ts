@@ -118,8 +118,6 @@ describe('Oracle', () => {
     // NOTE(jingyi2811): Pagination is not supported.
     const data = await client.oracle.listLatestRawPrices()
 
-    expect(data.length).toStrictEqual(1)
-
     expect(data).toStrictEqual(
       [
         {
@@ -151,8 +149,6 @@ describe('Oracle', () => {
 
     // NOTE(jingyi2811): Pagination is not supported.
     const data = await client.oracle.listLatestRawPrices()
-
-    expect(data.length).toStrictEqual(1)
 
     expect(data).toStrictEqual(
       [
