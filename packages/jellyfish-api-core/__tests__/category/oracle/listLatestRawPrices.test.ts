@@ -7,13 +7,13 @@ describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await container.stop()
   })
 
@@ -97,11 +97,6 @@ describe('Oracle', () => {
         }
       ]
     )
-
-    await container.call('removeoracle', [oracleid1])
-    await container.call('removeoracle', [oracleid2])
-
-    await container.generate(1)
   })
 
   it('should listLatestRawPrices created at 4200 seconds after the current time', async () => {
@@ -130,10 +125,6 @@ describe('Oracle', () => {
         }
       ]
     )
-
-    await container.call('removeoracle', [oracleid])
-
-    await container.generate(1)
   })
 
   it('should listLatestRawPrices created at 4200 seconds before the current time', async () => {
@@ -162,10 +153,6 @@ describe('Oracle', () => {
         }
       ]
     )
-
-    await container.call('removeoracle', [oracleid])
-
-    await container.generate(1)
   })
 
   it('should listLatestRawPrices with empty array if there is no oracle appointed', async () => {
@@ -201,15 +188,11 @@ describe('Oracle', () => {
         }
       ]
     )
-
-    await container.call('removeoracle', [oracleid])
-
-    await container.generate(1)
   })
 
   it('should listLatestRawPrices with priceFeed as input parameter if there are 2 oracles with different priceFeeds created', async () => {
     const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 2])
+    await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 2])
 
     await container.generate(1)
 
@@ -234,10 +217,5 @@ describe('Oracle', () => {
         }
       ]
     )
-
-    await container.call('removeoracle', [oracleid1])
-    await container.call('removeoracle', [oracleid2])
-
-    await container.generate(1)
   })
 })
