@@ -164,7 +164,7 @@ export async function closeAllOrders (container: MasterNodeRegTestContainer): Pr
   await container.generate(1)
 }
 
-export async function checkDFCHTLCDetails (container: MasterNodeRegTestContainer, HTLCInput: HTLC, DFCHTLCTxId: string,
+export async function checkDFCHTLCDetails (HTLCInput: HTLC, DFCHTLCTxId: string,
   HTLCsRetrived: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>): Promise<void> {
   // we have a common field "type", use that to narrow down the record
   expect(HTLCsRetrived[DFCHTLCTxId].type).toStrictEqual(ICXHTLCType.DFC)
@@ -178,7 +178,7 @@ export async function checkDFCHTLCDetails (container: MasterNodeRegTestContainer
   if (HTLCInput.timeout !== undefined) { expect(DFCHTLCInfo.timeout).toStrictEqual(new BigNumber(HTLCInput.timeout)) }
 }
 
-export async function checkEXTHTLCDetails (container: MasterNodeRegTestContainer, HTLCInput: ExtHTLC, ExtHTLCTxId: string,
+export async function checkEXTHTLCDetails (HTLCInput: ExtHTLC, ExtHTLCTxId: string,
   HTLCsRetrived: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>): Promise<void> {
   // we have a common field "type", use that to narrow down the record
   expect(HTLCsRetrived[ExtHTLCTxId].type).toStrictEqual(ICXHTLCType.EXTERNAL)

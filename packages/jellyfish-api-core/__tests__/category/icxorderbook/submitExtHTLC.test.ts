@@ -7,7 +7,7 @@ import {
 import BigNumber from 'bignumber.js'
 import { setup, accountDFI, idDFI, accountBTC, checkBTCBuyOfferDetails, checkBTCSellOrderDetails, checkDFIBuyOfferDetails, checkDFISellOrderDetails, checkDFCHTLCDetails, checkEXTHTLCDetails } from './common.test'
 
-describe('Test ICXOrderBook.submitDFCHTLC', () => {
+describe('Test ICXOrderBook.submitExtHTLC', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -26,7 +26,7 @@ describe('Test ICXOrderBook.submitDFCHTLC', () => {
     // cleanup code here
   })
 
-  it('Should submit DFCHTLC for a DFC buy offer', async () => {
+  it('Should submit ExtHTLC for a DFC buy offer', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -86,15 +86,40 @@ describe('Test ICXOrderBook.submitDFCHTLC', () => {
     expect(Number(accountDFIAfterDFCHTLC[idDFI])).toStrictEqual(Number(accountDFIBeforeDFCHTLC[idDFI]) - Number(0.01))
 
     // List htlc
-    const listHTLCOptions: ICXListHTLCOptions = {
+    let listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    const HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
+    let HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
     await checkDFCHTLCDetails(DFCHTLC, DFCHTLCTxId, HTLCs)
+
+    const accountBTCBeforeEXTHTLC = await container.call('getaccount', [accountBTC, {}, true])
+    // submit EXT HTLC - taker
+    const ExtHTLC: ExtHTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(0.10),
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
+      ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
+      timeout: 15
+    }
+    const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
+    await container.generate(1)
+
+    // List htlc
+    listHTLCOptions = {
+      offerTx: makeOfferTxId
+    }
+    HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
+    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    await checkEXTHTLCDetails(ExtHTLC, ExtHTLCTxId, HTLCs)
+
+    const accountBTCAfterEXTHTLC = await container.call('getaccount', [accountBTC, {}, true])
+    // should have the same balance as accountBTCAfterDFCHTLC
+    expect(accountBTCAfterEXTHTLC).toStrictEqual(accountBTCBeforeEXTHTLC)
   })
 
-  it('Should submit DFCHTLC for a BTC buy offer', async () => {
+  it('Should submit ExtHTLC for a BTC buy offer', async () => {
     const accountDFIStartBalance = await container.call('getaccount', [accountDFI, {}, true])
     const order: ICXOrder = {
       chainFrom: 'BTC',
@@ -148,37 +173,15 @@ describe('Test ICXOrderBook.submitDFCHTLC', () => {
     await container.generate(1)
 
     // List htlc
-    let listHTLCOptions = {
+    const listHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    let HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
+    const HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
     await checkEXTHTLCDetails(ExtHTLC, ExtHTLCTxId, HTLCs)
 
     const accountDFIAfterEXTHTLC = await container.call('getaccount', [accountDFI, {}, true])
     // maker deposit should be reduced from accountDFI
     expect(Number(accountDFIAfterEXTHTLC[idDFI])).toStrictEqual(accountDFIStartBalance[idDFI] - Number(0.1000000))
-
-    const accountBTCBeforeDFCHTLC = await container.call('getaccount', [accountBTC, {}, true])
-
-    // create DFCHTLC - taker
-    const DFCHTLC: HTLC = {
-      offerTx: makeOfferTxId,
-      amount: new BigNumber(100), // in  DFC
-      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220'
-    }
-    const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
-    await container.generate(1)
-
-    const accountBTCAfterDFCHTLC = await container.call('getaccount', [accountBTC, {}, true])
-    expect(new BigNumber(accountBTCAfterDFCHTLC[idDFI])).toStrictEqual(new BigNumber(accountBTCBeforeDFCHTLC[idDFI]).minus(100))
-
-    // List htlc
-    listHTLCOptions = {
-      offerTx: makeOfferTxId
-    }
-    HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
-    await checkDFCHTLCDetails(DFCHTLC, DFCHTLCTxId, HTLCs)
   })
 })

@@ -4,7 +4,7 @@ import {
   ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountDFI, checkBTCSellOrderDetails, checkDFISellOrderDetails, closeAllOrders, idDFI, setup } from './common.test'
+import { accountDFI, checkBTCSellOrderDetails, checkDFISellOrderDetails, idDFI, setup } from './common.test'
 
 describe('Should test ICXOrderBook.createOrder', () => {
   const container = new MasterNodeRegTestContainer()
@@ -21,14 +21,13 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await container.stop()
   })
 
-  beforeEach(async () => {
-    // close any existing orders
-    await closeAllOrders(container)
+  afterEach(async () => {
+    // cleanup code here
   })
 
-  it('Should create ICX order to sell 15 DFI', async () => {
-    // accountDFI start balance
-    const accountDFIStartBalance = await container.call('getaccount', [accountDFI, {}, true])
+  it('Should create an ICX order to sell 15 DFI', async () => {
+    const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
+    // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
       chainTo: 'BTC',
@@ -37,35 +36,23 @@ describe('Should test ICXOrderBook.createOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-
     const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
     const createOrderTxId = result.txid
-
     await container.generate(1)
 
     // list ICX orders
-    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    // check details
-    expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
     // we know that only ICXOrderInfo will be returned, so cast and pass to check order details
     await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
 
-    // close order createOrderTxId
-    await client.icxorderbook.closeOrder(createOrderTxId)
-    await container.generate(1)
-
-    // check no more ICX orders
-    orders = await client.icxorderbook.listOrders()
-    expect(Object.keys(orders).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
-
-    // check accountDFI[idDFI] balance
-    const accountDFIBalance = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIBalance).toStrictEqual(accountDFIStartBalance)
+    // check accountDFI[idDFI] balance, reduced by 15 DFI //NOTE(surangap) check this
+    const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
+    expect(Number(accountDFIAfterOrder[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI] - Number(15)))
   })
 
-  it('Should create ICX order to sell 2 BTC', async () => {
-    // accountDFI start balance
-    const accountDFIStartBalance = await container.call('getaccount', [accountDFI, {}, true])
+  it('Should create an ICX order to sell 2 BTC', async () => {
+    const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
+    // create order - maker
     const order: ICXOrder = {
       chainFrom: 'BTC',
       tokenTo: idDFI,
@@ -73,29 +60,16 @@ describe('Should test ICXOrderBook.createOrder', () => {
       amountFrom: new BigNumber(2),
       orderPrice: new BigNumber(1000)
     }
-
     const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
     const createOrderTxId = result.txid
-
     await container.generate(1)
 
     // list ICX orders
-    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    // check details
-    expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    // we know that only ICXOrderInfo will be returned, so cast and pass to check order details
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
     await checkBTCSellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
 
-    // close order createOrderTxId
-    await client.icxorderbook.closeOrder(createOrderTxId)
-    await container.generate(1)
-
-    // check no more ICX orders
-    orders = await client.icxorderbook.listOrders()
-    expect(Object.keys(orders).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
-
-    // check accountDFI[idDFI] balance
-    const accountDFIBalance = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIBalance).toStrictEqual(accountDFIStartBalance)
+    // check accountDFI[idDFI] balance, should be the same
+    const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
+    expect(accountDFIAfterOrder).toStrictEqual(accountDFIStart)
   })
 })
