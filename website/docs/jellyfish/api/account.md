@@ -296,6 +296,11 @@ interface account {
 interface CommunityBalanceData {
   AnchorReward: BigNumber
   IncentiveFunding?: BigNumber
+  Swap?: BigNumber
+  Futures?: BigNumber
+  Options?: BigNumber
+  Unallocated?: BigNumber
+  Unknown?: BigNumber
   Burnt: BigNumber
 }
 ```

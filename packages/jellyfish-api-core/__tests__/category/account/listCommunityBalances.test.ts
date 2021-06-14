@@ -20,6 +20,11 @@ describe('Account', () => {
 
     expect(data.AnchorReward instanceof BigNumber).toStrictEqual(true)
     expect(data.IncentiveFunding instanceof BigNumber).toStrictEqual(true)
+    expect(data.Swap instanceof BigNumber).toStrictEqual(false)
+    expect(data.Futures instanceof BigNumber).toStrictEqual(false)
+    expect(data.Options instanceof BigNumber).toStrictEqual(false)
+    expect(data.Unallocated instanceof BigNumber).toStrictEqual(false)
+    expect(data.Unknown instanceof BigNumber).toStrictEqual(false)
     expect(data.Burnt instanceof BigNumber).toStrictEqual(true)
   })
 })
