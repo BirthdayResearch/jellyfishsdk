@@ -110,6 +110,15 @@ export class Oracle {
     const params = priceFeed !== undefined && priceFeed !== null ? [priceFeed] : []
     return await this.client.call('listlatestrawprices', params, 'bignumber')
   }
+
+  /**
+   * List all aggregated prices.
+   *
+   * @return {Promise<ListPricesData[]>}
+   */
+  async listPrices (): Promise<ListPricesData[]> {
+    return await this.client.call('listprices', [], 'bignumber')
+  }
 }
 
 export interface AppointOracleOptions {

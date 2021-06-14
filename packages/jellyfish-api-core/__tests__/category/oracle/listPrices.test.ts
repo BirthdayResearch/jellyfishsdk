@@ -6,13 +6,21 @@ describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
+    const data = await container.call('listoracles')
+
+    for (let i = 0; i < data.length; i += 1) {
+      await container.call('removeoracle', [data[i]])
+    }
+
+    await container.generate(1)
+
     await container.stop()
   })
 
@@ -51,11 +59,6 @@ describe('Oracle', () => {
       { token: 'APPLE', currency: 'EUR', price: new BigNumber(0.83333333000000), ok: true },
       { token: 'TESLA', currency: 'USD', price: new BigNumber(1.78571428000000), ok: true }
     ])
-
-    await container.call('removeoracle', [oracleid1])
-    await container.call('removeoracle', [oracleid2])
-    await container.call('removeoracle', [oracleid3])
-    await container.call('removeoracle', [oracleid4])
 
     await container.generate(1)
   })
