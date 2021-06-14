@@ -147,9 +147,17 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * Convenience method to getmintinginfo, typing mapping is non exhaustive
+   * @deprecated Prefer using getMiningInfo.
    */
   async getMintingInfo (): Promise<{ blocks: number, chain: string }> {
     return await this.call('getmintinginfo', [])
+  }
+
+  /**
+   * Convenience method to getmininginfo, typing mapping is non exhaustive
+   */
+  async getMiningInfo (): Promise<{ blocks: number, chain: string }> {
+    return await this.call('getmininginfo', [])
   }
 
   /**
@@ -169,7 +177,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     return await new Promise((resolve, reject) => {
       const checkReady = (): void => {
         this.cachedRpcUrl = undefined
-        this.getMintingInfo().then(() => {
+        this.getMiningInfo().then(() => {
           resolve()
         }).catch(err => {
           if (expiredAt < Date.now()) {

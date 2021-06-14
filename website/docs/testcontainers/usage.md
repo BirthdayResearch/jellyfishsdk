@@ -69,7 +69,7 @@ describe('master node pos minting', () => {
 
   it('should wait until coinbase maturity with spendable balance', async () => {
     await waitForExpect(async () => {
-      const info = await container.getMintingInfo()
+      const info = await container.getMiningInfo()
       expect(info.blocks).toBeGreaterThan(100)
     })
 
@@ -101,11 +101,11 @@ const rpcURL = await container.getCachedRpcUrl()
 const container = new RegTestContainer()
 
 // raw calls
-const {blocks} = await container.call('getmintinginfo')
+const {blocks} = await container.call('getmininginfo')
 const address = await container.call('getnewaddress', ['label', 'legacy'])
 
 // basic included methods
 const count = await container.getBlockCount()
-const info = await container.getMintingInfo()
+const info = await container.getMiningInfo()
 const newAddress = await container.getNewAddress()
 ```

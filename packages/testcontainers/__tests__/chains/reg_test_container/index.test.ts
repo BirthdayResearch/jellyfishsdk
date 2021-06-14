@@ -12,8 +12,8 @@ describe('regtest', () => {
     await container.stop()
   })
 
-  it('should be block 0 for getmintinginfo rpc', async () => {
-    const info = await container.getMintingInfo()
+  it('should be block 0 for getmininginfo rpc', async () => {
+    const info = await container.getMiningInfo()
     expect(info.blocks).toStrictEqual(0)
     expect(info.chain).toStrictEqual('regtest')
   })
