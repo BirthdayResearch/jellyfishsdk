@@ -36,7 +36,7 @@ const client = new jellyfish.Client('http://localhost:8554', {
   timeout: 20000
 })
 
-client.mining.getMintingInfo().then((info) => {
+client.mining.getMiningInfo().then((info) => {
   console.log(info)
 })
 ```
@@ -47,7 +47,7 @@ client.mining.getMintingInfo().then((info) => {
 import {Client} from '@defichain/jellyfish'
 
 const client = new Client('http://localhost:8554')
-const info = await client.mining.getMintingInfo()
+const info = await client.mining.getMiningInfo()
 ```
 
 ### Providers
