@@ -14,6 +14,14 @@ describe('Oracle', () => {
   })
 
   afterEach(async () => {
+    const data = await container.call('listoracles')
+
+    for (let i = 0; i < data.length; i += 1) {
+      await container.call('removeoracle', [data[i]])
+    }
+
+    await container.generate(1)
+
     await container.stop()
   })
 
@@ -192,13 +200,17 @@ describe('Oracle', () => {
 
   it('should listLatestRawPrices with priceFeed as input parameter if there are 2 oracles with different priceFeeds created', async () => {
     const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
-    await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 2])
+    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 2])
 
     await container.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid1, timestamp, prices])
+
+    const prices1 = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
+    await container.call('setoracledata', [oracleid1, timestamp, prices1])
+
+    const prices2 = [{ tokenAmount: '0.5@TESLA', currency: 'USD' }]
+    await container.call('setoracledata', [oracleid2, timestamp, prices2])
 
     await container.generate(1)
 

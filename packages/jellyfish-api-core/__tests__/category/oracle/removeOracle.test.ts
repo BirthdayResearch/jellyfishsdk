@@ -14,6 +14,14 @@ describe('Oracle', () => {
   })
 
   afterAll(async () => {
+    const data = await container.call('listoracles')
+
+    for (let i = 0; i < data.length; i += 1) {
+      await container.call('removeoracle', [data[i]])
+    }
+
+    await container.generate(1)
+
     await container.stop()
   })
 
