@@ -70,21 +70,43 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(0)
   })
 
-  it('should listPrices with error msg for oracles created 1 hour later or before', async () => {
-    const priceFeed = { token: 'APPLE', currency: 'EUR' }
-
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [priceFeed], 2])
+  it('should not listPrices for price timestamps 4200 seconds after the current time', async () => {
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{
+      token: 'APPLE',
+      currency: 'EUR'
+    }], 1])
 
     await container.generate(1)
 
-    const timestamp1 = Math.floor(new Date().getTime() / 1000) + 3600
-    const prices1 = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid1, timestamp1, prices1])
+    const timestamp = Math.floor(new Date().getTime() / 1000) + 4200
+    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
+    await container.call('setoracledata', [oracleid, timestamp, prices])
 
-    const timestamp2 = Math.floor(new Date().getTime() / 1000) - 3600
-    const prices2 = [{ tokenAmount: '1@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid2, timestamp2, prices2])
+    await container.generate(1)
+
+    const data = await client.oracle.listPrices()
+    expect(data).toStrictEqual(
+      [
+        {
+          token: 'APPLE',
+          currency: 'EUR',
+          ok: 'no live oracles for specified request'
+        }
+      ]
+    )
+  })
+
+  it('should not listPrices for price timestamps 4200 seconds before the current time', async () => {
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{
+      token: 'APPLE',
+      currency: 'EUR'
+    }], 1])
+
+    await container.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000) - 4200
+    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
+    await container.call('setoracledata', [oracleid, timestamp, prices])
 
     await container.generate(1)
 
