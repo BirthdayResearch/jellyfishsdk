@@ -6,10 +6,5 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-  },
-  "references": [
-    {"path": "../jellyfish-api-core/tsconfig.build.json"},
-    {"path": "../jellyfish-api-jsonrpc/tsconfig.build.json"},
-    {"path": "../testcontainers/tsconfig.build.json"}
-  ]
+  }
 }
