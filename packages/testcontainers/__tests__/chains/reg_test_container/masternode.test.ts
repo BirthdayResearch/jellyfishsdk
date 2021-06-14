@@ -15,7 +15,7 @@ describe('masternode', () => {
 
   it('should auto generate coin in master node mode', async () => {
     await waitForExpect(async () => {
-      const info = await container.getMintingInfo()
+      const info = await container.getMiningInfo()
       expect(info.blocks).toBeGreaterThan(3)
     })
   })
