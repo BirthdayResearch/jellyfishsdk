@@ -70,7 +70,7 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(0)
   })
 
-  it('should not listPrices for price timestamps 4200 seconds after the current time', async () => {
+  it('should listPrices with error msg for price timestamps 4200 seconds after the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{
       token: 'APPLE',
       currency: 'EUR'
@@ -96,7 +96,7 @@ describe('Oracle', () => {
     )
   })
 
-  it('should not listPrices for price timestamps 4200 seconds before the current time', async () => {
+  it('should listPrices with error msg for price timestamps 4200 seconds before the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{
       token: 'APPLE',
       currency: 'EUR'
