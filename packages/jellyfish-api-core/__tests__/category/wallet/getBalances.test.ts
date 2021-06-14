@@ -84,6 +84,6 @@ describe('getBalances without masternode', () => {
   it('should getBalances.mine.trusted = 0', async () => {
     const balances: WalletBalances = await client.wallet.getBalances()
 
-    expect(balances.mine.trusted.toNumber()).toStrictEqual(0)
+    expect(balances.mine.trusted.isEqualTo(new BigNumber('0'))).toStrictEqual(true)
   })
 })
