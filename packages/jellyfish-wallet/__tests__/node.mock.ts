@@ -1,11 +1,10 @@
 import { WalletHdNode, WalletHdNodeProvider } from '../src'
 import {
-  SignInputOption,
   Transaction,
   TransactionSegWit,
-  TransactionSigner,
   Vout
 } from '@defichain/jellyfish-transaction'
+import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import { EllipticPair, Elliptic } from '@defichain/jellyfish-crypto'
 
 /**
