@@ -16,9 +16,9 @@ category.
 ### Usage Example
 
 ```js
-const result = await client.mining.getMintingInfo()
+const result = await client.mining.getMiningInfo()
 // or
-client.mining.getMintingInfo().then((result) => {
+client.mining.getMiningInfo().then((result) => {
   console.log(result)
 }).catch((err) => {
   console.log('panic!')

@@ -144,6 +144,35 @@ interface oracle {
 }
 ```
 
+## listLatestRawPrices
+
+Returns latest raw price updates from oracles.
+
+```ts title="client.oracle.listLatestRawPrices()"
+interface oracle {
+  listLatestRawPrices (priceFeed?: OraclePriceFeed): Promise<OracleRawPrice[]>
+}
+
+enum OracleRawPriceState {
+  LIVE = 'live',
+  EXPIRED = 'expired'
+}
+
+interface OracleRawPrice {
+  oracleid: string
+  priceFeeds: OraclePriceFeed
+  rawprice: BigNumber
+  weightage: BigNumber
+  state: OracleRawPriceState
+  timestamp: BigNumber
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+```
+
 ## listPrices
 
 List all aggregated prices.

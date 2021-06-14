@@ -19,7 +19,7 @@ npm install @defichain/jellyfish
 import {Client, MiningInfo} from '@defichain/jellyfish'
 
 const client = new Client('http://localhost:8554')
-const info: MiningInfo  = await client.mining.getMintingInfo()
+const info: MiningInfo  = await client.mining.getMiningInfo()
 ```
 
 ### CommonJS for Node
@@ -30,7 +30,7 @@ const client = new jellyfish.Client('http://localhost:8554', {
   timeout: 20000
 })
 
-client.mining.getMintingInfo().then((info) => {
+client.mining.getMiningInfo().then((info) => {
   console.log(info)
 })
 ```
