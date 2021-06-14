@@ -24,17 +24,17 @@ export class Masternode {
    * @param {string} [operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {CreateMasternodeOptions} [options]
    * @param {UTXO[]} [options.utxos = []]
-   * @param {string} [options.inputs.txid] The transaction id
-   * @param {string} [options.inputs.vout] The output number
+   * @param {string} [options.uxtos.txid] The transaction id
+   * @param {string} [options.utxos.vout] The output number
    * @return {Promise<string>}
    */
   async createMasternode (
     ownerAddress: string,
     operatorAddress?: string,
-    options: CreateMasternodeOptions = { inputs: [] }
+    options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string> {
     operatorAddress = operatorAddress ?? ownerAddress
-    return await this.client.call('createmasternode', [ownerAddress, operatorAddress, options.inputs], 'number')
+    return await this.client.call('createmasternode', [ownerAddress, operatorAddress, options.utxos], 'number')
   }
 
   /**
@@ -68,12 +68,12 @@ export class Masternode {
 }
 
 export interface UTXO {
-  txid?: string
-  vout?: number
+  txid: string
+  vout: number
 }
 
 export interface CreateMasternodeOptions {
-  inputs?: UTXO[]
+  utxos?: UTXO[]
 }
 
 export interface MasternodePagination {

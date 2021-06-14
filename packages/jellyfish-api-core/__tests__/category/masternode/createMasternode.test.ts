@@ -59,7 +59,7 @@ describe('Masternode', () => {
     const utxosBeforeLength = utxosBefore.length
 
     const inputs = utxosBefore.map((utxo: { txid: string, vout: number }) => ({ txid: utxo.txid, vout: utxo.vout }))
-    const masternodeTransaction = await client.masternode.createMasternode(await client.wallet.getNewAddress(), undefined, { inputs })
+    const masternodeTransaction = await client.masternode.createMasternode(await client.wallet.getNewAddress(), undefined, { utxos: inputs })
 
     const utxosAfter = await client.wallet.listUnspent()
     const utxosAfterLength = utxosAfter.length
