@@ -21,7 +21,9 @@ describe('Oracle', () => {
     }
 
     await container.generate(1)
+  })
 
+  afterAll(async () => {
     await container.stop()
   })
 
