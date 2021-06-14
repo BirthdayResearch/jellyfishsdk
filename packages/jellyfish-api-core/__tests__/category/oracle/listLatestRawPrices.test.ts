@@ -99,7 +99,7 @@ describe('Oracle', () => {
     )
   })
 
-  it('should listLatestRawPrices created at 4200 seconds after the current time', async () => {
+  it('should listLatestRawPrices for timestamps 4200 seconds after the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
 
     await container.generate(1)
@@ -127,7 +127,7 @@ describe('Oracle', () => {
     )
   })
 
-  it('should listLatestRawPrices created at 4200 seconds before the current time', async () => {
+  it('should listLatestRawPrices for timestamps 4200 seconds before the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
 
     await container.generate(1)
