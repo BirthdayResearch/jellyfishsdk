@@ -1,11 +1,11 @@
-import { generateMnemonic, mnemonicToSeed, validateMnemonic } from '../../src'
+import { generateMnemonic, mnemonicToSeed, validateMnemonicSentence, validateMnemonicWord } from '../../src'
 
 it('should generate 12-15-18-21-24 and validate', () => {
   function shouldGenerateAndValidate (length: 12 | 15 | 18 | 21 | 24): void {
     const words = generateMnemonic(length)
 
     expect(words.length).toStrictEqual(length)
-    expect(validateMnemonic(words)).toStrictEqual(true)
+    expect(validateMnemonicSentence(words)).toStrictEqual(true)
     expect(mnemonicToSeed(words).length).toStrictEqual(64)
   }
 
@@ -20,7 +20,7 @@ it('should generate 24 words as default', () => {
   const words = generateMnemonic()
 
   expect(words.length).toStrictEqual(24)
-  expect(validateMnemonic(words)).toStrictEqual(true)
+  expect(validateMnemonicSentence(words)).toStrictEqual(true)
   expect(mnemonicToSeed(words).length).toStrictEqual(64)
 })
 
@@ -29,7 +29,7 @@ it('should always generate a fixed mnemonic with the same rng', () => {
     return Buffer.alloc(numOfBytes, 0)
   })
 
-  expect(validateMnemonic(words)).toStrictEqual(true)
+  expect(validateMnemonicSentence(words)).toStrictEqual(true)
   expect(mnemonicToSeed(words).toString('hex')).toStrictEqual(
     '408b285c123836004f4b8842c89324c1f01382450c0d439af345ba7fc49acf705489c6fc77dbd4e3dc1dd8cc6bc9f043db8ada1e243c4a0eafb290d399480840'
   )
@@ -50,9 +50,34 @@ it('should validate a fixed mnemonic', () => {
   ]
 
   for (const fixture of fixtures) {
-    expect(validateMnemonic(fixture)).toStrictEqual(true)
+    expect(validateMnemonicSentence(fixture)).toStrictEqual(true)
 
     const words = fixture.split(' ')
-    expect(validateMnemonic(words)).toStrictEqual(true)
+    expect(validateMnemonicSentence(words)).toStrictEqual(true)
   }
+})
+
+describe('single word mnemonic validation', () => {
+  it('should be valid', () => {
+    expect(validateMnemonicWord('abandon')).toStrictEqual(true)
+    expect(validateMnemonicWord('art')).toStrictEqual(true)
+    expect(validateMnemonicWord('ability')).toStrictEqual(true)
+    expect(validateMnemonicWord('bullet')).toStrictEqual(true)
+    expect(validateMnemonicWord('diet')).toStrictEqual(true)
+    expect(validateMnemonicWord('grace')).toStrictEqual(true)
+    expect(validateMnemonicWord('mechanic')).toStrictEqual(true)
+  })
+
+  it('should be invalid', () => {
+    expect(validateMnemonicWord('should')).toStrictEqual(false)
+    expect(validateMnemonicWord('be')).toStrictEqual(false)
+    expect(validateMnemonicWord('invalid')).toStrictEqual(false)
+    expect(validateMnemonicWord('english')).toStrictEqual(false)
+    expect(validateMnemonicWord('1')).toStrictEqual(false)
+    expect(validateMnemonicWord('好')).toStrictEqual(false)
+    expect(validateMnemonicWord('的')).toStrictEqual(false)
+    expect(validateMnemonicWord('一')).toStrictEqual(false)
+    expect(validateMnemonicWord('あつい')).toStrictEqual(false)
+    expect(validateMnemonicWord('가격')).toStrictEqual(false)
+  })
 })
