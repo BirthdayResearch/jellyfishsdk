@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { SelectionModeType, SendTokensOptions } from '../../../src/category/account'
+import { SelectionModeType } from '../../../src/category/account'
 
 describe('SendTokenToAddress', () => {
   const container = new MasterNodeRegTestContainer()
@@ -19,28 +19,31 @@ describe('SendTokenToAddress', () => {
 
   let addressA: string
   let addressB: string
-  let addressC: string
-  let tokenAddress: string
+  let addressC1: string
+  let addressC2: string
+  let addressC3: string
 
   async function setup (): Promise<void> {
-    tokenAddress = await container.call('getnewaddress')
     addressA = await container.call('getnewaddress')
     addressB = await container.call('getnewaddress')
-    addressC = await container.call('getnewaddress')
+    addressC1 = await container.call('getnewaddress')
+    addressC2 = await container.call('getnewaddress')
+    addressC3 = await container.call('getnewaddress')
 
-    await createToken(tokenAddress, 'CAT', 100)
-    await createToken(tokenAddress, 'ETH', 100)
-    await createToken(tokenAddress, 'DETH', 100)
+    const tokenAddrA = await container.call('getnewaddress')
+    const tokenAddrB = await container.call('getnewaddress')
+    const tokenAddrC = await container.call('getnewaddress')
 
-    await accountToAccount('CAT')
-    await accountToAccount('ETH')
-    await accountToAccount('DETH')
-  }
+    await createToken(tokenAddrA, 'ANT', 200)
+    await createToken(tokenAddrB, 'DOG', 200)
+    await createToken(tokenAddrB, 'BAT', 200)
+    await createToken(tokenAddrC, 'CAT', 200)
 
-  async function accountToAccount (symbol: string): Promise<void> {
-    await container.call('accounttoaccount', [tokenAddress, { [addressA]: `${20}@${symbol}` }])
-    await container.call('accounttoaccount', [tokenAddress, { [addressB]: `${30}@${symbol}` }])
-    await container.call('accounttoaccount', [tokenAddress, { [addressC]: `${50}@${symbol}` }])
+    await container.call('accounttoaccount', [tokenAddrA, { [addressA]: `${3}@ANT` }])
+    await container.call('accounttoaccount', [tokenAddrB, { [addressB]: `${68}@BAT` }])
+    await container.call('accounttoaccount', [tokenAddrC, { [addressC1]: `${89}@CAT` }])
+    await container.call('accounttoaccount', [tokenAddrC, { [addressC2]: `${15}@CAT` }])
+    await container.call('accounttoaccount', [tokenAddrC, { [addressC3]: `${54}@CAT` }])
     await container.generate(1)
   }
 
@@ -65,63 +68,66 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
   }
 
-  it('should create a transaction with auto select (empty source address) Pie selection mode', async () => {
+  it('should create a transaction with Pie selection mode', async () => {
+    const accountBalanceBefore = await client.account.getAccount(addressC1)
+
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@CAT'] })
+    const hex = await client.account.sendTokensToAddress({}, { [address]: ['2@CAT'] }, { selectionMode: SelectionModeType.PIE })
     await container.generate(1)
 
-    const account = await client.account.getAccount(addressC)
+    const accountBalanceAfter = await client.account.getAccount(addressC1)
 
+    expect(accountBalanceBefore).toStrictEqual(['89.00000000@CAT'])
+    expect(accountBalanceAfter).toStrictEqual(['87.00000000@CAT'])
     expect(await client.account.getAccount(address)).toStrictEqual(['2.00000000@CAT'])
-    expect(typeof transactionHex).toStrictEqual('string')
-    expect(transactionHex.length).toStrictEqual(64)
-    expect(account[0]).toStrictEqual('48.00000000@CAT')
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
   })
 
   it('should create a transaction with Crumbs selection mode', async () => {
-    const options: SendTokensOptions = {
-      selectionMode: SelectionModeType.CRUMBS
-    }
+    const accountBalanceBefore = await client.account.getAccount(addressC2)
+
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['10@DETH'] }, options)
+    const hex = await client.account.sendTokensToAddress({}, { [address]: ['3@CAT'] }, { selectionMode: SelectionModeType.CRUMBS })
     await container.generate(1)
 
-    const account = await client.account.getAccount(addressA)
+    const accountBalanceAfter = await client.account.getAccount(addressC2)
 
-    expect(account[2]).toStrictEqual('10.00000000@DETH')
-    expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@DETH'])
-    expect(typeof transactionHex).toStrictEqual('string')
-    expect(transactionHex.length).toStrictEqual(64)
+    expect(accountBalanceBefore).toStrictEqual(['15.00000000@CAT'])
+    expect(accountBalanceAfter).toStrictEqual(['12.00000000@CAT'])
+    expect(await client.account.getAccount(address)).toStrictEqual(['3.00000000@CAT'])
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
   })
 
   it('should create a transaction with multiple destination address tokens', async () => {
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@ETH', '0.1@CAT', '10@DETH'] })
+    const hex = await client.account.sendTokensToAddress({}, { [address]: ['10@CAT', '10@BAT'] })
     await container.generate(1)
 
-    expect(await client.account.getAccount(address)).toStrictEqual(['0.10000000@CAT', '2.00000000@ETH', '10.00000000@DETH'])
-    expect(typeof transactionHex).toStrictEqual('string')
-    expect(transactionHex.length).toStrictEqual(64)
+    expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@BAT', '10.00000000@CAT'])
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
   })
 
   it('should create a transaction with source address provided', async () => {
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [addressA]: ['10@ETH'] }, { [address]: ['10@ETH'] })
+    const hex = await client.account.sendTokensToAddress({ [addressC1]: ['10@CAT'] }, { [address]: ['10@CAT'] })
     await container.generate(1)
 
-    expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@ETH'])
-    expect(typeof transactionHex).toStrictEqual('string')
-    expect(transactionHex.length).toStrictEqual(64)
+    expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@CAT'])
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
   })
 
   it('should create a transaction with multiple source address tokens provided', async () => {
     const address = await client.wallet.getNewAddress()
-    const transactionHex = await client.account.sendTokensToAddress({ [addressA]: ['2@CAT', '10@ETH'] }, { [address]: ['2@CAT', '10@ETH'] })
+    const hex = await client.account.sendTokensToAddress({ [addressB]: ['8@BAT'] }, { [address]: ['8@BAT'] })
     await container.generate(1)
 
-    expect(await client.account.getAccount(address)).toStrictEqual(['2.00000000@CAT', '10.00000000@ETH'])
-    expect(typeof transactionHex).toStrictEqual('string')
-    expect(transactionHex.length).toStrictEqual(64)
+    expect(await client.account.getAccount(address)).toStrictEqual(['8.00000000@BAT'])
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
   })
 
   it('should fail and throw an exception if destination address param is empty', async () => {
@@ -129,7 +135,7 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should throw an error with insufficient fund', async () => {
-    const promise = client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['500@ETH'] })
+    const promise = client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['500@ANT'] })
 
     await expect(promise).rejects.toThrow('Not enough balance on wallet accounts, call utxostoaccount to increase it.')
   })
