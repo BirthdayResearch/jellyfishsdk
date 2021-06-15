@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { ConflictException, Controller, Get, Param, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
-import { TokenInfoCache } from '@src/module.api/cache/token.info.cache'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { AddressToken } from '@whale-api-client/api/address'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
@@ -18,7 +18,7 @@ import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 export class AddressController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,
-    protected readonly tokenInfoCache: TokenInfoCache,
+    protected readonly deFiDCache: DeFiDCache,
     protected readonly aggregationMapper: ScriptAggregationMapper,
     protected readonly activityMapper: ScriptActivityMapper,
     protected readonly unspentMapper: ScriptUnspentMapper
@@ -59,7 +59,7 @@ export class AddressController {
     }, { indexedAmounts: true })
 
     const ids = Object.keys(accounts)
-    const tokenInfos = await this.tokenInfoCache.batch(ids)
+    const tokenInfos = await this.deFiDCache.batchTokenInfo(ids)
 
     const tokens: AddressToken[] = Object.entries(accounts)
       .map(([id, value]): AddressToken => {

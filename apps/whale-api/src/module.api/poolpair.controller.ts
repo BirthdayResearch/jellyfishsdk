@@ -1,7 +1,7 @@
-import { BadRequestException, NotFoundException, Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common'
+import { NotFoundException, Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
-import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { PoolPairData } from '@whale-api-client/api/poolpair'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
@@ -10,7 +10,7 @@ import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpa
 export class PoolPairController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,
-    protected readonly poolPairInfoCache: PoolPairInfoCache
+    protected readonly deFiDCache: DeFiDCache
   ) {
   }
 
@@ -40,29 +40,16 @@ export class PoolPairController {
   }
 
   /**
-   * @param {string} id
-   * @return {Promise<poolPairData>}
+   * @param {string} id of pool pair
+   * @return {Promise<PoolPairData>}
    */
   @Get('/:id')
   async get (@Param('id', ParseIntPipe) id: string): Promise<PoolPairData> {
-    let poolPairData = await this.poolPairInfoCache.get(id)
-    if (poolPairData !== undefined) {
-      return poolPairData
+    const info = await this.deFiDCache.getPoolPairInfo(id)
+    if (info === undefined) {
+      throw new NotFoundException('Unable to find poolpair')
     }
-
-    try {
-      const poolPairResult = await this.rpcClient.poolpair.getPoolPair(id)
-      poolPairData = mapPoolPair(String(id), poolPairResult[id])
-      await this.poolPairInfoCache.set(id, poolPairData)
-      return poolPairData
-    } catch (e) {
-      /* istanbul ignore else */
-      if (e.payload.message === 'Pool not found') {
-        throw new NotFoundException('Unable to find poolpair')
-      } else {
-        throw new BadRequestException(e)
-      }
-    }
+    return mapPoolPair(String(id), info)
   }
 }
 

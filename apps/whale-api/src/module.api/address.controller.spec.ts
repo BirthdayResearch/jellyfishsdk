@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { AddressController } from '@src/module.api/address.controller'
 import { createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
-import { TokenInfoCache } from '@src/module.api/cache/token.info.cache'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { CacheModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
@@ -38,7 +38,7 @@ beforeAll(async () => {
     ],
     controllers: [AddressController],
     providers: [
-      TokenInfoCache
+      DeFiDCache
     ]
   }).compile()
 
