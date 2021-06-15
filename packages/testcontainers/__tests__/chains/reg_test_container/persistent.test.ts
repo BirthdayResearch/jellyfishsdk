@@ -21,7 +21,7 @@ it('should start and mint coins', async () => {
   await container.waitForReady()
 
   await waitForExpect(async () => {
-    const info = await container.getMintingInfo()
+    const info = await container.getMiningInfo()
     expect(info.blocks).toBeGreaterThan(3)
   })
 })
@@ -32,7 +32,7 @@ it('should always use the same persistent container', async () => {
   await container.waitForReady()
 
   await waitForExpect(async () => {
-    const info = await container.getMintingInfo()
+    const info = await container.getMiningInfo()
     expect(info.blocks).toBeGreaterThan(3)
   })
 
@@ -40,6 +40,6 @@ it('should always use the same persistent container', async () => {
   await container.start()
   await container.waitForReady()
 
-  const info = await container.getMintingInfo()
+  const info = await container.getMiningInfo()
   expect(info.blocks).toBeGreaterThan(3)
 })
