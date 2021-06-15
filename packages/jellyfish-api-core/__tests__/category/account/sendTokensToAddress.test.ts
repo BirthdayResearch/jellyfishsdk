@@ -84,8 +84,8 @@ describe('SendTokenToAddress', () => {
     const accPieAfter = (await client.account.getAccount(addrCPie))[0]
     expect(accToNum(accPieAfter)).toStrictEqual(accToNum(accPieBefore) - 4)
 
-    const accReceiver = await client.account.getAccount(addrReceiver)
-    expect(accReceiver[0]).toStrictEqual('4.00000000@CAT')
+    const accReceiver = (await client.account.getAccount(addrReceiver))[0]
+    expect(accReceiver).toStrictEqual('4.00000000@CAT')
   })
 
   it('should sendTokensToAddress with selectionMode crumbs', async () => {
@@ -103,8 +103,8 @@ describe('SendTokenToAddress', () => {
     const accCrumbsAfter = (await client.account.getAccount(addrCCrumbs))[0]
     expect(accToNum(accCrumbsAfter)).toStrictEqual(accToNum(accCrumbsBefore) - 2)
 
-    const accReceiver = await client.account.getAccount(addrReceiver)
-    expect(accReceiver[0]).toStrictEqual('2.00000000@CAT')
+    const accReceiver = (await client.account.getAccount(addrReceiver))[0]
+    expect(accReceiver).toStrictEqual('2.00000000@CAT')
   })
 
   // NOTE(canonrother): "selectionMode: forward" picks the address name order by ASC, its hard to test as address is random generated
@@ -121,10 +121,10 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
 
     const accForwardAfter = (await client.account.getAccount(addrCCrumbs))[0]
-    expect(accToNum(accForwardAfter)).toStrictEqual(accToNum(accForwardBefore) - 6) // 43
+    expect(accToNum(accForwardAfter)).toStrictEqual(accToNum(accForwardBefore) - 6)
 
-    const accReceiver = await client.account.getAccount(addrReceiver)
-    expect(accReceiver[0]).toStrictEqual('6.00000000@CAT')
+    const accReceiver = (await client.account.getAccount(addrReceiver))[0]
+    expect(accReceiver).toStrictEqual('6.00000000@CAT')
   })
 
   it('should sendTokensToAddress with multiple receiver tokens', async () => {
