@@ -79,7 +79,8 @@ export class Indexer {
 
   private async indexGenesis (): Promise<boolean> {
     const hash = await this.client.blockchain.getBlockHash(0)
-    await this.indexer.index(hash)
+    const block = await this.client.blockchain.getBlock(hash, 2)
+    await this.indexer.index(block)
     // TODO(fuxingloh): to validate genesis hash across network
     return true
   }
@@ -105,9 +106,10 @@ export class Indexer {
   private async index (hash: string, height: number): Promise<void> {
     this.logger.log(`Index - hash: ${hash} - height: ${height}`)
     await this.statusMapper.put(hash, height, Status.INDEXING)
+    const block = await this.client.blockchain.getBlock(hash, 2)
 
     try {
-      await this.indexer.index(hash)
+      await this.indexer.index(block)
       await this.statusMapper.put(hash, height, Status.INDEXED)
     } catch (err) {
       await this.statusMapper.put(hash, height, Status.ERROR)

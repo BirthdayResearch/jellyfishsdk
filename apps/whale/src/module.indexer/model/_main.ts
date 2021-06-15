@@ -10,6 +10,7 @@ import { TransactionVoutIndexer } from '@src/module.indexer/model/transaction.vo
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RawBlockMapper } from '@src/module.model/raw.block'
 import { NotFoundIndexerError } from '@src/module.indexer/error'
+import { blockchain as defid } from '@defichain/jellyfish-api-core'
 
 /**
  * This is a deterministic log based indexer.
@@ -40,8 +41,7 @@ export class MainIndexer {
     ]
   }
 
-  async index (hash: string): Promise<void> {
-    const block = await this.client.blockchain.getBlock(hash, 2)
+  async index (block: defid.Block<defid.Transaction>): Promise<void> {
     await this.rawBlock.put(block)
     for (const indexer of this.indexers) {
       await indexer.index(block)
