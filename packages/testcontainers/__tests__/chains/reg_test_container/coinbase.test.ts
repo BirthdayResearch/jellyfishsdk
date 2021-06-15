@@ -16,7 +16,7 @@ describe('coinbase maturity', () => {
 
   it('should wait until coinbase maturity with spendable balance', async () => {
     await waitForExpect(async () => {
-      const info = await container.getMintingInfo()
+      const info = await container.getMiningInfo()
       expect(info.blocks).toBeGreaterThan(100)
     })
 

@@ -120,6 +120,15 @@ export class Oracle {
   async getPrice (priceFeed: OraclePriceFeed): Promise<BigNumber> {
     return await this.client.call('getprice', [priceFeed], 'bignumber')
   }
+
+  /**
+   * List all aggregated prices.
+   *
+   * @return {Promise<ListPricesData[]>}
+   */
+  async listPrices (): Promise<ListPricesData[]> {
+    return await this.client.call('listprices', [], 'bignumber')
+  }
 }
 
 export interface AppointOracleOptions {
@@ -181,4 +190,17 @@ export interface OracleTokenPrice {
    * @example 1623161076 is an Epoch time which every digit represents a second.
    */
   timestamp: number
+}
+
+export interface ListPricesData {
+  token: string
+  currency: string
+  /**
+   * @example new BigNumber(0.83333333000000)
+   */
+  price?: BigNumber
+  /**
+   * @example true or display error msg if false
+   */
+  ok: boolean | string
 }
