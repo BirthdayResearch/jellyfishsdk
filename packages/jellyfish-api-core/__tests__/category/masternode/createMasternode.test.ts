@@ -22,6 +22,8 @@ describe('Masternode', () => {
   async function setup (): Promise<void> {
     tokenAddr = await container.call('getnewaddress')
     await container.waitForWalletBalanceGTE(101)
+    await container.generate(1)
+
     await container.call('utxostoaccount', [{ [tokenAddr]: '100@0' }])
     await container.generate(1)
   }
