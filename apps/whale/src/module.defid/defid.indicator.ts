@@ -17,7 +17,7 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
 
     try {
       await this.client.blockchain.getBlockchainInfo()
-    } catch (e) {
+    } catch (err) {
       return this.withDead('defid', 'unable to connect to defid')
     }
 
@@ -35,7 +35,7 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
     try {
       info = await this.client.blockchain.getBlockchainInfo()
       count = await this.client.call('getconnectioncount', [], 'number')
-    } catch (e) {
+    } catch (err) {
       return this.withDead('defid', 'unable to connect to defid')
     }
 

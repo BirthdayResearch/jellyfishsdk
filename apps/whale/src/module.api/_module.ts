@@ -6,8 +6,7 @@ import { TransactionsController } from '@src/module.api/transaction.controller'
 import { ApiValidationPipe } from '@src/module.api/pipes/api.validation.pipe'
 import { AddressController } from '@src/module.api/address.controller'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
-import { TokenInfoCache } from '@src/module.api/cache/token.info.cache'
-import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { NetworkGuard } from '@src/module.api/guards/network.guard'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
 import { ResponseInterceptor } from '@src/module.api/interceptors/response.interceptor'
@@ -32,8 +31,7 @@ import { TokensController } from '@src/module.api/token.controller'
     { provide: APP_GUARD, useClass: NetworkGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
-    TokenInfoCache,
-    PoolPairInfoCache
+    DeFiDCache
   ]
 })
 export class ApiModule {

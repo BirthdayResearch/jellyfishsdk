@@ -57,12 +57,12 @@ export class TransactionsController {
     const maxFeeRate = this.getMaxFeeRate(tx)
     try {
       return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
-    } catch (e) {
+    } catch (err) {
       // TODO(fuxingloh): more meaningful error
-      if (e.payload.message === 'TX decode failed') {
+      if (err?.payload?.message === 'TX decode failed') {
         throw new BadRequestApiException('Transaction decode failed')
       }
-      if (e.payload.message.indexOf('absurdly-high-fee') !== -1) {
+      if (err?.payload?.message.indexOf('absurdly-high-fee') !== -1) {
         // message: 'absurdly-high-fee, 100000000 > 11100000 (code 256)'
         throw new BadRequestApiException('Absurdly high fee')
       }
@@ -85,11 +85,11 @@ export class TransactionsController {
       if (!result.allowed) {
         throw new Error('Transaction is not allowed to be inserted')
       }
-    } catch (e) {
-      if (e.message === 'Transaction is not allowed to be inserted') {
+    } catch (err) {
+      if (err.message === 'Transaction is not allowed to be inserted') {
         throw new BadRequestApiException('Transaction is not allowed to be inserted')
       }
-      if (e.payload.message === 'TX decode failed') {
+      if (err?.payload?.message === 'TX decode failed') {
         throw new BadRequestApiException('Transaction decode failed')
       }
       /* istanbul ignore next */

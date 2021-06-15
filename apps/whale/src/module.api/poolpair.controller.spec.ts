@@ -3,9 +3,9 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
 import { createPoolPair, createToken, addPoolLiquidity, getNewAddress, mintTokens } from '@defichain/testing'
-import { PoolPairInfoCache } from '@src/module.api/cache/poolpair.info.cache'
 import { CacheModule, NotFoundException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
+import { DeFiDCache } from './cache/defid.cache'
 
 const container = new MasterNodeRegTestContainer()
 let controller: PoolPairController
@@ -23,7 +23,7 @@ beforeAll(async () => {
     controllers: [PoolPairController],
     providers: [
       { provide: JsonRpcClient, useValue: client },
-      PoolPairInfoCache
+      DeFiDCache
     ]
   }).compile()
 
