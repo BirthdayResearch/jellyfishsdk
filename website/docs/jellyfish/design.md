@@ -31,7 +31,7 @@ life to modern development.
 import {Client} from '@defichain/jellyfish'
 
 const client = new Client()
-const {blocks} = await client.mining.getMintingInfo()
+const {blocks} = await client.mining.getMiningInfo()
 ```
 
 ## IEEE-754 arbitrary precision
@@ -60,7 +60,7 @@ it('lost precision converting DFI 😥', () => {
   that path as 'bignumber'. Otherwise, it will default to number, This applies deeply.
 
 
-As not all number parsed are significant in all context, (e.g. `mining.getMintingInfo()`), this allows jellyfish library 
+As not all number parsed are significant in all context, (e.g. `mining.getMiningInfo()`), this allows jellyfish library 
 users to use the `number` for non precision sensitive operation (e.g. `networkhashps`) and BigNumber for precision 
 sensitive operations.
 
@@ -79,7 +79,7 @@ export class Wallet {
 ```
 
 ```ts {2-3,9,13}
-export interface MintingInfo {
+export interface MiningInfo {
   blocks: number
   currentblockweight?: number
   //...
@@ -90,8 +90,8 @@ export class Mining {
     return await this.client.call('getnetworkhashps', [nblocks, height], 'number')
   }
 
-  async getMintingInfo (): Promise<MintingInfo> {
-    return await this.client.call('getmintinginfo', [], 'number')
+  async getMiningInfo (): Promise<MiningInfo> {
+    return await this.client.call('getmininginfo', [], 'number')
   }
 }
 ```
