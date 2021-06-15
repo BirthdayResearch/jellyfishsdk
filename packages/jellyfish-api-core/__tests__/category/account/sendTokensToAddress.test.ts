@@ -111,6 +111,7 @@ describe('SendTokenToAddress', () => {
 
     expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
+    expect(transactionHex.length).toStrictEqual(64)
   })
 
   it('should create a transaction with multiple source address tokens provided', async () => {
@@ -120,6 +121,7 @@ describe('SendTokenToAddress', () => {
 
     expect(await client.account.getAccount(address)).toStrictEqual(['2.00000000@CAT', '10.00000000@ETH'])
     expect(typeof transactionHex).toStrictEqual('string')
+    expect(transactionHex.length).toStrictEqual(64)
   })
 
   it('should fail and throw an exception if destination address param is empty', async () => {
