@@ -16,26 +16,26 @@ describe('Masternode', () => {
     await container.stop()
   })
 
-  it('should get a masternode', async () => {
+  it('should getMasternode', async () => {
     let id: string = ''
 
-    const address = await client.wallet.getNewAddress()
-    await client.masternode.createMasternode(address)
+    const ownerAddress = await client.wallet.getNewAddress()
+    await client.masternode.createMasternode(ownerAddress)
 
     await container.generate(1)
 
     const masterNodes = await client.masternode.listMasternodes()
     for (const mnId in masterNodes) {
-      if (masterNodes[mnId].ownerAuthAddress === address) {
+      if (masterNodes[mnId].ownerAuthAddress === ownerAddress) {
         id = mnId
       }
     }
 
-    const masternodeTransaction = await client.masternode.getMasternode(id)
+    const masternode = await client.masternode.getMasternode(id)
 
-    expect(Object.keys(masternodeTransaction).length).toStrictEqual(1)
-    for (const masternodeKey in masternodeTransaction) {
-      const data = masternodeTransaction[masternodeKey]
+    expect(Object.keys(masternode).length).toStrictEqual(1)
+    for (const masternodeKey in masternode) {
+      const data = masternode[masternodeKey]
       expect(typeof data.operatorAuthAddress).toStrictEqual('string')
       expect(typeof data.ownerAuthAddress).toStrictEqual('string')
       expect(typeof data.creationHeight).toStrictEqual('number')

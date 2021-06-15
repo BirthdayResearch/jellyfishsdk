@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { MasternodePagination, MasternodeState } from '../../../src/category/masternode'
+import { MasternodeState } from '../../../src/category/masternode'
 
 describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,12 +16,12 @@ describe('Masternode', () => {
     await container.stop()
   })
 
-  it('should list masternodes', async () => {
-    const masternodeTransaction = await client.masternode.listMasternodes()
+  it('should listMasternodes', async () => {
+    const masternodeList = await client.masternode.listMasternodes()
 
-    expect(Object.keys(masternodeTransaction).length).toBeGreaterThanOrEqual(1)
-    for (const masternode in masternodeTransaction) {
-      const currentMasternode = masternodeTransaction[masternode]
+    expect(Object.keys(masternodeList).length).toBeGreaterThanOrEqual(1)
+    for (const masternode in masternodeList) {
+      const currentMasternode = masternodeList[masternode]
       expect(typeof currentMasternode.ownerAuthAddress).toStrictEqual('string')
       expect(typeof currentMasternode.operatorAuthAddress).toStrictEqual('string')
       expect(typeof currentMasternode.creationHeight).toStrictEqual('number')
@@ -37,18 +37,15 @@ describe('Masternode', () => {
     }
   })
 
-  it('should list masternodes with verbose set to false to get just the ids', async () => {
-    const masternodes = await client.masternode.listMasternodes({}, false)
-
-    for (const value of Object.values(masternodes)) {
+  it('should listMasternodes with verbose false', async () => {
+    const masternodeList = await client.masternode.listMasternodes({}, false)
+    for (const value of Object.values(masternodeList)) {
       expect(typeof value).toStrictEqual('string')
     }
   })
 
-  it('should list masternodes with limit. Limited to 3 and should return 3', async () => {
-    const options: MasternodePagination = { limit: 3 }
-    const masternodes = await client.masternode.listMasternodes(options)
-
-    expect(Object.keys(masternodes).length).toStrictEqual(3)
+  it('should listMasternodes with limit', async () => {
+    const masternodeList = await client.masternode.listMasternodes({ limit: 3 })
+    expect(Object.keys(masternodeList).length).toStrictEqual(3)
   })
 })

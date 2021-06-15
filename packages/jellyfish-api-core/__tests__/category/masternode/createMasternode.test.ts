@@ -16,57 +16,56 @@ describe('Masternode', () => {
     await container.stop()
   })
 
-  it('should create a masternode transaction', async () => {
-    const masternodesBefore = await client.masternode.listMasternodes()
-    const masternodesLengthBefore = Object.keys(masternodesBefore).length
+  it('should createMasternode ', async () => {
+    const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
-    const address = await client.wallet.getNewAddress()
-    const masternodeTransaction = await client.masternode.createMasternode(address)
+    const ownerAddress = await client.wallet.getNewAddress()
+    const hex = await client.masternode.createMasternode(ownerAddress)
+
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
 
-    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
-    expect(typeof masternodeTransaction).toStrictEqual('string')
-    expect(masternodeTransaction.length).toStrictEqual(64)
+    const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
 
-    for (const masternode in masternodesAfter) {
-      const createdMasternode = masternodesAfter[masternode]
-      if (createdMasternode.ownerAuthAddress === address) {
-        expect(typeof createdMasternode.ownerAuthAddress).toStrictEqual('string')
-        expect(typeof createdMasternode.operatorAuthAddress).toStrictEqual('string')
-        expect(typeof createdMasternode.creationHeight).toStrictEqual('number')
-        expect(typeof createdMasternode.resignHeight).toStrictEqual('number')
-        expect(typeof createdMasternode.resignTx).toStrictEqual('string')
-        expect(typeof createdMasternode.banHeight).toStrictEqual('number')
-        expect(typeof createdMasternode.banTx).toStrictEqual('string')
-        expect(createdMasternode.state).toStrictEqual(MasternodeState.PRE_ENABLED)
-        expect(typeof createdMasternode.state).toStrictEqual('string')
-        expect(typeof createdMasternode.mintedBlocks).toStrictEqual('number')
-        expect(typeof createdMasternode.ownerIsMine).toStrictEqual('boolean')
-        expect(createdMasternode.ownerIsMine).toStrictEqual(true)
-        expect(typeof createdMasternode.localMasternode).toStrictEqual('boolean')
-        expect(typeof createdMasternode.operatorIsMine).toStrictEqual('boolean')
-        expect(createdMasternode.operatorIsMine).toStrictEqual(true)
-      }
+    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
+
+    for (const mn of createdMasternode) {
+      expect(typeof mn.ownerAuthAddress).toStrictEqual('string')
+      expect(typeof mn.operatorAuthAddress).toStrictEqual('string')
+      expect(typeof mn.creationHeight).toStrictEqual('number')
+      expect(typeof mn.resignHeight).toStrictEqual('number')
+      expect(typeof mn.resignTx).toStrictEqual('string')
+      expect(typeof mn.banHeight).toStrictEqual('number')
+      expect(typeof mn.banTx).toStrictEqual('string')
+      expect(mn.state).toStrictEqual(MasternodeState.PRE_ENABLED)
+      expect(typeof mn.state).toStrictEqual('string')
+      expect(typeof mn.mintedBlocks).toStrictEqual('number')
+      expect(typeof mn.ownerIsMine).toStrictEqual('boolean')
+      expect(mn.ownerIsMine).toStrictEqual(true)
+      expect(typeof mn.localMasternode).toStrictEqual('boolean')
+      expect(typeof mn.operatorIsMine).toStrictEqual('boolean')
+      expect(mn.operatorIsMine).toStrictEqual(true)
     }
   })
 
-  it('should create masternode transaction with specified UTXOS to spend', async () => {
-    const utxosBefore = await client.wallet.listUnspent()
-    const utxosBeforeLength = utxosBefore.length
+  it('should createMasternode with specified UTXOS', async () => {
+    const utxos = await client.wallet.listUnspent()
+    const utxosBeforeLength = utxos.length
 
-    const inputs = utxosBefore.map((utxo: { txid: string, vout: number }) => ({ txid: utxo.txid, vout: utxo.vout }))
-    const masternodeTransaction = await client.masternode.createMasternode(await client.wallet.getNewAddress(), undefined, { utxos: inputs })
+    const ownerAddress = await client.wallet.getNewAddress()
+    const inputs = utxos.map((utxo: { txid: string, vout: number }) => ({ txid: utxo.txid, vout: utxo.vout }))
+    const hex = await client.masternode.createMasternode(ownerAddress, undefined, { utxos: inputs })
 
-    const utxosAfter = await client.wallet.listUnspent()
-    const utxosAfterLength = utxosAfter.length
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
 
-    expect(utxosAfterLength).toStrictEqual((utxosBeforeLength - 1))
-    expect(typeof masternodeTransaction).toStrictEqual('string')
-    expect(masternodeTransaction.length).toStrictEqual(64)
+    const utxosAfterLength = (await client.wallet.listUnspent()).length
+    expect(utxosAfterLength).toBeLessThan((utxosBeforeLength))
   })
 
   it('should throw an error with invalid owner address', async () => {
