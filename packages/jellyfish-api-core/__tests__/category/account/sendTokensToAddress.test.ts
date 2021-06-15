@@ -29,9 +29,6 @@ describe('SendTokenToAddress', () => {
     addrCForward = await container.call('getnewaddress')
     addrCCrumbs = await container.call('getnewaddress')
     addrCPie = await container.call('getnewaddress')
-    console.log('addrCForward: ', addrCForward)
-    console.log('addrCCrumbs: ', addrCCrumbs)
-    console.log('addrCPie: ', addrCPie)
 
     const tokenaddrA = await container.call('getnewaddress')
     const tokenaddrB = await container.call('getnewaddress')
@@ -75,8 +72,6 @@ describe('SendTokenToAddress', () => {
 
   it('should sendTokensToAddress with selectionMode pie', async () => {
     const accPieBefore = (await client.account.getAccount(addrCPie))[0]
-    console.log('accPieBefore: ', accPieBefore)
-
     const addrReceiver = await client.wallet.getNewAddress()
     const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['4@CAT'] }, {
       selectionMode: SelectionModeType.PIE
@@ -87,17 +82,14 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
 
     const accPieAfter = (await client.account.getAccount(addrCPie))[0]
-    console.log('accPieAfter: ', accPieAfter)
-    expect(accToNum(accPieAfter)).toStrictEqual(accToNum(accPieBefore) - 4) // 100
+    expect(accToNum(accPieAfter)).toStrictEqual(accToNum(accPieBefore) - 4)
 
     const accReceiver = await client.account.getAccount(addrReceiver)
-    console.log('accReceiver: ', accReceiver)
     expect(accReceiver[0]).toStrictEqual('4.00000000@CAT')
   })
 
   it('should sendTokensToAddress with selectionMode crumbs', async () => {
     const accCrumbsBefore = (await client.account.getAccount(addrCCrumbs))[0]
-    console.log('accCrumbsBefore: ', accCrumbsBefore)
 
     const addrReceiver = await client.wallet.getNewAddress()
     const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['2@CAT'] }, {
@@ -109,18 +101,15 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
 
     const accCrumbsAfter = (await client.account.getAccount(addrCCrumbs))[0]
-    console.log('accCrumbsAfter: ', accCrumbsAfter)
-    expect(accToNum(accCrumbsAfter)).toStrictEqual(accToNum(accCrumbsBefore) - 2) // 1
+    expect(accToNum(accCrumbsAfter)).toStrictEqual(accToNum(accCrumbsBefore) - 2)
 
     const accReceiver = await client.account.getAccount(addrReceiver)
-    console.log('accReceiver: ', accReceiver)
     expect(accReceiver[0]).toStrictEqual('2.00000000@CAT')
   })
 
   // NOTE(canonrother): "selectionMode: forward" picks the address name order by ASC, its hard to test as address is random generated
   it.skip('should sendTokensToAddress with selectionMode forward', async () => {
     const accForwardBefore = (await client.account.getAccount(addrCCrumbs))[0]
-    console.log('accForwardBefore: ', accForwardBefore)
 
     const addrReceiver = await client.wallet.getNewAddress()
     const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['6@CAT'] }, {
@@ -132,67 +121,43 @@ describe('SendTokenToAddress', () => {
     await container.generate(1)
 
     const accForwardAfter = (await client.account.getAccount(addrCCrumbs))[0]
-    console.log('accForwardAfter: ', accForwardAfter)
     expect(accToNum(accForwardAfter)).toStrictEqual(accToNum(accForwardBefore) - 6) // 43
 
     const accReceiver = await client.account.getAccount(addrReceiver)
-    console.log('accReceiver: ', accReceiver)
     expect(accReceiver[0]).toStrictEqual('6.00000000@CAT')
   })
 
-  // it('should create a transaction with Crumbs selection mode', async () => {
-  //   const options: SendTokensOptions = {
-  //     selectionMode: SelectionModeType.CRUMBS
-  //   }
-  //   const address = await client.wallet.getNewAddress()
-  //   const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['10@DETH'] }, options)
-  //   await container.generate(1)
+  it('should sendTokensToAddress with multiple receiver tokens', async () => {
+    const address = await client.wallet.getNewAddress()
+    const hex = await client.account.sendTokensToAddress({}, { [address]: ['2@ANT', '5@CAT', '10@BAT'] })
 
-  //   const account = await client.account.getAccount(addrA)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
 
-  //   expect(account[2]).toStrictEqual('10.00000000@DETH')
-  //   expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@DETH'])
-  //   expect(typeof transactionHex).toStrictEqual('string')
-  //   expect(transactionHex.length).toStrictEqual(64)
-  // })
+    await container.generate(1)
 
-  // it('should create a transaction with multiple destination address tokens', async () => {
-  //   const address = await client.wallet.getNewAddress()
-  //   const transactionHex = await client.account.sendTokensToAddress({}, { [address]: ['2@ETH', '0.1@CAT', '10@DETH'] })
-  //   await container.generate(1)
+    expect(await client.account.getAccount(address)).toStrictEqual(['2.00000000@ANT', '10.00000000@BAT', '5.00000000@CAT'])
+  })
 
-  //   expect(await client.account.getAccount(address)).toStrictEqual(['0.10000000@CAT', '2.00000000@ETH', '10.00000000@DETH'])
-  //   expect(typeof transactionHex).toStrictEqual('string')
-  //   expect(transactionHex.length).toStrictEqual(64)
-  // })
+  it('should sendTokensToAddress with source address', async () => {
+    const addrReceiver = await client.wallet.getNewAddress()
+    const hex = await client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [addrReceiver]: ['10@ANT'] })
 
-  // it('should create a transaction with source address provided', async () => {
-  //   const address = await client.wallet.getNewAddress()
-  //   const transactionHex = await client.account.sendTokensToAddress({ [addrA]: ['10@ETH'] }, { [address]: ['10@ETH'] })
-  //   await container.generate(1)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
 
-  //   expect(await client.account.getAccount(address)).toStrictEqual(['10.00000000@ETH'])
-  //   expect(typeof transactionHex).toStrictEqual('string')
-  //   expect(transactionHex.length).toStrictEqual(64)
-  // })
+    await container.generate(1)
 
-  // it('should create a transaction with multiple source address tokens provided', async () => {
-  //   const address = await client.wallet.getNewAddress()
-  //   const transactionHex = await client.account.sendTokensToAddress({ [addrA]: ['2@CAT', '10@ETH'] }, { [address]: ['2@CAT', '10@ETH'] })
-  //   await container.generate(1)
+    expect(await client.account.getAccount(addrReceiver)).toStrictEqual(['10.00000000@ANT'])
+  })
 
-  //   expect(await client.account.getAccount(address)).toStrictEqual(['2.00000000@CAT', '10.00000000@ETH'])
-  //   expect(typeof transactionHex).toStrictEqual('string')
-  //   expect(transactionHex.length).toStrictEqual(64)
-  // })
+  it('should fail and throw an exception when no receiver address', async () => {
+    await expect(client.account.sendTokensToAddress({}, {})).rejects.toThrow('zero amounts in "to" param')
+  })
 
-  // it('should fail and throw an exception if destination address param is empty', async () => {
-  //   await expect(client.account.sendTokensToAddress({}, {})).rejects.toThrow('zero amounts in "to" param')
-  // })
+  it('should throw an error when insufficient fund', async () => {
+    const promise = client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['500@CAT'] })
 
-  // it('should throw an error with insufficient fund', async () => {
-  //   const promise = client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['500@ETH'] })
-
-  //   await expect(promise).rejects.toThrow('Not enough balance on wallet accounts, call utxostoaccount to increase it.')
-  // })
+    await expect(promise).rejects.toThrow('Not enough balance on wallet accounts, call utxostoaccount to increase it.')
+  })
 })
