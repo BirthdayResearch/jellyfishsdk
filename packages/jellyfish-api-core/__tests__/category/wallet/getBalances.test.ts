@@ -20,9 +20,9 @@ describe('getBalances on masternode', () => {
 
   it('should getBalances', async () => {
     const balances: WalletBalances = await client.wallet.getBalances()
-    expect(balances.mine.trusted instanceof BigNumber).toStrictEqual(true)
-    expect(balances.mine.untrusted_pending instanceof BigNumber).toStrictEqual(true)
-    expect(balances.mine.immature instanceof BigNumber).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.untrusted_pending)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.immature)).toStrictEqual(true)
     expect(typeof balances.mine.used).toStrictEqual('undefined')
 
     expect(typeof balances.watchonly).toStrictEqual('undefined')
@@ -33,25 +33,23 @@ describe('getBalances on masternode', () => {
     await container.generate(1)
     const balances: WalletBalances = await client.wallet.getBalances()
 
-    expect(balances.mine.trusted instanceof BigNumber).toStrictEqual(true)
-    expect(balances.mine.untrusted_pending instanceof BigNumber).toStrictEqual(true)
-    expect(balances.mine.immature instanceof BigNumber).toStrictEqual(true)
-    expect(balances.mine.used instanceof BigNumber).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.untrusted_pending)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.immature)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.used)).toStrictEqual(true)
 
     expect(typeof balances.watchonly).toStrictEqual('undefined')
   })
 
   it('should show balances after sending the amount out', async () => {
-    const balance: WalletBalances = await client.wallet.getBalances()
+    const balanceBefore: WalletBalances = await client.wallet.getBalances()
 
-    const address = 'bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'
-
-    await client.wallet.sendToAddress(address, 10000)
+    await client.wallet.sendToAddress('bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2', 10000)
     await container.generate(1)
 
-    const newBalance: WalletBalances = await client.wallet.getBalances()
+    const balanceAfter: WalletBalances = await client.wallet.getBalances()
 
-    expect(balance.mine.trusted.toNumber() - newBalance.mine.trusted.toNumber()).toBeGreaterThan(10000)
+    expect(balanceBefore.mine.trusted.gt(balanceAfter.mine.trusted.toNumber())).toStrictEqual(true)
   })
 
   it('test watchOnly', async () => {
@@ -59,11 +57,33 @@ describe('getBalances on masternode', () => {
     const balances: WalletBalances = await client.wallet.getBalances()
 
     if (balances.watchonly != null) {
-      expect(balances.watchonly.trusted instanceof BigNumber).toStrictEqual(true)
-      expect(balances.watchonly.untrusted_pending instanceof BigNumber).toStrictEqual(true)
-      expect(balances.watchonly.immature instanceof BigNumber).toStrictEqual(true)
+      expect(BigNumber.isBigNumber(balances.watchonly.trusted)).toStrictEqual(true)
+      expect(BigNumber.isBigNumber(balances.watchonly.untrusted_pending)).toStrictEqual(true)
+      expect(BigNumber.isBigNumber(balances.watchonly.immature)).toStrictEqual(true)
     } else {
       throw new Error('expected watchonly to be truthy')
+    }
+  })
+
+  it('should show balances with withTokens set to true', async () => {
+    const balances: WalletBalances = await client.wallet.getBalances(true)
+
+    // balances.mine.trusted { '0': BigNumber { s: 1, e: 8, c: [ 199990075, 99995580000000 ] } }
+
+    // balances.mine.untrusted_pending { '0': BigNumber { s: 1, e: 0, c: [ 0 ] } }
+
+    // balances.mine.immature BigNumber { s: 1, e: 3, c: [ 3418, 34000000000000 ] }
+
+    expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(false)
+    expect(BigNumber.isBigNumber(balances.mine.untrusted_pending)).toStrictEqual(false)
+    expect(BigNumber.isBigNumber(balances.mine.immature)).toStrictEqual(true)
+
+    if (balances.watchonly != null) { // type guard
+      expect(BigNumber.isBigNumber(balances.watchonly.trusted)).toStrictEqual(false)
+      expect(BigNumber.isBigNumber(balances.watchonly.untrusted_pending)).toStrictEqual(false)
+      expect(BigNumber.isBigNumber(balances.watchonly.immature)).toStrictEqual(true)
+    } else {
+      throw new Error('expected balances.watchonly to be truthy')
     }
   })
 })
