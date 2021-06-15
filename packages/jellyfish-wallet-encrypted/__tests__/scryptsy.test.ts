@@ -31,6 +31,8 @@ describe('passphraseToKey()', () => {
     hard.passphraseToKey('random password', Buffer.from('abcd', 'hex'), 32)
     const hardTime = Date.now() - hardStart
 
-    expect(hardTime).toBeGreaterThan(easyTime * 5) // significantly slower
+    // significantly slower
+    // technically it is 8x harder, but they can be processed in parallel
+    expect(hardTime).toBeGreaterThan(easyTime * 2)
   })
 })
