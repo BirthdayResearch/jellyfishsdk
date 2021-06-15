@@ -54,10 +54,12 @@ describe('Masternode', () => {
   })
 
   it('should createMasternode with specified UTXOS', async () => {
+    const ownerAddress = await client.wallet.getNewAddress()
+    await client.account.utxosToAccount({ [ownerAddress]: '10@DFI' })
+
     const utxos = await client.wallet.listUnspent()
     const utxosBeforeLength = utxos.length
 
-    const ownerAddress = await client.wallet.getNewAddress()
     const inputs = utxos.map((utxo: { txid: string, vout: number }) => ({ txid: utxo.txid, vout: utxo.vout }))
     const hex = await client.masternode.createMasternode(ownerAddress, undefined, { utxos: inputs })
 
