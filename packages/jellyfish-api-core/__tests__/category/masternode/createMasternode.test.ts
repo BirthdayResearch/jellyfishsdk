@@ -10,11 +10,21 @@ describe('Masternode', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+    await setup()
   })
 
   afterAll(async () => {
     await container.stop()
   })
+
+  let tokenAddr: string
+
+  async function setup (): Promise<void> {
+    tokenAddr = await container.call('getnewaddress')
+    await container.waitForWalletBalanceGTE(101)
+    await container.call('utxostoaccount', [{ [tokenAddr]: '100@0' }])
+    await container.generate(1)
+  }
 
   it('should createMasternode ', async () => {
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
@@ -29,7 +39,6 @@ describe('Masternode', () => {
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
-
     const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
 
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
@@ -55,13 +64,13 @@ describe('Masternode', () => {
 
   it('should createMasternode with specified UTXOS', async () => {
     const ownerAddress = await client.wallet.getNewAddress()
-    await client.account.utxosToAccount({ [ownerAddress]: '10@DFI' })
+    await client.account.accountToUtxos(tokenAddr, { [ownerAddress]: '5@DFI' })
 
     const utxos = await client.wallet.listUnspent()
     const utxosBeforeLength = utxos.length
 
     const inputs = utxos.map((utxo: { txid: string, vout: number }) => ({ txid: utxo.txid, vout: utxo.vout }))
-    const hex = await client.masternode.createMasternode(ownerAddress, undefined, { utxos: inputs })
+    const hex = await client.masternode.createMasternode(ownerAddress, ownerAddress, { utxos: inputs })
 
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
