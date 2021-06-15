@@ -196,6 +196,7 @@ List all aggregated prices.
 interface oracle {
   listPrices (): Promise<ListPricesData[]>
 }
+
 interface ListPricesData {
   token: string
   currency: string
