@@ -1,5 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity } from '../src'
+import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity, poolSwap } from '../src'
 import waitForExpect from 'wait-for-expect'
 
 const container = new MasterNodeRegTestContainer()
@@ -65,5 +65,41 @@ describe('add/remove pool pair liquidity', () => {
       const shares: Record<string, any> = await container.call('listpoolshares')
       expect(Object.keys(shares).length).toStrictEqual(0)
     })
+  })
+})
+
+describe('poolSwap', () => {
+  beforeAll(async () => {
+    await createToken(container, 'ANT')
+    await mintTokens(container, 'ANT')
+    await createPoolPair(container, 'DFI', 'ANT')
+
+    const shareAddress = await container.call('getnewaddress')
+    await addPoolLiquidity(container, { amountA: 10, amountB: 200, tokenA: 'DFI', tokenB: 'ANT', shareAddress })
+  })
+
+  it('should poolSwap', async () => {
+    const poolPairBefore = await container.call('getpoolpair', ['DFI-ANT'])
+    const dataBefore: any = Object.values(poolPairBefore)[0]
+    expect(dataBefore.reserveA).toStrictEqual(10)
+    expect(dataBefore.reserveB).toStrictEqual(200)
+
+    const dfiAddress = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [dfiAddress]: '100@0' }])
+    await container.generate(1)
+
+    const metadata = {
+      from: dfiAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 4,
+      to: await container.call('getnewaddress'),
+      tokenTo: 'ANT'
+    }
+    await poolSwap(container, metadata)
+
+    const poolPairAfter = await container.call('getpoolpair', ['DFI-ANT'])
+    const dataAfter: any = Object.values(poolPairAfter)[0]
+    expect(dataAfter.reserveA).toStrictEqual(14)
+    expect(dataAfter.reserveB).toStrictEqual(142.85714285)
   })
 })
