@@ -165,12 +165,12 @@ describe('SendTokenToAddress', () => {
   it('should throw an error when sending different tokens', async () => {
     const promise = client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['10@BAT'] })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Execution test failed:\nApplyAnyAccountsToAccountsTx: sum of inputs (from) != sum of outputs (to)\', code: -32600, method: sendtokenstoaddress')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test AnyAccountsToAccountsTx execution failed:\nsum of inputs (from) != sum of outputs (to)\', code: -32600, method: sendtokenstoaddress')
   })
 
   it('should throw an error when sending different amount', async () => {
     const promise = client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['20@ANT'] })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Execution test failed:\nApplyAnyAccountsToAccountsTx: sum of inputs (from) != sum of outputs (to)\', code: -32600, method: sendtokenstoaddress')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test AnyAccountsToAccountsTx execution failed:\nsum of inputs (from) != sum of outputs (to)\', code: -32600, method: sendtokenstoaddress')
   })
 })
