@@ -1,5 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity, poolSwap } from '../src'
+import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity, poolSwap, listPoolPairs } from '../src'
 import waitForExpect from 'wait-for-expect'
 
 const container = new MasterNodeRegTestContainer()
@@ -14,25 +14,42 @@ afterAll(async () => {
   await container.stop()
 })
 
+describe('listPoolPairs', () => {
+  async function setup (): Promise<void> {
+    await createToken(container, 'BAT')
+    await mintTokens(container, 'BAT')
+    await createPoolPair(container, 'DFI', 'BAT')
+
+    await createToken(container, 'CAT')
+    await mintTokens(container, 'CAT')
+    await createPoolPair(container, 'DFI', 'CAT')
+  }
+
+  it('should listPoolPairs', async () => {
+    const before = await listPoolPairs(container)
+    expect(Object.keys(before).length).toStrictEqual(0)
+
+    await setup()
+
+    const after = await listPoolPairs(container)
+    expect(Object.keys(after).length).toStrictEqual(2)
+    const data = Object.values(after)
+    expect(data[0].symbol).toStrictEqual('DFI-BAT')
+    expect(data[1].symbol).toStrictEqual('DFI-CAT')
+  })
+})
+
 describe('createPoolPair', () => {
   beforeAll(async () => {
     await createToken(container, 'DOG')
   })
 
   it('should createPoolPair', async () => {
-    const before = await container.call('listpoolpairs')
+    await createPoolPair(container, 'DFI', 'DOG')
 
-    const txid = await createPoolPair(container, 'DFI', 'DOG')
-    expect(typeof txid).toStrictEqual('string')
-
-    const after: Record<string, any> = await container.call('listpoolpairs')
-    expect(Object.keys(after).length).toStrictEqual(Object.keys(before).length + 1)
-
-    for (const poolpair of Object.values(after)) {
-      expect(poolpair.name).toStrictEqual('Default Defi token-DOG')
-    }
-
-    expect.assertions(3)
+    const poolPair = await container.call('getpoolpair', ['DFI-DOG'])
+    const data: any = Object.values(poolPair)[0]
+    expect(data.symbol).toStrictEqual('DFI-DOG')
   })
 })
 
