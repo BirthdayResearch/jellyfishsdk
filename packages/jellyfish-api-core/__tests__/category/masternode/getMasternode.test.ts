@@ -50,7 +50,6 @@ describe('Masternode', () => {
       expect(typeof data.localMasternode).toStrictEqual('boolean')
       expect(typeof data.operatorIsMine).toStrictEqual('boolean')
       expect(data.operatorIsMine).toStrictEqual(true)
-      expect(data.operatorIsMine).toStrictEqual(true)
     }
   })
 

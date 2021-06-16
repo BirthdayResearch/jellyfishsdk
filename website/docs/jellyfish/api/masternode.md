@@ -51,6 +51,16 @@ interface masternode {
   ): Promise<MasternodeResult>
 }
 
+enum MasternodeState {
+  PRE_ENABLED = 'PRE_ENABLED',
+  ENABLED = 'ENABLED',
+  PRE_RESIGNED = 'PRE_RESIGNED',
+  RESIGNED = 'RESIGNED',
+  PRE_BANNED = 'PRE_BANNED',
+  BANNED = 'BANNED',
+  UNKNOWN = 'UNKNOWN'
+}
+
 interface MasternodePagination {
   start?: string
   including_start?: boolean
@@ -84,6 +94,16 @@ Returns information about a single masternode
 ```ts title="client.masternode.getMasternode()"
 interface masternode {
   getMasternode (masternodeId: string): Promise<MasternodeResult>
+}
+
+enum MasternodeState {
+  PRE_ENABLED = 'PRE_ENABLED',
+  ENABLED = 'ENABLED',
+  PRE_RESIGNED = 'PRE_RESIGNED',
+  RESIGNED = 'RESIGNED',
+  PRE_BANNED = 'PRE_BANNED',
+  BANNED = 'BANNED',
+  UNKNOWN = 'UNKNOWN'
 }
 
 interface MasternodeInfo {
