@@ -7,7 +7,7 @@ describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
-  beforeEach(async () => {
+  beforeALl(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
