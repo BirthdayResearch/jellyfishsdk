@@ -72,10 +72,11 @@ describe('SendTokenToAddress', () => {
 
   it('should sendTokensToAddress with selectionMode pie', async () => {
     const accPieBefore = (await client.account.getAccount(addrCPie))[0]
-    const addrReceiver = await client.wallet.getNewAddress()
+    const addrReceiver = await container.call('getnewaddress')
     const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['4@CAT'] }, {
       selectionMode: SelectionModeType.PIE
     })
+
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
@@ -91,7 +92,7 @@ describe('SendTokenToAddress', () => {
   it('should sendTokensToAddress with selectionMode crumbs', async () => {
     const accCrumbsBefore = (await client.account.getAccount(addrCCrumbs))[0]
 
-    const addrReceiver = await client.wallet.getNewAddress()
+    const addrReceiver = await container.call('getnewaddress')
     const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['2@CAT'] }, {
       selectionMode: SelectionModeType.CRUMBS
     })
@@ -128,7 +129,7 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should sendTokensToAddress with multiple receiver tokens', async () => {
-    const address = await client.wallet.getNewAddress()
+    const address = await container.call('getnewaddress')
     const hex = await client.account.sendTokensToAddress({}, { [address]: ['2@ANT', '5@CAT', '10@BAT'] })
 
     expect(typeof hex).toStrictEqual('string')
@@ -140,7 +141,7 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should sendTokensToAddress with source address', async () => {
-    const addrReceiver = await client.wallet.getNewAddress()
+    const addrReceiver = await container.call('getnewaddress')
     const hex = await client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [addrReceiver]: ['10@ANT'] })
 
     expect(typeof hex).toStrictEqual('string')
@@ -156,8 +157,22 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should throw an error when insufficient fund', async () => {
-    const promise = client.account.sendTokensToAddress({}, { [await client.wallet.getNewAddress()]: ['500@CAT'] })
+    const promise = client.account.sendTokensToAddress({}, { [await container.call('getnewaddress')]: ['500@CAT'] })
 
     await expect(promise).rejects.toThrow('Not enough balance on wallet accounts, call utxostoaccount to increase it.')
+  })
+
+  it('should throw an error when sending different tokens', async () => {
+    const promise = client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['10@BAT'] })
+
+    await expect(promise).rejects.toThrow('\'Execution test failed:\n' +
+      'ApplyAnyAccountsToAccountsTx: sum of inputs (from) != sum of outputs (to)\'')
+  })
+
+  it('should throw an error when sending different amount', async () => {
+    const promise = client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['20@ANT'] })
+
+    await expect(promise).rejects.toThrow('\'Execution test failed:\n' +
+      'ApplyAnyAccountsToAccountsTx: sum of inputs (from) != sum of outputs (to)\'')
   })
 })
