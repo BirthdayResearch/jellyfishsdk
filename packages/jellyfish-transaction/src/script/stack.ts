@@ -40,6 +40,15 @@ export class OP_2DUP extends StaticCode {
 }
 
 /**
+ * Duplicates the top three stack items.
+ */
+export class OP_3DUP extends StaticCode {
+  constructor () {
+    super(0x6f, 'OP_3DUP')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {
