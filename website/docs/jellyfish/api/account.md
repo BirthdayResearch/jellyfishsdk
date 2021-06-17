@@ -273,8 +273,8 @@ Creates a transfer transaction from your accounts balances.
 interface Account {
   sendTokensToAddress (
       from: AddressBalances,
-      to: AddressBalances, 
-      options: SendTokensOptions = {selectionMode: SelectionModeType.PIE}
+      to: AddressBalances,
+      options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
   ): Promise<string>
 }
 
