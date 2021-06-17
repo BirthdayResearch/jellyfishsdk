@@ -273,14 +273,14 @@ export interface Transaction {
 }
 
 export interface Vin {
-  coinbase: string
+  coinbase?: string
   txid: string
   vout: number
   scriptSig: {
     asm: string
     hex: string
   }
-  txinwitness: string[]
+  txinwitness?: string[]
   sequence: string
 }
 

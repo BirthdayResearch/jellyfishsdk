@@ -1,3 +1,4 @@
+import { Vin, Vout } from './blockchain'
 import { BigNumber, ApiClient } from '../.'
 
 export enum SigHashType {
@@ -108,6 +109,54 @@ export class RawTx {
       signedTx, maxFeeRate
     ], 'number')
   }
+
+  /**
+   * Get raw transaction in hex-encoded format
+   *
+   * @param {string} txid the transaction id
+   * @param {boolean} verbose false
+   * @return {Promise<string>}
+   */
+  getRawTransaction (txid: string, verbose: false): Promise<string>
+  /**
+   * Get raw transaction with block hash in hex-encoded format
+   *
+   * @param {string} txid the transaction id
+   * @param {boolean} verbose false
+   * @param {string} blockHash the block hash
+   * @return {Promise<string>}
+   */
+  getRawTransaction (txid: string, verbose: false, blockHash: string): Promise<string>
+  /**
+   * Get raw transaction as json object
+   *
+   * @param {string} txid the transaction id
+   * @param {boolean} verbose false
+   * @return {Promise<RawTransactionResult>}
+   */
+  getRawTransaction (txid: string, verbose: true): Promise<RawTransactionResult>
+  /**
+   * Get raw transaction from block at first by providing block hash, return as json object
+   *
+   * @param {string} txid the transaction id
+   * @param {string} verbose false
+   * @param {string} blockHash the block hash
+   * @return {Promise<RawTransactionResult>}
+   */
+  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<RawTransactionResult>
+  /**
+   * Get raw transaction
+   *
+   * @param {string} txid transaction id
+   * @param {boolean} [verbose=false] true will return object information, false/omitted will return hex-encoded data
+   * @param {string} [blockHash] mempool transaction is returned by default. If blockHash is specified then will get transaction in block.
+   * @return {Promise<string | RawTransactionResult>}
+   */
+  async getRawTransaction (
+    txid: string, verbose?: boolean, blockHash?: string
+  ): Promise<string | RawTransactionResult> {
+    return await this.client.call('getrawtransaction', [txid, verbose, blockHash], 'number')
+  }
 }
 
 export interface CreateRawTxOptions {
@@ -208,4 +257,67 @@ export interface TestMempoolAcceptResult {
    * Rejection string, only present when 'allowed' is false
    */
   'reject-reason'?: string
+}
+
+export interface RawTransactionResult {
+  /**
+   * Specified the block whether is in active chain
+   */
+  in_active_chain?: boolean
+  /**
+   * The transaction id
+   */
+  txid: string
+  /**
+   * The transaction hash
+   */
+  hash: string
+  /**
+   * The version
+   */
+  version: number
+  /**
+   * The serialized transaction size
+   */
+  size: number
+  /**
+   * The virtual transaction size
+   */
+  vsize: number
+  /**
+   * The transaction's weight (between vsize*4-3 and vsize*3)
+   */
+  weight: number
+  /**
+   * The lock time
+   */
+  locktime: number
+  /**
+   * Vector input
+   */
+  vin: Vin[]
+  /**
+   * Vector output
+   */
+  vout: Vout[]
+  /**
+   * The serialized, hex-encoded for 'txid'
+   */
+  hex: string
+  /**
+   * the block hash
+   */
+  blockhash: string
+  /**
+   * Number of block confirmations
+   */
+  confirmations: number
+  /**
+   * Same as 'blocktime'
+   */
+  time: number
+  /**
+   * The block time in seconds since epoch (Jan 1 1970 GMT)
+   */
+  blocktime: number
 }

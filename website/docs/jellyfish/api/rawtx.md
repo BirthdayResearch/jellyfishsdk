@@ -133,3 +133,54 @@ interface rawtx {
   ): Promise<string>
 }
 ```
+
+## getRawTransaction
+
+Get raw transaction data
+
+```ts title="client.rawtx.getRawTransaction()"
+interface rawtx {
+  getRawTransaction (txid: string, verbose: false): Promise<string>
+  getRawTransaction (txid: string, verbose: false, blockHash: string): Promise<string>
+  getRawTransaction (txid: string, verbose: true): Promise<RawTransactionResult>
+  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<TransactionResult>
+  getRawTransaction (txid: string, verbose?: boolean, blockHash?: string): Promise<string | RawTransactionResult | TransactionResult>
+}
+
+interface RawTransactionResult {
+  in_active_chain?: boolean
+  txid: string
+  hash: string
+  version: number
+  size: number
+  vsize: number
+  weight: number
+  locktime: number
+  vin: Vin[]
+  vout: Vout[]
+  hex: string
+  blockhash: string
+  confirmations: number
+  time: number
+  blocktime: number
+}
+
+interface Vin {
+  coinbase?: string
+  txid: string
+  vout: number
+  scriptSig: {
+    asm: string
+    hex: string
+  }
+  txinwitness?: string[]
+  sequence: string
+}
+
+interface Vout {
+  value: BigNumber
+  n: number
+  scriptPubKey: ScriptPubKey
+  tokenId: number
+}
+```
