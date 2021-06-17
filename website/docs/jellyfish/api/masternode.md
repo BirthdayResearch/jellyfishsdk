@@ -1,6 +1,6 @@
 ---
 id: masternode
-title: Masternode
+title: Masternode API
 sidebar_label: Masternode API
 API slug: /jellyfish/api/masternode
 ---
