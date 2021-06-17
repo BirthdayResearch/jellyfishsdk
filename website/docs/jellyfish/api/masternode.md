@@ -22,7 +22,7 @@ interface masternode {
   createMasternode (
     ownerAddress: string,
     operatorAddress?: string,
-    options: CreateMasternodeOptions = {inputs: []}
+    options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string>
 }
 

@@ -45,6 +45,7 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 10000] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
+   * @return {Promise<MasternodeResult>}
    */
   async listMasternodes (
     pagination: MasternodePagination = {

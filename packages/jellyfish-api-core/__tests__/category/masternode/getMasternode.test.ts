@@ -25,6 +25,7 @@ describe('Masternode', () => {
     await container.generate(1)
 
     const masterNodes = await client.masternode.listMasternodes()
+
     for (const mnId in masterNodes) {
       if (masterNodes[mnId].ownerAuthAddress === ownerAddress) {
         id = mnId
