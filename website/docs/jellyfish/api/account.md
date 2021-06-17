@@ -274,7 +274,7 @@ interface Account {
   sendTokensToAddress (
       from: AddressBalances,
       to: AddressBalances, 
-      options: SendTokensOptions = {selectionMode: SelectionModeType}
+      options: SendTokensOptions = {selectionMode: SelectionModeType.PIE}
   ): Promise<string>
 }
 

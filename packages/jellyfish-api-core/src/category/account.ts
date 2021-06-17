@@ -323,7 +323,7 @@ export class Account {
    *
    * @param {AddressBalances} from The source defi address is the key, the value is amount in amount amount@token format
    * @param {AddressBalances} to The defi address is the key, the value is amount in amount amount@token format
-   * @param {SendTokensOptions} [options]
+   * @param {SendTokensOptions} [options = { selectionMode: SelectionModeType.PIE }]
    * @param {SelectionModeType} [options.selectionMode] Account selection mode. If "from" param is empty, it will auto select.
    * @return {Promise<string>}
    */

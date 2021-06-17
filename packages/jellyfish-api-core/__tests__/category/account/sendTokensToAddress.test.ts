@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { SelectionModeType /* SendTokensOptions */ } from '../../../src/category/account'
+import { SelectionModeType } from '../../../src/category/account'
 
 describe('SendTokenToAddress', () => {
   const container = new MasterNodeRegTestContainer()
@@ -112,7 +112,7 @@ describe('SendTokenToAddress', () => {
   it.skip('should sendTokensToAddress with selectionMode forward', async () => {
     const accForwardBefore = (await client.account.getAccount(addrCCrumbs))[0]
 
-    const addrReceiver = await client.wallet.getNewAddress()
+    const addrReceiver = await container.call('getnewaddress')
     const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['6@CAT'] }, {
       selectionMode: SelectionModeType.FORWARD
     })
@@ -129,15 +129,15 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should sendTokensToAddress with multiple receiver tokens', async () => {
-    const address = await container.call('getnewaddress')
-    const hex = await client.account.sendTokensToAddress({}, { [address]: ['2@ANT', '5@CAT', '10@BAT'] })
+    const addrReceiver = await container.call('getnewaddress')
+    const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['2@ANT', '5@CAT', '10@BAT'] })
 
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
 
-    expect(await client.account.getAccount(address)).toStrictEqual(['2.00000000@ANT', '10.00000000@BAT', '5.00000000@CAT'])
+    expect(await client.account.getAccount(addrReceiver)).toStrictEqual(['2.00000000@ANT', '10.00000000@BAT', '5.00000000@CAT'])
   })
 
   it('should sendTokensToAddress with source address', async () => {
