@@ -67,6 +67,15 @@ export class OP_2ROT extends StaticCode {
 }
 
 /**
+ * Swaps the top two pairs of items.
+ */
+export class OP_2SWAP extends StaticCode {
+  constructor () {
+    super(0x72, 'OP_2SWAP')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {
