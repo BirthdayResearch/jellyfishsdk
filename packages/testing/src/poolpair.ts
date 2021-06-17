@@ -2,13 +2,12 @@ import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { getNewAddress } from './wallet'
-import { PoolPairsResult } from '@defichain/jellyfish-api-core/category/poolpair'
 
 /**
  * @param {MasterNodeRegTestContainer} container
  * @return {Promise<PoolPairsResult>}
  */
-export async function listPoolPairs (container: MasterNodeRegTestContainer): Promise<PoolPairsResult> {
+export async function listPoolPairs (container: MasterNodeRegTestContainer): Promise<poolpair.PoolPairsResult> {
   return await container.call('listpoolpairs')
 }
 
