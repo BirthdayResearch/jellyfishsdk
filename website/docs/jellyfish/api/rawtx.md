@@ -142,12 +142,12 @@ Get raw transaction data
 interface rawtx {
   getRawTransaction (txid: string, verbose: false): Promise<string>
   getRawTransaction (txid: string, verbose: false, blockHash: string): Promise<string>
-  getRawTransaction (txid: string, verbose: true): Promise<RawTransactionResult>
-  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<RawTransactionResult>
-  getRawTransaction (txid: string, verbose?: boolean, blockHash?: string): Promise<string | RawTransactionResult>
+  getRawTransaction (txid: string, verbose: true): Promise<RawTransaction>
+  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<RawTransaction>
+  getRawTransaction (txid: string, verbose?: boolean, blockHash?: string): Promise<string | RawTransaction>
 }
 
-interface RawTransactionResult {
+interface RawTransaction {
   in_active_chain?: boolean
   txid: string
   hash: string
@@ -182,5 +182,13 @@ interface Vout {
   n: number
   scriptPubKey: ScriptPubKey
   tokenId: number
+}
+
+interface ScriptPubKey {
+  asm: string
+  hex: string
+  type: string
+  reqSigs: number
+  addresses: string[]
 }
 ```

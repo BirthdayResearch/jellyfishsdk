@@ -50,7 +50,7 @@ export class RawTx {
    *
    * @param {string} rawTx unsigned raw transaction
    * @param {string[]} privKeys array of base58-encoded private keys for signing (WIF)
-   * @param {SignRawTxWithKeyOption} [options]
+   * @param {SignRawTxWithKeyOptions} [options]
    * @param {SigHashType} [options.sigHashType] the signature hash type to use
    * @param {SignRawTxWithKeyPrevTx[]} [options.prevTxs] array of previous dependent transaction outputs
    * @return {Promise<SignRawTxWithKeyResult>}
@@ -118,6 +118,7 @@ export class RawTx {
    * @return {Promise<string>}
    */
   getRawTransaction (txid: string, verbose: false): Promise<string>
+
   /**
    * Get raw transaction with block hash in hex-encoded format
    *
@@ -127,34 +128,37 @@ export class RawTx {
    * @return {Promise<string>}
    */
   getRawTransaction (txid: string, verbose: false, blockHash: string): Promise<string>
+
   /**
    * Get raw transaction as json object
    *
    * @param {string} txid the transaction id
    * @param {boolean} verbose false
-   * @return {Promise<RawTransactionResult>}
+   * @return {Promise<RawTransaction>}
    */
-  getRawTransaction (txid: string, verbose: true): Promise<RawTransactionResult>
+  getRawTransaction (txid: string, verbose: true): Promise<RawTransaction>
+
   /**
    * Get raw transaction from block at first by providing block hash, return as json object
    *
    * @param {string} txid the transaction id
    * @param {string} verbose false
    * @param {string} blockHash the block hash
-   * @return {Promise<RawTransactionResult>}
+   * @return {Promise<RawTransaction>}
    */
-  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<RawTransactionResult>
+  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<RawTransaction>
+
   /**
    * Get raw transaction
    *
    * @param {string} txid transaction id
    * @param {boolean} [verbose=false] true will return object information, false/omitted will return hex-encoded data
    * @param {string} [blockHash] mempool transaction is returned by default. If blockHash is specified then will get transaction in block.
-   * @return {Promise<string | RawTransactionResult>}
+   * @return {Promise<string | RawTransaction>}
    */
   async getRawTransaction (
     txid: string, verbose?: boolean, blockHash?: string
-  ): Promise<string | RawTransactionResult> {
+  ): Promise<string | RawTransaction> {
     return await this.client.call('getrawtransaction', [txid, verbose, blockHash], 'number')
   }
 }
@@ -259,7 +263,7 @@ export interface TestMempoolAcceptResult {
   'reject-reason'?: string
 }
 
-export interface RawTransactionResult {
+export interface RawTransaction {
   /**
    * Specified the block whether is in active chain
    */

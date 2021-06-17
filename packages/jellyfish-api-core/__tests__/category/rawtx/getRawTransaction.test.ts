@@ -1,4 +1,4 @@
-import { RawTransactionResult } from '@defichain/jellyfish-api-core/category/rawtx'
+import { RawTransaction } from '@defichain/jellyfish-api-core/category/rawtx'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
@@ -35,7 +35,7 @@ describe('RawTransaction', () => {
   it('should getRawTransaction with verbose true to get informative json object', async () => {
     const txid = await createToken('ANT')
 
-    const data: RawTransactionResult = await client.rawtx.getRawTransaction(txid, true)
+    const data: RawTransaction = await client.rawtx.getRawTransaction(txid, true)
     expect(typeof data.txid).toStrictEqual('string')
     expect(typeof data.hash).toStrictEqual('string')
     expect(typeof data.version).toStrictEqual('number')
@@ -73,7 +73,7 @@ describe('RawTransaction', () => {
 
     const count = await container.call('getblockcount')
     const hash = await container.call('getblockhash', [count])
-    const data: RawTransactionResult = await client.rawtx.getRawTransaction(txid, true, hash)
+    const data: RawTransaction = await client.rawtx.getRawTransaction(txid, true, hash)
     expect(typeof data.in_active_chain).toStrictEqual('boolean')
     expect(typeof data.txid).toStrictEqual('string')
     expect(typeof data.hash).toStrictEqual('string')

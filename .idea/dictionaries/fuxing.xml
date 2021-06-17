@@ -17,6 +17,8 @@
       <w>bech</w>
       <w>bestblock</w>
       <w>bestblockhash</w>
+      <w>blockhash</w>
+      <w>blocktime</w>
       <w>booland</w>
       <w>boolor</w>
       <w>canonbrother</w>
