@@ -18,8 +18,7 @@ describe('Balance on masternode', () => {
   })
 
   it('should getUnconfirmedBalance', async () => {
-    const unconfirmedbalance: BigNumber = await client.wallet.getUnconfirmedBalance()
-
-    expect(unconfirmedbalance.isEqualTo(new BigNumber('0'))).toStrictEqual(true)
+    const unconfirmedBalance: BigNumber = await client.wallet.getUnconfirmedBalance()
+    expect(unconfirmedBalance.isEqualTo(new BigNumber('0'))).toStrictEqual(true)
   })
 })
