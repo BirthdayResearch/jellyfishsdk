@@ -64,28 +64,6 @@ describe('getBalances on masternode', () => {
       throw new Error('expected watchonly to be truthy')
     }
   })
-
-  it('should show balances with withTokens set to true', async () => {
-    const balances: WalletBalances = await client.wallet.getBalances(true)
-
-    // balances.mine.trusted { '0': BigNumber { s: 1, e: 8, c: [ 199990075, 99995580000000 ] } }
-
-    // balances.mine.untrusted_pending { '0': BigNumber { s: 1, e: 0, c: [ 0 ] } }
-
-    // balances.mine.immature BigNumber { s: 1, e: 3, c: [ 3418, 34000000000000 ] }
-
-    expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(false)
-    expect(BigNumber.isBigNumber(balances.mine.untrusted_pending)).toStrictEqual(false)
-    expect(BigNumber.isBigNumber(balances.mine.immature)).toStrictEqual(true)
-
-    if (balances.watchonly != null) { // type guard
-      expect(BigNumber.isBigNumber(balances.watchonly.trusted)).toStrictEqual(false)
-      expect(BigNumber.isBigNumber(balances.watchonly.untrusted_pending)).toStrictEqual(false)
-      expect(BigNumber.isBigNumber(balances.watchonly.immature)).toStrictEqual(true)
-    } else {
-      throw new Error('expected balances.watchonly to be truthy')
-    }
-  })
 })
 
 describe('getBalances without masternode', () => {
