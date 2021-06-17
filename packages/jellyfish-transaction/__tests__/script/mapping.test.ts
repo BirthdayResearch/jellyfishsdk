@@ -144,7 +144,7 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
 
   it('OP_FROMALTSTACK', () => { expectOPCode(script.OP_CODES.OP_FROMALTSTACK, script.OP_FROMALTSTACK, 'OP_FROMALTSTACK', 0x6c, '6c') })
 
-  it.only('OP_2DROP', () => { expectOPCode(script.OP_CODES.OP_2DROP, script.OP_2DROP, 'OP_2DROP', 0x6d, '6d') })
+  it('OP_2DROP', () => { expectOPCode(script.OP_CODES.OP_2DROP, script.OP_2DROP, 'OP_2DROP', 0x6d, '6d') })
 
   it('OP_DUP', () => {
     expectOPCode(script.OP_CODES.OP_DUP, script.OP_DUP, 'OP_DUP', 0x76, '76')

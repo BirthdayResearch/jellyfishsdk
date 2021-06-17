@@ -368,7 +368,7 @@ export const OP_CODES = {
   OP_TOALTSTACK: new stack.OP_TOALTSTACK(),
   OP_FROMALTSTACK: new stack.OP_FROMALTSTACK(),
   OP_2DROP: new stack.OP_2DROP(),
-  //  OP_2DUP = 0x6e,
+  OP_2DUP: new stack.OP_2DUP(),
   //  OP_3DUP = 0x6f,
   //  OP_2OVER = 0x70,
   //  OP_2ROT = 0x71,
@@ -501,6 +501,7 @@ const HEX_MAPPING: {
   0x6b: OP_CODES.OP_TOALTSTACK,
   0x6c: OP_CODES.OP_FROMALTSTACK,
   0x6d: OP_CODES.OP_2DROP,
+  0x6e: OP_CODES.OP_2DUP,
   0x76: OP_CODES.OP_DUP,
   // bitwise
   0x87: OP_CODES.OP_EQUAL,

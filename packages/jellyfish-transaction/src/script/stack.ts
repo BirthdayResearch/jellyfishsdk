@@ -31,6 +31,15 @@ export class OP_2DROP extends StaticCode {
 }
 
 /**
+ * Duplicates the top two stack items.
+ */
+export class OP_2DUP extends StaticCode {
+  constructor () {
+    super(0x6e, 'OP_2DUP')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {
