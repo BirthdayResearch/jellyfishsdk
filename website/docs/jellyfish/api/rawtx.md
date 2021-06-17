@@ -143,8 +143,8 @@ interface rawtx {
   getRawTransaction (txid: string, verbose: false): Promise<string>
   getRawTransaction (txid: string, verbose: false, blockHash: string): Promise<string>
   getRawTransaction (txid: string, verbose: true): Promise<RawTransactionResult>
-  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<TransactionResult>
-  getRawTransaction (txid: string, verbose?: boolean, blockHash?: string): Promise<string | RawTransactionResult | TransactionResult>
+  getRawTransaction (txid: string, verbose: true, blockHash: string): Promise<RawTransactionResult>
+  getRawTransaction (txid: string, verbose?: boolean, blockHash?: string): Promise<string | RawTransactionResult>
 }
 
 interface RawTransactionResult {
