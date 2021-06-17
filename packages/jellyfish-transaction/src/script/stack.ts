@@ -49,6 +49,24 @@ export class OP_3DUP extends StaticCode {
 }
 
 /**
+ * Copies the pair of items two spaces back in the stack to the front.
+ */
+export class OP_2OVER extends StaticCode {
+  constructor () {
+    super(0x70, 'OP_2OVER')
+  }
+}
+
+/**
+ * The fifth and sixth items back are moved to the top of the stack.
+ */
+export class OP_2ROT extends StaticCode {
+  constructor () {
+    super(0x71, 'OP_2ROT')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {

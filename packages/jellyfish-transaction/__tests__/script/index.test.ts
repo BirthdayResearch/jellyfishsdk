@@ -828,6 +828,42 @@ describe('[OP_3DUP]', () => {
   })
 })
 
+describe('[OP_2OVER]', () => {
+  const hex = '0170'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_2OVER')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_2OVER], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_2ROT]', () => {
+  const hex = '0171'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_2ROT')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_2ROT], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
 describe('[OP_RETURN, OP_0]', () => {
   const hex = '026a00'
 
