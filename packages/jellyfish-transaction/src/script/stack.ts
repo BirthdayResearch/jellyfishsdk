@@ -76,6 +76,15 @@ export class OP_2SWAP extends StaticCode {
 }
 
 /**
+ * If the top stack value is not 0, duplicate it.
+ */
+export class OP_IFDUP extends StaticCode {
+  constructor () {
+    super(0x73, 'OP_IFDUP')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {
