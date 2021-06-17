@@ -5,6 +5,7 @@ import {
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { accountBTC, accountDFI, checkBTCBuyOfferDetails, checkBTCSellOrderDetails, checkDFIBuyOfferDetails, checkDFISellOrderDetails, idDFI, setup } from './common.test'
+import { RpcApiError } from '../../../src'
 
 describe('Should test ICXOrderBook.getOrder', () => {
   const container = new MasterNodeRegTestContainer()
@@ -115,5 +116,25 @@ describe('Should test ICXOrderBook.getOrder', () => {
     // retrive makeOfferTxId
     retrivedOrder = await client.icxorderbook.getOrder(makeOfferTxId)
     await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, retrivedOrder as Record<string, ICXOfferInfo>)
+  })
+
+  it('Should return an error when incorect order transaction Id is used', async () => {
+    // create an order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    await client.icxorderbook.createOrder(order, [])
+    await container.generate(1)
+
+    // get order "123" and check
+    const promise = client.icxorderbook.getOrder('123')
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000123) does not exist\', code: -8, method: icx_getorder')
   })
 })
