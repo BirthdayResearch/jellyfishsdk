@@ -738,6 +738,24 @@ describe('[OP_DROP]', () => {
   })
 })
 
+describe('[OP_DUP]', () => {
+  const hex = '0176'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_DUP')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_DUP], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
 describe('[OP_NIP]', () => {
   const hex = '0177'
 
