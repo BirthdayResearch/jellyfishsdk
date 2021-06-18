@@ -65,7 +65,7 @@ export class Wallet {
   /**
    * Identical to getBalance to get untrusted pending balance
    *
-   * @param {boolean} withTokens default = false, with token values
+   * @param {boolean} withTokens [default=false], with token values
    * @return Promise<BigNumber>
    */
   async getUnconfirmedBalance (withTokens: boolean = false): Promise<BigNumber> {
