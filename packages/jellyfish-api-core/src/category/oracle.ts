@@ -112,6 +112,16 @@ export class Oracle {
   }
 
   /**
+   * Returns aggregated price from oracles.
+   *
+   * @param {OraclePriceFeed} priceFeed
+   * @return {Promise<BigNumber>}
+   */
+  async getPrice (priceFeed: OraclePriceFeed): Promise<BigNumber> {
+    return await this.client.call('getprice', [priceFeed], 'bignumber')
+  }
+
+  /**
    * List all aggregated prices.
    *
    * @return {Promise<ListPricesData[]>}
