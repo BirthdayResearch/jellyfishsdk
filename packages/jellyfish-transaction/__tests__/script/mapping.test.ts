@@ -180,6 +180,14 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_ROLL, script.OP_ROLL, 'OP_ROLL', 0x7a, '7a')
   })
 
+  it('OP_ROT', () => {
+    expectOPCode(script.OP_CODES.OP_ROT, script.OP_ROT, 'OP_ROT', 0x7b, '7b')
+  })
+
+  it('OP_SWAP', () => {
+    expectOPCode(script.OP_CODES.OP_SWAP, script.OP_SWAP, 'OP_SWAP', 0x7c, '7c')
+  })
+
   it('OP_EQUAL', () => {
     expectOPCode(script.OP_CODES.OP_EQUAL, script.OP_EQUAL, 'OP_EQUAL', 0x87, '87')
   })

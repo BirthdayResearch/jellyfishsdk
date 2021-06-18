@@ -1008,6 +1008,42 @@ describe('[OP_ROLL]', () => {
   })
 })
 
+describe('[OP_ROT]', () => {
+  const hex = '017b'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_ROT')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_ROT], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_SWAP]', () => {
+  const hex = '017c'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_SWAP')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_SWAP], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
 describe('[OP_RETURN, OP_0]', () => {
   const hex = '026a00'
 

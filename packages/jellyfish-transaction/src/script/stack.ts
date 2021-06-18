@@ -146,3 +146,21 @@ export class OP_ROLL extends StaticCode {
     super(0x7a, 'OP_ROLL')
   }
 }
+
+/**
+ * The 3rd item down the stack is moved to the top.
+ */
+export class OP_ROT extends StaticCode {
+  constructor () {
+    super(0x7b, 'OP_ROT')
+  }
+}
+
+/**
+ * The top two items on the stack are swapped.
+ */
+export class OP_SWAP extends StaticCode {
+  constructor () {
+    super(0x7c, 'OP_SWAP')
+  }
+}
