@@ -94,6 +94,15 @@ export class OP_DEPTH extends StaticCode {
 }
 
 /**
+ * Removes the top stack item.
+ */
+export class OP_DROP extends StaticCode {
+  constructor () {
+    super(0x75, 'OP_DROP')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {
