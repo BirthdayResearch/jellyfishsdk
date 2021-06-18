@@ -59,6 +59,15 @@ export class ApiPagedResponse<T> extends Array<T> {
   }
 
   /**
+   * Built-in methods such as map, filter creates a new array for functional programming.
+   * It does that with the constructor found in the static Symbol.species class property.
+   * This needs to be overridden as ApiPagedResponse constructor has a different signature.
+   */
+  static get [Symbol.species] (): ArrayConstructor {
+    return Array
+  }
+
+  /**
    * @return {string} endpoint to paginate query
    */
   get endpoint (): string {

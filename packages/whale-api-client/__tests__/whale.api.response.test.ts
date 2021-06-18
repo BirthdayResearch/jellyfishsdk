@@ -38,3 +38,27 @@ it('should not have next', () => {
   expect(pagination.hasNext).toStrictEqual(false)
   expect(pagination.nextToken).toBeUndefined()
 })
+
+it('should be able to filter', () => {
+  const response: WhaleApiResponse<number[]> = {
+    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  }
+
+  const pagination = new ApiPagedResponse(response, 'GET', '/items')
+
+  expect(pagination.filter(value => value % 2 === 0)).toStrictEqual([
+    0, 2, 4, 6, 8
+  ])
+})
+
+it('should be able to map', () => {
+  const response: WhaleApiResponse<number[]> = {
+    data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+  }
+
+  const pagination = new ApiPagedResponse(response, 'GET', '/items')
+
+  expect(pagination.map(value => value * 11)).toStrictEqual([
+    0, 11, 22, 33, 44, 55, 66, 77, 88, 99
+  ])
+})
