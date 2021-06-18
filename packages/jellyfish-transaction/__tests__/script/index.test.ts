@@ -540,186 +540,6 @@ describe('[OP_RETURN]', () => {
   })
 })
 
-describe('[OP_RIPEMD160]', () => {
-  const hex = '01a6'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_RIPEMD160')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_SHA1]', () => {
-  const hex = '01a7'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_SHA1')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_SHA1], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_SHA256]', () => {
-  const hex = '01a8'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_SHA256')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_SHA256], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_HASH160]', () => {
-  const hex = '01a9'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_HASH160')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_HASH160], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_HASH256]', () => {
-  const hex = '01aa'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_HASH256')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_HASH256], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_CODESEPARATOR]', () => {
-  const hex = '01ab'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_CODESEPARATOR')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_CODESEPARATOR], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_CHECKSIG]', () => {
-  const hex = '01ac'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_CHECKSIG')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_CHECKSIG], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_CHECKSIGVERIFY]', () => {
-  const hex = '01ad'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_CHECKSIGVERIFY')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_CHECKSIGVERIFY], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_CHECKMULTISIG]', () => {
-  const hex = '01ae'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_CHECKMULTISIG')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIG], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
-describe('[OP_CHECKMULTISIGVERIFY]', () => {
-  const hex = '01af'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_CHECKMULTISIGVERIFY')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIGVERIFY], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
 describe('[OP_TOALTSTACK]', () => {
   const hex = '016b'
 
@@ -1040,6 +860,186 @@ describe('[OP_TUCK]', () => {
   it('should map toBuffer', () => {
     const smartBuffer = new SmartBuffer()
     OP_CODES.toBuffer([OP_CODES.OP_TUCK], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_RIPEMD160]', () => {
+  const hex = '01a6'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_RIPEMD160')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_SHA1]', () => {
+  const hex = '01a7'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_SHA1')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_SHA1], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_SHA256]', () => {
+  const hex = '01a8'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_SHA256')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_SHA256], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_HASH160]', () => {
+  const hex = '01a9'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_HASH160')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_HASH160], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_HASH256]', () => {
+  const hex = '01aa'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_HASH256')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_HASH256], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_CODESEPARATOR]', () => {
+  const hex = '01ab'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_CODESEPARATOR')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_CODESEPARATOR], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_CHECKSIG]', () => {
+  const hex = '01ac'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_CHECKSIG')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKSIG], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_CHECKSIGVERIFY]', () => {
+  const hex = '01ad'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_CHECKSIGVERIFY')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKSIGVERIFY], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_CHECKMULTISIG]', () => {
+  const hex = '01ae'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_CHECKMULTISIG')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIG], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_CHECKMULTISIGVERIFY]', () => {
+  const hex = '01af'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_CHECKMULTISIGVERIFY')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_CHECKMULTISIGVERIFY], smartBuffer)
     expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })
