@@ -128,3 +128,12 @@ export class OP_OVER extends StaticCode {
     super(0x78, 'OP_OVER')
   }
 }
+
+/**
+ * The item n back in the stack is copied to the top.
+ */
+export class OP_PICK extends StaticCode {
+  constructor () {
+    super(0x79, 'OP_PICK')
+  }
+}
