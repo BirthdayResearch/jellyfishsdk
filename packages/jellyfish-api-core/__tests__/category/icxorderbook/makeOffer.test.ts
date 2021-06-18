@@ -1,8 +1,9 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder } from '../../../src/category/icxorderbook'
+import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, InputUTXO } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { setup, accountDFI, idDFI, accountBTC, checkBTCBuyOfferDetails, checkBTCSellOrderDetails, checkDFIBuyOfferDetails, checkDFISellOrderDetails } from './common.test'
+import { RpcApiError } from '../../../src'
 
 describe('Should test ICXOrderBook.makeOffer', () => {
   const container = new MasterNodeRegTestContainer()
@@ -153,5 +154,165 @@ describe('Should test ICXOrderBook.makeOffer', () => {
     orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
     await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, orders as Record<string, ICXOfferInfo>)
+  })
+
+  it('Should make an partial offer to an sell DFI order with input UTXOs', async () => {
+    const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
+    // create order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = result.txid
+    await container.generate(1)
+
+    // list ICX orders
+    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
+    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+
+    // make offer to partial amout 10 DFI - taker
+    const offer: ICXOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
+      ownerAddress: accountBTC
+    }
+
+    // input utxos
+    const utxos = await container.call('listunspent', [1, 9999999, [accountBTC], true])
+    const inputUTXOs: InputUTXO[] = utxos.map((utxo: InputUTXO) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
+    })
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
+
+    result = await client.icxorderbook.makeOffer(offer, inputUTXOs)
+    const makeOfferTxId = result.txid
+    await container.generate(1)
+
+    const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
+
+    // check fee of 0.01 DFI has been reduced from the accountBTCBefore[idDFI]
+    // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
+    expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]) - Number(0.01000000))
+
+    // List the ICX offers for orderTx = createOrderTxId and check
+    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
+    expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, orders as Record<string, ICXOfferInfo>)
+
+    // check accountDFI[idDFI] balance //Note(surangap): check this
+    const accountDFIAfterOffer = await container.call('getaccount', [accountDFI, {}, true])
+    expect(Number(accountDFIAfterOffer[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI]) - Number(15))
+  })
+
+  it('Should return an error when making an offer to invalid ICXOffer.orderTx', async () => {
+    // create order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = result.txid
+    await container.generate(1)
+
+    // list ICX orders
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
+    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+
+    // make offer to invalid orderTx "123" - taker
+    const offer: ICXOffer = {
+      orderTx: '123',
+      amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
+      ownerAddress: accountBTC
+    }
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
+
+    const promise = client.icxorderbook.makeOffer(offer, [])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000123) does not exist\', code: -8, method: icx_makeoffer')
+
+    const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
+    // check same balance
+    expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]))
+  })
+
+  it('Should return an error with invalid ICXOffer.ownerAddress', async () => {
+    // create order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = result.txid
+    await container.generate(1)
+
+    // list ICX orders
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
+    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+
+    // make offer with invalid ownerAddress "123" - taker
+    const offer: ICXOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
+      ownerAddress: '123'
+    }
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
+
+    const promise = client.icxorderbook.makeOffer(offer, [])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'recipient (123) does not refer to any valid address\', code: -5, method: icx_makeoffer')
+
+    const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
+    // check same balance
+    expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]))
+  })
+
+  it('Should return an error with invalid ICXOffer.receivePubkey', async () => {
+    // create offer - maker
+    const order: ICXOrder = {
+      chainFrom: 'BTC',
+      tokenTo: idDFI,
+      ownerAddress: accountDFI,
+      amountFrom: new BigNumber(2),
+      orderPrice: new BigNumber(100)
+    }
+    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = result.txid
+    await container.generate(1)
+
+    // list ICX orders
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
+    await checkBTCSellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+
+    // make offer to partial amout 1 BTC - taker
+    const offer: ICXOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(100), // 100 DFI = 1 BTC
+      ownerAddress: accountBTC,
+      receivePubkey: '123'
+    }
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
+    const promise = client.icxorderbook.makeOffer(offer, [])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid public key: 123\', code: -5, method: icx_makeoffer')
+
+    const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
+    // expect the same balance
+    expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]))
   })
 })

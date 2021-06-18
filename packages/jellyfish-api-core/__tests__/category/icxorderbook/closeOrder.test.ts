@@ -6,6 +6,7 @@ import {
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { setup, accountDFI, idDFI, checkDFISellOrderDetails, accountBTC, checkDFIBuyOfferDetails, symbolDFI, checkDFCHTLCDetails, checkEXTHTLCDetails, checkBTCSellOrderDetails } from './common.test'
+import { RpcApiError } from '../../../src'
 
 describe('Should test ICXOrderBook.closeOrder', () => {
   const container = new MasterNodeRegTestContainer()
@@ -84,6 +85,46 @@ describe('Should test ICXOrderBook.closeOrder', () => {
     const accountDFIBalance = await container.call('getaccount', [accountDFI, {}, true])
     expect(accountDFIBalance).toStrictEqual(accountDFIStart)
   })
+
+  // NOTE(surangap): check why this is failing
+  /*
+  it('Should close order with input utxos', async () => {
+    // create an order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = result.txid
+    await container.generate(1)
+
+    // list ICX orders and check
+    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
+    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+
+    // input utxos
+    const utxos = await container.call('listunspent', [1, 9999999, [accountDFI], true])
+    const inputUTXOs: InputUTXO[] = utxos.map((utxo: InputUTXO) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
+    })
+    // close order createOrderTxId - maker
+    await client.icxorderbook.closeOrder(createOrderTxId, inputUTXOs)
+
+    // list closed orders and check order createOrderTxId
+    orders = await client.icxorderbook.listOrders({ closed: true })
+    // orders = await client.icxorderbook.listOrders()
+    const orderInfoRetrived = orders as Record<string, ICXOrderInfo>
+    expect(orderInfoRetrived[createOrderTxId].status).toStrictEqual(ICXOrderStatus.CLOSED)
+    expect(orderInfoRetrived[createOrderTxId].ownerAddress).toStrictEqual(order.ownerAddress)
+  })
+  */
 
   it('Should close a partially settled order', async () => {
     // create order - maker
@@ -235,5 +276,34 @@ describe('Should test ICXOrderBook.closeOrder', () => {
     // check accountDFI[idDFI] balance, remaining 5 DFI should be returned
     const accountDFIFinalBalance = await container.call('getaccount', [accountDFI, {}, true])
     expect(Number(accountDFIFinalBalance[idDFI])).toStrictEqual(Number(accountDFIAfterClaim[idDFI]) + Number(5))
+  })
+
+  it('Should return an error when incorrect order transaction is passed', async () => {
+    // create an order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
+      ownerAddress: accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = result.txid
+    await container.generate(1)
+
+    // list ICX orders and check
+    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
+    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+
+    // close order "123" - maker
+    const promise = client.icxorderbook.closeOrder('123')
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000123) does not exist\', code: -8, method: icx_closeorder')
+
+    // check createOrderTxId order still exists
+    orders = await client.icxorderbook.listOrders()
+    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
   })
 })
