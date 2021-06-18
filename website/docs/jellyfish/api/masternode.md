@@ -2,7 +2,7 @@
 id: masternode
 title: Masternode API
 sidebar_label: Masternode API
-API slug: /jellyfish/api/masternode
+slug: /jellyfish/api/masternode
 ---
 
 ```js
@@ -107,17 +107,17 @@ enum MasternodeState {
 }
 
 interface MasternodeInfo {
-  ownerAuthAddress: string,
-  operatorAuthAddress: string,
-  creationHeight: number,
-  resignHeight: number,
-  resignTx: string,
-  banHeight: number,
-  banTx: string,
-  state: MasternodeState,
-  mintedBlocks: number,
-  ownerIsMine: boolean,
-  operatorIsMine: boolean,
+  ownerAuthAddress: string
+  operatorAuthAddress: string
+  creationHeight: number
+  resignHeight: number
+  resignTx: string
+  banHeight: number
+  banTx: string
+  state: MasternodeState
+  mintedBlocks: number
+  ownerIsMine: boolean
+  operatorIsMine: boolean
   localMasternode: boolean
 }
 
