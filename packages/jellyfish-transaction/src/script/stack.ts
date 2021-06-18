@@ -164,3 +164,12 @@ export class OP_SWAP extends StaticCode {
     super(0x7c, 'OP_SWAP')
   }
 }
+
+/**
+ * The item at the top of the stack is copied and inserted before the second-to-top item.
+ */
+export class OP_TUCK extends StaticCode {
+  constructor () {
+    super(0x7d, 'OP_TUCK')
+  }
+}
