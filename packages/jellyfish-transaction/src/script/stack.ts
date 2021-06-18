@@ -119,3 +119,12 @@ export class OP_NIP extends StaticCode {
     super(0x77, 'OP_NIP')
   }
 }
+
+/**
+ * Copies the second-to-top stack item to the top.
+ */
+export class OP_OVER extends StaticCode {
+  constructor () {
+    super(0x78, 'OP_OVER')
+  }
+}

@@ -378,8 +378,7 @@ export const OP_CODES = {
   OP_DROP: new stack.OP_DROP(),
   OP_DUP: new stack.OP_DUP(),
   OP_NIP: new stack.OP_NIP(),
-  //  OP_NIP = 0x77,
-  //  OP_OVER = 0x78,
+  OP_OVER: new stack.OP_OVER(),
   //  OP_PICK = 0x79,
   //  OP_ROLL = 0x7a,
   //  OP_ROT = 0x7b,
@@ -512,6 +511,7 @@ const HEX_MAPPING: {
   0x75: OP_CODES.OP_DROP,
   0x76: OP_CODES.OP_DUP,
   0x77: OP_CODES.OP_NIP,
+  0x78: OP_CODES.OP_OVER,
   // bitwise
   0x87: OP_CODES.OP_EQUAL,
   0x88: OP_CODES.OP_EQUALVERIFY,
