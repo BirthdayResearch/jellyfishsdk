@@ -85,6 +85,15 @@ export class OP_IFDUP extends StaticCode {
 }
 
 /**
+ * Puts the number of stack items onto the stack.
+ */
+export class OP_DEPTH extends StaticCode {
+  constructor () {
+    super(0x74, 'OP_DEPTH')
+  }
+}
+
+/**
  * Duplicates the top stack item.
  */
 export class OP_DUP extends StaticCode {

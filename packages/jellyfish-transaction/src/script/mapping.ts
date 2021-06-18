@@ -374,6 +374,7 @@ export const OP_CODES = {
   OP_2ROT: new stack.OP_2ROT(),
   OP_2SWAP: new stack.OP_2SWAP(),
   OP_IFDUP: new stack.OP_IFDUP(),
+  OP_DEPTH: new stack.OP_DEPTH(),
   //  OP_DEPTH = 0x74,
   //  OP_DROP = 0x75,
   OP_DUP: new stack.OP_DUP(),
@@ -507,6 +508,7 @@ const HEX_MAPPING: {
   0x71: OP_CODES.OP_2ROT,
   0x72: OP_CODES.OP_2SWAP,
   0x73: OP_CODES.OP_IFDUP,
+  0x74: OP_CODES.OP_DEPTH,
   0x76: OP_CODES.OP_DUP,
   // bitwise
   0x87: OP_CODES.OP_EQUAL,
