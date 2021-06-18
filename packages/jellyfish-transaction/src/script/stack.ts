@@ -1,6 +1,3 @@
-/**
- * Duplicates the top stack item.
- */
 import { StaticCode } from './opcode'
 
 /**
