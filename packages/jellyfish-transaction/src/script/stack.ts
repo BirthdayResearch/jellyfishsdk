@@ -110,3 +110,12 @@ export class OP_DUP extends StaticCode {
     super(0x76, 'OP_DUP')
   }
 }
+
+/**
+ * Removes the second-to-top stack item.
+ */
+export class OP_NIP extends StaticCode {
+  constructor () {
+    super(0x77, 'OP_NIP')
+  }
+}

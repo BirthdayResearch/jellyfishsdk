@@ -164,6 +164,10 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_DUP, script.OP_DUP, 'OP_DUP', 0x76, '76')
   })
 
+  it('OP_NIP', () => {
+    expectOPCode(script.OP_CODES.OP_NIP, script.OP_NIP, 'OP_NIP', 0x77, '77')
+  })
+
   it('OP_EQUAL', () => {
     expectOPCode(script.OP_CODES.OP_EQUAL, script.OP_EQUAL, 'OP_EQUAL', 0x87, '87')
   })
