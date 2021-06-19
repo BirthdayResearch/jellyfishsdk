@@ -68,17 +68,17 @@ interface MasternodePagination {
 }
 
 interface MasternodeInfo {
-  ownerAuthAddress: string,
-  operatorAuthAddress: string,
-  creationHeight: number,
-  resignHeight: number,
-  resignTx: string,
-  banHeight: number,
-  banTx: string,
-  state: MasternodeState,
-  mintedBlocks: number,
-  ownerIsMine: boolean,
-  operatorIsMine: boolean,
+  ownerAuthAddress: string
+  operatorAuthAddress: string
+  creationHeight: number
+  resignHeight: number
+  resignTx: string
+  banHeight: number
+  banTx: string
+  state: MasternodeState
+  mintedBlocks: number
+  ownerIsMine: boolean
+  operatorIsMine: boolean
   localMasternode: boolean
 }
 
