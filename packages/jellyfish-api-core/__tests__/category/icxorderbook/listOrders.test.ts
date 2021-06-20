@@ -200,7 +200,7 @@ describe('Should test ICXOrderBook.listOrders', () => {
       chainTo: 'BTC',
       ownerAddress: accountDFI,
       receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
-      amountFrom: new BigNumber(15),
+      amountFrom: new BigNumber(20),
       orderPrice: new BigNumber(0.01)
     }
     let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
@@ -262,9 +262,10 @@ describe('Should test ICXOrderBook.listOrders', () => {
 
     // const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
 
+    // NOTE(surangap): why below check is failing?
     // check fee of 0.02 DFI has been reduced from the accountBTCBeforeOffer[idDFI]
     // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
-    // expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]) - Number(0.02)) // NOTE(surangap): check this
+    // expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]) - Number(0.02))
 
     // List the ICX offers for orderTx = createOrderTxId and check
     orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })

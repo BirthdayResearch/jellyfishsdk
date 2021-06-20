@@ -66,7 +66,7 @@ describe('Should test ICXOrderBook.makeOffer', () => {
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
     await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, orders as Record<string, ICXOfferInfo>)
 
-    // check accountDFI[idDFI] balance //Note(surangap): check this
+    // check accountDFI[idDFI] balance
     const accountDFIAfterOffer = await container.call('getaccount', [accountDFI, {}, true])
     expect(Number(accountDFIAfterOffer[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI]) - Number(15))
   })
@@ -207,7 +207,7 @@ describe('Should test ICXOrderBook.makeOffer', () => {
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
     await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, orders as Record<string, ICXOfferInfo>)
 
-    // check accountDFI[idDFI] balance //Note(surangap): check this
+    // check accountDFI[idDFI] balance
     const accountDFIAfterOffer = await container.call('getaccount', [accountDFI, {}, true])
     expect(Number(accountDFIAfterOffer[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI]) - Number(15))
   })

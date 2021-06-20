@@ -114,8 +114,9 @@ export async function checkDFISellOrderDetails (container: MasterNodeRegTestCont
   expect(orderInfoRetrived[createOrderTxId].amountToFill).toStrictEqual(orderInput.amountFrom)
   expect(orderInfoRetrived[createOrderTxId].orderPrice).toStrictEqual(orderInput.orderPrice)
   expect(orderInfoRetrived[createOrderTxId].amountToFillInToAsset).toStrictEqual(orderInput.amountFrom.multipliedBy(orderInput.orderPrice))
+  // NOTE(surangap): sometimes received == expected - 1 ??
   // let currentBlockHeight: number = (await container.call('getblockchaininfo', [])).blocks
-  // expect(orderInfoRetrived[createOrderTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 2880)) // NOTE(surangap) why BigNumber?
+  // expect(orderInfoRetrived[createOrderTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 2880))
 }
 
 export async function checkBTCSellOrderDetails (container: MasterNodeRegTestContainer, orderInput: ICXOrder, createOrderTxId: string,
@@ -128,8 +129,9 @@ export async function checkBTCSellOrderDetails (container: MasterNodeRegTestCont
   expect(orderInfo[createOrderTxId].amountToFill).toStrictEqual(orderInput.amountFrom)
   expect(orderInfo[createOrderTxId].orderPrice).toStrictEqual(orderInput.orderPrice)
   expect(orderInfo[createOrderTxId].amountToFillInToAsset).toStrictEqual(orderInput.amountFrom.multipliedBy(orderInput.orderPrice))
+  // NOTE(surangap): sometimes received == expected - 1 ??
   // const currentBlockHeight: number = (await container.call('getblockchaininfo', [])).blocks
-  // expect(orderInfo[createOrderTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 2880)) // NOTE(surangap) why BigNumber?
+  // expect(orderInfo[createOrderTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 2880))
 }
 
 export async function checkDFIBuyOfferDetails (container: MasterNodeRegTestContainer, offerInput: ICXOffer, makeOfferTxId: string,
@@ -140,6 +142,7 @@ export async function checkDFIBuyOfferDetails (container: MasterNodeRegTestConta
   // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
   const takerFee = offerInput.amount.multipliedBy(ICX_TAKERFEE_PER_BTC).multipliedBy(DEX_DFI_PER_BTC_RATE)
   expect(offerInfoRetrived[makeOfferTxId].takerFee).toStrictEqual(takerFee)
+  // NOTE(surangap): sometimes received == expected - 1 ??
   // let currentBlockHeight = (await container.call('getblockchaininfo', [])).blocks
   // expect(offerInfoRetrived[makeOfferTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 10))
 }
@@ -152,8 +155,9 @@ export async function checkBTCBuyOfferDetails (container: MasterNodeRegTestConta
   // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
   const takerFee = offerInput.amount.multipliedBy(ICX_TAKERFEE_PER_BTC)
   expect(offerInfoRetrived[makeOfferTxId].takerFee).toStrictEqual(takerFee)
-// let currentBlockHeight = (await container.call('getblockchaininfo', [])).blocks
-// expect(offerInfoRetrived[makeOfferTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 10))
+  // NOTE(surangap): sometimes received == expected - 1 ??
+  // let currentBlockHeight = (await container.call('getblockchaininfo', [])).blocks
+  // expect(offerInfoRetrived[makeOfferTxId].expireHeight).toStrictEqual(new BigNumber(currentBlockHeight + 10))
 }
 
 export async function closeAllOrders (container: MasterNodeRegTestContainer): Promise<void> {

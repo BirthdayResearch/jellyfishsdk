@@ -4,7 +4,7 @@ import {
   ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, InputUTXO
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountBTC, accountDFI, checkBTCSellOrderDetails, checkDFISellOrderDetails, idDFI, setup } from './common.test'
+import { accountDFI, checkBTCSellOrderDetails, checkDFISellOrderDetails, idDFI, setup } from './common.test'
 import { RpcApiError } from '../../../src'
 
 describe('Should test ICXOrderBook.createOrder', () => {
@@ -46,7 +46,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     // we know that only ICXOrderInfo will be returned, so cast and pass to check order details
     await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
 
-    // check accountDFI[idDFI] balance, reduced by 15 DFI //NOTE(surangap) check this
+    // check accountDFI[idDFI] balance, reduced by 15 DFI
     const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
     expect(Number(accountDFIAfterOrder[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI] - Number(15)))
   })
@@ -87,7 +87,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     }
 
     // input utxos
-    const utxos = await container.call('listunspent', [1, 9999999, [accountBTC], true])
+    const utxos = await container.call('listunspent', [1, 9999999, [accountDFI], true])
     const inputUTXOs: InputUTXO[] = utxos.map((utxo: InputUTXO) => {
       return {
         txid: utxo.txid,
@@ -103,7 +103,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     // we know that only ICXOrderInfo will be returned, so cast and pass to check order details
     await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
 
-    // check accountDFI[idDFI] balance, reduced by 15 DFI //NOTE(surangap) check this
+    // check accountDFI[idDFI] balance, reduced by 15 DFI
     const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
     expect(Number(accountDFIAfterOrder[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI] - Number(15)))
   })
