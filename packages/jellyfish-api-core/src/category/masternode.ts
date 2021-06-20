@@ -74,7 +74,7 @@ export interface UTXO {
 }
 
 export interface CreateMasternodeOptions {
-  utxos?: UTXO[]
+  utxos: UTXO[]
 }
 
 export interface MasternodePagination {

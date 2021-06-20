@@ -27,12 +27,12 @@ interface masternode {
 }
 
 interface UTXO {
-  txid?: string
-  vout?: number
+  txid: string
+  vout: number
 }
 
 interface CreateMasternodeOptions {
-  inputs?: UTXO[]
+  utxos: UTXO[]
 }
 ```
 
