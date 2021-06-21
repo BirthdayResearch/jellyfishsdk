@@ -56,7 +56,7 @@ export class PoolPair {
    * Returns information about pool
    *
    * @param {string} symbol token's symbol
-   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokena, idTokenB
+   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokenA, idTokenB
    * @return {Promise<PoolPairsResult>}
    */
   async getPoolPair (symbol: string, verbose = true): Promise<PoolPairsResult> {
@@ -142,7 +142,7 @@ export interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: BigNumber
   creationTx: string
   creationHeight: BigNumber
 }
