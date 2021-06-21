@@ -321,8 +321,8 @@ export class Account {
   /**
    * Creates a transfer transaction from your accounts balances.
    *
-   * @param {AddressBalances} from The source defi address is the key, the value is amount in amount amount@token format
-   * @param {AddressBalances} to The defi address is the key, the value is amount in amount amount@token format
+   * @param {AddressBalances} from source address as the key, the value is amount formatted as amount@token
+   * @param {AddressBalances} to address as the key, the value is amount formatted as amount@token
    * @param {SendTokensOptions} [options = { selectionMode: SelectionModeType.PIE }]
    * @param {SelectionModeType} [options.selectionMode] Account selection mode. If "from" param is empty, it will auto select.
    * @return {Promise<string>}
