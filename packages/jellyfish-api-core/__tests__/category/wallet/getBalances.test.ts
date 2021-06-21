@@ -36,7 +36,7 @@ describe('getBalances on masternode', () => {
 
     const balanceAfter: WalletBalances = await client.wallet.getBalances()
 
-    expect(balanceBefore.mine.trusted.gt(balanceAfter.mine.trusted.toNumber())).toStrictEqual(true)
+    expect(balanceBefore.mine.trusted.gt(balanceAfter.mine.trusted)).toStrictEqual(true)
   })
 
   it('test watchOnly', async () => {
