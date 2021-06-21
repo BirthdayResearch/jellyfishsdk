@@ -17,32 +17,12 @@ describe('SendTokenToAddress', () => {
     await container.stop()
   })
 
-  let addrA: string
-  let addrB: string
-  let addrCForward: string
-  let addrCCrumbs: string
-  let addrCPie: string
+  let address: string
 
   async function setup (): Promise<void> {
-    addrA = await container.call('getnewaddress')
-    addrB = await container.call('getnewaddress')
-    addrCForward = await container.call('getnewaddress')
-    addrCCrumbs = await container.call('getnewaddress')
-    addrCPie = await container.call('getnewaddress')
-
-    const tokenaddrA = await container.call('getnewaddress')
-    const tokenaddrB = await container.call('getnewaddress')
-    const tokenAddrC = await container.call('getnewaddress')
-    await createToken(tokenaddrA, 'ANT', 100)
-    await createToken(tokenaddrB, 'BAT', 100)
-    await createToken(tokenAddrC, 'CAT', 200)
-
-    await container.call('accounttoaccount', [tokenaddrA, { [addrA]: `${100}@ANT` }])
-    await container.call('accounttoaccount', [tokenaddrB, { [addrB]: `${100}@BAT` }])
-    await container.call('accounttoaccount', [tokenAddrC, { [addrCForward]: `${49}@CAT` }])
-    await container.call('accounttoaccount', [tokenAddrC, { [addrCCrumbs]: `${3}@CAT` }])
-    await container.call('accounttoaccount', [tokenAddrC, { [addrCPie]: `${104}@CAT` }])
-    await container.generate(1)
+    address = await container.call('getnewaddress')
+    await createToken(address, 'ANT', 100)
+    await createToken(address, 'BAT', 100)
   }
 
   async function createToken (address: string, symbol: string, amount: number): Promise<void> {
@@ -70,86 +50,107 @@ describe('SendTokenToAddress', () => {
     return Number(acc.split('@')[0])
   }
 
-  it('should sendTokensToAddress with selectionMode pie', async () => {
-    const accPieBefore = (await client.account.getAccount(addrCPie))[0]
-    const addrReceiver = await container.call('getnewaddress')
-    const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['4@CAT'] }, {
-      selectionMode: SelectionModeType.PIE
+  describe('sendTokensToAddress selectionModes', () => {
+    let tokenAddress: string
+    let addressForward: string
+    let addressPie: string
+    let addressCrumbs: string
+
+    beforeAll(async () => {
+      tokenAddress = await container.call('getnewaddress')
+      addressPie = await container.call('getnewaddress')
+      addressForward = await container.call('getnewaddress')
+      addressCrumbs = await container.call('getnewaddress')
+
+      await createToken(tokenAddress, 'CAT', 200)
+
+      await container.call('accounttoaccount', [tokenAddress, { [addressForward]: `${49}@CAT` }])
+      await container.call('accounttoaccount', [tokenAddress, { [addressCrumbs]: `${3}@CAT` }])
+      await container.call('accounttoaccount', [tokenAddress, { [addressPie]: `${104}@CAT` }])
+      await container.generate(1)
     })
 
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
+    it('should sendTokensToAddress with selectionMode pie', async () => {
+      const balanceBefore = (await client.account.getAccount(addressPie))[0]
+      const addressReceiver = await container.call('getnewaddress')
+      const hex = await client.account.sendTokensToAddress({}, { [addressReceiver]: ['4@CAT'] }, {
+        selectionMode: SelectionModeType.PIE
+      })
 
-    await container.generate(1)
+      expect(typeof hex).toStrictEqual('string')
+      expect(hex.length).toStrictEqual(64)
 
-    const accPieAfter = (await client.account.getAccount(addrCPie))[0]
-    expect(accToNum(accPieAfter)).toStrictEqual(accToNum(accPieBefore) - 4)
+      await container.generate(1)
 
-    const accReceiver = (await client.account.getAccount(addrReceiver))[0]
-    expect(accReceiver).toStrictEqual('4.00000000@CAT')
-  })
+      const balanceAfter = (await client.account.getAccount(addressPie))[0]
+      expect(accToNum(balanceAfter)).toStrictEqual(accToNum(balanceBefore) - 4)
 
-  it('should sendTokensToAddress with selectionMode crumbs', async () => {
-    const accCrumbsBefore = (await client.account.getAccount(addrCCrumbs))[0]
-
-    const addrReceiver = await container.call('getnewaddress')
-    const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['2@CAT'] }, {
-      selectionMode: SelectionModeType.CRUMBS
+      const accReceiver = (await client.account.getAccount(addressReceiver))[0]
+      expect(accReceiver).toStrictEqual('4.00000000@CAT')
     })
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
 
-    await container.generate(1)
+    it('should sendTokensToAddress with selectionMode crumbs', async () => {
+      const balanceBefore = (await client.account.getAccount(addressCrumbs))[0]
+      const addressReceiver = await container.call('getnewaddress')
 
-    const accCrumbsAfter = (await client.account.getAccount(addrCCrumbs))[0]
-    expect(accToNum(accCrumbsAfter)).toStrictEqual(accToNum(accCrumbsBefore) - 2)
+      const hex = await client.account.sendTokensToAddress({}, { [addressReceiver]: ['2@CAT'] }, {
+        selectionMode: SelectionModeType.CRUMBS
+      })
+      expect(typeof hex).toStrictEqual('string')
+      expect(hex.length).toStrictEqual(64)
 
-    const accReceiver = (await client.account.getAccount(addrReceiver))[0]
-    expect(accReceiver).toStrictEqual('2.00000000@CAT')
-  })
+      await container.generate(1)
 
-  // NOTE(canonrother): "selectionMode: forward" picks the address name order by ASC, its hard to test as address is random generated
-  it.skip('should sendTokensToAddress with selectionMode forward', async () => {
-    const accForwardBefore = (await client.account.getAccount(addrCCrumbs))[0]
+      const balanceAfter = (await client.account.getAccount(addressCrumbs))[0]
+      expect(accToNum(balanceAfter)).toStrictEqual(accToNum(balanceBefore) - 2)
 
-    const addrReceiver = await container.call('getnewaddress')
-    const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['6@CAT'] }, {
-      selectionMode: SelectionModeType.FORWARD
+      const accountReceiver = (await client.account.getAccount(addressReceiver))[0]
+      expect(accountReceiver).toStrictEqual('2.00000000@CAT')
     })
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
 
-    await container.generate(1)
+    // NOTE(canonrother): "selectionMode: forward" picks the address name order by ASC, its hard to test as address is random generated
+    it.skip('should sendTokensToAddress with selectionMode forward', async () => {
+      const balanceForwardBefore = (await client.account.getAccount(addressForward))[0]
+      const addressReceiver = await container.call('getnewaddress')
 
-    const accForwardAfter = (await client.account.getAccount(addrCCrumbs))[0]
-    expect(accToNum(accForwardAfter)).toStrictEqual(accToNum(accForwardBefore) - 6)
+      const hex = await client.account.sendTokensToAddress({}, { [addressReceiver]: ['6@CAT'] }, {
+        selectionMode: SelectionModeType.FORWARD
+      })
+      expect(typeof hex).toStrictEqual('string')
+      expect(hex.length).toStrictEqual(64)
 
-    const accReceiver = (await client.account.getAccount(addrReceiver))[0]
-    expect(accReceiver).toStrictEqual('6.00000000@CAT')
+      await container.generate(1)
+
+      const balanceAfter = (await client.account.getAccount(addressForward))[0]
+      expect(accToNum(balanceAfter)).toStrictEqual(accToNum(balanceForwardBefore) - 6)
+
+      const accountReceiver = (await client.account.getAccount(balanceAfter))[0]
+      expect(accountReceiver).toStrictEqual('6.00000000@CAT')
+    })
   })
 
   it('should sendTokensToAddress with multiple receiver tokens', async () => {
-    const addrReceiver = await container.call('getnewaddress')
-    const hex = await client.account.sendTokensToAddress({}, { [addrReceiver]: ['2@ANT', '5@CAT', '10@BAT'] })
+    const addressReceiver = await container.call('getnewaddress')
+    const hex = await client.account.sendTokensToAddress({}, { [addressReceiver]: ['2@ANT', '10@BAT'] })
 
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
 
-    expect(await client.account.getAccount(addrReceiver)).toStrictEqual(['2.00000000@ANT', '10.00000000@BAT', '5.00000000@CAT'])
+    expect(await client.account.getAccount(addressReceiver)).toStrictEqual(['2.00000000@ANT', '10.00000000@BAT'])
   })
 
   it('should sendTokensToAddress with source address', async () => {
-    const addrReceiver = await container.call('getnewaddress')
-    const hex = await client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [addrReceiver]: ['10@ANT'] })
+    const addressReceiver = await container.call('getnewaddress')
+    const hex = await client.account.sendTokensToAddress({ [address]: ['10@ANT'] }, { [addressReceiver]: ['10@ANT'] })
 
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
 
-    expect(await client.account.getAccount(addrReceiver)).toStrictEqual(['10.00000000@ANT'])
+    expect(await client.account.getAccount(addressReceiver)).toStrictEqual(['10.00000000@ANT'])
   })
 
   it('should fail and throw an exception when no receiver address', async () => {
@@ -163,13 +164,13 @@ describe('SendTokenToAddress', () => {
   })
 
   it('should throw an error when sending different tokens', async () => {
-    const promise = client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['10@BAT'] })
+    const promise = client.account.sendTokensToAddress({ [address]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['10@BAT'] })
 
     await expect(promise).rejects.toThrow('RpcApiError: \'Test AnyAccountsToAccountsTx execution failed:\nsum of inputs (from) != sum of outputs (to)\', code: -32600, method: sendtokenstoaddress')
   })
 
   it('should throw an error when sending different amount', async () => {
-    const promise = client.account.sendTokensToAddress({ [addrA]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['20@ANT'] })
+    const promise = client.account.sendTokensToAddress({ [address]: ['10@ANT'] }, { [await container.call('getnewaddress')]: ['20@ANT'] })
 
     await expect(promise).rejects.toThrow('RpcApiError: \'Test AnyAccountsToAccountsTx execution failed:\nsum of inputs (from) != sum of outputs (to)\', code: -32600, method: sendtokenstoaddress')
   })
