@@ -49,7 +49,7 @@ interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: BigNumber
   creationTx: string
   creationHeight: number
 }
@@ -91,7 +91,7 @@ interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: BigNumber
   creationTx: string
   creationHeight: number
 }
