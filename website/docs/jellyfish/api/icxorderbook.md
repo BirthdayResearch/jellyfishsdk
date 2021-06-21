@@ -44,3 +44,31 @@ interface ICXGenericResult {
   txid: string
 }
 ```
+
+## makeOffer
+
+Create and submits a makeoffer transaction.
+
+```ts title="client.icxorderbook.makeOffer()"
+interface icxorderbook {
+  makeOffer (offer: ICXOffer, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+}
+
+interface ICXOffer {
+  orderTx: string
+  amount: BigNumber
+  ownerAddress: string
+  receivePubkey?: string
+  expiry?: number
+}
+
+interface InputUTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```
