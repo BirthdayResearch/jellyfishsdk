@@ -40,7 +40,7 @@ interface wallet {
 
 ## getBalances
 
-Returns an object with all balances.
+Returns an object with all balances
 
 ```ts title="client.wallet.getBalances()"
 interface wallet {
