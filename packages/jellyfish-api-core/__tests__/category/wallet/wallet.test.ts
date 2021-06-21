@@ -1,6 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { BigNumber, wallet } from '../../../src'
+import { wallet } from '../../../src'
+import BigNumber from 'bignumber.js'
 import waitForExpect from 'wait-for-expect'
 import {
   UTXO,

@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../src/buffer/buffer_composer'
 import { readVarUInt, writeVarUInt } from '../../src/buffer/buffer_varuint'

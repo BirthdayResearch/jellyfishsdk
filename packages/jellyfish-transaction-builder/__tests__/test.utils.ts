@@ -2,7 +2,7 @@ import { Bech32, Elliptic, EllipticPair, dSHA256 } from '@defichain/jellyfish-cr
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { CTransaction, CTransactionSegWit, Transaction, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 
 /**
  * For test mocking only, obviously not secured.

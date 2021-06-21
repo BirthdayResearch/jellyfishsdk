@@ -1,5 +1,6 @@
 import { Vin, Vout } from './blockchain'
-import { BigNumber, ApiClient } from '../.'
+import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 export enum SigHashType {
   ALL = 'ALL',
