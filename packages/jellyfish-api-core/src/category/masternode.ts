@@ -10,6 +10,9 @@ export enum MasternodeState {
   UNKNOWN = 'UNKNOWN'
 }
 
+/**
+ * Masternode RPCs for DeFi Blockchain
+ */
 export class Masternode {
   private readonly client: ApiClient
 
