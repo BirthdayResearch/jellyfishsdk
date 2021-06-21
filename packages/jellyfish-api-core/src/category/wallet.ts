@@ -65,11 +65,10 @@ export class Wallet {
   /**
    * Identical to getBalance to get untrusted pending balance
    *
-   * @param {boolean} withTokens [default=false], with token values
    * @return Promise<BigNumber>
    */
-  async getUnconfirmedBalance (withTokens: boolean = false): Promise<BigNumber> {
-    return await this.client.call('getunconfirmedbalance', [withTokens], 'bignumber')
+  async getUnconfirmedBalance (): Promise<BigNumber> {
+    return await this.client.call('getunconfirmedbalance', [false], 'bignumber')
   }
 
   /**

@@ -31,12 +31,11 @@ interface wallet {
 
 ## getUnconfirmedBalance
 
-Identical to getBalance to get untrusted pending balance
-- `withTokens` to include token balances, default is false for backward compatibility
+Identical to getBalance to get untrusted pending balance.
 
 ```ts title="client.wallet.getUnconfirmedBalance()"
 interface wallet {
-  getUnconfirmedBalance (withTokens: boolean = false): Promise<BigNumber>
+  getUnconfirmedBalance (): Promise<BigNumber>
 }
 ```
 
