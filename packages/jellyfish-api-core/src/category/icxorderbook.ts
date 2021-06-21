@@ -130,6 +130,30 @@ export class ICXOrderBook {
   }
 
   /**
+   * Claims a DFC HTLC
+   *
+   * @param {string} [DFCHTLCTx] Transaction id of DFC HTLC transaction for which the claim is
+   * @param {string} [seed] Secret seed for claiming HTLC
+   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {string} [inputUTXOs.txid] transaction Id
+   * @param {number} [inputUTXOs.vout] The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+    const htlc = {
+      dfchtlcTx: DFCHTLCTx,
+      seed: seed
+    }
+    return await this.client.call(
+      'icx_claimdfchtlc',
+      [
+        htlc, inputUTXOs
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
    * Returns information about order or fillorder
    *
    * @param {string} orderTx Transaction id of createorder or fulfillorder transaction

@@ -149,6 +149,26 @@ interface ICXGenericResult {
 }
 ```
 
+## claimDFCHTLC
+
+Claims a DFC HTLC
+
+```ts title="client.icxorderbook.claimDFCHTLC()"
+interface icxorderbook {
+  claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+}
+
+interface InputUTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```
+
 ## getOrder
 
 Returns information about order or fillorder
