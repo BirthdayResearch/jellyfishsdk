@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { OP_CODES, OP_PUSHDATA, SIGHASH, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { SHA256, HASH160, Elliptic } from '@defichain/jellyfish-crypto'
-import { TransactionSigner } from '../../src'
+import { SegWitSigner } from '../../src'
 
 describe('sign single input', () => {
   const transaction: Transaction = {
@@ -70,7 +70,7 @@ describe('sign single input', () => {
   const keyPair = Elliptic.fromPrivKey(privateKey)
 
   it('should sign single input', async () => {
-    const witness = await TransactionSigner.signInput(transaction, 1, {
+    const witness = await SegWitSigner.signInput(transaction, 1, {
       prevout: prevout,
       ellipticPair: keyPair
     }, SIGHASH.ALL)
@@ -85,7 +85,7 @@ describe('sign single input', () => {
   })
 
   it('should sign with same witnessScript getting the same signature', async () => {
-    const witness = await TransactionSigner.signInput(transaction, 1, {
+    const witness = await SegWitSigner.signInput(transaction, 1, {
       prevout: prevout,
       ellipticPair: keyPair,
       witnessScript: {
@@ -109,7 +109,7 @@ describe('sign single input', () => {
   })
 
   it('should sign with different witness script getting different signature', async () => {
-    const witness = await TransactionSigner.signInput(transaction, 1, {
+    const witness = await SegWitSigner.signInput(transaction, 1, {
       prevout: prevout,
       ellipticPair: keyPair,
       witnessScript: {
@@ -133,7 +133,7 @@ describe('sign single input', () => {
   })
 
   it('should fail as P2WSH cannot be guessed', async () => {
-    return await expect(TransactionSigner.signInput(transaction, 1, {
+    return await expect(SegWitSigner.signInput(transaction, 1, {
       prevout: {
         script: {
           stack: [
@@ -150,7 +150,7 @@ describe('sign single input', () => {
   })
 
   it('should fail as isV0P2WPKH cannot match provided prevout ', async () => {
-    return await expect(TransactionSigner.signInput(transaction, 1, {
+    return await expect(SegWitSigner.signInput(transaction, 1, {
       prevout: {
         script: {
           stack: [
@@ -169,42 +169,42 @@ describe('sign single input', () => {
 
   describe('SIGHASH for consistency should err-out as they are not implemented', () => {
     it('should err SIGHASH.NONE', async () => {
-      return await expect(TransactionSigner.signInput(transaction, 1, {
+      return await expect(SegWitSigner.signInput(transaction, 1, {
         prevout: prevout,
         ellipticPair: keyPair
       }, SIGHASH.NONE)).rejects.toThrow('currently only SIGHASH.ALL is supported')
     })
 
     it('should err SIGHASH.SINGLE', async () => {
-      return await expect(TransactionSigner.signInput(transaction, 1, {
+      return await expect(SegWitSigner.signInput(transaction, 1, {
         prevout: prevout,
         ellipticPair: keyPair
       }, SIGHASH.SINGLE)).rejects.toThrow('currently only SIGHASH.ALL is supported')
     })
 
     it('should err SIGHASH.ANYONECANPAY', async () => {
-      return await expect(TransactionSigner.signInput(transaction, 1, {
+      return await expect(SegWitSigner.signInput(transaction, 1, {
         prevout: prevout,
         ellipticPair: keyPair
       }, SIGHASH.ANYONECANPAY)).rejects.toThrow('currently only SIGHASH.ALL is supported')
     })
 
     it('should err SIGHASH.ALL_ANYONECANPAY', async () => {
-      return await expect(TransactionSigner.signInput(transaction, 1, {
+      return await expect(SegWitSigner.signInput(transaction, 1, {
         prevout: prevout,
         ellipticPair: keyPair
       }, SIGHASH.ALL_ANYONECANPAY)).rejects.toThrow('currently only SIGHASH.ALL is supported')
     })
 
     it('should err SIGHASH.NONE_ANYONECANPAY', async () => {
-      return await expect(TransactionSigner.signInput(transaction, 1, {
+      return await expect(SegWitSigner.signInput(transaction, 1, {
         prevout: prevout,
         ellipticPair: keyPair
       }, SIGHASH.NONE_ANYONECANPAY)).rejects.toThrow('currently only SIGHASH.ALL is supported')
     })
 
     it('should err SIGHASH.SINGLE_ANYONECANPAY', async () => {
-      return await expect(TransactionSigner.signInput(transaction, 1, {
+      return await expect(SegWitSigner.signInput(transaction, 1, {
         prevout: prevout,
         ellipticPair: keyPair
       }, SIGHASH.SINGLE_ANYONECANPAY)).rejects.toThrow('currently only SIGHASH.ALL is supported')

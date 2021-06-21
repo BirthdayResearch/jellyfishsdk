@@ -1,149 +1,17 @@
-import { EllipticPair, dSHA256, HASH160 } from '@defichain/jellyfish-crypto'
-import { SmartBuffer } from 'smart-buffer'
 import {
-  Script,
   Transaction,
   TransactionSegWit,
-  Vin,
-  Vout,
   Witness,
-  OP_CODES,
-  OP_PUSHDATA,
-  CWitnessProgram,
-  WitnessProgram,
   DeFiTransactionConstants,
-  SIGHASH,
-  CVoutV4
+  SIGHASH
 } from '@defichain/jellyfish-transaction'
-
-export interface SignInputOption {
-  /**
-   * Prevout of this input
-   */
-  prevout: Vout
-  /**
-   * EllipticPair to generate a signature with
-   */
-  ellipticPair: EllipticPair
-  /**
-   * Optionally provide a witness script,
-   * or it will be guessed if it can be guessed.
-   */
-  witnessScript?: Script
-}
+import { SignInputOption, SegWitSigner } from './segwit_signature'
 
 export interface SignOption {
   sigHashType?: SIGHASH
   validate?: {
     version?: boolean
     lockTime?: boolean
-  }
-}
-
-function hashPrevouts (transaction: Transaction, sigHashType: SIGHASH): string {
-  if (sigHashType !== SIGHASH.ALL) {
-    throw new Error('currently only SIGHASH.ALL is supported')
-  }
-
-  const buffer = new SmartBuffer()
-  for (const vin of transaction.vin) {
-    const txid = Buffer.from(vin.txid, 'hex').reverse()
-    buffer.writeBuffer(txid)
-    buffer.writeUInt32LE(vin.index)
-  }
-  return dSHA256(buffer.toBuffer()).toString('hex')
-}
-
-function hashSequence (transaction: Transaction, sigHashType: SIGHASH): string {
-  if (sigHashType !== SIGHASH.ALL) {
-    throw new Error('currently only SIGHASH.ALL is supported')
-  }
-
-  const buffer = new SmartBuffer()
-  for (const vin of transaction.vin) {
-    buffer.writeUInt32LE(vin.sequence)
-  }
-  return dSHA256(buffer.toBuffer()).toString('hex')
-}
-
-function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
-  if (sigHashType !== SIGHASH.ALL) {
-    throw new Error('currently only SIGHASH.ALL is supported')
-  }
-
-  const buffer = new SmartBuffer()
-  transaction.vout.forEach(vout => (new CVoutV4(vout)).toBuffer(buffer))
-  return dSHA256(buffer.toBuffer()).toString('hex')
-}
-
-/**
- *
- * The witness must consist of exactly 2 items.
- * The '0' in scriptPubKey indicates the following push is a version 0 witness program.
- * The length of 20 indicates that it is a P2WPKH type.
- *
- * @param {SignInputOption} signInputOption to check is is V0 P2WPKH
- */
-async function isV0P2WPKH (signInputOption: SignInputOption): Promise<boolean> {
-  const stack = signInputOption.prevout.script.stack
-
-  if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
-    const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
-    const pubkeyHashHex = HASH160(pubkey).toString('hex')
-    const pushDataHex = (stack[1] as OP_PUSHDATA).hex
-
-    if (pubkeyHashHex === pushDataHex) {
-      return true
-    }
-
-    throw new Error('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
-  }
-
-  return false
-}
-
-/**
- * If script is not provided, it needs to be guessed
- *
- * @param {Vin} vin of the script
- * @param {SignInputOption} signInputOption to sign the vin
- */
-async function getScriptCode (vin: Vin, signInputOption: SignInputOption): Promise<Script> {
-  if (signInputOption.witnessScript !== undefined) {
-    return signInputOption.witnessScript
-  }
-
-  if (await isV0P2WPKH(signInputOption)) {
-    const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
-    const pubkeyHash = HASH160(pubkey)
-
-    return {
-      stack: [
-        OP_CODES.OP_DUP,
-        OP_CODES.OP_HASH160,
-        OP_CODES.OP_PUSHDATA(pubkeyHash, 'little'),
-        OP_CODES.OP_EQUALVERIFY,
-        OP_CODES.OP_CHECKSIG
-      ]
-    }
-  }
-
-  throw new Error('witnessScript required, only P2WPKH can be guessed')
-}
-
-async function asWitnessProgram (transaction: Transaction, vin: Vin, signInputOption: SignInputOption, sigHashType: SIGHASH): Promise<WitnessProgram> {
-  return {
-    version: transaction.version,
-    hashPrevouts: hashPrevouts(transaction, sigHashType),
-    hashSequence: hashSequence(transaction, sigHashType),
-    outpointTxId: vin.txid,
-    outpointIndex: vin.index,
-    scriptCode: await getScriptCode(vin, signInputOption),
-    value: signInputOption.prevout.value,
-    sequence: vin.sequence,
-    hashOutputs: hashOutputs(transaction, sigHashType),
-    lockTime: transaction.lockTime,
-    hashType: sigHashType
   }
 }
 
@@ -165,48 +33,12 @@ export const TransactionSigner = {
    * @param {SIGHASH} sigHashType SIGHASH type
    */
   async signInput (transaction: Transaction, index: number, option: SignInputOption, sigHashType: SIGHASH = SIGHASH.ALL): Promise<Witness> {
-    const vin = transaction.vin[index]
-    const program = await asWitnessProgram(transaction, vin, option, sigHashType)
-    const preimage = new CWitnessProgram(program).asBuffer()
-    const sigHash = dSHA256(preimage)
-    const derSignature = await option.ellipticPair.sign(sigHash)
-    const sigHashBuffer = Buffer.alloc(1, sigHashType)
-
-    // signature + pubKey
-    const signature = Buffer.concat([derSignature, Buffer.alloc(1, sigHashBuffer)])
-    const pubkey: Buffer = await option.ellipticPair.publicKey()
-    return {
-      scripts: [
-        {
-          hex: signature.toString('hex')
-        },
-        {
-          hex: pubkey.toString('hex')
-        }
-      ]
-    }
+    return await SegWitSigner.signInput(transaction, index, option, sigHashType)
   },
 
   async sign (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption = {}): Promise<TransactionSegWit> {
-    TransactionSigner.validate(transaction, inputOptions, option)
-
-    const { sigHashType = SIGHASH.ALL } = option
-
-    const witnesses: Witness[] = []
-    for (let i = 0; i < transaction.vin.length; i++) {
-      const witness = await this.signInput(transaction, i, inputOptions[i], sigHashType)
-      witnesses.push(witness)
-    }
-
-    return {
-      version: transaction.version,
-      marker: DeFiTransactionConstants.WitnessMarker,
-      flag: DeFiTransactionConstants.WitnessFlag,
-      vin: transaction.vin,
-      vout: transaction.vout,
-      witness: witnesses,
-      lockTime: transaction.lockTime
-    }
+    this.validate(transaction, inputOptions, option)
+    return await SegWitSigner.sign(transaction, inputOptions, option)
   },
 
   validate (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption) {
