@@ -11,8 +11,8 @@
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
 /packages/jellyfish-api-core/                               @fuxingloh @canonbrother @jingyi2811 @thedoublejay
-/packages/jellyfish-api-core/src/category/icxorderbook.ts   @fuxingloh @canonbrother @jingyi2811 @thedoublejay @monstrobishi @surangap
-/packages/jellyfish-api-core/src/category/oracle.ts         @fuxingloh @canonbrother @jingyi2811 @thedoublejay @monstrobishi @surangap
+/packages/jellyfish-api-core/src/category/icxorderbook.ts   @fuxingloh @surangap @monstrobishi @canonbrother @ivan-zynesis
+/packages/jellyfish-api-core/src/category/oracle.ts         @fuxingloh @jingyi2811 @surangap @canonbrother @monstrobishi
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
