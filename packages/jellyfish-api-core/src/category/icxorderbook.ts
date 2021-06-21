@@ -96,6 +96,27 @@ export class ICXOrderBook {
       'bignumber'
     )
   }
+
+  /**
+   * Returns information about orders or fillorders based on ICXListOrderOptions passed
+   *
+   * @param {ICXListOrderOptions} options
+   * @param {string}  [options.token] Token asset
+   * @param {string}  [options.chain] Chain asset
+   * @param {string}  [options.orderTx] Order txid to list all offers for this order
+   * @param {number}  [options.limit] Maximum number of orders to return (default: 50)
+   * @param {boolean} [options.closed] Display closed orders (default: false)
+   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of the transaction.
+   */
+  async listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>> {
+    return await this.client.call(
+      'icx_listorders',
+      [
+        options
+      ],
+      'bignumber'
+    )
+  }
 }
 /** ICX order */
 export interface ICXOrder {
@@ -214,4 +235,18 @@ export interface ICXOfferInfo {
   takerFee: BigNumber
   /** Expire height */
   expireHeight: BigNumber
+}
+
+/** ICX listOrder options */
+export interface ICXListOrderOptions {
+  /** Token asset */
+  token?: string
+  /** Chain asset */
+  chain?: string
+  /** Order txid to list all offers for this order */
+  orderTx?: string
+  /**  Maximum number of orders to return (default: 50) */
+  limit?: number
+  /**  Display closed orders (default: false) */
+  closed?: boolean
 }
