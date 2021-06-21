@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 import { EllipticPair } from '@defichain/jellyfish-crypto'
 import { Vout } from '@defichain/jellyfish-transaction'
 

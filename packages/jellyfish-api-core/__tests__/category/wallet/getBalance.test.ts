@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BigNumber } from '../../../src'
+import BigNumber from 'bignumber.js'
 
 describe('Balance without masternode', () => {
   const container = new RegTestContainer()

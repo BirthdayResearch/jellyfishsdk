@@ -1,6 +1,6 @@
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BigNumber } from '../../../src'
+import BigNumber from 'bignumber.js'
 
 describe('TxOut', () => {
   const container = new MasterNodeRegTestContainer()

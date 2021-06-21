@@ -1,4 +1,5 @@
-import { BigNumber, ApiClient } from '../.'
+import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 export enum Mode {
   UNSET = 'UNSET',

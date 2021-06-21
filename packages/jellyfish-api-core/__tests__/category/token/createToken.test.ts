@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { BigNumber } from '@defichain/jellyfish-api-core'
+import BigNumber from 'bignumber.js'
 
 describe('Token', () => {
   const container = new MasterNodeRegTestContainer()

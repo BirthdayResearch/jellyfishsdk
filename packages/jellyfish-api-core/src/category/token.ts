@@ -1,4 +1,4 @@
-import { BigNumber } from '@defichain/jellyfish-json'
+import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
 type TokenRegexType = `${number}@${string}`
