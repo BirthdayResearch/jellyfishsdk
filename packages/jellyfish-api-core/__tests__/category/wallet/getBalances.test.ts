@@ -28,19 +28,6 @@ describe('getBalances on masternode', () => {
     expect(typeof balances.watchonly).toStrictEqual('undefined')
   })
 
-  it('should have used in getBalances when wallet is set to avoid_reuse', async () => {
-    await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
-    await container.generate(1)
-    const balances: WalletBalances = await client.wallet.getBalances()
-
-    expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(true)
-    expect(BigNumber.isBigNumber(balances.mine.untrusted_pending)).toStrictEqual(true)
-    expect(BigNumber.isBigNumber(balances.mine.immature)).toStrictEqual(true)
-    expect(BigNumber.isBigNumber(balances.mine.used)).toStrictEqual(true)
-
-    expect(typeof balances.watchonly).toStrictEqual('undefined')
-  })
-
   it('should show balances after sending the amount out', async () => {
     const balanceBefore: WalletBalances = await client.wallet.getBalances()
 
@@ -80,5 +67,33 @@ describe('getBalances without masternode', () => {
     const balances: WalletBalances = await client.wallet.getBalances()
 
     expect(balances.mine.trusted.isEqualTo(new BigNumber('0'))).toStrictEqual(true)
+  })
+})
+
+describe('getBalances when wallet is set to avoid_reuse', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should have used', async () => {
+    await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+    await container.generate(1)
+    const balances: WalletBalances = await client.wallet.getBalances()
+
+    expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.untrusted_pending)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.immature)).toStrictEqual(true)
+    expect(BigNumber.isBigNumber(balances.mine.used)).toStrictEqual(true)
+
+    expect(typeof balances.watchonly).toStrictEqual('undefined')
   })
 })
