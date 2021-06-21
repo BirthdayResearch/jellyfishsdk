@@ -169,6 +169,26 @@ interface ICXGenericResult {
 }
 ```
 
+## closeOrder
+
+Closes ICX order
+
+```ts title="client.icxorderbook.closeOrder()"
+interface icxorderbook {
+  closeOrder (orderTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+}
+
+interface InputUTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```
+
 ## getOrder
 
 Returns information about order or fillorder
