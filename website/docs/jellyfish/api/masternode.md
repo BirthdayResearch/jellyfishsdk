@@ -42,10 +42,13 @@ Returns information about multiple masternodes.
 
 ```ts title="client.masternode.listMasternodes()"
 interface masternode {
+  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodeResult>
+  listMasternodes (pagination: MasternodePagination, verbose: true): Promise<MasternodeResult>
+  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodeResult>
   listMasternodes (
     pagination: MasternodePagination = {
       including_start: true,
-      limit: 10000
+      limit: 100
     },
     verbose: boolean = true
   ): Promise<MasternodeResult>
