@@ -1,3 +1,4 @@
+import { BigNumber } from '@defichain/jellyfish-json'
 import { ApiClient } from '../.'
 
 type TokenRegexType = `${number}@${string}`
@@ -71,7 +72,7 @@ export class Token {
     },
     verbose = true
   ): Promise<TokenResult> {
-    return await this.client.call('listtokens', [pagination, verbose], 'number')
+    return await this.client.call('listtokens', [pagination, verbose], 'bignumber')
   }
 
   /**
@@ -81,7 +82,10 @@ export class Token {
    * @return {Promise<TokenResult>}
    */
   async getToken (symbolKey: string): Promise<TokenResult> {
-    return await this.client.call('gettoken', [symbolKey], 'number')
+    // Note(canonbrother): only 'limit' and 'minted' is bignumber
+    // but the 'return' contains random id which is not be able to map precision exactly
+    // precision: { '0': limit: 'bignumber', minted: 'bignumber'}
+    return await this.client.call('gettoken', [symbolKey], 'bignumber')
   }
 
   /**
@@ -106,18 +110,18 @@ export interface TokenInfo {
   symbol: string
   symbolKey: string
   name: string
-  decimal: number
-  limit: number
+  decimal: BigNumber
+  limit: BigNumber
   mintable: boolean
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
   finalized: boolean
-  minted: number
+  minted: BigNumber
   creationTx: string
-  creationHeight: number
+  creationHeight: BigNumber
   destructionTx: string
-  destructionHeight: number
+  destructionHeight: BigNumber
   collateralAddress: string
 }
 
