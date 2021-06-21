@@ -63,6 +63,15 @@ export class Wallet {
   }
 
   /**
+   * Identical to getBalance to get untrusted pending balance
+   *
+   * @return Promise<BigNumber>
+   */
+  async getUnconfirmedBalance (): Promise<BigNumber> {
+    return await this.client.call('getunconfirmedbalance', [false], 'bignumber')
+  }
+
+  /**
    * Get list of UTXOs in wallet.
    *
    * @param {number} minimumConfirmation default = 1, to filter
