@@ -269,12 +269,11 @@ interface AccountHistoryCountOptions {
 Creates a transfer transaction from your accounts balances.
 
 ```ts title="client.account.sendTokensToAddress()"
-
-interface Account {
+interface account {
   sendTokensToAddress (
-      from: AddressBalances,
-      to: AddressBalances,
-      options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
+    from: AddressBalances,
+    to: AddressBalances,
+    options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
   ): Promise<string>
 }
 
