@@ -1,4 +1,4 @@
-import { Elliptic } from '../src'
+import { Elliptic, SHA256 } from '../src'
 
 // Test vector taken from https://github.com/bitcoin/bips/blob/master/bip-0143.mediawiki
 
@@ -145,5 +145,16 @@ describe('DER Signature: sign and verify', () => {
     it('should verify hash with signature', async () => {
       return await shouldVerifyHashWithSignature(privateKeyHex, hashHex, signatureHex)
     })
+  })
+
+  it('should sign hash Buffer with signature buffer [0] as 0x80', async () => {
+    const privateKeyHex = 'f52b3484edd96598e02a9c89c4492e9c1e2031f471c49fd721fe68b3ce37780d'
+
+    const privateKey = Buffer.from(privateKeyHex, 'hex')
+    const curvePair = Elliptic.fromPrivKey(privateKey)
+
+    const hash = SHA256(Buffer.from('61', 'hex'))
+    const signature = await curvePair.sign(hash)
+    expect(curvePair.verify(hash, signature)).toBeTruthy()
   })
 })
