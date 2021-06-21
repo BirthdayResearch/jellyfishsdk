@@ -52,16 +52,19 @@ describe('getBalances on masternode', () => {
     expect(balanceBefore.mine.trusted.gt(balanceAfter.mine.trusted.toNumber())).toStrictEqual(true)
   })
 
-  it('test watchOnly', async () => {
+  it.only('test watchOnly', async () => {
     await container.call('importaddress', ['bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'])
+
     const balances: WalletBalances = await client.wallet.getBalances()
 
-    if (balances.watchonly != null) {
+    expect(balances.watchonly).toBeTruthy()
+
+    if (balances.watchonly == null) { // type guard needed as `balances.watchonly` is optional
+      throw new Error('expected truthy value')
+    } else {
       expect(BigNumber.isBigNumber(balances.watchonly.trusted)).toStrictEqual(true)
       expect(BigNumber.isBigNumber(balances.watchonly.untrusted_pending)).toStrictEqual(true)
       expect(BigNumber.isBigNumber(balances.watchonly.immature)).toStrictEqual(true)
-    } else {
-      throw new Error('expected watchonly to be truthy')
     }
   })
 })
