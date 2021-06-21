@@ -82,6 +82,29 @@ export class ICXOrderBook {
   }
 
   /**
+   * Create and submits a DFC HTLC transaction
+   *
+   * @param {HTLC} htlc
+   * @param {string} [htlc.offerTx] Transaction Id of the offer transaction for which the HTLC is
+   * @param {BigNumber} [htlc.amount] Amount in HTLC
+   * @param {string} [htlc.hash] Hash of seed used for the hash lock part
+   * @param {number} [htlc.timeout] Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
+   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {string} [inputUTXOs.txid] transaction Id
+   * @param {number} [inputUTXOs.vout] The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async submitDFCHTLC (htlc: HTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_submitdfchtlc',
+      [
+        htlc, inputUTXOs
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
    * Returns information about order or fillorder
    *
    * @param {string} [orderTx] Transaction id of createorder or fulfillorder transaction
@@ -197,6 +220,35 @@ export interface ICXOffer {
   /** Number of blocks until the offer expires, default 10 DFI blocks */
   expiry?: number
 }
+
+/** HTLC */
+export interface HTLC {
+  /** Transaction Id of the offer transaction for which the HTLC is */
+  offerTx: string
+  /** Amount in HTLC */
+  amount: BigNumber
+  /** Hash of seed used for the hash lock part */
+  hash: string
+  /** Timeout (absolute in blocks) for expiration of HTLC in DFI blocks */
+  timeout?: number
+}
+
+/** External HTLC */
+export interface ExtHTLC {
+  /** Transaction Id of the offer transaction for which the HTLC is */
+  offerTx: string
+  /** Amount in HTLC */
+  amount: BigNumber
+  /** Script address of external HTLC */
+  htlcScriptAddress: string
+  /** Hash of seed used for the hash lock part */
+  hash: string
+  /** Pubkey of the owner to which the funds are refunded if HTLC timeouts */
+  ownerPubkey: string
+  /** Timeout (absolute in blocks) for expiration of HTLC in DFI blocks */
+  timeout: number
+}
+
 export enum ICXOrderStatus {
   OPEN = 'OPEN',
   CLOSED = 'CLOSED',
@@ -209,6 +261,18 @@ export enum ICXOrderType {
   EXTERNAL = 'EXTERNAL',
 }
 
+export enum ICXHTLCType {
+  CLAIM_DFC = 'CLAIM DFC',
+  DFC = 'DFC',
+  EXTERNAL = 'EXTERNAL'
+}
+
+export enum ICXHTLCStatus {
+  OPEN = 'OPEN',
+  CLAIMED = 'CLAIMED',
+  REFUNDED = 'REFUNDED',
+  EXPIRED = 'EXPIRED'
+}
 /** ICX order info */
 export interface ICXOrderInfo {
   /** Order status */
@@ -279,4 +343,74 @@ export interface ICXListOrderOptions {
   limit?: number
   /**  Display closed orders (default: false) */
   closed?: boolean
+}
+
+/** ICX listHTLC options */
+export interface ICXListHTLCOptions {
+  /** Offer txid  for which to list all HTLCS */
+  offerTx?: string
+  /** Maximum number of orders to return (default: 20) */
+  limit?: number
+  /** Display refunded HTLC (default: false) */
+  refunded?: boolean
+  /** Display claimed HTLCs (default: false) NOTE(surangap): in c++ side desciption this is mentioned as "claimed". should be corrected */
+  closed?: boolean
+}
+
+/** ICX claimed DFCHTLC info */
+export interface ICXClaimDFCHTLCInfo {
+  /** HTLC type */
+  type: ICXHTLCType
+  /** HTLC Transaction Id */
+  dfchtlcTx: string
+  /** HTLC claim secret */
+  seed: string
+  /** HTLC creation height */
+  height: number
+}
+
+/** ICX DFCHTLC info */
+export interface ICXDFCHTLCInfo {
+  /** HTLC type */
+  type: ICXHTLCType
+  /** Status of the HTLC */
+  status: ICXHTLCStatus
+  /** Offer Transaction Id */
+  offerTx: string
+  /** Amount */
+  amount: BigNumber
+  /** Amount in external asset */
+  amountInEXTAsset: BigNumber
+  /** Hash of DFCHTLC */
+  hash: string
+  /** Timeout in blocks */
+  timeout: number
+  /** HTLC creation height */
+  height: number
+  /** HTLC refund height */
+  refundHeight: number
+}
+
+/** ICX EXTHTLC info */
+export interface ICXEXTHTLCInfo {
+  /** HTLC type */
+  type: ICXHTLCType
+  /** Status of the HTLC */
+  status: ICXHTLCStatus
+  /** Offer Transaction Id */
+  offerTx: string
+  /** Amount */
+  amount: BigNumber
+  /** Amount in external asset */
+  amountInDFCAsset: BigNumber
+  /** Hash of EXTHTLC */
+  hash: string
+  /** HTLC script address */
+  htlcScriptAddress: string
+  /** Pubkey of the owner to which the funds are refunded if HTLC timeouts */
+  ownerPubkey: string
+  /** Timeout in blocks */
+  timeout: number
+  /** HTLC creation height */
+  height: number
 }
