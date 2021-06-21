@@ -52,7 +52,7 @@ describe('getBalances on masternode', () => {
     expect(balanceBefore.mine.trusted.gt(balanceAfter.mine.trusted.toNumber())).toStrictEqual(true)
   })
 
-  it.only('test watchOnly', async () => {
+  it('test watchOnly', async () => {
     await container.call('importaddress', ['bcrt1q2tke5fa7wx26m684d7yuyt85rvjl36u6q8l6e2'])
 
     const balances: WalletBalances = await client.wallet.getBalances()
