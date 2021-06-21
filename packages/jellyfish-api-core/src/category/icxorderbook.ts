@@ -105,6 +105,31 @@ export class ICXOrderBook {
   }
 
   /**
+   * Create and submits a external(EXT) HTLC transaction
+   *
+   * @param {ExtHTLC} htlc
+   * @param {string} [htlc.offerTx] Transaction Id of the offer transaction for which the HTLC is
+   * @param {BigNumber} [htlc.amount] Amount in HTLC
+   * @param {string} [htlc.htlcScriptAddress] Script address of external HTLC
+   * @param {string} [htlc.hash] Hash of seed used for the hash lock part
+   * @param {string} [htlc.ownerPubkey] Pubkey of the owner to which the funds are refunded if HTLC timeouts
+   * @param {number} [htlc.timeout] Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
+   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {string} [inputUTXOs.txid] transaction Id
+   * @param {number} [inputUTXOs.vout] The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async submitExtHTLC (htlc: ExtHTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_submitexthtlc',
+      [
+        htlc, inputUTXOs
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
    * Returns information about order or fillorder
    *
    * @param {string} orderTx Transaction id of createorder or fulfillorder transaction

@@ -120,6 +120,35 @@ interface ICXGenericResult {
 }
 ```
 
+## submitExtHTLC
+
+Create and submits a external(EXT) HTLC transaction
+
+```ts title="client.icxorderbook.submitExtHTLC()"
+interface icxorderbook {
+  submitExtHTLC (htlc: ExtHTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+}
+
+interface ExtHTLC {
+  offerTx: string
+  amount: BigNumber
+  htlcScriptAddress: string
+  hash: string
+  ownerPubkey: string
+  timeout: number
+}
+
+interface InputUTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```
+
 ## getOrder
 
 Returns information about order or fillorder
