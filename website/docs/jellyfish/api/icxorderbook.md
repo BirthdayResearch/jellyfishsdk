@@ -260,3 +260,55 @@ interface ICXOfferInfo {
   expireHeight: BigNumber
 }
 ```
+
+## listHTLCs
+
+Returns information about HTLCs based on ICXListHTLCOptions passed
+
+```ts title="client.icxorderbook.listHTLCs()"
+interface icxorderbook {
+  listHTLCs (options: ICXListHTLCOptions = {}): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>
+}
+
+interface ICXListHTLCOptions {
+  offerTx?: string
+  limit?: number
+  refunded?: boolean
+  closed?: boolean
+}
+
+interface ICXClaimDFCHTLCInfo {
+  type: ICXHTLCType
+  dfchtlcTx: string
+  seed: string
+  height: number
+}
+
+interface ICXDFCHTLCInfo {
+  type: ICXHTLCType
+  status: ICXHTLCStatus
+  offerTx: string
+  amount: BigNumber
+  amountInEXTAsset: BigNumber
+  hash: string
+  timeout: number
+  height: number
+  refundHeight: number
+}
+
+interface ICXEXTHTLCInfo {
+  type: ICXHTLCType
+  status: ICXHTLCStatus
+  offerTx: string
+  amount: BigNumber
+  amountInDFCAsset: BigNumber
+  hash: string
+  htlcScriptAddress: string
+  ownerPubkey: string
+  timeout: number
+  height: number
+}
+```
+
+
+

@@ -217,6 +217,26 @@ export class ICXOrderBook {
       'bignumber'
     )
   }
+
+  /**
+   * Returns information about HTLCs based on ICXListHTLCOptions passed
+   *
+   * @param {ICXListHTLCOptions} options
+   * @param {string} [options.offerTx] Offer txid  for which to list all HTLCS
+   * @param {number} [options.limit] Maximum number of orders to return (default: 20)
+   * @param {boolean} [options.refunded] Display refunded HTLC (default: false)
+   * @param {boolean} [options.closed] Display claimed HTLCs (default: false)
+   * @return {Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>} Object indluding details of the HTLCS.
+   */
+  async listHTLCs (options: ICXListHTLCOptions = {}): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>> {
+    return await this.client.call(
+      'icx_listhtlcs',
+      [
+        options
+      ],
+      'bignumber'
+    )
+  }
 }
 /** ICX order */
 export interface ICXOrder {
