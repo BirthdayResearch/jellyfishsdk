@@ -1,5 +1,3 @@
-import { HttpStatus } from '@nestjs/common'
-
 export enum WhaleApiErrorType {
   ValidationError = 'ValidationError',
   BadRequest = 'BadRequest',
@@ -13,7 +11,7 @@ export enum WhaleApiErrorType {
 }
 
 export interface WhaleApiError {
-  code: HttpStatus
+  code: number
   type: WhaleApiErrorType
   at: number
   message?: string
