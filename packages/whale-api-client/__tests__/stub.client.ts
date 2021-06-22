@@ -17,7 +17,7 @@ export class StubWhaleApiClient extends WhaleApiClient {
 
     const res = await this.service.app.inject({
       method: method,
-      url: `/v1/regtest/${path}`,
+      url: `/v0/regtest/${path}`,
       payload: body,
       headers: method !== 'GET' ? { 'Content-Type': 'application/json' } : {}
     })
