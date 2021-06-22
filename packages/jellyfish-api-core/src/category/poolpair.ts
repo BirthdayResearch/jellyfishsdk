@@ -104,6 +104,22 @@ export class PoolPair {
     const { isMineOnly = true } = options
     return await this.client.call('listpoolshares', [pagination, verbose, isMineOnly], 'bignumber')
   }
+
+  /**
+   * Create a test pool swap transaction to check pool swap's return result
+   *
+   * @param {TestPoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {string} metadata.from address of the owner of tokenFrom
+   * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenA
+   * @param {to} metadata.to address of the owner of tokenTo
+   * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
+   * @param {maxPrice} [metadata.maxPrice] acceptable max price
+   * @return {Promise<string>} // return format 'amount@token'
+   */
+  async testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string> {
+    return await this.client.call('testpoolswap', [metadata], 'bignumber')
+  }
 }
 
 export interface CreatePoolPairMetadata {
@@ -180,4 +196,13 @@ export interface AddPoolLiquidityUTXO {
 
 export interface PoolShareOptions {
   isMineOnly?: boolean
+}
+
+export interface TestPoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
 }
