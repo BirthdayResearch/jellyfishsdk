@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BigNumber } from '../../../src'
+import { BigNumber } from 'bignumber.js'
 import { WalletFlag, WalletBalances } from '../../../src/category/wallet'
 
 // TODO(aikchun): Add behavior tests for untrusted_pending, immature, used. Currently unable to do multi-node testing
