@@ -44,7 +44,7 @@ export class CallDto {
   params?: any[]
 }
 
-@Controller('/v1/:network/rpc')
+@Controller('/v0/:network/rpc')
 export class RpcController {
   constructor (private readonly client: JsonRpcClient) {
   }

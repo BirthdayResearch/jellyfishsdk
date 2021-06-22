@@ -5,7 +5,7 @@ import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { TokenData } from '@whale-api-client/api/tokens'
 
-@Controller('/v1/:network/tokens')
+@Controller('/v0/:network/tokens')
 export class TokensController {
   constructor (private readonly client: JsonRpcClient) {
   }

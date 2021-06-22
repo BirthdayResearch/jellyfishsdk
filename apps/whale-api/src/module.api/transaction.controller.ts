@@ -16,7 +16,7 @@ class RawTxDto {
   maxFeeRate?: number
 }
 
-@Controller('/v1/:network/transactions')
+@Controller('/v0/:network/transactions')
 export class TransactionsController {
   /**
    * MaxFeeRate = vkb * Fees

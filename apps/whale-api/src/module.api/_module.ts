@@ -27,7 +27,7 @@ import { TokensController } from '@src/module.api/token.controller'
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },
-    // APP_GUARD & APP_INTERCEPTOR are only activated for /v1/* paths
+    // APP_GUARD & APP_INTERCEPTOR are only activated for /v0/* paths
     { provide: APP_GUARD, useClass: NetworkGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
