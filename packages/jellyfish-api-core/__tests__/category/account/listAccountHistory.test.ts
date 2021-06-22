@@ -241,37 +241,4 @@ describe('listAccountHistory', () => {
 
     expect(history.find((h) => h.type === 'AccountToAccount' && h.amounts[0] === '8.99000000@DBTC')).toBeTruthy()
   })
-
-  it('should contain UtxosToAccount histories', async () => {
-    const from = await container.call('getnewaddress')
-
-    const payload: BalanceTransferPayload = {}
-    payload[from] = '4.97@DFI'
-
-    await client.account.utxosToAccount(payload)
-    await container.generate(1)
-
-    const history = await client.account.listAccountHistory()
-
-    expect(history.find((h) => h.type === 'UtxosToAccount' && h.amounts[0] === '4.97000000@DFI')).toBeTruthy()
-  })
-
-  it('should contain AccountToUtxos histories', async () => {
-    const from = await container.call('getnewaddress')
-
-    const utxosToAccountPayload: BalanceTransferPayload = {}
-    utxosToAccountPayload[from] = '4.97@DFI'
-
-    await client.account.utxosToAccount(utxosToAccountPayload)
-    await container.generate(1)
-
-    const accountToUtxosPayload: BalanceTransferPayload = {}
-    accountToUtxosPayload[await container.getNewAddress()] = '3.97@DFI'
-
-    await client.account.accountToUtxos(from, accountToUtxosPayload)
-    await container.generate(1)
-    const history = await client.account.listAccountHistory()
-
-    expect(history.find((h) => h.type === 'AccountToUtxos' && h.amounts[0] === '-3.97000000@DFI')).toBeTruthy()
-  })
 })
