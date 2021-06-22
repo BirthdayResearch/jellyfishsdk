@@ -138,8 +138,60 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_RETURN, script.OP_RETURN, 'OP_RETURN', 0x6a, '6a')
   })
 
+  it('OP_TOALTSTACK', () => {
+    expectOPCode(script.OP_CODES.OP_TOALTSTACK, script.OP_TOALTSTACK, 'OP_TOALTSTACK', 0x6b, '6b')
+  })
+
+  it('OP_FROMALTSTACK', () => { expectOPCode(script.OP_CODES.OP_FROMALTSTACK, script.OP_FROMALTSTACK, 'OP_FROMALTSTACK', 0x6c, '6c') })
+
+  it('OP_2DROP', () => { expectOPCode(script.OP_CODES.OP_2DROP, script.OP_2DROP, 'OP_2DROP', 0x6d, '6d') })
+
+  it('OP_2DUP', () => { expectOPCode(script.OP_CODES.OP_2DUP, script.OP_2DUP, 'OP_2DUP', 0x6e, '6e') })
+
+  it('OP_3DUP', () => { expectOPCode(script.OP_CODES.OP_3DUP, script.OP_3DUP, 'OP_3DUP', 0x6f, '6f') })
+
+  it('OP_2OVER', () => { expectOPCode(script.OP_CODES.OP_2OVER, script.OP_2OVER, 'OP_2OVER', 0x70, '70') })
+
+  it('OP_2ROT', () => { expectOPCode(script.OP_CODES.OP_2ROT, script.OP_2ROT, 'OP_2ROT', 0x71, '71') })
+
+  it('OP_2SWAP', () => { expectOPCode(script.OP_CODES.OP_2SWAP, script.OP_2SWAP, 'OP_2SWAP', 0x72, '72') })
+
+  it('OP_IFDUP', () => { expectOPCode(script.OP_CODES.OP_IFDUP, script.OP_IFDUP, 'OP_IFDUP', 0x73, '73') })
+
+  it('OP_DEPTH', () => { expectOPCode(script.OP_CODES.OP_DEPTH, script.OP_DEPTH, 'OP_DEPTH', 0x74, '74') })
+
+  it('OP_DROP', () => { expectOPCode(script.OP_CODES.OP_DROP, script.OP_DROP, 'OP_DROP', 0x75, '75') })
+
   it('OP_DUP', () => {
     expectOPCode(script.OP_CODES.OP_DUP, script.OP_DUP, 'OP_DUP', 0x76, '76')
+  })
+
+  it('OP_NIP', () => {
+    expectOPCode(script.OP_CODES.OP_NIP, script.OP_NIP, 'OP_NIP', 0x77, '77')
+  })
+
+  it('OP_OVER', () => {
+    expectOPCode(script.OP_CODES.OP_OVER, script.OP_OVER, 'OP_OVER', 0x78, '78')
+  })
+
+  it('OP_PICK', () => {
+    expectOPCode(script.OP_CODES.OP_PICK, script.OP_PICK, 'OP_PICK', 0x79, '79')
+  })
+
+  it('OP_ROLL', () => {
+    expectOPCode(script.OP_CODES.OP_ROLL, script.OP_ROLL, 'OP_ROLL', 0x7a, '7a')
+  })
+
+  it('OP_ROT', () => {
+    expectOPCode(script.OP_CODES.OP_ROT, script.OP_ROT, 'OP_ROT', 0x7b, '7b')
+  })
+
+  it('OP_SWAP', () => {
+    expectOPCode(script.OP_CODES.OP_SWAP, script.OP_SWAP, 'OP_SWAP', 0x7c, '7c')
+  })
+
+  it('OP_TUCK', () => {
+    expectOPCode(script.OP_CODES.OP_TUCK, script.OP_TUCK, 'OP_TUCK', 0x7d, '7d')
   })
 
   it('OP_EQUAL', () => {
