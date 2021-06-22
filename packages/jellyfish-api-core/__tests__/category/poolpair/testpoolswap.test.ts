@@ -105,11 +105,11 @@ describe('Poolpair', () => {
     const dfiAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
 
-    await createToken(container, 'ELF', { collateralAddress: tokenAddress })
-    await mintTokens(container, 'ELF', { address: dfiAddress })
-    await createPoolPair(container, 'ELF', 'DFI')
+    await createToken(container, 'FOX', { collateralAddress: tokenAddress })
+    await mintTokens(container, 'FOX', { address: dfiAddress })
+    await createPoolPair(container, 'FOX', 'DFI')
     await addPoolLiquidity(container, {
-      tokenA: 'ELF',
+      tokenA: 'FOX',
       amountA: 1000,
       tokenB: 'DFI',
       amountB: 500,
@@ -118,7 +118,7 @@ describe('Poolpair', () => {
 
     const promise = client.poolpair.testPoolSwap({
       from: tokenAddress,
-      tokenFrom: 'ELF',
+      tokenFrom: 'FOX',
       amountFrom: 666,
       to: await getNewAddress(container),
       tokenTo: 'DFI',
