@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { DfTxType } from '../../../src/category/account'
+import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
 
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
@@ -195,5 +195,53 @@ describe('Account', () => {
       const accountHistories = await client.account.listAccountHistory('mine', options)
       expect(accountHistories.length).toStrictEqual(1)
     })
+  })
+})
+
+describe('listAccountHistory', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  let from: string
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
+    from = await container.call('getnewaddress')
+    await createToken(from, 'DBTC', 10)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
+    const metadata = {
+      symbol,
+      name: symbol,
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await container.call('createtoken', [metadata])
+    await container.generate(1)
+
+    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
+    await container.generate(1)
+  }
+
+  it('should contain accountToAccount histories', async () => {
+    const payload: BalanceTransferPayload = {}
+    payload[await container.getNewAddress()] = '8.99@DBTC'
+
+    await client.account.accountToAccount(from, payload)
+    await container.generate(1)
+
+    const history = await client.account.listAccountHistory()
+
+    expect(history.find((h) => h.type === 'AccountToAccount' && h.amounts[0] === '8.99000000@DBTC')).toBeTruthy()
   })
 })
