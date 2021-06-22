@@ -198,7 +198,7 @@ describe('Account', () => {
   })
 })
 
-describe.only('listAccountHistory', () => {
+describe('listAccountHistory', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
