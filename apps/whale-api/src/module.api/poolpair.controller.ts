@@ -61,23 +61,23 @@ function mapPoolPair (id: string, poolPairInfo: PoolPairInfo): PoolPairData {
     status: poolPairInfo.status,
     tokenA: {
       id: poolPairInfo.idTokenA,
-      reserve: poolPairInfo.reserveA,
-      blockCommission: poolPairInfo.blockCommissionA
+      reserve: poolPairInfo.reserveA.toFixed(),
+      blockCommission: poolPairInfo.blockCommissionA.toFixed()
     },
     tokenB: {
       id: poolPairInfo.idTokenB,
-      reserve: poolPairInfo.reserveB,
-      blockCommission: poolPairInfo.blockCommissionB
+      reserve: poolPairInfo.reserveB.toFixed(),
+      blockCommission: poolPairInfo.blockCommissionB.toFixed()
     },
-    commission: poolPairInfo.commission,
-    totalLiquidity: poolPairInfo.totalLiquidity,
+    commission: poolPairInfo.commission.toFixed(),
+    totalLiquidity: poolPairInfo.totalLiquidity.toFixed(),
     tradeEnabled: poolPairInfo.tradeEnabled,
     ownerAddress: poolPairInfo.ownerAddress,
-    rewardPct: poolPairInfo.rewardPct,
-    customRewards: poolPairInfo.customRewards,
+    rewardPct: poolPairInfo.rewardPct.toFixed(),
+    customRewards: poolPairInfo.customRewards?.toFixed(),
     creation: {
       tx: poolPairInfo.creationTx,
-      height: poolPairInfo.creationHeight
+      height: poolPairInfo.creationHeight.toNumber()
     }
   }
 }

@@ -4,7 +4,6 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
 import { createPoolPair, createToken, addPoolLiquidity, getNewAddress, mintTokens } from '@defichain/testing'
 import { CacheModule, NotFoundException } from '@nestjs/common'
-import BigNumber from 'bignumber.js'
 import { DeFiDCache } from './cache/defid.cache'
 
 const container = new MasterNodeRegTestContainer()
@@ -89,23 +88,23 @@ describe('list', () => {
       status: true,
       tokenA: {
         id: '1',
-        reserve: new BigNumber('50'),
-        blockCommission: new BigNumber('0')
+        reserve: '50',
+        blockCommission: '0'
       },
       tokenB: {
         id: '3',
-        reserve: new BigNumber('300'),
-        blockCommission: new BigNumber('0')
+        reserve: '300',
+        blockCommission: '0'
       },
-      commission: new BigNumber('0'),
-      totalLiquidity: new BigNumber('122.47448713'),
+      commission: '0',
+      totalLiquidity: '122.47448713',
       tradeEnabled: true,
       ownerAddress: expect.any(String),
-      rewardPct: new BigNumber('0'),
+      rewardPct: '0',
       customRewards: undefined,
       creation: {
         tx: expect.any(String),
-        height: expect.any(BigNumber)
+        height: expect.any(Number)
       }
     })
   })
@@ -156,23 +155,23 @@ describe('get', () => {
       status: true,
       tokenA: {
         id: expect.any(String),
-        reserve: new BigNumber('100'),
-        blockCommission: new BigNumber('0')
+        reserve: '100',
+        blockCommission: '0'
       },
       tokenB: {
         id: expect.any(String),
-        reserve: new BigNumber('200'),
-        blockCommission: new BigNumber('0')
+        reserve: '200',
+        blockCommission: '0'
       },
-      commission: new BigNumber('0'),
-      totalLiquidity: new BigNumber('141.42135623'),
+      commission: '0',
+      totalLiquidity: '141.42135623',
       tradeEnabled: true,
       ownerAddress: expect.any(String),
-      rewardPct: new BigNumber('0'),
+      rewardPct: '0',
       customRewards: undefined,
       creation: {
         tx: expect.any(String),
-        height: expect.any(BigNumber)
+        height: expect.any(Number)
       }
     })
   })
