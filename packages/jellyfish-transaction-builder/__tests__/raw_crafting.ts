@@ -5,9 +5,9 @@ import {
   CTransactionSegWit,
   DeFiTransactionConstants,
   Transaction,
-  TransactionSigner,
   OP_CODES
 } from '@defichain/jellyfish-transaction'
+import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import { WIF, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 

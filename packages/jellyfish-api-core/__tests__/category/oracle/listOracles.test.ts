@@ -11,6 +11,16 @@ describe('Oracle', () => {
     await container.waitForWalletCoinbaseMaturity()
   })
 
+  afterEach(async () => {
+    const data = await container.call('listoracles')
+
+    for (let i = 0; i < data.length; i += 1) {
+      await container.call('removeoracle', [data[i]])
+    }
+
+    await container.generate(1)
+  })
+
   afterAll(async () => {
     await container.stop()
   })
@@ -21,8 +31,8 @@ describe('Oracle', () => {
       { token: 'TESLA', currency: 'USD' }
     ]
 
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 2])
+    await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
+    await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 2])
 
     await container.generate(1)
 
@@ -34,11 +44,6 @@ describe('Oracle', () => {
     expect(data[0].length).toStrictEqual(64)
     expect(typeof data[1]).toStrictEqual('string')
     expect(data[1].length).toStrictEqual(64)
-
-    await container.call('removeoracle', [oracleid1])
-    await container.call('removeoracle', [oracleid2])
-
-    await container.generate(1)
   })
 
   it('should listOracles with empty array if there is no oracle available', async () => {

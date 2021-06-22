@@ -1,12 +1,12 @@
 import {
   DeFiTransactionConstants, OP_CODES,
   Script,
-  SignInputOption,
   Transaction,
   TransactionSegWit,
-  TransactionSigner, Vin, Vout, OP_DEFI_TX
+  Vin, Vout, OP_DEFI_TX
 } from '@defichain/jellyfish-transaction'
-import { BigNumber } from 'bignumber.js'
+import { TransactionSigner, SignInputOption } from '@defichain/jellyfish-transaction-signature'
+import BigNumber from 'bignumber.js'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../provider'
 import { calculateFeeP2WPKH } from './txn_fee'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'

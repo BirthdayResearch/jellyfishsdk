@@ -31,6 +31,12 @@ export enum DfTxType {
   AUTO_AUTH_PREP = 'A'
 }
 
+export enum SelectionModeType {
+  PIE = 'pie',
+  CRUMBS = 'crumbs',
+  FORWARD = 'forward'
+}
+
 type AccountRegexType = `${number}@${string}`
 
 /**
@@ -73,7 +79,7 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<Array<AccountResult<string, string>>>}
    */
-  listAccounts (pagination: AccountPagination, verbose: false, options: { indexedAmounts: false, isMineOnly: boolean }): Promise<Array<AccountResult<string, string>>>
+  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: false, isMineOnly: boolean}): Promise<Array<AccountResult<string, string>>>
 
   /**
    * Get information about all accounts on chain
@@ -89,7 +95,7 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<Array<AccountResult<AccountOwner, AccountAmount>>>}
    */
-  listAccounts (pagination: AccountPagination, verbose: true, options: { indexedAmounts: true, isMineOnly: boolean }): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
+  listAccounts (pagination: AccountPagination, verbose: true, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<AccountOwner, AccountAmount>>>
 
   /**
    * Get information about all accounts on chain
@@ -105,7 +111,7 @@ export class Account {
    * @param {boolean} [options.isMineOnly=false] get balances about all accounts belonging to the wallet
    * @return {Promise<Array<AccountResult<string, AccountAmount>>>}
    */
-  listAccounts (pagination: AccountPagination, verbose: false, options: { indexedAmounts: true, isMineOnly: boolean }): Promise<Array<AccountResult<string, AccountAmount>>>
+  listAccounts (pagination: AccountPagination, verbose: false, options: {indexedAmounts: true, isMineOnly: boolean}): Promise<Array<AccountResult<string, AccountAmount>>>
 
   async listAccounts<T, U> (
     pagination: AccountPagination = { limit: 100 },
@@ -313,6 +319,23 @@ export class Account {
   }
 
   /**
+   * Creates a transfer transaction from your accounts balances.
+   *
+   * @param {AddressBalances} from source address as the key, the value is amount formatted as amount@token
+   * @param {AddressBalances} to address as the key, the value is amount formatted as amount@token
+   * @param {SendTokensOptions} [options = { selectionMode: SelectionModeType.PIE }]
+   * @param {SelectionModeType} [options.selectionMode] Account selection mode. If "from" param is empty, it will auto select.
+   * @return {Promise<string>}
+   */
+  async sendTokensToAddress (
+    from: AddressBalances,
+    to: AddressBalances,
+    options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
+  ): Promise<string> {
+    return await this.client.call('sendtokenstoaddress', [from, to, options.selectionMode], 'number')
+  }
+
+  /**
    * Returns information about current anchor bonus, incentive funding, burnt token(s)
    *
    * @return {Promise<CommunityBalanceData>}
@@ -395,6 +418,14 @@ export interface AccountHistoryCountOptions {
   token?: string
   txtype?: DfTxType
   no_rewards?: boolean
+}
+
+export interface AddressBalances {
+  [key: string]: AccountRegexType[]
+}
+
+export interface SendTokensOptions {
+  selectionMode: SelectionModeType
 }
 
 export interface CommunityBalanceData {

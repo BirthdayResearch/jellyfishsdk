@@ -80,18 +80,18 @@ interface TokenInfo {
   symbol: string
   symbolKey: string
   name: string
-  decimal: number
-  limit: number
+  decimal: BigNumber
+  limit: BigNumber
   mintable: boolean
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
   finalized: boolean
-  minted: number
+  minted: BigNumber
   creationTx: string
-  creationHeight: number
+  creationHeight: BigNumber
   destructionTx: string
-  destructionHeight: number
+  destructionHeight: BigNumber
   collateralAddress: string
 }
 

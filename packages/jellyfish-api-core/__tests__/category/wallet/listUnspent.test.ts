@@ -5,7 +5,7 @@ import {
   UTXO,
   ListUnspentOptions
 } from '../../../src/category/wallet'
-import { BigNumber } from '../../../src'
+import BigNumber from 'bignumber.js'
 
 describe('Unspent', () => {
   const container = new MasterNodeRegTestContainer()

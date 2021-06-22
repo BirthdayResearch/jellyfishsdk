@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { BigNumber } from '../../../src'
+import BigNumber from 'bignumber.js'
 import {
   UTXO,
   ListUnspentOptions,

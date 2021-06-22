@@ -1,4 +1,5 @@
-import { BigNumber, ApiClient } from '../.'
+import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 export enum Mode {
   UNSET = 'UNSET',
@@ -60,6 +61,15 @@ export class Wallet {
    */
   async getBalance (minimumConfirmation: number = 0, includeWatchOnly: boolean = false): Promise<BigNumber> {
     return await this.client.call('getbalance', ['*', minimumConfirmation, includeWatchOnly], 'bignumber')
+  }
+
+  /**
+   * Identical to getBalance to get untrusted pending balance
+   *
+   * @return Promise<BigNumber>
+   */
+  async getUnconfirmedBalance (): Promise<BigNumber> {
+    return await this.client.call('getunconfirmedbalance', [false], 'bignumber')
   }
 
   /**

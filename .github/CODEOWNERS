@@ -7,32 +7,35 @@
 
 /website/                                       @fuxingloh @canonbrother @jingyi2811
 
-/packages/jellyfish/                            @fuxingloh
+/packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
 /packages/jellyfish-api-core/                               @fuxingloh @canonbrother @jingyi2811 @thedoublejay
-/packages/jellyfish-api-core/src/category/icxorderbook.ts   @fuxingloh @canonbrother @jingyi2811 @thedoublejay @monstrobishi @surangap
-/packages/jellyfish-api-core/src/category/oracle.ts         @fuxingloh @canonbrother @jingyi2811 @thedoublejay @monstrobishi @surangap
+/packages/jellyfish-api-core/src/category/icxorderbook.ts   @fuxingloh @surangap @monstrobishi @canonbrother @ivan-zynesis
+/packages/jellyfish-api-core/src/category/oracle.ts         @fuxingloh @jingyi2811 @surangap @canonbrother @monstrobishi
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
-/packages/jellyfish-network/                    @fuxingloh
+/packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-transaction/                            @fuxingloh
-/packages/jellyfish-transaction/src/script/                 @fuxingloh @canonbrother @jingyi2811
+/packages/jellyfish-transaction/                            @fuxingloh @ivan-zynesis
+/packages/jellyfish-transaction/src/script/                 @fuxingloh @canonbrother @ivan-zynesis @jingyi2811
 /packages/jellyfish-transaction/src/script/buffer/          @fuxingloh @canonbrother @ivan-zynesis
 /packages/jellyfish-transaction/src/script/defi/            @fuxingloh @canonbrother @ivan-zynesis @monstrobishi
 
 /packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @monstrobishi
-/packages/jellyfish-wallet/                     @fuxingloh
-/packages/jellyfish-wallet-mnemonic/            @fuxingloh
+/packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis
+/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis
+/packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 /packages/testcontainers/                       @fuxingloh
 /packages/testing/                              @fuxingloh @canonbrother
 
 lerna.json                                      @fuxingloh @canonbrother
-tsconfig.json                                   @fuxingloh @canonbrother
-jest.config.js                                  @fuxingloh @canonbrother
+tsconfig.json                                   @fuxingloh @canonbrother @ivan-zynesis
+tsconfig.base.json                              @fuxingloh @canonbrother @ivan-zynesis
+tsconfig.build.json                             @fuxingloh @canonbrother @ivan-zynesis
+jest.config.js                                  @fuxingloh @canonbrother @ivan-zynesis
 package.json                                    @fuxingloh
 package-lock.json                               @fuxingloh
 

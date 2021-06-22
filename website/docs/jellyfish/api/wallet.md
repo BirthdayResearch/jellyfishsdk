@@ -29,6 +29,16 @@ interface wallet {
 }
 ```
 
+## getUnconfirmedBalance
+
+Identical to getBalance to get untrusted pending balance.
+
+```ts title="client.wallet.getUnconfirmedBalance()"
+interface wallet {
+  getUnconfirmedBalance (): Promise<BigNumber>
+}
+```
+
 ## listUnspent
 
 Get list of UTXOs in wallet.

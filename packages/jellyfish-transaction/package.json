@@ -38,12 +38,6 @@
     "bignumber.js": "^9.0.1"
   },
   "dependencies": {
-    "@defichain/jellyfish-crypto": "0.0.0",
     "smart-buffer": "^4.1.0"
-  },
-  "devDependencies": {
-    "@defichain/jellyfish-api-core": "0.0.0",
-    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
-    "@defichain/testcontainers": "0.0.0"
   }
 }

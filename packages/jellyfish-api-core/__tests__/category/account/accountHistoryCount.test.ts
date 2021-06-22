@@ -97,8 +97,8 @@ describe('Account', () => {
 
       expect(typeof countWithDBTC).toBe('number')
       expect(typeof countWithDETH).toBe('number')
-      expect(countWithDBTC).toStrictEqual(5)
-      expect(countWithDETH).toStrictEqual(3)
+      expect(countWithDBTC).toBeGreaterThanOrEqual(1)
+      expect(countWithDETH).toBeGreaterThanOrEqual(1)
     })
   })
 

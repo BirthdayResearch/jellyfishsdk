@@ -4,6 +4,14 @@ import { poolpair } from '@defichain/jellyfish-api-core'
 import { getNewAddress } from './wallet'
 
 /**
+ * @param {MasterNodeRegTestContainer} container
+ * @return {Promise<PoolPairsResult>}
+ */
+export async function listPoolPairs (container: MasterNodeRegTestContainer): Promise<poolpair.PoolPairsResult> {
+  return await container.call('listpoolpairs')
+}
+
+/**
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {string} tokenA
@@ -52,9 +60,9 @@ export interface CreatePoolPairOptions {
  */
 export async function addPoolLiquidity (
   container: MasterNodeRegTestContainer,
-  options: AddPoolLiquidity
+  metadata: AddPoolLiquidityMetadata
 ): Promise<BigNumber> {
-  const { amountA, amountB, tokenA, tokenB, shareAddress } = options
+  const { amountA, amountB, tokenA, tokenB, shareAddress } = metadata
   const from = { '*': [`${amountA}@${tokenA}`, `${amountB}@${tokenB}`] }
   await container.call('addpoolliquidity', [from, shareAddress])
   await container.generate(1)
@@ -69,7 +77,7 @@ export async function addPoolLiquidity (
   return new BigNumber(amount)
 }
 
-export interface AddPoolLiquidity {
+export interface AddPoolLiquidityMetadata {
   tokenA: string
   amountA: number
   tokenB: string
@@ -79,25 +87,54 @@ export interface AddPoolLiquidity {
 
 /**
  * @param {MasterNodeRegTestContainer} container
- * @param {RemovePoolLiquidity} options
- * @param {string} options.address which has the LP token
- * @param {string} options.tokenLP to remove
- * @param {BigNumber} options.amountLP to remove
+ * @param {RemovePoolLiquidity} metadata
+ * @param {string} metadata.address which has the LP token
+ * @param {string} metadata.tokenLP to remove
+ * @param {BigNumber} metadata.amountLP to remove
  * @return {Promise<string>} txid
  */
 export async function removePoolLiquidity (
   container: MasterNodeRegTestContainer,
-  options: RemovePoolLiquidity
+  metadata: RemovePoolLiquidityMetadata
 ): Promise<string> {
-  const { address, tokenLP, amountLP } = options
+  const { address, tokenLP, amountLP } = metadata
   const amount = `${amountLP.toFixed(8)}@${tokenLP}`
   const txid = await container.call('removepoolliquidity', [address, amount])
   await container.generate(1)
   return txid
 }
 
-export interface RemovePoolLiquidity {
+export interface RemovePoolLiquidityMetadata {
   address: string
   tokenLP: string
   amountLP: BigNumber
+}
+
+/**
+ * @param {MasterNodeRegTestContainer} container
+ * @param {PoolSwapMetadata} metadata
+ * @param {string} metadata.from
+ * @param {string} metadata.tokenFrom
+ * @param {number} metadata.amountFrom
+ * @param {string} metadata.to
+ * @param {string} metadata.tokenTo
+ * @param {number} [metadata.maxPrice]
+ * @return {Promise<string>} txid
+ */
+export async function poolSwap (
+  container: MasterNodeRegTestContainer,
+  metadata: PoolSwapMetadata
+): Promise<string> {
+  const txid = await container.call('poolswap', [metadata])
+  await container.generate(1)
+  return txid
+}
+
+export interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
 }
