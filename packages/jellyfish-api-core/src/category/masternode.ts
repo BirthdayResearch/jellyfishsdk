@@ -48,9 +48,9 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
-   * @return {Promise<MasternodeResult | string>}
+   * @return {Promise<MasternodeResult>}
    */
-  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodeResult>
+  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodesResult<MasternodeInfo>>
 
   /**
    * Returns information about multiple masternodes.
@@ -60,9 +60,9 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} verbose true
-   * @return {Promise<MasternodeResult | string>}
+   * @return {Promise<MasternodeResult>}
    */
-  listMasternodes (pagination: MasternodePagination, verbose: true): Promise<MasternodeResult>
+  listMasternodes (pagination: MasternodePagination, verbose: true): Promise<MasternodesResult<MasternodeInfo>>
 
   /**
    * Returns information about multiple masternodes.
@@ -72,9 +72,9 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} verbose false.
-   * @return {Promise<MasternodeResult | string>}
+   * @return {Promise<MasternodeResul>}
    */
-  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodeResult>
+  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodesResult<string>>
 
   /**
    * Returns information about multiple masternodes.
@@ -84,15 +84,15 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
-   * @return {Promise<MasternodeResult | string>}
+   * @return {Promise<MasternodeResult>}
    */
-  async listMasternodes (
+  async listMasternodes<T> (
     pagination: MasternodePagination = {
       including_start: true,
       limit: 100
     },
     verbose: boolean = true
-  ): Promise<MasternodeResult> {
+  ): Promise<MasternodesResult<T>> {
     return await this.client.call('listmasternodes', [pagination, verbose], 'number')
   }
 
@@ -135,6 +135,10 @@ export interface MasternodeInfo {
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+}
+
+export interface MasternodesResult<T> {
+  [id: string]: T
 }
 
 export interface MasternodeResult {
