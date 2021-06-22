@@ -198,7 +198,7 @@ describe('Account', () => {
   })
 })
 
-describe('listAccountHistory', () => {
+describe.only('listAccountHistory', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -208,7 +208,6 @@ describe('listAccountHistory', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
     from = await container.call('getnewaddress')
     await createToken(from, 'DBTC', 10)
   })
