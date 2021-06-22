@@ -78,6 +78,8 @@ describe('getBalances when wallet is set to avoid_reuse', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+    await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -85,8 +87,6 @@ describe('getBalances when wallet is set to avoid_reuse', () => {
   })
 
   it('should have used', async () => {
-    await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
-    await container.generate(1)
     const balances: WalletBalances = await client.wallet.getBalances()
 
     expect(BigNumber.isBigNumber(balances.mine.trusted)).toStrictEqual(true)
