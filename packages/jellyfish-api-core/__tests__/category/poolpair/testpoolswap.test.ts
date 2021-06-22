@@ -39,7 +39,7 @@ describe('Poolpair', () => {
     expect(Object.keys(poolpairResult).length).toStrictEqual(1)
 
     // Note(canonbrother): simulate poolswap calculation to find reserveB
-    // case: swap 6 CAT to DFI
+    // case: swap 666 CAT to DFI
     // 1000 : 500 = sqrt(1000 * 500) = 707.10678118
     // 1666 : ? = sqrt(1666 * ?) = 707.10678118
     // ? = 707.10678118^2 / 1666 = 300.120048014
