@@ -36,13 +36,13 @@ export interface TokenData {
   symbolKey: string
   name: string
   decimal: number
-  limit: number
+  limit: string // BigNumber
   mintable: boolean
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
   finalized: boolean
-  minted: number
+  minted: string // BigNumber
   creation: { tx: string, height: number }
   destruction: { tx: string, height: number }
   collateralAddress: string
