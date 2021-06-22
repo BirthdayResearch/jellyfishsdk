@@ -9,7 +9,7 @@ slug: /jellyfish/api/masternode
 import {Client} from '@defichain/jellyfish'
 
 const client = new Client()
-// Using client.account.
+// Using client.masternode.
 const something = await client.masternode.method()
 ```
 
