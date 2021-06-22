@@ -18,7 +18,7 @@ afterAll(async () => {
 it('should 404 with invalid network', async () => {
   const res = await app.inject({
     method: 'POST',
-    url: '/v1/mainnet/rpc/getblockchaininfo'
+    url: '/v0/mainnet/rpc/getblockchaininfo'
   })
 
   expect(res.statusCode).toStrictEqual(404)
@@ -28,7 +28,7 @@ it('should 404 with invalid network', async () => {
       type: 'NotFound',
       at: expect.any(Number),
       message: 'Network not found',
-      url: '/v1/mainnet/rpc/getblockchaininfo'
+      url: '/v0/mainnet/rpc/getblockchaininfo'
     }
   })
 })

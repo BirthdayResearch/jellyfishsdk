@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common'
 
-const VERSION: 'v1' = 'v1'
+const VERSION: 'v0' = 'v0'
 
 /**
  * @param {ExecutionContext} context to check if path is version prefixed

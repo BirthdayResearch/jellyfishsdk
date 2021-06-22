@@ -14,7 +14,7 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 
-@Controller('/v1/:network/address/:address')
+@Controller('/v0/:network/address/:address')
 export class AddressController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,

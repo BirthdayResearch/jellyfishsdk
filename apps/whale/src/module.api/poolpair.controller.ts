@@ -6,7 +6,7 @@ import { PoolPairData } from '@whale-api-client/api/poolpair'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
-@Controller('/v1/:network/poolpairs')
+@Controller('/v0/:network/poolpairs')
 export class PoolPairController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,
