@@ -263,7 +263,7 @@ describe('listAccountHistory', () => {
   })
 })
 
-describe('Poolpair', () => {
+describe('listAccountHistory for poolpair', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
   const createToken = createTokenForContainer(container)
@@ -296,7 +296,7 @@ describe('Poolpair', () => {
     await container.generate(1)
   }
 
-  it('should addPoolLiquidity', async () => {
+  it('should show AddPoolLiquidity', async () => {
     const shareAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
       '*': ['10@DFI', '200@DDAI']
