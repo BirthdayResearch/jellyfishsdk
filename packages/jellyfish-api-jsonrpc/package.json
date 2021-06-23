@@ -40,7 +40,6 @@
     "abort-controller": "^3.0.0"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
     "nock": "^13.0.11"
   }
 }
