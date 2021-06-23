@@ -51,7 +51,7 @@ interface masternode {
       limit: 100
     },
     verbose: boolean = true
-  ): Promise<MasternodesResult<T>>
+  ): Promise<MasternodeResult<T>>
 }
 
 enum MasternodeState {
