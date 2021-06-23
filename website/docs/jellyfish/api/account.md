@@ -313,3 +313,24 @@ interface SendTokensOptions {
   selectionMode: SelectionModeType
 }
 ```
+
+## listCommunityBalances
+
+Returns information about current anchor bonus, incentive funding, burnt token(s)
+
+```ts title="client.account.listCommunityBalances()"
+interface account {
+  listCommunityBalances (): Promise<CommunityBalanceData>
+}
+
+interface CommunityBalanceData {
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
+  Swap?: BigNumber
+  Futures?: BigNumber
+  Options?: BigNumber
+  Unallocated?: BigNumber
+  Unknown?: BigNumber
+}
+```

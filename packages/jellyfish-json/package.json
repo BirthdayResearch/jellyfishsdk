@@ -38,9 +38,7 @@
     "bignumber.js": "^9.0.1"
   },
   "dependencies": {
+    "@types/lossless-json": "^1.0.0",
     "lossless-json": "^1.0.4"
-  },
-  "devDependencies": {
-    "@types/lossless-json": "^1.0.0"
   }
 }

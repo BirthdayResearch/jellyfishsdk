@@ -184,3 +184,23 @@ interface PoolSwapUTXO {
 }
 ```
 
+## testPoolSwap
+
+Create a test pool swap transaction to check pool swap's return result
+
+```ts title="client.poolpair.testPoolSwap()"
+interface poolpair {
+  testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string> {
+    return await this.client.call('testpoolswap', [metadata], 'bignumber')
+  }
+}
+
+interface TestPoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
+}
+```

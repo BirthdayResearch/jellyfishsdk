@@ -36,6 +36,33 @@ Identical to getBalance to get untrusted pending balance.
 ```ts title="client.wallet.getUnconfirmedBalance()"
 interface wallet {
   getUnconfirmedBalance (): Promise<BigNumber>
+```
+
+## getBalances
+
+Returns an object with all balances.
+
+```ts title="client.wallet.getBalances()"
+interface wallet {
+  getBalances (): Promise<WalletBalances>
+}
+
+interface WalletBalances {
+  mine: WalletMineBalances
+  watchonly?: WalletWatchOnlyBalances
+}
+
+interface WalletMineBalances {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
+  used?: BigNumber
+}
+
+interface WalletWatchOnlyBalances {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
 }
 ```
 
@@ -322,7 +349,7 @@ Send given amounts to multiple given address and return a transaction id.
 
 ```ts title="client.wallet.sendMany()"
 interface wallet {
-  async sendMany (amounts: Record<string, number>, subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
+  sendMany (amounts: Record<string, number>, subtractfeefrom: string [] = [], options: SendManyOptions = {}): Promise<string>
 }
 
 interface SendManyOptions {
