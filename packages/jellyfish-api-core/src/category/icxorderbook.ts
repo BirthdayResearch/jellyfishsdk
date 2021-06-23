@@ -157,12 +157,12 @@ export class ICXOrderBook {
    * Closes ICX order
    *
    * @param {string} [orderTx] Transaction id of maker order
-   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {UTXO[]} inputUTXOs Specific utxos to spend
    * @param {string} [inputUTXOs.txid] transaction Id
    * @param {number} [inputUTXOs.vout] The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
-  async closeOrder (orderTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+  async closeOrder (orderTx: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_closeorder',
       [

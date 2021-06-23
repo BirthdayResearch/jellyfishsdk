@@ -175,10 +175,10 @@ Closes ICX order
 
 ```ts title="client.icxorderbook.closeOrder()"
 interface icxorderbook {
-  closeOrder (orderTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  closeOrder (orderTx: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
 }
 
-interface InputUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
