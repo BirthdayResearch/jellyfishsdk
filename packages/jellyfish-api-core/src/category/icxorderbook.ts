@@ -23,12 +23,12 @@ export class ICXOrderBook {
    * @param {BigNumber} [order.amountFrom] tokenFrom coins amount
    * @param {BigNumber} [order.orderPrice] Price per unit
    * @param {number} [order.expiry] Number of blocks until the order expires, default 2880 DFI blocks
-   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {UTXO[]} inputUTXOs Specific utxos to spend
    * @param {string} [inputUTXOs.txid] transaction Id
    * @param {number} [inputUTXOs.vout] The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the result transaction
    */
-  async createOrder (order: ICXOrder, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+  async createOrder (order: ICXOrder, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_createorder',
       [
@@ -50,8 +50,8 @@ export interface ICXOrder {
   tokenTo?: string
   /** Address of DFI token for fees and selling tokens in case of DFC/BTC order type */
   ownerAddress?: string
-  /** pubkey which can claim external HTLC in case of EXT/DFC order type */
   // NOTE(surangap): c++ side this as number, but no type checks done. should be corrected from c++ side?
+  /** pubkey which can claim external HTLC in case of EXT/DFC order type */
   receivePubkey?: string
   /** tokenFrom coins amount */
   amountFrom: BigNumber
@@ -62,7 +62,7 @@ export interface ICXOrder {
 }
 
 /** Input UTXO */
-export interface InputUTXO {
+export interface UTXO {
   /** transaction id */
   txid: string
   /** output number */
@@ -116,11 +116,11 @@ export interface ICXOrderInfo {
   /** */
   amountToFillInToAsset: BigNumber
   /** creation height */
-  height: number
+  height: BigNumber
   /** Number of blocks until the order expires */
-  expireHeight: number
+  expireHeight: BigNumber
   /** Close height */
-  closeHeight?: number
+  closeHeight?: BigNumber
   /** Expired or not */
   expired?: boolean
 }
@@ -142,5 +142,5 @@ export interface ICXOfferInfo {
   /** Taker fee */
   takerFee: BigNumber
   /** Expire height */
-  expireHeight: number
+  expireHeight: BigNumber
 }

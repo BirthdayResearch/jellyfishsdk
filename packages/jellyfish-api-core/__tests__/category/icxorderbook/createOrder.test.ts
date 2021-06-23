@@ -1,21 +1,30 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, InputUTXO
+  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, UTXO, ICXOrderStatus, ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountDFI, checkBTCSellOrderDetails, checkDFISellOrderDetails, idDFI, setup } from './common.test'
+import { accountBTC, accountDFI, ICXSetup, idDFI, symbolBTC, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
-describe('Should test ICXOrderBook.createOrder', () => {
+describe('ICXOrderBook.createOrder', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const icxSetup = new ICXSetup(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await setup(container)
+    await icxSetup.createAccounts()
+    await icxSetup.createBTCToken()
+    await icxSetup.initializeTokensIds()
+    await icxSetup.mintBTCtoken(100)
+    await icxSetup.fundAccount(accountDFI, symbolDFI, 500)
+    await icxSetup.fundAccount(accountBTC, symbolDFI, 10) // for fee
+    await icxSetup.createBTCDFIPool()
+    await icxSetup.addLiquidityToBTCDFIPool(1, 100)
+    await icxSetup.setTakerFee(0.001)
   })
 
   afterAll(async () => {
@@ -26,7 +35,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     // cleanup code here
   })
 
-  it('Should create an ICX order to sell 15 DFI', async () => {
+  it('should createOrder to sell 15 dfi', async () => {
     const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
     const order: ICXOrder = {
@@ -42,16 +51,31 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await container.generate(1)
 
     // list ICX orders
-    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await container.call('icx_listorders', [])
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.call('icx_listorders', [], 'bignumber')
     // we know that only ICXOrderInfo will be returned, so cast and pass to check order details
-    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+      {
+        status: ICXOrderStatus.OPEN,
+        type: ICXOrderType.INTERNAL,
+        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
+        chainTo: order.chainTo,
+        receivePubkey: order.receivePubkey,
+        ownerAddress: order.ownerAddress,
+        amountFrom: order.amountFrom,
+        amountToFill: order.amountFrom,
+        orderPrice: order.orderPrice,
+        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
 
     // check accountDFI[idDFI] balance, reduced by 15 DFI
     const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
-    expect(Number(accountDFIAfterOrder[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI] - Number(15)))
+    expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIStart[idDFI] - 15)
   })
 
-  it('Should create an ICX order to sell 2 BTC', async () => {
+  it('should createOrder to sell 2 btc', async () => {
     const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
     const order: ICXOrder = {
@@ -66,15 +90,28 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await container.generate(1)
 
     // list ICX orders
-    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await container.call('icx_listorders', [])
-    await checkBTCSellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
-
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.call('icx_listorders', [], 'bignumber')
+    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+      {
+        status: ICXOrderStatus.OPEN,
+        type: ICXOrderType.EXTERNAL,
+        tokenTo: order.tokenTo === '0' ? symbolDFI : symbolBTC,
+        chainFrom: order.chainFrom,
+        ownerAddress: order.ownerAddress,
+        amountFrom: order.amountFrom,
+        amountToFill: order.amountFrom,
+        orderPrice: order.orderPrice,
+        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
     // check accountDFI[idDFI] balance, should be the same
     const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
     expect(accountDFIAfterOrder).toStrictEqual(accountDFIStart)
   })
 
-  it('Should create an ICX order to sell 15 DFI with input UTXOs', async () => {
+  it('should createOrder to sell 15 dfi with input utxos', async () => {
     const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
     const order: ICXOrder = {
@@ -88,7 +125,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
 
     // input utxos
     const utxos = await container.call('listunspent', [1, 9999999, [accountDFI], true])
-    const inputUTXOs: InputUTXO[] = utxos.map((utxo: InputUTXO) => {
+    const inputUTXOs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
         vout: utxo.vout
@@ -99,16 +136,30 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await container.generate(1)
 
     // list ICX orders
-    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await container.call('icx_listorders', [])
+    const orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.call('icx_listorders', [], 'bignumber')
     // we know that only ICXOrderInfo will be returned, so cast and pass to check order details
-    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
-
+    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+      {
+        status: ICXOrderStatus.OPEN,
+        type: ICXOrderType.INTERNAL,
+        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
+        chainTo: order.chainTo,
+        receivePubkey: order.receivePubkey,
+        ownerAddress: order.ownerAddress,
+        amountFrom: order.amountFrom,
+        amountToFill: order.amountFrom,
+        orderPrice: order.orderPrice,
+        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
     // check accountDFI[idDFI] balance, reduced by 15 DFI
     const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
-    expect(Number(accountDFIAfterOrder[idDFI])).toStrictEqual(Number(accountDFIStart[idDFI] - Number(15)))
+    expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIStart[idDFI] - 15)
   })
 
-  it('Should return an error when invalid ICXOrder.tokenFrom is used', async () => {
+  it('should return an error when invalid ICXOrder.tokenFrom is used', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: 'DOGE',
@@ -124,7 +175,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Token DOGE does not exist!\', code: -8, method: icx_createorder')
   })
 
-  it('Should return an error when invalid ICXOrder.chainTo is used', async () => {
+  it('should return an error when invalid ICXOrder.chainTo is used', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -140,7 +191,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid parameters, argument "chainTo" must be "BTC" if "tokenFrom" specified\', code: -8, method: icx_createorder')
   })
 
-  it('Should return an error when invalid ICXOrder.ownerAddress is used', async () => {
+  it('should return an error when invalid ICXOrder.ownerAddress is used', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -156,7 +207,7 @@ describe('Should test ICXOrderBook.createOrder', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'recipient (123) does not refer to any valid address\', code: -5, method: icx_createorder')
   })
 
-  it('Should return an error when invalid ICXOrder.receivePubkey is used', async () => {
+  it('should return an error when invalid ICXOrder.receivePubkey is used', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,

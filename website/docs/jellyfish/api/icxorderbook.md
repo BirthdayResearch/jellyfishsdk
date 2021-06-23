@@ -19,7 +19,7 @@ Create and submits an ICX order creation transaction.
 
 ```ts title="client.icxorderbook.createOrder()"
 interface icxorderbook {
-  createOrder (order: ICXOrder, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  createOrder (order: ICXOrder, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface ICXOrder {
@@ -34,7 +34,7 @@ interface ICXOrder {
   expiry?: number
 }
 
-interface InputUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
