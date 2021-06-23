@@ -3,9 +3,26 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
 
+const createTokenForContainer = (container: MasterNodeRegTestContainer) => async (address: string, symbol: string, amount: number): Promise<void> => {
+  const metadata = {
+    symbol,
+    name: symbol,
+    isDAT: true,
+    mintable: true,
+    tradeable: true,
+    collateralAddress: address
+  }
+  await container.call('createtoken', [metadata])
+  await container.generate(1)
+
+  await container.call('minttokens', [`${amount.toString()}@${symbol}`])
+  await container.generate(1)
+}
+
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const createToken = createTokenForContainer(container)
 
   beforeAll(async () => {
     await container.start()
@@ -18,22 +35,6 @@ describe('Account', () => {
   afterAll(async () => {
     await container.stop()
   })
-
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
-
-    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(1)
-  }
 
   it('should listAccountHistory', async () => {
     await waitForExpect(async () => {
@@ -202,6 +203,8 @@ describe('listAccountHistory', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
+  const createToken = createTokenForContainer(container)
+
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
@@ -211,22 +214,6 @@ describe('listAccountHistory', () => {
   afterAll(async () => {
     await container.stop()
   })
-
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
-
-    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(1)
-  }
 
   it('should contain accountToAccount histories', async () => {
     const from = await container.call('getnewaddress')
@@ -279,34 +266,22 @@ describe('listAccountHistory', () => {
 describe('Poolpair', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const createToken = createTokenForContainer(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(200)
-    await createToken('DDAI')
-    await mintTokens('DDAI')
+    const address = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+    await createToken(address, 'DDAI', 2000)
     await createPoolPair('DDAI')
   })
 
   afterAll(async () => {
     await container.stop()
   })
-
-  async function createToken (symbol: string): Promise<void> {
-    const address = await container.call('getnewaddress')
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
-  }
 
   async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
     const address = await container.call('getnewaddress')
@@ -321,18 +296,6 @@ describe('Poolpair', () => {
     await container.generate(1)
   }
 
-  async function mintTokens (symbol: string): Promise<void> {
-    const address = await container.call('getnewaddress')
-
-    // NOTE(canonbrother): using `minttokens` on DFI is an error as DFI is not mintable
-    const payload: { [key: string]: string } = {}
-    payload[address] = '100@0'
-    await container.call('utxostoaccount', [payload])
-    await container.call('minttokens', [`2000@${symbol}`])
-
-    await container.generate(1)
-  }
-
   it('should addPoolLiquidity', async () => {
     const shareAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
@@ -342,7 +305,6 @@ describe('Poolpair', () => {
 
     const histories = await client.account.listAccountHistory()
 
-    expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts === ['-200.00000000@DDA']))).toBeTruthy()
-    expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts === ['-10.00000000@DFI']))).toBeTruthy()
+    expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts.includes('-10.00000000@DFI') && h.amounts.includes('-200.00000000@DDAI')))).toBeTruthy()
   })
 })
