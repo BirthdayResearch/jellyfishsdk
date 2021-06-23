@@ -92,7 +92,7 @@ export class Masternode {
       limit: 100
     },
     verbose: boolean = true
-  ): Promise<MasternodesResult<T>> {
+  ): Promise<MasternodeResult<T>> {
     return await this.client.call('listmasternodes', [pagination, verbose], 'number')
   }
 
