@@ -2,20 +2,29 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
   ExtHTLC, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXGenericResult, ICXHTLCStatus,
-  ICXHTLCType, ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder
+  ICXHTLCType, ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { setup, accountDFI, idDFI, accountBTC, checkDFIBuyOfferDetails, checkDFISellOrderDetails, checkDFCHTLCDetails, checkEXTHTLCDetails } from './common.test'
+import { accountDFI, idDFI, accountBTC, ICXSetup, DEX_DFI_PER_BTC_RATE, ICX_TAKERFEE_PER_BTC, symbolBTC, symbolDFI } from './icx_setup'
 
-describe('Should test ICX Complex scenarios', () => {
+describe('ICX Complex test scenarios', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const icxSetup = new ICXSetup(container, client)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForBlock(1)
-    await setup(container)
+    await icxSetup.createAccounts()
+    await icxSetup.createBTCToken()
+    await icxSetup.initializeTokensIds()
+    await icxSetup.mintBTCtoken(100)
+    await icxSetup.fundAccount(accountDFI, symbolDFI, 500)
+    await icxSetup.fundAccount(accountBTC, symbolDFI, 10) // for fee
+    await icxSetup.createBTCDFIPool()
+    await icxSetup.addLiquidityToBTCDFIPool(1, 100)
+    await icxSetup.setTakerFee(0.001)
   })
 
   afterAll(async () => {
@@ -26,7 +35,7 @@ describe('Should test ICX Complex scenarios', () => {
     // cleanup code here
   })
 
-  it('Make a higher offer to an sell DFI order, then the extra amount should be returned when DFCHTLC is submitted', async () => {
+  it('make a higher offer to an sell dfi order, then the extra amount should be returned when dfc htlc is submitted', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -42,7 +51,22 @@ describe('Should test ICX Complex scenarios', () => {
 
     // list ICX orders
     let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+      {
+        status: ICXOrderStatus.OPEN,
+        type: ICXOrderType.INTERNAL,
+        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
+        chainTo: order.chainTo,
+        receivePubkey: order.receivePubkey,
+        ownerAddress: order.ownerAddress,
+        amountFrom: order.amountFrom,
+        amountToFill: order.amountFrom,
+        orderPrice: order.orderPrice,
+        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
 
     // make offer to higher amout 20 DFI - taker
     const offer: ICXOffer = {
@@ -58,12 +82,22 @@ describe('Should test ICX Complex scenarios', () => {
     const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
     // check fee of 0.02 DFI has been reduced from the accountBTCBeforeOffer[idDFI]
     // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
-    expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]) - Number(0.02))
+    expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI] - 0.02)
 
     // List the ICX offers for orderTx = createOrderTxId and check
     orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, orders as Record<string, ICXOfferInfo>)
+    expect((orders as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
+      {
+        orderTx: createOrderTxId,
+        status: ICXOrderStatus.OPEN,
+        amount: offer.amount,
+        amountInFromAsset: offer.amount.dividedBy(order.orderPrice),
+        ownerAddress: offer.ownerAddress,
+        takerFee: offer.amount.multipliedBy(ICX_TAKERFEE_PER_BTC).multipliedBy(DEX_DFI_PER_BTC_RATE),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
 
     const accountDFIBeforeDFCHTLC = await container.call('getaccount', [accountDFI, {}, true])
 
@@ -79,14 +113,14 @@ describe('Should test ICX Complex scenarios', () => {
 
     const accountDFIAfterDFCHTLC = await container.call('getaccount', [accountDFI, {}, true])
     // should reduce accountDFIBeforeDFCHTLC[idDFI] balance by 0.015 DFI
-    expect(Number(accountDFIAfterDFCHTLC[idDFI])).toStrictEqual(Number(accountDFIBeforeDFCHTLC[idDFI]) - Number(0.015))
+    expect(accountDFIAfterDFCHTLC[idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[idDFI] - 0.015)
 
     // accountBTC balance after DFCHTLC should have credited back with extra taker fee of 0.005 DFI
     const accountBTCAfterDFCHTLC = await container.call('getaccount', [accountBTC, {}, true])
-    expect(Number(accountBTCAfterDFCHTLC[idDFI])).toStrictEqual(Number(accountBTCAfterOffer[idDFI]) + Number(0.005))
+    expect(accountBTCAfterDFCHTLC[idDFI]).toStrictEqual(Number(accountBTCAfterOffer[idDFI]) + Number(0.005))
   })
 
-  it('Create ICX order to sell 15 DFI, make offer to buy 15 DFI, create HTLCs and claim DFCHTLC, maker and taker balances should be updated as expected', async () => {
+  it('create icx order to sell 15 dfi, make offer to buy 15 dfi, create htlcs and claim dfc htlc, maker and taker balances should be updated as expected', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -102,7 +136,22 @@ describe('Should test ICX Complex scenarios', () => {
 
     // list ICX orders
     let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    await checkDFISellOrderDetails(container, order, createOrderTxId, orders as Record<string, ICXOrderInfo>)
+    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+      {
+        status: ICXOrderStatus.OPEN,
+        type: ICXOrderType.INTERNAL,
+        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
+        chainTo: order.chainTo,
+        receivePubkey: order.receivePubkey,
+        ownerAddress: order.ownerAddress,
+        amountFrom: order.amountFrom,
+        amountToFill: order.amountFrom,
+        orderPrice: order.orderPrice,
+        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
 
     // make offer to 15 DFI - taker
     const offer: ICXOffer = {
@@ -118,12 +167,22 @@ describe('Should test ICX Complex scenarios', () => {
     const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
     // check fee of 0.015 DFI has been reduced from the accountBTCBeforeOffer[idDFI]
     // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
-    expect(Number(accountBTCAfterOffer[idDFI])).toStrictEqual(Number(accountBTCBeforeOffer[idDFI]) - Number(0.015))
+    expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI] - 0.015)
 
     // List the ICX offers for orderTx = createOrderTxId and check
     orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
     expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, orders as Record<string, ICXOfferInfo>)
+    expect((orders as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
+      {
+        orderTx: createOrderTxId,
+        status: ICXOrderStatus.OPEN,
+        amount: offer.amount,
+        amountInFromAsset: offer.amount.dividedBy(order.orderPrice),
+        ownerAddress: offer.ownerAddress,
+        takerFee: offer.amount.multipliedBy(ICX_TAKERFEE_PER_BTC).multipliedBy(DEX_DFI_PER_BTC_RATE),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
 
     const accountDFIBeforeDFCHTLC = await container.call('getaccount', [accountDFI, {}, true])
 
@@ -139,7 +198,7 @@ describe('Should test ICX Complex scenarios', () => {
 
     const accountDFIAfterDFCHTLC = await container.call('getaccount', [accountDFI, {}, true])
     // should reduce accountDFIBeforeDFCHTLC[idDFI] balance by 0.015 DFI
-    expect(Number(accountDFIAfterDFCHTLC[idDFI])).toStrictEqual(Number(accountDFIBeforeDFCHTLC[idDFI]) - Number(0.015))
+    expect(accountDFIAfterDFCHTLC[idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[idDFI] - 0.015)
 
     // List htlc
     let listHTLCOptions: ICXListHTLCOptions = {
@@ -147,7 +206,19 @@ describe('Should test ICX Complex scenarios', () => {
     }
     let HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    await checkDFCHTLCDetails(DFCHTLC, DFCHTLCTxId, HTLCs)
+    expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
+      {
+        type: ICXHTLCType.DFC,
+        status: ICXOrderStatus.OPEN,
+        offerTx: makeOfferTxId,
+        amount: DFCHTLC.amount,
+        amountInEXTAsset: DFCHTLC.amount.multipliedBy(order.orderPrice),
+        hash: DFCHTLC.hash,
+        timeout: new BigNumber(DFCHTLC.timeout as number),
+        height: expect.any(BigNumber),
+        refundHeight: expect.any(BigNumber)
+      }
+    )
 
     const accountBTCBeforeEXTHTLC = await container.call('getaccount', [accountBTC, {}, true])
     // submit EXT HTLC - taker
@@ -168,7 +239,20 @@ describe('Should test ICX Complex scenarios', () => {
     }
     HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
-    await checkEXTHTLCDetails(ExtHTLC, ExtHTLCTxId, HTLCs)
+    expect(HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
+      {
+        type: ICXHTLCType.EXTERNAL,
+        status: ICXOrderStatus.OPEN,
+        offerTx: makeOfferTxId,
+        amount: ExtHTLC.amount,
+        amountInDFCAsset: ExtHTLC.amount.dividedBy(order.orderPrice),
+        hash: ExtHTLC.hash,
+        htlcScriptAddress: ExtHTLC.htlcScriptAddress,
+        ownerPubkey: ExtHTLC.ownerPubkey,
+        timeout: new BigNumber(ExtHTLC.timeout),
+        height: expect.any(BigNumber)
+      }
+    )
 
     const accountBTCAfterEXTHTLC = await container.call('getaccount', [accountBTC, {}, true])
     // should have the same balance as accountBTCAfterDFCHTLC
@@ -208,7 +292,7 @@ describe('Should test ICX Complex scenarios', () => {
 
     // maker should get incentive + maker deposit and taker should get amount in DFCHTLCTxId HTLC - takerfee
     // expect(Number(accountDFIAfterClaim[idDFI])).toStrictEqual(Number(accountDFIBeforeClaim[idDFI]) + Number(0.01500000000000) + Number(0.00375000000000))
-    expect(Number(accountDFIAfterClaim[idDFI]).toPrecision(8)).toStrictEqual((Number(accountDFIBeforeClaim[idDFI]) + Number(0.01500000000000) + Number(0.00375000000000)).toPrecision(8))
-    expect(Number(accountBTCAfterClaim[idDFI])).toStrictEqual(Number(accountBTCBeforeClaim[idDFI]) + Number(15))
+    expect(accountDFIAfterClaim[idDFI].toPrecision(8)).toStrictEqual((Number(accountDFIBeforeClaim[idDFI]) + Number(0.01500000000000) + Number(0.00375000000000)).toPrecision(8))
+    expect(accountBTCAfterClaim[idDFI]).toStrictEqual(Number(accountBTCBeforeClaim[idDFI]) + Number(15))
   })
 })
