@@ -26,17 +26,65 @@ describe('poolSwap', () => {
     await container.stop()
   })
 
-  it('should poolSwap with UTXOS ', async () => {
+  it('should poolSwap', async () => {
+    const addressReceiver = await getNewAddress(container)
     const tokenAddress = await getNewAddress(container)
     const dfiAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
+
+    await createToken(container, 'CAT', { collateralAddress: tokenAddress })
+    await utxosToAccount(container, 1200, { address: dfiAddress })
+    await mintTokens(container, 'CAT', { address: dfiAddress })
+    await createPoolPair(container, 'CAT', 'DFI')
+
+    await addPoolLiquidity(container, {
+      tokenA: 'CAT',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 500,
+      shareAddress: poolLiquidityAddress
+    })
+
+    const metadata: PoolSwapMetadata = {
+      from: dfiAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 555,
+      to: addressReceiver,
+      tokenTo: 'CAT'
+    }
+
+    const poolpairResultBefore = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
+
+    const hex = await client.poolpair.poolSwap(metadata)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const poolpairResultAfter = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
+    const reserveBAfter = new BigNumber(poolpairResultBefore.reserveB).plus(555)
+    const reserveAAfter = new BigNumber(poolpairResultBefore.totalLiquidity).pow(2).div(reserveBAfter) // sqrt(a * b)^2/b
+
+    expect(poolpairResultAfter.reserveB.toFixed(0)).toStrictEqual(reserveBAfter.toFixed(0))
+    expect(poolpairResultAfter.reserveA.toFixed(0)).toStrictEqual(reserveAAfter.toFixed(0))
+
+    const accountReceiver = (await client.account.getAccount(addressReceiver))[0]
+    const accountReceiverBalance = new BigNumber(accountReceiver.split('@')[0])
+    const amountReceived = new BigNumber(poolpairResultBefore.reserveA).minus(reserveAAfter)
+
+    expect(accountReceiverBalance.toFixed(0)).toStrictEqual(amountReceived.toFixed(0))
+  })
+
+  it('should poolSwap with utxos ', async () => {
+    const tokenAddress = await getNewAddress(container)
+    const dfiAddress = await getNewAddress(container)
+    const poolLiquidityAddress = await getNewAddress(container)
+    const { txid } = await container.fundAddress(dfiAddress, 10)
 
     await createToken(container, 'ETH', { collateralAddress: tokenAddress })
     await utxosToAccount(container, 1000, { address: dfiAddress })
     await mintTokens(container, 'ETH', { address: dfiAddress })
     await createPoolPair(container, 'ETH', 'DFI')
-
-    const { txid } = await container.fundAddress(dfiAddress, 100)
 
     await addPoolLiquidity(container, {
       tokenA: 'ETH',
@@ -67,49 +115,6 @@ describe('poolSwap', () => {
     const hex = await client.poolpair.poolSwap(metadata, utxos)
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
-  })
-
-  it('should poolSwap', async () => {
-    const addressReceiver = await getNewAddress(container)
-    const tokenAddress = await getNewAddress(container)
-    const dfiAddress = await getNewAddress(container)
-    const poolLiquidityAddress = await getNewAddress(container)
-
-    await createToken(container, 'CAT', { collateralAddress: tokenAddress })
-    await utxosToAccount(container, 1000, { address: dfiAddress })
-    await mintTokens(container, 'CAT', { address: dfiAddress })
-    await createPoolPair(container, 'CAT', 'DFI')
-
-    await addPoolLiquidity(container, {
-      tokenA: 'CAT',
-      amountA: 1000,
-      tokenB: 'DFI',
-      amountB: 500,
-      shareAddress: poolLiquidityAddress
-    })
-
-    const metadata: PoolSwapMetadata = {
-      from: dfiAddress,
-      tokenFrom: 'DFI',
-      amountFrom: 150,
-      to: addressReceiver,
-      tokenTo: 'CAT'
-    }
-
-    const poolpairResultBefore = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
-
-    const hex = await client.poolpair.poolSwap(metadata)
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
-
-    await container.generate(1)
-
-    const poolpairResultAfter = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
-    const reserveAAfter = new BigNumber(poolpairResultBefore.reserveB).plus(150)
-    const reserveBAfter = new BigNumber(poolpairResultBefore.totalLiquidity).pow(2).div(reserveAAfter) // sqrt(a * b)^2/b
-
-    expect(poolpairResultAfter.reserveB.toFixed(0)).toStrictEqual(reserveAAfter.toFixed(0))
-    expect(poolpairResultAfter.reserveA.toFixed(0)).toStrictEqual(reserveBAfter.toFixed(0))
   })
 
   it('should poolSwap with max price', async () => {

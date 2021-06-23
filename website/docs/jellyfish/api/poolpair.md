@@ -166,7 +166,7 @@ Creates a poolSwap transaction.
 
 ```ts title="client.poolpair.poolSwap()"
 interface poolpair {
-  poolSwap (metadata: PoolSwapMetadata, UTXOS: PoolSwapUTXO[]  = []): Promise<string>
+  poolSwap (metadata: PoolSwapMetadata, utxos: PoolSwapUTXO[]  = []): Promise<string>
 }
 
 interface PoolSwapMetadata {
