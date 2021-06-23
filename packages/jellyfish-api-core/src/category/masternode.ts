@@ -50,7 +50,7 @@ export class Masternode {
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
    * @return {Promise<MasternodeResult>}
    */
-  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodesResult<MasternodeInfo>>
+  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodeResult<string | MasternodeInfo>>
 
   /**
    * Returns information about multiple masternodes.
