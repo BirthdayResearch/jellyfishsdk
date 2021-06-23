@@ -48,9 +48,9 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
-   * @return {Promise<MasternodeResult>}
+   * @return {Promise<MasternodeResult<MasternodeInfo>>}
    */
-  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodeResult<string | MasternodeInfo>>
+  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodeResult<MasternodeInfo>>
 
   /**
    * Returns information about multiple masternodes.
@@ -60,7 +60,7 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} verbose true
-   * @return {Promise<MasternodeResult>}
+   * @return {Promise<MasternodeResult<MasternodeInfo>>}
    */
   listMasternodes (pagination: MasternodePagination, verbose: true): Promise<MasternodeResult<MasternodeInfo>>
 
@@ -72,7 +72,7 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} verbose false.
-   * @return {Promise<MasternodeResul>}
+   * @return {Promise<MasternodeResult<string>>}
    */
   listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodeResult<string>>
 
@@ -84,7 +84,7 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
-   * @return {Promise<MasternodeResult>}
+   * @return {Promise<MasternodeResult<T>>}
    */
   async listMasternodes<T> (
     pagination: MasternodePagination = {

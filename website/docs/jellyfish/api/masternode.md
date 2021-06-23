@@ -42,9 +42,9 @@ Returns information about multiple masternodes.
 
 ```ts title="client.masternode.listMasternodes()"
 interface masternode {
-  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodesResult<MasternodeInfo>>
-  listMasternodes (pagination: MasternodePagination, verbose: true): Promise<MasternodesResult<MasternodeInfo>>
-  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodesResult<string>>
+  listMasternodes (pagination?: MasternodePagination, verbose?: boolean): Promise<MasternodeResult<MasternodeInfo>>
+  listMasternodes (pagination: MasternodePagination, verbose: true): Promise<MasternodeResult<MasternodeInfo>>
+  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodeResult<string>>
   listMasternodes<T> (
     pagination: MasternodePagination = {
       including_start: true,
@@ -85,7 +85,7 @@ interface MasternodeInfo {
   localMasternode: boolean
 }
 
-interface MasternodesResult<T> {
+interface MasternodeResult<T> {
   [id: string]: T
 }
 ```
@@ -96,7 +96,7 @@ Returns information about a single masternode
 
 ```ts title="client.masternode.getMasternode()"
 interface masternode {
-  getMasternode (masternodeId: string): Promise<MasternodeResult>
+  getMasternode (masternodeId: string): Promise<MasternodeResult<MasternodeInfo>>
 }
 
 enum MasternodeState {
@@ -124,7 +124,7 @@ interface MasternodeInfo {
   localMasternode: boolean
 }
 
-interface MasternodeResult {
-  [id: string]: MasternodeInfo
+interface MasternodeResult<T> {
+  [id: string]: T
 }
 ```

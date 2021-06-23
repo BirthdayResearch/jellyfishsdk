@@ -17,20 +17,10 @@ describe('Masternode', () => {
   })
 
   it('should getMasternode', async () => {
-    let id: string = ''
-
     const ownerAddress = await client.wallet.getNewAddress()
-    await client.masternode.createMasternode(ownerAddress)
+    const id = await client.masternode.createMasternode(ownerAddress)
 
     await container.generate(1)
-
-    const masterNodes = await client.masternode.listMasternodes()
-
-    for (const mnId in masterNodes) {
-      if (masterNodes[mnId].ownerAuthAddress === ownerAddress) {
-        id = mnId
-      }
-    }
 
     const masternode = await client.masternode.getMasternode(id)
 
