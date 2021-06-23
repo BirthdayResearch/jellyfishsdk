@@ -281,7 +281,7 @@ interface ICXClaimDFCHTLCInfo {
   type: ICXHTLCType
   dfchtlcTx: string
   seed: string
-  height: number
+  height: BigNumber
 }
 
 interface ICXDFCHTLCInfo {
@@ -291,9 +291,9 @@ interface ICXDFCHTLCInfo {
   amount: BigNumber
   amountInEXTAsset: BigNumber
   hash: string
-  timeout: number
-  height: number
-  refundHeight: number
+  timeout: BigNumber
+  height: BigNumber
+  refundHeight: BigNumber
 }
 
 interface ICXEXTHTLCInfo {
@@ -305,8 +305,8 @@ interface ICXEXTHTLCInfo {
   hash: string
   htlcScriptAddress: string
   ownerPubkey: string
-  timeout: number
-  height: number
+  timeout: BigNumber
+  height: BigNumber
 }
 ```
 
