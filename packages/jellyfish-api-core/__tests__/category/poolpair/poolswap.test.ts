@@ -75,7 +75,7 @@ describe('poolSwap', () => {
     expect(accountReceiverBalance.toFixed(0)).toStrictEqual(amountReceived.toFixed(0))
   })
 
-  it('should poolSwap with utxos ', async () => {
+  it('should poolSwap with utxos', async () => {
     const tokenAddress = await getNewAddress(container)
     const dfiAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
