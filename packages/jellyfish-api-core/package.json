@@ -36,8 +36,5 @@
   },
   "dependencies": {
     "@defichain/jellyfish-json": "0.0.0"
-  },
-  "devDependencies": {
-    "@defichain/testcontainers": "0.0.0"
   }
 }
