@@ -104,11 +104,11 @@ describe('poolSwap', () => {
     }
 
     const utxos = (await container.call('listunspent'))
-      .filter((utxos: any) => utxos.txid === txid)
-      .map((utxos: any) => {
+      .filter((utxo: any) => utxo.txid === txid)
+      .map((utxo: any) => {
         return {
-          txid: utxos.txid,
-          vout: utxos.vout
+          txid: utxo.txid,
+          vout: utxo.vout
         }
       })
 
