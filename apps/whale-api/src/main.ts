@@ -17,7 +17,7 @@ async function bootstrap (): Promise<void> {
     allowedHeaders: ['Content-Type'],
     maxAge: 60 * 24 * 7
   })
-  await app.listen(3000, '0.0.0.0')
+  await app.listen(process.env.PORT ?? '3000', '0.0.0.0')
 }
 
 /* eslint-disable no-void */
