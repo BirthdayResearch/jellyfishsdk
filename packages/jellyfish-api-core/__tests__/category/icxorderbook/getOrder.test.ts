@@ -1,21 +1,30 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, ICXOffer
+  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, ICXOffer, ICXOrderStatus, ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountBTC, accountDFI, checkBTCBuyOfferDetails, checkBTCSellOrderDetails, checkDFIBuyOfferDetails, checkDFISellOrderDetails, idDFI, setup } from './common.test'
+import { accountBTC, accountDFI, DEX_DFI_PER_BTC_RATE, ICXSetup, ICX_TAKERFEE_PER_BTC, idDFI, symbolBTC, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
-describe('Should test ICXOrderBook.getOrder', () => {
+describe('ICXOrderBook.getOrder', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const icxSetup = new ICXSetup(container)
 
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await setup(container)
+    await icxSetup.createAccounts()
+    await icxSetup.createBTCToken()
+    await icxSetup.initializeTokensIds()
+    await icxSetup.mintBTCtoken(100)
+    await icxSetup.fundAccount(accountDFI, symbolDFI, 500)
+    await icxSetup.fundAccount(accountBTC, symbolDFI, 10) // for fee
+    await icxSetup.createBTCDFIPool()
+    await icxSetup.addLiquidityToBTCDFIPool(1, 100)
+    await icxSetup.setTakerFee(0.001)
   })
 
   afterAll(async () => {
@@ -26,7 +35,7 @@ describe('Should test ICXOrderBook.getOrder', () => {
     // cleanup code here
   })
 
-  it('Should get the correct order', async () => {
+  it('should get the correct order', async () => {
     // create first order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -42,7 +51,22 @@ describe('Should test ICXOrderBook.getOrder', () => {
 
     // get order createOrderTxId and check
     let retrivedOrder: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
-    await checkDFISellOrderDetails(container, order, createOrderTxId, retrivedOrder as Record<string, ICXOrderInfo>)
+    expect((retrivedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+      {
+        // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
+        type: ICXOrderType.INTERNAL,
+        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
+        chainTo: order.chainTo,
+        receivePubkey: order.receivePubkey,
+        ownerAddress: order.ownerAddress,
+        amountFrom: order.amountFrom,
+        amountToFill: order.amountFrom,
+        orderPrice: order.orderPrice,
+        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
 
     // create second order - maker
     const order2: ICXOrder = {
@@ -59,10 +83,24 @@ describe('Should test ICXOrderBook.getOrder', () => {
     // get order createOrder2TxId and check
     retrivedOrder = await client.icxorderbook.getOrder(createOrder2TxId)
     // check details for createOrder2TxId
-    await checkBTCSellOrderDetails(container, order2, createOrder2TxId, retrivedOrder as Record<string, ICXOrderInfo>)
+    expect((retrivedOrder as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
+      {
+        // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
+        type: ICXOrderType.EXTERNAL,
+        tokenTo: order2.tokenTo === '0' ? symbolDFI : symbolBTC,
+        chainFrom: order2.chainFrom,
+        ownerAddress: order2.ownerAddress,
+        amountFrom: order2.amountFrom,
+        amountToFill: order2.amountFrom,
+        orderPrice: order2.orderPrice,
+        amountToFillInToAsset: order2.amountFrom.multipliedBy(order2.orderPrice),
+        height: expect.any(BigNumber),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
   })
 
-  it('Should get the correct offer', async () => {
+  it('should get the correct offer', async () => {
     // create two orders - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -111,14 +149,35 @@ describe('Should test ICXOrderBook.getOrder', () => {
 
     // retrive makeOffer2TxId
     let retrivedOrder: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.getOrder(makeOffer2TxId)
-    await checkBTCBuyOfferDetails(container, offer2, makeOffer2TxId, retrivedOrder as Record<string, ICXOfferInfo>)
+    expect((retrivedOrder as Record<string, ICXOfferInfo>)[makeOffer2TxId]).toStrictEqual(
+      {
+        orderTx: createOrder2TxId,
+        status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
+        amount: offer2.amount,
+        amountInFromAsset: offer2.amount.dividedBy(order2.orderPrice),
+        ownerAddress: offer2.ownerAddress,
+        takerFee: offer2.amount.multipliedBy(ICX_TAKERFEE_PER_BTC),
+        expireHeight: expect.any(BigNumber),
+        receivePubkey: offer2.receivePubkey
+      }
+    )
 
     // retrive makeOfferTxId
     retrivedOrder = await client.icxorderbook.getOrder(makeOfferTxId)
-    await checkDFIBuyOfferDetails(container, offer, makeOfferTxId, retrivedOrder as Record<string, ICXOfferInfo>)
+    expect((retrivedOrder as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
+      {
+        orderTx: createOrderTxId,
+        status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
+        amount: offer.amount,
+        amountInFromAsset: offer.amount.dividedBy(order.orderPrice),
+        ownerAddress: offer.ownerAddress,
+        takerFee: offer.amount.multipliedBy(ICX_TAKERFEE_PER_BTC).multipliedBy(DEX_DFI_PER_BTC_RATE),
+        expireHeight: expect.any(BigNumber)
+      }
+    )
   })
 
-  it('Should return an error when incorect order transaction Id is used', async () => {
+  it('should return an error when incorect order transaction id is used', async () => {
     // create an order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,

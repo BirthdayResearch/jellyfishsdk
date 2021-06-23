@@ -115,9 +115,9 @@ interface ICXOrderInfo {
   amountToFill: BigNumber
   orderPrice: BigNumber
   amountToFillInToAsset: BigNumber
-  height: number
-  expireHeight: number
-  closeHeight?: number
+  height: BigNumber
+  expireHeight: BigNumber
+  closeHeight?: BigNumber
   expired?: boolean
 }
 
@@ -129,6 +129,6 @@ interface ICXOfferInfo {
   ownerAddress: string
   receivePubkey?: string
   takerFee: BigNumber
-  expireHeight: number
+  expireHeight: BigNumber
 }
 ```
