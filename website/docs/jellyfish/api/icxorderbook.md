@@ -72,3 +72,23 @@ interface ICXGenericResult {
   txid: string
 }
 ```
+
+## closeOffer
+
+Closes offer transaction.
+
+```ts title="client.icxorderbook.closeOffer()"
+interface icxorderbook {
+  closeOffer (offerTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+}
+
+interface InputUTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```

@@ -61,6 +61,25 @@ export class ICXOrderBook {
       'bignumber'
     )
   }
+
+  /**
+   * Closes offer transaction.
+   *
+   * @param {string} offerTx Transaction Id of maker offer
+   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {string} [inputUTXOs.txid] transaction Id
+   * @param {number} [inputUTXOs.vout] The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async closeOffer (offerTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_closeoffer',
+      [
+        offerTx, inputUTXOs
+      ],
+      'bignumber'
+    )
+  }
 }
 /** ICX order */
 export interface ICXOrder {
