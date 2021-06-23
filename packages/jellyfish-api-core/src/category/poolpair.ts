@@ -108,13 +108,13 @@ export class PoolPair {
   /**
    *  Creates a pool swap transaction with given metadata
    *
-   *  @param {PoolSwapMetadata} metadata  A provided information to create pool swap transaction.
-   *  @param {string} metadata.from address of the owner of tokenFrom
-   *  @param {string} metadata.tokenFrom swap from token {symbol/id}
-   *  @param {number} metadata.amountFrom amount from tokenA
-   *  @param {string} metadata.to address of the owner of tokenTo
-   *  @param {string} metadata.tokenTo swap to token {symbol/id}
-   *  @param {number} [metadata.maxPrice] The aximum acceptable price
+   * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {string} metadata.from address of the owner of tokenFrom
+   * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenA
+   * @param {to} metadata.to address of the owner of tokenTo
+   * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
+   * @param {maxPrice} [metadata.maxPrice] acceptable max price
    *  @param {PoolSwapUTXO[]} [utxos = []] Array for utxos to spend from.
    *  @param {string} [utxos.txid] The transaction id.
    *  @param {number} [utxos.vout] The output number.
@@ -123,7 +123,7 @@ export class PoolPair {
   async poolSwap (metadata: PoolSwapMetadata, utxos: PoolSwapUTXO[] = []): Promise<string> {
     return await this.client.call('poolswap', [metadata, utxos], 'bignumber')
   }
-  
+
   /**
    * Create a test pool swap transaction to check pool swap's return result
    *

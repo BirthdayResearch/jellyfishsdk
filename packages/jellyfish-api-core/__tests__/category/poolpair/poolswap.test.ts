@@ -62,15 +62,15 @@ describe('poolSwap', () => {
     await container.generate(1)
 
     const poolpairResultAfter = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
-    const reserveBAfter = new BigNumber(poolpairResultBefore.reserveB).plus(555)
-    const reserveAAfter = new BigNumber(poolpairResultBefore.totalLiquidity).pow(2).div(reserveBAfter) // sqrt(a * b)^2/b
+    const reserveBAfter = new BigNumber(poolpairResultBefore.reserveB).plus(555) // 1055
+    const reserveAAfter = new BigNumber(poolpairResultBefore.totalLiquidity).pow(2).div(reserveBAfter) // 473.93364928032265610654
 
-    expect(poolpairResultAfter.reserveB.toFixed(0)).toStrictEqual(reserveBAfter.toFixed(0))
+    expect(new BigNumber(poolpairResultAfter.reserveB)).toStrictEqual(reserveBAfter)
     expect(poolpairResultAfter.reserveA.toFixed(0)).toStrictEqual(reserveAAfter.toFixed(0))
 
     const accountReceiver = (await client.account.getAccount(addressReceiver))[0]
-    const accountReceiverBalance = new BigNumber(accountReceiver.split('@')[0])
-    const amountReceived = new BigNumber(poolpairResultBefore.reserveA).minus(reserveAAfter)
+    const accountReceiverBalance = new BigNumber(accountReceiver.split('@')[0]) // 526.06635072
+    const amountReceived = new BigNumber(poolpairResultBefore.reserveA).minus(reserveAAfter) // 526.06635071967734389346
 
     expect(accountReceiverBalance.toFixed(0)).toStrictEqual(amountReceived.toFixed(0))
   })
@@ -196,6 +196,7 @@ describe('poolSwap', () => {
       shareAddress: poolLiquidityAddress
 
     })
+
     const metadata: PoolSwapMetadata = {
       from: dfiAddress,
       amountFrom: 2,
@@ -207,28 +208,13 @@ describe('poolSwap', () => {
   })
 
   it('should not poolSwap with invalid token', async () => {
-    const tokenAddress = await getNewAddress(container)
-    const dfiAddress = await getNewAddress(container)
-    const poolLiquidityAddress = await getNewAddress(container)
-
-    await createToken(container, 'FOX', { collateralAddress: tokenAddress })
-    await utxosToAccount(container, 500, { address: dfiAddress })
-    await mintTokens(container, 'FOX', { address: dfiAddress })
-    await createPoolPair(container, 'FOX', 'DFI', { status: false })
-    await addPoolLiquidity(container, {
-      tokenA: 'FOX',
-      amountA: 500,
-      tokenB: 'DFI',
-      amountB: 200,
-      shareAddress: poolLiquidityAddress
-
-    })
+    const address = await getNewAddress(container)
     const metadata: PoolSwapMetadata = {
-      from: dfiAddress,
+      from: address,
       amountFrom: 2,
       tokenFrom: 'INVALIDTOKEN',
       tokenTo: 'FOX',
-      to: await client.wallet.getNewAddress()
+      to: address
     }
     await expect(client.poolpair.poolSwap(metadata)).rejects.toThrow('TokenFrom was not found')
   })
