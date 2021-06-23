@@ -102,7 +102,7 @@ export class Masternode {
    * @param {string} masternodeId The masternode's id.
    * @return {Promise<MasternodeResult>}
    */
-  async getMasternode (masternodeId: string): Promise<MasternodeResult> {
+  async getMasternode (masternodeId: string): Promise<MasternodeResult<MasternodeInfo>> {
     return await this.client.call('getmasternode', [masternodeId], 'number')
   }
 }
