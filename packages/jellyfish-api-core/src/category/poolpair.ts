@@ -115,10 +115,10 @@ export class PoolPair {
    * @param {to} metadata.to address of the owner of tokenTo
    * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
    * @param {maxPrice} [metadata.maxPrice] acceptable max price
-   *  @param {PoolSwapUTXO[]} [utxos = []] Array for utxos to spend from.
-   *  @param {string} [utxos.txid] The transaction id.
-   *  @param {number} [utxos.vout] The output number.
-   *  @return {Promise<string>}  Hex of performed transaction
+   *  @param {PoolSwapUTXO[]} [utxos = []] array for utxos to spend from.
+   *  @param {string} [utxos.txid] the transaction id.
+   *  @param {number} [utxos.vout] the output number.
+   *  @return {Promise<string>}  hex of performed transaction
    */
   async poolSwap (metadata: PoolSwapMetadata, utxos: PoolSwapUTXO[] = []): Promise<string> {
     return await this.client.call('poolswap', [metadata, utxos], 'bignumber')
