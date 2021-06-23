@@ -12,7 +12,7 @@ export enum OwnerType {
 }
 
 export enum DfTxType {
-  MINT_TOKEN ='M',
+  MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -334,6 +334,15 @@ export class Account {
   ): Promise<string> {
     return await this.client.call('sendtokenstoaddress', [from, to, options.selectionMode], 'number')
   }
+
+  /**
+   * Returns information about current anchor bonus, incentive funding, burnt token(s)
+   *
+   * @return {Promise<CommunityBalanceData>}
+   */
+  async listCommunityBalances (): Promise<CommunityBalanceData> {
+    return await this.client.call('listcommunitybalances', [], 'bignumber')
+  }
 }
 
 export interface AccountPagination {
@@ -417,4 +426,15 @@ export interface AddressBalances {
 
 export interface SendTokensOptions {
   selectionMode: SelectionModeType
+}
+
+export interface CommunityBalanceData {
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
+  Swap?: BigNumber
+  Futures?: BigNumber
+  Options?: BigNumber
+  Unallocated?: BigNumber
+  Unknown?: BigNumber
 }
