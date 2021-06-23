@@ -181,4 +181,51 @@ export class ICXSetup {
       makeOfferTxId: makeOfferTxId
     }
   }
+
+  // setup the flow until ICX submit DFC HTLC for DFI sell order
+  async setupUntilSubmitDFCHTLCForDFIBuyOffer (): Promise<{order: ICXOrder, createOrderTxId: string, offer: ICXOffer, makeOfferTxId: string}> {
+    const { order, createOrderTxId, offer, makeOfferTxId } = await this.setupUntilDFIBuyOffer()
+
+    const accountDFIBeforeDFCHTLC = await this.container.call('getaccount', [accountDFI, {}, true])
+    // create DFCHTLC - maker
+    const DFCHTLC: HTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(10), // in  DFC
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      timeout: 500
+    }
+    const DFCHTLCTxId = (await this.client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
+    await this.container.generate(1)
+
+    const accountDFIAfterDFCHTLC = await this.container.call('getaccount', [accountDFI, {}, true])
+    // maker fee should be reduced from accountDFIBeforeDFCHTLC
+    expect(accountDFIAfterDFCHTLC[idDFI].toPrecision(8)).toStrictEqual((accountDFIBeforeDFCHTLC[idDFI] - 0.01).toPrecision(8))
+
+    // List htlc
+    const listHTLCOptions: ICXListHTLCOptions = {
+      offerTx: makeOfferTxId
+    }
+    const HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
+    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
+      {
+        type: 'DFC',
+        status: 'OPEN',
+        offerTx: makeOfferTxId,
+        amount: DFCHTLC.amount,
+        amountInEXTAsset: DFCHTLC.amount.multipliedBy(order.orderPrice),
+        hash: DFCHTLC.hash,
+        timeout: new BigNumber(DFCHTLC.timeout as number),
+        height: expect.any(BigNumber),
+        refundHeight: expect.any(BigNumber)
+      }
+    )
+
+    return {
+      order: order,
+      createOrderTxId: createOrderTxId,
+      offer: offer,
+      makeOfferTxId: makeOfferTxId
+    }
+  }
 }

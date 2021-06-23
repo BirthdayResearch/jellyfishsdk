@@ -114,12 +114,12 @@ export class ICXOrderBook {
    * @param {string} [htlc.hash] Hash of seed used for the hash lock part
    * @param {string} [htlc.ownerPubkey] Pubkey of the owner to which the funds are refunded if HTLC timeouts
    * @param {number} [htlc.timeout] Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
-   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {UTXO[]} inputUTXOs Specific utxos to spend
    * @param {string} [inputUTXOs.txid] transaction Id
    * @param {number} [inputUTXOs.vout] The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
-  async submitExtHTLC (htlc: ExtHTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+  async submitExtHTLC (htlc: ExtHTLC, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_submitexthtlc',
       [
