@@ -79,10 +79,10 @@ Closes offer transaction.
 
 ```ts title="client.icxorderbook.closeOffer()"
 interface icxorderbook {
-  closeOffer (offerTx: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  closeOffer (offerTx: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
 }
 
-interface InputUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
