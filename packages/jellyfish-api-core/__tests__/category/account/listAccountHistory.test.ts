@@ -275,3 +275,74 @@ describe('listAccountHistory', () => {
     expect(history.find((h) => h.type === 'AccountToUtxos' && h.amounts[0] === '-3.97000000@DFI')).toBeTruthy()
   })
 })
+
+describe('Poolpair', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(200)
+    await createToken('DDAI')
+    await mintTokens('DDAI')
+    await createPoolPair('DDAI')
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  async function createToken (symbol: string): Promise<void> {
+    const address = await container.call('getnewaddress')
+    const metadata = {
+      symbol,
+      name: symbol,
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await container.call('createtoken', [metadata])
+    await container.generate(1)
+  }
+
+  async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
+    const address = await container.call('getnewaddress')
+    const defaultMetadata = {
+      tokenA: 'DFI',
+      tokenB,
+      commission: 0,
+      status: true,
+      ownerAddress: address
+    }
+    await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
+    await container.generate(1)
+  }
+
+  async function mintTokens (symbol: string): Promise<void> {
+    const address = await container.call('getnewaddress')
+
+    // NOTE(canonbrother): using `minttokens` on DFI is an error as DFI is not mintable
+    const payload: { [key: string]: string } = {}
+    payload[address] = '100@0'
+    await container.call('utxostoaccount', [payload])
+    await container.call('minttokens', [`2000@${symbol}`])
+
+    await container.generate(1)
+  }
+
+  it('should addPoolLiquidity', async () => {
+    const shareAddress = await container.call('getnewaddress')
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, shareAddress)
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory()
+
+    expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts === ['-200.00000000@DDA']))).toBeTruthy()
+    expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts === ['-10.00000000@DFI']))).toBeTruthy()
+  })
+})
