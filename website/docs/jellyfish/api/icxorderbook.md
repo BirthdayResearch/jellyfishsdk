@@ -155,10 +155,10 @@ Claims a DFC HTLC
 
 ```ts title="client.icxorderbook.claimDFCHTLC()"
 interface icxorderbook {
-  claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
 }
 
-interface InputUTXO {
+interface UTXO {
   txid: string
   vout: number
 }

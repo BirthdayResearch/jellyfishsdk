@@ -134,12 +134,12 @@ export class ICXOrderBook {
    *
    * @param {string} [DFCHTLCTx] Transaction id of DFC HTLC transaction for which the claim is
    * @param {string} [seed] Secret seed for claiming HTLC
-   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
+   * @param {UTXO[]} inputUTXOs Specific utxos to spend
    * @param {string} [inputUTXOs.txid] transaction Id
    * @param {number} [inputUTXOs.vout] The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
-  async claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+  async claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
     const htlc = {
       dfchtlcTx: DFCHTLCTx,
       seed: seed
