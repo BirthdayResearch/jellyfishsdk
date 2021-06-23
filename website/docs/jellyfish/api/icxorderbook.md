@@ -51,7 +51,7 @@ Create and submits a makeoffer transaction.
 
 ```ts title="client.icxorderbook.makeOffer()"
 interface icxorderbook {
-  makeOffer (offer: ICXOffer, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult>
+  makeOffer (offer: ICXOffer, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface ICXOffer {
@@ -62,7 +62,7 @@ interface ICXOffer {
   expiry?: number
 }
 
-interface InputUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
