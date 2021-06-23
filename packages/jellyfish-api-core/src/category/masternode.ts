@@ -137,10 +137,6 @@ export interface MasternodeInfo {
   localMasternode: boolean
 }
 
-export interface MasternodesResult<T> {
+export interface MasternodeResult<T> {
   [id: string]: T
-}
-
-export interface MasternodeResult {
-  [id: string]: MasternodeInfo
 }
