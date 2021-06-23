@@ -74,7 +74,7 @@ export class Masternode {
    * @param {boolean} verbose false.
    * @return {Promise<MasternodeResul>}
    */
-  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodesResult<string>>
+  listMasternodes (pagination: MasternodePagination, verbose: false): Promise<MasternodeResult<string>>
 
   /**
    * Returns information about multiple masternodes.
