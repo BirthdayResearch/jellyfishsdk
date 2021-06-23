@@ -105,6 +105,19 @@ export class Masternode {
   async getMasternode (masternodeId: string): Promise<MasternodeResult<MasternodeInfo>> {
     return await this.client.call('getmasternode', [masternodeId], 'number')
   }
+
+  /**
+   * Creates a transaction resigning a masternode.
+   *
+   * @param {string} masternodeId The masternode's id.
+   * @param {UTXO[]} [utxos] Array of specified utxos to spend.
+   * @param {string} [utxos.txid] The transaction id.
+   * @param {number} [utxos.vout] The output number.
+   * @return {Promise<string>} Resignation Transaction.
+   */
+  async resignMasternode (masternodeId: string, utxos?: UTXO[]): Promise<string> {
+    return await this.client.call('resignmasternode', [masternodeId, utxos], 'number')
+  }
 }
 
 export interface UTXO {
