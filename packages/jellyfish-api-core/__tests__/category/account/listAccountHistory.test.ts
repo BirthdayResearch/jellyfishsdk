@@ -268,12 +268,14 @@ describe('listAccountHistory for poolpair', () => {
   const client = new ContainerAdapterClient(container)
   const createToken = createTokenForContainer(container)
 
+  let address: string
+
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(200)
-    const address = await container.call('getnewaddress')
+    address = await container.call('getnewaddress')
     await container.call('utxostoaccount', [{ [address]: '100@0' }])
     await createToken(address, 'DDAI', 2000)
     await createPoolPair('DDAI')
@@ -284,23 +286,23 @@ describe('listAccountHistory for poolpair', () => {
   })
 
   async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
-    const address = await container.call('getnewaddress')
+    const poolAddress = await container.call('getnewaddress')
     const defaultMetadata = {
       tokenA: 'DFI',
       tokenB,
       commission: 0,
       status: true,
-      ownerAddress: address
+      ownerAddress: poolAddress
     }
     await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
     await container.generate(1)
   }
 
   it('should show AddPoolLiquidity', async () => {
-    const shareAddress = await container.call('getnewaddress')
+    const poolAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
       '*': ['10@DFI', '200@DDAI']
-    }, shareAddress)
+    }, poolAddress)
     await container.generate(1)
 
     const histories = await client.account.listAccountHistory()
@@ -309,17 +311,38 @@ describe('listAccountHistory for poolpair', () => {
   })
 
   it('should show RemovePoolLiquidity', async () => {
-    const address = await container.call('getnewaddress')
+    const poolAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
       '*': ['10@DFI', '200@DDAI']
-    }, address)
+    }, poolAddress)
     await container.generate(1)
-    await container.call('removepoolliquidity', [address, '20@DFI-DDAI'])
+    await container.call('removepoolliquidity', [poolAddress, '20@DFI-DDAI'])
     await container.generate(1)
 
     const histories = await client.account.listAccountHistory()
-    console.log('histories', histories)
 
     expect(histories.find((h) => (h.type === 'RemovePoolLiquidity' && h.amounts.includes('-20.00000000@DFI-DDAI')))).toBeTruthy()
+  })
+
+  it('should show poolSwap', async () => {
+    const poolAddress = await container.call('getnewaddress')
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, poolAddress)
+    await container.generate(1)
+    const metadata = {
+      from: address,
+      tokenFrom: 'DFI',
+      amountFrom: '5',
+      to: await container.call('getnewaddress'),
+      tokenTo: 'DDAI'
+    }
+
+    await container.call('poolswap', [metadata])
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory()
+
+    expect(histories.find((h) => (h.type === 'PoolSwap' && h.amounts.includes('-5.00000000@DFI')))).toBeTruthy()
   })
 })
