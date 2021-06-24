@@ -70,7 +70,7 @@ describe('Masternode', () => {
   })
 
   it('should throw an error with invalid masternode id', async () => {
-    const invalidMasternodeId = 'b3efcc1bf6cb77c465d7f5686a55f967e73b1a048a3716fdbffa523e22b66fbb'
+    const invalidMasternodeId = 'b3efcc1bf6cb77c465d7f5686a55f967e73b1a048a3716fdbffa523e22b66frb'
     const promise = client.masternode.resignMasternode(invalidMasternodeId)
 
     await expect(promise).rejects.toThrow(RpcApiError)
