@@ -80,7 +80,7 @@ describe('Poolpair', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const account = await client.poolpair.testPoolSwap({
+    const receive = await client.poolpair.testPoolSwap({
       from: tokenAddress,
       tokenFrom: 'ELF',
       amountFrom: 666,
@@ -91,7 +91,8 @@ describe('Poolpair', () => {
       // if set maxPrice lower than 2.5 will hit error
       maxPrice: 2.5
     })
-    console.log('account: ', account)
+    expect(typeof receive).toStrictEqual('string')
+    expect(receive).toStrictEqual('384.61537432@0') // calculation refers to 'should testpoolswap' above
   })
 
   it('should be failed as maxPrice is set lower than reserveB/reserveA', async () => {
