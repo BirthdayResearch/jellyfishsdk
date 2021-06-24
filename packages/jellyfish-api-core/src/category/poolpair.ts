@@ -120,6 +120,23 @@ export class PoolPair {
   async testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string> {
     return await this.client.call('testpoolswap', [metadata], 'bignumber')
   }
+
+  /**
+   * Remove pool liquidity transaction
+   *
+   * @param {RemovePoolLiquiditySource} from pool liquidity sources
+   * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
+   * @param {string} shareAddress defi address for crediting tokens
+   * @param {RemovePoolLiquidityOptions} [options]
+   * @param {RemovePoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async removePoolLiquidity (from: RemovePoolLiquiditySource, shareAddress: string, options: RemovePoolLiquidityOptions = {}): Promise<string> {
+    const { utxos } = options
+    return await this.client.call('removepoolliquidity', [from, shareAddress, utxos], 'bignumber')
+  }
 }
 
 export interface CreatePoolPairMetadata {
@@ -205,4 +222,17 @@ export interface TestPoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
+}
+
+export interface RemovePoolLiquiditySource {
+  [address: string]: string | string[]
+}
+
+export interface RemovePoolLiquidityOptions {
+  utxos?: RemovePoolLiquidityUTXO[]
+}
+
+export interface RemovePoolLiquidityUTXO {
+  txid: string
+  vout: number
 }
