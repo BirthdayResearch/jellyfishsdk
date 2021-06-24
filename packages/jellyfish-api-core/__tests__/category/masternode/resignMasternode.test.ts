@@ -30,6 +30,7 @@ describe('Masternode', () => {
     await container.generate(1)
 
     const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    expect(resignedMasternode.length).toStrictEqual(1)
     for (const masternode of resignedMasternode) {
       expect(masternode.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
       expect(masternode.resignTx).toStrictEqual(hex)
@@ -59,6 +60,7 @@ describe('Masternode', () => {
     await container.generate(1)
 
     const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    expect(resignedMasternode.length).toStrictEqual(1)
     for (const masternode of resignedMasternode) {
       expect(masternode.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
       expect(masternode.resignTx).toStrictEqual(hex)
