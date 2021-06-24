@@ -307,4 +307,19 @@ describe('listAccountHistory for poolpair', () => {
 
     expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts.includes('-10.00000000@DFI') && h.amounts.includes('-200.00000000@DDAI')))).toBeTruthy()
   })
+
+  it('should show RemovePoolLiquidity', async () => {
+    const address = await container.call('getnewaddress')
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, address)
+    await container.generate(1)
+    await container.call('removepoolliquidity', [address, '20@DFI-DDAI'])
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory()
+    console.log('histories', histories)
+
+    expect(histories.find((h) => (h.type === 'RemovePoolLiquidity' && h.amounts.includes('-20.00000000@DFI-DDAI')))).toBeTruthy()
+  })
 })
