@@ -122,7 +122,7 @@ describe('Masternode', () => {
     await expect(promise).rejects.toThrow('Masternode not found')
   })
 
-  it('should throw an error when no identifier is passed', async () => {
+  it('should throw an error when identifier is not passed', async () => {
     const promise = client.masternode.getMasternodeBlocks({})
 
     await expect(promise).rejects.toThrow(RpcApiError)
