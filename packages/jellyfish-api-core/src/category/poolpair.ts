@@ -115,7 +115,7 @@ export class PoolPair {
    * @param {to} metadata.to address of the owner of tokenTo
    * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
    * @param {maxPrice} [metadata.maxPrice] acceptable max price
-   * @return {Promise<string>} // return format 'amount@token'
+   * @return {Promise<string>} formatted as 'amount@token' swapped
    */
   async testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string> {
     return await this.client.call('testpoolswap', [metadata], 'bignumber')
