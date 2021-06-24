@@ -22,7 +22,7 @@ export class ICXOrderBook {
    * @param {string} [order.receivePubkey] pubkey which can claim external HTLC in case of EXT/DFC order type
    * @param {BigNumber} [order.amountFrom] tokenFrom coins amount
    * @param {BigNumber} [order.orderPrice] Price per unit
-   * @param {number} [order.expiry] Number of blocks until the order expires, default 2880 DFI blocks
+   * @param {number} [order.expiry=2880] Number of blocks until the order expires, default 2880 DFI blocks
    * @param {UTXO[]} inputUTXOs Specific utxos to spend
    * @param {string} [inputUTXOs.txid] transaction Id
    * @param {number} [inputUTXOs.vout] The output number

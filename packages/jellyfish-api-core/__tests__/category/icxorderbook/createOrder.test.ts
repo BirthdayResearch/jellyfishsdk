@@ -35,7 +35,7 @@ describe('ICXOrderBook.createOrder', () => {
     // cleanup code here
   })
 
-  it('should createOrder to sell 15 dfi', async () => {
+  it('should createOrder to sell 15 DFI from chain:DFI to chain:BTC', async () => {
     const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
     const order: ICXOrder = {
@@ -75,7 +75,7 @@ describe('ICXOrderBook.createOrder', () => {
     expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIStart[idDFI] - 15)
   })
 
-  it('should createOrder to sell 2 btc', async () => {
+  it('should createOrder to sell 2 BTC from chain:BTC to chain:DFI', async () => {
     const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
     const order: ICXOrder = {
@@ -111,7 +111,7 @@ describe('ICXOrderBook.createOrder', () => {
     expect(accountDFIAfterOrder).toStrictEqual(accountDFIStart)
   })
 
-  it('should createOrder to sell 15 dfi with input utxos', async () => {
+  it('should createOrder to sell 15 DFI from chain:DFI to chain:BTC with input utxos', async () => {
     const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
     const order: ICXOrder = {
