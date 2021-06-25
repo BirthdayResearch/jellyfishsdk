@@ -2,8 +2,8 @@ import { Controller, Get } from '@nestjs/common'
 import { HealthCheck, HealthCheckResult, HealthCheckService } from '@nestjs/terminus'
 import { DeFiDProbeIndicator } from '@src/module.defid/defid.indicator'
 
-@Controller('/_health')
-export class HealthController {
+@Controller('/_actuator')
+export class ActuatorController {
   constructor (
     private readonly health: HealthCheckService,
     private readonly defid: DeFiDProbeIndicator) {
@@ -34,4 +34,7 @@ export class HealthController {
       async () => await this.defid.readiness()
     ])
   }
+
+  // TODO(fuxingloh): /_actuator/stop
+  // TODO(fuxingloh): /_actuator/probes/syncing
 }
