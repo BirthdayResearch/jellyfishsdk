@@ -18,7 +18,7 @@ describe('Masternode', () => {
   })
 
   it('should resignMasternode', async () => {
-    const ownerAddress = await client.wallet.getNewAddress()
+    const ownerAddress = await container.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
 
     await container.generate(1)
@@ -39,13 +39,13 @@ describe('Masternode', () => {
   })
 
   it('should resignMasternode with utxos', async () => {
-    const ownerAddress = await client.wallet.getNewAddress()
+    const ownerAddress = await container.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
     const { txid } = await container.fundAddress(ownerAddress, 10)
 
     await container.generate(1)
 
-    const utxos = (await client.wallet.listUnspent())
+    const utxos = (await container.call('listunspent'))
       .filter((utxo: any) => utxo.txid === txid)
       .map((utxo: any) => {
         return {
@@ -55,6 +55,28 @@ describe('Masternode', () => {
       })
 
     const hex = await client.masternode.resignMasternode(masternodeId, utxos)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+
+    expect(resignedMasternode.length).toStrictEqual(1)
+    for (const masternode of resignedMasternode) {
+      expect(masternode.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
+      expect(masternode.resignTx).toStrictEqual(hex)
+    }
+  })
+
+  it('should resignMasternode with arbitrary utxos', async () => {
+    const ownerAddress = await container.getNewAddress()
+    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+    const { txid, vout } = await container.fundAddress(ownerAddress, 10)
+
+    await container.generate(1)
+
+    const hex = await client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 

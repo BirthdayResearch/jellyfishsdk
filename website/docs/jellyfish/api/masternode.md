@@ -135,7 +135,7 @@ Creates a transaction resigning a masternode.
 
 ```ts title="client.masternode.resignMasternode()"
 interface masternode {
-  resignMasternode (masternodeId: string, utxos?: UTXO[]): Promise<string>
+  resignMasternode (masternodeId: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {
