@@ -26,7 +26,7 @@ export class ICXOrderBook {
    * @param {UTXO[]} inputUTXOs Specific utxos to spend
    * @param {string} [inputUTXOs.txid] transaction Id
    * @param {number} [inputUTXOs.vout] The output number
-   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the result transaction
+   * @return {Promise<ICXGenericResult>} Object including transaction id of the the result transaction
    */
   async createOrder (order: ICXOrder, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
