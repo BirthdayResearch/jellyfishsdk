@@ -175,6 +175,7 @@ describe('poolSwap', () => {
     }
 
     const promise = client.poolpair.poolSwap(metadata)
+
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Price is higher than indicated')
   })
