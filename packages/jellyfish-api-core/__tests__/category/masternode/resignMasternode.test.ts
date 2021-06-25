@@ -78,9 +78,7 @@ describe('Masternode', () => {
 
     const promise = client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
 
-    await expect(promise).rejects.toStrictEqual(RpcApiError)
-    await expect(promise).rejects.toStrictEqual('\'Test ResignMasternodeTx execution failed:\n' +
-      'tx must have at least one input from the owner\'')
+    await expect(promise).rejects.toStrictEqual('Test ResignMasternodeTx execution failed: tx must have at least one input from the owner')
   })
 
   it('should throw an error with invalid masternode id', async () => {
