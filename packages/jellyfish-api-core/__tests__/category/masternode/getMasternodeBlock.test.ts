@@ -16,8 +16,8 @@ describe('Masternode', () => {
     await container.stop()
   })
 
-  it('should getMasternodeBlocks', async () => {
-    const masternodeID = await client.masternode.createMasternode(await client.wallet.getNewAddress())
+  it('should getMasternodeBlocks with ID', async () => {
+    const masternodeID = await client.masternode.createMasternode(await container.getNewAddress())
 
     await container.generate(1)
 
@@ -30,7 +30,7 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with owner address', async () => {
-    const address = await client.wallet.getNewAddress()
+    const address = await container.getNewAddress()
     await client.masternode.createMasternode(address)
 
     await container.generate(1)
@@ -44,7 +44,7 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with operator address', async () => {
-    const address = await client.wallet.getNewAddress()
+    const address = await container.getNewAddress()
     await client.masternode.createMasternode(address)
 
     await container.generate(1)
@@ -57,8 +57,21 @@ describe('Masternode', () => {
     }
   })
 
-  it('should getMasternodeBlocks with depth and owner address', async () => {
-    const address = await client.wallet.getNewAddress()
+  it('should getMasternodeBlocks with id and depth', async () => {
+    const masternodeId = await client.masternode.createMasternode(await container.getNewAddress())
+
+    await container.generate(1)
+
+    const blocksResult = await client.masternode.getMasternodeBlocks({ id: masternodeId }, 10)
+
+    for (const value of Object.values(blocksResult)) {
+      expect(typeof value).toStrictEqual('string')
+      expect(value.length).toStrictEqual(64)
+    }
+  })
+
+  it('should getMasternodeBlocks with owner address and depth', async () => {
+    const address = await container.getNewAddress()
     await client.masternode.createMasternode(address)
 
     await container.generate(1)
@@ -71,8 +84,8 @@ describe('Masternode', () => {
     }
   })
 
-  it('should getMasternodeBlocks with depth and operator address', async () => {
-    const address = await client.wallet.getNewAddress()
+  it('should getMasternodeBlocks with operator address and depth', async () => {
+    const address = await container.getNewAddress()
     await client.masternode.createMasternode(address)
 
     await container.generate(1)
@@ -85,17 +98,12 @@ describe('Masternode', () => {
     }
   })
 
-  it('should getMasternodeBlocks with depth and id', async () => {
-    const masternodeId = await client.masternode.createMasternode(await client.wallet.getNewAddress())
+  it('should throw and error with invalid id', async () => {
+    const invalidId = 'c3285ad8ab28886beeeeb92562f40168ba8d877cff6f2f02301c99053ed33349'
+    const promise = client.masternode.getMasternodeBlocks({ id: invalidId })
 
-    await container.generate(1)
-
-    const blocksResult = await client.masternode.getMasternodeBlocks({ id: masternodeId }, 10)
-
-    for (const value of Object.values(blocksResult)) {
-      expect(typeof value).toStrictEqual('string')
-      expect(value.length).toStrictEqual(64)
-    }
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Masternode not found')
   })
 
   it('should throw an error with invalid owner address ', async () => {
@@ -114,14 +122,6 @@ describe('Masternode', () => {
     await expect(promise).rejects.toThrow('Invalid P2PKH address')
   })
 
-  it('should throw and error with invalid id', async () => {
-    const invalidId = 'c3285ad8ab28886beeeeb92562f40168ba8d877cff6f2f02301c99053ed33349'
-    const promise = client.masternode.getMasternodeBlocks({ id: invalidId })
-
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Masternode not found')
-  })
-
   it('should throw an error when identifier is not passed', async () => {
     const promise = client.masternode.getMasternodeBlocks({})
 
@@ -130,7 +130,7 @@ describe('Masternode', () => {
   })
 
   it('should throw an error when multiple identifiers are provided', async () => {
-    const address = await client.wallet.getNewAddress()
+    const address = await container.getNewAddress()
     const masternodeID = await client.masternode.createMasternode(address)
 
     await container.generate(1)
