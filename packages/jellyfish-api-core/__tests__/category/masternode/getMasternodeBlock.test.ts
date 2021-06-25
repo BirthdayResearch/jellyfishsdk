@@ -16,12 +16,12 @@ describe('Masternode', () => {
     await container.stop()
   })
 
-  it('should getMasternodeBlocks with ID', async () => {
-    const masternodeID = await client.masternode.createMasternode(await container.getNewAddress())
+  it('should getMasternodeBlocks with id', async () => {
+    const id = await client.masternode.createMasternode(await container.getNewAddress())
 
     await container.generate(1)
 
-    const blocksResult = await client.masternode.getMasternodeBlocks({ id: masternodeID })
+    const blocksResult = await client.masternode.getMasternodeBlocks({ id })
 
     for (const value of Object.values(blocksResult)) {
       expect(typeof value).toStrictEqual('string')
@@ -30,12 +30,12 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with owner address', async () => {
-    const address = await container.getNewAddress()
-    await client.masternode.createMasternode(address)
+    const ownerAddress = await container.getNewAddress()
+    await client.masternode.createMasternode(ownerAddress)
 
     await container.generate(1)
 
-    const blocksResult = await client.masternode.getMasternodeBlocks({ ownerAddress: address })
+    const blocksResult = await client.masternode.getMasternodeBlocks({ ownerAddress })
 
     for (const value of Object.values(blocksResult)) {
       expect(typeof value).toStrictEqual('string')
@@ -44,12 +44,12 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with operator address', async () => {
-    const address = await container.getNewAddress()
-    await client.masternode.createMasternode(address)
+    const operatorAddress = await container.getNewAddress()
+    await client.masternode.createMasternode(operatorAddress)
 
     await container.generate(1)
 
-    const blocksResult = await client.masternode.getMasternodeBlocks({ operatorAddress: address })
+    const blocksResult = await client.masternode.getMasternodeBlocks({ operatorAddress })
 
     for (const value of Object.values(blocksResult)) {
       expect(typeof value).toStrictEqual('string')
@@ -58,11 +58,11 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with id and depth', async () => {
-    const masternodeId = await client.masternode.createMasternode(await container.getNewAddress())
+    const id = await client.masternode.createMasternode(await container.getNewAddress())
 
     await container.generate(1)
 
-    const blocksResult = await client.masternode.getMasternodeBlocks({ id: masternodeId }, 10)
+    const blocksResult = await client.masternode.getMasternodeBlocks({ id }, 10)
 
     for (const value of Object.values(blocksResult)) {
       expect(typeof value).toStrictEqual('string')
@@ -71,12 +71,12 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with owner address and depth', async () => {
-    const address = await container.getNewAddress()
-    await client.masternode.createMasternode(address)
+    const ownerAddress = await container.getNewAddress()
+    await client.masternode.createMasternode(ownerAddress)
 
     await container.generate(1)
 
-    const blocksResult = await client.masternode.getMasternodeBlocks({ ownerAddress: address }, 10)
+    const blocksResult = await client.masternode.getMasternodeBlocks({ ownerAddress }, 10)
 
     for (const value of Object.values(blocksResult)) {
       expect(typeof value).toStrictEqual('string')
@@ -85,12 +85,12 @@ describe('Masternode', () => {
   })
 
   it('should getMasternodeBlocks with operator address and depth', async () => {
-    const address = await container.getNewAddress()
-    await client.masternode.createMasternode(address)
+    const operatorAddress = await container.getNewAddress()
+    await client.masternode.createMasternode(operatorAddress)
 
     await container.generate(1)
 
-    const blocksResult = await client.masternode.getMasternodeBlocks({ operatorAddress: address }, 10)
+    const blocksResult = await client.masternode.getMasternodeBlocks({ operatorAddress }, 10)
 
     for (const value of Object.values(blocksResult)) {
       expect(typeof value).toStrictEqual('string')
@@ -130,12 +130,12 @@ describe('Masternode', () => {
   })
 
   it('should throw an error when multiple identifiers are provided', async () => {
-    const address = await container.getNewAddress()
-    const masternodeID = await client.masternode.createMasternode(address)
+    const ownerAddress = await container.getNewAddress()
+    const id = await client.masternode.createMasternode(ownerAddress)
 
     await container.generate(1)
 
-    const promise = client.masternode.getMasternodeBlocks({ id: masternodeID, ownerAddress: address, operatorAddress: address })
+    const promise = client.masternode.getMasternodeBlocks({ id, ownerAddress, operatorAddress: ownerAddress })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Only provide one identifier information')
