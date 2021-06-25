@@ -268,14 +268,12 @@ describe('listAccountHistory for poolpair', () => {
   const client = new ContainerAdapterClient(container)
   const createToken = createTokenForContainer(container)
 
-  let address: string
-
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(200)
-    address = await container.call('getnewaddress')
+    const address = await container.call('getnewaddress')
     await container.call('utxostoaccount', [{ [address]: '100@0' }])
     await createToken(address, 'DDAI', 2000)
     await createPoolPair('DDAI')
@@ -325,6 +323,9 @@ describe('listAccountHistory for poolpair', () => {
   })
 
   it('should show poolSwap', async () => {
+    const address = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+
     const poolAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
       '*': ['10@DFI', '200@DDAI']
