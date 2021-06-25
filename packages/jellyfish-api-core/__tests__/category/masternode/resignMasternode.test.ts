@@ -72,23 +72,15 @@ describe('Masternode', () => {
   it('should resignMasternode with arbitrary utxos', async () => {
     const ownerAddress = await container.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
-    const { txid, vout } = await container.fundAddress(ownerAddress, 10)
+    const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
 
     await container.generate(1)
 
-    const hex = await client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
+    const promise = client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
 
-    await container.generate(1)
-
-    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
-
-    expect(resignedMasternode.length).toStrictEqual(1)
-    for (const masternode of resignedMasternode) {
-      expect(masternode.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
-      expect(masternode.resignTx).toStrictEqual(hex)
-    }
+    await expect(promise).rejects.toStrictEqual(RpcApiError)
+    await expect(promise).rejects.toStrictEqual('\'Test ResignMasternodeTx execution failed:\n' +
+      'tx must have at least one input from the owner\'')
   })
 
   it('should throw an error with invalid masternode id', async () => {
