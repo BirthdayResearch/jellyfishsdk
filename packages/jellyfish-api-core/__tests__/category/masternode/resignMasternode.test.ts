@@ -69,7 +69,15 @@ describe('Masternode', () => {
     }
   })
 
-  it('should resignMasternode with arbitrary utxos', async () => {
+  it('should throw an error with invalid masternode id', async () => {
+    const invalidMasternodeId = 'b3efcc1bf6cb77c465d7f5686a55f967e73b1a048a3716fdbffa523e22b66frb'
+    const promise = client.masternode.resignMasternode(invalidMasternodeId)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`The masternode ${invalidMasternodeId} does not exist`)
+  })
+
+  it('should not resignMasternode with arbitrary utxos', async () => {
     const ownerAddress = await container.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
@@ -78,14 +86,7 @@ describe('Masternode', () => {
 
     const promise = client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
 
-    await expect(promise).rejects.toStrictEqual('Test ResignMasternodeTx execution failed: tx must have at least one input from the owner')
-  })
-
-  it('should throw an error with invalid masternode id', async () => {
-    const invalidMasternodeId = 'b3efcc1bf6cb77c465d7f5686a55f967e73b1a048a3716fdbffa523e22b66frb'
-    const promise = client.masternode.resignMasternode(invalidMasternodeId)
-
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`The masternode ${invalidMasternodeId} does not exist`)
+    await expect(promise).rejects.toStrictEqual('[Error: RpcApiError: \'Test ResignMasternodeTx execution failed:\n' +
+      'tx must have at least one input from the owner\'')
   })
 })
