@@ -99,24 +99,24 @@ describe('Masternode', () => {
   })
 
   it('should throw and error with invalid id', async () => {
-    const invalidId = 'c3285ad8ab28886beeeeb92562f40168ba8d877cff6f2f02301c99053ed33349'
-    const promise = client.masternode.getMasternodeBlocks({ id: invalidId })
+    const id = 'c3285ad8ab28886beeeeb92562f40168ba8d877cff6f2f02301c99053ed33349'
+    const promise = client.masternode.getMasternodeBlocks({ id })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Masternode not found')
   })
 
   it('should throw an error with invalid owner address ', async () => {
-    const invalidOwnerAddress = 'INVALIDADDRESS'
-    const promise = client.masternode.getMasternodeBlocks({ ownerAddress: invalidOwnerAddress })
+    const ownerAddress = 'INVALIDADDRESS'
+    const promise = client.masternode.getMasternodeBlocks({ ownerAddress })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Invalid P2PKH address')
   })
 
   it('should throw an error with invalid operator address ', async () => {
-    const invalidOperatorAddress = 'INVALIDADDRESS'
-    const promise = client.masternode.getMasternodeBlocks({ operatorAddress: invalidOperatorAddress })
+    const operatorAddress = 'INVALIDADDRESS'
+    const promise = client.masternode.getMasternodeBlocks({ operatorAddress })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Invalid P2PKH address')
