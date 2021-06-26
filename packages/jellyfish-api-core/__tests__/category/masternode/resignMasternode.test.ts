@@ -86,6 +86,6 @@ describe('Masternode', () => {
 
     const promise = client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
 
-    await expect(promise).rejects.toThrow('Error: RpcApiError: \'Test ResignMasternodeTx execution failed:\n    tx must have at least one input from the owner\', code: -32600, method: resignmasternode]')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test ResignMasternodeTx execution failed:\n    tx must have at least one input from the owner\', code: -32600, method: resignmasternode')
   })
 })
