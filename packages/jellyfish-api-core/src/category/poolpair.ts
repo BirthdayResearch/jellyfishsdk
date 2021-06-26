@@ -108,7 +108,7 @@ export class PoolPair {
   /**
    *  Creates a pool swap transaction with given metadata
    *
-   * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {PoolSwapMetadata} metadata a provided information to create pool swap transaction
    * @param {string} metadata.from address of the owner of tokenFrom
    * @param {string} metadata.tokenFrom swap from token {symbol/id}
    * @param {number} metadata.amountFrom amount from tokenA
