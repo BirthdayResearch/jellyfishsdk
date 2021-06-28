@@ -19,7 +19,7 @@ Create and submits an ICX order creation transaction.
 
 ```ts title="client.icxorderbook.createOrder()"
 interface icxorderbook {
-  createOrder (order: ICXOrder, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
+  createOrder (order: ICXOrder, utxos: UTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface ICXOrder {

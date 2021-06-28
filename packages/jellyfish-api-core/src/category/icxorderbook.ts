@@ -23,16 +23,16 @@ export class ICXOrderBook {
    * @param {BigNumber} [order.amountFrom] tokenFrom coins amount
    * @param {BigNumber} [order.orderPrice] Price per unit
    * @param {number} [order.expiry=2880] Number of blocks until the order expires, default 2880 DFI blocks
-   * @param {UTXO[]} inputUTXOs Specific utxos to spend
-   * @param {string} [inputUTXOs.txid] transaction Id
-   * @param {number} [inputUTXOs.vout] The output number
+   * @param {UTXO[]} utxos Specific utxos to spend
+   * @param {string} [utxos.txid] transaction Id
+   * @param {number} [utxos.vout] The output number
    * @return {Promise<ICXGenericResult>} Object including transaction id of the the result transaction
    */
-  async createOrder (order: ICXOrder, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
+  async createOrder (order: ICXOrder, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_createorder',
       [
-        order, inputUTXOs
+        order, utxos
       ],
       'bignumber'
     )
