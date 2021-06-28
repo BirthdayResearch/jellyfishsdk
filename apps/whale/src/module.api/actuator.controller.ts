@@ -1,12 +1,14 @@
 import { Controller, Get } from '@nestjs/common'
 import { HealthCheck, HealthCheckResult, HealthCheckService } from '@nestjs/terminus'
-import { DeFiDProbeIndicator } from '@src/module.defid/defid.indicator'
+import { DeFiDProbeIndicator } from '@src/module.defid/defid.probes'
+import { ModelProbeIndicator } from '@src/module.model/_model.probes'
 
 @Controller('/_actuator')
 export class ActuatorController {
   constructor (
     private readonly health: HealthCheckService,
-    private readonly defid: DeFiDProbeIndicator) {
+    private readonly defid: DeFiDProbeIndicator,
+    private readonly model: ModelProbeIndicator) {
   }
 
   /**
@@ -18,7 +20,8 @@ export class ActuatorController {
   @HealthCheck()
   async liveness (): Promise<HealthCheckResult> {
     return await this.health.check([
-      async () => await this.defid.liveness()
+      async () => await this.defid.liveness(),
+      async () => await this.model.liveness()
     ])
   }
 
@@ -31,10 +34,8 @@ export class ActuatorController {
   @HealthCheck()
   async readiness (): Promise<HealthCheckResult> {
     return await this.health.check([
-      async () => await this.defid.readiness()
+      async () => await this.defid.readiness(),
+      async () => await this.model.readiness()
     ])
   }
-
-  // TODO(fuxingloh): /_actuator/stop
-  // TODO(fuxingloh): /_actuator/probes/syncing
 }
