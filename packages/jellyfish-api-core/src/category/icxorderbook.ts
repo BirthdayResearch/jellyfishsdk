@@ -47,16 +47,16 @@ export class ICXOrderBook {
    * @param {string} [offer.ownerAddress] Address of DFI token and for receiving tokens in case of EXT/DFC order
    * @param {string} [offer.receivePubkey] Pubkey which can claim external HTLC in case of EXT/DFC order type
    * @param {number} [order.expiry] Number of blocks until the offer expires, default 10 DFI blocks
-   * @param {UTXO[]} inputUTXOs Specific utxos to spend
-   * @param {string} [inputUTXOs.txid] transaction Id
-   * @param {number} [inputUTXOs.vout] The output number
+   * @param {UTXO[]} utxos Specific utxos to spend
+   * @param {string} [utxos.txid] transaction Id
+   * @param {number} [utxos.vout] The output number
    * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction
    */
-  async makeOffer (offer: ICXOffer, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
+  async makeOffer (offer: ICXOffer, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_makeoffer',
       [
-        offer, inputUTXOs
+        offer, utxos
       ],
       'bignumber'
     )
