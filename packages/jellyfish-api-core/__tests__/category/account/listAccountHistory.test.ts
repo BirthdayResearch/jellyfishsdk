@@ -3,20 +3,22 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
 
-const createTokenForContainer = (container: MasterNodeRegTestContainer) => async (address: string, symbol: string, amount: number): Promise<void> => {
-  const metadata = {
-    symbol,
-    name: symbol,
-    isDAT: true,
-    mintable: true,
-    tradeable: true,
-    collateralAddress: address
-  }
-  await container.call('createtoken', [metadata])
-  await container.generate(1)
+function createTokenForContainer (container: MasterNodeRegTestContainer) {
+  return async (address: string, symbol: string, amount: number) => {
+    const metadata = {
+      symbol,
+      name: symbol,
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await container.call('createtoken', [metadata])
+    await container.generate(1)
 
-  await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-  await container.generate(1)
+    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
+    await container.generate(1)
+  }
 }
 
 describe('Account', () => {
