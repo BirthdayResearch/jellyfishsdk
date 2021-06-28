@@ -10,6 +10,7 @@ import { Token } from './category/token'
 import { Oracle } from './category/oracle'
 import { Server } from './category/server'
 import { Masternode } from './category/masternode'
+import { ICXOrderBook } from './category/icxorderbook'
 
 export * from '@defichain/jellyfish-json'
 
@@ -40,6 +41,7 @@ export abstract class ApiClient {
   public readonly oracle = new Oracle(this)
   public readonly server = new Server(this)
   public readonly masternode = new Masternode(this)
+  public readonly icxorderbook = new ICXOrderBook(this)
 
   /**
    * A promise based procedure call handling
