@@ -23,7 +23,7 @@ export class ICXOrderBook {
    * @param {BigNumber} [order.amountFrom] tokenFrom coins amount
    * @param {BigNumber} [order.orderPrice] Price per unit
    * @param {number} [order.expiry=2880] Number of blocks until the order expires, default 2880 DFI blocks
-   * @param {UTXO[]} utxos Specific utxos to spend
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] transaction Id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<ICXGenericResult>} Object including transaction id of the the result transaction
@@ -47,7 +47,7 @@ export class ICXOrderBook {
    * @param {string} [offer.ownerAddress] Address of DFI token and for receiving tokens in case of EXT/DFC order
    * @param {string} [offer.receivePubkey] Pubkey which can claim external HTLC in case of EXT/DFC order type
    * @param {number} [order.expiry] Number of blocks until the offer expires, default 10 DFI blocks
-   * @param {UTXO[]} utxos Specific utxos to spend
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] transaction Id
    * @param {number} [utxos.vout] The output number
    * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction

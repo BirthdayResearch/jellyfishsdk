@@ -31,10 +31,6 @@ describe('ICXOrderBook.createOrder', () => {
     await container.stop()
   })
 
-  afterEach(async () => {
-    // cleanup code here
-  })
-
   it('should createOrder to sell 15 DFI from chain:DFI to chain:BTC', async () => {
     const accountDFIBeforeOrder = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker

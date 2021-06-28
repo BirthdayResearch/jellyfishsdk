@@ -29,10 +29,6 @@ describe('ICXOrderBook.makeOffer', () => {
     await container.stop()
   })
 
-  afterEach(async () => {
-    // cleanup code here
-  })
-
   it('should make an partial offer to an sell DFI order', async () => {
     const accountDFIBeforeOrder = await container.call('getaccount', [accountDFI, {}, true])
     // create order - maker
@@ -66,18 +62,18 @@ describe('ICXOrderBook.makeOffer', () => {
         expireHeight: expect.any(BigNumber)
       }
     )
-    // make offer to partial amout 10 DFI - taker
+
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
+    // make offer to partial amount 10 DFI - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
       amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
       ownerAddress: accountBTC
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
 
     result = await client.icxorderbook.makeOffer(offer, [])
     const makeOfferTxId = result.txid
     await container.generate(1)
-
     const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
 
     // check fee of 0.01 DFI has been reduced from the accountBTCBefore[idDFI]
@@ -136,6 +132,7 @@ describe('ICXOrderBook.makeOffer', () => {
       }
     )
 
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     // make offer to partial amout 1 BTC - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
@@ -143,7 +140,6 @@ describe('ICXOrderBook.makeOffer', () => {
       ownerAddress: accountBTC,
       receivePubkey: '0348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5'
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     result = await client.icxorderbook.makeOffer(offer, [])
     const makeOfferTxId = result.txid
     await container.generate(1)
@@ -207,13 +203,13 @@ describe('ICXOrderBook.makeOffer', () => {
       }
     )
 
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     // make offer to higher amout 20 DFI - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
       amount: new BigNumber(0.20), // 0.20 BTC = 20 DFI
       ownerAddress: accountBTC
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     result = await client.icxorderbook.makeOffer(offer, [])
     const makeOfferTxId = result.txid
     await container.generate(1)
@@ -353,13 +349,13 @@ describe('ICXOrderBook.makeOffer', () => {
       }
     )
 
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     // make offer to invalid orderTx "123" - taker
     const offer: ICXOffer = {
       orderTx: 'INVALID_ORDER_TX_ID',
       amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
       ownerAddress: accountBTC
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
 
     const promise = client.icxorderbook.makeOffer(offer, [])
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -403,13 +399,13 @@ describe('ICXOrderBook.makeOffer', () => {
       }
     )
 
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     // make offer with invalid ownerAddress "123" - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
       amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
       ownerAddress: 'INVALID_OWNER_ADDRESS'
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
 
     const promise = client.icxorderbook.makeOffer(offer, [])
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -451,6 +447,7 @@ describe('ICXOrderBook.makeOffer', () => {
       }
     )
 
+    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
     // make offer to partial amout 1 BTC - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
@@ -458,7 +455,7 @@ describe('ICXOrderBook.makeOffer', () => {
       ownerAddress: accountBTC,
       receivePubkey: 'INVALID_RECEIVE_PUB_KEY'
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
+
     const promise = client.icxorderbook.makeOffer(offer, [])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid public key: INVALID_RECEIVE_PUB_KEY\', code: -5, method: icx_makeoffer')
