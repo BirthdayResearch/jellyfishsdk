@@ -278,24 +278,20 @@ describe('listAccountHistory for poolpair', () => {
     const address = await container.call('getnewaddress')
     await container.call('utxostoaccount', [{ [address]: '100@0' }])
     await createToken(address, 'DDAI', 2000)
-    await createPoolPair('DDAI')
+
+    await client.poolpair.createPoolPair({
+      tokenA: 'DFI',
+      tokenB: 'DDAI',
+      commission: 0,
+      status: true,
+      ownerAddress: await container.call('getnewaddress')
+    })
+    await container.generate(1)
   })
 
   afterAll(async () => {
     await container.stop()
   })
-
-  async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
-    const defaultMetadata = {
-      tokenA: 'DFI',
-      tokenB,
-      commission: 0,
-      status: true,
-      ownerAddress: await container.call('getnewaddress')
-    }
-    await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
-    await container.generate(1)
-  }
 
   it('should show AddPoolLiquidity', async () => {
     await client.poolpair.addPoolLiquidity({
