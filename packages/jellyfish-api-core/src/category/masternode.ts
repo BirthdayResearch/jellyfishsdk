@@ -86,7 +86,7 @@ export class Masternode {
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
    * @return {Promise<MasternodeResult<T>>}
    */
-  async listMasternodes<T> (
+  async listMasternodes<T>(
     pagination: MasternodePagination = {
       including_start: true,
       limit: 100
@@ -118,9 +118,9 @@ export class Masternode {
    */
   async getMasternodeBlocks (identifier: MasternodeIdentifier, depth?: number): Promise<MasternodeBlocksResult> {
     return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
-   }
-   
-   /**
+  }
+
+  /**
    * Creates a transaction resigning a masternode.
    *
    * @param {string} masternodeId The masternode's id.
