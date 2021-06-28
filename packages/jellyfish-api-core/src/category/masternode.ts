@@ -86,7 +86,7 @@ export class Masternode {
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
    * @return {Promise<MasternodeResult<T>>}
    */
-  async listMasternodes<T> (
+  async listMasternodes<T>(
     pagination: MasternodePagination = {
       including_start: true,
       limit: 100
