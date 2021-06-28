@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp } from '@src/e2e.module'
+import { createTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -9,6 +9,8 @@ beforeAll(async () => {
   await container.start()
   await container.waitForReady()
   app = await createTestingApp(container)
+
+  await waitForIndexedHeight(app, 2)
 })
 
 afterAll(async () => {
@@ -31,11 +33,17 @@ describe('/_actuator/probes/liveness', () => {
       details: {
         defid: {
           status: 'up'
+        },
+        model: {
+          status: 'up'
         }
       },
       error: {},
       info: {
         defid: {
+          status: 'up'
+        },
+        model: {
           status: 'up'
         }
       },
@@ -62,6 +70,9 @@ describe('/_actuator/probes/readiness', () => {
           initialBlockDownload: expect.any(Boolean),
           peers: 0,
           status: 'down'
+        },
+        model: {
+          status: 'up'
         }
       },
       error: {
@@ -73,7 +84,11 @@ describe('/_actuator/probes/readiness', () => {
           status: 'down'
         }
       },
-      info: {},
+      info: {
+        model: {
+          status: 'up'
+        }
+      },
       status: 'error'
     })
   })

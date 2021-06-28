@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ProbeIndicator, HealthIndicatorResult } from '@src/module.health/probe.indicator'
+import { HealthIndicatorResult, ProbeIndicator } from '@src/module.health/probe.indicator'
 import { blockchain as bc } from '@defichain/jellyfish-api-core'
 
 @Injectable()
@@ -10,13 +10,12 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
   }
 
   /**
-   * Check the liveness of DeFiD.
+   * Liveness of DeFiD.
+   * - defid is not connected
    */
   async liveness (): Promise<HealthIndicatorResult> {
-    // TODO(fuxingloh): liveness must be able indicate when defid lost connection for a significant amount of time
-
     try {
-      await this.client.blockchain.getBlockchainInfo()
+      await this.client.net.getConnectionCount()
     } catch (err) {
       return this.withDead('defid', 'unable to connect to defid')
     }
@@ -25,33 +24,33 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
   }
 
   /**
-   * Check the readiness of DeFiD.
+   * Readiness of DeFiD.
+   * - defid is not in initial block download
+   * - defid is connected to only count<5 peers
    */
   async readiness (): Promise<HealthIndicatorResult> {
-    // TODO(fuxingloh): readiness criteria must be sufficient for global decentralized implementation
-
     let info: bc.BlockchainInfo
-    let count: number
+    let peers: number
     try {
       info = await this.client.blockchain.getBlockchainInfo()
-      count = await this.client.call('getconnectioncount', [], 'number')
+      peers = await this.client.net.getConnectionCount()
     } catch (err) {
       return this.withDead('defid', 'unable to connect to defid')
     }
 
     const details = {
-      initialBlockDownload: true,
+      initialBlockDownload: info.initialblockdownload,
       blocks: info.blocks,
       headers: info.headers,
-      peers: count
+      peers: peers
     }
 
     if (info.initialblockdownload) {
       return this.withDead('defid', 'defid in initial block download', details)
     }
 
-    if (count === 0) {
-      return this.withDead('defid', 'defid is not connected to any peers', details)
+    if (peers < 5) {
+      return this.withDead('defid', `defid is connected to only ${peers} <5 peers`, details)
     }
 
     return this.withAlive('defid')

@@ -7,10 +7,12 @@ import { ScriptUnspentMapper } from '@src/module.model/script.unspent'
 import { TransactionMapper } from '@src/module.model/transaction'
 import { TransactionVinMapper } from '@src/module.model/transaction.vin'
 import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
+import { ModelProbeIndicator } from '@src/module.model/_model.probes'
 
 @Global()
 @Module({
   providers: [
+    ModelProbeIndicator,
     RawBlockMapper,
     BlockMapper,
     ScriptActivityMapper,
@@ -21,6 +23,7 @@ import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
     TransactionVoutMapper
   ],
   exports: [
+    ModelProbeIndicator,
     RawBlockMapper,
     BlockMapper,
     ScriptActivityMapper,
