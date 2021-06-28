@@ -954,6 +954,42 @@ describe('[OP_XOR]', () => {
   })
 })
 
+describe('[OP_EQUAL]', () => {
+  const hex = '0187'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_EQUAL')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_EQUAL], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
+describe('[OP_EQUALVERIFY]', () => {
+  const hex = '0188'
+
+  it('should map fromBuffer', () => {
+    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
+      Buffer.from(hex, 'hex')
+    ))
+    expect(codes[0].type).toStrictEqual('OP_EQUALVERIFY')
+    expect(codes.length).toStrictEqual(1)
+  })
+
+  it('should map toBuffer', () => {
+    const smartBuffer = new SmartBuffer()
+    OP_CODES.toBuffer([OP_CODES.OP_EQUALVERIFY], smartBuffer)
+    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
+  })
+})
+
 describe('[OP_RESERVED1]', () => {
   const hex = '0189'
 
