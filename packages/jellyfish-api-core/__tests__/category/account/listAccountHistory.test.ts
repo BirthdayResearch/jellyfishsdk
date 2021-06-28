@@ -284,23 +284,21 @@ describe('listAccountHistory for poolpair', () => {
   })
 
   async function createPoolPair (tokenB: string, metadata?: any): Promise<void> {
-    const poolAddress = await container.call('getnewaddress')
     const defaultMetadata = {
       tokenA: 'DFI',
       tokenB,
       commission: 0,
       status: true,
-      ownerAddress: poolAddress
+      ownerAddress: await container.call('getnewaddress')
     }
     await client.poolpair.createPoolPair({ ...defaultMetadata, ...metadata })
     await container.generate(1)
   }
 
   it('should show AddPoolLiquidity', async () => {
-    const poolAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
       '*': ['10@DFI', '200@DDAI']
-    }, poolAddress)
+    }, await container.call('getnewaddress'))
     await container.generate(1)
 
     const histories = await client.account.listAccountHistory()
@@ -322,14 +320,13 @@ describe('listAccountHistory for poolpair', () => {
     expect(histories.find((h) => (h.type === 'RemovePoolLiquidity' && h.amounts.includes('-20.00000000@DFI-DDAI')))).toBeTruthy()
   })
 
-  it('should show poolSwap', async () => {
+  it('should show PoolSwap', async () => {
     const address = await container.call('getnewaddress')
     await container.call('utxostoaccount', [{ [address]: '100@0' }])
 
-    const poolAddress = await container.call('getnewaddress')
     await client.poolpair.addPoolLiquidity({
       '*': ['10@DFI', '200@DDAI']
-    }, poolAddress)
+    }, await container.call('getnewaddress'))
     await container.generate(1)
     const metadata = {
       from: address,
