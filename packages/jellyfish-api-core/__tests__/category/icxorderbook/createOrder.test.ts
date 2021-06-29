@@ -32,7 +32,7 @@ describe('ICXOrderBook.createOrder', () => {
   })
 
   it('should createOrder to sell 15 DFI from chain:DFI to chain:BTC', async () => {
-    const accountDFIBeforeOrder = await container.call('getaccount', [accountDFI, {}, true])
+    const accountDFIBeforeOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -67,12 +67,12 @@ describe('ICXOrderBook.createOrder', () => {
     )
 
     // check accountDFI[idDFI] balance, reduced by 15 DFI
-    const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIBeforeOrder[idDFI] - 15)
+    const accountDFIAfterOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIBeforeOrder[idDFI].minus(15))
   })
 
   it('should createOrder to sell 2 BTC from chain:BTC to chain:DFI', async () => {
-    const accountDFIBeforeOrder = await container.call('getaccount', [accountDFI, {}, true])
+    const accountDFIBeforeOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create order - maker
     const order: ICXOrder = {
       chainFrom: 'BTC',
@@ -103,12 +103,12 @@ describe('ICXOrderBook.createOrder', () => {
       }
     )
     // check accountDFI[idDFI] balance, should be the same
-    const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
+    const accountDFIAfterOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     expect(accountDFIAfterOrder).toStrictEqual(accountDFIBeforeOrder)
   })
 
   it('should createOrder to sell 15 DFI from chain:DFI to chain:BTC with input utxos', async () => {
-    const accountDFIBeforeOrder = await container.call('getaccount', [accountDFI, {}, true])
+    const accountDFIBeforeOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -151,8 +151,8 @@ describe('ICXOrderBook.createOrder', () => {
       }
     )
     // check accountDFI[idDFI] balance, reduced by 15 DFI
-    const accountDFIAfterOrder = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIBeforeOrder[idDFI] - 15)
+    const accountDFIAfterOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    expect(accountDFIAfterOrder[idDFI]).toStrictEqual(accountDFIBeforeOrder[idDFI].minus(15))
   })
 
   it('should return an error when using non-existent token', async () => {
