@@ -49,8 +49,8 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
       return this.withDead('defid', 'defid in initial block download', details)
     }
 
-    if (peers < 5) {
-      return this.withDead('defid', `defid is connected to only ${peers} <5 peers`, details)
+    if (peers === 0) {
+      return this.withDead('defid', 'defid is not connected to any peer', details)
     }
 
     return this.withAlive('defid')
