@@ -20,9 +20,4 @@ describe('without new keyword', () => {
     const client = Jellyfish.Client()
     expect(client).toBeInstanceOf(ApiClient)
   })
-
-  it('should be able to create Client with OceanProvider', () => {
-    const client = Jellyfish.Client(Jellyfish.OceanProvider())
-    expect(client).toBeInstanceOf(ApiClient)
-  })
 })
