@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
   addPoolLiquidity,
   createPoolPair,
@@ -128,5 +128,96 @@ describe('DFI to DOG', () => {
   })
 })
 
-// TODO(jellyfish): test alternative poolpair
-// TODO(jellyfish): test alternative maxPrice
+describe('DFI to PIG', () => {
+  let addressLP: string
+  let amountLP: BigNumber
+
+  beforeEach(async () => {
+    await providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+
+    addressLP = await container.getNewAddress()
+    amountLP = await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 100,
+      tokenB: 'PIG',
+      amountB: 20,
+      shareAddress: addressLP
+    })
+  })
+
+  afterEach(async () => {
+    await container.waitForWalletBalanceGTE(1)
+    await removePoolLiquidity(container, {
+      address: addressLP,
+      amountLP: amountLP,
+      tokenLP: 'DFI-PIG'
+    })
+  })
+
+  it('should poolSwap from DFI to PIG with maxPrice', async () => {
+    await providers.setupMocks()
+    await utxosToAccount(container, 100, { address: await providers.getAddress() })
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'PIG')
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    const script = await providers.elliptic.script()
+
+    const txn = await builder.dex.poolSwap({
+      fromScript: script,
+      fromTokenId: pairs.PIG.tokenA,
+      fromAmount: new BigNumber('2'),
+      toScript: script,
+      toTokenId: pairs.PIG.tokenB,
+      maxPrice: {
+        integer: new BigNumber('5'),
+        fraction: new BigNumber('0')
+      }
+    }, script)
+
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    const account = await jsonRpc.account.getAccount(await providers.getAddress())
+    expect(account).toContain('98.00000000@DFI')
+    expect(account).toContain('2.39215687@PIG')
+
+    const poolPair = await jsonRpc.poolpair.getPoolPair('DFI-PIG', true)
+    const pair = Object.values(poolPair)[0]
+
+    expect(pair.totalLiquidity.toFixed(8)).toStrictEqual('44.72135954')
+    expect(pair.reserveA.toFixed(8)).toStrictEqual('102.00000000')
+    expect(pair.reserveB.toFixed(8)).toStrictEqual('19.60784313')
+
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+  })
+
+  it('should fail poolSwap due to maxPrice lower than reserveA/reserveB', async () => {
+    await providers.setupMocks()
+    await utxosToAccount(container, 100, { address: await providers.getAddress() })
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'PIG')
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    const script = await providers.elliptic.script()
+
+    const txn = await builder.dex.poolSwap({
+      fromScript: script,
+      fromTokenId: pairs.PIG.tokenA,
+      fromAmount: new BigNumber('2'),
+      toScript: script,
+      toTokenId: pairs.PIG.tokenB,
+      maxPrice: {
+        integer: new BigNumber('0'),
+        fraction: new BigNumber('0.3')
+      }
+    }, script)
+
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('Price is higher than indicated')
+  })
+})
