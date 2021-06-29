@@ -74,7 +74,6 @@ export interface ICXOrder {
   tokenTo?: string
   /** Address of DFI token for fees and selling tokens in case of DFC/BTC order type */
   ownerAddress?: string
-  // NOTE(surangap): c++ side this as number, but no type checks done. should be corrected from c++ side?
   /** pubkey which can claim external HTLC in case of EXT/DFC order type */
   receivePubkey?: string
   /** tokenFrom coins amount */
@@ -109,7 +108,6 @@ export interface ICXOffer {
   amount: BigNumber
   /** Address of DFI token and for receiving tokens in case of EXT/DFC order */
   ownerAddress: string
-  // NOTE(surangap): c++ side this as number, but no type checks done. should be corrected from c++ side?
   /** Pubkey which can claim external HTLC in case of EXT/DFC order type */
   receivePubkey?: string
   /** Number of blocks until the offer expires, default 10 DFI blocks */
