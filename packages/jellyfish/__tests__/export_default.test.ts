@@ -2,11 +2,6 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 import Jellyfish from '../src'
 
 describe('with new keyword', () => {
-  it('should be able to create Client without params', () => {
-    const client = new Jellyfish.Client()
-    expect(client).toBeInstanceOf(ApiClient)
-  })
-
   it('should be able to create Client with string', () => {
     const client = new Jellyfish.Client('http://localhost')
     expect(client).toBeInstanceOf(ApiClient)
@@ -19,11 +14,6 @@ describe('with new keyword', () => {
 })
 
 describe('without new keyword', () => {
-  it('should be able to create Client without params', () => {
-    const client = Jellyfish.Client()
-    expect(client).toBeInstanceOf(ApiClient)
-  })
-
   it('should be able to create Client with string', () => {
     const client = Jellyfish.Client('http://localhost')
     expect(client).toBeInstanceOf(ApiClient)

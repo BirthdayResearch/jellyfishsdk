@@ -47,9 +47,9 @@ function initClient (provider: string | Provider, options?: JellyfishOptions): A
 }
 
 interface ClientConstructor {
-  new (provider?: string | Provider, options?: JellyfishOptions): ApiClient
+  new (provider: string | Provider, options?: JellyfishOptions): ApiClient
 
-  (provider?: string | Provider, options?: JellyfishOptions): ApiClient
+  (provider: string | Provider, options?: JellyfishOptions): ApiClient
 }
 
 /**
