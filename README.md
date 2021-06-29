@@ -4,12 +4,14 @@
 [![TS-Standard](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
 
-# @defichain/jellyfish
+# [@defichain/jellyfish](https://jellyfish.defichain.com)
 
-A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized
-finance on Bitcoin.
+DeFiChain SDK. A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build
+decentralized finance on Bitcoin.
 
-> 🚧 Work in progress.
+> 🚧 @defichain/jellyfish is considered BETA SOFTWARE with frequent minor breaking releases. Used in production at
+> @defichain. This is a free software, @defichain assumes no responsibility nor liability if there is a bug in the
+> implementation.
 
 ## Installation
 
@@ -17,13 +19,6 @@ finance on Bitcoin.
 
 ```shell
 npm install @defichain/jellyfish
-```
-
-### Browser
-
-```html
-<!-- TODO(fuxingloh): WIP -->
-<script src="https://unpkg.com/@defichain/jellyfish@latest/dist/jellyfish.umd.js"/>
 ```
 
 ## Getting Started
@@ -53,27 +48,25 @@ const info = await client.mining.getMiningInfo()
 ### Providers
 
 ```js
-import {Client, HttpProvider, OceanProvider} from '@defichain/jellyfish'
+import {Client, HttpProvider} from '@defichain/jellyfish'
 
 const options = {} // optional
 
-// TODO(fuxingloh): WIP, more coventional default will be introduced with convenience
-const localClient = new Client(new HttpProvider('http://localhost:8554'), options)
-const oceanClient = new Client(new OceanProvider(), options)
+const user = ''
+const password = ''
+const port = '8554'
+const localClient = new Client(new HttpProvider(`http://${user}:${password}@localhost:${port}/`), options)
 ```
 
 ## Documentation & Community
 
+> [https://jellyfish.defichain.com](https://jellyfish.defichain.com)
+
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
-Following the idea of everything in main is production ready; all pull request must be accompanied by a documentation
-change under the `website/` folder. Hence, the main branch should be treated as a release with documentations.
-
-```
-// TODO(fuxingloh): 
-Documentation can be found at `https://jellyfish.defichain.com`?
-+ Community Links
-```
+Following the idea of everything in the main branch is production ready; all pull request must be accompanied by a
+documentation change under the `website/` folder. Hence, the main branch should be treated as a release with
+documentations.
 
 ### Packages
 
@@ -113,14 +106,17 @@ npm install
 
 ### Project References
 
-For monorepo to work seamlessly, some configuration is required. It's amazing as your code can jump across all sub-packages, you don't need to build the project in every packages when you update or clone.
+For monorepo to work seamlessly, some configuration is required. It's amazing as your code can jump across all
+sub-packages, you don't need to build the project in every package when you update or clone.
 
 Configurations required when introducing new package:
 
 1. root `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
 2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.json here
-3. root `jest.config.js` - `moduleNameMapper` - update accordingly for allowing test case to use same `import from <sub-package-name>` syntax
-4. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is configured `tsc -b ./tsconfig.build.json`
+3. root `jest.config.js` - `moduleNameMapper` - update accordingly for allowing test case to use
+   same `import from <sub-package-name>` syntax
+4. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is
+   configured `tsc -b ./tsconfig.build.json`
 
 ### Testing
 
