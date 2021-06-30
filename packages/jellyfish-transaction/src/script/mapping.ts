@@ -393,14 +393,14 @@ export const OP_CODES = {
   //  OP_SIZE = 0x82,
 
   // bitwise
-  //  OP_INVERT = 0x83,
-  //  OP_AND = 0x84,
-  //  OP_OR = 0x85,
-  //  OP_XOR = 0x86,
+  OP_INVERT: new bitwise.OP_INVERT(),
+  OP_AND: new bitwise.OP_AND(),
+  OP_OR: new bitwise.OP_OR(),
+  OP_XOR: new bitwise.OP_XOR(),
   OP_EQUAL: new bitwise.OP_EQUAL(),
   OP_EQUALVERIFY: new bitwise.OP_EQUALVERIFY(),
-  //  OP_RESERVED1 = 0x89,
-  //  OP_RESERVED2 = 0x8a,
+  OP_RESERVED1: new bitwise.OP_RESERVED1(),
+  OP_RESERVED2: new bitwise.OP_RESERVED2(),
 
   // numeric
   //  OP_1ADD = 0x8b,
@@ -518,8 +518,14 @@ const HEX_MAPPING: {
   0x7c: OP_CODES.OP_SWAP,
   0x7d: OP_CODES.OP_TUCK,
   // bitwise
+  0x83: OP_CODES.OP_INVERT,
+  0x84: OP_CODES.OP_AND,
+  0x85: OP_CODES.OP_OR,
+  0x86: OP_CODES.OP_XOR,
   0x87: OP_CODES.OP_EQUAL,
   0x88: OP_CODES.OP_EQUALVERIFY,
+  0x89: OP_CODES.OP_RESERVED1,
+  0x8a: OP_CODES.OP_RESERVED2,
   // crypto
   0xa6: OP_CODES.OP_RIPEMD160,
   0xa7: OP_CODES.OP_SHA1,

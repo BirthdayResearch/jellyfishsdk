@@ -194,12 +194,36 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_TUCK, script.OP_TUCK, 'OP_TUCK', 0x7d, '7d')
   })
 
+  it('OP_INVERT', () => {
+    expectOPCode(script.OP_CODES.OP_INVERT, script.OP_INVERT, 'OP_INVERT', 0x83, '83')
+  })
+
+  it('OP_AND', () => {
+    expectOPCode(script.OP_CODES.OP_AND, script.OP_AND, 'OP_AND', 0x84, '84')
+  })
+
+  it('OP_OR', () => {
+    expectOPCode(script.OP_CODES.OP_OR, script.OP_OR, 'OP_OR', 0x85, '85')
+  })
+
+  it('OP_XOR', () => {
+    expectOPCode(script.OP_CODES.OP_XOR, script.OP_XOR, 'OP_XOR', 0x86, '86')
+  })
+
   it('OP_EQUAL', () => {
     expectOPCode(script.OP_CODES.OP_EQUAL, script.OP_EQUAL, 'OP_EQUAL', 0x87, '87')
   })
 
   it('OP_EQUALVERIFY', () => {
     expectOPCode(script.OP_CODES.OP_EQUALVERIFY, script.OP_EQUALVERIFY, 'OP_EQUALVERIFY', 0x88, '88')
+  })
+
+  it('OP_RESERVED1', () => {
+    expectOPCode(script.OP_CODES.OP_RESERVED1, script.OP_RESERVED1, 'OP_RESERVED1', 0x89, '89')
+  })
+
+  it('OP_RESERVED2', () => {
+    expectOPCode(script.OP_CODES.OP_RESERVED2, script.OP_RESERVED2, 'OP_RESERVED2', 0x8a, '8a')
   })
 
   it('OP_RIPEMD160', () => {
