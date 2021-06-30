@@ -46,7 +46,7 @@ export class ICXOrderBook {
    * @param {BigNumber} [offer.amountFrom] Amount fulfilling the order
    * @param {string} [offer.ownerAddress] Address of DFI token and for receiving tokens in case of EXT/DFC order
    * @param {string} [offer.receivePubkey] Pubkey which can claim external HTLC in case of EXT/DFC order type
-   * @param {number} [order.expiry] Number of blocks until the offer expires, default 10 DFI blocks
+   * @param {number} [order.expiry = 10] Number of blocks until the offer expires, default 10 DFI blocks
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] transaction Id
    * @param {number} [utxos.vout] The output number
@@ -57,6 +57,25 @@ export class ICXOrderBook {
       'icx_makeoffer',
       [
         offer, utxos
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
+   * Closes offer transaction.
+   *
+   * @param {string} offerTx Transaction Id of maker offer
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] transaction Id
+   * @param {number} [utxos.vout] The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async closeOffer (offerTx: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_closeoffer',
+      [
+        offerTx, utxos
       ],
       'bignumber'
     )
