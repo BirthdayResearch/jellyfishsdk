@@ -301,7 +301,23 @@ describe('listAccountHistory for poolpair', () => {
 
     const histories = await client.account.listAccountHistory()
 
-    expect(histories.find((h) => (h.type === 'AddPoolLiquidity' && h.amounts.includes('-10.00000000@DFI') && h.amounts.includes('-200.00000000@DDAI')))).toBeTruthy()
+    const records = histories.filter((h) => h.type === 'AddPoolLiquidity')
+
+    expect(records.length).toStrictEqual(2)
+
+    expect(records).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        amounts: expect.arrayContaining([
+          expect.stringContaining('DFI-DDAI')
+        ])
+      }),
+      expect.objectContaining({
+        amounts: expect.arrayContaining([
+          '-10.00000000@DFI',
+          '-200.00000000@DDAI'
+        ])
+      })
+    ]))
   })
 
   it('should show RemovePoolLiquidity', async () => {
@@ -315,7 +331,12 @@ describe('listAccountHistory for poolpair', () => {
 
     const histories = await client.account.listAccountHistory()
 
-    expect(histories.find((h) => (h.type === 'RemovePoolLiquidity' && h.amounts.includes('-20.00000000@DFI-DDAI')))).toBeTruthy()
+    expect(histories).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'RemovePoolLiquidity',
+        amounts: expect.arrayContaining(['-20.00000000@DFI-DDAI'])
+      })
+    ]))
   })
 
   it('should show PoolSwap', async () => {
@@ -339,6 +360,11 @@ describe('listAccountHistory for poolpair', () => {
 
     const histories = await client.account.listAccountHistory()
 
-    expect(histories.find((h) => (h.type === 'PoolSwap' && h.amounts.includes('-5.00000000@DFI')))).toBeTruthy()
+    expect(histories).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'PoolSwap',
+        amounts: expect.arrayContaining(['-5.00000000@DFI'])
+      })
+    ]))
   })
 })
