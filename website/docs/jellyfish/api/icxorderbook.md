@@ -92,3 +92,43 @@ interface ICXGenericResult {
   txid: string
 }
 ```
+
+## getOrder
+
+Returns information about order or fillorder
+
+```ts title="client.icxorderbook.getOrder()"
+interface icxorderbook {
+  getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
+}
+
+interface ICXOrderInfo {
+  status: ICXOrderStatus
+  type: ICXOrderType
+  tokenFrom: string
+  chainTo?: string
+  receivePubkey?: string
+  chainFrom?: string
+  tokenTo?: string
+  ownerAddress: string
+  amountFrom: BigNumber
+  amountToFill: BigNumber
+  orderPrice: BigNumber
+  amountToFillInToAsset: BigNumber
+  height: BigNumber
+  expireHeight: BigNumber
+  closeHeight?: BigNumber
+  expired?: boolean
+}
+
+interface ICXOfferInfo {
+  orderTx: string
+  status: ICXOrderStatus
+  amount: BigNumber
+  amountInFromAsset: BigNumber
+  ownerAddress: string
+  receivePubkey?: string
+  takerFee: BigNumber
+  expireHeight: BigNumber
+}
+```

@@ -80,6 +80,22 @@ export class ICXOrderBook {
       'bignumber'
     )
   }
+
+  /**
+   * Returns information about order or fillorder
+   *
+   * @param {string} [orderTx] Transaction id of createorder or fulfillorder transaction
+   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of the transaction.
+   */
+  async getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>> {
+    return await this.client.call(
+      'icx_getorder',
+      [
+        orderTx
+      ],
+      'bignumber'
+    )
+  }
 }
 /** ICX order */
 export interface ICXOrder {
