@@ -133,9 +133,9 @@ export class PoolPair {
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async removePoolLiquidity (from: RemovePoolLiquiditySource, shareAddress: string, options: RemovePoolLiquidityOptions = {}): Promise<string> {
+  async removePoolLiquidity (address: {}, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string> {
     const { utxos } = options
-    return await this.client.call('removepoolliquidity', [from, shareAddress, utxos], 'bignumber')
+    return await this.client.call('removepoolliquidity', [address, poolAccount, utxos], 'bignumber')
   }
 }
 
@@ -222,10 +222,6 @@ export interface TestPoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
-}
-
-export interface RemovePoolLiquiditySource {
-  [address: string]: string | string[]
 }
 
 export interface RemovePoolLiquidityOptions {
