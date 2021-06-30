@@ -170,10 +170,6 @@ interface poolpair {
   removePoolLiquidity (from: removePoolLiquiditySource, shareAddress: string, options: removePoolLiquidityOptions = {}): Promise<string>
 }
 
-interface RemovePoolLiquiditySource {
-  [address: string]: string | string[]
-}
-
 interface RemovePoolLiquidityOptions {
   utxos?: RemovePoolLiquidityUTXO[]
 }
