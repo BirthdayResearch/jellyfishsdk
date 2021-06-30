@@ -4,7 +4,7 @@ import {
   ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, ICXOffer, ICXOrderStatus, ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountBTC, accountDFI, DEX_DFI_PER_BTC_RATE, ICXSetup, ICX_TAKERFEE_PER_BTC, idDFI, symbolBTC, symbolDFI } from './icx_setup'
+import { accountBTC, accountDFI, DEX_DFI_PER_BTC_RATE, ICXSetup, ICX_TAKERFEE_PER_BTC, idDFI, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.getOrder', () => {
@@ -31,10 +31,6 @@ describe('ICXOrderBook.getOrder', () => {
     await container.stop()
   })
 
-  afterEach(async () => {
-    // cleanup code here
-  })
-
   it('should get the correct order', async () => {
     // create first order - maker
     const order: ICXOrder = {
@@ -45,17 +41,17 @@ describe('ICXOrderBook.getOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
-    const createOrderTxId = result.txid
+    const createOrderResult: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = createOrderResult.txid
     await container.generate(1)
 
     // get order createOrderTxId and check
-    let retrivedOrder: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
-    expect((retrivedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+    const retrievedOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
+    expect((retrievedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
       {
         // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
         type: ICXOrderType.INTERNAL,
-        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
+        tokenFrom: symbolDFI,
         chainTo: order.chainTo,
         receivePubkey: order.receivePubkey,
         ownerAddress: order.ownerAddress,
@@ -76,18 +72,18 @@ describe('ICXOrderBook.getOrder', () => {
       amountFrom: new BigNumber(2),
       orderPrice: new BigNumber(100)
     }
-    result = await client.icxorderbook.createOrder(order2, [])
-    const createOrder2TxId = result.txid
+    const createOrder2Result = await client.icxorderbook.createOrder(order2, [])
+    const createOrder2TxId = createOrder2Result.txid
     await container.generate(1)
 
     // get order createOrder2TxId and check
-    retrivedOrder = await client.icxorderbook.getOrder(createOrder2TxId)
+    const retrievedOrder2: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(createOrder2TxId)
     // check details for createOrder2TxId
-    expect((retrivedOrder as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
+    expect((retrievedOrder2 as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
       {
         // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
         type: ICXOrderType.EXTERNAL,
-        tokenTo: order2.tokenTo === '0' ? symbolDFI : symbolBTC,
+        tokenTo: symbolDFI,
         chainFrom: order2.chainFrom,
         ownerAddress: order2.ownerAddress,
         amountFrom: order2.amountFrom,
@@ -110,8 +106,8 @@ describe('ICXOrderBook.getOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
-    const createOrderTxId = result.txid
+    const createOrderResult: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = createOrderResult.txid
     await container.generate(1)
 
     // create second order - maker
@@ -122,8 +118,8 @@ describe('ICXOrderBook.getOrder', () => {
       amountFrom: new BigNumber(2),
       orderPrice: new BigNumber(100)
     }
-    result = await client.icxorderbook.createOrder(order2, [])
-    const createOrder2TxId = result.txid
+    const createOrder2Result = await client.icxorderbook.createOrder(order2, [])
+    const createOrder2TxId = createOrder2Result.txid
     await container.generate(1)
 
     // create offer to order createOrderTxId
@@ -132,8 +128,8 @@ describe('ICXOrderBook.getOrder', () => {
       amount: new BigNumber(0.1), // 10 DFI = 0.1 BTC
       ownerAddress: accountBTC
     }
-    result = await client.icxorderbook.makeOffer(offer, [])
-    const makeOfferTxId = result.txid
+    const makeOfferResult = await client.icxorderbook.makeOffer(offer, [])
+    const makeOfferTxId = makeOfferResult.txid
     await container.generate(1)
 
     // create offer to order createOrderTxId
@@ -143,13 +139,13 @@ describe('ICXOrderBook.getOrder', () => {
       ownerAddress: accountBTC,
       receivePubkey: '0348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5'
     }
-    result = await client.icxorderbook.makeOffer(offer2, [])
-    const makeOffer2TxId = result.txid
+    const makeOffer2Result = await client.icxorderbook.makeOffer(offer2, [])
+    const makeOffer2TxId = makeOffer2Result.txid
     await container.generate(1)
 
     // retrive makeOffer2TxId
-    let retrivedOrder: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.getOrder(makeOffer2TxId)
-    expect((retrivedOrder as Record<string, ICXOfferInfo>)[makeOffer2TxId]).toStrictEqual(
+    const retrievedOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(makeOffer2TxId)
+    expect((retrievedOrder as Record<string, ICXOfferInfo>)[makeOffer2TxId]).toStrictEqual(
       {
         orderTx: createOrder2TxId,
         status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
@@ -163,8 +159,8 @@ describe('ICXOrderBook.getOrder', () => {
     )
 
     // retrive makeOfferTxId
-    retrivedOrder = await client.icxorderbook.getOrder(makeOfferTxId)
-    expect((retrivedOrder as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
+    const retrievedOrder2: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(makeOfferTxId)
+    expect((retrievedOrder2 as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
         status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
@@ -190,10 +186,10 @@ describe('ICXOrderBook.getOrder', () => {
     await client.icxorderbook.createOrder(order, [])
     await container.generate(1)
 
-    // get order "123" and check
-    const promise = client.icxorderbook.getOrder('123')
+    // get order "INVALID_ORDER_TX_ID" and check
+    const promise = client.icxorderbook.getOrder('INVALID_ORDER_TX_ID')
 
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000123) does not exist\', code: -8, method: icx_getorder')
+    await expect(promise).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000000) does not exist\', code: -8, method: icx_getorder')
   })
 })

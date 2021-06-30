@@ -99,7 +99,7 @@ Returns information about order or fillorder
 
 ```ts title="client.icxorderbook.getOrder()"
 interface icxorderbook {
-  getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo| ICXOfferInfo>>
+  getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
 }
 
 interface ICXOrderInfo {
