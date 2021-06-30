@@ -5,13 +5,13 @@
 /.husky/                                        @fuxingloh
 /.idea/                                         @fuxingloh @jingyi2811 @thedoublejay
 
-/website/                                       @fuxingloh @canonbrother @jingyi2811
+/website/                                       @fuxingloh @canonbrother @jingyi2811 @thedoublejay @siradji @aikchun
 
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-api-core/                               @fuxingloh @canonbrother @jingyi2811 @thedoublejay
-/packages/jellyfish-api-core/src/category/icxorderbook.ts   @fuxingloh @surangap @monstrobishi @canonbrother @ivan-zynesis
+/packages/jellyfish-api-core/                               @fuxingloh @canonbrother @jingyi2811 @thedoublejay @ivan-zynesis @siradji @aikchun
+/packages/jellyfish-api-core/src/category/icxorderbook.ts   @fuxingloh @surangap @monstrobishi @canonbrother
 /packages/jellyfish-api-core/src/category/oracle.ts         @fuxingloh @jingyi2811 @surangap @canonbrother @monstrobishi
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay

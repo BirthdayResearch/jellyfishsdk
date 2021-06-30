@@ -5,6 +5,7 @@
       <w>accounttoutxos</w>
       <w>acindex</w>
       <w>addpoolliquidity</w>
+      <w>aikchun</w>
       <w>amkheight</w>
       <w>ancestorcount</w>
       <w>ancestorfees</w>
@@ -173,6 +174,7 @@
       <w>signrawtransactionwithkey</w>
       <w>sigs</w>
       <w>sigsrequired</w>
+      <w>siradji</w>
       <w>softforks</w>
       <w>spentby</w>
       <w>strippedsize</w>
