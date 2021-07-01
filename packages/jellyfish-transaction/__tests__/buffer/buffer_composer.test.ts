@@ -151,6 +151,11 @@ describe('ComposableBuffer deep implementation', () => {
 
     expect(JSON.stringify(root.toObject())).toStrictEqual(JSON.stringify(data))
   })
+
+  it('should encode toHex properly', () => {
+    const root = new CRoot(data)
+    expect(root.toHex()).toStrictEqual(hex)
+  })
 })
 
 describe('ComposableBuffer.empty', () => {
