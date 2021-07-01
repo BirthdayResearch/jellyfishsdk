@@ -161,25 +161,6 @@ interface PoolShareOptions {
 }
 ```
 
-## removePoolLiquidity
-
-Remove pool liquidity transaction
-
-```ts title="client.poolpair.addPoolLiquidity()"
-interface poolpair {
-  removePoolLiquidity (from: removePoolLiquiditySource, shareAddress: string, options: removePoolLiquidityOptions = {}): Promise<string>
-}
-
-interface RemovePoolLiquidityOptions {
-  utxos?: RemovePoolLiquidityUTXO[]
-}
-
-interface RemovePoolLiquidityUTXO {
-  txid: string
-  vout: number
-}
-```
-
 ## testPoolSwap
 
 Create a test pool swap transaction to check pool swap's return result

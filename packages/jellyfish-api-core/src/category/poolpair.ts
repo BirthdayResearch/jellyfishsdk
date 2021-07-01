@@ -124,9 +124,8 @@ export class PoolPair {
   /**
    * Remove pool liquidity transaction
    *
-   * @param {RemovePoolLiquiditySource} from pool liquidity sources
-   * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
-   * @param {string} shareAddress defi address for crediting tokens
+   * @param {string} address defi address for crediting tokens
+   * @param {string} poolAccount pool liquidity account of owner
    * @param {RemovePoolLiquidityOptions} [options]
    * @param {RemovePoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
