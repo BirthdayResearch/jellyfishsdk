@@ -38,13 +38,12 @@ client.mining.getMiningInfo().then((info) => {
 ### Providers
 
 ```js
-import {Client, HttpProvider, OceanProvider} from '@defichain/jellyfish'
+import {Client, HttpProvider} from '@defichain/jellyfish'
 
 const options = {} // optional
 
 // TODO(fuxingloh): WIP, more coventional default will be introduced with convenience
 const localClient = new Client(new HttpProvider('http://localhost:8554'), options)
-const oceanClient = new Client(new OceanProvider(), options)
 ```
 
 ## Advanced usage

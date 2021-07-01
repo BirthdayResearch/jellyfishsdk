@@ -1,8 +1,8 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'DeFi Jellyfish',
-  tagline: 'A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin',
-  url: 'https://jellyfish.defichain.io',
+  tagline: 'DeFiChain SDK. A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin',
+  url: 'https://jellyfish.defichain.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -24,7 +24,7 @@ module.exports = {
     },
     announcementBar: {
       id: 'wip-pre-beta',
-      content: '@defichain/jellyfish is currently being actively developed, pre-alpha.'
+      content: '@defichain/jellyfish a beta software that is actively developed with frequent minor breaking releases.'
     },
     navbar: {
       title: 'DeFi Jellyfish',

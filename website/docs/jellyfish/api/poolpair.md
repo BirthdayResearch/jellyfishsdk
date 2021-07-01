@@ -167,9 +167,7 @@ Create a test pool swap transaction to check pool swap's return result
 
 ```ts title="client.poolpair.testPoolSwap()"
 interface poolpair {
-  testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string> {
-    return await this.client.call('testpoolswap', [metadata], 'bignumber')
-  }
+  testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string>
 }
 
 interface TestPoolSwapMetadata {
