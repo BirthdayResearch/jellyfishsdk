@@ -4,7 +4,7 @@ import {
   addPoolLiquidity,
   createPoolPair,
   createToken,
-  mintTokens, removePoolLiquidity,
+  mintTokens,
   sendTokensToAddress,
   utxosToAccount
 } from '@defichain/testing'
@@ -49,34 +49,18 @@ afterAll(async () => {
   await container.stop()
 })
 
-describe('DFI to DOG', () => {
-  let addressLP: string
-  let amountLP: BigNumber
-
-  beforeEach(async () => {
+describe('dex.poolswap()', () => {
+  it('should poolSwap', async () => {
     await providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
-
-    addressLP = await container.getNewAddress()
-    amountLP = await addPoolLiquidity(container, {
+    const addressLP = await container.getNewAddress()
+    await addPoolLiquidity(container, {
       tokenA: 'DFI',
       amountA: 100,
       tokenB: 'DOG',
       amountB: 100,
       shareAddress: addressLP
     })
-  })
-
-  afterEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
-    await removePoolLiquidity(container, {
-      address: addressLP,
-      amountLP: amountLP,
-      tokenLP: 'DFI-DOG'
-    })
-  })
-
-  it('should poolSwap from DFI to DOG', async () => {
     // Fund 100 DFI TOKEN
     await providers.setupMocks() // required to move utxos
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
@@ -126,36 +110,18 @@ describe('DFI to DOG', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
-})
 
-describe('DFI to PIG', () => {
-  let addressLP: string
-  let amountLP: BigNumber
-
-  beforeEach(async () => {
+  it('should poolSwap with maxPrice', async () => {
     await providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
-
-    addressLP = await container.getNewAddress()
-    amountLP = await addPoolLiquidity(container, {
+    const addressLP = await container.getNewAddress()
+    await addPoolLiquidity(container, {
       tokenA: 'DFI',
       amountA: 100,
       tokenB: 'PIG',
       amountB: 20,
       shareAddress: addressLP
     })
-  })
-
-  afterEach(async () => {
-    await container.waitForWalletBalanceGTE(1)
-    await removePoolLiquidity(container, {
-      address: addressLP,
-      amountLP: amountLP,
-      tokenLP: 'DFI-PIG'
-    })
-  })
-
-  it('should poolSwap from DFI to PIG with maxPrice', async () => {
     await providers.setupMocks()
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
     await sendTokensToAddress(container, await providers.getAddress(), 2, 'PIG')
@@ -198,6 +164,16 @@ describe('DFI to PIG', () => {
   })
 
   it('should fail poolSwap due to maxPrice lower than reserveA/reserveB', async () => {
+    await providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+    const addressLP = await container.getNewAddress()
+    await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 100,
+      tokenB: 'PIG',
+      amountB: 20,
+      shareAddress: addressLP
+    })
     await providers.setupMocks()
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
     await sendTokensToAddress(container, await providers.getAddress(), 2, 'PIG')
