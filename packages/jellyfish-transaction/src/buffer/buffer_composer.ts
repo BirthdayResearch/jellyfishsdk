@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { writeVarUInt, readVarUInt } from './buffer_varuint'
+import { readVarUInt, writeVarUInt } from './buffer_varuint'
 import { getBitsFrom } from './buffer_bitmask'
 import { ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
 
@@ -55,6 +55,12 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     for (const mapping of this.composers(this.data)) {
       mapping.toBuffer(buffer)
     }
+  }
+
+  toHex (): string {
+    const buffer: SmartBuffer = new SmartBuffer()
+    this.toBuffer(buffer)
+    return buffer.toString('hex')
   }
 
   /**

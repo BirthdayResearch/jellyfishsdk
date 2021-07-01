@@ -1,4 +1,4 @@
-import { Script, OP_CODES } from '@defichain/jellyfish-transaction'
+import { Script, OP_CODES, Transaction, Vout, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { WalletHdNode } from './wallet_hd_node'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
@@ -11,7 +11,7 @@ import { DeFiAddress } from '@defichain/jellyfish-address'
  *
  * WalletAccount implementation uses NATIVE SEGWIT redeem script exclusively.
  */
-export abstract class WalletAccount {
+export abstract class WalletAccount implements WalletHdNode {
   protected constructor (
     private readonly hdNode: WalletHdNode,
     private readonly network: Network
@@ -56,6 +56,26 @@ export abstract class WalletAccount {
    * @return Promise<boolean>
    */
   abstract isActive (): Promise<boolean>
+
+  async publicKey (): Promise<Buffer> {
+    return await this.hdNode.publicKey()
+  }
+
+  async privateKey (): Promise<Buffer> {
+    return await this.hdNode.privateKey()
+  }
+
+  async sign (hash: Buffer): Promise<Buffer> {
+    return await this.hdNode.sign(hash)
+  }
+
+  async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
+    return await this.hdNode.signTx(transaction, prevouts)
+  }
+
+  async verify (hash: Buffer, derSignature: Buffer): Promise<boolean> {
+    return await this.hdNode.verify(hash, derSignature)
+  }
 }
 
 /**
