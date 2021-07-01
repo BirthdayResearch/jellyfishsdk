@@ -104,7 +104,7 @@ export class ICXOrderBook {
    * @param {string}  [options.token] Token asset
    * @param {string}  [options.chain] Chain asset
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
-   * @param {number}  [options.limit] Maximum number of orders to return (default: 50)
+   * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
    * @param {boolean} [options.closed] Display closed orders (default: false)
    * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of the transaction.
    */
@@ -213,6 +213,8 @@ export interface ICXOrderInfo {
   expireHeight: BigNumber
   /** Close height */
   closeHeight?: BigNumber
+  /** Close order transaction Id */
+  closeTx?: string
   /** Expired or not */
   expired?: boolean
 }
