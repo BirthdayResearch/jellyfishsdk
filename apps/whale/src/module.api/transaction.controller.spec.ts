@@ -155,6 +155,24 @@ describe('transactions', () => {
         })
       }
     })
+
+    it('should throw BadRequestException due to any error and report message', async () => {
+      const hex = await createSignedTxnHex(container, 10, 1000)
+      expect.assertions(2)
+      try {
+        await controller.send({
+          hex: hex, maxFeeRate: 1
+        })
+      } catch (err) {
+        expect(err).toBeInstanceOf(BadRequestApiException)
+        expect(err.response.error).toStrictEqual({
+          code: 400,
+          type: 'BadRequest',
+          at: expect.any(Number),
+          message: 'bad-txns-in-belowout, value in (10.00) < value out (1000.00) (code 16)'
+        })
+      }
+    })
   })
 
   describe('estimateFeeRate', () => {
