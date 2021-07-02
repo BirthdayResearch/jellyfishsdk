@@ -30,6 +30,10 @@ describe('ICXOrderBook.listOrders', () => {
     await container.stop()
   })
 
+  afterEach(async () => {
+    await icxSetup.closeAllOpenOffers()
+  })
+
   it('should list all the orders', async () => {
     // create first order - maker
     const order: ICXOrder = {
@@ -128,11 +132,12 @@ describe('ICXOrderBook.listOrders', () => {
 
     // create second order - maker
     const order2: ICXOrder = {
-      chainFrom: 'BTC',
-      tokenTo: idDFI,
+      tokenFrom: idDFI,
+      chainTo: 'BTC',
       ownerAddress: accountDFI,
-      amountFrom: new BigNumber(2),
-      orderPrice: new BigNumber(100)
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(20),
+      orderPrice: new BigNumber(0.01)
     }
     const createOrder2Result = await client.icxorderbook.createOrder(order2, [])
     const createOrder2TxId = createOrder2Result.txid
@@ -148,12 +153,11 @@ describe('ICXOrderBook.listOrders', () => {
     const makeOfferTxId = makeOfferResult.txid
     await container.generate(1)
 
-    // create offer to order createOrderTxId
+    // create offer to order createOrder2TxId
     const offer2: ICXOffer = {
       orderTx: createOrder2TxId,
-      amount: new BigNumber(1), //
-      ownerAddress: accountBTC,
-      receivePubkey: '0348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5'
+      amount: new BigNumber(0.2), // 20 DFI = 0.2 BTC
+      ownerAddress: accountBTC
     }
     const makeOffer2Result = await client.icxorderbook.makeOffer(offer2, [])
     const makeOffer2TxId = makeOffer2Result.txid
@@ -168,9 +172,8 @@ describe('ICXOrderBook.listOrders', () => {
         amount: offer2.amount,
         amountInFromAsset: offer2.amount.dividedBy(order2.orderPrice),
         ownerAddress: offer2.ownerAddress,
-        takerFee: offer2.amount.multipliedBy(ICX_TAKERFEE_PER_BTC),
-        expireHeight: expect.any(BigNumber),
-        receivePubkey: offer2.receivePubkey
+        takerFee: offer2.amount.multipliedBy(ICX_TAKERFEE_PER_BTC).multipliedBy(DEX_DFI_PER_BTC_RATE),
+        expireHeight: expect.any(BigNumber)
       }
     )
 
@@ -420,7 +423,7 @@ describe('ICXOrderBook.listOrders', () => {
       }
     )
 
-    // const accountBTCBeforeOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    const accountBTCBeforeOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // make offer to partial amount 10 DFI - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
@@ -441,12 +444,10 @@ describe('ICXOrderBook.listOrders', () => {
     const makeOffer2TxId = makeOffer2Result.txid
     await container.generate(1)
 
-    // const accountBTCAfterOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
-
-    // NOTE(surangap): why below check is failing?
+    const accountBTCAfterOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // check fee of 0.02 DFI has been reduced from the accountBTCBeforeOffer[idDFI]
     // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
-    // expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI].minus(0.02))
+    expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI].minus(0.02))
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })

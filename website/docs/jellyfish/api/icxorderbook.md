@@ -140,6 +140,8 @@ Returns information about orders or fillorders based on ICXListOrderOptions pass
 
 ```ts title="client.icxorderbook.listOrders()"
 interface icxorderbook {
+  listOrders (options: { orderTx: string }  & ICXListOrderOptions): Promise<Record<string, ICXOfferInfo>>
+  listOrders (options?: ICXListOrderOptions): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
   listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
 }
 

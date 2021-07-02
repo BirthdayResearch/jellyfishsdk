@@ -98,6 +98,34 @@ export class ICXOrderBook {
   }
 
   /**
+   * Returns information about offers based on order and ICXListOrderOptions passed
+   *
+   * @param {} options
+   * @param {string}  options.orderTx Order txid to list all offers for this order
+   * @param {ICXListOrderOptions} options
+   * @param {string}  [options.token] Token asset
+   * @param {string}  [options.chain] Chain asset
+   * @param {string}  [options.orderTx] Order txid to list all offers for this order
+   * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
+   * @param {boolean} [options.closed] Display closed orders (default: false)
+   * @return {Promise<Record<string, ICXOfferInfo>>} Object indluding details of offers.
+   */
+  async listOrders (options: { orderTx: string } & ICXListOrderOptions): Promise<Record<string, ICXOfferInfo>>
+
+  /**
+   * Returns information about orders or fillorders based on ICXListOrderOptions passed
+   *
+   * @param {ICXListOrderOptions} options
+   * @param {string}  [options.token] Token asset
+   * @param {string}  [options.chain] Chain asset
+   * @param {string}  [options.orderTx] Order txid to list all offers for this order
+   * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
+   * @param {boolean} [options.closed] Display closed orders (default: false)
+   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of orders and offers.
+   */
+  async listOrders (options?: ICXListOrderOptions): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
+
+  /**
    * Returns information about orders or fillorders based on ICXListOrderOptions passed
    *
    * @param {ICXListOrderOptions} options
