@@ -118,6 +118,58 @@ interface ICXOrderInfo {
   height: BigNumber
   expireHeight: BigNumber
   closeHeight?: BigNumber
+  closeTx?: string
+  expired?: boolean
+}
+
+interface ICXOfferInfo {
+  orderTx: string
+  status: ICXOrderStatus
+  amount: BigNumber
+  amountInFromAsset: BigNumber
+  ownerAddress: string
+  receivePubkey?: string
+  takerFee: BigNumber
+  expireHeight: BigNumber
+}
+```
+
+## listOrders
+
+Returns information about orders or fillorders based on ICXListOrderOptions passed
+
+```ts title="client.icxorderbook.listOrders()"
+interface icxorderbook {
+  listOrders (options: { orderTx: string }  & ICXListOrderOptions): Promise<Record<string, ICXOfferInfo>>
+  listOrders (options?: ICXListOrderOptions): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
+  listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
+}
+
+interface ICXListOrderOptions {
+  token?: string
+  chain?: string
+  orderTx?: string
+  limit?: number
+  closed?: boolean
+}
+
+interface ICXOrderInfo {
+  status: ICXOrderStatus
+  type: ICXOrderType
+  tokenFrom: string
+  chainTo?: string
+  receivePubkey?: string
+  chainFrom?: string
+  tokenTo?: string
+  ownerAddress: string
+  amountFrom: BigNumber
+  amountToFill: BigNumber
+  orderPrice: BigNumber
+  amountToFillInToAsset: BigNumber
+  height: BigNumber
+  expireHeight: BigNumber
+  closeHeight?: BigNumber
+  closeTx?: string
   expired?: boolean
 }
 

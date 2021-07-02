@@ -107,4 +107,17 @@ export class ICXSetup {
     expect(result.ICX_TAKERFEE_PER_BTC as number).toStrictEqual(fee)
     ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as number
   }
+
+  async closeAllOpenOffers (): Promise<void> {
+    const orders = await this.container.call('icx_listorders', [])
+    for (const orderTx of Object.keys(orders).splice(1)) {
+      const offers = await this.container.call('icx_listorders', [{ orderTx: orderTx }])
+      for (const offerTx of Object.keys(offers).splice(1)) {
+        if (offers[offerTx].status === 'OPEN') {
+          await this.container.call('icx_closeoffer', [offerTx])
+        }
+      }
+    }
+    await this.container.generate(1)
+  }
 }
