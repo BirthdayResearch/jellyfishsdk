@@ -170,22 +170,22 @@ describe('dex.poolswap()', () => {
     await addPoolLiquidity(container, {
       tokenA: 'DFI',
       amountA: 100,
-      tokenB: 'PIG',
+      tokenB: 'CAT',
       amountB: 20,
       shareAddress: addressLP
     })
     await providers.setupMocks()
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
-    await sendTokensToAddress(container, await providers.getAddress(), 2, 'PIG')
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'CAT')
     await fundEllipticPair(container, providers.ellipticPair, 10)
     const script = await providers.elliptic.script()
 
     const txn = await builder.dex.poolSwap({
       fromScript: script,
-      fromTokenId: pairs.PIG.tokenA,
+      fromTokenId: pairs.CAT.tokenA,
       fromAmount: new BigNumber('2'),
       toScript: script,
-      toTokenId: pairs.PIG.tokenB,
+      toTokenId: pairs.CAT.tokenB,
       maxPrice: {
         integer: new BigNumber('0'),
         fraction: new BigNumber('0.3')
