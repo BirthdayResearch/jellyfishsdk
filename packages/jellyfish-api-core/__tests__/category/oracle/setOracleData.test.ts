@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
-import { UTXO } from '../../../src/category/oracle'
 
 describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -111,15 +110,9 @@ describe('Oracle', () => {
     const timestamp = new Date().getTime()
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
-    const utxos = await container.call('listunspent', [1, 9999999, [address], true])
-    const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
+    const input = await container.fundAddress(address, 10)
 
-    await client.oracle.setOracleData(oracleid, timestamp, { prices, utxos: inputs })
+    await client.oracle.setOracleData(oracleid, timestamp, { prices, utxos: [input] })
 
     await container.generate(1)
 
@@ -143,7 +136,7 @@ describe('Oracle', () => {
     )
   })
 
-  it('should not setOracleData with arbritary UTXOs', async () => {
+  it('should not setOracleData with arbitrary UTXOs', async () => {
     const priceFeeds = [
       { token: 'APPLE', currency: 'EUR' }
     ]

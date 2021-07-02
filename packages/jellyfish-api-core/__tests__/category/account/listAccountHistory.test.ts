@@ -3,23 +3,8 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
 import { DfTxType, BalanceTransferPayload } from '../../../src/category/account'
 
-describe('Account', () => {
-  const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
-
-  beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(100)
-    await createToken(await container.getNewAddress(), 'DBTC', 200)
-  })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
+function createTokenForContainer (container: MasterNodeRegTestContainer) {
+  return async (address: string, symbol: string, amount: number) => {
     const metadata = {
       symbol,
       name: symbol,
@@ -34,6 +19,24 @@ describe('Account', () => {
     await container.call('minttokens', [`${amount.toString()}@${symbol}`])
     await container.generate(1)
   }
+}
+
+describe('Account', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+  const createToken = createTokenForContainer(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(100)
+    await createToken(await container.getNewAddress(), 'DBTC', 200)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
 
   it('should listAccountHistory', async () => {
     await waitForExpect(async () => {
@@ -202,6 +205,8 @@ describe('listAccountHistory', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
+  const createToken = createTokenForContainer(container)
+
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
@@ -211,22 +216,6 @@ describe('listAccountHistory', () => {
   afterAll(async () => {
     await container.stop()
   })
-
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
-
-    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(1)
-  }
 
   it('should contain accountToAccount histories', async () => {
     const from = await container.call('getnewaddress')
@@ -273,5 +262,109 @@ describe('listAccountHistory', () => {
     const history = await client.account.listAccountHistory()
 
     expect(history.find((h) => h.type === 'AccountToUtxos' && h.amounts[0] === '-3.97000000@DFI')).toBeTruthy()
+  })
+})
+
+describe('listAccountHistory for poolpair', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+  const createToken = createTokenForContainer(container)
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(200)
+    const address = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+    await createToken(address, 'DDAI', 2000)
+
+    await client.poolpair.createPoolPair({
+      tokenA: 'DFI',
+      tokenB: 'DDAI',
+      commission: 0,
+      status: true,
+      ownerAddress: await container.call('getnewaddress')
+    })
+    await container.generate(1)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should show AddPoolLiquidity', async () => {
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, await container.call('getnewaddress'))
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory()
+
+    const records = histories.filter((h) => h.type === 'AddPoolLiquidity')
+
+    expect(records.length).toStrictEqual(2)
+
+    expect(records).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        amounts: expect.arrayContaining([
+          expect.stringContaining('DFI-DDAI')
+        ])
+      }),
+      expect.objectContaining({
+        amounts: expect.arrayContaining([
+          '-10.00000000@DFI',
+          '-200.00000000@DDAI'
+        ])
+      })
+    ]))
+  })
+
+  it('should show RemovePoolLiquidity', async () => {
+    const poolAddress = await container.call('getnewaddress')
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, poolAddress)
+    await container.generate(1)
+    await container.call('removepoolliquidity', [poolAddress, '20@DFI-DDAI'])
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory()
+
+    expect(histories).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'RemovePoolLiquidity',
+        amounts: expect.arrayContaining(['-20.00000000@DFI-DDAI'])
+      })
+    ]))
+  })
+
+  it('should show PoolSwap', async () => {
+    const address = await container.call('getnewaddress')
+    await container.call('utxostoaccount', [{ [address]: '100@0' }])
+
+    await client.poolpair.addPoolLiquidity({
+      '*': ['10@DFI', '200@DDAI']
+    }, await container.call('getnewaddress'))
+    await container.generate(1)
+    const metadata = {
+      from: address,
+      tokenFrom: 'DFI',
+      amountFrom: '5',
+      to: await container.call('getnewaddress'),
+      tokenTo: 'DDAI'
+    }
+
+    await container.call('poolswap', [metadata])
+    await container.generate(1)
+
+    const histories = await client.account.listAccountHistory()
+
+    expect(histories).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: 'PoolSwap',
+        amounts: expect.arrayContaining(['-5.00000000@DFI'])
+      })
+    ]))
   })
 })

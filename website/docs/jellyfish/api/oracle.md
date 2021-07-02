@@ -15,7 +15,7 @@ const something = await client.oracle.method()
 
 ## appointOracle
 
-Creates a price oracle for rely of real time price data.
+Creates a price oracle for relay of real time price data.
 
 ```ts title="client.oracle.appointOracle()"
 interface oracle {
@@ -55,7 +55,7 @@ interface UTXO {
 
 ## updateOracle
 
-Update a price oracle for rely of real time price data.
+Update a price oracle for relay of real time price data.
 
 ```ts title="client.oracle.updateOracle()"
 interface oracle {
