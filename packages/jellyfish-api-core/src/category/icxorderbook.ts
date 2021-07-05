@@ -89,16 +89,16 @@ export class ICXOrderBook {
    * @param {BigNumber} [htlc.amount] Amount in HTLC
    * @param {string} [htlc.hash] Hash of seed used for the hash lock part
    * @param {number} [htlc.timeout] Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
-   * @param {InputUTXO[]} inputUTXOs Specific utxos to spend
-   * @param {string} [inputUTXOs.txid] transaction Id
-   * @param {number} [inputUTXOs.vout] The output number
+   * @param {UTXO[]} utxos Specific utxos to spend
+   * @param {string} [utxos.txid] transaction Id
+   * @param {number} [utxos.vout] The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
-  async submitDFCHTLC (htlc: HTLC, inputUTXOs: InputUTXO[] = []): Promise<ICXGenericResult> {
+  async submitDFCHTLC (htlc: HTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_submitdfchtlc',
       [
-        htlc, inputUTXOs
+        htlc, utxos
       ],
       'bignumber'
     )
@@ -366,7 +366,7 @@ export interface ICXClaimDFCHTLCInfo {
   /** HTLC claim secret */
   seed: string
   /** HTLC creation height */
-  height: number
+  height: BigNumber
 }
 
 /** ICX DFCHTLC info */
@@ -384,11 +384,11 @@ export interface ICXDFCHTLCInfo {
   /** Hash of DFCHTLC */
   hash: string
   /** Timeout in blocks */
-  timeout: number
+  timeout: BigNumber
   /** HTLC creation height */
-  height: number
+  height: BigNumber
   /** HTLC refund height */
-  refundHeight: number
+  refundHeight: BigNumber
 }
 
 /** ICX EXTHTLC info */
@@ -410,7 +410,7 @@ export interface ICXEXTHTLCInfo {
   /** Pubkey of the owner to which the funds are refunded if HTLC timeouts */
   ownerPubkey: string
   /** Timeout in blocks */
-  timeout: number
+  timeout: BigNumber
   /** HTLC creation height */
-  height: number
+  height: BigNumber
 }

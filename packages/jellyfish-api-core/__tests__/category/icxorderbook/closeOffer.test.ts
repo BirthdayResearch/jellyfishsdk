@@ -8,7 +8,7 @@ import { RpcApiError } from '../../../src'
 describe('ICXOrderBook.closeOffer', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-  const icxSetup = new ICXSetup(container)
+  const icxSetup = new ICXSetup(container, client)
 
   beforeAll(async () => {
     await container.start()
