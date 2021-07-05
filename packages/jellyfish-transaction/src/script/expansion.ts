@@ -23,7 +23,6 @@ export class OP_CHECKLOCKTIMEVERIFY extends StaticCode {
  * This instruction allows a transaction output to be made unspendable until some point in the future.
  * @See OP_CHECKLOCKTIMEVERIFY
  */
-
 export class OP_NOP2 extends OP_CHECKLOCKTIMEVERIFY {
 }
 
