@@ -343,6 +343,25 @@ export class Account {
   async listCommunityBalances (): Promise<CommunityBalanceData> {
     return await this.client.call('listcommunitybalances', [], 'bignumber')
   }
+
+  /**
+   * Returns information about burn history
+   *
+   * @param {BurnHistoryOptions} [options]
+   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
+   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
+   * @param {string} [options.token] Filter by token
+   * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
+   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @return {Promise<BurnHistory[]>}
+   */
+  async listBurnHistory (
+    options: BurnHistoryOptions = {
+      limit: 100
+    }
+  ): Promise<BurnHistory[]> {
+    return await this.client.call('listburnhistory', [options], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -437,4 +456,23 @@ export interface CommunityBalanceData {
   Options?: BigNumber
   Unallocated?: BigNumber
   Unknown?: BigNumber
+}
+
+export interface BurnHistoryOptions {
+  maxBlockHeight?: number
+  depth?: number
+  token?: string
+  txtype?: DfTxType
+  limit?: number
+}
+
+export interface BurnHistory {
+  owner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txn: number
+  txid: string
+  amounts: string[]
 }
