@@ -3,13 +3,12 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BalanceTransferPayload, DfTxType } from '../../../src/category/account'
 import { createToken, accountToAccount } from '@defichain/testing'
 
-const burnAddress = 'mfburnZSAM7Gs1hpDeNaMotJXSGA7edosG'
-const burnAddressPrivateKey = '93ViFmLeJVgKSPxWGQHmSdT5RbeGDtGW4bsiwQM2qnQyucChMqQ'
-let fundedAddress: string
-
 describe('Account', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
+  const burnAddress = 'mfburnZSAM7Gs1hpDeNaMotJXSGA7edosG'
+  const burnAddressPrivateKey = '93ViFmLeJVgKSPxWGQHmSdT5RbeGDtGW4bsiwQM2qnQyucChMqQ'
+  let fundedAddress: string
 
   beforeAll(async () => {
     await container.start()
