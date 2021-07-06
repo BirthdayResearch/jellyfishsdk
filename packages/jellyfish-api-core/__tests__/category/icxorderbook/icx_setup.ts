@@ -1,5 +1,8 @@
+import { BigNumber } from '@defichain/jellyfish-api-core'
+import { ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus } from '../../../src/category/icxorderbook'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, mintTokens, accountToAccount } from '@defichain/testing'
+import { ContainerAdapterClient } from 'jellyfish-api-core/__tests__/container_adapter_client'
 
 // globals
 export let symbolDFI: string
@@ -14,8 +17,10 @@ export let DEX_DFI_PER_BTC_RATE: number
 
 export class ICXSetup {
   private readonly container: MasterNodeRegTestContainer
-  constructor (container: MasterNodeRegTestContainer) {
+  private readonly client: ContainerAdapterClient
+  constructor (container: MasterNodeRegTestContainer, client: ContainerAdapterClient) {
     this.container = container
+    this.client = client
     // reset global variables
     symbolDFI = ''
     symbolBTC = ''
@@ -91,13 +96,13 @@ export class ICXSetup {
     expect(pool[idDFIBTC].idTokenB).toBe(idDFI)
   }
 
-  async addLiquidityToBTCDFIPool (amountInBTC: number, amoutInDFI: number): Promise<void> {
+  async addLiquidityToBTCDFIPool (amountInBTC: number, amountInDFI: number): Promise<void> {
     const poolLiquidityMetadata: { [key: string]: string [] } = {}
-    poolLiquidityMetadata[accountDFI] = [`${amountInBTC}@${symbolBTC}`, `${amoutInDFI}@${symbolDFI}`]
+    poolLiquidityMetadata[accountDFI] = [`${amountInBTC}@${symbolBTC}`, `${amountInDFI}@${symbolDFI}`]
 
     await this.container.call('addpoolliquidity', [poolLiquidityMetadata, accountDFI, []])
     await this.container.generate(1)
-    DEX_DFI_PER_BTC_RATE = amoutInDFI / amountInBTC
+    DEX_DFI_PER_BTC_RATE = amountInDFI / amountInBTC
   }
 
   async setTakerFee (fee: number): Promise<void> {
@@ -119,5 +124,61 @@ export class ICXSetup {
       }
     }
     await this.container.generate(1)
+  }
+
+  // creates DFI sell order
+  async createDFISellOrder (chainTo: string, ownerAddress: string, receivePubkey: string, amountFrom: BigNumber, orderPrice: BigNumber): Promise<{order: ICXOrder, createOrderTxId: string}> {
+    // create order - maker
+    const order: ICXOrder = {
+      tokenFrom: idDFI,
+      chainTo: chainTo,
+      ownerAddress: ownerAddress,
+      receivePubkey: receivePubkey,
+      amountFrom: amountFrom,
+      orderPrice: orderPrice
+    }
+
+    const createOrderResult: ICXGenericResult = await this.client.icxorderbook.createOrder(order)
+    const createOrderTxId = createOrderResult.txid
+    await this.container.generate(1)
+
+    // list ICX orders
+    const ordersAfterCreateOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await this.client.icxorderbook.listOrders()
+    expect((ordersAfterCreateOrder as Record<string, ICXOrderInfo>)[createOrderTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
+
+    return {
+      order: order,
+      createOrderTxId: createOrderTxId
+    }
+  }
+
+  // creates DFI buy offer
+  async createDFIBuyOffer (orderTx: string, amount: BigNumber, ownerAddress: string): Promise<{offer: ICXOffer, makeOfferTxId: string}> {
+    const accountBTCBeforeOffer: Record<string, BigNumber> = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // make Offer to partial amount 10 DFI - taker
+    const offer: ICXOffer = {
+      orderTx: orderTx,
+      amount: amount, // 0.10 BTC = 10 DFI
+      ownerAddress: ownerAddress
+    }
+
+    const makeOfferResult = await this.client.icxorderbook.makeOffer(offer, [])
+    const makeOfferTxId = makeOfferResult.txid
+    await this.container.generate(1)
+
+    const accountBTCAfterOffer: Record<string, BigNumber> = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // check fee of 0.01 DFI has been reduced from the accountBTCBeforeOffer[idDFI]
+    // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
+    expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI].minus(0.01))
+
+    // List the ICX offers for orderTx = createOrderTxId and check
+    const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await this.client.icxorderbook.listOrders({ orderTx: orderTx })
+    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
+
+    return {
+      offer: offer,
+      makeOfferTxId: makeOfferTxId
+    }
   }
 }

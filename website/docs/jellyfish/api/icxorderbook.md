@@ -93,6 +93,33 @@ interface ICXGenericResult {
 }
 ```
 
+## submitDFCHTLC
+
+Create and submits a DFC HTLC transaction
+
+```ts title="client.icxorderbook.submitDFCHTLC()"
+interface icxorderbook {
+  submitDFCHTLC (htlc: HTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> 
+}
+
+interface HTLC {
+  offerTx: string
+  amount: BigNumber
+  hash: string
+  timeout?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```
+
 ## getOrder
 
 Returns information about order or fillorder
