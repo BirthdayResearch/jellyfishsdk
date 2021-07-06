@@ -216,7 +216,8 @@ enum DfTxType {
   CREATE_POOL_PAIR = 'p',
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
-  AUTO_AUTH_PREP = 'A'
+  AUTO_AUTH_PREP = 'A',
+  NONE = '0'
 }
 
 interface AccountHistory {
@@ -274,7 +275,8 @@ enum DfTxType {
   CREATE_POOL_PAIR = 'p',
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
-  AUTO_AUTH_PREP = 'A'
+  AUTO_AUTH_PREP = 'A',
+  NONE = '0'
 }
 
 interface AccountHistoryCountOptions {
@@ -332,5 +334,57 @@ interface CommunityBalanceData {
   Options?: BigNumber
   Unallocated?: BigNumber
   Unknown?: BigNumber
+}
+```
+
+## listBurnHistory
+
+Returns information about burn history
+
+```ts title="client.account.listBurnHistory()"
+interface account {
+  listBurnHistory(
+    options: BurnHistoryOptions = { limit: 100 }
+  ): Promise<BurnHistory[]>
+}
+
+enum DfTxType {
+  MINT_TOKEN = 'M',
+  POOL_SWAP = 's',
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTXOS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a',
+  CREATE_MASTERNODE = 'C',
+  RESIGN_MASTERNODE = 'R',
+  CREATE_TOKEN = 'T',
+  UPDATE_TOKEN = 'N',
+  UPDATE_TOKEN_ANY = 'n',
+  CREATE_POOL_PAIR = 'p',
+  UPDATE_POOL_PAIR = 'u',
+  SET_GOV_VARIABLE = 'G',
+  AUTO_AUTH_PREP = 'A',
+  NONE = '0'
+}
+
+interface BurnHistoryOptions {
+  maxBlockHeight?: number
+  depth?: number
+  token?: string
+  txtype?: DfTxType
+  limit?: number
+}
+
+interface BurnHistory {
+  owner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txn: number
+  txid: string
+  amounts: string[]
 }
 ```
