@@ -20,12 +20,12 @@ export class ICXOrderBook {
    * @param {string} [order.tokenTo] Symbol or id of buying token
    * @param {string} [order.ownerAddress] Address of DFI token for fees and selling tokens in case of DFC/BTC order type
    * @param {string} [order.receivePubkey] pubkey which can claim external HTLC in case of EXT/DFC order type
-   * @param {BigNumber} [order.amountFrom] tokenFrom coins amount
-   * @param {BigNumber} [order.orderPrice] Price per unit
+   * @param {BigNumber} order.amountFrom tokenFrom coins amount
+   * @param {BigNumber} order.orderPrice Price per unit
    * @param {number} [order.expiry=2880] Number of blocks until the order expires, default 2880 DFI blocks
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
-   * @param {string} [utxos.txid] transaction Id
-   * @param {number} [utxos.vout] The output number
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
    * @return {Promise<ICXGenericResult>} Object including transaction id of the the result transaction
    */
   async createOrder (order: ICXOrder, utxos: UTXO[] = []): Promise<ICXGenericResult> {
@@ -42,14 +42,14 @@ export class ICXOrderBook {
    * Create and submits a makeoffer transaction.
    *
    * @param {ICXOffer} offer
-   * @param {string} [offer.orderTx] Transaction id of the order tx for which is the offer
-   * @param {BigNumber} [offer.amountFrom] Amount fulfilling the order
-   * @param {string} [offer.ownerAddress] Address of DFI token and for receiving tokens in case of EXT/DFC order
+   * @param {string} offer.orderTx Transaction id of the order tx for which is the offer
+   * @param {BigNumber} offer.amount Amount fulfilling the order
+   * @param {string} offer.ownerAddress Address of DFI token and for receiving tokens in case of EXT/DFC order
    * @param {string} [offer.receivePubkey] Pubkey which can claim external HTLC in case of EXT/DFC order type
    * @param {number} [order.expiry = 10] Number of blocks until the offer expires, default 10 DFI blocks
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
-   * @param {string} [utxos.txid] transaction Id
-   * @param {number} [utxos.vout] The output number
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
    * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction
    */
   async makeOffer (offer: ICXOffer, utxos: UTXO[] = []): Promise<ICXGenericResult> {
@@ -67,8 +67,8 @@ export class ICXOrderBook {
    *
    * @param {string} offerTx Transaction Id of maker offer
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
-   * @param {string} [utxos.txid] transaction Id
-   * @param {number} [utxos.vout] The output number
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
   async closeOffer (offerTx: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
@@ -85,13 +85,13 @@ export class ICXOrderBook {
    * Create and submits a DFC HTLC transaction
    *
    * @param {HTLC} htlc
-   * @param {string} [htlc.offerTx] Transaction Id of the offer transaction for which the HTLC is
-   * @param {BigNumber} [htlc.amount] Amount in HTLC
-   * @param {string} [htlc.hash] Hash of seed used for the hash lock part
+   * @param {string} htlc.offerTx Transaction Id of the offer transaction for which the HTLC is
+   * @param {BigNumber} htlc.amount Amount in HTLC
+   * @param {string} htlc.hash Hash of seed used for the hash lock part
    * @param {number} [htlc.timeout] Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
-   * @param {UTXO[]} utxos Specific utxos to spend
-   * @param {string} [utxos.txid] transaction Id
-   * @param {number} [utxos.vout] The output number
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
   async submitDFCHTLC (htlc: HTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
@@ -107,7 +107,7 @@ export class ICXOrderBook {
   /**
    * Returns information about order or fillorder
    *
-   * @param {string} [orderTx] Transaction id of createorder or fulfillorder transaction
+   * @param {string} orderTx Transaction id of createorder or fulfillorder transaction
    * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of the transaction.
    */
   async getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>> {

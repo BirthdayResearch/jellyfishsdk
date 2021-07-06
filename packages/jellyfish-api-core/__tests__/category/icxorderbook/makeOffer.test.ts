@@ -1,6 +1,6 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXOrderType, UTXO } from '../../../src/category/icxorderbook'
+import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXOrderType } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { ICXSetup, symbolDFI, accountDFI, idDFI, accountBTC, ICX_TAKERFEE_PER_BTC, DEX_DFI_PER_BTC_RATE } from './icx_setup'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -277,16 +277,11 @@ describe('ICXOrderBook.makeOffer', () => {
     }
 
     // input utxos
-    const utxos = await container.call('listunspent', [1, 9999999, [accountBTC], true])
-    const inputUTXOs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
+    const inputUTXOs = await container.fundAddress(accountBTC, 10)
+
     const accountBTCBeforeOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
 
-    const makeOfferResult = await client.icxorderbook.makeOffer(offer, inputUTXOs)
+    const makeOfferResult = await client.icxorderbook.makeOffer(offer, [inputUTXOs])
     const makeOfferTxId = makeOfferResult.txid
     await container.generate(1)
 

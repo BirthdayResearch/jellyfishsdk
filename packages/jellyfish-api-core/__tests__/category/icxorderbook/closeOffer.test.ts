@@ -1,6 +1,6 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, UTXO, ICXOrderStatus } from '../../../src/category/icxorderbook'
+import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { accountDFI, idDFI, accountBTC, ICXSetup, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
@@ -175,15 +175,10 @@ describe('ICXOrderBook.closeOffer', () => {
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // input utxos
-    const utxos = await container.call('listunspent', [1, 9999999, [accountBTC], true])
-    const inputUTXOs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
+    const inputUTXOs = await container.fundAddress(accountBTC, 10)
+
     // close offer makeOfferTxId - taker
-    await client.icxorderbook.closeOffer(makeOfferTxId, inputUTXOs)
+    await client.icxorderbook.closeOffer(makeOfferTxId, [inputUTXOs])
     await container.generate(1)
 
     // List the ICX offers for orderTx = createOrderTxId and check no more offers
