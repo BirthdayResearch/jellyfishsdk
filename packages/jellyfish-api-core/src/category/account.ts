@@ -28,7 +28,8 @@ export enum DfTxType {
   CREATE_POOL_PAIR = 'p',
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
-  AUTO_AUTH_PREP = 'A'
+  AUTO_AUTH_PREP = 'A',
+  NONE = '0'
 }
 
 export enum SelectionModeType {
