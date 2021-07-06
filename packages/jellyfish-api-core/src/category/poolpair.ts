@@ -132,7 +132,7 @@ export class PoolPair {
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async removePoolLiquidity (address: {}, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string> {
+  async removePoolLiquidity (address: string, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string> {
     const { utxos } = options
     return await this.client.call('removepoolliquidity', [address, poolAccount, utxos], 'bignumber')
   }

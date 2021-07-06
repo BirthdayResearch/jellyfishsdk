@@ -63,8 +63,8 @@ describe('Poolpair', () => {
     const poolLiquidityAccountAfter = await container.call('getaccount', [poolLiquidityAddress])
     expect(poolLiquidityAccountAfter.length).toStrictEqual(3)
 
-    const dogLiquidityDiff = new BigNumber(poolPairAfter.totalLiquidity)
-    const foxLiquidityDiff = new BigNumber(poolPairAfter.totalLiquidity)
+    const dogLiquidityDiff = new BigNumber(poolPairBefore.reserveA).minus(poolPairAfter.reserveA)
+    const foxLiquidityDiff = new BigNumber(poolPairBefore.reserveB).minus(poolPairAfter.reserveB)
     expect(poolLiquidityAccountAfter[0]).toStrictEqual(`${dogLiquidityDiff.toFixed(8)}@DOG`)
     expect(poolLiquidityAccountAfter[1]).toStrictEqual(`${foxLiquidityDiff.toFixed(8)}@FOX`)
     expect(poolLiquidityAccountAfter[2]).toStrictEqual(`${totalLiquidityAfter.minus(fee).toFixed(8)}@DOG-FOX`)
