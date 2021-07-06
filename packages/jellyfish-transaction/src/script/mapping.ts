@@ -10,6 +10,8 @@ import * as crypto from './crypto'
 import * as control from './control'
 import * as stack from './stack'
 import * as bitwise from './bitwise'
+import * as expansion from './expansion'
+import * as invalid from './invalid'
 import {
   CPoolAddLiquidity,
   CPoolCreatePair,
@@ -441,24 +443,24 @@ export const OP_CODES = {
   OP_CHECKSIG: new crypto.OP_CHECKSIG(),
   OP_CHECKSIGVERIFY: new crypto.OP_CHECKSIGVERIFY(),
   OP_CHECKMULTISIG: new crypto.OP_CHECKMULTISIG(),
-  OP_CHECKMULTISIGVERIFY: new crypto.OP_CHECKMULTISIGVERIFY()
+  OP_CHECKMULTISIGVERIFY: new crypto.OP_CHECKMULTISIGVERIFY(),
 
   // expansion
-  //  OP_NOP1 = 0xb0,
-  //  OP_CHECKLOCKTIMEVERIFY = 0xb1,
-  //  OP_NOP2 = OP_CHECKLOCKTIMEVERIFY,
-  //  OP_CHECKSEQUENCEVERIFY = 0xb2,
-  //  OP_NOP3 = OP_CHECKSEQUENCEVERIFY,
-  //  OP_NOP4 = 0xb3,
-  //  OP_NOP5 = 0xb4,
-  //  OP_NOP6 = 0xb5,
-  //  OP_NOP7 = 0xb6,
-  //  OP_NOP8 = 0xb7,
-  //  OP_NOP9 = 0xb8,
-  //  OP_NOP10 = 0xb9,
+  OP_NOP1: new expansion.OP_NOP1(),
+  OP_CHECKLOCKTIMEVERIFY: new expansion.OP_CHECKLOCKTIMEVERIFY(),
+  OP_NOP2: new expansion.OP_NOP2(),
+  OP_CHECKSEQUENCEVERIFY: new expansion.OP_CHECKSEQUENCEVERIFY(),
+  OP_NOP3: new expansion.OP_NOP3(),
+  OP_NOP4: new expansion.OP_NOP4(),
+  OP_NOP5: new expansion.OP_NOP5(),
+  OP_NOP6: new expansion.OP_NOP6(),
+  OP_NOP7: new expansion.OP_NOP7(),
+  OP_NOP8: new expansion.OP_NOP8(),
+  OP_NOP9: new expansion.OP_NOP9(),
+  OP_NOP10: new expansion.OP_NOP10(),
 
   // invalid
-  //  OP_INVALIDOPCODE = 0xff,
+  OP_INVALIDOPCODE: new invalid.OP_INVALIDOPCODE()
 }
 
 /**
@@ -536,5 +538,18 @@ const HEX_MAPPING: {
   0xac: OP_CODES.OP_CHECKSIG,
   0xad: OP_CODES.OP_CHECKSIGVERIFY,
   0xae: OP_CODES.OP_CHECKMULTISIG,
-  0xaf: OP_CODES.OP_CHECKMULTISIGVERIFY
+  0xaf: OP_CODES.OP_CHECKMULTISIGVERIFY,
+  // expansion
+  0xb0: OP_CODES.OP_NOP1,
+  0xb1: OP_CODES.OP_CHECKLOCKTIMEVERIFY,
+  0xb2: OP_CODES.OP_CHECKSEQUENCEVERIFY,
+  0xb3: OP_CODES.OP_NOP4,
+  0xb4: OP_CODES.OP_NOP5,
+  0xb5: OP_CODES.OP_NOP6,
+  0xb6: OP_CODES.OP_NOP7,
+  0xb7: OP_CODES.OP_NOP8,
+  0xb8: OP_CODES.OP_NOP9,
+  0xb9: OP_CODES.OP_NOP10,
+  // invalid
+  0xff: OP_CODES.OP_INVALIDOPCODE
 }
