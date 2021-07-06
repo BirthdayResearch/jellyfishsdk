@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { BalanceTransferPayload, DfTxType } from '../../../src/category/account'
+import { createToken, accountToAccount } from '@defichain/testing'
 
 const burnAddress = 'mfburnZSAM7Gs1hpDeNaMotJXSGA7edosG'
 const burnAddressPrivateKey = '93ViFmLeJVgKSPxWGQHmSdT5RbeGDtGW4bsiwQM2qnQyucChMqQ'
@@ -21,30 +22,6 @@ describe('Account', () => {
   afterAll(async () => {
     await container.stop()
   })
-
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
-
-    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(1)
-  }
-
-  async function accountToAccount (symbol: string, amount: number, from: string, _to = ''): Promise<string> {
-    const to = _to !== '' ? _to : await container.call('getnewaddress')
-
-    await container.call('accounttoaccount', [from, { [to]: `${amount.toString()}@${symbol}` }])
-
-    return to
-  }
 
   it('should listBurnHistory after test masternode creation fee burn', async () => {
     const newAddress = await container.getNewAddress('', 'legacy')
@@ -71,7 +48,7 @@ describe('Account', () => {
     await container.call('utxostoaccount', [{ [fundedAddress]: '3@0' }])
     await container.generate(1)
 
-    await createToken(fundedAddress, 'GOLD', 1)
+    await createToken(container, 'GOLD', { collateralAddress: fundedAddress })
 
     const history = await client.account.listBurnHistory()
     expect(history.length).toStrictEqual(2)
@@ -91,7 +68,9 @@ describe('Account', () => {
     await container.call('minttokens', ['100@GOLD'])
     await container.generate(1)
 
-    await accountToAccount('GOLD', 100, fundedAddress, burnAddress)
+    await accountToAccount(container, 'GOLD', 100, {
+      from: fundedAddress, to: burnAddress
+    })
     await container.generate(1)
 
     const history = await client.account.listBurnHistory()
@@ -117,7 +96,9 @@ describe('Account', () => {
   })
 
   it('should listBurnHistory after send to burn address with accountToAccount', async () => {
-    await accountToAccount('0', 1, fundedAddress, burnAddress)
+    await accountToAccount(container, '0', 1, {
+      from: fundedAddress, to: burnAddress
+    })
     await container.generate(1)
 
     const history = await client.account.listBurnHistory()
