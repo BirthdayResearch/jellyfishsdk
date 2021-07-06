@@ -126,7 +126,7 @@ Create and submits a external(EXT) HTLC transaction
 
 ```ts title="client.icxorderbook.submitExtHTLC()"
 interface icxorderbook {
-  submitExtHTLC (htlc: ExtHTLC, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
+  submitExtHTLC (htlc: ExtHTLC, utxos: UTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface ExtHTLC {

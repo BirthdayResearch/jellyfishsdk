@@ -1,5 +1,5 @@
 import { BigNumber } from '@defichain/jellyfish-api-core'
-import { ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus } from '../../../src/category/icxorderbook'
+import { ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus, ICXHTLCType, ICXHTLCStatus, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXListHTLCOptions } from '../../../src/category/icxorderbook'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, mintTokens, accountToAccount } from '@defichain/testing'
 import { ContainerAdapterClient } from 'jellyfish-api-core/__tests__/container_adapter_client'
@@ -182,50 +182,35 @@ export class ICXSetup {
     }
   }
 
-  // setup the flow until ICX submit DFC HTLC for DFI sell order
-  async setupUntilSubmitDFCHTLCForDFIBuyOffer (): Promise<{order: ICXOrder, createOrderTxId: string, offer: ICXOffer, makeOfferTxId: string}> {
-    const { order, createOrderTxId, offer, makeOfferTxId } = await this.setupUntilDFIBuyOffer()
-
-    const accountDFIBeforeDFCHTLC = await this.container.call('getaccount', [accountDFI, {}, true])
+  // create and submits DFC HTLC for DFI buy order
+  async createDFCHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, timeout: number): Promise<{DFCHTLC: HTLC, DFCHTLCTxId: string}> {
+    const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await this.client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create DFCHTLC - maker
     const DFCHTLC: HTLC = {
       offerTx: makeOfferTxId,
-      amount: new BigNumber(10), // in  DFC
-      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      amount: amount, // in  DFC
+      hash: hash,
+      timeout: timeout
     }
     const DFCHTLCTxId = (await this.client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await this.container.generate(1)
 
-    const accountDFIAfterDFCHTLC = await this.container.call('getaccount', [accountDFI, {}, true])
+    const accountDFIAfterDFCHTLC: Record<string, BigNumber> = await this.client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // maker fee should be reduced from accountDFIBeforeDFCHTLC
-    expect(accountDFIAfterDFCHTLC[idDFI].toPrecision(8)).toStrictEqual((accountDFIBeforeDFCHTLC[idDFI] - 0.01).toPrecision(8))
+    expect(accountDFIAfterDFCHTLC[idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[idDFI].minus(0.01))
 
     // List htlc
     const listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    const HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
+    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
-      {
-        type: 'DFC',
-        status: 'OPEN',
-        offerTx: makeOfferTxId,
-        amount: DFCHTLC.amount,
-        amountInEXTAsset: DFCHTLC.amount.multipliedBy(order.orderPrice),
-        hash: DFCHTLC.hash,
-        timeout: new BigNumber(DFCHTLC.timeout as number),
-        height: expect.any(BigNumber),
-        refundHeight: expect.any(BigNumber)
-      }
-    )
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).status).toStrictEqual(ICXHTLCStatus.OPEN)
 
     return {
-      order: order,
-      createOrderTxId: createOrderTxId,
-      offer: offer,
-      makeOfferTxId: makeOfferTxId
+      DFCHTLC: DFCHTLC,
+      DFCHTLCTxId: DFCHTLCTxId
     }
   }
 }
