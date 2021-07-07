@@ -3,8 +3,8 @@ import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
-import { OP_DEFI_TX } from './defi'
-import { CDfTx, DfTx } from './defi/dftx'
+import { OP_DEFI_TX } from './dftx'
+import { CDfTx, DfTx } from './dftx/dftx'
 import * as constants from './constants'
 import * as crypto from './crypto'
 import * as control from './control'
@@ -23,8 +23,8 @@ import {
   PoolRemoveLiquidity,
   PoolSwap,
   PoolUpdatePair
-} from './defi/dftx_pool'
-import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './defi/dftx_token'
+} from './dftx/dftx_pool'
+import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './dftx/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -34,7 +34,7 @@ import {
   CAnyAccountToAccount,
   CUtxosToAccount,
   UtxosToAccount
-} from './defi/dftx_account'
+} from './dftx/dftx_account'
 import {
   CAppointOracle,
   AppointOracle,
@@ -44,10 +44,10 @@ import {
   CUpdateOracle,
   SetOracleData,
   CSetOracleData
-} from './defi/dftx_oracles'
-import { CAutoAuthPrep } from './defi/dftx_misc'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './defi/dftx_masternode'
-import { CSetGovernance, SetGovernance } from './defi/dftx_governance'
+} from './dftx/dftx_oracles'
+import { CAutoAuthPrep } from './dftx/dftx_misc'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
+import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
