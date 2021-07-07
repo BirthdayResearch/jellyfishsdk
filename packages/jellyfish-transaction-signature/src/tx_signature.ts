@@ -87,7 +87,7 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
 async function isV0P2WPKH (signInputOption: SignInputOption): Promise<boolean> {
   const stack = signInputOption.prevout.script.stack
 
-  if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
+  if (stack.length === 2 && (stack[1] as OP_PUSHDATA).length() === 20) {
     const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
     const pubkeyHashHex = HASH160(pubkey).toString('hex')
     const pushDataHex = (stack[1] as OP_PUSHDATA).hex
