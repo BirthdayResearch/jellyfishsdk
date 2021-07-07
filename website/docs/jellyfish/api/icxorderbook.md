@@ -95,7 +95,7 @@ interface ICXGenericResult {
 
 ## submitDFCHTLC
 
-Create and submits a DFC HTLC transaction
+Create and submit a DFC HTLC transaction
 
 ```ts title="client.icxorderbook.submitDFCHTLC()"
 interface icxorderbook {
@@ -122,7 +122,7 @@ interface ICXGenericResult {
 
 ## submitExtHTLC
 
-Create and submits a external(EXT) HTLC transaction
+Create and submit an external(EXT) HTLC transaction
 
 ```ts title="client.icxorderbook.submitExtHTLC()"
 interface icxorderbook {

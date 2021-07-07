@@ -242,6 +242,10 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC, [inputUTXOs])).txid
     await container.generate(1)
 
+    const rawtx = await container.call('getrawtransaction', [ExtHTLCTxId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(inputUTXOs.txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(inputUTXOs.vout)
+
     // List htlc
     const listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
@@ -519,6 +523,39 @@ describe('ICXOrderBook.submitExtHTLC', () => {
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCAfterDFCHTLC
+    expect(accountBTCAfterEXTHTLC).toStrictEqual(accountBTCBeforeEXTHTLC)
+  })
+
+  it('should not submit ExtHTLC for a DFC buy offer with arbitary input utxos', async () => {
+    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
+    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+
+    const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // submit EXT HTLC with incorrect ownerPubkey "INVALID_OWNER_PUB_KEY" - taker
+    const ExtHTLC: ExtHTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(0.10),
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
+      ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
+      timeout: 15
+    }
+    // input utxos
+    const inputUTXOs = await container.fundAddress(await container.getNewAddress(), 10)
+    const promise = client.icxorderbook.submitExtHTLC(ExtHTLC, [inputUTXOs])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\ntx must have at least one input from offer owner\', code: -32600, method: icx_submitexthtlc')
+
+    // List htlc
+    const listHTLCOptions: ICXListHTLCOptions = {
+      offerTx: makeOfferTxId
+    }
+    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
+    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+
+    const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // should have the same balance as accountBTCBeforeEXTHTLC
     expect(accountBTCAfterEXTHTLC).toStrictEqual(accountBTCBeforeEXTHTLC)
   })
 })

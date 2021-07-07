@@ -82,7 +82,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Create and submits a DFC HTLC transaction
+   * Create and submit a DFC HTLC transaction
    *
    * @param {HTLC} htlc
    * @param {string} htlc.offerTx Transaction Id of the offer transaction for which the HTLC is
@@ -105,7 +105,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Create and submits a external(EXT) HTLC transaction
+   * Create and submit an external(EXT) HTLC transaction
    *
    * @param {ExtHTLC} htlc
    * @param {string} htlc.offerTx Transaction Id of the offer transaction for which the HTLC is
@@ -115,8 +115,8 @@ export class ICXOrderBook {
    * @param {string} htlc.ownerPubkey Pubkey of the owner to which the funds are refunded if HTLC timeouts
    * @param {number} htlc.timeout Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
-   * @param {string} inputUTXOs.txid transaction Id
-   * @param {number} inputUTXOs.vout The output number
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
   async submitExtHTLC (htlc: ExtHTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
