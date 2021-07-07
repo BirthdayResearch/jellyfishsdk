@@ -179,3 +179,22 @@ interface TestPoolSwapMetadata {
   maxPrice?: number
 }
 ```
+
+## removePoolLiquidity
+
+Remove pool liquidity transaction
+
+```ts title="client.poolpair.removePoolLiquidity()"
+interface poolpair {
+  removePoolLiquidity (address: string, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string>
+}
+
+interface RemovePoolLiquidityOptions {
+  utxos?: RemovePoolLiquidityUTXO[]
+}
+
+interface RemovePoolLiquidityUTXO {
+  txid: string
+  vout: number
+}
+```
