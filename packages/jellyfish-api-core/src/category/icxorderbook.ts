@@ -132,22 +132,22 @@ export class ICXOrderBook {
   /**
    * Claims a DFC HTLC
    *
-   * @param {string} [DFCHTLCTx] Transaction id of DFC HTLC transaction for which the claim is
-   * @param {string} [seed] Secret seed for claiming HTLC
-   * @param {UTXO[]} inputUTXOs Specific utxos to spend
-   * @param {string} [inputUTXOs.txid] transaction Id
-   * @param {number} [inputUTXOs.vout] The output number
+   * @param {string} DFCHTLCTxId Transaction id of DFC HTLC transaction for which the claim is
+   * @param {string} seed Secret seed for claiming HTLC
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
    * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
    */
-  async claimDFCHTLC (DFCHTLCTx: string, seed: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult> {
+  async claimDFCHTLC (DFCHTLCTxId: string, seed: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     const htlc = {
-      dfchtlcTx: DFCHTLCTx,
+      dfchtlcTx: DFCHTLCTxId,
       seed: seed
     }
     return await this.client.call(
       'icx_claimdfchtlc',
       [
-        htlc, inputUTXOs
+        htlc, utxos
       ],
       'bignumber'
     )
