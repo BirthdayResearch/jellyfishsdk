@@ -11,6 +11,18 @@ import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 /* eslint-disable no-return-assign */
 
 /**
+ * Precision used for the conversion between maxPrice as a number and an integer/fraction representation
+ *
+ * From number to integer/fraction formula :
+ * - integer = number / PRECISION
+ * - fraction = number % PRECISION
+ *
+ * From integer/fraction to number formula :
+ * - integer * PRECISION + fraction
+ */
+const PRECISION = 100_000_000
+
+/**
  * PoolSwap DeFi Transaction
  */
 export interface PoolSwap {
@@ -19,10 +31,7 @@ export interface PoolSwap {
   fromAmount: BigNumber // -------------| 8 bytes
   toScript: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes
   toTokenId: number // -----------------| VarUInt{1-9 bytes}
-  maxPrice: {
-    integer: BigNumber // --------------| 8 bytes
-    fraction: BigNumber // -------------| 8 bytes
-  }
+  maxPrice: number // -----------------| VarUInt{1-9 bytes}
 }
 
 /**
@@ -44,10 +53,11 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
         fromBuffer (buffer: SmartBuffer) {
           const integer = readBigNumberUInt64(buffer)
           const fraction = readBigNumberUInt64(buffer)
-          ps.maxPrice = { integer, fraction }
+          ps.maxPrice = integer.multipliedBy(PRECISION).plus(fraction).toNumber()
         },
         toBuffer (buffer: SmartBuffer) {
-          const { integer, fraction } = ps.maxPrice
+          const integer = new BigNumber(ps.maxPrice / PRECISION)
+          const fraction = new BigNumber(ps.maxPrice % PRECISION)
           writeBigNumberUInt64(integer, buffer)
           writeBigNumberUInt64(fraction, buffer)
         }
