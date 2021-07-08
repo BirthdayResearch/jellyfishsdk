@@ -1,16 +1,29 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasternodeState } from '../../../src/category/masternode'
+import { WalletFlag } from '../../../src/category/wallet'
 import { RpcApiError } from '../../../src'
 
 describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
+  // enabled masternodes
+  const masternodes: Array<{ id: string, address: string }> = []
+
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
+    await client.wallet.setWalletFlag(WalletFlag.AVOID_REUSE)
+
+    for (let i = 0; i < 2; i++) {
+      const address = await container.getNewAddress()
+      const id = await client.masternode.createMasternode(address)
+      masternodes.push({ id, address })
+    }
+
+    await container.waitForGenerate(2017)
   })
 
   afterAll(async () => {
@@ -18,19 +31,16 @@ describe('Masternode', () => {
   })
 
   it('should resignMasternode', async () => {
-    const ownerAddress = await container.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
-    await container.generate(1)
-    await container.generate(1, ownerAddress)
+    const { id, address } = masternodes[0]
+    await container.generate(1, address)
+    console.log(await client.masternode.listMasternodes())
 
-    const hex = await client.masternode.resignMasternode(masternodeId)
-
+    const hex = await client.masternode.resignMasternode(id)
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
-
-    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === address)
 
     expect(resignedMasternode.length).toStrictEqual(1)
     for (const masternode of resignedMasternode) {
@@ -40,29 +50,16 @@ describe('Masternode', () => {
   })
 
   it('should resignMasternode with utxos', async () => {
-    const ownerAddress = await container.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
-    const { txid } = await container.fundAddress(ownerAddress, 10)
+    const { id, address } = masternodes[1]
+    await container.generate(1, address)
 
-    await container.generate(1)
-    await container.generate(1, ownerAddress)
-
-    const utxos = (await container.call('listunspent'))
-      .filter((utxo: any) => utxo.txid === txid)
-      .map((utxo: any) => {
-        return {
-          txid: utxo.txid,
-          vout: utxo.vout
-        }
-      })
-
-    const hex = await client.masternode.resignMasternode(masternodeId, utxos)
+    const input = await container.fundAddress(address, 10)
+    const hex = await client.masternode.resignMasternode(id, [input])
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
-
-    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === address)
 
     expect(resignedMasternode.length).toStrictEqual(1)
     for (const masternode of resignedMasternode) {

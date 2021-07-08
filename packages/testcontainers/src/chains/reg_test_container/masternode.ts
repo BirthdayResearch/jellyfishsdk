@@ -32,8 +32,9 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
-   * It is set to auto mint every 1 second by default in regtest.
-   * https://github.com/DeFiCh/ain/blob/6dc990c45788d6806ea/test/functional/test_framework/test_node.py#L160-L178
+   * @param {number} nblocks to generate
+   * @param {string} address to generate to
+   * @param {number} maxTries
    */
   async generate (nblocks: number, address: string = this.masternodeKey.operator.address, maxTries: number = 1000000): Promise<void> {
     for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
@@ -43,6 +44,25 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
         minted += 1
       }
     }
+  }
+
+  /**
+   * @param {number} nblocks to generate
+   * @param {number} timeout
+   * @param {string} address
+   */
+  async waitForGenerate (nblocks: number, timeout: number = 590000, address: string = this.masternodeKey.operator.address): Promise<void> {
+    const target = await this.getBlockCount() + nblocks
+
+    return await this.waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > target) {
+        return true
+      }
+      console.log(count)
+      await this.generate(1)
+      return false
+    }, timeout, 100)
   }
 
   /**
@@ -62,7 +82,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} height to wait for
    * @param {number} [timeout=90000] in ms
    */
-  async waitForBlockHeight (height: number, timeout = 90000): Promise<void> {
+  async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
     return await this.waitForCondition(async () => {
       const count = await this.getBlockCount()
       if (count > height) {
