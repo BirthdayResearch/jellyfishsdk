@@ -1,4 +1,4 @@
-import { MainNetContainer, TestNetContainer, RegTestContainer } from '../src'
+import { MainNetContainer, RegTestContainer, TestNetContainer } from '../src'
 
 describe('main', () => {
   const container = new MainNetContainer()
@@ -10,11 +10,6 @@ describe('main', () => {
 
   afterEach(async () => {
     await container.stop()
-  })
-
-  it('should be able to getmintinginfo and chain should be main', async () => {
-    const { chain } = await container.getMintingInfo()
-    expect(chain).toStrictEqual('main')
   })
 
   it('should be able to getmininginfo and chain should be main', async () => {
@@ -35,11 +30,6 @@ describe('test', () => {
     await container.stop()
   })
 
-  it('should be able to getmintinginfo and chain should be test', async () => {
-    const { chain } = await container.getMintingInfo()
-    expect(chain).toStrictEqual('test')
-  })
-
   it('should be able to getmininginfo and chain should be test', async () => {
     const { chain } = await container.getMiningInfo()
     expect(chain).toStrictEqual('test')
@@ -58,11 +48,6 @@ describe('regtest', () => {
     await container.stop()
   })
 
-  it('should be able to getmintinginfo and chain should be regtest', async () => {
-    const { chain } = await container.getMintingInfo()
-    expect(chain).toStrictEqual('regtest')
-  })
-
   it('should be able to getmininginfo and chain should be regtest', async () => {
     const { chain } = await container.getMiningInfo()
     expect(chain).toStrictEqual('regtest')
@@ -74,13 +59,6 @@ describe('regtest: override docker image', () => {
 
   afterAll(async () => {
     await container.stop()
-  })
-
-  it('should be able to getmintinginfo and chain should be test', async () => {
-    await container.start()
-    await container.waitForReady()
-    const { chain } = await container.getMintingInfo()
-    expect(chain).toStrictEqual('test')
   })
 
   it('should be able to getmininginfo and chain should be test', async () => {
