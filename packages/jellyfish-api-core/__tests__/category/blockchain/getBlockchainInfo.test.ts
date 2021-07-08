@@ -16,7 +16,6 @@ describe('BlockchainInfo without masternode', () => {
 
   it('should getBlockchainInfo', async () => {
     const info = await client.blockchain.getBlockchainInfo()
-    console.log(info)
 
     expect(info.chain).toStrictEqual('regtest')
     expect(info.blocks).toStrictEqual(0)
@@ -35,10 +34,6 @@ describe('BlockchainInfo without masternode', () => {
     expect(info.softforks.amk.type).toStrictEqual('buried')
     expect(info.softforks.amk.active).toStrictEqual(true)
     expect(info.softforks.amk.height).toStrictEqual(0)
-
-    expect(info.softforks.segwit.type).toStrictEqual('buried')
-    expect(info.softforks.segwit.active).toStrictEqual(true)
-    expect(info.softforks.segwit.height).toStrictEqual(0)
   })
 })
 

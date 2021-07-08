@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 import { blockchain } from '../../../src'
 import BigNumber from 'bignumber.js'
 
@@ -21,11 +20,7 @@ describe('Block', () => {
    * Wait for block hash to reach a certain height
    */
   async function waitForBlockHash (height: number): Promise<string> {
-    await waitForExpect(async () => {
-      const info = await client.blockchain.getBlockchainInfo()
-      expect(info.blocks).toBeGreaterThan(height)
-    })
-
+    await container.waitForBlockHeight(height)
     return await client.blockchain.getBlockHash(height)
   }
 
@@ -83,8 +78,8 @@ describe('Block', () => {
     expect(block.tx[0].vout[0].value.toString(10)).toStrictEqual('76')
     expect(block.tx[0].vout[0].value instanceof BigNumber).toBeTruthy()
 
-    expect(block.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 b36814fd26190b321aa985809293a41273cfe15e OP_EQUALVERIFY OP_CHECKSIG')
-    expect(block.tx[0].vout[0].scriptPubKey.hex).toStrictEqual('76a914b36814fd26190b321aa985809293a41273cfe15e88ac')
+    expect(block.tx[0].vout[0].scriptPubKey.asm).toStrictEqual('OP_DUP OP_HASH160 8857c8c3ce618fe7ae5f8ee11ecc8ea421a1d829 OP_EQUALVERIFY OP_CHECKSIG')
+    expect(block.tx[0].vout[0].scriptPubKey.hex).toStrictEqual('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac')
     expect(block.tx[0].vout[0].scriptPubKey.reqSigs).toBeGreaterThanOrEqual(1)
     expect(block.tx[0].vout[0].scriptPubKey.type).toStrictEqual('pubkeyhash')
     expect(block.tx[0].vout[0].scriptPubKey.addresses[0].length).toStrictEqual(34)

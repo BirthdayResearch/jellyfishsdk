@@ -19,7 +19,7 @@ describe('BlockHeader', () => {
    * Wait for block hash to reach a certain height
    */
   async function waitForBlockHash (height: number): Promise<string> {
-    await container.generate(height)
+    await container.waitForBlockHeight(height)
     return await client.blockchain.getBlockHash(height)
   }
 
