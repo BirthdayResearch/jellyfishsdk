@@ -59,7 +59,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       if (count > target) {
         return true
       }
-      console.log(count)
       await this.generate(1)
       return false
     }, timeout, 100)
