@@ -8,6 +8,7 @@ import { RegTestContainer } from './index'
  */
 export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
+  private ip: string
 
   /**
    * @param {string} [masternodeKey=GenesisKeys[0]] pair to use for minting
@@ -17,6 +18,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
     this.masternodeKey = masternodeKey
+    this.ip = ''
   }
 
   /**
@@ -72,6 +74,12 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
 
     await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
     await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
+
+    if (startOptions.ip !== undefined) {
+      const { NetworkSettings: networkSettings } = await this.inspect()
+      const { Networks: networks } = networkSettings
+      this.ip = networks[startOptions.ip].IPAddress
+    }
   }
 
   /**
@@ -171,5 +179,38 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     const privKey = await this.call('dumpprivkey', [address])
     const getaddressinfo = await this.call('getaddressinfo', [address])
     return { address, privKey, pubKey: getaddressinfo.pubkey }
+  }
+
+  async sync (peers: MasterNodeRegTestContainer[]): Promise<void> {
+    // Note(canonbrother): make block count diff before sync
+    await this.generate(1)
+
+    for (let i = 0; i < peers.length; i += 1) {
+      const peer = peers[i]
+      await this.addNode(peer.ip)
+    }
+
+    await this.waitForSync([this, ...peers])
+  }
+
+  async waitForSync (containers: MasterNodeRegTestContainer[], timeout: number = 60000): Promise<void> {
+    return await this.waitForCondition(async () => {
+      const bestBlockHashes = await Promise.all(containers.map(async (c: MasterNodeRegTestContainer) => {
+        try {
+          // Note(canonbrother): node may froze here, do restart -> addNode -> waitForSync again
+          return await c.call('getbestblockhash')
+        } catch (err) {
+          await c.restart()
+          await this.addNode(c.ip)
+          await this.waitForSync(containers)
+        }
+      }))
+      let count = 0
+      for (let i = 0; i < bestBlockHashes.length; i += 1) {
+        if (bestBlockHashes[0] === bestBlockHashes[i]) count += 1
+      }
+      if (count === containers.length) return true
+      return false
+    }, timeout, 100)
   }
 }

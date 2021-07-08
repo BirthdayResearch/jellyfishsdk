@@ -1,8 +1,9 @@
-import Dockerode, { Container, DockerOptions } from 'dockerode'
+import Dockerode, { Container, DockerOptions, Network } from 'dockerode'
 
 export abstract class DockerContainer {
   protected readonly docker: Dockerode
   protected container?: Container
+  protected network?: Network
 
   protected constructor (
     protected readonly image: string,
@@ -42,6 +43,51 @@ export abstract class DockerContainer {
       return this.container
     }
     throw new Error('container not yet started')
+  }
+
+  /**
+   * Get docker network
+   *
+   * @param {string} ipAsName for network
+   * @return {Promise<Network>}
+   */
+  protected async getNetwork (ipAsName: string): Promise<Network | undefined> {
+    if (this.network !== undefined) return this.network
+
+    try {
+      const network = this.docker.getNetwork(ipAsName)
+      await network.inspect()
+      return network
+    } catch (err) {
+      return await this.createNetwork(ipAsName)
+    }
+  }
+
+  /**
+   * Create docker network
+   *
+   * @param {string} ipAsName
+   * @return {Promise<Network | undefined>}
+   * @throws Error if crashing with existence network
+   */
+  protected async createNetwork (ipAsName: string): Promise<Network | undefined> {
+    return await new Promise((resolve, reject) => {
+      return this.docker.createNetwork({
+        Name: ipAsName,
+        IPAM: {
+          Driver: 'default',
+          Config: [{
+            Subnet: `${ipAsName}/16`, // 172.20.0.0/16
+            Gateway: `${ipAsName.replace(/.$/, '1')}` // 172.20.0.0 -> 172.20.0.1
+          }]
+        }
+      }, (err, data) => {
+        if (err instanceof Error) {
+          return reject(err)
+        }
+        return resolve(data)
+      })
+    })
   }
 
   /**
@@ -85,6 +131,16 @@ export abstract class DockerContainer {
         }
       })
     })
+  }
+
+  /**
+   * Inspect docker container info
+   *
+   * @return {Promise<Record<string, any>>}
+   */
+  async inspect (): Promise<Record<string, any>> {
+    const container = this.requireContainer()
+    return await container.inspect()
   }
 }
 

@@ -1,6 +1,7 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
+import AbortController from 'abort-controller'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -59,7 +60,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     return [
       'defid',
       '-printtoconsole',
-      '-rpcallowip=172.17.0.0/16',
+      '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
@@ -83,6 +84,11 @@ export abstract class DeFiDContainer extends DockerContainer {
     })
     await this.container.start()
     await this.waitForRpc(startOptions.timeout)
+
+    if (startOptions.ip !== undefined) {
+      this.network = await this.getNetwork(startOptions.ip)
+      await this.network?.connect({ Container: this.container.id })
+    }
   }
 
   /**
@@ -150,15 +156,30 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * For convenience sake, HTTP post to the RPC URL for the current node.
-   * Not error checked, returns the raw JSON as string.
+   * Timeout error checked, in case if the node froze.
+   * Returns the raw JSON as string.
    */
-  async post (body: string): Promise<string> {
+  async post (body: string, timeout = 10000): Promise<string> {
+    const controller = new AbortController()
+    const id = setTimeout(() => controller.abort(), timeout)
+
     const url = await this.getCachedRpcUrl()
-    const response = await fetch(url, {
+    const request = fetch(url, {
       method: 'POST',
-      body: body
+      body: body,
+      signal: controller.signal
     })
-    return await response.text()
+
+    try {
+      const response = await request
+      clearTimeout(id)
+      return response.text()
+    } catch (err) {
+      if (err.type === 'aborted') {
+        throw new DeFiDRpcError(err)
+      }
+      throw err
+    }
   }
 
   /**
@@ -173,6 +194,15 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async getBlockCount (): Promise<number> {
     return await this.call('getblockcount', [])
+  }
+
+  /**
+   * Connect another node
+   * @param {string} ip
+   * @return {Promise<void>}
+   */
+  async addNode (ip: string): Promise<void> {
+    return await this.call('addnode', [ip, 'onetry'])
   }
 
   /**
@@ -239,6 +269,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async stop (): Promise<void> {
     try {
+      await this.network?.disconnect({ Container: this.container?.id })
       await this.container?.stop()
     } finally {
       try {
@@ -297,7 +328,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   }
 
   return await new Promise((resolve, reject) => {
-    docker.listContainers({ all: 1 }, (error, result) => {
+    docker.listContainers({ all: true }, (error, result) => {
       if (error instanceof Error) {
         return reject(error)
       }
