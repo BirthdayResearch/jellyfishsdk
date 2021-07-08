@@ -217,8 +217,8 @@ export class ICXSetup {
     }
   }
 
-  // create and submits ExtHTLC for DFI buy offer
-  async createExtHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, htlcScriptAddress: string, ownerPubkey: string, timeout: number): Promise<{ExtHTLC: ExtHTLC, ExtHTLCTxId: string}> {
+  // submits ExtHTLC for DFI buy offer
+  async submitExtHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, htlcScriptAddress: string, ownerPubkey: string, timeout: number): Promise<{ExtHTLC: ExtHTLC, ExtHTLCTxId: string}> {
     const accountBTCBeforeEXTHTLC = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC - taker
     const ExtHTLC: ExtHTLC = {
