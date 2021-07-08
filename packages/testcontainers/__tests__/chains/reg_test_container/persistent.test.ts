@@ -1,5 +1,4 @@
 import { PersistentMNRegTestContainer } from '../../../src'
-import waitForExpect from 'wait-for-expect'
 
 beforeEach(async () => {
   try {
@@ -19,27 +18,22 @@ it('should start and mint coins', async () => {
   const container = new PersistentMNRegTestContainer()
   await container.start()
   await container.waitForReady()
+  await container.generate(4)
 
-  await waitForExpect(async () => {
-    const info = await container.getMiningInfo()
-    expect(info.blocks).toBeGreaterThan(3)
-  })
+  const info = await container.getMiningInfo()
+  expect(info.blocks).toBeGreaterThan(3)
 })
 
 it('should always use the same persistent container', async () => {
   let container = new PersistentMNRegTestContainer()
   await container.start()
   await container.waitForReady()
-
-  await waitForExpect(async () => {
-    const info = await container.getMiningInfo()
-    expect(info.blocks).toBeGreaterThan(3)
-  })
+  await container.generate(4)
 
   container = new PersistentMNRegTestContainer()
   await container.start()
   await container.waitForReady()
 
-  const info = await container.getMiningInfo()
-  expect(info.blocks).toBeGreaterThan(3)
+  const { blocks } = await container.getMiningInfo()
+  expect(blocks).toBeGreaterThan(3)
 })

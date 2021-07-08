@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('BlockchainInfo without masternode', () => {
   const container = new RegTestContainer()
@@ -17,6 +16,7 @@ describe('BlockchainInfo without masternode', () => {
 
   it('should getBlockchainInfo', async () => {
     const info = await client.blockchain.getBlockchainInfo()
+    console.log(info)
 
     expect(info.chain).toStrictEqual('regtest')
     expect(info.blocks).toStrictEqual(0)
@@ -49,6 +49,7 @@ describe('BlockchainInfo on masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -56,11 +57,6 @@ describe('BlockchainInfo on masternode', () => {
   })
 
   it('should getBlockchainInfo', async () => {
-    await waitForExpect(async () => {
-      const info = await client.blockchain.getBlockchainInfo()
-      expect(info.blocks).toBeGreaterThan(1)
-    })
-
     const info = await client.blockchain.getBlockchainInfo()
 
     expect(info.chain).toStrictEqual('regtest')

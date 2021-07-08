@@ -18,6 +18,7 @@ describe('Account', () => {
 
   it('should listCommunityBalances', async () => {
     const data = await client.account.listCommunityBalances()
+    console.log(data)
 
     expect(data.AnchorReward instanceof BigNumber).toStrictEqual(true)
     expect(data.IncentiveFunding instanceof BigNumber).toStrictEqual(true)
