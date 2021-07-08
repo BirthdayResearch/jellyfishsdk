@@ -69,7 +69,7 @@ export class ICXOrderBook {
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} utxos.txid transaction Id
    * @param {number} utxos.vout The output number
-   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction
    */
   async closeOffer (offerTx: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
@@ -92,7 +92,7 @@ export class ICXOrderBook {
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} utxos.txid transaction Id
    * @param {number} utxos.vout The output number
-   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction
    */
   async submitDFCHTLC (htlc: HTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
@@ -117,7 +117,7 @@ export class ICXOrderBook {
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} utxos.txid transaction Id
    * @param {number} utxos.vout The output number
-   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction
    */
   async submitExtHTLC (htlc: ExtHTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
@@ -130,10 +130,34 @@ export class ICXOrderBook {
   }
 
   /**
+   * Claims a DFC HTLC
+   *
+   * @param {string} DFCHTLCTxId Transaction id of DFC HTLC transaction for which the claim is
+   * @param {string} seed Secret seed for claiming HTLC
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
+   * @return {Promise<ICXGenericResult>} Object including transaction id of the the transaction
+   */
+  async claimDFCHTLC (DFCHTLCTxId: string, seed: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
+    const htlc = {
+      dfchtlcTx: DFCHTLCTxId,
+      seed: seed
+    }
+    return await this.client.call(
+      'icx_claimdfchtlc',
+      [
+        htlc, utxos
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
    * Returns information about order or fillorder
    *
    * @param {string} orderTx Transaction id of createorder or fulfillorder transaction
-   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of the transaction.
+   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object including details of the transaction.
    */
   async getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>> {
     return await this.client.call(
@@ -156,7 +180,7 @@ export class ICXOrderBook {
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
    * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
    * @param {boolean} [options.closed] Display closed orders (default: false)
-   * @return {Promise<Record<string, ICXOfferInfo>>} Object indluding details of offers.
+   * @return {Promise<Record<string, ICXOfferInfo>>} Object including details of offers.
    */
   async listOrders (options: { orderTx: string } & ICXListOrderOptions): Promise<Record<string, ICXOfferInfo>>
 
@@ -169,7 +193,7 @@ export class ICXOrderBook {
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
    * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
    * @param {boolean} [options.closed] Display closed orders (default: false)
-   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of orders and offers.
+   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object including details of orders and offers.
    */
   async listOrders (options?: ICXListOrderOptions): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
 
@@ -182,7 +206,7 @@ export class ICXOrderBook {
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
    * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
    * @param {boolean} [options.closed] Display closed orders (default: false)
-   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object indluding details of the transaction.
+   * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object including details of the transaction.
    */
   async listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>> {
     return await this.client.call(

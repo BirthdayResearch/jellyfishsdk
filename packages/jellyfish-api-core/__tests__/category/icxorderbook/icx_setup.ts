@@ -1,5 +1,8 @@
 import { BigNumber } from '@defichain/jellyfish-api-core'
-import { ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus, ICXHTLCType, ICXHTLCStatus, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXListHTLCOptions } from '../../../src/category/icxorderbook'
+import {
+  ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus, ICXHTLCType, ICXHTLCStatus, HTLC,
+  ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXListHTLCOptions, ExtHTLC
+} from '../../../src/category/icxorderbook'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, mintTokens, accountToAccount } from '@defichain/testing'
 import { ContainerAdapterClient } from 'jellyfish-api-core/__tests__/container_adapter_client'
@@ -182,7 +185,7 @@ export class ICXSetup {
     }
   }
 
-  // create and submits DFC HTLC for DFI buy order
+  // create and submits DFC HTLC for DFI buy offer
   async createDFCHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, timeout: number): Promise<{DFCHTLC: HTLC, DFCHTLCTxId: string}> {
     const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await this.client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create DFCHTLC - maker
@@ -211,6 +214,40 @@ export class ICXSetup {
     return {
       DFCHTLC: DFCHTLC,
       DFCHTLCTxId: DFCHTLCTxId
+    }
+  }
+
+  // submits ExtHTLC for DFI buy offer
+  async submitExtHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, htlcScriptAddress: string, ownerPubkey: string, timeout: number): Promise<{ExtHTLC: ExtHTLC, ExtHTLCTxId: string}> {
+    const accountBTCBeforeEXTHTLC = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // submit EXT HTLC - taker
+    const ExtHTLC: ExtHTLC = {
+      offerTx: makeOfferTxId,
+      amount: amount,
+      hash: hash,
+      htlcScriptAddress: htlcScriptAddress,
+      ownerPubkey: ownerPubkey,
+      timeout: timeout
+    }
+    const ExtHTLCTxId = (await this.client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
+    await this.container.generate(1)
+
+    // List htlc
+    const listHTLCOptions: ICXListHTLCOptions = {
+      offerTx: makeOfferTxId
+    }
+    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
+    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).type).toStrictEqual(ICXHTLCType.EXTERNAL)
+    expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).status).toStrictEqual(ICXHTLCStatus.OPEN)
+
+    const accountBTCAfterEXTHTLC = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // should have the same balance as accountBTCBeforeEXTHTLC
+    expect(accountBTCAfterEXTHTLC).toStrictEqual(accountBTCBeforeEXTHTLC)
+
+    return {
+      ExtHTLC: ExtHTLC,
+      ExtHTLCTxId: ExtHTLCTxId
     }
   }
 }
