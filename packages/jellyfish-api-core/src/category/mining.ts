@@ -28,7 +28,7 @@ export class Mining {
   }
 
   /**
-   * Get mining-related information, replaces deprecated getMintingInfo
+   * Get mining-related information
    * @return {Promise<MiningInfo>}
    */
   async getMiningInfo (): Promise<MiningInfo> {

@@ -146,14 +146,6 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Convenience method to getmintinginfo, typing mapping is non exhaustive
-   * @deprecated Prefer using getMiningInfo.
-   */
-  async getMintingInfo (): Promise<{ blocks: number, chain: string }> {
-    return await this.call('getmintinginfo', [])
-  }
-
-  /**
    * Convenience method to getmininginfo, typing mapping is non exhaustive
    */
   async getMiningInfo (): Promise<{ blocks: number, chain: string }> {
