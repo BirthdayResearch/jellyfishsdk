@@ -26,7 +26,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     return [
       ...super.getCmd(opts),
       '-dummypos=1',
-      '-nospv'
+      '-spv=1',
+      `-masternode_operator=${this.masternodeKey.operator.address}`
     ]
   }
 
@@ -49,37 +50,10 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await super.start(startOptions)
-
-    // Wait for ready and setup for auto mint
     await super.waitForReady(25000)
 
-    // import keys for master node
-    await this.call('importprivkey', [
-      this.masternodeKey.operator.privKey, 'coinbase', true
-    ])
-    await this.call('importprivkey', [
-      this.masternodeKey.owner.privKey, 'coinbase', true
-    ])
-
-    // configure the masternode
-    const fileContents =
-      'gen=1' + '\n' +
-      'spv=1' + '\n' +
-      `masternode_operator=${this.masternodeKey.operator.address}` + '\n' +
-      `masternode_owner=${this.masternodeKey.owner.address}`
-
-    await this.exec({
-      Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
-    })
-
-    await new Promise((resolve) => {
-      // 1 second delay before stopping due to race conditions
-      setTimeout(_ => resolve(0), 1000)
-    })
-
-    // restart and wait for ready
-    await this.container?.stop()
-    await this.container?.start()
+    await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
+    await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
   }
 
   /**
@@ -99,7 +73,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       await this.generate(1)
       return false
-    }, timeout, 1)
+    }, timeout, 100)
   }
 
   /**
@@ -119,7 +93,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       await this.generate(1)
       return false
-    }, timeout, 1)
+    }, timeout, 100)
   }
 
   /**
@@ -135,11 +109,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
     const txid = await this.call('sendtoaddress', [address, amount])
-
-    await this.waitForCondition(async () => {
-      const { confirmations } = await this.call('gettxout', [txid, 0, true])
-      return confirmations > 0
-    }, 10000)
+    await this.generate(1)
 
     const { vout }: {
       vout: Array<{
