@@ -1,11 +1,22 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ExtHTLC, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXGenericResult,
-  ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXHTLCType, ICXOrderStatus
+  ExtHTLC,
+  HTLC,
+  ICXClaimDFCHTLCInfo,
+  ICXDFCHTLCInfo,
+  ICXEXTHTLCInfo,
+  ICXGenericResult,
+  ICXHTLCType,
+  ICXListHTLCOptions,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountDFI, idDFI, accountBTC, ICXSetup, symbolDFI } from './icx_setup'
+import { accountBTC, accountDFI, ICXSetup, idDFI, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.submitExtHTLC', () => {
@@ -333,7 +344,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount must be equal to calculated dfchtlc amount\', code: -32600, method: icx_submitexthtlc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount 20000000 must be equal to calculated dfchtlc amount 10000000\', code: -32600, method: icx_submitexthtlc')
 
     // submit EXT HTLC with amount 0.05 BTC- taker
     const ExtHTLC2: ExtHTLC = {
@@ -346,7 +357,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     }
     const promise2 = client.icxorderbook.submitExtHTLC(ExtHTLC2)
     await expect(promise2).rejects.toThrow(RpcApiError)
-    await expect(promise2).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount must be equal to calculated dfchtlc amount\', code: -32600, method: icx_submitexthtlc')
+    await expect(promise2).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount 5000000 must be equal to calculated dfchtlc amount 10000000\', code: -32600, method: icx_submitexthtlc')
 
     // List htlc
     const listHTLCOptions: ICXListHTLCOptions = {
