@@ -27,13 +27,11 @@ describe('Masternode', () => {
     expect(Object.keys(masternode).length).toStrictEqual(1)
     for (const masternodeKey in masternode) {
       const data = masternode[masternodeKey]
-      console.log(data)
       expect(typeof data.operatorAuthAddress).toStrictEqual('string')
       expect(typeof data.ownerAuthAddress).toStrictEqual('string')
       expect(typeof data.creationHeight).toStrictEqual('number')
       expect(typeof data.resignHeight).toStrictEqual('number')
       expect(typeof data.resignTx).toStrictEqual('string')
-      expect(typeof data.banHeight).toStrictEqual('number')
       expect(typeof data.banTx).toStrictEqual('string')
       expect(data.state).toStrictEqual(MasternodeState.PRE_ENABLED)
       expect(typeof data.state).toStrictEqual('string')

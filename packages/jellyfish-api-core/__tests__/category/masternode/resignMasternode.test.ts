@@ -20,10 +20,11 @@ describe('Masternode', () => {
   it('should resignMasternode', async () => {
     const ownerAddress = await container.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
-
     await container.generate(1)
+    await container.generate(1, ownerAddress)
 
     const hex = await client.masternode.resignMasternode(masternodeId)
+
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
@@ -44,6 +45,7 @@ describe('Masternode', () => {
     const { txid } = await container.fundAddress(ownerAddress, 10)
 
     await container.generate(1)
+    await container.generate(1, ownerAddress)
 
     const utxos = (await container.call('listunspent'))
       .filter((utxo: any) => utxo.txid === txid)

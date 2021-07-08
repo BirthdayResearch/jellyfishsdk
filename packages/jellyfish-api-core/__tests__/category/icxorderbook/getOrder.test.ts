@@ -1,10 +1,24 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, ICXOffer, ICXOrderStatus, ICXOrderType
+  ICXGenericResult,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus,
+  ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountBTC, accountDFI, DEX_DFI_PER_BTC_RATE, ICXSetup, ICX_TAKERFEE_PER_BTC, idDFI, symbolDFI } from './icx_setup'
+import {
+  accountBTC,
+  accountDFI,
+  DEX_DFI_PER_BTC_RATE,
+  ICX_TAKERFEE_PER_BTC,
+  ICXSetup,
+  idDFI,
+  symbolDFI
+} from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.getOrder', () => {
@@ -49,7 +63,7 @@ describe('ICXOrderBook.getOrder', () => {
     const retrievedOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
     expect((retrievedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
       {
-        // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
+        status: ICXOrderStatus.OPEN,
         type: ICXOrderType.INTERNAL,
         tokenFrom: symbolDFI,
         chainTo: order.chainTo,
@@ -81,7 +95,7 @@ describe('ICXOrderBook.getOrder', () => {
     // check details for createOrder2TxId
     expect((retrievedOrder2 as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
       {
-        // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
+        status: ICXOrderStatus.OPEN,
         type: ICXOrderType.EXTERNAL,
         tokenTo: symbolDFI,
         chainFrom: order2.chainFrom,
@@ -148,7 +162,7 @@ describe('ICXOrderBook.getOrder', () => {
     expect((retrievedOrder as Record<string, ICXOfferInfo>)[makeOffer2TxId]).toStrictEqual(
       {
         orderTx: createOrder2TxId,
-        status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
+        status: ICXOrderStatus.OPEN,
         amount: offer2.amount,
         amountInFromAsset: offer2.amount.dividedBy(order2.orderPrice),
         ownerAddress: offer2.ownerAddress,
@@ -163,7 +177,7 @@ describe('ICXOrderBook.getOrder', () => {
     expect((retrievedOrder2 as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
-        status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
+        status: ICXOrderStatus.OPEN,
         amount: offer.amount,
         amountInFromAsset: offer.amount.dividedBy(order.orderPrice),
         ownerAddress: offer.ownerAddress,

@@ -162,7 +162,6 @@ export interface MasternodeInfo {
   creationHeight: number
   resignHeight: number
   resignTx: string
-  banHeight: number
   banTx: string
   state: MasternodeState
   mintedBlocks: number

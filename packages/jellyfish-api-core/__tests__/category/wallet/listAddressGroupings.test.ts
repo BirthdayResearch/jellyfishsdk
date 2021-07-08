@@ -51,7 +51,7 @@ describe('Address on masternode', () => {
       expect(data[1][0][0]).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
       expect(data[1][0][1] instanceof BigNumber).toStrictEqual(true)
       expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
-      expect(data[1][0][2]).toStrictEqual('operator')
+      expect(data[1][0][2]).toStrictEqual('owner')
     })
   })
 })

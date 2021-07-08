@@ -57,6 +57,23 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
+   * Wait for block height by minting towards the target
+   *
+   * @param {number} height to wait for
+   * @param {number} [timeout=90000] in ms
+   */
+  async waitForBlockHeight (height: number, timeout = 90000): Promise<void> {
+    return await this.waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > height) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100)
+  }
+
+  /**
    * Wait for master node wallet coin to be mature for spending.
    *
    * A coinbase transaction must be 100 blocks deep before you can spend its outputs. This is a
@@ -66,14 +83,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=90000] in ms
    */
   async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
-    return await this.waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > 100) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 100)
+    return await this.waitForBlockHeight(100, timeout)
   }
 
   /**

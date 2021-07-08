@@ -9,7 +9,7 @@ describe('Account', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForBlockHeight(110)
   })
 
   afterAll(async () => {
@@ -18,11 +18,10 @@ describe('Account', () => {
 
   it('should listCommunityBalances', async () => {
     const data = await client.account.listCommunityBalances()
-    console.log(data)
 
     expect(data.AnchorReward instanceof BigNumber).toStrictEqual(true)
-    expect(data.IncentiveFunding instanceof BigNumber).toStrictEqual(true)
     expect(data.Burnt instanceof BigNumber).toStrictEqual(true)
+    expect(data.IncentiveFunding).toBeUndefined()
     expect(data.Swap).toBeUndefined()
     expect(data.Futures).toBeUndefined()
     expect(data.Options).toBeUndefined()
