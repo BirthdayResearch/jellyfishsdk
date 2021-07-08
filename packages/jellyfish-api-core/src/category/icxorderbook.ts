@@ -82,7 +82,7 @@ export class ICXOrderBook {
   }
 
   /**
-   * Create and submits a DFC HTLC transaction
+   * Create and submit a DFC HTLC transaction
    *
    * @param {HTLC} htlc
    * @param {string} htlc.offerTx Transaction Id of the offer transaction for which the HTLC is
@@ -97,6 +97,31 @@ export class ICXOrderBook {
   async submitDFCHTLC (htlc: HTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
     return await this.client.call(
       'icx_submitdfchtlc',
+      [
+        htlc, utxos
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
+   * Create and submit an external(EXT) HTLC transaction
+   *
+   * @param {ExtHTLC} htlc
+   * @param {string} htlc.offerTx Transaction Id of the offer transaction for which the HTLC is
+   * @param {BigNumber} htlc.amount Amount in HTLC
+   * @param {string} htlc.htlcScriptAddress Script address of external HTLC
+   * @param {string} htlc.hash Hash of seed used for the hash lock part
+   * @param {string} htlc.ownerPubkey Pubkey of the owner to which the funds are refunded if HTLC timeouts
+   * @param {number} htlc.timeout Timeout (absolute in blocks) for expiration of HTLC in DFI blocks
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async submitExtHTLC (htlc: ExtHTLC, utxos: UTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_submitexthtlc',
       [
         htlc, utxos
       ],

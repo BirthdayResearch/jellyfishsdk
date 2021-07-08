@@ -1,5 +1,5 @@
 import { BigNumber } from '@defichain/jellyfish-api-core'
-import { ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus } from '../../../src/category/icxorderbook'
+import { ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus, ICXHTLCType, ICXHTLCStatus, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXListHTLCOptions } from '../../../src/category/icxorderbook'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, mintTokens, accountToAccount } from '@defichain/testing'
 import { ContainerAdapterClient } from 'jellyfish-api-core/__tests__/container_adapter_client'
@@ -179,6 +179,38 @@ export class ICXSetup {
     return {
       offer: offer,
       makeOfferTxId: makeOfferTxId
+    }
+  }
+
+  // create and submits DFC HTLC for DFI buy order
+  async createDFCHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, timeout: number): Promise<{DFCHTLC: HTLC, DFCHTLCTxId: string}> {
+    const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await this.client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    // create DFCHTLC - maker
+    const DFCHTLC: HTLC = {
+      offerTx: makeOfferTxId,
+      amount: amount, // in  DFC
+      hash: hash,
+      timeout: timeout
+    }
+    const DFCHTLCTxId = (await this.client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
+    await this.container.generate(1)
+
+    const accountDFIAfterDFCHTLC: Record<string, BigNumber> = await this.client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    // maker fee should be reduced from accountDFIBeforeDFCHTLC
+    expect(accountDFIAfterDFCHTLC[idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[idDFI].minus(0.01))
+
+    // List htlc
+    const listHTLCOptions: ICXListHTLCOptions = {
+      offerTx: makeOfferTxId
+    }
+    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
+    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).status).toStrictEqual(ICXHTLCStatus.OPEN)
+
+    return {
+      DFCHTLC: DFCHTLC,
+      DFCHTLCTxId: DFCHTLCTxId
     }
   }
 }

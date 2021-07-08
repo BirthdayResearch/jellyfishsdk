@@ -95,7 +95,7 @@ interface ICXGenericResult {
 
 ## submitDFCHTLC
 
-Create and submits a DFC HTLC transaction
+Create and submit a DFC HTLC transaction
 
 ```ts title="client.icxorderbook.submitDFCHTLC()"
 interface icxorderbook {
@@ -107,6 +107,35 @@ interface HTLC {
   amount: BigNumber
   hash: string
   timeout?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+
+interface ICXGenericResult {
+  WARNING: string
+  txid: string
+}
+```
+
+## submitExtHTLC
+
+Create and submit an external(EXT) HTLC transaction
+
+```ts title="client.icxorderbook.submitExtHTLC()"
+interface icxorderbook {
+  submitExtHTLC (htlc: ExtHTLC, utxos: UTXO[] = []): Promise<ICXGenericResult>
+}
+
+interface ExtHTLC {
+  offerTx: string
+  amount: BigNumber
+  htlcScriptAddress: string
+  hash: string
+  ownerPubkey: string
+  timeout: number
 }
 
 interface UTXO {
