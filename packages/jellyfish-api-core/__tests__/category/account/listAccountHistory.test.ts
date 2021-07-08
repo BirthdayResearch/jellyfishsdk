@@ -242,7 +242,16 @@ describe('listAccountHistory', () => {
 
     const history = await client.account.listAccountHistory()
 
-    expect(history.find((h) => h.type === 'UtxosToAccount' && h.amounts[0] === '4.97000000@DFI')).toBeTruthy()
+    expect(history).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'UtxosToAccount',
+          amounts: expect.arrayContaining([
+            '4.97000000@DFI'
+          ])
+        })
+      ])
+    )
   })
 
   it('should contain AccountToUtxos histories', async () => {
@@ -261,7 +270,26 @@ describe('listAccountHistory', () => {
     await container.generate(1)
     const history = await client.account.listAccountHistory()
 
-    expect(history.find((h) => h.type === 'AccountToUtxos' && h.amounts[0] === '-3.97000000@DFI')).toBeTruthy()
+    expect(history).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'UtxosToAccount',
+          amounts: expect.arrayContaining([
+            '4.97000000@DFI'
+          ])
+        })
+      ])
+    )
+    expect(history).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'AccountToUtxos',
+          amounts: expect.arrayContaining([
+            '-3.97000000@DFI'
+          ])
+        })
+      ])
+    )
   })
 })
 
