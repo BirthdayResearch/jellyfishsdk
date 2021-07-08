@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('Mining', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,10 +15,7 @@ describe('Mining', () => {
   })
 
   it('should getMiningInfo', async () => {
-    await waitForExpect(async () => {
-      const info = await client.mining.getMiningInfo()
-      await expect(info.blocks).toBeGreaterThan(1)
-    })
+    await container.generate(1)
 
     const info = await client.mining.getMiningInfo()
     const mn1 = info.masternodes[0]

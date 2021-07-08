@@ -4,12 +4,12 @@ import { wallet } from '../../../src'
 import BigNumber from 'bignumber.js'
 import waitForExpect from 'wait-for-expect'
 import {
-  UTXO,
   ListUnspentOptions,
-  WalletFlag,
-  SendToAddressOptions,
   Mode,
-  SendManyOptions
+  SendManyOptions,
+  SendToAddressOptions,
+  UTXO,
+  WalletFlag
 } from '../../../src/category/wallet'
 
 describe('getBalance', () => {
@@ -772,12 +772,12 @@ describe('masternode', () => {
         expect(data[0][0][0]).toStrictEqual('mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy')
         expect(data[0][0][1] instanceof BigNumber).toStrictEqual(true)
         expect(data[0][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
-        expect(data[0][0][2]).toStrictEqual('coinbase')
+        expect(data[0][0][2]).toStrictEqual('operator')
 
         expect(data[1][0][0]).toStrictEqual('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU')
         expect(data[1][0][1] instanceof BigNumber).toStrictEqual(true)
         expect(data[1][0][1].isGreaterThanOrEqualTo(new BigNumber('0'))).toStrictEqual(true)
-        expect(data[1][0][2]).toStrictEqual('coinbase')
+        expect(data[1][0][2]).toStrictEqual('operator')
       })
     })
   })

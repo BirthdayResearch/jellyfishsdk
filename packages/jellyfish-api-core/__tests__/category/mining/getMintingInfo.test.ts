@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('Mining without masternode', () => {
   const container = new RegTestContainer()
@@ -35,6 +34,7 @@ describe('Mining on masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -42,11 +42,6 @@ describe('Mining on masternode', () => {
   })
 
   it('should getMintingInfo', async () => {
-    await waitForExpect(async () => {
-      const info = await client.mining.getMintingInfo()
-      await expect(info.blocks).toBeGreaterThan(1)
-    })
-
     const info = await client.mining.getMintingInfo()
 
     expect(info.blocks).toBeGreaterThan(0)

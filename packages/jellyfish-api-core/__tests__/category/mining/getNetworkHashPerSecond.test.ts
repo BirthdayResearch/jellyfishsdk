@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('Mining without masternode', () => {
   const container = new RegTestContainer()
@@ -35,9 +34,9 @@ describe('Mining on masternode', () => {
   })
 
   it('should getNetworkHashPerSecond', async () => {
-    return await waitForExpect(async () => {
-      const result = await client.mining.getNetworkHashPerSecond()
-      expect(result).toBeGreaterThan(0)
-    })
+    await container.generate(2)
+
+    const result = await client.mining.getNetworkHashPerSecond()
+    expect(result).toBeGreaterThan(0)
   })
 })

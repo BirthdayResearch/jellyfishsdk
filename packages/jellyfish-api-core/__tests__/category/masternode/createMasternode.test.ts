@@ -34,6 +34,8 @@ describe('Masternode', () => {
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
 
     for (const mn of createdMasternode) {
+      console.log(mn)
+
       expect(typeof mn.ownerAuthAddress).toStrictEqual('string')
       expect(typeof mn.operatorAuthAddress).toStrictEqual('string')
       expect(typeof mn.creationHeight).toStrictEqual('number')
