@@ -1,4 +1,5 @@
 import { WIF } from '@defichain/jellyfish-crypto'
+import { BigNumber } from 'bignumber.js'
 import { GenesisKeys } from '@defichain/testcontainers'
 import { WalletClassic } from '../src'
 
@@ -37,7 +38,11 @@ describe('WalletClassic', () => {
       vin: [],
       vout: [],
       lockTime: 0
-    }, [])
+    }, [{
+      value: new BigNumber(0),
+      script: { stack: [] },
+      tokenId: 0
+    }])
     ).rejects.toThrow()
   })
 })
