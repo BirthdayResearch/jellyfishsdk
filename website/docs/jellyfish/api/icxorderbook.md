@@ -178,6 +178,18 @@ interface icxorderbook {
   getOrder (orderTx: string): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
 }
 
+enum ICXOrderStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+  FILLED = 'FILLED',
+  EXPIRED = 'EXPIRED'
+}
+
+enum ICXOrderType {
+  INTERNAL = 'INTERNAL',
+  EXTERNAL = 'EXTERNAL',
+}
+
 interface ICXOrderInfo {
   status: ICXOrderStatus
   type: ICXOrderType
@@ -219,6 +231,18 @@ interface icxorderbook {
   listOrders (options: { orderTx: string }  & ICXListOrderOptions): Promise<Record<string, ICXOfferInfo>>
   listOrders (options?: ICXListOrderOptions): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
   listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
+}
+
+enum ICXOrderStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+  FILLED = 'FILLED',
+  EXPIRED = 'EXPIRED'
+}
+
+enum ICXOrderType {
+  INTERNAL = 'INTERNAL',
+  EXTERNAL = 'EXTERNAL',
 }
 
 interface ICXListOrderOptions {
@@ -267,13 +291,26 @@ Returns information about HTLCs based on ICXListHTLCOptions passed
 
 ```ts title="client.icxorderbook.listHTLCs()"
 interface icxorderbook {
-  listHTLCs (options: ICXListHTLCOptions = {}): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>
+  listHTLCs (options: ICXListHTLCOptions): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>>
+}
+
+enum ICXHTLCType {
+  CLAIM_DFC = 'CLAIM DFC',
+  DFC = 'DFC',
+  EXTERNAL = 'EXTERNAL'
+}
+
+enum ICXHTLCStatus {
+  OPEN = 'OPEN',
+  CLAIMED = 'CLAIMED',
+  REFUNDED = 'REFUNDED',
+  EXPIRED = 'EXPIRED',
+  CLOSED = 'CLOSED'
 }
 
 interface ICXListHTLCOptions {
-  offerTx?: string
+  offerTx: string
   limit?: number
-  refunded?: boolean
   closed?: boolean
 }
 
