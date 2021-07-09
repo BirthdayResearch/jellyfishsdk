@@ -1,4 +1,4 @@
-import { WalletAccount, WalletAccountProvider, WalletHdNode } from '@defichain/jellyfish-wallet'
+import { WalletAccount, WalletAccountProvider, WalletEllipticPair } from '@defichain/jellyfish-wallet'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Network } from '@defichain/jellyfish-network'
 import { P2WPKHTransactionBuilder } from '@defichain/jellyfish-transaction-builder/dist'
@@ -9,8 +9,13 @@ export class WhaleWalletAccount extends WalletAccount {
   protected readonly feeRateProvider: WhaleFeeRateProvider
   protected readonly prevoutProvider: WhalePrevoutProvider
 
-  constructor (public readonly client: WhaleApiClient, hdNode: WalletHdNode, network: Network, prevoutSize: number = 50) {
-    super(hdNode, network)
+  constructor (
+    public readonly client: WhaleApiClient,
+    walletEllipticPair: WalletEllipticPair,
+    network: Network,
+    prevoutSize: number = 50
+  ) {
+    super(walletEllipticPair, network)
     this.feeRateProvider = new WhaleFeeRateProvider(client)
     this.prevoutProvider = new WhalePrevoutProvider(this, prevoutSize)
   }
@@ -35,7 +40,7 @@ export class WhaleWalletAccountProvider implements WalletAccountProvider<WhaleWa
   ) {
   }
 
-  provide (hdNode: WalletHdNode): WhaleWalletAccount {
-    return new WhaleWalletAccount(this.client, hdNode, this.network)
+  provide (walletEllipticPair: WalletEllipticPair): WhaleWalletAccount {
+    return new WhaleWalletAccount(this.client, walletEllipticPair, this.network)
   }
 }
