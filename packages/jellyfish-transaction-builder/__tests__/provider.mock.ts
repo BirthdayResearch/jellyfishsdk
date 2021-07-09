@@ -86,7 +86,7 @@ export class MockEllipticPairProvider implements EllipticPairProvider {
     }
   }
 
-  get (prevout: Prevout): EllipticPair {
+  get (prevout?: Prevout): EllipticPair {
     return this.ellipticPair
   }
 }

@@ -40,5 +40,5 @@ export interface EllipticPairProvider {
    * @param {Prevout} prevout for the EllipticPair
    * @return {EllipticPair}
    */
-  get: (prevout: Prevout) => EllipticPair
+  get: (prevout?: Prevout) => EllipticPair
 }
