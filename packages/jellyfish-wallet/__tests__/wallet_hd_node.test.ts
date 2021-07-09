@@ -1,5 +1,5 @@
 import { TestNodeProvider } from './node.mock'
-import { WalletNode } from '../src'
+import { WalletHdNode } from '../src'
 
 it('should derive', () => {
   const provider = new TestNodeProvider()
@@ -8,9 +8,9 @@ it('should derive', () => {
   expect(node).toBeTruthy()
 })
 
-describe("WalletNode: 44'/1129'/0'", () => {
+describe("WalletHdNode: 44'/1129'/0'", () => {
   const provider = new TestNodeProvider()
-  let node: WalletNode
+  let node: WalletHdNode
 
   beforeAll(() => {
     node = provider.derive("44'/1129'/0'")

@@ -1,4 +1,4 @@
-import { WalletHdNodeProvider, WalletNode } from '../src'
+import { WalletHdNode, WalletHdNodeProvider } from '../src'
 import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import { Elliptic, EllipticPair } from '@defichain/jellyfish-crypto'
@@ -6,7 +6,7 @@ import { Elliptic, EllipticPair } from '@defichain/jellyfish-crypto'
 /**
  * This is for testing only, please don't use this for anything else.
  */
-export class TestNode implements WalletNode {
+export class TestNode implements WalletHdNode {
   public readonly path: string
   public readonly ellipticPair: EllipticPair
 
