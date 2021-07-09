@@ -4,9 +4,3 @@
 # @defichain/jellyfish-wallet-classic
 
 WalletClassic implements a simple, single elliptic pair wallet.
-
-Purpose [44'] / CoinType-agnostic [n] / Account [n] / Chain (ignored for now) [0] / Addresses [n]
-
-- BIP32 Hierarchical Deterministic Wallets
-- BIP39 Mnemonic code for generating deterministic keys
-- BIP44 Multi-Account Hierarchy for Deterministic Wallets
