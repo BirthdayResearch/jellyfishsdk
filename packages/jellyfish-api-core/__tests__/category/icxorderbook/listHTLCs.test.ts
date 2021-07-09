@@ -240,17 +240,18 @@ describe('ICXOrderBook.listHTLCs', () => {
       }
     )
 
+    // NOTE(surangap): Enable this after AIN#599
     // List htlc with limit of 1 and check
-    const listHTLCOptionsWithLimit1 = {
-      offerTx: makeOfferTxId,
-      limit: 1
-    }
-    const HTLCsWithLimit1: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithLimit1)
-    console.log(HTLCsWithLimit1)
-    // expect(Object.keys(HTLCsWithLimit1).length).toBe(2) // NOTE(surangap): This returns 3, looks like limit is not working
+    // const listHTLCOptionsWithLimit1 = {
+    //   offerTx: makeOfferTxId,
+    //   limit: 1
+    // }
+    // const HTLCsWithLimit1: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithLimit1)
+    // expect(Object.keys(HTLCsWithLimit1).length).toBe(2)
   })
 
   it('should list closed HTLCs with ICXListHTLCOptions.closed parameter after HTLCs are expired', async () => {
+    const startBlockHeight = (await container.call('getblockchaininfo', [])).blocks
     const { order, createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
 
@@ -316,23 +317,23 @@ describe('ICXOrderBook.listHTLCs', () => {
 
     // expire HTLCs
     await container.generate(550)
+    const endBlockHeight = (await container.call('getblockchaininfo', [])).blocks
+    expect(endBlockHeight).toBeGreaterThan(Number(startBlockHeight) + Number(550))
 
     // List htlc anc check
     const listHTLCOptionsAfterExpiry = {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterExpiry: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterExpiry)
-    console.log(HTLCsAfterExpiry)
-    // expect(Object.keys(HTLCsAfterExpiry).length).toBe(1) // NOTE(surangap): This returns 3
+    expect(Object.keys(HTLCsAfterExpiry).length).toBe(2) // NOTE(surangap): EXT HTLC will still be in OPEN state
 
     // List refended htlcs also and check
     const listHTLCOptionsWithRefunded = {
       offerTx: makeOfferTxId,
-      refunded: true
+      closed: true
     }
     const HTLCsWithRefunded: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithRefunded)
-    console.log(HTLCsWithRefunded)
-    // expect(Object.keys(HTLCsWithRefunded).length).toBe(3) // NOTE(surangap): This returns 1
+    expect(Object.keys(HTLCsWithRefunded).length).toBe(3)
   })
 
   it('should list closed HTLCs with ICXListHTLCOptions.closed parameter after DFC HTLC claim', async () => {
