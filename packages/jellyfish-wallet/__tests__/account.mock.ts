@@ -1,4 +1,4 @@
-import { WalletAccount, WalletAccountProvider, WalletNode } from '../src'
+import { WalletAccount, WalletAccountProvider, WalletEllipticPair } from '../src'
 import { Network, RegTest } from '@defichain/jellyfish-network'
 
 /**
@@ -13,7 +13,7 @@ import { Network, RegTest } from '@defichain/jellyfish-network'
  * 02acf1d65943ce391c5c7a6319050c71ece26f5815f1a69445edd35b8d8dac13be
  */
 export class TestAccount extends WalletAccount {
-  constructor (hdNode: WalletNode, readonly provider: TestAccountProvider) {
+  constructor (hdNode: WalletEllipticPair, readonly provider: TestAccountProvider) {
     super(hdNode, provider.network)
   }
 
@@ -29,7 +29,7 @@ export class TestAccountProvider implements WalletAccountProvider<TestAccount> {
   constructor (public readonly addresses: string[]) {
   }
 
-  provide (hdNode: WalletNode): TestAccount {
+  provide (hdNode: WalletEllipticPair): TestAccount {
     return new TestAccount(hdNode, this)
   }
 }

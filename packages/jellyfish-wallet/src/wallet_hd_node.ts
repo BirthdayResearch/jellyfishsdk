@@ -1,4 +1,4 @@
-import { WalletNode } from './wallet_node'
+import { WalletEllipticPair } from './wallet_elliptic_pair'
 
 /**
  * WalletHdNode extends EllipticPair with additional interface to sign transaction.
@@ -10,7 +10,7 @@ import { WalletNode } from './wallet_node'
  * @see BIP32 Hierarchical Deterministic Wallets
  * @see BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
-export interface WalletHdNode extends WalletNode {
+export interface WalletHdNode extends WalletEllipticPair {
 
 }
 

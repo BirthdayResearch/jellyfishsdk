@@ -26,7 +26,7 @@
 
 /packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis
-/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis
+/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 /packages/testcontainers/                       @fuxingloh
 /packages/testing/                              @fuxingloh @canonbrother

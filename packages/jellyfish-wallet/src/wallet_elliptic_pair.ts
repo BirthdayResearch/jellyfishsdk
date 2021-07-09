@@ -2,15 +2,15 @@ import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-trans
 import { EllipticPair } from '@defichain/jellyfish-crypto'
 
 /**
- * WalletNode extends EllipticPair with additional interface to sign transaction.
+ * WalletEllipticPair extends EllipticPair with additional interface to sign transaction.
  *
- * WalletNode uses a managed wallet design where defaults are decided by the implementation.
- * Keeping the WalletNode to conventional defaults and options to none.
+ * WalletEllipticPair uses a managed wallet design where defaults are decided by the implementation.
+ * Keeping the WalletEllipticPair to conventional defaults and options to none.
  */
-export interface WalletNode extends EllipticPair {
+export interface WalletEllipticPair extends EllipticPair {
 
   /**
-   * WalletNode transaction signing.
+   * WalletEllipticPair transaction signing.
    *
    * @param {Transaction} transaction to sign
    * @param {Vout[]} prevouts of the transaction to fund this transaction
