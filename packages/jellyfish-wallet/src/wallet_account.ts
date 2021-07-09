@@ -1,5 +1,5 @@
-import { Script, OP_CODES, Transaction, Vout, TransactionSegWit } from '@defichain/jellyfish-transaction'
-import { WalletHdNode } from './wallet_hd_node'
+import { OP_CODES, Script, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
+import { WalletEllipticPair } from './wallet_elliptic_pair'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
 import { DeFiAddress } from '@defichain/jellyfish-address'
@@ -11,9 +11,9 @@ import { DeFiAddress } from '@defichain/jellyfish-address'
  *
  * WalletAccount implementation uses NATIVE SEGWIT redeem script exclusively.
  */
-export abstract class WalletAccount implements WalletHdNode {
+export abstract class WalletAccount implements WalletEllipticPair {
   protected constructor (
-    private readonly hdNode: WalletHdNode,
+    private readonly walletEllipticPair: WalletEllipticPair,
     private readonly network: Network
   ) {
   }
@@ -22,7 +22,7 @@ export abstract class WalletAccount implements WalletHdNode {
    * @return {Promise<string>} Bech32 address of this account. (NATIVE SEGWIT)
    */
   async getAddress (): Promise<string> {
-    const pubKey = await this.hdNode.publicKey()
+    const pubKey = await this.walletEllipticPair.publicKey()
     return Bech32.fromPubKey(pubKey, this.network.bech32.hrp, 0x00)
   }
 
@@ -30,7 +30,7 @@ export abstract class WalletAccount implements WalletHdNode {
    * @return {Promise<Script>} redeem script of this account. (NATIVE SEGWIT)
    */
   async getScript (): Promise<Script> {
-    const pubKey = await this.hdNode.publicKey()
+    const pubKey = await this.walletEllipticPair.publicKey()
     return {
       stack: [
         OP_CODES.OP_0,
@@ -58,23 +58,23 @@ export abstract class WalletAccount implements WalletHdNode {
   abstract isActive (): Promise<boolean>
 
   async publicKey (): Promise<Buffer> {
-    return await this.hdNode.publicKey()
+    return await this.walletEllipticPair.publicKey()
   }
 
   async privateKey (): Promise<Buffer> {
-    return await this.hdNode.privateKey()
+    return await this.walletEllipticPair.privateKey()
   }
 
   async sign (hash: Buffer): Promise<Buffer> {
-    return await this.hdNode.sign(hash)
+    return await this.walletEllipticPair.sign(hash)
   }
 
   async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
-    return await this.hdNode.signTx(transaction, prevouts)
+    return await this.walletEllipticPair.signTx(transaction, prevouts)
   }
 
   async verify (hash: Buffer, derSignature: Buffer): Promise<boolean> {
-    return await this.hdNode.verify(hash, derSignature)
+    return await this.walletEllipticPair.verify(hash, derSignature)
   }
 }
 
@@ -85,8 +85,8 @@ export abstract class WalletAccount implements WalletHdNode {
 export interface WalletAccountProvider<T extends WalletAccount> {
 
   /**
-   * @param {WalletHdNode} hdNode of this wallet account
+   * @param {WalletEllipticPair} hdNode of this wallet account
    * @return WalletAccount
    */
-  provide: (hdNode: WalletHdNode) => T
+  provide: (hdNode: WalletEllipticPair) => T
 }
