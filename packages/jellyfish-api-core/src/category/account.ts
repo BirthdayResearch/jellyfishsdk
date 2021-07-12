@@ -349,7 +349,7 @@ export class Account {
    * Returns information about burn history
    *
    * @param {BurnHistoryOptions} [options]
-   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
+   * @param {number} [options.maxBlockHeight]  The block height to iterate from.
    * @param {number} [options.depth] Maximum depth, from the genesis block is the default
    * @param {string} [options.token] Filter by token
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
