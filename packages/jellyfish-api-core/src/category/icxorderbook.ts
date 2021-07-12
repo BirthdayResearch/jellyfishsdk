@@ -154,6 +154,25 @@ export class ICXOrderBook {
   }
 
   /**
+   * Closes ICX order
+   *
+   * @param {string} orderTx Transaction id of maker order
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async closeOrder (orderTx: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_closeorder',
+      [
+        orderTx, utxos
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
    * Returns information about order or fillorder
    *
    * @param {string} orderTx Transaction id of createorder or fulfillorder transaction
@@ -179,7 +198,7 @@ export class ICXOrderBook {
    * @param {string}  [options.chain] Chain asset
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
    * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
-   * @param {boolean} [options.closed] Display closed orders (default: false)
+   * @param {boolean} [options.closed = false] Display closed orders (default: false)
    * @return {Promise<Record<string, ICXOfferInfo>>} Object including details of offers.
    */
   async listOrders (options: { orderTx: string } & ICXListOrderOptions): Promise<Record<string, ICXOfferInfo>>
@@ -192,7 +211,7 @@ export class ICXOrderBook {
    * @param {string}  [options.chain] Chain asset
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
    * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
-   * @param {boolean} [options.closed] Display closed orders (default: false)
+   * @param {boolean} [options.closed = false] Display closed orders (default: false)
    * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object including details of orders and offers.
    */
   async listOrders (options?: ICXListOrderOptions): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>
@@ -205,12 +224,32 @@ export class ICXOrderBook {
    * @param {string}  [options.chain] Chain asset
    * @param {string}  [options.orderTx] Order txid to list all offers for this order
    * @param {number}  [options.limit = 50] Maximum number of orders to return (default: 50)
-   * @param {boolean} [options.closed] Display closed orders (default: false)
+   * @param {boolean} [options.closed = false] Display closed orders (default: false)
    * @return {Promise<Record<string, ICXOrderInfo | ICXOfferInfo>>} Object including details of the transaction.
    */
   async listOrders (options: ICXListOrderOptions = {}): Promise<Record<string, ICXOrderInfo | ICXOfferInfo>> {
     return await this.client.call(
       'icx_listorders',
+      [
+        options
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
+   * Returns information about HTLCs based on ICXListHTLCOptions passed
+   *
+   * @param {ICXListHTLCOptions} options
+   * @param {string} options.offerTx Offer txid  for which to list all HTLCS
+   * @param {number} [options.limit = 20] Maximum number of orders to return (default: 20)
+   * @param {boolean} [options.refunded = false] Display refunded HTLC (default: false)
+   * @param {boolean} [options.closed = false] Display claimed HTLCs (default: false)
+   * @return {Promise<Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo>>} Object indluding details of the HTLCS.
+   */
+  async listHTLCs (options: ICXListHTLCOptions): Promise<Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo>> {
+    return await this.client.call(
+      'icx_listhtlcs',
       [
         options
       ],
@@ -320,8 +359,10 @@ export enum ICXHTLCStatus {
   OPEN = 'OPEN',
   CLAIMED = 'CLAIMED',
   REFUNDED = 'REFUNDED',
-  EXPIRED = 'EXPIRED'
+  EXPIRED = 'EXPIRED',
+  CLOSED = 'CLOSED'
 }
+
 /** ICX order info */
 export interface ICXOrderInfo {
   /** Order status */
@@ -397,12 +438,10 @@ export interface ICXListOrderOptions {
 /** ICX listHTLC options */
 export interface ICXListHTLCOptions {
   /** Offer txid  for which to list all HTLCS */
-  offerTx?: string
+  offerTx: string
   /** Maximum number of orders to return (default: 20) */
   limit?: number
-  /** Display refunded HTLC (default: false) */
-  refunded?: boolean
-  /** Display claimed HTLCs (default: false) NOTE(surangap): in c++ side desciption this is mentioned as "claimed". should be corrected */
+  /** Display also claimed, expired and refunded HTLCs (default: false) */
   closed?: boolean
 }
 
