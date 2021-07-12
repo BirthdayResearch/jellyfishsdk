@@ -5,7 +5,7 @@ import {
   ICXHTLCType, ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountDFI, idDFI, accountBTC, symbolDFI, ICXSetup, DEX_DFI_PER_BTC_RATE, ICX_TAKERFEE_PER_BTC, symbolBTC } from './icx_setup'
+import { accountDFI, idDFI, accountBTC, symbolDFI, ICXSetup, symbolBTC } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.closeOrder', () => {
@@ -33,11 +33,11 @@ describe('ICXOrderBook.closeOrder', () => {
   })
 
   afterEach(async () => {
-    // cleanup code here
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should close the correct order', async () => {
-    const accountDFIStart = await container.call('getaccount', [accountDFI, {}, true])
+    const accountDFIBeforeOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create first order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -47,28 +47,13 @@ describe('ICXOrderBook.closeOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
-    const createOrderTxId = result.txid
+    const createOrderResult: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = createOrderResult.txid
     await container.generate(1)
 
     // list ICX orders and check
-    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
-      {
-        status: ICXOrderStatus.OPEN,
-        type: ICXOrderType.INTERNAL,
-        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
-        chainTo: order.chainTo,
-        receivePubkey: order.receivePubkey,
-        ownerAddress: order.ownerAddress,
-        amountFrom: order.amountFrom,
-        amountToFill: order.amountFrom,
-        orderPrice: order.orderPrice,
-        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
-        height: expect.any(BigNumber),
-        expireHeight: expect.any(BigNumber)
-      }
-    )
+    const ordersAfterCreateOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCreateOrder as Record<string, ICXOrderInfo>)[createOrderTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // create second order - maker
     const order2: ICXOrder = {
@@ -78,37 +63,23 @@ describe('ICXOrderBook.closeOrder', () => {
       amountFrom: new BigNumber(2),
       orderPrice: new BigNumber(100)
     }
-    result = await client.icxorderbook.createOrder(order2, [])
-    const createOrder2TxId = result.txid
+    const createOrder2Result = await client.icxorderbook.createOrder(order2, [])
+    const createOrder2TxId = createOrder2Result.txid
     await container.generate(1)
 
     // list ICX orders and check
-    orders = await client.icxorderbook.listOrders()
+    const ordersAfterCreateOrder2: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
     // check details for createOrder2TxId
-    expect((orders as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
-      {
-        status: ICXOrderStatus.OPEN,
-        type: ICXOrderType.EXTERNAL,
-        tokenTo: order2.tokenTo === '0' ? symbolDFI : symbolBTC,
-        chainFrom: order2.chainFrom,
-        ownerAddress: order2.ownerAddress,
-        amountFrom: order2.amountFrom,
-        amountToFill: order2.amountFrom,
-        orderPrice: order2.orderPrice,
-        amountToFillInToAsset: order2.amountFrom.multipliedBy(order2.orderPrice),
-        height: expect.any(BigNumber),
-        expireHeight: expect.any(BigNumber)
-      }
-    )
+    expect((ordersAfterCreateOrder2 as Record<string, ICXOrderInfo>)[createOrder2TxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // close order createOrderTxId - maker
     await client.icxorderbook.closeOrder(createOrderTxId)
     await container.generate(1)
 
     // check createOrderTxId is no more and createOrder2TxId order still exists
-    orders = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toBeUndefined()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
+    const ordersAfterCloseOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCloseOrder1 as Record<string, ICXOrderInfo>)[createOrderTxId]).toBeUndefined()
+    expect((ordersAfterCloseOrder1 as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
       {
         status: ICXOrderStatus.OPEN,
         type: ICXOrderType.EXTERNAL,
@@ -129,17 +100,16 @@ describe('ICXOrderBook.closeOrder', () => {
     await container.generate(1)
 
     // check both createOrder2TxId and createOrder2TxId is gone
-    orders = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toBeUndefined()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrder2TxId]).toBeUndefined()
+    const ordersAfterCloseOrder2: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCloseOrder2 as Record<string, ICXOrderInfo>)[createOrderTxId]).toBeUndefined()
+    expect((ordersAfterCloseOrder2 as Record<string, ICXOrderInfo>)[createOrder2TxId]).toBeUndefined()
 
     // check accountDFI[idDFI] balance
-    const accountDFIBalance = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIBalance).toStrictEqual(accountDFIStart)
+    const accountDFIBalance: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    expect(accountDFIBalance).toStrictEqual(accountDFIBeforeOrder)
   })
 
   // NOTE(surangap): check why this is failing
-  /*
   it('should close order with input utxos', async () => {
     // create an order - maker
     const order: ICXOrder = {
@@ -150,50 +120,32 @@ describe('ICXOrderBook.closeOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
-    const createOrderTxId = result.txid
+    const createOrderResult: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = createOrderResult.txid
     await container.generate(1)
 
     // list ICX orders and check
-    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
-      {
-        status: ICXOrderStatus.OPEN,
-        type: ICXOrderType.INTERNAL,
-        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
-        chainTo: order.chainTo,
-        receivePubkey: order.receivePubkey,
-        ownerAddress: order.ownerAddress,
-        amountFrom: order.amountFrom,
-        amountToFill: order.amountFrom,
-        orderPrice: order.orderPrice,
-        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
-        height: expect.any(BigNumber),
-        expireHeight: expect.any(BigNumber)
-      }
-    )
+    const ordersAfterCreateOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCreateOrder as Record<string, ICXOrderInfo>)[createOrderTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // input utxos
-    const utxos = await container.call('listunspent', [1, 9999999, [accountDFI], true])
-    const inputUTXOs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
+    const inputUTXOs = await container.fundAddress(accountDFI, 10)
     // close order createOrderTxId - maker
-    await client.icxorderbook.closeOrder(createOrderTxId, inputUTXOs)
+    const closeTxId = (await client.icxorderbook.closeOrder(createOrderTxId, [inputUTXOs])).txid
+    await container.generate(1)
+
+    const rawtx = await container.call('getrawtransaction', [closeTxId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(inputUTXOs.txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(inputUTXOs.vout)
 
     // list closed orders and check order createOrderTxId
-    orders = await client.icxorderbook.listOrders({ closed: true })
-    // orders = await client.icxorderbook.listOrders()
-    const orderInfoRetrived = orders as Record<string, ICXOrderInfo>
+    const ordersAfterCloseOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ closed: true })
+    const orderInfoRetrived = ordersAfterCloseOrder as Record<string, ICXOrderInfo>
     expect(orderInfoRetrived[createOrderTxId].status).toStrictEqual(ICXOrderStatus.CLOSED)
     expect(orderInfoRetrived[createOrderTxId].ownerAddress).toStrictEqual(order.ownerAddress)
   })
-  */
 
-  it('should close a partially settled order', async () => {
+  it('should close a partially settled DFI sell order', async () => {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -203,63 +155,37 @@ describe('ICXOrderBook.closeOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    let result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
-    const createOrderTxId = result.txid
+    const createOrderResult: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = createOrderResult.txid
     await container.generate(1)
 
     // list ICX orders anc check
-    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
-      {
-        status: ICXOrderStatus.OPEN,
-        type: ICXOrderType.INTERNAL,
-        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
-        chainTo: order.chainTo,
-        receivePubkey: order.receivePubkey,
-        ownerAddress: order.ownerAddress,
-        amountFrom: order.amountFrom,
-        amountToFill: order.amountFrom,
-        orderPrice: order.orderPrice,
-        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
-        height: expect.any(BigNumber),
-        expireHeight: expect.any(BigNumber)
-      }
-    )
+    const ordersAfterCreateOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCreateOrder as Record<string, ICXOrderInfo>)[createOrderTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
-    // make offer to partial amout 10 DFI - taker
+    const accountBTCBeforeOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
+    // make offer to partial amount 10 DFI - taker
     const offer: ICXOffer = {
       orderTx: createOrderTxId,
       amount: new BigNumber(0.10), // 0.10 BTC = 10 DFI
       ownerAddress: accountBTC
     }
-    const accountBTCBeforeOffer = await container.call('getaccount', [accountBTC, {}, true])
-    result = await client.icxorderbook.makeOffer(offer, [])
-    const makeOfferTxId = result.txid
+    const makeOfferResult = await client.icxorderbook.makeOffer(offer, [])
+    const makeOfferTxId = makeOfferResult.txid
     await container.generate(1)
 
-    const accountBTCAfterOffer = await container.call('getaccount', [accountBTC, {}, true])
+    const accountBTCAfterOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
 
     // check fee of 0.01 DFI has been reduced from the accountBTCBeforeOffer[idDFI]
     // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
-    expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI] - 0.01)
+    expect(accountBTCAfterOffer[idDFI]).toStrictEqual(accountBTCBeforeOffer[idDFI].minus(0.01))
 
     // List the ICX offers for orderTx = createOrderTxId and check
-    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(orders).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    expect((orders as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
-      {
-        orderTx: createOrderTxId,
-        status: ICXOrderStatus.OPEN,
-        amount: offer.amount,
-        amountInFromAsset: offer.amount.dividedBy(order.orderPrice),
-        ownerAddress: offer.ownerAddress,
-        takerFee: offer.amount.multipliedBy(ICX_TAKERFEE_PER_BTC).multipliedBy(DEX_DFI_PER_BTC_RATE),
-        expireHeight: expect.any(BigNumber)
-      }
-    )
+    const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
+    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
-    const accountDFIBeforeDFCHTLC = await container.call('getaccount', [accountDFI, {}, true])
-
+    const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create DFCHTLC - maker
     const DFCHTLC: HTLC = {
       offerTx: makeOfferTxId,
@@ -270,28 +196,18 @@ describe('ICXOrderBook.closeOrder', () => {
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
 
-    const accountDFIAfterDFCHTLC = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIAfterDFCHTLC[idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[idDFI] - 0.01)
+    const accountDFIAfterDFCHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    expect(accountDFIAfterDFCHTLC[idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[idDFI].minus(0.01))
 
     // List htlc anc check
-    let listHTLCOptions: ICXListHTLCOptions = {
+    const listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    let HTLCs: Record<string, ICXDFCHTLCInfo| ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
+    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
-      {
-        type: ICXHTLCType.DFC,
-        status: ICXOrderStatus.OPEN,
-        offerTx: makeOfferTxId,
-        amount: DFCHTLC.amount,
-        amountInEXTAsset: DFCHTLC.amount.multipliedBy(order.orderPrice),
-        hash: DFCHTLC.hash,
-        timeout: new BigNumber(DFCHTLC.timeout as number),
-        height: expect.any(BigNumber),
-        refundHeight: expect.any(BigNumber)
-      }
-    )
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
+    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).offerTx).toStrictEqual(makeOfferTxId)
 
     // submit EXT HTLC - taker
     const ExtHTLC: ExtHTLC = {
@@ -306,73 +222,62 @@ describe('ICXOrderBook.closeOrder', () => {
     await container.generate(1)
 
     // List htlc and check
-    listHTLCOptions = {
+    const listHTLCOptionsAfterExtHTLC = {
       offerTx: makeOfferTxId
     }
-    HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
-    expect(HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
-      {
-        type: ICXHTLCType.EXTERNAL,
-        status: ICXOrderStatus.OPEN,
-        offerTx: makeOfferTxId,
-        amount: ExtHTLC.amount,
-        amountInDFCAsset: ExtHTLC.amount.dividedBy(order.orderPrice),
-        hash: ExtHTLC.hash,
-        htlcScriptAddress: ExtHTLC.htlcScriptAddress,
-        ownerPubkey: ExtHTLC.ownerPubkey,
-        timeout: new BigNumber(ExtHTLC.timeout),
-        height: expect.any(BigNumber)
-      }
-    )
+    const HTLCsAfterExtHTLC: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterExtHTLC)
+    expect(Object.keys(HTLCsAfterExtHTLC).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect((HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).type).toStrictEqual(ICXHTLCType.EXTERNAL)
+    expect((HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
+    expect((HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).offerTx).toStrictEqual(makeOfferTxId)
 
-    const accountBTCAfterEXTHTLC = await container.call('getaccount', [accountBTC, {}, true])
+    const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCAfter
     expect(accountBTCAfterEXTHTLC).toStrictEqual(accountBTCAfterEXTHTLC)
 
-    const accountDFIBeforeClaim = await container.call('getaccount', [accountDFI, {}, true])
-    const accountBTCBeforeClaim = await container.call('getaccount', [accountBTC, {}, true])
+    const accountDFIBeforeClaim: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    const accountBTCBeforeClaim: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
 
     // claim - taker
     const claimTxId = (await client.icxorderbook.claimDFCHTLC(DFCHTLCTxId, 'f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef')).txid
     await container.generate(1)
 
     // List htlc and check
-    listHTLCOptions = {
+    const listHTLCOptionsAfterClaim = {
       offerTx: makeOfferTxId,
       closed: true
     }
-    HTLCs = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    const HTLCsAfterClaim: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterClaim)
+    expect(Object.keys(HTLCsAfterClaim).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
-    if (HTLCs[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
+    if (HTLCsAfterClaim[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
-      const ClaimHTLCInfo: ICXClaimDFCHTLCInfo = HTLCs[claimTxId] as ICXClaimDFCHTLCInfo
+      const ClaimHTLCInfo: ICXClaimDFCHTLCInfo = HTLCsAfterClaim[claimTxId] as ICXClaimDFCHTLCInfo
       expect(ClaimHTLCInfo.dfchtlcTx).toStrictEqual(DFCHTLCTxId)
       expect(ClaimHTLCInfo.seed).toStrictEqual('f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef')
     }
 
     // check HTLC DFCHTLCTxId is in claimed status
-    if (HTLCs[DFCHTLCTxId].type === ICXHTLCType.DFC) {
+    if (HTLCsAfterClaim[DFCHTLCTxId].type === ICXHTLCType.DFC) {
       // ICXDFCHTLCInfo cast
-      const DFCHTLCInfo: ICXDFCHTLCInfo = HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo
+      const DFCHTLCInfo: ICXDFCHTLCInfo = HTLCsAfterClaim[DFCHTLCTxId] as ICXDFCHTLCInfo
       expect(DFCHTLCInfo.status).toStrictEqual(ICXHTLCStatus.CLAIMED)
     }
 
-    const accountDFIAfterClaim = await container.call('getaccount', [accountDFI, {}, true])
-    const accountBTCAfterClaim = await container.call('getaccount', [accountBTC, {}, true])
+    const accountDFIAfterClaim: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    const accountBTCAfterClaim: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
 
     // maker should get incentive + maker deposit and taker should get amount in DFCHTLCTxId HTLC - takerfee
-    expect(accountDFIAfterClaim[idDFI]).toStrictEqual(Number(accountDFIBeforeClaim[idDFI]) + Number(0.0125))
-    expect(accountBTCAfterClaim[idDFI]).toStrictEqual(Number(accountBTCBeforeClaim[idDFI]) + Number(10))
+    expect(accountDFIAfterClaim[idDFI]).toStrictEqual(accountDFIBeforeClaim[idDFI].plus(0.0125))
+    expect(accountBTCAfterClaim[idDFI]).toStrictEqual(accountBTCBeforeClaim[idDFI].plus(10))
 
     // offer should be close by now
-    orders = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(orders).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
+    expect(Object.keys(offersForOrder1).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
 
     // check partial order remaining
-    orders = await client.icxorderbook.listOrders()
-    const orderInfo: Record<string, ICXOrderInfo> = orders as Record<string, ICXOrderInfo>
+    const ordersAfterClaim: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    const orderInfo: Record<string, ICXOrderInfo> = ordersAfterClaim as Record<string, ICXOrderInfo>
     expect(orderInfo[createOrderTxId].tokenFrom).toStrictEqual(symbolDFI)
     expect(orderInfo[createOrderTxId].chainTo).toStrictEqual('BTC')
     expect(orderInfo[createOrderTxId].ownerAddress).toStrictEqual(accountDFI)
@@ -387,15 +292,15 @@ describe('ICXOrderBook.closeOrder', () => {
     await container.generate(1)
 
     // check createOrderTxId order is no more
-    orders = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toBeUndefined()
+    const ordersAfterCloseOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCloseOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toBeUndefined()
 
     // check accountDFI[idDFI] balance, remaining 5 DFI should be returned
-    const accountDFIFinalBalance = await container.call('getaccount', [accountDFI, {}, true])
-    expect(accountDFIFinalBalance[idDFI]).toStrictEqual(Number(accountDFIAfterClaim[idDFI]) + Number(5))
+    const accountDFIFinalBalance: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
+    expect(accountDFIFinalBalance[idDFI]).toStrictEqual(accountDFIAfterClaim[idDFI].plus(5))
   })
 
-  it('should return an error when incorrect order transaction is passed', async () => {
+  it('should return an error when try to close an order with invalid transaction id', async () => {
     // create an order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -405,38 +310,27 @@ describe('ICXOrderBook.closeOrder', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
-    const createOrderTxId = result.txid
+    const createOrderResult: ICXGenericResult = await client.icxorderbook.createOrder(order, [])
+    const createOrderTxId = createOrderResult.txid
     await container.generate(1)
 
     // list ICX orders and check
-    let orders: Record<string, ICXOrderInfo| ICXOfferInfo> = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
-      {
-        status: ICXOrderStatus.OPEN,
-        type: ICXOrderType.INTERNAL,
-        tokenFrom: order.tokenFrom === '0' ? symbolDFI : symbolBTC,
-        chainTo: order.chainTo,
-        receivePubkey: order.receivePubkey,
-        ownerAddress: order.ownerAddress,
-        amountFrom: order.amountFrom,
-        amountToFill: order.amountFrom,
-        orderPrice: order.orderPrice,
-        amountToFillInToAsset: order.amountFrom.multipliedBy(order.orderPrice),
-        height: expect.any(BigNumber),
-        expireHeight: expect.any(BigNumber)
-      }
-    )
+    const ordersAfterCreateOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCreateOrder as Record<string, ICXOrderInfo>)[createOrderTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // close order "123" - maker
     const promise = client.icxorderbook.closeOrder('123')
-
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000123) does not exist\', code: -8, method: icx_closeorder')
 
+    // close order "INVALID_TX_ID" - maker
+    const promise2 = client.icxorderbook.closeOrder('INVALID_TX_ID')
+    await expect(promise2).rejects.toThrow(RpcApiError)
+    await expect(promise2).rejects.toThrow('RpcApiError: \'orderTx (0000000000000000000000000000000000000000000000000000000000000000) does not exist\', code: -8, method: icx_closeorder')
+
     // check createOrderTxId order still exists
-    orders = await client.icxorderbook.listOrders()
-    expect((orders as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
+    const ordersAfterCloseOrderAttempts: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders()
+    expect((ordersAfterCloseOrderAttempts as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
       {
         status: ICXOrderStatus.OPEN,
         type: ICXOrderType.INTERNAL,

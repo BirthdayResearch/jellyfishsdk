@@ -175,7 +175,7 @@ Closes ICX order
 
 ```ts title="client.icxorderbook.closeOrder()"
 interface icxorderbook {
-  closeOrder (orderTx: string, inputUTXOs: UTXO[] = []): Promise<ICXGenericResult>
+  closeOrder (orderTx: string, utxos: UTXO[] = []): Promise<ICXGenericResult>
 }
 
 interface UTXO {

@@ -32,8 +32,7 @@ describe('ICXOrderBook.listHTLCs', () => {
   })
 
   afterEach(async () => {
-    // NOTE(surangap): enable this after #ain/583
-    // await icxSetup.closeAllOpenOffers()
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should list HTLCs for particular offer', async () => {
