@@ -166,4 +166,17 @@ describe('Composable', () => {
 
     expect(composable2.toObject()).toStrictEqual(poolSwapUint64MAXHighPrecision)
   })
+
+  it('should throw an error when more than 8 decimals', () => {
+    const poolSwapNineDecimalPrecision = {
+      ...poolSwap,
+      maxPrice: new BigNumber('1.999999999')
+    }
+
+    expect(() => {
+      const composable = new CPoolSwap(poolSwapNineDecimalPrecision)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+    }).toThrow('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
+  })
 })
