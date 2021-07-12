@@ -28,7 +28,7 @@ function mkdir (location: string): void {
         const network = configService.get<string>('network', 'unknown')
         const defaultLocation = isProd ? `.leveldb/${network}` : `.leveldb/${network}/${Date.now()}`
 
-        const location = configService.get('database.level.location', defaultLocation)
+        const location = configService.get<string>('database.level.location', defaultLocation)
         mkdir(location)
         return location
       },
