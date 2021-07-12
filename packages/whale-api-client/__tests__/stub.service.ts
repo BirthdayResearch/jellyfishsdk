@@ -4,6 +4,7 @@ import { createTestingApp } from '../../../src/e2e.module'
 import { addressToHid } from '../../../src/module.api/address.controller'
 import { ScriptAggregationMapper } from '../../../src/module.model/script.aggregation'
 import waitForExpect from 'wait-for-expect'
+import { BlockMapper } from '../../../src/module.model/block'
 
 /**
  * Service stubs are simulations of a real service, which are used for functional testing.
@@ -32,6 +33,17 @@ export class StubService {
     await waitForExpect(async () => {
       const agg = await aggregationMapper.getLatest(hid)
       expect(agg?.statistic.txCount).toStrictEqual(txCount)
+    }, timeout)
+  }
+
+  async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
+    const blockMapper = this.app?.get(BlockMapper)
+    if (blockMapper === undefined) {
+      throw new Error('StubService not initialized yet')
+    }
+    await waitForExpect(async () => {
+      const block = await blockMapper.getHighest()
+      await expect(block?.height).toBeGreaterThan(height)
     }, timeout)
   }
 }
