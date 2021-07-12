@@ -1,7 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, UTXO, ICXOrderStatus, ICXOrderType
+  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, ICXOrderStatus, ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
 import { accountBTC, accountDFI, ICXSetup, idDFI, symbolDFI } from './icx_setup'
@@ -10,7 +10,7 @@ import { RpcApiError } from '../../../src'
 describe('ICXOrderBook.createOrder', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-  const icxSetup = new ICXSetup(container)
+  const icxSetup = new ICXSetup(container, client)
 
   beforeAll(async () => {
     await container.start()
@@ -120,14 +120,9 @@ describe('ICXOrderBook.createOrder', () => {
     }
 
     // input utxos
-    const utxos = await container.call('listunspent', [1, 9999999, [accountDFI], true])
-    const inputUTXOs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, inputUTXOs)
+    const inputUTXOs = await container.fundAddress(accountDFI, 10)
+
+    const result: ICXGenericResult = await client.icxorderbook.createOrder(order, [inputUTXOs])
     const createOrderTxId = result.txid
     await container.generate(1)
 

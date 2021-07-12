@@ -118,6 +118,27 @@ export class Masternode {
   async resignMasternode (masternodeId: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('resignmasternode', [masternodeId, utxos], 'number')
   }
+
+  /**
+   * Set special governance variables
+   *
+   * @param {Record<string, any>} input json object
+   * @return {Promise<string>} hash
+   *
+   */
+  async setGov (input: Record<string, any>): Promise<string> {
+    return await this.client.call('setgov', [input], 'number')
+  }
+
+  /**
+   * Get information about governance variable
+   *
+   * @param {string} name governance name
+   * @return {Promise<Record<string, any>} governance information as json object
+   */
+  async getGov (name: string): Promise<Record<string, any>> {
+    return await this.client.call('getgov', [name], 'bignumber')
+  }
 }
 
 export interface UTXO {

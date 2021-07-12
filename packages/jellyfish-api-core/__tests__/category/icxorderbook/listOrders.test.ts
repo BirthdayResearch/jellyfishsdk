@@ -9,7 +9,7 @@ import { accountBTC, accountDFI, DEX_DFI_PER_BTC_RATE, ICXSetup, ICX_TAKERFEE_PE
 describe('ICXOrderBook.listOrders', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
-  const icxSetup = new ICXSetup(container)
+  const icxSetup = new ICXSetup(container, client)
 
   beforeAll(async () => {
     await container.start()

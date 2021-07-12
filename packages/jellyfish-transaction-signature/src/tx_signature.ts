@@ -87,19 +87,20 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
 async function isV0P2WPKH (signInputOption: SignInputOption): Promise<boolean> {
   const stack = signInputOption.prevout.script.stack
 
-  if (stack.length === 2 && stack[1] instanceof OP_PUSHDATA && (stack[1] as OP_PUSHDATA).length() === 20) {
-    const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
-    const pubkeyHashHex = HASH160(pubkey).toString('hex')
-    const pushDataHex = (stack[1] as OP_PUSHDATA).hex
+  if (stack.length !== 2) return false
+  if (stack[0].type !== 'OP_0') return false
+  if (stack[1].type !== 'OP_PUSHDATA') return false
+  if ((stack[1] as OP_PUSHDATA).length() !== 20) return false
 
-    if (pubkeyHashHex === pushDataHex) {
-      return true
-    }
+  const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
+  const pubkeyHashHex = HASH160(pubkey).toString('hex')
+  const pushDataHex = (stack[1] as OP_PUSHDATA).hex
 
-    throw new Error('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+  if (pubkeyHashHex === pushDataHex) {
+    return true
   }
 
-  return false
+  throw new Error('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
 }
 
 /**

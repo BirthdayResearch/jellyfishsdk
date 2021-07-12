@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { OPCode } from './opcode'
 import { numAsOPCode } from './mapping'
 import { OP_PUSHDATA } from './data'
-import { remapDeFiScript } from './defi'
+import { remapDeFiScript } from './dftx'
 
 /**
  * @param {OPCode[]} stack of OPCode
