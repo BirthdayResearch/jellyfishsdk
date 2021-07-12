@@ -3,7 +3,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
-import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
+import { readBigNumberUInt64, writeBigNumberUInt64, ONE_HUNDRED_MILLION } from '../../buffer/buffer_bignumber'
 import { CScriptBalances, ScriptBalances, CTokenBalance, TokenBalance } from './dftx_balance'
 import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 
@@ -19,10 +19,7 @@ export interface PoolSwap {
   fromAmount: BigNumber // -------------| 8 bytes
   toScript: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes
   toTokenId: number // -----------------| VarUInt{1-9 bytes}
-  maxPrice: {
-    integer: BigNumber // --------------| 8 bytes
-    fraction: BigNumber // -------------| 8 bytes
-  }
+  maxPrice: BigNumber // -------------| 8 bytes integer + 8 bytes for fraction
 }
 
 /**
@@ -41,13 +38,15 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
       ComposableBuffer.single<Script>(() => ps.toScript, v => ps.toScript = v, v => new CScript(v)),
       ComposableBuffer.varUInt(() => ps.toTokenId, v => ps.toTokenId = v),
       {
-        fromBuffer (buffer: SmartBuffer) {
+        fromBuffer: (buffer: SmartBuffer): void => {
           const integer = readBigNumberUInt64(buffer)
           const fraction = readBigNumberUInt64(buffer)
-          ps.maxPrice = { integer, fraction }
+          ps.maxPrice = integer.plus(fraction.dividedBy(ONE_HUNDRED_MILLION))
         },
-        toBuffer (buffer: SmartBuffer) {
-          const { integer, fraction } = ps.maxPrice
+        toBuffer: (buffer: SmartBuffer): void => {
+          const n = ps.maxPrice.multipliedBy(ONE_HUNDRED_MILLION)
+          const fraction = n.mod(ONE_HUNDRED_MILLION)
+          const integer = n.minus(fraction).dividedBy(ONE_HUNDRED_MILLION)
           writeBigNumberUInt64(integer, buffer)
           writeBigNumberUInt64(fraction, buffer)
         }
