@@ -154,6 +154,25 @@ export class ICXOrderBook {
   }
 
   /**
+   * Closes ICX order
+   *
+   * @param {string} orderTx Transaction id of maker order
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} utxos.txid transaction Id
+   * @param {number} utxos.vout The output number
+   * @return {Promise<ICXGenericResult>} Object indluding transaction id of the the transaction
+   */
+  async closeOrder (orderTx: string, utxos: UTXO[] = []): Promise<ICXGenericResult> {
+    return await this.client.call(
+      'icx_closeorder',
+      [
+        orderTx, utxos
+      ],
+      'bignumber'
+    )
+  }
+
+  /**
    * Returns information about order or fillorder
    *
    * @param {string} orderTx Transaction id of createorder or fulfillorder transaction
