@@ -20,7 +20,7 @@ describe('Masternode', () => {
   it('should resignMasternode', async () => {
     const address = await container.getNewAddress()
     const id = await client.masternode.createMasternode(address)
-    await container.generate(1, address)
+    await container.generate(20, address) // generate blocks to pass PRE_ENABLED state
 
     const hex = await client.masternode.resignMasternode(id)
     expect(hex).toStrictEqual(expect.stringMatching(/[0-f]{64}/))
@@ -39,7 +39,7 @@ describe('Masternode', () => {
   it('should resignMasternode with utxos', async () => {
     const address = await container.getNewAddress()
     const id = await client.masternode.createMasternode(address)
-    await container.generate(1, address)
+    await container.generate(20, address) // generate blocks to pass PRE_ENABLED state
 
     const input = await container.fundAddress(address, 10)
     const hex = await client.masternode.resignMasternode(id, [input])
