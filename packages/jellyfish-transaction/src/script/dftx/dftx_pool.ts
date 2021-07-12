@@ -47,7 +47,7 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
         toBuffer: (buffer: SmartBuffer): void => {
           const n = ps.maxPrice.multipliedBy(ONE_HUNDRED_MILLION)
           const fraction = n.mod(ONE_HUNDRED_MILLION)
-          if (fraction > new BigNumber('99999999')) {
+          if (fraction.gt(new BigNumber('99999999'))) {
             throw new Error('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
           }
           const integer = n.minus(fraction).dividedBy(ONE_HUNDRED_MILLION)
