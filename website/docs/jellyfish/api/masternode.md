@@ -143,3 +143,23 @@ interface UTXO {
   vout: number
 }
 ```
+
+## setGov
+
+Set special governance variables
+
+```ts title="client.masternode.setGov()"
+interface masternode {
+  setGov (input: Record<string, any>): Promise<string>
+}
+```
+
+## getGov
+
+Get information about governance variable
+
+```ts title="client.masternode.getGov()"
+interface masternode {
+  getGov (name: string): Promise<Record<string, any>>
+}
+```
