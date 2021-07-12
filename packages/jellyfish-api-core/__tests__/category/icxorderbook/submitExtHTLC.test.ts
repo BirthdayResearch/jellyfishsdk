@@ -44,8 +44,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   })
 
   afterEach(async () => {
-    // enable this after #ain/583
-    // await icxSetup.closeAllOpenOffers()
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should submit ExtHTLC for a DFC buy offer', async () => {
@@ -344,7 +343,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount 20000000 must be equal to calculated dfchtlc amount 10000000\', code: -32600, method: icx_submitexthtlc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount must be equal to calculated dfchtlc amount\', code: -32600, method: icx_submitexthtlc')
 
     // submit EXT HTLC with amount 0.05 BTC- taker
     const ExtHTLC2: ExtHTLC = {
@@ -357,7 +356,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     }
     const promise2 = client.icxorderbook.submitExtHTLC(ExtHTLC2)
     await expect(promise2).rejects.toThrow(RpcApiError)
-    await expect(promise2).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount 5000000 must be equal to calculated dfchtlc amount 10000000\', code: -32600, method: icx_submitexthtlc')
+    await expect(promise2).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\namount must be equal to calculated dfchtlc amount\', code: -32600, method: icx_submitexthtlc')
 
     // List htlc
     const listHTLCOptions: ICXListHTLCOptions = {

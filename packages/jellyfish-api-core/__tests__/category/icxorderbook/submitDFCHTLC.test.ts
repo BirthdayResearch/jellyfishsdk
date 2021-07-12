@@ -35,8 +35,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
   })
 
   afterEach(async () => {
-    // enable this after #ain/583
-    // await icxSetup.closeAllOpenOffers()
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should submit DFC HTLC for a DFC buy offer', async () => {

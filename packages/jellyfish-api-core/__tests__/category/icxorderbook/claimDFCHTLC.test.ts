@@ -19,7 +19,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForBlockHeight(1)
+    await container.generate(1)
     await icxSetup.createAccounts()
     await icxSetup.createBTCToken()
     await icxSetup.initializeTokensIds()
@@ -36,8 +36,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
   })
 
   afterEach(async () => {
-    // enable this after #ain/583
-    // await icxSetup.closeAllOpenOffers()
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should claim DFC HTLC for DFI sell order', async () => {
