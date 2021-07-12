@@ -50,7 +50,7 @@ export interface PoolPairData {
   tradeEnabled: boolean
   ownerAddress: string
   rewardPct: string // BigNumber
-  customRewards?: string // BigNumber
+  customRewards?: string[]
   creation: {
     tx: string
     height: number
