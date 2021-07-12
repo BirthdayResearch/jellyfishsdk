@@ -78,10 +78,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('10'),
       toScript: script,
       toTokenId: pairs.DOG.tokenB,
-      maxPrice: {
-        integer: new BigNumber('9223372036854775807'),
-        fraction: new BigNumber('9223372036854775807')
-      }
+      maxPrice: new BigNumber('18446744073709551615.99999999')
     }, script)
 
     // Ensure the created txn is correct.
@@ -134,10 +131,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('2'),
       toScript: script,
       toTokenId: pairs.PIG.tokenB,
-      maxPrice: {
-        integer: new BigNumber('5'),
-        fraction: new BigNumber('0')
-      }
+      maxPrice: new BigNumber('5.0')
     }, script)
 
     const outs = await sendTransaction(container, txn)
@@ -186,10 +180,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('2'),
       toScript: script,
       toTokenId: pairs.CAT.tokenB,
-      maxPrice: {
-        integer: new BigNumber('0'),
-        fraction: new BigNumber('0.3')
-      }
+      maxPrice: new BigNumber('0.00000003')
     }, script)
 
     const promise = sendTransaction(container, txn)
