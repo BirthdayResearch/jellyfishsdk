@@ -144,7 +144,7 @@ export interface CreatePoolPairMetadata {
   commission: number
   status: boolean
   ownerAddress: string
-  customRewards?: string
+  customRewards?: string[]
   pairSymbol?: string
 }
 
@@ -174,7 +174,7 @@ export interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards?: BigNumber
+  customRewards?: string[]
   creationTx: string
   creationHeight: BigNumber
 }
