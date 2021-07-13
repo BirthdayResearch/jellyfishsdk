@@ -179,4 +179,15 @@ describe('Composable', () => {
       composable.toBuffer(buffer)
     }).toThrow('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
   })
+
+  it('should throw an error when reading more than 8 decimals from buffer', () => {
+    const hex = '17a914c34ca9c54dc87e7e875b212ec6ba0704be3de587870000d6117e0300000017a914c34ca9c54dc87e7e875b212ec6ba0704be3de5878702ffffffffffffffffffe0f505ffffffff'
+
+    expect(() => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
+      const composable = new CPoolSwap(buffer)
+
+      expect(composable.toObject()).toStrictEqual(poolSwap)
+    }).toThrow('Too many decimals read from buffer. Will lose precision with more than 8 decimals')
+  })
 })
