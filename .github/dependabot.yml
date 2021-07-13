@@ -11,9 +11,18 @@ updates:
       - dependency-name: "@parcel/*"
       - dependency-name: "@defichain/*"
 
+  - package-ecosystem: 'npm'
+    directory: '/website'
+    schedule:
+      interval: 'weekly'
+    labels:
+      - "kind/dependencies"
+    ignore:
+      - dependency-name: "@defichain/*"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "daily"
     labels:
-      - "kind/chore"
+      - "kind/dependencies"
