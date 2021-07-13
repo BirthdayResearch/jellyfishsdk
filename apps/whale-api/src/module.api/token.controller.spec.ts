@@ -55,9 +55,8 @@ describe('list', () => {
         tx: '0000000000000000000000000000000000000000000000000000000000000000',
         height: -1
       },
-      collateralAddress: ''
+      collateralAddress: undefined
     })
-
     expect(result.data[1]).toStrictEqual({
       id: '1',
       symbol: 'DBTC',
@@ -192,7 +191,7 @@ describe('get', () => {
         tx: '0000000000000000000000000000000000000000000000000000000000000000',
         height: -1
       },
-      collateralAddress: ''
+      collateralAddress: undefined
     })
   })
 
