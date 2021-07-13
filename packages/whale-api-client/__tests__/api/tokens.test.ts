@@ -34,7 +34,6 @@ describe('list', () => {
   it('should listTokens', async () => {
     const result = await client.tokens.list()
     expect(result.length).toStrictEqual(4)
-
     expect(result[0]).toStrictEqual({
       id: '0',
       symbol: 'DFI',
@@ -55,8 +54,7 @@ describe('list', () => {
       destruction: {
         tx: '0000000000000000000000000000000000000000000000000000000000000000',
         height: -1
-      },
-      collateralAddress: ''
+      }
     })
   })
 
@@ -110,8 +108,7 @@ describe('get', () => {
       destruction: {
         tx: '0000000000000000000000000000000000000000000000000000000000000000',
         height: -1
-      },
-      collateralAddress: ''
+      }
     })
   })
 

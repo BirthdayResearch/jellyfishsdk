@@ -45,5 +45,5 @@ export interface TokenData {
   minted: string // BigNumber
   creation: { tx: string, height: number }
   destruction: { tx: string, height: number }
-  collateralAddress: string
+  collateralAddress?: string
 }
