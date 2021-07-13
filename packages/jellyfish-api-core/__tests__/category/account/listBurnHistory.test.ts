@@ -204,4 +204,58 @@ describe('Account', () => {
     })
     expect(history.every(({ amounts }) => amounts[0].includes('GOLD'))).toBeTruthy()
   })
+
+  it('should listBurnHistory with maxBlockHeight 110', async () => {
+    const maxBlockHeight = 110
+    const history = await client.account.listBurnHistory({
+      maxBlockHeight
+    })
+    expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeTruthy()
+  })
+
+  it('should listBurnHistory with maxBlockHeight 500', async () => {
+    const maxBlockHeight = 500
+    const history = await client.account.listBurnHistory({
+      maxBlockHeight
+    })
+    expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeTruthy()
+  })
+
+  it('should listBurnHistory with depth 0', async () => {
+    const depth = 0
+    const history = await client.account.listBurnHistory()
+    const depthHistory = await client.account.listBurnHistory({
+      depth
+    })
+    const maxBlockHeight = Math.max(...history.map(el => el.blockHeight)) // Get maxBlockHeight from history
+    expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeTruthy()
+  })
+
+  it('should listBurnHistory with depth 10', async () => {
+    const depth = 10
+    const history = await client.account.listBurnHistory()
+    const depthHistory = await client.account.listBurnHistory({
+      depth
+    })
+    const maxBlockHeight = Math.max(...history.map(el => el.blockHeight)) // Get maxBlockHeight from history
+    expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeTruthy()
+  })
+
+  it('should listBurnHistory with limit 1', async () => {
+    const history = await client.account.listBurnHistory()
+    const historyWithLimit = await client.account.listBurnHistory({
+      limit: 1
+    })
+    expect(historyWithLimit.length).toStrictEqual(1)
+    expect(historyWithLimit[0]).toStrictEqual(history[0])
+  })
+
+  it('should listBurnHistory with limit 5', async () => {
+    const history = await client.account.listBurnHistory()
+    const historyWithLimit = await client.account.listBurnHistory({
+      limit: 5
+    })
+    expect(historyWithLimit.length).toStrictEqual(5)
+    expect(historyWithLimit.slice(0, 5)).toStrictEqual(history.slice(0, 5))
+  })
 })
