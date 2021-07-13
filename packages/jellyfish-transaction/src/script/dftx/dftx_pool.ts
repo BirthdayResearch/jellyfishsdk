@@ -3,7 +3,6 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
-import { readBigNumberUInt64, writeBigNumberUInt64, ONE_HUNDRED_MILLION } from '../../buffer/buffer_bignumber'
 import { CScriptBalances, ScriptBalances, CTokenBalance, TokenBalance } from './dftx_balance'
 import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 
@@ -38,26 +37,7 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
       ComposableBuffer.satoshiAsBigNumber(() => ps.fromAmount, v => ps.fromAmount = v),
       ComposableBuffer.single<Script>(() => ps.toScript, v => ps.toScript = v, v => new CScript(v)),
       ComposableBuffer.varUInt(() => ps.toTokenId, v => ps.toTokenId = v),
-      {
-        fromBuffer: (buffer: SmartBuffer): void => {
-          const integer = readBigNumberUInt64(buffer)
-          const fraction = readBigNumberUInt64(buffer)
-          if (fraction.gt(new BigNumber('99999999'))) {
-            throw new Error('Too many decimals read from buffer. Will lose precision with more than 8 decimals')
-          }
-          ps.maxPrice = integer.plus(fraction.dividedBy(ONE_HUNDRED_MILLION))
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          const n = ps.maxPrice.multipliedBy(ONE_HUNDRED_MILLION)
-          const fraction = n.mod(ONE_HUNDRED_MILLION)
-          if (fraction.gt(new BigNumber('99999999'))) {
-            throw new Error('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
-          }
-          const integer = n.minus(fraction).dividedBy(ONE_HUNDRED_MILLION)
-          writeBigNumberUInt64(integer, buffer)
-          writeBigNumberUInt64(fraction, buffer)
-        }
-      }
+      ComposableBuffer.maxPriceAsBigNumber(() => ps.maxPrice, v => ps.maxPrice = v)
     ]
   }
 }
