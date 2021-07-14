@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
-import { UTXO } from '../../../src/category/oracle'
 
 describe('Oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -154,52 +153,6 @@ describe('Oracle', () => {
       { token: '12345678', currency: '12345678' },
       { token: 'ABCDEFGH', currency: 'ABCDEFGH' }
     ])
-  })
-
-  it('should updateOracle with utxos', async () => {
-    // Appoint oracle
-    const address = await container.getNewAddress()
-
-    const appointOraclePriceFeeds = [
-      { token: 'APPLE', currency: 'EUR' },
-      { token: 'TESLA', currency: 'USD' }
-    ]
-
-    const oracleid = await container.call('appointoracle', [address, appointOraclePriceFeeds, 1])
-
-    await container.generate(1)
-
-    // Update oracle
-    const updateOraclePriceFeeds = [
-      { token: 'FB', currency: 'CNY' },
-      { token: 'MSFT', currency: 'SGD' }
-    ]
-
-    const utxos = await container.call('listunspent', [1, 9999999, [address], true])
-    const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    await client.oracle.updateOracle(oracleid, await container.getNewAddress(), {
-      priceFeeds: updateOraclePriceFeeds,
-      weightage: 2,
-      utxos: inputs
-    })
-
-    await container.generate(1)
-
-    const data = await container.call('getoracledata', [oracleid])
-
-    expect(data).toStrictEqual({
-      weightage: 2,
-      oracleid,
-      address: expect.any(String),
-      priceFeeds: updateOraclePriceFeeds,
-      tokenPrices: []
-    })
   })
 
   it('should not updateOracle with arbitrary utxos', async () => {

@@ -3,13 +3,15 @@ import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
-import { OP_DEFI_TX } from './defi'
-import { CDfTx, DfTx } from './defi/dftx'
+import { OP_DEFI_TX } from './dftx'
+import { CDfTx, DfTx } from './dftx/dftx'
 import * as constants from './constants'
 import * as crypto from './crypto'
 import * as control from './control'
 import * as stack from './stack'
 import * as bitwise from './bitwise'
+import * as expansion from './expansion'
+import * as invalid from './invalid'
 import {
   CPoolAddLiquidity,
   CPoolCreatePair,
@@ -21,8 +23,8 @@ import {
   PoolRemoveLiquidity,
   PoolSwap,
   PoolUpdatePair
-} from './defi/dftx_pool'
-import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './defi/dftx_token'
+} from './dftx/dftx_pool'
+import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './dftx/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -32,7 +34,7 @@ import {
   CAnyAccountToAccount,
   CUtxosToAccount,
   UtxosToAccount
-} from './defi/dftx_account'
+} from './dftx/dftx_account'
 import {
   CAppointOracle,
   AppointOracle,
@@ -42,10 +44,10 @@ import {
   CUpdateOracle,
   SetOracleData,
   CSetOracleData
-} from './defi/dftx_oracles'
-import { CAutoAuthPrep } from './defi/dftx_misc'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './defi/dftx_masternode'
-import { CSetGovernance, SetGovernance } from './defi/dftx_governance'
+} from './dftx/dftx_oracles'
+import { CAutoAuthPrep } from './dftx/dftx_misc'
+import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
+import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -393,14 +395,14 @@ export const OP_CODES = {
   //  OP_SIZE = 0x82,
 
   // bitwise
-  //  OP_INVERT = 0x83,
-  //  OP_AND = 0x84,
-  //  OP_OR = 0x85,
-  //  OP_XOR = 0x86,
+  OP_INVERT: new bitwise.OP_INVERT(),
+  OP_AND: new bitwise.OP_AND(),
+  OP_OR: new bitwise.OP_OR(),
+  OP_XOR: new bitwise.OP_XOR(),
   OP_EQUAL: new bitwise.OP_EQUAL(),
   OP_EQUALVERIFY: new bitwise.OP_EQUALVERIFY(),
-  //  OP_RESERVED1 = 0x89,
-  //  OP_RESERVED2 = 0x8a,
+  OP_RESERVED1: new bitwise.OP_RESERVED1(),
+  OP_RESERVED2: new bitwise.OP_RESERVED2(),
 
   // numeric
   //  OP_1ADD = 0x8b,
@@ -441,24 +443,24 @@ export const OP_CODES = {
   OP_CHECKSIG: new crypto.OP_CHECKSIG(),
   OP_CHECKSIGVERIFY: new crypto.OP_CHECKSIGVERIFY(),
   OP_CHECKMULTISIG: new crypto.OP_CHECKMULTISIG(),
-  OP_CHECKMULTISIGVERIFY: new crypto.OP_CHECKMULTISIGVERIFY()
+  OP_CHECKMULTISIGVERIFY: new crypto.OP_CHECKMULTISIGVERIFY(),
 
   // expansion
-  //  OP_NOP1 = 0xb0,
-  //  OP_CHECKLOCKTIMEVERIFY = 0xb1,
-  //  OP_NOP2 = OP_CHECKLOCKTIMEVERIFY,
-  //  OP_CHECKSEQUENCEVERIFY = 0xb2,
-  //  OP_NOP3 = OP_CHECKSEQUENCEVERIFY,
-  //  OP_NOP4 = 0xb3,
-  //  OP_NOP5 = 0xb4,
-  //  OP_NOP6 = 0xb5,
-  //  OP_NOP7 = 0xb6,
-  //  OP_NOP8 = 0xb7,
-  //  OP_NOP9 = 0xb8,
-  //  OP_NOP10 = 0xb9,
+  OP_NOP1: new expansion.OP_NOP1(),
+  OP_CHECKLOCKTIMEVERIFY: new expansion.OP_CHECKLOCKTIMEVERIFY(),
+  OP_NOP2: new expansion.OP_NOP2(),
+  OP_CHECKSEQUENCEVERIFY: new expansion.OP_CHECKSEQUENCEVERIFY(),
+  OP_NOP3: new expansion.OP_NOP3(),
+  OP_NOP4: new expansion.OP_NOP4(),
+  OP_NOP5: new expansion.OP_NOP5(),
+  OP_NOP6: new expansion.OP_NOP6(),
+  OP_NOP7: new expansion.OP_NOP7(),
+  OP_NOP8: new expansion.OP_NOP8(),
+  OP_NOP9: new expansion.OP_NOP9(),
+  OP_NOP10: new expansion.OP_NOP10(),
 
   // invalid
-  //  OP_INVALIDOPCODE = 0xff,
+  OP_INVALIDOPCODE: new invalid.OP_INVALIDOPCODE()
 }
 
 /**
@@ -518,8 +520,14 @@ const HEX_MAPPING: {
   0x7c: OP_CODES.OP_SWAP,
   0x7d: OP_CODES.OP_TUCK,
   // bitwise
+  0x83: OP_CODES.OP_INVERT,
+  0x84: OP_CODES.OP_AND,
+  0x85: OP_CODES.OP_OR,
+  0x86: OP_CODES.OP_XOR,
   0x87: OP_CODES.OP_EQUAL,
   0x88: OP_CODES.OP_EQUALVERIFY,
+  0x89: OP_CODES.OP_RESERVED1,
+  0x8a: OP_CODES.OP_RESERVED2,
   // crypto
   0xa6: OP_CODES.OP_RIPEMD160,
   0xa7: OP_CODES.OP_SHA1,
@@ -530,5 +538,18 @@ const HEX_MAPPING: {
   0xac: OP_CODES.OP_CHECKSIG,
   0xad: OP_CODES.OP_CHECKSIGVERIFY,
   0xae: OP_CODES.OP_CHECKMULTISIG,
-  0xaf: OP_CODES.OP_CHECKMULTISIGVERIFY
+  0xaf: OP_CODES.OP_CHECKMULTISIGVERIFY,
+  // expansion
+  0xb0: OP_CODES.OP_NOP1,
+  0xb1: OP_CODES.OP_CHECKLOCKTIMEVERIFY,
+  0xb2: OP_CODES.OP_CHECKSEQUENCEVERIFY,
+  0xb3: OP_CODES.OP_NOP4,
+  0xb4: OP_CODES.OP_NOP5,
+  0xb5: OP_CODES.OP_NOP6,
+  0xb6: OP_CODES.OP_NOP7,
+  0xb7: OP_CODES.OP_NOP8,
+  0xb8: OP_CODES.OP_NOP9,
+  0xb9: OP_CODES.OP_NOP10,
+  // invalid
+  0xff: OP_CODES.OP_INVALIDOPCODE
 }

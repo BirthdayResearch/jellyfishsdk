@@ -11,6 +11,8 @@ export function expectHexBufferToObject<T> (hex: string, data: T, asC: ((buffer:
   expect(JSON.parse(JSON.stringify(composable.toObject()))).toStrictEqual(
     JSON.parse(JSON.stringify(data))
   )
+
+  expect(composable.toHex()).toStrictEqual(hex)
 }
 
 export function expectObjectToHexBuffer<T> (data: T, hex: string, asC: ((data: T) => ComposableBuffer<T>)): void {
@@ -24,4 +26,6 @@ export function expectObjectToHexBuffer<T> (data: T, hex: string, asC: ((data: T
   expect(JSON.parse(JSON.stringify(txn.toObject()))).toStrictEqual(
     JSON.parse(JSON.stringify(data))
   )
+
+  expect(txn.toHex()).toStrictEqual(hex)
 }

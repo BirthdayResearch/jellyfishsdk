@@ -194,12 +194,36 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_TUCK, script.OP_TUCK, 'OP_TUCK', 0x7d, '7d')
   })
 
+  it('OP_INVERT', () => {
+    expectOPCode(script.OP_CODES.OP_INVERT, script.OP_INVERT, 'OP_INVERT', 0x83, '83')
+  })
+
+  it('OP_AND', () => {
+    expectOPCode(script.OP_CODES.OP_AND, script.OP_AND, 'OP_AND', 0x84, '84')
+  })
+
+  it('OP_OR', () => {
+    expectOPCode(script.OP_CODES.OP_OR, script.OP_OR, 'OP_OR', 0x85, '85')
+  })
+
+  it('OP_XOR', () => {
+    expectOPCode(script.OP_CODES.OP_XOR, script.OP_XOR, 'OP_XOR', 0x86, '86')
+  })
+
   it('OP_EQUAL', () => {
     expectOPCode(script.OP_CODES.OP_EQUAL, script.OP_EQUAL, 'OP_EQUAL', 0x87, '87')
   })
 
   it('OP_EQUALVERIFY', () => {
     expectOPCode(script.OP_CODES.OP_EQUALVERIFY, script.OP_EQUALVERIFY, 'OP_EQUALVERIFY', 0x88, '88')
+  })
+
+  it('OP_RESERVED1', () => {
+    expectOPCode(script.OP_CODES.OP_RESERVED1, script.OP_RESERVED1, 'OP_RESERVED1', 0x89, '89')
+  })
+
+  it('OP_RESERVED2', () => {
+    expectOPCode(script.OP_CODES.OP_RESERVED2, script.OP_RESERVED2, 'OP_RESERVED2', 0x8a, '8a')
   })
 
   it('OP_RIPEMD160', () => {
@@ -240,5 +264,57 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
 
   it('OP_CHECKMULTISIGVERIFY', () => {
     expectOPCode(script.OP_CODES.OP_CHECKMULTISIGVERIFY, script.OP_CHECKMULTISIGVERIFY, 'OP_CHECKMULTISIGVERIFY', 0xaf, 'af')
+  })
+
+  it('OP_NOP1', () => {
+    expectOPCode(script.OP_CODES.OP_NOP1, script.OP_NOP1, 'OP_NOP1', 0xb0, 'b0')
+  })
+
+  it('OP_CHECKLOCKTIMEVERIFY', () => {
+    expectOPCode(script.OP_CODES.OP_CHECKLOCKTIMEVERIFY, script.OP_CHECKLOCKTIMEVERIFY, 'OP_CHECKLOCKTIMEVERIFY', 0xb1, 'b1')
+  })
+
+  it('OP_NOP2', () => {
+    expectOPCode(script.OP_CODES.OP_NOP2, script.OP_CHECKLOCKTIMEVERIFY, 'OP_CHECKLOCKTIMEVERIFY', 0xb1, 'b1')
+  })
+
+  it('OP_CHECKSEQUENCEVERIFY', () => {
+    expectOPCode(script.OP_CODES.OP_CHECKSEQUENCEVERIFY, script.OP_CHECKSEQUENCEVERIFY, 'OP_CHECKSEQUENCEVERIFY', 0xb2, 'b2')
+  })
+
+  it('OP_NOP3', () => {
+    expectOPCode(script.OP_CODES.OP_NOP3, script.OP_CHECKSEQUENCEVERIFY, 'OP_CHECKSEQUENCEVERIFY', 0xb2, 'b2')
+  })
+
+  it('OP_NOP4', () => {
+    expectOPCode(script.OP_CODES.OP_NOP4, script.OP_NOP4, 'OP_NOP4', 0xb3, 'b3')
+  })
+
+  it('OP_NOP5', () => {
+    expectOPCode(script.OP_CODES.OP_NOP5, script.OP_NOP5, 'OP_NOP5', 0xb4, 'b4')
+  })
+
+  it('OP_NOP6', () => {
+    expectOPCode(script.OP_CODES.OP_NOP6, script.OP_NOP6, 'OP_NOP6', 0xb5, 'b5')
+  })
+
+  it('OP_NOP7', () => {
+    expectOPCode(script.OP_CODES.OP_NOP7, script.OP_NOP7, 'OP_NOP7', 0xb6, 'b6')
+  })
+
+  it('OP_NOP8', () => {
+    expectOPCode(script.OP_CODES.OP_NOP8, script.OP_NOP8, 'OP_NOP8', 0xb7, 'b7')
+  })
+
+  it('OP_NOP9', () => {
+    expectOPCode(script.OP_CODES.OP_NOP9, script.OP_NOP9, 'OP_NOP9', 0xb8, 'b8')
+  })
+
+  it('OP_NOP10', () => {
+    expectOPCode(script.OP_CODES.OP_NOP10, script.OP_NOP10, 'OP_NOP10', 0xb9, 'b9')
+  })
+
+  it('OP_INVALIDOPCODE', () => {
+    expectOPCode(script.OP_CODES.OP_INVALIDOPCODE, script.OP_INVALIDOPCODE, 'OP_INVALIDOPCODE', 0xff, 'ff')
   })
 })
