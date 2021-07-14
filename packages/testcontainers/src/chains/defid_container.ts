@@ -3,9 +3,9 @@ import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
 
 /**
- * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
+ * Types of defidNetwork as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
  */
-type Network = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
+type DeFiDNetwork = 'mainnet' | 'testnet' | 'devnet' | 'regtest'
 
 /**
  * Mandatory options to start defid with
@@ -39,12 +39,12 @@ export abstract class DeFiDContainer extends DockerContainer {
   protected cachedRpcUrl?: string
 
   /**
-   * @param {Network} network of the container
+   * @param {DeFiDNetwork} defidNetwork of the container
    * @param {string} image docker image name
    * @param {DockerOptions} options
    */
   protected constructor (
-    protected readonly network: Network,
+    protected readonly defidNetwork: DeFiDNetwork,
     protected readonly image: string = DeFiDContainer.image,
     options?: DockerOptions
   ) {
@@ -58,7 +58,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     return [
       'defid',
       '-printtoconsole',
-      '-rpcallowip=172.17.0.0/16',
+      '-rpcallowip=172.20.0.0/16',
       '-rpcbind=0.0.0.0',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
@@ -81,14 +81,20 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+
+    this.network = await this.getNetwork()
+    await this.network.connect({ Container: this.container.id })
+
+    const cInspect = await this.container.inspect()
+    console.log('cInspect: ', cInspect.NetworkSettings)
   }
 
   /**
-   * Generate a name for a new docker container with network type and random number
+   * Generate a name for a new docker container with defidNetwork type and random number
    */
   generateName (): string {
     const rand = Math.floor(Math.random() * 10000000)
-    return `${DeFiDContainer.PREFIX}-${this.network}-${rand}`
+    return `${DeFiDContainer.PREFIX}-${this.defidNetwork}-${rand}`
   }
 
   /**
@@ -123,6 +129,8 @@ export abstract class DeFiDContainer extends DockerContainer {
     })
 
     const text = await this.post(body)
+    // console.log('body: ', body)
+    // console.log('text: ', text)
     const { result, error } = JSON.parse(text)
 
     if (error !== undefined && error !== null) {
@@ -247,6 +255,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     } finally {
       try {
         await this.container?.remove({ v: true })
+        await this.network?.remove({ v: true })
       } finally {
         await cleanUpStale(DeFiDContainer.PREFIX, this.docker)
       }

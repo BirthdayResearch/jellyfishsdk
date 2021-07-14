@@ -1,8 +1,9 @@
-import Dockerode, { Container, DockerOptions } from 'dockerode'
+import Dockerode, { Container, DockerOptions, Network } from 'dockerode'
 
 export abstract class DockerContainer {
   protected readonly docker: Dockerode
   protected container?: Container
+  protected network?: Network
 
   protected constructor (
     protected readonly image: string,
@@ -42,6 +43,27 @@ export abstract class DockerContainer {
       return this.container
     }
     throw new Error('container not yet started')
+  }
+
+  protected async getNetwork (name = '@defichain/testcontainers'): Promise<Network> {
+    if (this.network !== undefined) return this.network
+
+    try {
+      const network = this.docker.getNetwork(name)
+      await network.inspect()
+      return network
+    } catch (err) {
+      return await this.docker.createNetwork({
+        Name: name,
+        IPAM: {
+          Driver: 'default',
+          Config: [{
+            Subnet: '172.20.0.0/16',
+            Gateway: '172.20.0.1'
+          }]
+        }
+      })
+    }
   }
 
   /**

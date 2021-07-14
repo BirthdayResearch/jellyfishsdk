@@ -51,7 +51,9 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     await super.start(startOptions)
 
     // Wait for ready and setup for auto mint
-    await super.waitForReady(25000)
+    // await super.waitForReady(25000)
+    await super.waitForReady(5000)
+    console.log('after waitForReady')
 
     // import keys for master node
     await this.call('importprivkey', [
