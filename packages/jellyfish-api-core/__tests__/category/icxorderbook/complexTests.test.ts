@@ -33,8 +33,7 @@ describe('ICX Complex test scenarios', () => {
   })
 
   afterEach(async () => {
-    // NOTE(surangap): enable this after #ain/583
-    // await icxSetup.closeAllOpenOffers()
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('make a higher offer to an sell DFI order, then the extra amount should be returned when DFC HTLC is submitted', async () => {
@@ -92,7 +91,7 @@ describe('ICX Complex test scenarios', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(15), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     await client.icxorderbook.submitDFCHTLC(DFCHTLC)
     await container.generate(1)
@@ -106,8 +105,7 @@ describe('ICX Complex test scenarios', () => {
     expect(accountBTCAfterDFCHTLC[idDFI]).toStrictEqual(accountBTCAfterOffer[idDFI].plus(0.005))
   })
 
-  // NOTE(surangap): enable this after 1.8.x
-  it.skip('should claim DFC HTLC for DFI sell order when DEX rate is changed in between', async () => {
+  it('should claim DFC HTLC for DFI sell order when DEX rate is changed in between', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
 
@@ -115,9 +113,9 @@ describe('ICX Complex test scenarios', () => {
     await accountToAccount(container, symbolBTC, 1, { from: accountBTC, to: accountDFI })
     await icxSetup.addLiquidityToBTCDFIPool(1, 150)
 
-    const { DFCHTLCTxId } = await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    const { DFCHTLCTxId } = await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
     await icxSetup.submitExtHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(0.10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N', '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252', 15)
+      '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N', '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252', 24)
 
     const accountDFIBeforeClaim: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     const accountBTCBeforeClaim: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')

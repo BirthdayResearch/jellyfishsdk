@@ -45,6 +45,10 @@ describe('ICXOrderBook.getOrder', () => {
     await container.stop()
   })
 
+  afterEach(async () => {
+    await icxSetup.closeAllOpenOffers()
+  })
+
   it('should get the correct order', async () => {
     // create first order - maker
     const order: ICXOrder = {
