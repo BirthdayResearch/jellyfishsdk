@@ -29,6 +29,10 @@ describe('ICXOrderBook.makeOffer', () => {
     await container.stop()
   })
 
+  afterEach(async () => {
+    await icxSetup.closeAllOpenOffers()
+  })
+
   it('should make an partial offer to an sell DFI order', async () => {
     const accountDFIBeforeOrder: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create order - maker

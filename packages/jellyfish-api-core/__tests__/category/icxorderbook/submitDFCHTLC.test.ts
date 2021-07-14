@@ -87,7 +87,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -166,7 +166,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(5), // lower than the amout in offer
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -300,7 +300,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
         amount: DFCHTLC.amount,
         amountInEXTAsset: DFCHTLC.amount.dividedBy(order.orderPrice),
         hash: DFCHTLC.hash,
-        timeout: new BigNumber(500),
+        timeout: new BigNumber(480),
         height: expect.any(BigNumber),
         refundHeight: expect.any(BigNumber)
       }
@@ -317,7 +317,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
 
     // input utxos
@@ -364,7 +364,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: 'INVALID_OFFER_TX_ID',
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const promise = client.icxorderbook.submitDFCHTLC(DFCHTLC)
 
@@ -376,7 +376,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: '123',
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const promise2 = client.icxorderbook.submitDFCHTLC(DFCHTLC2)
 
@@ -405,7 +405,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(15), // here the amount is 15 DFI, but in the offer the amount is 10 DFI
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const promise = client.icxorderbook.submitDFCHTLC(DFCHTLC)
 

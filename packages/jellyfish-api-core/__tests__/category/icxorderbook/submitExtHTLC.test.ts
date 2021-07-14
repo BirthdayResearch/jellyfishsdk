@@ -95,7 +95,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -122,7 +122,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
     await container.generate(1)
@@ -234,7 +234,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should submit ExtHTLC for a DFC buy offer with input utxos', async () => {
     const { order, createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC - taker
@@ -244,7 +244,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
 
     // input utxos
@@ -285,7 +285,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should return an error when submitting ExtHTLC with incorrect ExtHTLC.offerTx', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC with offer tx "123"- taker
@@ -295,7 +295,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -308,7 +308,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const promise2 = client.icxorderbook.submitExtHTLC(ExtHTLC2)
     await expect(promise2).rejects.toThrow(RpcApiError)
@@ -329,7 +329,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should return an error when submitting ExtHTLC with incorrect ExtHTLC.amount than the amount in DFC HTLC', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC with amount 0.20 BTC- taker
@@ -339,7 +339,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -352,7 +352,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const promise2 = client.icxorderbook.submitExtHTLC(ExtHTLC2)
     await expect(promise2).rejects.toThrow(RpcApiError)
@@ -373,7 +373,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should return an error when submitting ExtHTLC with incorrect hash from the hash in DFC HTLC', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC with incorrect hash "INCORRECT_HASH" from DFCHTLC hash - taker
@@ -383,7 +383,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: 'INCORRECT_HASH',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -404,7 +404,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should return an error when submitting ExtHTLC with invalid ExtHTLC.ownerPubkey', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC with incorrect ownerPubkey "INVALID_OWNER_PUB_KEY" - taker
@@ -414,7 +414,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: 'INVALID_OWNER_PUB_KEY',
-      timeout: 15
+      timeout: 24
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -435,10 +435,10 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should test submitting ExtHTLC with different values for ExtHTLC.timeout', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
-    // submit EXT HTLC with timeout < 14 - taker
+    // submit EXT HTLC with timeout < 24 - taker
     const ExtHTLC: ExtHTLC = {
       offerTx: makeOfferTxId,
       amount: new BigNumber(0.10),
@@ -449,7 +449,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\ntimeout must be greater than 14\', code: -32600, method: icx_submitexthtlc')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test ICXSubmitEXTHTLCTx execution failed:\ntimeout must be greater than 23\', code: -32600, method: icx_submitexthtlc')
 
     // submit EXT HTLC with  a ExtHTLC.timeout such that order->creationHeight + order->expiry < current height + (ExtHTLC.timeout * 16) - taker
     ExtHTLC.timeout = 400
@@ -518,7 +518,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const promise = client.icxorderbook.submitExtHTLC(ExtHTLC)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -539,7 +539,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
   it('should not submit ExtHTLC for a DFC buy offer with arbitary input utxos', async () => {
     const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 500)
+    await icxSetup.createDFCHTLCForDFIBuyOffer(makeOfferTxId, new BigNumber(10), '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220', 1440)
 
     const accountBTCBeforeEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC with incorrect ownerPubkey "INVALID_OWNER_PUB_KEY" - taker
@@ -549,7 +549,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     // input utxos
     const inputUTXOs = await container.fundAddress(await container.getNewAddress(), 10)

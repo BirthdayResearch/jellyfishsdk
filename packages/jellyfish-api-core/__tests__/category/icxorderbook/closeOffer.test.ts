@@ -29,6 +29,10 @@ describe('ICXOrderBook.closeOffer', () => {
     await container.stop()
   })
 
+  afterEach(async () => {
+    await icxSetup.closeAllOpenOffers()
+  })
+
   it('should close an offer', async () => {
     // create order - maker
     const order: ICXOrder = {

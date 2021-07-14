@@ -80,7 +80,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -115,7 +115,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
     await container.generate(1)
@@ -165,7 +165,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -200,7 +200,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
     await container.generate(1)
@@ -239,14 +239,13 @@ describe('ICXOrderBook.listHTLCs', () => {
       }
     )
 
-    // NOTE(surangap): Enable this after AIN#599
     // List htlc with limit of 1 and check
-    // const listHTLCOptionsWithLimit1 = {
-    //   offerTx: makeOfferTxId,
-    //   limit: 1
-    // }
-    // const HTLCsWithLimit1: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithLimit1)
-    // expect(Object.keys(HTLCsWithLimit1).length).toBe(2)
+    const listHTLCOptionsWithLimit1 = {
+      offerTx: makeOfferTxId,
+      limit: 1
+    }
+    const HTLCsWithLimit1: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithLimit1)
+    expect(Object.keys(HTLCsWithLimit1).length).toBe(2)
   })
 
   it('should list closed HTLCs with ICXListHTLCOptions.closed parameter after HTLCs are expired', async () => {
@@ -260,7 +259,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -275,7 +274,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
     await container.generate(1)
@@ -315,7 +314,7 @@ describe('ICXOrderBook.listHTLCs', () => {
     )
 
     // expire HTLCs
-    await container.generate(550)
+    await container.generate(2000)
     const endBlockHeight = (await container.call('getblockchaininfo', [])).blocks
     expect(endBlockHeight).toBeGreaterThan(Number(startBlockHeight) + Number(550))
 
@@ -345,7 +344,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -380,7 +379,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
     await container.generate(1)
@@ -477,7 +476,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
