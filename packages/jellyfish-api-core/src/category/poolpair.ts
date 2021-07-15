@@ -69,13 +69,13 @@ export class PoolPair {
    * @param {AddPoolLiquiditySource} from pool liquidity sources
    * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
    * @param {string} shareAddress defi address for crediting tokens
-   * @param {AddPoolLiquidityOptions} [options]
+   * @param {PoolLiquidityOptions} [options]
    * @param {AddPoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string> {
+  async addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: PoolLiquidityOptions = {}): Promise<string> {
     const { utxos } = options
     return await this.client.call('addpoolliquidity', [from, shareAddress, utxos], 'bignumber')
   }
@@ -145,13 +145,13 @@ export class PoolPair {
    *
    * @param {string} address defi address for crediting tokens
    * @param {string} poolAccount pool liquidity account of owner
-   * @param {RemovePoolLiquidityOptions} [options]
+   * @param {PoolLiquidityOptions} [options]
    * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async removePoolLiquidity (address: string, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string> {
+  async removePoolLiquidity (address: string, poolAccount: string, options: PoolLiquidityOptions = {}): Promise<string> {
     const { utxos } = options
     return await this.client.call('removepoolliquidity', [address, poolAccount, utxos], 'bignumber')
   }
@@ -220,7 +220,7 @@ export interface AddPoolLiquiditySource {
   [address: string]: string | string[]
 }
 
-export interface AddPoolLiquidityOptions {
+export interface PoolLiquidityOptions {
   utxos?: UTXO[]
 }
 
@@ -235,8 +235,4 @@ export interface PoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
-}
-
-export interface RemovePoolLiquidityOptions {
-  utxos?: UTXO[]
 }

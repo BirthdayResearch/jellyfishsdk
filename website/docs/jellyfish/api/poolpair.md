@@ -104,14 +104,14 @@ Add pool liquidity transaction
 
 ```ts title="client.poolpair.addPoolLiquidity()"
 interface poolpair {
-  addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string>
+  addPoolLiquidity (from: PoolLiquidityOptions, shareAddress: string, options: PoolLiquidityOptions = {}): Promise<string>
 }
 
 interface AddPoolLiquiditySource {
   [address: string]: string | string[]
 }
 
-interface AddPoolLiquidityOptions {
+interface PoolLiquidityOptions {
   utxos?: UTXO[]
 }
 
@@ -209,10 +209,10 @@ Remove pool liquidity transaction
 
 ```ts title="client.poolpair.removePoolLiquidity()"
 interface poolpair {
-  removePoolLiquidity (address: string, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string>
+  removePoolLiquidity (address: string, poolAccount: string, options: PoolLiquidityOptions = {}): Promise<string>
 }
 
-interface RemovePoolLiquidityOptions {
+interface PoolLiquidityOptions {
   utxos?: UTXO[]
 }
 
