@@ -207,8 +207,8 @@ describe('Account', () => {
     const depthHistory = await client.account.listBurnHistory({
       depth
     })
-    const maxBlockHeight = Math.max(...history.map(el => el.blockHeight)) // Get maxBlockHeight from history
-    expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeTruthy()
+    expect(Math.max(...history.map(el => el.blockHeight))).toStrictEqual(112)
+    expect(Math.max(...depthHistory.map(el => el.blockHeight))).toBeGreaterThanOrEqual(112 - depth)
   })
 
   it('should listBurnHistory with limit 5', async () => {
