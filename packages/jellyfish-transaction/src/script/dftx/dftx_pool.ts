@@ -18,13 +18,13 @@ export interface PoolSwap {
   fromAmount: BigNumber // -------------| 8 bytes
   toScript: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes
   toTokenId: number // -----------------| VarUInt{1-9 bytes}
-  maxPrice: BigNumber // -------------| 8 bytes integer + 8 bytes for fraction
+  maxPrice: BigNumber // ---------------| 8 bytes integer + 8 bytes for fraction
 }
 
 /**
  * Composable PoolSwap, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- * * @throws Error if more than 8 decimals
+ * @throws Error if more than 8 decimals
  */
 export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   static OP_CODE = 0x73
