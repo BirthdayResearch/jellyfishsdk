@@ -66,7 +66,7 @@ describe('poolSwap', () => {
     const reserveAAfter = new BigNumber(poolpairResultBefore.totalLiquidity).pow(2).div(reserveBAfter) // 473.93364928032265610654
 
     expect(new BigNumber(poolpairResultAfter.reserveB)).toStrictEqual(reserveBAfter)
-    expect(poolpairResultAfter.reserveA.toFixed(0)).toStrictEqual(reserveAAfter.toFixed(0))
+    expect(poolpairResultAfter.reserveA.toFixed(8)).toStrictEqual(reserveAAfter.toFixed(8))
 
     const accountReceiver = (await client.account.getAccount(addressReceiver))[0]
     const accountReceiverBalance = new BigNumber(accountReceiver.split('@')[0]) // 526.06635072
