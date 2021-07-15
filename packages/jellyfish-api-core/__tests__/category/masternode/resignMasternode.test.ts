@@ -18,55 +18,42 @@ describe('Masternode', () => {
   })
 
   it('should resignMasternode', async () => {
-    const ownerAddress = await container.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
+    const address = await container.getNewAddress()
+    const id = await client.masternode.createMasternode(address)
+    await container.generate(20, address) // generate blocks to pass PRE_ENABLED state
+
+    const hex = await client.masternode.resignMasternode(id)
+    expect(hex).toStrictEqual(expect.stringMatching(/[0-f]{64}/))
 
     await container.generate(1)
 
-    const hex = await client.masternode.resignMasternode(masternodeId)
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
-
-    await container.generate(1)
-
-    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    const resignedMasternode = Object.values(await client.masternode.listMasternodes())
+      .filter(mn => mn.ownerAuthAddress === address)
 
     expect(resignedMasternode.length).toStrictEqual(1)
-    for (const masternode of resignedMasternode) {
-      expect(masternode.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
-      expect(masternode.resignTx).toStrictEqual(hex)
-    }
+
+    expect(resignedMasternode[0].state).toStrictEqual(MasternodeState.PRE_RESIGNED)
+    expect(resignedMasternode[0].resignTx).toStrictEqual(hex)
   })
 
   it('should resignMasternode with utxos', async () => {
-    const ownerAddress = await container.getNewAddress()
-    const masternodeId = await client.masternode.createMasternode(ownerAddress)
-    const { txid } = await container.fundAddress(ownerAddress, 10)
+    const address = await container.getNewAddress()
+    const id = await client.masternode.createMasternode(address)
+    await container.generate(20, address) // generate blocks to pass PRE_ENABLED state
+
+    const input = await container.fundAddress(address, 10)
+    const hex = await client.masternode.resignMasternode(id, [input])
+    expect(hex).toStrictEqual(expect.stringMatching(/[0-f]{64}/))
 
     await container.generate(1)
 
-    const utxos = (await container.call('listunspent'))
-      .filter((utxo: any) => utxo.txid === txid)
-      .map((utxo: any) => {
-        return {
-          txid: utxo.txid,
-          vout: utxo.vout
-        }
-      })
-
-    const hex = await client.masternode.resignMasternode(masternodeId, utxos)
-    expect(typeof hex).toStrictEqual('string')
-    expect(hex.length).toStrictEqual(64)
-
-    await container.generate(1)
-
-    const resignedMasternode = Object.values(await client.masternode.listMasternodes()).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    const resignedMasternode = Object.values(await client.masternode.listMasternodes())
+      .filter(mn => mn.ownerAuthAddress === address)
 
     expect(resignedMasternode.length).toStrictEqual(1)
-    for (const masternode of resignedMasternode) {
-      expect(masternode.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
-      expect(masternode.resignTx).toStrictEqual(hex)
-    }
+
+    expect(resignedMasternode[0].state).toStrictEqual(MasternodeState.PRE_RESIGNED)
+    expect(resignedMasternode[0].resignTx).toStrictEqual(hex)
   })
 
   it('should throw an error with invalid masternode id', async () => {
@@ -80,11 +67,11 @@ describe('Masternode', () => {
   it('should not resignMasternode with arbitrary utxos', async () => {
     const ownerAddress = await container.getNewAddress()
     const masternodeId = await client.masternode.createMasternode(ownerAddress)
-    const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
+    const input = await container.fundAddress(await container.getNewAddress(), 10)
 
     await container.generate(1)
 
-    const promise = client.masternode.resignMasternode(masternodeId, [{ txid, vout }])
+    const promise = client.masternode.resignMasternode(masternodeId, [input])
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test ResignMasternodeTx execution failed:\n' + 'tx must have at least one input from the owner\', code: -32600, method: resignmasternode')

@@ -28,16 +28,7 @@ export class Mining {
   }
 
   /**
-   * Get minting-related information
-   * @return {Promise<MintingInfo>}
-   * @deprecated Prefer using getMiningInfo.
-   */
-  async getMintingInfo (): Promise<MintingInfo> {
-    return await this.client.call('getmintinginfo', [], 'number')
-  }
-
-  /**
-   * Get mining-related information, replaces deprecated getMintingInfo
+   * Get mining-related information
    * @return {Promise<MiningInfo>}
    */
   async getMiningInfo (): Promise<MiningInfo> {
@@ -95,12 +86,13 @@ export interface MiningInfo {
  * Masternode related information
  */
 export interface MasternodeInfo {
-  masternodeid?: string
-  masternodeoperator?: string
-  masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
-  generate?: boolean
-  mintedblocks?: number
-  lastblockcreationattempt?: string
+  id: string
+  operator: string
+  state: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  generate: boolean
+  mintedblocks: number
+  lastblockcreationattempt: string
+  targetMultiplier: number
 }
 
 export interface SmartFeeEstimation {

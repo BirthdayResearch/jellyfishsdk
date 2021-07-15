@@ -39,7 +39,6 @@ describe('Masternode', () => {
       expect(typeof mn.creationHeight).toStrictEqual('number')
       expect(typeof mn.resignHeight).toStrictEqual('number')
       expect(typeof mn.resignTx).toStrictEqual('string')
-      expect(typeof mn.banHeight).toStrictEqual('number')
       expect(typeof mn.banTx).toStrictEqual('string')
       expect(mn.state).toStrictEqual(MasternodeState.PRE_ENABLED)
       expect(typeof mn.state).toStrictEqual('string')

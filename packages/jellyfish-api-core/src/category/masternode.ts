@@ -27,7 +27,7 @@ export class Masternode {
    * @param {string} [operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {CreateMasternodeOptions} [options]
    * @param {UTXO[]} [options.utxos = []]
-   * @param {string} [options.uxtos.txid] The transaction id
+   * @param {string} [options.utxos.txid] The transaction id
    * @param {string} [options.utxos.vout] The output number
    * @return {Promise<string>}
    */
@@ -162,7 +162,6 @@ export interface MasternodeInfo {
   creationHeight: number
   resignHeight: number
   resignTx: string
-  banHeight: number
   banTx: string
   state: MasternodeState
   mintedBlocks: number

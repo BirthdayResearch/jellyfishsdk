@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('BlockCount', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,11 +15,7 @@ describe('BlockCount', () => {
   })
 
   it('should getBlockCount', async () => {
-    await waitForExpect(async () => {
-      const info = await client.blockchain.getBlockchainInfo()
-      expect(info.blocks).toBeGreaterThan(1)
-    })
-
+    await container.generate(3)
     const blockCount: number = await client.blockchain.getBlockCount()
     expect(blockCount).toBeGreaterThanOrEqual(2)
   })

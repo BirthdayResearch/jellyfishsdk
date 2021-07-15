@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('Mining', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,10 +15,7 @@ describe('Mining', () => {
   })
 
   it('should getMiningInfo', async () => {
-    await waitForExpect(async () => {
-      const info = await client.mining.getMiningInfo()
-      await expect(info.blocks).toBeGreaterThan(1)
-    })
+    await container.generate(1)
 
     const info = await client.mining.getMiningInfo()
     const mn1 = info.masternodes[0]
@@ -32,12 +28,13 @@ describe('Mining', () => {
     expect(info.difficulty).toBeDefined()
     expect(info.isoperator).toStrictEqual(true)
 
-    expect(mn1.masternodeid).toBeDefined()
-    expect(mn1.masternodeoperator).toBeDefined()
-    expect(mn1.masternodestate).toStrictEqual('ENABLED')
-    expect(mn1.generate).toStrictEqual(true)
+    expect(mn1.id).toBeDefined()
+    expect(mn1.operator).toBeDefined()
+    expect(mn1.state).toStrictEqual('ENABLED')
+    expect(mn1.generate).toStrictEqual(false)
     expect(mn1.mintedblocks).toStrictEqual(0)
-    expect(mn1.lastblockcreationattempt).not.toStrictEqual('0')
+    expect(typeof mn1.lastblockcreationattempt).toStrictEqual('string')
+    expect(typeof mn1.targetMultiplier).toStrictEqual('number')
 
     expect(info.networkhashps).toBeGreaterThan(0)
     expect(info.pooledtx).toStrictEqual(0)

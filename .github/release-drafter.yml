@@ -22,7 +22,7 @@ version-resolver:
     labels:
       - 'kind/feature'
   default: patch
-prerelease: true
+prerelease: false
 template: |
   ## What’s Changed
 
