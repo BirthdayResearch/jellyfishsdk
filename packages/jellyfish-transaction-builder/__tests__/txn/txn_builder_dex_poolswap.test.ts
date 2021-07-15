@@ -22,7 +22,8 @@ const pairs: Record<string, { tokenA: number, tokenB: number }> = {
   PIG: { tokenA: 0, tokenB: Number.NaN },
   CAT: { tokenA: 0, tokenB: Number.NaN },
   DOG: { tokenA: 0, tokenB: Number.NaN },
-  BIRD: { tokenA: 0, tokenB: Number.NaN }
+  BIRD: { tokenA: 0, tokenB: Number.NaN },
+  FISH: { tokenA: 0, tokenB: Number.NaN }
 }
 
 beforeAll(async () => {
@@ -225,22 +226,23 @@ describe('dex.poolswap()', () => {
     await addPoolLiquidity(container, {
       tokenA: 'DFI',
       amountA: 100,
-      tokenB: 'BIRD',
+      tokenB: 'FISH',
       amountB: 20,
       shareAddress: addressLP
     })
     await providers.setupMocks()
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
-    await sendTokensToAddress(container, await providers.getAddress(), 2, 'BIRD')
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'FISH')
     await fundEllipticPair(container, providers.ellipticPair, 10)
     const script = await providers.elliptic.script()
 
     const txn = await builder.dex.poolSwap({
       fromScript: script,
-      fromTokenId: pairs.BIRD.tokenA,
+      fromTokenId: pairs.FISH.tokenA,
       fromAmount: new BigNumber('2'),
       toScript: script,
-      toTokenId: pairs.BIRD.tokenB,
+      toTokenId: pairs.FISH.tokenB,
+      // max accepted price should be 100 / 20 = 5.0
       maxPrice: new BigNumber('4.99999999')
     }, script)
     const promise = sendTransaction(container, txn)
