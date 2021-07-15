@@ -27,7 +27,7 @@ export class PoolPair {
    * @param {number} utxos.vout
    * @return {Promise<string>}
    */
-  async createPoolPair (metadata: CreatePoolPairMetadata, utxos: CreatePoolPairUTXO[] = []): Promise<string> {
+  async createPoolPair (metadata: CreatePoolPairMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createpoolpair', [metadata, utxos], 'number')
   }
 
@@ -115,19 +115,19 @@ export class PoolPair {
    * @param {to} metadata.to address of the owner of tokenTo
    * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
    * @param {maxPrice} [metadata.maxPrice] acceptable max price
-   *  @param {PoolSwapUTXO[]} [utxos = []] array for utxos to spend from.
-   *  @param {string} [utxos.txid] the transaction id.
-   *  @param {number} [utxos.vout] the output number.
-   *  @return {Promise<string>}  hex of performed transaction
+   * @param {UTXO[]} [utxos = []] array for utxos to spend from.
+   * @param {string} [utxos.txid] the transaction id.
+   * @param {number} [utxos.vout] the output number.
+   * @return {Promise<string>}  hex of performed transaction
    */
-  async poolSwap (metadata: PoolSwapMetadata, utxos: PoolSwapUTXO[] = []): Promise<string> {
+  async poolSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('poolswap', [metadata, utxos], 'bignumber')
   }
 
   /**
    * Create a test pool swap transaction to check pool swap's return result
    *
-   * @param {TestPoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
    * @param {string} metadata.from address of the owner of tokenFrom
    * @param {string} metadata.tokenFrom swap from token {symbol/id}
    * @param {number} metadata.amountFrom amount from tokenA
@@ -136,7 +136,7 @@ export class PoolPair {
    * @param {maxPrice} [metadata.maxPrice] acceptable max price
    * @return {Promise<string>} formatted as 'amount@token' swapped
    */
-  async testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string> {
+  async testPoolSwap (metadata: PoolSwapMetadata): Promise<string> {
     return await this.client.call('testpoolswap', [metadata], 'bignumber')
   }
 
@@ -146,7 +146,7 @@ export class PoolPair {
    * @param {string} address defi address for crediting tokens
    * @param {string} poolAccount pool liquidity account of owner
    * @param {RemovePoolLiquidityOptions} [options]
-   * @param {RemovePoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
+   * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
@@ -167,7 +167,7 @@ export interface CreatePoolPairMetadata {
   pairSymbol?: string
 }
 
-export interface CreatePoolPairUTXO {
+export interface UTXO {
   txid: string
   vout: number
 }
@@ -221,12 +221,7 @@ export interface AddPoolLiquiditySource {
 }
 
 export interface AddPoolLiquidityOptions {
-  utxos?: AddPoolLiquidityUTXO[]
-}
-
-export interface AddPoolLiquidityUTXO {
-  txid: string
-  vout: number
+  utxos?: UTXO[]
 }
 
 export interface PoolShareOptions {
@@ -242,25 +237,6 @@ export interface PoolSwapMetadata {
   maxPrice?: number
 }
 
-export interface PoolSwapUTXO {
-  txid: string
-  vout: number
-}
-
-export interface TestPoolSwapMetadata {
-  from: string
-  tokenFrom: string
-  amountFrom: number
-  to: string
-  tokenTo: string
-  maxPrice?: number
-}
-
 export interface RemovePoolLiquidityOptions {
-  utxos?: RemovePoolLiquidityUTXO[]
-}
-
-export interface RemovePoolLiquidityUTXO {
-  txid: string
-  vout: number
+  utxos?: UTXO[]
 }

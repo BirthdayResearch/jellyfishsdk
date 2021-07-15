@@ -79,7 +79,6 @@ describe('poolSwap', () => {
     const tokenAddress = await getNewAddress(container)
     const dfiAddress = await getNewAddress(container)
     const poolLiquidityAddress = await getNewAddress(container)
-    const { txid } = await container.fundAddress(dfiAddress, 10)
 
     await createToken(container, 'ETH', { collateralAddress: tokenAddress })
     await utxosToAccount(container, 1000, { address: dfiAddress })
@@ -103,18 +102,16 @@ describe('poolSwap', () => {
       maxPrice: 10
     }
 
-    const utxos = (await container.call('listunspent'))
-      .filter((utxo: any) => utxo.txid === txid)
-      .map((utxo: any) => {
-        return {
-          txid: utxo.txid,
-          vout: utxo.vout
-        }
-      })
+    await container.fundAddress(dfiAddress, 25)
+    const utxos = await container.call('listunspent')
+    const utxo = utxos.find((utxo: any) => utxo.address === dfiAddress)
 
-    const hex = await client.poolpair.poolSwap(metadata, utxos)
+    const hex = await client.poolpair.poolSwap(metadata, [utxo])
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
+
+    const rawtx = await container.call('getrawtransaction', [hex, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
   })
 
   it('should poolSwap with max price', async () => {

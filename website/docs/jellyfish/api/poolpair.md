@@ -112,10 +112,10 @@ interface AddPoolLiquiditySource {
 }
 
 interface AddPoolLiquidityOptions {
-  utxos?: AddPoolLiquidityUTXO[]
+  utxos?: UTXO[]
 }
 
-interface AddPoolLiquidityUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
@@ -162,11 +162,11 @@ interface PoolShareOptions {
 ```
 
 ## poolSwap 
-Creates a poolSwap transaction.
+Creates a pool swap transaction with given metadata.
 
 ```ts title="client.poolpair.poolSwap()"
 interface poolpair {
-  poolSwap (metadata: PoolSwapMetadata, utxos: PoolSwapUTXO[] = []): Promise<string>
+  poolSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
 interface PoolSwapMetadata {
@@ -178,7 +178,7 @@ interface PoolSwapMetadata {
   maxPrice?: number
 }
 
-interface PoolSwapUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
@@ -190,10 +190,10 @@ Create a test pool swap transaction to check pool swap's return result
 
 ```ts title="client.poolpair.testPoolSwap()"
 interface poolpair {
-  testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string>
+  testPoolSwap (metadata: PoolSwapMetadata): Promise<string>
 }
 
-interface TestPoolSwapMetadata {
+interface PoolSwapMetadata {
   from: string
   tokenFrom: string
   amountFrom: number
@@ -213,10 +213,10 @@ interface poolpair {
 }
 
 interface RemovePoolLiquidityOptions {
-  utxos?: RemovePoolLiquidityUTXO[]
+  utxos?: UTXO[]
 }
 
-interface RemovePoolLiquidityUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
