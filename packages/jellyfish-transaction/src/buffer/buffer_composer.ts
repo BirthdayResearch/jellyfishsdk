@@ -552,7 +552,7 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       fromBuffer: (buffer: SmartBuffer): void => {
         const integer = readBigNumberUInt64(buffer)
         const fraction = readBigNumberUInt64(buffer)
-        if (fraction.decimalPlaces() > 8) {
+        if (fraction.gt(new BigNumber('99999999'))) {
           throw new Error('Too many decimals read from buffer. Will lose precision with more than 8 decimals')
         }
         setter(integer.plus(fraction.dividedBy(ONE_HUNDRED_MILLION)))
