@@ -9,6 +9,7 @@
       <excludeFolder url="file://$MODULE_DIR$/coverage" />
       <excludePattern pattern="*tsconfig.build.tsbuildinfo*" />
       <excludePattern pattern="*dist*" />
+      <excludePattern pattern="*coverage*" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
