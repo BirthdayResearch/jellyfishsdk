@@ -6,6 +6,9 @@ import { TransactionsController } from '@src/module.api/transaction.controller'
 import { Bech32, Elliptic, HRP } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
 import { BadRequestApiException } from '@src/module.api/_core/api.error'
+import { TransactionMapper } from '@src/module.model/transaction'
+import { DatabaseModule } from '@src/module.database/_module'
+import { ConfigModule } from '@nestjs/config'
 
 describe('transactions', () => {
   const container = new MasterNodeRegTestContainer()
@@ -25,10 +28,18 @@ describe('transactions', () => {
 
   beforeEach(async () => {
     await container.waitForWalletBalanceGTE(11)
+    const defidUrl = await container.getCachedRpcUrl()
 
     const app: TestingModule = await Test.createTestingModule({
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [() => ({ defid: { url: defidUrl } })]
+        }),
+        DatabaseModule.forRoot('memory')
+      ],
       controllers: [TransactionsController],
-      providers: [{ provide: JsonRpcClient, useValue: client }]
+      providers: [TransactionMapper, { provide: JsonRpcClient, useValue: client }]
     }).compile()
 
     controller = app.get<TransactionsController>(TransactionsController)
