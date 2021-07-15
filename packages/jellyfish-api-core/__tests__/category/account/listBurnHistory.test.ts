@@ -193,11 +193,12 @@ describe('Account', () => {
   })
 
   it('should listBurnHistory with maxBlockHeight 110', async () => {
-    const maxBlockHeight = 110
-    const history = await client.account.listBurnHistory({
-      maxBlockHeight
+    const history = await client.account.listBurnHistory()
+    const historyWithMaxBlockHeight = await client.account.listBurnHistory({
+      maxBlockHeight: 110
     })
-    expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeTruthy()
+    expect(Math.max(...history.map(el => el.blockHeight))).toStrictEqual(112)
+    expect(Math.max(...historyWithMaxBlockHeight.map(el => el.blockHeight))).toBeLessThanOrEqual(110)
   })
 
   it('should listBurnHistory with depth 10', async () => {
