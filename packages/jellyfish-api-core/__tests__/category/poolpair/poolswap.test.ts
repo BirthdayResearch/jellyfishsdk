@@ -192,7 +192,6 @@ describe('poolSwap', () => {
       tokenB: 'DFI',
       amountB: 500,
       shareAddress: poolLiquidityAddress
-
     })
 
     const metadata: PoolSwapMetadata = {

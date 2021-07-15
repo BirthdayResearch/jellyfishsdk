@@ -22,7 +22,7 @@ export class PoolPair {
    * @param {string} metadata.ownerAddress
    * @param {string} [metadata.customRewards]
    * @param {string} [metadata.pairSymbol]
-   * @param {CreatePoolPairUTXO[]} utxos is an array of specific UTXOs to spend
+   * @param {UTXO[]} utxos is an array of specific UTXOs to spend
    * @param {string} utxos.txid
    * @param {number} utxos.vout
    * @return {Promise<string>}
