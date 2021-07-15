@@ -72,7 +72,7 @@ describe('poolSwap', () => {
     const accountReceiverBalance = new BigNumber(accountReceiver.split('@')[0]) // 526.06635072
     const amountReceived = new BigNumber(poolpairResultBefore.reserveA).minus(reserveAAfter) // 526.06635071967734389346
 
-    expect(accountReceiverBalance.toFixed(0)).toStrictEqual(amountReceived.toFixed(0))
+    expect(accountReceiverBalance.toFixed(8)).toStrictEqual(amountReceived.toFixed(8))
   })
 
   it('should poolSwap with utxos', async () => {
