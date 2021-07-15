@@ -13,6 +13,14 @@ export class Transactions {
   }
 
   /**
+   * @param {string} id of transaction to query
+   * @return {Promise<Transaction>}
+   */
+  async get (id: string): Promise<Transaction> {
+    return await this.client.requestData('GET', `transactions/${id}`)
+  }
+
+  /**
    * @param {RawTxReq} rawTx to test mempool acceptance
    * @throws WhaleApiException if failed mempool acceptance
    */
@@ -35,4 +43,24 @@ export class Transactions {
 export interface RawTxReq {
   hex: string
   maxFeeRate?: number
+}
+
+/**
+ * Transaction interface
+ */
+export interface Transaction {
+  id: string
+  block: {
+    hash: string
+    height: number
+  }
+  txid: string
+  hash: string
+  version: number
+  size: number
+  vSize: number
+  weight: number
+  lockTime: number
+  vinCount: number
+  voutCount: number
 }
