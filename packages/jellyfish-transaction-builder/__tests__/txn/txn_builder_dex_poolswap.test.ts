@@ -12,6 +12,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import waitForExpect from 'wait-for-expect'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -21,7 +22,8 @@ let jsonRpc: JsonRpcClient
 const pairs: Record<string, { tokenA: number, tokenB: number }> = {
   PIG: { tokenA: 0, tokenB: Number.NaN },
   CAT: { tokenA: 0, tokenB: Number.NaN },
-  DOG: { tokenA: 0, tokenB: Number.NaN }
+  DOG: { tokenA: 0, tokenB: Number.NaN },
+  BIRD: { tokenA: 0, tokenB: Number.NaN }
 }
 
 beforeAll(async () => {
@@ -186,5 +188,50 @@ describe('dex.poolswap()', () => {
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('Price is higher than indicated')
+  })
+
+  it('should fail with 4.99999999 and pass with 5.0', async () => {
+    providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+    const addressLP = await container.getNewAddress()
+    await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 100,
+      tokenB: 'BIRD',
+      amountB: 20,
+      shareAddress: addressLP
+    })
+    await providers.setupMocks()
+    await utxosToAccount(container, 100, { address: await providers.getAddress() })
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'BIRD')
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    const script = await providers.elliptic.script()
+
+    await waitForExpect(async () => {
+      const txn = await builder.dex.poolSwap({
+        fromScript: script,
+        fromTokenId: pairs.BIRD.tokenA,
+        fromAmount: new BigNumber('2'),
+        toScript: script,
+        toTokenId: pairs.BIRD.tokenB,
+        maxPrice: new BigNumber('4.99999999')
+      }, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('Price is higher than indicated')
+    })
+
+    await waitForExpect(async () => {
+      const txn = await builder.dex.poolSwap({
+        fromScript: script,
+        fromTokenId: pairs.BIRD.tokenA,
+        fromAmount: new BigNumber('2'),
+        toScript: script,
+        toTokenId: pairs.BIRD.tokenB,
+        maxPrice: new BigNumber('5.0')
+      }, script)
+      const promise = sendTransaction(container, txn)
+      await expect(promise).resolves.not.toThrow()
+    })
   })
 })
