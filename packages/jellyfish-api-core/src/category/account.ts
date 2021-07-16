@@ -12,7 +12,7 @@ export enum OwnerType {
 }
 
 export enum DfTxType {
-  MINT_TOKEN ='M',
+  MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -29,6 +29,12 @@ export enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A'
+}
+
+export enum SelectionModeType {
+  PIE = 'pie',
+  CRUMBS = 'crumbs',
+  FORWARD = 'forward'
 }
 
 type AccountRegexType = `${number}@${string}`
@@ -311,6 +317,32 @@ export class Account {
   ): Promise<number> {
     return await this.client.call('accounthistorycount', [owner, options], 'number')
   }
+
+  /**
+   * Creates a transfer transaction from your accounts balances.
+   *
+   * @param {AddressBalances} from source address as the key, the value is amount formatted as amount@token
+   * @param {AddressBalances} to address as the key, the value is amount formatted as amount@token
+   * @param {SendTokensOptions} [options = { selectionMode: SelectionModeType.PIE }]
+   * @param {SelectionModeType} [options.selectionMode] Account selection mode. If "from" param is empty, it will auto select.
+   * @return {Promise<string>}
+   */
+  async sendTokensToAddress (
+    from: AddressBalances,
+    to: AddressBalances,
+    options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
+  ): Promise<string> {
+    return await this.client.call('sendtokenstoaddress', [from, to, options.selectionMode], 'number')
+  }
+
+  /**
+   * Returns information about current anchor bonus, incentive funding, burnt token(s)
+   *
+   * @return {Promise<CommunityBalanceData>}
+   */
+  async listCommunityBalances (): Promise<CommunityBalanceData> {
+    return await this.client.call('listcommunitybalances', [], 'bignumber')
+  }
 }
 
 export interface AccountPagination {
@@ -386,4 +418,23 @@ export interface AccountHistoryCountOptions {
   token?: string
   txtype?: DfTxType
   no_rewards?: boolean
+}
+
+export interface AddressBalances {
+  [key: string]: AccountRegexType[]
+}
+
+export interface SendTokensOptions {
+  selectionMode: SelectionModeType
+}
+
+export interface CommunityBalanceData {
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
+  Swap?: BigNumber
+  Futures?: BigNumber
+  Options?: BigNumber
+  Unallocated?: BigNumber
+  Unknown?: BigNumber
 }

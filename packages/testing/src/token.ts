@@ -55,7 +55,7 @@ export async function mintTokens (
   options?: MintTokensOptions
 ): Promise<string> {
   const address = options?.address ?? await getNewAddress(container)
-  const utxoAmount = options?.utxoAmount ?? 100
+  const utxoAmount = options?.utxoAmount ?? 2000
   const mintAmount = options?.mintAmount ?? 2000
 
   await utxosToAccount(container, utxoAmount, { address })

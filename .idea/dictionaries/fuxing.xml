@@ -5,6 +5,7 @@
       <w>accounttoutxos</w>
       <w>acindex</w>
       <w>addpoolliquidity</w>
+      <w>aikchun</w>
       <w>amkheight</w>
       <w>ancestorcount</w>
       <w>ancestorfees</w>
@@ -17,6 +18,8 @@
       <w>bech</w>
       <w>bestblock</w>
       <w>bestblockhash</w>
+      <w>blockhash</w>
+      <w>blocktime</w>
       <w>booland</w>
       <w>boolor</w>
       <w>canonbrother</w>
@@ -171,6 +174,7 @@
       <w>signrawtransactionwithkey</w>
       <w>sigs</w>
       <w>sigsrequired</w>
+      <w>siradji</w>
       <w>softforks</w>
       <w>spentby</w>
       <w>strippedsize</w>

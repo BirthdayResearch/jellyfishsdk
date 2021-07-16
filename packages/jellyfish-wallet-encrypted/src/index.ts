@@ -1,9 +1,9 @@
-import { MnemonicHdNode, Bip32Options } from '@defichain/jellyfish-wallet-mnemonic'
+import { DERSignature, dSHA256 } from '@defichain/jellyfish-crypto'
+import { Bip32Options, MnemonicHdNode } from '@defichain/jellyfish-wallet-mnemonic'
 import { ScryptStorage } from './scrypt-storage'
 import secp256k1 from 'tiny-secp256k1'
 import * as bip32 from 'bip32'
-import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
-import { DERSignature, dSHA256 } from '@defichain/jellyfish-crypto'
+import { Transaction, Vout, TransactionSegWit } from '@defichain/jellyfish-transaction'
 
 export * from './scryptsy'
 export * from './scrypt-storage'

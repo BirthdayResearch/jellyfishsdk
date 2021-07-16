@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../src/buffer/buffer_composer'
 import { readVarUInt, writeVarUInt } from '../../src/buffer/buffer_varuint'
@@ -150,6 +150,11 @@ describe('ComposableBuffer deep implementation', () => {
     const root = new CRoot(buffer)
 
     expect(JSON.stringify(root.toObject())).toStrictEqual(JSON.stringify(data))
+  })
+
+  it('should encode toHex properly', () => {
+    const root = new CRoot(data)
+    expect(root.toHex()).toStrictEqual(hex)
   })
 })
 
@@ -1245,5 +1250,58 @@ describe('ComposableBuffer.uBool32', () => {
     composer.toBuffer(buffer)
 
     expect(buffer.toBuffer().toString('hex')).toStrictEqual('00000001')
+  })
+})
+
+describe('ComposableBuffer.maxPriceAsBigNumber', () => {
+  let value: BigNumber = new BigNumber('0x01')
+  const composer = ComposableBuffer.maxPriceAsBigNumber(() => value, (v: BigNumber) => value = v)
+
+  describe('0x00000000000000100000000000000000', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '00000000000000000100000000000000', new BigNumber('0.00000001'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '00000000000000000100000000000000', new BigNumber('0.00000001'), v => value = v)
+    })
+  })
+
+  describe('0x00000000505f0eff0000000000000020', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, '0200000000000000ffe0f50500000000', new BigNumber('2.99999999'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, '0200000000000000ffe0f50500000000', new BigNumber('2.99999999'), v => value = v)
+    })
+  })
+
+  describe('0x00000000505f0eff00000000505f0eff', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, 'ffe0f50500000000ffe0f50500000000', new BigNumber('99999999.99999999'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, 'ffe0f50500000000ffe0f50500000000', new BigNumber('99999999.99999999'), v => value = v)
+    })
+  })
+
+  describe('0x00000000505f0eff000000007468b8ff', () => {
+    it('should fromBuffer', () => {
+      shouldFromBuffer(composer, 'ff8b864700000000ffe0f50500000000', new BigNumber('1199999999.99999999'), () => value)
+    })
+
+    it('should toBuffer', () => {
+      shouldToBuffer(composer, 'ff8b864700000000ffe0f50500000000', new BigNumber('1199999999.99999999'), v => value = v)
+    })
+  })
+
+  it('should fail toBuffer validate', () => {
+    value = new BigNumber('0.000000000001')
+
+    expect(() => {
+      composer.toBuffer(new SmartBuffer())
+    }).toThrow('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
   })
 })

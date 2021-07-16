@@ -4,9 +4,7 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 import {
   Provider,
   HttpProvider,
-  OceanProvider,
-  HttpProviderConstructor,
-  OceanProviderConstructor
+  HttpProviderConstructor
 } from './provider'
 
 /**
@@ -34,14 +32,13 @@ const JellyfishOptionsDefault = {
  *
  * @param provider for the client
  * - HttpProvider(url: string)
- * - OceanProvider()
  * - url: string = defaults to HttpProvider(url)
  *
  * @param options jellyfish client options
  *
  * @constructor
  */
-function initClient (provider: string | Provider = OceanProvider(), options?: JellyfishOptions): ApiClient {
+function initClient (provider: string | Provider, options?: JellyfishOptions): ApiClient {
   const url = typeof provider === 'string' ? provider : provider.url
 
   return new JsonRpcClient(url,
@@ -50,9 +47,9 @@ function initClient (provider: string | Provider = OceanProvider(), options?: Je
 }
 
 interface ClientConstructor {
-  new (provider?: string | Provider, options?: JellyfishOptions): ApiClient
+  new (provider: string | Provider, options?: JellyfishOptions): ApiClient
 
-  (provider?: string | Provider, options?: JellyfishOptions): ApiClient
+  (provider: string | Provider, options?: JellyfishOptions): ApiClient
 }
 
 /**
@@ -60,7 +57,7 @@ interface ClientConstructor {
  */
 export const Client: ClientConstructor = initClient as ClientConstructor
 export {
-  HttpProvider, OceanProvider
+  HttpProvider
 }
 
 /**
@@ -90,28 +87,25 @@ export {
 
  * @example <caption>ES6 Modules</caption>
  * import {Client, HttpProvider} from '@defichain/jellyfish'
- * const client = new Client(new HttpProvider('https://ocean.jellyfish.com'), {
+ * // You can find this in your defi.config file
+ * const client = new Client(new HttpProvider(`http://${user}:${password}@127.0.0.1:${port}/`), {
  *   timeout: 30000
  * })
  *
  * @example <caption>ES6 Modules default</caption>
  * import jellyfish from '@defichain/jellyfish'
- * const client = jellyfish.Client('https://ocean.jellyfish.com')
+ * const client = jellyfish.Client(`http://${user}:${password}@127.0.0.1:${port}/`)
  *
  * @example <caption>CommonJS</caption>
  * var jf = require('@defichain/jellyfish')
- * var client1 = jf.Client('https://ocean.jellyfish.com')
- * // or
- * var client2 = new jf.Client(jf.OceanProvider())
+ * var client1 = jf.Client(`http://${user}:${password}@127.0.0.1:${port}/`)
  */
 export const Jellyfish: {
   Client: ClientConstructor
   HttpProvider: HttpProviderConstructor
-  OceanProvider: OceanProviderConstructor
 } = {
   Client,
-  HttpProvider,
-  OceanProvider
+  HttpProvider
 }
 
 export default Jellyfish

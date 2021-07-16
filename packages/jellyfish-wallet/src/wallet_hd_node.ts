@@ -1,22 +1,16 @@
-import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
-import { EllipticPair } from '@defichain/jellyfish-crypto'
+import { WalletEllipticPair } from './wallet_elliptic_pair'
 
 /**
  * WalletHdNode extends EllipticPair with additional interface to sign transaction.
  *
  * WalletHdNode uses a managed wallet design where defaults are decided by the implementation.
  * Keeping the WalletHdNode to conventional defaults and options to none.
+ *
+ *
+ * @see BIP32 Hierarchical Deterministic Wallets
+ * @see BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
-export interface WalletHdNode extends EllipticPair {
-
-  /**
-   * WalletHdNode transaction signing.
-   *
-   * @param {Transaction} transaction to sign
-   * @param {Vout[]} prevouts of the transaction to fund this transaction
-   * @return {TransactionSegWit} a signed transaction
-   */
-  signTx: (transaction: Transaction, prevouts: Vout[]) => Promise<TransactionSegWit>
+export interface WalletHdNode extends WalletEllipticPair {
 
 }
 

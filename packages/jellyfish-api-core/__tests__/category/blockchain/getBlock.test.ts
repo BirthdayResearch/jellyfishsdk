@@ -1,7 +1,8 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { BigNumber, blockchain } from '../../../src'
+import { blockchain } from '../../../src'
+import BigNumber from 'bignumber.js'
 
 describe('Block', () => {
   const container = new MasterNodeRegTestContainer()

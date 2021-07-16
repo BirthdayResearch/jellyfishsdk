@@ -188,7 +188,7 @@ export class Blockchain {
    * @return {Promise<MempoolInfo>}
    */
   async getMempoolInfo (): Promise<MempoolInfo> {
-    return await this.client.call('getmempoolinfo', [], 'bignumber')
+    return await this.client.call('getmempoolinfo', [], { mempoolminfee: 'bignumber', minrelaytxfee: 'bignumber' })
   }
 }
 
@@ -273,14 +273,14 @@ export interface Transaction {
 }
 
 export interface Vin {
-  coinbase: string
+  coinbase?: string
   txid: string
   vout: number
   scriptSig: {
     asm: string
     hex: string
   }
-  txinwitness: string[]
+  txinwitness?: string[]
   sequence: string
 }
 
@@ -379,10 +379,10 @@ export interface BlockStats {
 
 export interface MempoolInfo {
   loaded: boolean
-  size: BigNumber
-  bytes: BigNumber
-  usage: BigNumber
-  maxmempool: BigNumber
+  size: number
+  bytes: number
+  usage: number
+  maxmempool: number
   mempoolminfee: BigNumber
   minrelaytxfee: BigNumber
 }

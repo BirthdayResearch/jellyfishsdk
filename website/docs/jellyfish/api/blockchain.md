@@ -96,14 +96,14 @@ interface Transaction {
 }
 
 interface Vin {
-  coinbase: string
+  coinbase?: string
   txid: string
   vout: number
   scriptSig: {
     asm: string
     hex: string
   }
-  txinwitness: string[]
+  txinwitness?: string[]
   sequence: string
 }
 
@@ -280,10 +280,10 @@ interface blockchain {
 
 interface MempoolInfo {
   loaded: boolean
-  size: BigNumber
-  bytes: BigNumber
-  usage: BigNumber
-  maxmempool: BigNumber
+  size: number
+  bytes: number
+  usage: number
+  maxmempool: number
   mempoolminfee: BigNumber
   minrelaytxfee: BigNumber
 }
