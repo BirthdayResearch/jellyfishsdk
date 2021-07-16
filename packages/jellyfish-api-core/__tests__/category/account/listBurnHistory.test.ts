@@ -193,12 +193,14 @@ describe('Account', () => {
   })
 
   it('should listBurnHistory with maxBlockHeight 110', async () => {
+    const maxBlockHeight = 110
     const history = await client.account.listBurnHistory()
-    const historyWithMaxBlockHeight = await client.account.listBurnHistory({
-      maxBlockHeight: 110
+    const maxBlockHeightHistory = await client.account.listBurnHistory({
+      maxBlockHeight
     })
-    expect(Math.max(...history.map(el => el.blockHeight))).toStrictEqual(112)
-    expect(Math.max(...historyWithMaxBlockHeight.map(el => el.blockHeight))).toBeLessThanOrEqual(110)
+
+    expect(maxBlockHeightHistory.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeTruthy()
+    expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeFalsy()
   })
 
   it('should listBurnHistory with depth 10', async () => {
@@ -207,8 +209,10 @@ describe('Account', () => {
     const depthHistory = await client.account.listBurnHistory({
       depth
     })
-    expect(Math.max(...history.map(el => el.blockHeight))).toStrictEqual(112)
-    expect(Math.max(...depthHistory.map(el => el.blockHeight))).toBeGreaterThanOrEqual(112 - depth)
+    const maxBlockHeight = Math.max(...history.map(el => el.blockHeight)) // Get maxBlockHeight from history
+
+    expect(history.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeFalsy()
+    expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeTruthy()
   })
 
   it('should listBurnHistory with limit 5', async () => {
