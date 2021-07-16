@@ -64,7 +64,7 @@ export class JsonRpcClient extends ApiClient {
 
       case 401:
       case 404:
-        throw new ClientApiError(`${response.status as string} - ${response.statusText as string}`)
+        throw new ClientApiError(`${response.status} - ${response.statusText}`)
     }
   }
 
