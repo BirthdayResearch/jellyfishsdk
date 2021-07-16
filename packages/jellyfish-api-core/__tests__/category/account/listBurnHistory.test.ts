@@ -190,8 +190,8 @@ describe('Account', () => {
     expect(history.every(({ amounts }) => amounts[0].includes('DFI'))).toBeTruthy()
   })
 
-  it('should listBurnHistory with maxBlockHeight 110', async () => {
-    const maxBlockHeight = 110
+  it('should listBurnHistory with maxBlockHeight 105', async () => {
+    const maxBlockHeight = 105
     const history = await client.account.listBurnHistory()
     const maxBlockHeightHistory = await client.account.listBurnHistory({
       maxBlockHeight
@@ -201,16 +201,16 @@ describe('Account', () => {
     expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeFalsy()
   })
 
-  it('should listBurnHistory with depth 10', async () => {
-    const depth = 10
+  it('should listBurnHistory with depth 5', async () => {
+    const depth = 5
     const history = await client.account.listBurnHistory()
     const depthHistory = await client.account.listBurnHistory({
       depth
     })
     const maxBlockHeight = Math.max(...history.map(el => el.blockHeight)) // Get maxBlockHeight from history
 
-    expect(history.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeFalsy()
     expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeTruthy()
+    expect(history.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeFalsy()
   })
 
   it('should listBurnHistory with limit 5', async () => {
