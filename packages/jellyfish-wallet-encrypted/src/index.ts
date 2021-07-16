@@ -14,12 +14,7 @@ export class EncryptedMnemonicHdNode {
     private readonly options: Bip32Options,
     private readonly path: string,
     private readonly scryptStorage: ScryptStorage
-  ) {
-    this.pubKey = pubKey
-    this.options = options
-    this.path = path
-    this.scryptStorage = scryptStorage
-  }
+  ) {}
 
   /**
    * @returns {Promise<Buffer>} 33 bytes public key
@@ -118,11 +113,7 @@ export class EncryptedMnemonicProvider {
     private readonly scryptStorage: ScryptStorage,
     private readonly options: Bip32Options,
     private readonly seedHash: Buffer
-  ) {
-    this.scryptStorage = scryptStorage
-    this.options = options
-    this.seedHash = seedHash
-  }
+  ) {}
 
   /**
    * To create a provider which able to derive { @see EncryptedMnemonicHdNode } which has similar function as MnemonicHdNode

@@ -77,13 +77,10 @@ export function mnemonicToSeed (mnemonic: string[]): Buffer {
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
 export class MnemonicHdNode implements WalletHdNode {
-  private readonly root: bip32.BIP32Interface
-  private readonly path: string
-
-  constructor (root: bip32.BIP32Interface, path: string) {
-    this.root = root
-    this.path = path
-  }
+  constructor (
+    private readonly root: bip32.BIP32Interface,
+    private readonly path: string
+  ) {}
 
   /**
    * @private derive current code BIP32Interface, internal
@@ -164,11 +161,7 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
     return new MnemonicHdNodeProvider(node)
   }
 
-  private readonly root: bip32.BIP32Interface
-
-  private constructor (root: bip32.BIP32Interface) {
-    this.root = root
-  }
+  private constructor (private readonly root: bip32.BIP32Interface) {}
 
   derive (path: string): MnemonicHdNode {
     return new MnemonicHdNode(this.root, path)
