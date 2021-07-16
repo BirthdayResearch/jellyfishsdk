@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
+import BigNumber from 'bignumber.js'
 
 describe('Token', () => {
   const container = new MasterNodeRegTestContainer()
@@ -48,15 +49,15 @@ describe('Token', () => {
         expect(newToken.tradeable).toStrictEqual(metadata.tradeable)
         expect(newToken.collateralAddress).toStrictEqual(metadata.collateralAddress)
         expect(newToken.isDAT).toStrictEqual(metadata.isDAT)
-        expect(newToken.decimal).toStrictEqual(8)
-        expect(newToken.limit).toStrictEqual(0)
+        expect(newToken.decimal).toStrictEqual(new BigNumber('8'))
+        expect(newToken.limit).toStrictEqual(new BigNumber('0'))
         expect(newToken.isLPS).toStrictEqual(false)
         expect(newToken.finalized).toStrictEqual(false)
-        expect(newToken.minted).toStrictEqual(0)
+        expect(newToken.minted).toStrictEqual(new BigNumber('0'))
         expect(typeof newToken.creationTx).toStrictEqual('string')
         expect(typeof newToken.destructionTx).toStrictEqual('string')
-        expect(typeof newToken.creationHeight).toStrictEqual('number')
-        expect(typeof newToken.destructionHeight).toStrictEqual('number')
+        expect(newToken.creationHeight instanceof BigNumber).toStrictEqual(true)
+        expect(newToken.destructionHeight instanceof BigNumber).toStrictEqual(true)
       }
     }
   })
@@ -101,15 +102,15 @@ describe('Token', () => {
         expect(newToken.tradeable).toStrictEqual(metadata.tradeable)
         expect(newToken.collateralAddress).toStrictEqual(metadata.collateralAddress)
         expect(newToken.isDAT).toStrictEqual(metadata.isDAT)
-        expect(newToken.decimal).toStrictEqual(8)
-        expect(newToken.limit).toStrictEqual(0)
+        expect(newToken.decimal).toStrictEqual(new BigNumber('8'))
+        expect(newToken.limit).toStrictEqual(new BigNumber('0'))
         expect(newToken.isLPS).toStrictEqual(false)
         expect(newToken.finalized).toStrictEqual(false)
-        expect(newToken.minted).toStrictEqual(0)
+        expect(newToken.minted).toStrictEqual(new BigNumber('0'))
         expect(typeof newToken.creationTx).toStrictEqual('string')
         expect(typeof newToken.destructionTx).toStrictEqual('string')
-        expect(typeof newToken.creationHeight).toStrictEqual('number')
-        expect(typeof newToken.destructionHeight).toStrictEqual('number')
+        expect(newToken.creationHeight instanceof BigNumber).toStrictEqual(true)
+        expect(newToken.destructionHeight instanceof BigNumber).toStrictEqual(true)
       }
     }
   })

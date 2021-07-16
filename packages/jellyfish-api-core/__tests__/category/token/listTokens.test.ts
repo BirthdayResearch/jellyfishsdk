@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
+import BigNumber from 'bignumber.js'
 
 describe('Token without masternode', () => {
   const container = new RegTestContainer()
@@ -27,18 +28,18 @@ describe('Token without masternode', () => {
     expect(data.symbol).toStrictEqual('DFI')
     expect(data.symbolKey).toStrictEqual('DFI')
     expect(data.name).toStrictEqual('Default Defi token')
-    expect(data.decimal).toStrictEqual(8)
-    expect(data.limit).toStrictEqual(0)
+    expect(data.decimal).toStrictEqual(new BigNumber('8'))
+    expect(data.limit).toStrictEqual(new BigNumber('0'))
     expect(data.mintable).toStrictEqual(false)
     expect(data.tradeable).toStrictEqual(true)
     expect(data.isDAT).toStrictEqual(true)
     expect(data.isLPS).toStrictEqual(false)
     expect(data.finalized).toStrictEqual(true)
-    expect(data.minted).toStrictEqual(0)
+    expect(data.minted).toStrictEqual(new BigNumber('0'))
     expect(data.creationTx).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000000')
-    expect(data.creationHeight).toStrictEqual(0)
+    expect(data.creationHeight).toStrictEqual(new BigNumber('0'))
     expect(data.destructionTx).toStrictEqual('0000000000000000000000000000000000000000000000000000000000000000')
-    expect(data.destructionHeight).toStrictEqual(-1)
+    expect(data.destructionHeight).toStrictEqual(new BigNumber('-1'))
     expect(data.collateralAddress).toStrictEqual('')
   })
 
@@ -115,14 +116,14 @@ describe('Token on masternode', () => {
     const tokens = await client.token.listTokens()
     for (const k in tokens) {
       const token = tokens[k]
-      expect(token.decimal).toStrictEqual(8)
-      expect(token.limit).toStrictEqual(0)
-      expect(token.minted).toStrictEqual(0)
+      expect(token.decimal).toStrictEqual(new BigNumber('8'))
+      expect(token.limit).toStrictEqual(new BigNumber('0'))
+      expect(token.minted).toStrictEqual(new BigNumber('0'))
       expect(token.isLPS).toStrictEqual(false)
       expect(typeof token.creationTx).toStrictEqual('string')
-      expect(typeof token.creationHeight).toStrictEqual('number')
+      expect(token.creationHeight instanceof BigNumber).toStrictEqual(true)
       expect(typeof token.destructionTx).toStrictEqual('string')
-      expect(typeof token.destructionHeight).toStrictEqual('number')
+      expect(token.destructionHeight instanceof BigNumber).toStrictEqual(true)
       expect(typeof token.collateralAddress).toStrictEqual('string')
 
       switch (token.symbol) {

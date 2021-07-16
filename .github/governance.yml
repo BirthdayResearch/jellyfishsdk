@@ -20,6 +20,11 @@ issue:
         - feature
         - bug
         - question
+        - fix
+        - chore
+        - docs
+        - refactor
+        - dependencies
       multiple: false
       needs: true
       author_association:
@@ -45,6 +50,7 @@ issue:
         - jellyfish-transaction-signature
         - jellyfish-wallet
         - jellyfish-wallet-encrypted
+        - jellyfish-wallet-classic
         - jellyfish-wallet-mnemonic
         - testcontainers
         - testing

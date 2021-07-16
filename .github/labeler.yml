@@ -66,6 +66,11 @@ labels:
     matcher:
       files: "packages/jellyfish-wallet-encrypted/**"
 
+  - label: area/jellyfish-wallet-classic
+    sync: true
+    matcher:
+      files: "packages/jellyfish-wallet-classic/**"
+
   - label: area/jellyfish-wallet-mnemonic
     sync: true
     matcher:

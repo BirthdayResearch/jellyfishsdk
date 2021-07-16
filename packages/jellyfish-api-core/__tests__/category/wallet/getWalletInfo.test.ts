@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import waitForExpect from 'wait-for-expect'
-import { BigNumber } from '../../../src'
+import BigNumber from 'bignumber.js'
 
 describe('Wallet without masternode', () => {
   const container = new RegTestContainer()

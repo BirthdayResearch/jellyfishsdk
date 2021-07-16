@@ -49,7 +49,7 @@ interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: string[]
   creationTx: string
   creationHeight: number
 }
@@ -91,7 +91,7 @@ interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: string[]
   creationTx: string
   creationHeight: number
 }
@@ -158,5 +158,43 @@ interface PoolPairPagination {
 
 interface PoolShareOptions {
   isMineOnly?: boolean
+}
+```
+
+## testPoolSwap
+
+Create a test pool swap transaction to check pool swap's return result
+
+```ts title="client.poolpair.testPoolSwap()"
+interface poolpair {
+  testPoolSwap (metadata: TestPoolSwapMetadata): Promise<string>
+}
+
+interface TestPoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
+}
+```
+
+## removePoolLiquidity
+
+Remove pool liquidity transaction
+
+```ts title="client.poolpair.removePoolLiquidity()"
+interface poolpair {
+  removePoolLiquidity (address: string, poolAccount: string, options: RemovePoolLiquidityOptions = {}): Promise<string>
+}
+
+interface RemovePoolLiquidityOptions {
+  utxos?: RemovePoolLiquidityUTXO[]
+}
+
+interface RemovePoolLiquidityUTXO {
+  txid: string
+  vout: number
 }
 ```

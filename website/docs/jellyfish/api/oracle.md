@@ -15,7 +15,7 @@ const something = await client.oracle.method()
 
 ## appointOracle
 
-Creates a price oracle for rely of real time price data.
+Creates a price oracle for relay of real time price data.
 
 ```ts title="client.oracle.appointOracle()"
 interface oracle {
@@ -55,7 +55,7 @@ interface UTXO {
 
 ## updateOracle
 
-Update a price oracle for rely of real time price data.
+Update a price oracle for relay of real time price data.
 
 ```ts title="client.oracle.updateOracle()"
 interface oracle {
@@ -170,5 +170,37 @@ interface OracleRawPrice {
 interface OraclePriceFeed {
   token: string
   currency: string
+}
+```
+
+## getPrice
+
+Returns aggregated price from oracles.
+
+```ts title="client.oracle.getPrice()"
+interface oracle {
+  getPrice (priceFeed: OraclePriceFeed): Promise<BigNumber>
+}
+
+interface OraclePriceFeed {
+  token: string
+  currency: string
+}
+```
+
+## listPrices
+
+List all aggregated prices.
+
+```ts title="client.oracle.listPrices()"
+interface oracle {
+  listPrices (): Promise<ListPricesData[]>
+}
+
+interface ListPricesData {
+  token: string
+  currency: string
+  price?: BigNumber
+  ok: boolean | string
 }
 ```

@@ -17,7 +17,8 @@ module.exports = {
         'jellyfish/api/token',
         'jellyfish/api/account',
         'jellyfish/api/oracle',
-        'jellyfish/api/server'
+        'jellyfish/api/server',
+        'jellyfish/api/masternode'
       ]
     }
   ],
