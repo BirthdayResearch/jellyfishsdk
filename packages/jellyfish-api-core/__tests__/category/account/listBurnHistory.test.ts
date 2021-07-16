@@ -42,7 +42,6 @@ describe('Account', () => {
     await accountToAccount(container, 'GOLD', 100, {
       from: fundedAddress, to: burnAddress
     })
-    await container.generate(1)
 
     // utxostoaccount burn
     await container.call('utxostoaccount', [{ [burnAddress]: '1@0' }])
@@ -52,7 +51,6 @@ describe('Account', () => {
     await accountToAccount(container, '0', 1, {
       from: fundedAddress, to: burnAddress
     })
-    await container.generate(1)
 
     // send to burn address with accounttoutxos
     const payload: BalanceTransferPayload = {}
