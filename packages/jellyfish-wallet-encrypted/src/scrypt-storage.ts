@@ -73,12 +73,7 @@ export class ScryptStorage {
     readonly encryptedStorage: Storage,
     readonly hashStorage: Storage,
     readonly ivProvider?: InitVectorProvider
-  ) {
-    this.scryptProvider = scryptProvider
-    this.encryptedStorage = encryptedStorage
-    this.hashStorage = hashStorage
-    this.ivProvider = ivProvider
-  }
+  ) {}
 
   /**
    * To encrypt `data` with a `passphrase` derived secret (derivation based on provided `ScryptProvider`)
