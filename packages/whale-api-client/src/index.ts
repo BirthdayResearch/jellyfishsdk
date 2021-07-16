@@ -5,6 +5,7 @@ export * as poolpair from './api/poolpair'
 export * as rpc from './api/rpc'
 export * as transactions from './api/transactions'
 export * as tokens from './api/tokens'
+export * as masternodes from './api/masternode'
 
 export * from './whale.api.client'
 export * from './whale.api.response'
