@@ -187,6 +187,7 @@ describe('Account', () => {
     const history = await client.account.listBurnHistory({
       token: 'DFI'
     })
+    expect(history.length).toStrictEqual(6)
     expect(history.every(({ amounts }) => amounts[0].includes('DFI'))).toBeTruthy()
   })
 
