@@ -1,7 +1,7 @@
 import { Bip32Options } from '@defichain/jellyfish-wallet-mnemonic'
-import { ScryptStorage } from './scrypt-storage'
+import { ScryptStorage } from './scrypt_storage'
 import * as bip32 from 'bip32'
-import { Bip32Provider } from './encrypted-mnemonic-provider'
+import { Bip32Provider } from './encrypted_mnemonic_provider'
 
 export class EncryptedBip32Provider implements Bip32Provider {
   /**

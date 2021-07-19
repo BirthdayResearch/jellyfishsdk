@@ -1,5 +1,5 @@
 import { Bip32Options, MnemonicHdNode } from '@defichain/jellyfish-wallet-mnemonic'
-import { ScryptStorage } from './scrypt-storage'
+import { ScryptStorage } from './scrypt_storage'
 import * as bip32 from 'bip32'
 import { Transaction, Vout, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
