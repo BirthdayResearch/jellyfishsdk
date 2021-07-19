@@ -188,3 +188,13 @@ export interface MasternodeInfo {
 export interface MasternodeResult<T> {
   [id: string]: T
 }
+
+export interface MasternodeIdentifier {
+  id?: string
+  ownerAddress?: string
+  operatorAddress?: string
+}
+
+export interface MasternodeBlocksResult {
+  [height: string]: string
+}
