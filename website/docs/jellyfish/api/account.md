@@ -343,7 +343,7 @@ Returns information about burn history
 
 ```ts title="client.account.listBurnHistory()"
 interface account {
-  listBurnHistory(
+  listBurnHistory (
     options: BurnHistoryOptions = { limit: 100 }
   ): Promise<BurnHistory[]>
 }
