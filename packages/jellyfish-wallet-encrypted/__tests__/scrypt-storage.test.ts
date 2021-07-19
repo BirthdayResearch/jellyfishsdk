@@ -80,16 +80,19 @@ it('Should work with variable data length - short', async () => {
   expect(decrypted?.toString('hex')).toStrictEqual(shortData)
 })
 
-it('Should reject odd number data length', async () => {
-  const oddNumberLen = 'ffaabb'
+it('Should reject "odd" number long data, only accept "even" number long data', async () => {
   const pass = 'password'
 
-  const data = Buffer.from(oddNumberLen, 'hex')
+  const fourBytes = 'eeffaabb'
+  await scryptStorage.encrypt(Buffer.from(fourBytes, 'hex'), pass)
+
+  const threeBytes = 'ffaabb'
+  const data = Buffer.from(threeBytes, 'hex')
   await expect(async () => {
     await scryptStorage.encrypt(data, pass)
   }).rejects.toThrow('Data length must be even number')
 
-  const padded = Buffer.from('00' + oddNumberLen, 'hex')
+  const padded = Buffer.from('00' + threeBytes, 'hex')
   await scryptStorage.encrypt(padded, pass)
 
   const decrypted = await scryptStorage.decrypt(pass)

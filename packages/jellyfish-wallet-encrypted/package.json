@@ -37,13 +37,9 @@
   "dependencies": {
     "@defichain/jellyfish-crypto": "0.0.0",
     "@defichain/jellyfish-wallet": "0.0.0",
-    "@defichain/jellyfish-wallet-mnemonic": "0.0.0",
-    "bignumber.js": "^9.0.1",
-    "scryptsy": "^2.1.0",
-    "tiny-secp256k1": "^1.1.6"
+    "scryptsy": "^2.1.0"
   },
   "devDependencies": {
-    "@types/scryptsy": "^2.0.0",
-    "@types/tiny-secp256k1": "^1.0.0"
+    "@types/scryptsy": "^2.0.0"
   }
 }
