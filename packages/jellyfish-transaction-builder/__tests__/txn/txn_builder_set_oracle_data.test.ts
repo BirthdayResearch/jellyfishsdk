@@ -115,7 +115,7 @@ describe('set oracle data', () => {
     const newAddressScript = await newProviders.elliptic.script()
 
     // Fund 1 DFI UTXO
-    await fundEllipticPair(container, newProviders.ellipticPair, 1)
+    await fundEllipticPair(container, providers.ellipticPair, 1)
     await newProviders.setupMocks() // required to move utxos
 
     // Update Oracle
@@ -127,14 +127,6 @@ describe('set oracle data', () => {
         {
           token: 'TEST',
           currency: 'USD'
-        },
-        {
-          token: 'TEST',
-          currency: 'EUR'
-        },
-        {
-          token: 'TEST',
-          currency: 'JPY'
         }
       ]
     }, newAddressScript)
