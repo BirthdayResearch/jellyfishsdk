@@ -2,6 +2,7 @@ import { TestAccountProvider } from './account.mock'
 import { TestNodeProvider } from './node.mock'
 import { WalletAccount } from '../src'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('provide different account', () => {
   const nodeProvider = new TestNodeProvider()
@@ -40,6 +41,11 @@ describe('WalletAccount: 0/0/0', () => {
   it('isActive should be active', async () => {
     const active = await account.isActive()
     expect(active).toStrictEqual(true)
+  })
+
+  it('should be able to access network', async () => {
+    const network = account.network
+    expect(network.name).toStrictEqual(RegTest)
   })
 })
 
@@ -124,5 +130,15 @@ describe("WalletAccount: 44'/1129'/0'", () => {
       lockTime: 0
     }, [])
     ).rejects.toThrow()
+  })
+
+  it('should derive sign and verify for account', async () => {
+    const hash = Buffer.from('e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a', 'hex')
+
+    const signature = await account.sign(hash)
+    expect(signature.toString('hex')).toStrictEqual('3044022015707827c1bdfabfdbabb8d82f35c2cbe7b8d2fc1388a692469fe04879e4938802202eaf2033fb1b2cd69b5039457c283b9c80f082a6732f5460b983eb6947ca21bd')
+
+    const valid = await account.verify(hash, signature)
+    expect(valid).toStrictEqual(true)
   })
 })
