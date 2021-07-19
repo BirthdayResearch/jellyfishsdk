@@ -143,44 +143,12 @@ describe('Account', () => {
     expect(history[0].amounts[0]).toStrictEqual('10.00000000@DFI')
   })
 
-  it('should listBurnHistory with filter on txtype None', async () => {
-    const history = await client.account.listBurnHistory({
-      txtype: DfTxType.NONE
-    })
-    expect(history.length).toStrictEqual(2)
-    expect(history.every(({ type }) => type === 'None')).toBeTruthy()
-  })
-
-  it('should listBurnHistory with filter on txtype UtxosToAccount', async () => {
-    const history = await client.account.listBurnHistory({
-      txtype: DfTxType.UTXOS_TO_ACCOUNT
-    })
-    expect(history.length).toStrictEqual(1)
-    expect(history[0].type).toStrictEqual('UtxosToAccount')
-  })
-
   it('should listBurnHistory with filter on txtype AccountToAccount', async () => {
     const history = await client.account.listBurnHistory({
       txtype: DfTxType.ACCOUNT_TO_ACCOUNT
     })
     expect(history.length).toStrictEqual(2)
     expect(history.every(({ type }) => type === 'AccountToAccount')).toBeTruthy()
-  })
-
-  it('should listBurnHistory with filter on txtype CreateMasternode', async () => {
-    const history = await client.account.listBurnHistory({
-      txtype: DfTxType.CREATE_MASTERNODE
-    })
-    expect(history.length).toStrictEqual(1)
-    expect(history[0].type).toStrictEqual('CreateMasternode')
-  })
-
-  it('should listBurnHistory with filter on txtype CreateToken', async () => {
-    const history = await client.account.listBurnHistory({
-      txtype: DfTxType.CREATE_TOKEN
-    })
-    expect(history.length).toStrictEqual(1)
-    expect(history[0].type).toStrictEqual('CreateToken')
   })
 
   it('should listBurnHistory with filter on token DFI', async () => {
