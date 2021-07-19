@@ -1,2 +1,2 @@
 export * from './scryptsy'
-export * from './scrypt-storage'
+export * from './scrypt_storage'
