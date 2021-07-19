@@ -61,6 +61,11 @@ labels:
     matcher:
       files: "packages/jellyfish-transaction-signature/**"
 
+  - label: area/jellyfish-wallet-encrypted
+    sync: true
+    matcher:
+      files: "packages/jellyfish-wallet-encrypted/**"
+
   - label: area/jellyfish-wallet-classic
     sync: true
     matcher:

@@ -49,6 +49,7 @@ issue:
         - jellyfish-transaction-builder
         - jellyfish-transaction-signature
         - jellyfish-wallet
+        - jellyfish-wallet-encrypted
         - jellyfish-wallet-classic
         - jellyfish-wallet-mnemonic
         - testcontainers
