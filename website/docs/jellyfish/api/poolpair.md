@@ -49,7 +49,7 @@ interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: string[]
   creationTx: string
   creationHeight: number
 }
@@ -91,7 +91,7 @@ interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: string[]
   creationTx: string
   creationHeight: number
 }
@@ -104,18 +104,18 @@ Add pool liquidity transaction
 
 ```ts title="client.poolpair.addPoolLiquidity()"
 interface poolpair {
-  addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string>
+  addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: PoolLiquidityOptions = {}): Promise<string>
 }
 
 interface AddPoolLiquiditySource {
   [address: string]: string | string[]
 }
 
-interface AddPoolLiquidityOptions {
-  utxos?: AddPoolLiquidityUTXO[]
+interface PoolLiquidityOptions {
+  utxos?: UTXO[]
 }
 
-interface AddPoolLiquidityUTXO {
+interface UTXO {
   txid: string
   vout: number
 }
@@ -158,5 +158,66 @@ interface PoolPairPagination {
 
 interface PoolShareOptions {
   isMineOnly?: boolean
+}
+```
+
+## poolSwap 
+Creates a pool swap transaction with given metadata.
+
+```ts title="client.poolpair.poolSwap()"
+interface poolpair {
+  poolSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## testPoolSwap
+
+Create a test pool swap transaction to check pool swap's return result
+
+```ts title="client.poolpair.testPoolSwap()"
+interface poolpair {
+  testPoolSwap (metadata: PoolSwapMetadata): Promise<string>
+}
+
+interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
+}
+```
+
+## removePoolLiquidity
+
+Remove pool liquidity transaction
+
+```ts title="client.poolpair.removePoolLiquidity()"
+interface poolpair {
+  removePoolLiquidity (address: string, poolAccount: string, options: PoolLiquidityOptions = {}): Promise<string>
+}
+
+interface PoolLiquidityOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```

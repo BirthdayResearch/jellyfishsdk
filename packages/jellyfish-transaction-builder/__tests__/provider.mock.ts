@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 import { Bech32, EllipticPair, HASH160, WIF } from '@defichain/jellyfish-crypto'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../src'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'

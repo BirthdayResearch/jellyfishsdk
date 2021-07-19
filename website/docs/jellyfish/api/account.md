@@ -106,6 +106,80 @@ interface GetTokenBalancesOptions {
 }
 ```
 
+## utxosToAccount
+
+Create an UTXOs to Account transaction submitted to a connected node.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.utxosToAccount()"
+interface account {
+  utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
+}
+
+type AccountRegexType = `${number}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## accountToAccount
+
+Create an Account to Account transaction submitted to a connected node.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.accountToAccount()"
+interface account {
+  accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
+}
+
+type AccountRegexType = `${number}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+interface BalanceTransferAccountOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## accountToUtxos
+
+Create an Account to UTXOS transaction submitted to a connected node.
+Optionally, specific UTXOs to spend to create that transaction.
+
+```ts title="client.account.accountToUtxos()"
+interface account {
+  accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
+}
+
+type AccountRegexType = `${number}@${string}`
+
+interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+interface BalanceTransferAccountOptions {
+  utxos?: UTXO[]
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listAccountHistory
 
 Returns information about account history
@@ -125,6 +199,26 @@ enum OwnerType {
   ALL = "all"
 }
 
+enum DfTxType {
+  MINT_TOKEN = 'M',
+  POOL_SWAP = 's',
+  ADD_POOL_LIQUIDITY = 'l',
+  REMOVE_POOL_LIQUIDITY = 'r',
+  UTXOS_TO_ACCOUNT = 'U',
+  ACCOUNT_TO_UTXOS = 'b',
+  ACCOUNT_TO_ACCOUNT = 'B',
+  ANY_ACCOUNTS_TO_ACCOUNTS = 'a',
+  CREATE_MASTERNODE = 'C',
+  RESIGN_MASTERNODE = 'R',
+  CREATE_TOKEN = 'T',
+  UPDATE_TOKEN = 'N',
+  UPDATE_TOKEN_ANY = 'n',
+  CREATE_POOL_PAIR = 'p',
+  UPDATE_POOL_PAIR = 'u',
+  SET_GOV_VARIABLE = 'G',
+  AUTO_AUTH_PREP = 'A'
+}
+
 interface AccountHistory {
   owner: string
   blockHeight: number
@@ -141,56 +235,8 @@ interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: string
+  txtype?: DfTxType
   limit?: number
-}
-```
-
-## utxosToAccount
-
-Create an UTXOs to Account transaction submitted to a connected node.
-Optionally, specific UTXOs to spend to create that transaction.
-
-```ts title="client.account.utxosToAccount()"
-interface account {
-  utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
-}
-
-type AccountRegexType = `${string}@${string}`
-
-interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
-}
-
-interface UTXO {
-  txid: string
-  vout: number
-}
-```
-
-## accountToAccount
-
-Create an Account to Account transaction submitted to a connected node.
-Optionally, specific UTXOs to spend to create that transaction.
-
-```ts title="client.account.accountToAccount()"
-interface account {
-  accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string>
-}
-
-type AccountRegexType = `${string}@${string}`
-
-interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
-}
-
-interface AccountToAccountOptions {
-  utxos?: UTXO[]
-}
-
-interface UTXO {
-  txid: string
-  vout: number
 }
 ```
 
@@ -211,7 +257,7 @@ enum OwnerType {
   ALL = "all"
 }
 
-enum TxType {
+enum DfTxType {
   MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
@@ -233,7 +279,58 @@ enum TxType {
 
 interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: DfTxType
   no_rewards?: boolean
+}
+```
+
+## sendTokensToAddress
+
+Creates a transfer transaction from your accounts balances.
+
+```ts title="client.account.sendTokensToAddress()"
+interface account {
+  sendTokensToAddress (
+    from: AddressBalances,
+    to: AddressBalances,
+    options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
+  ): Promise<string>
+}
+
+type AccountRegexType = `${number}@${string}`
+
+enum SelectionModeType {
+  PIE = 'pie',
+  CRUMBS = 'crumbs',
+  FORWARD = 'forward'
+}
+
+interface AddressBalances {
+  [key: string]: AccountRegexType[]
+}
+
+interface SendTokensOptions {
+  selectionMode: SelectionModeType
+}
+```
+
+## listCommunityBalances
+
+Returns information about current anchor bonus, incentive funding, burnt token(s)
+
+```ts title="client.account.listCommunityBalances()"
+interface account {
+  listCommunityBalances (): Promise<CommunityBalanceData>
+}
+
+interface CommunityBalanceData {
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
+  Swap?: BigNumber
+  Futures?: BigNumber
+  Options?: BigNumber
+  Unallocated?: BigNumber
+  Unknown?: BigNumber
 }
 ```

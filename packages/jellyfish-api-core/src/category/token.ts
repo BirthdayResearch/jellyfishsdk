@@ -1,4 +1,7 @@
+import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
+
+type TokenRegexType = `${number}@${string}`
 
 /**
  * Token RPCs for DeFi Blockchain
@@ -20,12 +23,12 @@ export class Token {
    * @param {boolean} metadata.mintable default = true
    * @param {boolean} metadata.tradeable default = true
    * @param {string} metadata.collateralAddress for keeping collateral amount
-   * @param {CreateTokenUTXO[]} utxos array of specific UTXOs to spend
+   * @param {UTXO[]} utxos array of specific UTXOs to spend
    * @param {string} utxos.txid
    * @param {number} utxos.vout
    * @return {Promise<string>}
    */
-  async createToken (metadata: CreateTokenMetadata, utxos: CreateTokenUTXO[] = []): Promise<string> {
+  async createToken (metadata: CreateTokenMetadata, utxos: UTXO[] = []): Promise<string> {
     const defaultMetadata = {
       isDAT: false,
       mintable: true,
@@ -69,7 +72,7 @@ export class Token {
     },
     verbose = true
   ): Promise<TokenResult> {
-    return await this.client.call('listtokens', [pagination, verbose], 'number')
+    return await this.client.call('listtokens', [pagination, verbose], 'bignumber')
   }
 
   /**
@@ -79,7 +82,23 @@ export class Token {
    * @return {Promise<TokenResult>}
    */
   async getToken (symbolKey: string): Promise<TokenResult> {
-    return await this.client.call('gettoken', [symbolKey], 'number')
+    // Note(canonbrother): only 'limit' and 'minted' is bignumber
+    // but the 'return' contains random id which is not be able to map precision exactly
+    // precision: { '0': limit: 'bignumber', minted: 'bignumber'}
+    return await this.client.call('gettoken', [symbolKey], 'bignumber')
+  }
+
+  /**
+   * Creates a transaction to mint tokens.
+   *
+   * @param {TokenRegexType} payload
+   * @param {UTXO[]} [utxos = []]
+   * @param {string} [utxos.txid]
+   * @param {number} [utxos.vout]
+   * @return {Promise<string>}
+   */
+  async mintTokens (payload: TokenRegexType, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('minttokens', [payload, utxos], 'number')
   }
 }
 
@@ -91,18 +110,18 @@ export interface TokenInfo {
   symbol: string
   symbolKey: string
   name: string
-  decimal: number
-  limit: number
+  decimal: BigNumber
+  limit: BigNumber
   mintable: boolean
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
   finalized: boolean
-  minted: number
+  minted: BigNumber
   creationTx: string
-  creationHeight: number
+  creationHeight: BigNumber
   destructionTx: string
-  destructionHeight: number
+  destructionHeight: BigNumber
   collateralAddress: string
 }
 
@@ -124,13 +143,13 @@ export interface UpdateTokenMetadata {
   finalize?: boolean
 }
 
-export interface CreateTokenUTXO {
-  txid: string
-  vout: number
-}
-
 export interface TokenPagination {
   start: number
   including_start: boolean
   limit: number
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
 }

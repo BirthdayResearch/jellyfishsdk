@@ -16,6 +16,11 @@ describe('main', () => {
     const { chain } = await container.getMintingInfo()
     expect(chain).toStrictEqual('main')
   })
+
+  it('should be able to getmininginfo and chain should be main', async () => {
+    const { chain } = await container.getMiningInfo()
+    expect(chain).toStrictEqual('main')
+  })
 })
 
 describe('test', () => {
@@ -32,6 +37,11 @@ describe('test', () => {
 
   it('should be able to getmintinginfo and chain should be test', async () => {
     const { chain } = await container.getMintingInfo()
+    expect(chain).toStrictEqual('test')
+  })
+
+  it('should be able to getmininginfo and chain should be test', async () => {
+    const { chain } = await container.getMiningInfo()
     expect(chain).toStrictEqual('test')
   })
 })
@@ -52,6 +62,11 @@ describe('regtest', () => {
     const { chain } = await container.getMintingInfo()
     expect(chain).toStrictEqual('regtest')
   })
+
+  it('should be able to getmininginfo and chain should be regtest', async () => {
+    const { chain } = await container.getMiningInfo()
+    expect(chain).toStrictEqual('regtest')
+  })
 })
 
 describe('regtest: override docker image', () => {
@@ -65,6 +80,13 @@ describe('regtest: override docker image', () => {
     await container.start()
     await container.waitForReady()
     const { chain } = await container.getMintingInfo()
+    expect(chain).toStrictEqual('test')
+  })
+
+  it('should be able to getmininginfo and chain should be test', async () => {
+    await container.start()
+    await container.waitForReady()
+    const { chain } = await container.getMiningInfo()
     expect(chain).toStrictEqual('test')
   })
 })

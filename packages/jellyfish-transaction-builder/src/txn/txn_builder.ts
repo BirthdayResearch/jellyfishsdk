@@ -1,15 +1,14 @@
 import {
   DeFiTransactionConstants, OP_CODES,
   Script,
-  SignInputOption,
   Transaction,
   TransactionSegWit,
-  TransactionSigner, Vin, Vout
+  Vin, Vout, OP_DEFI_TX
 } from '@defichain/jellyfish-transaction'
-import { BigNumber } from 'bignumber.js'
+import { TransactionSigner, SignInputOption } from '@defichain/jellyfish-transaction-signature'
+import BigNumber from 'bignumber.js'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../provider'
 import { calculateFeeP2WPKH } from './txn_fee'
-import { OP_DEFI_TX } from '@defichain/jellyfish-transaction/dist/script/defi'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
 const MAX_FEE_RATE = new BigNumber('0.00100000')

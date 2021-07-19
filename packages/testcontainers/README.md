@@ -42,9 +42,9 @@ describe('reg test container', () => {
     await container.stop()
   })
 
-  it('should getmintinginfo and chain should be regtest', async () => {
+  it('should getmininginfo and chain should be regtest', async () => {
     // Using node.call('method', []), the built-in minimalistic rpc call
-    const result = await container.call('getmintinginfo', [])
+    const result = await container.call('getmininginfo', [])
     expect(result.chain).toStrictEqual('regtest')
   })
 })
@@ -72,7 +72,7 @@ describe('master node pos minting', () => {
     await container.waitForWalletCoinbaseMaturity()
 
     await waitForExpect(async () => {
-      const info = await container.getMintingInfo()
+      const info = await container.getMiningInfo()
       expect(info.blocks).toBeGreaterThan(100)
     })
 
@@ -103,11 +103,11 @@ await container.start()
 await container.waitForReady()
 
 // raw universal calls
-const { blocks } = await container.call('getmintinginfo')
+const { blocks } = await container.call('getmininginfo')
 const address = await container.call('getnewaddress', ['label', 'legacy'])
 
 // basic included types
 const count = await container.getBlockCount()
-const info = await container.getMintingInfo()
+const info = await container.getMiningInfo()
 const newAddress = await container.getNewAddress()
 ```

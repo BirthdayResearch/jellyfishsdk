@@ -1,4 +1,5 @@
-import { BigNumber, ApiClient } from '../.'
+import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 export enum Mode {
   UNSET = 'UNSET',
@@ -27,6 +28,20 @@ export enum WalletFlag {
   AVOID_REUSE = 'avoid_reuse'
 }
 
+export enum BIP125 {
+  YES = 'yes',
+  NO = 'no',
+  UNKNOWN = 'unknown'
+}
+
+export enum InWalletTransactionCategory {
+  SEND = 'send',
+  RECEIVE = 'receive',
+  GENERATE = 'generate',
+  IMMATURE = 'immature',
+  ORPHAN = 'orphan'
+}
+
 /**
  * Wallet RPCs for DeFi Blockchain
  */
@@ -46,6 +61,24 @@ export class Wallet {
    */
   async getBalance (minimumConfirmation: number = 0, includeWatchOnly: boolean = false): Promise<BigNumber> {
     return await this.client.call('getbalance', ['*', minimumConfirmation, includeWatchOnly], 'bignumber')
+  }
+
+  /**
+   * Identical to getBalance to get untrusted pending balance
+   *
+   * @return Promise<BigNumber>
+   */
+  async getUnconfirmedBalance (): Promise<BigNumber> {
+    return await this.client.call('getunconfirmedbalance', [false], 'bignumber')
+  }
+
+  /**
+   * Returns an object with all balances.
+   *
+   * @return {Promise<WalletBalances>}
+   */
+  async getBalances (): Promise<WalletBalances> {
+    return await this.client.call('getbalances', [false], 'bignumber')
   }
 
   /**
@@ -270,6 +303,17 @@ export class Wallet {
   async importPrivKey (privkey: string, label: string = '', rescan: boolean = true): Promise<void> {
     return await this.client.call('importprivkey', [privkey, label, rescan], 'number')
   }
+
+  /**
+   * Get detailed information about in-wallet transaction
+   *
+   * @param {string} txid transaction id
+   * @param {boolean} includeWatchOnly optional, default = true
+   * @return {Promise<InWalletTransaction>}
+   */
+  async getTransaction (txid: string, includeWatchOnly: boolean = true): Promise<InWalletTransaction> {
+    return await this.client.call('gettransaction', [txid, includeWatchOnly], { amount: 'bignumber' })
+  }
 }
 
 export interface UTXO {
@@ -411,4 +455,47 @@ export interface WalletFlagResult {
   flag_name: string
   flag_state: boolean
   warnings: string
+}
+
+export interface InWalletTransaction {
+  amount: BigNumber
+  fee: number
+  confirmations: number
+  blockhash: string
+  blockindex: number
+  blocktime: number
+  txid: string
+  time: number
+  timereceived: number
+  bip125replaceable?: BIP125
+  details: InWalletTransactionDetail[]
+  hex: string
+}
+
+export interface InWalletTransactionDetail {
+  address: string
+  category: InWalletTransactionCategory
+  amount: number
+  label: string
+  vout: number
+  fee: number
+  abandoned: boolean
+}
+
+export interface WalletBalances {
+  mine: WalletMineBalances
+  watchonly?: WalletWatchOnlyBalances
+}
+
+export interface WalletMineBalances {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
+  used?: BigNumber
+}
+
+export interface WalletWatchOnlyBalances {
+  trusted: BigNumber
+  untrusted_pending: BigNumber
+  immature: BigNumber
 }

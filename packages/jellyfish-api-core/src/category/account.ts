@@ -11,8 +11,8 @@ export enum OwnerType {
   ALL = 'all'
 }
 
-export enum TxType {
-  MINT_TOKEN ='M',
+export enum DfTxType {
+  MINT_TOKEN = 'M',
   POOL_SWAP = 's',
   ADD_POOL_LIQUIDITY = 'l',
   REMOVE_POOL_LIQUIDITY = 'r',
@@ -31,7 +31,13 @@ export enum TxType {
   AUTO_AUTH_PREP = 'A'
 }
 
-type AccountRegexType = `${string}@${string}`
+export enum SelectionModeType {
+  PIE = 'pie',
+  CRUMBS = 'crumbs',
+  FORWARD = 'forward'
+}
+
+type AccountRegexType = `${number}@${string}`
 
 /**
  * Account RPCs for DeFi Blockchain
@@ -225,28 +231,6 @@ export class Account {
   }
 
   /**
-   * Returns information about account history
-   *
-   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
-   * @param {AccountHistoryOptions} [options]
-   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
-   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
-   * @param {boolean} [options.no_rewards] Filter out rewards
-   * @param {string} [options.token] Filter by token
-   * @param {string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG
-   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
-   * @return {Promise<AccountHistory[]>}
-   */
-  async listAccountHistory (
-    owner: OwnerType | string = OwnerType.MINE,
-    options: AccountHistoryOptions = {
-      limit: 100
-    }
-  ): Promise<AccountHistory[]> {
-    return await this.client.call('listaccounthistory', [owner, options], 'number')
-  }
-
-  /**
    * Create an UTXOs to Account transaction submitted to a connected node.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
@@ -268,14 +252,53 @@ export class Account {
    * @param {string} from
    * @param {BalanceTransferPayload} payload
    * @param {string} payload[address]
-   * @param {AccountToAccountOptions} [options]
+   * @param {BalanceTransferAccountOptions} [options]
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async accountToAccount (from: string, payload: BalanceTransferPayload, options: AccountToAccountOptions = { utxos: [] }): Promise<string> {
+  async accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
     return await this.client.call('accounttoaccount', [from, payload, options.utxos], 'number')
+  }
+
+  /**
+   * Create an Account to UXTOS transaction submitted to a connected node.
+   * Optionally, specific UTXOs to spend to create that transaction.
+   *
+   * @param {string} from
+   * @param {BalanceTransferPayload} payload
+   * @param {string} payload[address]
+   * @param {BalanceTransferAccountOptions} [options]
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string> {
+    return await this.client.call('accounttoutxos', [from, payload, options.utxos], 'number')
+  }
+
+  /**
+   * Returns information about account history
+   *
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {AccountHistoryOptions} [options]
+   * @param {number} [options.maxBlockHeight] Optional height to iterate from (down to genesis block), (default = chaintip).
+   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
+   * @param {boolean} [options.no_rewards] Filter out rewards
+   * @param {string} [options.token] Filter by token
+   * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
+   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @return {Promise<AccountHistory[]>}
+   */
+  async listAccountHistory (
+    owner: OwnerType | string = OwnerType.MINE,
+    options: AccountHistoryOptions = {
+      limit: 100
+    }
+  ): Promise<AccountHistory[]> {
+    return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 
   /**
@@ -285,7 +308,7 @@ export class Account {
    * @param {AccountHistoryCountOptions} [options]
    * @param {boolean} [options.no_rewards] Filter out rewards
    * @param {string} [options.token] Filter by token
-   * @param {TxType | string} [options.txtype] Filter by transaction type, supported letter from 'CRTMNnpuslrUbBG'
+   * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @return {Promise<number>} count of account history
    */
   async historyCount (
@@ -293,6 +316,32 @@ export class Account {
     options: AccountHistoryCountOptions = {}
   ): Promise<number> {
     return await this.client.call('accounthistorycount', [owner, options], 'number')
+  }
+
+  /**
+   * Creates a transfer transaction from your accounts balances.
+   *
+   * @param {AddressBalances} from source address as the key, the value is amount formatted as amount@token
+   * @param {AddressBalances} to address as the key, the value is amount formatted as amount@token
+   * @param {SendTokensOptions} [options = { selectionMode: SelectionModeType.PIE }]
+   * @param {SelectionModeType} [options.selectionMode] Account selection mode. If "from" param is empty, it will auto select.
+   * @return {Promise<string>}
+   */
+  async sendTokensToAddress (
+    from: AddressBalances,
+    to: AddressBalances,
+    options: SendTokensOptions = { selectionMode: SelectionModeType.PIE }
+  ): Promise<string> {
+    return await this.client.call('sendtokenstoaddress', [from, to, options.selectionMode], 'number')
+  }
+
+  /**
+   * Returns information about current anchor bonus, incentive funding, burnt token(s)
+   *
+   * @return {Promise<CommunityBalanceData>}
+   */
+  async listCommunityBalances (): Promise<CommunityBalanceData> {
+    return await this.client.call('listcommunitybalances', [], 'bignumber')
   }
 }
 
@@ -332,6 +381,19 @@ export interface GetTokenBalancesOptions {
   symbolLookup?: boolean
 }
 
+export interface BalanceTransferPayload {
+  [key: string]: AccountRegexType
+}
+
+export interface BalanceTransferAccountOptions {
+  utxos?: UTXO[]
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
+}
+
 export interface AccountHistory {
   owner: string
   blockHeight: number
@@ -348,25 +410,31 @@ export interface AccountHistoryOptions {
   depth?: number
   no_rewards?: boolean
   token?: string
-  txtype?: string
+  txtype?: DfTxType
   limit?: number
-}
-
-export interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
-}
-
-export interface AccountToAccountOptions {
-  utxos?: UTXO[]
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
 }
 
 export interface AccountHistoryCountOptions {
   token?: string
-  txtype?: TxType | string
+  txtype?: DfTxType
   no_rewards?: boolean
+}
+
+export interface AddressBalances {
+  [key: string]: AccountRegexType[]
+}
+
+export interface SendTokensOptions {
+  selectionMode: SelectionModeType
+}
+
+export interface CommunityBalanceData {
+  AnchorReward: BigNumber
+  IncentiveFunding?: BigNumber
+  Burnt: BigNumber
+  Swap?: BigNumber
+  Futures?: BigNumber
+  Options?: BigNumber
+  Unallocated?: BigNumber
+  Unknown?: BigNumber
 }

@@ -1,12 +1,5 @@
-import {
-  ApiClient,
-  ClientApiError,
-  JellyfishJSON,
-  RpcApiError,
-  Precision
-} from '@defichain/jellyfish-api-core'
+import { ApiClient, ClientApiError, JellyfishJSON, Precision, RpcApiError } from '@defichain/jellyfish-api-core'
 import fetch from 'cross-fetch'
-import { Response } from 'cross-fetch/lib.fetch'
 import AbortController from 'abort-controller'
 import { PrecisionPath } from '@defichain/jellyfish-json'
 

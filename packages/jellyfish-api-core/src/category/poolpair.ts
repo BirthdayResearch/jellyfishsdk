@@ -22,12 +22,12 @@ export class PoolPair {
    * @param {string} metadata.ownerAddress
    * @param {string} [metadata.customRewards]
    * @param {string} [metadata.pairSymbol]
-   * @param {CreatePoolPairUTXO[]} utxos is an array of specific UTXOs to spend
+   * @param {UTXO[]} utxos is an array of specific UTXOs to spend
    * @param {string} utxos.txid
    * @param {number} utxos.vout
    * @return {Promise<string>}
    */
-  async createPoolPair (metadata: CreatePoolPairMetadata, utxos: CreatePoolPairUTXO[] = []): Promise<string> {
+  async createPoolPair (metadata: CreatePoolPairMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createpoolpair', [metadata, utxos], 'number')
   }
 
@@ -56,7 +56,7 @@ export class PoolPair {
    * Returns information about pool
    *
    * @param {string} symbol token's symbol
-   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokena, idTokenB
+   * @param {boolean} verbose default = true, otherwise only symbol, name, status, idTokenA, idTokenB
    * @return {Promise<PoolPairsResult>}
    */
   async getPoolPair (symbol: string, verbose = true): Promise<PoolPairsResult> {
@@ -69,13 +69,13 @@ export class PoolPair {
    * @param {AddPoolLiquiditySource} from pool liquidity sources
    * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
    * @param {string} shareAddress defi address for crediting tokens
-   * @param {AddPoolLiquidityOptions} [options]
+   * @param {PoolLiquidityOptions} [options]
    * @param {AddPoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: AddPoolLiquidityOptions = {}): Promise<string> {
+  async addPoolLiquidity (from: AddPoolLiquiditySource, shareAddress: string, options: PoolLiquidityOptions = {}): Promise<string> {
     const { utxos } = options
     return await this.client.call('addpoolliquidity', [from, shareAddress, utxos], 'bignumber')
   }
@@ -104,6 +104,57 @@ export class PoolPair {
     const { isMineOnly = true } = options
     return await this.client.call('listpoolshares', [pagination, verbose, isMineOnly], 'bignumber')
   }
+
+  /**
+   *  Creates a pool swap transaction with given metadata
+   *
+   * @param {PoolSwapMetadata} metadata a provided information to create pool swap transaction
+   * @param {string} metadata.from address of the owner of tokenFrom
+   * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenA
+   * @param {to} metadata.to address of the owner of tokenTo
+   * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
+   * @param {maxPrice} [metadata.maxPrice] acceptable max price
+   * @param {UTXO[]} [utxos = []] array for utxos to spend from.
+   * @param {string} [utxos.txid] the transaction id.
+   * @param {number} [utxos.vout] the output number.
+   * @return {Promise<string>}  hex of performed transaction
+   */
+  async poolSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('poolswap', [metadata, utxos], 'bignumber')
+  }
+
+  /**
+   * Create a test pool swap transaction to check pool swap's return result
+   *
+   * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {string} metadata.from address of the owner of tokenFrom
+   * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenA
+   * @param {to} metadata.to address of the owner of tokenTo
+   * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
+   * @param {maxPrice} [metadata.maxPrice] acceptable max price
+   * @return {Promise<string>} formatted as 'amount@token' swapped
+   */
+  async testPoolSwap (metadata: PoolSwapMetadata): Promise<string> {
+    return await this.client.call('testpoolswap', [metadata], 'bignumber')
+  }
+
+  /**
+   * Remove pool liquidity transaction
+   *
+   * @param {string} address defi address for crediting tokens
+   * @param {string} poolAccount pool liquidity account of owner
+   * @param {PoolLiquidityOptions} [options]
+   * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
+  async removePoolLiquidity (address: string, poolAccount: string, options: PoolLiquidityOptions = {}): Promise<string> {
+    const { utxos } = options
+    return await this.client.call('removepoolliquidity', [address, poolAccount, utxos], 'bignumber')
+  }
 }
 
 export interface CreatePoolPairMetadata {
@@ -112,11 +163,11 @@ export interface CreatePoolPairMetadata {
   commission: number
   status: boolean
   ownerAddress: string
-  customRewards?: string
+  customRewards?: string[]
   pairSymbol?: string
 }
 
-export interface CreatePoolPairUTXO {
+export interface UTXO {
   txid: string
   vout: number
 }
@@ -142,7 +193,7 @@ export interface PoolPairInfo {
   blockCommissionA: BigNumber
   blockCommissionB: BigNumber
   rewardPct: BigNumber
-  customRewards: BigNumber
+  customRewards?: string[]
   creationTx: string
   creationHeight: BigNumber
 }
@@ -169,15 +220,19 @@ export interface AddPoolLiquiditySource {
   [address: string]: string | string[]
 }
 
-export interface AddPoolLiquidityOptions {
-  utxos?: AddPoolLiquidityUTXO[]
-}
-
-export interface AddPoolLiquidityUTXO {
-  txid: string
-  vout: number
+export interface PoolLiquidityOptions {
+  utxos?: UTXO[]
 }
 
 export interface PoolShareOptions {
   isMineOnly?: boolean
+}
+
+export interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
 }

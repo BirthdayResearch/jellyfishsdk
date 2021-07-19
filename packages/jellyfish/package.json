@@ -26,10 +26,10 @@
       "name": "DeFi Jellyfish Contributors"
     }
   ],
-  "main": "dist/jellyfish.cjs.js",
-  "module": "dist/jellyfish.esm.js",
-  "browser": "dist/jellyfish.umd.js",
-  "types": "dist/jellyfish.d.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "browser": "dist/index.umd.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -49,7 +49,7 @@
     "electron": ">=10.x"
   },
   "scripts": {
-    "build": "parcel build src/jellyfish.ts"
+    "build": "parcel build src/index.ts"
   },
   "dependencies": {
     "@defichain/jellyfish-api-core": "0.0.0",
@@ -57,7 +57,6 @@
     "bignumber.js": "^9.0.1"
   },
   "devDependencies": {
-    "@defichain/testcontainers": "0.0.0",
     "@parcel/transformer-typescript-types": "2.0.0-beta.1",
     "parcel": "2.0.0-beta.1"
   }

@@ -32,14 +32,14 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
     "dockerode": "^3.3.0",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.2.3",
-    "@types/node-fetch": "^2.5.10"
+    "@types/dockerode": "^3.2.4",
+    "@types/node-fetch": "^2.5.11"
   }
 }

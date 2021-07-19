@@ -22,7 +22,13 @@ export interface StartOptions {
 export abstract class DeFiDContainer extends DockerContainer {
   /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
   public static readonly PREFIX = 'defichain-testcontainers-'
-  public static readonly image = 'defi/defichain:HEAD-643194e' // fast-tracked https://github.com/DeFiCh/ain/pull/464 >1.7.3
+
+  public static get image (): string {
+    if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
+      return process.env.DEFICHAIN_DOCKER_IMAGE
+    }
+    return 'defi/defichain:1.7.9-rc.1'
+  }
 
   public static readonly DefaultStartOptions = {
     user: 'testcontainers-user',
@@ -141,9 +147,17 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * Convenience method to getmintinginfo, typing mapping is non exhaustive
+   * @deprecated Prefer using getMiningInfo.
    */
   async getMintingInfo (): Promise<{ blocks: number, chain: string }> {
     return await this.call('getmintinginfo', [])
+  }
+
+  /**
+   * Convenience method to getmininginfo, typing mapping is non exhaustive
+   */
+  async getMiningInfo (): Promise<{ blocks: number, chain: string }> {
+    return await this.call('getmininginfo', [])
   }
 
   /**
@@ -163,7 +177,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     return await new Promise((resolve, reject) => {
       const checkReady = (): void => {
         this.cachedRpcUrl = undefined
-        this.getMintingInfo().then(() => {
+        this.getMiningInfo().then(() => {
           resolve()
         }).catch(err => {
           if (expiredAt < Date.now()) {

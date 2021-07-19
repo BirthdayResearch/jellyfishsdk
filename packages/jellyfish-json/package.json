@@ -32,15 +32,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc -b ./tsconfig.build.json"
   },
   "peerDependencies": {
     "bignumber.js": "^9.0.1"
   },
   "dependencies": {
+    "@types/lossless-json": "^1.0.1",
     "lossless-json": "^1.0.4"
-  },
-  "devDependencies": {
-    "@types/lossless-json": "^1.0.0"
   }
 }

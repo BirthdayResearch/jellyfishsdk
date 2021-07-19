@@ -1,6 +1,6 @@
 import { LosslessNumber, parse } from 'lossless-json'
 import { PrecisionPath, remap } from '../src/remap'
-import { BigNumber } from '../src'
+import BigNumber from 'bignumber.js'
 
 it('should remap everything in the path', () => {
   const losslessObj = parse(`

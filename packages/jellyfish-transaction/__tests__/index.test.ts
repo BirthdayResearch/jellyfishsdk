@@ -1,4 +1,4 @@
-import { BigNumber } from 'bignumber.js'
+import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { OP_CODES, OP_PUSHDATA, CTransactionSegWit, TransactionSegWit, DeFiTransactionConstants } from '../src'
 

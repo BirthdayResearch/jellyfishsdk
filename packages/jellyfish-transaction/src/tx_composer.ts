@@ -1,17 +1,10 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from './buffer/buffer_composer'
-import {
-  Script,
-  TransactionSegWit,
-  Transaction,
-  Vin,
-  Vout,
-  Witness, WitnessScript
-} from './tx'
-
+import { Script, Transaction, TransactionSegWit, Vin, Vout, Witness, WitnessScript } from './tx'
 import { OP_CODES, OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
+import { dSHA256 } from '@defichain/jellyfish-crypto'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -53,6 +46,19 @@ export class CTransaction extends ComposableBuffer<Transaction> implements Trans
       }),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
+  }
+
+  /**
+   * TransactionId is the double SHA256 of transaction buffer.
+   * TxId are usually presented in BE order, this method return TxId in BE order.
+   *
+   * @return string transaction id
+   */
+  public get txId (): string {
+    const buffer: SmartBuffer = new SmartBuffer()
+    this.toBuffer(buffer)
+    const hash = dSHA256(buffer.toBuffer())
+    return hash.reverse().toString('hex')
   }
 }
 
@@ -231,6 +237,16 @@ export class CTransactionSegWit extends ComposableBuffer<TransactionSegWit> impl
       ComposableBuffer.array<Witness>(() => tx.witness, v => tx.witness = v, v => new CWitness(v), () => tx.vin.length),
       ComposableBuffer.uInt32(() => tx.lockTime, v => tx.lockTime = v)
     ]
+  }
+
+  /**
+   * TransactionId is the double SHA256 of transaction buffer.
+   * TxId are usually presented in BE order, this method return TxId in BE order.
+   *
+   * @return string transaction id
+   */
+  public get txId (): string {
+    return new CTransaction(this).txId
   }
 }
 
