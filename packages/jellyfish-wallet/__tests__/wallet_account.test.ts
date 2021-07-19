@@ -45,7 +45,7 @@ describe('WalletAccount: 0/0/0', () => {
 
   it('should be able to access network', async () => {
     const network = account.network
-    expect(network.name).toStrictEqual(RegTest)
+    expect(network.name).toStrictEqual(RegTest.name)
   })
 })
 
