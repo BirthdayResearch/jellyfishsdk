@@ -20,7 +20,7 @@ describe('Account', () => {
     await createHistory()
   })
 
-  const createHistory = async (): Promise<void> => {
+  async function createHistory (): Promise<void> {
     // test masternode creation fee burn
     const newAddress = await container.getNewAddress('', 'legacy')
     await client.masternode.createMasternode(newAddress)
