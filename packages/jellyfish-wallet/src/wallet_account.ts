@@ -14,7 +14,7 @@ import { DeFiAddress } from '@defichain/jellyfish-address'
 export abstract class WalletAccount implements WalletEllipticPair {
   protected constructor (
     private readonly walletEllipticPair: WalletEllipticPair,
-    private readonly network: Network
+    public readonly network: Network
   ) {
   }
 
