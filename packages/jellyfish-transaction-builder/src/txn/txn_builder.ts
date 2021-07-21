@@ -1,11 +1,14 @@
 import {
-  DeFiTransactionConstants, OP_CODES,
+  DeFiTransactionConstants,
+  OP_CODES,
+  OP_DEFI_TX,
   Script,
   Transaction,
   TransactionSegWit,
-  Vin, Vout, OP_DEFI_TX
+  Vin,
+  Vout
 } from '@defichain/jellyfish-transaction'
-import { TransactionSigner, SignInputOption } from '@defichain/jellyfish-transaction-signature'
+import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import BigNumber from 'bignumber.js'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../provider'
 import { calculateFeeP2WPKH } from './txn_fee'
@@ -134,10 +137,8 @@ export abstract class P2WPKHTxnBuilder {
    */
   protected async sign (transaction: Transaction, prevouts: Prevout[]): Promise<TransactionSegWit> {
     const signInputOptions = prevouts.map((prevout: Prevout): SignInputOption => {
-      return {
-        prevout: prevout,
-        ellipticPair: this.ellipticPairProvider.get(prevout)
-      }
+      const node = this.ellipticPairProvider.get(prevout)
+      return { prevout: prevout, publicKey: node.publicKey, sign: node.sign }
     })
 
     try {
