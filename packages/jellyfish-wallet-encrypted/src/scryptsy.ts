@@ -21,7 +21,8 @@ const DEFAULT_SCRYPT_PARAMS: ScryptParams = {
  * Scrypty library may not compatible with other platforms, eg: react-native
  */
 export class SimpleScryptsy implements ScryptProvider {
-  constructor (private readonly scryptParams: ScryptParams = DEFAULT_SCRYPT_PARAMS) {}
+  constructor (private readonly scryptParams: ScryptParams = DEFAULT_SCRYPT_PARAMS) {
+  }
 
   /**
    * Derive a specific length buffer via Scrypt implementation

@@ -1,8 +1,9 @@
-import { ScryptStorage, Storage, SimpleScryptsy } from '../src'
+import { ScryptStorage, SimpleScryptsy, Storage } from '../src'
 
 class MockStorage implements Storage {
   inMemory: string | undefined
-  async getter (): Promise<string|undefined> {
+
+  async getter (): Promise<string | undefined> {
     return this.inMemory
   }
 
@@ -10,6 +11,7 @@ class MockStorage implements Storage {
     this.inMemory = encrypted
   }
 }
+
 // Mock storage
 let scryptStorage: ScryptStorage
 const encryptedSeedStorage = new MockStorage()

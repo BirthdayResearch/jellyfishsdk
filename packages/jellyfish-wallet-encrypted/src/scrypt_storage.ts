@@ -1,4 +1,4 @@
-import { dSHA256, AES256 } from '@defichain/jellyfish-crypto'
+import { AES256, dSHA256 } from '@defichain/jellyfish-crypto'
 
 export interface ScryptProvider {
   passphraseToKey: (nfcUtf8: string, salt: Buffer, desiredKeyLen: number) => Buffer
@@ -74,10 +74,6 @@ export class ScryptStorage {
     readonly hashStorage: Storage,
     readonly ivProvider?: InitVectorProvider
   ) {
-    this.scryptProvider = scryptProvider
-    this.encryptedStorage = encryptedStorage
-    this.hashStorage = hashStorage
-    this.ivProvider = ivProvider
   }
 
   /**
@@ -119,8 +115,9 @@ export class ScryptStorage {
    * To decrypt raw data
    * @param {string} passphrase to decrypted data, utf8 string in normalization format C
    * @returns {Promise<Buffer|null>} null if no data found in storage
+   * @throws Error InvalidPassphrase if passphrase is invalid (decrypted value has no matching hash)
    */
-  async decrypt (passphrase: string): Promise<Buffer|null> {
+  async decrypt (passphrase: string): Promise<Buffer | null> {
     const encrypted = await this.encryptedStorage.getter()
 
     if (encrypted === undefined) {
