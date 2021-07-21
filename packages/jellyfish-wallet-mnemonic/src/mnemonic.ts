@@ -1,7 +1,7 @@
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
 import { SIGHASH, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
-import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
+import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import * as bip32 from 'bip32'
 import * as bip39 from 'bip39'
 
@@ -124,10 +124,7 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return TransactionSegWit signed transaction ready to broadcast
    */
   async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
-    const inputs: SignInputOption[] = prevouts.map(prevout => {
-      return { prevout: prevout, publicKey: async () => await this.publicKey(), sign: async (hash) => await this.sign(hash) }
-    })
-    return await TransactionSigner.sign(transaction, inputs, {
+    return await TransactionSigner.signPrevoutsWithEllipticPairs(transaction, prevouts, prevouts.map(() => this), {
       sigHashType: SIGHASH.ALL
     })
   }

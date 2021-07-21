@@ -1,4 +1,4 @@
-import { dSHA256, HASH160 } from '@defichain/jellyfish-crypto'
+import { dSHA256, EllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import {
   CVoutV4,
@@ -215,6 +215,19 @@ export const TransactionSigner = {
       witness: witnesses,
       lockTime: transaction.lockTime
     }
+  },
+
+  async signPrevoutsWithEllipticPairs (transaction: Transaction, prevouts: Vout[], ellipticPairs: EllipticPair[], option: SignOption = {}): Promise<TransactionSegWit> {
+    const inputs: SignInputOption[] = prevouts.map((prevout, index) => {
+      const ellipticPair = ellipticPairs[index]
+      return {
+        prevout: prevout,
+        publicKey: async () => await ellipticPair.publicKey(),
+        sign: async (hash) => await ellipticPair.sign(hash)
+      }
+    })
+
+    return await TransactionSigner.sign(transaction, inputs, option)
   },
 
   validate (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption) {
