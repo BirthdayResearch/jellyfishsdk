@@ -1,42 +1,37 @@
+import randomBytes from 'randombytes'
 import { AES256, dSHA256 } from '@defichain/jellyfish-crypto'
-
-export interface ScryptProvider {
-  passphraseToKey: (nfcUtf8: string, salt: Buffer, desiredKeyLen: number) => Buffer
-}
-
-export type InitVectorProvider = () => Buffer
-
-export interface Storage {
-  getter: () => Promise<string | undefined>
-  setter: (encrypted: string | undefined) => Promise<void>
-}
+import { ScryptProvider } from '@defichain/jellyfish-wallet-encrypted/scrypt/scrypt_provider'
 
 export class EncryptedData {
+  /**
+   * Total = 7 + 2n bytes
+   *
+   * @param {number} prefix - 0x01
+   * @param {number} type - 0x42 or 0x43 (only 0x42 for now)
+   * @param {number} flags - 1 byte (only true for 2 most significant bit for now)
+   * @param {Buffer} hash - 4 bytes, checksum and salt
+   * @param {Buffer} encryptedFirstHalf - n bytes
+   * @param {Buffer} encryptedSecondHalf - n bytes
+   */
   constructor (
-    // total = 7 + 2n bytes
-    readonly prefix: number, // 0x01
-    readonly type: number, // 0x42 or 0x43 (only 0x42 for now)
-    readonly flags: number, // 1 byte (only true for 2 most significant bit for now)
-    readonly hash: Buffer, // 4 bytes, checksum and salt
-    readonly encryptedFirstHalf: Buffer, // n bytes
-    readonly encryptedSecondHalf: Buffer // n bytes
+    readonly prefix: number,
+    readonly type: number,
+    readonly flags: number,
+    readonly hash: Buffer,
+    readonly encryptedFirstHalf: Buffer,
+    readonly encryptedSecondHalf: Buffer
   ) {
-    this.prefix = prefix
-    this.type = type
-    this.flags = flags
-    this.hash = hash
-    this.encryptedFirstHalf = encryptedFirstHalf
-    this.encryptedSecondHalf = encryptedSecondHalf
-
     if (encryptedFirstHalf.length !== encryptedSecondHalf.length) {
-      throw new Error('Unxpected data size, first and second half should have same length')
+      throw new Error('Unexpected data size, first and second half should have same length')
     }
   }
 
   encode (): string {
     const first3Bytes = Buffer.from([this.prefix, this.type, this.flags]).toString('hex')
-    const full = first3Bytes + this.hash.toString('hex') + this.encryptedFirstHalf.toString('hex') + this.encryptedSecondHalf.toString('hex')
-    return full
+    return first3Bytes +
+      this.hash.toString('hex') +
+      this.encryptedFirstHalf.toString('hex') +
+      this.encryptedSecondHalf.toString('hex')
   }
 
   static decode (encoded: string): EncryptedData {
@@ -61,18 +56,14 @@ export class EncryptedData {
   }
 }
 
-export class ScryptStorage {
+export class SymmetricEncryption {
   /**
    * @param {ScryptProvider} scryptProvider to convert a utf8 string into a secret, cryptographically secured
-   * @param {Storage} encryptedStorage to store encrypted data
-   * @param {Storage} hashStorage to store hash of the data, for passphrase verification use
-   * @param {InitVectorProvider} ivProvider `() => Buffer` as AES encryption iv randomizer, default = `crypto-js.randomBytes`
+   * @param {(lengthOfBytes: number) => Buffer} rng Initialization vector generator, default using `crypto` or browserify `random-bytes` package
    */
   constructor (
-    readonly scryptProvider: ScryptProvider,
-    readonly encryptedStorage: Storage,
-    readonly hashStorage: Storage,
-    readonly ivProvider?: InitVectorProvider
+    private readonly scryptProvider: ScryptProvider,
+    private readonly rng: (lengthOfBytes: number) => Buffer = randomBytes
   ) {
   }
 
@@ -83,7 +74,7 @@ export class ScryptStorage {
    * @param {Buffer} data data with even number length
    * @param {string} passphrase to derived encryption secret, utf8 string in normalization format C
    */
-  async encrypt (data: Buffer, passphrase: string): Promise<void> {
+  encrypt (data: Buffer, passphrase: string): EncryptedData {
     if (data.length % 2 !== 0) {
       throw new Error('Data length must be even number')
     }
@@ -98,32 +89,25 @@ export class ScryptStorage {
     const d1 = Buffer.from(data.toString('hex').slice(0, data.length), 'hex')
     const d2 = Buffer.from(data.toString('hex').slice(data.length), 'hex')
 
-    const xor1 = this._xor(k1a, d1)
-    const xor2 = this._xor(k1b, d2)
+    const xor1 = _xor(k1a, d1)
+    const xor2 = _xor(k1b, d2)
 
-    const b1 = AES256.encrypt(k2, xor1, this.ivProvider)
-    const b2 = AES256.encrypt(k2, xor2, this.ivProvider)
+    const b1 = AES256.encrypt(k2, xor1, this.rng)
+    const b2 = AES256.encrypt(k2, xor2, this.rng)
 
-    const encrypted = new EncryptedData(0x01, 0x42, 0xc0, hash, b1, b2)
-    await this.encryptedStorage.setter(encrypted.encode())
-
-    const dataHash = dSHA256(data).slice(0, 4)
-    await this.hashStorage.setter(dataHash.toString('hex'))
+    return new EncryptedData(0x01, 0x42, 0xc0, hash, b1, b2)
   }
 
   /**
    * To decrypt raw data
+   *
+   * @param {string} encrypted to decrypt
    * @param {string} passphrase to decrypted data, utf8 string in normalization format C
-   * @returns {Promise<Buffer|null>} null if no data found in storage
+   * @param {string} hash for verification
+   * @returns {Promise<Buffer>} null if no data found in storage
    * @throws Error InvalidPassphrase if passphrase is invalid (decrypted value has no matching hash)
    */
-  async decrypt (passphrase: string): Promise<Buffer | null> {
-    const encrypted = await this.encryptedStorage.getter()
-
-    if (encrypted === undefined) {
-      return null
-    }
-
+  decrypt (encrypted: string, passphrase: string, hash: string): Buffer {
     const data = EncryptedData.decode(encrypted)
     const key = this.scryptProvider.passphraseToKey(passphrase, data.hash, 64)
 
@@ -134,29 +118,28 @@ export class ScryptStorage {
     const dec1 = AES256.decrypt(k2, data.encryptedFirstHalf) // 16 bytes = decipher(32 bytes) - salt
     const dec2 = AES256.decrypt(k2, data.encryptedSecondHalf)
 
-    const d1 = this._xor(k1a, dec1)
-    const d2 = this._xor(k1b, dec2)
+    const d1 = _xor(k1a, dec1)
+    const d2 = _xor(k1b, dec2)
     const decrypted = Buffer.from([...d1, ...d2])
 
     const dataHash = dSHA256(decrypted).slice(0, 4)
-    const expected = await this.hashStorage.getter()
-    if (dataHash.toString('hex') !== expected) {
+    if (dataHash.toString('hex') !== hash) {
       throw new Error('InvalidPassphrase')
     }
 
     return decrypted
   }
+}
 
-  private _xor (key: Buffer, data: Buffer): Buffer {
-    const output = Buffer.alloc(data.length)
-    for (let i = 0, j = 0; i < data.length && i < data.length; i++) {
-      output[i] = data[i] ^ key[j]
-      if (j + 1 === data.length) {
-        j = 0
-      } else {
-        j++
-      }
+function _xor (key: Buffer, data: Buffer): Buffer {
+  const output = Buffer.alloc(data.length)
+  for (let i = 0, j = 0; i < data.length && i < data.length; i++) {
+    output[i] = data[i] ^ key[j]
+    if (j + 1 === data.length) {
+      j = 0
+    } else {
+      j++
     }
-    return output
   }
+  return output
 }
