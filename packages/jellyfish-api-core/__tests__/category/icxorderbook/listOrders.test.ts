@@ -67,7 +67,7 @@ describe('ICXOrderBook.listOrders', () => {
     const retrivedOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
     expect((retrivedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
       {
-        status: ICXOrderStatus.OPEN,
+        // status: ICXOrderStatus.OPEN, //NOTE(surangap): uncomment after ain/#571
         type: ICXOrderType.INTERNAL,
         tokenFrom: symbolDFI,
         chainTo: order.chainTo,

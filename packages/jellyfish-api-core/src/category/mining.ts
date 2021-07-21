@@ -86,13 +86,12 @@ export interface MiningInfo {
  * Masternode related information
  */
 export interface MasternodeInfo {
-  id: string
-  operator: string
-  state: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
-  generate: boolean
-  mintedblocks: number
-  lastblockcreationattempt: string
-  targetMultiplier: number
+  masternodeid?: string
+  masternodeoperator?: string
+  masternodestate?: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
+  generate?: boolean
+  mintedblocks?: number
+  lastblockcreationattempt?: string
 }
 
 export interface SmartFeeEstimation {

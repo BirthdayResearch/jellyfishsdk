@@ -19,7 +19,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForBlockHeight(1)
+    await container.waitForBlock(1)
     await icxSetup.createAccounts()
     await icxSetup.createBTCToken()
     await icxSetup.initializeTokensIds()
