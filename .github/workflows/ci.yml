@@ -21,7 +21,10 @@ jobs:
       - run: npm run build
 
       - run: npm run test:ci
-      - run: npx codecov
+
+      - uses: codecov/codecov-action@c585afe366f940d214dc09df2664c06d7fe07052
+        with:
+          fail_ci_if_error: true
 
   lint:
     name: Lint
