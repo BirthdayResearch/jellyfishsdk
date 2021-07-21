@@ -12,9 +12,7 @@ it('should be able to encrypt / decrypt', async () => {
   expect(data.encode()).not.toStrictEqual(null)
 
   const encoded = data.encode()
-  const hash = data.hash.toString('hex')
-
-  const decrypted = await scrypt.decrypt(encoded, passphrase, hash)
+  const decrypted = await scrypt.decrypt(encoded, passphrase)
   expect(decrypted).toStrictEqual(buffer)
   expect(decrypted.toString('hex')).toStrictEqual(privKey)
 })
@@ -29,9 +27,7 @@ it('should be able to encrypt / decrypt - simple passphrase, a 6 digit pin', asy
   expect(data.encode()).not.toStrictEqual(null)
 
   const encoded = data.encode()
-  const hash = data.hash.toString('hex')
-
-  const decrypted = await scrypt.decrypt(encoded, passphrase, hash)
+  const decrypted = await scrypt.decrypt(encoded, passphrase)
   expect(decrypted).toStrictEqual(buffer)
   expect(decrypted.toString('hex')).toStrictEqual(privKey)
 })
@@ -46,9 +42,7 @@ it('Should work with variable data length - long', async () => {
   expect(data.encode()).not.toStrictEqual(null)
 
   const encoded = data.encode()
-  const hash = data.hash.toString('hex')
-
-  const decrypted = await scrypt.decrypt(encoded, passphrase, hash)
+  const decrypted = await scrypt.decrypt(encoded, passphrase)
   expect(decrypted).toStrictEqual(buffer)
   expect(decrypted.toString('hex')).toStrictEqual(privKey)
 })
@@ -63,9 +57,7 @@ it('should work with variable data length - short', async () => {
   expect(data.encode()).not.toStrictEqual(null)
 
   const encoded = data.encode()
-  const hash = data.hash.toString('hex')
-
-  const decrypted = await scrypt.decrypt(encoded, passphrase, hash)
+  const decrypted = await scrypt.decrypt(encoded, passphrase)
   expect(decrypted).toStrictEqual(buffer)
   expect(decrypted.toString('hex')).toStrictEqual(privKey)
 })
