@@ -1,6 +1,6 @@
 import { WalletEllipticPair } from '@defichain/jellyfish-wallet'
 import { EllipticPair } from '@defichain/jellyfish-crypto'
-import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
+import { SIGHASH, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 
 /**
@@ -56,6 +56,8 @@ export class WalletClassic implements WalletEllipticPair {
     const inputs: SignInputOption[] = prevouts.map(prevout => {
       return { prevout: prevout, publicKey: this.publicKey, sign: this.sign }
     })
-    return TransactionSigner.sign(transaction, inputs)
+    return TransactionSigner.sign(transaction, inputs, {
+      sigHashType: SIGHASH.ALL
+    })
   }
 }

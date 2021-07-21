@@ -13,6 +13,7 @@ import BigNumber from 'bignumber.js'
 import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from '../provider'
 import { calculateFeeP2WPKH } from './txn_fee'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
+import { EllipticPair } from '@defichain/jellyfish-crypto'
 
 const MAX_FEE_RATE = new BigNumber('0.00100000')
 
@@ -136,13 +137,17 @@ export abstract class P2WPKHTxnBuilder {
    * @param {Prevout[]} prevouts input to sign
    */
   protected async sign (transaction: Transaction, prevouts: Prevout[]): Promise<TransactionSegWit> {
-    const signInputOptions = prevouts.map((prevout: Prevout): SignInputOption => {
-      const node = this.ellipticPairProvider.get(prevout)
-      return { prevout: prevout, publicKey: node.publicKey, sign: node.sign }
+    const inputs = prevouts.map((prevout: Prevout): SignInputOption => {
+      const node: EllipticPair = this.ellipticPairProvider.get(prevout)
+      return {
+        prevout: prevout,
+        publicKey: async () => await node.publicKey(),
+        sign: async (hash) => await node.sign(hash)
+      }
     })
 
     try {
-      return TransactionSigner.sign(transaction, signInputOptions)
+      return await TransactionSigner.sign(transaction, inputs)
     } catch (err) {
       throw new TxnBuilderError(TxnBuilderErrorType.SIGN_TRANSACTION_ERROR, err.message)
     }
