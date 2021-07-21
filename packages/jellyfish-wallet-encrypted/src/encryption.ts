@@ -1,6 +1,6 @@
 import randomBytes from 'randombytes'
 import { AES256, dSHA256 } from '@defichain/jellyfish-crypto'
-import { ScryptProvider } from '@defichain/jellyfish-wallet-encrypted/scrypt/scrypt_provider'
+import { ScryptProvider } from './scrypt/scrypt_provider'
 
 export class EncryptedData {
   /**
