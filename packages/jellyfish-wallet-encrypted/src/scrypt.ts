@@ -1,6 +1,6 @@
 import randomBytes from 'randombytes'
 import { AES256, dSHA256 } from '@defichain/jellyfish-crypto'
-import { ScryptProvider } from './scrypt/scrypt_provider'
+import { ScryptProvider } from './provider/scrypt_provider'
 
 export class EncryptedData {
   /**
@@ -56,7 +56,7 @@ export class EncryptedData {
   }
 }
 
-export class SymmetricEncryption {
+export class Scrypt {
   /**
    * @param {ScryptProvider} scryptProvider to convert a utf8 string into a secret, cryptographically secured
    * @param {(lengthOfBytes: number) => Buffer} rng Initialization vector generator, default using `crypto` or browserify `random-bytes` package

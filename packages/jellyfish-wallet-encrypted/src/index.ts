@@ -1,3 +1,3 @@
-export * from './scrypt/scrypt_provider'
-export * from './scrypt/scrypt_simple'
-export * from './encryption'
+export * from './provider/scrypt_provider'
+export * from './provider/scrypt_simple'
+export * from './scrypt'
