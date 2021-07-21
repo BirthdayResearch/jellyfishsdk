@@ -29,31 +29,30 @@ export interface Bip32Options {
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
 export class MnemonicHdNode implements WalletHdNode {
-  constructor (
-    private readonly root: bip32.BIP32Interface,
-    private readonly path: string
-  ) {
-  }
-
   /**
-   * @private derive current code BIP32Interface, internal
+   * @param path of hd node
+   * @param pubKey of current node path
+   * @param derive current chain code BIP32Interface, internal
    */
-  private derive (): bip32.BIP32Interface {
-    return this.root.derivePath(this.path)
+  constructor (
+    public readonly path: string,
+    private readonly pubKey: () => Promise<Buffer>,
+    private readonly derive: (path: string) => Promise<bip32.BIP32Interface>,
+  ) {
   }
 
   /**
    * @return Promise<Buffer> compressed public key
    */
   async publicKey (): Promise<Buffer> {
-    return this.derive().publicKey
+    return await this.pubKey()
   }
 
   /**
    * @return Promise<Buffer> privateKey of the WalletHdNode, allowed to fail if neutered.
    */
   async privateKey (): Promise<Buffer> {
-    const node = this.derive()
+    const node = await this.derive(this.path)
 
     if (node.privateKey != null) {
       return node.privateKey
@@ -82,7 +81,7 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return {Buffer} signature in DER format, SIGHASHTYPE not included
    */
   async sign (hash: Buffer): Promise<Buffer> {
-    const node = this.derive()
+    const node = await this.derive(this.path)
     const signature = node.sign(hash, true)
     return DERSignature.encode(signature)
   }
@@ -93,7 +92,7 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return Promise<boolean> validity of signature of the hash
    */
   async verify (hash: Buffer, derSignature: Buffer): Promise<boolean> {
-    const node = this.derive()
+    const node = await this.derive(this.path)
     const signature = DERSignature.decode(derSignature)
     return node.verify(hash, signature)
   }
@@ -107,7 +106,10 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
   }
 
   derive (path: string): MnemonicHdNode {
-    return new MnemonicHdNode(this.root, path)
+    const pubKey = this.root.derivePath(path).publicKey
+    return new MnemonicHdNode(path, async () => pubKey, async p => {
+      return this.root.derivePath(p)
+    })
   }
 
   /**
@@ -118,6 +120,10 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
     const root = bip32.fromSeed(seed, options)
     return new MnemonicHdNodeProvider(root)
   }
+
+  // TODO(fuxingloh): fromWords
+
+  // TODO(fuxingloh): getPubKey, getPrivKey, chaincode
 
   /**
    * @param {Buffer} pubKey
