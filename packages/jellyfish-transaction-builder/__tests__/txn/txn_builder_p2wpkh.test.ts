@@ -3,7 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTxnBuilder } from '../../src'
 import { fundEllipticPair } from '../test.utils'
-import { DeFiOpUnmapped, OP_CODES, OP_DEFI_TX, CDfTx } from '@defichain/jellyfish-transaction'
+import { CDfTx, DeFiOpUnmapped, OP_CODES, OP_DEFI_TX } from '@defichain/jellyfish-transaction'
 
 // P2WPKHTxnBuilder is abstract and not instantiable
 class TestBuilder extends P2WPKHTxnBuilder {}
@@ -51,7 +51,7 @@ beforeEach(async () => {
 })
 
 describe('createDeFiTx()', () => {
-  it('should creat DfTx stack correctly and return change as vout', async () => {
+  it('should create DfTx stack correctly and return change as vout', async () => {
     const change = await providers.elliptic.script()
     const result = await builder.createDeFiTx(dummyDfTx, change)
 

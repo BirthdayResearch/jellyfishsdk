@@ -1,6 +1,6 @@
 import { WalletHdNode, WalletHdNodeProvider } from '../src'
-import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
-import { SignInputOption, TransactionSigner } from '@defichain/jellyfish-transaction-signature'
+import { SIGHASH, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
+import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 import { Elliptic, EllipticPair } from '@defichain/jellyfish-crypto'
 
 /**
@@ -34,10 +34,9 @@ export class TestNode implements WalletHdNode {
   }
 
   async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
-    const inputs: SignInputOption[] = prevouts.map(prevout => {
-      return { prevout: prevout, ellipticPair: this }
+    return await TransactionSigner.signPrevoutsWithEllipticPairs(transaction, prevouts, prevouts.map(() => this), {
+      sigHashType: SIGHASH.ALL
     })
-    return TransactionSigner.sign(transaction, inputs)
   }
 }
 

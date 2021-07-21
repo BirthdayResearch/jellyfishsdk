@@ -1,14 +1,9 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import {
-  CTransactionSegWit,
-  DeFiTransactionConstants,
-  Transaction,
-  OP_CODES
-} from '@defichain/jellyfish-transaction'
+import { CTransactionSegWit, DeFiTransactionConstants, OP_CODES, Transaction } from '@defichain/jellyfish-transaction'
 import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
-import { WIF, HASH160 } from '@defichain/jellyfish-crypto'
+import { HASH160, WIF } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 
 const container = new MasterNodeRegTestContainer()
@@ -95,7 +90,8 @@ it('should craft, sign and broadcast a txn from scratch', async () => {
       },
       tokenId: 0x00
     },
-    ellipticPair: inputPair
+    publicKey: async () => await inputPair.publicKey(),
+    sign: async (hash) => await inputPair.sign(hash)
   }])
 
   // Get it as a buffer and send to container

@@ -1,7 +1,14 @@
 import BigNumber from 'bignumber.js'
-import { OP_CODES, OP_PUSHDATA, DeFiTransactionConstants, SIGHASH, Transaction, Vout } from '@defichain/jellyfish-transaction'
+import {
+  DeFiTransactionConstants,
+  OP_CODES,
+  OP_PUSHDATA,
+  SIGHASH,
+  Transaction,
+  Vout
+} from '@defichain/jellyfish-transaction'
 import { Elliptic } from '@defichain/jellyfish-crypto'
-import { TransactionSigner } from '../../src'
+import { SignInputOption, TransactionSigner } from '../../src'
 
 describe('sign transaction', () => {
   const transaction: Transaction = {
@@ -44,15 +51,17 @@ describe('sign transaction', () => {
     tokenId: 0x00
   }
   const keyPair = Elliptic.fromPrivKey(privateKey)
-  const inputOption = {
+  const inputOption: SignInputOption = {
     prevout: prevout,
-    ellipticPair: keyPair
+    publicKey: async () => await keyPair.publicKey(),
+    sign: async (hash) => await keyPair.sign(hash)
   }
 
   it('should sign a P2WSH transaction', async () => {
     const signed = await TransactionSigner.sign(transaction, [{
       prevout: prevout,
-      ellipticPair: keyPair
+      publicKey: async () => await keyPair.publicKey(),
+      sign: async (hash) => await keyPair.sign(hash)
     }])
 
     expect(signed.version).toStrictEqual(DeFiTransactionConstants.Version)
@@ -79,7 +88,7 @@ describe('sign transaction', () => {
     })
 
     it('should fail as provided prevout and ellipticPair is mismatched', async () => {
-      const input = {
+      const input: SignInputOption = {
         prevout: {
           script: {
             stack: [
@@ -90,10 +99,11 @@ describe('sign transaction', () => {
           value: new BigNumber('1000'),
           tokenId: 0x00
         },
-        ellipticPair: keyPair
+        publicKey: async () => await keyPair.publicKey(),
+        sign: async (hash) => await keyPair.sign(hash)
       }
       return await expect(TransactionSigner.sign(transaction, [input]))
-        .rejects.toThrow('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+        .rejects.toThrow('invalid input option - attempting to sign a mismatch vout and publicKey is not allowed')
     })
 
     it('should fail as vin.length != inputOptions.length', async () => {
