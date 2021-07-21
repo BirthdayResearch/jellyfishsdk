@@ -1,6 +1,6 @@
-import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemonic } from '../../src'
+import { generateMnemonic, MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed } from '../../src'
 import BigNumber from 'bignumber.js'
-import { Transaction, Vout, OP_CODES } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 
 const regTestBip32Options = {
@@ -59,12 +59,12 @@ describe('24 words: random', () => {
       node = provider.derive("44'/1129'/0'/0/0")
     })
 
-    it('should drive pub key', async () => {
+    it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.length).toStrictEqual(33)
     })
 
-    it('should drive priv key', async () => {
+    it('should derive priv key', async () => {
       const derivedPrivKey = await node.privateKey()
       expect(derivedPrivKey.length).toStrictEqual(32)
     })
@@ -118,12 +118,12 @@ describe('24 words: abandon x23 art', () => {
       node = provider.derive("44'/1129'/0'/0/0")
     })
 
-    it('should drive pub key', async () => {
+    it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
     })
 
-    it('should drive priv key', async () => {
+    it('should derive priv key', async () => {
       const privKey = await node.privateKey()
       expect(privKey.toString('hex')).toStrictEqual('3e1f9339b4685c35d590fd1a6801967a9f95dbedf3e5733efa6451dc771a2d18')
     })
@@ -165,12 +165,12 @@ describe('24 words: abandon x23 art', () => {
       node = provider.derive("44'/1129'/1'/0/0")
     })
 
-    it('should drive pub key', async () => {
+    it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
     })
 
-    it('should drive priv key', async () => {
+    it('should derive priv key', async () => {
       const privKey = await node.privateKey()
       expect(privKey.toString('hex')).toStrictEqual('be7b3f86469900fc9302cea6bcf3b05c165a6461f8a0e7796305c350fc1f7357')
     })
