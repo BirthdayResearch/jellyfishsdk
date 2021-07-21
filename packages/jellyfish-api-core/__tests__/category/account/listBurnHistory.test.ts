@@ -148,7 +148,7 @@ describe('Account', () => {
       txtype: DfTxType.ACCOUNT_TO_ACCOUNT
     })
     expect(history.length).toStrictEqual(2)
-    expect(history.every(({ type }) => type === 'AccountToAccount')).toBeTruthy()
+    expect(history.every(({ type }) => type === 'AccountToAccount')).toStrictEqual(true)
   })
 
   it('should listBurnHistory with filter on token DFI', async () => {
@@ -156,7 +156,7 @@ describe('Account', () => {
       token: 'DFI'
     })
     expect(history.length).toStrictEqual(6)
-    expect(history.every(({ amounts }) => amounts[0].includes('DFI'))).toBeTruthy()
+    expect(history.every(({ amounts }) => amounts[0].includes('DFI'))).toStrictEqual(true)
   })
 
   it('should listBurnHistory with maxBlockHeight 105', async () => {
@@ -166,8 +166,8 @@ describe('Account', () => {
       maxBlockHeight
     })
 
-    expect(maxBlockHeightHistory.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeTruthy()
-    expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toBeFalsy()
+    expect(maxBlockHeightHistory.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toStrictEqual(true)
+    expect(history.every(({ blockHeight }) => blockHeight <= maxBlockHeight)).toStrictEqual(false)
   })
 
   it('should listBurnHistory with depth 5', async () => {
@@ -178,8 +178,8 @@ describe('Account', () => {
     })
     const maxBlockHeight = Math.max(...history.map(el => el.blockHeight)) // Get maxBlockHeight from history
 
-    expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeTruthy()
-    expect(history.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toBeFalsy()
+    expect(depthHistory.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toStrictEqual(true)
+    expect(history.every(({ blockHeight }) => blockHeight >= maxBlockHeight - depth)).toStrictEqual(false)
   })
 
   it('should listBurnHistory with limit 5', async () => {
