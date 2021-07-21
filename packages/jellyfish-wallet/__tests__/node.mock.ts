@@ -35,7 +35,7 @@ export class TestNode implements WalletHdNode {
 
   async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
     const inputs: SignInputOption[] = prevouts.map(prevout => {
-      return { prevout: prevout, ellipticPair: this }
+      return { prevout: prevout, publicKey: this.publicKey, sign: this.sign }
     })
     return TransactionSigner.sign(transaction, inputs)
   }
