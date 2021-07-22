@@ -10,6 +10,7 @@ beforeAll(async () => {
   await container.waitForReady()
   app = await createTestingApp(container)
 
+  await container.generate(3)
   await waitForIndexedHeight(app, 2)
 })
 
