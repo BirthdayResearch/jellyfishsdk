@@ -23,7 +23,6 @@ As with all modern JavaScript projects, jellyfish follows a monorepo structure w
 maintained in this repo are published with the same version tag and follows the `DeFiCh/ain` releases.
 
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
-[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)
 
 Package                                            | Description 
 ---------------------------------------------------|-------------
