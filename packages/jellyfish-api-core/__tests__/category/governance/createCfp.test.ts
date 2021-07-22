@@ -1,11 +1,11 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
 describe('Governance', () => {
-  const container = new MasterNodeRegTestContainer(undefined, 'defi/defichain:HEAD-a61f615', undefined, ['-fortcanningheight=7'])
+  const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
@@ -117,7 +117,7 @@ describe('Governance', () => {
 })
 
 describe('Governance while still in Initial Block Download', () => {
-  const container = new MasterNodeRegTestContainer(undefined, 'defi/defichain:HEAD-a61f615')
+  const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
@@ -143,7 +143,7 @@ describe('Governance while still in Initial Block Download', () => {
 })
 
 describe('Governance with insufficient fund', () => {
-  const container = new MasterNodeRegTestContainer(undefined, 'defi/defichain:HEAD-a61f615')
+  const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {

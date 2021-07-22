@@ -8,17 +8,15 @@ import { RegTestContainer } from './index'
  */
 export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
-  private readonly cmd: string[]
 
   /**
    * @param {string} [masternodeKey=GenesisKeys[0]] pair to use for minting
    * @param {string} [image=DeFiDContainer.image] docker image name
    * @param {DockerOptions} [options]
    */
-  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions, cmd: string[] = []) {
+  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
     this.masternodeKey = masternodeKey
-    this.cmd = cmd
   }
 
   /**
@@ -29,8 +27,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       ...super.getCmd(opts),
       '-dummypos=1',
       '-spv=1',
-      `-masternode_operator=${this.masternodeKey.operator.address}`,
-      ...this.cmd
+      `-masternode_operator=${this.masternodeKey.operator.address}`
     ]
   }
 
