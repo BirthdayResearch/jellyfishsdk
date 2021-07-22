@@ -2,11 +2,6 @@ import { WalletAccount, WalletAccountProvider } from './wallet_account'
 import { WalletHdNode, WalletHdNodeProvider } from './wallet_hd_node'
 
 /**
- * DFI CoinType
- */
-const COIN_TYPE: number = 1129
-
-/**
  * Jellyfish managed wallet.
  * WalletHdNode instance is provided by WalletHdNodeProvider.
  * WalletAccount instance for interfacing layer/upstream to service will be provided by WalletAccountProvider.
@@ -29,7 +24,7 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
    * @return Promise<WalletAccount>
    */
   get (account: number): Account {
-    const path = `44'/${COIN_TYPE}'/${account}'/0/0`
+    const path = `${account}/0/0`
     const node = this.nodeProvider.derive(path)
     return this.accountProvider.provide(node)
   }

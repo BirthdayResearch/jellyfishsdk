@@ -103,11 +103,10 @@ export class Scrypt {
    *
    * @param {string} encrypted to decrypt
    * @param {string} passphrase to decrypted data, utf8 string in normalization format C
-   * @param {string} hash for verification
    * @returns {Promise<Buffer>} null if no data found in storage
    * @throws Error InvalidPassphrase if passphrase is invalid (decrypted value has no matching hash)
    */
-  decrypt (encrypted: string, passphrase: string, hash: string): Buffer {
+  decrypt (encrypted: string, passphrase: string): Buffer {
     const data = EncryptedData.decode(encrypted)
     const key = this.scryptProvider.passphraseToKey(passphrase, data.hash, 64)
 
@@ -123,8 +122,8 @@ export class Scrypt {
     const decrypted = Buffer.from([...d1, ...d2])
 
     const dataHash = dSHA256(decrypted).slice(0, 4)
-    if (dataHash.toString('hex') !== hash) {
-      throw new Error('InvalidPassphrase')
+    if (dataHash.toString('hex') !== data.hash.toString('hex')) {
+      throw new Error('invalid hash')
     }
 
     return decrypted
