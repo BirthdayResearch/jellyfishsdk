@@ -1,5 +1,6 @@
-import { MnemonicHdNode, MnemonicHdNodeProvider } from '../src'
 import BigNumber from 'bignumber.js'
+import { EncryptedHdNodeProvider, EncryptedMnemonicHdNode, Scrypt, SimpleScryptsy } from '../src'
+import { MnemonicHdNode, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic'
 import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 
@@ -43,24 +44,32 @@ const prevout: Vout = {
   tokenId: 0x00
 }
 
-describe('24 words: random', () => {
-  let provider: MnemonicHdNodeProvider
+describe('24 words: random with passphrase "random" (exact same test in jellyfish-wallet-mnemonic)', () => {
+  const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
+  let provider: EncryptedHdNodeProvider
 
   beforeAll(() => {
     const words = MnemonicHdNodeProvider.generateWords(24)
-    provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
+    const passphrase = 'random'
+    const data = EncryptedHdNodeProvider.wordsToEncryptedData(
+      words,
+      regTestBip32Options,
+      scrypt,
+      passphrase
+    )
+    provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, scrypt, async () => passphrase)
   })
 
   describe("44'/1129'/0'/0/0", () => {
-    let node: MnemonicHdNode
+    let node: EncryptedMnemonicHdNode
 
     beforeEach(() => {
       node = provider.derive("44'/1129'/0'/0/0")
     })
 
-    it('should derive pub key', async () => {
-      const derivedPubKey = await node.publicKey()
-      expect(derivedPubKey.length).toStrictEqual(33)
+    it('should not derive pub key because hardened', async () => {
+      const promise = node.publicKey()
+      await expect(promise).rejects.toThrowError('Missing private key for hardened child key')
     })
 
     it('should derive priv key', async () => {
@@ -77,25 +86,6 @@ describe('24 words: random', () => {
 
       const valid = await node.verify(hash, signature)
       expect(valid).toStrictEqual(true)
-    })
-
-    it('should sign tx', async () => {
-      const signed = await node.signTx(transaction, [{
-        ...prevout,
-        script: {
-          stack: [
-            OP_CODES.OP_0,
-            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
-          ]
-        }
-      }])
-
-      expect(signed.witness.length).toStrictEqual(1)
-      expect(signed.witness[0].scripts.length).toStrictEqual(2)
-
-      expect(signed.witness[0].scripts[0].hex.length).toBeGreaterThanOrEqual(140)
-      expect(signed.witness[0].scripts[0].hex.length).toBeLessThanOrEqual(142)
-      expect(signed.witness[0].scripts[1].hex.length).toStrictEqual(66)
     })
   })
 
@@ -148,25 +138,32 @@ describe('24 words: random', () => {
   })
 })
 
-describe('24 words: abandon x23 art', () => {
-  let provider: MnemonicHdNodeProvider
+describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted" (exact same test in jellyfish-wallet-mnemonic)', () => {
+  const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
+  let provider: EncryptedHdNodeProvider
 
   beforeAll(() => {
     const words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art'.split(' ')
-    provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
+    const passphrase = 'jellyfish-wallet-encrypted'
+    const data = EncryptedHdNodeProvider.wordsToEncryptedData(
+      words,
+      regTestBip32Options,
+      scrypt,
+      passphrase
+    )
+    provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, scrypt, async () => passphrase)
   })
 
   describe("44'/1129'/0'/0/0", () => {
-    let node: MnemonicHdNode
-    const pubKey = '037cf033b3c773dae3ce704e85fabef1702b25ad897533fe65b5c3f85912adebc1'
+    let node: EncryptedMnemonicHdNode
 
     beforeEach(() => {
       node = provider.derive("44'/1129'/0'/0/0")
     })
 
-    it('should derive pub key', async () => {
-      const derivedPubKey = await node.publicKey()
-      expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
+    it('should not derive pub key because hardened', async () => {
+      const promise = node.publicKey()
+      await expect(promise).rejects.toThrowError('Missing private key for hardened child key')
     })
 
     it('should derive priv key', async () => {
@@ -183,37 +180,18 @@ describe('24 words: abandon x23 art', () => {
       const valid = await node.verify(hash, signature)
       expect(valid).toStrictEqual(true)
     })
-
-    it('should sign tx', async () => {
-      const signed = await node.signTx(transaction, [{
-        ...prevout,
-        script: {
-          stack: [
-            OP_CODES.OP_0,
-            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
-          ]
-        }
-      }])
-
-      expect(signed.witness.length).toStrictEqual(1)
-      expect(signed.witness[0].scripts.length).toStrictEqual(2)
-
-      expect(signed.witness[0].scripts[0].hex).toStrictEqual('3044022039c1dd0ccc95e188bd997f955221f37d97eb135d3060d79aa584f0d6361e4083022012481d8505adecea60cd02b4a2c381c0323a5ff0eb780bea1a9d11485c2d6e6f01')
-      expect(signed.witness[0].scripts[1].hex).toStrictEqual(pubKey)
-    })
   })
 
   describe("44'/1129'/1'/0/0", () => {
-    let node: MnemonicHdNode
-    const pubKey = '03548dfc620bcd01f774ba24512b594040693898b49ca08ec4ea9fc99f319be34f'
+    let node: EncryptedMnemonicHdNode
 
     beforeEach(() => {
       node = provider.derive("44'/1129'/1'/0/0")
     })
 
     it('should derive pub key', async () => {
-      const derivedPubKey = await node.publicKey()
-      expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
+      const promise = node.publicKey()
+      await expect(promise).rejects.toThrowError('Missing private key for hardened child key')
     })
 
     it('should derive priv key', async () => {
@@ -229,24 +207,6 @@ describe('24 words: abandon x23 art', () => {
 
       const valid = await node.verify(hash, signature)
       expect(valid).toStrictEqual(true)
-    })
-
-    it('should sign tx', async () => {
-      const signed = await node.signTx(transaction, [{
-        ...prevout,
-        script: {
-          stack: [
-            OP_CODES.OP_0,
-            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
-          ]
-        }
-      }])
-
-      expect(signed.witness.length).toStrictEqual(1)
-      expect(signed.witness[0].scripts.length).toStrictEqual(2)
-
-      expect(signed.witness[0].scripts[0].hex).toStrictEqual('30440220403d4733c626866ba4117cbf725cc7f6d547cc8bc012786345cb1e58a2693426022039597dd1c39c1a528b884b97a246dd24b6fc7a103ce29a15ef8402ca691b5b0901')
-      expect(signed.witness[0].scripts[1].hex).toStrictEqual(pubKey)
     })
   })
 
