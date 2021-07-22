@@ -85,7 +85,17 @@ describe('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac', () => {
     const aggregationMapper = app.get(ScriptAggregationMapper)
     const aggregation = await aggregationMapper.get(hid, 1)
 
-    expect(aggregation).toBeUndefined()
+    expect(aggregation?.hid).toStrictEqual(hid)
+    expect(aggregation?.script.hex).toStrictEqual(scriptHex)
+    expect(aggregation?.block.height).toStrictEqual(1)
+
+    expect(aggregation?.statistic.txCount).toStrictEqual(2)
+    expect(aggregation?.statistic.txInCount).toStrictEqual(2)
+    expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
+
+    expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
+    expect(aggregation?.amount.txIn).toStrictEqual('100000076.00000000')
+    expect(aggregation?.amount.unspent).toStrictEqual('100000076.00000000')
   })
 
   it('should wait for block height 2', async () => {
@@ -99,27 +109,6 @@ describe('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac', () => {
     expect(aggregation?.hid).toStrictEqual(hid)
     expect(aggregation?.script.hex).toStrictEqual(scriptHex)
     expect(aggregation?.block.height).toStrictEqual(2)
-
-    expect(aggregation?.statistic.txCount).toStrictEqual(2)
-    expect(aggregation?.statistic.txInCount).toStrictEqual(2)
-    expect(aggregation?.statistic.txOutCount).toStrictEqual(0)
-
-    expect(aggregation?.amount.txOut).toStrictEqual('0.00000000')
-    expect(aggregation?.amount.txIn).toStrictEqual('100000076.00000000')
-    expect(aggregation?.amount.unspent).toStrictEqual('100000076.00000000')
-  })
-
-  it('should wait for block height 3', async () => {
-    await waitForHeight(app, 3)
-    await expectActivities(scriptHex)
-    await expectUnspent(scriptHex)
-
-    const aggregationMapper = app.get(ScriptAggregationMapper)
-    const aggregation = await aggregationMapper.get(hid, 3)
-
-    expect(aggregation?.hid).toStrictEqual(hid)
-    expect(aggregation?.script.hex).toStrictEqual(scriptHex)
-    expect(aggregation?.block.height).toStrictEqual(3)
 
     expect(aggregation?.statistic.txCount).toStrictEqual(3)
     expect(aggregation?.statistic.txInCount).toStrictEqual(3)

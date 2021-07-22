@@ -9,7 +9,7 @@ let app: TestingModule
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
-  await container.generate(10)
+  await container.generate(11)
 
   app = await createIndexerTestModule(container)
   await app.init()
