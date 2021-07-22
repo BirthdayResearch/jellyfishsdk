@@ -32,9 +32,9 @@ export interface Bip32Options {
 export class MnemonicHdNode implements WalletHdNode {
   constructor (
     public readonly path: string,
-    private readonly rootPrivKey: Buffer,
-    private readonly chainCode: Buffer,
-    private readonly options: Bip32Options
+    protected readonly rootPrivKey: Buffer,
+    protected readonly chainCode: Buffer,
+    protected readonly options: Bip32Options
   ) {
   }
 
@@ -136,19 +136,20 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
    * @param {Bip32Options} options
    */
   static fromWords (words: string[], options: Bip32Options): MnemonicHdNodeProvider {
-    const data = this.wordsToData(words)
+    const data = this.wordsToData(words, options)
     return this.fromData(data, options)
   }
 
   /**
    * @param {string[]} words to convert into MnemonicProviderData
+   * @param {Bip32Options} options
    * @return MnemonicProviderData
    */
-  static wordsToData (words: string[]): MnemonicProviderData {
+  static wordsToData (words: string[], options: Bip32Options): MnemonicProviderData {
     const seed = mnemonicToSeed(words)
-    const node = bip32.fromSeed(seed)
+    const node = bip32.fromSeed(seed, options)
     const privKey = (node.privateKey as Buffer).toString('hex')
-    const chainCode = (node.chainCode).toString('hex')
+    const chainCode = node.chainCode.toString('hex')
     return { words, chainCode, privKey }
   }
 
