@@ -1,10 +1,14 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXHTLCStatus,
-  ICXHTLCType, ICXListHTLCOptions
+  ICXClaimDFCHTLCInfo,
+  ICXDFCHTLCInfo,
+  ICXEXTHTLCInfo,
+  ICXHTLCStatus,
+  ICXHTLCType,
+  ICXListHTLCOptions
 } from '../../../src/category/icxorderbook'
-import { accountDFI, idDFI, accountBTC, ICXSetup, symbolDFI } from './icx_setup'
+import { accountBTC, accountDFI, ICXSetup, idDFI, symbolDFI } from './icx_setup'
 import { BigNumber, RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.claimDFCHTLC', () => {
@@ -15,7 +19,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
-    await container.waitForBlock(1)
+    await container.waitForBlockHeight(1)
     await icxSetup.createAccounts()
     await icxSetup.createBTCToken()
     await icxSetup.initializeTokensIds()

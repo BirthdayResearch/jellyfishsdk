@@ -1,11 +1,22 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ExtHTLC, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXGenericResult,
-  ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXHTLCType, ICXOrderStatus
+  ExtHTLC,
+  HTLC,
+  ICXClaimDFCHTLCInfo,
+  ICXDFCHTLCInfo,
+  ICXEXTHTLCInfo,
+  ICXGenericResult,
+  ICXHTLCType,
+  ICXListHTLCOptions,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountDFI, idDFI, accountBTC, ICXSetup, symbolDFI } from './icx_setup'
+import { accountBTC, accountDFI, ICXSetup, idDFI, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.submitExtHTLC', () => {

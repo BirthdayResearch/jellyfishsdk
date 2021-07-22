@@ -1,4 +1,4 @@
-import Dockerode, { DockerOptions, ContainerInfo } from 'dockerode'
+import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
 
@@ -27,7 +27,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:1.7.9-rc.1'
+    return 'defi/defichain:1.7.11'
   }
 
   public static readonly DefaultStartOptions = {
@@ -146,14 +146,6 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Convenience method to getmintinginfo, typing mapping is non exhaustive
-   * @deprecated Prefer using getMiningInfo.
-   */
-  async getMintingInfo (): Promise<{ blocks: number, chain: string }> {
-    return await this.call('getmintinginfo', [])
-  }
-
-  /**
    * Convenience method to getmininginfo, typing mapping is non exhaustive
    */
   async getMiningInfo (): Promise<{ blocks: number, chain: string }> {
@@ -222,17 +214,6 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async waitForReady (timeout = 15000): Promise<void> {
     return await this.waitForRpc(timeout)
-  }
-
-  /**
-   * @param {number} count of block to wait for
-   * @param {number} [timeout=30000] in ms
-   */
-  async waitForBlock (count: number, timeout: number = 300000): Promise<void> {
-    return await this.waitForCondition(async () => {
-      const blockCount = await this.getBlockCount()
-      return blockCount > count
-    }, timeout, 200)
   }
 
   /**

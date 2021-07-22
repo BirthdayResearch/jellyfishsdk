@@ -15,7 +15,7 @@ afterAll(async () => {
 it('url: string provider', async () => {
   const url = await container.getCachedRpcUrl()
   const client = new Client(url)
-  const info = await client.mining.getMintingInfo()
+  const info = await client.mining.getMiningInfo()
 
   await expect(info.chain).toStrictEqual('regtest')
 })
@@ -23,7 +23,7 @@ it('url: string provider', async () => {
 it('HttpProvider', async () => {
   const url = await container.getCachedRpcUrl()
   const client = new Client(new HttpProvider(url))
-  const info = await client.mining.getMintingInfo()
+  const info = await client.mining.getMiningInfo()
 
   await expect(info.chain).toStrictEqual('regtest')
 })
