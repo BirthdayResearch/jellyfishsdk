@@ -181,6 +181,7 @@ describe('transactions', () => {
       // This create vin & vout with 9.5
       await createSignedTxnHex(container, 9.5, 9.4999, options)
     ])
+    await container.generate(1)
     await service.waitForAddressTxCount(addressA.bech32, 3)
     await service.waitForAddressTxCount(addressB.bech32, 2)
   })

@@ -257,6 +257,8 @@ describe('transaction', () => {
 
       const height = await container.call('getblockcount')
 
+      await container.generate(1)
+
       await service.waitForIndexedHeight(height)
     }
 
