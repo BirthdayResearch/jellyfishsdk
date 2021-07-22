@@ -1,8 +1,8 @@
-import { generateMnemonic, mnemonicToSeed, validateMnemonicSentence, validateMnemonicWord } from '../../src'
+import { generateMnemonicWords, mnemonicToSeed, validateMnemonicSentence, validateMnemonicWord } from '../src'
 
 it('should generate 12-15-18-21-24 and validate', () => {
   function shouldGenerateAndValidate (length: 12 | 15 | 18 | 21 | 24): void {
-    const words = generateMnemonic(length)
+    const words = generateMnemonicWords(length)
 
     expect(words.length).toStrictEqual(length)
     expect(validateMnemonicSentence(words)).toStrictEqual(true)
@@ -17,7 +17,7 @@ it('should generate 12-15-18-21-24 and validate', () => {
 })
 
 it('should generate 24 words as default', () => {
-  const words = generateMnemonic()
+  const words = generateMnemonicWords()
 
   expect(words.length).toStrictEqual(24)
   expect(validateMnemonicSentence(words)).toStrictEqual(true)
@@ -25,7 +25,7 @@ it('should generate 24 words as default', () => {
 })
 
 it('should always generate a fixed mnemonic with the same rng', () => {
-  const words = generateMnemonic(24, (numOfBytes) => {
+  const words = generateMnemonicWords(24, (numOfBytes) => {
     return Buffer.alloc(numOfBytes, 0)
   })
 
