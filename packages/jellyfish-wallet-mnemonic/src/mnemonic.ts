@@ -36,7 +36,7 @@ export function validateMnemonicWord (word: string): boolean {
  * @param {(number) => Buffer} rng random number generation, generate random num of bytes buffer
  * @return {string[]} generated mnemonic word list, (COLD STORAGE)
  */
-export function generateMnemonic (length: 12 | 15 | 18 | 21 | 24 = 24, rng?: (numOfBytes: number) => Buffer): string[] {
+export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng?: (numOfBytes: number) => Buffer): string[] {
   const entropy = length / 3 * 32
   const sentence = bip39.generateMnemonic(entropy, rng)
   return sentence.split(' ')

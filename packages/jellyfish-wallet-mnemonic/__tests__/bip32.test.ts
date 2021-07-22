@@ -1,4 +1,4 @@
-import { generateMnemonic, MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed } from '../../src'
+import { MnemonicHdNode, MnemonicHdNodeProvider } from '../src'
 import BigNumber from 'bignumber.js'
 import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
@@ -47,9 +47,8 @@ describe('24 words: random', () => {
   let provider: MnemonicHdNodeProvider
 
   beforeAll(() => {
-    const words = generateMnemonic(24)
-    const seed = mnemonicToSeed(words)
-    provider = MnemonicHdNodeProvider.fromSeed(seed, regTestBip32Options)
+    const words = MnemonicHdNodeProvider.generateWords(24)
+    provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
   })
 
   describe("44'/1129'/0'/0/0", () => {
@@ -106,8 +105,7 @@ describe('24 words: abandon x23 art', () => {
 
   beforeAll(() => {
     const words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art'.split(' ')
-    const seed = mnemonicToSeed(words)
-    provider = MnemonicHdNodeProvider.fromSeed(seed, regTestBip32Options)
+    provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
   })
 
   describe("44'/1129'/0'/0/0", () => {

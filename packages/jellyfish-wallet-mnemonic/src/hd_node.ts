@@ -1,8 +1,9 @@
+import * as bip32 from 'bip32'
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
 import { SIGHASH, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
-import * as bip32 from 'bip32'
+import { generateMnemonicWords, mnemonicToSeed } from './mnemonic'
 
 /**
  * Bip32 Options, version bytes and WIF format. Unique to each chain.
@@ -29,36 +30,33 @@ export interface Bip32Options {
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
 export class MnemonicHdNode implements WalletHdNode {
-  /**
-   * @param path of hd node
-   * @param pubKey of current node path
-   * @param derive current chain code BIP32Interface, internal
-   */
   constructor (
     public readonly path: string,
-    private readonly pubKey: () => Promise<Buffer>,
-    private readonly derive: (path: string) => Promise<bip32.BIP32Interface>,
+    private readonly rootPrivKey: Buffer,
+    private readonly chainCode: Buffer,
+    private readonly options: Bip32Options
   ) {
+  }
+
+  protected async deriveNode (): Promise<bip32.BIP32Interface> {
+    return bip32.fromPrivateKey(this.rootPrivKey, this.chainCode, this.options)
+      .derivePath(this.path)
   }
 
   /**
    * @return Promise<Buffer> compressed public key
    */
   async publicKey (): Promise<Buffer> {
-    return await this.pubKey()
+    const node = await this.deriveNode()
+    return node.publicKey
   }
 
   /**
-   * @return Promise<Buffer> privateKey of the WalletHdNode, allowed to fail if neutered.
+   * @return Promise<Buffer> privateKey of the WalletHdNode
    */
   async privateKey (): Promise<Buffer> {
-    const node = await this.derive(this.path)
-
-    if (node.privateKey != null) {
-      return node.privateKey
-    }
-
-    throw new Error('neutered hd node')
+    const node = await this.deriveNode()
+    return node.privateKey as Buffer
   }
 
   /**
@@ -81,7 +79,7 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return {Buffer} signature in DER format, SIGHASHTYPE not included
    */
   async sign (hash: Buffer): Promise<Buffer> {
-    const node = await this.derive(this.path)
+    const node = await this.deriveNode()
     const signature = node.sign(hash, true)
     return DERSignature.encode(signature)
   }
@@ -92,56 +90,76 @@ export class MnemonicHdNode implements WalletHdNode {
    * @return Promise<boolean> validity of signature of the hash
    */
   async verify (hash: Buffer, derSignature: Buffer): Promise<boolean> {
-    const node = await this.derive(this.path)
+    const node = await this.deriveNode()
     const signature = DERSignature.decode(derSignature)
     return node.verify(hash, signature)
   }
 }
 
 /**
+ * MnemonicHdNodeProvider data encoded as hex.
+ */
+export interface MnemonicProviderData {
+  words: string[]
+  /* Encoded as string hex */
+  privKey: string
+  /* Encoded as string hex */
+  chainCode: string
+}
+
+/**
  * Provider that derive MnemonicHdNode from root. Uses a lite on demand derivation.
  */
 export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNode> {
-  private constructor (private readonly root: bip32.BIP32Interface) {
+  private constructor (
+    private readonly data: MnemonicProviderData,
+    private readonly options: Bip32Options
+  ) {
   }
 
   derive (path: string): MnemonicHdNode {
-    const pubKey = this.root.derivePath(path).publicKey
-    return new MnemonicHdNode(path, async () => pubKey, async p => {
-      return this.root.derivePath(p)
-    })
+    const rootPrivKey = Buffer.from(this.data.privKey, 'hex')
+    const chainCode = Buffer.from(this.data.chainCode, 'hex')
+    return new MnemonicHdNode(path, rootPrivKey, chainCode, this.options)
   }
 
   /**
-   * @param {Buffer} seed of the hd node
-   * @param {Bip32Options} options for chain agnostic generation of public/private keys
+   * @param {MnemonicProviderData} data to init MnemonicHdNodeProvider
+   * @param {Bip32Options} options
    */
-  static fromSeed (seed: Buffer, options: Bip32Options): MnemonicHdNodeProvider {
-    const root = bip32.fromSeed(seed, options)
-    return new MnemonicHdNodeProvider(root)
-  }
-
-  // TODO(fuxingloh): fromWords
-
-  // TODO(fuxingloh): getPubKey, getPrivKey, chaincode
-
-  /**
-   * @param {Buffer} pubKey
-   * @param {Buffer} chainCode the extended keys, identical for corresponding private and public keys, and consists of 32 bytes.
-   * @param {Bip32Options} options for chain agnostic generation of public/private keys
-   */
-  static fromPubKey (pubKey: Buffer, chainCode: Buffer, options: Bip32Options): MnemonicHdNodeProvider {
-    const root = bip32.fromPublicKey(pubKey, chainCode, options)
-    return new MnemonicHdNodeProvider(root)
+  static fromData (data: MnemonicProviderData, options: Bip32Options): MnemonicHdNodeProvider {
+    return new MnemonicHdNodeProvider(data, options)
   }
 
   /**
-   * @param {Buffer} privKey
-   * @param {Buffer} chainCode the extended keys, identical for corresponding private and public keys, and consists of 32 bytes.
-   * @param {Bip32Options} options for chain agnostic generation of public/private keys
+   * @param {string[]} words to init MnemonicHdNodeProvider
+   * @param {Bip32Options} options
    */
-  static fromPrivKey (privKey: Buffer, chainCode: Buffer, options: Bip32Options): MnemonicHdNodeProvider {
-    const root = bip32.fromPrivateKey(privKey, chainCode, options)
-    return new MnemonicHdNodeProvider(root)
+  static fromWords (words: string[], options: Bip32Options): MnemonicHdNodeProvider {
+    const data = this.wordsToData(words)
+    return this.fromData(data, options)
+  }
+
+  /**
+   * @param {string[]} words to convert into MnemonicProviderData
+   * @return MnemonicProviderData
+   */
+  static wordsToData (words: string[]): MnemonicProviderData {
+    const seed = mnemonicToSeed(words)
+    const node = bip32.fromSeed(seed)
+    const privKey = (node.privateKey as Buffer).toString('hex')
+    const chainCode = (node.chainCode).toString('hex')
+    return { words, chainCode, privKey }
+  }
+
+  /**
+   * Generate a random mnemonic code of length, uses crypto.randomBytes under the hood.
+   *
+   * @param {number} length the sentence length of the mnemonic code
+   * @param {(number) => Buffer} rng random number generation, generate random num of bytes buffer
+   * @return {string[]} generated mnemonic word list, (COLD STORAGE)
+   */
+  static generateWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng?: (numOfBytes: number) => Buffer): string[] {
+    return generateMnemonicWords(length, rng)
   }
 }
