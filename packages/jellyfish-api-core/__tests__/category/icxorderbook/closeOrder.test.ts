@@ -1,11 +1,24 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ExtHTLC, HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXGenericResult, ICXHTLCStatus,
-  ICXHTLCType, ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXOrderType
+  ExtHTLC,
+  HTLC,
+  ICXClaimDFCHTLCInfo,
+  ICXDFCHTLCInfo,
+  ICXEXTHTLCInfo,
+  ICXGenericResult,
+  ICXHTLCStatus,
+  ICXHTLCType,
+  ICXListHTLCOptions,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus,
+  ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountDFI, idDFI, accountBTC, symbolDFI, ICXSetup, symbolBTC } from './icx_setup'
+import { accountBTC, accountDFI, ICXSetup, idDFI, symbolBTC, symbolDFI } from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.closeOrder', () => {
@@ -109,7 +122,6 @@ describe('ICXOrderBook.closeOrder', () => {
     expect(accountDFIBalance).toStrictEqual(accountDFIBeforeOrder)
   })
 
-  // NOTE(surangap): check why this is failing
   it('should close order with input utxos', async () => {
     // create an order - maker
     const order: ICXOrder = {
@@ -191,7 +203,7 @@ describe('ICXOrderBook.closeOrder', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -216,7 +228,7 @@ describe('ICXOrderBook.closeOrder', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: 15
+      timeout: 24
     }
     const ExtHTLCTxId = (await client.icxorderbook.submitExtHTLC(ExtHTLC)).txid
     await container.generate(1)
