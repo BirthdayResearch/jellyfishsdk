@@ -5,7 +5,7 @@ import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Governance', () => {
-  const container = new MasterNodeRegTestContainer(undefined, 'defi/defichain:HEAD-a61f615')
+  const container = new MasterNodeRegTestContainer(undefined, 'defi/defichain:HEAD-a61f615', undefined, ['-fortcanningheight=7'])
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
