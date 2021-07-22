@@ -11,6 +11,7 @@ import { Oracle } from './category/oracle'
 import { Server } from './category/server'
 import { Masternode } from './category/masternode'
 import { ICXOrderBook } from './category/icxorderbook'
+import { Governance } from './category/governance'
 
 export * from '@defichain/jellyfish-json'
 
@@ -25,6 +26,7 @@ export * as account from './category/account'
 export * as oracle from './category/oracle'
 export * as server from './category/server'
 export * as masternode from './category/masternode'
+export * as governance from './category/governance'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -42,6 +44,7 @@ export abstract class ApiClient {
   public readonly server = new Server(this)
   public readonly masternode = new Masternode(this)
   public readonly icxorderbook = new ICXOrderBook(this)
+  public readonly governance = new Governance(this)
 
   /**
    * A promise based procedure call handling
