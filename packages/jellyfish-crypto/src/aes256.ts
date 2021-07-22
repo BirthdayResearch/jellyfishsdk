@@ -13,9 +13,9 @@ const CIPHER_ALGORITHM = 'aes-256-ctr'
  * @param {(lengthOfBytes: number) => Buffer} rng Initialization vector generator, default using `crypto` or browserify `random-bytes` package
  * @returns {Buffer}
  */
-function encrypt (key: Buffer, data: Buffer, rng?: (lengthOfBytes: number) => Buffer): Buffer {
+function encrypt (key: Buffer, data: Buffer, rng: (lengthOfBytes: number) => Buffer = randomBytes): Buffer {
   const sha256 = SHA256(key)
-  const initVector = rng === undefined ? randomBytes(16) : rng(16)
+  const initVector = rng(16)
 
   if (initVector.length !== 16) {
     throw new Error('Initialization vector must be 16 bytes long')

@@ -1,5 +1,5 @@
 import scrypt from 'scryptsy'
-import { ScryptProvider } from './scrypt_storage'
+import { ScryptProvider } from './scrypt_provider'
 
 export interface ScryptParams {
   N: number
@@ -17,11 +17,12 @@ const DEFAULT_SCRYPT_PARAMS: ScryptParams = {
  * A simple ScryptProvider implementation using
  * {@link https://www.npmjs.com/package/scryptsy} (Javascript implementation of the scrypt key derivation)
  *
- * Mainly for testing and prototyping purpose, required for {@link EncryptedMnemonicProvider} instantiation
- * Scrypty library may not compatible with other platforms, eg: react-native
+ * Mainly for testing and prototyping purpose
+ * Scryptsy library may not compatible with other platforms, eg: react-native
  */
 export class SimpleScryptsy implements ScryptProvider {
-  constructor (private readonly scryptParams: ScryptParams = DEFAULT_SCRYPT_PARAMS) {}
+  constructor (private readonly params: ScryptParams = DEFAULT_SCRYPT_PARAMS) {
+  }
 
   /**
    * Derive a specific length buffer via Scrypt implementation
@@ -34,12 +35,13 @@ export class SimpleScryptsy implements ScryptProvider {
    */
   passphraseToKey (passphrase: string, salt: Buffer, keyLength: number): Buffer {
     const secret = Buffer.from(passphrase.normalize('NFC'), 'utf8')
+
     return scrypt(
       secret,
       salt,
-      this.scryptParams.N,
-      this.scryptParams.r,
-      this.scryptParams.p,
+      this.params.N,
+      this.params.r,
+      this.params.p,
       keyLength
     )
   }

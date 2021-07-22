@@ -1,4 +1,4 @@
-import { SimpleScryptsy } from '../src'
+import { SimpleScryptsy } from '../../src'
 
 describe('passphraseToKey()', () => {
   it('Should be able to generate from random (same) passphrase into multiple desired length secret', () => {
