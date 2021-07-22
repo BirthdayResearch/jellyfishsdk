@@ -208,6 +208,7 @@
       <w>walletversion</w>
       <w>wpkh</w>
       <w>wtxid</w>
+      <w>xpubkey</w>
       <w>zynesis</w>
     </words>
   </dictionary>
