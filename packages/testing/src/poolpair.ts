@@ -45,7 +45,7 @@ export interface CreatePoolPairOptions {
   commission?: number
   status?: boolean
   ownerAddress?: string
-  utxos?: poolpair.CreatePoolPairUTXO[]
+  utxos?: poolpair.UTXO[]
 }
 
 /**

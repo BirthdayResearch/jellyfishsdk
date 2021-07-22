@@ -93,6 +93,6 @@ describe('EllipticPairProvider', () => {
     providers.elliptic.ellipticPair = randomEllipticPair()
 
     await expect(builder.utxo.sendAll(script))
-      .rejects.toThrow('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+      .rejects.toThrow('invalid input option - attempting to sign a mismatch vout and publicKey is not allowed')
   })
 })

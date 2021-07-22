@@ -1,10 +1,24 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOrder, ICXOffer, ICXOrderStatus, ICXOrderType
+  ICXGenericResult,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus,
+  ICXOrderType
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { accountBTC, accountDFI, DEX_DFI_PER_BTC_RATE, ICXSetup, ICX_TAKERFEE_PER_BTC, idDFI, symbolDFI } from './icx_setup'
+import {
+  accountBTC,
+  accountDFI,
+  DEX_DFI_PER_BTC_RATE,
+  ICX_TAKERFEE_PER_BTC,
+  ICXSetup,
+  idDFI,
+  symbolDFI
+} from './icx_setup'
 import { RpcApiError } from '../../../src'
 
 describe('ICXOrderBook.getOrder', () => {

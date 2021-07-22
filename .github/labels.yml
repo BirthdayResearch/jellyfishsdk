@@ -79,6 +79,10 @@
 - color: fbca04
   name: area/jellyfish-wallet
 - color: fbca04
+  name: area/jellyfish-wallet-classic
+- color: fbca04
+  name: area/jellyfish-wallet-encrypted
+- color: fbca04
   name: area/jellyfish-wallet-mnemonic
 - color: fbca04
   name: area/testcontainers

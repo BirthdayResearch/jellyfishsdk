@@ -18,8 +18,9 @@
     {"path": "./packages/jellyfish-transaction-builder/tsconfig.build.json"},
     {"path": "./packages/jellyfish-transaction-signature/tsconfig.build.json"},
     {"path": "./packages/jellyfish-wallet/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-wallet-mnemonic/tsconfig.build.json"},
     {"path": "./packages/jellyfish-wallet-classic/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-wallet-encrypted/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-wallet-mnemonic/tsconfig.build.json"},
     {"path": "./packages/testcontainers/tsconfig.build.json"},
     {"path": "./packages/testing/tsconfig.build.json"}
  ]

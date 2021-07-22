@@ -3,7 +3,6 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
-import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { CScriptBalances, ScriptBalances, CTokenBalance, TokenBalance } from './dftx_balance'
 import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 
@@ -19,15 +18,13 @@ export interface PoolSwap {
   fromAmount: BigNumber // -------------| 8 bytes
   toScript: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes
   toTokenId: number // -----------------| VarUInt{1-9 bytes}
-  maxPrice: {
-    integer: BigNumber // --------------| 8 bytes
-    fraction: BigNumber // -------------| 8 bytes
-  }
+  maxPrice: BigNumber // ---------------| 8 bytes integer + 8 bytes for fraction
 }
 
 /**
  * Composable PoolSwap, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ * @throws Error if more than 8 decimals
  */
 export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   static OP_CODE = 0x73
@@ -40,18 +37,7 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
       ComposableBuffer.satoshiAsBigNumber(() => ps.fromAmount, v => ps.fromAmount = v),
       ComposableBuffer.single<Script>(() => ps.toScript, v => ps.toScript = v, v => new CScript(v)),
       ComposableBuffer.varUInt(() => ps.toTokenId, v => ps.toTokenId = v),
-      {
-        fromBuffer (buffer: SmartBuffer) {
-          const integer = readBigNumberUInt64(buffer)
-          const fraction = readBigNumberUInt64(buffer)
-          ps.maxPrice = { integer, fraction }
-        },
-        toBuffer (buffer: SmartBuffer) {
-          const { integer, fraction } = ps.maxPrice
-          writeBigNumberUInt64(integer, buffer)
-          writeBigNumberUInt64(fraction, buffer)
-        }
-      }
+      ComposableBuffer.maxPriceAsBigNumber(() => ps.maxPrice, v => ps.maxPrice = v)
     ]
   }
 }

@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '../src'
 import { RegTestContainer } from '@defichain/testcontainers'
-import { ClientApiError, ApiError, RpcApiError } from '@defichain/jellyfish-api-core'
+import { ApiError, ClientApiError, RpcApiError } from '@defichain/jellyfish-api-core'
 import nock from 'nock'
 
 describe('JSON-RPC 1.0 specification', () => {
@@ -101,7 +101,7 @@ describe('ApiError', () => {
     const port = await container.getRpcPort()
     const client = new JsonRpcClient(`http://foo:not-bar@localhost:${port}`)
 
-    const promise = client.mining.getMintingInfo()
+    const promise = client.mining.getMiningInfo()
 
     await expect(promise).rejects.toThrow(ApiError)
     await expect(promise).rejects.toThrow(ClientApiError)
@@ -141,7 +141,7 @@ describe('ClientOptions', () => {
       timeout: 2000
     })
 
-    const promise = client.mining.getMintingInfo()
+    const promise = client.mining.getMiningInfo()
     await expect(promise).rejects.toThrow(ApiError)
     await expect(promise).rejects.toThrow(ClientApiError)
     await expect(promise).rejects.toThrow('ClientApiError: request aborted due to set timeout of 2000ms')

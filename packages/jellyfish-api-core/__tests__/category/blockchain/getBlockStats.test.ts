@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('BlockStats', () => {
   const container = new MasterNodeRegTestContainer()
@@ -19,11 +18,7 @@ describe('BlockStats', () => {
    * Wait for block hash to reach a certain height
    */
   async function waitForBlockHash (height: number): Promise<string> {
-    await waitForExpect(async () => {
-      const info = await client.blockchain.getBlockchainInfo()
-      expect(info.blocks).toBeGreaterThan(height)
-    })
-
+    await container.waitForBlockHeight(height)
     return await client.blockchain.getBlockHash(height)
   }
 

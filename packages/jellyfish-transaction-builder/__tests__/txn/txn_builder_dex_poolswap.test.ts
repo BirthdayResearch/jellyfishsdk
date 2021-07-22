@@ -21,7 +21,9 @@ let jsonRpc: JsonRpcClient
 const pairs: Record<string, { tokenA: number, tokenB: number }> = {
   PIG: { tokenA: 0, tokenB: Number.NaN },
   CAT: { tokenA: 0, tokenB: Number.NaN },
-  DOG: { tokenA: 0, tokenB: Number.NaN }
+  DOG: { tokenA: 0, tokenB: Number.NaN },
+  BIRD: { tokenA: 0, tokenB: Number.NaN },
+  FISH: { tokenA: 0, tokenB: Number.NaN }
 }
 
 beforeAll(async () => {
@@ -78,10 +80,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('10'),
       toScript: script,
       toTokenId: pairs.DOG.tokenB,
-      maxPrice: {
-        integer: new BigNumber('9223372036854775807'),
-        fraction: new BigNumber('9223372036854775807')
-      }
+      maxPrice: new BigNumber('18446744073709551615.99999999')
     }, script)
 
     // Ensure the created txn is correct.
@@ -134,10 +133,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('2'),
       toScript: script,
       toTokenId: pairs.PIG.tokenB,
-      maxPrice: {
-        integer: new BigNumber('5'),
-        fraction: new BigNumber('0')
-      }
+      maxPrice: new BigNumber('5.0')
     }, script)
 
     const outs = await sendTransaction(container, txn)
@@ -186,12 +182,69 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('2'),
       toScript: script,
       toTokenId: pairs.CAT.tokenB,
-      maxPrice: {
-        integer: new BigNumber('0'),
-        fraction: new BigNumber('0.3')
-      }
+      maxPrice: new BigNumber('0.00000003')
     }, script)
 
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('Price is higher than indicated')
+  })
+
+  it('should pass with 5.0', async () => {
+    providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+    const addressLP = await container.getNewAddress()
+    await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 100,
+      tokenB: 'BIRD',
+      amountB: 20,
+      shareAddress: addressLP
+    })
+    await providers.setupMocks()
+    await utxosToAccount(container, 100, { address: await providers.getAddress() })
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'BIRD')
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    const script = await providers.elliptic.script()
+
+    const txn = await builder.dex.poolSwap({
+      fromScript: script,
+      fromTokenId: pairs.BIRD.tokenA,
+      fromAmount: new BigNumber('2'),
+      toScript: script,
+      toTokenId: pairs.BIRD.tokenB,
+      maxPrice: new BigNumber('5.0')
+    }, script)
+    const promise = sendTransaction(container, txn)
+    await expect(promise).resolves.not.toThrow()
+  })
+
+  it('should fail with 4.99999999', async () => {
+    providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+    const addressLP = await container.getNewAddress()
+    await addPoolLiquidity(container, {
+      tokenA: 'DFI',
+      amountA: 100,
+      tokenB: 'FISH',
+      amountB: 20,
+      shareAddress: addressLP
+    })
+    await providers.setupMocks()
+    await utxosToAccount(container, 100, { address: await providers.getAddress() })
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'FISH')
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    const script = await providers.elliptic.script()
+
+    const txn = await builder.dex.poolSwap({
+      fromScript: script,
+      fromTokenId: pairs.FISH.tokenA,
+      fromAmount: new BigNumber('2'),
+      toScript: script,
+      toTokenId: pairs.FISH.tokenB,
+      // max accepted price should be 100 / 20 = 5.0
+      maxPrice: new BigNumber('4.99999999')
+    }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('Price is higher than indicated')

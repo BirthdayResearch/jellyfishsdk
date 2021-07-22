@@ -1,19 +1,19 @@
-import { EllipticPair, dSHA256, HASH160 } from '@defichain/jellyfish-crypto'
+import { dSHA256, EllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import {
+  CVoutV4,
+  CWitnessProgram,
+  DeFiTransactionConstants,
+  OP_CODES,
+  OP_PUSHDATA,
   Script,
+  SIGHASH,
   Transaction,
   TransactionSegWit,
   Vin,
   Vout,
   Witness,
-  OP_CODES,
-  OP_PUSHDATA,
-  CWitnessProgram,
-  WitnessProgram,
-  DeFiTransactionConstants,
-  SIGHASH,
-  CVoutV4
+  WitnessProgram
 } from '@defichain/jellyfish-transaction'
 
 export interface SignInputOption {
@@ -22,9 +22,16 @@ export interface SignInputOption {
    */
   prevout: Vout
   /**
-   * EllipticPair to generate a signature with
+   * @return {Promise<Buffer>} compressed public key
    */
-  ellipticPair: EllipticPair
+  publicKey: () => Promise<Buffer>
+  /**
+   * @param {Buffer} hash to sign
+   * @return {Buffer} signature in DER format, SIGHASHTYPE not included
+   * @see https://tools.ietf.org/html/rfc6979
+   * @see https://github.com/bitcoin/bitcoin/pull/13666
+   */
+  sign: (hash: Buffer) => Promise<Buffer>
   /**
    * Optionally provide a witness script,
    * or it will be guessed if it can be guessed.
@@ -92,7 +99,7 @@ async function isV0P2WPKH (signInputOption: SignInputOption): Promise<boolean> {
   if (stack[1].type !== 'OP_PUSHDATA') return false
   if ((stack[1] as OP_PUSHDATA).length() !== 20) return false
 
-  const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
+  const pubkey: Buffer = await signInputOption.publicKey()
   const pubkeyHashHex = HASH160(pubkey).toString('hex')
   const pushDataHex = (stack[1] as OP_PUSHDATA).hex
 
@@ -100,7 +107,7 @@ async function isV0P2WPKH (signInputOption: SignInputOption): Promise<boolean> {
     return true
   }
 
-  throw new Error('invalid input option - attempting to sign a mismatch vout and elliptic pair is not allowed')
+  throw new Error('invalid input option - attempting to sign a mismatch vout and publicKey is not allowed')
 }
 
 /**
@@ -115,7 +122,7 @@ async function getScriptCode (vin: Vin, signInputOption: SignInputOption): Promi
   }
 
   if (await isV0P2WPKH(signInputOption)) {
-    const pubkey: Buffer = await signInputOption.ellipticPair.publicKey()
+    const pubkey: Buffer = await signInputOption.publicKey()
     const pubkeyHash = HASH160(pubkey)
 
     return {
@@ -170,12 +177,12 @@ export const TransactionSigner = {
     const program = await asWitnessProgram(transaction, vin, option, sigHashType)
     const preimage = new CWitnessProgram(program).asBuffer()
     const sigHash = dSHA256(preimage)
-    const derSignature = await option.ellipticPair.sign(sigHash)
+    const derSignature = await option.sign(sigHash)
     const sigHashBuffer = Buffer.alloc(1, sigHashType)
 
     // signature + pubKey
     const signature = Buffer.concat([derSignature, Buffer.alloc(1, sigHashBuffer)])
-    const pubkey: Buffer = await option.ellipticPair.publicKey()
+    const pubkey: Buffer = await option.publicKey()
     return {
       scripts: [
         {
@@ -208,6 +215,19 @@ export const TransactionSigner = {
       witness: witnesses,
       lockTime: transaction.lockTime
     }
+  },
+
+  async signPrevoutsWithEllipticPairs (transaction: Transaction, prevouts: Vout[], ellipticPairs: EllipticPair[], option: SignOption = {}): Promise<TransactionSegWit> {
+    const inputs: SignInputOption[] = prevouts.map((prevout, index) => {
+      const ellipticPair = ellipticPairs[index]
+      return {
+        prevout: prevout,
+        publicKey: async () => await ellipticPair.publicKey(),
+        sign: async (hash) => await ellipticPair.sign(hash)
+      }
+    })
+
+    return await TransactionSigner.sign(transaction, inputs, option)
   },
 
   validate (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption) {

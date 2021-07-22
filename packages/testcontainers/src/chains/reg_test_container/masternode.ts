@@ -26,13 +26,15 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     return [
       ...super.getCmd(opts),
       '-dummypos=1',
-      '-nospv'
+      '-spv=1',
+      `-masternode_operator=${this.masternodeKey.operator.address}`
     ]
   }
 
   /**
-   * It is set to auto mint every 1 second by default in regtest.
-   * https://github.com/DeFiCh/ain/blob/6dc990c45788d6806ea/test/functional/test_framework/test_node.py#L160-L178
+   * @param {number} nblocks to generate
+   * @param {string} address to generate to
+   * @param {number} maxTries
    */
   async generate (nblocks: number, address: string = this.masternodeKey.operator.address, maxTries: number = 1000000): Promise<void> {
     for (let minted = 0, tries = 0; minted < nblocks && tries < maxTries; tries++) {
@@ -45,41 +47,49 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
+   * @param {number} nblocks to generate
+   * @param {number} timeout
+   * @param {string} address
+   */
+  async waitForGenerate (nblocks: number, timeout: number = 590000, address: string = this.masternodeKey.operator.address): Promise<void> {
+    const target = await this.getBlockCount() + nblocks
+
+    return await this.waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > target) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100)
+  }
+
+  /**
    * This will automatically import the necessary private key for master to mint tokens
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await super.start(startOptions)
-
-    // Wait for ready and setup for auto mint
     await super.waitForReady(25000)
 
-    // import keys for master node
-    await this.call('importprivkey', [
-      this.masternodeKey.operator.privKey, 'coinbase', true
-    ])
-    await this.call('importprivkey', [
-      this.masternodeKey.owner.privKey, 'coinbase', true
-    ])
+    await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
+    await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
+  }
 
-    // configure the masternode
-    const fileContents =
-      'gen=1' + '\n' +
-      'spv=1' + '\n' +
-      `masternode_operator=${this.masternodeKey.operator.address}` + '\n' +
-      `masternode_owner=${this.masternodeKey.owner.address}`
-
-    await this.exec({
-      Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
-    })
-
-    await new Promise((resolve) => {
-      // 1 second delay before stopping due to race conditions
-      setTimeout(_ => resolve(0), 1000)
-    })
-
-    // restart and wait for ready
-    await this.container?.stop()
-    await this.container?.start()
+  /**
+   * Wait for block height by minting towards the target
+   *
+   * @param {number} height to wait for
+   * @param {number} [timeout=90000] in ms
+   */
+  async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
+    return await this.waitForCondition(async () => {
+      const count = await this.getBlockCount()
+      if (count > height) {
+        return true
+      }
+      await this.generate(1)
+      return false
+    }, timeout, 100)
   }
 
   /**
@@ -92,14 +102,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=90000] in ms
    */
   async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
-    return await this.waitForCondition(async () => {
-      const count = await this.getBlockCount()
-      if (count > 100) {
-        return true
-      }
-      await this.generate(1)
-      return false
-    }, timeout, 1)
+    return await this.waitForBlockHeight(100, timeout)
   }
 
   /**
@@ -119,7 +122,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       await this.generate(1)
       return false
-    }, timeout, 1)
+    }, timeout, 100)
   }
 
   /**
@@ -135,11 +138,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
     const txid = await this.call('sendtoaddress', [address, amount])
-
-    await this.waitForCondition(async () => {
-      const { confirmations } = await this.call('gettxout', [txid, 0, true])
-      return confirmations > 0
-    }, 10000)
+    await this.generate(1)
 
     const { vout }: {
       vout: Array<{

@@ -38,6 +38,6 @@
     "@defichain/jellyfish-wallet": "0.0.0",
     "@defichain/jellyfish-transaction": "0.0.0",
     "bip32": "^2.0.6",
-    "bip39": "^3.0.3"
+    "bip39": "^3.0.4"
   }
 }

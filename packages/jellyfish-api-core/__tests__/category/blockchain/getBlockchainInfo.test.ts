@@ -1,6 +1,5 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import waitForExpect from 'wait-for-expect'
 
 describe('BlockchainInfo without masternode', () => {
   const container = new RegTestContainer()
@@ -35,10 +34,6 @@ describe('BlockchainInfo without masternode', () => {
     expect(info.softforks.amk.type).toStrictEqual('buried')
     expect(info.softforks.amk.active).toStrictEqual(true)
     expect(info.softforks.amk.height).toStrictEqual(0)
-
-    expect(info.softforks.segwit.type).toStrictEqual('buried')
-    expect(info.softforks.segwit.active).toStrictEqual(true)
-    expect(info.softforks.segwit.height).toStrictEqual(0)
   })
 })
 
@@ -49,6 +44,7 @@ describe('BlockchainInfo on masternode', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForReady()
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -56,11 +52,6 @@ describe('BlockchainInfo on masternode', () => {
   })
 
   it('should getBlockchainInfo', async () => {
-    await waitForExpect(async () => {
-      const info = await client.blockchain.getBlockchainInfo()
-      expect(info.blocks).toBeGreaterThan(1)
-    })
-
     const info = await client.blockchain.getBlockchainInfo()
 
     expect(info.chain).toStrictEqual('regtest')

@@ -28,16 +28,7 @@ export class Mining {
   }
 
   /**
-   * Get minting-related information
-   * @return {Promise<MintingInfo>}
-   * @deprecated Prefer using getMiningInfo.
-   */
-  async getMintingInfo (): Promise<MintingInfo> {
-    return await this.client.call('getmintinginfo', [], 'number')
-  }
-
-  /**
-   * Get mining-related information, replaces deprecated getMintingInfo
+   * Get mining-related information
    * @return {Promise<MiningInfo>}
    */
   async getMiningInfo (): Promise<MiningInfo> {
