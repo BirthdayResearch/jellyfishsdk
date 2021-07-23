@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { TestingModule } from '@nestjs/testing'
-import { createIndexerTestModule, stopIndexer, waitForHeight } from '@src/module.indexer/indexer.spec/_testing.module'
+import { createIndexerTestModule, invalidateFromHeight, stopIndexer, waitForHeight } from '@src/module.indexer/indexer.spec/_testing.module'
 import { BlockMapper } from '@src/module.model/block'
 
 const container = new MasterNodeRegTestContainer()
@@ -9,7 +9,7 @@ let app: TestingModule
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
-  await container.generate(11)
+  await container.generate(21)
 
   app = await createIndexerTestModule(container)
   await app.init()
@@ -57,4 +57,20 @@ it('should wait for block 10', async () => {
   expect(block?.transactionCount).toBeGreaterThan(0)
 })
 
-// TODO(fuxingloh): testing not sufficient, no re-org testing capability
+it('should invalidate', async () => {
+  await waitForHeight(app, 20)
+
+  const blockMapper = app.get(BlockMapper)
+  const block = await blockMapper.getByHeight(15)
+
+  expect(block?.height).toStrictEqual(15)
+  expect(block?.transactionCount).toBeGreaterThan(0)
+
+  const oldHash = block?.hash
+
+  await invalidateFromHeight(app, container, 15)
+
+  const newBlock = await blockMapper.getByHeight(15)
+
+  expect(oldHash).not.toStrictEqual(newBlock?.hash)
+})

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { RegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ConfigModule } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 import { DatabaseModule } from '@src/module.database/_module'
@@ -49,6 +49,30 @@ export async function waitForHeight (app: TestingModule, height: number): Promis
   const blockMapper = app.get(BlockMapper)
   await waitForExpect(async () => {
     const block = await blockMapper.getHighest()
-    await expect(block?.height).toBeGreaterThan(height)
+    expect(block?.height).toBeGreaterThan(height)
+  }, 30000)
+}
+
+export async function waitForTime (container: MasterNodeRegTestContainer, timestamp: number, timeout: number = 30000): Promise<void> {
+  await waitForExpect(async () => {
+    await container.generate(1)
+    const height = await container.call('getblockcount')
+    const stats = await container.call('getblockstats', [height])
+    expect(Number(stats.time)).toStrictEqual(timestamp)
+  }, timeout)
+}
+
+export async function invalidateFromHeight (app: TestingModule, container: MasterNodeRegTestContainer, invalidateHeight: number): Promise<void> {
+  const height = await container.call('getblockcount')
+  const highestHash = await container.call('getblockhash', [height])
+  const invalidateBlockHash = await container.call('getblockhash', [invalidateHeight])
+  await container.call('invalidateblock', [invalidateBlockHash])
+  await container.call('clearmempool')
+  await container.generate(height - invalidateHeight + 1)
+  const blockMapper = app.get(BlockMapper)
+  await waitForExpect(async () => {
+    const block = await blockMapper.getByHeight(height)
+    expect(block).not.toStrictEqual(undefined)
+    expect(block?.hash).not.toStrictEqual(highestHash)
   }, 30000)
 }
