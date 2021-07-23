@@ -44,7 +44,7 @@ export class EncryptedMnemonicHdNode extends MnemonicHdNode {
 /**
  * EncryptedProviderData data encoded as hex.
  */
-interface EncryptedProviderData {
+export interface EncryptedProviderData {
   /* Encoded as string hex */
   pubKey: string
   /* Encoded as string hex */
@@ -83,7 +83,7 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
 
     const promisePrivKey = async (): Promise<Buffer> => {
       const passphrase = await this.promptPassphrase()
-      return this.scrypt.decrypt(encrypted, passphrase)
+      return await this.scrypt.decrypt(encrypted, passphrase)
     }
 
     return new EncryptedMnemonicHdNode(path, chainCode, this.options, rootPubKey, promisePrivKey)
@@ -96,13 +96,13 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
    * @param {string} passphrase to encrypt mnemonic words with
    * @return EncryptedProviderData with unencrypted "pubKey & chainCode" and scrypt encoded 'encryptedPrivKey'
    */
-  static wordsToEncryptedData (words: string[], options: Bip32Options, scrypt: Scrypt, passphrase: string): EncryptedProviderData {
+  static async wordsToEncryptedData (words: string[], options: Bip32Options, scrypt: Scrypt, passphrase: string): Promise<EncryptedProviderData> {
     const mnemonic = MnemonicHdNodeProvider.wordsToData(words, options)
     const privKey = Buffer.from(mnemonic.privKey, 'hex')
     const chainCode = Buffer.from(mnemonic.chainCode, 'hex')
 
     const root = bip32.fromPrivateKey(privKey, chainCode, options)
-    const encrypted = scrypt.encrypt(privKey, passphrase)
+    const encrypted = await scrypt.encrypt(privKey, passphrase)
 
     return {
       pubKey: root.publicKey.toString('hex'),

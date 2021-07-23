@@ -74,13 +74,13 @@ export class Scrypt {
    * @param {Buffer} data data with even number length
    * @param {string} passphrase to derived encryption secret, utf8 string in normalization format C
    */
-  encrypt (data: Buffer, passphrase: string): EncryptedData {
+  async encrypt (data: Buffer, passphrase: string): Promise<EncryptedData> {
     if (data.length % 2 !== 0) {
       throw new Error('Data length must be even number')
     }
 
     const hash = dSHA256(data).slice(0, 4)
-    const key = this.scryptProvider.passphraseToKey(passphrase, hash, 64)
+    const key = await this.scryptProvider.passphraseToKey(passphrase, hash, 64)
 
     const k1a = Buffer.from(key.toString('hex').slice(0, 32), 'hex') // 16 bytes
     const k1b = Buffer.from(key.toString('hex').slice(32, 64), 'hex') // 16 bytes
@@ -106,9 +106,9 @@ export class Scrypt {
    * @returns {Promise<Buffer>} null if no data found in storage
    * @throws Error InvalidPassphrase if passphrase is invalid (decrypted value has no matching hash)
    */
-  decrypt (encrypted: string, passphrase: string): Buffer {
+  async decrypt (encrypted: string, passphrase: string): Promise<Buffer> {
     const data = EncryptedData.decode(encrypted)
-    const key = this.scryptProvider.passphraseToKey(passphrase, data.hash, 64)
+    const key = await this.scryptProvider.passphraseToKey(passphrase, data.hash, 64)
 
     const k1a = Buffer.from(key.toString('hex').slice(0, 32), 'hex') // 16 bytes
     const k1b = Buffer.from(key.toString('hex').slice(32, 64), 'hex') // 16 bytes

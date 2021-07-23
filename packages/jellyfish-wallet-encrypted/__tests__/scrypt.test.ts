@@ -7,7 +7,7 @@ it('should be able to encrypt / decrypt', async () => {
   const passphrase = 'password'
   const buffer = Buffer.from(privKey, 'hex')
 
-  const data = scrypt.encrypt(buffer, passphrase)
+  const data = await scrypt.encrypt(buffer, passphrase)
   expect(data).not.toStrictEqual(null)
   expect(data.encode()).not.toStrictEqual(null)
 
@@ -22,11 +22,11 @@ it('should be able to encrypt / decrypt - simple passphrase, a 6 digit pin', asy
   const passphrase = '135790'
   const buffer = Buffer.from(privKey, 'hex')
 
-  const data = scrypt.encrypt(buffer, passphrase)
+  const data = await scrypt.encrypt(buffer, passphrase)
   expect(data).not.toStrictEqual(null)
   expect(data.encode()).not.toStrictEqual(null)
 
-  const encoded = data.encode()
+  const encoded = await data.encode()
   const decrypted = await scrypt.decrypt(encoded, passphrase)
   expect(decrypted).toStrictEqual(buffer)
   expect(decrypted.toString('hex')).toStrictEqual(privKey)
@@ -37,7 +37,7 @@ it('Should work with variable data length - long', async () => {
   const passphrase = 'passcode'
   const buffer = Buffer.from(privKey, 'hex')
 
-  const data = scrypt.encrypt(buffer, passphrase)
+  const data = await scrypt.encrypt(buffer, passphrase)
   expect(data).not.toStrictEqual(null)
   expect(data.encode()).not.toStrictEqual(null)
 
@@ -52,7 +52,7 @@ it('should work with variable data length - short', async () => {
   const passphrase = 'passcode'
   const buffer = Buffer.from(privKey, 'hex')
 
-  const data = scrypt.encrypt(buffer, passphrase)
+  const data = await scrypt.encrypt(buffer, passphrase)
   expect(data).not.toStrictEqual(null)
   expect(data.encode()).not.toStrictEqual(null)
 
@@ -79,5 +79,5 @@ it('should reject "odd" number data length', async () => {
 
 it('should pad "odd" number data length', async () => {
   const padded = Buffer.from('00' + 'eeffaa', 'hex')
-  scrypt.encrypt(padded, 'password')
+  await scrypt.encrypt(padded, 'password')
 })
