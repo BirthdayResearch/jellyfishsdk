@@ -2,9 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
-import { createPoolPair, createToken, addPoolLiquidity, getNewAddress, mintTokens } from '@defichain/testing'
+import { PoolPairService } from '@src/module.api/poolpair.service'
+import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { CacheModule, NotFoundException } from '@nestjs/common'
 import { DeFiDCache } from './cache/defid.cache'
+import { ConfigService } from '@nestjs/config'
 
 const container = new MasterNodeRegTestContainer()
 let controller: PoolPairController
@@ -22,54 +24,92 @@ beforeAll(async () => {
     controllers: [PoolPairController],
     providers: [
       { provide: JsonRpcClient, useValue: client },
-      DeFiDCache
+      DeFiDCache,
+      PoolPairService,
+      ConfigService
     ]
   }).compile()
 
   controller = app.get(PoolPairController)
 
-  const tokens = ['A', 'B', 'C', 'D', 'E', 'F']
+  await setup()
+  await app.get(PoolPairService).syncDfiUsdPair()
+})
+
+afterAll(async () => {
+  await container.stop()
+})
+
+async function setup (): Promise<void> {
+  const tokens = ['USDT', 'B', 'C', 'D', 'E', 'F']
 
   for (const token of tokens) {
     await container.waitForWalletBalanceGTE(110)
     await createToken(container, token)
     await mintTokens(container, token)
   }
-  await createPoolPair(container, 'A', 'B')
-  await createPoolPair(container, 'A', 'C')
-  await createPoolPair(container, 'A', 'D')
-  await createPoolPair(container, 'A', 'E')
-  await createPoolPair(container, 'A', 'F')
-  await createPoolPair(container, 'B', 'C')
-  await createPoolPair(container, 'B', 'D')
-  await createPoolPair(container, 'B', 'E')
-  await container.generate(1)
+
+  for (const token of tokens) {
+    await createPoolPair(container, token, 'DFI')
+  }
 
   await addPoolLiquidity(container, {
-    tokenA: 'A',
+    tokenA: 'USDT',
     amountA: 100,
-    tokenB: 'B',
+    tokenB: 'DFI',
     amountB: 200,
     shareAddress: await getNewAddress(container)
   })
   await addPoolLiquidity(container, {
-    tokenA: 'A',
+    tokenA: 'B',
     amountA: 50,
-    tokenB: 'C',
+    tokenB: 'DFI',
     amountB: 300,
     shareAddress: await getNewAddress(container)
   })
   await addPoolLiquidity(container, {
-    tokenA: 'A',
+    tokenA: 'C',
     amountA: 90,
-    tokenB: 'D',
+    tokenB: 'DFI',
     amountB: 360,
     shareAddress: await getNewAddress(container)
   })
-})
+  await addPoolLiquidity(container, {
+    tokenA: 'D',
+    amountA: 51.1,
+    tokenB: 'DFI',
+    amountB: 144.54134,
+    shareAddress: await getNewAddress(container)
+  })
+}
 
-afterAll(async () => {
-  await container.stop()
+it('should resolve tvl for all poolpair', async () => {
+  const response = await controller.list({ size: 5 })
+
+  expect(response.data[0].totalLiquidity).toStrictEqual({
+    token: '141.42135623',
+    usd: '200'
+  })
+
+  expect(response.data[1].totalLiquidity).toStrictEqual({
+    token: '122.47448713',
+    usd: '300'
+  })
+
+  expect(response.data[2].totalLiquidity).toStrictEqual({
+    token: '180',
+    usd: '360'
+  })
+
+  expect(response.data[3].totalLiquidity).toStrictEqual({
+    token: '85.94220426',
+    usd: '144.54134'
+  })
+
+  expect(response.data[4].totalLiquidity).toStrictEqual({
+    token: '0',
+    usd: '0'
+  })
 })
 
 describe('list', () => {
@@ -78,28 +118,35 @@ describe('list', () => {
       size: 30
     })
 
-    expect(response.data.length).toStrictEqual(8)
+    expect(response.data.length).toStrictEqual(6)
     expect(response.page).toBeUndefined()
 
     expect(response.data[1]).toStrictEqual({
       id: '8',
-      symbol: 'A-C',
-      name: 'A-C',
+      symbol: 'B-DFI',
+      name: 'B-Default Defi token',
       status: true,
       tokenA: {
-        id: '1',
+        id: '2',
         reserve: '50',
         blockCommission: '0'
       },
       tokenB: {
-        id: '3',
+        id: '0',
         reserve: '300',
         blockCommission: '0'
       },
       commission: '0',
-      totalLiquidity: '122.47448713',
+      totalLiquidity: {
+        token: '122.47448713',
+        usd: '300'
+      },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
+      priceRatio: {
+        ab: '0.16666666',
+        ba: '6'
+      },
       rewardPct: '0',
       customRewards: undefined,
       creation: {
@@ -115,22 +162,20 @@ describe('list', () => {
     })
     expect(first.data.length).toStrictEqual(2)
     expect(first.page?.next).toStrictEqual('8')
-    expect(first.data[0].symbol).toStrictEqual('A-B')
-    expect(first.data[1].symbol).toStrictEqual('A-C')
+    expect(first.data[0].symbol).toStrictEqual('USDT-DFI')
+    expect(first.data[1].symbol).toStrictEqual('B-DFI')
 
     const next = await controller.list({
       size: 10,
       next: first.page?.next
     })
 
-    expect(next.data.length).toStrictEqual(6)
+    expect(next.data.length).toStrictEqual(4)
     expect(next.page?.next).toBeUndefined()
-    expect(next.data[0].symbol).toStrictEqual('A-D')
-    expect(next.data[1].symbol).toStrictEqual('A-E')
-    expect(next.data[2].symbol).toStrictEqual('A-F')
-    expect(next.data[3].symbol).toStrictEqual('B-C')
-    expect(next.data[4].symbol).toStrictEqual('B-D')
-    expect(next.data[5].symbol).toStrictEqual('B-E')
+    expect(next.data[0].symbol).toStrictEqual('C-DFI')
+    expect(next.data[1].symbol).toStrictEqual('D-DFI')
+    expect(next.data[2].symbol).toStrictEqual('E-DFI')
+    expect(next.data[3].symbol).toStrictEqual('F-DFI')
   })
 
   it('should list with undefined next pagination', async () => {
@@ -150,8 +195,8 @@ describe('get', () => {
 
     expect(response).toStrictEqual({
       id: '7',
-      symbol: 'A-B',
-      name: 'A-B',
+      symbol: 'USDT-DFI',
+      name: 'USDT-Default Defi token',
       status: true,
       tokenA: {
         id: expect.any(String),
@@ -164,9 +209,16 @@ describe('get', () => {
         blockCommission: '0'
       },
       commission: '0',
-      totalLiquidity: '141.42135623',
+      totalLiquidity: {
+        token: '141.42135623',
+        usd: '200'
+      },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
+      priceRatio: {
+        ab: '0.5',
+        ba: '2'
+      },
       rewardPct: '0',
       customRewards: undefined,
       creation: {

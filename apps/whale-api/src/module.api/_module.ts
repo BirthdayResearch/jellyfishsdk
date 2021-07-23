@@ -6,6 +6,7 @@ import { TransactionsController } from '@src/module.api/transaction.controller'
 import { ApiValidationPipe } from '@src/module.api/pipes/api.validation.pipe'
 import { AddressController } from '@src/module.api/address.controller'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
+import { PoolPairService } from '@src/module.api/poolpair.service'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { NetworkGuard } from '@src/module.api/guards/network.guard'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
@@ -33,7 +34,8 @@ import { MasternodesController } from '@src/module.api/masternode.controller'
     { provide: APP_GUARD, useClass: NetworkGuard },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ExceptionInterceptor },
-    DeFiDCache
+    DeFiDCache,
+    PoolPairService
   ]
 })
 export class ApiModule {
