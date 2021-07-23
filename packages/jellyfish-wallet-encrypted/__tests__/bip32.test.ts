@@ -48,10 +48,10 @@ describe('24 words: random with passphrase "random" (exact same test in jellyfis
   const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
   let provider: EncryptedHdNodeProvider
 
-  beforeAll(() => {
+  beforeAll(async () => {
     const words = MnemonicHdNodeProvider.generateWords(24)
     const passphrase = 'random'
-    const data = EncryptedHdNodeProvider.wordsToEncryptedData(
+    const data = await EncryptedHdNodeProvider.wordsToEncryptedData(
       words,
       regTestBip32Options,
       scrypt,
@@ -142,10 +142,10 @@ describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted"
   const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
   let provider: EncryptedHdNodeProvider
 
-  beforeAll(() => {
+  beforeAll(async () => {
     const words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art'.split(' ')
     const passphrase = 'jellyfish-wallet-encrypted'
-    const data = EncryptedHdNodeProvider.wordsToEncryptedData(
+    const data = await EncryptedHdNodeProvider.wordsToEncryptedData(
       words,
       regTestBip32Options,
       scrypt,
