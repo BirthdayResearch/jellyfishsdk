@@ -42,6 +42,16 @@ export class Governance {
     }
     return await this.client.call('createcfp', [{ ...defaultData, ...data }, utxos], 'number')
   }
+
+  /**
+   * Returns information about the proposal.
+   *
+   * @param {string} proposalId Proposal id
+   * @return {Promise<ProposalInfo>} Informatiom about the proposal
+   */
+  async getProposal (proposalId: string): Promise<ProposalInfo> {
+    return await this.client.call('getproposal', [proposalId], 'number')
+  }
 }
 
 export interface CFPData {
@@ -57,4 +67,16 @@ export interface UTXO {
   txid: string
   /** output number */
   vout: number
+}
+
+export interface ProposalInfo {
+  proposalId: string
+  title: string
+  type: ProposalType
+  status: ProposalStatus
+  amount: number
+  cyclesPaid: number
+  totalCycles: number
+  finalizeAfter: number
+  payoutAddress: string
 }
