@@ -28,9 +28,9 @@ export class Governance {
    *
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
-   * @param {number} [data.cycles=1] Number of cycles for periodic fund request. Defaults to one cycle.
    * @param {BigNumber} data.amount Amount per period
    * @param {string} data.payoutAddress Any valid address to receive the funds
+   * @param {number} [data.cycles=1] Number of cycles for periodic fund request. Defaults to one cycle.
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
@@ -46,9 +46,9 @@ export class Governance {
 
 export interface CFPData {
   title: string
-  cycles?: number
   amount: BigNumber
   payoutAddress: string
+  cycles?: number
 }
 
 /** Input UTXO */

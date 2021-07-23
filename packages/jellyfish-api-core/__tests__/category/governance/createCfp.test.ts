@@ -22,8 +22,8 @@ describe('Governance', () => {
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      cycles: 2,
-      payoutAddress: await container.call('getnewaddress')
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
     }
     const proposalTx = await client.governance.createCfp(data)
     await container.generate(1)
@@ -77,8 +77,8 @@ describe('Governance', () => {
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      cycles: 2,
-      payoutAddress: await container.call('getnewaddress')
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
     }
     const utxo = await container.fundAddress(await container.call('getnewaddress'), 10)
     const proposalTx = await client.governance.createCfp(data, [utxo])
@@ -94,8 +94,8 @@ describe('Governance', () => {
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      cycles: 2,
-      payoutAddress: await container.call('getnewaddress')
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
     }
     const promise = client.governance.createCfp(data, [{ txid: 'XXXX', vout: 1 }])
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -106,8 +106,8 @@ describe('Governance', () => {
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      cycles: 2,
-      payoutAddress: await container.call('getnewaddress')
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
     }
     const txid = '817f1d1aa80bd908e845f747912bbc1bd29fc87f6e2bb762ead7330e1801c3cd' // random hex string of 64 char
     const promise = client.governance.createCfp(data, [{ txid, vout: 1 }])
@@ -133,8 +133,8 @@ describe('Governance while still in Initial Block Download', () => {
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      cycles: 2,
-      payoutAddress: await container.call('getnewaddress')
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
     }
     const promise = client.governance.createCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -160,8 +160,8 @@ describe('Governance with insufficient fund', () => {
     const data = {
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
-      cycles: 2,
-      payoutAddress: await container.call('getnewaddress')
+      payoutAddress: await container.call('getnewaddress'),
+      cycles: 2
     }
     const promise = client.governance.createCfp(data)
     await expect(promise).rejects.toThrow(RpcApiError)
