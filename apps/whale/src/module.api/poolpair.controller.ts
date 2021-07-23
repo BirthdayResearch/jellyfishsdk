@@ -1,16 +1,19 @@
-import { NotFoundException, Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common'
+import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { PoolPairData } from '@whale-api-client/api/poolpair'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
+import { PoolPairService } from './poolpair.service'
+import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
 @Controller('/v0/:network/poolpairs')
 export class PoolPairController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,
-    protected readonly deFiDCache: DeFiDCache
+    protected readonly deFiDCache: DeFiDCache,
+    private readonly poolPairService: PoolPairService
   ) {
   }
 
@@ -24,17 +27,17 @@ export class PoolPairController {
   async list (
     @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<PoolPairData>> {
-    const poolPairResult = await this.rpcClient.poolpair.listPoolPairs({
+    const result = await this.rpcClient.poolpair.listPoolPairs({
       start: query.next !== undefined ? Number(query.next) : 0,
       including_start: query.next === undefined, // TODO(fuxingloh): open issue at DeFiCh/ain, rpc_accounts.cpp#388
       limit: query.size
     }, true)
 
-    const poolPairInfosDto = Object.entries(poolPairResult).map(([id, value]) => {
-      return mapPoolPair(id, value)
-    }).sort(a => Number.parseInt(a.id))
-
-    return ApiPagedResponse.of(poolPairInfosDto, query.size, item => {
+    const items = Object.entries(result).map(([id, info]) => {
+      const totalLiquidityUsd = this.poolPairService.getTotalLiquidityUsd(info)
+      return mapPoolPair(id, info, totalLiquidityUsd)
+    })
+    return ApiPagedResponse.of(items, query.size, item => {
       return item.id
     })
   }
@@ -49,35 +52,44 @@ export class PoolPairController {
     if (info === undefined) {
       throw new NotFoundException('Unable to find poolpair')
     }
-    return mapPoolPair(String(id), info)
+
+    const totalLiquidityUsd = this.poolPairService.getTotalLiquidityUsd(info)
+    return mapPoolPair(String(id), info, totalLiquidityUsd)
   }
 }
 
-function mapPoolPair (id: string, poolPairInfo: PoolPairInfo): PoolPairData {
+export function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber): PoolPairData {
   return {
-    id,
-    symbol: poolPairInfo.symbol,
-    name: poolPairInfo.name,
-    status: poolPairInfo.status,
+    id: id,
+    symbol: info.symbol,
+    name: info.name,
+    status: info.status,
     tokenA: {
-      id: poolPairInfo.idTokenA,
-      reserve: poolPairInfo.reserveA.toFixed(),
-      blockCommission: poolPairInfo.blockCommissionA.toFixed()
+      id: info.idTokenA,
+      reserve: info.reserveA.toFixed(),
+      blockCommission: info.blockCommissionA.toFixed()
     },
     tokenB: {
-      id: poolPairInfo.idTokenB,
-      reserve: poolPairInfo.reserveB.toFixed(),
-      blockCommission: poolPairInfo.blockCommissionB.toFixed()
+      id: info.idTokenB,
+      reserve: info.reserveB.toFixed(),
+      blockCommission: info.blockCommissionB.toFixed()
     },
-    commission: poolPairInfo.commission.toFixed(),
-    totalLiquidity: poolPairInfo.totalLiquidity.toFixed(),
-    tradeEnabled: poolPairInfo.tradeEnabled,
-    ownerAddress: poolPairInfo.ownerAddress,
-    rewardPct: poolPairInfo.rewardPct.toFixed(),
-    customRewards: poolPairInfo.customRewards,
+    priceRatio: {
+      ab: info['reserveA/reserveB'] instanceof BigNumber ? info['reserveA/reserveB'].toFixed() : info['reserveA/reserveB'],
+      ba: info['reserveB/reserveA'] instanceof BigNumber ? info['reserveB/reserveA'].toFixed() : info['reserveB/reserveA']
+    },
+    commission: info.commission.toFixed(),
+    totalLiquidity: {
+      token: info.totalLiquidity.toFixed(),
+      usd: totalLiquidityUsd?.toFixed()
+    },
+    tradeEnabled: info.tradeEnabled,
+    ownerAddress: info.ownerAddress,
+    rewardPct: info.rewardPct.toFixed(),
+    customRewards: info.customRewards,
     creation: {
-      tx: poolPairInfo.creationTx,
-      height: poolPairInfo.creationHeight.toNumber()
+      tx: info.creationTx,
+      height: info.creationHeight.toNumber()
     }
   }
 }
