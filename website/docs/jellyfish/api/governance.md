@@ -24,9 +24,9 @@ interface governance {
 
 interface CFPData {
   title: string
-  cycles?: number
   amount: BigNumber
   payoutAddress: string
+  cycles?: number
 }
 
 interface UTXO {
