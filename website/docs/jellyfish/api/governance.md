@@ -134,3 +134,30 @@ interface ProposalInfo {
   payoutAddress: string
 }
 ```
+
+## vote
+
+Vote on a community proposal.
+
+```ts title="client.governance.vote()"
+interface governance {
+  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
+}
+
+enum VoteDecision {
+  YES = 'yes',
+  NO = 'no',
+  NEUTRAL = 'neutral'
+}
+
+interface VoteData {
+  proposalId: string
+  masternodeId: string
+  decision: VoteDecision
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
