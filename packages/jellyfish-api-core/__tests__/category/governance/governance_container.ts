@@ -8,7 +8,8 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      '-fortcanningheight=7'
+      '-fortcanningheight=7',
+      '-dummypos=0' // Needed to expire proposals
     ]
   }
 }

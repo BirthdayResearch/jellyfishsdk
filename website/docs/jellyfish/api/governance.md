@@ -83,3 +83,54 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listProposals
+
+Returns list of proposals.
+
+```ts title="client.governance.listProposals()"
+interface governance {
+  async listProposals ({
+    type = ListProposalsType.ALL,
+    status = ListProposalsStatus.ALL
+  } = {}): Promise<ProposalInfo[]>
+}
+
+enum ListProposalsType {
+  CFP = 'cfp',
+  BRP = 'brp',
+  VOC = 'voc',
+  ALL = 'all'
+}
+
+enum ListProposalsStatus {
+  VOTING = 'voting',
+  REJECTED = 'rejected',
+  COMPLETED = 'completed',
+  ALL = 'all'
+}
+
+enum ProposalType {
+  COMMUNITY_FUND_REQUEST = 'CommunityFundRequest',
+  BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
+  VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
+}
+
+enum ProposalStatus {
+  VOTING = 'Voting',
+  REJECTED = 'Rejected',
+  COMPLETED = 'Completed'
+}
+
+interface ProposalInfo {
+  proposalId: string
+  title: string
+  type: ProposalType
+  status: ProposalStatus
+  amount: number
+  cyclesPaid: number
+  totalCycles: number
+  finalizeAfter: number
+  payoutAddress: string
+}
+```

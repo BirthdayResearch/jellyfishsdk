@@ -13,6 +13,20 @@ export enum ProposalStatus {
   COMPLETED = 'Completed'
 }
 
+export enum ListProposalsType {
+  CFP = 'cfp',
+  BRP = 'brp',
+  VOC = 'voc',
+  ALL = 'all'
+}
+
+export enum ListProposalsStatus {
+  VOTING = 'voting',
+  REJECTED = 'rejected',
+  COMPLETED = 'completed',
+  ALL = 'all'
+}
+
 /**
  * Governance RPCs for DeFi Blockchain
  */
@@ -64,6 +78,21 @@ export class Governance {
    */
   async createVoc (title: string, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createvoc', [title, utxos], 'number')
+  }
+
+  /**
+   * Returns list of proposals.
+   *
+   * @param {Object} options List proposal filter options
+   * @param {ListProposalsType} [options.type=ListProposalsType.ALL] type of proposals
+   * @param {ListProposalsStatus} [options.status=ListProposalsStatus.ALL] status of proposals
+   * @return {Promise<ProposalInfo[]>}
+   */
+  async listProposals ({
+    type = ListProposalsType.ALL,
+    status = ListProposalsStatus.ALL
+  } = {}): Promise<ProposalInfo[]> {
+    return await this.client.call('listproposals', [type, status], 'number')
   }
 }
 
