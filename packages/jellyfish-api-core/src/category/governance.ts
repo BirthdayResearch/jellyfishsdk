@@ -52,6 +52,19 @@ export class Governance {
   async getProposal (proposalId: string): Promise<ProposalInfo> {
     return await this.client.call('getproposal', [proposalId], 'number')
   }
+
+  /**
+   * Creates a Vote of Confidence.
+   *
+   * @param {string} [title] Vote of confidence's title
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] The transaction id
+   * @param {number} [utxos.vout] The output number
+   * @return {Promise<string>} txid
+   */
+  async createVoc (title: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createvoc', [title, utxos], 'number')
+  }
 }
 
 export interface CFPData {
