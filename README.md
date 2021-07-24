@@ -77,6 +77,7 @@ version tag.
 
 Package                                            | Description
 ---------------------------------------------------|-------------
+`@defichain/dolphin`                               | [DeFiCh/ain](https://github.com/DeFiCh/ain) nodejs daemon runner
 `@defichain/jellyfish`                             | Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts
 `@defichain/jellyfish-address`                     | Provide address builder, parser, validator utility library for DeFi Blockchain.
 `@defichain/jellyfish-api-core`                    | A protocol agnostic DeFi Blockchain client interfaces, with a "foreign function interface" design.

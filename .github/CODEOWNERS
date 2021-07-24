@@ -5,6 +5,7 @@
 /.husky/                                        @fuxingloh
 /.idea/                                         @fuxingloh @jingyi2811 @thedoublejay
 
+/packages/dolphin/                              @fuxingloh
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 

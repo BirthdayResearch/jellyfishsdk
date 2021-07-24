@@ -10,6 +10,7 @@
       <excludePattern pattern="*tsconfig.build.tsbuildinfo*" />
       <excludePattern pattern="*dist*" />
       <excludePattern pattern="*coverage*" />
+      <excludePattern pattern="package-lock.json" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
