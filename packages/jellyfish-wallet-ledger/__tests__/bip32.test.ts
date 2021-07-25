@@ -1,16 +1,20 @@
 import { LedgerHdNodeProvider } from '../src/hd_node'
 import Transport from '@ledgerhq/hw-transport'
 import TransportNodeHid from '@ledgerhq/hw-transport-node-hid'
-// @ts-expect-error because @ledgerhq uses flow
 import SpeculosTransport from '@ledgerhq/hw-transport-node-speculos'
 import { dSHA256 } from '@defichain/jellyfish-crypto'
 
 describe('hardware device tests', function () {
   let provider: LedgerHdNodeProvider
+  let transport: Transport
 
   beforeAll(async () => {
-    const transport = await TransportNodeHid.create()
+    transport = await TransportNodeHid.create()
     provider = LedgerHdNodeProvider.getProvider(transport)
+  })
+
+  afterAll(async () => {
+    await transport.close()
   })
 
   it('should get publlic key', async () => {
@@ -42,10 +46,15 @@ describe('hardware device tests', function () {
 describe('speculos tests', function () {
   let provider: LedgerHdNodeProvider
   const apduPort = 9999
+  let transport: Transport
 
   beforeAll(async () => {
-    const transport: Transport = await SpeculosTransport.open({ apduPort })
+    transport = await SpeculosTransport.open({ apduPort })
     provider = LedgerHdNodeProvider.getProvider(transport)
+  })
+
+  afterAll(async () => {
+    await transport.close()
   })
 
   it('should get publlic key', async () => {

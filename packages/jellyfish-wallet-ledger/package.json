@@ -40,15 +40,15 @@
   "dependencies": {
     "@defichain/jellyfish-wallet": "0.0.0",
     "@defichain/jellyfish-transaction": "0.0.0",
-    "@ledgerhq/hw-transport": "^5.46.0",
-    "@ledgerhq/hw-transport-node-hid": "^5.46.0",
-    "@ledgerhq/hw-app-btc": "^5.46.0",
+    "@ledgerhq/hw-transport": "^6.2.0",
+    "@ledgerhq/hw-transport-node-hid": "^6.2.0",
+    "@ledgerhq/hw-app-btc": "^6.2.0",
     "tiny-secp256k1": "^1.1.6"
   },
   "devDependencies": {
     "@types/ledgerhq__hw-transport": "^4.21.3",
-    "@ledgerhq/hw-transport-node-speculos": "^5.46.0",
-    "@types/ledgerhq__hw-transport-node-hid": "^4.21.3",
+    "@ledgerhq/hw-transport-node-speculos": "^6.2.0",
+    "@types/ledgerhq__hw-transport-node-hid": "^4.22.2",
     "@types/tiny-secp256k1": "^1.0.0",
     "@types/ledgerhq__hw-app-btc": "^5.19.3"
   }
