@@ -24,7 +24,7 @@ export class Governance {
   }
 
   /**
-   * Creates a Cummunity Fund Request.
+   * Creates a Community Fund Request.
    *
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
