@@ -47,7 +47,7 @@ export class Governance {
    * Returns information about the proposal.
    *
    * @param {string} proposalId Proposal id
-   * @return {Promise<ProposalInfo>} Informatiom about the proposal
+   * @return {Promise<ProposalInfo>} Information about the proposal
    */
   async getProposal (proposalId: string): Promise<ProposalInfo> {
     return await this.client.call('getproposal', [proposalId], 'number')
