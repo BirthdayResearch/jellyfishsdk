@@ -34,3 +34,37 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getProposal
+
+Returns information about the proposal.
+
+```ts title="client.governance.getProposal()"
+interface governance {
+  getProposal (proposalId: string): Promise<ProposalInfo>
+}
+
+enum ProposalType {
+  COMMUNITY_FUND_REQUEST = 'CommunityFundRequest',
+  BLOCK_REWARD_RELLOCATION = 'BlockRewardRellocation',
+  VOTE_OF_CONFIDENCE = 'VoteOfConfidence'
+}
+
+enum ProposalStatus {
+  VOTING = 'Voting',
+  REJECTED = 'Rejected',
+  COMPLETED = 'Completed'
+}
+
+interface ProposalInfo {
+  proposalId: string
+  title: string
+  type: ProposalType
+  status: ProposalStatus
+  amount: number
+  cyclesPaid: number
+  totalCycles: number
+  finalizeAfter: number
+  payoutAddress: string
+}
+ ```
