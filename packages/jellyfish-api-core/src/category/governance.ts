@@ -56,7 +56,7 @@ export class Governance {
   /**
    * Creates a Vote of Confidence.
    *
-   * @param {string} [title] Vote of confidence's title
+   * @param {string} title Vote of confidence's title
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number
