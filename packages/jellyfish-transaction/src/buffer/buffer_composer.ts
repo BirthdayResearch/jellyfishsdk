@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { readVarUInt, writeVarUInt } from './buffer_varuint'
 import { getBitsFrom } from './buffer_bitmask'
-import { ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
+import { ONE_HUNDRED_MILLION, MAX_INT64, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
 
 export interface BufferComposer {
   fromBuffer: (buffer: SmartBuffer) => void
@@ -552,21 +552,35 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
       fromBuffer: (buffer: SmartBuffer): void => {
         const integer = readBigNumberUInt64(buffer)
         const fraction = readBigNumberUInt64(buffer)
-        if (fraction.gt(new BigNumber('99999999'))) {
+
+        // NOTE(canonbrother): max price default value is max int64 (9223372036854775807)
+        // https://github.com/DeFiCh/ain/blob/aed00d09075094a3a0cedebde5248c006216ba09/src/masternodes/rpc_poolpair.cpp#L115-L123
+        if (fraction.gt(new BigNumber('99999999')) && !fraction.eq(MAX_INT64)) {
           throw new Error('Too many decimals read from buffer. Will lose precision with more than 8 decimals')
         }
-        setter(integer.plus(fraction.dividedBy(ONE_HUNDRED_MILLION)))
+
+        if (integer.eq(MAX_INT64) && fraction.eq(MAX_INT64)) {
+          setter(integer)
+          setter(fraction)
+        } else {
+          setter(integer.plus(fraction.dividedBy(ONE_HUNDRED_MILLION)))
+        }
       },
       toBuffer: (buffer: SmartBuffer): void => {
         if (getter().decimalPlaces() > 8) {
           throw new Error('Too many decimals to be correctly represented. Will lose precision with more than 8 decimals')
         }
-        const n = getter()
-          .multipliedBy(ONE_HUNDRED_MILLION)
-        const fraction = n.mod(ONE_HUNDRED_MILLION)
-        const integer = n.minus(fraction).dividedBy(ONE_HUNDRED_MILLION)
-        writeBigNumberUInt64(integer, buffer)
-        writeBigNumberUInt64(fraction, buffer)
+
+        if (getter().eq(MAX_INT64)) {
+          writeBigNumberUInt64(getter(), buffer)
+          writeBigNumberUInt64(getter(), buffer)
+        } else {
+          const n = getter().multipliedBy(ONE_HUNDRED_MILLION)
+          const fraction = n.mod(ONE_HUNDRED_MILLION)
+          const integer = n.minus(fraction).dividedBy(ONE_HUNDRED_MILLION)
+          writeBigNumberUInt64(integer, buffer)
+          writeBigNumberUInt64(fraction, buffer)
+        }
       }
     }
   }
