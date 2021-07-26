@@ -1,7 +1,7 @@
 import { RegTestContainer } from './'
 
 /**
- * SPV testing functionnalities
+ * SPV RPCs(test purposes only) for Bitcoin blockchain
  */
 export class Spv {
   private readonly client: RegTestContainer
@@ -11,7 +11,7 @@ export class Spv {
   }
 
   /**
-   * Funds a Bitcoin address with 1 BTC.
+   * Funds a Bitcoin address with 1 BTC(for test purposes only)
    *
    * @param {number} address A bitcoin address
    * @return {string} txid
