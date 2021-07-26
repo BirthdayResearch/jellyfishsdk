@@ -1,6 +1,6 @@
-import { MnemonicHdNode, MnemonicHdNodeProvider, mnemonicToSeed, generateMnemonic } from '../../src'
+import { MnemonicHdNode, MnemonicHdNodeProvider } from '../src'
 import BigNumber from 'bignumber.js'
-import { Transaction, Vout, OP_CODES } from '@defichain/jellyfish-transaction'
+import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 
 const regTestBip32Options = {
@@ -47,9 +47,8 @@ describe('24 words: random', () => {
   let provider: MnemonicHdNodeProvider
 
   beforeAll(() => {
-    const words = generateMnemonic(24)
-    const seed = mnemonicToSeed(words)
-    provider = MnemonicHdNodeProvider.fromSeed(seed, regTestBip32Options)
+    const words = MnemonicHdNodeProvider.generateWords(24)
+    provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
   })
 
   describe("44'/1129'/0'/0/0", () => {
@@ -59,12 +58,60 @@ describe('24 words: random', () => {
       node = provider.derive("44'/1129'/0'/0/0")
     })
 
-    it('should drive pub key', async () => {
+    it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.length).toStrictEqual(33)
     })
 
-    it('should drive priv key', async () => {
+    it('should derive priv key', async () => {
+      const derivedPrivKey = await node.privateKey()
+      expect(derivedPrivKey.length).toStrictEqual(32)
+    })
+
+    it('should sign and verify', async () => {
+      const hash = Buffer.from('e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a', 'hex')
+
+      const signature = await node.sign(hash)
+      expect(signature.length).toBeLessThanOrEqual(70)
+      expect(signature.length).toBeGreaterThanOrEqual(67) // 0.00001 probability of being this length
+
+      const valid = await node.verify(hash, signature)
+      expect(valid).toStrictEqual(true)
+    })
+
+    it('should sign tx', async () => {
+      const signed = await node.signTx(transaction, [{
+        ...prevout,
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+          ]
+        }
+      }])
+
+      expect(signed.witness.length).toStrictEqual(1)
+      expect(signed.witness[0].scripts.length).toStrictEqual(2)
+
+      expect(signed.witness[0].scripts[0].hex.length).toBeGreaterThanOrEqual(140)
+      expect(signed.witness[0].scripts[0].hex.length).toBeLessThanOrEqual(142)
+      expect(signed.witness[0].scripts[1].hex.length).toStrictEqual(66)
+    })
+  })
+
+  describe('0/0/0', () => {
+    let node: MnemonicHdNode
+
+    beforeEach(() => {
+      node = provider.derive('0/0/0')
+    })
+
+    it('should derive pub key', async () => {
+      const derivedPubKey = await node.publicKey()
+      expect(derivedPubKey.length).toStrictEqual(33)
+    })
+
+    it('should derive priv key', async () => {
       const derivedPrivKey = await node.privateKey()
       expect(derivedPrivKey.length).toStrictEqual(32)
     })
@@ -106,8 +153,7 @@ describe('24 words: abandon x23 art', () => {
 
   beforeAll(() => {
     const words = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art'.split(' ')
-    const seed = mnemonicToSeed(words)
-    provider = MnemonicHdNodeProvider.fromSeed(seed, regTestBip32Options)
+    provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
   })
 
   describe("44'/1129'/0'/0/0", () => {
@@ -118,12 +164,12 @@ describe('24 words: abandon x23 art', () => {
       node = provider.derive("44'/1129'/0'/0/0")
     })
 
-    it('should drive pub key', async () => {
+    it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
     })
 
-    it('should drive priv key', async () => {
+    it('should derive priv key', async () => {
       const privKey = await node.privateKey()
       expect(privKey.toString('hex')).toStrictEqual('3e1f9339b4685c35d590fd1a6801967a9f95dbedf3e5733efa6451dc771a2d18')
     })
@@ -165,12 +211,12 @@ describe('24 words: abandon x23 art', () => {
       node = provider.derive("44'/1129'/1'/0/0")
     })
 
-    it('should drive pub key', async () => {
+    it('should derive pub key', async () => {
       const derivedPubKey = await node.publicKey()
       expect(derivedPubKey.toString('hex')).toStrictEqual(pubKey)
     })
 
-    it('should drive priv key', async () => {
+    it('should derive priv key', async () => {
       const privKey = await node.privateKey()
       expect(privKey.toString('hex')).toStrictEqual('be7b3f86469900fc9302cea6bcf3b05c165a6461f8a0e7796305c350fc1f7357')
     })
@@ -201,6 +247,98 @@ describe('24 words: abandon x23 art', () => {
 
       expect(signed.witness[0].scripts[0].hex).toStrictEqual('30440220403d4733c626866ba4117cbf725cc7f6d547cc8bc012786345cb1e58a2693426022039597dd1c39c1a528b884b97a246dd24b6fc7a103ce29a15ef8402ca691b5b0901')
       expect(signed.witness[0].scripts[1].hex).toStrictEqual(pubKey)
+    })
+  })
+
+  describe('0/0/0', () => {
+    let node: MnemonicHdNode
+
+    beforeEach(() => {
+      node = provider.derive('0/0/0')
+    })
+
+    it('should derive pub key', async () => {
+      const derivedPubKey = await node.publicKey()
+      expect(derivedPubKey.toString('hex')).toStrictEqual('03d0d24a126c861c02622cb4ee75b860d6e65d1d6ffee20bf5793c1a00ade37db5')
+    })
+
+    it('should derive priv key', async () => {
+      const privKey = await node.privateKey()
+      expect(privKey.toString('hex')).toStrictEqual('209fab36379401ac23960f0890ac1cc880e9c6e351a8525dac59a3ea6bb4ebb7')
+    })
+
+    it('should sign and verify', async () => {
+      const hash = Buffer.from('e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a', 'hex')
+
+      const signature = await node.sign(hash)
+      expect(signature.toString('hex')).toStrictEqual('3044022007340e6a1052ca16acb180f33dd6781c60e2aa1acd27f4b50c13c6f370c9c8a802206fca4fd8263eb84d6e2c8d6111a5663b5da59eec843aab5cbfcbb273d497917c')
+
+      const valid = await node.verify(hash, signature)
+      expect(valid).toStrictEqual(true)
+    })
+
+    it('should sign tx', async () => {
+      const signed = await node.signTx(transaction, [{
+        ...prevout,
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+          ]
+        }
+      }])
+
+      expect(signed.witness.length).toStrictEqual(1)
+      expect(signed.witness[0].scripts.length).toStrictEqual(2)
+
+      expect(signed.witness[0].scripts[0].hex).toStrictEqual('304402202c7ba3ded9cb503e8afb8a14ddb16ef4ea66043157e2a76e40d5d534fa80114302202aa1ea35654e2cd59a9f2e325037b38ef3d3939b47041782f05c819b1090dbd201')
+      expect(signed.witness[0].scripts[1].hex).toStrictEqual('03d0d24a126c861c02622cb4ee75b860d6e65d1d6ffee20bf5793c1a00ade37db5')
+    })
+  })
+
+  describe('1/0/0', () => {
+    let node: MnemonicHdNode
+
+    beforeEach(() => {
+      node = provider.derive('1/0/0')
+    })
+
+    it('should derive pub key', async () => {
+      const derivedPubKey = await node.publicKey()
+      expect(derivedPubKey.toString('hex')).toStrictEqual('0332b504dca50e2f9f369ac3bdc1a29fc5a082c9a35cc60f54d4c115518bb7a824')
+    })
+
+    it('should derive priv key', async () => {
+      const privKey = await node.privateKey()
+      expect(privKey.toString('hex')).toStrictEqual('12137509a9c70bc0ac55f0897577ba55cd1c222a209096f7b27f3de4c1eef30d')
+    })
+
+    it('should sign and verify', async () => {
+      const hash = Buffer.from('e9071e75e25b8a1e298a72f0d2e9f4f95a0f5cdf86a533cda597eb402ed13b3a', 'hex')
+
+      const signature = await node.sign(hash)
+      expect(signature.toString('hex')).toStrictEqual('3044022036a7d5ad851541745fa4081327ef846c262d46640cbb1f5d989c07db3400fe4a0220384de187749c731ea47036d4f4bb77db69961359b8c70a1da5750b9acec2e573')
+
+      const valid = await node.verify(hash, signature)
+      expect(valid).toStrictEqual(true)
+    })
+
+    it('should sign tx', async () => {
+      const signed = await node.signTx(transaction, [{
+        ...prevout,
+        script: {
+          stack: [
+            OP_CODES.OP_0,
+            OP_CODES.OP_PUSHDATA(HASH160(await node.publicKey()), 'little')
+          ]
+        }
+      }])
+
+      expect(signed.witness.length).toStrictEqual(1)
+      expect(signed.witness[0].scripts.length).toStrictEqual(2)
+
+      expect(signed.witness[0].scripts[0].hex).toStrictEqual('30440220729650b5ab2e325e13da49e474fa5f434f7c68f2d62a734e48c982a921b38830022069c02966ede1db87ac726326da7d5467775de23ec56516f151b31abbb90ec7e701')
+      expect(signed.witness[0].scripts[1].hex).toStrictEqual('0332b504dca50e2f9f369ac3bdc1a29fc5a082c9a35cc60f54d4c115518bb7a824')
     })
   })
 })
