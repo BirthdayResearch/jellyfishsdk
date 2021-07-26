@@ -17,6 +17,12 @@ describe('Address without masternode', () => {
   })
 
   it('should getNewAddress', async () => {
+    console.log(await client.wallet.getNewAddress('', wallet.AddressType.BECH32))
+    console.log(await client.wallet.getNewAddress('', wallet.AddressType.P2SH_SEGWIT))
+    console.log(await client.wallet.getNewAddress('', wallet.AddressType.LEGACY))
+  })
+
+  it('should getNewAddress', async () => {
     return await waitForExpect(async () => {
       const address = await client.wallet.getNewAddress()
 

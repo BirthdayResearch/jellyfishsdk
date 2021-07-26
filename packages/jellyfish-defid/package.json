@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/dolphin",
+  "name": "@defichain/jellyfish-defid",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
   "keywords": [
@@ -35,6 +35,8 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
+    "@defichain/jellyfish-api-core": "0.0.0",
+    "@defichain/jellyfish-api-jsonrpc": "0.0.0"
   },
   "devDependencies": {
   }
