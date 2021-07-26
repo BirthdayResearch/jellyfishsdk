@@ -13,11 +13,11 @@ import ecc from 'tiny-secp256k1'
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
  */
 export class LedgerHdNode implements WalletHdNode {
-  private readonly transport: Transport<any>
+  private readonly transport: Transport
   private readonly path: string
   private readonly btcApp: AppBtc
 
-  constructor (transport: Transport<any>, path: string) {
+  constructor (transport: Transport, path: string) {
     this.transport = transport
     this.path = path
     this.btcApp = new AppBtc(this.transport)
@@ -77,17 +77,17 @@ export class LedgerHdNode implements WalletHdNode {
  * Provider that derive LedgerHdNode from the path.
  */
 export class LedgerHdNodeProvider implements WalletHdNodeProvider<LedgerHdNode> {
-  private readonly transport: Transport<any>
+  private readonly transport: Transport
 
-  private constructor (transport: Transport<any>) {
+  private constructor (transport: Transport) {
     this.transport = transport
   }
 
   /**
-   * @param {Transport<any>} transport Transport<any> to connect to the ledger hardware device
+   * @param {Transport} transport Transport to connect to the ledger hardware device
    * @return {LedgerHdNodeProvider} LedgerHdNodeProvider
    */
-  static getProvider (transport: Transport<any>): LedgerHdNodeProvider {
+  static getProvider (transport: Transport): LedgerHdNodeProvider {
     return new LedgerHdNodeProvider(transport)
   }
 
