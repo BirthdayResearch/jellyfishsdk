@@ -18,4 +18,14 @@ export class Spv {
   async getNewAddress (): Promise<string> {
     return await this.client.call('spv_getnewaddress', [], 'number')
   }
+
+  /**
+   * Returns a Bitcoin address' public key.
+   *
+   * @param {string} address Bitcoin address
+   * @return {Promise<string>} Public key
+   */
+  async getAddressPubKey (address: string): Promise<string> {
+    return await this.client.call('spv_getaddresspubkey', [address], 'number')
+  }
 }
