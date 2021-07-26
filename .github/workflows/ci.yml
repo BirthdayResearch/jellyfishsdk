@@ -17,6 +17,9 @@ jobs:
           node-version: '15'
           cache: 'npm'
 
+      - run: sudo apt-get update
+      - run: sudo apt-get install libudev-dev
+
       - run: npm ci
       - run: npm run build
 
