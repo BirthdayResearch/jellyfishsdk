@@ -8,8 +8,6 @@ const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
-let oracleId: string
-
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
@@ -50,7 +48,7 @@ describe('update oracle', () => {
       ]
     }, script)
 
-    oracleId = calculateTxid(appointTxn)
+    const oracleId = calculateTxid(appointTxn)
     await sendTransaction(container, appointTxn)
 
     // Update Oracle
@@ -94,11 +92,65 @@ describe('update oracle', () => {
     expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('EUR')
   })
 
+  it('should update to new owner', async () => {
+    // Appoint Oracle
+    const script = await providers.elliptic.script()
+    const appointTxn = await builder.oracles.appointOracle({
+      script: script,
+      weightage: 1,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        }
+      ]
+    }, script)
+
+    const oracleId = calculateTxid(appointTxn)
+    await sendTransaction(container, appointTxn)
+
+    const newProviders = await getProviders(container)
+    const newScript = await newProviders.elliptic.script()
+
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+    await providers.setupMocks() // required to move utxos
+
+    // Store old address
+    const oldOracleAddress = (await container.call('getoracledata', [oracleId])).address
+
+    // Update Oracle
+    const updateTxn = await builder.oracles.updateOracle({
+      oracleId: oracleId,
+      script: newScript,
+      weightage: 100,
+      priceFeeds: [
+        {
+          token: 'TEST',
+          currency: 'USD'
+        },
+        {
+          token: 'TEST',
+          currency: 'EUR'
+        },
+        {
+          token: 'TEST',
+          currency: 'JPY'
+        }
+      ]
+    }, newScript)
+    await sendTransaction(container, updateTxn)
+
+    // Ensure oracle is updated and has correct values
+    const getOracleDataResult = await container.call('getoracledata', [oracleId])
+    expect(getOracleDataResult.address).not.toStrictEqual(oldOracleAddress)
+  })
+
   it('should reject invalid update oracle arg - weightage over 100', async () => {
     // Update Oracle
     const script = await providers.elliptic.script()
     await expect(builder.oracles.updateOracle({
-      oracleId: oracleId,
+      oracleId: '80efea267c9901ab37ee5a57045ee61fc86c988a207b8b4c7bab4e59e4b1b71b',
       script: script,
       weightage: 200,
       priceFeeds: [
