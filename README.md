@@ -74,7 +74,6 @@ DeFi Jellyfish follows a monorepo methodology, all maintained packages are in th
 version tag.
 
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
-[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish/next)](https://www.npmjs.com/package/@defichain/jellyfish/v/next)
 
 Package                                            | Description
 ---------------------------------------------------|-------------

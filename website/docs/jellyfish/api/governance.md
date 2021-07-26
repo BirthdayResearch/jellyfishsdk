@@ -15,7 +15,7 @@ const something = await client.governance.method()
 
 ## createCfp
 
-Creates a Cummunity Fund Request.
+Creates a Community Fund Request.
 
 ```ts title="client.governance.createCfp()"
 interface governance {

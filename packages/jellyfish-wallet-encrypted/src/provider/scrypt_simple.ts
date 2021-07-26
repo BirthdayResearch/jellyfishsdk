@@ -33,7 +33,7 @@ export class SimpleScryptsy implements ScryptProvider {
    * @param {number} keyLength desired output buffer length
    * @returns {Buffer}
    */
-  passphraseToKey (passphrase: string, salt: Buffer, keyLength: number): Buffer {
+  async passphraseToKey (passphrase: string, salt: Buffer, keyLength: number): Promise<Buffer> {
     const secret = Buffer.from(passphrase.normalize('NFC'), 'utf8')
 
     return scrypt(

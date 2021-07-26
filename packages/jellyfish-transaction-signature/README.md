@@ -1,5 +1,4 @@
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish-transaction-signature)](https://www.npmjs.com/package/@defichain/jellyfish-transaction-signature/v/latest)
-[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-transaction-signature/next)](https://www.npmjs.com/package/@defichain/jellyfish-transaction-signature/v/next)
 
 # @defichain/jellyfish-transaction-signature
 
