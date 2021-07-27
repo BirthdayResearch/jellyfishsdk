@@ -1,5 +1,6 @@
+import packageJson from '../package.json'
 import { DynamicModule, Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
 import { AppConfiguration } from '@src/app.configuration'
@@ -10,9 +11,23 @@ import { DeFiDModule } from '@src/module.defid/_module'
 import { HealthModule } from '@src/module.health/_module'
 import { IndexerModule } from '@src/module.indexer/_module'
 import { ModelModule } from '@src/module.model/_module'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { NestFactory } from '@nestjs/core'
+import { newFastifyAdapter } from '@src/fastify'
+import { AbstractHttpAdapter } from '@nestjs/core/adapters/http-adapter'
 
 @Module({})
 export class AppModule {
+  static async create (provider?: string, adapter: AbstractHttpAdapter = newFastifyAdapter()): Promise<NestFastifyApplication> {
+    const app = await NestFactory.create<NestFastifyApplication>(
+      this.forRoot(provider),
+      adapter
+    )
+
+    this.configure(app)
+    return app
+  }
+
   static forRoot (provider?: string): DynamicModule {
     return {
       module: AppModule,
@@ -30,5 +45,30 @@ export class AppModule {
         ModelModule
       ]
     }
+  }
+
+  /**
+   * Configure NestFastifyApplication with
+   * - CORS
+   * - GlobalPrefix 'v{major}.{minor}/${network}' e.g. 'v0.0/regtest'
+   */
+  static configure (app: NestFastifyApplication): void {
+    const [major, minor] = packageJson.version.split('.')
+    const version = `v${major}.${minor}`
+    const network = app.get(ConfigService).get<string>('network') as string
+
+    app.enableCors({
+      origin: '*',
+      methods: ['GET', 'PUT', 'POST', 'DELETE'],
+      allowedHeaders: ['Content-Type'],
+      maxAge: 60 * 24 * 7
+    })
+
+    app.setGlobalPrefix(`${version}/${network}`, {
+      exclude: [
+        '/_actuator/probes/liveness',
+        '/_actuator/probes/readiness'
+      ]
+    })
   }
 }

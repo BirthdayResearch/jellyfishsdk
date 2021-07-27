@@ -29,7 +29,7 @@ describe('getBalance', () => {
 
   it('getBalance should be zero', async () => {
     const address = await container.getNewAddress()
-    const balance = await controller.getBalance('regtest', address)
+    const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('0.00000000')
   })
 
@@ -39,7 +39,7 @@ describe('getBalance', () => {
     await container.fundAddress(address, 1.23)
     await waitForAddressTxCount(app, address, 1)
 
-    const balance = await controller.getBalance('regtest', address)
+    const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('1.23000000')
   })
 
@@ -49,7 +49,7 @@ describe('getBalance', () => {
     await container.fundAddress(address, 0.00100000)
     await waitForAddressTxCount(app, address, 1)
 
-    const balance = await controller.getBalance('regtest', address)
+    const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('0.00100000')
   })
 
@@ -59,12 +59,12 @@ describe('getBalance', () => {
     await container.fundAddress(address, 10.99999999)
     await waitForAddressTxCount(app, address, 1)
 
-    const balance = await controller.getBalance('regtest', address)
+    const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('10.99999999')
   })
 
   it('should throw error if getBalance with invalid address', async () => {
-    await expect(controller.getBalance('regtest', 'invalid')).rejects.toThrow('InvalidDefiAddress')
+    await expect(controller.getBalance('invalid')).rejects.toThrow('InvalidDefiAddress')
   })
 
   it('should sum getBalance', async () => {
@@ -75,7 +75,7 @@ describe('getBalance', () => {
     await container.fundAddress(address, 12.93719381)
     await waitForAddressTxCount(app, address, 3)
 
-    const balance = await controller.getBalance('regtest', address)
+    const balance = await controller.getBalance(address)
     expect(balance).toStrictEqual('17.38471695')
   })
 })
@@ -105,7 +105,7 @@ describe('getAggregation', () => {
     await container.fundAddress(address, 12.93719381)
     await waitForAddressTxCount(app, address, 3)
 
-    const agg = await controller.getAggregation('regtest', address)
+    const agg = await controller.getAggregation(address)
     expect(agg).toStrictEqual({
       amount: {
         txIn: '17.38471695',
@@ -131,7 +131,7 @@ describe('getAggregation', () => {
   })
 
   it('should throw error if getAggregation with invalid address', async () => {
-    await expect(controller.getAggregation('regtest', 'invalid')).rejects.toThrow('InvalidDefiAddress')
+    await expect(controller.getAggregation('invalid')).rejects.toThrow('InvalidDefiAddress')
   })
 })
 
@@ -183,7 +183,7 @@ describe('listTransactions', () => {
   }
 
   it('(addressA) should listTransactions', async () => {
-    const response = await controller.listTransactions('regtest', addressA.bech32, {
+    const response = await controller.listTransactions(addressA.bech32, {
       size: 30
     })
 
@@ -214,7 +214,7 @@ describe('listTransactions', () => {
   })
 
   it('(addressA) should listTransactions with pagination', async () => {
-    const first = await controller.listTransactions('regtest', addressA.bech32, {
+    const first = await controller.listTransactions(addressA.bech32, {
       size: 2
     })
     expect(first.data.length).toStrictEqual(2)
@@ -224,7 +224,7 @@ describe('listTransactions', () => {
     expect(first.data[1].value).toStrictEqual('1.12300000')
     expect(first.data[1].type).toStrictEqual('vout')
 
-    const next = await controller.listTransactions('regtest', addressA.bech32, {
+    const next = await controller.listTransactions(addressA.bech32, {
       size: 10,
       next: first.page?.next
     })
@@ -246,12 +246,12 @@ describe('listTransactions', () => {
   })
 
   it('should throw error if listTransactions with invalid address', async () => {
-    await expect(controller.listTransactions('regtest', 'invalid', { size: 30 }))
+    await expect(controller.listTransactions('invalid', { size: 30 }))
       .rejects.toThrow('InvalidDefiAddress')
   })
 
   it('(addressB) should listTransactions', async () => {
-    const response = await controller.listTransactions('regtest', addressB.bech32, {
+    const response = await controller.listTransactions(addressB.bech32, {
       size: 30
     })
 
@@ -282,7 +282,7 @@ describe('listTransactions', () => {
   })
 
   it('(addressA) should listTransactions with undefined next pagination', async () => {
-    const first = await controller.listTransactions('regtest', addressA.bech32, {
+    const first = await controller.listTransactions(addressA.bech32, {
       size: 2,
       next: undefined
     })
@@ -340,7 +340,7 @@ describe('listTransactionsUnspent', () => {
   }
 
   it('(addressA) should listTransactionsUnspent', async () => {
-    const response = await controller.listTransactionsUnspent('regtest', addressA.bech32, {
+    const response = await controller.listTransactionsUnspent(addressA.bech32, {
       size: 30
     })
 
@@ -369,7 +369,7 @@ describe('listTransactionsUnspent', () => {
   })
 
   it('(addressA) should listTransactionsUnspent with pagination', async () => {
-    const first = await controller.listTransactionsUnspent('regtest', addressA.bech32, {
+    const first = await controller.listTransactionsUnspent(addressA.bech32, {
       size: 2
     })
     expect(first.data.length).toStrictEqual(2)
@@ -377,7 +377,7 @@ describe('listTransactionsUnspent', () => {
     expect(first.data[0].vout.value).toStrictEqual('34.00000000')
     expect(first.data[1].vout.value).toStrictEqual('0.12340001')
 
-    const next = await controller.listTransactionsUnspent('regtest', addressA.bech32, {
+    const next = await controller.listTransactionsUnspent(addressA.bech32, {
       size: 10,
       next: first.page?.next
     })
@@ -388,7 +388,7 @@ describe('listTransactionsUnspent', () => {
     expect(next.data[1].vout.value).toStrictEqual('2.93719381')
   })
   it('(addressB) should listTransactionsUnspent', async () => {
-    const response = await controller.listTransactionsUnspent('regtest', addressB.bech32, {
+    const response = await controller.listTransactionsUnspent(addressB.bech32, {
       size: 30
     })
 
@@ -417,7 +417,7 @@ describe('listTransactionsUnspent', () => {
   })
 
   it('should listTransactionsUnspent with undefined next pagination', async () => {
-    const first = await controller.listTransactionsUnspent('regtest', addressA.bech32, {
+    const first = await controller.listTransactionsUnspent(addressA.bech32, {
       size: 2,
       next: undefined
     })

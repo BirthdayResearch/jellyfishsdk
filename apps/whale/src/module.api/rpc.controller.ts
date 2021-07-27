@@ -1,13 +1,13 @@
 import {
-  Controller,
-  Param,
-  Post,
+  ArgumentMetadata,
   Body,
+  Controller,
   ForbiddenException,
   HttpCode,
-  PipeTransform,
   Injectable,
-  ArgumentMetadata
+  Param,
+  PipeTransform,
+  Post
 } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
@@ -44,7 +44,7 @@ export class CallDto {
   params?: any[]
 }
 
-@Controller('/v0/:network/rpc')
+@Controller('/rpc')
 export class RpcController {
   constructor (private readonly client: JsonRpcClient) {
   }
