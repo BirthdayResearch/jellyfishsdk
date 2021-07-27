@@ -22,6 +22,7 @@ describe('Governance', () => {
     await container.generate(1)
 
     expect(typeof proposalTx).toStrictEqual('string')
+    expect(proposalTx.length).toStrictEqual(64)
 
     const proposal = await container.call('getproposal', [proposalTx])
     expect(typeof proposal.amount).toStrictEqual('number')
@@ -39,6 +40,7 @@ describe('Governance', () => {
     const proposalTx = await client.governance.createVoc('Testing new vote of confidence', [utxo])
     await container.generate(1)
     expect(typeof proposalTx).toStrictEqual('string')
+    expect(proposalTx.length).toStrictEqual(64)
 
     const rawtx = await container.call('getrawtransaction', [proposalTx, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
