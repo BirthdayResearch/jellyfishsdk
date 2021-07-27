@@ -11,6 +11,7 @@ import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
 import { ResponseInterceptor } from '@src/module.api/interceptors/response.interceptor'
 import { TokensController } from '@src/module.api/token.controller'
+import { BlockController } from '@src/module.api/block.controller'
 import { MasternodesController } from '@src/module.api/masternode.controller'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
@@ -27,7 +28,8 @@ import { NetworkName } from '@defichain/jellyfish-network'
     TransactionsController,
     TokensController,
     PoolPairController,
-    MasternodesController
+    MasternodesController,
+    BlockController
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },

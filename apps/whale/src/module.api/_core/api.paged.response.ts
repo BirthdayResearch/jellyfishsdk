@@ -92,4 +92,8 @@ export class ApiPagedResponse<T> implements ApiResponse {
 
     return this.next(data)
   }
+
+  static empty<T> (): ApiPagedResponse<T> {
+    return new ApiPagedResponse<T>([])
+  }
 }
