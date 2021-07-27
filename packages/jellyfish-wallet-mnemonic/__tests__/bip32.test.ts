@@ -43,6 +43,14 @@ const prevout: Vout = {
   tokenId: 0x00
 }
 
+it('should be able to access provider.data and provider.options', async () => {
+  const words = MnemonicHdNodeProvider.generateWords(24)
+  const provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
+
+  expect(provider.data).toBeDefined()
+  expect(provider.options).toBeDefined()
+})
+
 describe('24 words: random', () => {
   let provider: MnemonicHdNodeProvider
 

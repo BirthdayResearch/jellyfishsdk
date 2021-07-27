@@ -49,8 +49,8 @@ export interface EncryptedProviderData {
   pubKey: string
   /* Encoded as string hex */
   chainCode: string
-  /* Encoded as string hex */
-  encryptedPrivKey: string
+  /* Encoded as string hex via [].join(' ') */
+  encryptedWords: string
 }
 
 /**
@@ -65,8 +65,8 @@ export type PromptPassphrase = () => Promise<string>
  */
 export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMnemonicHdNode> {
   private constructor (
-    private readonly data: EncryptedProviderData,
-    private readonly options: Bip32Options,
+    public readonly data: EncryptedProviderData,
+    public readonly options: Bip32Options,
     private readonly scrypt: Scrypt,
     private readonly promptPassphrase: PromptPassphrase
   ) {
@@ -77,13 +77,16 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
    * @return EncryptedMnemonicHdNode with promisePrivKey that will only be resolved and decrypted when privateKey is accessed
    */
   derive (path: string): EncryptedMnemonicHdNode {
-    const encrypted = this.data.encryptedPrivKey
+    const encryptedWords = this.data.encryptedWords
     const rootPubKey = Buffer.from(this.data.pubKey, 'hex')
     const chainCode = Buffer.from(this.data.chainCode, 'hex')
 
     const promisePrivKey = async (): Promise<Buffer> => {
       const passphrase = await this.promptPassphrase()
-      return await this.scrypt.decrypt(encrypted, passphrase)
+      const buffer = await this.scrypt.decrypt(encryptedWords, passphrase)
+      const words = buffer.toString('hex').split(' ')
+      const mnemonic = MnemonicHdNodeProvider.wordsToData(words, this.options)
+      return Buffer.from(mnemonic.privKey, 'hex')
     }
 
     return new EncryptedMnemonicHdNode(path, chainCode, this.options, rootPubKey, promisePrivKey)
@@ -100,14 +103,15 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
     const mnemonic = MnemonicHdNodeProvider.wordsToData(words, options)
     const privKey = Buffer.from(mnemonic.privKey, 'hex')
     const chainCode = Buffer.from(mnemonic.chainCode, 'hex')
-
     const root = bip32.fromPrivateKey(privKey, chainCode, options)
-    const encrypted = await scrypt.encrypt(privKey, passphrase)
+
+    const wordsBuffer = Buffer.from(words.join(' '), 'hex')
+    const encryptedWords = await scrypt.encrypt(wordsBuffer, passphrase)
 
     return {
       pubKey: root.publicKey.toString('hex'),
       chainCode: mnemonic.chainCode,
-      encryptedPrivKey: encrypted.encode()
+      encryptedWords: encryptedWords.encode()
     }
   }
 

@@ -44,6 +44,22 @@ const prevout: Vout = {
   tokenId: 0x00
 }
 
+it('should be able to access provider.data and provider.options', async () => {
+  const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
+  const words = MnemonicHdNodeProvider.generateWords(24)
+  const passphrase = 'random'
+  const data = await EncryptedHdNodeProvider.wordsToEncryptedData(
+    words,
+    regTestBip32Options,
+    scrypt,
+    passphrase
+  )
+  const provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, scrypt, async () => passphrase)
+
+  expect(provider.data).toBeDefined()
+  expect(provider.options).toBeDefined()
+})
+
 describe('24 words: random with passphrase "random" (exact same test in jellyfish-wallet-mnemonic)', () => {
   const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
   let provider: EncryptedHdNodeProvider

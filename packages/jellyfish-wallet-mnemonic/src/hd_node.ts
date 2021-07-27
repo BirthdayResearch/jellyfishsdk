@@ -112,8 +112,8 @@ export interface MnemonicProviderData {
  */
 export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNode> {
   private constructor (
-    private readonly data: MnemonicProviderData,
-    private readonly options: Bip32Options
+    public readonly data: MnemonicProviderData,
+    public readonly options: Bip32Options
   ) {
   }
 
