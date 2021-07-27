@@ -8,7 +8,7 @@ import { PoolPairService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
-@Controller('/v0/:network/poolpairs')
+@Controller('/poolpairs')
 export class PoolPairController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,

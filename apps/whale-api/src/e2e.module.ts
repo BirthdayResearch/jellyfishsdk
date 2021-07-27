@@ -23,11 +23,14 @@ import { ScriptAggregationMapper } from '@src/module.model/script.aggregation'
 export async function createTestingApp (container: MasterNodeRegTestContainer): Promise<NestFastifyApplication> {
   const url = await container.getCachedRpcUrl()
   const module = await createTestingModule(url)
+
   const app = module.createNestApplication<NestFastifyApplication>(
     newFastifyAdapter({
       logger: false
     })
   )
+  AppModule.configure(app)
+
   await app.init()
   return app
 }

@@ -1,11 +1,11 @@
-import { NotFoundException, Controller, Get, Query, Param, BadRequestException } from '@nestjs/common'
+import { BadRequestException, Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { MasternodeData } from '@whale-api-client/api/masternode'
-import { MasternodePagination, MasternodeInfo } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import { MasternodeInfo, MasternodePagination } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
-@Controller('/v0/:network/masternodes')
+@Controller('/masternodes')
 export class MasternodesController {
   constructor (
     protected readonly client: JsonRpcClient

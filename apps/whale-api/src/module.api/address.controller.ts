@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { ConflictException, Controller, Get, Param, Query } from '@nestjs/common'
+import { ConflictException, Controller, Get, Inject, Param, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
@@ -14,32 +14,27 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 
-@Controller('/v0/:network/address/:address')
+@Controller('/address/:address')
 export class AddressController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,
     protected readonly deFiDCache: DeFiDCache,
     protected readonly aggregationMapper: ScriptAggregationMapper,
     protected readonly activityMapper: ScriptActivityMapper,
-    protected readonly unspentMapper: ScriptUnspentMapper
+    protected readonly unspentMapper: ScriptUnspentMapper,
+    @Inject('NETWORK') protected readonly network: NetworkName
   ) {
   }
 
   @Get('/balance')
-  async getBalance (
-    @Param('network') network: NetworkName,
-      @Param('address') address: string
-  ): Promise<string> {
-    const aggregation = await this.getAggregation(network, address)
+  async getBalance (@Param('address') address: string): Promise<string> {
+    const aggregation = await this.getAggregation(address)
     return aggregation?.amount.unspent ?? '0.00000000'
   }
 
   @Get('/aggregation')
-  async getAggregation (
-    @Param('network') network: NetworkName,
-      @Param('address') address: string
-  ): Promise<ScriptAggregation | undefined> {
-    const hid = addressToHid(network, address)
+  async getAggregation (@Param('address') address: string): Promise<ScriptAggregation | undefined> {
+    const hid = addressToHid(this.network, address)
     return await this.aggregationMapper.getLatest(hid)
   }
 
@@ -78,11 +73,10 @@ export class AddressController {
 
   @Get('/transactions')
   async listTransactions (
-    @Param('network') network: NetworkName,
-      @Param('address') address: string,
+    @Param('address') address: string,
       @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<ScriptActivity>> {
-    const hid = addressToHid(network, address)
+    const hid = addressToHid(this.network, address)
     const items = await this.activityMapper.query(hid, query.size, query.next)
 
     return ApiPagedResponse.of(items, query.size, item => {
@@ -92,11 +86,10 @@ export class AddressController {
 
   @Get('/transactions/unspent')
   async listTransactionsUnspent (
-    @Param('network') network: NetworkName,
-      @Param('address') address: string,
+    @Param('address') address: string,
       @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<ScriptUnspent>> {
-    const hid = addressToHid(network, address)
+    const hid = addressToHid(this.network, address)
     const items = await this.unspentMapper.query(hid, query.size, query.next)
 
     return ApiPagedResponse.of(items, query.size, item => {

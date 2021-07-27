@@ -38,7 +38,8 @@ beforeAll(async () => {
     ],
     controllers: [AddressController],
     providers: [
-      DeFiDCache
+      DeFiDCache,
+      { provide: 'NETWORK', useValue: 'regtest' }
     ]
   }).compile()
 

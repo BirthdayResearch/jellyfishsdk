@@ -1,11 +1,11 @@
-import { Controller, Get, Param, Query, ParseIntPipe, NotFoundException, BadRequestException } from '@nestjs/common'
+import { BadRequestException, Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { TokenData } from '@whale-api-client/api/tokens'
 
-@Controller('/v0/:network/tokens')
+@Controller('/tokens')
 export class TokensController {
   constructor (private readonly client: JsonRpcClient) {
   }

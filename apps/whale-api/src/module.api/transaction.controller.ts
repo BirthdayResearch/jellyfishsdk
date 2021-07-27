@@ -4,12 +4,12 @@ import {
   Controller,
   Get,
   HttpCode,
+  NotFoundException,
+  Param,
   ParseIntPipe,
   Post,
   Query,
-  ValidationPipe,
-  Param,
-  NotFoundException
+  ValidationPipe
 } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
@@ -29,7 +29,7 @@ class RawTxDto {
   maxFeeRate?: number
 }
 
-@Controller('/v0/:network/transactions')
+@Controller('/transactions')
 export class TransactionsController {
   /**
    * MaxFeeRate = vkb * Fees
