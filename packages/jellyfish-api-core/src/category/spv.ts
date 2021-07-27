@@ -1,5 +1,8 @@
 import { ApiClient } from '../.'
 
+export const DEFAULT_FEE_RATE = 0.000012
+export const DEFAULT_FEE_RATE_IN_SATOSHIS = 1200
+
 /**
  * SPV RPCs for DeFi Blockchain
  */
@@ -39,6 +42,19 @@ export class Spv {
   async listReceivedByAddress (minConfirmation: number = 1, address?: string): Promise<ReceivedByAddressInfo[]> {
     return await this.client.call('spv_listreceivedbyaddress', [minConfirmation, address], 'number')
   }
+
+  /**
+   * Send a Bitcoin amount to a given address.
+   *
+   * @param {string} address Bitcoin address
+   * @param {number} amount Bitcoin amount
+   * @param {SendToAddressOptions} [options]
+   * @param {number} [options.feerate] Fee rate in satoshis per KB. Minimum is 1000. Defaults to 1200. See DEFAULT_FEE_RATE_IN_SATOSHIS
+   * @return {Promise<SendMessageResult>}
+   */
+  async sendToAddress (address: string, amount: number, options = { feerate: DEFAULT_FEE_RATE_IN_SATOSHIS }): Promise<SendMessageResult> {
+    return await this.client.call('spv_sendtoaddress', [address, amount, options.feerate], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -52,4 +68,13 @@ export interface ReceivedByAddressInfo {
   confirmations: number
   /** The ids of transactions received by the address */
   txids: string[]
+}
+
+export interface SendToAddressOptions {
+  feerate: number
+}
+
+export interface SendMessageResult {
+  txid: string
+  sendmessage: string
 }
