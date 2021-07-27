@@ -1,6 +1,7 @@
 import 'url-search-params-polyfill'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
+import version from './version'
 import { raiseIfError, WhaleClientException, WhaleClientTimeoutException } from './errors'
 import { ApiPagedResponse, WhaleApiResponse } from './whale.api.response'
 import { Address } from './api/address'
@@ -9,7 +10,7 @@ import { Rpc } from './api/rpc'
 import { Transactions } from './api/transactions'
 import { Tokens } from './api/tokens'
 import { Masternodes } from './api/masternode'
-import version from './version'
+import { Blocks } from './api/blocks'
 
 /**
  * WhaleApiClient Options
@@ -61,6 +62,7 @@ export class WhaleApiClient {
   public readonly transactions = new Transactions(this)
   public readonly tokens = new Tokens(this)
   public readonly masternodes = new Masternodes(this)
+  public readonly blocks = new Blocks(this)
 
   constructor (
     protected readonly options: WhaleApiClientOptions
