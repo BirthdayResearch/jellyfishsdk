@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 
 export const ONE_HUNDRED_MILLION = new BigNumber('100000000')
+export const MAX_INT64 = new BigNumber('9223372036854775807')
 
 /**
  * @param {SmartBuffer} buffer to read as unsigned BigNumber (LE)
