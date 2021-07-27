@@ -37,12 +37,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "version:update": " node -p \"'export default \\'v' + require('./package.json').version.replace(/\\.\\d+$/, '') + '\\''\" > src/version.ts"
   },
   "dependencies": {
     "@defichain/jellyfish-api-core": ">=0.30.0",
-    "cross-fetch": "^3.1.2",
     "abort-controller": "^3.0.0",
+    "cross-fetch": "^3.1.2",
     "url-search-params-polyfill": "8.1.1"
   }
 }

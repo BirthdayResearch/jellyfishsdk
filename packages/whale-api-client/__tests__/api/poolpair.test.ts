@@ -209,7 +209,7 @@ describe('get', () => {
         type: 'BadRequest',
         at: expect.any(Number),
         message: 'Validation failed (numeric string is expected)',
-        url: '/v0/regtest/poolpairs/A-DFI'
+        url: '/v0.0/regtest/poolpairs/A-DFI'
       })
     }
   })
@@ -225,7 +225,7 @@ describe('get', () => {
         type: 'NotFound',
         at: expect.any(Number),
         message: 'Unable to find poolpair',
-        url: '/v0/regtest/poolpairs/999'
+        url: '/v0.0/regtest/poolpairs/999'
       })
     }
   })

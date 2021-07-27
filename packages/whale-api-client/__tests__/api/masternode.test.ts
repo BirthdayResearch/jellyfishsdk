@@ -97,7 +97,7 @@ describe('get', () => {
         type: 'NotFound',
         at: expect.any(Number),
         message: 'Unable to find masternode',
-        url: `/v0/regtest/masternodes/${id}`
+        url: `/v0.0/regtest/masternodes/${id}`
       })
     }
   })
@@ -113,7 +113,7 @@ describe('get', () => {
         type: 'BadRequest',
         at: expect.any(Number),
         message: "RpcApiError: 'masternode id must be of length 64 (not 6, for 'sdh183')', code: -8, method: getmasternode",
-        url: '/v0/regtest/masternodes/sdh183'
+        url: '/v0.0/regtest/masternodes/sdh183'
       })
     }
   })

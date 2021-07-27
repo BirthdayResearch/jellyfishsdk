@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 import { WhaleApiClient, WhaleApiException } from '../../src'
-import { createToken, createPoolPair } from '@defichain/testing'
+import { createPoolPair, createToken } from '@defichain/testing'
 
 let container: MasterNodeRegTestContainer
 let service: StubService
@@ -123,7 +123,7 @@ describe('get', () => {
         type: 'NotFound',
         at: expect.any(Number),
         message: 'Unable to find token',
-        url: '/v0/regtest/tokens/999'
+        url: '/v0.0/regtest/tokens/999'
       })
     }
   })
@@ -139,7 +139,7 @@ describe('get', () => {
         type: 'BadRequest',
         at: expect.any(Number),
         message: 'Validation failed (numeric string is expected)',
-        url: '/v0/regtest/tokens/$*@'
+        url: '/v0.0/regtest/tokens/$*@'
       })
     }
   })

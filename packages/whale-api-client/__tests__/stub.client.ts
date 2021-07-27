@@ -15,9 +15,10 @@ export class StubWhaleApiClient extends WhaleApiClient {
       throw new Error('StubService is not yet started.')
     }
 
+    const version = this.options.version as string
     const res = await this.service.app.inject({
       method: method,
-      url: `/v0/regtest/${path}`,
+      url: `/${version}/regtest/${path}`,
       payload: body,
       headers: method !== 'GET' ? { 'Content-Type': 'application/json' } : {}
     })

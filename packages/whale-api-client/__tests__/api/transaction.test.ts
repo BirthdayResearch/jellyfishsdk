@@ -58,7 +58,7 @@ describe('transaction', () => {
           type: 'BadRequest',
           message: 'Transaction decode failed',
           at: expect.any(Number),
-          url: '/v0/regtest/transactions/test'
+          url: '/v0.0/regtest/transactions/test'
         })
       }
     })
@@ -77,7 +77,7 @@ describe('transaction', () => {
           type: 'BadRequest',
           at: expect.any(Number),
           message: 'Transaction is not allowed to be inserted',
-          url: '/v0/regtest/transactions/test'
+          url: '/v0.0/regtest/transactions/test'
         })
       }
     })
@@ -120,7 +120,7 @@ describe('transaction', () => {
           code: 400,
           type: 'BadRequest',
           at: expect.any(Number),
-          url: '/v0/regtest/transactions',
+          url: '/v0.0/regtest/transactions',
           message: 'Transaction decode failed'
         })
       }
@@ -140,7 +140,7 @@ describe('transaction', () => {
           code: 400,
           type: 'BadRequest',
           at: expect.any(Number),
-          url: '/v0/regtest/transactions',
+          url: '/v0.0/regtest/transactions',
           message: 'Absurdly high fee'
         })
       }
@@ -155,7 +155,7 @@ describe('transaction', () => {
         expect('must fail').toBeUndefined()
       } catch (err) {
         expect(err).toBeInstanceOf(WhaleApiValidationException)
-        expect(err.message).toStrictEqual('422 - ValidationError (/v0/regtest/transactions)')
+        expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/transactions)')
         expect(err.properties).toStrictEqual([{
           constraints: [
             'hex must be a hexadecimal number',
@@ -176,7 +176,7 @@ describe('transaction', () => {
         expect('must fail').toBeUndefined()
       } catch (err) {
         expect(err).toBeInstanceOf(WhaleApiValidationException)
-        expect(err.message).toStrictEqual('422 - ValidationError (/v0/regtest/transactions)')
+        expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/transactions)')
         expect(err.properties).toStrictEqual([{
           constraints: [
             'hex must be a hexadecimal number'
@@ -196,7 +196,7 @@ describe('transaction', () => {
         expect('must fail').toBeUndefined()
       } catch (err) {
         expect(err).toBeInstanceOf(WhaleApiValidationException)
-        expect(err.message).toStrictEqual('422 - ValidationError (/v0/regtest/transactions)')
+        expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/transactions)')
         expect(err.properties).toStrictEqual([{
           constraints: [
             'maxFeeRate must not be less than 0'
@@ -217,7 +217,7 @@ describe('transaction', () => {
         expect('must fail').toBeUndefined()
       } catch (err) {
         expect(err).toBeInstanceOf(WhaleApiValidationException)
-        expect(err.message).toStrictEqual('422 - ValidationError (/v0/regtest/transactions)')
+        expect(err.message).toStrictEqual('422 - ValidationError (/v0.0/regtest/transactions)')
         expect(err.properties).toStrictEqual([{
           constraints: [
             'maxFeeRate must not be less than 0',
@@ -297,7 +297,7 @@ describe('transaction', () => {
           type: 'NotFound',
           at: expect.any(Number),
           message: 'Unable to find transaction by id: invalidtransactionid',
-          url: '/v0/regtest/transactions/invalidtransactionid'
+          url: '/v0.0/regtest/transactions/invalidtransactionid'
         })
       }
     })
