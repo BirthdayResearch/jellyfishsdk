@@ -91,6 +91,58 @@ describe('Oracle', () => {
     ])
   })
 
+  it('should appointOracle if weightage is 0', async () => {
+    const priceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    const oracleid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 0 })
+
+    expect(typeof oracleid).toStrictEqual('string')
+    expect(oracleid.length).toStrictEqual(64)
+
+    await container.generate(1)
+  })
+
+  it('should appointOracle if weightage is 255', async () => {
+    const priceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    const oracleid = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 255 })
+
+    expect(typeof oracleid).toStrictEqual('string')
+    expect(oracleid.length).toStrictEqual(64)
+
+    await container.generate(1)
+  })
+
+  it('should not appointOracle if weightage is -1', async () => {
+    const priceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    const promise = client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: -1 })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'the weightage value is out of bounds\', code: -25, method: appointoracle')
+  })
+
+  it('should not appointOracle if weightage is 256', async () => {
+    const priceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    const promise = client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 256 })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'the weightage value is out of bounds\', code: -25, method: appointoracle')
+  })
+
   it('should appointOracle with utxos', async () => {
     const address = await container.getNewAddress()
 
