@@ -86,7 +86,7 @@ describe('Account', () => {
 
   it('first transaction should be masternode creation fee burn', async () => {
     const history = await client.account.listBurnHistory()
-    expect(history[6].owner.slice(0, 16)).toStrictEqual('6a1a446654784301')
+    expect(history[6].owner.slice(0, 16)).toStrictEqual('6a1c446654784301')
     expect(history[6].type).toStrictEqual('CreateMasternode')
     expect(history[6].txn).toStrictEqual(2)
     expect(history[6].amounts.length).toStrictEqual(1)

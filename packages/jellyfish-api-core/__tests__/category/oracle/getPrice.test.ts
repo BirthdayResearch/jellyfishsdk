@@ -39,23 +39,6 @@ describe('Oracle', () => {
     expect(data.toString()).toStrictEqual(new BigNumber('0.83333333').toString())
   })
 
-  it('should not getPrice for price timestamps 4200 seconds after the current time', async () => {
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TESLA', currency: 'USD' }], 1])
-
-    await container.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000) + 4200
-    const prices = [{ tokenAmount: '0.5@TESLA', currency: 'USD' }]
-    await container.call('setoracledata', [oracleid, timestamp, prices])
-
-    await container.generate(1)
-
-    const promise = client.oracle.getPrice({ token: 'TESLA', currency: 'USD' })
-
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'no live oracles for specified request\', code: -1, method: getprice')
-  })
-
   it('should not getPrice for price timestamps 4200 seconds before the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'FB', currency: 'CNY' }], 1])
 

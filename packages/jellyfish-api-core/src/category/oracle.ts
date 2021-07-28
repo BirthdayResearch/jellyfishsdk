@@ -68,7 +68,7 @@ export class Oracle {
    * Set oracle data transaction.
    *
    * @param {string} oracleid
-   * @param {number} timestamp
+   * @param {number} timestamp timestamp in seconds
    * @param {SetOracleDataOptions} [options]
    * @param {OraclePrice[]} options.prices
    * @param {UTXO[]} [options.utxos = []]
