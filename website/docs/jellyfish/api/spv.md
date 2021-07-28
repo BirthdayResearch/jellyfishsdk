@@ -22,3 +22,13 @@ interface spv {
   getNewAddress (): Promise<string>
 }
 ```
+
+## getAddressPubKey
+
+Returns a Bitcoin address' public key.
+
+```ts title="client.spv.getAddressPubKey()"
+interface spv {
+  getAddressPubKey (address: string): Promise<string>
+}
+```
