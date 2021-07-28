@@ -37,8 +37,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "prepack": "node -p \"'export default \\'v' + require('./package.json').version.replace(/\\.\\d+$/, '') + '\\''\" > src/version.ts"
+    "build": "npm run version.ts && tsc",
+    "version.ts": "node -p \"'export default \\'v' + require('./package.json').version.replace(/\\.\\d+$/, '') + '\\''\" > src/version.ts"
   },
   "dependencies": {
     "@defichain/jellyfish-api-core": ">=0.30.0",
