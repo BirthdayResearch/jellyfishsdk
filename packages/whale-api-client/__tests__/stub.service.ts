@@ -46,4 +46,13 @@ export class StubService {
       await expect(block?.height).toBeGreaterThan(height)
     }, timeout)
   }
+
+  async waitForIndexedTimestamp (container: MasterNodeRegTestContainer, timestamp: number, timeout: number = 30000): Promise<void> {
+    await waitForExpect(async () => {
+      await container.generate(1)
+      const height = await container.call('getblockcount')
+      const stats = await container.call('getblockstats', [height])
+      await expect(Number(stats.time)).toStrictEqual(timestamp)
+    }, timeout)
+  }
 }
