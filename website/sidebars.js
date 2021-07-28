@@ -19,7 +19,8 @@ module.exports = {
         'jellyfish/api/oracle',
         'jellyfish/api/server',
         'jellyfish/api/masternode',
-        'jellyfish/api/governance'
+        'jellyfish/api/governance',
+        'jellyfish/api/spv'
       ]
     }
   ],
