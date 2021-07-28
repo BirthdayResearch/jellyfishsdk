@@ -77,6 +77,20 @@ export async function waitForIndexedHeight (app: NestFastifyApplication, height:
   }, timeout)
 }
 
+/**
+ * @param {MasterNodeRegTestContainer} container
+ * @param {number} timestamp
+ * @param {number} [timeout=30000]
+ */
+export async function waitForIndexedTimestamp (container: MasterNodeRegTestContainer, timestamp: number, timeout: number = 30000): Promise<void> {
+  await waitForExpect(async () => {
+    await container.generate(1)
+    const height = await container.call('getblockcount')
+    const stats = await container.call('getblockstats', [height])
+    await expect(Number(stats.time)).toStrictEqual(timestamp)
+  }, timeout)
+}
+
 export async function waitForAddressTxCount (app: NestFastifyApplication, address: string, txCount: number, timeout: number = 15000): Promise<void> {
   const hid = addressToHid('regtest', address)
   const aggregationMapper = app.get(ScriptAggregationMapper)
