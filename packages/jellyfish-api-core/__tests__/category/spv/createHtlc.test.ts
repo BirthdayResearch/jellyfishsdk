@@ -21,20 +21,20 @@ describe('Spv', () => {
     const pubKeyB = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
     const timeout = 10
 
-    const hlc = await client.spv.createHtlc(pubKeyA, pubKeyB, { timeout: `${timeout}` })
-    expect(typeof hlc.address).toStrictEqual('string')
-    expect(hlc.address.length).toStrictEqual(35)
-    expect(typeof hlc.redeemScript).toStrictEqual('string')
-    expect(typeof hlc.seed).toStrictEqual('string')
-    expect(hlc.seed.length).toStrictEqual(64)
-    expect(typeof hlc.seedhash).toStrictEqual('string')
-    expect(hlc.seedhash.length).toStrictEqual(64)
+    const htlc = await client.spv.createHtlc(pubKeyA, pubKeyB, { timeout: `${timeout}` })
+    expect(typeof htlc.address).toStrictEqual('string')
+    expect(htlc.address.length).toStrictEqual(35)
+    expect(typeof htlc.redeemScript).toStrictEqual('string')
+    expect(typeof htlc.seed).toStrictEqual('string')
+    expect(htlc.seed.length).toStrictEqual(64)
+    expect(typeof htlc.seedhash).toStrictEqual('string')
+    expect(htlc.seedhash.length).toStrictEqual(64)
 
-    const decodedScript = await container.call('spv_decodehtlcscript', [hlc.redeemScript])
+    const decodedScript = await container.call('spv_decodehtlcscript', [htlc.redeemScript])
     expect(decodedScript.sellerkey).toStrictEqual(pubKeyA)
     expect(decodedScript.buyerkey).toStrictEqual(pubKeyB)
     expect(decodedScript.blocks).toStrictEqual(timeout)
-    expect(decodedScript.hash).toStrictEqual(hlc.seedhash)
+    expect(decodedScript.hash).toStrictEqual(htlc.seedhash)
   })
 
   it('should not createHtlc with invalid public key as receiverPubKey', async () => {
