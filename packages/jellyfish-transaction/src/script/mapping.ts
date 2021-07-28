@@ -9,6 +9,7 @@ import * as constants from './constants'
 import * as crypto from './crypto'
 import * as control from './control'
 import * as stack from './stack'
+import * as splice from './splice'
 import * as bitwise from './bitwise'
 import * as expansion from './expansion'
 import * as invalid from './invalid'
@@ -387,12 +388,12 @@ export const OP_CODES = {
   OP_SWAP: new stack.OP_SWAP(),
   OP_TUCK: new stack.OP_TUCK(),
 
-  // splice ops
-  //  OP_CAT = 0x7e,
-  //  OP_SUBSTR = 0x7f,
-  //  OP_LEFT = 0x80,
-  //  OP_RIGHT = 0x81,
-  //  OP_SIZE = 0x82,
+  // splice
+  OP_CAT: new splice.OP_CAT(),
+  OP_SUBSTR: new splice.OP_SUBSTR(),
+  OP_LEFT: new splice.OP_LEFT(),
+  OP_RIGHT: new splice.OP_RIGHT(),
+  OP_SIZE: new splice.OP_SIZE(),
 
   // bitwise
   OP_INVERT: new bitwise.OP_INVERT(),
