@@ -70,32 +70,6 @@ describe('Oracle', () => {
     expect(data.length).toStrictEqual(0)
   })
 
-  it('should listPrices with error msg for price timestamps 4200 seconds after the current time', async () => {
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{
-      token: 'APPLE',
-      currency: 'EUR'
-    }], 1])
-
-    await container.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000) + 4200
-    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid, timestamp, prices])
-
-    await container.generate(1)
-
-    const data = await client.oracle.listPrices()
-    expect(data).toStrictEqual(
-      [
-        {
-          token: 'APPLE',
-          currency: 'EUR',
-          ok: 'no live oracles for specified request'
-        }
-      ]
-    )
-  })
-
   it('should listPrices with error msg for price timestamps 4200 seconds before the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{
       token: 'APPLE',
