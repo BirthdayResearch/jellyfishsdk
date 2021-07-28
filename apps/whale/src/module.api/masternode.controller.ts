@@ -2,7 +2,7 @@ import { BadRequestException, Controller, Get, NotFoundException, Param, Query }
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
-import { MasternodeData } from '@whale-api-client/api/masternode'
+import { MasternodeData } from '@whale-api-client/api/masternodes'
 import { MasternodeInfo, MasternodePagination } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
 @Controller('/masternodes')
