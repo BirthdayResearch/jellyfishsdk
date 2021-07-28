@@ -1,4 +1,4 @@
 /**
- * Automatically set by script: "version:set", automated at CI
+ * Automatically set by script: "prepack", automated at CI
  */
 export default 'v0.0'
