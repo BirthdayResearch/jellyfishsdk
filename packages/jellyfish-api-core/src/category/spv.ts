@@ -108,7 +108,7 @@ export interface CreateHtlcResult {
   /** Hex-encoded redemption script */
   redeemScript: string
   /** Hex-encoded seed */
-  seed: number
+  seed: string
   /** Hex-encoded seed hash */
   seedhash: string
 }
