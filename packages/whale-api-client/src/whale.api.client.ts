@@ -5,11 +5,11 @@ import version from './version'
 import { raiseIfError, WhaleClientException, WhaleClientTimeoutException } from './errors'
 import { ApiPagedResponse, WhaleApiResponse } from './whale.api.response'
 import { Address } from './api/address'
-import { PoolPair } from './api/poolpair'
+import { PoolPairs } from './api/poolpairs'
 import { Rpc } from './api/rpc'
 import { Transactions } from './api/transactions'
 import { Tokens } from './api/tokens'
-import { Masternodes } from './api/masternode'
+import { Masternodes } from './api/masternodes'
 import { Blocks } from './api/blocks'
 
 /**
@@ -56,9 +56,9 @@ export interface ResponseAsString {
 }
 
 export class WhaleApiClient {
-  public readonly address = new Address(this)
-  public readonly poolpair = new PoolPair(this)
   public readonly rpc = new Rpc(this)
+  public readonly address = new Address(this)
+  public readonly poolpairs = new PoolPairs(this)
   public readonly transactions = new Transactions(this)
   public readonly tokens = new Tokens(this)
   public readonly masternodes = new Masternodes(this)

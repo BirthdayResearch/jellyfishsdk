@@ -4,7 +4,7 @@ import { StubService } from '../stub.service'
 import { ApiPagedResponse, WhaleApiClient, WhaleApiException } from '../../src'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { PoolPairService } from '@src/module.api/poolpair.service'
-import { PoolPairData } from '@whale-api-client/api/poolpair'
+import { PoolPairData } from '../../src/api/poolpairs'
 import waitForExpect from 'wait-for-expect'
 
 let container: MasterNodeRegTestContainer
@@ -91,7 +91,7 @@ async function setup (): Promise<void> {
 
 describe('list', () => {
   it('should list', async () => {
-    const response: ApiPagedResponse<PoolPairData> = await client.poolpair.list(30)
+    const response: ApiPagedResponse<PoolPairData> = await client.poolpairs.list(30)
 
     expect(response.length).toStrictEqual(9)
     expect(response.hasNext).toStrictEqual(false)
@@ -131,7 +131,7 @@ describe('list', () => {
   })
 
   it('should list with pagination', async () => {
-    const first = await client.poolpair.list(4)
+    const first = await client.poolpairs.list(4)
     expect(first.length).toStrictEqual(4)
     expect(first.hasNext).toStrictEqual(true)
     expect(first.nextToken).toStrictEqual('12')
@@ -162,7 +162,7 @@ describe('list', () => {
 
 describe('get', () => {
   it('should get', async () => {
-    const response: PoolPairData = await client.poolpair.get('9')
+    const response: PoolPairData = await client.poolpairs.get('9')
 
     expect(response).toStrictEqual({
       id: '9',
@@ -201,7 +201,7 @@ describe('get', () => {
   it('should throw error as numeric string is expected', async () => {
     expect.assertions(2)
     try {
-      await client.poolpair.get('A-DFI')
+      await client.poolpairs.get('A-DFI')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
@@ -217,7 +217,7 @@ describe('get', () => {
   it('should throw error while getting non-existent poolpair', async () => {
     expect.assertions(2)
     try {
-      await client.poolpair.get('999')
+      await client.poolpairs.get('999')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({

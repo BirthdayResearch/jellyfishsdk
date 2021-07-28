@@ -4,7 +4,7 @@ import { ApiPagedResponse } from '../whale.api.response'
 /**
  * DeFi whale endpoint for poolpair related services.
  */
-export class PoolPair {
+export class PoolPairs {
   constructor (private readonly client: WhaleApiClient) {
   }
 
