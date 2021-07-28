@@ -6,9 +6,13 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
   }
 
   protected getCmd (opts: StartOptions): string[] {
+    // temporary remove -eunospayaheight=7 due to invalid flag
+    const cmd = super.getCmd(opts)
+    cmd.splice(cmd.indexOf('-eunospayaheight=7'), 1)
+
     return [
-      ...super.getCmd(opts),
-      '-fortcanningheight=7'
+      ...cmd,
+      '-fortcanningheight=8'
     ]
   }
 }
