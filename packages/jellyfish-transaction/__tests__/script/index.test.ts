@@ -1530,24 +1530,6 @@ describe('[OP_RIPEMD160]', () => {
   })
 })
 
-describe('[OP_RIPEMD160]', () => {
-  const hex = '01a6'
-
-  it('should map fromBuffer', () => {
-    const codes = OP_CODES.fromBuffer(SmartBuffer.fromBuffer(
-      Buffer.from(hex, 'hex')
-    ))
-    expect(codes[0].type).toStrictEqual('OP_RIPEMD160')
-    expect(codes.length).toStrictEqual(1)
-  })
-
-  it('should map toBuffer', () => {
-    const smartBuffer = new SmartBuffer()
-    OP_CODES.toBuffer([OP_CODES.OP_RIPEMD160], smartBuffer)
-    expect(smartBuffer.toBuffer().toString('hex')).toStrictEqual(hex)
-  })
-})
-
 describe('[OP_SHA1]', () => {
   const hex = '01a7'
 
