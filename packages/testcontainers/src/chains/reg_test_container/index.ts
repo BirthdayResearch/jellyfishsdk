@@ -1,10 +1,13 @@
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../defid_container'
+import { Spv } from './spv'
 
 /**
  * RegTest DeFiD container
  */
 export class RegTestContainer extends DeFiDContainer {
+  readonly spv = new Spv(this)
+
   /**
    * @param {string} image docker image name
    * @param {DockerOptions} [options]
