@@ -155,3 +155,117 @@ describe('getTransactions', () => {
     expect(transactions.length).toStrictEqual(0)
   })
 })
+
+describe('getVins', () => {
+  it('should return list of vins', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vins = await client.blocks.getVins(blockHash, transactions[0].id)
+
+    expect(vins.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('should return list of vins when next is out of range', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vins = await client.blocks.getVins(blockHash, transactions[0].id, 30, '100')
+
+    expect(vins.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('should return empty page if blockhash is not valid', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vins = await client.blocks.getVins('0e8ffadf068a4dad100cc6d6c31cd6610a754b01d6e88361955d2070282354b1', transactions[0].id)
+
+    expect(vins.length).toStrictEqual(0)
+    expect(vins.hasNext).toStrictEqual(false)
+  })
+
+  it('should return empty page if txid is not valid', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+
+    const vins = await client.blocks.getVins(blockHash, '9d87a6b6b77323b6dab9d8971fff0bc7a6c341639ebae39891024f4800528532', 30)
+
+    expect(vins.length).toStrictEqual(0)
+    expect(vins.hasNext).toStrictEqual(false)
+  })
+
+  it('should return empty page if transaction does not belong to the block', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vins = await client.blocks.getVins(await container.call('getblockhash', [99]), transactions[0].id)
+
+    expect(vins.length).toStrictEqual(0)
+    expect(vins.hasNext).toStrictEqual(false)
+  })
+})
+
+describe('getVouts', () => {
+  it('should return list of vouts', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vouts = await client.blocks.getVouts(blockHash, transactions[0].id)
+
+    expect(vouts.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('should return list of vouts when next is out of range', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vouts = await client.blocks.getVouts(blockHash, transactions[0].id, 30, '100')
+
+    expect(vouts.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('should return empty page if blockhash is not valid', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vouts = await client.blocks.getVouts('0e8ffadf068a4dad100cc6d6c31cd6610a754b01d6e88361955d2070282354b1', transactions[0].id)
+
+    expect(vouts.length).toStrictEqual(0)
+    expect(vouts.hasNext).toStrictEqual(false)
+  })
+
+  it('should return empty page if txid is not valid', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+
+    const vouts = await client.blocks.getVouts(blockHash, '9d87a6b6b77323b6dab9d8971fff0bc7a6c341639ebae39891024f4800528532', 30)
+
+    expect(vouts.length).toStrictEqual(0)
+    expect(vouts.hasNext).toStrictEqual(false)
+  })
+
+  it('should return empty page if transaction does not belong to the block', async () => {
+    const blockHash = await container.call('getblockhash', [100])
+    const transactions = await client.blocks.getTransactions(blockHash, 1)
+
+    expect(transactions.length).toStrictEqual(1)
+
+    const vouts = await client.blocks.getVouts(await container.call('getblockhash', [99]), transactions[0].id)
+
+    expect(vouts.length).toStrictEqual(0)
+    expect(vouts.hasNext).toStrictEqual(false)
+  })
+})

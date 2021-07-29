@@ -64,3 +64,39 @@ export interface Transaction {
   vinCount: number
   voutCount: number
 }
+
+/**
+ * TransactionVin interface
+ */
+export interface TransactionVin {
+  id: string
+  txid: string
+  coinbase?: string
+  vout?: {
+    id: string
+    txid: string
+    n: number
+    value: string
+    tokenId?: number
+  }
+  script?: {
+    hex: string
+  }
+  txInWitness?: string[]
+  sequence: string
+}
+
+/**
+ * TransactionVout interface
+ */
+export interface TransactionVout {
+  id: string
+  txid: string
+  n: number
+  value: string
+  tokenId?: number
+  script: {
+    hex: string
+    type: string
+  }
+}

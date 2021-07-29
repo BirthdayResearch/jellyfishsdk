@@ -1,6 +1,6 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
-import { Transaction } from './transactions'
+import { Transaction, TransactionVin, TransactionVout } from './transactions'
 
 export class Blocks {
   constructor (private readonly client: WhaleApiClient) {
@@ -31,6 +31,28 @@ export class Blocks {
    */
   async getTransactions (hash: string, size: number = 30, next?: string): Promise<ApiPagedResponse<Transaction>> {
     return await this.client.requestList('GET', `blocks/${hash}/transactions`, size, next)
+  }
+
+  /**
+   * @param {string} hash of the block
+   * @param {string} txid of the transaction
+   * @param {number} [size=30] size to query
+   * @param {string} [next] next token for next slice of vins
+   * @return {Promise<ApiPagedResponse<TransactionVin[]>>}
+   */
+  async getVins (hash: string, txid: string, size: number = 30, next?: string): Promise<ApiPagedResponse<TransactionVin>> {
+    return await this.client.requestList('GET', `blocks/${hash}/transactions/${txid}/vins`, size, next)
+  }
+
+  /**
+   * @param {string} hash of the block
+   * @param {string} txid of the transaction
+   * @param {number} [size=30] size to query
+   * @param {string} [next] next token for next slice of vouts
+   * @return {Promise<ApiPagedResponse<TransactionVin[]>>}
+   */
+  async getVouts (hash: string, txid: string, size: number = 30, next?: string): Promise<ApiPagedResponse<TransactionVout>> {
+    return await this.client.requestList('GET', `blocks/${hash}/transactions/${txid}/vouts`, size, next)
   }
 }
 
