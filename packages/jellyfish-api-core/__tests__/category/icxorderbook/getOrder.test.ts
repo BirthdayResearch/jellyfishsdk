@@ -45,6 +45,10 @@ describe('ICXOrderBook.getOrder', () => {
     await container.stop()
   })
 
+  afterEach(async () => {
+    await icxSetup.closeAllOpenOffers()
+  })
+
   it('should get the correct order', async () => {
     // create first order - maker
     const order: ICXOrder = {
@@ -63,7 +67,7 @@ describe('ICXOrderBook.getOrder', () => {
     const retrievedOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
     expect((retrievedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
       {
-        // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
+        status: ICXOrderStatus.OPEN,
         type: ICXOrderType.INTERNAL,
         tokenFrom: symbolDFI,
         chainTo: order.chainTo,
@@ -95,7 +99,7 @@ describe('ICXOrderBook.getOrder', () => {
     // check details for createOrder2TxId
     expect((retrievedOrder2 as Record<string, ICXOrderInfo>)[createOrder2TxId]).toStrictEqual(
       {
-        // status: ICXOrderStatus.OPEN, //NOTE(surangap): status is not returned?
+        status: ICXOrderStatus.OPEN,
         type: ICXOrderType.EXTERNAL,
         tokenTo: symbolDFI,
         chainFrom: order2.chainFrom,
@@ -162,7 +166,7 @@ describe('ICXOrderBook.getOrder', () => {
     expect((retrievedOrder as Record<string, ICXOfferInfo>)[makeOffer2TxId]).toStrictEqual(
       {
         orderTx: createOrder2TxId,
-        status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
+        status: ICXOrderStatus.OPEN,
         amount: offer2.amount,
         amountInFromAsset: offer2.amount.dividedBy(order2.orderPrice),
         ownerAddress: offer2.ownerAddress,
@@ -177,7 +181,7 @@ describe('ICXOrderBook.getOrder', () => {
     expect((retrievedOrder2 as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
-        status: ICXOrderStatus.EXPIRED, // NOTE(surangap): why this is EXPIRED ? should be OPEN?
+        status: ICXOrderStatus.OPEN,
         amount: offer.amount,
         amountInFromAsset: offer.amount.dividedBy(order.orderPrice),
         ownerAddress: offer.ownerAddress,
