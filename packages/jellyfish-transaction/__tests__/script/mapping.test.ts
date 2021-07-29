@@ -246,6 +246,114 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_RESERVED2, script.OP_RESERVED2, 'OP_RESERVED2', 0x8a, '8a')
   })
 
+  it('OP_1ADD', () => {
+    expectOPCode(script.OP_CODES.OP_1ADD, script.OP_1ADD, 'OP_1ADD', 0x8b, '8b')
+  })
+
+  it('OP_1SUB', () => {
+    expectOPCode(script.OP_CODES.OP_1SUB, script.OP_1SUB, 'OP_1SUB', 0x8c, '8c')
+  })
+
+  it('OP_2MUL', () => {
+    expectOPCode(script.OP_CODES.OP_2MUL, script.OP_2MUL, 'OP_2MUL', 0x8d, '8d')
+  })
+
+  it('OP_2DIV', () => {
+    expectOPCode(script.OP_CODES.OP_2DIV, script.OP_2DIV, 'OP_2DIV', 0x8e, '8e')
+  })
+
+  it('OP_NEGATE', () => {
+    expectOPCode(script.OP_CODES.OP_NEGATE, script.OP_NEGATE, 'OP_NEGATE', 0x8f, '8f')
+  })
+
+  it('OP_ABS', () => {
+    expectOPCode(script.OP_CODES.OP_ABS, script.OP_ABS, 'OP_ABS', 0x90, '90')
+  })
+
+  it('OP_NOT', () => {
+    expectOPCode(script.OP_CODES.OP_NOT, script.OP_NOT, 'OP_NOT', 0x91, '91')
+  })
+
+  it('OP_0NOTEQUAL', () => {
+    expectOPCode(script.OP_CODES.OP_0NOTEQUAL, script.OP_0NOTEQUAL, 'OP_0NOTEQUAL', 0x92, '92')
+  })
+
+  it('OP_ADD', () => {
+    expectOPCode(script.OP_CODES.OP_ADD, script.OP_ADD, 'OP_ADD', 0x93, '93')
+  })
+
+  it('OP_SUB', () => {
+    expectOPCode(script.OP_CODES.OP_SUB, script.OP_SUB, 'OP_SUB', 0x94, '94')
+  })
+
+  it('OP_MUL', () => {
+    expectOPCode(script.OP_CODES.OP_MUL, script.OP_MUL, 'OP_MUL', 0x95, '95')
+  })
+
+  it('OP_DIV', () => {
+    expectOPCode(script.OP_CODES.OP_DIV, script.OP_DIV, 'OP_DIV', 0x96, '96')
+  })
+
+  it('OP_MOD', () => {
+    expectOPCode(script.OP_CODES.OP_MOD, script.OP_MOD, 'OP_MOD', 0x97, '97')
+  })
+
+  it('OP_LSHIFT', () => {
+    expectOPCode(script.OP_CODES.OP_LSHIFT, script.OP_LSHIFT, 'OP_LSHIFT', 0x98, '98')
+  })
+
+  it('OP_RSHIFT', () => {
+    expectOPCode(script.OP_CODES.OP_RSHIFT, script.OP_RSHIFT, 'OP_RSHIFT', 0x99, '99')
+  })
+
+  it('OP_BOOLAND', () => {
+    expectOPCode(script.OP_CODES.OP_BOOLAND, script.OP_BOOLAND, 'OP_BOOLAND', 0x9a, '9a')
+  })
+
+  it('OP_BOOLOR', () => {
+    expectOPCode(script.OP_CODES.OP_BOOLOR, script.OP_BOOLOR, 'OP_BOOLOR', 0x9b, '9b')
+  })
+
+  it('OP_NUMEQUAL', () => {
+    expectOPCode(script.OP_CODES.OP_NUMEQUAL, script.OP_NUMEQUAL, 'OP_NUMEQUAL', 0x9c, '9c')
+  })
+
+  it('OP_NUMEQUALVERIFY', () => {
+    expectOPCode(script.OP_CODES.OP_NUMEQUALVERIFY, script.OP_NUMEQUALVERIFY, 'OP_NUMEQUALVERIFY', 0x9d, '9d')
+  })
+
+  it('OP_NUMNOTEQUAL', () => {
+    expectOPCode(script.OP_CODES.OP_NUMNOTEQUAL, script.OP_NUMNOTEQUAL, 'OP_NUMNOTEQUAL', 0x9e, '9e')
+  })
+
+  it('OP_LESSTHAN', () => {
+    expectOPCode(script.OP_CODES.OP_LESSTHAN, script.OP_LESSTHAN, 'OP_LESSTHAN', 0x9f, '9f')
+  })
+
+  it('OP_GREATERTHAN', () => {
+    expectOPCode(script.OP_CODES.OP_GREATERTHAN, script.OP_GREATERTHAN, 'OP_GREATERTHAN', 0xa0, 'a0')
+  })
+
+  it('OP_LESSTHANOREQUAL', () => {
+    expectOPCode(script.OP_CODES.OP_LESSTHANOREQUAL, script.OP_LESSTHANOREQUAL, 'OP_LESSTHANOREQUAL', 0xa1, 'a1')
+  })
+
+  it('OP_GREATERTHANOREQUAL', () => {
+    expectOPCode(script.OP_CODES.OP_GREATERTHANOREQUAL, script.OP_GREATERTHANOREQUAL, 'OP_GREATERTHANOREQUAL', 0xa2, 'a2')
+  })
+
+  it('OP_MIN', () => {
+    expectOPCode(script.OP_CODES.OP_MIN, script.OP_MIN, 'OP_MIN', 0xa3, 'a3')
+  })
+
+  it('OP_MAX', () => {
+    expectOPCode(script.OP_CODES.OP_MAX, script.OP_MAX, 'OP_MAX', 0xa4, 'a4')
+  })
+
+  it('OP_WITHIN', () => {
+    expectOPCode(script.OP_CODES.OP_WITHIN, script.OP_WITHIN, 'OP_WITHIN', 0xa5, 'a5')
+  })
+
   it('OP_RIPEMD160', () => {
     expectOPCode(script.OP_CODES.OP_RIPEMD160, script.OP_RIPEMD160, 'OP_RIPEMD160', 0xa6, 'a6')
   })
