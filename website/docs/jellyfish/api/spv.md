@@ -61,7 +61,7 @@ interface spv {
 }
 
 interface SendToAddressOptions {
-  feerate: BigNumber
+  feerate?: BigNumber
 }
 
 interface SendMessageResult {

@@ -69,7 +69,7 @@ export interface ReceivedByAddressInfo {
 }
 
 export interface SendToAddressOptions {
-  feerate: BigNumber
+  feerate?: BigNumber
 }
 
 export interface SendMessageResult {
