@@ -2,13 +2,14 @@ import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontain
 
 export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor () {
-    super(undefined, 'defi/defichain:HEAD-a61f615')
+    super(undefined, 'defi/defichain:HEAD-316148f')
   }
 
   protected getCmd (opts: StartOptions): string[] {
+    const cmd = super.getCmd(opts).filter(cmd => cmd !== '-eunospayaheight=7') // temporary remove -eunospayaheight=7 due to invalid flag
     return [
-      ...super.getCmd(opts),
-      '-fortcanningheight=7',
+      ...cmd,
+      '-fortcanningheight=8',
       '-dummypos=0' // Needed to expire proposals
     ]
   }

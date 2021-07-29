@@ -1,5 +1,4 @@
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish-wallet)](https://www.npmjs.com/package/@defichain/jellyfish-wallet/v/latest)
-[![npm@next](https://img.shields.io/npm/v/@defichain/jellyfish-wallet/next)](https://www.npmjs.com/package/@defichain/jellyfish-wallet/v/next)
 
 # @defichain/jellyfish-wallet
 
@@ -7,8 +6,9 @@
 > This is created for better UX, your daily average users.
 
 Jellyfish wallet is a managed wallet, where account can get discovered from an HD seed. Accounts in jellyfish-wallet,
-has only one address for simplicity. Accounts path are derived from seed with path: `44'/1129'/{ACCOUNT}/0/0`. It uses a
-provider model where the node and account is agnostic and provided on demand to the managed wallet.
+has only one address for simplicity. Accounts path are derived from seed with path: `{ACCOUNT}/0/0`. Non-hardened path
+is used to allow encrypted wallet implementation where only xpubkey is required. It uses a provider model where the node
+and account is agnostic and provided on demand to the managed wallet.
 
 Being a managed wallet design it uses must use conventional defaults and options must be kept to none. Address must stay
 consistent hence `bech32` must be used and, etc.

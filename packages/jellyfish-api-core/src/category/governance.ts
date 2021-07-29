@@ -44,7 +44,7 @@ export class Governance {
   }
 
   /**
-   * Creates a Cummunity Fund Request.
+   * Creates a Community Fund Request.
    *
    * @param {CFPData} data Community fund proposal data
    * @param {string} data.title Title of community fund request
@@ -67,7 +67,7 @@ export class Governance {
    * Returns information about the proposal.
    *
    * @param {string} proposalId Proposal id
-   * @return {Promise<ProposalInfo>} Informatiom about the proposal
+   * @return {Promise<ProposalInfo>} Information about the proposal
    */
   async getProposal (proposalId: string): Promise<ProposalInfo> {
     return await this.client.call('getproposal', [proposalId], 'number')
@@ -76,7 +76,7 @@ export class Governance {
   /**
    * Creates a Vote of Confidence.
    *
-   * @param {string} [title] Vote of confidence's title
+   * @param {string} title Vote of confidence's title
    * @param {UTXO[]} [utxos = []] Specific utxos to spend
    * @param {string} [utxos.txid] The transaction id
    * @param {number} [utxos.vout] The output number

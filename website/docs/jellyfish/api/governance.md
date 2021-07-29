@@ -15,7 +15,7 @@ const something = await client.governance.method()
 
 ## createCfp
 
-Creates a Cummunity Fund Request.
+Creates a Community Fund Request.
 
 ```ts title="client.governance.createCfp()"
 interface governance {
@@ -75,7 +75,7 @@ Creates a Vote of Confidence.
 
 ```ts title="client.governance.createVoc()"
 interface governance {
-  createVoc (title: string, utxos: UTXO[]): Promise<string>
+  createVoc (title: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {

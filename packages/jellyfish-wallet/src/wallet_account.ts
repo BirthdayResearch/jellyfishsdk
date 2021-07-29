@@ -7,7 +7,7 @@ import { DeFiAddress } from '@defichain/jellyfish-address'
 /**
  * An HDW is organized as several 'accounts'.
  * Accounts are numbered, the default account ("") being number 0.
- * Account are derived from root and the pubkey to be used is `44'/1129'/${account}'/0/0`
+ * Account are derived from root and the pubkey to be used is `${account}/0/0`
  *
  * WalletAccount implementation uses NATIVE SEGWIT redeem script exclusively.
  */
