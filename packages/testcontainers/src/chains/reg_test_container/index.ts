@@ -30,7 +30,8 @@ export class RegTestContainer extends DeFiDContainer {
       '-clarkequayheight=3',
       '-dakotaheight=4',
       '-dakotacrescentheight=5',
-      '-eunosheight=6'
+      '-eunosheight=6',
+      '-eunospayaheight=7'
     ]
   }
 

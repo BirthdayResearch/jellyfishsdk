@@ -28,12 +28,13 @@ describe('Mining', () => {
     expect(info.difficulty).toBeDefined()
     expect(info.isoperator).toStrictEqual(true)
 
-    expect(mn1.masternodeid).toBeDefined()
-    expect(mn1.masternodeoperator).toBeDefined()
-    expect(mn1.masternodestate).toStrictEqual('ENABLED')
+    expect(mn1.id).toBeDefined()
+    expect(mn1.operator).toBeDefined()
+    expect(mn1.state).toStrictEqual('ENABLED')
     expect(mn1.generate).toStrictEqual(false)
     expect(mn1.mintedblocks).toStrictEqual(0)
-    expect(mn1.lastblockcreationattempt).toStrictEqual('0')
+    expect(typeof mn1.lastblockcreationattempt).toStrictEqual('string')
+    expect(typeof mn1.targetMultiplier).toStrictEqual('number')
 
     expect(info.networkhashps).toBeGreaterThan(0)
     expect(info.pooledtx).toStrictEqual(0)
