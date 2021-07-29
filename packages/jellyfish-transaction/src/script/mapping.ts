@@ -9,7 +9,7 @@ import * as constants from './constants'
 import * as control from './control'
 import * as stack from './stack'
 import * as bitwise from './bitwise'
-import * as numeric from './numeric'
+import * as arithmetic from './arithmetic'
 import * as crypto from './crypto'
 import * as expansion from './expansion'
 import * as invalid from './invalid'
@@ -406,33 +406,33 @@ export const OP_CODES = {
   OP_RESERVED2: new bitwise.OP_RESERVED2(),
 
   // numeric
-  OP_1ADD: new numeric.OP_1ADD(),
-  OP_1SUB: new numeric.OP_1SUB(),
-  OP_2MUL: new numeric.OP_2MUL(),
-  OP_2DIV: new numeric.OP_2DIV(),
-  OP_NEGATE: new numeric.OP_NEGATE(),
-  OP_ABS: new numeric.OP_ABS(),
-  OP_NOT: new numeric.OP_NOT(),
-  OP_0NOTEQUAL: new numeric.OP_0NOTEQUAL(),
-  OP_ADD: new numeric.OP_ADD(),
-  OP_SUB: new numeric.OP_SUB(),
-  OP_MUL: new numeric.OP_MUL(),
-  OP_DIV: new numeric.OP_DIV(),
-  OP_MOD: new numeric.OP_MOD(),
-  OP_LSHIFT: new numeric.OP_LSHIFT(),
-  OP_RSHIFT: new numeric.OP_RSHIFT(),
-  OP_BOOLAND: new numeric.OP_BOOLAND(),
-  OP_BOOLOR: new numeric.OP_BOOLOR(),
-  OP_NUMEQUAL: new numeric.OP_NUMEQUAL(),
-  OP_NUMEQUALVERIFY: new numeric.OP_NUMEQUALVERIFY(),
-  OP_NUMNOTEQUAL: new numeric.OP_NUMNOTEQUAL(),
-  OP_LESSTHAN: new numeric.OP_LESSTHAN(),
-  OP_GREATERTHAN: new numeric.OP_GREATERTHAN(),
-  OP_LESSTHANOREQUAL: new numeric.OP_LESSTHANOREQUAL(),
-  OP_GREATERTHANOREQUAL: new numeric.OP_GREATERTHANOREQUAL(),
-  OP_MIN: new numeric.OP_MIN(),
-  OP_MAX: new numeric.OP_MAX(),
-  OP_WITHIN: new numeric.OP_WITHIN(),
+  OP_1ADD: new arithmetic.OP_1ADD(),
+  OP_1SUB: new arithmetic.OP_1SUB(),
+  OP_2MUL: new arithmetic.OP_2MUL(),
+  OP_2DIV: new arithmetic.OP_2DIV(),
+  OP_NEGATE: new arithmetic.OP_NEGATE(),
+  OP_ABS: new arithmetic.OP_ABS(),
+  OP_NOT: new arithmetic.OP_NOT(),
+  OP_0NOTEQUAL: new arithmetic.OP_0NOTEQUAL(),
+  OP_ADD: new arithmetic.OP_ADD(),
+  OP_SUB: new arithmetic.OP_SUB(),
+  OP_MUL: new arithmetic.OP_MUL(),
+  OP_DIV: new arithmetic.OP_DIV(),
+  OP_MOD: new arithmetic.OP_MOD(),
+  OP_LSHIFT: new arithmetic.OP_LSHIFT(),
+  OP_RSHIFT: new arithmetic.OP_RSHIFT(),
+  OP_BOOLAND: new arithmetic.OP_BOOLAND(),
+  OP_BOOLOR: new arithmetic.OP_BOOLOR(),
+  OP_NUMEQUAL: new arithmetic.OP_NUMEQUAL(),
+  OP_NUMEQUALVERIFY: new arithmetic.OP_NUMEQUALVERIFY(),
+  OP_NUMNOTEQUAL: new arithmetic.OP_NUMNOTEQUAL(),
+  OP_LESSTHAN: new arithmetic.OP_LESSTHAN(),
+  OP_GREATERTHAN: new arithmetic.OP_GREATERTHAN(),
+  OP_LESSTHANOREQUAL: new arithmetic.OP_LESSTHANOREQUAL(),
+  OP_GREATERTHANOREQUAL: new arithmetic.OP_GREATERTHANOREQUAL(),
+  OP_MIN: new arithmetic.OP_MIN(),
+  OP_MAX: new arithmetic.OP_MAX(),
+  OP_WITHIN: new arithmetic.OP_WITHIN(),
 
   // crypto
   OP_RIPEMD160: new crypto.OP_RIPEMD160(),
