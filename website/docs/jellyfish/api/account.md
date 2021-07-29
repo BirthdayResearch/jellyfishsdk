@@ -217,7 +217,10 @@ enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  CREATE_CFP = 'F',
+  CREATE_VOC = 'E',
+  VOTE = 'V'
 }
 
 interface AccountHistory {
@@ -276,7 +279,10 @@ enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  CREATE_CFP = 'F',
+  CREATE_VOC = 'E',
+  VOTE = 'V'
 }
 
 interface AccountHistoryCountOptions {
@@ -366,7 +372,10 @@ enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  CREATE_CFP = 'F',
+  CREATE_VOC = 'E',
+  VOTE = 'V'
 }
 
 interface BurnHistoryOptions {
