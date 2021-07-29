@@ -87,11 +87,11 @@ export class Spv {
    * @param {string} destinationAddress Destination address to send HTLC funds to
    * @param {ClaimHtlcOptions} options
    * @param {string} options.seed HTLC seed
-   * @param {number} [options.feerate] Fee rate in satoshis per KB. Minimum is 1000. Defaults to 1200. See DEFAULT_FEE_RATE_IN_SATOSHIS
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
   async claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult> {
-    return await this.client.call('spv_claimhtlc', [scriptAddress, destinationAddress, options.seed, options.feerate], 'number')
+    return await this.client.call('spv_claimhtlc', [scriptAddress, destinationAddress, options.seed, options.feeRate], 'bignumber')
   }
 }
 
@@ -150,5 +150,5 @@ export interface ClaimHtlcOptions {
   /** HTLC seed */
   seed: string
   /** Fee rate in satoshis per KB */
-  feerate?: number
+  feeRate?: BigNumber
 }
