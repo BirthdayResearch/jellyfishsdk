@@ -28,4 +28,28 @@ export class Spv {
   async getAddressPubKey (address: string): Promise<string> {
     return await this.client.call('spv_getaddresspubkey', [address], 'number')
   }
+
+  /**
+   * List balances by receiving address.
+   *
+   * @param {string} [minConfirmation=1] The minimum number of confirmations
+   * @param {string} [address] Filter by address
+   * @return {Promise<ReceivedByAddressInfo[]>}
+   */
+  async listReceivedByAddress (minConfirmation: number = 1, address?: string): Promise<ReceivedByAddressInfo[]> {
+    return await this.client.call('spv_listreceivedbyaddress', [minConfirmation, address], 'number')
+  }
+}
+
+export interface ReceivedByAddressInfo {
+  /** Recieving address */
+  address: string
+  /** Address type */
+  type: string
+  /** Total amount of BTC recieved by the address */
+  amount: number
+  /** The number of confirmations */
+  confirmations: number
+  /** The ids of transactions received by the address */
+  txids: string[]
 }

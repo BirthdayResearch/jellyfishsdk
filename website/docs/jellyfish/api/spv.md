@@ -32,3 +32,21 @@ interface spv {
   getAddressPubKey (address: string): Promise<string>
 }
 ```
+
+## listReceivedByAddress
+
+List balances by receiving address.
+
+```ts title="client.spv.listReceivedByAddress()"
+interface spv {
+  listReceivedByAddress (minConfirmation: number = 1, address?: string): Promise<ReceivedByAddressInfo[]>
+}
+
+interface ReceivedByAddressInfo {
+  address: string
+  type: string
+  amount: number
+  confirmations: number
+  txids: string[]
+}
+```
