@@ -53,6 +53,6 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
       return this.withDead('defid', 'defid is not connected to any peer', details)
     }
 
-    return this.withAlive('defid')
+    return this.withAlive('defid', details)
   }
 }
