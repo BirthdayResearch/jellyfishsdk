@@ -47,11 +47,11 @@ export class Spv {
    * @param {string} address Bitcoin address
    * @param {BigNumber} amount Bitcoin amount
    * @param {SendToAddressOptions} [options]
-   * @param {BigNumber} [options.feerate=10000] Fee rate in satoshis per KB. Minimum is 1000.
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
-  async sendToAddress (address: string, amount: BigNumber, options = { feerate: new BigNumber('10000') }): Promise<SendMessageResult> {
-    return await this.client.call('spv_sendtoaddress', [address, amount, options.feerate], 'bignumber')
+  async sendToAddress (address: string, amount: BigNumber, options = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+    return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
   }
 }
 
@@ -69,7 +69,7 @@ export interface ReceivedByAddressInfo {
 }
 
 export interface SendToAddressOptions {
-  feerate?: BigNumber
+  feeRate?: BigNumber
 }
 
 export interface SendMessageResult {

@@ -51,7 +51,7 @@ describe('Spv', () => {
   })
 })
 
-describe('Spv with custom feerate', () => {
+describe('Spv with custom feeRate', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -67,12 +67,12 @@ describe('Spv with custom feerate', () => {
     await container.stop()
   })
 
-  it('should sendToAddress with custom feerate', async () => {
+  it('should sendToAddress with custom feeRate', async () => {
     const otherAddress = 'bcrt1qfpnmx6jrn30yvscrw9spudj5aphyrc8es6epva'
     const amount = new BigNumber(0.1)
-    const feerate = new BigNumber(1000)
+    const feeRate = new BigNumber(1000)
 
-    const result = await client.spv.sendToAddress(otherAddress, amount, { feerate })
+    const result = await client.spv.sendToAddress(otherAddress, amount, { feeRate })
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.sendmessage).toStrictEqual('Success')
 
@@ -81,8 +81,8 @@ describe('Spv with custom feerate', () => {
     expect(balance.lte(expectedBalance)).toStrictEqual(true)
   })
 
-  it('should not sendToAddress with feerate below minimum acceptable amount', async () => {
-    const promise = client.spv.sendToAddress(await container.call('spv_getnewaddress'), new BigNumber(0.1), { feerate: new BigNumber(999) })
+  it('should not sendToAddress with feeRate below minimum acceptable amount', async () => {
+    const promise = client.spv.sendToAddress(await container.call('spv_getnewaddress'), new BigNumber(0.1), { feeRate: new BigNumber(999) })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow("RpcApiError: 'Fee size below minimum acceptable amount', code: -8, method: spv_sendtoaddress")
   })
