@@ -3,6 +3,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 
+
 describe('Spv', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)

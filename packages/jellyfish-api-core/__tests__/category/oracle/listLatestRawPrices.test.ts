@@ -109,34 +109,6 @@ describe('Oracle', () => {
     )
   })
 
-  it('should listLatestRawPrices for timestamps 4200 seconds after the current time', async () => {
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
-
-    await container.generate(1)
-
-    const timestamp = Math.floor(new Date().getTime() / 1000) + 4200
-    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid, timestamp, prices])
-
-    await container.generate(1)
-
-    // NOTE(jingyi2811): Pagination is not supported.
-    const data = await client.oracle.listLatestRawPrices()
-
-    expect(data).toStrictEqual(
-      [
-        {
-          priceFeeds: { token: 'APPLE', currency: 'EUR' },
-          oracleid: oracleid,
-          weightage: new BigNumber(1),
-          timestamp: new BigNumber(timestamp),
-          rawprice: new BigNumber(0.5),
-          state: OracleRawPriceState.EXPIRED
-        }
-      ]
-    )
-  })
-
   it('should listLatestRawPrices for timestamps 4200 seconds before the current time', async () => {
     const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
 

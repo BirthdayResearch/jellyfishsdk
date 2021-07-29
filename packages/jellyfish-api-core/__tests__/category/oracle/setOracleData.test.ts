@@ -25,7 +25,7 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
-    const timestamp = new Date().getTime()
+    const timestamp = Math.floor(new Date().getTime() / 1000)
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     await client.oracle.setOracleData(oracleid, timestamp, { prices })
@@ -56,7 +56,7 @@ describe('Oracle', () => {
     const oracleid = 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
 
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    const promise = client.oracle.setOracleData(oracleid, new Date().getTime(), { prices })
+    const promise = client.oracle.setOracleData(oracleid, Math.floor(new Date().getTime() / 1000), { prices })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`RpcApiError: 'oracle <${oracleid as string}> not found', code: -32600, method: setoracledata`)
@@ -73,7 +73,7 @@ describe('Oracle', () => {
 
     const prices = [{ tokenAmount: '0.5@TESLA', currency: 'USD' }]
 
-    const promise = client.oracle.setOracleData(oracleid, new Date().getTime(), { prices })
+    const promise = client.oracle.setOracleData(oracleid, Math.floor(new Date().getTime() / 1000), { prices })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Test SetOracleDataTx execution failed:\ntoken <TESLA> - currency <USD> is not allowed\', code: -32600, method: setoracledata')
@@ -90,7 +90,7 @@ describe('Oracle', () => {
 
     const prices = [{ tokenAmount: '1000000000000@APPLE', currency: 'EUR' }]
 
-    const promise = client.oracle.setOracleData(oracleid, new Date().getTime(), { prices })
+    const promise = client.oracle.setOracleData(oracleid, Math.floor(new Date().getTime() / 1000), { prices })
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -22, method: setoracledata')
@@ -107,7 +107,7 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
-    const timestamp = new Date().getTime()
+    const timestamp = Math.floor(new Date().getTime() / 1000)
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     const input = await container.fundAddress(address, 10)
@@ -145,7 +145,7 @@ describe('Oracle', () => {
 
     await container.generate(1)
 
-    const timestamp = new Date().getTime()
+    const timestamp = Math.floor(new Date().getTime() / 1000)
     const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
 
     const { txid, vout } = await container.fundAddress(await container.getNewAddress(), 10)
@@ -153,5 +153,21 @@ describe('Oracle', () => {
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test SetOracleDataTx execution failed:\ntx must have at least one input from account owner\', code: -32600, method: setoracledata')
+  })
+
+  it('should return an error when setoracledata timestamp is greater than 5 minutes into the future', async () => {
+    const priceFeeds = [
+      { token: 'APPLE', currency: 'EUR' }
+    ]
+
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])
+    await container.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000) + 4200
+    const prices = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
+
+    const promise = client.oracle.setOracleData(oracleid, timestamp, { prices })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'timestamp cannot be negative, zero or over 5 minutes in the future\', code: -8')
   })
 })
