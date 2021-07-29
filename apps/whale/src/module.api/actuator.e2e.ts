@@ -73,6 +73,10 @@ describe('/_actuator/probes/readiness', () => {
           status: 'down'
         },
         model: {
+          count: {
+            defid: expect.any(Number),
+            index: expect.any(Number)
+          },
           status: 'up'
         }
       },
@@ -87,6 +91,10 @@ describe('/_actuator/probes/readiness', () => {
       },
       info: {
         model: {
+          count: {
+            defid: expect.any(Number),
+            index: expect.any(Number)
+          },
           status: 'up'
         }
       },

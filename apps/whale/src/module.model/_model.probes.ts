@@ -59,6 +59,6 @@ export class ModelProbeIndicator extends ProbeIndicator {
       return this.withDead('model', 'synced blocks are more than 5 blocks behind', details)
     }
 
-    return this.withAlive('model')
+    return this.withAlive('model', details)
   }
 }
