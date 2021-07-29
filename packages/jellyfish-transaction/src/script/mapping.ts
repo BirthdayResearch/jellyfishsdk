@@ -8,6 +8,7 @@ import { CDfTx, DfTx } from './dftx/dftx'
 import * as constants from './constants'
 import * as control from './control'
 import * as stack from './stack'
+import * as splice from './splice'
 import * as bitwise from './bitwise'
 import * as arithmetic from './arithmetic'
 import * as crypto from './crypto'
@@ -388,12 +389,12 @@ export const OP_CODES = {
   OP_SWAP: new stack.OP_SWAP(),
   OP_TUCK: new stack.OP_TUCK(),
 
-  // splice ops
-  //  OP_CAT = 0x7e,
-  //  OP_SUBSTR = 0x7f,
-  //  OP_LEFT = 0x80,
-  //  OP_RIGHT = 0x81,
-  //  OP_SIZE = 0x82,
+  // splice
+  OP_CAT: new splice.OP_CAT(),
+  OP_SUBSTR: new splice.OP_SUBSTR(),
+  OP_LEFT: new splice.OP_LEFT(),
+  OP_RIGHT: new splice.OP_RIGHT(),
+  OP_SIZE: new splice.OP_SIZE(),
 
   // bitwise
   OP_INVERT: new bitwise.OP_INVERT(),
@@ -520,6 +521,12 @@ const HEX_MAPPING: {
   0x7b: OP_CODES.OP_ROT,
   0x7c: OP_CODES.OP_SWAP,
   0x7d: OP_CODES.OP_TUCK,
+  // splice
+  0x7e: OP_CODES.OP_CAT,
+  0x7f: OP_CODES.OP_SUBSTR,
+  0x80: OP_CODES.OP_LEFT,
+  0x81: OP_CODES.OP_RIGHT,
+  0x82: OP_CODES.OP_SIZE,
   // bitwise
   0x83: OP_CODES.OP_INVERT,
   0x84: OP_CODES.OP_AND,

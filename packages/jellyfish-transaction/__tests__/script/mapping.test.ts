@@ -194,6 +194,26 @@ describe('All mapped OP_CODES are setup properly: (static, hex, num, asm)', () =
     expectOPCode(script.OP_CODES.OP_TUCK, script.OP_TUCK, 'OP_TUCK', 0x7d, '7d')
   })
 
+  it('OP_CAT', () => {
+    expectOPCode(script.OP_CODES.OP_CAT, script.OP_CAT, 'OP_CAT', 0x7e, '7e')
+  })
+
+  it('OP_SUBSTR', () => {
+    expectOPCode(script.OP_CODES.OP_SUBSTR, script.OP_SUBSTR, 'OP_SUBSTR', 0x7f, '7f')
+  })
+
+  it('OP_LEFT', () => {
+    expectOPCode(script.OP_CODES.OP_LEFT, script.OP_LEFT, 'OP_LEFT', 0x80, '80')
+  })
+
+  it('OP_RIGHT', () => {
+    expectOPCode(script.OP_CODES.OP_RIGHT, script.OP_RIGHT, 'OP_RIGHT', 0x81, '81')
+  })
+
+  it('OP_SIZE', () => {
+    expectOPCode(script.OP_CODES.OP_SIZE, script.OP_SIZE, 'OP_SIZE', 0x82, '82')
+  })
+
   it('OP_INVERT', () => {
     expectOPCode(script.OP_CODES.OP_INVERT, script.OP_INVERT, 'OP_INVERT', 0x83, '83')
   })
