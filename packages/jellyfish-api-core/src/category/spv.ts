@@ -1,7 +1,5 @@
 import { ApiClient } from '../.'
-
-export const DEFAULT_FEE_RATE = 0.000012
-export const DEFAULT_FEE_RATE_IN_SATOSHIS = 1200
+import BigNumber from 'bignumber.js'
 
 export const HTLC_MINIMUM_BLOCK_COUNT = 9
 
@@ -49,13 +47,13 @@ export class Spv {
    * Send a Bitcoin amount to a given address.
    *
    * @param {string} address Bitcoin address
-   * @param {number} amount Bitcoin amount
+   * @param {BigNumber} amount Bitcoin amount
    * @param {SendToAddressOptions} [options]
-   * @param {number} [options.feerate] Fee rate in satoshis per KB. Minimum is 1000. Defaults to 1200. See DEFAULT_FEE_RATE_IN_SATOSHIS
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
-  async sendToAddress (address: string, amount: number, options = { feerate: DEFAULT_FEE_RATE_IN_SATOSHIS }): Promise<SendMessageResult> {
-    return await this.client.call('spv_sendtoaddress', [address, amount, options.feerate], 'number')
+  async sendToAddress (address: string, amount: BigNumber, options = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+    return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
   }
 
   /**
@@ -111,7 +109,7 @@ export interface ReceivedByAddressInfo {
 }
 
 export interface SendToAddressOptions {
-  feerate: number
+  feeRate?: BigNumber
 }
 
 export interface SendMessageResult {
