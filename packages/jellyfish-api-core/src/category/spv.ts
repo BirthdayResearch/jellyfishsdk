@@ -81,6 +81,20 @@ export class Spv {
   async decodeHtlcScript (redeemScript: string): Promise<DecodeHtlcResult> {
     return await this.client.call('spv_decodehtlcscript', [redeemScript], 'number')
   }
+
+  /**
+   * Claims all coins in HTLC address.
+   *
+   * @param {string} scriptAddress HTLC address
+   * @param {string} destinationAddress Destination address to send HTLC funds to
+   * @param {ClaimHtlcOptions} options
+   * @param {string} options.seed HTLC seed
+   * @param {number} [options.feerate] Fee rate in satoshis per KB. Minimum is 1000. Defaults to 1200. See DEFAULT_FEE_RATE_IN_SATOSHIS
+   * @return {Promise<SendMessageResult>}
+   */
+  async claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult> {
+    return await this.client.call('spv_claimhtlc', [scriptAddress, destinationAddress, options.seed, options.feerate], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -132,4 +146,11 @@ export interface DecodeHtlcResult {
   blocks: number
   /** Hex-encoded seed hash */
   hash: string
+}
+
+export interface ClaimHtlcOptions {
+  /** HTLC seed */
+  seed: string
+  /** Fee rate in satoshis per KB */
+  feerate?: number
 }
