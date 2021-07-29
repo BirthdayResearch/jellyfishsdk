@@ -45,7 +45,7 @@ interface spv {
 interface ReceivedByAddressInfo {
   address: string
   type: string
-  amount: number
+  amount: BigNumber
   confirmations: number
   txids: string[]
 }

@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 /**
  * SPV RPCs for DeFi Blockchain
@@ -37,7 +38,9 @@ export class Spv {
    * @return {Promise<ReceivedByAddressInfo[]>}
    */
   async listReceivedByAddress (minConfirmation: number = 1, address?: string): Promise<ReceivedByAddressInfo[]> {
-    return await this.client.call('spv_listreceivedbyaddress', [minConfirmation, address], 'number')
+    return await this.client.call('spv_listreceivedbyaddress', [minConfirmation, address], {
+      amount: 'bignumber'
+    })
   }
 }
 
@@ -47,7 +50,7 @@ export interface ReceivedByAddressInfo {
   /** Address type */
   type: string
   /** Total amount of BTC recieved by the address */
-  amount: number
+  amount: BigNumber
   /** The number of confirmations */
   confirmations: number
   /** The ids of transactions received by the address */
