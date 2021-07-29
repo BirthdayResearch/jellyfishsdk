@@ -163,3 +163,13 @@ interface masternode {
   getGov (name: string): Promise<Record<string, any>>
 }
 ```
+
+## getActiveMasternodeCount
+
+Returns number of unique masternodes in the last specified number of blocks.
+
+```ts title="client.masternode.getActiveMasternodeCount"
+interface masternode {
+  getActiveMasternodeCount (blockCount: number = 20160): Promise<number>
+}
+```
