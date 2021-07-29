@@ -37,6 +37,7 @@ describe('Governance', () => {
     const txid = await client.governance.vote({ proposalId, masternodeId, decision: VoteDecision.YES })
     await container.generate(1)
     expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
   })
 
   it('should not vote on a proposal with a masternode that does not exist', async () => {
@@ -150,6 +151,7 @@ masternode <${masternodeId}> does not mine at least one block', code: -32600, me
     await container.generate(1)
 
     expect(typeof voteTx).toStrictEqual('string')
+    expect(voteTx.length).toStrictEqual(64)
 
     const rawtx = await container.call('getrawtransaction', [voteTx, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
