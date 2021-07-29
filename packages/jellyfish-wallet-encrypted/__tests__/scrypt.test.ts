@@ -1,4 +1,5 @@
-import { Scrypt, SimpleScryptsy } from '../src'
+import { Scrypt } from '../src'
+import { SimpleScryptsy } from './SimpleScryptsy'
 
 const scrypt = new Scrypt(new SimpleScryptsy())
 
