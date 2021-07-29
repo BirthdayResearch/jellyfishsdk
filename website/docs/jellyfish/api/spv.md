@@ -108,3 +108,23 @@ interface DecodeHtlcResult {
   hash: string
 }
 ```
+
+## claimHtlc
+
+Claims all coins in HTLC address.
+
+```ts title="client.spv.claimHtlc()"
+interface spv {
+  claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult>
+}
+
+interface ClaimHtlcOptions {
+  seed: string
+  feeRate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
+}
+```
