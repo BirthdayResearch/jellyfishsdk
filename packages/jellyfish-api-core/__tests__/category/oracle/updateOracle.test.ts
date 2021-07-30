@@ -44,7 +44,7 @@ describe('Oracle', () => {
 
     expect(data).toStrictEqual({
       weightage: 2,
-      oracleId,
+      oracleid: oracleId,
       address: expect.any(String),
       priceFeeds: updateOraclePriceFeeds,
       tokenPrices: []

@@ -148,7 +148,7 @@ export interface SetOracleDataOptions {
 }
 
 export interface OracleData {
-  oracleId: string
+  oracleid: string
   address: string
   priceFeeds: OraclePriceFeed[]
   tokenPrices: OracleTokenPrice[]
@@ -156,7 +156,7 @@ export interface OracleData {
 }
 
 export interface OracleRawPrice {
-  oracleId: string
+  oracleid: string
   priceFeeds: OraclePriceFeed
   rawprice: BigNumber
   weightage: BigNumber

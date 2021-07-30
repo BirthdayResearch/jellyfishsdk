@@ -62,13 +62,13 @@ describe('Oracle', () => {
     // NOTE(jingyi2811): Pagination is not supported.
     const data = await client.oracle.listLatestRawPrices()
 
-    const result1 = data.filter(element => element.oracleId === oracleId1)
+    const result1 = data.filter(element => element.oracleid === oracleId1)
 
     expect(result1).toStrictEqual(
       [
         {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
-          oracleId: oracleId1,
+          oracleid: oracleId1,
           weightage: new BigNumber(1),
           timestamp: new BigNumber(timestamp1),
           rawprice: new BigNumber(0.5),
@@ -76,7 +76,7 @@ describe('Oracle', () => {
         },
         {
           priceFeeds: { token: 'AAPL', currency: 'USD' },
-          oracleId: oracleId1,
+          oracleid: oracleId1,
           weightage: new BigNumber(1),
           timestamp: new BigNumber(timestamp1),
           rawprice: new BigNumber(1),
@@ -85,13 +85,13 @@ describe('Oracle', () => {
       ]
     )
 
-    const result2 = data.filter(element => element.oracleId === oracleId2)
+    const result2 = data.filter(element => element.oracleid === oracleId2)
 
     expect(result2).toStrictEqual(
       [
         {
           priceFeeds: { token: 'TSLA', currency: 'EUR' },
-          oracleId: oracleId2,
+          oracleid: oracleId2,
           weightage: new BigNumber(2),
           timestamp: new BigNumber(timestamp2),
           rawprice: new BigNumber(1.5),
@@ -99,7 +99,7 @@ describe('Oracle', () => {
         },
         {
           priceFeeds: { token: 'TSLA', currency: 'USD' },
-          oracleId: oracleId2,
+          oracleid: oracleId2,
           weightage: new BigNumber(2),
           timestamp: new BigNumber(timestamp2),
           rawprice: new BigNumber(2),
@@ -110,7 +110,10 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices for timestamps 4200 seconds before the current time', async () => {
-    const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'AAPL', currency: 'EUR' }], 1])
+    const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
 
     await container.generate(1)
 
@@ -127,7 +130,7 @@ describe('Oracle', () => {
       [
         {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
-          oracleId: oracleId,
+          oracleid: oracleId,
           weightage: new BigNumber(1),
           timestamp: new BigNumber(timestamp),
           rawprice: new BigNumber(0.5),
@@ -145,7 +148,10 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices with priceFeed as input parameter', async () => {
-    const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'AAPL', currency: 'EUR' }], 1])
+    const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
 
     await container.generate(1)
 
@@ -162,7 +168,7 @@ describe('Oracle', () => {
       [
         {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
-          oracleId,
+          oracleid: oracleId,
           weightage: new BigNumber(1),
           timestamp: new BigNumber(timestamp),
           rawprice: new BigNumber(0.5),
@@ -173,8 +179,14 @@ describe('Oracle', () => {
   })
 
   it('should listLatestRawPrices with priceFeed as input parameter if there are 2 oracles with different priceFeeds created', async () => {
-    const oracleId1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'AAPL', currency: 'EUR' }], 1])
-    const oracleId2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'TSLA', currency: 'USD' }], 2])
+    const oracleId1 = await container.call('appointoracle', [await container.getNewAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
+    const oracleId2 = await container.call('appointoracle', [await container.getNewAddress(), [{
+      token: 'TSLA',
+      currency: 'USD'
+    }], 2])
 
     await container.generate(1)
 
@@ -195,7 +207,7 @@ describe('Oracle', () => {
       [
         {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
-          oracleId: oracleId1,
+          oracleid: oracleId1,
           weightage: new BigNumber(1),
           timestamp: new BigNumber(timestamp),
           rawprice: new BigNumber(0.5),
