@@ -34,14 +34,20 @@ describe('Loan', () => {
     await container.call('createloanscheme', [200, 2, 'scheme'])
     await container.generate(1)
 
+    // NOTE(jingyi2811): before delete
+    let result = await container.call('listloanschemes')
+    let data = result.filter((r: { id: string }) => r.id === 'scheme')
+    expect(data.length).toStrictEqual(1)
+
+    // NOTE(jingyi2811): after delete
     const loanId = await client.loan.destroyLoanScheme('scheme')
     await container.generate(1)
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
 
-    const result = await container.call('listloanschemes')
-    const data = result.filter((r: { id: string }) => r.id === 'scheme')
+    result = await container.call('listloanschemes')
+    data = result.filter((r: { id: string }) => r.id === 'scheme')
     expect(data.length).toStrictEqual(0)
   })
 
@@ -49,20 +55,40 @@ describe('Loan', () => {
     await container.call('createloanscheme', [200, 2, 'scheme'])
     await container.generate(1)
 
-    await client.loan.destroyLoanScheme('scheme', 200)
+    // NOTE(jingyi2811): Wait for block 100
+    await container.waitForBlockHeight(100)
+
+    // NOTE(jingyi2811): To delete at block 200
+    const loanId = await client.loan.destroyLoanScheme('scheme', 200)
+
+    expect(typeof loanId).toStrictEqual('string')
+    expect(loanId.length).toStrictEqual(64)
+
     await container.generate(1)
 
-    // NOTE(jingyi2811): shouldn't delete
+    // NOTE(jingyi2811): shouldn't delete at block 101
     let result = await container.call('listloanschemes')
     let data = result.filter((r: { id: string }) => r.id === 'scheme')
     expect(data.length).toStrictEqual(1)
 
     await container.waitForBlockHeight(200)
 
-    // NOTE(jingyi2811): should delete
+    // NOTE(jingyi2811): should delete at block 200
     result = await container.call('listloanschemes')
     data = result.filter((r: { id: string }) => r.id === 'scheme')
     expect(data.length).toStrictEqual(0)
+  })
+
+  it('should not delete loan scheme if activateAfterBlock is lesser than current height', async () => {
+    await container.call('createloanscheme', [200, 2, 'scheme'])
+    await container.generate(1)
+
+    // NOTE(jingyi2811): Wait for block 300
+    await container.waitForBlockHeight(300)
+
+    // NOTE(jingyi2811): To delete at block 290, which should failed
+    const promise = client.loan.destroyLoanScheme('scheme', 290)
+    await expect(promise).rejects.toThrow('Destruction height below current block height, set future height\', code: -32600, method: destroyloanscheme')
   })
 
   it('should delete loan scheme with utxos', async () => {
@@ -78,8 +104,11 @@ describe('Loan', () => {
     await container.call('createloanscheme', [200, 2, 'scheme'])
     await container.generate(1)
 
-    await client.loan.destroyLoanScheme('scheme', undefined, { utxos: inputs })
+    const loanId = await client.loan.destroyLoanScheme('scheme', undefined, { utxos: inputs })
     await container.generate(1)
+
+    expect(typeof loanId).toStrictEqual('string')
+    expect(loanId.length).toStrictEqual(64)
 
     const result = await container.call('listloanschemes')
     const data = result.filter((r: { id: string }) => r.id === 'scheme')
