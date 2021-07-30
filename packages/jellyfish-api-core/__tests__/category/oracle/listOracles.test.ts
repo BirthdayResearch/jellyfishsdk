@@ -27,8 +27,8 @@ describe('Oracle', () => {
 
   it('should listOracles', async () => {
     const priceFeeds = [
-      { token: 'APPLE', currency: 'EUR' },
-      { token: 'TESLA', currency: 'USD' }
+      { token: 'AAPL', currency: 'EUR' },
+      { token: 'TSLA', currency: 'USD' }
     ]
 
     await container.call('appointoracle', [await container.getNewAddress(), priceFeeds, 1])

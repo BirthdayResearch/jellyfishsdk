@@ -18,35 +18,35 @@ describe('Oracle', () => {
   })
 
   it('should getPrice', async () => {
-    const oracleid1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 1])
-    const oracleid2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'APPLE', currency: 'EUR' }], 2])
+    const oracleId1 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'AAPL', currency: 'EUR' }], 1])
+    const oracleId2 = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'AAPL', currency: 'EUR' }], 2])
 
     await container.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
 
-    const prices1 = [{ tokenAmount: '0.5@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid1, timestamp, prices1])
+    const prices1 = [{ tokenAmount: '0.5@AAPL', currency: 'EUR' }]
+    await container.call('setoracledata', [oracleId1, timestamp, prices1])
 
-    const prices2 = [{ tokenAmount: '1.0@APPLE', currency: 'EUR' }]
-    await container.call('setoracledata', [oracleid2, timestamp, prices2])
+    const prices2 = [{ tokenAmount: '1.0@AAPL', currency: 'EUR' }]
+    await container.call('setoracledata', [oracleId2, timestamp, prices2])
 
     await container.generate(1)
 
-    const data = await client.oracle.getPrice({ token: 'APPLE', currency: 'EUR' })
+    const data = await client.oracle.getPrice({ token: 'AAPL', currency: 'EUR' })
 
     // NOTE(jingyi2811): 0.83333333 = (0.5 * 1 + 1.0 * 2) / 3
     expect(data.toString()).toStrictEqual(new BigNumber('0.83333333').toString())
   })
 
   it('should not getPrice for price timestamps 4200 seconds before the current time', async () => {
-    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'FB', currency: 'CNY' }], 1])
+    const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{ token: 'FB', currency: 'CNY' }], 1])
 
     await container.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000) - 4200
     const prices = [{ tokenAmount: '0.5@FB', currency: 'CNY' }]
-    await container.call('setoracledata', [oracleid, timestamp, prices])
+    await container.call('setoracledata', [oracleId, timestamp, prices])
 
     await container.generate(1)
 
