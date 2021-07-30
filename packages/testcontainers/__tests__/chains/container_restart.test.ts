@@ -1,22 +1,10 @@
-import { GenesisKeys, MasterNodeRegTestContainer, StartOptions } from '../src'
-
-class CustomMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
-  // NOTE(surangap): defid command line args has priority over args from defi.conf
-  protected getCmd (opts: StartOptions): string[] {
-    const cmd = super.getCmd(opts).filter(cmd => cmd !== '-dummypos=1') // remove -dummypos=1
-    return [
-      ...cmd,
-      '-dummypos=0'
-    ]
-  }
-}
+import { GenesisKeys, MasterNodeRegTestContainer } from '../../src'
 
 describe('container restart', () => {
-  const container = new CustomMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
 
   beforeEach(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
@@ -24,7 +12,7 @@ describe('container restart', () => {
     await container.stop()
   })
 
-  it('should create a masternode and mint some blocks', async () => {
+  it('should create a masternode and mint some blocks with setDeFiConf masternode_operator=', async () => {
     const masternodeCount1 = await container.call('getactivemasternodecount', [])
     expect(masternodeCount1).toBeLessThan(2)
 
@@ -32,7 +20,9 @@ describe('container restart', () => {
     await container.call('createmasternode', [address])
     await container.generate(1)
 
-    await container.stopStart(['masternode_operator=' + address])
+    await container.setDeFiConf(['masternode_operator=' + address])
+    await container.restart()
+
     await container.generate(20)
 
     // generate blocks for new masternode address

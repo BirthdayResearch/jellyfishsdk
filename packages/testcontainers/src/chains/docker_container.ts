@@ -80,7 +80,7 @@ export abstract class DockerContainer {
           reject(error)
         } else {
           exec?.start({})
-            .then(() => resolve())
+            .then(() => setTimeout(resolve, 100)) // to prevent stream race condition
             .catch(reject)
         }
       })

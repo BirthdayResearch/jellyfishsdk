@@ -14,6 +14,7 @@ export interface StartOptions {
   // TODO(fuxingloh): change to cookie based auth soon
   user?: string
   password?: string
+  timeout?: number
 }
 
 /**
@@ -66,7 +67,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Create container and start it immediately
+   * Create container and start it immediately waiting for defid to be ready
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await this.tryPullImage()
@@ -81,28 +82,21 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+    await this.waitForRpc(startOptions.timeout)
   }
 
   /**
-   * Stop the container and start again(old data intact) with passed additionalOptions.
+   * Set contents of ~/.defi/defi.conf
+   * @param {string[]} options to set
    */
-  async stopStart (additionalOptions: string[]): Promise<void> {
-    // NOTE(surangap)
-    // implement this.container?.restart() here.
-    // for some reason this.container?.restart(options) does not work. Even though the container is restrted, new command is not passed.
-    // it was the old command running again. If we could make this out, args can be directly passed with restart.
-    // Note that defid command line args has priority over args from defi.conf
-    if (additionalOptions.length > 0) {
-      let fileContents = additionalOptions.join('\n')
-      fileContents += '\n'
+  async setDeFiConf (options: string[]): Promise<void> {
+    if (options.length > 0) {
+      const fileContents = options.join('\n') + '\n'
 
       await this.exec({
         Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
       })
     }
-
-    await this.container?.stop()
-    await this.container?.start()
   }
 
   /**
@@ -231,8 +225,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Wait for everything to be ready, override for additional hooks
-   * @param {number} [timeout=15000] duration, default to 15000ms
+   * @deprecated as container.start() will automatically wait for ready now, you don't need to call this anymore
    */
   async waitForReady (timeout = 15000): Promise<void> {
     return await this.waitForRpc(timeout)
@@ -254,6 +247,17 @@ export abstract class DeFiDContainer extends DockerContainer {
         await cleanUpStale(DeFiDContainer.PREFIX, this.docker)
       }
     }
+  }
+
+  /**
+   * Restart container and wait for defid to be ready.
+   * This will stop the container and start it again with old data intact.
+   * @param {number} [timeout=15000] duration, default to 15000ms
+   */
+  async restart (timeout: number = 15000): Promise<void> {
+    await this.container?.stop()
+    await this.container?.start()
+    await this.waitForRpc(timeout)
   }
 }
 
