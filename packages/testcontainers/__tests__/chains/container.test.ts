@@ -46,12 +46,4 @@ describe('container error handling', () => {
     return await expect(container.getRpcPort())
       .rejects.toThrow(/\(HTTP code 404\) no such container - No such container:/)
   })
-
-  it('should fail waitForCondition as condition is never valid', async () => {
-    container = new RegTestContainer()
-    await container.start()
-    await container.waitForReady()
-    return await expect(container.waitForCondition(async () => false, 3000))
-      .rejects.toThrow('waitForCondition is not ready within given timeout of 3000ms.')
-  })
 })

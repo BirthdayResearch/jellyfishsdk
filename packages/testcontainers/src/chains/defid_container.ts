@@ -214,7 +214,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   private async waitForRpc (timeout = 20000): Promise<void> {
     await waitForCondition(async () => {
-      return await this.getMiningInfo().then(() => true).catch(() => false)
+      return await this.getBlockCount().then(() => true).catch(() => false)
     }, timeout)
   }
 
@@ -249,8 +249,8 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @param {number} [timeout=30000] in millis
    */
   async restart (timeout: number = 30000): Promise<void> {
-    await this.container?.stop()
-    await this.container?.start()
+    await this.container?.restart()
+    this.cachedRpcUrl = undefined
     await this.waitForRpc(timeout)
   }
 }
