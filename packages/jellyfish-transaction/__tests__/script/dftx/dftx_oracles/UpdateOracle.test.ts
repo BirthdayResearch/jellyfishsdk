@@ -22,7 +22,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a4c5c4466547874' // OP_RETURN, PUSH_DATA(6a4c5c44665478, 74)
+const header = '6a4c5c4466547874' // OP_RETURN, PUSH_DATA(5c44665478, 74)
 const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d11976a914ad1eaafdd6edcf2260f28cb31e24117c240681ca88ac05030454534c41034555520454534c41034a50590454534c4103555344'
 const updateOracle: UpdateOracle = {
   script: {

@@ -23,7 +23,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a404466547879' // OP_RETURN, PUSH_DATA(6a4044665478, 79)
+const header = '6a404466547879' // OP_RETURN, PUSH_DATA(44665478, 79)
 const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d1bc29a76000000000010454534c41010355534400e1f50500000000'
 
 const setOracleData: SetOracleData = {
