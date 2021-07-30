@@ -50,3 +50,22 @@ interface ReceivedByAddressInfo {
   txids: string[]
 }
 ```
+
+## sendToAddress
+
+Send a Bitcoin amount to a given address.
+
+```ts title="client.spv.sendToAddress()"
+interface spv {
+  sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feerate: 10000 }): Promise<SendMessageResult>
+}
+
+interface SendToAddressOptions {
+  feerate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
+}
+```
