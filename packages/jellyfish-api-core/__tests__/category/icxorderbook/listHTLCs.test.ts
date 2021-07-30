@@ -260,7 +260,7 @@ describe('ICXOrderBook.listHTLCs', () => {
     expect(Object.keys(HTLCsWithLimit1).length).toBe(2)
   })
 
-  it('should list closed HTLCs with ICXListHTLCOptions.closed parameter after HTLCs are expired', async () => {
+  it.skip('should list closed HTLCs with ICXListHTLCOptions.closed parameter after HTLCs are expired', async () => {
     jest.setTimeout(1200000)
     const startBlockHeight = (await container.call('getblockchaininfo', [])).blocks
     const { order, createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
