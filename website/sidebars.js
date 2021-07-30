@@ -20,7 +20,6 @@ module.exports = {
         'jellyfish/api/server',
         'jellyfish/api/masternode',
         'jellyfish/api/governance',
-        'jellyfish/api/spv',
         'jellyfish/api/loan'
       ]
     }

@@ -42,19 +42,6 @@ export class Spv {
       amount: 'bignumber'
     })
   }
-
-  /**
-   * Send a Bitcoin amount to a given address.
-   *
-   * @param {string} address Bitcoin address
-   * @param {BigNumber} amount Bitcoin amount
-   * @param {SendToAddressOptions} [options]
-   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
-   * @return {Promise<SendMessageResult>}
-   */
-  async sendToAddress (address: string, amount: BigNumber, options = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
-    return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
-  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -68,13 +55,4 @@ export interface ReceivedByAddressInfo {
   confirmations: number
   /** The ids of transactions received by the address */
   txids: string[]
-}
-
-export interface SendToAddressOptions {
-  feeRate?: BigNumber
-}
-
-export interface SendMessageResult {
-  txid: string
-  sendmessage: string
 }
