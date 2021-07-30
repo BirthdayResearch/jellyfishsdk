@@ -128,3 +128,13 @@ interface SendMessageResult {
   sendmessage: string
 }
 ```
+
+## getHtlcSeed
+
+Returns the HTLC secret if available.
+
+```ts title="client.spv.getHtlcSeed()"
+interface spv {
+  getHtlcSeed (address: string): Promise<string>
+}
+```
