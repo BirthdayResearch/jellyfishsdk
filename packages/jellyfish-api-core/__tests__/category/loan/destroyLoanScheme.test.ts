@@ -116,7 +116,7 @@ describe('Loan', () => {
     expect(data.length).toStrictEqual(0)
   })
 
-  it('should create loan scheme with arbritary utxos', async () => {
+  it('should not delete loan scheme with arbritary utxos', async () => {
     const { txid, vout } = await container.fundAddress(await container.call('getnewaddress'), 10)
 
     await container.call('createloanscheme', [200, 2, 'scheme'])
