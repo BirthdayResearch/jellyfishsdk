@@ -1,7 +1,8 @@
+import AbortController from 'abort-controller'
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
-import AbortController from 'abort-controller'
+import { waitForCondition } from '../wait_for_condition'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -84,11 +85,6 @@ export abstract class DeFiDContainer extends DockerContainer {
     })
     await this.container.start()
     await this.waitForRpc(startOptions.timeout)
-
-    if (startOptions.ip !== undefined) {
-      this.network = await this.getNetwork(startOptions.ip)
-      await this.network?.connect({ Container: this.container.id })
-    }
   }
 
   /**
@@ -197,6 +193,13 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
+   * Convenience method to getbestblockhash, typing mapping is non exhaustive
+   */
+  async getBestBlockHash (): Promise<string> {
+    return await this.call('getbestblockhash', [])
+  }
+
+  /**
    * Connect another node
    * @param {string} ip
    * @return {Promise<void>}
@@ -210,48 +213,9 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @param {number} [timeout=20000] in millis
    */
   private async waitForRpc (timeout = 20000): Promise<void> {
-    const expiredAt = Date.now() + timeout
-
-    return await new Promise((resolve, reject) => {
-      const checkReady = (): void => {
-        this.cachedRpcUrl = undefined
-        this.getMiningInfo().then(() => {
-          resolve()
-        }).catch(err => {
-          if (expiredAt < Date.now()) {
-            reject(new Error(`DeFiDContainer docker not ready within given timeout of ${timeout}ms.\n${err.message as string}`))
-          } else {
-            setTimeout(() => void checkReady(), 200)
-          }
-        })
-      }
-
-      checkReady()
-    })
-  }
-
-  /**
-   * @param {() => Promise<boolean>} condition to wait for true
-   * @param {number} timeout duration when condition is not met
-   * @param {number} [interval=200] duration in ms
-   */
-  async waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200): Promise<void> {
-    const expiredAt = Date.now() + timeout
-
-    return await new Promise((resolve, reject) => {
-      const checkCondition = async (): Promise<void> => {
-        const isReady = await condition().catch(() => false)
-        if (isReady) {
-          resolve()
-        } else if (expiredAt < Date.now()) {
-          reject(new Error(`waitForCondition is not ready within given timeout of ${timeout}ms.`))
-        } else {
-          setTimeout(() => void checkCondition(), interval)
-        }
-      }
-
-      void checkCondition()
-    })
+    await waitForCondition(async () => {
+      return await this.getMiningInfo().then(() => true).catch(() => false)
+    }, timeout)
   }
 
   /**
@@ -269,7 +233,6 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async stop (): Promise<void> {
     try {
-      await this.network?.disconnect({ Container: this.container?.id })
       await this.container?.stop()
     } finally {
       try {
