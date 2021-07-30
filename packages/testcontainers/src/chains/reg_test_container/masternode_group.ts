@@ -8,6 +8,7 @@ export class MasternodeGroup {
 
   public constructor (
     protected readonly containers: MasterNodeRegTestContainer[] = [],
+    protected readonly name = `testcontainers-${Math.floor(Math.random() * 10000000)}`,
     options?: DockerOptions
   ) {
     this.docker = new Dockerode(options)
@@ -20,7 +21,7 @@ export class MasternodeGroup {
   async start (): Promise<void> {
     this.network = await new Promise((resolve, reject) => {
       return this.docker.createNetwork({
-        Name: 'testcontainers',
+        Name: this.name,
         IPAM: {
           Driver: 'default',
           Config: []
@@ -58,7 +59,7 @@ export class MasternodeGroup {
     await this.requireNetwork().connect({ Container: container.id })
 
     for (const each of this.containers) {
-      await container.addNode(await each.getIp('testcontainers'))
+      await container.addNode(await each.getIp(this.name))
     }
 
     this.containers.push(container)
