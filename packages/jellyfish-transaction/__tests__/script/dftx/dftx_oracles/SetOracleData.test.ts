@@ -31,7 +31,7 @@ const setOracleData: SetOracleData = {
   timestamp: new BigNumber('1621567932'),
   tokens: [
     {
-      token: 'TESLA',
+      token: 'TSLA',
       prices: [
         {
           currency: 'USD',

@@ -38,15 +38,15 @@ const updateOracle: UpdateOracle = {
   weightage: 5,
   priceFeeds: [
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'EUR'
     },
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'JPY'
     },
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'USD'
     }
   ]
