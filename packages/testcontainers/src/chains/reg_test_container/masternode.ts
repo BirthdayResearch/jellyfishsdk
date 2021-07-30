@@ -76,6 +76,23 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
+   * This will restart the container with passed additionalStartOptions.
+   * Note that command line has the priority over the config file.
+   */
+  async restart (additionalStartOptions: string[]): Promise<void> {
+    let fileContents = additionalStartOptions.join('\n')
+    fileContents += '\n'
+
+    await this.exec({
+      Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
+    })
+
+    await this.container?.stop()
+    await this.container?.start()
+    await super.waitForReady(25000)
+  }
+
+  /**
    * Wait for block height by minting towards the target
    *
    * @param {number} height to wait for

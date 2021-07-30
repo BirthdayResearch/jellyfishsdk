@@ -27,7 +27,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:1.8.0'
+    return 'defi/defichain:HEAD-fabbb70'
   }
 
   public static readonly DefaultStartOptions = {
@@ -81,6 +81,13 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+  }
+
+  async restart (additionalStartOptions: string[]): Promise<void> {
+    // NOTE(surangap)
+    // implement this.container?.restart() here.
+    // for some reason i could not work it out. even though the container is restrted, new command is not passed.
+    // it was the old command running again. If we could make this out, args can be directly passed with restart.
   }
 
   /**
