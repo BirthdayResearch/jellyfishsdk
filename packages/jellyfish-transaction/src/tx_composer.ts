@@ -146,7 +146,26 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
     return this.data.tokenId
   }
 
+  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
+  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
+  public get nValue (): BigNumber | undefined {
+    return this.data?.nValue
+  }
+
+  public get nTokenId (): number | undefined {
+    return this.data?.nTokenId
+  }
+
   composers (vout: Vout): BufferComposer[] {
+    if (vout.nValue !== undefined && vout.nTokenId !== undefined) {
+      let nValue = vout.nValue
+      let nTokenId = vout.nTokenId
+      return [
+        ComposableBuffer.satoshiAsBigNumber(() => nValue, v => nValue = v),
+        ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
+        ComposableBuffer.varUInt(() => nTokenId, v => nTokenId = v)
+      ]
+    }
     return [
       ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
