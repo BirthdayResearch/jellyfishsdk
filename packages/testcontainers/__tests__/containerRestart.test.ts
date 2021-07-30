@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer, StartOptions } from '../src'
+import { GenesisKeys, MasterNodeRegTestContainer, StartOptions } from '../src'
 
 class CustomMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   // NOTE(surangap): defid command line args has priority over args from defi.conf
@@ -32,7 +32,7 @@ describe('container restart', () => {
     await container.call('createmasternode', [address])
     await container.generate(1)
 
-    await container.restart(['masternode_operator=' + address])
+    await container.stopStart(['masternode_operator=' + address])
     await container.generate(20)
 
     // generate blocks for new masternode address
@@ -40,5 +40,12 @@ describe('container restart', () => {
 
     const masternodeCount2 = await container.call('getactivemasternodecount', [])
     expect(masternodeCount2).toBeGreaterThan(1)
+
+    const masternodes: Record<string, any> = await container.call('listmasternodes', [])
+    Object.entries(masternodes).forEach(([, value]) => {
+      if (value.operatorAuthAddress === address || value.operatorAuthAddress === GenesisKeys[0].operator.address) {
+        expect(value.mintedBlocks).toBeGreaterThan(0)
+      }
+    })
   })
 })

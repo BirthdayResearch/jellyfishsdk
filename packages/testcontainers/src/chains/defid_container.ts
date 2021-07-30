@@ -83,11 +83,26 @@ export abstract class DeFiDContainer extends DockerContainer {
     await this.container.start()
   }
 
-  async restart (additionalStartOptions: string[]): Promise<void> {
+  /**
+   * Stop the container and start again(old data intact) with passed additionalOptions.
+   */
+  async stopStart (additionalOptions: string[]): Promise<void> {
     // NOTE(surangap)
     // implement this.container?.restart() here.
-    // for some reason i could not work it out. even though the container is restrted, new command is not passed.
+    // for some reason this.container?.restart(options) does not work. Even though the container is restrted, new command is not passed.
     // it was the old command running again. If we could make this out, args can be directly passed with restart.
+    // Note that defid command line args has priority over args from defi.conf
+    if (additionalOptions.length > 0) {
+      let fileContents = additionalOptions.join('\n')
+      fileContents += '\n'
+
+      await this.exec({
+        Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
+      })
+    }
+
+    await this.container?.stop()
+    await this.container?.start()
   }
 
   /**
