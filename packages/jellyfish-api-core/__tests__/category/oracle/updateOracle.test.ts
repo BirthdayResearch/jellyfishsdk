@@ -155,6 +155,114 @@ describe('Oracle', () => {
     ])
   })
 
+  it('should updateOracle if weightage is 0', async () => {
+    // Appoint oracle
+    const appointOraclePriceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    let oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeeds = [
+      { token: 'FB', currency: 'CNY' },
+      { token: 'MSFT', currency: 'SGD' }
+    ]
+
+    oracleid = await client.oracle.updateOracle(oracleid, await container.getNewAddress(), {
+      priceFeeds: updateOraclePriceFeeds,
+      weightage: 0
+    })
+
+    await container.generate(1)
+
+    expect(typeof oracleid).toStrictEqual('string')
+    expect(oracleid.length).toStrictEqual(64)
+  })
+
+  it('should updateOracle if weightage is 255', async () => {
+    // Appoint oracle
+    const appointOraclePriceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    let oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeeds = [
+      { token: 'FB', currency: 'CNY' },
+      { token: 'MSFT', currency: 'SGD' }
+    ]
+
+    oracleid = await client.oracle.updateOracle(oracleid, await container.getNewAddress(), {
+      priceFeeds: updateOraclePriceFeeds,
+      weightage: 255
+    })
+
+    await container.generate(1)
+
+    expect(typeof oracleid).toStrictEqual('string')
+    expect(oracleid.length).toStrictEqual(64)
+  })
+
+  it('should not updateOracle if weightage is -1', async () => {
+    // Appoint oracle
+    const appointOraclePriceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeeds = [
+      { token: 'FB', currency: 'CNY' },
+      { token: 'MSFT', currency: 'SGD' }
+    ]
+
+    const promise = client.oracle.updateOracle(oracleid, await container.getNewAddress(), {
+      priceFeeds: updateOraclePriceFeeds,
+      weightage: -1
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'the weightage value is out of bounds\', code: -25, method: updateoracle')
+  })
+
+  it('should not updateOracle if weightage is 256', async () => {
+    // Appoint oracle
+    const appointOraclePriceFeeds = [
+      { token: 'APPLE', currency: 'EUR' },
+      { token: 'TESLA', currency: 'USD' }
+    ]
+
+    const oracleid = await container.call('appointoracle', [await container.getNewAddress(), appointOraclePriceFeeds, 1])
+
+    await container.generate(1)
+
+    // Update oracle
+    const updateOraclePriceFeeds = [
+      { token: 'FB', currency: 'CNY' },
+      { token: 'MSFT', currency: 'SGD' }
+    ]
+
+    const promise = client.oracle.updateOracle(oracleid, await container.getNewAddress(), {
+      priceFeeds: updateOraclePriceFeeds,
+      weightage: 256
+    })
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'the weightage value is out of bounds\', code: -25, method: updateoracle')
+  })
+
   it('should not updateOracle with arbitrary utxos', async () => {
     // Appoint oracle
     const appointOraclePriceFeeds = [

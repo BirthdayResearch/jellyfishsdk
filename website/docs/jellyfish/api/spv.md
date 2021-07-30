@@ -22,3 +22,72 @@ interface spv {
   getNewAddress (): Promise<string>
 }
 ```
+
+## getAddressPubKey
+
+Returns a Bitcoin address' public key.
+
+```ts title="client.spv.getAddressPubKey()"
+interface spv {
+  getAddressPubKey (address: string): Promise<string>
+}
+```
+
+## listReceivedByAddress
+
+List balances by receiving address.
+
+```ts title="client.spv.listReceivedByAddress()"
+interface spv {
+  listReceivedByAddress (minConfirmation: number = 1, address?: string): Promise<ReceivedByAddressInfo[]>
+}
+
+interface ReceivedByAddressInfo {
+  address: string
+  type: string
+  amount: BigNumber
+  confirmations: number
+  txids: string[]
+}
+```
+
+## sendToAddress
+
+Send a Bitcoin amount to a given address.
+
+```ts title="client.spv.sendToAddress()"
+interface spv {
+  sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult>
+}
+
+interface SendToAddressOptions {
+  feeRate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
+}
+```
+
+## createHtlc
+
+Creates a Bitcoin address whose funds can be unlocked with a seed or as a refund.
+
+```ts title="client.spv.createHtlc()"
+interface spv {
+  createHtlc (receiverPubKey: string, ownerPubKey: string, options: CreateHtlcOptions): Promise<CreateHtlcResult>
+}
+
+interface CreateHtlcOptions {
+  timeout: string
+  seed?: string
+}
+
+interface CreateHtlcResult {
+  address: string
+  redeemScript: string
+  seed: number
+  seedhash: string
+}
+```

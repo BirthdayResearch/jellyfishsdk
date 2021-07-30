@@ -1,13 +1,22 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import {
-  HTLC, ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXGenericResult, ExtHTLC,
-  ICXListHTLCOptions, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXHTLCType
+  ExtHTLC,
+  HTLC,
+  ICXClaimDFCHTLCInfo,
+  ICXDFCHTLCInfo,
+  ICXEXTHTLCInfo,
+  ICXGenericResult,
+  ICXHTLCType,
+  ICXListHTLCOptions,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus
 } from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import {
-  accountDFI, idDFI, accountBTC, ICXSetup, symbolDFI
-} from './icx_setup'
+import { accountBTC, accountDFI, ICXSetup, idDFI, symbolDFI } from './icx_setup'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('ICXOrderBook.submitDFCHTLC', () => {
@@ -35,8 +44,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
   })
 
   afterEach(async () => {
-    // enable this after #ain/583
-    // await icxSetup.closeAllOpenOffers()
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should submit DFC HTLC for a DFC buy offer', async () => {
@@ -88,7 +96,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -167,7 +175,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(5), // lower than the amout in offer
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const DFCHTLCTxId = (await client.icxorderbook.submitDFCHTLC(DFCHTLC)).txid
     await container.generate(1)
@@ -301,7 +309,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
         amount: DFCHTLC.amount,
         amountInEXTAsset: DFCHTLC.amount.dividedBy(order.orderPrice),
         hash: DFCHTLC.hash,
-        timeout: new BigNumber(500),
+        timeout: new BigNumber(480),
         height: expect.any(BigNumber),
         refundHeight: expect.any(BigNumber)
       }
@@ -318,7 +326,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
 
     // input utxos
@@ -365,7 +373,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: 'INVALID_OFFER_TX_ID',
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const promise = client.icxorderbook.submitDFCHTLC(DFCHTLC)
 
@@ -377,7 +385,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: '123',
       amount: new BigNumber(10), // in  DFC
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const promise2 = client.icxorderbook.submitDFCHTLC(DFCHTLC2)
 
@@ -406,7 +414,7 @@ describe('ICXOrderBook.submitDFCHTLC', () => {
       offerTx: makeOfferTxId,
       amount: new BigNumber(15), // here the amount is 15 DFI, but in the offer the amount is 10 DFI
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
-      timeout: 500
+      timeout: 1440
     }
     const promise = client.icxorderbook.submitDFCHTLC(DFCHTLC)
 

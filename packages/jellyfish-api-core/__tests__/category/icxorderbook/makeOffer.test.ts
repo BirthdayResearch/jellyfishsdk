@@ -1,8 +1,24 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ICXGenericResult, ICXOfferInfo, ICXOrderInfo, ICXOffer, ICXOrder, ICXOrderStatus, ICXOrderType } from '../../../src/category/icxorderbook'
+import {
+  ICXGenericResult,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus,
+  ICXOrderType
+} from '../../../src/category/icxorderbook'
 import BigNumber from 'bignumber.js'
-import { ICXSetup, symbolDFI, accountDFI, idDFI, accountBTC, ICX_TAKERFEE_PER_BTC, DEX_DFI_PER_BTC_RATE } from './icx_setup'
+import {
+  accountBTC,
+  accountDFI,
+  DEX_DFI_PER_BTC_RATE,
+  ICX_TAKERFEE_PER_BTC,
+  ICXSetup,
+  idDFI,
+  symbolDFI
+} from './icx_setup'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('ICXOrderBook.makeOffer', () => {
@@ -27,6 +43,10 @@ describe('ICXOrderBook.makeOffer', () => {
 
   afterAll(async () => {
     await container.stop()
+  })
+
+  afterEach(async () => {
+    await icxSetup.closeAllOpenOffers()
   })
 
   it('should make an partial offer to an sell DFI order', async () => {

@@ -67,7 +67,7 @@ describe('ICXOrderBook.listOrders', () => {
     const retrivedOrder: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.getOrder(createOrderTxId)
     expect((retrivedOrder as Record<string, ICXOrderInfo>)[createOrderTxId]).toStrictEqual(
       {
-        // status: ICXOrderStatus.OPEN, //NOTE(surangap): uncomment after ain/#571
+        status: ICXOrderStatus.OPEN,
         type: ICXOrderType.INTERNAL,
         tokenFrom: symbolDFI,
         chainTo: order.chainTo,
@@ -549,14 +549,12 @@ describe('ICXOrderBook.listOrders', () => {
       }
     )
 
-    // NOTE(surangap): This list all the orders in the system which is incorrect
-    // Uncomment once C++ side is fixed.
     // list offers for Tx Id "INVALID_ORDER_TX_ID" and check
-    // const ordersForInvalidOrderTX: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: 'INVALID_ORDER_TX_ID' })
-    // expect(ordersForInvalidOrderTX).toStrictEqual(
-    //   {
-    //     WARNING: 'ICX and Atomic Swap are experimental features. You might end up losing your funds. USE IT AT YOUR OWN RISK.'
-    //   }
-    // )
+    const ordersForInvalidOrderTX: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: 'INVALID_ORDER_TX_ID' })
+    expect(ordersForInvalidOrderTX).toStrictEqual(
+      {
+        WARNING: 'ICX and Atomic Swap are experimental features. You might end up losing your funds. USE IT AT YOUR OWN RISK.'
+      }
+    )
   })
 })

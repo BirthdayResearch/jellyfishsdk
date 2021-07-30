@@ -6,10 +6,12 @@ import { OP_PUSHDATA } from './data'
 import { OP_DEFI_TX } from './dftx'
 import { CDfTx, DfTx } from './dftx/dftx'
 import * as constants from './constants'
-import * as crypto from './crypto'
 import * as control from './control'
 import * as stack from './stack'
+import * as splice from './splice'
 import * as bitwise from './bitwise'
+import * as arithmetic from './arithmetic'
+import * as crypto from './crypto'
 import * as expansion from './expansion'
 import * as invalid from './invalid'
 import {
@@ -387,12 +389,12 @@ export const OP_CODES = {
   OP_SWAP: new stack.OP_SWAP(),
   OP_TUCK: new stack.OP_TUCK(),
 
-  // splice ops
-  //  OP_CAT = 0x7e,
-  //  OP_SUBSTR = 0x7f,
-  //  OP_LEFT = 0x80,
-  //  OP_RIGHT = 0x81,
-  //  OP_SIZE = 0x82,
+  // splice
+  OP_CAT: new splice.OP_CAT(),
+  OP_SUBSTR: new splice.OP_SUBSTR(),
+  OP_LEFT: new splice.OP_LEFT(),
+  OP_RIGHT: new splice.OP_RIGHT(),
+  OP_SIZE: new splice.OP_SIZE(),
 
   // bitwise
   OP_INVERT: new bitwise.OP_INVERT(),
@@ -405,33 +407,33 @@ export const OP_CODES = {
   OP_RESERVED2: new bitwise.OP_RESERVED2(),
 
   // numeric
-  //  OP_1ADD = 0x8b,
-  //  OP_1SUB = 0x8c,
-  //  OP_2MUL = 0x8d,
-  //  OP_2DIV = 0x8e,
-  //  OP_NEGATE = 0x8f,
-  //  OP_ABS = 0x90,
-  //  OP_NOT = 0x91,
-  //  OP_0NOTEQUAL = 0x92,
-  //  OP_ADD = 0x93,
-  //  OP_SUB = 0x94,
-  //  OP_MUL = 0x95,
-  //  OP_DIV = 0x96,
-  //  OP_MOD = 0x97,
-  //  OP_LSHIFT = 0x98,
-  //  OP_RSHIFT = 0x99,
-  //  OP_BOOLAND = 0x9a,
-  //  OP_BOOLOR = 0x9b,
-  //  OP_NUMEQUAL = 0x9c,
-  //  OP_NUMEQUALVERIFY = 0x9d,
-  //  OP_NUMNOTEQUAL = 0x9e,
-  //  OP_LESSTHAN = 0x9f,
-  //  OP_GREATERTHAN = 0xa0,
-  //  OP_LESSTHANOREQUAL = 0xa1,
-  //  OP_GREATERTHANOREQUAL = 0xa2,
-  //  OP_MIN = 0xa3,
-  //  OP_MAX = 0xa4,
-  //  OP_WITHIN = 0xa5,
+  OP_1ADD: new arithmetic.OP_1ADD(),
+  OP_1SUB: new arithmetic.OP_1SUB(),
+  OP_2MUL: new arithmetic.OP_2MUL(),
+  OP_2DIV: new arithmetic.OP_2DIV(),
+  OP_NEGATE: new arithmetic.OP_NEGATE(),
+  OP_ABS: new arithmetic.OP_ABS(),
+  OP_NOT: new arithmetic.OP_NOT(),
+  OP_0NOTEQUAL: new arithmetic.OP_0NOTEQUAL(),
+  OP_ADD: new arithmetic.OP_ADD(),
+  OP_SUB: new arithmetic.OP_SUB(),
+  OP_MUL: new arithmetic.OP_MUL(),
+  OP_DIV: new arithmetic.OP_DIV(),
+  OP_MOD: new arithmetic.OP_MOD(),
+  OP_LSHIFT: new arithmetic.OP_LSHIFT(),
+  OP_RSHIFT: new arithmetic.OP_RSHIFT(),
+  OP_BOOLAND: new arithmetic.OP_BOOLAND(),
+  OP_BOOLOR: new arithmetic.OP_BOOLOR(),
+  OP_NUMEQUAL: new arithmetic.OP_NUMEQUAL(),
+  OP_NUMEQUALVERIFY: new arithmetic.OP_NUMEQUALVERIFY(),
+  OP_NUMNOTEQUAL: new arithmetic.OP_NUMNOTEQUAL(),
+  OP_LESSTHAN: new arithmetic.OP_LESSTHAN(),
+  OP_GREATERTHAN: new arithmetic.OP_GREATERTHAN(),
+  OP_LESSTHANOREQUAL: new arithmetic.OP_LESSTHANOREQUAL(),
+  OP_GREATERTHANOREQUAL: new arithmetic.OP_GREATERTHANOREQUAL(),
+  OP_MIN: new arithmetic.OP_MIN(),
+  OP_MAX: new arithmetic.OP_MAX(),
+  OP_WITHIN: new arithmetic.OP_WITHIN(),
 
   // crypto
   OP_RIPEMD160: new crypto.OP_RIPEMD160(),
@@ -519,6 +521,12 @@ const HEX_MAPPING: {
   0x7b: OP_CODES.OP_ROT,
   0x7c: OP_CODES.OP_SWAP,
   0x7d: OP_CODES.OP_TUCK,
+  // splice
+  0x7e: OP_CODES.OP_CAT,
+  0x7f: OP_CODES.OP_SUBSTR,
+  0x80: OP_CODES.OP_LEFT,
+  0x81: OP_CODES.OP_RIGHT,
+  0x82: OP_CODES.OP_SIZE,
   // bitwise
   0x83: OP_CODES.OP_INVERT,
   0x84: OP_CODES.OP_AND,
@@ -528,6 +536,34 @@ const HEX_MAPPING: {
   0x88: OP_CODES.OP_EQUALVERIFY,
   0x89: OP_CODES.OP_RESERVED1,
   0x8a: OP_CODES.OP_RESERVED2,
+  // numeric
+  0x8b: OP_CODES.OP_1ADD,
+  0x8c: OP_CODES.OP_1SUB,
+  0x8d: OP_CODES.OP_2MUL,
+  0x8e: OP_CODES.OP_2DIV,
+  0x8f: OP_CODES.OP_NEGATE,
+  0x90: OP_CODES.OP_ABS,
+  0x91: OP_CODES.OP_NOT,
+  0x92: OP_CODES.OP_0NOTEQUAL,
+  0x93: OP_CODES.OP_ADD,
+  0x94: OP_CODES.OP_SUB,
+  0x95: OP_CODES.OP_MUL,
+  0x96: OP_CODES.OP_DIV,
+  0x97: OP_CODES.OP_MOD,
+  0x98: OP_CODES.OP_LSHIFT,
+  0x99: OP_CODES.OP_RSHIFT,
+  0x9a: OP_CODES.OP_BOOLAND,
+  0x9b: OP_CODES.OP_BOOLOR,
+  0x9c: OP_CODES.OP_NUMEQUAL,
+  0x9d: OP_CODES.OP_NUMEQUALVERIFY,
+  0x9e: OP_CODES.OP_NUMNOTEQUAL,
+  0x9f: OP_CODES.OP_LESSTHAN,
+  0xa0: OP_CODES.OP_GREATERTHAN,
+  0xa1: OP_CODES.OP_LESSTHANOREQUAL,
+  0xa2: OP_CODES.OP_GREATERTHANOREQUAL,
+  0xa3: OP_CODES.OP_MIN,
+  0xa4: OP_CODES.OP_MAX,
+  0xa5: OP_CODES.OP_WITHIN,
   // crypto
   0xa6: OP_CODES.OP_RIPEMD160,
   0xa7: OP_CODES.OP_SHA1,
