@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import BigNumber from 'bignumber.js'
 
 describe('Spv', () => {
   const container = new MasterNodeRegTestContainer()
@@ -23,7 +24,8 @@ describe('Spv', () => {
     expect(listReceivedByAddress.length).toStrictEqual(1)
     expect(listReceivedByAddress[0].address).toStrictEqual(address)
     expect(listReceivedByAddress[0].type).toStrictEqual('Bech32')
-    expect(listReceivedByAddress[0].amount).toStrictEqual(1)
+    expect(listReceivedByAddress[0].amount instanceof BigNumber).toStrictEqual(true)
+    expect(listReceivedByAddress[0].amount).toStrictEqual(new BigNumber(1))
     expect(listReceivedByAddress[0].confirmations).toStrictEqual(1)
     expect(listReceivedByAddress[0].txids[0]).toStrictEqual(txid)
   })

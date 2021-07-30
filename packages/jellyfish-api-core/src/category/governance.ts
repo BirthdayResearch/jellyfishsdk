@@ -27,6 +27,12 @@ export enum ListProposalsStatus {
   ALL = 'all'
 }
 
+export enum VoteDecision {
+  YES = 'yes',
+  NO = 'no',
+  NEUTRAL = 'neutral'
+}
+
 /**
  * Governance RPCs for DeFi Blockchain
  */
@@ -94,6 +100,22 @@ export class Governance {
   } = {}): Promise<ProposalInfo[]> {
     return await this.client.call('listproposals', [type, status], 'number')
   }
+
+  /**
+   * Vote on a community proposal.
+   *
+   * @param {VoteData} data Vote data
+   * @param {string} data.proposalId Proposal id
+   * @param {number} data.masternodeId Masternode id
+   * @param {VoteDecision} data.decision Vote decision. See VoteDecision.
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] The transaction id
+   * @param {string} [utxos.vout] The output number
+   * @return {Promise<string>} txid
+   */
+  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('vote', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
+  }
 }
 
 export interface CFPData {
@@ -121,4 +143,10 @@ export interface ProposalInfo {
   totalCycles: number
   finalizeAfter: number
   payoutAddress: string
+}
+
+export interface VoteData {
+  proposalId: string
+  masternodeId: string
+  decision: VoteDecision
 }
