@@ -50,7 +50,7 @@ export class Spv {
    * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
-  async sendToAddress (address: string, amount: BigNumber, options = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+  async sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
     return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
   }
 }
