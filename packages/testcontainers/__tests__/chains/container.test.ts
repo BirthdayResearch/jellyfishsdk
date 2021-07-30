@@ -1,4 +1,4 @@
-import { RegTestContainer, DeFiDContainer, DeFiDRpcError, StartOptions } from '../../src'
+import { DeFiDContainer, DeFiDRpcError, RegTestContainer, StartOptions } from '../../src'
 
 describe('container error handling', () => {
   let container: DeFiDContainer
@@ -35,8 +35,7 @@ describe('container error handling', () => {
     }
 
     container = new InvalidCmd()
-    await container.start()
-    return expect(container.waitForReady(3000))
+    return expect(container.start({ timeout: 3000 }))
       .rejects.toThrow(/Unable to find rpc port, the container might have crashed/)
   })
 
@@ -46,13 +45,6 @@ describe('container error handling', () => {
     await container.stop()
     return await expect(container.getRpcPort())
       .rejects.toThrow(/\(HTTP code 404\) no such container - No such container:/)
-  })
-
-  it('should fail fast if wait for is set to 100ms', async () => {
-    container = new RegTestContainer()
-    await container.start()
-    await expect(container.waitForReady(100))
-      .rejects.toThrow(/DeFiDContainer docker not ready within given timeout of/)
   })
 
   it('should fail waitForCondition as condition is never valid', async () => {

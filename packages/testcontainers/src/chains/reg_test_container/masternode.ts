@@ -25,7 +25,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      '-dummypos=1',
+      '-dummypos=0',
       '-spv=1',
       `-masternode_operator=${this.masternodeKey.operator.address}`
     ]
@@ -69,7 +69,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await super.start(startOptions)
-    await super.waitForReady(25000)
 
     await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
     await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])

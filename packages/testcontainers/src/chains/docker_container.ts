@@ -66,6 +66,26 @@ export abstract class DockerContainer {
       })
     })
   }
+
+  /**
+   * tty into docker
+   */
+  async exec (opts: { Cmd: string[] }): Promise<void> {
+    return await new Promise((resolve, reject) => {
+      const container = this.requireContainer()
+      container.exec({
+        Cmd: opts.Cmd
+      }, (error, exec) => {
+        if (error instanceof Error) {
+          reject(error)
+        } else {
+          exec?.start({})
+            .then(() => setTimeout(resolve, 100)) // to prevent stream race condition
+            .catch(reject)
+        }
+      })
+    })
+  }
 }
 
 async function hasImageLocally (image: string, docker: Dockerode): Promise<boolean> {

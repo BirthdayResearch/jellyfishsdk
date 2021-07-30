@@ -14,6 +14,7 @@ export interface StartOptions {
   // TODO(fuxingloh): change to cookie based auth soon
   user?: string
   password?: string
+  timeout?: number
 }
 
 /**
@@ -27,7 +28,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:1.8.0'
+    return 'defi/defichain:HEAD-fabbb70'
   }
 
   public static readonly DefaultStartOptions = {
@@ -66,7 +67,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Create container and start it immediately
+   * Create container and start it immediately waiting for defid to be ready
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await this.tryPullImage()
@@ -81,6 +82,21 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+    await this.waitForRpc(startOptions.timeout)
+  }
+
+  /**
+   * Set contents of ~/.defi/defi.conf
+   * @param {string[]} options to set
+   */
+  async setDeFiConf (options: string[]): Promise<void> {
+    if (options.length > 0) {
+      const fileContents = options.join('\n') + '\n'
+
+      await this.exec({
+        Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
+      })
+    }
   }
 
   /**
@@ -161,9 +177,9 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * Wait for rpc to be ready
-   * @param {number} [timeout=15000] in millis
+   * @param {number} [timeout=20000] in millis
    */
-  private async waitForRpc (timeout = 15000): Promise<void> {
+  private async waitForRpc (timeout = 20000): Promise<void> {
     const expiredAt = Date.now() + timeout
 
     return await new Promise((resolve, reject) => {
@@ -209,10 +225,9 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Wait for everything to be ready, override for additional hooks
-   * @param {number} [timeout=15000] duration, default to 15000ms
+   * @deprecated as container.start() will automatically wait for ready now, you don't need to call this anymore
    */
-  async waitForReady (timeout = 15000): Promise<void> {
+  async waitForReady (timeout = 20000): Promise<void> {
     return await this.waitForRpc(timeout)
   }
 
@@ -232,6 +247,17 @@ export abstract class DeFiDContainer extends DockerContainer {
         await cleanUpStale(DeFiDContainer.PREFIX, this.docker)
       }
     }
+  }
+
+  /**
+   * Restart container and wait for defid to be ready.
+   * This will stop the container and start it again with old data intact.
+   * @param {number} [timeout=30000] in millis
+   */
+  async restart (timeout: number = 30000): Promise<void> {
+    await this.container?.stop()
+    await this.container?.start()
+    await this.waitForRpc(timeout)
   }
 }
 
