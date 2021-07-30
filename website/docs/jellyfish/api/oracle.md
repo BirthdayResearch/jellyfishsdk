@@ -114,7 +114,7 @@ interface oracle {
 }
 
 interface OracleData {
-  oracleId: string
+  oracleid: string
   address: string
   priceFeeds: OraclePriceFeed[]
   tokenPrices: OracleTokenPrice[]
@@ -159,7 +159,7 @@ enum OracleRawPriceState {
 }
 
 interface OracleRawPrice {
-  oracleId: string
+  oracleid: string
   priceFeeds: OraclePriceFeed
   rawprice: BigNumber
   weightage: BigNumber
