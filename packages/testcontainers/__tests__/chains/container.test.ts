@@ -35,8 +35,8 @@ describe('container error handling', () => {
     }
 
     container = new InvalidCmd()
-    return expect(container.start({ timeout: 3000 }))
-      .rejects.toThrow(/Unable to find rpc port, the container might have crashed/)
+    return expect(container.start({ timeout: 5000 }))
+      .rejects.toThrow(/waitForRpc is not ready within given timeout of 5000ms./)
   })
 
   it('should get error: container not found if container is stopped', async () => {

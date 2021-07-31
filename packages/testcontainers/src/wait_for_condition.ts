@@ -4,8 +4,9 @@
  * @param {() => Promise<boolean>} condition to wait for true
  * @param {number} timeout duration when condition is not met
  * @param {number} [interval=200] duration in ms
+ * @param {string} message for error
  */
-export async function waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200): Promise<void> {
+export async function waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200, message: string = 'waitForCondition'): Promise<void> {
   const expiredAt = Date.now() + timeout
 
   return await new Promise((resolve, reject) => {
@@ -14,7 +15,7 @@ export async function waitForCondition (condition: () => Promise<boolean>, timeo
       if (isReady) {
         resolve()
       } else if (expiredAt < Date.now()) {
-        reject(new Error(`waitForCondition is not ready within given timeout of ${timeout}ms.`))
+        reject(new Error(`${message} is not ready within given timeout of ${timeout}ms.`))
       } else {
         setTimeout(() => void checkCondition(), interval)
       }

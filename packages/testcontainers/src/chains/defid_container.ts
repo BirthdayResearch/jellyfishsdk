@@ -215,7 +215,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   private async waitForRpc (timeout = 20000): Promise<void> {
     await waitForCondition(async () => {
       return await this.getBlockCount().then(() => true).catch(() => false)
-    }, timeout)
+    }, timeout, 200, 'waitForRpc')
   }
 
   /**
