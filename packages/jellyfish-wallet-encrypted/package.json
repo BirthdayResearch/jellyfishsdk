@@ -36,9 +36,9 @@
   },
   "dependencies": {
     "@defichain/jellyfish-wallet-mnemonic": "0.0.0",
-    "scryptsy": "^2.1.0"
+    "scrypt-js": "^3.0.1"
   },
   "devDependencies": {
-    "@types/scryptsy": "^2.0.0"
+    "@types/scrypt-js": "^3.0.1"
   }
 }

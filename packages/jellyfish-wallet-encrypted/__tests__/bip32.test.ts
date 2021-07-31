@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { EncryptedHdNodeProvider, EncryptedMnemonicHdNode, Scrypt, SimpleScryptsy } from '../src'
+import { EncryptedHdNodeProvider, EncryptedMnemonicHdNode, PrivateKeyEncryption } from '../src'
 import { MnemonicHdNode, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic'
 import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
@@ -45,7 +45,7 @@ const prevout: Vout = {
 }
 
 describe('24 words: random with passphrase "random" (exact same test in jellyfish-wallet-mnemonic)', () => {
-  const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
+  const encryption = new PrivateKeyEncryption()
   let provider: EncryptedHdNodeProvider
 
   beforeAll(async () => {
@@ -54,10 +54,10 @@ describe('24 words: random with passphrase "random" (exact same test in jellyfis
     const data = await EncryptedHdNodeProvider.wordsToEncryptedData(
       words,
       regTestBip32Options,
-      scrypt,
+      encryption,
       passphrase
     )
-    provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, scrypt, async () => passphrase)
+    provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, encryption, async () => passphrase)
   })
 
   describe("44'/1129'/0'/0/0", () => {
@@ -139,7 +139,7 @@ describe('24 words: random with passphrase "random" (exact same test in jellyfis
 })
 
 describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted" (exact same test in jellyfish-wallet-mnemonic)', () => {
-  const scrypt = new Scrypt(new SimpleScryptsy({ N: 16384, r: 8, p: 1 }))
+  const encryption = new PrivateKeyEncryption()
   let provider: EncryptedHdNodeProvider
 
   beforeAll(async () => {
@@ -148,10 +148,10 @@ describe('24 words: abandon x23 art with passphrase "jellyfish-wallet-encrypted"
     const data = await EncryptedHdNodeProvider.wordsToEncryptedData(
       words,
       regTestBip32Options,
-      scrypt,
+      encryption,
       passphrase
     )
-    provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, scrypt, async () => passphrase)
+    provider = EncryptedHdNodeProvider.init(data, regTestBip32Options, encryption, async () => passphrase)
   })
 
   describe("44'/1129'/0'/0/0", () => {

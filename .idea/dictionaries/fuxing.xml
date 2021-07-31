@@ -133,6 +133,7 @@
       <w>nblocks</w>
       <w>networkhashps</w>
       <w>nextblockhash</w>
+      <w>nfkc</w>
       <w>nmasternode</w>
       <w>nospv</w>
       <w>notif</w>
