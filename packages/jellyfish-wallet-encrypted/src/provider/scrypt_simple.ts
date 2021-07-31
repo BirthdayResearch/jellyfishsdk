@@ -1,5 +1,5 @@
 import scrypt from 'scryptsy'
-import { ScryptProvider } from '../src/provider/scrypt_provider'
+import { ScryptProvider } from './scrypt_provider'
 
 export interface ScryptParams {
   N: number
@@ -13,6 +13,13 @@ const DEFAULT_SCRYPT_PARAMS: ScryptParams = {
   p: 8
 }
 
+/**
+ * A simple ScryptProvider implementation using
+ * {@link https://www.npmjs.com/package/scryptsy} (Javascript implementation of the scrypt key derivation)
+ *
+ * Mainly for testing and prototyping purpose
+ * Scryptsy library may not compatible with other platforms, eg: react-native
+ */
 export class SimpleScryptsy implements ScryptProvider {
   constructor (private readonly params: ScryptParams = DEFAULT_SCRYPT_PARAMS) {
   }

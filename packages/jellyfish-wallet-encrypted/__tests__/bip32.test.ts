@@ -1,9 +1,8 @@
 import BigNumber from 'bignumber.js'
-import { EncryptedHdNodeProvider, EncryptedMnemonicHdNode, Scrypt } from '../src'
+import { EncryptedHdNodeProvider, EncryptedMnemonicHdNode, Scrypt, SimpleScryptsy } from '../src'
 import { MnemonicHdNode, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic'
 import { OP_CODES, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
-import { SimpleScryptsy } from './SimpleScryptsy'
 
 const regTestBip32Options = {
   bip32: {
