@@ -29,13 +29,12 @@ describe('Masternode', () => {
 
     const masternodesAfter = await client.masternode.listMasternodes()
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
-    const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
-
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
 
+    const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
     for (const mn of createdMasternode) {
-      expect(typeof mn.ownerAuthAddress).toStrictEqual('string')
-      expect(typeof mn.operatorAuthAddress).toStrictEqual('string')
+      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+      expect(mn.operatorAuthAddress).toStrictEqual(ownerAddress)
       expect(typeof mn.creationHeight).toStrictEqual('number')
       expect(typeof mn.resignHeight).toStrictEqual('number')
       expect(typeof mn.resignTx).toStrictEqual('string')
@@ -48,6 +47,28 @@ describe('Masternode', () => {
       expect(typeof mn.localMasternode).toStrictEqual('boolean')
       expect(typeof mn.operatorIsMine).toStrictEqual('boolean')
       expect(mn.operatorIsMine).toStrictEqual(true)
+    }
+  })
+
+  it('should createMasternode /w operator address', async () => {
+    const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
+
+    const ownerAddress = await client.wallet.getNewAddress()
+    const operatorAddress = await client.wallet.getNewAddress()
+    const hex = await client.masternode.createMasternode(ownerAddress, operatorAddress)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    const masternodesLengthAfter = Object.keys(masternodesAfter).length
+    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
+
+    const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
+    for (const mn of createdMasternode) {
+      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+      expect(mn.operatorAuthAddress).toStrictEqual(operatorAddress)
     }
   })
 

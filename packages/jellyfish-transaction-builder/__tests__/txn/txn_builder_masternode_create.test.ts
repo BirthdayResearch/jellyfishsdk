@@ -9,7 +9,7 @@ import {
   fundEllipticPair,
   sendTransaction
 } from '../test.utils'
-import { HASH160 } from '@defichain/jellyfish-crypto'
+// import { HASH160 } from '@defichain/jellyfish-crypto'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -44,8 +44,8 @@ beforeEach(async () => {
 })
 
 it('should create', async () => {
-  // const masternodesBefore = await jsonRpc.masternode.listMasternodes()
-  // console.log('masternodesBefore: ', masternodesBefore.length)
+  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+  console.log('masternodesBefore: ', masternodesBefore.length)
 
   const address = await container.getNewAddress('', 'legacy')
   const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
@@ -85,20 +85,19 @@ it('should create', async () => {
 
   await container.generate(1)
 
-  // const masternodesAfter = await jsonRpc.masternode.listMasternodes()
-  // console.log('masternodesAfter: ', masternodesAfter.length)
+  const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+  console.log('masternodesAfter: ', masternodesAfter.length)
 })
 
 it.only('should create with operator address', async () => {
   const masternodesBefore = await jsonRpc.masternode.listMasternodes()
   console.log('masternodesBefore: ', masternodesBefore.length)
 
-  const operatorPubKey = await providers.ellipticPair.publicKey()
-  console.log('operatorPubKey: ', operatorPubKey.toString('hex'))
+  // const operatorPubKey = await providers.ellipticPair.publicKey()
+  // console.log('operatorPubKey: ', operatorPubKey.toString('hex'))
 
-  const operatorPubKeyHash = `${HASH160(operatorPubKey).toString('hex')}`
-  console.log('operatorPubKeyHash: ', operatorPubKeyHash)
-  // 2679c28d803f75e91f41132f4397dd4b76d9049d
+  // const operatorPubKeyHash = `${HASH160(operatorPubKey).toString('hex')}`
+  // console.log('operatorPubKeyHash: ', operatorPubKeyHash)
 
   const address = await container.getNewAddress('', 'legacy')
   console.log('address: ', address)
@@ -108,6 +107,15 @@ it.only('should create with operator address', async () => {
   // const collateralPubKeyHash = addressDest.pubKeyHash
   const collateralPubKeyHash = addressDest.hex
   console.log('collateralPubKeyHash: ', collateralPubKeyHash)
+
+  const operatorAddr = await container.getNewAddress('', 'legacy')
+  console.log('operatorAddr: ', operatorAddr)
+
+  const operatorAddrDest: P2PKH = P2PKH.fromAddress(RegTest, operatorAddr, P2PKH)
+  console.log('operatorAddrDest: ', operatorAddrDest)
+  // const collateralPubKeyHash = addressDest.pubKeyHash
+  const operatorPubKeyHash = operatorAddrDest.hex
+  console.log('operatorPubKeyHash: ', operatorPubKeyHash)
 
   const createMasternode: CreateMasterNode = {
     type: 0x01,
@@ -128,6 +136,11 @@ it.only('should create with operator address', async () => {
       nTokenId: v.tokenId
     }
   })
+
+  // ApplyCustomTx / RevertCustomTx
+  // CustomMetadataParse
+  // CCustomMetadataParseVisitor
+  // CCreateMasterNodeMessage -> serialize -> deserialization failed: excess 20 bytes
 
   const outs = await sendTransaction(container, txn)
   console.log('outs: ', outs)
