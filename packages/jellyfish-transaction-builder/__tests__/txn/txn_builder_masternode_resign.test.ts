@@ -4,6 +4,7 @@ import { ResignMasterNode } from '@defichain/jellyfish-transaction'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
+import { MasternodeState } from '../../../jellyfish-api-core/src/category/masternode'
 import {
   fundEllipticPair,
   sendTransaction
@@ -43,9 +44,12 @@ it('should resign', async () => {
   const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
   await container.generate(1)
 
-  const masternodes = await jsonRpc.masternode.listMasternodes()
-  const createdMasternode = Object.values(masternodes).find(mn => mn.ownerAuthAddress === collateralAddress)
-  expect(createdMasternode).not.toBeUndefined()
+  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+  const createdMasternodeBefore = Object.values(masternodesBefore).find(mn => mn.ownerAuthAddress === collateralAddress)
+  if (createdMasternodeBefore === undefined) {
+    throw new Error('should not reach here')
+  }
+  expect(createdMasternodeBefore.state).toStrictEqual(MasternodeState.PRE_ENABLED)
 
   // here fund again to create transaction
   await fundEllipticPair(container, providers.ellipticPair, 10)
@@ -65,6 +69,15 @@ it('should resign', async () => {
   expect(outs[0].scriptPubKey.hex.startsWith('6a254466547852')).toBeTruthy()
   expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
   expect(outs[0].tokenId).toStrictEqual(0)
+
+  await container.generate(1)
+
+  const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+  const createdMasternodeAfter = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === collateralAddress)
+  if (createdMasternodeAfter === undefined) {
+    throw new Error('should not reach here')
+  }
+  expect(createdMasternodeAfter.state).toStrictEqual(MasternodeState.PRE_RESIGNED)
 })
 
 it('should be failed as tx must have at least one input from owner', async () => {

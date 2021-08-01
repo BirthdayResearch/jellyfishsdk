@@ -123,4 +123,11 @@ describe('Masternode', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`operatorAddress (${ownerAddress}) does not refer to a P2PKH or P2WPKH address`)
   })
+
+  it('should be failed as invalid address is not allowed', async () => {
+    const invalidAddress = 'INVALID_ADDRESS'
+    const promise = client.masternode.createMasternode(invalidAddress)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`operatorAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
+  })
 })
