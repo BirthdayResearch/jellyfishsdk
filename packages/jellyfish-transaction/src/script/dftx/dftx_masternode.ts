@@ -7,9 +7,8 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
  * CreateMasterNode DeFi Transaction
  */
 export interface CreateMasterNode {
-  type: number // ----------------------------------| 1 byte, if 0x01 p2pkh, otherwise = p2wpkh
-  collateralPubKeyHash: string // ------------------| VarUInt{20 bytes}
-  operatorPubKeyHash?: string // -------------------| VarUInt{20 bytes}, p2pkh only, optional, use collateral pkh as default
+  type: number // ----------------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
+  operatorAuthAddress: string // -------------------| VarUInt{20 bytes}
 }
 
 /**
@@ -23,8 +22,7 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
   composers (cmn: CreateMasterNode): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => cmn.type, v => cmn.type = v),
-      ComposableBuffer.hex(20, () => cmn.collateralPubKeyHash, v => cmn.collateralPubKeyHash = v),
-      ComposableBuffer.optionalHex(20, () => cmn.operatorPubKeyHash, v => cmn.operatorPubKeyHash = v)
+      ComposableBuffer.hex(20, () => cmn.operatorAuthAddress, v => cmn.operatorAuthAddress = v)
     ]
   }
 }

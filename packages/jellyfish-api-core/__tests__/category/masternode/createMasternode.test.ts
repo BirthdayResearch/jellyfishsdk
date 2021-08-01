@@ -1,6 +1,8 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasternodeState } from '../../../src/category/masternode'
+import { AddressType } from '../../../src/category/wallet'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,7 +18,7 @@ describe('Masternode', () => {
     await container.stop()
   })
 
-  it('should createMasternode ', async () => {
+  it('should createMasternode with bech32 address', async () => {
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
     const ownerAddress = await client.wallet.getNewAddress()
@@ -31,26 +33,27 @@ describe('Masternode', () => {
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
 
-    const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
-    for (const mn of createdMasternode) {
-      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
-      expect(mn.operatorAuthAddress).toStrictEqual(ownerAddress)
-      expect(typeof mn.creationHeight).toStrictEqual('number')
-      expect(typeof mn.resignHeight).toStrictEqual('number')
-      expect(typeof mn.resignTx).toStrictEqual('string')
-      expect(typeof mn.banTx).toStrictEqual('string')
-      expect(mn.state).toStrictEqual(MasternodeState.PRE_ENABLED)
-      expect(typeof mn.state).toStrictEqual('string')
-      expect(typeof mn.mintedBlocks).toStrictEqual('number')
-      expect(typeof mn.ownerIsMine).toStrictEqual('boolean')
-      expect(mn.ownerIsMine).toStrictEqual(true)
-      expect(typeof mn.localMasternode).toStrictEqual('boolean')
-      expect(typeof mn.operatorIsMine).toStrictEqual('boolean')
-      expect(mn.operatorIsMine).toStrictEqual(true)
+    const mn = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === ownerAddress)
+    if (mn === undefined) {
+      throw new Error('should not reach here')
     }
+    expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+    expect(mn.operatorAuthAddress).toStrictEqual(ownerAddress)
+    expect(typeof mn.creationHeight).toStrictEqual('number')
+    expect(typeof mn.resignHeight).toStrictEqual('number')
+    expect(typeof mn.resignTx).toStrictEqual('string')
+    expect(typeof mn.banTx).toStrictEqual('string')
+    expect(mn.state).toStrictEqual(MasternodeState.PRE_ENABLED)
+    expect(typeof mn.state).toStrictEqual('string')
+    expect(typeof mn.mintedBlocks).toStrictEqual('number')
+    expect(typeof mn.ownerIsMine).toStrictEqual('boolean')
+    expect(mn.ownerIsMine).toStrictEqual(true)
+    expect(typeof mn.localMasternode).toStrictEqual('boolean')
+    expect(typeof mn.operatorIsMine).toStrictEqual('boolean')
+    expect(mn.operatorIsMine).toStrictEqual(true)
   })
 
-  it('should createMasternode /w operator address', async () => {
+  it('should createMasternode with operator bech32 address', async () => {
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
     const ownerAddress = await client.wallet.getNewAddress()
@@ -65,33 +68,59 @@ describe('Masternode', () => {
     const masternodesLengthAfter = Object.keys(masternodesAfter).length
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
 
-    const createdMasternode = Object.values(masternodesAfter).filter(mn => mn.ownerAuthAddress === ownerAddress)
-    for (const mn of createdMasternode) {
-      expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
-      expect(mn.operatorAuthAddress).toStrictEqual(operatorAddress)
+    const mn = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === ownerAddress)
+    if (mn === undefined) {
+      throw new Error('should not reach here')
     }
+    expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+    expect(mn.operatorAuthAddress).toStrictEqual(operatorAddress)
   })
 
-  it('should createMasternode with specified UTXOS', async () => {
+  it('should createMasternode with utxos', async () => {
     const ownerAddress = await client.wallet.getNewAddress()
-    const { txid } = await container.fundAddress(ownerAddress, 10)
+    await container.fundAddress(ownerAddress, 10)
+    const utxos = await container.call('listunspent')
+    const utxo = utxos.find((utxo: any) => utxo.address === ownerAddress)
 
-    const utxos = await client.wallet.listUnspent()
-    const utxosBeforeLength = utxos.length
+    const txid = await client.masternode.createMasternode(
+      ownerAddress, ownerAddress, { utxos: [{ txid: utxo.txid, vout: utxo.vout }] }
+    )
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
 
-    const inputs = utxos.filter((utxos) => utxos.txid === txid)
-      .map((utxo: { txid: string, vout: number }) => ({ txid: utxo.txid, vout: utxo.vout }))
-    const hex = await client.masternode.createMasternode(ownerAddress, ownerAddress, { utxos: inputs })
+    await container.generate(1)
 
+    const rawtx = await container.call('getrawtransaction', [txid, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
+  })
+
+  it('should createMasternode with legacy address', async () => {
+    const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
+
+    const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+
+    const hex = await client.masternode.createMasternode(ownerAddress)
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
-    const utxosAfterLength = (await client.wallet.listUnspent()).length
-    expect(utxosAfterLength).toBeLessThan((utxosBeforeLength))
+    await container.generate(1)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    const masternodesLengthAfter = Object.keys(masternodesAfter).length
+    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
+
+    const mn = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === ownerAddress)
+    if (mn === undefined) {
+      throw new Error('should not reach here')
+    }
+    expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
   })
 
-  it('should throw an error with invalid owner address', async () => {
-    const invalidAddress = 'invalidAddress'
-    await expect(client.masternode.createMasternode(invalidAddress)).rejects.toThrow('operatorAddress (invalidAddress) does not refer to a P2PKH or P2WPKH address')
+  it('should be failed as p2sh address is not allowed', async () => {
+    const ownerAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
+
+    const promise = client.masternode.createMasternode(ownerAddress)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`operatorAddress (${ownerAddress}) does not refer to a P2PKH or P2WPKH address`)
   })
 })
