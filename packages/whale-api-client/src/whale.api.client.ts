@@ -27,8 +27,9 @@ export interface WhaleApiClientOptions {
 
   /**
    * Version of API
+   * `v{major}.{minor}`: `v${number}.${number}`
    */
-  version?: `v${number}.${number}`
+  version?: string
 
   /**
    * Network that whale client is configured to
