@@ -42,14 +42,14 @@ it('should resign', async () => {
   const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
 
   const txid = await jsonRpc.masternode.createMasternode(collateralAddress)
-  await container.generate(1)
+  await container.generate(30)
 
   const masternodesBefore = await jsonRpc.masternode.listMasternodes()
   const createdMasternodeBefore = Object.values(masternodesBefore).find(mn => mn.ownerAuthAddress === collateralAddress)
   if (createdMasternodeBefore === undefined) {
     throw new Error('should not reach here')
   }
-  expect(createdMasternodeBefore.state).toStrictEqual(MasternodeState.PRE_ENABLED)
+  expect(createdMasternodeBefore.state).toStrictEqual(MasternodeState.ENABLED)
 
   // here fund again to create transaction
   await fundEllipticPair(container, providers.ellipticPair, 10)

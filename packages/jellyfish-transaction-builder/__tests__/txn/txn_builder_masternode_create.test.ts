@@ -1,8 +1,8 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
-import { CreateMasterNode } from '@defichain/jellyfish-transaction'
+import { OP_CODES, CreateMasterNode } from '@defichain/jellyfish-transaction'
 import { P2PKH, P2SH, P2WPKH } from '@defichain/jellyfish-address'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import {
@@ -66,6 +66,8 @@ it('should create with P2PKH address', async () => {
       nTokenId: v.tokenId
     }
   })
+  const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
+  const expectedRedeemScript = `6a${encoded}`
 
   const outs = await sendTransaction(container, txn)
   expect(outs.length).toStrictEqual(2)
@@ -73,7 +75,7 @@ it('should create with P2PKH address', async () => {
   expect(outs[0].n).toStrictEqual(0)
   expect(outs[0].tokenId).toStrictEqual(0)
   expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
-  expect(outs[0].scriptPubKey.hex.startsWith('6a1a4466547843')).toBeTruthy()
+  expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
   expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
   expect(outs[1].value).toStrictEqual(2)
@@ -99,7 +101,7 @@ it('should create with PKWPKH', async () => {
   const addressDestKeyHash = addressDest.pubKeyHash
 
   const createMasternode: CreateMasterNode = {
-    type: 0x01,
+    type: 0x04,
     operatorAuthAddress: addressDestKeyHash
   }
 
@@ -116,6 +118,8 @@ it('should create with PKWPKH', async () => {
       nTokenId: v.tokenId
     }
   })
+  const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
+  const expectedRedeemScript = `6a${encoded}`
 
   const outs = await sendTransaction(container, txn)
   expect(outs.length).toStrictEqual(2)
@@ -123,7 +127,7 @@ it('should create with PKWPKH', async () => {
   expect(outs[0].n).toStrictEqual(0)
   expect(outs[0].tokenId).toStrictEqual(0)
   expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
-  expect(outs[0].scriptPubKey.hex.startsWith('6a1a4466547843')).toBeTruthy()
+  expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
   expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
   expect(outs[1].value).toStrictEqual(2)
@@ -138,20 +142,13 @@ it('should create with PKWPKH', async () => {
   expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
 })
 
-// ISSUE(canonbrother): other than P2PKH and P2WPKH, should fail
-it.skip('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
-  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
-  console.log('masternodesBefore: ', masternodesBefore.length)
-
+it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
   const address = await container.getNewAddress('', 'p2sh-segwit')
-  console.log('address: ', address)
   const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
-  console.log('addressDest: ', addressDest)
   const addressDestKeyHash = addressDest.hex
-  console.log('addressDestKeyHash: ', addressDestKeyHash)
 
   const createMasternode: CreateMasterNode = {
-    type: 0x01,
+    type: 0x02,
     operatorAuthAddress: addressDestKeyHash
   }
 
@@ -169,10 +166,7 @@ it.skip('should be failed if address is P2SH, other than P2PKH AND P2WPKH', asyn
     }
   })
 
-  try {
-    const outs = await sendTransaction(container, txn)
-    console.log('outs: ', outs)
-  } catch (err) {
-    console.log('err: ', err)
-  }
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('CreateMasternodeTx: bad owner and|or operator address (should be P2PKH or P2WPKH only) or node with those addresses exists')
 })
