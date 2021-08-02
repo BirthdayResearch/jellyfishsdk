@@ -114,9 +114,7 @@ Configurations required when introducing new package:
 
 1. root `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
 2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.json here
-3. root `jest.config.js` - `moduleNameMapper` - update accordingly for allowing test case to use
-   same `import from <sub-package-name>` syntax
-4. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is
+3. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is
    configured `tsc -b ./tsconfig.build.json`
 
 ### Testing

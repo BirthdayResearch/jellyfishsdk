@@ -18,7 +18,9 @@ module.exports = {
     '@defichain/testcontainers': '<rootDir>/packages/testcontainers/src',
     '@defichain/testing': '<rootDir>/packages/testing/src'
   },
-  testTimeout: 600000,
+  verbose: true,
+  clearMocks: true,
+  testTimeout: 180000,
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '.*/__tests__/.*'
