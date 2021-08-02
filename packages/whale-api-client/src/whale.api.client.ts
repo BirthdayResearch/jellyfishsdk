@@ -12,6 +12,7 @@ import { Tokens } from './api/tokens'
 import { Masternodes } from './api/masternodes'
 import { Blocks } from './api/blocks'
 import { Oracles } from './api/oracles'
+import { Prices } from './api/prices'
 
 /**
  * WhaleApiClient Options
@@ -66,6 +67,7 @@ export class WhaleApiClient {
   public readonly masternodes = new Masternodes(this)
   public readonly blocks = new Blocks(this)
   public readonly oracles = new Oracles(this)
+  public readonly prices = new Prices(this)
 
   constructor (
     protected readonly options: WhaleApiClientOptions

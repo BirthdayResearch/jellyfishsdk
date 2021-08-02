@@ -39,7 +39,7 @@ describe('oracles', () => {
     prices: Array<Array<{ tokenAmount: string, currency: string }>>
   }
 
-  const oracles: Record<string, OracleSetup> = {
+  const setups: Record<string, OracleSetup> = {
     a: {
       id: undefined as any,
       address: undefined as any,
@@ -110,7 +110,7 @@ describe('oracles', () => {
   }
 
   beforeAll(async () => {
-    for (const setup of Object.values(oracles)) {
+    for (const setup of Object.values(setups)) {
       setup.address = await container.getNewAddress()
       setup.id = await rpcClient.oracle.appointOracle(setup.address, setup.feed, {
         weightage: setup.weightage
@@ -118,7 +118,7 @@ describe('oracles', () => {
       await container.generate(1)
     }
 
-    for (const setup of Object.values(oracles)) {
+    for (const setup of Object.values(setups)) {
       for (const price of setup.prices) {
         const timestamp = Math.floor(new Date().getTime() / 1000)
         await rpcClient.oracle.setOracleData(setup.id, timestamp, {
@@ -134,88 +134,88 @@ describe('oracles', () => {
   })
 
   it('should list', async () => {
-    const oracles = await apiClient.oracles.list()
-
-    expect(oracles.length).toStrictEqual(3)
-    expect(oracles[0]).toStrictEqual({
-      id: expect.stringMatching(/[0-f]{64}/),
-      weightage: expect.any(Number),
-      priceFeeds: expect.any(Array),
-      block: {
-        hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number),
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
+    const prices = await apiClient.prices.list()
+    expect(prices.length).toStrictEqual(4)
+    expect(prices[0]).toStrictEqual({
+      id: 'TB-USD',
+      sort: '000000030000006eTB-USD',
+      price: {
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          medianTime: expect.any(Number),
+          time: expect.any(Number)
+        },
+        currency: 'USD',
+        token: 'TB',
+        id: 'TB-USD-110',
+        key: 'TB-USD',
+        sort: expect.any(String),
+        aggregated: {
+          amount: '2.30000000',
+          weightage: 3,
+          oracles: {
+            active: 2,
+            total: 3
+          }
+        }
       }
     })
   })
 
-  it('should get oracle a TA-USD feed', async () => {
-    const feed = await apiClient.oracles.getPriceFeed(oracles.a.id, 'TA', 'USD')
-
-    expect(feed.length).toStrictEqual(3)
-    expect(feed[0]).toStrictEqual({
-      id: expect.any(String),
-      key: expect.any(String),
-      sort: expect.any(String),
-      amount: expect.any(String),
-      currency: 'USD',
-      token: 'TA',
-      time: expect.any(Number),
-      oracleId: oracles.a.id,
-      txid: expect.stringMatching(/[0-f]{64}/),
-      block: {
-        hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number),
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      }
+  describe('TA-USD', () => {
+    it('should get ticker', async () => {
+      const ticker = await apiClient.prices.get('TA', 'USD')
+      expect(ticker).toStrictEqual({
+        id: 'TA-USD',
+        sort: '000000030000006eTA-USD',
+        price: {
+          block: {
+            hash: expect.stringMatching(/[0-f]{64}/),
+            height: expect.any(Number),
+            medianTime: expect.any(Number),
+            time: expect.any(Number)
+          },
+          aggregated: {
+            amount: '1.30000000',
+            weightage: 3,
+            oracles: {
+              active: 2,
+              total: 3
+            }
+          },
+          currency: 'USD',
+          token: 'TA',
+          id: 'TA-USD-110',
+          key: 'TA-USD',
+          sort: expect.any(String)
+        }
+      })
     })
-  })
 
-  it('should get oracle a TB-USD feed', async () => {
-    const feed = await apiClient.oracles.getPriceFeed(oracles.a.id, 'TB', 'USD')
-
-    expect(feed.length).toStrictEqual(3)
-    expect(feed[0]).toStrictEqual({
-      id: expect.any(String),
-      key: expect.any(String),
-      sort: expect.any(String),
-      amount: expect.any(String),
-      currency: 'USD',
-      token: 'TB',
-      time: expect.any(Number),
-      oracleId: oracles.a.id,
-      txid: expect.stringMatching(/[0-f]{64}/),
-      block: {
-        hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number),
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      }
+    it('should get feeds', async () => {
+      const feeds = await apiClient.prices.getFeed('TA', 'USD')
+      expect(feeds.length).toStrictEqual(6)
     })
-  })
 
-  it('should get oracle b TB-USD feed', async () => {
-    const feed = await apiClient.oracles.getPriceFeed(oracles.b.id, 'TB', 'USD')
+    it('should get oracles', async () => {
+      const oracles = await apiClient.prices.getOracles('TA', 'USD')
+      expect(oracles.length).toStrictEqual(3)
 
-    expect(feed.length).toStrictEqual(2)
-    expect(feed[0]).toStrictEqual({
-      id: expect.any(String),
-      key: expect.any(String),
-      sort: expect.any(String),
-      amount: '2.5',
-      currency: 'USD',
-      token: 'TB',
-      time: expect.any(Number),
-      oracleId: oracles.b.id,
-      txid: expect.stringMatching(/[0-f]{64}/),
-      block: {
-        hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number),
-        medianTime: expect.any(Number),
-        time: expect.any(Number)
-      }
+      expect(oracles[0]).toStrictEqual({
+        id: expect.stringMatching(/TA-USD-[0-f]{64}/),
+        key: 'TA-USD',
+        oracleId: expect.stringMatching(/[0-f]{64}/),
+        token: 'TA',
+        currency: 'USD',
+        weightage: expect.any(Number),
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          medianTime: expect.any(Number),
+          time: expect.any(Number)
+        }
+      })
     })
   })
 })
