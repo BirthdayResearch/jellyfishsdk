@@ -114,7 +114,9 @@ describe('getAggregation', () => {
       },
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),
@@ -193,7 +195,9 @@ describe('listTransactions', () => {
     expect(response.data[5]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),
@@ -261,7 +265,9 @@ describe('listTransactions', () => {
     expect(response.data[1]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),
@@ -350,7 +356,9 @@ describe('listTransactionsUnspent', () => {
     expect(response.data[3]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),
@@ -398,7 +406,9 @@ describe('listTransactionsUnspent', () => {
     expect(response.data[1]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),

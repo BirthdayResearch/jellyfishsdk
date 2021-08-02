@@ -73,6 +73,8 @@ export interface ScriptActivity extends Model {
   block: {
     hash: string
     height: number
+    time: number
+    medianTime: number
   }
 
   script: {

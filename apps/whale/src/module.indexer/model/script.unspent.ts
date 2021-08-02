@@ -62,7 +62,9 @@ export class ScriptUnspentIndexer extends Indexer {
       sort: HexEncoder.encodeHeight(block.height) + txn.txid + HexEncoder.encodeVoutIndex(vout.n),
       block: {
         hash: block.hash,
-        height: block.height
+        height: block.height,
+        time: block.time,
+        medianTime: block.mediantime
       },
       script: {
         type: vout.scriptPubKey.type,
@@ -84,7 +86,9 @@ export class ScriptUnspentIndexer extends Indexer {
       sort: HexEncoder.encodeHeight(txn.block.height) + txn.txid + HexEncoder.encodeVoutIndex(vout.n),
       block: {
         hash: txn.block.hash,
-        height: txn.block.height
+        height: txn.block.height,
+        time: txn.block.time,
+        medianTime: txn.block.medianTime
       },
       script: {
         type: vout.script.type,
