@@ -69,3 +69,25 @@ interface SendMessageResult {
   sendmessage: string
 }
 ```
+
+## createHtlc
+
+Creates a Bitcoin address whose funds can be unlocked with a seed or as a refund.
+
+```ts title="client.spv.createHtlc()"
+interface spv {
+  createHtlc (receiverPubKey: string, ownerPubKey: string, options: CreateHtlcOptions): Promise<CreateHtlcResult>
+}
+
+interface CreateHtlcOptions {
+  timeout: string
+  seedhash?: string
+}
+
+interface CreateHtlcResult {
+  address: string
+  redeemScript: string
+  seed?: number
+  seedhash?: string
+}
+```
