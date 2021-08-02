@@ -1,8 +1,10 @@
 import { Cache } from 'cache-manager'
 
-export class GlobalCache {
-  static TTL_SECONDS = 600
+export interface CacheOption {
+  ttl?: number
+}
 
+export class GlobalCache {
   constructor (protected readonly cacheManager: Cache) {
   }
 
@@ -12,12 +14,14 @@ export class GlobalCache {
    * @param {number} prefix to prevent key collision
    * @param {string[]} ids to batch get from cache
    * @param {(id: string) => Promise<T | undefined>} fetch if miss cache
+   * @param {GlobalCache} options
+   * @param {number} [options.ttl=600] cache ttl, 600 seconds
    * @return Promise<Record<string, T | undefined>>
    */
-  async batch<T> (prefix: number, ids: string[], fetch: (id: string) => Promise<T | undefined>): Promise<Record<string, T | undefined>> {
+  async batch<T> (prefix: number, ids: string[], fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<Record<string, T | undefined>> {
     const records: Record<string, T | undefined> = {}
     for (const id of ids) {
-      records[id] = await this.get(prefix, id, fetch)
+      records[id] = await this.get(prefix, id, fetch, options)
     }
     return records
   }
@@ -28,9 +32,11 @@ export class GlobalCache {
    * @param {number} prefix to prevent key collision
    * @param {string} id to get from cache
    * @param {(id: string) => Promise<T | undefined>} fetch if miss cache
+   * @param {GlobalCache} options
+   * @param {number} [options.ttl=600] cache ttl, 600 seconds
    * @return {Promise<T | undefined>}
    */
-  async get<T> (prefix: number, id: string, fetch: (id: string) => Promise<T | undefined>): Promise<T | undefined> {
+  async get<T> (prefix: number, id: string, fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<T | undefined> {
     const key: string = `${prefix} ${id}`
     const cached = await this.cacheManager.get<T>(key)
     if (cached !== undefined) {
@@ -46,7 +52,7 @@ export class GlobalCache {
     }
 
     await this.cacheManager.set(key, fetched, {
-      ttl: GlobalCache.TTL_SECONDS
+      ttl: options.ttl ?? 600
     })
 
     return fetched

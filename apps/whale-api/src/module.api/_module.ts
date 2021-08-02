@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { OraclesController } from '@src/module.api/oracles.controller'
 import { PricesController } from '@src/module.api/prices.controller'
+import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -48,6 +49,7 @@ import { PricesController } from '@src/module.api/prices.controller'
       inject: [ConfigService]
     },
     DeFiDCache,
+    SemaphoreCache,
     PoolPairService
   ]
 })
