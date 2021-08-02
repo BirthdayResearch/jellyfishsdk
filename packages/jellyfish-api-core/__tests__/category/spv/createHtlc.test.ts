@@ -66,7 +66,7 @@ describe('Spv', () => {
     const pubKeyA = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
     const pubKeyB = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
 
-    const promise = client.spv.createHtlc(pubKeyA, pubKeyB, { timeout: '4194304' })
+    const promise = client.spv.createHtlc(pubKeyA, pubKeyB, { timeout: '4194304' }) // SEQUENCE_LOCKTIME_TYPE_FLAG = (1 << 22)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow("RpcApiError: 'Invalid block denominated relative timeout', code: -3, method: spv_createhtlc")
   })

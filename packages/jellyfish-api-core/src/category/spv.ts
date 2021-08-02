@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 export const HTLC_MINIMUM_BLOCK_COUNT = 9
 
 /**
- * SPV RPCs for DeFi Blockchain
+ * SPV RPCs for Bitcoin Blockchain
  */
 export class Spv {
   private readonly client: ApiClient
@@ -62,7 +62,7 @@ export class Spv {
    * Creates a Bitcoin address whose funds can be unlocked with a seed or as a refund.
    *
    * @param {string} receiverPubKey The public key of the possessor of the seed
-   * @param {number} ownerPubKey The public key of the recipient of the refund
+   * @param {string} ownerPubKey The public key of the recipient of the refund
    * @param {CreateHtlcOptions} options
    * @param {string} options.timeout  Timeout of the contract (denominated in blocks) relative to its placement in the blockchain. Minimum 9. See HTLC_MINIMUM_BLOCK_COUNT
    * @param {string} [options.seed] SHA256 hash of the seed. If none provided one will be generated
