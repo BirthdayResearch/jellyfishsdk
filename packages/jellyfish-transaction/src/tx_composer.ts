@@ -148,10 +148,12 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
 
   // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
   // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
+  /* istanbul ignore next */
   public get nValue (): BigNumber | undefined {
     return this.data?.nValue
   }
 
+  /* istanbul ignore next */
   public get nTokenId (): number | undefined {
     return this.data?.nTokenId
   }

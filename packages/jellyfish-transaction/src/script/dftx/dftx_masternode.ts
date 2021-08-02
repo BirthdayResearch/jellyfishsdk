@@ -1,3 +1,5 @@
+import { writeVarUInt, readVarUInt } from '@defichain/jellyfish-transaction/buffer/buffer_varuint'
+import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -9,6 +11,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 export interface CreateMasterNode {
   type: number // ----------------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
   operatorAuthAddress: string // -------------------| VarUInt{20 bytes}
+  timeLock?: number // -----------------------------| 4 bytes, only available after EunosPaya
 }
 
 /**
@@ -22,7 +25,19 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
   composers (cmn: CreateMasterNode): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => cmn.type, v => cmn.type = v),
-      ComposableBuffer.hex(20, () => cmn.operatorAuthAddress, v => cmn.operatorAuthAddress = v)
+      ComposableBuffer.hex(20, () => cmn.operatorAuthAddress, v => cmn.operatorAuthAddress = v),
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          if (buffer.remaining() > 0) {
+            readVarUInt(buffer)
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          if (cmn.timeLock !== undefined) {
+            writeVarUInt(cmn.timeLock, buffer)
+          }
+        }
+      }
     ]
   }
 }
