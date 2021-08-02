@@ -1,4 +1,4 @@
-import { writeVarUInt, readVarUInt } from '@defichain/jellyfish-transaction/buffer/buffer_varuint'
+import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
