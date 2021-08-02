@@ -12,6 +12,8 @@
 
 /packages/jellyfish-api-core/src/category/icxorderbook.ts       @fuxingloh @surangap @monstrobishi @canonbrother
 /packages/jellyfish-api-core/__tests__/category/icxorderbook    @fuxingloh @surangap @monstrobishi @canonbrother
+/packages/jellyfish-api-core/src/category/spv.ts                @fuxingloh @surangap @monstrobishi @canonbrother
+/packages/jellyfish-api-core/__tests__/category/spv             @fuxingloh @surangap @monstrobishi @canonbrother
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
@@ -29,7 +31,7 @@
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 
-/packages/testcontainers/                       @fuxingloh @canonbrother
+/packages/testcontainers/                       @fuxingloh @canonbrother @surangap
 /packages/testing/                              @fuxingloh @canonbrother
 
 lerna.json                                      @fuxingloh @canonbrother
