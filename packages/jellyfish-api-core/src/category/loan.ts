@@ -12,14 +12,21 @@ export class Loan {
 
   async setColleteralToken (token: string, factor: number, options: SetColleteralTokenOptions): Promise<string> {
     const { activateAfterBlock = undefined, utxos = [] } = options
-    return await this.client.call('setcollateraltoken', [token, factor, options.priceFeedId, activateAfterBlock, utxos], 'number')
+    return await this.client.call('setcollateraltoken', [
+      {
+        token,
+        factor,
+        priceFeedId: options.priceFeedId,
+        activateAfterBlock
+      }, utxos
+    ], 'number')
   }
 }
 
 export interface SetColleteralTokenOptions {
   priceFeedId: string
   activateAfterBlock?: number
-  utxos?: UTXO
+  utxos?: UTXO[]
 }
 
 export interface UTXO {
