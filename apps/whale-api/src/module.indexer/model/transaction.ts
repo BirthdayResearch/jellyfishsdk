@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Indexer, defid, RawBlock } from '@src/module.indexer/model/_abstract'
+import { defid, Indexer, RawBlock } from '@src/module.indexer/model/_abstract'
 import { Transaction, TransactionMapper } from '@src/module.model/transaction'
 
 @Injectable()
@@ -25,7 +25,9 @@ export class TransactionIndexer extends Indexer {
       id: txn.txid,
       block: {
         hash: block.hash,
-        height: block.height
+        height: block.height,
+        time: block.time,
+        medianTime: block.mediantime
       },
       txid: txn.txid,
       hash: txn.hash,

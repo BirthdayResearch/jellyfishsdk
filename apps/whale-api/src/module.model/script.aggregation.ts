@@ -97,6 +97,8 @@ export interface ScriptAggregation extends Model {
   block: {
     hash: string // --------------| block hash of this script aggregation
     height: number // ------------| block height of this script aggregation
+    time: number
+    medianTime: number
   }
 
   script: {

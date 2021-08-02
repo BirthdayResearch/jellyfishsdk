@@ -50,6 +50,8 @@ export interface ScriptUnspent extends Model {
   block: {
     hash: string // ------------| block hash of this script unspent
     height: number // ----------| block height of this script unspent
+    time: number
+    medianTime: number
   }
 
   script: {

@@ -110,7 +110,9 @@ export class ScriptAggregationIndexer extends Indexer {
       hid: hid,
       block: {
         hash: block.hash,
-        height: block.height
+        height: block.height,
+        time: block.time,
+        medianTime: block.mediantime
       },
       script: {
         type: type,
