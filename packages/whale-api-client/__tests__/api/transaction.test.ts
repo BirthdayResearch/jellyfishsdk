@@ -272,7 +272,9 @@ describe('transaction', () => {
         id: txid,
         block: {
           hash: expect.any(String),
-          height: expect.any(Number)
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
         },
         txid,
         hash: txid,

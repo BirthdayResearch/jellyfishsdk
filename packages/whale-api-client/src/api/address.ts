@@ -86,6 +86,8 @@ export interface AddressAggregation {
   block: {
     hash: string
     height: number
+    time: number
+    medianTime: number
   }
 
   script: {
@@ -117,6 +119,8 @@ export interface AddressActivity {
   block: {
     hash: string
     height: number
+    time: number
+    medianTime: number
   }
 
   script: {
@@ -146,6 +150,8 @@ export interface AddressUnspent {
   block: {
     hash: string
     height: number
+    time: number
+    medianTime: number
   }
 
   script: {

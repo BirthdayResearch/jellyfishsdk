@@ -106,7 +106,9 @@ it('should getAggregation', async () => {
     },
     block: {
       hash: expect.stringMatching(/[0-f]{64}/),
-      height: expect.any(Number)
+      height: expect.any(Number),
+      time: expect.any(Number),
+      medianTime: expect.any(Number)
     },
     hid: expect.stringMatching(/[0-f]{64}/),
     id: expect.stringMatching(/[0-f]{72}/),
@@ -195,7 +197,9 @@ describe('transactions', () => {
     expect(transactions[2]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),
@@ -240,7 +244,9 @@ describe('transactions', () => {
     expect(unspent[0]).toStrictEqual({
       block: {
         hash: expect.stringMatching(/[0-f]{64}/),
-        height: expect.any(Number)
+        height: expect.any(Number),
+        time: expect.any(Number),
+        medianTime: expect.any(Number)
       },
       hid: expect.stringMatching(/[0-f]{64}/),
       id: expect.stringMatching(/[0-f]{72}/),

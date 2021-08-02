@@ -53,6 +53,8 @@ export interface Transaction {
   block: {
     hash: string
     height: number
+    time: number
+    medianTime: number
   }
   txid: string
   hash: string

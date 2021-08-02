@@ -120,7 +120,9 @@ describe('getTransactions', () => {
     id: expect.stringMatching(/[0-f]{64}/),
     block: {
       hash: expect.stringMatching(/[0-f]{64}/),
-      height: expect.any(Number)
+      height: expect.any(Number),
+      time: expect.any(Number),
+      medianTime: expect.any(Number)
     },
     txid: expect.stringMatching(/[0-f]{64}/),
     hash: expect.stringMatching(/[0-f]{64}/),
