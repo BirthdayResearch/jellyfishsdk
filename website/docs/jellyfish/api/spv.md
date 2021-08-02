@@ -81,13 +81,13 @@ interface spv {
 
 interface CreateHtlcOptions {
   timeout: string
-  seed?: string
+  seedhash?: string
 }
 
 interface CreateHtlcResult {
   address: string
   redeemScript: string
-  seed: number
-  seedhash: string
+  seed?: number
+  seedhash?: string
 }
 ```
