@@ -89,7 +89,7 @@ export class Token {
   /**
    * Creates a transaction to mint tokens.
    *
-   * @param {`${number}@${string}`} amountToken
+   * @param {string} amountToken formatted as `${number}@${string}`
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
