@@ -15,7 +15,8 @@ import { BlockController } from '@src/module.api/block.controller'
 import { MasternodesController } from '@src/module.api/masternode.controller'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { OracleController } from '@src/module.api/oracle.controller'
+import { OraclesController } from '@src/module.api/oracles.controller'
+import { PricesController } from '@src/module.api/prices.controller'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -31,7 +32,8 @@ import { OracleController } from '@src/module.api/oracle.controller'
     PoolPairController,
     MasternodesController,
     BlockController,
-    OracleController
+    OraclesController,
+    PricesController
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },

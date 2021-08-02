@@ -11,6 +11,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RawBlockMapper } from '@src/module.model/raw.block'
 import { NotFoundIndexerError } from '@src/module.indexer/error'
 import { blockchain as defid } from '@defichain/jellyfish-api-core'
+import { MainDfTxIndexer } from '@src/module.indexer/model/dftx.indexer'
 
 /**
  * This is a deterministic log based indexer.
@@ -28,7 +29,8 @@ export class MainIndexer {
     private readonly scriptUnspent: ScriptUnspentIndexer,
     private readonly transaction: TransactionIndexer,
     private readonly transactionVin: TransactionVinIndexer,
-    private readonly transactionVout: TransactionVoutIndexer
+    private readonly transactionVout: TransactionVoutIndexer,
+    private readonly dftx: MainDfTxIndexer
   ) {
     this.indexers = [
       block,
@@ -37,7 +39,8 @@ export class MainIndexer {
       scriptUnspent,
       transaction,
       transactionVin,
-      transactionVout
+      transactionVout,
+      dftx
     ]
   }
 

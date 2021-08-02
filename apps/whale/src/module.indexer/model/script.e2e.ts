@@ -1,29 +1,24 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { TestingModule } from '@nestjs/testing'
-import { createIndexerTestModule, stopIndexer, waitForHeight } from '@src/module.indexer/indexer.spec/_testing.module'
 import { ScriptUnspentMapper } from '@src/module.model/script.unspent'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { ScriptActivityMapper } from '@src/module.model/script.activity'
 import { ScriptAggregationMapper } from '@src/module.model/script.aggregation'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: TestingModule
+let app: NestFastifyApplication
 
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
-  await container.generate(20)
+  await container.generate(21)
 
-  app = await createIndexerTestModule(container)
-  await app.init()
+  app = await createTestingApp(container)
 })
 
 afterAll(async () => {
-  try {
-    await stopIndexer(app)
-  } finally {
-    await container.stop()
-  }
+  await stopTestingApp(container, app)
 })
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -57,7 +52,7 @@ describe('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac', () => {
   const hid = HexEncoder.asSHA256(scriptHex)
 
   it('should wait for block height 0', async () => {
-    await waitForHeight(app, 0)
+    await waitForIndexedHeight(app, 0)
     await expectActivities(scriptHex)
     await expectUnspent(scriptHex)
 
@@ -78,7 +73,7 @@ describe('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac', () => {
   })
 
   it('should wait for block height 1', async () => {
-    await waitForHeight(app, 1)
+    await waitForIndexedHeight(app, 1)
     await expectActivities(scriptHex)
     await expectUnspent(scriptHex)
 
@@ -99,7 +94,7 @@ describe('76a9148857c8c3ce618fe7ae5f8ee11ecc8ea421a1d82988ac', () => {
   })
 
   it('should wait for block height 2', async () => {
-    await waitForHeight(app, 2)
+    await waitForIndexedHeight(app, 2)
     await expectActivities(scriptHex)
     await expectUnspent(scriptHex)
 

@@ -1,32 +1,27 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { TestingModule } from '@nestjs/testing'
-import { createIndexerTestModule, invalidateFromHeight, stopIndexer, waitForHeight } from '@src/module.indexer/indexer.spec/_testing.module'
 import { BlockMapper } from '@src/module.model/block'
+import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 const container = new MasterNodeRegTestContainer()
-let app: TestingModule
+let app: NestFastifyApplication
 
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
   await container.generate(21)
 
-  app = await createIndexerTestModule(container)
-  await app.init()
+  app = await createTestingApp(container)
 })
 
 afterAll(async () => {
-  try {
-    await stopIndexer(app)
-  } finally {
-    await container.stop()
-  }
+  await stopTestingApp(container, app)
 })
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 it('should wait for block 0', async () => {
-  await waitForHeight(app, 0)
+  await waitForIndexedHeight(app, 0)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(0)
@@ -38,7 +33,7 @@ it('should wait for block 0', async () => {
 })
 
 it('should wait for block 1', async () => {
-  await waitForHeight(app, 1)
+  await waitForIndexedHeight(app, 1)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(1)
@@ -48,7 +43,7 @@ it('should wait for block 1', async () => {
 })
 
 it('should wait for block 10', async () => {
-  await waitForHeight(app, 10)
+  await waitForIndexedHeight(app, 10)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(10)
@@ -58,7 +53,7 @@ it('should wait for block 10', async () => {
 })
 
 it('should invalidate', async () => {
-  await waitForHeight(app, 20)
+  await waitForIndexedHeight(app, 20)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(15)
