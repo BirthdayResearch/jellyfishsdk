@@ -65,11 +65,11 @@ export class Spv {
    * @param {string} ownerPubKey The public key of the recipient of the refund
    * @param {CreateHtlcOptions} options
    * @param {string} options.timeout  Timeout of the contract (denominated in blocks) relative to its placement in the blockchain. Minimum 9. See HTLC_MINIMUM_BLOCK_COUNT
-   * @param {string} [options.seed] SHA256 hash of the seed. If none provided one will be generated
+   * @param {string} [options.seedhash] SHA256 hash of the seed. If none provided one will be generated
    * @return {Promise<CreateHtlcResult>}
    */
   async createHtlc (receiverPubKey: string, ownerPubKey: string, options: CreateHtlcOptions): Promise<CreateHtlcResult> {
-    return await this.client.call('spv_createhtlc', [receiverPubKey, ownerPubKey, options.timeout, options.seed], 'number')
+    return await this.client.call('spv_createhtlc', [receiverPubKey, ownerPubKey, options.timeout, options.seedhash], 'number')
   }
 }
 
@@ -99,7 +99,7 @@ export interface CreateHtlcOptions {
   /** Timeout of the contract (denominated in blocks) relative to its placement in the blockchain. Minimum 9. See HTLC_MINIMUM_BLOCK_COUNT */
   timeout: string
   /** SHA256 hash of the seed. If none provided one will be generated */
-  seed?: string
+  seedhash?: string
 }
 
 export interface CreateHtlcResult {
@@ -108,7 +108,7 @@ export interface CreateHtlcResult {
   /** Hex-encoded redemption script */
   redeemScript: string
   /** Hex-encoded seed */
-  seed: string
+  seed?: string
   /** Hex-encoded seed hash */
-  seedhash: string
+  seedhash?: string
 }
