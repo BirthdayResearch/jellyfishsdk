@@ -1,4 +1,3 @@
-import AbortController from 'abort-controller'
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
@@ -152,30 +151,15 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * For convenience sake, HTTP post to the RPC URL for the current node.
-   * Timeout error checked, in case if the node froze.
-   * Returns the raw JSON as string.
+   * Not error checked, returns the raw JSON as string.
    */
-  async post (body: string, timeout = 10000): Promise<string> {
-    const controller = new AbortController()
-    const id = setTimeout(() => controller.abort(), timeout)
-
+  async post (body: string): Promise<string> {
     const url = await this.getCachedRpcUrl()
-    const request = fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
-      body: body,
-      signal: controller.signal
+      body: body
     })
-
-    try {
-      const response = await request
-      clearTimeout(id)
-      return response.text()
-    } catch (err) {
-      if (err.type === 'aborted') {
-        throw new DeFiDRpcError(err)
-      }
-      throw err
-    }
+    return await response.text()
   }
 
   /**
@@ -214,7 +198,9 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   private async waitForRpc (timeout = 20000): Promise<void> {
     await waitForCondition(async () => {
-      return await this.getBlockCount().then(() => true).catch(() => false)
+      this.cachedRpcUrl = undefined
+      await this.getMiningInfo()
+      return true
     }, timeout, 200, 'waitForRpc')
   }
 
@@ -250,7 +236,6 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async restart (timeout: number = 30000): Promise<void> {
     await this.container?.restart()
-    this.cachedRpcUrl = undefined
     await this.waitForRpc(timeout)
   }
 }
