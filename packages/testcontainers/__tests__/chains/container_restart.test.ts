@@ -1,6 +1,6 @@
 import { GenesisKeys, MasterNodeRegTestContainer } from '../../src'
 
-describe('container restart', () => {
+describe('container restart with setDeFiConf', () => {
   const container = new MasterNodeRegTestContainer()
 
   beforeEach(async () => {

@@ -11,6 +11,16 @@ export abstract class DockerContainer {
     this.docker = new Dockerode(options)
   }
 
+  get id (): string {
+    return this.requireContainer().id
+  }
+
+  async getIp (name = 'default'): Promise<string> {
+    const { NetworkSettings: networkSettings } = await this.inspect()
+    const { Networks: networks } = networkSettings
+    return networks[name].IPAddress
+  }
+
   /**
    * Try pull docker image if it doesn't already exist.
    */
@@ -85,6 +95,16 @@ export abstract class DockerContainer {
         }
       })
     })
+  }
+
+  /**
+   * Inspect docker container info
+   *
+   * @return {Promise<Record<string, any>>}
+   */
+  async inspect (): Promise<Record<string, any>> {
+    const container = this.requireContainer()
+    return await container.inspect()
   }
 }
 

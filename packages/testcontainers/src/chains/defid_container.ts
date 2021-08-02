@@ -1,6 +1,8 @@
+import AbortController from 'abort-controller'
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
+import { waitForCondition } from '../wait_for_condition'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -59,7 +61,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     return [
       'defid',
       '-printtoconsole',
-      '-rpcallowip=172.17.0.0/16',
+      '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
@@ -150,15 +152,30 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * For convenience sake, HTTP post to the RPC URL for the current node.
-   * Not error checked, returns the raw JSON as string.
+   * Timeout error checked, in case if the node froze.
+   * Returns the raw JSON as string.
    */
-  async post (body: string): Promise<string> {
+  async post (body: string, timeout = 10000): Promise<string> {
+    const controller = new AbortController()
+    const id = setTimeout(() => controller.abort(), timeout)
+
     const url = await this.getCachedRpcUrl()
-    const response = await fetch(url, {
+    const request = fetch(url, {
       method: 'POST',
-      body: body
+      body: body,
+      signal: controller.signal
     })
-    return await response.text()
+
+    try {
+      const response = await request
+      clearTimeout(id)
+      return response.text()
+    } catch (err) {
+      if (err.type === 'aborted') {
+        throw new DeFiDRpcError(err)
+      }
+      throw err
+    }
   }
 
   /**
@@ -176,52 +193,29 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
+   * Convenience method to getbestblockhash, typing mapping is non exhaustive
+   */
+  async getBestBlockHash (): Promise<string> {
+    return await this.call('getbestblockhash', [])
+  }
+
+  /**
+   * Connect another node
+   * @param {string} ip
+   * @return {Promise<void>}
+   */
+  async addNode (ip: string): Promise<void> {
+    return await this.call('addnode', [ip, 'onetry'])
+  }
+
+  /**
    * Wait for rpc to be ready
    * @param {number} [timeout=20000] in millis
    */
   private async waitForRpc (timeout = 20000): Promise<void> {
-    const expiredAt = Date.now() + timeout
-
-    return await new Promise((resolve, reject) => {
-      const checkReady = (): void => {
-        this.cachedRpcUrl = undefined
-        this.getMiningInfo().then(() => {
-          resolve()
-        }).catch(err => {
-          if (expiredAt < Date.now()) {
-            reject(new Error(`DeFiDContainer docker not ready within given timeout of ${timeout}ms.\n${err.message as string}`))
-          } else {
-            setTimeout(() => void checkReady(), 200)
-          }
-        })
-      }
-
-      checkReady()
-    })
-  }
-
-  /**
-   * @param {() => Promise<boolean>} condition to wait for true
-   * @param {number} timeout duration when condition is not met
-   * @param {number} [interval=200] duration in ms
-   */
-  async waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200): Promise<void> {
-    const expiredAt = Date.now() + timeout
-
-    return await new Promise((resolve, reject) => {
-      const checkCondition = async (): Promise<void> => {
-        const isReady = await condition().catch(() => false)
-        if (isReady) {
-          resolve()
-        } else if (expiredAt < Date.now()) {
-          reject(new Error(`waitForCondition is not ready within given timeout of ${timeout}ms.`))
-        } else {
-          setTimeout(() => void checkCondition(), interval)
-        }
-      }
-
-      void checkCondition()
-    })
+    await waitForCondition(async () => {
+      return await this.getBlockCount().then(() => true).catch(() => false)
+    }, timeout, 200, 'waitForRpc')
   }
 
   /**
@@ -255,8 +249,8 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @param {number} [timeout=30000] in millis
    */
   async restart (timeout: number = 30000): Promise<void> {
-    await this.container?.stop()
-    await this.container?.start()
+    await this.container?.restart()
+    this.cachedRpcUrl = undefined
     await this.waitForRpc(timeout)
   }
 }
@@ -297,7 +291,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   }
 
   return await new Promise((resolve, reject) => {
-    docker.listContainers({ all: 1 }, (error, result) => {
+    docker.listContainers({ all: true }, (error, result) => {
       if (error instanceof Error) {
         return reject(error)
       }

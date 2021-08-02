@@ -1,4 +1,5 @@
 import { GenesisKeys, MasterNodeKey } from '../../testkeys'
+import { waitForCondition } from '../../wait_for_condition'
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../defid_container'
 import { RegTestContainer } from './index'
@@ -54,7 +55,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   async waitForGenerate (nblocks: number, timeout: number = 590000, address: string = this.masternodeKey.operator.address): Promise<void> {
     const target = await this.getBlockCount() + nblocks
 
-    return await this.waitForCondition(async () => {
+    return await waitForCondition(async () => {
       const count = await this.getBlockCount()
       if (count > target) {
         return true
@@ -81,7 +82,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=90000] in ms
    */
   async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
-    return await this.waitForCondition(async () => {
+    return await waitForCondition(async () => {
       const count = await this.getBlockCount()
       if (count > height) {
         return true
@@ -114,7 +115,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @see waitForWalletCoinbaseMaturity
    */
   async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
-    return await this.waitForCondition(async () => {
+    return await waitForCondition(async () => {
       const getbalance = await this.call('getbalance')
       if (getbalance >= balance) {
         return true
