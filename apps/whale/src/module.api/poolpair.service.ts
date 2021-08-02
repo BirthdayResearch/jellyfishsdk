@@ -1,45 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { Interval } from '@nestjs/schedule'
+import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 
 @Injectable()
 export class PoolPairService {
-  private readonly logger = new Logger(PoolPairService.name)
-  private USDT_PER_DFI: BigNumber | undefined
-  private syncing: boolean = false
+  private readonly USDT_PER_DFI: BigNumber | undefined
 
   constructor (
-    protected readonly rpcClient: JsonRpcClient
+    protected readonly rpcClient: JsonRpcClient,
+    protected readonly cache: SemaphoreCache
   ) {
-  }
-
-  @Interval(60000)
-  private async sync (): Promise<void> {
-    if (this.syncing) return
-
-    try {
-      this.syncing = true
-      await this.syncDfiUsdPair()
-    } catch (err) {
-      this.logger.error('sync error', err)
-    } finally {
-      this.syncing = false
-    }
-  }
-
-  async syncDfiUsdPair (): Promise<void> {
-    const pair = await this.getPoolPair('DFI', 'USDT')
-    if (pair === undefined) {
-      return
-    }
-
-    if (pair.idTokenA === '0') {
-      this.USDT_PER_DFI = new BigNumber(pair['reserveB/reserveA'])
-    } else if (pair.idTokenB === '0') {
-      this.USDT_PER_DFI = new BigNumber(pair['reserveA/reserveB'])
-    }
   }
 
   /**
@@ -74,18 +46,34 @@ export class PoolPairService {
    * Currently implemented with fix pair derivation
    * Ideally should use vertex directed graph where we can always find total liquidity if it can be resolved.
    */
-  getTotalLiquidityUsd (info: PoolPairInfo): BigNumber | undefined {
-    if (this.USDT_PER_DFI === undefined) {
+  async getTotalLiquidityUsd (info: PoolPairInfo): Promise<BigNumber | undefined> {
+    const USDT_PER_DFI = await this.getUSDT_PER_DFI()
+    if (USDT_PER_DFI === undefined) {
       return
     }
 
     const [a, b] = info.symbol.split('-')
     if (a === 'DFI') {
-      return info.reserveA.multipliedBy(2).multipliedBy(this.USDT_PER_DFI)
+      return info.reserveA.multipliedBy(2).multipliedBy(USDT_PER_DFI)
     }
 
     if (b === 'DFI') {
-      return info.reserveB.multipliedBy(2).multipliedBy(this.USDT_PER_DFI)
+      return info.reserveB.multipliedBy(2).multipliedBy(USDT_PER_DFI)
     }
+  }
+
+  private async getUSDT_PER_DFI (): Promise<BigNumber | undefined> {
+    return await this.cache.get<BigNumber>('USDT_PER_DFI', async () => {
+      const pair = await this.getPoolPair('DFI', 'USDT')
+      if (pair !== undefined) {
+        if (pair.idTokenA === '0') {
+          return new BigNumber(pair['reserveB/reserveA'])
+        } else if (pair.idTokenB === '0') {
+          return new BigNumber(pair['reserveA/reserveB'])
+        }
+      }
+    }, {
+      ttl: 180
+    })
   }
 }
