@@ -38,8 +38,6 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
-type AccountRegexType = `${number}@${string}`
-
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -402,7 +400,7 @@ export interface GetTokenBalancesOptions {
 }
 
 export interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string
 }
 
 export interface BalanceTransferAccountOptions {
@@ -441,7 +439,7 @@ export interface AccountHistoryCountOptions {
 }
 
 export interface AddressBalances {
-  [key: string]: AccountRegexType[]
+  [key: string]: string[]
 }
 
 export interface SendTokensOptions {
