@@ -26,13 +26,16 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
     return [
       ComposableBuffer.uInt8(() => cmn.operatorType, v => cmn.operatorType = v),
       ComposableBuffer.hex(20, () => cmn.operatorAuthAddress, v => cmn.operatorAuthAddress = v),
+      // timeLock is not testable as EunosPaya has not released yet
       {
         fromBuffer: (buffer: SmartBuffer): void => {
+          /* istanbul ignore if */
           if (buffer.remaining() > 0) {
             readVarUInt(buffer)
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
+          /* istanbul ignore if */
           if (cmn.timeLock !== undefined) {
             writeVarUInt(cmn.timeLock, buffer)
           }
