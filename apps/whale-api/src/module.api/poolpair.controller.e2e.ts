@@ -4,7 +4,6 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
-import { PoolPairService } from '@src/module.api/poolpair.service'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -12,7 +11,6 @@ let controller: PoolPairController
 
 beforeAll(async () => {
   await container.start()
-  await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
   await container.waitForWalletBalanceGTE(100)
 
@@ -22,7 +20,6 @@ beforeAll(async () => {
   await waitForIndexedHeight(app, 100)
 
   await setup()
-  await app.get(PoolPairService).syncDfiUsdPair()
 })
 
 afterAll(async () => {

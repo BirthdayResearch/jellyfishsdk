@@ -33,10 +33,12 @@ export class PoolPairController {
       limit: query.size
     }, true)
 
-    const items = Object.entries(result).map(([id, info]) => {
-      const totalLiquidityUsd = this.poolPairService.getTotalLiquidityUsd(info)
-      return mapPoolPair(id, info, totalLiquidityUsd)
-    })
+    const items: PoolPairData[] = []
+    for (const [id, info] of Object.entries(result)) {
+      const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
+      items.push(mapPoolPair(id, info, totalLiquidityUsd))
+    }
+
     return ApiPagedResponse.of(items, query.size, item => {
       return item.id
     })
@@ -53,7 +55,7 @@ export class PoolPairController {
       throw new NotFoundException('Unable to find poolpair')
     }
 
-    const totalLiquidityUsd = this.poolPairService.getTotalLiquidityUsd(info)
+    const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
     return mapPoolPair(String(id), info, totalLiquidityUsd)
   }
 }
