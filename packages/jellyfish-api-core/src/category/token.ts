@@ -1,8 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { ApiClient } from '../.'
 
-type TokenRegexType = `${number}@${string}`
-
 /**
  * Token RPCs for DeFi Blockchain
  */
@@ -91,14 +89,14 @@ export class Token {
   /**
    * Creates a transaction to mint tokens.
    *
-   * @param {TokenRegexType} payload
+   * @param {`${number}@${string}`} amountToken
    * @param {UTXO[]} [utxos = []]
    * @param {string} [utxos.txid]
    * @param {number} [utxos.vout]
    * @return {Promise<string>}
    */
-  async mintTokens (payload: TokenRegexType, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('minttokens', [payload, utxos], 'number')
+  async mintTokens (amountToken: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('minttokens', [amountToken, utxos], 'number')
   }
 }
 
