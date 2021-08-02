@@ -100,6 +100,21 @@ export async function waitForAddressTxCount (app: NestFastifyApplication, addres
   }, timeout)
 }
 
+export async function invalidateFromHeight (app: NestFastifyApplication, container: MasterNodeRegTestContainer, invalidateHeight: number): Promise<void> {
+  const height = await container.call('getblockcount')
+  const highestHash = await container.call('getblockhash', [height])
+  const invalidateBlockHash = await container.call('getblockhash', [invalidateHeight])
+  await container.call('invalidateblock', [invalidateBlockHash])
+  await container.call('clearmempool')
+  await container.generate(height - invalidateHeight + 1)
+  const blockMapper = app.get(BlockMapper)
+  await waitForExpect(async () => {
+    const block = await blockMapper.getByHeight(height)
+    expect(block).not.toStrictEqual(undefined)
+    expect(block?.hash).not.toStrictEqual(highestHash)
+  }, 30000)
+}
+
 /**
  * Override default ConfigService for E2E testing
  */

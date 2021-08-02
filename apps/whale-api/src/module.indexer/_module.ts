@@ -10,6 +10,8 @@ import { TransactionVinIndexer } from '@src/module.indexer/model/transaction.vin
 import { TransactionVoutIndexer } from '@src/module.indexer/model/transaction.vout'
 import { VoutFinder } from '@src/module.indexer/model/_vout_finder'
 import { IndexStatusMapper } from '@src/module.indexer/status'
+import { DfTxIndexerModule } from '@src/module.indexer/model/dftx/_module'
+import { MainDfTxIndexer } from '@src/module.indexer/model/dftx.indexer'
 
 @Module({
   providers: [
@@ -23,7 +25,11 @@ import { IndexStatusMapper } from '@src/module.indexer/status'
     ScriptUnspentIndexer,
     TransactionIndexer,
     TransactionVinIndexer,
-    TransactionVoutIndexer
+    TransactionVoutIndexer,
+    MainDfTxIndexer
+  ],
+  imports: [
+    DfTxIndexerModule
   ]
 })
 export class IndexerModule {

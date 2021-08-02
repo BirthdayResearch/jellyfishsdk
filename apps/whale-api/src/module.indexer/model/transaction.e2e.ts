@@ -1,29 +1,24 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { TestingModule } from '@nestjs/testing'
-import { createIndexerTestModule, stopIndexer, waitForHeight } from '@src/module.indexer/indexer.spec/_testing.module'
 import { BlockMapper } from '@src/module.model/block'
 import { TransactionMapper } from '@src/module.model/transaction'
 import { TransactionVinMapper } from '@src/module.model/transaction.vin'
 import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 
 const container = new MasterNodeRegTestContainer()
-let app: TestingModule
+let app: NestFastifyApplication
 
 beforeAll(async () => {
   await container.start()
   await container.waitForReady()
   await container.generate(21)
 
-  app = await createIndexerTestModule(container)
-  await app.init()
+  app = await createTestingApp(container)
 })
 
 afterAll(async () => {
-  try {
-    await stopIndexer(app)
-  } finally {
-    await container.stop()
-  }
+  await stopTestingApp(container, app)
 })
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -53,7 +48,7 @@ async function expectTransactions (hash: string, count: number): Promise<void> {
 }
 
 it('should wait for block 0', async () => {
-  await waitForHeight(app, 0)
+  await waitForIndexedHeight(app, 0)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(0)
@@ -62,7 +57,7 @@ it('should wait for block 0', async () => {
 })
 
 it('should wait for block 5', async () => {
-  await waitForHeight(app, 5)
+  await waitForIndexedHeight(app, 5)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(5)
@@ -71,7 +66,7 @@ it('should wait for block 5', async () => {
 })
 
 it('should wait for block 20', async () => {
-  await waitForHeight(app, 20)
+  await waitForIndexedHeight(app, 20)
 
   const blockMapper = app.get(BlockMapper)
   const block = await blockMapper.getByHeight(20)

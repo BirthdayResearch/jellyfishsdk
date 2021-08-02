@@ -8,6 +8,12 @@ import { ScriptUnspentMapper } from '@src/module.model/script.unspent'
 import { TransactionMapper } from '@src/module.model/transaction'
 import { TransactionVinMapper } from '@src/module.model/transaction.vin'
 import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
+import { OracleHistoryMapper } from '@src/module.model/oracle.history'
+import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
+import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
+import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
+import { OracleMapper } from '@src/module.model/oracle'
+import { PriceTickerMapper } from '@src/module.model/price.ticker'
 
 @Global()
 @Module({
@@ -20,7 +26,13 @@ import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
     ScriptUnspentMapper,
     TransactionMapper,
     TransactionVinMapper,
-    TransactionVoutMapper
+    TransactionVoutMapper,
+    OracleHistoryMapper,
+    OraclePriceAggregatedMapper,
+    OraclePriceFeedMapper,
+    OracleTokenCurrencyMapper,
+    OracleMapper,
+    PriceTickerMapper
   ],
   exports: [
     ModelProbeIndicator,
@@ -31,7 +43,13 @@ import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
     ScriptUnspentMapper,
     TransactionMapper,
     TransactionVinMapper,
-    TransactionVoutMapper
+    TransactionVoutMapper,
+    OracleHistoryMapper,
+    OraclePriceAggregatedMapper,
+    OraclePriceFeedMapper,
+    OracleTokenCurrencyMapper,
+    OracleMapper,
+    PriceTickerMapper
   ]
 })
 export class ModelModule {
