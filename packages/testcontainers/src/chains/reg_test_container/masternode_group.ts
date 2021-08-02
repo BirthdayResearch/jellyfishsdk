@@ -76,7 +76,7 @@ export class MasternodeGroup {
       }))
 
       return hashes.every(value => value === hashes[0])
-    }, timeout)
+    }, timeout, 200, 'waitForSync')
   }
 
   /**

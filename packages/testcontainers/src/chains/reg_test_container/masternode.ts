@@ -62,7 +62,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       await this.generate(1)
       return false
-    }, timeout, 100)
+    }, timeout, 100, 'waitForGenerate')
   }
 
   /**
@@ -89,7 +89,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       await this.generate(1)
       return false
-    }, timeout, 100)
+    }, timeout, 100, 'waitForBlockHeight')
   }
 
   /**
@@ -122,7 +122,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       await this.generate(1)
       return false
-    }, timeout, 100)
+    }, timeout, 100, 'waitForWalletBalanceGTE')
   }
 
   /**
