@@ -363,6 +363,16 @@ export class Account {
   ): Promise<BurnHistory[]> {
     return await this.client.call('listburnhistory', [options], 'number')
   }
+
+  /**
+   * Returns burn address and burnt coin and token information.
+   * Requires full acindex for correct amount, tokens and feeburn values.
+   *
+   * @return {Promise<BurnInfo>}
+   */
+  async getBurnInfo (): Promise<BurnInfo> {
+    return await this.client.call('getburninfo', [], 'bignumber')
+  }
 }
 
 export interface AccountPagination {
@@ -476,4 +486,24 @@ export interface BurnHistory {
   txn: number
   txid: string
   amounts: string[]
+}
+
+export interface BurnInfo {
+  address: string
+  /**
+   * Amount send to burn address
+   */
+  amount: BigNumber
+  /**
+   * Token amount send to burn address
+   */
+  tokens: Array<{ name: string, amount: BigNumber }>
+  /**
+   * Amount collected via fee burn
+   */
+  feeburn: BigNumber
+  /**
+   * Amount collected via emission burn
+   */
+  emissionburn: BigNumber
 }
