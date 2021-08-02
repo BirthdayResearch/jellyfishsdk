@@ -45,7 +45,7 @@ describe('Spv', () => {
     await expect(promise).rejects.toThrow("RpcApiError: 'Invalid public key: XXXX', code: -5, method: spv_createhtlc")
   })
 
-  it('should not createHtlc with with invalid public key as ownerPubKey', async () => {
+  it('should not createHtlc with invalid public key as ownerPubKey', async () => {
     const pubKeyA = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
 
     const promise = client.spv.createHtlc(pubKeyA, 'XXXX', { timeout: '10' })
