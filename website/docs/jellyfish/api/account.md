@@ -388,3 +388,34 @@ interface BurnHistory {
   amounts: string[]
 }
 ```
+
+## getBurnInfo
+
+Returns burn address and burnt coin and token information.
+Requires full acindex for correct amount, tokens and feeburn values.
+
+```ts title="client.account.getBurnInfo()"
+interface account {
+  getBurnInfo (): Promise<BurnInfo>
+}
+
+export interface BurnInfo {
+  address: string
+  /**
+   * Amount send to burn address
+   */
+  amount: BigNumber
+  /**
+   * Token amount send to burn address
+   */
+  tokens: Array<{ name: string, amount: BigNumber }>
+  /**
+   * Amount collected via fee burn
+   */
+  feeburn: BigNumber
+  /**
+   * Amount collected via emission burn
+   */
+  emissionburn: BigNumber
+}
+```
