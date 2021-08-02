@@ -24,7 +24,7 @@ it('should bi-directional buffer-object-buffer', () => {
 const header = '6a1a4466547843' // OP_RETURN (length 26 = 0x1a), PUSH_DATA(44665478, 43)
 const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff'
 const createMasterNode: CreateMasterNode = {
-  type: 0x01,
+  operatorType: 0x01,
   operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
 }
 

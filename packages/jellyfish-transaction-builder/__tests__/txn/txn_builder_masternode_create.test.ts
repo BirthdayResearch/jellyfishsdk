@@ -49,7 +49,7 @@ it('should create with P2PKH address', async () => {
   const addressDestHex = addressDest.hex
 
   const createMasternode: CreateMasterNode = {
-    type: 0x01,
+    operatorType: 0x01,
     operatorAuthAddress: addressDestHex
   }
 
@@ -101,7 +101,7 @@ it('should create with PKWPKH', async () => {
   const addressDestKeyHash = addressDest.pubKeyHash
 
   const createMasternode: CreateMasterNode = {
-    type: 0x04,
+    operatorType: 0x04,
     operatorAuthAddress: addressDestKeyHash
   }
 
@@ -148,7 +148,7 @@ it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () 
   const addressDestKeyHash = addressDest.hex
 
   const createMasternode: CreateMasterNode = {
-    type: 0x02,
+    operatorType: 0x02,
     operatorAuthAddress: addressDestKeyHash
   }
 

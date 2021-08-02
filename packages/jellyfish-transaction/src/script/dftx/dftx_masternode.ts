@@ -9,7 +9,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
  * CreateMasterNode DeFi Transaction
  */
 export interface CreateMasterNode {
-  type: number // ----------------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
+  operatorType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
   operatorAuthAddress: string // -------------------| VarUInt{20 bytes}
   timeLock?: number // -----------------------------| 4 bytes, only available after EunosPaya
 }
@@ -24,7 +24,7 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
 
   composers (cmn: CreateMasterNode): BufferComposer[] {
     return [
-      ComposableBuffer.uInt8(() => cmn.type, v => cmn.type = v),
+      ComposableBuffer.uInt8(() => cmn.operatorType, v => cmn.operatorType = v),
       ComposableBuffer.hex(20, () => cmn.operatorAuthAddress, v => cmn.operatorAuthAddress = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
