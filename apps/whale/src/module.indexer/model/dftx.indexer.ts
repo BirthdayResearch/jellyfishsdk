@@ -47,7 +47,7 @@ export class MainDfTxIndexer extends Indexer {
   }
 }
 
-function getDfTxTransactions (block: RawBlock): Array<DfTxTransaction<any>> {
+export function getDfTxTransactions (block: RawBlock): Array<DfTxTransaction<any>> {
   const transactions: Array<DfTxTransaction<any>> = []
 
   for (const txn of block.tx) {
@@ -56,9 +56,10 @@ function getDfTxTransactions (block: RawBlock): Array<DfTxTransaction<any>> {
         continue
       }
 
-      const stack: OPCode[] = toOPCodes(
-        SmartBuffer.fromBuffer(Buffer.from(vout.scriptPubKey.hex, 'hex'))
-      )
+      const stack: OPCode[] = toOPCodes(SmartBuffer.fromBuffer(Buffer.from(vout.scriptPubKey.hex, 'hex')))
+      if (stack[1].type !== 'OP_DEFI_TX') {
+        continue
+      }
       transactions.push({ txn: txn, dftx: (stack[1] as OP_DEFI_TX).tx })
     }
   }
