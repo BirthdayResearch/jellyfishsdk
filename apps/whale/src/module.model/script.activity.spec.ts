@@ -18,10 +18,6 @@ beforeAll(async () => {
   mapper = app.get<ScriptActivityMapper>(ScriptActivityMapper)
 })
 
-afterAll(async () => {
-  await (database as LevelDatabase).close()
-})
-
 beforeEach(async () => {
   async function put (hex: string, height: number, type: ScriptActivityType, txid: string, n: number): Promise<void> {
     await mapper.put({

@@ -18,10 +18,6 @@ beforeAll(async () => {
   mapper = app.get<BlockMapper>(BlockMapper)
 })
 
-afterAll(async () => {
-  await (database as LevelDatabase).close()
-})
-
 beforeEach(async () => {
   async function put (height: number, hash: string): Promise<void> {
     await mapper.put({
