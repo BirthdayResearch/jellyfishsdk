@@ -71,6 +71,16 @@ export class Spv {
   async createHtlc (receiverPubKey: string, ownerPubKey: string, options: CreateHtlcOptions): Promise<CreateHtlcResult> {
     return await this.client.call('spv_createhtlc', [receiverPubKey, ownerPubKey, options.timeout, options.seedhash], 'number')
   }
+
+  /**
+   * Decode and return value in a HTLC redeemscript.
+   *
+   * @param {string} redeemScript HTLC redeem script
+   * @return {Promise<DecodeHtlcResult>}
+   */
+  async decodeHtlcScript (redeemScript: string): Promise<DecodeHtlcResult> {
+    return await this.client.call('spv_decodehtlcscript', [redeemScript], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -111,4 +121,15 @@ export interface CreateHtlcResult {
   seed?: string
   /** Hex-encoded seed hash */
   seedhash?: string
+}
+
+export interface DecodeHtlcResult {
+  /** seller's public key */
+  sellerkey: string
+  /** buyer's public key */
+  buyerkey: string
+  /** Timeout of the contract (denominated in blocks) relative to its placement in the blockchain at creation time */
+  blocks: number
+  /** Hex-encoded seed hash */
+  hash: string
 }

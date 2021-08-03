@@ -91,3 +91,20 @@ interface CreateHtlcResult {
   seedhash?: string
 }
 ```
+
+## decodeHtlcScript
+
+Decode and return value in a HTLC redeemscript.
+
+```ts title="client.spv.decodeHtlcScript()"
+interface spv {
+  decodeHtlcScript (redeemScript: string): Promise<DecodeHtlcResult>
+}
+
+interface DecodeHtlcResult {
+  sellerkey: string
+  buyerkey: string
+  blocks: number
+  hash: string
+}
+```
