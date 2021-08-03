@@ -10,18 +10,18 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (ratio: number, rate: number, options: CreateLoanOptions): Promise<string> {
-    const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [ratio, rate, options.identifier, utxos], 'number')
+  async listCollateralTokens (): Promise<CollateralTokensData> {
+    return await this.client.call('listcollateraltokens', [], 'number')
   }
 }
 
-export interface CreateLoanOptions {
-  identifier: string
-  utxos?: UTXO[]
+export interface CollateralTokensData {
+  [key: string]: CollateralTokensDetail
 }
 
-export interface UTXO {
-  txid: string
-  vout: number
+export interface CollateralTokensDetail {
+  token: string
+  factor: number
+  priceFeedId: string
+  activateAfterBlock: number
 }
