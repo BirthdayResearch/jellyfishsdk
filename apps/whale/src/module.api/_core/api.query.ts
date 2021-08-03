@@ -1,5 +1,5 @@
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsInt, IsOptional, IsString, Min } from 'class-validator'
+import { Type, Transform } from 'class-transformer'
 
 /**
  * Pagination query with
@@ -11,8 +11,8 @@ import { Type } from 'class-transformer'
 export class PaginationQuery {
   @IsOptional()
   @IsInt()
+  @Transform(({ value }) => value > 60 ? 60 : value)
   @Min(0)
-  @Max(60)
   @Type(() => Number)
   size: number = 30
 
