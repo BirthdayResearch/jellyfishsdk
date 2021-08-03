@@ -5,8 +5,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { newFastifyAdapter } from '@src/fastify'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Indexer } from '@src/module.indexer/indexer'
-import { MemoryDatabase } from '@src/module.database/provider.memory/memory.database'
-import { Database } from '@src/module.database/database'
 import { BlockMapper } from '@src/module.model/block'
 import waitForExpect from 'wait-for-expect'
 import { addressToHid } from '@src/module.api/address.controller'
@@ -43,9 +41,6 @@ export async function stopTestingApp (container: MasterNodeRegTestContainer, app
   try {
     const indexer = app.get(Indexer)
     indexer.close()
-
-    const database: MemoryDatabase = app.get(Database)
-    await database.close()
     await app.close()
   } finally {
     await new Promise((resolve) => {

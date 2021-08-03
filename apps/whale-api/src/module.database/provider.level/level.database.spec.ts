@@ -18,10 +18,6 @@ beforeAll(async () => {
   database = app.get<Database>(Database)
 })
 
-afterAll(async () => {
-  await (database as LevelDatabase).close()
-})
-
 beforeEach(async () => {
   await spec.setup(database)
 })
