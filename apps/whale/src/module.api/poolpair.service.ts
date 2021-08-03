@@ -6,8 +6,6 @@ import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 
 @Injectable()
 export class PoolPairService {
-  private readonly USDT_PER_DFI: BigNumber | undefined
-
   constructor (
     protected readonly rpcClient: JsonRpcClient,
     protected readonly cache: SemaphoreCache
@@ -62,7 +60,7 @@ export class PoolPairService {
     }
   }
 
-  private async getUSDT_PER_DFI (): Promise<BigNumber | undefined> {
+  async getUSDT_PER_DFI (): Promise<BigNumber | undefined> {
     return await this.cache.get<BigNumber>('USDT_PER_DFI', async () => {
       const pair = await this.getPoolPair('DFI', 'USDT')
       if (pair !== undefined) {

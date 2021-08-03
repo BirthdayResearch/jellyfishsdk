@@ -8,6 +8,7 @@ import { AddressController } from '@src/module.api/address.controller'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
 import { PoolPairService } from '@src/module.api/poolpair.service'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
+import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
 import { ResponseInterceptor } from '@src/module.api/interceptors/response.interceptor'
 import { TokensController } from '@src/module.api/token.controller'
@@ -17,7 +18,7 @@ import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { OraclesController } from '@src/module.api/oracles.controller'
 import { PricesController } from '@src/module.api/prices.controller'
-import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
+import { StatsController } from '@src/module.api/stats.controller'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -34,7 +35,8 @@ import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
     MasternodesController,
     BlockController,
     OraclesController,
-    PricesController
+    PricesController,
+    StatsController
   ],
   providers: [
     { provide: APP_PIPE, useClass: ApiValidationPipe },
