@@ -81,6 +81,20 @@ export class Spv {
   async decodeHtlcScript (redeemScript: string): Promise<DecodeHtlcResult> {
     return await this.client.call('spv_decodehtlcscript', [redeemScript], 'number')
   }
+
+  /**
+   * Claims all coins in HTLC address.
+   *
+   * @param {string} scriptAddress HTLC address
+   * @param {string} destinationAddress Destination address to send HTLC funds to
+   * @param {ClaimHtlcOptions} options
+   * @param {string} options.seed HTLC seed
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
+   * @return {Promise<SendMessageResult>}
+   */
+  async claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult> {
+    return await this.client.call('spv_claimhtlc', [scriptAddress, destinationAddress, options.seed, options.feeRate], 'bignumber')
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -132,4 +146,11 @@ export interface DecodeHtlcResult {
   blocks: number
   /** Hex-encoded seed hash */
   hash: string
+}
+
+export interface ClaimHtlcOptions {
+  /** HTLC seed */
+  seed: string
+  /** Fee rate in satoshis per KB */
+  feeRate?: BigNumber
 }
