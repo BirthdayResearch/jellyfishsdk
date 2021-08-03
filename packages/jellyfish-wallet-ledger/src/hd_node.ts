@@ -1,9 +1,10 @@
-import { Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
+import { SIGHASH, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import Transport from '@ledgerhq/hw-transport'
 import AppBtc from '@ledgerhq/hw-app-btc'
 import { DERSignature } from '@defichain/jellyfish-crypto'
 import ecc from 'tiny-secp256k1'
+import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
 
 /**
  * LedgerHdNode implements the WalletHdNode for ledger hardware device for jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
@@ -16,6 +17,7 @@ export class LedgerHdNode implements WalletHdNode {
   private readonly transport: Transport
   private readonly path: string
   private readonly btcApp: AppBtc
+  private pubKeyCompressed: Buffer | undefined // cache the public key so that we don't have to request for user auth multiple times
 
   constructor (transport: Transport, path: string) {
     this.transport = transport
@@ -26,11 +28,16 @@ export class LedgerHdNode implements WalletHdNode {
   /**
    * Returns the public key.
    *
-   * @return {Promise<Buffer>} Object including the public key in uncompressed format
+   * @return {Promise<Buffer>} Object including the public key in compressed format
    */
-  async publicKey (): Promise<Buffer> {
-    const result = await this.btcApp.getWalletPublicKey(this.path, { verify: true, format: 'legacy' }) // NOTE(surangap): we need to take format as input param. where?
-    return Buffer.from(result.publicKey, 'hex')
+  async publicKey (verify: boolean = false): Promise<Buffer> {
+    if (this.pubKeyCompressed === undefined) {
+      const result = await this.btcApp.getWalletPublicKey(this.path, { verify: verify, format: 'legacy' })
+      this.pubKeyCompressed = ecc.pointCompress(Buffer.from(result.publicKey, 'hex'), true)
+      return this.pubKeyCompressed
+    } else {
+      return this.pubKeyCompressed
+    }
   }
 
   // NOTE(surangap): private key do not leave the hardware device
@@ -40,7 +47,7 @@ export class LedgerHdNode implements WalletHdNode {
 
   /**
    * Signs the message with the private key.
-   * The data to sign will be the "\15Defi Signed Message:\n"<length of the message in 1 byte><message>
+   * The data to sign will be the "\x15Defi Signed Message:\n"<length of the message in 1 byte><message>
    *
    * @param {Buffer} message message to sign
    * @return {Promise<Buffer>} Object including the signature in DER format
@@ -60,16 +67,22 @@ export class LedgerHdNode implements WalletHdNode {
    */
   async verify (hash: Buffer, derSignature: Buffer): Promise<boolean> {
     const signature = DERSignature.decode(derSignature)
-
-    const pubKeyResult = await this.btcApp.getWalletPublicKey(this.path, { verify: false, format: 'legacy' })
-    const pubKey = Buffer.from(pubKeyResult.publicKey, 'hex')
-    const pubKeyCompressed = ecc.pointCompress(pubKey, true)
-
-    return ecc.verify(hash, pubKeyCompressed, signature)
+    return ecc.verify(hash, await this.publicKey(), signature)
   }
 
+  /**
+   * Sign a transaction with all prevout belong to this HdNode with SIGHASH.ALL
+   * This implementation can only sign a P2WPKH, hence the implementing WalletAccount should only
+   * recognize P2WPKH addresses encoded in bech32 format.
+   *
+   * @param {Transaction} transaction to sign
+   * @param {Vout[]} prevouts of transaction to sign, ellipticPair will be mapped to current node
+   * @return TransactionSegWit signed transaction ready to broadcast
+   */
   async signTx (transaction: Transaction, prevouts: Vout[]): Promise<TransactionSegWit> {
-    return await new Promise(() => { return true })
+    return await TransactionSigner.signPrevoutsWithEllipticPairs(transaction, prevouts, prevouts.map(() => this), {
+      sigHashType: SIGHASH.ALL
+    })
   }
 }
 
