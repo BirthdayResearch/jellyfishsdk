@@ -19,6 +19,9 @@ describe('Masternode', () => {
   })
 
   it('should createMasternode with bech32 address', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 20000).toBeTruthy()
+
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
     const ownerAddress = await client.wallet.getNewAddress()
@@ -54,6 +57,9 @@ describe('Masternode', () => {
   })
 
   it('should createMasternode with operator bech32 address', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 20000).toBeTruthy()
+
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
     const ownerAddress = await client.wallet.getNewAddress()
@@ -77,6 +83,9 @@ describe('Masternode', () => {
   })
 
   it('should createMasternode with utxos', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 20000).toBeTruthy()
+
     const ownerAddress = await client.wallet.getNewAddress()
     await container.fundAddress(ownerAddress, 10)
     const utxos = await container.call('listunspent')
@@ -95,6 +104,9 @@ describe('Masternode', () => {
   })
 
   it('should createMasternode with legacy address', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 20000).toBeTruthy()
+
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
     const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
@@ -129,5 +141,24 @@ describe('Masternode', () => {
     const promise = client.masternode.createMasternode(invalidAddress)
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`operatorAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
+  })
+
+  it('should be failed as min 20k DFI is needed', async () => {
+    expect.assertions(2)
+
+    const balanceBefore = await container.call('getbalance')
+
+    await client.wallet.sendToAddress('bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 1)
+
+    const balanceAfter = await container.call('getbalance')
+    expect(balanceAfter < 20000).toBeTruthy()
+
+    const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+
+    try {
+      await client.masternode.createMasternode(ownerAddress)
+    } catch (err) {
+      expect(err.message).toStrictEqual('RpcApiError: \'Insufficient funds\', code: -4, method: createmasternode')
+    }
   })
 })

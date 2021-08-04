@@ -41,6 +41,9 @@ beforeEach(async () => {
 })
 
 it('should create with P2PKH address', async () => {
+  const balance = await container.call('getbalance')
+  expect(balance >= 20000).toBeTruthy()
+
   const masternodesBefore = await jsonRpc.masternode.listMasternodes()
   const masternodesBeforeLength = Object.keys(masternodesBefore).length
 
@@ -93,6 +96,9 @@ it('should create with P2PKH address', async () => {
 })
 
 it('should create with PKWPKH', async () => {
+  const balance = await container.call('getbalance')
+  expect(balance >= 20000).toBeTruthy()
+
   const masternodesBefore = await jsonRpc.masternode.listMasternodes()
   const masternodesBeforeLength = Object.keys(masternodesBefore).length
 
@@ -143,6 +149,9 @@ it('should create with PKWPKH', async () => {
 })
 
 it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
+  const balance = await container.call('getbalance')
+  expect(balance >= 20000).toBeTruthy()
+
   const address = await container.getNewAddress('', 'p2sh-segwit')
   const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
   const addressDestKeyHash = addressDest.hex
@@ -169,4 +178,53 @@ it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () 
   const promise = sendTransaction(container, txn)
   await expect(promise).rejects.toThrow(DeFiDRpcError)
   await expect(promise).rejects.toThrow('CreateMasternodeTx: bad owner and|or operator address (should be P2PKH or P2WPKH only) or node with those addresses exists')
+})
+
+// ISSUE(canonbrother): createmasternode via sendrawtransaction will bypass balance checker??
+it.skip('should be failed as min 20k DFI is needed', async () => {
+  // expect.assertions(2)
+
+  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+  const masternodesBeforeLength = Object.keys(masternodesBefore).length
+  console.log('masternodesBeforeLength: ', masternodesBeforeLength)
+
+  const balanceBefore = await container.call('getbalance')
+
+  await container.call('sendtoaddress', ['bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 100])
+
+  const balanceAfter = await container.call('getbalance')
+  console.log('balanceAfter: ', balanceAfter)
+  expect(balanceAfter < 20000).toBeTruthy()
+
+  const address = await container.getNewAddress('', 'legacy')
+  const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
+  const addressDestHex = addressDest.hex
+
+  const createMasternode: CreateMasterNode = {
+    operatorType: 0x01,
+    operatorAuthAddress: addressDestHex
+  }
+
+  const script = await providers.elliptic.script()
+
+  const txn: any = await builder.masternode.create(createMasternode, script)
+
+  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
+  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
+  txn.vout = txn.vout.map((v: any) => {
+    return {
+      nValue: v.value,
+      script: v.script,
+      nTokenId: v.tokenId
+    }
+  })
+
+  try {
+    await sendTransaction(container, txn)
+    const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+    const masternodesAfterLength = Object.keys(masternodesAfter).length
+    console.log('masternodesAfterLength: ', masternodesAfterLength)
+  } catch (err) {
+    console.log('err: ', err)
+  }
 })
