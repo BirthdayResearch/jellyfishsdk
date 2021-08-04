@@ -6,7 +6,7 @@ import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PriceTicker, PriceTickerMapper } from '@src/module.model/price.ticker'
 
 @Controller('/prices')
-export class PricesController {
+export class PriceController {
   constructor (
     protected readonly oraclePriceAggregatedMapper: OraclePriceAggregatedMapper,
     protected readonly oracleTokenCurrencyMapper: OracleTokenCurrencyMapper,

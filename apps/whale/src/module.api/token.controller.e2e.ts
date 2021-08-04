@@ -1,4 +1,4 @@
-import { TokensController } from '@src/module.api/token.controller'
+import { TokenController } from '@src/module.api/token.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
@@ -7,16 +7,15 @@ import { NotFoundException } from '@nestjs/common'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
-let controller: TokensController
+let controller: TokenController
 
 beforeAll(async () => {
   await container.start()
-  await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
   await container.waitForWalletBalanceGTE(100)
 
   app = await createTestingApp(container)
-  controller = app.get(TokensController)
+  controller = app.get(TokenController)
 
   await waitForIndexedHeight(app, 100)
 

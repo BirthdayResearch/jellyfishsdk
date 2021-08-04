@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { TokensController } from '@src/module.api/token.controller'
-import { createToken, createPoolPair } from '@defichain/testing'
+import { TokenController } from '@src/module.api/token.controller'
+import { createPoolPair, createToken } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
-let controller: TokensController
+let controller: TokenController
 
 beforeAll(async () => {
   await container.start()
@@ -19,10 +19,10 @@ beforeAll(async () => {
   await createPoolPair(container, 'DBTC', 'DETH')
 
   const app: TestingModule = await Test.createTestingModule({
-    controllers: [TokensController],
+    controllers: [TokenController],
     providers: [{ provide: JsonRpcClient, useValue: client }]
   }).compile()
-  controller = app.get<TokensController>(TokensController)
+  controller = app.get<TokenController>(TokenController)
 })
 
 afterAll(async () => {

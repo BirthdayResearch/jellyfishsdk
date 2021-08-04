@@ -6,7 +6,7 @@ import { MasternodeData } from '@whale-api-client/api/masternodes'
 import { MasternodeInfo, MasternodePagination } from '@defichain/jellyfish-api-core/dist/category/masternode'
 
 @Controller('/masternodes')
-export class MasternodesController {
+export class MasternodeController {
   constructor (
     protected readonly client: JsonRpcClient
   ) {

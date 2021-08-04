@@ -6,7 +6,7 @@ import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { TokenData } from '@whale-api-client/api/tokens'
 
 @Controller('/tokens')
-export class TokensController {
+export class TokenController {
   constructor (private readonly client: JsonRpcClient) {
   }
 
