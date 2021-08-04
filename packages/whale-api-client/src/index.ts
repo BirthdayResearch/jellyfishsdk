@@ -10,6 +10,8 @@ export * as blocks from './api/blocks'
 export * as oracles from './api/oracles'
 export * as prices from './api/prices'
 export * as stats from './api/stats'
+export * as rawtx from './api/rawtx'
+export * as fee from './api/fee'
 
 export * from './whale.api.client'
 export * from './whale.api.response'

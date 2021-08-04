@@ -1,15 +1,8 @@
 import { WhaleApiClient } from '../whale.api.client'
+import { ApiPagedResponse } from '../whale.api.response'
 
 export class Transactions {
   constructor (private readonly client: WhaleApiClient) {
-  }
-
-  /**
-   * @param {RawTxReq} rawTx to submit to the network.
-   * @throws WhaleApiException if failed mempool acceptance
-   */
-  async send (rawTx: RawTxReq): Promise<string> {
-    return await this.client.requestData('POST', 'transactions', rawTx)
   }
 
   /**
@@ -21,28 +14,24 @@ export class Transactions {
   }
 
   /**
-   * @param {RawTxReq} rawTx to test mempool acceptance
-   * @throws WhaleApiException if failed mempool acceptance
+   * @param {string} txid of the transaction
+   * @param {number} [size=30] size to query
+   * @param {string} [next] next token for next slice of vin
+   * @return {Promise<ApiPagedResponse<TransactionVin[]>>}
    */
-  async test (rawTx: RawTxReq): Promise<void> {
-    return await this.client.requestData('POST', 'transactions/test', rawTx)
+  async getVins (txid: string, size: number = 30, next?: string): Promise<ApiPagedResponse<TransactionVin>> {
+    return await this.client.requestList('GET', `transactions/${txid}/vins`, size, next)
   }
 
   /**
-   * @param {number} confirmationTarget in blocks till fee get confirmed
-   * @return {Promise<number>} fee rate per KB
+   * @param {string} txid of the transaction
+   * @param {number} [size=30] size to query
+   * @param {string} [next] next token for next slice of vout
+   * @return {Promise<ApiPagedResponse<TransactionVout[]>>}
    */
-  async estimateFee (confirmationTarget: number = 10): Promise<number> {
-    return await this.client.requestData('GET', `transactions/estimate-fee?confirmationTarget=${confirmationTarget}`)
+  async getVouts (txid: string, size: number = 30, next?: string): Promise<ApiPagedResponse<TransactionVout>> {
+    return await this.client.requestList('GET', `transactions/${txid}/vouts`, size, next)
   }
-}
-
-/**
- * Raw transaction request
- */
-export interface RawTxReq {
-  hex: string
-  maxFeeRate?: number
 }
 
 /**

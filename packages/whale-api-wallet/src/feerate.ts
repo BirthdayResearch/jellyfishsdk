@@ -7,7 +7,7 @@ export class WhaleFeeRateProvider implements FeeRateProvider {
   }
 
   async estimate (): Promise<BigNumber> {
-    const feeRate = await this.client.transactions.estimateFee()
+    const feeRate = await this.client.fee.estimate()
     return new BigNumber(feeRate)
   }
 }
