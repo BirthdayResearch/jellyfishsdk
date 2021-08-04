@@ -91,7 +91,7 @@ export class ApiPagedResponse<T> extends Array<T> {
   /**
    * @return {string} next token
    */
-  get nextToken (): string | number | undefined {
+  get nextToken (): string | undefined {
     return this._paginate.page?.next
   }
 }
