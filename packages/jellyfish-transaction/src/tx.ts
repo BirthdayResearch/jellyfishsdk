@@ -56,11 +56,6 @@ export interface Vout {
   value: BigNumber // ------------------| 8 bytes
   script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
   tokenId: number // -------------------| 1 byte (Although it is VarUInt but disabled hence always 0x00)
-
-  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
-  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
-  nValue?: BigNumber // ----------------| 8 bytes
-  nTokenId?: number // -----------------| 1 byte
 }
 
 /**

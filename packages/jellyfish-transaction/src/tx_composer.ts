@@ -147,15 +147,6 @@ export class CVoutV4 extends ComposableBuffer<Vout> implements Vout {
   }
 
   composers (vout: Vout): BufferComposer[] {
-    if (vout.nValue !== undefined && vout.nTokenId !== undefined) {
-      let nValue = vout.nValue
-      let nTokenId = vout.nTokenId
-      return [
-        ComposableBuffer.satoshiAsBigNumber(() => nValue, v => nValue = v),
-        ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),
-        ComposableBuffer.varUInt(() => nTokenId, v => nTokenId = v)
-      ]
-    }
     return [
       ComposableBuffer.satoshiAsBigNumber(() => vout.value, v => vout.value = v),
       ComposableBuffer.single<Script>(() => vout.script, v => vout.script = v, v => new CScript(v)),

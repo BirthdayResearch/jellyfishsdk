@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
-import { OP_CODES, CreateMasterNode } from '@defichain/jellyfish-transaction'
+import { OP_CODES, CreateMasterNode, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2PKH, P2SH, P2WPKH } from '@defichain/jellyfish-address'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
@@ -58,17 +58,8 @@ it('should create with P2PKH address', async () => {
 
   const script = await providers.elliptic.script()
 
-  const txn: any = await builder.masternode.create(createMasternode, script)
+  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
-  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
-  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
-  txn.vout = txn.vout.map((v: any) => {
-    return {
-      nValue: v.value,
-      script: v.script,
-      nTokenId: v.tokenId
-    }
-  })
   const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
   const expectedRedeemScript = `6a${encoded}`
 
@@ -113,17 +104,8 @@ it('should create with PKWPKH', async () => {
 
   const script = await providers.elliptic.script()
 
-  const txn: any = await builder.masternode.create(createMasternode, script)
+  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
-  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
-  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
-  txn.vout = txn.vout.map((v: any) => {
-    return {
-      nValue: v.value,
-      script: v.script,
-      nTokenId: v.tokenId
-    }
-  })
   const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
   const expectedRedeemScript = `6a${encoded}`
 
@@ -163,17 +145,7 @@ it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () 
 
   const script = await providers.elliptic.script()
 
-  const txn: any = await builder.masternode.create(createMasternode, script)
-
-  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
-  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
-  txn.vout = txn.vout.map((v: any) => {
-    return {
-      nValue: v.value,
-      script: v.script,
-      nTokenId: v.tokenId
-    }
-  })
+  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
   const promise = sendTransaction(container, txn)
   await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -207,17 +179,7 @@ it.skip('should be failed as min 20k DFI is needed', async () => {
 
   const script = await providers.elliptic.script()
 
-  const txn: any = await builder.masternode.create(createMasternode, script)
-
-  // ISSUE(canonbrother): nValue same as value, nTokenId same as tokenId, its inconsistent vout struct issue
-  // https://github.com/DeFiCh/ain/blob/c812f0283a52840996659121a755a9f723be2392/src/masternodes/mn_checks.cpp#L441-L442
-  txn.vout = txn.vout.map((v: any) => {
-    return {
-      nValue: v.value,
-      script: v.script,
-      nTokenId: v.tokenId
-    }
-  })
+  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
   try {
     await sendTransaction(container, txn)
