@@ -42,7 +42,7 @@ beforeEach(async () => {
 
 it('should create with P2PKH address', async () => {
   const balance = await container.call('getbalance')
-  expect(balance >= 20000).toBeTruthy()
+  expect(balance >= 2).toBeTruthy()
 
   const masternodesBefore = await jsonRpc.masternode.listMasternodes()
   const masternodesBeforeLength = Object.keys(masternodesBefore).length
@@ -88,7 +88,7 @@ it('should create with P2PKH address', async () => {
 
 it('should create with PKWPKH', async () => {
   const balance = await container.call('getbalance')
-  expect(balance >= 20000).toBeTruthy()
+  expect(balance >= 2).toBeTruthy()
 
   const masternodesBefore = await jsonRpc.masternode.listMasternodes()
   const masternodesBeforeLength = Object.keys(masternodesBefore).length
@@ -132,7 +132,7 @@ it('should create with PKWPKH', async () => {
 
 it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
   const balance = await container.call('getbalance')
-  expect(balance >= 20000).toBeTruthy()
+  expect(balance >= 2).toBeTruthy()
 
   const address = await container.getNewAddress('', 'p2sh-segwit')
   const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
@@ -152,21 +152,16 @@ it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () 
   await expect(promise).rejects.toThrow('CreateMasternodeTx: bad owner and|or operator address (should be P2PKH or P2WPKH only) or node with those addresses exists')
 })
 
-// ISSUE(canonbrother): createmasternode via sendrawtransaction will bypass balance checker??
-it.skip('should be failed as min 20k DFI is needed', async () => {
-  // expect.assertions(2)
-
-  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
-  const masternodesBeforeLength = Object.keys(masternodesBefore).length
-  console.log('masternodesBeforeLength: ', masternodesBeforeLength)
+it('should be failed while collateral is not 2', async () => {
+  expect.assertions(2)
 
   const balanceBefore = await container.call('getbalance')
 
-  await container.call('sendtoaddress', ['bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 100])
+  await container.call('sendtoaddress', ['bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 2])
 
   const balanceAfter = await container.call('getbalance')
   console.log('balanceAfter: ', balanceAfter)
-  expect(balanceAfter < 20000).toBeTruthy()
+  expect(balanceAfter < 2).toBeTruthy()
 
   const address = await container.getNewAddress('', 'legacy')
   const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
@@ -177,16 +172,15 @@ it.skip('should be failed as min 20k DFI is needed', async () => {
     operatorAuthAddress: addressDestHex
   }
 
+  await fundEllipticPair(container, providers.ellipticPair, 1.1)
+
   const script = await providers.elliptic.script()
 
   const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
   try {
     await sendTransaction(container, txn)
-    const masternodesAfter = await jsonRpc.masternode.listMasternodes()
-    const masternodesAfterLength = Object.keys(masternodesAfter).length
-    console.log('masternodesAfterLength: ', masternodesAfterLength)
   } catch (err) {
-    console.log('err: ', err)
+    expect(err.message).toStrictEqual('DeFiDRpcError: \'CreateMasternodeTx: malformed tx vouts (wrong creation fee or collateral amount) (code 16)\', code: -26')
   }
 })

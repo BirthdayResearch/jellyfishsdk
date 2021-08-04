@@ -20,7 +20,7 @@ describe('Masternode', () => {
 
   it('should createMasternode with bech32 address', async () => {
     const balance = await container.call('getbalance')
-    expect(balance >= 20000).toBeTruthy()
+    expect(balance >= 2).toBeTruthy()
 
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
@@ -58,7 +58,7 @@ describe('Masternode', () => {
 
   it('should createMasternode with operator bech32 address', async () => {
     const balance = await container.call('getbalance')
-    expect(balance >= 20000).toBeTruthy()
+    expect(balance >= 2).toBeTruthy()
 
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
@@ -84,7 +84,7 @@ describe('Masternode', () => {
 
   it('should createMasternode with utxos', async () => {
     const balance = await container.call('getbalance')
-    expect(balance >= 20000).toBeTruthy()
+    expect(balance >= 2).toBeTruthy()
 
     const ownerAddress = await client.wallet.getNewAddress()
     await container.fundAddress(ownerAddress, 10)
@@ -105,7 +105,7 @@ describe('Masternode', () => {
 
   it('should createMasternode with legacy address', async () => {
     const balance = await container.call('getbalance')
-    expect(balance >= 20000).toBeTruthy()
+    expect(balance >= 2).toBeTruthy()
 
     const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
 
@@ -143,7 +143,7 @@ describe('Masternode', () => {
     await expect(promise).rejects.toThrow(`operatorAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
   })
 
-  it('should be failed as min 20k DFI is needed', async () => {
+  it('should be failed as min 2 DFI (regtest) is needed', async () => {
     expect.assertions(2)
 
     const balanceBefore = await container.call('getbalance')
@@ -151,7 +151,7 @@ describe('Masternode', () => {
     await client.wallet.sendToAddress('bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 1)
 
     const balanceAfter = await container.call('getbalance')
-    expect(balanceAfter < 20000).toBeTruthy()
+    expect(balanceAfter < 2).toBeTruthy()
 
     const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
 
