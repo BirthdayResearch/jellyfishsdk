@@ -139,6 +139,15 @@ export class Masternode {
   async getGov (name: string): Promise<Record<string, any>> {
     return await this.client.call('getgov', [name], 'bignumber')
   }
+
+  /**
+   * Gets array of anchors if any
+   *
+   * @return array of anchors
+   */
+  async listAnchors (): Promise<any> {
+    return await this.client.call('listanchors', [], 'number')
+  }
 }
 
 export interface UTXO {
