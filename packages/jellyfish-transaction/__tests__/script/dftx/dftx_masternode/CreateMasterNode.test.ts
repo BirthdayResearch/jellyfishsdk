@@ -8,7 +8,8 @@ it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     '6a1a44665478430121978f97842d623b79acecd7201a60538c13e935', // undefined operator pkh, use collateral pkh
     '6a1a44665478430147bfb0a67b85a1718381558434fbfe7c4866cf2e', // p2pkh
-    '6a1a4466547843040e12cde53c156560faa1d01d144d234a74b65395' // p2wpkh
+    '6a1a4466547843040e12cde53c156560faa1d01d144d234a74b65395', // p2wpkh
+    '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950401' // with timeLock
   ]
 
   fixtures.forEach(hex => {
