@@ -21,8 +21,8 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a1a4466547843' // OP_RETURN (length 26 = 0x1a), PUSH_DATA(44665478, 43)
-const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff'
+const header = '6a1a4466547843' // OP_RETURN(0x1a) (length 26 = 0x1a) CDfTx.SIGNATURE(0x44665478) CCreateMasterNode.OP_CODE(0x43)
+const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff' // CreateMasterNode.operatorType(0x01) CreateMasterNode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff)
 const createMasterNode: CreateMasterNode = {
   operatorType: 0x01,
   operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
