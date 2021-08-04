@@ -9,7 +9,6 @@ let controller: BlockController
 
 beforeAll(async () => {
   await container.start()
-  await container.waitForReady()
   await container.waitForBlockHeight(101)
 
   app = await createTestingApp(container)
@@ -38,34 +37,6 @@ describe('get', () => {
   it('should get undefined with invalid hash ', async () => {
     const block = await controller.get('lajsdl;kfjljklj12lk34j')
     expect(block).toStrictEqual(undefined)
-  })
-})
-
-describe('getTransactions', () => {
-  it('should get transactions from a block by hash', async () => {
-    const blockHash = await container.call('getblockhash', [100])
-    const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30, next: '10' })
-
-    expect(paginatedTransactions.data.length).toBeGreaterThanOrEqual(1)
-    expect(paginatedTransactions.data[0].block.height).toStrictEqual(100)
-  })
-
-  it('getTransactions should not get transactions by height', async () => {
-    const paginatedTransactions = await controller.getTransactions('0', { size: 30, next: '10' })
-
-    expect(paginatedTransactions.data.length).toStrictEqual(0)
-  })
-
-  it('getTransactions should get empty array when hash is not valid', async () => {
-    const paginatedTransactions = await controller.getTransactions('z1wadfsvq90qlkfalnklvm', { size: 30 })
-
-    expect(paginatedTransactions.data.length).toStrictEqual(0)
-  })
-
-  it('getTransactions should get empty array when height is not valid', async () => {
-    const paginatedTransactions = await controller.getTransactions('999999999999', { size: 30 })
-
-    expect(paginatedTransactions.data.length).toStrictEqual(0)
   })
 })
 
@@ -110,117 +81,31 @@ describe('list', () => {
   })
 })
 
-describe('getVins', () => {
-  it('should return list of vins', async () => {
+describe('getTransactions', () => {
+  it('should get transactions from a block by hash', async () => {
     const blockHash = await container.call('getblockhash', [100])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
+    const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30, next: '10' })
 
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vins = await controller.getVins(blockHash, transactions.data[0].id, { size: 30 })
-
-    expect(vins.data.length).toBeGreaterThanOrEqual(1)
+    expect(paginatedTransactions.data.length).toBeGreaterThanOrEqual(1)
+    expect(paginatedTransactions.data[0].block.height).toStrictEqual(100)
   })
 
-  it('should return list of vins when next is out of range', async () => {
-    const blockHash = await container.call('getblockhash', [100])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
+  it('getTransactions should not get transactions by height', async () => {
+    const paginatedTransactions = await controller.getTransactions('0', { size: 30, next: '10' })
 
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vins = await controller.getVins(blockHash, transactions.data[0].id, { size: 30, next: '100' })
-
-    expect(vins.data.length).toBeGreaterThanOrEqual(1)
+    expect(paginatedTransactions.data.length).toStrictEqual(0)
   })
 
-  it('should return empty page if blockhash is not valid', async () => {
-    const blockHash = await container.call('getblockhash', [100])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
+  it('getTransactions should get empty array when hash is not valid', async () => {
+    const paginatedTransactions = await controller.getTransactions('z1wadfsvq90qlkfalnklvm', { size: 30 })
 
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vins = await controller.getVins('0e8ffadf068a4dad100cc6d6c31cd6610a754b01d6e88361955d2070282354b1', transactions.data[0].id, { size: 30 })
-
-    expect(vins.data.length).toStrictEqual(0)
-    expect(vins.page).toBeUndefined()
+    expect(paginatedTransactions.data.length).toStrictEqual(0)
   })
 
-  it('should return empty page if txid is not valid', async () => {
-    const blockHash = await container.call('getblockhash', [100])
+  it('getTransactions should get empty array when height is not valid', async () => {
+    const paginatedTransactions = await controller.getTransactions('999999999999', { size: 30 })
 
-    const vins = await controller.getVins(blockHash, '9d87a6b6b77323b6dab9d8971fff0bc7a6c341639ebae39891024f4800528532', { size: 30 })
-
-    expect(vins.data.length).toStrictEqual(0)
-    expect(vins.page).toBeUndefined()
-  })
-
-  it('should return empty page if transaction does not belong to the block', async () => {
-    const blockHash = await container.call('getblockhash', [100])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
-
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vins = await controller.getVins(await container.call('getblockhash', [99]), transactions.data[0].id, { size: 30 })
-
-    expect(vins.data.length).toStrictEqual(0)
-    expect(vins.page).toBeUndefined()
-  })
-})
-
-describe('getVouts', () => {
-  it('should return list of vouts', async () => {
-    const blockHash = await container.call('getblockhash', [37])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
-
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vouts = await controller.getVouts(blockHash, transactions.data[0].id, { size: 30 })
-
-    expect(vouts.data.length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('should return list of vouts when next is out of range', async () => {
-    const blockHash = await container.call('getblockhash', [100])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
-
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vouts = await controller.getVouts(blockHash, transactions.data[0].id, { size: 30, next: '100' })
-
-    expect(vouts.data.length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('should return empty page if blockhash is not valid', async () => {
-    const blockHash = await container.call('getblockhash', [37])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
-
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vouts = await controller.getVouts('0e8ffadf068a4dad100cc6d6c31cd6610a754b01d6e88361955d2070282354b1', transactions.data[0].id, { size: 30 })
-
-    expect(vouts.data.length).toStrictEqual(0)
-    expect(vouts.page).toBeUndefined()
-  })
-
-  it('should return empty page if txid is not valid', async () => {
-    const blockHash = await container.call('getblockhash', [37])
-
-    const vouts = await controller.getVouts(blockHash, '9d87a6b6b77323b6dab9d8971fff0bc7a6c341639ebae39891024f4800528532', { size: 30 })
-
-    expect(vouts.data.length).toStrictEqual(0)
-    expect(vouts.page).toBeUndefined()
-  })
-
-  it('should return empty page if transaction does not belong to the block', async () => {
-    const blockHash = await container.call('getblockhash', [37])
-    const transactions = await controller.getTransactions(blockHash, { size: 1 })
-
-    expect(transactions.data.length).toStrictEqual(1)
-
-    const vouts = await controller.getVouts(await container.call('getblockhash', [99]), transactions.data[0].id, { size: 30 })
-
-    expect(vouts.data.length).toStrictEqual(0)
-    expect(vouts.page).toBeUndefined()
+    expect(paginatedTransactions.data.length).toStrictEqual(0)
   })
 })
 

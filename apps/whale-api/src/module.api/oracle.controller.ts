@@ -5,7 +5,7 @@ import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 
 @Controller('/oracles')
-export class OraclesController {
+export class OracleController {
   constructor (
     protected readonly oracleMapper: OracleMapper,
     protected readonly oraclePriceFeedMapper: OraclePriceFeedMapper
