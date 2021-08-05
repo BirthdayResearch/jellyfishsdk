@@ -16,6 +16,7 @@ export * from './dftx_price'
 export * from './dftx_token'
 export * from './dftx_unmapped'
 export * from './dftx'
+export * from './dftx_icxorderbook'
 
 const DEFI_SIGNATURE = '44665478' // DfTx
 
