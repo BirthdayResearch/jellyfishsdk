@@ -23,7 +23,7 @@ const DEFI_SIGNATURE = '44665478' // DfTx
  * @param {OPCode[]} stack to check if it is a dftx script
  */
 export function isDeFiScript (stack: OPCode[]): boolean {
-  if (stack.length !== 2) {
+  if (stack.length < 2) {
     return false
   }
 
@@ -54,7 +54,8 @@ export function remapDeFiScript (stack: OPCode[]): OPCode[] {
 
   return [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX(dftx.toObject())
+    OP_CODES.OP_DEFI_TX(dftx.toObject()),
+    ...stack.slice(2)
   ]
 }
 

@@ -39,7 +39,7 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.2.6",
+    "@types/dockerode": "^3.2.7",
     "@types/node-fetch": "^2.5.12"
   }
 }

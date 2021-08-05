@@ -54,8 +54,10 @@
       <w>dockerode</w>
       <w>dummypos</w>
       <w>dumpprivkey</w>
+      <w>emissionburn</w>
       <w>equalverify</w>
       <w>eunospayaheight</w>
+      <w>feeburn</w>
       <w>fortcanningheight</w>
       <w>fromaltstack</w>
       <w>fullstackninja</w>
@@ -68,6 +70,7 @@
       <w>getblockchaininfo</w>
       <w>getblockcount</w>
       <w>getblockhash</w>
+      <w>getburninfo</w>
       <w>getmintinginfo</w>
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
@@ -110,6 +113,7 @@
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
+      <w>listburnhistory</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
       <w>listunspent</w>
@@ -133,6 +137,7 @@
       <w>nblocks</w>
       <w>networkhashps</w>
       <w>nextblockhash</w>
+      <w>nfkc</w>
       <w>nmasternode</w>
       <w>nospv</w>
       <w>notif</w>

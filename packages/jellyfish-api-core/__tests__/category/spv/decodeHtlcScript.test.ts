@@ -18,7 +18,7 @@ describe('Spv', () => {
   /** Util function to replace a char at index in string */
   const replaceAt = (s: string, index: number, replacement: string): string => s.substr(0, index) + replacement + s.substr(index + replacement.length)
 
-  it('should createHtlc', async () => {
+  it('should decodeHtlc', async () => {
     const pubKeyA = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
     const pubKeyB = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
     const blocks = 10
@@ -67,7 +67,7 @@ describe('Spv', () => {
     const redeemscript = '63a82001e7c5853b6d96346eb917445f49132f56bfb2dec56aafbf6a2a310b0d0b6e9f8821024adf8f420049083e5a28d88ea40d8441cf55d1a5aafce3ae5812fe1668548c92675ab2752103088a9944e39df3196e40d3edd4ea1f291eb3103d81ddf98c16bf060bc121ad8368ac'
     /**
      * Tamper seller public key length.
-     * Should be 0x41 or 0x21 as seen in `ain` repository src/pubkey.h
+     * Should be 0x41 or 0x21 as seen in https://github.com/DeFiCh/ain/blob/master/src/pubkey.h
      * PUBLIC_KEY_SIZE=65
      * COMPRESSED_PUBLIC_KEY_SIZE=33
      */
@@ -82,7 +82,7 @@ describe('Spv', () => {
     const redeemscript = '63a82001e7c5853b6d96346eb917445f49132f56bfb2dec56aafbf6a2a310b0d0b6e9f8821024adf8f420049083e5a28d88ea40d8441cf55d1a5aafce3ae5812fe1668548c92675ab2752103088a9944e39df3196e40d3edd4ea1f291eb3103d81ddf98c16bf060bc121ad8368ac'
     /**
      * Tamper buyer public key length.
-     * Should be 0x41 or 0x21 as seen in `ain` repository src/pubkey.h
+     * Should be 0x41 or 0x21 as seen in https://github.com/DeFiCh/ain/blob/master/src/pubkey.h
      * PUBLIC_KEY_SIZE=65
      * COMPRESSED_PUBLIC_KEY_SIZE=33
      */
@@ -97,7 +97,7 @@ describe('Spv', () => {
     const redeemscript = '63a82001e7c5853b6d96346eb917445f49132f56bfb2dec56aafbf6a2a310b0d0b6e9f8821024adf8f420049083e5a28d88ea40d8441cf55d1a5aafce3ae5812fe1668548c92675ab2752103088a9944e39df3196e40d3edd4ea1f291eb3103d81ddf98c16bf060bc121ad8368ac'
     /**
      * Tamper timeout length.
-     * Should >= OP_1 as seen in `ain` repository src/spv/spv_wrapper.cpp:977
+     * Should >= OP_1 as seen in https://github.com/DeFiCh/ain/blob/master/src/spv/spv_wrapper.cpp:977
      */
     const tamperedRedeemScript = replaceAt(redeemscript, 142, '1') // Temper timeout length to 0x1a
     const promise = client.spv.decodeHtlcScript(tamperedRedeemScript)
@@ -110,7 +110,7 @@ describe('Spv', () => {
     const redeemscript = '63a82001e7c5853b6d96346eb917445f49132f56bfb2dec56aafbf6a2a310b0d0b6e9f8821024adf8f420049083e5a28d88ea40d8441cf55d1a5aafce3ae5812fe1668548c92675ab2752103088a9944e39df3196e40d3edd4ea1f291eb3103d81ddf98c16bf060bc121ad8368ac'
     /**
      * Tamper seed hash length.
-     * Should be 0x20 as seen in `ain` repository src/spv/spv_wrapper.cpp:949
+     * Should be 0x20 as seen in https://github.com/DeFiCh/ain/blob/master/src/spv/spv_wrapper.cpp:949
      */
     const tamperedRedeemScript = replaceAt(redeemscript, 4, '9') // Tamper seed hash length to 0x90
     const promise = client.spv.decodeHtlcScript(tamperedRedeemScript)

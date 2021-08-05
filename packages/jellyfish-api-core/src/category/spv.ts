@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 export const HTLC_MINIMUM_BLOCK_COUNT = 9
 
 /**
- * SPV RPCs for DeFi Blockchain
+ * SPV RPCs for Bitcoin Blockchain
  */
 export class Spv {
   private readonly client: ApiClient
@@ -54,7 +54,7 @@ export class Spv {
    * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
-  async sendToAddress (address: string, amount: BigNumber, options = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+  async sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
     return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
   }
 
@@ -62,14 +62,14 @@ export class Spv {
    * Creates a Bitcoin address whose funds can be unlocked with a seed or as a refund.
    *
    * @param {string} receiverPubKey The public key of the possessor of the seed
-   * @param {number} ownerPubKey The public key of the recipient of the refund
+   * @param {string} ownerPubKey The public key of the recipient of the refund
    * @param {CreateHtlcOptions} options
    * @param {string} options.timeout  Timeout of the contract (denominated in blocks) relative to its placement in the blockchain. Minimum 9. See HTLC_MINIMUM_BLOCK_COUNT
-   * @param {string} [options.seed] SHA256 hash of the seed. If none provided one will be generated
+   * @param {string} [options.seedhash] SHA256 hash of the seed. If none provided one will be generated
    * @return {Promise<CreateHtlcResult>}
    */
   async createHtlc (receiverPubKey: string, ownerPubKey: string, options: CreateHtlcOptions): Promise<CreateHtlcResult> {
-    return await this.client.call('spv_createhtlc', [receiverPubKey, ownerPubKey, options.timeout, options.seed], 'number')
+    return await this.client.call('spv_createhtlc', [receiverPubKey, ownerPubKey, options.timeout, options.seedhash], 'number')
   }
 
   /**
@@ -133,7 +133,7 @@ export interface CreateHtlcOptions {
   /** Timeout of the contract (denominated in blocks) relative to its placement in the blockchain. Minimum 9. See HTLC_MINIMUM_BLOCK_COUNT */
   timeout: string
   /** SHA256 hash of the seed. If none provided one will be generated */
-  seed?: string
+  seedhash?: string
 }
 
 export interface CreateHtlcResult {
@@ -142,9 +142,9 @@ export interface CreateHtlcResult {
   /** Hex-encoded redemption script */
   redeemScript: string
   /** Hex-encoded seed */
-  seed: string
+  seed?: string
   /** Hex-encoded seed hash */
-  seedhash: string
+  seedhash?: string
 }
 
 export interface DecodeHtlcResult {
