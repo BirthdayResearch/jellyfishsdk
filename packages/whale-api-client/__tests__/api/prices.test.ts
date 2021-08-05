@@ -209,6 +209,23 @@ describe('oracles', () => {
         token: 'TA',
         currency: 'USD',
         weightage: expect.any(Number),
+        feed: {
+          id: expect.any(String),
+          key: expect.any(String),
+          sort: expect.any(String),
+          amount: expect.any(String),
+          currency: 'USD',
+          token: 'TA',
+          time: expect.any(Number),
+          oracleId: oracles[0].oracleId,
+          txid: expect.stringMatching(/[0-f]{64}/),
+          block: {
+            hash: expect.stringMatching(/[0-f]{64}/),
+            height: expect.any(Number),
+            medianTime: expect.any(Number),
+            time: expect.any(Number)
+          }
+        },
         block: {
           hash: expect.stringMatching(/[0-f]{64}/),
           height: expect.any(Number),

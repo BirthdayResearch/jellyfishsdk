@@ -1,5 +1,6 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
+import { OraclePriceFeed } from './oracles'
 
 /**
  * DeFi whale endpoint for price related services.
@@ -67,6 +68,11 @@ export interface PriceOracle {
   currency: string
   oracleId: string
   weightage: number
+
+  /**
+   * Optional as OraclePriceFeed might not be available e.g. newly initialized Oracle
+   */
+  feed?: OraclePriceFeed
 
   block: {
     hash: string
