@@ -6,11 +6,12 @@ import { AppointOracleIndexer } from '@src/module.indexer/model/dftx/appoint.ora
 import { RemoveOracleIndexer } from '@src/module.indexer/model/dftx/remove.oracle'
 import { UpdateOracleIndexer } from '@src/module.indexer/model/dftx/update.oracle'
 import { SetOracleDataIndexer } from '@src/module.indexer/model/dftx/set.oracle.data'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
 
 @Injectable()
 export class MainDfTxIndexer extends Indexer {
+  private readonly logger = new Logger(MainDfTxIndexer.name)
   private readonly indexers: Array<DfTxIndexer<any>>
 
   constructor (
@@ -29,7 +30,7 @@ export class MainDfTxIndexer extends Indexer {
   }
 
   async index (block: RawBlock): Promise<void> {
-    const transactions = getDfTxTransactions(block)
+    const transactions = this.getDfTxTransactions(block)
 
     for (const indexer of this.indexers) {
       const filtered = transactions.filter(value => value.dftx.type === indexer.OP_CODE)
@@ -38,31 +39,37 @@ export class MainDfTxIndexer extends Indexer {
   }
 
   async invalidate (block: RawBlock): Promise<void> {
-    const transactions = getDfTxTransactions(block)
+    const transactions = this.getDfTxTransactions(block)
 
     for (const indexer of this.indexers) {
       const filtered = transactions.filter(value => value.dftx.type === indexer.OP_CODE)
       await indexer.invalidate(block, filtered)
     }
   }
-}
 
-export function getDfTxTransactions (block: RawBlock): Array<DfTxTransaction<any>> {
-  const transactions: Array<DfTxTransaction<any>> = []
+  private getDfTxTransactions (block: RawBlock): Array<DfTxTransaction<any>> {
+    const transactions: Array<DfTxTransaction<any>> = []
 
-  for (const txn of block.tx) {
-    for (const vout of txn.vout) {
-      if (!vout.scriptPubKey.asm.startsWith('OP_RETURN 44665478')) {
-        continue
+    for (const txn of block.tx) {
+      for (const vout of txn.vout) {
+        if (!vout.scriptPubKey.asm.startsWith('OP_RETURN 44665478')) {
+          continue
+        }
+
+        try {
+          const stack: OPCode[] = toOPCodes(SmartBuffer.fromBuffer(Buffer.from(vout.scriptPubKey.hex, 'hex')))
+          if (stack[1].type !== 'OP_DEFI_TX') {
+            continue
+          }
+          transactions.push({ txn: txn, dftx: (stack[1] as OP_DEFI_TX).tx })
+        } catch (err) {
+          // TODO(fuxingloh): we can improve on this design by having separated indexing pipeline where
+          //  a failed pipeline won't affect another indexer pipeline.
+          this.logger.error(`Failed to parse a DfTx Transaction with txid: ${txn.txid}`, err)
+        }
       }
-
-      const stack: OPCode[] = toOPCodes(SmartBuffer.fromBuffer(Buffer.from(vout.scriptPubKey.hex, 'hex')))
-      if (stack[1].type !== 'OP_DEFI_TX') {
-        continue
-      }
-      transactions.push({ txn: txn, dftx: (stack[1] as OP_DEFI_TX).tx })
     }
-  }
 
-  return transactions
+    return transactions
+  }
 }
