@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Elliptic } from '@defichain/jellyfish-crypto'
 import {
-  createSignedTxnHex
+  createSignedTxnHex, getFixtureAsHexString
 } from '../src'
 
 describe('rawtx', () => {
@@ -31,6 +31,17 @@ describe('rawtx', () => {
       expect(signedTxnHex.substr(0, 14)).toStrictEqual('04000000000101')
       expect(signedTxnHex.substr(86, 78)).toStrictEqual('00ffffffff010065cd1d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
       expect(signedTxnHex).toContain('0121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635700000000')
+    })
+  })
+
+  describe('getFixtureAsHexString', () => {
+    it('should getFixtureAsHexString', async () => {
+      const address = 'bcrt1qaj5834r3snxfdsg7v2elccq3x7wlvnq367uqdj'
+      const txid = await container.call('appointoracle', [address, [{ token: 'AAPL', currency: 'EUR' }], 1])
+
+      const expectedFixture = '6a27446654786f160014eca878d47184cc96c11e62b3fc6011379df64c110101044141504c03455552'
+      const fixture = await getFixtureAsHexString(container, txid)
+      expect(fixture).toStrictEqual(expectedFixture)
     })
   })
 })
