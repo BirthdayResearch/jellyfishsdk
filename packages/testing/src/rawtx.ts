@@ -44,6 +44,7 @@ export async function createSignedTxnHex (
  * Get fixture for a txid
  *
  * @param {MasterNodeRegTestContainer} container
+ * @param {string} txid
  * @return {Promise<string>} Fixture as hex string
  */
 export async function getFixture (container: MasterNodeRegTestContainer, txid: string): Promise<string> {
