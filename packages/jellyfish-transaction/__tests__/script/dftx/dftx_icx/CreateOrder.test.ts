@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import { OP_CODES } from '../../../../src'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
-import { CICXCreateOrder, ICXCreateOrder, OrderType } from '../../../../src/script/dftx/dftx_icx'
+import { CICXCreateOrder, ICXCreateOrder, ICXOrderType } from '../../../../src/script/dftx/dftx_icx'
 import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
@@ -56,7 +56,7 @@ describe('CreateOrder with receivePubkey', () => {
   const header = '6a4c5d4466547831' // OP_RETURN PUSH_DATA(44665478, 31)
   const data = '010017a914a21888038057490b84aab333846aa568839520d68721037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941002f685900000000002f68590000000040420f0000000000400b0000'
   const createOrder: ICXCreateOrder = {
-    orderType: OrderType.INTERNAL,
+    orderType: ICXOrderType.INTERNAL,
     tokenId: 0,
     ownerAddress: {
       stack: [
@@ -102,7 +102,7 @@ describe('CreateOrder without receivePubkey', () => {
   const header = '6a3c4466547831' // OP_RETURN PUSH_DATA(44665478, 31)
   const data = '020017a9149b2552a44b95afa2d435e416f8c16cfd12e97efd870000c2eb0b0000000000c2eb0b0000000000e8764817000000400b0000'
   const createOrder: ICXCreateOrder = {
-    orderType: OrderType.EXTERNAL,
+    orderType: ICXOrderType.EXTERNAL,
     tokenId: 0,
     ownerAddress: {
       stack: [
