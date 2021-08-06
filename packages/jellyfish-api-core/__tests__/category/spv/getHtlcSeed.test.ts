@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer, MasternodeGroup } from '@defichain/testcontainers'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
@@ -42,5 +42,38 @@ describe('Spv', () => {
     const promise = client.spv.getHtlcSeed('XXXX')
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow("RpcApiError: 'Error: Invalid address', code: -5, method: spv_gethtlcseed")
+  })
+})
+
+describe('Spv with MasternodeGroup', () => {
+  const group = new MasternodeGroup([
+    new MasterNodeRegTestContainer(GenesisKeys[0]),
+    new MasterNodeRegTestContainer(GenesisKeys[1])
+  ])
+  const client0 = new ContainerAdapterClient(group.get(0))
+  const client1 = new ContainerAdapterClient(group.get(1))
+
+  beforeAll(async () => {
+    await group.start()
+    await group.get(0).call('spv_fundaddress', [await group.get(0).call('spv_getnewaddress')]) // Funds 1 BTC
+  })
+
+  afterAll(async () => {
+    await group.stop()
+  })
+
+  it('should not get HTLC secret from another node', async () => {
+    const pubKeyA = await group.get(0).call('spv_getaddresspubkey', [await group.get(0).call('spv_getnewaddress')])
+    const pubKeyB = await group.get(0).call('spv_getaddresspubkey', [await group.get(0).call('spv_getnewaddress')])
+    const htlc = await group.get(0).call('spv_createhtlc', [pubKeyA, pubKeyB, '10'])
+
+    await group.get(0).call('spv_sendtoaddress', [htlc.address, 0.1]) // Funds HTLC address
+    await group.get(0).call('spv_claimhtlc', [htlc.address, await group.get(0).call('spv_getnewaddress'), htlc.seed]) // claim HTLC
+
+    const emptySecret = await client1.spv.getHtlcSeed(htlc.address)
+    expect(emptySecret).toStrictEqual('')
+
+    const secret = await client0.spv.getHtlcSeed(htlc.address)
+    expect(secret).toStrictEqual(htlc.seed)
   })
 })
