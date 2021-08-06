@@ -36,7 +36,8 @@ export class PoolPairController {
     const items: PoolPairData[] = []
     for (const [id, info] of Object.entries(result)) {
       const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
-      items.push(mapPoolPair(id, info, totalLiquidityUsd))
+      const apr = await this.poolPairService.getAPR(info)
+      items.push(mapPoolPair(id, info, totalLiquidityUsd, apr))
     }
 
     return ApiPagedResponse.of(items, query.size, item => {
@@ -56,11 +57,12 @@ export class PoolPairController {
     }
 
     const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
-    return mapPoolPair(String(id), info, totalLiquidityUsd)
+    const apr = await this.poolPairService.getAPR(info)
+    return mapPoolPair(String(id), info, totalLiquidityUsd, apr)
   }
 }
 
-export function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber): PoolPairData {
+function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr']): PoolPairData {
   return {
     id: id,
     symbol: info.symbol,
@@ -92,6 +94,7 @@ export function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?:
     creation: {
       tx: info.creationTx,
       height: info.creationHeight.toNumber()
-    }
+    },
+    apr
   }
 }

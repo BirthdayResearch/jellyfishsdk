@@ -136,6 +136,10 @@ describe('list', () => {
         reserve: '300',
         blockCommission: '0'
       },
+      apr: {
+        reward: 0,
+        total: 0
+      },
       commission: '0',
       totalLiquidity: {
         token: '122.47448713',
@@ -207,6 +211,10 @@ describe('get', () => {
         id: expect.any(String),
         reserve: '200',
         blockCommission: '0'
+      },
+      apr: {
+        reward: 0,
+        total: 0
       },
       commission: '0',
       totalLiquidity: {
