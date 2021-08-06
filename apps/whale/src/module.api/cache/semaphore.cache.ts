@@ -1,11 +1,10 @@
 import { Semaphore, SemaphoreInterface, withTimeout } from 'async-mutex'
-import { CacheOption, GlobalCache } from '@src/module.api/cache/global.cache'
+import { CacheOption, CachePrefix, GlobalCache } from '@src/module.api/cache/global.cache'
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 
 @Injectable()
 export class SemaphoreCache {
-  static PREFIX = -1
   static MAX_CONCURRENCY = 2
   static TIMEOUT = 45000
 
@@ -24,10 +23,10 @@ export class SemaphoreCache {
    * @param {GlobalCache} options
    */
   async get<T> (key: string, fetch: () => Promise<T | undefined>, options: CacheOption = {}): Promise<T | undefined> {
-    return await this.cache.get(SemaphoreCache.PREFIX, key, async () => {
+    return await this.cache.get(CachePrefix.SEMAPHORE, key, async () => {
       const semaphore = this.acquireSemaphore(key)
       return await semaphore.runExclusive(async () => {
-        return await this.cache.get(SemaphoreCache.PREFIX, key, async () => {
+        return await this.cache.get(CachePrefix.SEMAPHORE, key, async () => {
           return await fetch()
         }, options)
       })

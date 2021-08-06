@@ -4,6 +4,12 @@ export interface CacheOption {
   ttl?: number
 }
 
+export enum CachePrefix {
+  SEMAPHORE = -1,
+  TOKEN_INFO = 0,
+  POOL_PAIR_INFO = 1
+}
+
 export class GlobalCache {
   constructor (protected readonly cacheManager: Cache) {
   }
@@ -18,7 +24,7 @@ export class GlobalCache {
    * @param {number} [options.ttl=600] cache ttl, 600 seconds
    * @return Promise<Record<string, T | undefined>>
    */
-  async batch<T> (prefix: number, ids: string[], fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<Record<string, T | undefined>> {
+  async batch<T> (prefix: CachePrefix, ids: string[], fetch: (id: string) => Promise<T | undefined>, options: CacheOption = {}): Promise<Record<string, T | undefined>> {
     const records: Record<string, T | undefined> = {}
     for (const id of ids) {
       records[id] = await this.get(prefix, id, fetch, options)

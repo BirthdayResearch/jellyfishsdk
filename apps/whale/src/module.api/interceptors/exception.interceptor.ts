@@ -1,4 +1,4 @@
-import { CallHandler, ExecutionContext, HttpException, Injectable, NestInterceptor } from '@nestjs/common'
+import { CallHandler, ExecutionContext, HttpException, Injectable, Logger, NestInterceptor } from '@nestjs/common'
 import { Observable, throwError } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 import { ApiError as JellyfishApiError } from '@defichain/jellyfish-api-core'
@@ -15,6 +15,8 @@ import { isVersionPrefixed } from '@src/module.api/_core/api.version'
  */
 @Injectable()
 export class ExceptionInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(ExceptionInterceptor.name)
+
   intercept (context: ExecutionContext, next: CallHandler): Observable<any> {
     if (!isVersionPrefixed(context)) {
       return next.handle()
@@ -23,7 +25,9 @@ export class ExceptionInterceptor implements NestInterceptor {
     const url: string = context.switchToHttp().getRequest().raw?.url
 
     return next.handle().pipe(catchError(err => {
-      return throwError(this.map(err).withUrl(url))
+      const error = this.map(err).withUrl(url)
+      this.logger.error(error)
+      return throwError(error)
     }))
   }
 
