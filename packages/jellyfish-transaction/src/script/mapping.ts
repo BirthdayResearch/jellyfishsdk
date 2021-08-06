@@ -50,7 +50,7 @@ import {
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icx'
+import { CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icxorderbook'
 
 /**
  * @param num to map as OPCode, 1 byte long
