@@ -6,10 +6,11 @@ import {
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
+import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a21446654784c6400000000e1f505000000000764656661756c740000000000000000'
+    '6a19446654784cc800000000c817a8040000000764656661756c74'
   ]
 
   fixtures.forEach(hex => {
@@ -23,11 +24,11 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a21446654784c' // OP_RETURN, PUSH_DATA(44665478, 4c)
-const data = '6400000000e1f505000000000764656661756c740000000000000000'
+const data = 'c800000000c817a8040000000764656661756c74'
 const createLoanScheme: CreateLoanScheme = {
-  mincolratio: 100,
-  interestrate: 1,
-  id: 'default'
+  ratio: 200,
+  rate: new BigNumber('200'),
+  identifier: 'default'
 }
 
 it('should craft dftx with OP_CODES._()', () => {

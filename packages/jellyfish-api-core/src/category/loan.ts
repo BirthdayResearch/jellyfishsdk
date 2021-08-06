@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, BigNumber } from '../.'
 
 /**
  * loan RPCs for DeFi Blockchain
@@ -10,9 +10,9 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (mincolratio: number, interestrate: number, options: CreateLoanOptions): Promise<string> {
+  async createLoanScheme (mincolratio: number, interestrate: BigNumber, options: CreateLoanOptions): Promise<string> {
     const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [mincolratio, interestrate, options.id, utxos], 'number')
+    return await this.client.call('createloanscheme', [mincolratio, interestrate, options.id, utxos], 'bignumber')
   }
 }
 
