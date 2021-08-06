@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import { OP_CODES } from '../../../../src'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
-import { CICXCreateOrder, ICXCreateOrder, ICXOrderType } from '../../../../src/script/dftx/dftx_icx'
+import { CICXCreateOrder, ICXCreateOrder, ICXOrderType } from '../../../../src/script/dftx/dftx_icxorderbook'
 import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {

@@ -29,7 +29,7 @@ import {
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx_icx'
+import { CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
