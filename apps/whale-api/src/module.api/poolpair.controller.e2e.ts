@@ -74,6 +74,9 @@ async function setup (): Promise<void> {
     amountB: 431.51288,
     shareAddress: await getNewAddress(container)
   })
+
+  await container.call('setgov', [{ LP_SPLITS: { 8: 1.0 } }])
+  await container.generate(1)
 }
 
 describe('list', () => {
@@ -100,6 +103,10 @@ describe('list', () => {
         reserve: '300',
         blockCommission: '0'
       },
+      apr: {
+        reward: 2229.42,
+        total: 2229.42
+      },
       commission: '0',
       totalLiquidity: {
         token: '122.47448713',
@@ -111,7 +118,7 @@ describe('list', () => {
         ab: '0.16666666',
         ba: '6'
       },
-      rewardPct: '0',
+      rewardPct: '1',
       customRewards: undefined,
       creation: {
         tx: expect.any(String),
@@ -171,6 +178,10 @@ describe('get', () => {
         id: expect.any(String),
         reserve: '200',
         blockCommission: '0'
+      },
+      apr: {
+        reward: 0,
+        total: 0
       },
       commission: '0',
       totalLiquidity: {
