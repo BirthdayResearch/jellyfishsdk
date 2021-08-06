@@ -40,6 +40,18 @@ export async function createSignedTxnHex (
   return signed.hex
 }
 
+/**
+ * Get fixture for a txid
+ *
+ * @param {MasterNodeRegTestContainer} container
+ * @return {Promise<string>} Fixture as hex string
+ */
+export async function getFixture (container: MasterNodeRegTestContainer, txid: string): Promise<string> {
+  const rawtx = await container.call('getrawtransaction', [txid])
+  const decoded = await container.call('decoderawtransaction', [rawtx])
+  return decoded.vout[0].scriptPubKey.hex
+}
+
 export interface CreateSignedTxnHexOptions {
   aEllipticPair: EllipticPair
   bEllipticPair: EllipticPair
