@@ -3,14 +3,14 @@ import {
   CSetColleteralToken,
   SetColleteralToken
 } from '../../../../src/script/dftx/dftx_loans'
+import BigNumber from 'bignumber.js'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
-import { BigNumber } from '@defichain/jellyfish-json'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a3244665478630100e1f50500000000838d7fae994f972ee8ddd5bebfdef1097765194ff1ac25621d1b377702c0714f00000000'
+    '6a3244665478630100e1f50500000000f65945128cd293bcd88609f4069be7ce3a800d8d57086cb67715e822db2c2cc900000000'
   ]
 
   fixtures.forEach(hex => {
@@ -24,11 +24,12 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a324466547863' // OP_RETURN, PUSH_DATA(44665478, 4c)
-const data = '0100e1f50500000000838d7fae994f972ee8ddd5bebfdef1097765194ff1ac25621d1b377702c0714f00000000'
+const data = '0100e1f50500000000f65945128cd293bcd88609f4069be7ce3a800d8d57086cb67715e822db2c2cc9'
+
 const setColleteralToken: SetColleteralToken = {
-  token: 'AAPL',
-  factor: new BigNumber(1),
-  priceFeedId: '4f71c00277371b1d6225acf14f19657709f1debfbed5dde82e974f99ae7f8d83'
+  token: 1,
+  factor: new BigNumber('1'),
+  priceFeedId: 'c92c2cdb22e81577b66c08578d0d803acee79b06f40986d8bc93d28c124559f6'
 }
 
 it('should craft dftx with OP_CODES._()', () => {
