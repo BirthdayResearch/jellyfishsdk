@@ -18,13 +18,13 @@ export enum ICXOrderType {
  */
 
 export interface ICXCreateOrder {
-  orderType: number
-  tokenId: number
-  ownerAddress: Script
-  receivePubkey?: string
-  amountFrom: BigNumber
-  orderPrice: BigNumber
-  expiry: number
+  orderType: number // -------------| 1 byte unsigned
+  tokenId: number // ---------------| VarUInt{1-9 bytes}
+  ownerAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
+  receivePubkey?: string // --------| 1 byte for len + len bytes
+  amountFrom: BigNumber // ---------| 8 bytes unsigned
+  orderPrice: BigNumber // ---------| 8 bytes unsigned
+  expiry: number // ----------------| 4 bytes unsigned
 }
 
 /**
