@@ -48,8 +48,7 @@ import {
   CSetOracleData
 } from './dftx/dftx_oracles'
 import {
-  CCreateLoanScheme,
-  CreateLoanScheme
+  CSetColleteralToken, SetColleteralToken
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
@@ -311,12 +310,12 @@ export const OP_CODES = {
       data: setGovernance
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_SET_COLLETERAL_TOKEN: (setColleteralToken: SetColleteralToken): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateLoanScheme.OP_CODE,
-      name: CCreateLoanScheme.OP_NAME,
-      data: createLoanScheme
+      type: CSetColleteralToken.OP_CODE,
+      name: CSetColleteralToken.OP_NAME,
+      data: setColleteralToken
     })
   },
 
