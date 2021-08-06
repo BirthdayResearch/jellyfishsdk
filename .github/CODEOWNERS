@@ -21,7 +21,7 @@
 /packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
 
 /packages/jellyfish-transaction/                @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
-/packages/jellyfish-transaction/                @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
 
 /packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi @surangap
