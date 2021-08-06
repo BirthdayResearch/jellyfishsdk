@@ -41,13 +41,13 @@ export async function createSignedTxnHex (
 }
 
 /**
- * Get fixture for a txid
+ * Get fixture as hex string for a txid
  *
  * @param {MasterNodeRegTestContainer} container
  * @param {string} txid
  * @return {Promise<string>} Fixture as hex string
  */
-export async function getFixture (container: MasterNodeRegTestContainer, txid: string): Promise<string> {
+export async function getFixtureAsHexString (container: MasterNodeRegTestContainer, txid: string): Promise<string> {
   const rawtx = await container.call('getrawtransaction', [txid])
   const decoded = await container.call('decoderawtransaction', [rawtx])
   return decoded.vout[0].scriptPubKey.hex
