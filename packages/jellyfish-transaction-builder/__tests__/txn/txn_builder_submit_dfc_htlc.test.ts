@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { sendTransaction } from '../test.utils'
+import { calculateTxid, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { ContainerAdapterClient } from '../../../jellyfish-api-core/__tests__/container_adapter_client'
 import { accountBTC, accountDFI, ICXSetup, symbolDFI } from '../../../jellyfish-api-core/__tests__/category/icxorderbook/icx_setup'
@@ -19,7 +19,6 @@ describe('submit DFC HTLC', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
 
     providers = await getProviders(container)
@@ -48,7 +47,7 @@ describe('submit DFC HTLC', () => {
 
   it('should submit DFC HTLC for a DFC buy offer', async () => {
     // ICX order creation and make offer
-    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
+    const { order, createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
     const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
 
     // submit DFC HTLC
@@ -88,5 +87,51 @@ describe('submit DFC HTLC', () => {
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    const DFCHTLCTxId = calculateTxid(txn)
+    expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
+      {
+        type: 'DFC',
+        status: 'OPEN',
+        offerTx: makeOfferTxId,
+        amount: submitDFCHTLC.amount,
+        amountInEXTAsset: submitDFCHTLC.amount.multipliedBy(order.orderPrice),
+        hash: submitDFCHTLC.hash,
+        timeout: new BigNumber(submitDFCHTLC.timeout),
+        height: expect.any(BigNumber),
+        refundHeight: expect.any(BigNumber)
+      }
+    )
+  })
+
+  it('should return an error when ICXSubmitDFCHTLC.amount is negative', async () => {
+    // ICX order creation and make offer
+    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
+    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
+
+    // submit DFC HTLC
+    const script = await providers.elliptic.script()
+    const submitDFCHTLC: ICXSubmitDFCHTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(-10),
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      timeout: 1440
+    }
+    await expect(builder.icxorderbook.submitDFCHTLC(submitDFCHTLC, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1000000000')
+  })
+
+  it('should return an error when ICXSubmitDFCHTLC.timeout is negative', async () => {
+    // ICX order creation and make offer
+    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
+    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
+
+    // submit DFC HTLC
+    const script = await providers.elliptic.script()
+    const submitDFCHTLC: ICXSubmitDFCHTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(10),
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      timeout: -1440
+    }
+    await expect(builder.icxorderbook.submitDFCHTLC(submitDFCHTLC, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1440')
   })
 })
