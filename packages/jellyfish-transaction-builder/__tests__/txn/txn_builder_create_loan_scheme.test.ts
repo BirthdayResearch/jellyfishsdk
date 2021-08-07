@@ -1,11 +1,9 @@
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { fundEllipticPair, TxOut } from '../test.utils'
+import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { BigNumber } from '@defichain/jellyfish-json'
-import { CTransactionSegWit, TransactionSegWit } from '@defichain/jellyfish-transaction'
-import { SmartBuffer } from 'smart-buffer'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -56,15 +54,3 @@ it('should set ccolleteral token', async () => {
   expect(prevouts[0].value.toNumber()).toBeLessThan(10)
   expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 })
-
-export async function sendTransaction (container: MasterNodeRegTestContainer, transaction: TransactionSegWit): Promise<TxOut[]> {
-  const buffer = new SmartBuffer()
-  new CTransactionSegWit(transaction).toBuffer(buffer)
-  const hex = buffer.toBuffer().toString('hex')
-
-  const txid = await container.call('sendrawtransaction', [hex])
-  await container.generate(1)
-
-  const tx = await container.call('getrawtransaction', [txid, true])
-  return tx.vout as TxOut[]
-}
