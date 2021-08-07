@@ -10,7 +10,7 @@ import { OP_DEFI_TX } from '../../../../src/script/dftx'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a3244665478630100e1f50500000000f65945128cd293bcd88609f4069be7ce3a800d8d57086cb67715e822db2c2cc900000000'
+    '6a2e44665478630100e1f50500000000f65945128cd293bcd88609f4069be7ce3a800d8d57086cb67715e822db2c2cc9'
   ]
 
   fixtures.forEach(hex => {
@@ -23,7 +23,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a324466547863' // OP_RETURN, PUSH_DATA(44665478, 4c)
+const header = '6a2e4466547863' // OP_RETURN, PUSH_DATA(44665478, 63)
 const data = '0100e1f50500000000f65945128cd293bcd88609f4069be7ce3a800d8d57086cb67715e822db2c2cc9'
 
 const setColleteralToken: SetColleteralToken = {

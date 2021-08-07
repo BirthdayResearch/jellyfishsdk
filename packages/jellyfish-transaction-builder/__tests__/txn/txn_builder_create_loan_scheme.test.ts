@@ -1,14 +1,13 @@
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, TxOut } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { BigNumber } from '@defichain/jellyfish-json'
-import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { CTransactionSegWit, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
 
-const container = new LoanMasterNodeRegTestContainer()
+const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
@@ -36,12 +35,12 @@ beforeEach(async () => {
   await providers.setupMocks() // required to move utxos
 })
 
-it('should create loan scheme', async () => {
+it('should set ccolleteral token', async () => {
   const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    minColRatio: 200,
-    interestRate: new BigNumber('200'),
-    id: 'default'
+  const txn = await builder.loans.setColleteralToken({
+    token: 1,
+    factor: new BigNumber('1'),
+    priceFeedId: 'c92c2cdb22e81577b66c08578d0d803acee79b06f40986d8bc93d28c124559f6'
   }, script)
 
   // Ensure the created txn is correct.
@@ -56,17 +55,9 @@ it('should create loan scheme', async () => {
   expect(prevouts.length).toStrictEqual(1)
   expect(prevouts[0].value.toNumber()).toBeLessThan(10)
   expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
-
-  const result = await container.call('listloanschemes')
-  const data = result.filter((r: { id: string }) => r.id === 'default')
-
-  expect(data.length).toStrictEqual(1)
-  expect(data[0]).toStrictEqual(
-    { id: 'default', mincolratio: 200, interestrate: new BigNumber(200), default: true }
-  )
 })
 
-export async function sendTransaction (container: LoanMasterNodeRegTestContainer, transaction: TransactionSegWit): Promise<TxOut[]> {
+export async function sendTransaction (container: MasterNodeRegTestContainer, transaction: TransactionSegWit): Promise<TxOut[]> {
   const buffer = new SmartBuffer()
   new CTransactionSegWit(transaction).toBuffer(buffer)
   const hex = buffer.toBuffer().toString('hex')
