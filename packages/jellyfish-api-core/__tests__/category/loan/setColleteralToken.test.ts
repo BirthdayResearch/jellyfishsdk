@@ -45,9 +45,9 @@ describe('Loan', () => {
 
     const txId = await client.loan.setColleteralToken('AAPL', new BigNumber(1), { priceFeedId: oracleId })
 
-    const tx: any = await client.call('getrawtransaction', [txId, true], 'bignumber')
-    console.log(oracleId)
-    console.log(tx.vout[0].scriptPubKey)
+    // const tx: any = await client.call('getrawtransaction', [txId, true], 'bignumber')
+    // console.log(oracleId)
+    // console.log(tx.vout[0].scriptPubKey)
 
     expect(typeof txId).toStrictEqual('string')
     expect(txId.length).toStrictEqual(64)
