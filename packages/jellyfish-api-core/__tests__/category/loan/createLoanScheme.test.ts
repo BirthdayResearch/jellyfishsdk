@@ -1,6 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { UTXO } from '@defichain/jellyfish-api-core/category/oracle'
+import BigNumber from 'bignumber.js'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -10,11 +11,12 @@ describe('Loan', () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
 
-    // NOTE(jingyi2811): default scheme
-    const x = await client.loan.createLoanScheme(200, 200, { id: 'default' })
-    const tx: any = await client.call('getrawtransaction', [x, true], 'bignumber')
-    console.log(tx.vout[0].scriptPubKey)
+    // const x = await client.loan.createLoanScheme(200, new BigNumber(200), { id: 'default' })
+    // const tx: any = await client.call('getrawtransaction', [x, true], 'bignumber')
+    // console.log(tx.vout[0].scriptPubKey)
 
+    // NOTE(jingyi2811): default scheme
+    await client.loan.createLoanScheme(200, new BigNumber(200), { id: 'default' })
     await container.generate(1)
   })
 
@@ -33,7 +35,7 @@ describe('Loan', () => {
   })
 
   it('should create loan scheme', async () => {
-    const loanId = await client.loan.createLoanScheme(200, 1, { id: 'scheme' })
+    const loanId = await client.loan.createLoanScheme(200, new BigNumber(1), { id: 'scheme' })
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
@@ -50,38 +52,38 @@ describe('Loan', () => {
   })
 
   it('should not create loan scheme if ratio is less than 100', async () => {
-    const promise = client.loan.createLoanScheme(99, 1, { id: 'scheme' })
+    const promise = client.loan.createLoanScheme(99, new BigNumber(1), { id: 'scheme' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nminimum collateral ratio cannot be less than 100\', code: -32600, method: createloanscheme')
   })
 
   it('should not create loan scheme if rate is less than 0', async () => {
-    const promise = client.loan.createLoanScheme(200, -1, { id: 'scheme' })
+    const promise = client.loan.createLoanScheme(200, new BigNumber(-1), { id: 'scheme' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: createloanscheme')
   })
 
   it('should not create loan scheme if 2 schemes have same rate and ratio', async () => {
-    await client.loan.createLoanScheme(200, 1, { id: 'scheme1' })
+    await client.loan.createLoanScheme(200, new BigNumber(1), { id: 'scheme1' })
     await container.generate(1)
 
-    const promise = client.loan.createLoanScheme(200, 1, { id: 'scheme2' })
+    const promise = client.loan.createLoanScheme(200, new BigNumber(1), { id: 'scheme2' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme scheme1 with same interestrate and mincolratio already exists\', code: -32600, method: createloanscheme')
   })
 
   it('should not create loan scheme if id is an empty string', async () => {
-    const promise = client.loan.createLoanScheme(200, 1, { id: '' })
+    const promise = client.loan.createLoanScheme(200, new BigNumber(1), { id: '' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: createloanscheme')
   })
 
   it('should not create loan scheme if id is more than 8 chars long', async () => {
-    const promise = client.loan.createLoanScheme(200, 1, { id: '123456789' })
+    const promise = client.loan.createLoanScheme(200, new BigNumber(1), { id: '123456789' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: createloanscheme')
   })
 
   it('should not create loan scheme if duplicate id', async () => {
-    await client.loan.createLoanScheme(200, 1, { id: 'scheme' })
+    await client.loan.createLoanScheme(200, new BigNumber(1), { id: 'scheme' })
     await container.generate(1)
 
-    const promise = client.loan.createLoanScheme(201, 1, { id: 'scheme' })
+    const promise = client.loan.createLoanScheme(201, new BigNumber(1), { id: 'scheme' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme already exist with id scheme\', code: -32600, method: createloanscheme')
   })
 
@@ -95,7 +97,7 @@ describe('Loan', () => {
       }
     })
 
-    const loanId = await client.loan.createLoanScheme(200, 1, { id: 'scheme', utxos: inputs })
+    const loanId = await client.loan.createLoanScheme(200, new BigNumber(1), { id: 'scheme', utxos: inputs })
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
@@ -113,7 +115,7 @@ describe('Loan', () => {
 
   it('should create loan scheme with arbritary utxos', async () => {
     const { txid, vout } = await container.fundAddress(await container.call('getnewaddress'), 10)
-    const promise = client.loan.createLoanScheme(100, 1, { id: 'scheme', utxos: [{ txid, vout }] })
+    const promise = client.loan.createLoanScheme(100, new BigNumber(1), { id: 'scheme', utxos: [{ txid, vout }] })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: createloanscheme')
   })
 })

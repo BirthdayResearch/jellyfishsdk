@@ -10,9 +10,9 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (mincolratio: number, interestrate: BigNumber, options: CreateLoanOptions): Promise<string> {
+  async createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanOptions): Promise<string> {
     const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [mincolratio, interestrate, options.id, utxos], 'bignumber')
+    return await this.client.call('createloanscheme', [minColRatio, interestRate, options.id, utxos], 'bignumber')
   }
 }
 

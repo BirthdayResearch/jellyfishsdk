@@ -23,12 +23,12 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a21446654784c' // OP_RETURN, PUSH_DATA(44665478, 4c)
+const header = '6a19446654784c' // OP_RETURN, PUSH_DATA(446654784c, 4c)
 const data = 'c800000000c817a8040000000764656661756c74'
 const createLoanScheme: CreateLoanScheme = {
-  ratio: 200,
-  rate: new BigNumber('200'),
-  identifier: 'default'
+  minColRatio: 200,
+  interestRate: new BigNumber('200'),
+  id: 'default'
 }
 
 it('should craft dftx with OP_CODES._()', () => {
