@@ -10,18 +10,13 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (ratio: number, rate: number, options: CreateLoanOptions): Promise<string> {
-    const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [ratio, rate, options.identifier, utxos], 'number')
+  async getVault (vaultId: string): Promise<VaultData> {
+    return await this.client.call('getvault', [vaultId], 'number')
   }
 }
 
-export interface CreateLoanOptions {
-  identifier: string
-  utxos?: UTXO[]
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
+export interface VaultData {
+  loanschemeid: string
+  owneraddress: string
+  isunderliquidation: false
 }
