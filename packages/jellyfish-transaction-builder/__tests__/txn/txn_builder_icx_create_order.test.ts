@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
+import { calculateTxid, fundEllipticPair, sendTransaction, TxOut } from '../test.utils'
 import { OP_CODES, ICXCreateOrder, ICXOrderType } from '@defichain/jellyfish-transaction'
 import { idDFI, accountBTC, accountDFI, ICXSetup, symbolDFI } from '../../../jellyfish-api-core/__tests__/category/icxorderbook/icx_setup'
 import { WIF } from '@defichain/jellyfish-crypto'
@@ -48,6 +48,23 @@ describe('create ICX order', () => {
     await icxSetup.closeAllOpenOffers()
   })
 
+  async function assertTxOuts (outs: TxOut[], expectedRedeemScript: string): Promise<void> {
+    expect(outs.length).toEqual(2)
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547831')).toStrictEqual(true)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+  }
+
   it('should create internal ICX order', async () => {
     const script = await providers.elliptic.script()
     const icxOrder: ICXCreateOrder = {
@@ -66,20 +83,7 @@ describe('create ICX order', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(container, txn)
-    expect(outs.length).toEqual(2)
-    expect(outs.length).toStrictEqual(2)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547831')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
-
-    expect(outs[1].value).toEqual(expect.any(Number))
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    await assertTxOuts(outs, expectedRedeemScript)
 
     const listOrders = await container.call('icx_listorders')
     const txid = calculateTxid(txn)
@@ -121,20 +125,7 @@ describe('create ICX order', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(container, txn)
-    expect(outs.length).toEqual(2)
-    expect(outs.length).toStrictEqual(2)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[0].n).toStrictEqual(0)
-    expect(outs[0].tokenId).toStrictEqual(0)
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547831')).toBeTruthy()
-    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
-
-    expect(outs[1].value).toEqual(expect.any(Number))
-    expect(outs[1].n).toStrictEqual(1)
-    expect(outs[1].tokenId).toStrictEqual(0)
-    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    await assertTxOuts(outs, expectedRedeemScript)
 
     const listOrders = await container.call('icx_listorders')
     const txid = calculateTxid(txn)
