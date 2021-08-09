@@ -10,14 +10,24 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (ratio: number, rate: number, options: CreateLoanOptions): Promise<string> {
-    const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [ratio, rate, options.identifier, utxos], 'number')
+  async setLoanToken (symbol: string, name: string, options: SetLoanTokenOptions): Promise<string> {
+    const { mintable = undefined, interest = 0, utxos = [] } = options
+    return await this.client.call('setloantoken', [
+      {
+        symbol,
+        name,
+        priceFeedId: options.priceFeedId,
+        mintable: mintable,
+        interest: interest
+      }, utxos
+    ], 'number')
   }
 }
 
-export interface CreateLoanOptions {
-  identifier: string
+export interface SetLoanTokenOptions {
+  priceFeedId: string
+  mintable?: boolean
+  interest?: number
   utxos?: UTXO[]
 }
 
