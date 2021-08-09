@@ -16,7 +16,8 @@ module.exports = {
     '@defichain/jellyfish-wallet-mnemonic': '<rootDir>/packages/jellyfish-wallet-mnemonic/src',
     '@defichain/jellyfish-wallet': '<rootDir>/packages/jellyfish-wallet/src',
     '@defichain/testcontainers': '<rootDir>/packages/testcontainers/src',
-    '@defichain/testing': '<rootDir>/packages/testing/src'
+    '@defichain/testing': '<rootDir>/packages/testing/src',
+    '@defichain/jellyfish-testing': '<rootDir>/packages/jellyfish-testing/src'
   },
   verbose: true,
   clearMocks: true,
