@@ -5,7 +5,7 @@ export class TxnBuilderICX extends P2WPKHTxnBuilder {
   /**
    * ICX Create Order.
    *
-   * @param {ICXCreateOrder} createOrder pool token p2pwkh scipt, token id and amount to remove
+   * @param {ICXCreateOrder} createOrder Create order txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
