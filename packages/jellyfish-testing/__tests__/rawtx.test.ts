@@ -30,3 +30,20 @@ it('should testing.rawtx.fund', async () => {
   expect(signed.substr(86, 78)).toStrictEqual('00ffffffff010065cd1d0000000016001425a544c073cbca4e88d59f95ccd52e584c7e6a820002')
   expect(signed).toContain('0121025476c2e83188368da1ff3e292e7acafcdb3566bb0ad253f62fc70f07aeee635700000000')
 })
+
+it('should get dftx in mempool', async () => {
+  const txid = await testing.token.create({ symbol: 'DFTX' })
+  const dftx = await testing.rawtx.getDfTx(txid)
+
+  expect(dftx.asm).toContain('OP_RETURN 44665478')
+  expect(dftx.hex).toContain('44665478')
+})
+
+it('should get dftx in block confirmed', async () => {
+  const txid = await testing.token.create({ symbol: 'BLOCK' })
+  await container.generate(1)
+  const dftx = await testing.rawtx.getDfTx(txid)
+
+  expect(dftx.asm).toContain('OP_RETURN 44665478')
+  expect(dftx.hex).toContain('44665478')
+})

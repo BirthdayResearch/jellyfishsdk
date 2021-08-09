@@ -7,5 +7,4 @@ various commonly used setup pattern for DeFi blockchain. This keeps your testing
 
 ## Development
 
-Being a testing framework for jellyfish, JSDoc is optional as we are using TypeScript. Testing Ais also optional if they
-are used alongside other jellyfish projects.
+Being a testing framework for jellyfish, JSDoc is optional as we are using TypeScript.

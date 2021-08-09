@@ -40,6 +40,24 @@ export class TestingRawTx {
     const signed = await this.jsonRpc.rawtx.signRawTransactionWithKey(hex, mapped)
     return signed.hex
   }
+
+  /**
+   * @param {string} txid to of a DfTx
+   */
+  async getDfTx (txid: string): Promise<TestingRawTxDfTx> {
+    const transaction = await this.jsonRpc.rawtx.getRawTransaction(txid, true)
+    for (const vout of transaction.vout) {
+      if (vout.scriptPubKey.asm.startsWith('OP_RETURN 44665478')) {
+        return {
+          asm: vout.scriptPubKey.asm,
+          hex: vout.scriptPubKey.hex,
+          vout: { n: vout.n, value: vout.value }
+        }
+      }
+    }
+
+    throw new Error('dftx not found')
+  }
 }
 
 async function asPrivKey (data: string[] | string | EllipticPair | EllipticPair[]): Promise<string[]> {
@@ -92,4 +110,13 @@ interface TestingRawTxFunded {
 interface TestingRawTxSign {
   hex: string
   privKeys: string[] | string | EllipticPair | EllipticPair[]
+}
+
+interface TestingRawTxDfTx {
+  asm: string
+  hex: string
+  vout: {
+    n: number
+    value: BigNumber
+  }
 }
