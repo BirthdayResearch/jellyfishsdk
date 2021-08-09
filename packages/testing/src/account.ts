@@ -10,6 +10,7 @@ import { getNewAddress } from './wallet'
  * @param {UtxosToAccountOptions} [options]
  * @param {string} [options.address]
  * @return {Promise<void>}
+ * @deprecated use jellyfish-testing instead
  */
 export async function utxosToAccount (
   container: MasterNodeRegTestContainer,
@@ -35,6 +36,7 @@ export async function utxosToAccount (
  * @param {string} options.from
  * @param {string} [options.to]
  * @return {Promise<string>}
+ * @deprecated use jellyfish-testing instead
  */
 export async function accountToAccount (
   container: MasterNodeRegTestContainer,
@@ -56,6 +58,7 @@ export async function accountToAccount (
  * @param {number} amount to send
  * @param {string} symbol of the token to send
  * @return {string} hash of transaction
+ * @deprecated use jellyfish-testing instead
  */
 export async function sendTokensToAddress (
   container: MasterNodeRegTestContainer,
