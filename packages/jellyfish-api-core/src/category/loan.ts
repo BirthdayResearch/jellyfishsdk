@@ -10,14 +10,43 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (ratio: number, rate: number, options: CreateLoanOptions): Promise<string> {
-    const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [ratio, rate, options.identifier, utxos], 'number')
+  async updateLoanToken (token: string, metadata: UpdateLoanTokenMetaData, options?: UpdateLoanTokenOptions): Promise<string> {
+    // TODO jingyi2811
+    // There is a bug in the c++ side
+    // utxos should not be object, should be array instead
+    const {
+      symbol,
+      name,
+      priceFeedId,
+      mintable = undefined,
+      interest = 0
+    } = metadata
+    const utxos = options?.utxos ?? []
+    return await this.client.call('updateloantoken', [
+      {
+        token
+      },
+      {
+        symbol,
+        name,
+        priceFeedId,
+        mintable,
+        interest
+      },
+      utxos
+    ], 'number')
   }
 }
 
-export interface CreateLoanOptions {
-  identifier: string
+export interface UpdateLoanTokenMetaData {
+  symbol: string
+  name: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: number
+}
+
+export interface UpdateLoanTokenOptions {
   utxos?: UTXO[]
 }
 
