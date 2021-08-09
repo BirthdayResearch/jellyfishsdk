@@ -1,28 +1,27 @@
-import { TestingPoolPair } from "@defichain/jellyfish-testing/poolpair";
-import { MasterNodeRegTestContainer } from "@defichain/testcontainers";
-import { JsonRpcClient } from "@defichain/jellyfish-api-jsonrpc";
-import { TestingRawTx } from "@defichain/jellyfish-testing/rawtx";
-import { TestingToken } from "@defichain/jellyfish-testing/token";
+import fetch from 'cross-fetch'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { TestingPoolPair } from '@defichain/jellyfish-testing/poolpair'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { TestingRawTx } from '@defichain/jellyfish-testing/rawtx'
+import { TestingToken } from '@defichain/jellyfish-testing/token'
+import { TestingFixture } from '@defichain/jellyfish-testing/fixture'
 
+export * from './fixture'
 export * from './poolpair'
 export * from './rawtx'
 export * from './token'
 
-interface TestingOptions {
-  autoGenerate?: boolean
-}
-
 export class Testing {
-  public readonly token = new TestingToken(this.container, this.autoGenerateRpc)
-  public readonly poolpair = new TestingPoolPair(this.container, this.autoGenerateRpc)
-  public readonly rawtx = new TestingRawTx(this.container, this.autoGenerateRpc)
+  public readonly fixture = new TestingFixture(this)
+  public readonly token = new TestingToken(this.container, this.rpc)
+  public readonly poolpair = new TestingPoolPair(this.container, this.rpc)
+  public readonly rawtx = new TestingRawTx(this.container, this.rpc)
 
-  public readonly addresses: Record<string, string> = {}
+  private readonly addresses: Record<string, string> = {}
 
   private constructor (
     public readonly container: MasterNodeRegTestContainer,
-    public readonly rpc: TestingJsonRpcClient,
-    private readonly autoGenerateRpc: AutoGenerateRpcClient
+    public readonly rpc: TestingJsonRpcClient
   ) {
   }
 
@@ -32,16 +31,15 @@ export class Testing {
 
   async address (key: number | string): Promise<string> {
     key = key.toString()
-    if (!this.addresses[key]) {
+    if (this.addresses[key] === undefined) {
       this.addresses[key] = await this.container.getNewAddress()
     }
     return this.addresses[key]
   }
 
-  static create (container: MasterNodeRegTestContainer, options: TestingOptions = {}) {
+  static create (container: MasterNodeRegTestContainer): Testing {
     const rpc = new TestingJsonRpcClient(container)
-    const autoGenerateRpc = new AutoGenerateRpcClient(container, options.autoGenerate ?? true)
-    return new Testing(container, rpc, autoGenerateRpc)
+    return new Testing(container, rpc)
   }
 }
 
@@ -50,37 +48,17 @@ export class Testing {
  */
 class TestingJsonRpcClient extends JsonRpcClient {
   constructor (public readonly container: MasterNodeRegTestContainer) {
-    super('resolved in fetch');
+    super('resolved in fetch')
   }
 
   protected async fetch (body: string, controller: any): Promise<Response> {
     const url = await this.container.getCachedRpcUrl()
-    return fetch(url, {
+    return await fetch(url, {
       method: 'POST',
       body: body,
       cache: 'no-cache',
       headers: this.options.headers,
       signal: controller.signal
     })
-  }
-}
-
-/**
- * JsonRpcClient with auto generate(1) after every fetch call
- */
-class AutoGenerateRpcClient extends TestingJsonRpcClient {
-  constructor (
-    public readonly container: MasterNodeRegTestContainer,
-    public readonly autoGenerate: boolean
-  ) {
-    super(container);
-  }
-
-  protected async fetch (body: string, controller: any): Promise<Response> {
-    const res = await super.fetch(body, controller)
-    if (this.autoGenerate) {
-      await this.container.generate(1)
-    }
-    return res
   }
 }

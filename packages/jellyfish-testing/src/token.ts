@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from "@defichain/testcontainers";
-import { JsonRpcClient } from "@defichain/jellyfish-api-jsonrpc";
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class TestingToken {
   constructor (
-    public readonly container: MasterNodeRegTestContainer,
-    public readonly jsonRpc: JsonRpcClient
+    private readonly container: MasterNodeRegTestContainer,
+    private readonly jsonRpc: JsonRpcClient
   ) {
   }
 
@@ -22,12 +22,12 @@ export class TestingToken {
     })
   }
 
-  async dfi (options: TestingTokenMint): Promise<string> {
-    const { amount, symbol } = options
+  async dfi (options: TestingTokenDFI): Promise<string> {
+    const { amount } = options
     await this.container.waitForWalletBalanceGTE(new BigNumber(amount).toNumber())
 
     const address = await this.container.getNewAddress()
-    const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
+    const account = `${new BigNumber(amount).toFixed(8)}@0`
     return await this.jsonRpc.account.utxosToAccount({ [address]: account })
   }
 
@@ -52,6 +52,10 @@ interface TestingTokenCreate {
   mintable?: boolean
   tradeable?: boolean
   collateralAddress?: string
+}
+
+interface TestingTokenDFI {
+  amount: number | string
 }
 
 interface TestingTokenMint {

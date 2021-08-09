@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from "@defichain/testcontainers";
-import { JsonRpcClient } from "@defichain/jellyfish-api-jsonrpc";
-import { poolpair } from "@defichain/jellyfish-api-core";
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { poolpair } from '@defichain/jellyfish-api-core'
 
 export class TestingPoolPair {
   constructor (
-    public readonly container: MasterNodeRegTestContainer,
-    public readonly jsonRpc: JsonRpcClient
+    private readonly container: MasterNodeRegTestContainer,
+    private readonly jsonRpc: JsonRpcClient
   ) {
   }
 
@@ -15,7 +15,7 @@ export class TestingPoolPair {
       commission: 0,
       status: true,
       ownerAddress: await this.container.getNewAddress(),
-      ...options,
+      ...options
     })
   }
 

@@ -1,13 +1,13 @@
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from "@defichain/testcontainers";
-import { JsonRpcClient } from "@defichain/jellyfish-api-jsonrpc";
-import { Bech32, Elliptic, EllipticPair, HRP, WIF } from "@defichain/jellyfish-crypto";
-import { RegTest } from "@defichain/jellyfish-network";
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { Bech32, Elliptic, EllipticPair, HRP, WIF } from '@defichain/jellyfish-crypto'
+import { RegTest } from '@defichain/jellyfish-network'
 
 export class TestingRawTx {
   constructor (
-    public readonly container: MasterNodeRegTestContainer,
-    public readonly jsonRpc: JsonRpcClient
+    private readonly container: MasterNodeRegTestContainer,
+    private readonly jsonRpc: JsonRpcClient
   ) {
   }
 
@@ -53,7 +53,7 @@ async function asPrivKey (data: string[] | string | EllipticPair | EllipticPair[
   if (Array.isArray(data)) {
     const mapped: string[] = []
     for (const datum of data) {
-      mapped.push(...await asPrivKey(data))
+      mapped.push(...await asPrivKey(datum))
     }
     return mapped
   }
@@ -90,6 +90,6 @@ interface TestingRawTxFunded {
 }
 
 interface TestingRawTxSign {
-  hex: string,
+  hex: string
   privKeys: string[] | string | EllipticPair | EllipticPair[]
 }
