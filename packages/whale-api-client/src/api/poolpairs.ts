@@ -37,11 +37,13 @@ export interface PoolPairData {
   status: string
   tokenA: {
     id: string
+    symbol: string
     reserve: string // BigNumber
     blockCommission: string // BigNumber
   }
   tokenB: {
     id: string
+    symbol: string
     reserve: string // BigNumber
     blockCommission: string // BigNumber
   }
