@@ -87,7 +87,7 @@ export class CICXMakeOffer extends ComposableBuffer<ICXMakeOffer> {
  */
 
 export interface ICXCloseOrder {
-  orderTx: string // --------| 32 bytes, txid for which order is the offer
+  orderTx: string // --------| 32 bytes, txid of order which will be closed
 }
 
 /**
