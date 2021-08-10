@@ -63,17 +63,20 @@ export class PoolPairController {
 }
 
 function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr']): PoolPairData {
+  const [symbolA, symbolB] = info.symbol.split('-')
   return {
     id: id,
     symbol: info.symbol,
     name: info.name,
     status: info.status,
     tokenA: {
+      symbol: symbolA,
       id: info.idTokenA,
       reserve: info.reserveA.toFixed(),
       blockCommission: info.blockCommissionA.toFixed()
     },
     tokenB: {
+      symbol: symbolB,
       id: info.idTokenB,
       reserve: info.reserveB.toFixed(),
       blockCommission: info.blockCommissionB.toFixed()
