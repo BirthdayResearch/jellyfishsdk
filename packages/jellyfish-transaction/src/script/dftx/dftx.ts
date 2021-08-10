@@ -35,7 +35,9 @@ import {
   CICXMakeOffer,
   ICXMakeOffer,
   CICXCloseOrder,
-  ICXCloseOrder
+  ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer
 } from './dftx_icxorderbook'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -161,6 +163,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXMakeOffer>(CICXMakeOffer.OP_NAME, d => new CICXMakeOffer(d))
       case CICXCloseOrder.OP_CODE:
         return compose<ICXCloseOrder>(CICXCloseOrder.OP_NAME, d => new CICXCloseOrder(d))
+      case CICXCloseOffer.OP_CODE:
+        return compose<ICXCloseOffer>(CICXCloseOffer.OP_NAME, d => new CICXCloseOffer(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
