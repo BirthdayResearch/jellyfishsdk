@@ -32,9 +32,25 @@ export class Testing {
   async address (key: number | string): Promise<string> {
     key = key.toString()
     if (this.addresses[key] === undefined) {
-      this.addresses[key] = await this.container.getNewAddress()
+      this.addresses[key] = await this.generateAddress()
     }
     return this.addresses[key]
+  }
+
+  generateAddress (): Promise<string>
+  generateAddress (n: 1): Promise<string>
+  generateAddress (n: number): Promise<string[]>
+
+  async generateAddress (n?: number): Promise<string | string[]> {
+    if (n === undefined || n === 1) {
+      return await this.container.getNewAddress()
+    }
+
+    const addresses: string[] = []
+    for (let i = 0; i < n; i++) {
+      addresses[i] = await this.container.getNewAddress()
+    }
+    return addresses
   }
 
   static create (container: MasterNodeRegTestContainer): Testing {

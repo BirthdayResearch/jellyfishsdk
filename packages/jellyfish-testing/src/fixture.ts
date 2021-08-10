@@ -38,8 +38,7 @@ export class TestingFixture {
     })
     await this.testing.generate(1)
 
-    const result = await this.testing.rpc.poolpair.getPoolPair(`${options.a.symbol}-${options.b.symbol}`)
-    return Object.values(result)[0]
+    return await this.testing.poolpair.get(`${options.a.symbol}-${options.b.symbol}`)
   }
 }
 

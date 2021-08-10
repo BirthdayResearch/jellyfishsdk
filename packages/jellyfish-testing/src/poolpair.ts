@@ -6,12 +6,17 @@ import { poolpair } from '@defichain/jellyfish-api-core'
 export class TestingPoolPair {
   constructor (
     private readonly container: MasterNodeRegTestContainer,
-    private readonly jsonRpc: JsonRpcClient
+    private readonly rpc: JsonRpcClient
   ) {
   }
 
+  async get (symbol: string): Promise<poolpair.PoolPairInfo> {
+    const values = await this.rpc.poolpair.getPoolPair(symbol, true)
+    return Object.values(values)[0]
+  }
+
   async create (options: TestingPoolPairCreate): Promise<string> {
-    return await this.jsonRpc.poolpair.createPoolPair({
+    return await this.rpc.poolpair.createPoolPair({
       commission: 0,
       status: true,
       ownerAddress: await this.container.getNewAddress(),
@@ -24,17 +29,17 @@ export class TestingPoolPair {
     const accountB = `${new BigNumber(options.b.amount).toFixed(8)}@${options.b.symbol}`
     const from = { '*': [accountA, accountB] }
     const address = options.address ?? await this.container.getNewAddress()
-    return await this.jsonRpc.poolpair.addPoolLiquidity(from, address)
+    return await this.rpc.poolpair.addPoolLiquidity(from, address)
   }
 
   async remove (options: TestingPoolPairRemove): Promise<string> {
     const { address, symbol, amount } = options
     const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
-    return await this.jsonRpc.poolpair.removePoolLiquidity(address, account)
+    return await this.rpc.poolpair.removePoolLiquidity(address, account)
   }
 
   async swap (options: poolpair.PoolSwapMetadata): Promise<string> {
-    return await this.jsonRpc.poolpair.poolSwap(options)
+    return await this.rpc.poolpair.poolSwap(options)
   }
 }
 

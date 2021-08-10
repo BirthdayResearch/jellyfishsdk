@@ -5,14 +5,14 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 export class TestingToken {
   constructor (
     private readonly container: MasterNodeRegTestContainer,
-    private readonly jsonRpc: JsonRpcClient
+    private readonly rpc: JsonRpcClient
   ) {
   }
 
   async create (options: TestingTokenCreate): Promise<string> {
     await this.container.waitForWalletBalanceGTE(101) // token creation fee
 
-    return await this.jsonRpc.token.createToken({
+    return await this.rpc.token.createToken({
       name: options.symbol,
       isDAT: true,
       mintable: true,
@@ -23,25 +23,25 @@ export class TestingToken {
   }
 
   async dfi (options: TestingTokenDFI): Promise<string> {
-    const { amount } = options
+    const { amount, address } = options
     await this.container.waitForWalletBalanceGTE(new BigNumber(amount).toNumber())
 
-    const address = await this.container.getNewAddress()
+    const to = address ?? await this.container.getNewAddress()
     const account = `${new BigNumber(amount).toFixed(8)}@0`
-    return await this.jsonRpc.account.utxosToAccount({ [address]: account })
+    return await this.rpc.account.utxosToAccount({ [to]: account })
   }
 
   async mint (options: TestingTokenMint): Promise<string> {
     const { amount, symbol } = options
     const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
-    return await this.jsonRpc.token.mintTokens(account)
+    return await this.rpc.token.mintTokens(account)
   }
 
   async send (options: TestingTokenSend): Promise<string> {
     const { address, amount, symbol } = options
     const account = `${new BigNumber(amount).toFixed(8)}@${symbol}`
     const to = { [address]: [account] }
-    return await this.jsonRpc.account.sendTokensToAddress({}, to)
+    return await this.rpc.account.sendTokensToAddress({}, to)
   }
 }
 
@@ -55,6 +55,7 @@ interface TestingTokenCreate {
 }
 
 interface TestingTokenDFI {
+  address?: string
   amount: number | string
 }
 

@@ -7,7 +7,7 @@ import { RegTest } from '@defichain/jellyfish-network'
 export class TestingRawTx {
   constructor (
     private readonly container: MasterNodeRegTestContainer,
-    private readonly jsonRpc: JsonRpcClient
+    private readonly rpc: JsonRpcClient
   ) {
   }
 
@@ -23,7 +23,7 @@ export class TestingRawTx {
     const { txid, vout } = await this.container.fundAddress(addressA, amountA.toNumber())
     const inputs = [{ txid: txid, vout: vout }]
 
-    const unsigned = await this.jsonRpc.rawtx.createRawTransaction(inputs, { [addressB]: new BigNumber(amountB) })
+    const unsigned = await this.rpc.rawtx.createRawTransaction(inputs, { [addressB]: new BigNumber(amountB) })
     const signed = await this.sign({ hex: unsigned, privKeys: [ellipticPairA] })
 
     return {
@@ -37,7 +37,7 @@ export class TestingRawTx {
     const { hex, privKeys } = options
 
     const mapped = await asPrivKey(privKeys)
-    const signed = await this.jsonRpc.rawtx.signRawTransactionWithKey(hex, mapped)
+    const signed = await this.rpc.rawtx.signRawTransactionWithKey(hex, mapped)
     return signed.hex
   }
 
@@ -45,7 +45,7 @@ export class TestingRawTx {
    * @param {string} txid to of a DfTx
    */
   async getDfTx (txid: string): Promise<TestingRawTxDfTx> {
-    const transaction = await this.jsonRpc.rawtx.getRawTransaction(txid, true)
+    const transaction = await this.rpc.rawtx.getRawTransaction(txid, true)
     for (const vout of transaction.vout) {
       if (vout.scriptPubKey.asm.startsWith('OP_RETURN 44665478')) {
         return {
