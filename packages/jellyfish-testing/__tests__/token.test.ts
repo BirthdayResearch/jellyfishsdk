@@ -26,5 +26,5 @@ it('should create mint send', async () => {
   await testing.generate(1)
 
   const account = await testing.rpc.account.getAccount(await testing.address('key-1'))
-  expect(account).toStrictEqual([['10.00000000@MINT']])
+  expect(account).toStrictEqual(['10.00000000@MINT'])
 })
