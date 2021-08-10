@@ -1,5 +1,5 @@
 import { Testing } from './index'
-import { PoolPairInfo } from '@defichain/jellyfish-api-core/category/poolpair'
+import { poolpair } from '@defichain/jellyfish-api-core'
 
 /**
  * TestingFixture setup complex fixtures for jellyfish testing.
@@ -10,7 +10,7 @@ export class TestingFixture {
   ) {
   }
 
-  async createPoolPair (options: TestingPoolPairCreateRequest): Promise<PoolPairInfo> {
+  async createPoolPair (options: TestingPoolPairCreateRequest): Promise<poolpair.PoolPairInfo> {
     if (options.a.symbol !== 'DFI') {
       await this.testing.token.create({ symbol: options.a.symbol })
     }
