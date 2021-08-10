@@ -1,6 +1,6 @@
-import { GenesisKeys, MasternodeGroup, MasterNodeRegTestContainer } from '../../../src'
+import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '../../../src'
 
-const group = new MasternodeGroup([
+const group = new ContainerGroup([
   new MasterNodeRegTestContainer(GenesisKeys[0]),
   new MasterNodeRegTestContainer(GenesisKeys[1])
 ])
