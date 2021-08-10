@@ -54,7 +54,7 @@ export class CICXCreateOrder extends ComposableBuffer<ICXCreateOrder> {
  */
 
 export interface ICXMakeOffer {
-  orderTx: string // --------------| 32 bytes, txid for which order is the offer
+  orderTx: string // ---------------| 32 bytes, txid for which order is the offer
   amount: BigNumber // -------------| 8 bytes unsigned, amount of asset to swap
   ownerAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes, address for DFI token for fees, and in case of BTC/DFC order for DFC asset
   receivePubkey?: string // --------| 1 byte for len + len bytes, address or BTC pubkey in case of DFC/BTC order
@@ -78,6 +78,29 @@ export class CICXMakeOffer extends ComposableBuffer<ICXMakeOffer> {
       ComposableBuffer.optionalVarUIntHex(() => cmo.receivePubkey, v => cmo.receivePubkey = v),
       ComposableBuffer.uInt32(() => cmo.expiry, v => cmo.expiry = v),
       ComposableBuffer.satoshiAsBigNumber(() => cmo.takerFee, v => cmo.takerFee = v)
+    ]
+  }
+}
+
+/**
+ * ICX CloseOrder DeFi Transaction
+ */
+
+export interface ICXCloseOrder {
+  orderTx: string // --------| 32 bytes, txid for which order is the offer
+}
+
+/**
+ * Composable ICXCloseOrder, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CICXCloseOrder extends ComposableBuffer<ICXCloseOrder> {
+  static OP_CODE = 0x36 // '6'
+  static OP_NAME = 'OP_DEFI_TX_ICX_CLOSE_ORDER'
+
+  composers (co: ICXCloseOrder): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => co.orderTx, v => co.orderTx = v)
     ]
   }
 }

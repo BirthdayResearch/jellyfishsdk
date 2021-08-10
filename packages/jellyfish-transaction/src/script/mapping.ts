@@ -54,7 +54,9 @@ import {
   CICXCreateOrder,
   ICXCreateOrder,
   CICXMakeOffer,
-  ICXMakeOffer
+  ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder
 } from './dftx/dftx_icxorderbook'
 
 /**
@@ -327,6 +329,14 @@ export const OP_CODES = {
       type: CICXMakeOffer.OP_CODE,
       name: CICXMakeOffer.OP_NAME,
       data: makeOffer
+    })
+  },
+  OP_DEFI_TX_ICX_CLOSE_ORDER: (closeOrder: ICXCloseOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOrder.OP_CODE,
+      name: CICXCloseOrder.OP_NAME,
+      data: closeOrder
     })
   },
 
