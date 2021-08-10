@@ -3,7 +3,8 @@ import {
   Script,
   TransactionSegWit,
   ICXCreateOrder,
-  ICXMakeOffer
+  ICXMakeOffer,
+  ICXCloseOrder
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
@@ -32,6 +33,20 @@ export class TxnBuilderICX extends P2WPKHTxnBuilder {
   async makeOffer (makeOffer: ICXMakeOffer, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_MAKE_OFFER(makeOffer),
+      changeScript
+    )
+  }
+
+  /**
+   * ICX Close Order.
+   *
+   * @param {ICXCloseOrder} closeOrder txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async closeOrder (closeOrder: ICXCloseOrder, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ICX_CLOSE_ORDER(closeOrder),
       changeScript
     )
   }
