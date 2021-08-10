@@ -58,17 +58,21 @@ describe('setup TOKEN on [0] and give to [1] for minting with 100 UTXO for spend
 
     { // 4. send 10 UTXO from [1] to [2] (via sendtoaddress)
       const txid = await clients[1].wallet.sendToAddress(anotherAddress, 10)
-      await group.waitForMempoolSync(txid)
+      console.log('txid received', txid)
+      // await group.waitForMempoolSync(txid)
     }
 
-    // 5. mine block
+    // 5. mine blocks
+    await group.waitForSync()
+    await group.get(0).generate(1)
+    await group.waitForSync()
     await group.get(0).generate(1)
     await group.waitForSync()
 
     // 6. wait for balances
     const utxo = await clients[2].wallet.getBalance()
     const account = await clients[2].account.getAccount(anotherAddress)
-    expect(utxo).toStrictEqual(new BigNumber(10))
     expect(account).toStrictEqual(['100.00000000@TOKEN'])
+    expect(utxo).toStrictEqual(new BigNumber(10))
   })
 })
