@@ -29,6 +29,7 @@ export * as server from './category/server'
 export * as masternode from './category/masternode'
 export * as governance from './category/governance'
 export * as spv from './category/spv'
+export * as icxorderbook from './category/icxorderbook'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
