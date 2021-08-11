@@ -79,7 +79,7 @@ describe('Loan', () => {
     //
     // await container.generate(1)
 
-    await container.call('updateloantoken', [
+    const x = await container.call('updateloantoken', [
       {
         token: 'TSLAAAA'
       },
@@ -91,6 +91,9 @@ describe('Loan', () => {
         interest: 0.01
       }
     ])
+
+    const tx: any = await container.call('getrawtransaction', [x, true])
+    console.log(tx.vout[0].scriptPubKey)
 
     await container.generate(1)
 
