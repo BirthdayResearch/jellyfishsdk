@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@size-limit/preset-app": "^5.0.2",
-    "@types/jest": "^26.0.24",
+    "@types/jest": "^27.0.0",
     "husky": "^7.0.1",
     "jest": "^27.0.6",
     "lerna": "^4.0.0",
