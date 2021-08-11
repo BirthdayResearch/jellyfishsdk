@@ -5,17 +5,20 @@ import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
 import { TestingToken } from './token'
 import { TestingFixture } from './fixture'
+import { TestingICX } from './icxorderbook'
 
 export * from './fixture'
 export * from './poolpair'
 export * from './rawtx'
 export * from './token'
+export * from './icxorderbook'
 
 export class Testing {
   public readonly fixture = new TestingFixture(this)
   public readonly token = new TestingToken(this.container, this.rpc)
   public readonly poolpair = new TestingPoolPair(this.container, this.rpc)
   public readonly rawtx = new TestingRawTx(this.container, this.rpc)
+  public readonly icxorderbook = new TestingICX(this, this.container, this.rpc)
 
   private readonly addresses: Record<string, string> = {}
 
