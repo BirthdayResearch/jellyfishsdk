@@ -175,6 +175,9 @@ export interface MasternodeInfo {
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  targetMultiplier?: number
+  targetMultipliers?: number[]
+  timelock?: number
 }
 
 export interface MasternodeResult<T> {
