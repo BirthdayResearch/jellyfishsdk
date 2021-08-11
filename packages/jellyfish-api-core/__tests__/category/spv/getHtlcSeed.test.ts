@@ -1,4 +1,4 @@
-import { GenesisKeys, MasterNodeRegTestContainer, MasternodeGroup } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer, ContainerGroup } from '@defichain/testcontainers'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
@@ -8,8 +8,6 @@ describe('Spv', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
-
     await container.call('spv_fundaddress', [await container.call('spv_getnewaddress')]) // Funds 1 BTC
   })
 
@@ -45,8 +43,8 @@ describe('Spv', () => {
   })
 })
 
-describe('Spv with MasternodeGroup', () => {
-  const group = new MasternodeGroup([
+describe('Spv with ContainerGroup', () => {
+  const group = new ContainerGroup([
     new MasterNodeRegTestContainer(GenesisKeys[0]),
     new MasterNodeRegTestContainer(GenesisKeys[1])
   ])
