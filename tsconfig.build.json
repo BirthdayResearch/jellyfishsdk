@@ -14,6 +14,7 @@
     {"path": "./packages/jellyfish-crypto/tsconfig.build.json"},
     {"path": "./packages/jellyfish-json/tsconfig.build.json"},
     {"path": "./packages/jellyfish-network/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-testing/tsconfig.build.json"},
     {"path": "./packages/jellyfish-transaction/tsconfig.build.json"},
     {"path": "./packages/jellyfish-transaction-builder/tsconfig.build.json"},
     {"path": "./packages/jellyfish-transaction-signature/tsconfig.build.json"},
