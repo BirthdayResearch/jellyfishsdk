@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, BigNumber } from '../.'
 
 /**
  * loan RPCs for DeFi Blockchain
@@ -11,7 +11,7 @@ export class Loan {
   }
 
   async setLoanToken (symbol: string, name: string, options: SetLoanTokenOptions): Promise<string> {
-    const { mintable = undefined, interest = 0, utxos = [] } = options
+    const { mintable = undefined, interest = new BigNumber(0), utxos = [] } = options
     return await this.client.call('setloantoken', [
       {
         symbol,
@@ -27,7 +27,7 @@ export class Loan {
 export interface SetLoanTokenOptions {
   priceFeedId: string
   mintable?: boolean
-  interest?: number
+  interest?: BigNumber
   utxos?: UTXO[]
 }
 

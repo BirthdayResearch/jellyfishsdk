@@ -33,12 +33,14 @@ beforeEach(async () => {
   await providers.setupMocks() // required to move utxos
 })
 
-it('should create loan scheme', async () => {
+it('should setLoanToken', async () => {
   const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    minColRatio: 200,
-    interestRate: new BigNumber('200'),
-    id: 'default'
+  const txn = await builder.loans.setLoanToken({
+    symbol: 'ABC',
+    name: 'ABCTOKEN',
+    priceFeedId: '1d0c71744bcacbfcb688778121916948ad95995323abae79e0416498aa858232',
+    mintable: true,
+    interest: new BigNumber(1)
   }, script)
 
   // Ensure the created txn is correct.

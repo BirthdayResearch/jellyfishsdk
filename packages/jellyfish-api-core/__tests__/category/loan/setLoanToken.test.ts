@@ -1,6 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
+import BigNumber from 'bignumber.js'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -31,12 +32,18 @@ describe('Loan', () => {
       'ABC',
       'ABCTOKEN',
       {
-        priceFeedId: oracleId
+        priceFeedId: oracleId,
+        mintable: true,
+        interest: new BigNumber(1)
       }
     )
 
     expect(typeof txId).toStrictEqual('string')
     expect(txId.length).toStrictEqual(64)
+
+    // const tx: any = await client.call('getrawtransaction', [txId, true], 'bignumber')
+    // console.log(tx.vout[0].scriptPubKey)
+    // console.log(oracleId)
 
     await container.generate(1)
   })

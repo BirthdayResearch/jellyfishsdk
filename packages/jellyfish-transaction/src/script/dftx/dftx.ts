@@ -29,7 +29,7 @@ import {
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
-import { CCreateLoanScheme, CreateLoanScheme } from './dftx_loans'
+import { CSetLoanToken, SetLoanToken } from './dftx_loans'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -148,8 +148,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasterNode>(CResignMasterNode.OP_NAME, d => new CResignMasterNode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
-      case CCreateLoanScheme.OP_CODE:
-        return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
+      case CSetLoanToken.OP_CODE:
+        return compose<SetLoanToken>(CSetLoanToken.OP_NAME, d => new CSetLoanToken(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
