@@ -10,7 +10,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 export interface CreateMasterNode {
   operatorType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
   operatorAuthAddress: string // -------------------| VarUInt{20 bytes}
-  timeLock?: number // -----------------------------| 2 bytes, only available after EunosPaya
+  timeLock?: number // -----------------------------| 2 bytes
 }
 
 /**

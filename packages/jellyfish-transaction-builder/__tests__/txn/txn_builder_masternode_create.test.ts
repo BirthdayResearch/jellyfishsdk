@@ -10,177 +10,302 @@ import {
   sendTransaction
 } from '../test.utils'
 
-const container = new MasterNodeRegTestContainer()
-let providers: MockProviders
-let builder: P2WPKHTransactionBuilder
-let jsonRpc: JsonRpcClient
+describe('CreateMasternode', () => {
+  const container = new MasterNodeRegTestContainer()
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+  let jsonRpc: JsonRpcClient
 
-beforeAll(async () => {
-  await container.start()
-  await container.waitForReady()
-  await container.waitForWalletCoinbaseMaturity()
-  await container.waitForWalletBalanceGTE(1001)
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(1001)
 
-  jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
-  providers = await getProviders(container)
+    jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
+    providers = await getProviders(container)
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  beforeEach(async () => {
+    await providers.randomizeEllipticPair()
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+
+    // Note(canonbrother): in regtest, collateral amount must be equal to 2 and creation fee must be greater than 1
+    // https://github.com/DeFiCh/ain/blob/85360ad432ae8c5ecbfbfc7d63dd5bc6fe41e875/src/masternodes/mn_checks.cpp#L439-L446
+    // 0.00000745 is added for calculateFeeP2WPKH deduction, 3(total) - 1(creationFee) = 2(collateralAmount)
+    await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000745)
+    await providers.setupMocks()
+  })
+
+  it('should create with P2PKH address', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 2).toBeTruthy()
+
+    const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+    const masternodesBeforeLength = Object.keys(masternodesBefore).length
+
+    const address = await container.getNewAddress('', 'legacy')
+    const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
+    const addressDestHex = addressDest.hex
+
+    const createMasternode: CreateMasterNode = {
+      operatorType: 0x01,
+      operatorAuthAddress: addressDestHex
+    }
+
+    const script = await providers.elliptic.script()
+
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    const outs = await sendTransaction(container, txn)
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toStrictEqual(2)
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    await container.generate(1)
+
+    const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+    const masternodesAfterLength = Object.keys(masternodesAfter).length
+    expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
+  })
+
+  it('should create with PKWPKH', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 2).toBeTruthy()
+
+    const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+    const masternodesBeforeLength = Object.keys(masternodesBefore).length
+
+    const address = await container.getNewAddress('', 'bech32')
+    const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
+    const addressDestKeyHash = addressDest.pubKeyHash
+
+    const createMasternode: CreateMasterNode = {
+      operatorType: 0x04,
+      operatorAuthAddress: addressDestKeyHash
+    }
+
+    const script = await providers.elliptic.script()
+
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    const outs = await sendTransaction(container, txn)
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+
+    expect(outs[1].value).toStrictEqual(2)
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+    const masternodesAfterLength = Object.keys(masternodesAfter).length
+    expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
+  })
+
+  it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 2).toBeTruthy()
+
+    const address = await container.getNewAddress('', 'p2sh-segwit')
+    const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
+    const addressDestKeyHash = addressDest.hex
+
+    const createMasternode: CreateMasterNode = {
+      operatorType: 0x02,
+      operatorAuthAddress: addressDestKeyHash
+    }
+
+    const script = await providers.elliptic.script()
+
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('CreateMasternodeTx: bad owner and|or operator address (should be P2PKH or P2WPKH only) or node with those addresses exists')
+  })
+
+  it('should be failed while collateral is not 2', async () => {
+    expect.assertions(2)
+
+    const balanceBefore = await container.call('getbalance')
+
+    await container.call('sendtoaddress', ['bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 2])
+
+    const balanceAfter = await container.call('getbalance')
+    console.log('balanceAfter: ', balanceAfter)
+    expect(balanceAfter < 2).toBeTruthy()
+
+    const address = await container.getNewAddress('', 'legacy')
+    const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
+    const addressDestHex = addressDest.hex
+
+    const createMasternode: CreateMasterNode = {
+      operatorType: 0x01,
+      operatorAuthAddress: addressDestHex
+    }
+
+    await fundEllipticPair(container, providers.ellipticPair, 1.1)
+
+    const script = await providers.elliptic.script()
+
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+
+    try {
+      await sendTransaction(container, txn)
+    } catch (err) {
+      expect(err.message).toStrictEqual('DeFiDRpcError: \'CreateMasternodeTx: malformed tx vouts (wrong creation fee or collateral amount) (code 16)\', code: -26')
+    }
+  })
 })
 
-afterAll(async () => {
-  await container.stop()
-})
+describe.only('CreateMasternode with timeLock', () => {
+  const container = new MasterNodeRegTestContainer()
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+  let jsonRpc: JsonRpcClient
 
-beforeEach(async () => {
-  await providers.randomizeEllipticPair()
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await container.waitForWalletBalanceGTE(1001)
 
-  // Note(canonbrother): in regtest, collateral amount must be equal to 2 and creation fee must be greater than 1
-  // https://github.com/DeFiCh/ain/blob/85360ad432ae8c5ecbfbfc7d63dd5bc6fe41e875/src/masternodes/mn_checks.cpp#L439-L446
-  // 0.00000745 is added for calculateFeeP2WPKH deduction, 3(total) - 1(creationFee) = 2(collateralAmount)
-  await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000745)
-  await providers.setupMocks()
-})
+    jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
+    providers = await getProviders(container)
+  })
 
-it('should create with P2PKH address', async () => {
-  const balance = await container.call('getbalance')
-  expect(balance >= 2).toBeTruthy()
+  afterAll(async () => {
+    await container.stop()
+  })
 
-  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
-  const masternodesBeforeLength = Object.keys(masternodesBefore).length
+  beforeEach(async () => {
+    await providers.randomizeEllipticPair()
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-  const address = await container.getNewAddress('', 'legacy')
-  const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
-  const addressDestHex = addressDest.hex
+    // 0.00000755 is added for calculateFeeP2WPKH deduction
+    // with timeLock fee increases 0.000001
+    await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000755)
+    await providers.setupMocks()
+  })
 
-  const createMasternode: CreateMasterNode = {
-    operatorType: 0x01,
-    operatorAuthAddress: addressDestHex
-  }
+  it('should create with timeLock', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 2).toBeTruthy()
 
-  const script = await providers.elliptic.script()
+    const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+    const masternodesBeforeLength = Object.keys(masternodesBefore).length
 
-  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const address = await container.getNewAddress('', 'bech32')
+    const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
+    const addressDestKeyHash = addressDest.pubKeyHash
 
-  const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
-  const expectedRedeemScript = `6a${encoded}`
+    const createMasternode: CreateMasterNode = {
+      operatorType: 0x04,
+      operatorAuthAddress: addressDestKeyHash,
+      timeLock: 0x0104
+    }
 
-  const outs = await sendTransaction(container, txn)
-  expect(outs.length).toStrictEqual(2)
-  expect(outs[0].value).toStrictEqual(1)
-  expect(outs[0].n).toStrictEqual(0)
-  expect(outs[0].tokenId).toStrictEqual(0)
-  expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
-  expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-  expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+    const script = await providers.elliptic.script()
 
-  expect(outs[1].value).toStrictEqual(2)
-  expect(outs[1].n).toStrictEqual(1)
-  expect(outs[1].tokenId).toStrictEqual(0)
-  expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-  expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-  expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
-  await container.generate(1)
+    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
 
-  const masternodesAfter = await jsonRpc.masternode.listMasternodes()
-  const masternodesAfterLength = Object.keys(masternodesAfter).length
-  expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
-})
+    const outs = await sendTransaction(container, txn)
 
-it('should create with PKWPKH', async () => {
-  const balance = await container.call('getbalance')
-  expect(balance >= 2).toBeTruthy()
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-  const masternodesBefore = await jsonRpc.masternode.listMasternodes()
-  const masternodesBeforeLength = Object.keys(masternodesBefore).length
+    expect(outs[1].value).toStrictEqual(2)
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-  const address = await container.getNewAddress('', 'bech32')
-  const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
-  const addressDestKeyHash = addressDest.pubKeyHash
+    const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+    const masternodesAfterLength = Object.keys(masternodesAfter).length
+    expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
+  })
 
-  const createMasternode: CreateMasterNode = {
-    operatorType: 0x04,
-    operatorAuthAddress: addressDestKeyHash
-  }
+  it.only('should be failed as invalid timeLock', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 2).toBeTruthy()
 
-  const script = await providers.elliptic.script()
+    const masternodesBefore = await jsonRpc.masternode.listMasternodes()
+    const masternodesBeforeLength = Object.keys(masternodesBefore).length
 
-  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const address = await container.getNewAddress('', 'bech32')
+    const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
+    const addressDestKeyHash = addressDest.pubKeyHash
 
-  const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
-  const expectedRedeemScript = `6a${encoded}`
+    const createMasternode: CreateMasterNode = {
+      operatorType: 0x04,
+      operatorAuthAddress: addressDestKeyHash,
+      timeLock: 0x0000
+    }
 
-  const outs = await sendTransaction(container, txn)
-  expect(outs.length).toStrictEqual(2)
-  expect(outs[0].value).toStrictEqual(1)
-  expect(outs[0].n).toStrictEqual(0)
-  expect(outs[0].tokenId).toStrictEqual(0)
-  expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
-  expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
-  expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
+    const script = await providers.elliptic.script()
 
-  expect(outs[1].value).toStrictEqual(2)
-  expect(outs[1].n).toStrictEqual(1)
-  expect(outs[1].tokenId).toStrictEqual(0)
-  expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
-  expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
-  expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
 
-  const masternodesAfter = await jsonRpc.masternode.listMasternodes()
-  const masternodesAfterLength = Object.keys(masternodesAfter).length
-  expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
-})
+    const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
 
-it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
-  const balance = await container.call('getbalance')
-  expect(balance >= 2).toBeTruthy()
+    const outs = await sendTransaction(container, txn)
+    console.log('outs: ', outs)
+    expect(outs.length).toStrictEqual(2)
+    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].n).toStrictEqual(0)
+    expect(outs[0].tokenId).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547843')).toBeTruthy()
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-  const address = await container.getNewAddress('', 'p2sh-segwit')
-  const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
-  const addressDestKeyHash = addressDest.hex
+    expect(outs[1].value).toStrictEqual(2)
+    expect(outs[1].n).toStrictEqual(1)
+    expect(outs[1].tokenId).toStrictEqual(0)
+    expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
+    expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-  const createMasternode: CreateMasterNode = {
-    operatorType: 0x02,
-    operatorAuthAddress: addressDestKeyHash
-  }
-
-  const script = await providers.elliptic.script()
-
-  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
-
-  const promise = sendTransaction(container, txn)
-  await expect(promise).rejects.toThrow(DeFiDRpcError)
-  await expect(promise).rejects.toThrow('CreateMasternodeTx: bad owner and|or operator address (should be P2PKH or P2WPKH only) or node with those addresses exists')
-})
-
-it('should be failed while collateral is not 2', async () => {
-  expect.assertions(2)
-
-  const balanceBefore = await container.call('getbalance')
-
-  await container.call('sendtoaddress', ['bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 2])
-
-  const balanceAfter = await container.call('getbalance')
-  console.log('balanceAfter: ', balanceAfter)
-  expect(balanceAfter < 2).toBeTruthy()
-
-  const address = await container.getNewAddress('', 'legacy')
-  const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
-  const addressDestHex = addressDest.hex
-
-  const createMasternode: CreateMasterNode = {
-    operatorType: 0x01,
-    operatorAuthAddress: addressDestHex
-  }
-
-  await fundEllipticPair(container, providers.ellipticPair, 1.1)
-
-  const script = await providers.elliptic.script()
-
-  const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
-
-  try {
-    await sendTransaction(container, txn)
-  } catch (err) {
-    expect(err.message).toStrictEqual('DeFiDRpcError: \'CreateMasternodeTx: malformed tx vouts (wrong creation fee or collateral amount) (code 16)\', code: -26')
-  }
+    const masternodesAfter = await jsonRpc.masternode.listMasternodes()
+    const masternodesAfterLength = Object.keys(masternodesAfter).length
+    expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
+  })
 })

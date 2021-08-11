@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { MasternodeState } from '../../../src/category/masternode'
+import { MasternodeState, MasternodeTimeLock } from '../../../src/category/masternode'
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
@@ -80,6 +80,35 @@ describe('Masternode', () => {
     }
     expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
     expect(mn.operatorAuthAddress).toStrictEqual(operatorAddress)
+  })
+
+  it.only('should createMasternode with timeLock', async () => {
+    const balance = await container.call('getbalance')
+    expect(balance >= 2).toBeTruthy()
+
+    const masternodesLengthBefore = Object.keys(await client.masternode.listMasternodes()).length
+
+    const ownerAddress = await client.wallet.getNewAddress()
+    const hex = await client.masternode.createMasternode(
+      ownerAddress, '', { utxos: [], timeLock: MasternodeTimeLock.FIVE_YEAR }
+    )
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+
+    await container.generate(1)
+
+    const masternodesAfter = await client.masternode.listMasternodes()
+    const masternodesLengthAfter = Object.keys(masternodesAfter).length
+    expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
+
+    const mn = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === ownerAddress)
+    console.log('mn: ', mn)
+    if (mn === undefined) {
+      throw new Error('should not reach here')
+    }
+    expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
+    expect(mn.operatorAuthAddress).toStrictEqual(ownerAddress)
+    // expect(mn.timelock).toStrictEqual(ownerAddress)
   })
 
   it('should createMasternode with utxos', async () => {
