@@ -68,6 +68,7 @@ describe('Spv with MasternodeGroup', () => {
     const htlc = await group.get(0).call('spv_createhtlc', [pubKeyA, pubKeyB, '10'])
 
     await group.get(0).call('spv_sendtoaddress', [htlc.address, 0.1]) // Funds HTLC address
+    await group.waitForSync()
     await group.get(0).call('spv_claimhtlc', [htlc.address, await group.get(0).call('spv_getnewaddress'), htlc.seed]) // claim HTLC
 
     const emptySecret = await client1.spv.getHtlcSeed(htlc.address)
