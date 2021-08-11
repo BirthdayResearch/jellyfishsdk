@@ -53,8 +53,7 @@ export class AppModule {
    * - GlobalPrefix 'v{major}.{minor}/${network}' e.g. 'v0.0/regtest'
    */
   static configure (app: NestFastifyApplication): void {
-    const [major, minor] = packageJson.version.split('.')
-    const version = `v${major}.${minor}`
+    const version = this.getVersion(app)
     const network = app.get(ConfigService).get<string>('network') as string
 
     app.enableCors({
@@ -70,5 +69,14 @@ export class AppModule {
         '/_actuator/probes/readiness'
       ]
     })
+  }
+
+  /**
+   * @return string version from ConfigService, default to package.json v{major}.{minor} if not found.
+   */
+  static getVersion (app: NestFastifyApplication): string {
+    const [major, minor] = packageJson.version.split('.')
+    const defaultVersion = `v${major}.${minor}`
+    return app.get(ConfigService).get<string>('version', defaultVersion)
   }
 }
