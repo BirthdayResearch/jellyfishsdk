@@ -3,14 +3,6 @@ import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
-import {
-  ICXOrder,
-  ICXOffer,
-  HTLC,
-  ICXDFCHTLCInfo,
-  ICXEXTHTLCInfo,
-  ExtHTLC
-} from '@defichain/jellyfish-api-core/category/icxorderbook'
 import { accountToAccount } from '@defichain/testing'
 
 const {
@@ -152,7 +144,7 @@ export class TestingICX {
     receivePubkey,
     amountFrom,
     orderPrice
-  }: CreateDFISellOrderData): Promise<{order: ICXOrder, createOrderTxId: string}> {
+  }: CreateDFISellOrderData): Promise<{order: icxorderbook.ICXOrder, createOrderTxId: string}> {
     // create order - maker
     const order = {
       tokenFrom: this.idDFI,
@@ -180,7 +172,7 @@ export class TestingICX {
     orderTx,
     amount,
     ownerAddress = this.accountBTC
-  }: CreateDFIBuyOfferData): Promise<{offer: ICXOffer, makeOfferTxId: string}> {
+  }: CreateDFIBuyOfferData): Promise<{offer: icxorderbook.ICXOffer, makeOfferTxId: string}> {
     const accountBTCBeforeOffer: Record<string, BigNumber> = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
     // make Offer to partial amount 10 DFI - taker
     const offer = {
@@ -214,7 +206,7 @@ export class TestingICX {
     amount,
     hash,
     timeout = 1440
-  }: CreateDFCHTLCForDFIBuyOfferData): Promise<{DFCHTLC: HTLC, DFCHTLCTxId: string}> {
+  }: CreateDFCHTLCForDFIBuyOfferData): Promise<{DFCHTLC: icxorderbook.HTLC, DFCHTLCTxId: string}> {
     const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await this.rpc.call('getaccount', [this.accountDFI, {}, true], 'bignumber')
     // create DFCHTLC - maker
     const DFCHTLC = {
@@ -232,8 +224,8 @@ export class TestingICX {
 
     const HTLCs = await this.rpc.icxorderbook.listHTLCs({ offerTx })
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
-    expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
+    expect((HTLCs[DFCHTLCTxId] as icxorderbook.ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
+    expect((HTLCs[DFCHTLCTxId] as icxorderbook.ICXDFCHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
 
     return {
       DFCHTLC,
@@ -249,7 +241,7 @@ export class TestingICX {
     htlcScriptAddress,
     ownerPubkey,
     timeout = 24
-  }: submitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: ExtHTLC, ExtHTLCTxId: string}> {
+  }: submitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string}> {
     const accountBTCBeforeEXTHTLC = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC - taker
     const ExtHTLC = {
@@ -265,8 +257,8 @@ export class TestingICX {
 
     const HTLCs = await this.rpc.icxorderbook.listHTLCs({ offerTx })
     expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
-    expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).type).toStrictEqual(ICXOrderType.EXTERNAL)
-    expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
+    expect((HTLCs[ExtHTLCTxId] as icxorderbook.ICXEXTHTLCInfo).type).toStrictEqual(ICXOrderType.EXTERNAL)
+    expect((HTLCs[ExtHTLCTxId] as icxorderbook.ICXEXTHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
 
     const accountBTCAfterEXTHTLC = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCBeforeEXTHTLC
