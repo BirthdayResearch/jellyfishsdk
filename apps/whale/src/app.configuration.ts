@@ -6,10 +6,14 @@
  */
 export const AppConfiguration = (): any => ({
   isProd: process.env.NODE_ENV === 'production',
+  /**
+   * Allows you to override whale endpoint version.
+   */
+  version: process.env.WHALE_VERSION,
+  network: process.env.WHALE_NETWORK,
   defid: {
     url: process.env.WHALE_DEFID_URL
   },
-  network: process.env.WHALE_NETWORK,
   database: {
     // Provider can only be set via environmental variable
     provider: process.env.WHALE_DATABASE_PROVIDER,
