@@ -3,7 +3,6 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { BigNumber } from '@defichain/jellyfish-json'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -33,12 +32,11 @@ beforeEach(async () => {
   await providers.setupMocks() // required to move utxos
 })
 
-it('should create loan scheme', async () => {
+it('should create vault', async () => {
   const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    minColRatio: 200,
-    interestRate: new BigNumber('200'),
-    id: 'default'
+  const txn = await builder.loans.createVault({
+    script: script,
+    loanSchemeId: 'scheme'
   }, script)
 
   // Ensure the created txn is correct.
@@ -48,7 +46,7 @@ it('should create loan scheme', async () => {
   expect(outs[1].value).toBeGreaterThan(9.999)
   expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-  // Ensure you don't send all your balance away during appoint oracle
+  // Ensure you don't send all your balance away during create vault
   const prevouts = await providers.prevout.all()
   expect(prevouts.length).toStrictEqual(1)
   expect(prevouts[0].value.toNumber()).toBeLessThan(10)

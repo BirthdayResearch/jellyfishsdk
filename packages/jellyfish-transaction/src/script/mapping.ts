@@ -48,8 +48,8 @@ import {
   CSetOracleData
 } from './dftx/dftx_oracles'
 import {
-  CCreateLoanScheme,
-  CreateLoanScheme
+  CCreateVault,
+  CreateVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
@@ -311,12 +311,12 @@ export const OP_CODES = {
       data: setGovernance
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_VAULT: (createVault: CreateVault): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateLoanScheme.OP_CODE,
-      name: CCreateLoanScheme.OP_NAME,
-      data: createLoanScheme
+      type: CCreateVault.OP_CODE,
+      name: CCreateVault.OP_NAME,
+      data: createVault
     })
   },
 

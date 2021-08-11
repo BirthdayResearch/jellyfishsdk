@@ -36,6 +36,9 @@ describe('Loan', () => {
 
     const vaultId = await client.loan.createVault(await container.getNewAddress(), 'scheme')
 
+    // const tx: any = await client.call('getrawtransaction', [vaultId, true], 'bignumber')
+    // console.log(tx.vout[0].scriptPubKey)
+
     expect(typeof vaultId).toStrictEqual('string')
     expect(vaultId.length).toStrictEqual(64)
 
