@@ -4,7 +4,7 @@ import { ResignMasterNode } from '@defichain/jellyfish-transaction'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import { MasternodeState } from '../../../jellyfish-api-core/src/category/masternode'
+import { MasternodeState, MasternodeTimeLock } from '../../../jellyfish-api-core/src/category/masternode'
 import {
   fundEllipticPair,
   sendTransaction
@@ -102,4 +102,54 @@ it('should be failed as tx must have at least one input from owner', async () =>
   const promise = sendTransaction(container, txn)
   await expect(promise).rejects.toThrow(DeFiDRpcError)
   await expect(promise).rejects.toThrow('ResignMasternodeTx: tx must have at least one input from the owner')
+})
+
+it('should be failed as trying to resign a NOT ENABLED masternode', async () => {
+  const pubKey = await providers.ellipticPair.publicKey()
+  const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
+
+  const txid = await jsonRpc.masternode.createMasternode(collateralAddress, '', { utxos: [], timeLock: MasternodeTimeLock.TEN_YEAR })
+  await container.generate(1)
+
+  const masternodes = await jsonRpc.masternode.listMasternodes()
+  const createdMasternode = Object.values(masternodes).find(mn => mn.ownerAuthAddress === collateralAddress)
+  expect(createdMasternode).not.toBeUndefined()
+
+  await fundEllipticPair(container, providers.ellipticPair, 10)
+
+  const resignMasterNode: ResignMasterNode = {
+    nodeId: txid
+  }
+
+  const script = await providers.elliptic.script()
+  const txn = await builder.masternode.resign(resignMasterNode, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow(`ResignMasternodeTx: node ${txid} state is not 'ENABLED'`)
+})
+
+it('should be failed as trying to resign masternode before timelock expiration', async () => {
+  const pubKey = await providers.ellipticPair.publicKey()
+  const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
+
+  const txid = await jsonRpc.masternode.createMasternode(collateralAddress, '', { utxos: [], timeLock: MasternodeTimeLock.TEN_YEAR })
+  await container.generate(30)
+
+  const masternodes = await jsonRpc.masternode.listMasternodes()
+  const createdMasternode = Object.values(masternodes).find(mn => mn.ownerAuthAddress === collateralAddress)
+  expect(createdMasternode).not.toBeUndefined()
+
+  await fundEllipticPair(container, providers.ellipticPair, 10)
+
+  const resignMasterNode: ResignMasterNode = {
+    nodeId: txid
+  }
+
+  const script = await providers.elliptic.script()
+  const txn = await builder.masternode.resign(resignMasterNode, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('ResignMasternodeTx: Trying to resign masternode before timelock expiration')
 })

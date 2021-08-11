@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
-import { MasternodeState } from '../../../src/category/masternode'
+import { MasternodeState, MasternodeTimeLock } from '../../../src/category/masternode'
 import { RpcApiError } from '../../../src'
 
 describe('Masternode', () => {
@@ -75,5 +75,26 @@ describe('Masternode', () => {
 
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test ResignMasternodeTx execution failed:\n' + 'tx must have at least one input from the owner\', code: -32600, method: resignmasternode')
+  })
+
+  it('should be failed while resigning a NOT ENABLED masternode', async () => {
+    const address = await container.getNewAddress()
+    const id = await client.masternode.createMasternode(address)
+    await container.generate(1)
+
+    const promise = client.masternode.resignMasternode(id)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`node ${id} state is not 'ENABLED'`)
+  })
+
+  it('should be failed to resign within a timeLock period', async () => {
+    const address = await container.getNewAddress()
+    const id = await client.masternode.createMasternode(
+      address, '', { utxos: [], timeLock: MasternodeTimeLock.TEN_YEAR })
+    await container.generate(20, address) // generate blocks to pass PRE_ENABLED state
+
+    const promise = client.masternode.resignMasternode(id)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Trying to resign masternode before timelock expiration')
   })
 })

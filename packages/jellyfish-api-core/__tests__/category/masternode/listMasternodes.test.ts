@@ -39,8 +39,8 @@ describe('Masternode', () => {
       if (currentMasternode.targetMultipliers !== undefined) {
         expect(typeof currentMasternode.targetMultipliers).toStrictEqual('object')
       }
-      if (currentMasternode.timelock !== undefined) {
-        expect(typeof currentMasternode.timelock).toStrictEqual('number')
+      if (currentMasternode.timeLock !== undefined) {
+        expect(typeof currentMasternode.timeLock).toStrictEqual('number')
       }
     }
   })

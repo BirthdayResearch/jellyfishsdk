@@ -177,7 +177,7 @@ export interface MasternodeInfo {
   localMasternode: boolean
   targetMultiplier?: number
   targetMultipliers?: number[]
-  timelock?: number
+  timeLock?: number
 }
 
 export interface MasternodeResult<T> {
