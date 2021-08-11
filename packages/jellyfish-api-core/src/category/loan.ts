@@ -1,4 +1,4 @@
-import { ApiClient, BigNumber } from '../.'
+import { ApiClient } from '../.'
 
 /**
  * loan RPCs for DeFi Blockchain
@@ -10,22 +10,43 @@ export class Loan {
     this.client = client
   }
 
-  async setColleteralToken (token: string, factor: BigNumber, options: SetColleteralTokenOptions): Promise<string> {
-    const { activateAfterBlock = undefined, utxos = [] } = options
-    return await this.client.call('setcollateraltoken', [
+  async updateLoanToken (token: string, metadata: UpdateLoanTokenMetaData, options?: UpdateLoanTokenOptions): Promise<string> {
+    // TODO jingyi2811
+    // There is a bug in the c++ side
+    // utxos should not be object, should be array instead
+    const {
+      symbol,
+      name,
+      priceFeedId,
+      mintable = undefined,
+      interest = 0
+    } = metadata
+    const utxos = options?.utxos ?? []
+    return await this.client.call('updateloantoken', [
       {
-        token,
-        factor,
-        priceFeedId: options.priceFeedId,
-        activateAfterBlock
-      }, utxos
+        token
+      },
+      {
+        symbol,
+        name,
+        priceFeedId,
+        mintable,
+        interest
+      },
+      utxos
     ], 'number')
   }
 }
 
-export interface SetColleteralTokenOptions {
+export interface UpdateLoanTokenMetaData {
+  symbol: string
+  name: string
   priceFeedId: string
-  activateAfterBlock?: number
+  mintable?: boolean
+  interest?: number
+}
+
+export interface UpdateLoanTokenOptions {
   utxos?: UTXO[]
 }
 
