@@ -43,7 +43,13 @@ export interface TokenData {
   isLPS: boolean
   finalized: boolean
   minted: string // BigNumber
-  creation: { tx: string, height: number }
-  destruction: { tx: string, height: number }
+  creation: {
+    tx: string
+    height: number
+  }
+  destruction: {
+    tx: string
+    height: number
+  }
   collateralAddress?: string
 }

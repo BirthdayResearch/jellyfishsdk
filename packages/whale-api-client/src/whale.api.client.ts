@@ -31,7 +31,7 @@ export interface WhaleApiClientOptions {
 
   /**
    * Version of API
-   * `v{major}.{minor}`: `v${number}.${number}`
+   * `v{major}.{minor}` or `v{major}`
    */
   version?: string
 

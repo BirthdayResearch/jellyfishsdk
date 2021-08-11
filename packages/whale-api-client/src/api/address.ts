@@ -95,7 +95,7 @@ export interface AddressAggregation {
     hex: string
   }
 
-  statistic: {
+  statistic: { // TODO(fuxingloh): should be named `count: {}`, too late to change now.
     txCount: number
     txInCount: number
     txOutCount: number

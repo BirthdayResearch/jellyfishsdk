@@ -47,7 +47,7 @@ export interface Block {
   time: number // --------------| block time in seconds since epoch
   medianTime: number // --------| median time of the past 11 block timestamps
 
-  transactionCount: number
+  transactionCount: number // TODO(fuxingloh): should be structured as `count: { transaction: number }`, too late to change now
 
   difficulty: number // --------| difficulty of the block.
 
