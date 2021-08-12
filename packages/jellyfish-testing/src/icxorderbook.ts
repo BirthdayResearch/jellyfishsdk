@@ -57,9 +57,9 @@ export class TestingICX {
   }
 
   async initializeTokensIds (): Promise<void> {
-    let tokenInfo = await this.testing.container.call('gettoken', [this.symbolBTC])
+    let tokenInfo = await this.testing.rpc.token.getToken(this.symbolBTC)
     this.idBTC = Object.keys(tokenInfo)[0]
-    tokenInfo = await this.testing.container.call('gettoken', [this.symbolDFI])
+    tokenInfo = await this.testing.rpc.token.getToken(this.symbolDFI)
     this.idDFI = Object.keys(tokenInfo)[0]
   }
 
@@ -70,7 +70,8 @@ export class TestingICX {
   async fundAccount (account: string, token: string, amount: number): Promise<void> {
     const payload: { [key: string]: string } = {}
     payload[account] = `${amount}@${token}`
-    await this.testing.container.call('utxostoaccount', [payload])
+
+    await this.testing.rpc.account.utxosToAccount(payload)
     await this.testing.container.generate(1)
   }
 
@@ -107,12 +108,12 @@ export class TestingICX {
   }
 
   async closeAllOpenOffers (): Promise<void> {
-    const orders = await this.testing.container.call('icx_listorders', [])
+    const orders = await this.testing.rpc.icxorderbook.listOrders()
     for (const orderTx of Object.keys(orders).splice(1)) {
-      const offers = await this.testing.container.call('icx_listorders', [{ orderTx: orderTx }])
+      const offers = await this.testing.rpc.icxorderbook.listOrders({ orderTx: orderTx })
       for (const offerTx of Object.keys(offers).splice(1)) {
         if (offers[offerTx].status === icxorderbook.ICXOrderStatus.OPEN) {
-          await this.testing.container.call('icx_closeoffer', [offerTx])
+          await this.testing.rpc.icxorderbook.closeOffer(offerTx)
         }
       }
     }
