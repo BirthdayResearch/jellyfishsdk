@@ -44,7 +44,7 @@ export interface WhaleApiClientOptions {
 /**
  * WhaleApiClient default options
  */
-export const DefaultOptions: WhaleApiClientOptions = {
+const DEFAULT_OPTIONS: WhaleApiClientOptions = {
   url: 'https://ocean.defichain.com',
   timeout: 60000,
   version: version,
@@ -78,7 +78,7 @@ export class WhaleApiClient {
   constructor (
     protected readonly options: WhaleApiClientOptions
   ) {
-    this.options = Object.assign(DefaultOptions, options ?? {})
+    this.options = { ...DEFAULT_OPTIONS, ...options }
     this.options.url = this.options.url.replace(/\/$/, '')
   }
 
