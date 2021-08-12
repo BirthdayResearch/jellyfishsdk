@@ -212,39 +212,4 @@ describe('ICX', () => {
 
     expect(testing.icxorderbook.ICX_TAKERFEE_PER_BTC).toStrictEqual(fee)
   })
-
-  it('should addLiquidityToBTCDFIPool', async () => {
-    const amountInBTC = 1
-    const amountInDFI = 100
-    await testing.icxorderbook.addLiquidityToBTCDFIPool(amountInBTC, amountInDFI)
-
-    expect(testing.icxorderbook.DEX_DFI_PER_BTC_RATE).toStrictEqual(new BigNumber(amountInDFI / amountInBTC))
-  })
-})
-
-describe('ICX BTCDFI pool', () => {
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-  })
-
-  afterAll(async () => {
-    await testing.container.stop()
-  })
-
-  it('should createBTCDFIPool', async () => {
-    await testing.icxorderbook.createAccounts()
-    await testing.icxorderbook.createBTCToken()
-    await testing.icxorderbook.initializeTokensIds()
-    await testing.icxorderbook.mintBTCtoken(100)
-    await testing.icxorderbook.fundAccount(testing.icxorderbook.accountDFI, testing.icxorderbook.symbolDFI, 500)
-    await testing.icxorderbook.fundAccount(testing.icxorderbook.accountBTC, testing.icxorderbook.symbolDFI, 10) // for fee
-    await testing.icxorderbook.createBTCDFIPool()
-
-    const pool = await testing.container.call('getpoolpair', ['BTC-DFI'])
-    const combToken = await testing.container.call('gettoken', ['BTC-DFI'])
-    const idDFIBTC = Object.keys(combToken)[0]
-    expect(pool[idDFIBTC].idTokenA).toBe(testing.icxorderbook.idBTC)
-    expect(pool[idDFIBTC].idTokenB).toBe(testing.icxorderbook.idDFI)
-  })
 })

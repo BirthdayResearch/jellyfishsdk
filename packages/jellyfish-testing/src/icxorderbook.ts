@@ -29,32 +29,34 @@ export class TestingICX {
 
   async setup (): Promise<void> {
     await this.createAccounts()
-    await this.createBTCToken()
+    await this.testing.rpc.account.utxosToAccount({ [this.accountDFI]: `${500}@${this.symbolDFI}` })
+    await this.testing.rpc.account.utxosToAccount({ [this.accountBTC]: `${10}@${this.symbolDFI}` }) // for fee
+    await this.testing.container.generate(1)
+
+    await this.testing.fixture.createPoolPair({
+      a: { amount: '1', symbol: this.symbolBTC },
+      b: { amount: '100', symbol: this.symbolDFI }
+    })
+    this.DEX_DFI_PER_BTC_RATE = new BigNumber(100)
+
     await this.initializeTokensIds()
-    await this.mintBTCtoken(100)
-    await this.fundAccount(this.accountDFI, this.symbolDFI, 500)
-    await this.fundAccount(this.accountBTC, this.symbolDFI, 10) // for fee
-    await this.createBTCDFIPool()
-    await this.addLiquidityToBTCDFIPool(1, 100)
     await this.setTakerFee(new BigNumber(0.001))
+    await this.setBTCDFIPoolOwner()
   }
 
   async createAccounts (): Promise<void> {
     this.accountDFI = await this.testing.container.getNewAddress()
     this.accountBTC = await this.testing.container.getNewAddress()
-    this.poolOwner = await this.testing.container.getNewAddress()
   }
 
-  async createBTCToken (): Promise<void> {
-    await this.testing.token.create({
-      symbol: this.symbolBTC,
-      name: this.symbolBTC,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: this.accountBTC
-    })
-    await this.testing.container.generate(1)
+  async setBTCDFIPoolOwner (): Promise<void> {
+    const poolPairInfo = await this.testing.rpc.poolpair.getPoolPair('BTC-DFI')
+    for (const poolPair of Object.values(poolPairInfo)) {
+      if (poolPair.symbol === 'BTC-DFI') {
+        this.poolOwner = poolPair.ownerAddress
+        return
+      }
+    }
   }
 
   async initializeTokensIds (): Promise<void> {
@@ -62,42 +64,6 @@ export class TestingICX {
     this.idBTC = Object.keys(tokenInfo)[0]
     tokenInfo = await this.testing.rpc.token.getToken(this.symbolDFI)
     this.idDFI = Object.keys(tokenInfo)[0]
-  }
-
-  async mintBTCtoken (amount: number): Promise<void> {
-    await this.testing.token.mint({ amount, symbol: this.symbolBTC })
-  }
-
-  async fundAccount (account: string, token: string, amount: number): Promise<void> {
-    const payload: { [key: string]: string } = {}
-    payload[account] = `${amount}@${token}`
-
-    await this.testing.rpc.account.utxosToAccount(payload)
-    await this.testing.container.generate(1)
-  }
-
-  async createBTCDFIPool (): Promise<void> {
-    await this.testing.poolpair.create({
-      tokenA: this.idBTC,
-      tokenB: this.idDFI,
-      commission: 1,
-      status: true,
-      ownerAddress: this.poolOwner,
-      pairSymbol: 'BTC-DFI'
-    })
-    await this.testing.container.generate(1)
-  }
-
-  async addLiquidityToBTCDFIPool (amountInBTC: number, amountInDFI: number): Promise<void> {
-    await this.testing.rpc.account.accountToAccount(this.accountBTC, { [this.accountDFI]: '1@0' })
-    await this.testing.container.generate(1)
-
-    await this.testing.poolpair.add({
-      a: { amount: amountInBTC, symbol: this.symbolBTC },
-      b: { amount: amountInDFI, symbol: this.symbolDFI }
-    })
-    await this.testing.container.generate(1)
-    this.DEX_DFI_PER_BTC_RATE = new BigNumber(amountInDFI / amountInBTC)
   }
 
   async setTakerFee (fee: BigNumber): Promise<void> {
