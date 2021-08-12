@@ -24,7 +24,7 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 describe('CreateMasternode', () => {
-  const header = '6a1a4466547843' // OP_RETURN(0x1a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasternode.OP_CODE(0x43)
+  const header = '6a1a4466547843' // OP_RETURN(0x6a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasternode.OP_CODE(0x43)
   const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff)
   const createMasterNode: CreateMasternode = {
     operatorType: 0x01,
