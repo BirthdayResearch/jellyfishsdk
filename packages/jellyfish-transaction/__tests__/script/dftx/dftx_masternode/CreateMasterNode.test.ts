@@ -23,36 +23,73 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a1c4466547843' // OP_RETURN(0x1a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasterNode.OP_CODE(0x43)
-const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff0802' // CreateMasterNode.operatorType(0x01) CreateMasterNode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff) CreateMasterNode.timelock(0x0802)
-const createMasterNode: CreateMasterNode = {
-  operatorType: 0x01,
-  operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
-  timelock: 0x0208
-}
+describe('CreateMasternode', () => {
+  const header = '6a1a4466547843' // OP_RETURN(0x1a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasterNode.OP_CODE(0x43)
+  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff' // CreateMasterNode.operatorType(0x01) CreateMasterNode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff)
+  const createMasterNode: CreateMasterNode = {
+    operatorType: 0x01,
+    operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
+  }
 
-it('should craft dftx with OP_CODES._()', () => {
-  const stack = [
-    OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
-  ]
+  it('should craft dftx with OP_CODES._()', () => {
+    const stack = [
+      OP_CODES.OP_RETURN,
+      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
+    ]
 
-  const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toStrictEqual(header + data)
-})
-
-describe('Composable', () => {
-  it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CCreateMasterNode(buffer)
-    expect(composable.toObject()).toStrictEqual(createMasterNode)
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
-  it('should compose from composable to buffer', () => {
-    const composable = new CCreateMasterNode(createMasterNode)
-    const buffer = new SmartBuffer()
-    composable.toBuffer(buffer)
+  describe('Composable', () => {
+    it('should compose from buffer to composable', () => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+      const composable = new CCreateMasterNode(buffer)
+      expect(composable.toObject()).toStrictEqual(createMasterNode)
+    })
 
-    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+    it('should compose from composable to buffer', () => {
+      const composable = new CCreateMasterNode(createMasterNode)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+    })
+  })
+})
+
+describe('CreateMasternode with timelock', () => {
+  const header = '6a1c4466547843' // OP_RETURN(0x1a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasterNode.OP_CODE(0x43)
+  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff0802' // CreateMasterNode.operatorType(0x01) CreateMasterNode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff) CreateMasterNode.timelock(0x0802)
+  const createMasterNode: CreateMasterNode = {
+    operatorType: 0x01,
+    operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
+    timelock: 0x0208
+  }
+
+  it('should craft dftx with OP_CODES._()', () => {
+    const stack = [
+      OP_CODES.OP_RETURN,
+      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
+    ]
+
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
+  })
+
+  describe('Composable', () => {
+    it('should compose from buffer to composable', () => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+      const composable = new CCreateMasterNode(buffer)
+      expect(composable.toObject()).toStrictEqual(createMasterNode)
+    })
+
+    it('should compose from composable to buffer', () => {
+      const composable = new CCreateMasterNode(createMasterNode)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+    })
   })
 })
