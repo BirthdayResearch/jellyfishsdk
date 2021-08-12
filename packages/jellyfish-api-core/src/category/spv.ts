@@ -50,11 +50,11 @@ export class Spv {
    *
    * @param {string} address Bitcoin address
    * @param {BigNumber} amount Bitcoin amount
-   * @param {SendToAddressOptions} [options]
+   * @param {SpvDefaultOptions} [options]
    * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
-  async sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+  async sendToAddress (address: string, amount: BigNumber, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
     return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
   }
 
@@ -105,6 +105,19 @@ export class Spv {
   async getHtlcSeed (address: string): Promise<string> {
     return await this.client.call('spv_gethtlcseed', [address], 'number')
   }
+
+  /**
+   * Refunds all coins in HTLC address.
+   *
+   * @param {string} scriptAddress HTLC address
+   * @param {string} destinationAddress Destination for funds in the HTLC
+   * @param {SpvDefaultOptions} [options]
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
+   * @return {Promise<SendMessageResult>}
+   */
+  async refundHtlc (scriptAddress: string, destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+    return await this.client.call('spv_refundhtlc', [scriptAddress, destinationAddress, options.feeRate], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -120,7 +133,8 @@ export interface ReceivedByAddressInfo {
   txids: string[]
 }
 
-export interface SendToAddressOptions {
+export interface SpvDefaultOptions {
+  /** Fee rate in satoshis per KB */
   feeRate?: BigNumber
 }
 
