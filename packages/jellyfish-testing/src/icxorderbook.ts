@@ -233,7 +233,7 @@ interface CreateDFCHTLCForDFIBuyOfferData {
   timeout?: number
 }
 
-interface submitExtHTLCForDFIBuyOfferData {
+interface SubmitExtHTLCForDFIBuyOfferData {
   offerTx: string
   amount: BigNumber
   hash: string
