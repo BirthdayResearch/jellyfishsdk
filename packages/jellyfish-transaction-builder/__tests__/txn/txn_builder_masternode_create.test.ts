@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
-import { OP_CODES, CreateMasterNode, TransactionSegWit } from '@defichain/jellyfish-transaction'
+import { OP_CODES, CreateMasternode, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2PKH, P2SH, P2WPKH } from '@defichain/jellyfish-address'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
@@ -52,7 +52,7 @@ describe('CreateMasternode', () => {
     const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
     const addressDestHex = addressDest.hex
 
-    const createMasternode: CreateMasterNode = {
+    const createMasternode: CreateMasternode = {
       operatorType: 0x01,
       operatorAuthAddress: addressDestHex
     }
@@ -98,7 +98,7 @@ describe('CreateMasternode', () => {
     const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
     const addressDestKeyHash = addressDest.pubKeyHash
 
-    const createMasternode: CreateMasterNode = {
+    const createMasternode: CreateMasternode = {
       operatorType: 0x04,
       operatorAuthAddress: addressDestKeyHash
     }
@@ -139,7 +139,7 @@ describe('CreateMasternode', () => {
     const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
     const addressDestKeyHash = addressDest.hex
 
-    const createMasternode: CreateMasterNode = {
+    const createMasternode: CreateMasternode = {
       operatorType: 0x02,
       operatorAuthAddress: addressDestKeyHash
     }
@@ -168,7 +168,7 @@ describe('CreateMasternode', () => {
     const addressDest: P2PKH = P2PKH.fromAddress(RegTest, address, P2PKH)
     const addressDestHex = addressDest.hex
 
-    const createMasternode: CreateMasterNode = {
+    const createMasternode: CreateMasternode = {
       operatorType: 0x01,
       operatorAuthAddress: addressDestHex
     }
@@ -228,7 +228,7 @@ describe.only('CreateMasternode with timelock', () => {
     const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
     const addressDestKeyHash = addressDest.pubKeyHash
 
-    const createMasternode: CreateMasterNode = {
+    const createMasternode: CreateMasternode = {
       operatorType: 0x04,
       operatorAuthAddress: addressDestKeyHash,
       timelock: 0x0104

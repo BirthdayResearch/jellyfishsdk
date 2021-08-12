@@ -48,7 +48,7 @@ import {
   CSetOracleData
 } from './dftx/dftx_oracles'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
+import { CCreateMasternode, CreateMasternode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
 
 /**
@@ -283,11 +283,11 @@ export const OP_CODES = {
       data: null
     })
   },
-  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasterNode): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasternode): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateMasterNode.OP_CODE,
-      name: CCreateMasterNode.OP_NAME,
+      type: CCreateMasternode.OP_CODE,
+      name: CCreateMasternode.OP_NAME,
       data: createMasterNode
     })
   },
