@@ -1,4 +1,4 @@
-import { ApiClient, BigNumber } from '../.'
+import { ApiClient } from '../.'
 
 /**
  * loan RPCs for DeFi Blockchain
@@ -10,15 +10,9 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanOptions): Promise<string> {
-    const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [minColRatio, interestRate, options.id, utxos], 'bignumber')
+  async setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setdefaultloanscheme', [id, utxos], 'number')
   }
-}
-
-export interface CreateLoanOptions {
-  id: string
-  utxos?: UTXO[]
 }
 
 export interface UTXO {
