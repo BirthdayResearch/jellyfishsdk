@@ -14,7 +14,7 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode),
       changeScript,
-      new BigNumber('1') // for creation fee (regtest - 1, others - 10)
+      new BigNumber('1') // for creation fee (regtest - 1, other than regtest - 10)
     )
   }
 
