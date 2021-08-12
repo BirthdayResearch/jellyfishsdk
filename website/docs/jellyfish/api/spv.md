@@ -141,7 +141,7 @@ interface spv {
 
 ## refundHtlc
 
-Refunds all coins in HTLC address..
+Refunds all coins in HTLC address.
 
 ```ts title="client.spv.refundHtlc()"
 interface spv {
