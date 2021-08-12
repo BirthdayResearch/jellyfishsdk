@@ -42,6 +42,7 @@ export class TestingICX {
   async createAccounts (): Promise<void> {
     this.accountDFI = await this.testing.container.getNewAddress()
     this.accountBTC = await this.testing.container.getNewAddress()
+    this.poolOwner = await this.testing.container.getNewAddress()
   }
 
   async createBTCToken (): Promise<void> {
@@ -76,7 +77,6 @@ export class TestingICX {
   }
 
   async createBTCDFIPool (): Promise<void> {
-    this.poolOwner = await this.testing.container.getNewAddress()
     await this.testing.poolpair.create({
       tokenA: this.idBTC,
       tokenB: this.idDFI,
@@ -193,7 +193,7 @@ export class TestingICX {
     htlcScriptAddress,
     ownerPubkey,
     timeout = 24
-  }: submitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string}> {
+  }: SubmitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string}> {
     const ExtHTLC = {
       offerTx,
       amount,
