@@ -1,7 +1,6 @@
 import { Testing } from './index'
 import BigNumber from 'bignumber.js'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
-import { accountToAccount } from '@defichain/testing'
 
 export class TestingICX {
   public symbolDFI: string
@@ -89,7 +88,9 @@ export class TestingICX {
   }
 
   async addLiquidityToBTCDFIPool (amountInBTC: number, amountInDFI: number): Promise<void> {
-    await accountToAccount(this.testing.container, this.symbolBTC, 1, { from: this.accountBTC, to: this.accountDFI })
+    await this.testing.rpc.account.accountToAccount(this.accountBTC, { [this.accountDFI]: '1@0' })
+    await this.testing.container.generate(1)
+
     await this.testing.poolpair.add({
       a: { amount: amountInBTC, symbol: this.symbolBTC },
       b: { amount: amountInDFI, symbol: this.symbolDFI }
