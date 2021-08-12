@@ -161,7 +161,6 @@ describe('CreateMasternode', () => {
     await container.call('sendtoaddress', ['bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 2])
 
     const balanceAfter = await container.call('getbalance')
-    console.log('balanceAfter: ', balanceAfter)
     expect(balanceAfter < 2).toBeTruthy()
 
     const address = await container.getNewAddress('', 'legacy')

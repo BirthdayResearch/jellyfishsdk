@@ -34,7 +34,7 @@ export class Masternode {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid] The transaction id
    * @param {string} [options.utxos.vout] The output number
-   * @param {MasternodeTimeLock} [options.timelock = undefined] specify a fix period (5 or 10 years) lock which cannot be resigned and cannot spend the collateral
+   * @param {MasternodeTimeLock} [options.timelock] specify a fix period (5 or 10 years) lock which cannot be resigned and cannot spend the collateral
    * @return {Promise<string>}
    */
   async createMasternode (
@@ -43,7 +43,11 @@ export class Masternode {
     options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string> {
     operatorAddress = operatorAddress ?? ownerAddress
-    return await this.client.call('createmasternode', [ownerAddress, operatorAddress, options.utxos, options.timelock], 'number')
+    const params = [ownerAddress, operatorAddress, options.utxos]
+    if (options.timelock !== undefined) {
+      params.push(options.timelock)
+    }
+    return await this.client.call('createmasternode', params, 'number')
   }
 
   /**

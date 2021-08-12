@@ -102,7 +102,6 @@ describe('Masternode', () => {
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
 
     const mn = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === ownerAddress)
-    console.log('mn: ', mn)
     if (mn === undefined) {
       throw new Error('should not reach here')
     }
