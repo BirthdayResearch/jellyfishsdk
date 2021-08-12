@@ -136,7 +136,7 @@ describe('ICX', () => {
     })
   })
 
-  it('should createDFCHTLCForDFIBuyOffer', async () => {
+  it('should submitExtHTLCForDFIBuyOffer', async () => {
     const createOrder = {
       receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
       amountFrom: new BigNumber(15),
