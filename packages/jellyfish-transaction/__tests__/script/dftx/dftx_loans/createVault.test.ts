@@ -9,7 +9,7 @@ import { OP_DEFI_TX } from '../../../../src/script/dftx'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a234466547856160014cdc69f842f00a0b0e85ce16f48a07de4a260633e06736368656d65'
+    '6a244466547856160014cdc69f842f00a0b0e85ce16f48a07de4a260633e06736368656d6501'
   ]
 
   fixtures.forEach(hex => {
@@ -22,16 +22,17 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a234466547856' // OP_RETURN, PUSH_DATA(4466547856, 56)
-const data = '160014cdc69f842f00a0b0e85ce16f48a07de4a260633e06736368656d65'
+const header = '6a244466547856' // OP_RETURN, PUSH_DATA(4466547856, 56)
+const data = '160014cdc69f842f00a0b0e85ce16f48a07de4a260633e06736368656d6501'
 const createVault: CreateVault = {
-  script: {
+  ownerAddress: {
     stack: [
       OP_CODES.OP_0,
       OP_CODES.OP_PUSHDATA_HEX_LE('cdc69f842f00a0b0e85ce16f48a07de4a260633e')
     ]
   },
-  loanSchemeId: 'scheme'
+  loanSchemeId: 'scheme',
+  isUnderLiquidation: true
 }
 
 it('should craft dftx with OP_CODES._()', () => {

@@ -35,8 +35,9 @@ beforeEach(async () => {
 it('should create vault', async () => {
   const script = await providers.elliptic.script()
   const txn = await builder.loans.createVault({
-    script: script,
-    loanSchemeId: 'scheme'
+    ownerAddress: script,
+    loanSchemeId: 'scheme',
+    isUnderLiquidation: true
   }, script)
 
   // Ensure the created txn is correct.

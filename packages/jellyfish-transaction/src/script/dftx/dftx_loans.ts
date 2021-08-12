@@ -6,8 +6,9 @@ import { CScript } from '@defichain/jellyfish-transaction/tx_composer'
 /* eslint-disable no-return-assign */
 
 export interface CreateVault {
-  script: Script
+  ownerAddress: Script
   loanSchemeId: string
+  isUnderLiquidation: boolean
 }
 
 export class CCreateVault extends ComposableBuffer<CreateVault> {
@@ -16,8 +17,9 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
 
   composers (cv: CreateVault): BufferComposer[] {
     return [
-      ComposableBuffer.single<Script>(() => cv.script, v => cv.script = v, v => new CScript(v)),
-      ComposableBuffer.varUIntUtf8BE(() => cv.loanSchemeId, v => cv.loanSchemeId = v)
+      ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
+      ComposableBuffer.varUIntUtf8BE(() => cv.loanSchemeId, v => cv.loanSchemeId = v),
+      ComposableBuffer.uBool8(() => cv.isUnderLiquidation, v => cv.isUnderLiquidation = v)
     ]
   }
 }
