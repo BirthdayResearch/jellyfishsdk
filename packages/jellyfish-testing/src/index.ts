@@ -18,7 +18,7 @@ export class Testing {
   public readonly token = new TestingToken(this.container, this.rpc)
   public readonly poolpair = new TestingPoolPair(this.container, this.rpc)
   public readonly rawtx = new TestingRawTx(this.container, this.rpc)
-  public readonly icxorderbook = new TestingICX(this, this.container, this.rpc)
+  public readonly icxorderbook = new TestingICX(this)
 
   private readonly addresses: Record<string, string> = {}
 

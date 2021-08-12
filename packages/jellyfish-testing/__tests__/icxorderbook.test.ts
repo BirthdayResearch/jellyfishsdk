@@ -1,7 +1,9 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { ICXOrderStatus, ICXOrderType, ICXHTLCType } from '../src/icxorderbook'
+import { icxorderbook } from '@defichain/jellyfish-api-core'
+
+const { ICXOrderStatus, ICXOrderType, ICXHTLCType } = icxorderbook
 
 const testing = Testing.create(new MasterNodeRegTestContainer())
 

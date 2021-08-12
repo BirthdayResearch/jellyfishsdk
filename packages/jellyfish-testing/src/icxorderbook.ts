@@ -1,15 +1,7 @@
 import { Testing } from './index'
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
 import { accountToAccount } from '@defichain/testing'
-
-const {
-  ICXOrderStatus,
-  ICXOrderType,
-  ICXHTLCType
-} = icxorderbook
 
 export class TestingICX {
   public symbolDFI: string
@@ -23,9 +15,7 @@ export class TestingICX {
   public DEX_DFI_PER_BTC_RATE: number
 
   constructor (
-    private readonly testing: Testing,
-    private readonly container: MasterNodeRegTestContainer,
-    private readonly rpc: JsonRpcClient
+    private readonly testing: Testing
   ) {
     this.accountDFI = ''
     this.accountBTC = ''
@@ -51,8 +41,8 @@ export class TestingICX {
   }
 
   async createAccounts (): Promise<void> {
-    this.accountDFI = await this.container.call('getnewaddress')
-    this.accountBTC = await this.container.call('getnewaddress')
+    this.accountDFI = await this.testing.container.getNewAddress()
+    this.accountBTC = await this.testing.container.getNewAddress()
   }
 
   async createBTCToken (): Promise<void> {
@@ -64,13 +54,13 @@ export class TestingICX {
       tradeable: true,
       collateralAddress: this.accountBTC
     })
-    await this.container.generate(1)
+    await this.testing.container.generate(1)
   }
 
   async initializeTokensIds (): Promise<void> {
-    let tokenInfo = await this.container.call('gettoken', [this.symbolBTC])
+    let tokenInfo = await this.testing.container.call('gettoken', [this.symbolBTC])
     this.idBTC = Object.keys(tokenInfo)[0]
-    tokenInfo = await this.container.call('gettoken', [this.symbolDFI])
+    tokenInfo = await this.testing.container.call('gettoken', [this.symbolDFI])
     this.idDFI = Object.keys(tokenInfo)[0]
   }
 
@@ -81,13 +71,13 @@ export class TestingICX {
   async fundAccount (account: string, token: string, amount: number): Promise<void> {
     const payload: { [key: string]: string } = {}
     payload[account] = `${amount}@${token}`
-    await this.container.call('utxostoaccount', [payload])
-    await this.container.generate(1)
+    await this.testing.container.call('utxostoaccount', [payload])
+    await this.testing.container.generate(1)
   }
 
   async createBTCDFIPool (): Promise<void> {
-    this.poolOwner = await this.container.call('getnewaddress', ['', 'legacy'])
-    await accountToAccount(this.container, this.symbolBTC, 1, { from: this.accountBTC, to: this.accountDFI })
+    this.poolOwner = await this.testing.container.call('getnewaddress', ['', 'legacy'])
+    await accountToAccount(this.testing.container, this.symbolBTC, 1, { from: this.accountBTC, to: this.accountDFI })
 
     const poolPairMetadata = {
       tokenA: this.idBTC,
@@ -97,11 +87,11 @@ export class TestingICX {
       ownerAddress: this.poolOwner,
       pairSymbol: 'BTC-DFI'
     }
-    await this.container.call('createpoolpair', [poolPairMetadata, []])
-    await this.container.generate(1)
+    await this.testing.container.call('createpoolpair', [poolPairMetadata, []])
+    await this.testing.container.generate(1)
 
-    const pool = await this.container.call('getpoolpair', ['BTC-DFI'])
-    const combToken = await this.container.call('gettoken', ['BTC-DFI'])
+    const pool = await this.testing.container.call('getpoolpair', ['BTC-DFI'])
+    const combToken = await this.testing.container.call('gettoken', ['BTC-DFI'])
     const idDFIBTC = Object.keys(combToken)[0]
     expect(pool[idDFIBTC].idTokenA).toBe(this.idBTC)
     expect(pool[idDFIBTC].idTokenB).toBe(this.idDFI)
@@ -111,30 +101,30 @@ export class TestingICX {
     const poolLiquidityMetadata: { [key: string]: string [] } = {}
     poolLiquidityMetadata[this.accountDFI] = [`${amountInBTC}@${this.symbolBTC}`, `${amountInDFI}@${this.symbolDFI}`]
 
-    await this.container.call('addpoolliquidity', [poolLiquidityMetadata, this.accountDFI, []])
-    await this.container.generate(1)
+    await this.testing.container.call('addpoolliquidity', [poolLiquidityMetadata, this.accountDFI, []])
+    await this.testing.container.generate(1)
     this.DEX_DFI_PER_BTC_RATE = amountInDFI / amountInBTC
   }
 
   async setTakerFee (fee: number): Promise<void> {
-    await this.container.call('setgov', [{ ICX_TAKERFEE_PER_BTC: fee }])
-    await this.container.generate(1)
-    const result: any = await this.container.call('getgov', ['ICX_TAKERFEE_PER_BTC'])
+    await this.testing.container.call('setgov', [{ ICX_TAKERFEE_PER_BTC: fee }])
+    await this.testing.container.generate(1)
+    const result: any = await this.testing.container.call('getgov', ['ICX_TAKERFEE_PER_BTC'])
     expect(result.ICX_TAKERFEE_PER_BTC as number).toStrictEqual(fee)
     this.ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as number
   }
 
   async closeAllOpenOffers (): Promise<void> {
-    const orders = await this.container.call('icx_listorders', [])
+    const orders = await this.testing.container.call('icx_listorders', [])
     for (const orderTx of Object.keys(orders).splice(1)) {
-      const offers = await this.container.call('icx_listorders', [{ orderTx: orderTx }])
+      const offers = await this.testing.container.call('icx_listorders', [{ orderTx: orderTx }])
       for (const offerTx of Object.keys(offers).splice(1)) {
-        if (offers[offerTx].status === ICXOrderStatus.OPEN) {
-          await this.container.call('icx_closeoffer', [offerTx])
+        if (offers[offerTx].status === icxorderbook.ICXOrderStatus.OPEN) {
+          await this.testing.container.call('icx_closeoffer', [offerTx])
         }
       }
     }
-    await this.container.generate(1)
+    await this.testing.container.generate(1)
   }
 
   // creates DFI sell order
@@ -145,7 +135,6 @@ export class TestingICX {
     amountFrom,
     orderPrice
   }: CreateDFISellOrderData): Promise<{order: icxorderbook.ICXOrder, createOrderTxId: string}> {
-    // create order - maker
     const order = {
       tokenFrom: this.idDFI,
       chainTo,
@@ -155,11 +144,8 @@ export class TestingICX {
       orderPrice
     }
 
-    const { txid: createOrderTxId } = await this.rpc.icxorderbook.createOrder(order)
-    await this.container.generate(1)
-
-    const ordersAfterCreateOrder = await this.rpc.icxorderbook.listOrders()
-    expect(ordersAfterCreateOrder[createOrderTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
+    const { txid: createOrderTxId } = await this.testing.rpc.icxorderbook.createOrder(order)
+    await this.testing.container.generate(1)
 
     return {
       order,
@@ -167,32 +153,19 @@ export class TestingICX {
     }
   }
 
-  // creates DFI buy offer
   async createDFIBuyOffer ({
     orderTx,
-    amount,
+    amount = new BigNumber(10),
     ownerAddress = this.accountBTC
   }: CreateDFIBuyOfferData): Promise<{offer: icxorderbook.ICXOffer, makeOfferTxId: string}> {
-    const accountBTCBeforeOffer: Record<string, BigNumber> = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
-    // make Offer to partial amount 10 DFI - taker
     const offer = {
       orderTx,
-      amount, // 0.10 BTC = 10 DFI
+      amount,
       ownerAddress
     }
 
-    const { txid: makeOfferTxId } = await this.rpc.icxorderbook.makeOffer(offer, [])
-    await this.container.generate(1)
-
-    const accountBTCAfterOffer: Record<string, BigNumber> = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
-    // check fee of 0.01 DFI has been reduced from the accountBTCBeforeOffer[this.idDFI]
-    // Fee = takerFeePerBTC(inBTC) * amount(inBTC) * DEX DFI per BTC rate
-    expect(accountBTCAfterOffer[this.idDFI]).toStrictEqual(accountBTCBeforeOffer[this.idDFI].minus(0.01))
-
-    // List the ICX offers for orderTx = createOrderTxId and check
-    const offersForOrder = await this.rpc.icxorderbook.listOrders({ orderTx })
-    expect(Object.keys(offersForOrder).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    expect(offersForOrder[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
+    const { txid: makeOfferTxId } = await this.testing.rpc.icxorderbook.makeOffer(offer, [])
+    await this.testing.container.generate(1)
 
     return {
       offer,
@@ -207,25 +180,14 @@ export class TestingICX {
     hash,
     timeout = 1440
   }: CreateDFCHTLCForDFIBuyOfferData): Promise<{DFCHTLC: icxorderbook.HTLC, DFCHTLCTxId: string}> {
-    const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await this.rpc.call('getaccount', [this.accountDFI, {}, true], 'bignumber')
-    // create DFCHTLC - maker
     const DFCHTLC = {
       offerTx,
-      amount, // in  DFC
+      amount,
       hash,
       timeout
     }
-    const { txid: DFCHTLCTxId } = await this.rpc.icxorderbook.submitDFCHTLC(DFCHTLC)
-    await this.container.generate(1)
-
-    const accountDFIAfterDFCHTLC: Record<string, BigNumber> = await this.rpc.call('getaccount', [this.accountDFI, {}, true], 'bignumber')
-    // maker fee should be reduced from accountDFIBeforeDFCHTLC
-    expect(accountDFIAfterDFCHTLC[this.idDFI]).toStrictEqual(accountDFIBeforeDFCHTLC[this.idDFI].minus(0.01))
-
-    const HTLCs = await this.rpc.icxorderbook.listHTLCs({ offerTx })
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
-    expect((HTLCs[DFCHTLCTxId] as icxorderbook.ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
-    expect((HTLCs[DFCHTLCTxId] as icxorderbook.ICXDFCHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
+    const { txid: DFCHTLCTxId } = await this.testing.rpc.icxorderbook.submitDFCHTLC(DFCHTLC)
+    await this.testing.container.generate(1)
 
     return {
       DFCHTLC,
@@ -242,7 +204,6 @@ export class TestingICX {
     ownerPubkey,
     timeout = 24
   }: submitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string}> {
-    const accountBTCBeforeEXTHTLC = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC - taker
     const ExtHTLC = {
       offerTx,
@@ -252,17 +213,8 @@ export class TestingICX {
       ownerPubkey,
       timeout
     }
-    const { txid: ExtHTLCTxId } = await this.rpc.icxorderbook.submitExtHTLC(ExtHTLC)
-    await this.container.generate(1)
-
-    const HTLCs = await this.rpc.icxorderbook.listHTLCs({ offerTx })
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
-    expect((HTLCs[ExtHTLCTxId] as icxorderbook.ICXEXTHTLCInfo).type).toStrictEqual(ICXOrderType.EXTERNAL)
-    expect((HTLCs[ExtHTLCTxId] as icxorderbook.ICXEXTHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
-
-    const accountBTCAfterEXTHTLC = await this.rpc.call('getaccount', [this.accountBTC, {}, true], 'bignumber')
-    // should have the same balance as accountBTCBeforeEXTHTLC
-    expect(accountBTCAfterEXTHTLC).toStrictEqual(accountBTCBeforeEXTHTLC)
+    const { txid: ExtHTLCTxId } = await this.testing.rpc.icxorderbook.submitExtHTLC(ExtHTLC)
+    await this.testing.container.generate(1)
 
     return {
       ExtHTLC,
@@ -281,13 +233,7 @@ interface CreateDFISellOrderData {
 
 interface CreateDFIBuyOfferData {
   orderTx: string
-  amount: BigNumber
-  ownerAddress?: string
-}
-
-interface CreateDFIBuyOfferData {
-  orderTx: string
-  amount: BigNumber
+  amount?: BigNumber
   ownerAddress?: string
 }
 
@@ -305,10 +251,4 @@ interface submitExtHTLCForDFIBuyOfferData {
   htlcScriptAddress: string
   ownerPubkey: string
   timeout?: number
-}
-
-export {
-  ICXOrderStatus,
-  ICXOrderType,
-  ICXHTLCType
 }
