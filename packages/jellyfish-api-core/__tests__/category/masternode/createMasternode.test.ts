@@ -1,4 +1,4 @@
-import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, DeFiDRpcError, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasternodeState, MasternodeTimeLock } from '../../../src/category/masternode'
 import { AddressType } from '../../../src/category/wallet'
@@ -156,6 +156,45 @@ describe('Masternode', () => {
     expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
   })
 
+  it('should be failed as collateral locked in mempool', async () => {
+    const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const nodeId = await client.masternode.createMasternode(ownerAddress)
+
+    const rawTx = await client.rawtx.getRawTransaction(nodeId, true)
+
+    const spendTx = await container.call('createrawtransaction', [
+      [{ txid: nodeId, vout: 1 }],
+      [{ [ownerAddress]: 1 }]
+    ])
+
+    const signedTx = await container.call('signrawtransactionwithwallet', [spendTx])
+    expect(signedTx.complete).toBeTruthy()
+
+    const promise = container.call('sendrawtransaction', [signedTx.hex])
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`collateral-locked-in-mempool, tried to spend collateral of non-created mn or token ${rawTx.txid}, cheater?`)
+  })
+
+  it('should be failed as collateral locked', async () => {
+    const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
+    const nodeId = await client.masternode.createMasternode(ownerAddress)
+    await container.generate(1)
+
+    const rawTx = await client.rawtx.getRawTransaction(nodeId, true)
+
+    const spendTx = await container.call('createrawtransaction', [
+      [{ txid: nodeId, vout: 1 }],
+      [{ [ownerAddress]: 1 }]
+    ])
+
+    const signedTx = await container.call('signrawtransactionwithwallet', [spendTx])
+    expect(signedTx.complete).toBeTruthy()
+
+    const promise = container.call('sendrawtransaction', [signedTx.hex])
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`bad-txns-collateral-locked, tried to spend locked collateral for ${rawTx.txid}`)
+  })
+
   it('should be failed as p2sh address is not allowed', async () => {
     const ownerAddress = await client.wallet.getNewAddress('', AddressType.P2SH_SEGWIT)
 
@@ -194,14 +233,12 @@ describe('Masternode', () => {
 describe('Multinodes masternodes', () => {
   const group = new ContainerGroup([
     new MasterNodeRegTestContainer(GenesisKeys[0]),
-    new MasterNodeRegTestContainer(GenesisKeys[1]),
-    new MasterNodeRegTestContainer(GenesisKeys[2])
+    new MasterNodeRegTestContainer(GenesisKeys[1])
   ])
 
   const clients = [
     new ContainerAdapterClient(group.get(0)),
-    new ContainerAdapterClient(group.get(1)),
-    new ContainerAdapterClient(group.get(2))
+    new ContainerAdapterClient(group.get(1))
   ]
 
   beforeAll(async () => {
@@ -218,6 +255,6 @@ describe('Multinodes masternodes', () => {
 
     const promise = clients[0].masternode.createMasternode(collateral1)
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Address ${collateral1} is not owned by the wallet`)
+    await expect(promise).rejects.toThrow(`Address (${collateral1}) is not owned by the wallet`)
   })
 })
