@@ -132,9 +132,6 @@ describe('CreateMasternode', () => {
   })
 
   it('should be failed if address is P2SH, other than P2PKH AND P2WPKH', async () => {
-    const balance = await container.call('getbalance')
-    expect(balance >= 2).toBeTruthy()
-
     const address = await container.getNewAddress('', 'p2sh-segwit')
     const addressDest: P2SH = P2SH.fromAddress(RegTest, address, P2SH)
     const addressDestKeyHash = addressDest.hex
@@ -186,7 +183,7 @@ describe('CreateMasternode', () => {
   })
 })
 
-describe.only('CreateMasternode with timelock', () => {
+describe('CreateMasternode with timelock', () => {
   const container = new MasterNodeRegTestContainer()
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
@@ -260,5 +257,25 @@ describe.only('CreateMasternode with timelock', () => {
     const masternodesAfter = await jsonRpc.masternode.listMasternodes()
     const masternodesAfterLength = Object.keys(masternodesAfter).length
     expect(masternodesAfterLength).toStrictEqual(masternodesBeforeLength + 1)
+  })
+
+  it('should be failed as timelock should be only specified in 5 or 10 years', async () => {
+    const address = await container.getNewAddress('', 'bech32')
+    const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, address, P2WPKH)
+    const addressDestKeyHash = addressDest.pubKeyHash
+
+    const createMasternode: CreateMasternode = {
+      operatorType: 0x04,
+      operatorAuthAddress: addressDestKeyHash,
+      timelock: 0x0410 // 20 years
+    }
+
+    const script = await providers.elliptic.script()
+
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('CreateMasternodeTx: Timelock must be set to either 0, 5 or 10 years')
   })
 })
