@@ -5,7 +5,8 @@ import {
   ICXCreateOrder,
   ICXMakeOffer,
   ICXSubmitDFCHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  ICXClaimDFCHTLC
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
@@ -85,6 +86,20 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   async submitEXTHTLC (icxSubmitEXTHTLC: ICXSubmitEXTHTLC, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC(icxSubmitEXTHTLC),
+      changeScript
+    )
+  }
+
+  /**
+   * Creates claimDFCHTLC transaction.
+   *
+   * @param {ICXClaimDFCHTLC} icxClaimDFCHTLC txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (transfer value + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async claimDFCHTLC (icxClaimDFCHTLC: ICXClaimDFCHTLC, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ICX_CLAIM_DFC_HTLC(icxClaimDFCHTLC),
       changeScript
     )
   }
