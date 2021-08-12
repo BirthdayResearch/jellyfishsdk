@@ -53,7 +53,9 @@ import {
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
 } from './dftx_icxorderbook'
 import {
   CSetGovernance,
@@ -70,6 +72,9 @@ import {
   CSetDefaultLoanScheme,
   SetDefaultLoanScheme
 } from './dftx_loans'
+
+// Disabling no-return-assign makes the code cleaner with the setter and getter */
+/* eslint-disable no-return-assign */
 
 /**
  * DeFi Transaction
@@ -203,6 +208,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
       case CICXSubmitEXTHTLC.OP_CODE:
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
+      case CICXClaimDFCHTLC.OP_CODE:
+        return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
