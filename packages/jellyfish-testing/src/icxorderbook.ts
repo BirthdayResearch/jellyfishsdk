@@ -11,8 +11,8 @@ export class TestingICX {
   public poolOwner: string
   public idDFI: string
   public idBTC: string
-  public ICX_TAKERFEE_PER_BTC: number
-  public DEX_DFI_PER_BTC_RATE: number
+  public ICX_TAKERFEE_PER_BTC: BigNumber
+  public DEX_DFI_PER_BTC_RATE: BigNumber
 
   constructor (
     private readonly testing: Testing
@@ -22,8 +22,8 @@ export class TestingICX {
     this.poolOwner = ''
     this.idDFI = ''
     this.idBTC = ''
-    this.ICX_TAKERFEE_PER_BTC = 0
-    this.DEX_DFI_PER_BTC_RATE = 0
+    this.ICX_TAKERFEE_PER_BTC = new BigNumber(0)
+    this.DEX_DFI_PER_BTC_RATE = new BigNumber(0)
     this.symbolDFI = 'DFI'
     this.symbolBTC = 'BTC'
   }
@@ -37,7 +37,7 @@ export class TestingICX {
     await this.fundAccount(this.accountBTC, this.symbolDFI, 10) // for fee
     await this.createBTCDFIPool()
     await this.addLiquidityToBTCDFIPool(1, 100)
-    await this.setTakerFee(0.001)
+    await this.setTakerFee(new BigNumber(0.001))
   }
 
   async createAccounts (): Promise<void> {
@@ -77,8 +77,6 @@ export class TestingICX {
 
   async createBTCDFIPool (): Promise<void> {
     this.poolOwner = await this.testing.container.call('getnewaddress', ['', 'legacy'])
-    await accountToAccount(this.testing.container, this.symbolBTC, 1, { from: this.accountBTC, to: this.accountDFI })
-
     const poolPairMetadata = {
       tokenA: this.idBTC,
       tokenB: this.idDFI,
@@ -89,29 +87,23 @@ export class TestingICX {
     }
     await this.testing.container.call('createpoolpair', [poolPairMetadata, []])
     await this.testing.container.generate(1)
-
-    const pool = await this.testing.container.call('getpoolpair', ['BTC-DFI'])
-    const combToken = await this.testing.container.call('gettoken', ['BTC-DFI'])
-    const idDFIBTC = Object.keys(combToken)[0]
-    expect(pool[idDFIBTC].idTokenA).toBe(this.idBTC)
-    expect(pool[idDFIBTC].idTokenB).toBe(this.idDFI)
   }
 
   async addLiquidityToBTCDFIPool (amountInBTC: number, amountInDFI: number): Promise<void> {
-    const poolLiquidityMetadata: { [key: string]: string [] } = {}
-    poolLiquidityMetadata[this.accountDFI] = [`${amountInBTC}@${this.symbolBTC}`, `${amountInDFI}@${this.symbolDFI}`]
-
-    await this.testing.container.call('addpoolliquidity', [poolLiquidityMetadata, this.accountDFI, []])
+    await accountToAccount(this.testing.container, this.symbolBTC, 1, { from: this.accountBTC, to: this.accountDFI })
+    await this.testing.poolpair.add({
+      a: { amount: amountInBTC, symbol: this.symbolBTC },
+      b: { amount: amountInDFI, symbol: this.symbolDFI }
+    })
     await this.testing.container.generate(1)
-    this.DEX_DFI_PER_BTC_RATE = amountInDFI / amountInBTC
+    this.DEX_DFI_PER_BTC_RATE = new BigNumber(amountInDFI / amountInBTC)
   }
 
-  async setTakerFee (fee: number): Promise<void> {
-    await this.testing.container.call('setgov', [{ ICX_TAKERFEE_PER_BTC: fee }])
+  async setTakerFee (fee: BigNumber): Promise<void> {
+    await this.testing.rpc.masternode.setGov({ ICX_TAKERFEE_PER_BTC: fee })
     await this.testing.container.generate(1)
-    const result: any = await this.testing.container.call('getgov', ['ICX_TAKERFEE_PER_BTC'])
-    expect(result.ICX_TAKERFEE_PER_BTC as number).toStrictEqual(fee)
-    this.ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as number
+    const result = await this.testing.rpc.masternode.getGov('ICX_TAKERFEE_PER_BTC')
+    this.ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as BigNumber
   }
 
   async closeAllOpenOffers (): Promise<void> {
@@ -127,7 +119,6 @@ export class TestingICX {
     await this.testing.container.generate(1)
   }
 
-  // creates DFI sell order
   async createDFISellOrder ({
     chainTo = 'BTC',
     ownerAddress = this.accountDFI,
@@ -173,7 +164,6 @@ export class TestingICX {
     }
   }
 
-  // create and submits DFC HTLC for DFI buy offer
   async createDFCHTLCForDFIBuyOffer ({
     offerTx,
     amount,
@@ -195,7 +185,6 @@ export class TestingICX {
     }
   }
 
-  // submits ExtHTLC for DFI buy offer
   async submitExtHTLCForDFIBuyOffer ({
     offerTx,
     amount,
@@ -204,7 +193,6 @@ export class TestingICX {
     ownerPubkey,
     timeout = 24
   }: submitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string}> {
-    // submit EXT HTLC - taker
     const ExtHTLC = {
       offerTx,
       amount,
