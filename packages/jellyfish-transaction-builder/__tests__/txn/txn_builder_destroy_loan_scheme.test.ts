@@ -35,10 +35,9 @@ beforeEach(async () => {
 
 it('should create loan scheme', async () => {
   const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    minColRatio: 200,
-    interestRate: new BigNumber('200'),
-    id: 'default'
+  const txn = await builder.loans.destroyLoanScheme({
+    identifier: 'scheme',
+    height: new BigNumber(200)
   }, script)
 
   // Ensure the created txn is correct.

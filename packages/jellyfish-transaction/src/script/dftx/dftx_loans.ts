@@ -4,21 +4,19 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
 
-export interface CreateLoanScheme {
-  minColRatio: number
-  interestRate: BigNumber
-  id: string
+export interface DestroyLoanScheme {
+  identifier: string
+  height: BigNumber
 }
 
-export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
-  static OP_CODE = 0x4c
-  static OP_NAME = 'OP_DEFI_TX_CREATE_LOAN_SCHEME'
+export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
+  static OP_CODE = 0x44
+  static OP_NAME = 'OP_DEFI_TX_DESTROY_LOAN_SCHEME'
 
-  composers (cls: CreateLoanScheme): BufferComposer[] {
+  composers (dls: DestroyLoanScheme): BufferComposer[] {
     return [
-      ComposableBuffer.uInt32(() => cls.minColRatio, v => cls.minColRatio = v),
-      ComposableBuffer.satoshiAsBigNumber(() => cls.interestRate, v => cls.interestRate = v),
-      ComposableBuffer.varUIntUtf8BE(() => cls.id, v => cls.id = v)
+      ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
+      ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
     ]
   }
 }
