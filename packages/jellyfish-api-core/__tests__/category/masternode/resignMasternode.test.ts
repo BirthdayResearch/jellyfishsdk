@@ -87,10 +87,10 @@ describe('Masternode', () => {
     await expect(promise).rejects.toThrow(`node ${id} state is not 'ENABLED'`)
   })
 
-  it('should be failed to resign within a timeLock period', async () => {
+  it('should be failed to resign within a timelock period', async () => {
     const address = await container.getNewAddress()
     const id = await client.masternode.createMasternode(
-      address, '', { utxos: [], timeLock: MasternodeTimeLock.TEN_YEAR })
+      address, '', { utxos: [], timelock: MasternodeTimeLock.TEN_YEAR })
     await container.generate(20, address) // generate blocks to pass PRE_ENABLED state
 
     const promise = client.masternode.resignMasternode(id)

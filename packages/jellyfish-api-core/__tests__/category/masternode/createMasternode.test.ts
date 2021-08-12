@@ -82,7 +82,7 @@ describe('Masternode', () => {
     expect(mn.operatorAuthAddress).toStrictEqual(operatorAddress)
   })
 
-  it('should createMasternode with timeLock', async () => {
+  it('should createMasternode with timelock', async () => {
     const balance = await container.call('getbalance')
     expect(balance >= 2).toBeTruthy()
 
@@ -90,7 +90,7 @@ describe('Masternode', () => {
 
     const ownerAddress = await client.wallet.getNewAddress()
     const hex = await client.masternode.createMasternode(
-      ownerAddress, '', { utxos: [], timeLock: MasternodeTimeLock.FIVE_YEAR }
+      ownerAddress, '', { utxos: [], timelock: MasternodeTimeLock.FIVE_YEAR }
     )
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
@@ -102,12 +102,13 @@ describe('Masternode', () => {
     expect(masternodesLengthAfter).toStrictEqual(masternodesLengthBefore + 1)
 
     const mn = Object.values(masternodesAfter).find(mn => mn.ownerAuthAddress === ownerAddress)
+    console.log('mn: ', mn)
     if (mn === undefined) {
       throw new Error('should not reach here')
     }
     expect(mn.ownerAuthAddress).toStrictEqual(ownerAddress)
     expect(mn.operatorAuthAddress).toStrictEqual(ownerAddress)
-    expect(mn.timeLock).toStrictEqual('5 years')
+    expect(mn.timelock).toStrictEqual('5 years')
   })
 
   it('should createMasternode with utxos', async () => {

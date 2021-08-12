@@ -108,7 +108,7 @@ it('should be failed as trying to resign a NOT ENABLED masternode', async () => 
   const pubKey = await providers.ellipticPair.publicKey()
   const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
 
-  const txid = await jsonRpc.masternode.createMasternode(collateralAddress, '', { utxos: [], timeLock: MasternodeTimeLock.TEN_YEAR })
+  const txid = await jsonRpc.masternode.createMasternode(collateralAddress, '', { utxos: [], timelock: MasternodeTimeLock.TEN_YEAR })
   await container.generate(1)
 
   const masternodes = await jsonRpc.masternode.listMasternodes()
@@ -133,7 +133,7 @@ it('should be failed as trying to resign masternode before timelock expiration',
   const pubKey = await providers.ellipticPair.publicKey()
   const collateralAddress = Bech32.fromPubKey(pubKey, 'bcrt')
 
-  const txid = await jsonRpc.masternode.createMasternode(collateralAddress, '', { utxos: [], timeLock: MasternodeTimeLock.TEN_YEAR })
+  const txid = await jsonRpc.masternode.createMasternode(collateralAddress, '', { utxos: [], timelock: MasternodeTimeLock.TEN_YEAR })
   await container.generate(30)
 
   const masternodes = await jsonRpc.masternode.listMasternodes()

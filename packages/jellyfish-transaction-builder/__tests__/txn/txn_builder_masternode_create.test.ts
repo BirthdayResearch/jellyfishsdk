@@ -187,7 +187,7 @@ describe('CreateMasternode', () => {
   })
 })
 
-describe.only('CreateMasternode with timeLock', () => {
+describe.only('CreateMasternode with timelock', () => {
   const container = new MasterNodeRegTestContainer()
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
@@ -212,12 +212,12 @@ describe.only('CreateMasternode with timeLock', () => {
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
     // 0.00000755 is added for calculateFeeP2WPKH deduction
-    // with timeLock fee increases 0.000001
+    // with timelock fee increases 0.000001
     await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000755)
     await providers.setupMocks()
   })
 
-  it('should create with timeLock', async () => {
+  it('should create with timelock', async () => {
     const balance = await container.call('getbalance')
     expect(balance >= 2).toBeTruthy()
 
@@ -231,7 +231,7 @@ describe.only('CreateMasternode with timeLock', () => {
     const createMasternode: CreateMasterNode = {
       operatorType: 0x04,
       operatorAuthAddress: addressDestKeyHash,
-      timeLock: 0x0104
+      timelock: 0x0104
     }
 
     const script = await providers.elliptic.script()

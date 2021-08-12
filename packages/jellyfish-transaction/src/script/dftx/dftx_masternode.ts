@@ -10,7 +10,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 export interface CreateMasterNode {
   operatorType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
   operatorAuthAddress: string // -------------------| VarUInt{20 bytes}
-  timeLock?: number // -----------------------------| 2 bytes
+  timelock?: number // -----------------------------| 2 bytes
 }
 
 /**
@@ -28,12 +28,12 @@ export class CCreateMasterNode extends ComposableBuffer<CreateMasterNode> {
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (buffer.remaining() > 0) {
-            cmn.timeLock = buffer.readUInt16LE()
+            cmn.timelock = buffer.readUInt16LE()
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          if (cmn.timeLock !== undefined) {
-            buffer.writeUInt16LE(cmn.timeLock)
+          if (cmn.timelock !== undefined) {
+            buffer.writeUInt16LE(cmn.timelock)
           }
         }
       }
