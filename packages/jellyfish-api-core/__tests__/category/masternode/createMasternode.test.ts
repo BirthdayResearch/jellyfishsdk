@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { MasternodeState, MasternodeTimeLock } from '../../../src/category/masternode'
 import { AddressType } from '../../../src/category/wallet'
@@ -188,5 +188,36 @@ describe('Masternode', () => {
     } catch (err) {
       expect(err.message).toStrictEqual('RpcApiError: \'Insufficient funds\', code: -4, method: createmasternode')
     }
+  })
+})
+
+describe('Multinodes masternodes', () => {
+  const group = new ContainerGroup([
+    new MasterNodeRegTestContainer(GenesisKeys[0]),
+    new MasterNodeRegTestContainer(GenesisKeys[1]),
+    new MasterNodeRegTestContainer(GenesisKeys[2])
+  ])
+
+  const clients = [
+    new ContainerAdapterClient(group.get(0)),
+    new ContainerAdapterClient(group.get(1)),
+    new ContainerAdapterClient(group.get(2))
+  ]
+
+  beforeAll(async () => {
+    await group.start()
+    await group.get(0).waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await group.stop()
+  })
+
+  it('should be failed as address is not owned by the wallet', async () => {
+    const collateral1 = await group.get(1).getNewAddress()
+
+    const promise = clients[0].masternode.createMasternode(collateral1)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`Address ${collateral1} is not owned by the wallet`)
   })
 })
