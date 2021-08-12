@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontain
 
 export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor () {
-    super(undefined, 'defi/defichain:HEAD-392004e')
+    super(undefined, 'defi/defichain:HEAD-bf0c21f')
   }
 
   protected getCmd (opts: StartOptions): string[] {

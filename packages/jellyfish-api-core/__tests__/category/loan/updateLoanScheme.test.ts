@@ -1,6 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
+import BigNumber from 'bignumber.js'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -36,7 +37,10 @@ describe('Loan', () => {
   })
 
   it('should update loan scheme', async () => {
-    const loanId = await client.loan.updateLoanScheme(200, 2, { identifier: 'scheme' })
+    const loanId = await client.loan.updateLoanScheme(200, new BigNumber(2), { identifier: 'scheme' })
+
+    // const tx: any = await client.call('getrawtransaction', [loanId, true], 'bignumber')
+    // console.log(tx.vout[0].scriptPubKey)
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
@@ -58,17 +62,17 @@ describe('Loan', () => {
   })
 
   it('should not update loan scheme if ratio is less than 100', async () => {
-    const promise = client.loan.updateLoanScheme(99, 1, { identifier: 'scheme' })
+    const promise = client.loan.updateLoanScheme(99, new BigNumber(1), { identifier: 'scheme' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nminimum collateral ratio cannot be less than 100\', code: -32600, method: updateloanscheme')
   })
 
   it('should not update loan scheme if rate is less than 0', async () => {
-    const promise = client.loan.updateLoanScheme(100, -1, { identifier: 'scheme' })
+    const promise = client.loan.updateLoanScheme(100, new BigNumber(-1), { identifier: 'scheme' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: updateloanscheme')
   })
 
   it('should not create update scheme if new schemes have same rate and ratio with other scheme', async () => {
-    const promise = client.loan.updateLoanScheme(300, 3, { identifier: 'scheme' })
+    const promise = client.loan.updateLoanScheme(300, new BigNumber(3), { identifier: 'scheme' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme default with same interestrate and mincolratio already exists\', code: -32600, method: updateloanscheme')
   })
 
@@ -76,7 +80,7 @@ describe('Loan', () => {
     // NOTE(jingyi2811): Wait for block 100
     await container.waitForBlockHeight(100)
 
-    const loanId = await client.loan.updateLoanScheme(200, 2, { identifier: 'scheme', activateAfterBlock: 200 })
+    const loanId = await client.loan.updateLoanScheme(200, new BigNumber(2), { identifier: 'scheme', activateAfterBlock: 200 })
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
@@ -125,7 +129,7 @@ describe('Loan', () => {
       }
     })
 
-    const loanId = await client.loan.updateLoanScheme(200, 2, { identifier: 'scheme', utxos: inputs })
+    const loanId = await client.loan.updateLoanScheme(200, new BigNumber(2), { identifier: 'scheme', utxos: inputs })
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
@@ -143,7 +147,7 @@ describe('Loan', () => {
 
   it('should not update loan scheme with arbritary utxos', async () => {
     const { txid, vout } = await container.fundAddress(await container.call('getnewaddress'), 10)
-    const promise = client.loan.updateLoanScheme(200, 2, { identifier: 'scheme', utxos: [{ txid, vout }] })
+    const promise = client.loan.updateLoanScheme(200, new BigNumber(2), { identifier: 'scheme', utxos: [{ txid, vout }] })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: updateloanscheme')
   })
 })
