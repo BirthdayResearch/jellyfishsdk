@@ -95,6 +95,16 @@ export class Spv {
   async claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult> {
     return await this.client.call('spv_claimhtlc', [scriptAddress, destinationAddress, options.seed, options.feeRate], 'bignumber')
   }
+
+  /**
+   * Returns the HTLC secret if available.
+   *
+   * @param {string} address HTLC address
+   * @return {Promise<string>} HTLC secret
+   */
+  async getHtlcSeed (address: string): Promise<string> {
+    return await this.client.call('spv_gethtlcseed', [address], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {
