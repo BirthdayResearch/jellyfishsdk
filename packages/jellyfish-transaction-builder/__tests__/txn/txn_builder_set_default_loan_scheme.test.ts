@@ -3,7 +3,6 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { BigNumber } from '@defichain/jellyfish-json'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -33,12 +32,10 @@ beforeEach(async () => {
   await providers.setupMocks() // required to move utxos
 })
 
-it('should create loan scheme', async () => {
+it('should setDefaultLoanScheme', async () => {
   const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    minColRatio: 200,
-    interestRate: new BigNumber('200'),
-    id: 'default'
+  const txn = await builder.loans.setDefaultLoanScheme({
+    identifier: 'scheme'
   }, script)
 
   // Ensure the created txn is correct.
