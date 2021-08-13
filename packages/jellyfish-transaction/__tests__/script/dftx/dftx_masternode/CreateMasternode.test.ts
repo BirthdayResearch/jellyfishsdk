@@ -6,9 +6,13 @@ import { CCreateMasternode, CreateMasternode } from '../../../../src/script/dftx
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
+    // Before EunosPaya
     '6a1a44665478430121978f97842d623b79acecd7201a60538c13e935', // undefined operator pkh, use collateral pkh
     '6a1a44665478430147bfb0a67b85a1718381558434fbfe7c4866cf2e', // p2pkh
     '6a1a4466547843040e12cde53c156560faa1d01d144d234a74b65395', // p2wpkh
+
+    // EunosPaya
+    '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950000', // default timelock 0000 if not specified
     '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950401', // with timelock 5 years (260)
     '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950802' // with timelock 10 years (520)
   ]
