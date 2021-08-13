@@ -7,39 +7,21 @@ const { ICXOrderStatus, ICXOrderType, ICXHTLCType } = icxorderbook
 
 const testing = Testing.create(new MasterNodeRegTestContainer())
 
-describe('ICX setup', () => {
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-  })
-
-  afterAll(async () => {
-    await testing.container.stop()
-  })
-
-  it('should setup icx and init all public fields', async () => {
-    await testing.icxorderbook.setup()
-
-    expect(testing.icxorderbook.idDFI).toStrictEqual('0')
-    expect(testing.icxorderbook.idBTC).toStrictEqual('1')
-    expect(testing.icxorderbook.ICX_TAKERFEE_PER_BTC).toStrictEqual(new BigNumber(0.001))
-    expect(testing.icxorderbook.DEX_DFI_PER_BTC_RATE).toStrictEqual(new BigNumber(100))
-    expect(testing.icxorderbook.symbolDFI).toStrictEqual('DFI')
-    expect(testing.icxorderbook.symbolBTC).toStrictEqual('BTC')
-    expect(typeof testing.icxorderbook.accountDFI).toStrictEqual('string')
-    expect(testing.icxorderbook.accountDFI.length).toBeGreaterThan(0)
-    expect(typeof testing.icxorderbook.accountBTC).toStrictEqual('string')
-    expect(testing.icxorderbook.accountBTC.length).toBeGreaterThan(0)
-    expect(typeof testing.icxorderbook.poolOwner).toStrictEqual('string')
-    expect(testing.icxorderbook.poolOwner.length).toBeGreaterThan(0)
-  })
-})
-
 describe('ICX', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
-    await testing.icxorderbook.setup()
+
+    await testing.icxorderbook.createAccounts()
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
+    await testing.container.generate(1)
+    await testing.fixture.createPoolPair({
+      a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
+      b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
+    })
+    testing.icxorderbook.DEX_DFI_PER_BTC_RATE = new BigNumber(100)
+    await testing.icxorderbook.setTakerFee(new BigNumber(0.001))
   })
 
   afterAll(async () => {
@@ -60,7 +42,7 @@ describe('ICX', () => {
       status: ICXOrderStatus.OPEN,
       type: ICXOrderType.INTERNAL,
       tokenFrom: testing.icxorderbook.symbolDFI,
-      chainTo: 'BTC',
+      chainTo: testing.icxorderbook.symbolBTC,
       receivePubkey: createOrder.receivePubkey,
       ownerAddress: testing.icxorderbook.accountDFI,
       amountFrom: createOrder.amountFrom,

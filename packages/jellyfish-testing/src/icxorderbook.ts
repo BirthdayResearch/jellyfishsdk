@@ -27,23 +27,6 @@ export class TestingICX {
     this.symbolBTC = 'BTC'
   }
 
-  async setup (): Promise<void> {
-    await this.createAccounts()
-    await this.testing.rpc.account.utxosToAccount({ [this.accountDFI]: `${500}@${this.symbolDFI}` })
-    await this.testing.rpc.account.utxosToAccount({ [this.accountBTC]: `${10}@${this.symbolDFI}` }) // for fee
-    await this.testing.container.generate(1)
-
-    await this.testing.fixture.createPoolPair({
-      a: { amount: '1', symbol: this.symbolBTC },
-      b: { amount: '100', symbol: this.symbolDFI }
-    })
-    this.DEX_DFI_PER_BTC_RATE = new BigNumber(100)
-
-    await this.initializeTokensIds()
-    await this.setTakerFee(new BigNumber(0.001))
-    await this.setBTCDFIPoolOwner()
-  }
-
   async createAccounts (): Promise<void> {
     this.accountDFI = await this.testing.container.getNewAddress()
     this.accountBTC = await this.testing.container.getNewAddress()
