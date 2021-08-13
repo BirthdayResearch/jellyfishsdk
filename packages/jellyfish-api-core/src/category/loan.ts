@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 /**
  * loan RPCs for DeFi Blockchain
@@ -10,14 +11,26 @@ export class Loan {
     this.client = client
   }
 
-  async createLoanScheme (ratio: number, rate: number, options: CreateLoanOptions): Promise<string> {
+  /**
+   * Creates a loan scheme transaction.
+   *
+   * @param {number} minColRatio
+   * @param {BigNumber} interestRate
+   * @param {CreateLoanSchemeOptions} [options]
+   * @param {string} options.id
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>} schemeId, also the txn id for txn created to create loan scheme
+   */
+  async createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanSchemeOptions): Promise<string> {
     const { utxos = [] } = options
-    return await this.client.call('createloanscheme', [ratio, rate, options.identifier, utxos], 'number')
+    return await this.client.call('createloanscheme', [minColRatio, interestRate, options.id, utxos], 'number')
   }
 }
 
-export interface CreateLoanOptions {
-  identifier: string
+export interface CreateLoanSchemeOptions {
+  id: string
   utxos?: UTXO[]
 }
 
