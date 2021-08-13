@@ -22,6 +22,7 @@ describe('ICX', () => {
     })
     testing.icxorderbook.DEX_DFI_PER_BTC_RATE = new BigNumber(100)
     await testing.icxorderbook.setTakerFee(new BigNumber(0.001))
+    await testing.icxorderbook.initializeTokensIds()
   })
 
   afterAll(async () => {
