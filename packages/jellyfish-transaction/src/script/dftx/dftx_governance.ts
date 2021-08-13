@@ -2,6 +2,8 @@ import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -101,4 +103,38 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
       }
     ]
   }
+}
+
+export interface CreateProposal {
+  type: number // -------------| 1 byte, 0x01 | 0x02 | 0x03
+  address: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
+  amount: BigNumber // --------| 8 bytes
+  cycles: number // -----------| 1 byte
+  title: string // ------------| Rest of buffer
+}
+
+/**
+ * Composable CCreateProposal, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+class CCreateProposal extends ComposableBuffer<CreateProposal> {
+  composers (ccp: CreateProposal): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v),
+      ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
+      ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
+      ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v),
+      ComposableBuffer.varUIntUtf8BE(() => ccp.title, v => ccp.title = v)
+    ]
+  }
+}
+
+export class CCreateCfp extends CCreateProposal {
+  static OP_CODE = 0x46 // 'F'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
+}
+
+export class CCreateVoc extends CCreateProposal {
+  static OP_CODE = 0x45 // 'E'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }

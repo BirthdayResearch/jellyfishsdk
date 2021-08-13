@@ -49,7 +49,7 @@ import {
 } from './dftx/dftx_oracles'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
-import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
+import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateProposal } from './dftx/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -305,6 +305,22 @@ export const OP_CODES = {
       type: CSetGovernance.OP_CODE,
       name: CSetGovernance.OP_NAME,
       data: setGovernance
+    })
+  },
+  OP_DEFI_TX_CREATE_CFP: (createProposal: CreateProposal) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateCfp.OP_CODE,
+      name: CCreateCfp.OP_NAME,
+      data: createProposal
+    })
+  },
+  OP_DEFI_TX_CREATE_VOC: (createProposal: CreateProposal) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateVoc.OP_CODE,
+      name: CCreateVoc.OP_NAME,
+      data: createProposal
     })
   },
 
