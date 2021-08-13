@@ -25,7 +25,7 @@ describe('Spv', () => {
     await container.call('spv_sendtoaddress', [htlc.address, 0.1]) // Funds HTLC address
 
     const destinationAddress = await container.call('spv_getnewaddress')
-    const result = await client.spv.refundHtlc(htlc.address, destinationAddress)
+    const result = await client.spv.refundHtlc(htlc.address, destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.txid.length).toStrictEqual(64)
     expect(result.sendmessage).toStrictEqual('Success')
@@ -47,7 +47,7 @@ describe('Spv', () => {
     await container.call('spv_sendtoaddress', [htlc.address, 0.1]) // Funds HTLC address
 
     const destinationAddress = await container.call('spv_getnewaddress')
-    const result = await client.spv.refundHtlc(htlc.address, destinationAddress, { feeRate: new BigNumber('20000') })
+    const result = await client.spv.refundHtlc(htlc.address, destinationAddress, { feeRate: new BigNumber('20000') }) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.txid.length).toStrictEqual(64)
     expect(result.sendmessage).toStrictEqual('Success')

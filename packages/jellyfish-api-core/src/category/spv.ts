@@ -108,6 +108,7 @@ export class Spv {
 
   /**
    * Refunds all coins in HTLC address.
+   * Can be used after the timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
    *
    * @param {string} scriptAddress HTLC address
    * @param {string} destinationAddress Destination for funds in the HTLC
