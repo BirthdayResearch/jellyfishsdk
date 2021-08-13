@@ -38,7 +38,27 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid `UpdateOracle` input
    */
-  INVALID_UPDATE_ORACLE_INPUT
+  INVALID_UPDATE_ORACLE_INPUT,
+  /**
+   * Invalid `CreateCfp` type, should be 0x01
+   */
+  INVALID_CFP_TYPE,
+  /**
+   * Invalid `CreateVoc` type, should be 0x03
+   */
+  INVALID_VOC_TYPE,
+  /**
+   * Invalid `CreateVoc` amount, should be 0
+   */
+  INVALID_VOC_AMOUNT,
+  /**
+   * Invalid `CreateVoc` cycles, should be 2
+   */
+  INVALID_VOC_CYCLES,
+  /**
+   * Invalid `CreateVoc` address, should be an empty stack
+   */
+  INVALID_VOC_ADDRESS,
 }
 
 /**
