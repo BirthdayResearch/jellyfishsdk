@@ -25,9 +25,11 @@ export class ExceptionInterceptor implements NestInterceptor {
     const url: string = context.switchToHttp().getRequest().raw?.url
 
     return next.handle().pipe(catchError(err => {
-      const error = this.map(err).withUrl(url)
-      this.logger.error(error)
-      return throwError(error)
+      this.logger.error(err)
+
+      return throwError(() => {
+        return this.map(err).withUrl(url)
+      })
     }))
   }
 
