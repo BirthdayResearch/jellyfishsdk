@@ -13,7 +13,7 @@ const client = new Client()
 const something = await client.loan.method()
 ```
 
-## udpateLoanScheme
+## updateLoanScheme
 
 Updates an existing loan scheme.
 
