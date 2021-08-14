@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 /**
  * loan RPCs for DeFi Blockchain
@@ -11,13 +12,13 @@ export class Loan {
   }
 
   async listLoanSchemes (): Promise<LoanSchemeResult[]> {
-    return await this.client.call('listloanschemes', [], 'number')
+    return await this.client.call('listloanschemes', [], 'bignumber')
   }
 }
 
 export interface LoanSchemeResult{
   id: string
-  mincolratio: number
-  interestrate: number
+  mincolratio: BigNumber
+  interestrate: BigNumber
   default: boolean
 }

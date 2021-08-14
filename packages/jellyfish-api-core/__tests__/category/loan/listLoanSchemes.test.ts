@@ -1,5 +1,6 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import BigNumber from 'bignumber.js'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -21,18 +22,17 @@ describe('Loan', () => {
   })
 
   it('should listLoanSchemes', async () => {
-    await container.call('createloanscheme', [100, 1, 'default'])
+    await container.call('createloanscheme', [100, 1.5, 'default'])
     await container.generate(1)
 
-    await container.call('createloanscheme', [150, 1.5, 'scheme'])
+    await container.call('createloanscheme', [200, 2.5, 'scheme'])
     await container.generate(1)
 
     const result = await client.loan.listLoanSchemes()
-
     expect(result).toStrictEqual(
       [
-        { id: 'default', mincolratio: 100, interestrate: 1, default: true },
-        { id: 'scheme', mincolratio: 150, interestrate: 1.5, default: false }
+        { id: 'default', mincolratio: new BigNumber(100), interestrate: new BigNumber(1.5), default: true },
+        { id: 'scheme', mincolratio: new BigNumber(200), interestrate: new BigNumber(2.5), default: false }
       ]
     )
   })
