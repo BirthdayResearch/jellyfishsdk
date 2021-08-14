@@ -17,7 +17,7 @@ const something = await client.loan.method()
 
 Creates a loan scheme transaction.
 
-```ts title="client.oracle.createLoanScheme()"
+```ts title="client.loan.createLoanScheme()"
 interface loan {
   createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanSchemeOptions): Promise<string>
 }
