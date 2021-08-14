@@ -22,6 +22,7 @@ describe('Loan', () => {
     const data = result.filter((r: { default: boolean }) => !r.default)
 
     for (let i = 0; i < data.length; i += 1) {
+      // NOTE(jingyi2811): Delete all schemes except default scheme
       await container.call('destroyloanscheme', [data[i].id])
       await container.generate(1)
     }
@@ -32,10 +33,10 @@ describe('Loan', () => {
   })
 
   it('should createLoanScheme', async () => {
-    const loanId = await client.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1' })
+    const loanSchemeId = await client.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1' })
 
-    expect(typeof loanId).toStrictEqual('string')
-    expect(loanId.length).toStrictEqual(64)
+    expect(typeof loanSchemeId).toStrictEqual('string')
+    expect(loanSchemeId.length).toStrictEqual(64)
 
     await container.generate(1)
 
@@ -88,10 +89,10 @@ describe('Loan', () => {
       }
     })
 
-    const loanId = await client.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1', utxos: inputs })
+    const loanSchemeId = await client.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1', utxos: inputs })
 
-    expect(typeof loanId).toStrictEqual('string')
-    expect(loanId.length).toStrictEqual(64)
+    expect(typeof loanSchemeId).toStrictEqual('string')
+    expect(loanSchemeId.length).toStrictEqual(64)
 
     await container.generate(1)
 
