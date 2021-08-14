@@ -12,7 +12,7 @@ export class Loan {
   }
 
   /**
-   * Update a loan scheme.
+   * Updates an existing loan scheme.
    *
    * @param {number} minColRatio
    * @param {BigNumber} interestRate

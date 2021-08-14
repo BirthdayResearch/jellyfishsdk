@@ -15,7 +15,7 @@ const something = await client.loan.method()
 
 ## udpateLoanScheme
 
-Update a loan scheme.
+Updates an existing loan scheme.
 
 ```ts title="client.oracle.updateLoanScheme()"
 interface loan {
