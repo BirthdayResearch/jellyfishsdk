@@ -17,7 +17,7 @@ const something = await client.loan.method()
 
 Updates an existing loan scheme.
 
-```ts title="client.oracle.updateLoanScheme()"
+```ts title="client.loan.updateLoanScheme()"
 interface loan {
   updateLoanScheme (mincolratio: number, interestRate: BigNumber, options: UpdateLoanSchemeOptions): Promise<string>
 }
