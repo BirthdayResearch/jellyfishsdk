@@ -26,7 +26,7 @@ export class Loan {
    */
   async updateLoanScheme (minColRatio: number, interestRate: BigNumber, options: UpdateLoanSchemeOptions): Promise<string> {
     const { activateAfterBlock = undefined, utxos = [] } = options
-    return await this.client.call('updateloanscheme', [minColRatio, interestRate, options.id, activateAfterBlock, utxos], 'bignumber')
+    return await this.client.call('updateloanscheme', [minColRatio, interestRate, options.id, activateAfterBlock, utxos], 'number')
   }
 }
 
