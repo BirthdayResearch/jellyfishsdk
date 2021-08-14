@@ -1,4 +1,4 @@
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -27,7 +27,6 @@ describe('createVoc', () => {
     await testing.container.waitForWalletBalanceGTE(11)
     await fundEllipticPair(testing.container, providers.ellipticPair, 50)
     await providers.setupMocks()
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
   })
 
   afterAll(async () => {
@@ -141,5 +140,24 @@ describe('createVoc', () => {
 
     await expect(promise).rejects.toThrow(TxnBuilderError)
     await expect(promise).rejects.toThrow('CreateVoc cycles should be 2')
+  })
+
+  it('should reject with invalid title length', async () => {
+    const script = await providers.elliptic.script()
+    const createVoc = {
+      type: 0x03,
+      title: 'X'.repeat(150),
+      amount: new BigNumber(0),
+      address: {
+        stack: []
+      },
+      cycles: 2
+    }
+    const txn = await builder.governance.createVoc(createVoc, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateVocTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
   })
 })

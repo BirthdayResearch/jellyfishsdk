@@ -1,4 +1,4 @@
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -27,7 +27,6 @@ describe('createCfp', () => {
     await testing.container.waitForWalletBalanceGTE(11)
     await fundEllipticPair(testing.container, providers.ellipticPair, 50)
     await providers.setupMocks()
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
   })
 
   afterAll(async () => {
@@ -94,5 +93,28 @@ describe('createCfp', () => {
 
     await expect(promise).rejects.toThrow(TxnBuilderError)
     await expect(promise).rejects.toThrow('CreateCfp type should equal 0x01')
+  })
+
+  it('should reject with invalid title length', async () => {
+    const script = await providers.elliptic.script()
+    const createCfp = {
+      type: 0x01,
+      title: 'X'.repeat(150),
+      amount: new BigNumber(100),
+      address: {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
+          OP_CODES.OP_EQUAL
+        ]
+      },
+      cycles: 2
+    }
+    const txn = await builder.governance.createCfp(createCfp, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
   })
 })
