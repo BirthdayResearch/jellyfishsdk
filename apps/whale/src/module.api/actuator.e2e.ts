@@ -1,4 +1,4 @@
-import { MasternodeGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 
@@ -103,7 +103,7 @@ describe('no peers', () => {
 })
 
 describe('with peers', () => {
-  const group = new MasternodeGroup([
+  const group = new ContainerGroup([
     new MasterNodeRegTestContainer(),
     new MasterNodeRegTestContainer()
   ])
