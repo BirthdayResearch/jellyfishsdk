@@ -50,3 +50,25 @@ export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng:
 export function mnemonicToSeed (mnemonic: string[]): Buffer {
   return bip39.mnemonicToSeedSync(mnemonic.join(' '))
 }
+
+/**
+ * @param {string[]} mnemonic words, (COLD)
+ * @return {Buffer} 32 byte
+ */
+export function mnemonicAsEntropy (mnemonic: string[]): Buffer {
+  const hex = bip39.mnemonicToEntropy(mnemonic.join(' '))
+  return Buffer.from(hex, 'hex')
+}
+
+/**
+ * @param {Buffer} entropy 32 bytes buffer
+ * @return {string[]} mnemonic words, (COLD)
+ */
+export function entropyAsMnemonic (entropy: Buffer): string[] {
+  if (entropy.length !== 32) {
+    throw new Error('expected entropy to be 32 byte long')
+  }
+
+  const sentence = bip39.entropyToMnemonic(entropy)
+  return sentence.split(' ')
+}
