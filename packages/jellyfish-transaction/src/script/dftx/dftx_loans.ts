@@ -8,7 +8,7 @@ export interface CreateLoanScheme {
   ratio: number
   rate: BigNumber
   identifier: string
-  update: BigNumber
+  update: bigint
 }
 
 export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
@@ -20,7 +20,7 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
       ComposableBuffer.uInt32(() => cls.ratio, v => cls.ratio = v),
       ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
       ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
+      ComposableBuffer.int64(() => cls.update, v => cls.update = v)
     ]
   }
 }

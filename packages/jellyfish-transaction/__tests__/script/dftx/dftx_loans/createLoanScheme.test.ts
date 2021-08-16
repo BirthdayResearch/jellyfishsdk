@@ -29,7 +29,7 @@ const createLoanScheme: CreateLoanScheme = {
   ratio: 200,
   rate: new BigNumber(2.5),
   identifier: 'scheme',
-  update: new BigNumber(0)
+  update: BigInt(0)
 }
 
 it('should craft dftx with OP_CODES._()', () => {

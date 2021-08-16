@@ -55,7 +55,7 @@ it('should createLoanScheme', async () => {
     ratio: 200,
     rate: new BigNumber(2.5),
     identifier: 'scheme',
-    update: new BigNumber(0)
+    update: BigInt(0)
   }, script)
 
   // Ensure the created txn is correct.
@@ -87,7 +87,7 @@ it('should not createLoanScheme if ratio is less than 100', async () => {
     ratio: 99,
     rate: new BigNumber(2.5),
     identifier: 'scheme',
-    update: new BigNumber(0)
+    update: BigInt(0)
   }, script)
 
   const promise = sendTransaction(container, txn)
@@ -101,7 +101,7 @@ it('should not createLoanScheme if rate is less than 0.01', async () => {
     ratio: 200,
     rate: new BigNumber(0.0099),
     identifier: 'scheme',
-    update: new BigNumber(0)
+    update: BigInt(0)
   }, script)
 
   const promise = sendTransaction(container, txn)
@@ -115,7 +115,7 @@ it('should not createLoanScheme if identifier is an empty string', async () => {
     ratio: 200,
     rate: new BigNumber(2.5),
     identifier: '',
-    update: new BigNumber(0)
+    update: BigInt(0)
   }, script)
 
   const promise = sendTransaction(container, txn)
@@ -129,7 +129,7 @@ it('should not createLoanScheme if identifier is more than 8 chars', async () =>
     ratio: 200,
     rate: new BigNumber(2.5),
     identifier: '123456789',
-    update: new BigNumber(0)
+    update: BigInt(0)
   }, script)
 
   const promise = sendTransaction(container, txn)

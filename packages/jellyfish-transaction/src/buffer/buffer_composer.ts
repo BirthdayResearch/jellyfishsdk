@@ -428,6 +428,23 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * Signed Int64, 8 bytes
+   *
+   * @param getter to read from to buffer
+   * @param setter to set to from buffer
+   */
+  static int64 (getter: () => bigint, setter: (data: bigint) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        setter(buffer.readBigInt64BE())
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        buffer.writeBigInt64BE(getter())
+      }
+    }
+  }
+
+  /**
    * Unsigned BigNumber, 8 bytes
    *
    * @param getter to read from to buffer
