@@ -436,10 +436,10 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   static int64 (getter: () => bigint, setter: (data: bigint) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
-        setter(buffer.readBigInt64BE())
+        setter(buffer.readBigInt64LE())
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        buffer.writeBigInt64BE(getter())
+        buffer.writeBigInt64LE(getter())
       }
     }
   }
