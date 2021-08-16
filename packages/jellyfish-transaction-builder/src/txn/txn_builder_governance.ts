@@ -1,9 +1,10 @@
 import {
   OP_CODES, Script, TransactionSegWit,
-  CreateProposal
+  CreateProposal, Vote
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
+// import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 import BigNumber from 'bignumber.js'
 
 export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
@@ -59,6 +60,26 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
       OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc),
       changeScript,
       new BigNumber('5') // For creation fee (regtest - 5, other than regtest - 50)
+    )
+  }
+
+  /**
+   * Vote on a community proposal.
+   *
+   * @param {Vote} vote txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async vote (vote: Vote, changeScript: Script): Promise<TransactionSegWit> {
+    // if (vote.type !== 0x01) {
+    //   throw new TxnBuilderError(TxnBuilderErrorType.VOTE,
+    //     'vote type should equal 0x01'
+    //   )
+    // }
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_VOTE(vote),
+      changeScript,
+      new BigNumber('1') // For creation fee (regtest - 1, other than regtest - 10)
     )
   }
 }

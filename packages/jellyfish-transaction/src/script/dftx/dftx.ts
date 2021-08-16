@@ -33,7 +33,9 @@ import {
   SetGovernance,
   CCreateCfp,
   CCreateVoc,
-  CreateProposal
+  CreateProposal,
+  CVote,
+  Vote
 } from './dftx_governance'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -157,6 +159,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:
         return compose<CreateProposal>(CCreateVoc.OP_NAME, d => new CCreateVoc(d))
+      case CVote.OP_CODE:
+        return compose<Vote>(CVote.OP_NAME, d => new CVote(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

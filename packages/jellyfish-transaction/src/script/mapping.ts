@@ -49,7 +49,7 @@ import {
 } from './dftx/dftx_oracles'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
-import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateProposal } from './dftx/dftx_governance'
+import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateProposal, CVote, Vote } from './dftx/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -321,6 +321,14 @@ export const OP_CODES = {
       type: CCreateVoc.OP_CODE,
       name: CCreateVoc.OP_NAME,
       data: createProposal
+    })
+  },
+  OP_DEFI_TX_VOTE: (vote: Vote) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CVote.OP_CODE,
+      name: CVote.OP_NAME,
+      data: vote
     })
   },
 
