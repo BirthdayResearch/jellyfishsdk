@@ -119,6 +119,16 @@ export class Spv {
   async refundHtlc (scriptAddress: string, destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
     return await this.client.call('spv_refundhtlc', [scriptAddress, destinationAddress, options.feeRate], 'number')
   }
+
+  /**
+   * List all outputs related to HTLC addresses in the wallet.
+   *
+   * @param {string | undefined} [scriptAddress] HTLC address to filter result
+   * @return {Promise<ListHtlcsOutputsResult[]>}
+   */
+  async listHtlcOutputs (scriptAddress?: string): Promise<ListHtlcsOutputsResult[]> {
+    return await this.client.call('spv_listhtlcoutputs', [scriptAddress], { amount: 'bignumber' })
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -178,4 +188,26 @@ export interface ClaimHtlcOptions {
   seed: string
   /** Fee rate in satoshis per KB */
   feeRate?: BigNumber
+}
+
+export interface SpentInfo {
+  /** The transaction id */
+  txid: string
+  /** Number of spent confirmations */
+  confirms: number
+}
+
+export interface ListHtlcsOutputsResult {
+  /** The transaction id */
+  txid: string
+  /** Output relating to the HTLC address */
+  vout: number
+  /** Total amount of BTC recieved by the address */
+  amount: BigNumber
+  /** HTLC address */
+  address: string
+  /** Number of confirmations */
+  confirms: number
+  /** Object containing spent info */
+  spent: SpentInfo
 }

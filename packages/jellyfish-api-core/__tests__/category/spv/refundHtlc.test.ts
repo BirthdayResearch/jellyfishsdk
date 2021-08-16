@@ -8,8 +8,6 @@ describe('Spv', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
-
     await container.spv.fundAddress(await container.call('spv_getnewaddress')) // Funds 1 BTC
   })
 
