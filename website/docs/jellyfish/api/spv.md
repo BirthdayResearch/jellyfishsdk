@@ -157,3 +157,27 @@ interface SendMessageResult {
   sendmessage: string
 }
 ```
+
+## listHtlcOutputs
+
+List all outputs related to HTLC addresses in the wallet.
+
+```ts title="client.spv.listHtlcOutputs()"
+interface spv {
+  listHtlcOutputs (scriptAddress?: string): Promise<ListHtlcsOutputsResult[]>
+}
+
+interface SpentInfo {
+  txid: string
+  confirms: number
+}
+
+interface ListHtlcsOutputsResult {
+  txid: string
+  vout: number
+  amount: BigNumber
+  address: string
+  confirms: number
+  spent: SpentInfo
+}
+```
