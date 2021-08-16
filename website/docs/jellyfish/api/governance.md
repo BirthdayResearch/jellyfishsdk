@@ -161,3 +161,25 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listVotes
+
+Returns information about proposal votes.
+
+```ts title="client.governance.listVotes()"
+interface governance {
+  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
+}
+
+enum MasternodeType {
+  MINE = 'mine',
+  ALL = 'all'
+}
+
+interface ListVotesResult {
+  proposalId: string
+  masternodeId: string
+  cycle: number
+  vote: string
+}
+```
