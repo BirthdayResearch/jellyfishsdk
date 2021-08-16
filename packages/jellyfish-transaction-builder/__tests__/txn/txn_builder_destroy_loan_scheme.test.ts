@@ -1,11 +1,12 @@
-import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { BigNumber } from '@defichain/jellyfish-json'
+import { LoanMasterNodeRegTestContainer } from './loan_container'
+import BigNumber from 'bignumber.js'
 
-const container = new MasterNodeRegTestContainer()
+const container = new LoanMasterNodeRegTestContainer()
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
@@ -19,6 +20,10 @@ beforeAll(async () => {
 
   // Prep 1000 DFI Token for testing
   await container.waitForWalletBalanceGTE(1001)
+
+  // NOTE(jingyi2811): default scheme
+  await container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+  await container.generate(1)
 })
 
 afterAll(async () => {
@@ -33,11 +38,27 @@ beforeEach(async () => {
   await providers.setupMocks() // required to move utxos
 })
 
-it('should create loan scheme', async () => {
+afterEach(async () => {
+  const result = await container.call('listloanschemes')
+  const data = result.filter((r: { default: boolean }) => !r.default)
+
+  for (let i = 0; i < data.length; i += 1) {
+    await container.call('destroyloanscheme', [data[i].id])
+    await container.generate(1)
+  }
+})
+
+it('should destroyLoanScheme', async () => {
+  await container.call('createloanscheme', [200, 2, 'scheme'])
+  await container.generate(1)
+
+  // NOTE(jingyi2811): Wait for block 100
+  await container.waitForBlockHeight(100)
+
   const script = await providers.elliptic.script()
   const txn = await builder.loans.destroyLoanScheme({
     identifier: 'scheme',
-    height: new BigNumber(200)
+    height: BigInt(150)
   }, script)
 
   // Ensure the created txn is correct.
@@ -52,4 +73,87 @@ it('should create loan scheme', async () => {
   expect(prevouts.length).toStrictEqual(1)
   expect(prevouts[0].value.toNumber()).toBeLessThan(10)
   expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+  // NOTE(jingyi2811): before delete
+  {
+    const result = await container.call('listloanschemes')
+    const data = result.filter((r: { id: string }) => r.id === 'scheme')
+    expect(data.length).toStrictEqual(1)
+  }
+  // NOTE(jingyi2811): Wait for block 150
+  await container.waitForBlockHeight(150)
+
+  // NOTE(jingyi2811): after delete
+  {
+    const result = await container.call('listloanschemes')
+    const data = result.filter((r: { id: string }) => r.id === 'scheme')
+    expect(data.length).toStrictEqual(0)
+  }
+})
+
+it('should not destroyLoanScheme if identifier is an empty string', async () => {
+  const script = await providers.elliptic.script()
+  const txn = await builder.loans.destroyLoanScheme({
+    identifier: '',
+    height: BigInt(150)
+  }, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+})
+
+it('should not destroyLoanScheme if identifier is more than 8 chars', async () => {
+  const script = await providers.elliptic.script()
+  const txn = await builder.loans.destroyLoanScheme({
+    identifier: '123456789',
+    height: BigInt(150)
+  }, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+})
+
+it('should not destroyLoanScheme if identifier is not exists', async () => {
+  const script = await providers.elliptic.script()
+  const txn = await builder.loans.destroyLoanScheme({
+    identifier: 'scheme2',
+    height: BigInt(150)
+  }, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot find existing loan scheme with id scheme2 (code 16)\', code: -26')
+})
+
+it('should not destroyLoanScheme if identifier is a default scheme', async () => {
+  const script = await providers.elliptic.script()
+  const txn = await builder.loans.destroyLoanScheme({
+    identifier: 'default',
+    height: BigInt(150)
+  }, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
+})
+
+it('should not destroyLoanScheme if height is lesser than current height', async () => {
+  await container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+  await container.generate(1)
+
+  // NOTE(jingyi2811): Wait for block 200
+  await container.waitForBlockHeight(200)
+
+  // NOTE(jingyi2811): To delete at block 199, which should failed
+  const script = await providers.elliptic.script()
+  const txn = await builder.loans.destroyLoanScheme({
+    identifier: 'scheme2',
+    height: BigInt(199)
+  }, script)
+
+  const promise = sendTransaction(container, txn)
+  await expect(promise).rejects.toThrow(DeFiDRpcError)
+  await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot find existing loan scheme with id scheme2 (code 16)\', code: -26')
 })

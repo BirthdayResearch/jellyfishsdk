@@ -6,7 +6,6 @@ import {
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
-import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -27,7 +26,7 @@ const header = '6a144466547844' // OP_RETURN, PUSH_DATA(44665478, 44)
 const data = '06736368656d65c800000000000000'
 const destroyLoanScheme: DestroyLoanScheme = {
   identifier: 'scheme',
-  height: new BigNumber(200)
+  height: BigInt(200)
 }
 
 it('should craft dftx with OP_CODES._()', () => {

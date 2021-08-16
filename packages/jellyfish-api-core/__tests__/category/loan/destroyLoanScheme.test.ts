@@ -43,6 +43,9 @@ describe('Loan', () => {
     const loanId = await client.loan.destroyLoanScheme('scheme')
     await container.generate(1)
 
+    const tx: any = await client.call('getrawtransaction', [loanId, true], 'bignumber')
+    console.log(tx.vout[0].scriptPubKey)
+
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
 
@@ -63,6 +66,9 @@ describe('Loan', () => {
 
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
+
+    const tx: any = await client.call('getrawtransaction', [loanId, true], 'bignumber')
+    console.log(tx.vout[0].scriptPubKey)
 
     await container.generate(1)
 

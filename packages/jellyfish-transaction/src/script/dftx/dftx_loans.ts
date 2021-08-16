@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -6,7 +5,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
 export interface DestroyLoanScheme {
   identifier: string
-  height: BigNumber
+  height: bigint
 }
 
 export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
@@ -16,7 +15,7 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
   composers (dls: DestroyLoanScheme): BufferComposer[] {
     return [
       ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
+      ComposableBuffer.int64(() => dls.height, v => dls.height = v)
     ]
   }
 }
