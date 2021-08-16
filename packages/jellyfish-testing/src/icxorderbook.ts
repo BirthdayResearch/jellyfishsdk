@@ -7,7 +7,6 @@ export class TestingICX {
   public symbolBTC: string
   public accountDFI: string
   public accountBTC: string
-  public poolOwner: string
   public idDFI: string
   public idBTC: string
   public ICX_TAKERFEE_PER_BTC: BigNumber
@@ -18,7 +17,6 @@ export class TestingICX {
   ) {
     this.accountDFI = ''
     this.accountBTC = ''
-    this.poolOwner = ''
     this.idDFI = ''
     this.idBTC = ''
     this.ICX_TAKERFEE_PER_BTC = new BigNumber(0)
@@ -30,16 +28,6 @@ export class TestingICX {
   async createAccounts (): Promise<void> {
     this.accountDFI = await this.testing.container.getNewAddress()
     this.accountBTC = await this.testing.container.getNewAddress()
-  }
-
-  async setBTCDFIPoolOwner (): Promise<void> {
-    const poolPairInfo = await this.testing.rpc.poolpair.getPoolPair('BTC-DFI')
-    for (const poolPair of Object.values(poolPairInfo)) {
-      if (poolPair.symbol === 'BTC-DFI') {
-        this.poolOwner = poolPair.ownerAddress
-        return
-      }
-    }
   }
 
   async initializeTokensIds (): Promise<void> {
