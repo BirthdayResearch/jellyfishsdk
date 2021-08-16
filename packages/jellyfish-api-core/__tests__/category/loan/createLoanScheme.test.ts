@@ -9,7 +9,6 @@ describe('Loan', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
 
     // NOTE(jingyi2811): default scheme
