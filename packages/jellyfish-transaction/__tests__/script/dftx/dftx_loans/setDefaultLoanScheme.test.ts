@@ -9,7 +9,7 @@ import { OP_DEFI_TX } from '../../../../src/script/dftx'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a0c446654784c06736368656d65'
+    '6a0d446654786407736368656d6532'
   ]
 
   fixtures.forEach(hex => {
@@ -18,14 +18,14 @@ it('should bi-directional buffer-object-buffer', () => {
     )
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x4c)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x64)
   })
 })
 
-const header = '6a0c446654784c' // OP_RETURN, PUSH_DATA(4466547864, 64)
-const data = '06736368656d65'
+const header = '6a0d4466547864' // OP_RETURN, PUSH_DATA(44665478, 64)
+const data = '07736368656d6532'
 const setDefaultLoanScheme: SetDefaultLoanScheme = {
-  identifier: 'scheme'
+  identifier: 'scheme2'
 }
 
 it('should craft dftx with OP_CODES._()', () => {

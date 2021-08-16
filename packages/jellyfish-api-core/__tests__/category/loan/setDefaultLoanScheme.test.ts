@@ -47,6 +47,9 @@ describe('Loan', () => {
 
     await container.generate(1)
 
+    const tx: any = await client.call('getrawtransaction', [loanId, true], 'bignumber')
+    console.log(tx.vout[0].scriptPubKey)
+
     result = await container.call('listloanschemes', [])
 
     // NOTE(jingyi2811): scheme become default

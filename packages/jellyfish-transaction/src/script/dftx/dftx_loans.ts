@@ -8,8 +8,8 @@ export interface SetDefaultLoanScheme {
 }
 
 export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme> {
-  static OP_CODE = 0x4c
-  static OP_NAME = 'OP_DEFI_TX_CREATE_LOAN_SCHEME'
+  static OP_CODE = 0x64
+  static OP_NAME = 'OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME'
 
   composers (cls: SetDefaultLoanScheme): BufferComposer[] {
     return [
