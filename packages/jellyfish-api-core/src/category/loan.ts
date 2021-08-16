@@ -10,6 +10,17 @@ export class Loan {
     this.client = client
   }
 
+  /**
+   * Destroys a loan scheme.
+   *
+   * @param {string} id
+   * @param {number} [activateAfterBlock]
+   * @param {DeleteLoanOptions} [options]
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} [options.utxos.txid]
+   * @param {number} [options.utxos.vout]
+   * @return {Promise<string>}
+   */
   async destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('destroyloanscheme', [id, activateAfterBlock, utxos], 'number')
