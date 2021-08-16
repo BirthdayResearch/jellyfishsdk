@@ -90,11 +90,12 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nCannot find existing loan scheme with id scheme2\', code: -32600, method: updateloanscheme')
   })
 
-  it('should updateLoanScheme after activateAfterBlock', async () => {
+  it('should updateLoanScheme at activateAfterBlock which is at block 150', async () => {
     // NOTE(jingyi2811): Wait for block 100
     await container.waitForBlockHeight(100)
 
-    const loanSchemeId = await client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme', activateAfterBlock: 120 })
+    // NOTE(jingyi2811): To update at block 150
+    const loanSchemeId = await client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme', activateAfterBlock: 150 })
 
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
@@ -115,13 +116,12 @@ describe('Loan', () => {
       }
     )
 
-    // NOTE(jingyi2811): Wait for block 120
-    await container.waitForBlockHeight(120)
+    // NOTE(jingyi2811): Wait for block 150
+    await container.waitForBlockHeight(150)
 
-    // NOTE(jingyi2811): should update at block 200
+    // NOTE(jingyi2811): should update at block 150
     result = await container.call('listloanschemes')
     data = result.filter((r: { id: string }) => r.id === 'scheme')
-
     expect(data.length).toStrictEqual(1)
     expect(data[0]).toStrictEqual(
       {
@@ -134,19 +134,19 @@ describe('Loan', () => {
   })
 
   it('should not updateLoanScheme if activateAfterBlock is less than current block', async () => {
-    // NOTE(jingyi2811): Wait for block 130
-    await container.waitForBlockHeight(130)
+    // NOTE(jingyi2811): Wait for block 200
+    await container.waitForBlockHeight(200)
 
-    // NOTE(jingyi2811): Attempt to update loan scheme on existing block
+    // NOTE(jingyi2811): Attempt to updateLoanScheme on existing block
     const promise = client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme', activateAfterBlock: 100 })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nUpdate height below current block height, set future height\', code: -32600, method: updateloanscheme')
   })
 
-  it('should not updateLoanScheme if same minConRatio and interestRatea pending loan scheme created before', async () => {
-    // NOTE(jingyi2811): Wait for block 140
-    await container.waitForBlockHeight(140)
+  it('should not updateLoanScheme if same minConRatio and interestRate pending loan scheme created before', async () => {
+    // NOTE(jingyi2811): Wait for block 250
+    await container.waitForBlockHeight(250)
 
-    await client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme', activateAfterBlock: 150 })
+    await client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme', activateAfterBlock: 300 })
     await container.generate(1)
 
     // NOTE(jingyi2811): Create new scheme
@@ -154,7 +154,7 @@ describe('Loan', () => {
 
     // NOTE(jingyi2811): Updated same minColRatio and interestRate as the pending scheme
     const promise = client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme2' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme scheme with same interestrate and mincolratio pending on block 150\', code: -32600, method: updateloanscheme')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme scheme with same interestrate and mincolratio pending on block 300\', code: -32600, method: updateloanscheme')
   })
 
   it('should updateLoanScheme with utxos', async () => {
@@ -168,7 +168,6 @@ describe('Loan', () => {
     })
 
     const loanId = await client.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme', utxos: inputs })
-
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
 
