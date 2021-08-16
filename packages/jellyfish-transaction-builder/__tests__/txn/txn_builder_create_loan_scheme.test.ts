@@ -40,32 +40,25 @@ it('should createLoanScheme', async () => {
     ratio: 200,
     rate: new BigNumber(2.5),
     identifier: 'scheme',
-    update: new BigNumber(1629104836999999999)
+    update: new BigNumber(0)
   }, script)
 
   // Ensure the created txn is correct.
-  // @TODO I face error here
-  await sendTransaction(container, txn)
-  // const outs = await sendTransaction(container, txn)
-  // expect(outs[0].value).toStrictEqual(0)
-  // expect(outs[1].value).toBeLessThan(10)
-  // expect(outs[1].value).toBeGreaterThan(9.999)
-  // expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
-  //
-  // // Ensure you don't send all your balance away during create loan scheme
-  // const prevouts = await providers.prevout.all()
-  // expect(prevouts.length).toStrictEqual(1)
-  // expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-  // expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+  const outs = await sendTransaction(container, txn)
+  expect(outs[0].value).toStrictEqual(0)
+  expect(outs[1].value).toBeLessThan(10)
+  expect(outs[1].value).toBeGreaterThan(9.999)
+  expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+  // Ensure you don't send all your balance away during create loan scheme
+  const prevouts = await providers.prevout.all()
+  expect(prevouts.length).toStrictEqual(1)
+  expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+  expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
   // Ensure loan scheme is created and has correct values
-  // const listOraclesResult = await container.call('listloanschemes')
-  // console.log(listOraclesResult)
-  // expect(listOraclesResult.length).toBeGreaterThanOrEqual(1)
-  //
-  // const txid = calculateTxid(txn)
-  // const getOracleDataResult = await container.call('getoracledata', [txid])
-  // expect(getOracleDataResult.priceFeeds.length).toStrictEqual(1)
-  // expect(getOracleDataResult.priceFeeds[0].token).toStrictEqual('TEST')
-  // expect(getOracleDataResult.priceFeeds[0].currency).toStrictEqual('USD')
+  const data = await container.call('listloanschemes')
+  expect(data).toStrictEqual([
+    { id: 'scheme', mincolratio: 200, interestrate: 2.5, default: true }
+  ])
 })

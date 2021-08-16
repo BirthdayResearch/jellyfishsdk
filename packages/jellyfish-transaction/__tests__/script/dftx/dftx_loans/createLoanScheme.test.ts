@@ -10,7 +10,7 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a20446654784cc800000080b2e60e0000000006736368656d65007241c737be9b16'
+    '6a20446654784cc800000080b2e60e0000000006736368656d650000000000000000'
   ]
 
   fixtures.forEach(hex => {
@@ -23,13 +23,13 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a20446654784c' // OP_RETURN, PUSH_DATA(446654784c, 4c)
-const data = 'c800000080b2e60e0000000006736368656d65007241c737be9b16'
+const header = '6a20446654784c' // OP_RETURN, PUSH_DATA(44665478, 4c)
+const data = 'c800000080b2e60e0000000006736368656d650000000000000000'
 const createLoanScheme: CreateLoanScheme = {
   ratio: 200,
   rate: new BigNumber(2.5),
   identifier: 'scheme',
-  update: new BigNumber(1629104836999999999)
+  update: new BigNumber(0)
 }
 
 it('should craft dftx with OP_CODES._()', () => {
