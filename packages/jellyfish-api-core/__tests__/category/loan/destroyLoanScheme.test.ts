@@ -71,7 +71,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DestroyLoanSchemeTx execution failed:\nCannot destroy default loan scheme, set new default first\', code: -32600, method: destroyloanscheme')
   })
 
-  it('should destroyLoanScheme at activateAfterBlock which is 150', async () => {
+  it('should destroyLoanScheme at activateAfterBlock which is block 150', async () => {
     await container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await container.generate(1)
 
