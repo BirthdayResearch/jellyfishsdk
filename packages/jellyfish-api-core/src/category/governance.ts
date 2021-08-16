@@ -70,7 +70,7 @@ export class Governance {
    * @return {Promise<ProposalInfo>} Information about the proposal
    */
   async getProposal (proposalId: string): Promise<ProposalInfo> {
-    return await this.client.call('getproposal', [proposalId], 'number')
+    return await this.client.call('getproposal', [proposalId], { amount: 'bignumber' })
   }
 
   /**
@@ -98,7 +98,7 @@ export class Governance {
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]> {
-    return await this.client.call('listproposals', [type, status], 'number')
+    return await this.client.call('listproposals', [type, status], { amount: 'bignumber' })
   }
 
   /**
@@ -138,7 +138,7 @@ export interface ProposalInfo {
   title: string
   type: ProposalType
   status: ProposalStatus
-  amount: number
+  amount: BigNumber
   cyclesPaid: number
   totalCycles: number
   finalizeAfter: number
