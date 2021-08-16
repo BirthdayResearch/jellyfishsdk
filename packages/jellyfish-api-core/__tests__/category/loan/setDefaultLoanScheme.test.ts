@@ -1,6 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
+import BigNumber from 'bignumber.js'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -11,10 +12,10 @@ describe('Loan', () => {
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
 
-    await container.call('createloanscheme', [100, 1, 'scheme1'])
+    await container.call('createloanscheme', [100, new BigNumber(1.5), 'scheme1'])
     await container.generate(1)
 
-    await container.call('createloanscheme', [200, 2, 'scheme2'])
+    await container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme2'])
     await container.generate(1)
   })
 
@@ -26,8 +27,7 @@ describe('Loan', () => {
     // NOTE(jingyi2811): Always set default scheme to scheme1
     const data = await container.call('listloanschemes')
     const record = data.find((d: { default: string }) => d.default)
-
-    if (record.id === 'scheme2') {
+    if (record.id !== 'scheme1') {
       await client.loan.setDefaultLoanScheme('scheme1')
       await container.generate(1)
     }
@@ -43,8 +43,8 @@ describe('Loan', () => {
     const result = await container.call('listloanschemes', [])
     expect(result).toStrictEqual(
       [
-        { id: 'scheme1', mincolratio: 100, interestrate: 1, default: false },
-        { id: 'scheme2', mincolratio: 200, interestrate: 2, default: true }
+        { id: 'scheme1', mincolratio: 100, interestrate: 1.5, default: false },
+        { id: 'scheme2', mincolratio: 200, interestrate: 2.5, default: true }
       ]
     )
   })
@@ -69,6 +69,26 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: setdefaultloanscheme')
   })
 
+  it('should not setDefaultLoanScheme if scheme is going to be deleted at future block', async () => {
+    await container.call('createloanscheme', [300, new BigNumber(3.5), 'scheme3'])
+    await container.generate(1)
+
+    // NOTE(jingyi2811): Wait for block 100
+    await container.waitForBlockHeight(100)
+
+    // NOTE(jingyi2811): To delete at block 150
+    const loanSchemeId = await container.call('destroyloanscheme', ['scheme3', 150])
+    expect(typeof loanSchemeId).toStrictEqual('string')
+    expect(loanSchemeId.length).toStrictEqual(64)
+    await container.generate(1)
+
+    const promise = client.loan.setDefaultLoanScheme('scheme3')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\nCannot set scheme3 as default, set to destroyed on block 150\', code: -32600, method: setdefaultloanscheme')
+
+    // NOTE(jingyi2811): Delete at block 150
+    await container.waitForBlockHeight(150)
+  })
+
   it('should setDefaultLoanScheme with utxos', async () => {
     const address = await container.call('getnewaddress')
     const utxos = await container.call('listunspent', [1, 9999999, [address], true])
@@ -89,8 +109,8 @@ describe('Loan', () => {
     const result = await container.call('listloanschemes', [])
     expect(result).toStrictEqual(
       [
-        { id: 'scheme1', mincolratio: 100, interestrate: 1, default: false },
-        { id: 'scheme2', mincolratio: 200, interestrate: 2, default: true }
+        { id: 'scheme1', mincolratio: 100, interestrate: 1.5, default: false },
+        { id: 'scheme2', mincolratio: 200, interestrate: 2.5, default: true }
       ]
     )
   })
