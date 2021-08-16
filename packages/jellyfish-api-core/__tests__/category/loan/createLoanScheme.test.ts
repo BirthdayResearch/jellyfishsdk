@@ -15,6 +15,14 @@ describe('Loan', () => {
     // NOTE(jingyi2811): default scheme
     await client.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'default' })
     await container.generate(1)
+
+    await client.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'default' })
+
+    // const x = await container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme', 0])
+    // const tx: any = await client.call('getrawtransaction', [x, true], 'bignumber')
+    // console.log(tx.vout[0].scriptPubKey)
+
+    await container.generate(1)
   })
 
   afterEach(async () => {
@@ -39,7 +47,6 @@ describe('Loan', () => {
     expect(loanSchemeId.length).toStrictEqual(64)
 
     await container.generate(1)
-
     const result = await container.call('listloanschemes')
     const data = result.filter((r: { id: string }) => r.id === 'scheme1')
 
@@ -93,6 +100,9 @@ describe('Loan', () => {
 
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
+
+    const tx: any = await client.call('getrawtransaction', [loanSchemeId, true], 'bignumber')
+    console.log(tx.vout[0].scriptPubKey)
 
     await container.generate(1)
 

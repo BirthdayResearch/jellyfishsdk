@@ -5,9 +5,10 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 /* eslint-disable no-return-assign */
 
 export interface CreateLoanScheme {
-  minColRatio: number
-  interestRate: BigNumber
-  id: string
+  ratio: number
+  rate: BigNumber
+  identifier: string
+  update: BigNumber
 }
 
 export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
@@ -16,9 +17,10 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
 
   composers (cls: CreateLoanScheme): BufferComposer[] {
     return [
-      ComposableBuffer.uInt32(() => cls.minColRatio, v => cls.minColRatio = v),
-      ComposableBuffer.satoshiAsBigNumber(() => cls.interestRate, v => cls.interestRate = v),
-      ComposableBuffer.varUIntUtf8BE(() => cls.id, v => cls.id = v)
+      ComposableBuffer.uInt32(() => cls.ratio, v => cls.ratio = v),
+      ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
+      ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
+      ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
     ]
   }
 }
