@@ -1,3 +1,4 @@
+import randomBytes from 'randombytes'
 import * as bip39 from 'bip39'
 
 /**
@@ -33,10 +34,10 @@ export function validateMnemonicWord (word: string): boolean {
  * |  256  |  8 |   264  |  24  |
  *
  * @param {number} length the sentence length of the mnemonic code
- * @param {(number) => Buffer} rng random number generation, generate random num of bytes buffer
+ * @param {(number) => Buffer} [rng = randomBytes] cryptographically strong random values generator required
  * @return {string[]} generated mnemonic word list, (COLD STORAGE)
  */
-export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng?: (numOfBytes: number) => Buffer): string[] {
+export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng: (numOfBytes: number) => Buffer = randomBytes): string[] {
   const entropy = length / 3 * 32
   const sentence = bip39.generateMnemonic(entropy, rng)
   return sentence.split(' ')
