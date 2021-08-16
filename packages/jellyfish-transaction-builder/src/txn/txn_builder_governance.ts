@@ -71,15 +71,9 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async vote (vote: Vote, changeScript: Script): Promise<TransactionSegWit> {
-    // if (vote.type !== 0x01) {
-    //   throw new TxnBuilderError(TxnBuilderErrorType.VOTE,
-    //     'vote type should equal 0x01'
-    //   )
-    // }
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_VOTE(vote),
-      changeScript,
-      new BigNumber('1') // For creation fee (regtest - 1, other than regtest - 10)
+      changeScript
     )
   }
 }
