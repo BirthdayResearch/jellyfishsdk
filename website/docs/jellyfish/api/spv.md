@@ -57,10 +57,10 @@ Send a Bitcoin amount to a given address.
 
 ```ts title="client.spv.sendToAddress()"
 interface spv {
-  sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult>
+  sendToAddress (address: string, amount: BigNumber, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult>
 }
 
-interface SendToAddressOptions {
+interface SpvDefaultOptions {
   feeRate?: BigNumber
 }
 
@@ -136,5 +136,24 @@ Returns the HTLC secret if available.
 ```ts title="client.spv.getHtlcSeed()"
 interface spv {
   getHtlcSeed (address: string): Promise<string>
+}
+```
+
+## refundHtlc
+
+Refunds all coins in HTLC address.
+
+```ts title="client.spv.refundHtlc()"
+interface spv {
+  refundHtlc (scriptAddress: string, destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult>
+}
+
+interface SpvDefaultOptions {
+  feeRate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
 }
 ```
