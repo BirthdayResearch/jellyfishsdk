@@ -37,7 +37,8 @@ describe('Loan', () => {
   })
 
   it('should update loan scheme', async () => {
-    const loanId = await client.loan.updateLoanScheme(200, new BigNumber(2.5), { identifier: 'scheme', activateAfterBlock: 150 })
+    const loanId = await client.loan.updateLoanScheme(200, new BigNumber(2.5), { identifier: 'scheme' })
+    await container.generate(1)
 
     const tx: any = await client.call('getrawtransaction', [loanId, true], 'bignumber')
     console.log(tx.vout[0].scriptPubKey)
