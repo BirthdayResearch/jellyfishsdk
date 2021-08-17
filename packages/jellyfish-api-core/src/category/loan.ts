@@ -2,7 +2,7 @@ import { ApiClient } from '../.'
 import BigNumber from 'bignumber.js'
 
 /**
- * loan RPCs for DeFi Blockchain
+ * Loan RPCs for DeFi Blockchain
  */
 export class Loan {
   private readonly client: ApiClient
@@ -16,12 +16,12 @@ export class Loan {
    *
    * @param {number} minColRatio
    * @param {BigNumber} interestRate
-   * @param {CreateLoanSchemeOptions} [options]
+   * @param {CreateLoanSchemeOptions} options
    * @param {string} options.id
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} schemeId, also the txn id for txn created to create loan scheme
+   * @return {Promise<string>} loanSchemeId, also the txn id for txn created to create loan scheme
    */
   async createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanSchemeOptions): Promise<string> {
     const { utxos = [] } = options
