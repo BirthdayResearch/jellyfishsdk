@@ -9,7 +9,7 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
  */
 export interface CreateMasternode {
   operatorType: number // --------------------------| 1 byte, 0x01 = p2pkh, 0x04 = p2wpkh
-  operatorAuthAddress: string // -------------------| VarUInt{20 bytes}
+  operatorPubKeyHash: string // -------------------| VarUInt{20 bytes}
   timelock?: number // -----------------------------| 2 bytes, 0x0401 = 5 years, 0x0802 = 10 years
 }
 
@@ -24,7 +24,7 @@ export class CCreateMasternode extends ComposableBuffer<CreateMasternode> {
   composers (cmn: CreateMasternode): BufferComposer[] {
     return [
       ComposableBuffer.uInt8(() => cmn.operatorType, v => cmn.operatorType = v),
-      ComposableBuffer.hex(20, () => cmn.operatorAuthAddress, v => cmn.operatorAuthAddress = v),
+      ComposableBuffer.hex(20, () => cmn.operatorPubKeyHash, v => cmn.operatorPubKeyHash = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           if (buffer.remaining() > 0) {

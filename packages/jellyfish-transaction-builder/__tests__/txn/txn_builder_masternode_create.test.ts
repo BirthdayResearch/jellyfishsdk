@@ -54,7 +54,7 @@ describe('CreateMasternode', () => {
 
     const createMasternode: CreateMasternode = {
       operatorType: 0x01,
-      operatorAuthAddress: addressDestHex
+      operatorPubKeyHash: addressDestHex
     }
 
     const script = await providers.elliptic.script()
@@ -100,7 +100,7 @@ describe('CreateMasternode', () => {
 
     const createMasternode: CreateMasternode = {
       operatorType: 0x04,
-      operatorAuthAddress: addressDestKeyHash
+      operatorPubKeyHash: addressDestKeyHash
     }
 
     const script = await providers.elliptic.script()
@@ -138,7 +138,7 @@ describe('CreateMasternode', () => {
 
     const createMasternode: CreateMasternode = {
       operatorType: 0x02,
-      operatorAuthAddress: addressDestKeyHash
+      operatorPubKeyHash: addressDestKeyHash
     }
 
     const script = await providers.elliptic.script()
@@ -166,7 +166,7 @@ describe('CreateMasternode', () => {
 
     const createMasternode: CreateMasternode = {
       operatorType: 0x01,
-      operatorAuthAddress: addressDestHex
+      operatorPubKeyHash: addressDestHex
     }
 
     await fundEllipticPair(container, providers.ellipticPair, 1.1)
@@ -226,7 +226,7 @@ describe('CreateMasternode with timelock', () => {
 
     const createMasternode: CreateMasternode = {
       operatorType: 0x04,
-      operatorAuthAddress: addressDestKeyHash,
+      operatorPubKeyHash: addressDestKeyHash,
       timelock: 0x0104
     }
 
@@ -266,7 +266,7 @@ describe('CreateMasternode with timelock', () => {
 
     const createMasternode: CreateMasternode = {
       operatorType: 0x04,
-      operatorAuthAddress: addressDestKeyHash,
+      operatorPubKeyHash: addressDestKeyHash,
       timelock: 0x0410 // 20 years
     }
 

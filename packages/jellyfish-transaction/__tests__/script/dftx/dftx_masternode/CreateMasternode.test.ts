@@ -29,16 +29,16 @@ it('should bi-directional buffer-object-buffer', () => {
 
 describe('CreateMasternode', () => {
   const header = '6a1a4466547843' // OP_RETURN(0x6a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasternode.OP_CODE(0x43)
-  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff)
-  const createMasterNode: CreateMasternode = {
+  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorPubKeyHash(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff)
+  const createMasternode: CreateMasternode = {
     operatorType: 0x01,
-    operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
+    operatorPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
   }
 
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
+      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode)
     ]
 
     const buffer = toBuffer(stack)
@@ -49,11 +49,11 @@ describe('CreateMasternode', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CCreateMasternode(buffer)
-      expect(composable.toObject()).toStrictEqual(createMasterNode)
+      expect(composable.toObject()).toStrictEqual(createMasternode)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CCreateMasternode(createMasterNode)
+      const composable = new CCreateMasternode(createMasternode)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
@@ -64,17 +64,17 @@ describe('CreateMasternode', () => {
 
 describe('CreateMasternode with timelock', () => {
   const header = '6a1c4466547843' // OP_RETURN(0x1a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasternode.OP_CODE(0x43)
-  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff0802' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorAuthAddress(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff) CreateMasternode.timelock(0x0802)
-  const createMasterNode: CreateMasternode = {
+  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff0802' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorPubKeyHash(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff) CreateMasternode.timelock(0x0802)
+  const createMasternode: CreateMasternode = {
     operatorType: 0x01,
-    operatorAuthAddress: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
+    operatorPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
     timelock: 0x0208
   }
 
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
+      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode)
     ]
 
     const buffer = toBuffer(stack)
@@ -85,11 +85,11 @@ describe('CreateMasternode with timelock', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CCreateMasternode(buffer)
-      expect(composable.toObject()).toStrictEqual(createMasterNode)
+      expect(composable.toObject()).toStrictEqual(createMasternode)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CCreateMasternode(createMasterNode)
+      const composable = new CCreateMasternode(createMasternode)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
