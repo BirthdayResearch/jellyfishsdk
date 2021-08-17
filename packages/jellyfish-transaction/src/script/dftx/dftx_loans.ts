@@ -1,9 +1,12 @@
-import BigNumber from 'bignumber.js'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import BigNumber from 'bignumber.js'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
 
+/**
+ * CreateLoanScheme DeFi Transaction
+ */
 export interface CreateLoanScheme {
   ratio: number
   rate: BigNumber
@@ -11,6 +14,10 @@ export interface CreateLoanScheme {
   update: bigint
 }
 
+/**
+ * Composable CCreateLoanScheme, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
   static OP_CODE = 0x4c
   static OP_NAME = 'OP_DEFI_TX_CREATE_LOAN_SCHEME'

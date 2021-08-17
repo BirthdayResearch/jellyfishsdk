@@ -18,9 +18,6 @@ beforeAll(async () => {
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-  // Prep 1000 DFI Token for testing
-  await container.waitForWalletBalanceGTE(1001)
-
   // NOTE(jingyi2811): default scheme
   await container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
   await container.generate(1)
@@ -31,8 +28,6 @@ afterAll(async () => {
 })
 
 beforeEach(async () => {
-  await container.waitForWalletBalanceGTE(11)
-
   // Fund 10 DFI UTXO
   await fundEllipticPair(container, providers.ellipticPair, 10)
   await providers.setupMocks() // required to move utxos
@@ -74,7 +69,6 @@ it('should createLoanScheme', async () => {
   // Ensure loan scheme is created and has correct values
   const data = await container.call('listloanschemes')
   const result = data.filter((r: { id: string }) => r.id === 'scheme')
-
   expect(result.length).toStrictEqual(1)
   expect(result[0]).toStrictEqual(
     { id: 'scheme', mincolratio: 200, interestrate: 2.5, default: false }
