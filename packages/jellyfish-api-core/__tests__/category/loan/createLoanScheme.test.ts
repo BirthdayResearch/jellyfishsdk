@@ -90,7 +90,7 @@ describe('Loan', () => {
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await container.call('listloanschemes')
+    const data = await testing.container.call('listloanschemes')
     const result = data.filter((d: { id: string }) => d.id === 'scheme1')
     expect(result.length).toStrictEqual(1)
     expect(result[0]).toStrictEqual(
@@ -99,7 +99,7 @@ describe('Loan', () => {
   })
 
   it('should not createLoanScheme with arbritary utxos', async () => {
-    const { txid, vout } = await container.fundAddress(await testing.generateAddress(), 10)
+    const { txid, vout } = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme', utxos: [{ txid, vout }] })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: createloanscheme')
   })
