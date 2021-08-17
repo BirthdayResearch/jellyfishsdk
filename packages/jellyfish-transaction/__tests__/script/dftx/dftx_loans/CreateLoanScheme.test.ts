@@ -23,7 +23,8 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a20446654784c' // OP_RETURN, PUSH_DATA(44665478, 4c)
+const header = '6a20446654784c' // OP_RETURN(0x1a) OP_PUSHDATA1(0x20) CDfTx.SIGNATURE(0x44665478) CCreateLoanScheme.OP_CODE(0x4c)
+
 const data = 'c800000080b2e60e0000000006736368656d650000000000000000'
 const createLoanScheme: CreateLoanScheme = {
   ratio: 200,
