@@ -13,17 +13,17 @@ describe('Loan', () => {
 
     // NOTE(jingyi2811): Default scheme
     await testing.rpc.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'default' })
-    await container.generate(1)
+    await testing.generate(1)
   })
 
   afterEach(async () => {
-    const data = await container.call('listloanschemes')
+    const data = await testing.container.call('listloanschemes')
     const result = data.filter((d: { default: boolean }) => !d.default)
 
     for (let i = 0; i < result.length; i += 1) {
       // NOTE(jingyi2811): Delete all schemes except default scheme
-      await container.call('destroyloanscheme', [result[i].id])
-      await container.generate(1)
+      await testing.container.call('destroyloanscheme', [result[i].id])
+      await testing.generate(1)
     }
   })
 
@@ -35,9 +35,9 @@ describe('Loan', () => {
     const loanSchemeId = await testing.rpc.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1' })
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
-    await container.generate(1)
+    await testing.generate(1)
 
-    const data = await container.call('listloanschemes')
+    const data = await testing.container.call('listloanschemes')
     const result = data.filter((d: { id: string }) => d.id === 'scheme1')
     expect(result.length).toStrictEqual(1)
     expect(result[0]).toStrictEqual(
@@ -76,8 +76,8 @@ describe('Loan', () => {
   })
 
   it('should createLoanScheme with utxos', async () => {
-    const address = await container.call('getnewaddress')
-    const utxos = await container.call('listunspent', [1, 9999999, [address], true])
+    const address = await testing.generateAddress()
+    const utxos = await testing.container.call('listunspent', [1, 9999999, [address], true])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
@@ -88,7 +88,7 @@ describe('Loan', () => {
     const loanSchemeId = await testing.rpc.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1', utxos: inputs })
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
-    await container.generate(1)
+    await testing.generate(1)
 
     const data = await container.call('listloanschemes')
     const result = data.filter((d: { id: string }) => d.id === 'scheme1')
@@ -99,7 +99,7 @@ describe('Loan', () => {
   })
 
   it('should not createLoanScheme with arbritary utxos', async () => {
-    const { txid, vout } = await container.fundAddress(await container.call('getnewaddress'), 10)
+    const { txid, vout } = await container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme', utxos: [{ txid, vout }] })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: createloanscheme')
   })
