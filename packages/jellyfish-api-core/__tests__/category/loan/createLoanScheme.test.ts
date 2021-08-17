@@ -35,7 +35,6 @@ describe('Loan', () => {
     const loanSchemeId = await client.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1' })
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
-
     await container.generate(1)
 
     const data = await container.call('listloanschemes')
@@ -89,7 +88,6 @@ describe('Loan', () => {
     const loanSchemeId = await client.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme1', utxos: inputs })
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
-
     await container.generate(1)
 
     const data = await container.call('listloanschemes')
