@@ -13,7 +13,6 @@ import { Masternode } from './category/masternode'
 import { ICXOrderBook } from './category/icxorderbook'
 import { Governance } from './category/governance'
 import { Spv } from './category/spv'
-import { Loan } from './category/loan'
 
 export * from '@defichain/jellyfish-json'
 
@@ -30,7 +29,6 @@ export * as server from './category/server'
 export * as masternode from './category/masternode'
 export * as governance from './category/governance'
 export * as spv from './category/spv'
-export * as loan from './category/loan'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -50,7 +48,6 @@ export abstract class ApiClient {
   public readonly icxorderbook = new ICXOrderBook(this)
   public readonly governance = new Governance(this)
   public readonly spv = new Spv(this)
-  public readonly loan = new Loan(this)
 
   /**
    * A promise based procedure call handling
