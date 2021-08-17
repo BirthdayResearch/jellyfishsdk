@@ -158,4 +158,32 @@ describe('create ICX order', () => {
 
     await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1000000')
   })
+
+  it('should reject invalid negative amountFrom', async () => {
+    const script = await providers.elliptic.script()
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.EXTERNAL,
+      tokenId: 0,
+      ownerAddress: script,
+      amountFrom: new BigNumber(-15),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1500000000')
+  })
+
+  it('should reject invalid negative expiry', async () => {
+    const script = await providers.elliptic.script()
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.EXTERNAL,
+      tokenId: 0,
+      ownerAddress: script,
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01),
+      expiry: -2880
+    }
+
+    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -2880')
+  })
 })
