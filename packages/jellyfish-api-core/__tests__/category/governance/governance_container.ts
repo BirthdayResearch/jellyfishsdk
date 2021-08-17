@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer, StartOptions, GenesisKeys } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 
 export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor () {
@@ -10,9 +10,7 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
     return [
       ...cmd,
       '-fortcanningheight=8',
-      '-dummypos=0', // Needed to expire proposals
-      `-masternode_operator=${GenesisKeys[1].operator.address}`,
-      `-masternode_operator=${GenesisKeys[2].operator.address}`
+      '-dummypos=0' // Needed to expire proposals
     ]
   }
 }
