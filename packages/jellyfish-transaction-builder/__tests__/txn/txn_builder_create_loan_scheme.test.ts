@@ -5,42 +5,45 @@ import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { BigNumber } from '@defichain/jellyfish-json'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { Testing } from '@defichain/jellyfish-testing'
 
 const container = new LoanMasterNodeRegTestContainer()
+const testing = Testing.create(container)
+
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
 beforeAll(async () => {
-  await container.start()
-  await container.waitForWalletCoinbaseMaturity()
+  await testing.container.start()
+  await testing.container.waitForWalletCoinbaseMaturity()
 
-  providers = await getProviders(container)
+  providers = await getProviders(testing.container)
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
   // NOTE(jingyi2811): default scheme
-  await container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-  await container.generate(1)
+  await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+  await testing.container.generate(1)
 })
 
 afterAll(async () => {
-  await container.stop()
+  await testing.container.stop()
 })
 
 beforeEach(async () => {
   // Fund 10 DFI UTXO
-  await fundEllipticPair(container, providers.ellipticPair, 10)
+  await fundEllipticPair(testing.container, providers.ellipticPair, 10)
   await providers.setupMocks() // required to move utxos
 })
 
 afterEach(async () => {
-  const result = await container.call('listloanschemes')
+  const result = await testing.container.call('listloanschemes')
   const data = result.filter((r: { default: boolean }) => !r.default)
 
   for (let i = 0; i < data.length; i += 1) {
     // NOTE(jingyi2811): Delete all schemes except default scheme
-    await container.call('destroyloanscheme', [data[i].id])
-    await container.generate(1)
+    await testing.container.call('destroyloanscheme', [data[i].id])
+    await testing.container.generate(1)
   }
 })
 
@@ -55,7 +58,7 @@ describe('loan.createLoanScheme()', () => {
     }, script)
 
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
@@ -68,7 +71,7 @@ describe('loan.createLoanScheme()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
     // Ensure loan scheme is created and has correct values
-    const data = await container.call('listloanschemes')
+    const data = await testing.container.call('listloanschemes')
     const result = data.filter((r: { id: string }) => r.id === 'scheme')
     expect(result.length).toStrictEqual(1)
     expect(result[0]).toStrictEqual(
@@ -85,7 +88,7 @@ describe('loan.createLoanScheme()', () => {
       update: new BigNumber(0)
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100 (code 16)\', code: -26')
   })
@@ -99,7 +102,7 @@ describe('loan.createLoanScheme()', () => {
       update: new BigNumber(0)
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01 (code 16)\', code: -26')
   })
@@ -113,7 +116,7 @@ describe('loan.createLoanScheme()', () => {
       update: new BigNumber(0)
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
@@ -127,7 +130,7 @@ describe('loan.createLoanScheme()', () => {
       update: new BigNumber(0)
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
