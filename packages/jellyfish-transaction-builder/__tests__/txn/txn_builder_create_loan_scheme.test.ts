@@ -44,89 +44,91 @@ afterEach(async () => {
   }
 })
 
-it('should createLoanScheme', async () => {
-  const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    ratio: 200,
-    rate: new BigNumber(2.5),
-    identifier: 'scheme',
-    update: new BigNumber(0)
-  }, script)
+describe('loan.createLoanScheme()', () => {
+  it('should createLoanScheme', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({
+      ratio: 200,
+      rate: new BigNumber(2.5),
+      identifier: 'scheme',
+      update: new BigNumber(0)
+    }, script)
 
-  // Ensure the created txn is correct.
-  const outs = await sendTransaction(container, txn)
-  expect(outs[0].value).toStrictEqual(0)
-  expect(outs[1].value).toBeLessThan(10)
-  expect(outs[1].value).toBeGreaterThan(9.999)
-  expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+    // Ensure the created txn is correct.
+    const outs = await sendTransaction(container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-  // Ensure you don't send all your balance away during create loan scheme
-  const prevouts = await providers.prevout.all()
-  expect(prevouts.length).toStrictEqual(1)
-  expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-  expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+    // Ensure you don't send all your balance away during create loan scheme
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-  // Ensure loan scheme is created and has correct values
-  const data = await container.call('listloanschemes')
-  const result = data.filter((r: { id: string }) => r.id === 'scheme')
-  expect(result.length).toStrictEqual(1)
-  expect(result[0]).toStrictEqual(
-    { id: 'scheme', mincolratio: 200, interestrate: 2.5, default: false }
-  )
-})
+    // Ensure loan scheme is created and has correct values
+    const data = await container.call('listloanschemes')
+    const result = data.filter((r: { id: string }) => r.id === 'scheme')
+    expect(result.length).toStrictEqual(1)
+    expect(result[0]).toStrictEqual(
+      { id: 'scheme', mincolratio: 200, interestrate: 2.5, default: false }
+    )
+  })
 
-it('should not createLoanScheme if ratio is less than 100', async () => {
-  const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    ratio: 99,
-    rate: new BigNumber(2.5),
-    identifier: 'scheme',
-    update: new BigNumber(0)
-  }, script)
+  it('should not createLoanScheme if ratio is less than 100', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({
+      ratio: 99,
+      rate: new BigNumber(2.5),
+      identifier: 'scheme',
+      update: new BigNumber(0)
+    }, script)
 
-  const promise = sendTransaction(container, txn)
-  await expect(promise).rejects.toThrow(DeFiDRpcError)
-  await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100 (code 16)\', code: -26')
-})
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('LoanSchemeTx: minimum collateral ratio cannot be less than 100 (code 16)\', code: -26')
+  })
 
-it('should not createLoanScheme if rate is less than 0.01', async () => {
-  const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    ratio: 200,
-    rate: new BigNumber(0.0099),
-    identifier: 'scheme',
-    update: new BigNumber(0)
-  }, script)
+  it('should not createLoanScheme if rate is less than 0.01', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({
+      ratio: 200,
+      rate: new BigNumber(0.0099),
+      identifier: 'scheme',
+      update: new BigNumber(0)
+    }, script)
 
-  const promise = sendTransaction(container, txn)
-  await expect(promise).rejects.toThrow(DeFiDRpcError)
-  await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01 (code 16)\', code: -26')
-})
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01 (code 16)\', code: -26')
+  })
 
-it('should not createLoanScheme if identifier is an empty string', async () => {
-  const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    ratio: 200,
-    rate: new BigNumber(2.5),
-    identifier: '',
-    update: new BigNumber(0)
-  }, script)
+  it('should not createLoanScheme if identifier is an empty string', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({
+      ratio: 200,
+      rate: new BigNumber(2.5),
+      identifier: '',
+      update: new BigNumber(0)
+    }, script)
 
-  const promise = sendTransaction(container, txn)
-  await expect(promise).rejects.toThrow(DeFiDRpcError)
-  await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
-})
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+  })
 
-it('should not createLoanScheme if identifier is more than 8 chars', async () => {
-  const script = await providers.elliptic.script()
-  const txn = await builder.loans.createLoanScheme({
-    ratio: 200,
-    rate: new BigNumber(2.5),
-    identifier: '123456789',
-    update: new BigNumber(0)
-  }, script)
+  it('should not createLoanScheme if identifier is more than 8 chars', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({
+      ratio: 200,
+      rate: new BigNumber(2.5),
+      identifier: '123456789',
+      update: new BigNumber(0)
+    }, script)
 
-  const promise = sendTransaction(container, txn)
-  await expect(promise).rejects.toThrow(DeFiDRpcError)
-  await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
+  })
 })

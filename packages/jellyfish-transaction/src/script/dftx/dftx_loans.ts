@@ -8,10 +8,10 @@ import BigNumber from 'bignumber.js'
  * CreateLoanScheme DeFi Transaction
  */
 export interface CreateLoanScheme {
-  ratio: number // -------------------| 4 bytes unsigned
-  rate: BigNumber // -------------| 8 bytes
-  identifier: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  update: BigNumber // ---------------| 8 bytes unsigned integer, 0 for createLoanScheme, 1 for updateLoanScheme
+  ratio: number // -----------------------| 4 bytes unsigned
+  rate: BigNumber // ---------------------| 8 bytes
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  update: BigNumber // -------------------| 8 bytes unsigned integer, 0 for createLoanScheme, 1 for updateLoanScheme
 }
 
 /**
