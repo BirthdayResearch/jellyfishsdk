@@ -45,7 +45,7 @@ describe('Loan', () => {
     )
   })
 
-  it('should not createLoanScheme if minConRatio is less than 100', async () => {
+  it('should not createLoanScheme if minColRatio is less than 100', async () => {
     const promise = client.loan.createLoanScheme(99, new BigNumber(2.5), { id: 'scheme2' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nminimum collateral ratio cannot be less than 100\', code: -32600, method: createloanscheme')
   })
@@ -55,8 +55,8 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\ninterest rate cannot be less than 0.01\', code: -32600, method: createloanscheme')
   })
 
-  it('should not createLoanScheme if same minConRatio and interestRate were created before', async () => {
-    const promise = client.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'scheme2' }) // NOTE(jingyi2811): Failed because its minConRatio and interestRate are same as default
+  it('should not createLoanScheme if same minColRatio and interestRate were created before', async () => {
+    const promise = client.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'scheme2' }) // NOTE(jingyi2811): Failed because its minColRatio and interestRate are same as default
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme default with same interestrate and mincolratio already exists\', code: -32600, method: createloanscheme')
   })
 

@@ -14,14 +14,14 @@ export class Loan {
   /**
    * Creates a loan scheme transaction.
    *
-   * @param {number} minColRatio
-   * @param {BigNumber} interestRate
+   * @param {number} minColRatio Minimum collateralization ratio
+   * @param {BigNumber} interestRate Interest rate
    * @param {CreateLoanSchemeOptions} options
-   * @param {string} options.id
-   * @param {UTXO[]} [options.utxos = []]
-   * @param {string} [options.utxos.txid]
-   * @param {number} [options.utxos.vout]
-   * @return {Promise<string>} loanSchemeId, also the txn id for txn created to create loan scheme
+   * @param {string} options.id Unique identifier of the loan scheme
+   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
+   * @param {string} [options.utxos.txid] Transaction Id
+   * @param {number} [options.utxos.vout] Output number
+   * @return {Promise<string>} LoanSchemeId, also the txn id for txn created to create loan scheme
    */
   async createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanSchemeOptions): Promise<string> {
     const { utxos = [] } = options
