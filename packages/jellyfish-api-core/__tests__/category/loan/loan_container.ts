@@ -6,9 +6,8 @@ export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   }
 
   protected getCmd (opts: StartOptions): string[] {
-    const cmd = super.getCmd(opts).filter(cmd => cmd !== '-eunospayaheight=7') // temporary remove -eunospayaheight=7 due to invalid flag
     return [
-      ...cmd,
+      ...super.getCmd(opts),
       '-fortcanningheight=8'
     ]
   }
