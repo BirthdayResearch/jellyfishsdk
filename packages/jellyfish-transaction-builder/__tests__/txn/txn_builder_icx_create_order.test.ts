@@ -3,53 +3,49 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction, TxOut } from '../test.utils'
 import { OP_CODES, ICXCreateOrder, ICXOrderType } from '@defichain/jellyfish-transaction'
-import { idDFI, accountBTC, accountDFI, ICXSetup, symbolDFI } from '../../../jellyfish-api-core/__tests__/category/icxorderbook/icx_setup'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { ContainerAdapterClient } from '../../../jellyfish-api-core/__tests__/container_adapter_client'
 import BigNumber from 'bignumber.js'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('create ICX order', () => {
-  const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
-  const icxSetup = new ICXSetup(container, client)
+  const testing = Testing.create(new MasterNodeRegTestContainer())
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to testing.container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    await providers.randomizeEllipticPair()
-    await container.waitForWalletBalanceGTE(11)
-    await providers.setupMocks()
-    await fundEllipticPair(container, providers.ellipticPair, 50)
+    await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
+    await testing.container.generate(1)
+    await testing.fixture.createPoolPair({
+      a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
+      b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
+    })
+    testing.icxorderbook.DEX_DFI_PER_BTC_RATE = new BigNumber(100 / 1)
+    await testing.icxorderbook.setTakerFee(new BigNumber(0.001))
+    await testing.icxorderbook.initializeTokensIds()
 
-    // steps required for ICX setup
-    await icxSetup.setAccounts(await providers.getAddress(), await providers.getAddress())
-    await icxSetup.createBTCToken()
-    await icxSetup.initializeTokensIds()
-    await icxSetup.mintBTCtoken(100)
-    await icxSetup.fundAccount(accountDFI, symbolDFI, 500)
-    await icxSetup.fundAccount(accountBTC, symbolDFI, 10) // for fee
-    await icxSetup.createBTCDFIPool()
-    await icxSetup.addLiquidityToBTCDFIPool(1, 100)
-    await icxSetup.setTakerFee(0.001)
+    await testing.container.waitForWalletBalanceGTE(10)
+    await fundEllipticPair(testing.container, providers.elliptic.ellipticPair, 10)
+    await providers.setupMocks()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   afterEach(async () => {
-    await icxSetup.closeAllOpenOffers()
+    await testing.icxorderbook.closeAllOpenOffers()
   })
 
   async function assertTxOuts (outs: TxOut[], expectedRedeemScript: string): Promise<void> {
-    expect(outs.length).toEqual(2)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
@@ -69,7 +65,7 @@ describe('create ICX order', () => {
     const script = await providers.elliptic.script()
     const icxOrder: ICXCreateOrder = {
       orderType: ICXOrderType.INTERNAL,
-      tokenId: parseInt(idDFI),
+      tokenId: parseInt(testing.icxorderbook.idDFI),
       ownerAddress: script,
       receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
       amountFrom: new BigNumber(15),
@@ -82,14 +78,14 @@ describe('create ICX order', () => {
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     await assertTxOuts(outs, expectedRedeemScript)
 
-    const listOrders = await container.call('icx_listorders')
+    const listOrders = await testing.rpc.icxorderbook.listOrders()
     const txid = calculateTxid(txn)
     const order = listOrders[txid]
 
-    const currentHeight: number = await container.call('getblockcount') // Get current block count to calculate expiry
+    const currentHeight: number = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOrder.expiry
 
     expect(order).toStrictEqual({
@@ -98,13 +94,13 @@ describe('create ICX order', () => {
       tokenFrom: 'DFI',
       chainTo: 'BTC',
       receivePubkey: icxOrder.receivePubkey,
-      amountFrom: icxOrder.amountFrom.toNumber(),
-      amountToFill: icxOrder.amountFrom.toNumber(),
-      orderPrice: icxOrder.orderPrice.toNumber(),
-      amountToFillInToAsset: icxOrder.amountFrom.multipliedBy(icxOrder.orderPrice).toNumber(),
+      amountFrom: icxOrder.amountFrom,
+      amountToFill: icxOrder.amountFrom,
+      orderPrice: icxOrder.orderPrice,
+      amountToFillInToAsset: icxOrder.amountFrom.multipliedBy(icxOrder.orderPrice),
       ownerAddress: await providers.getAddress(),
-      height: currentHeight,
-      expireHeight: expectedExpireHeight
+      height: new BigNumber(currentHeight),
+      expireHeight: new BigNumber(expectedExpireHeight)
     })
   })
 
@@ -112,7 +108,7 @@ describe('create ICX order', () => {
     const script = await providers.elliptic.script()
     const icxOrder: ICXCreateOrder = {
       orderType: ICXOrderType.EXTERNAL,
-      tokenId: parseInt(idDFI),
+      tokenId: parseInt(testing.icxorderbook.idDFI),
       ownerAddress: script,
       amountFrom: new BigNumber(2),
       orderPrice: new BigNumber(1000),
@@ -124,14 +120,14 @@ describe('create ICX order', () => {
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     await assertTxOuts(outs, expectedRedeemScript)
 
-    const listOrders = await container.call('icx_listorders')
+    const listOrders = await testing.rpc.icxorderbook.listOrders()
     const txid = calculateTxid(txn)
     const order = listOrders[txid]
 
-    const currentHeight: number = await container.call('getblockcount') // Get current block count to calculate expiry
+    const currentHeight = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOrder.expiry
 
     expect(order).toStrictEqual({
@@ -139,13 +135,13 @@ describe('create ICX order', () => {
       type: 'EXTERNAL',
       chainFrom: 'BTC',
       tokenTo: 'DFI',
-      amountFrom: icxOrder.amountFrom.toNumber(),
-      amountToFill: icxOrder.amountFrom.toNumber(),
-      orderPrice: icxOrder.orderPrice.toNumber(),
-      amountToFillInToAsset: icxOrder.amountFrom.multipliedBy(icxOrder.orderPrice).toNumber(),
+      amountFrom: icxOrder.amountFrom,
+      amountToFill: icxOrder.amountFrom,
+      orderPrice: icxOrder.orderPrice,
+      amountToFillInToAsset: icxOrder.amountFrom.multipliedBy(icxOrder.orderPrice),
       ownerAddress: await providers.getAddress(),
-      height: currentHeight,
-      expireHeight: expectedExpireHeight
+      height: new BigNumber(currentHeight),
+      expireHeight: new BigNumber(expectedExpireHeight)
     })
   })
 
