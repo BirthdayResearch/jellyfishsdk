@@ -61,7 +61,7 @@ interface ProposalInfo {
   title: string
   type: ProposalType
   status: ProposalStatus
-  amount: number
+  amount: BigNumber
   cyclesPaid: number
   totalCycles: number
   finalizeAfter: number
@@ -127,7 +127,7 @@ interface ProposalInfo {
   title: string
   type: ProposalType
   status: ProposalStatus
-  amount: number
+  amount: BigNumber
   cyclesPaid: number
   totalCycles: number
   finalizeAfter: number

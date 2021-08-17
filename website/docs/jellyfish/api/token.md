@@ -141,10 +141,8 @@ Creates a transaction to mint tokens.
 
 ```ts title="client.token.mintTokens()"
 interface token {
-  mintTokens (payload: TokenRegexType, utxos: UTXO[] = []): Promise<string>
+  mintTokens (amountToken: string, utxos: UTXO[] = []): Promise<string>
 }
-
-type TokenRegexType = `${number}@${string}`
 
 interface UTXO {
   txid: string
