@@ -15,7 +15,7 @@ export interface CreateLoanScheme {
 }
 
 /**
- * Composable CCreateLoanScheme, C stands for Composable.
+ * Composable CreateLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
