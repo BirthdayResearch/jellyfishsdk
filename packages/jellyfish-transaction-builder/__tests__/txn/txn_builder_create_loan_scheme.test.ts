@@ -23,7 +23,7 @@ beforeAll(async () => {
 
   // NOTE(jingyi2811): default scheme
   await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-  await testing.container.generate(1)
+  await testing.generate(1)
 })
 
 afterAll(async () => {
@@ -43,7 +43,7 @@ afterEach(async () => {
   for (let i = 0; i < data.length; i += 1) {
     // NOTE(jingyi2811): Delete all schemes except default scheme
     await testing.container.call('destroyloanscheme', [data[i].id])
-    await testing.container.generate(1)
+    await testing.generate(1)
   }
 })
 
