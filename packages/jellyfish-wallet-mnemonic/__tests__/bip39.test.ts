@@ -1,4 +1,11 @@
-import { generateMnemonicWords, mnemonicToSeed, validateMnemonicSentence, validateMnemonicWord } from '../src'
+import {
+  entropyAsMnemonic,
+  generateMnemonicWords,
+  mnemonicAsEntropy,
+  mnemonicToSeed,
+  validateMnemonicSentence,
+  validateMnemonicWord
+} from '../src'
 
 it('should generate 12-15-18-21-24 and validate', () => {
   function shouldGenerateAndValidate (length: 12 | 15 | 18 | 21 | 24): void {
@@ -79,5 +86,46 @@ describe('single word mnemonic validation', () => {
     expect(validateMnemonicWord('一')).toStrictEqual(false)
     expect(validateMnemonicWord('あつい')).toStrictEqual(false)
     expect(validateMnemonicWord('가격')).toStrictEqual(false)
+  })
+})
+
+describe('mnemonicAsEntropy and entropyAsMnemonic', () => {
+  it('should mnemonicAsEntropy == entropyAsMnemonic', () => {
+    const generated = generateMnemonicWords()
+
+    const entropy = mnemonicAsEntropy(generated)
+    const words = entropyAsMnemonic(entropy)
+
+    expect(entropy.length).toStrictEqual(32)
+    expect(generated).toStrictEqual(words)
+
+    expect(generated.length).toStrictEqual(24)
+    expect(generated[0]).toStrictEqual(words[0])
+    expect(generated[23]).toStrictEqual(words[23])
+  })
+
+  it('should get 0000 for abandon x23 + art cs', () => {
+    const buffer = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+
+    const words = generateMnemonicWords(24, () => buffer)
+
+    const entropy = mnemonicAsEntropy(words)
+    expect(entropy).toStrictEqual(buffer)
+  })
+
+  it('should get abandon x23 + art cs for 0000', () => {
+    const buffer = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+    const words = entropyAsMnemonic(buffer)
+    expect(words.join(' ')).toStrictEqual(
+      'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art'
+    )
+  })
+
+  it('should fail if not 32 byte long', () => {
+    const buffer31 = Buffer.from('00000000000000000000000000000000000000000000000000000000000000', 'hex')
+
+    expect(() => {
+      entropyAsMnemonic(buffer31)
+    }).toThrow('expected entropy to be 32 byte long')
   })
 })
