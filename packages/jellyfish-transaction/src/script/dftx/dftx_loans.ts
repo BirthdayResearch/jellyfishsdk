@@ -8,10 +8,10 @@ import BigNumber from 'bignumber.js'
  * CreateLoanScheme DeFi Transaction
  */
 export interface CreateLoanScheme {
-  ratio: number
-  rate: BigNumber
-  identifier: string
-  update: bigint
+  ratio: number // -------------------| 4 bytes unsigned
+  rate: BigNumber // -------------| 8 bytes
+  identifier: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  update: BigNumber // ---------------| 8 bytes unsigned integer, 0 for createLoanScheme, 1 for updateLoanScheme
 }
 
 /**
@@ -27,7 +27,7 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
       ComposableBuffer.uInt32(() => cls.ratio, v => cls.ratio = v),
       ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
       ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
-      ComposableBuffer.int64(() => cls.update, v => cls.update = v)
+      ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
     ]
   }
 }
