@@ -3,17 +3,16 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { ContainerAdapterClient } from '../../../jellyfish-api-core/__tests__/container_adapter_client'
-import { accountBTC, accountDFI, ICXSetup, symbolDFI } from '../../../jellyfish-api-core/__tests__/category/icxorderbook/icx_setup'
 import BigNumber from 'bignumber.js'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
 import { ICXSubmitDFCHTLC } from '@defichain/jellyfish-transaction/script/dftx/dftx_icxorderbook'
-import { ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
+import { ICXDFCHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
+import { Testing } from '@defichain/jellyfish-testing'
+import { icxorderbook } from '@defichain/jellyfish-api-core'
 
 describe('submit DFC HTLC', () => {
   const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
-  const icxSetup = new ICXSetup(container, client)
+  const testing = Testing.create(container)
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
 
@@ -25,16 +24,18 @@ describe('submit DFC HTLC', () => {
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    // steps required for ICX setup
-    await icxSetup.setAccounts(await providers.getAddress(), await providers.getAddress())
-    await icxSetup.createBTCToken()
-    await icxSetup.initializeTokensIds()
-    await icxSetup.mintBTCtoken(100)
-    await icxSetup.fundAccount(accountDFI, symbolDFI, 500)
-    await icxSetup.fundAccount(accountBTC, symbolDFI, 10) // for fee
-    await icxSetup.createBTCDFIPool()
-    await icxSetup.addLiquidityToBTCDFIPool(1, 100)
-    await icxSetup.setTakerFee(0.001)
+    // steps required for ICX testing
+    await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
+    await container.generate(1)
+    await testing.fixture.createPoolPair({
+      a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
+      b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
+    })
+    testing.icxorderbook.DEX_DFI_PER_BTC_RATE = new BigNumber(100 / 1)
+    await testing.icxorderbook.setTakerFee(new BigNumber(0.001))
+    await testing.icxorderbook.initializeTokensIds()
   })
 
   afterAll(async () => {
@@ -42,13 +43,26 @@ describe('submit DFC HTLC', () => {
   })
 
   afterEach(async () => {
-    await icxSetup.closeAllOpenOffers()
+    await testing.icxorderbook.closeAllOpenOffers()
   })
 
   it('should submit DFC HTLC for a DFC buy offer', async () => {
     // ICX order creation and make offer
-    const { order, createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
-    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
+    const createOrder = {
+      chainTo: 'BTC',
+      ownerAddress: testing.icxorderbook.accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const { order, createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
+
+    const makeOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(0.10),
+      ownerAddress: testing.icxorderbook.accountBTC
+    }
+    const { makeOfferTxId } = await testing.icxorderbook.createDFIBuyOffer(makeOffer)
 
     // submit DFC HTLC
     const script = await providers.elliptic.script()
@@ -85,13 +99,13 @@ describe('submit DFC HTLC', () => {
     const listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
+    const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
     const DFCHTLCTxId = calculateTxid(txn)
     expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
       {
-        type: 'DFC',
-        status: 'OPEN',
+        type: icxorderbook.ICXHTLCType.DFC,
+        status: icxorderbook.ICXHTLCStatus.OPEN,
         offerTx: makeOfferTxId,
         amount: submitDFCHTLC.amount,
         amountInEXTAsset: submitDFCHTLC.amount.multipliedBy(order.orderPrice),
@@ -105,8 +119,21 @@ describe('submit DFC HTLC', () => {
 
   it('should return an error when ICXSubmitDFCHTLC.amount is negative', async () => {
     // ICX order creation and make offer
-    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
-    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
+    const createOrder = {
+      chainTo: 'BTC',
+      ownerAddress: testing.icxorderbook.accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const { createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
+
+    const makeOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(0.10),
+      ownerAddress: testing.icxorderbook.accountBTC
+    }
+    const { makeOfferTxId } = await testing.icxorderbook.createDFIBuyOffer(makeOffer)
 
     // submit DFC HTLC
     const script = await providers.elliptic.script()
@@ -121,8 +148,21 @@ describe('submit DFC HTLC', () => {
 
   it('should return an error when ICXSubmitDFCHTLC.timeout is negative', async () => {
     // ICX order creation and make offer
-    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
-    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
+    const createOrder = {
+      chainTo: 'BTC',
+      ownerAddress: testing.icxorderbook.accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const { createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
+
+    const makeOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(0.10),
+      ownerAddress: testing.icxorderbook.accountBTC
+    }
+    const { makeOfferTxId } = await testing.icxorderbook.createDFIBuyOffer(makeOffer)
 
     // submit DFC HTLC
     const script = await providers.elliptic.script()

@@ -44,11 +44,6 @@ export class ICXSetup {
     accountBTC = await this.container.call('getnewaddress')
   }
 
-  async setAccounts (address1: string, address2: string): Promise<void> {
-    accountDFI = address1
-    accountBTC = address2
-  }
-
   async createBTCToken (): Promise<void> {
     const createTokenOptions = {
       name: symbolBTC,
