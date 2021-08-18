@@ -1,11 +1,12 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import BigNumber from 'bignumber.js'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
 
 export interface DestroyLoanScheme {
-  identifier: string
-  height: bigint
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  height: BigNumber // -------------------| 8 bytes unsigned integer
 }
 
 export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
@@ -15,7 +16,7 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
   composers (dls: DestroyLoanScheme): BufferComposer[] {
     return [
       ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
-      ComposableBuffer.int64(() => dls.height, v => dls.height = v)
+      ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
     ]
   }
 }

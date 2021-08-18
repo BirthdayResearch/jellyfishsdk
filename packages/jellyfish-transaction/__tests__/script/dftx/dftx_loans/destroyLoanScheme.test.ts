@@ -6,6 +6,7 @@ import {
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
+import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -22,11 +23,11 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a144466547844' // OP_RETURN, PUSH_DATA(44665478, 44)
+const header = '6a144466547844' // OP_RETURN(0x1a) (length 20 = 0x14) CDfTx.SIGNATURE(0x44665478) CDestroyLoanScheme.OP_CODE(0x44)
 const data = '06736368656d65c800000000000000'
 const destroyLoanScheme: DestroyLoanScheme = {
   identifier: 'scheme',
-  height: BigInt(200)
+  height: new BigNumber(200)
 }
 
 it('should craft dftx with OP_CODES._()', () => {
