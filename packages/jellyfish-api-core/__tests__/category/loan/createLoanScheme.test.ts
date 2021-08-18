@@ -86,7 +86,7 @@ describe('Loan', () => {
       }
     }
 
-    const utxos = await container.call('listunspent', [1, 9999999, [masternodes[masternodeId].ownerAuthAddress]])
+    const utxos = await testing.container.call('listunspent', [1, 9999999, [masternodes[masternodeId].ownerAuthAddress]])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
