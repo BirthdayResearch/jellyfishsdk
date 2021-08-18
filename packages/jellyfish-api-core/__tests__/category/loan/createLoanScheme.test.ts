@@ -111,7 +111,7 @@ describe('Loan', () => {
     )
   })
 
-  it('should not createLoanScheme with arbritary utxos', async () => {
+  it('should not createLoanScheme with arbitrary utxos', async () => {
     const { txid, vout } = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.createLoanScheme(200, new BigNumber(2.5), { id: 'scheme', utxos: [{ txid, vout }] })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: createloanscheme')
