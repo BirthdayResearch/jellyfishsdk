@@ -76,7 +76,7 @@ describe('Loan', () => {
   })
 
   it('should createLoanScheme with utxos', async () => {
-    const masternodes = await testing.rpc.masternode.listMasternodes()
+    const masternodes = await testing.container.call('listmasternodes')
     let masternodeId = ''
     for (const id in masternodes) {
       const masternode = masternodes[id]
