@@ -119,17 +119,26 @@ describe('Loan', () => {
   })
 
   it('should destroyLoanScheme with utxos', async () => {
-    const address = await testing.generateAddress()
-    const utxos = await testing.container.call('listunspent', [1, 9999999, [address], true])
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+    await testing.generate(1)
+
+    const masternodes = await testing.container.call('listmasternodes')
+    let masternodeId = ''
+    for (const id in masternodes) {
+      const masternode = masternodes[id]
+      if (masternode.mintedBlocks > 0) { // NOTE(jingyi2811): Find masternode that mined at least one block
+        masternodeId = id
+        break
+      }
+    }
+
+    const utxos = await testing.container.call('listunspent', [1, 9999999, [masternodes[masternodeId].ownerAuthAddress]])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
         vout: utxo.vout
       }
     })
-
-    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
-    await testing.generate(1)
 
     const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: inputs })
     expect(typeof loanSchemeId).toStrictEqual('string')

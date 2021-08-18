@@ -13,7 +13,7 @@ export class Loan {
   /**
    * Destroys a loan scheme.
    *
-   * @param {string} id Unique identifier of the loan scheme
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars,
    * @param {number} [activateAfterBlock] Block height at which new changes take effect
    * @param {DeleteLoanSchemeOptions} [options]
    * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
