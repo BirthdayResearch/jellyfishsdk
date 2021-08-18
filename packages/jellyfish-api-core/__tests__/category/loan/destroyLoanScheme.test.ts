@@ -145,6 +145,10 @@ describe('Loan', () => {
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
+    const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(utxos[0].txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(utxos[0].vout)
+
     const data = await testing.container.call('listloanschemes')
     const result = data.filter((d: { id: string }) => d.id === 'scheme')
     expect(result.length).toStrictEqual(0)
