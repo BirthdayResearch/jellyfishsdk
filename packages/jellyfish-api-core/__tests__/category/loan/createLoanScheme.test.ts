@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -102,6 +102,13 @@ describe('Loan', () => {
     const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxos[0].txid)
     expect(rawtx.vin[0].vout).toStrictEqual(utxos[0].vout)
+
+    const data = await testing.container.call('listloanschemes')
+    const result = data.filter((d: { id: string }) => d.id === 'scheme1')
+    expect(result.length).toStrictEqual(1)
+    expect(result[0]).toStrictEqual(
+      { id: 'scheme1', mincolratio: 200, interestrate: 2.5, default: false }
+    )
   })
 
   it('should not createLoanScheme with arbritary utxos', async () => {
