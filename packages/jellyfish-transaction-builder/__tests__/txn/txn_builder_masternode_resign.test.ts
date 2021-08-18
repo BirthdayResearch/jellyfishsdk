@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Bech32 } from '@defichain/jellyfish-crypto'
-import { ResignMasterNode } from '@defichain/jellyfish-transaction'
+import { ResignMasternode } from '@defichain/jellyfish-transaction'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -54,7 +54,7 @@ it('should resign', async () => {
   // here fund again to create transaction
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasterNode = {
+  const resignMasterNode: ResignMasternode = {
     nodeId: txid
   }
 
@@ -92,7 +92,7 @@ it('should be failed as tx must have at least one input from owner', async () =>
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasterNode = {
+  const resignMasterNode: ResignMasternode = {
     nodeId: txid
   }
 
@@ -117,7 +117,7 @@ it('should be failed as trying to resign a NOT ENABLED masternode', async () => 
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasterNode = {
+  const resignMasterNode: ResignMasternode = {
     nodeId: txid
   }
 
@@ -142,7 +142,7 @@ it('should be failed as trying to resign masternode before timelock expiration',
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasterNode = {
+  const resignMasterNode: ResignMasternode = {
     nodeId: txid
   }
 

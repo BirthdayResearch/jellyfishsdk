@@ -42,21 +42,21 @@ export class CCreateMasternode extends ComposableBuffer<CreateMasternode> {
 }
 
 /**
- * ResignMasterNode DeFi Transaction
+ * ResignMasternode DeFi Transaction
  */
-export interface ResignMasterNode {
+export interface ResignMasternode {
   nodeId: string // --------------------------------| VarUInt{32 bytes}
 }
 
 /**
- * Composable ResignMasterNode, C stands for Composable.
+ * Composable ResignMasternode, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
-export class CResignMasterNode extends ComposableBuffer<ResignMasterNode> {
+export class CResignMasternode extends ComposableBuffer<ResignMasternode> {
   static OP_CODE = 0x52 // 'R'
   static OP_NAME = 'OP_DEFI_TX_RESIGN_MASTER_NODE'
 
-  composers (cmn: ResignMasterNode): BufferComposer[] {
+  composers (cmn: ResignMasternode): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => cmn.nodeId, v => cmn.nodeId = v)
     ]
