@@ -4,11 +4,18 @@ import BigNumber from 'bignumber.js'
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
 
+/**
+ * DestroyLoanScheme DeFi Transaction
+ */
 export interface DestroyLoanScheme {
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
   height: BigNumber // -------------------| 8 bytes unsigned integer
 }
 
+/**
+ * Composable CreateLoanScheme, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
   static OP_CODE = 0x44
   static OP_NAME = 'OP_DEFI_TX_DESTROY_LOAN_SCHEME'
