@@ -32,8 +32,8 @@ export const defaultOptions: ClientOptions = {
  * A JSON-RPC client implementation for connecting to a DeFiChain node.
  */
 export class JsonRpcClient extends ApiClient {
-  private readonly url: string
-  private readonly options: ClientOptions
+  protected readonly url: string
+  protected readonly options: ClientOptions
 
   /**
    * Construct a Jellyfish client to connect to a DeFiChain node via JSON-RPC.
@@ -97,13 +97,7 @@ export class JsonRpcClient extends ApiClient {
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
 
-    const request = fetch(this.url, {
-      method: 'POST',
-      body: body,
-      cache: 'no-cache',
-      headers: this.options.headers,
-      signal: controller.signal
-    })
+    const request = this.fetch(body, controller)
 
     try {
       const response = await request
@@ -116,5 +110,15 @@ export class JsonRpcClient extends ApiClient {
 
       throw err
     }
+  }
+
+  protected async fetch (body: string, controller: AbortController): Promise<Response> {
+    return await fetch(this.url, {
+      method: 'POST',
+      body: body,
+      cache: 'no-cache',
+      headers: this.options.headers,
+      signal: controller.signal
+    })
   }
 }

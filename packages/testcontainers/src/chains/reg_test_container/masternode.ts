@@ -1,4 +1,5 @@
 import { GenesisKeys, MasterNodeKey } from '../../testkeys'
+import { waitForCondition } from '../../wait_for_condition'
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../defid_container'
 import { RegTestContainer } from './index'
@@ -25,7 +26,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
     return [
       ...super.getCmd(opts),
-      '-dummypos=1',
+      '-dummypos=0',
       '-spv=1',
       `-masternode_operator=${this.masternodeKey.operator.address}`
     ]
@@ -54,14 +55,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   async waitForGenerate (nblocks: number, timeout: number = 590000, address: string = this.masternodeKey.operator.address): Promise<void> {
     const target = await this.getBlockCount() + nblocks
 
-    return await this.waitForCondition(async () => {
+    return await waitForCondition(async () => {
       const count = await this.getBlockCount()
       if (count > target) {
         return true
       }
       await this.generate(1)
       return false
-    }, timeout, 100)
+    }, timeout, 100, 'waitForGenerate')
   }
 
   /**
@@ -69,7 +70,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await super.start(startOptions)
-    await super.waitForReady(25000)
 
     await this.call('importprivkey', [this.masternodeKey.operator.privKey, 'operator', true])
     await this.call('importprivkey', [this.masternodeKey.owner.privKey, 'owner', true])
@@ -82,14 +82,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=90000] in ms
    */
   async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
-    return await this.waitForCondition(async () => {
+    return await waitForCondition(async () => {
       const count = await this.getBlockCount()
       if (count > height) {
         return true
       }
       await this.generate(1)
       return false
-    }, timeout, 100)
+    }, timeout, 100, 'waitForBlockHeight')
   }
 
   /**
@@ -115,14 +115,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @see waitForWalletCoinbaseMaturity
    */
   async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
-    return await this.waitForCondition(async () => {
+    return await waitForCondition(async () => {
       const getbalance = await this.call('getbalance')
       if (getbalance >= balance) {
         return true
       }
       await this.generate(1)
       return false
-    }, timeout, 100)
+    }, timeout, 100, 'waitForWalletBalanceGTE')
   }
 
   /**
