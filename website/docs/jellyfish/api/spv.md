@@ -50,3 +50,134 @@ interface ReceivedByAddressInfo {
   txids: string[]
 }
 ```
+
+## sendToAddress
+
+Send a Bitcoin amount to a given address.
+
+```ts title="client.spv.sendToAddress()"
+interface spv {
+  sendToAddress (address: string, amount: BigNumber, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult>
+}
+
+interface SpvDefaultOptions {
+  feeRate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
+}
+```
+
+## createHtlc
+
+Creates a Bitcoin address whose funds can be unlocked with a seed or as a refund.
+
+```ts title="client.spv.createHtlc()"
+interface spv {
+  createHtlc (receiverPubKey: string, ownerPubKey: string, options: CreateHtlcOptions): Promise<CreateHtlcResult>
+}
+
+interface CreateHtlcOptions {
+  timeout: string
+  seedhash?: string
+}
+
+interface CreateHtlcResult {
+  address: string
+  redeemScript: string
+  seed?: number
+  seedhash?: string
+}
+```
+
+## decodeHtlcScript
+
+Decode and return value in a HTLC redeemscript.
+
+```ts title="client.spv.decodeHtlcScript()"
+interface spv {
+  decodeHtlcScript (redeemScript: string): Promise<DecodeHtlcResult>
+}
+
+interface DecodeHtlcResult {
+  sellerkey: string
+  buyerkey: string
+  blocks: number
+  hash: string
+}
+```
+
+## claimHtlc
+
+Claims all coins in HTLC address.
+
+```ts title="client.spv.claimHtlc()"
+interface spv {
+  claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult>
+}
+
+interface ClaimHtlcOptions {
+  seed: string
+  feeRate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
+}
+```
+
+## getHtlcSeed
+
+Returns the HTLC secret if available.
+
+```ts title="client.spv.getHtlcSeed()"
+interface spv {
+  getHtlcSeed (address: string): Promise<string>
+}
+```
+
+## refundHtlc
+
+Refunds all coins in HTLC address.
+
+```ts title="client.spv.refundHtlc()"
+interface spv {
+  refundHtlc (scriptAddress: string, destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult>
+}
+
+interface SpvDefaultOptions {
+  feeRate?: BigNumber
+}
+
+interface SendMessageResult {
+  txid: string
+  sendmessage: string
+}
+```
+
+## listHtlcOutputs
+
+List all outputs related to HTLC addresses in the wallet.
+
+```ts title="client.spv.listHtlcOutputs()"
+interface spv {
+  listHtlcOutputs (scriptAddress?: string): Promise<ListHtlcsOutputsResult[]>
+}
+
+interface SpentInfo {
+  txid: string
+  confirms: number
+}
+
+interface ListHtlcsOutputsResult {
+  txid: string
+  vout: number
+  amount: BigNumber
+  address: string
+  confirms: number
+  spent: SpentInfo
+}
+```

@@ -30,6 +30,7 @@ export * as server from './category/server'
 export * as masternode from './category/masternode'
 export * as governance from './category/governance'
 export * as spv from './category/spv'
+export * as icxorderbook from './category/icxorderbook'
 export * as loan from './category/loan'
 
 /**
