@@ -21,7 +21,7 @@ beforeAll(async () => {
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-  // default scheme
+  // Default scheme
   await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
   await testing.generate(1)
 })
@@ -68,7 +68,7 @@ describe('loan.destroyLoanScheme()', () => {
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    // Ensure you don't send all your balance away during appoint oracle
+    // Ensure you don't send all your balance away during destroy loan scheme
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
@@ -150,12 +150,12 @@ describe('loan.destroyLoanScheme()', () => {
     // To delete at block 129, which should fail
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'default',
+      identifier: 'scheme',
       height: new BigNumber(129)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Destruction height below current block height, set future height (code 16)\', code: -26')
   })
 })

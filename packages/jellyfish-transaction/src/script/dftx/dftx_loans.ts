@@ -13,7 +13,7 @@ export interface DestroyLoanScheme {
 }
 
 /**
- * Composable CreateLoanScheme, C stands for Composable.
+ * Composable DestroyLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
