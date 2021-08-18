@@ -1,21 +1,26 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../wait_for_condition'
 import { MasterNodeRegTestContainer } from '../../chains/reg_test_container/masternode'
+import { RegTestContainer } from '../../chains/reg_test_container/index'
 
-export class MasternodeGroup {
+export class ContainerGroup {
   protected readonly docker: Dockerode
   protected network?: Network
 
   public constructor (
-    protected readonly containers: MasterNodeRegTestContainer[] = [],
+    protected readonly containers: RegTestContainer[] = [],
     protected readonly name = `testcontainers-${Math.floor(Math.random() * 10000000)}`,
     options?: DockerOptions
   ) {
     this.docker = new Dockerode(options)
   }
 
-  get (i: number): MasterNodeRegTestContainer {
-    return this.containers[i]
+  /**
+   * @param {number} index of masternode in group
+   * @return {MasterNodeRegTestContainer} casted as MN convenience but it might be just a RegTestContainer
+   */
+  get (index: number): MasterNodeRegTestContainer {
+    return this.containers[index] as MasterNodeRegTestContainer
   }
 
   async start (): Promise<void> {
@@ -55,7 +60,7 @@ export class MasternodeGroup {
   /**
    * @param {DeFiDContainer} container to add into container group with addnode
    */
-  async add (container: MasterNodeRegTestContainer): Promise<void> {
+  async add (container: RegTestContainer): Promise<void> {
     await this.requireNetwork().connect({ Container: container.id })
 
     for (const each of this.containers) {
@@ -63,6 +68,22 @@ export class MasternodeGroup {
     }
 
     this.containers.push(container)
+  }
+
+  /**
+   * Wait for all container to receive the same txid in mempool
+   *
+   * @param {string} txid to wait for in mempool
+   * @param {number} [timeout=150000] in millis
+   */
+  async waitForMempoolSync (txid: string, timeout: number = 15000): Promise<void> {
+    await waitForCondition(async () => {
+      const txns = await Promise.all(Object.values(this.containers).map(async container => {
+        return await container.call('getrawtransaction', [txid, false])
+      }))
+
+      return txns.every(value => value === txns[0])
+    }, timeout, 200, 'waitForMempoolSync')
   }
 
   /**
