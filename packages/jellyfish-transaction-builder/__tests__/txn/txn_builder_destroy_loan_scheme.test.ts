@@ -27,12 +27,12 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await container.stop()
+  await testing.container.stop()
 })
 
 beforeEach(async () => {
   // Fund 10 DFI UTXO
-  await fundEllipticPair(container, providers.ellipticPair, 10)
+  await fundEllipticPair(testing.container, providers.ellipticPair, 10)
   await providers.setupMocks() // required to move utxos
 })
 
@@ -53,7 +53,7 @@ describe('loan.destroyLoanScheme()', () => {
     await testing.generate(1)
 
     // Wait for block 110
-    await testing.waitForBlockHeight(110)
+    await testing.container.waitForBlockHeight(110)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
@@ -74,21 +74,21 @@ describe('loan.destroyLoanScheme()', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-    // Before delete
+    // Shouldn't delete at block 111
     {
-      const data = await container.call('listloanschemes')
+      const data = await testing.container.call('listloanschemes')
       const result = data.filter((d: { id: string }) => d.id === 'scheme')
       expect(result.length).toStrictEqual(1)
     }
 
     // Wait for block 120
-    await testing.waitForBlockHeight(120)
+    await testing.container.waitForBlockHeight(120)
 
-    // After delete
+    // Should delete at block 120
     {
-      const result = await container.call('listloanschemes')
-      const data = result.filter((r: { id: string }) => r.id === 'scheme')
-      expect(data.length).toStrictEqual(0)
+      const data = await testing.container.call('listloanschemes')
+      const result = data.filter((d: { id: string }) => d.id === 'scheme')
+      expect(result.length).toStrictEqual(0)
     }
   })
 
@@ -96,31 +96,31 @@ describe('loan.destroyLoanScheme()', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
       identifier: '',
-      height: new BigNumber(150)
+      height: new BigNumber(130)
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
 
-  it('should not destroyLoanScheme if identifier is more than 8 chars', async () => {
+  it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
       identifier: '123456789',
-      height: new BigNumber(150)
+      height: new BigNumber(130)
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
 
-  it('should not destroyLoanScheme if identifier is not exists', async () => {
+  it('should not destroyLoanScheme if identifier does not exists', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
       identifier: 'scheme2',
-      height: new BigNumber(150)
+      height: new BigNumber(130)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -132,30 +132,30 @@ describe('loan.destroyLoanScheme()', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
       identifier: 'default',
-      height: new BigNumber(150)
+      height: new BigNumber(130)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
   })
 
   it('should not destroyLoanScheme if height is lesser than current height', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    // NOTE(jingyi2811): Wait for block 200
-    await testing.waitForBlockHeight(200)
+    // Wait for block 130
+    await testing.container.waitForBlockHeight(130)
 
-    // NOTE(jingyi2811): To delete at block 199, which should failed
+    // To delete at block 129, which should fail
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'scheme2',
-      height: new BigNumber(199)
+      identifier: 'default',
+      height: new BigNumber(129)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot find existing loan scheme with id scheme2 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
   })
 })
