@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
+import { GenesisKeys } from '@defichain/testcontainers'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -122,32 +122,15 @@ describe('Loan', () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    const masternodes = await testing.container.call('listmasternodes')
-    let masternodeId = ''
-    for (const id in masternodes) {
-      const masternode = masternodes[id]
-      if (masternode.mintedBlocks > 0) { // Find masternode that mined at least one block
-        masternodeId = id
-        break
-      }
-    }
-
-    const utxos = await testing.container.call('listunspent', [1, 9999999, [masternodes[masternodeId].ownerAuthAddress]])
-    const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: inputs })
+    const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
+    const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [{ txid, vout }] })
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
     const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(utxos[0].txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(utxos[0].vout)
+    expect(rawtx.vin[0].txid).toStrictEqual(txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
     const data = await testing.container.call('listloanschemes')
     const result = data.filter((d: { id: string }) => d.id === 'scheme')
