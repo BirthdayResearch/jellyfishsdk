@@ -11,7 +11,7 @@ describe('Loan', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    // NOTE(jingyi2811): Default scheme
+    // Default scheme
     await testing.rpc.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'default' })
     await testing.generate(1)
   })
@@ -21,7 +21,7 @@ describe('Loan', () => {
     const result = data.filter((d: { default: boolean }) => !d.default)
 
     for (let i = 0; i < result.length; i += 1) {
-      // NOTE(jingyi2811): Delete all schemes except default scheme
+      // Delete all schemes except default scheme
       await testing.container.call('destroyloanscheme', [result[i].id])
       await testing.generate(1)
     }
@@ -56,7 +56,7 @@ describe('Loan', () => {
   })
 
   it('should not createLoanScheme if same minColRatio and interestRate were created before', async () => {
-    const promise = testing.rpc.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'scheme2' }) // NOTE(jingyi2811): Failed because its minColRatio and interestRate are same as default
+    const promise = testing.rpc.loan.createLoanScheme(100, new BigNumber(1.5), { id: 'scheme2' }) // Failed because its minColRatio and interestRate are same as default
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nLoan scheme default with same interestrate and mincolratio already exists\', code: -32600, method: createloanscheme')
   })
 
@@ -80,7 +80,7 @@ describe('Loan', () => {
     let masternodeId = ''
     for (const id in masternodes) {
       const masternode = masternodes[id]
-      if (masternode.mintedBlocks > 0) { // NOTE(jingyi2811): Find masternode that mined at least one block
+      if (masternode.mintedBlocks > 0) { // Find masternode that mined at least one block
         masternodeId = id
         break
       }
