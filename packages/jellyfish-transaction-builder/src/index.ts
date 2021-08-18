@@ -2,9 +2,9 @@ import { P2WPKHTxnBuilder } from './txn/txn_builder'
 import { TxnBuilderDex } from './txn/txn_builder_dex'
 import { TxnBuilderUtxo } from './txn/txn_builder_utxo'
 import { TxnBuilderAccount } from './txn/txn_builder_account'
-import { TxnBuilderOracles } from './txn/txn_builder_oracles'
 import { TxnBuilderLiqPool } from './txn/txn_builder_liq_pool'
-import { TxnBuilderLoans } from '@defichain/jellyfish-transaction-builder/txn/txn_builder_loans'
+import { TxnBuilderOracles } from './txn/txn_builder_oracles'
+import { TxnBuilderLoans } from './txn/txn_builder_loans'
 
 export * from './provider'
 export * from './txn/txn_fee'
@@ -12,9 +12,9 @@ export * from './txn/txn_builder'
 export * from './txn/txn_builder_dex'
 export * from './txn/txn_builder_utxo'
 export * from './txn/txn_builder_account'
+export * from './txn/txn_builder_liq_pool'
 export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_loans'
-export * from './txn/txn_builder_liq_pool'
 
 /**
  * All in one transaction builder.
