@@ -116,4 +116,50 @@ describe('createCfp', () => {
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal title cannot be more than 128 bytes (code 16)', code: -26")
   })
+
+  it('should reject with cycles < 1', async () => {
+    const script = await providers.elliptic.script()
+    const createCfp = {
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      amount: new BigNumber(100),
+      address: {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
+          OP_CODES.OP_EQUAL
+        ]
+      },
+      cycles: 0
+    }
+    const txn = await builder.governance.createCfp(createCfp, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal cycles can be between 1 and 3 (code 16)', code: -26")
+  })
+
+  it('should reject with cycles > 3', async () => {
+    const script = await providers.elliptic.script()
+    const createCfp = {
+      type: 0x01,
+      title: 'Testing new community fund proposal',
+      amount: new BigNumber(100),
+      address: {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
+          OP_CODES.OP_EQUAL
+        ]
+      },
+      cycles: 4
+    }
+    const txn = await builder.governance.createCfp(createCfp, script)
+
+    const promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow("DeFiDRpcError: 'CreateCfpTx: proposal cycles can be between 1 and 3 (code 16)', code: -26")
+  })
 })
