@@ -11,7 +11,7 @@ describe('Loan', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    // NOTE(jingyi2811): Default scheme
+    // Default scheme
     await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
     await testing.generate(1)
   })
@@ -21,7 +21,7 @@ describe('Loan', () => {
     const result = data.filter((d: { default: boolean }) => !d.default)
 
     for (let i = 0; i < result.length; i += 1) {
-      // NOTE(jingyi2811): Delete all schemes except default scheme
+      // Delete all schemes except default scheme
       await testing.container.call('destroyloanscheme', [result[i].id])
       await testing.generate(1)
     }
@@ -35,7 +35,7 @@ describe('Loan', () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    // NOTE(jingyi2811): Before delete
+    // Before delete
     {
       const data = await testing.container.call('listloanschemes')
       const result = data.filter((d: { id: string }) => d.id === 'scheme')
@@ -47,7 +47,7 @@ describe('Loan', () => {
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    // NOTE(jingyi2811): After delete
+    // After delete
     {
       const data = await testing.container.call('listloanschemes')
       const result = data.filter((d: { id: string }) => d.id === 'scheme')
@@ -79,26 +79,26 @@ describe('Loan', () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    // NOTE(jingyi2811): Wait for block 110
+    // Wait for block 110
     await testing.container.waitForBlockHeight(110)
 
-    // NOTE(jingyi2811): To delete at block 120
+    // To delete at block 120
     const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', 120)
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    // NOTE(jingyi2811): Shouldn't delete at block 111
+    // Shouldn't delete at block 111
     {
       const data = await testing.container.call('listloanschemes')
       const result = data.filter((d: { id: string }) => d.id === 'scheme')
       expect(result.length).toStrictEqual(1)
     }
 
-    // NOTE(jingyi2811): Wait for block 120
+    // Wait for block 120
     await testing.container.waitForBlockHeight(120)
 
-    // NOTE(jingyi2811): Should delete at block 120
+    // Should delete at block 120
     {
       const data = await testing.container.call('listloanschemes')
       const result = data.filter((d: { id: string }) => d.id === 'scheme')
@@ -110,10 +110,10 @@ describe('Loan', () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    // NOTE(jingyi2811): Wait for block 130
+    // Wait for block 130
     await testing.container.waitForBlockHeight(130)
 
-    // NOTE(jingyi2811): To delete at block 129, which should fail
+    // To delete at block 129, which should fail
     const promise = testing.rpc.loan.destroyLoanScheme('scheme', 129)
     await expect(promise).rejects.toThrow('Destruction height below current block height, set future height\', code: -32600, method: destroyloanscheme')
   })
@@ -126,7 +126,7 @@ describe('Loan', () => {
     let masternodeId = ''
     for (const id in masternodes) {
       const masternode = masternodes[id]
-      if (masternode.mintedBlocks > 0) { // NOTE(jingyi2811): Find masternode that mined at least one block
+      if (masternode.mintedBlocks > 0) { // Find masternode that mined at least one block
         masternodeId = id
         break
       }
@@ -154,7 +154,7 @@ describe('Loan', () => {
     expect(result.length).toStrictEqual(0)
   })
 
-  it('should not destroyLoanScheme with arbritary utxos', async () => {
+  it('should not destroyLoanScheme with arbitrary utxos', async () => {
     const { txid, vout } = await testing.container.fundAddress(await testing.generateAddress(), 10)
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     const promise = testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [{ txid, vout }] })
