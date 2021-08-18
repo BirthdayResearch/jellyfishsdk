@@ -36,8 +36,8 @@ describe('CreateMasternode', () => {
 
     // Note(canonbrother): in regtest, collateral amount must be equal to 2 and creation fee must be greater than 1
     // https://github.com/DeFiCh/ain/blob/85360ad432ae8c5ecbfbfc7d63dd5bc6fe41e875/src/masternodes/mn_checks.cpp#L439-L446
-    // 0.00000745 is added for calculateFeeP2WPKH deduction, 3(total) - 1(creationFee) = 2(collateralAmount)
-    await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000745)
+    // 0.00000755 is added for calculateFeeP2WPKH deduction, 3(total) - 1(creationFee) = 2(collateralAmount)
+    await fundEllipticPair(container, providers.ellipticPair, 3 + 0.00000755)
     await providers.setupMocks()
   })
 
