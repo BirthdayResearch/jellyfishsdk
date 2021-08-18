@@ -14,20 +14,20 @@ export class TxnBuilderMasternode extends P2WPKHTxnBuilder {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode),
       changeScript,
-      new BigNumber('1') // for creation fee (regtest - 1, other than regtest - 10)
+      new BigNumber('1') // creation fee, regtest - 1, others - 10
     )
   }
 
   /**
    * Build resign masternode transaction
    *
-   * @param {ResignMasternode} resignMasterNode transaction to create
+   * @param {ResignMasternode} resignMasternode transaction to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @return {Promise<TransactionSegWit>}
    */
-  async resign (resignMasterNode: ResignMasternode, changeScript: Script): Promise<TransactionSegWit> {
+  async resign (resignMasternode: ResignMasternode, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
-      OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(resignMasterNode),
+      OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(resignMasternode),
       changeScript
     )
   }

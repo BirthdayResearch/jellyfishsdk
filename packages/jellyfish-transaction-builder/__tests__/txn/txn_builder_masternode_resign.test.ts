@@ -54,12 +54,12 @@ it('should resign', async () => {
   // here fund again to create transaction
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasternode = {
+  const resignMasternode: ResignMasternode = {
     nodeId: txid
   }
 
   const script = await providers.elliptic.script()
-  const txn = await builder.masternode.resign(resignMasterNode, script)
+  const txn = await builder.masternode.resign(resignMasternode, script)
 
   const outs = await sendTransaction(container, txn)
   expect(outs.length).toStrictEqual(2)
@@ -92,12 +92,12 @@ it('should be failed as tx must have at least one input from owner', async () =>
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasternode = {
+  const resignMasternode: ResignMasternode = {
     nodeId: txid
   }
 
   const script = await providers.elliptic.script()
-  const txn = await builder.masternode.resign(resignMasterNode, script)
+  const txn = await builder.masternode.resign(resignMasternode, script)
 
   const promise = sendTransaction(container, txn)
   await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -117,12 +117,12 @@ it('should be failed as trying to resign a NOT ENABLED masternode', async () => 
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasternode = {
+  const resignMasternode: ResignMasternode = {
     nodeId: txid
   }
 
   const script = await providers.elliptic.script()
-  const txn = await builder.masternode.resign(resignMasterNode, script)
+  const txn = await builder.masternode.resign(resignMasternode, script)
 
   const promise = sendTransaction(container, txn)
   await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -142,12 +142,12 @@ it('should be failed as trying to resign masternode before timelock expiration',
 
   await fundEllipticPair(container, providers.ellipticPair, 10)
 
-  const resignMasterNode: ResignMasternode = {
+  const resignMasternode: ResignMasternode = {
     nodeId: txid
   }
 
   const script = await providers.elliptic.script()
-  const txn = await builder.masternode.resign(resignMasterNode, script)
+  const txn = await builder.masternode.resign(resignMasternode, script)
 
   const promise = sendTransaction(container, txn)
   await expect(promise).rejects.toThrow(DeFiDRpcError)

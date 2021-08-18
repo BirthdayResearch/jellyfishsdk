@@ -291,12 +291,12 @@ export const OP_CODES = {
       data: createMasterNode
     })
   },
-  OP_DEFI_TX_RESIGN_MASTER_NODE: (resignMasterNode: ResignMasternode): OP_DEFI_TX => {
+  OP_DEFI_TX_RESIGN_MASTER_NODE: (resignMasternode: ResignMasternode): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CResignMasternode.OP_CODE,
       name: CResignMasternode.OP_NAME,
-      data: resignMasterNode
+      data: resignMasternode
     })
   },
   OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
