@@ -19,10 +19,10 @@ Destroys a loan scheme.
 
 ```ts title="client.loan.destroyLoanScheme()"
 interface loan {
-  destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanOptions = {}): Promise<string>
+  destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanSchemeOptions = {}): Promise<string>
 }
 
-interface DeleteLoanOptions {
+interface DeleteLoanSchemeOptions {
   utxos?: UTXO[]
 }
 

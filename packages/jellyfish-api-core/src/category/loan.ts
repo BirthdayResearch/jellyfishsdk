@@ -15,19 +15,19 @@ export class Loan {
    *
    * @param {string} id Unique identifier of the loan scheme
    * @param {number} [activateAfterBlock] Block height at which new changes take effect
-   * @param {DeleteLoanOptions} [options]
+   * @param {DeleteLoanSchemeOptions} [options]
    * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
    * @param {string} [options.utxos.txid] Transaction Id
    * @param {number} [options.utxos.vout] Output number
    * @return {Promise<string>} Hex string of the transaction
    */
-  async destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanOptions = {}): Promise<string> {
+  async destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanSchemeOptions = {}): Promise<string> {
     const { utxos = [] } = options
     return await this.client.call('destroyloanscheme', [id, activateAfterBlock, utxos], 'number')
   }
 }
 
-export interface DeleteLoanOptions {
+export interface DeleteLoanSchemeOptions {
   utxos?: UTXO[]
 }
 
