@@ -86,7 +86,7 @@ describe('Loan', () => {
     const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', 120)
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
-    await testing.container.generate(1)
+    await testing.generate(1)
 
     // NOTE(jingyi2811): Shouldn't delete at block 111
     {
