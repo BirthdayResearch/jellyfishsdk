@@ -1,7 +1,7 @@
 import { ApiClient } from '../.'
 
 /**
- * loan RPCs for DeFi Blockchain
+ * Loan RPCs for DeFi Blockchain
  */
 export class Loan {
   private readonly client: ApiClient
