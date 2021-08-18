@@ -17,7 +17,7 @@ export class Loan {
    * @param {number} minColRatio Minimum collateralization ratio
    * @param {BigNumber} interestRate Interest rate
    * @param {CreateLoanSchemeOptions} options
-   * @param {string} options.id Unique identifier of the loan scheme
+   * @param {string} options.id Unique identifier of the loan scheme, max 8 chars
    * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
    * @param {string} [options.utxos.txid] Transaction Id
    * @param {number} [options.utxos.vout] Output number

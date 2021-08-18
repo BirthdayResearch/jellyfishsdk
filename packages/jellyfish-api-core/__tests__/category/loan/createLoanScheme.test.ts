@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
+import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -76,8 +76,17 @@ describe('Loan', () => {
   })
 
   it('should createLoanScheme with utxos', async () => {
-    const address = await testing.generateAddress()
-    const utxos = await testing.container.call('listunspent', [1, 9999999, [address], true])
+    const masternodes = await testing.rpc.masternode.listMasternodes()
+    let masternodeId = ''
+    for (const id in masternodes) {
+      const masternode = masternodes[id]
+      if (masternode.mintedBlocks > 0) { // NOTE(jingyi2811): Find masternode that mined at least one block
+        masternodeId = id
+        break
+      }
+    }
+
+    const utxos = await container.call('listunspent', [1, 9999999, [masternodes[masternodeId].ownerAuthAddress]])
     const inputs: UTXO[] = utxos.map((utxo: UTXO) => {
       return {
         txid: utxo.txid,
@@ -90,12 +99,9 @@ describe('Loan', () => {
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('listloanschemes')
-    const result = data.filter((d: { id: string }) => d.id === 'scheme1')
-    expect(result.length).toStrictEqual(1)
-    expect(result[0]).toStrictEqual(
-      { id: 'scheme1', mincolratio: 200, interestrate: 2.5, default: false }
-    )
+    const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(utxos[0].txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(utxos[0].vout)
   })
 
   it('should not createLoanScheme with arbritary utxos', async () => {
