@@ -24,8 +24,8 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 describe('createCfp', () => {
-  const header = '6a4b4466547846' // OP_RETURN, PUSH_DATA(44665478, 46)
-  const data = '0117a9148b5401d88a3d4e54fc701663dd99a5ab792af0a48700e40b5402000000022354657374696e67206e657720636f6d6d756e6974792066756e642070726f706f73616c'
+  const header = '6a4b4466547846' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4b) (length 68 = 0x44) CDfTx.SIGNATURE(0x44665478) CreateProposal.OP_CODE(0x46)
+  const data = '0117a9148b5401d88a3d4e54fc701663dd99a5ab792af0a48700e40b5402000000022354657374696e67206e657720636f6d6d756e6974792066756e642070726f706f73616c' // CreateProposal.type(0x01) CreateProposal.address (0x17a9148b5401d88a3d4e54fc701663dd99a5ab792af0a487) CreateProposal.amount(0x00e40b5402000000) CreateProposal.cycles(0x02) CreateProposal.title[BE](0x2354657374696e67206e657720636f6d6d756e6974792066756e642070726f706f73616c)
   const CreateProposal: CreateProposal = {
     type: 0x01,
     title: 'Testing new community fund proposal',
