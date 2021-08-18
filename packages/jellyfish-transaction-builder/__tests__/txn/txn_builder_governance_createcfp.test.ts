@@ -23,7 +23,6 @@ describe('createCfp', () => {
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    await providers.randomizeEllipticPair()
     await testing.container.waitForWalletBalanceGTE(11)
     await fundEllipticPair(testing.container, providers.ellipticPair, 50)
     await providers.setupMocks()
