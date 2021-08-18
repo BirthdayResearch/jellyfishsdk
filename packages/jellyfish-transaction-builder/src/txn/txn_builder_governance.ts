@@ -14,16 +14,17 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-  async createCfp (createCfp: CreateProposal, changeScript: Script): Promise<TransactionSegWit> {
+  async createCfp (createCfp: CreateProposal, changeScript: Script, network = 'regtest'): Promise<TransactionSegWit> {
     if (createCfp.type !== 0x01) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_CFP_TYPE,
         'CreateCfp type should equal 0x01'
       )
     }
+    const creationFee = network === 'regtest' ? new BigNumber('1') : new BigNumber('10')
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_CFP(createCfp),
       changeScript,
-      new BigNumber('1') // For creation fee (regtest - 1, other than regtest - 10)
+      creationFee
     )
   }
 
@@ -34,7 +35,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-  async createVoc (createVoc: CreateProposal, changeScript: Script): Promise<TransactionSegWit> {
+  async createVoc (createVoc: CreateProposal, changeScript: Script, network = 'regtest'): Promise<TransactionSegWit> {
     if (createVoc.type !== 0x03) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_VOC_TYPE,
         'CreateVoc type should be 0x03'
@@ -55,10 +56,11 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
         'CreateVoc cycles should be 2'
       )
     }
+    const creationFee = network === 'regtest' ? new BigNumber('5') : new BigNumber('50')
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc),
       changeScript,
-      new BigNumber('5') // For creation fee (regtest - 5, other than regtest - 50)
+      creationFee
     )
   }
 }
