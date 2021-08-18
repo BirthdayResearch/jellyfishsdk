@@ -37,12 +37,12 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  const result = await testing.container.call('listloanschemes')
-  const data = result.filter((r: { default: boolean }) => !r.default)
+  const data = await testing.container.call('listloanschemes')
+  const result = data.filter((d: { default: boolean }) => !d.default)
 
-  for (let i = 0; i < data.length; i += 1) {
+  for (let i = 0; i < result.length; i += 1) {
     // NOTE(jingyi2811): Delete all schemes except default scheme
-    await testing.container.call('destroyloanscheme', [data[i].id])
+    await testing.container.call('destroyloanscheme', [result[i].id])
     await testing.generate(1)
   }
 })
@@ -72,7 +72,7 @@ describe('loan.createLoanScheme()', () => {
 
     // Ensure loan scheme is created and has correct values
     const data = await testing.container.call('listloanschemes')
-    const result = data.filter((r: { id: string }) => r.id === 'scheme')
+    const result = data.filter((d: { id: string }) => d.id === 'scheme')
     expect(result.length).toStrictEqual(1)
     expect(result[0]).toStrictEqual(
       { id: 'scheme', mincolratio: 200, interestrate: 2.5, default: false }
@@ -107,6 +107,34 @@ describe('loan.createLoanScheme()', () => {
     await expect(promise).rejects.toThrow('LoanSchemeTx: interest rate cannot be less than 0.01 (code 16)\', code: -26')
   })
 
+  it('should not createLoanScheme if same ratio and rate were created before', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({ // NOTE(jingyi2811): Failed because its ratio and rate are same as default
+      ratio: 100,
+      rate: new BigNumber(1.5),
+      identifier: 'scheme',
+      update: new BigNumber(0)
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme default with same interestrate and mincolratio already exists (code 16)\', code: -26')
+  })
+
+  it('should not createLoanScheme if same identifier was created before', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createLoanScheme({
+      ratio: 200,
+      rate: new BigNumber(2.5),
+      identifier: 'default',
+      update: new BigNumber(0)
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme already exist with id default (code 16)\', code: -26')
+  })
+
   it('should not createLoanScheme if identifier is an empty string', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createLoanScheme({
@@ -121,7 +149,7 @@ describe('loan.createLoanScheme()', () => {
     await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
 
-  it('should not createLoanScheme if identifier is more than 8 chars', async () => {
+  it('should not createLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createLoanScheme({
       ratio: 200,
