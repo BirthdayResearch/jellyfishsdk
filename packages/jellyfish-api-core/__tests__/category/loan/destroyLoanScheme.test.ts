@@ -137,7 +137,7 @@ describe('Loan', () => {
     expect(result.length).toStrictEqual(0)
   })
 
-  it('should not destroyLoanScheme with arbitrary utxos', async () => {
+  it('should not destroyLoanScheme with utxos not from foundation member', async () => {
     const { txid, vout } = await testing.container.fundAddress(await testing.generateAddress(), 10)
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     const promise = testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [{ txid, vout }] })
