@@ -3,7 +3,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { BigNumber } from '@defichain/jellyfish-json'
+import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 
@@ -21,7 +21,7 @@ beforeAll(async () => {
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-  // NOTE(jingyi2811): default scheme
+  // Default scheme
   await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
   await testing.generate(1)
 })
@@ -41,7 +41,7 @@ afterEach(async () => {
   const result = data.filter((d: { default: boolean }) => !d.default)
 
   for (let i = 0; i < result.length; i += 1) {
-    // NOTE(jingyi2811): Delete all schemes except default scheme
+    // Delete all schemes except default scheme
     await testing.container.call('destroyloanscheme', [result[i].id])
     await testing.generate(1)
   }
@@ -109,7 +109,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if same ratio and rate were created before', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({ // NOTE(jingyi2811): Failed because its ratio and rate are same as default
+    const txn = await builder.loans.createLoanScheme({ // Failed because its ratio and rate are same as default
       ratio: 100,
       rate: new BigNumber(1.5),
       identifier: 'scheme',
