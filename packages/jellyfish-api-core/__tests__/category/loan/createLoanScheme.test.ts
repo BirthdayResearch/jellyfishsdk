@@ -1,5 +1,5 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { UTXO } from '@defichain/jellyfish-api-core/category/oracle'
+import { UTXO } from '@defichain/jellyfish-api-core/category/loan'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 
