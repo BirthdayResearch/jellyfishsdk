@@ -19,8 +19,8 @@ export class Loan {
    * @param {CreateLoanSchemeOptions} options
    * @param {string} options.id Unique identifier of the loan scheme, max 8 chars
    * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
-   * @param {string} [options.utxos.txid] Transaction Id
-   * @param {number} [options.utxos.vout] Output number
+   * @param {string} options.utxos.txid Transaction Id
+   * @param {number} options.utxos.vout Output number
    * @return {Promise<string>} LoanSchemeId, also the txn id for txn created to create loan scheme
    */
   async createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanSchemeOptions): Promise<string> {
