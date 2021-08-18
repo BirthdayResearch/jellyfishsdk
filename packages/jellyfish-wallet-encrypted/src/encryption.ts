@@ -59,11 +59,11 @@ export class EncryptedData {
 export class PrivateKeyEncryption {
   /**
    * @param {Scrypt} scrypt to convert a utf8 string into a secret, cryptographically secured
-   * @param {(lengthOfBytes: number) => Buffer} rng for initialization vector generator, default using `crypto` or browserify `random-bytes` package where it may not be supported in platforms like rn
+   * @param {(number) => Buffer} [rng = randomBytes] cryptographically strong random values generator required for IV
    */
   constructor (
     private readonly scrypt: Scrypt = new Scrypt(),
-    private readonly rng: (lengthOfBytes: number) => Buffer = randomBytes
+    private readonly rng: (numOfBytes: number) => Buffer = randomBytes
   ) {
   }
 

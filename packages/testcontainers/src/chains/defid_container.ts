@@ -62,6 +62,7 @@ export abstract class DeFiDContainer extends DockerContainer {
       '-printtoconsole',
       '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
+      '-rpcworkqueue=512',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
     ]
