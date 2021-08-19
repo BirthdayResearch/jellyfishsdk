@@ -2,7 +2,7 @@ import { ApiClient } from '../.'
 import BigNumber from 'bignumber.js'
 
 /**
- * loan RPCs for DeFi Blockchain
+ * Loan RPCs for DeFi Blockchain
  */
 export class Loan {
   private readonly client: ApiClient
@@ -11,6 +11,11 @@ export class Loan {
     this.client = client
   }
 
+  /**
+   * List all available loan schemes.
+   *
+   * @return {Promise<LoanSchemeResult[]>}
+   */
   async listLoanSchemes (): Promise<LoanSchemeResult[]> {
     return await this.client.call('listloanschemes', [], 'bignumber')
   }
