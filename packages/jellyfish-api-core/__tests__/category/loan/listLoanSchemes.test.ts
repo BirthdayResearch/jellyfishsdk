@@ -17,8 +17,10 @@ describe('Loan', () => {
 
   it('should listLoanSchemes', async () => {
     // Before createLoanScheme
-    const data = await testing.rpc.loan.listLoanSchemes()
-    expect(data.length).toStrictEqual(0)
+    {
+      const data = await testing.rpc.loan.listLoanSchemes()
+      expect(data.length).toStrictEqual(0)
+    }
 
     await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
     await testing.container.generate(1)
@@ -27,12 +29,14 @@ describe('Loan', () => {
     await testing.container.generate(1)
 
     // After createLoanScheme
-    const result = await testing.rpc.loan.listLoanSchemes()
-    expect(result).toStrictEqual(
-      [
-        { id: 'default', mincolratio: new BigNumber(100), interestrate: new BigNumber(1.5), default: true },
-        { id: 'scheme', mincolratio: new BigNumber(200), interestrate: new BigNumber(2.5), default: false }
-      ]
-    )
+    {
+      const data = await testing.rpc.loan.listLoanSchemes()
+      expect(data).toStrictEqual(
+        [
+          { id: 'default', mincolratio: new BigNumber(100), interestrate: new BigNumber(1.5), default: true },
+          { id: 'scheme', mincolratio: new BigNumber(200), interestrate: new BigNumber(2.5), default: false }
+        ]
+      )
+    }
   })
 })
