@@ -18,8 +18,8 @@ it('should bi-directional buffer-object-buffer', () => {
     )
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x45)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x45)
   })
 })
 
@@ -43,7 +43,7 @@ describe('createVoc', () => {
     ]
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(header + data)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
   describe('Composable', () => {
@@ -51,7 +51,7 @@ describe('createVoc', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CCreateVoc(buffer)
 
-      expect(composable.toObject()).toEqual(CreateProposal)
+      expect(composable.toObject()).toStrictEqual(CreateProposal)
     })
 
     it('should compose from composable to buffer', () => {
@@ -59,7 +59,7 @@ describe('createVoc', () => {
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
-      expect(buffer.toBuffer().toString('hex')).toEqual(data)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
     })
   })
 })
