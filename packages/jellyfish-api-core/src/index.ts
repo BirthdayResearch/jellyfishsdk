@@ -53,7 +53,7 @@ export abstract class ApiClient {
   public readonly icxorderbook = new ICXOrderBook(this)
   public readonly governance = new Governance(this)
   public readonly spv = new Spv(this)
-  public readonly msc = new Misc(this)
+  public readonly misc = new Misc(this)
   public readonly loan = new Loan(this)
 
   /**
