@@ -106,7 +106,7 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
 }
 
 export interface CreateProposal {
-  type: number // -------------| 1 byte, 0x01 | 0x02 | 0x03
+  type: number // -------------| 1 byte unsigned int, 0x01 (CommunityFundRequest) | 0x02 (BlockRewardRellocation) | 0x03 (VoteOfConfidence)
   address: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
   amount: BigNumber // --------| 8 bytes unsigned
   cycles: number // -----------| 1 byte unsigned int
