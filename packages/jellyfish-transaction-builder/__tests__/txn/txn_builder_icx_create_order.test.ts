@@ -23,7 +23,7 @@ describe('create ICX order', () => {
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
-    await testing.container.generate(1)
+    await testing.generate(1)
     await testing.fixture.createPoolPair({
       a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
       b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
