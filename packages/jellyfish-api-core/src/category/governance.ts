@@ -33,6 +33,11 @@ export enum VoteDecision {
   NEUTRAL = 'neutral'
 }
 
+export enum MasternodeType {
+  MINE = 'mine',
+  ALL = 'all'
+}
+
 /**
  * Governance RPCs for DeFi Blockchain
  */
@@ -70,7 +75,7 @@ export class Governance {
    * @return {Promise<ProposalInfo>} Information about the proposal
    */
   async getProposal (proposalId: string): Promise<ProposalInfo> {
-    return await this.client.call('getproposal', [proposalId], 'number')
+    return await this.client.call('getproposal', [proposalId], { amount: 'bignumber' })
   }
 
   /**
@@ -98,7 +103,7 @@ export class Governance {
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]> {
-    return await this.client.call('listproposals', [type, status], 'number')
+    return await this.client.call('listproposals', [type, status], { amount: 'bignumber' })
   }
 
   /**
@@ -115,6 +120,17 @@ export class Governance {
    */
   async vote (data: VoteData, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('vote', [data.proposalId, data.masternodeId, data.decision, utxos], 'number')
+  }
+
+  /**
+   * Returns information about proposal votes.
+   *
+   * @param {string} proposalId Proposal id
+   * @param {MasternodeType | string} [masternode=MasternodeType.MINE] masternode id or reserved words 'mine' to list votes for all owned accounts or 'all' to list all votes
+   * @return {Promise<ListVotesResult[]>} Proposal vote information
+   */
+  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]> {
+    return await this.client.call('listvotes', [proposalId, masternode], 'number')
   }
 }
 
@@ -138,7 +154,7 @@ export interface ProposalInfo {
   title: string
   type: ProposalType
   status: ProposalStatus
-  amount: number
+  amount: BigNumber
   cyclesPaid: number
   totalCycles: number
   finalizeAfter: number
@@ -149,4 +165,11 @@ export interface VoteData {
   proposalId: string
   masternodeId: string
   decision: VoteDecision
+}
+
+export interface ListVotesResult {
+  proposalId: string
+  masternodeId: string
+  cycle: number
+  vote: string
 }

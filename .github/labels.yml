@@ -71,6 +71,8 @@
 - color: fbca04
   name: area/jellyfish-network
 - color: fbca04
+  name: area/jellyfish-testing
+- color: fbca04
   name: area/jellyfish-transaction
 - color: fbca04
   name: area/jellyfish-transaction-builder
