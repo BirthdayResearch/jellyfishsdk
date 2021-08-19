@@ -17,12 +17,13 @@ it('should bi-directional buffer-object-buffer', () => {
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
     expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x64)
   })
 })
 
-const header = '6a0d4466547864' // OP_RETURN, PUSH_DATA(44665478, 64)
+const header = '6a0d4466547864' // OP_RETURN(0x6a) (length 13 = 0x0d) CDfTx.SIGNATURE(0x44665478) CSetDefaultLoanScheme.OP_CODE(0x64)
+
 const data = '07736368656d6532'
 const setDefaultLoanScheme: SetDefaultLoanScheme = {
   identifier: 'scheme2'
@@ -35,7 +36,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
@@ -43,7 +44,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CSetDefaultLoanScheme(buffer)
 
-    expect(composable.toObject()).toEqual(setDefaultLoanScheme)
+    expect(composable.toObject()).toStrictEqual(setDefaultLoanScheme)
   })
 
   it('should compose from composable to buffer', () => {
@@ -51,6 +52,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

@@ -25,7 +25,7 @@ beforeAll(async () => {
   await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'scheme1'])
   await testing.generate(1)
 
-  await testing.call('createloanscheme', [200, new BigNumber(2.5), 'scheme2'])
+  await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme2'])
   await testing.generate(1)
 })
 
@@ -35,8 +35,8 @@ afterAll(async () => {
 
 beforeEach(async () => {
   // Fund 10 DFI UTXO
-  await fundEllipticPair(container, providers.ellipticPair, 10)
-  await providers.setupMocks() // required to move utxos
+  await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+  await providers.setupMocks() // Required to move utxos
 })
 
 afterEach(async () => {
@@ -57,7 +57,7 @@ describe('loan.setDefaultLoanScheme()', () => {
       identifier: 'scheme2'
     }, script)
 
-    // Ensure the created txn is correct.
+    // Ensure the created txn is correct
     const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
@@ -80,7 +80,12 @@ describe('loan.setDefaultLoanScheme()', () => {
   })
 
   it('should not setDefaultLoanScheme if identifier is an empty string', async () => {
-    const promise = testing.rpc.loan.setDefaultLoanScheme('')
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.setDefaultLoanScheme({
+      identifier: ''
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: setdefaultloanscheme')
   })
 
@@ -90,7 +95,7 @@ describe('loan.setDefaultLoanScheme()', () => {
       identifier: '123456789'
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
@@ -101,7 +106,7 @@ describe('loan.setDefaultLoanScheme()', () => {
       identifier: 'scheme3'
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Cannot find existing loan scheme with id scheme3 (code 16)\', code: -26')
   })
@@ -112,7 +117,7 @@ describe('loan.setDefaultLoanScheme()', () => {
       identifier: 'scheme1'
     }, script)
 
-    const promise = sendTransaction(container, txn)
+    const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Loan scheme with id scheme1 is already set as default (code 16)\', code: -26')
   })
@@ -135,7 +140,6 @@ describe('loan.setDefaultLoanScheme()', () => {
       identifier: 'scheme3'
     }, script)
 
-    // Ensure the created txn is correct.
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\nCannot set scheme3 as default, set to destroyed on block 120\', code: -32600, method: setdefaultloanscheme')
 

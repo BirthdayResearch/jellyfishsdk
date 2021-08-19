@@ -4,16 +4,16 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 /* eslint-disable no-return-assign */
 
 export interface SetDefaultLoanScheme {
-  identifier: string
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
 }
 
 export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme> {
-  static OP_CODE = 0x64
+  static OP_CODE = 0x64 // 'd'
   static OP_NAME = 'OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME'
 
-  composers (cls: SetDefaultLoanScheme): BufferComposer[] {
+  composers (sdls: SetDefaultLoanScheme): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v)
+      ComposableBuffer.varUIntUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
     ]
   }
 }
