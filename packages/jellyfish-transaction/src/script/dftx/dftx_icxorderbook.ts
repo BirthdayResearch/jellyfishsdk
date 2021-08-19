@@ -8,9 +8,9 @@ import { CScript } from '../../tx_composer'
 
 export enum ICXOrderType {
   /** type for DFI/BTC orders */
-  INTERNAL = 1,
+  INTERNAL = 0x1,
   /** type for BTC/DFI orders */
-  EXTERNAL = 2
+  EXTERNAL = 0x2
 }
 
 /**
@@ -18,7 +18,7 @@ export enum ICXOrderType {
  */
 
 export interface ICXCreateOrder {
-  orderType: number // -------------| 1 byte unsigned
+  orderType: number // -------------| 1 byte unsigned, 0x1 (INTERNAL) | 0x2 (EXTERNAL)
   tokenId: number // ---------------| VarUInt{1-9 bytes}
   ownerAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
   receivePubkey?: string // --------| 1 byte for len + len bytes
