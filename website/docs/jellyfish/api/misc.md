@@ -15,10 +15,10 @@ const something = await client.misc.method()
 
 # setMockTime
 
-To dynamically change the time for testing.
+To dynamically change the time for testing. For Regtest only.
 
 ```ts title="client.misc.setMockTime()"
-  interface misc {
-    setMockTime (ts: number): Promise<void>
-  }
+interface misc {
+  setMockTime (ts: number): Promise<void>
+}
 ```
