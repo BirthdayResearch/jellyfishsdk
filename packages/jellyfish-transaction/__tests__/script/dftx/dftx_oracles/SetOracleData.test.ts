@@ -23,15 +23,15 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a414466547879' // OP_RETURN, PUSH_DATA(44665478, 79)
-const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d1bc29a7600000000001055445534c41010355534400e1f50500000000'
+const header = '6a404466547879' // OP_RETURN, PUSH_DATA(44665478, 79)
+const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d1bc29a76000000000010454534c41010355534400e1f50500000000'
 
 const setOracleData: SetOracleData = {
   oracleId: 'd1248472d78681257637f6cafb6eab9b89f4a64eb8c425208b52258994351d06',
   timestamp: new BigNumber('1621567932'),
   tokens: [
     {
-      token: 'TESLA',
+      token: 'TSLA',
       prices: [
         {
           currency: 'USD',

@@ -2,6 +2,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
+import BigNumber from 'bignumber.js'
 
 describe('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
@@ -9,7 +10,6 @@ describe('Governance', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
@@ -36,7 +36,7 @@ describe('Governance', () => {
     expect(proposal.title).toStrictEqual(data.title)
     expect(proposal.type).toStrictEqual(ProposalType.COMMUNITY_FUND_REQUEST)
     expect(proposal.status).toStrictEqual(ProposalStatus.VOTING)
-    expect(proposal.amount).toStrictEqual(data.amount)
+    expect(proposal.amount).toStrictEqual(new BigNumber(data.amount))
     expect(proposal.totalCycles).toStrictEqual(data.cycles)
     expect(proposal.payoutAddress).toStrictEqual(data.payoutAddress)
   })

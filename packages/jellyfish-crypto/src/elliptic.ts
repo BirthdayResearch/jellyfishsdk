@@ -1,3 +1,4 @@
+import randomBytes from 'randombytes'
 import ecc from 'tiny-secp256k1'
 import { DERSignature } from './der'
 
@@ -83,20 +84,23 @@ class SECP256K1 implements EllipticPair {
   }
 }
 
-/**
- * @param {Buffer} buffer in little endian
- * @return {SECP256K1} EllipticPair
- */
-function getEllipticPairFromPrivateKey (buffer: Buffer): EllipticPair {
-  return new SECP256K1(buffer)
-}
-
 export const Elliptic = {
   /**
    * @param {Buffer} buffer in little endian
    * @return {SECP256K1} EllipticPair
    */
   fromPrivKey (buffer: Buffer): EllipticPair {
-    return getEllipticPairFromPrivateKey(buffer)
+    return new SECP256K1(buffer)
+  },
+  /**
+   * @param {(number) => Buffer} [rng = randomBytes] cryptographically strong random values generator required
+   * @return {SECP256K1} EllipticPair
+   */
+  random (rng: (numOfBytes: number) => Buffer = randomBytes): EllipticPair {
+    const buffer = rng(32)
+    if (buffer.length !== 32) {
+      throw new Error('Buffer length must be 32 bytes long')
+    }
+    return new SECP256K1(buffer)
   }
 }

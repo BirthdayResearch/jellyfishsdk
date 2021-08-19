@@ -116,10 +116,8 @@ interface account {
   utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string // `${number}@${string}`
 }
 
 interface UTXO {
@@ -138,10 +136,8 @@ interface account {
   accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string // `${number}@${string}`
 }
 
 interface BalanceTransferAccountOptions {
@@ -164,10 +160,8 @@ interface account {
   accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string // `${number}@${string}`
 }
 
 interface BalanceTransferAccountOptions {
@@ -299,8 +293,6 @@ interface account {
   ): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 enum SelectionModeType {
   PIE = 'pie',
   CRUMBS = 'crumbs',
@@ -308,7 +300,7 @@ enum SelectionModeType {
 }
 
 interface AddressBalances {
-  [key: string]: AccountRegexType[]
+  [key: string]: string[] // `${number}@${string}`[]
 }
 
 interface SendTokensOptions {
@@ -386,5 +378,36 @@ interface BurnHistory {
   txn: number
   txid: string
   amounts: string[]
+}
+```
+
+## getBurnInfo
+
+Returns burn address and burnt coin and token information.
+Requires full acindex for correct amount, tokens and feeburn values.
+
+```ts title="client.account.getBurnInfo()"
+interface account {
+  getBurnInfo (): Promise<BurnInfo>
+}
+
+export interface BurnInfo {
+  address: string
+  /**
+   * Amount send to burn address
+   */
+  amount: BigNumber
+  /**
+   * Token amount send to burn address
+   */
+  tokens: Array<{ name: string, amount: BigNumber }>
+  /**
+   * Amount collected via fee burn
+   */
+  feeburn: BigNumber
+  /**
+   * Amount collected via emission burn
+   */
+  emissionburn: BigNumber
 }
 ```
