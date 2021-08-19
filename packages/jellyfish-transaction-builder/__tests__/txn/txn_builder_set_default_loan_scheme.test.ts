@@ -40,12 +40,11 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+  // Always set default scheme to scheme1
   const data = await testing.container.call('listloanschemes')
-  const result = data.filter((d: { default: boolean }) => !d.default)
-
-  for (let i = 0; i < result.length; i += 1) {
-    // Delete all schemes except default scheme
-    await testing.container.call('destroyloanscheme', [result[i].id])
+  const record = data.find((d: { default: string }) => d.default)
+  if (record.id !== 'scheme1') {
+    await testing.container.call('setdefaultloanscheme', ['scheme1'])
     await testing.generate(1)
   }
 })
@@ -86,7 +85,8 @@ describe('loan.setDefaultLoanScheme()', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: setdefaultloanscheme')
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
 
   it('should not setDefaultLoanScheme if identifier is more than 8 chars long', async () => {
@@ -141,7 +141,8 @@ describe('loan.setDefaultLoanScheme()', () => {
     }, script)
 
     const promise = sendTransaction(container, txn)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\nCannot set scheme3 as default, set to destroyed on block 120\', code: -32600, method: setdefaultloanscheme')
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DefaultLoanSchemeTx: Cannot set scheme3 as default, set to destroyed on block 120 (code 16)\', code: -26')
 
     // Delete at block 120
     await testing.container.waitForBlockHeight(120)
