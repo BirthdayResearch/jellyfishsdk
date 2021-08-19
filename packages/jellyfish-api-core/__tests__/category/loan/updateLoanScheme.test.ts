@@ -98,7 +98,7 @@ describe('Loan', () => {
     // Shouldn't update at block 111
     {
       const data = await testing.container.call('listloanschemes')
-      const result = data.filter((r: { id: string }) => r.id === 'scheme1')
+      const result = data.filter((d: { id: string }) => d.id === 'scheme1')
       expect(result.length).toStrictEqual(1)
       expect(result[0]).toStrictEqual(
         {
@@ -116,7 +116,7 @@ describe('Loan', () => {
     // Should update at block 120
     {
       const data = await testing.container.call('listloanschemes')
-      const result = data.filter((r: { id: string }) => r.id === 'scheme1')
+      const result = data.filter((d: { id: string }) => d.id === 'scheme1')
       expect(result.length).toStrictEqual(1)
       expect(result[0]).toStrictEqual(
         {
@@ -145,7 +145,7 @@ describe('Loan', () => {
     await testing.container.call('createloanscheme', [300, new BigNumber(3.5), 'scheme2'])
     await testing.generate(1)
 
-    // Update scheme on later block
+    // To update scheme on later block
     await testing.rpc.loan.updateLoanScheme(400, new BigNumber(4.5), { id: 'scheme2', activateAfterBlock: 150 })
     await testing.generate(1)
 
@@ -165,7 +165,7 @@ describe('Loan', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listloanschemes')
-    const result = data.filter((r: { id: string }) => r.id === 'scheme1')
+    const result = data.filter((d: { id: string }) => d.id === 'scheme1')
     expect(result.length).toStrictEqual(1)
     expect(result[0]).toStrictEqual(
       {
