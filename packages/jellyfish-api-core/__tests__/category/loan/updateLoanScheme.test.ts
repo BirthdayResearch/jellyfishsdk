@@ -96,33 +96,37 @@ describe('Loan', () => {
     await testing.generate(1)
 
     // Shouldn't update at block 111
-    let data = await testing.container.call('listloanschemes')
-    let result = data.filter((r: { id: string }) => r.id === 'scheme1')
-    expect(result.length).toStrictEqual(1)
-    expect(result[0]).toStrictEqual(
-      {
-        default: false,
-        id: 'scheme1',
-        interestrate: 2.5,
-        mincolratio: 200
-      }
-    )
+    {
+      const data = await testing.container.call('listloanschemes')
+      const result = data.filter((r: { id: string }) => r.id === 'scheme1')
+      expect(result.length).toStrictEqual(1)
+      expect(result[0]).toStrictEqual(
+        {
+          default: false,
+          id: 'scheme1',
+          interestrate: 2.5,
+          mincolratio: 200
+        }
+      )
+    }
 
     // Wait for block 120
     await testing.container.waitForBlockHeight(120)
 
     // Should update at block 120
-    result = await testing.container.call('listloanschemes')
-    data = result.filter((r: { id: string }) => r.id === 'scheme1')
-    expect(data.length).toStrictEqual(1)
-    expect(data[0]).toStrictEqual(
-      {
-        default: false,
-        id: 'scheme1',
-        interestrate: 3.5,
-        mincolratio: 300
-      }
-    )
+    {
+      const data = await testing.container.call('listloanschemes')
+      const result = data.filter((r: { id: string }) => r.id === 'scheme1')
+      expect(result.length).toStrictEqual(1)
+      expect(result[0]).toStrictEqual(
+        {
+          default: false,
+          id: 'scheme1',
+          interestrate: 3.5,
+          mincolratio: 300
+        }
+      )
+    }
   })
 
   it('should not updateLoanScheme if activateAfterBlock is less than current block', async () => {
@@ -155,17 +159,21 @@ describe('Loan', () => {
 
   it('should updateLoanScheme with utxos', async () => {
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
-
     const loanId = await testing.rpc.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme1', utxos: [{ txid, vout }] })
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const result = await testing.container.call('listloanschemes')
-    const data = result.filter((r: { id: string }) => r.id === 'scheme1')
-    expect(data.length).toStrictEqual(1)
-    expect(data[0]).toStrictEqual(
-      { id: 'scheme1', mincolratio: 300, interestrate: 3.5, default: false }
+    const data = await testing.container.call('listloanschemes')
+    const result = data.filter((r: { id: string }) => r.id === 'scheme1')
+    expect(result.length).toStrictEqual(1)
+    expect(result[0]).toStrictEqual(
+      {
+        default: false,
+        id: 'scheme1',
+        interestrate: 3.5,
+        mincolratio: 300
+      }
     )
   })
 
