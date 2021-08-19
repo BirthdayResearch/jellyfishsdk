@@ -6,7 +6,7 @@ import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { OP_CODES, VoteDecision } from '@defichain/jellyfish-transaction'
 
 class CustomOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMasterNodeRegTestContainer {
   protected getCmd (opts: StartOptions): string[] {
@@ -68,7 +68,7 @@ describe('vote', () => {
     await testing.container.generate(1, masternodeOperatorAddress) // Mint one block to be able to vote on proposal
 
     const vote = {
-      voteDecision: 0x01,
+      voteDecision: VoteDecision.YES,
       proposalId,
       masternodeId
     }

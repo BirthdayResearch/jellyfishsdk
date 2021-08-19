@@ -139,10 +139,16 @@ export class CCreateVoc extends CCreateProposal {
   static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }
 
+export enum VoteDecision {
+  YES = 0x01,
+  NO = 0x02,
+  NEUTRAL = 0x03
+}
+
 export interface Vote {
   proposalId: string // -----------| 32 bytes hex string
   masternodeId: string // ---------| 32 bytes hex string
-  voteDecision: number // ---------| 1 byte
+  voteDecision: number // ---------| 1 byte unsigned int. 0x01 (YES) | 0x02 (NO) | 0x03 (NEUTRAL)
 }
 
 /**
