@@ -21,7 +21,7 @@ export interface ICXCreateOrder {
   orderType: number // -------------| 1 byte unsigned, 0x1 (INTERNAL) | 0x2 (EXTERNAL)
   tokenId: number // ---------------| VarUInt{1-9 bytes}
   ownerAddress: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
-  receivePubkey?: string // --------| 1 byte for len + len bytes
+  receivePubkey?: string // --------| n = VarUInt{1-9 bytes} (not optional, defaults to 0x00) + n bytes
   amountFrom: BigNumber // ---------| 8 bytes unsigned
   orderPrice: BigNumber // ---------| 8 bytes unsigned
   expiry: number // ----------------| 4 bytes unsigned
