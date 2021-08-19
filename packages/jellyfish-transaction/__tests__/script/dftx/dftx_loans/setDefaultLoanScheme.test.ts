@@ -18,7 +18,7 @@ it('should bi-directional buffer-object-buffer', () => {
     )
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toStrictEqual(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x64)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x64)
   })
 })
 
