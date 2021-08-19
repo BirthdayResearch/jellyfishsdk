@@ -20,8 +20,8 @@ export class Loan {
    * @param {string} options.id
    * @param {number} [options.activateAfterBlock]
    * @param {UTXO[]} [options.utxos = []]
-   * @param {string} [options.utxos.txid]
-   * @param {number} [options.utxos.vout]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
    * @return {Promise<string>}
    */
   async updateLoanScheme (minColRatio: number, interestRate: BigNumber, options: UpdateLoanSchemeOptions): Promise<string> {
