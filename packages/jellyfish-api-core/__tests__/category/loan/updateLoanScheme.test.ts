@@ -158,11 +158,15 @@ describe('Loan', () => {
   })
 
   it('should updateLoanScheme with utxos', async () => {
-    const utxo = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
-    const loanId = await testing.rpc.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme1', utxos: [utxo] })
-    expect(typeof loanId).toStrictEqual('string')
-    expect(loanId.length).toStrictEqual(64)
+    const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
+    const loanSchemeId = await testing.rpc.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme1', utxos: [{ txid, vout }] })
+    expect(typeof loanSchemeId).toStrictEqual('string')
+    expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
+
+    const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
     const data = await testing.container.call('listloanschemes')
     const result = data.filter((d: { id: string }) => d.id === 'scheme1')
