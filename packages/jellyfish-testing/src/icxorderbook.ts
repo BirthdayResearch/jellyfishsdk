@@ -30,6 +30,11 @@ export class TestingICX {
     this.accountBTC = await this.testing.container.getNewAddress()
   }
 
+  async setAccounts (address1: string, address2: string): Promise<void> {
+    this.accountDFI = address1
+    this.accountBTC = address2
+  }
+
   async initializeTokensIds (): Promise<void> {
     let tokenInfo = await this.testing.rpc.token.getToken(this.symbolBTC)
     this.idBTC = Object.keys(tokenInfo)[0]
