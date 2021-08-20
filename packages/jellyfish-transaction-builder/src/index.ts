@@ -13,9 +13,9 @@ export * from './txn/txn_builder'
 export * from './txn/txn_builder_dex'
 export * from './txn/txn_builder_utxo'
 export * from './txn/txn_builder_account'
+export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_liq_pool'
 export * from './txn/txn_builder_masternode'
-export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_loans'
 
 /**

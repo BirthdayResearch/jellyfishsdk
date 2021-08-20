@@ -33,7 +33,7 @@ afterAll(async () => {
 beforeEach(async () => {
   // Fund 10 DFI UTXO
   await fundEllipticPair(testing.container, providers.ellipticPair, 10)
-  await providers.setupMocks() // required to move utxos
+  await providers.setupMocks() // Required to move utxos
 })
 
 afterEach(async () => {
@@ -64,7 +64,7 @@ describe('loan.destroyLoanScheme()', () => {
       identifier: 'scheme'
     }, script)
 
-    // Ensure the created txn is correct.
+    // Ensure the created txn is correct
     const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)

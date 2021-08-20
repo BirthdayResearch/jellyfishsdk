@@ -39,10 +39,10 @@ import {
   CAppointOracle,
   RemoveOracle,
   CRemoveOracle,
-  SetOracleData,
-  CSetOracleData,
   UpdateOracle,
-  CUpdateOracle
+  CUpdateOracle,
+  SetOracleData,
+  CSetOracleData
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'

@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js'
  */
 export interface DestroyLoanScheme {
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  height?: BigNumber // -------------------| 8 bytes unsigned integer
+  height?: BigNumber // ------------------| 8 bytes unsigned integer
 }
 
 /**
@@ -19,7 +19,7 @@ export interface DestroyLoanScheme {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
-  static OP_CODE = 0x44
+  static OP_CODE = 0x44 // 'D'
   static OP_NAME = 'OP_DEFI_TX_DESTROY_LOAN_SCHEME'
 
   composers (dls: DestroyLoanScheme): BufferComposer[] {
