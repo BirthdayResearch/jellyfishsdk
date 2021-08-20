@@ -48,7 +48,7 @@ afterEach(async () => {
 })
 
 describe('loan.destroyLoanScheme()', () => {
-  it('should destroyLoanSchem', async () => {
+  it('should destroyLoanScheme', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
@@ -61,12 +61,11 @@ describe('loan.destroyLoanScheme()', () => {
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'scheme',
-      height: new BigNumber(120)
+      identifier: 'scheme'
     }, script)
 
     // Ensure the created txn is correct.
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
@@ -130,7 +129,7 @@ describe('loan.destroyLoanScheme()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
   })
 
-  it('should destroyLoanScheme with height', async () => {
+  it('should destroyLoanScheme with height 120', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 

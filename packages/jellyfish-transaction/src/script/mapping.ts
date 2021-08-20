@@ -26,7 +26,16 @@ import {
   PoolSwap,
   PoolUpdatePair
 } from './dftx/dftx_pool'
-import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './dftx/dftx_token'
+import {
+  CTokenCreate,
+  CTokenMint,
+  CTokenUpdate,
+  CTokenUpdateAny,
+  TokenCreate,
+  TokenMint,
+  TokenUpdate,
+  TokenUpdateAny
+} from './dftx/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -38,14 +47,14 @@ import {
   UtxosToAccount
 } from './dftx/dftx_account'
 import {
-  CAppointOracle,
   AppointOracle,
-  RemoveOracle,
+  CAppointOracle,
   CRemoveOracle,
-  UpdateOracle,
+  CSetOracleData,
   CUpdateOracle,
+  RemoveOracle,
   SetOracleData,
-  CSetOracleData
+  UpdateOracle
 } from './dftx/dftx_oracles'
 import {
   CDestroyLoanScheme,
@@ -54,7 +63,6 @@ import {
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icxorderbook'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -318,15 +326,6 @@ export const OP_CODES = {
       type: CDestroyLoanScheme.OP_CODE,
       name: CDestroyLoanScheme.OP_NAME,
       data: destroyLoanScheme
-    })
-  },
-
-  OP_DEFI_TX_ICX_CREATE_ORDER: (createOrder: ICXCreateOrder) => {
-    return new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: CICXCreateOrder.OP_CODE,
-      name: CICXCreateOrder.OP_NAME,
-      data: createOrder
     })
   },
 

@@ -6,7 +6,6 @@ import { TxnBuilderOracles } from './txn/txn_builder_oracles'
 import { TxnBuilderLiqPool } from './txn/txn_builder_liq_pool'
 import { TxnBuilderMasternode } from './txn/txn_builder_masternode'
 import { TxnBuilderICX } from './txn/txn_builder_icxorderbook'
-
 import { TxnBuilderLoans } from './txn/txn_builder_loans'
 
 export * from './provider'
@@ -18,7 +17,6 @@ export * from './txn/txn_builder_account'
 export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_liq_pool'
 export * from './txn/txn_builder_masternode'
-export * from './txn/txn_builder_icxorderbook'
 export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_loans'
 

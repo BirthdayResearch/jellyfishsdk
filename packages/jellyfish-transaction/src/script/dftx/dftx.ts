@@ -13,19 +13,36 @@ import {
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
-  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolCreatePair, CPoolUpdatePair, PoolAddLiquidity, PoolRemoveLiquidity,
-  PoolSwap, PoolCreatePair, PoolUpdatePair
+  CPoolAddLiquidity,
+  CPoolCreatePair,
+  CPoolRemoveLiquidity,
+  CPoolSwap,
+  CPoolUpdatePair,
+  PoolAddLiquidity,
+  PoolCreatePair,
+  PoolRemoveLiquidity,
+  PoolSwap,
+  PoolUpdatePair
 } from './dftx_pool'
-import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
 import {
-  CAppointOracle,
+  CTokenCreate,
+  CTokenMint,
+  CTokenUpdate,
+  CTokenUpdateAny,
+  TokenCreate,
+  TokenMint,
+  TokenUpdate,
+  TokenUpdateAny
+} from './dftx_token'
+import {
   AppointOracle,
-  CUpdateOracle,
-  UpdateOracle,
-  CRemoveOracle,
+  CAppointOracle,
   RemoveOracle,
+  CRemoveOracle,
+  SetOracleData,
   CSetOracleData,
-  SetOracleData
+  UpdateOracle,
+  CUpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
