@@ -19,7 +19,7 @@ export interface CreateLoanScheme {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
-  static OP_CODE = 0x4c
+  static OP_CODE = 0x4c // 'L'
   static OP_NAME = 'OP_DEFI_TX_CREATE_LOAN_SCHEME'
 
   composers (cls: CreateLoanScheme): BufferComposer[] {
