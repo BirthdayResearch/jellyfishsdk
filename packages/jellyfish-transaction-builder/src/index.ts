@@ -26,5 +26,5 @@ export class P2WPKHTransactionBuilder extends P2WPKHTxnBuilder {
   public readonly account = new TxnBuilderAccount(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
   public readonly liqPool = new TxnBuilderLiqPool(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
   public readonly oracles = new TxnBuilderOracles(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly icx = new TxnBuilderICX(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
+  public readonly icxorderbook = new TxnBuilderICX(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
 }

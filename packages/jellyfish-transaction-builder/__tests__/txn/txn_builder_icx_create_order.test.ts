@@ -73,7 +73,7 @@ describe('create ICX order', () => {
       expiry: 2880
     }
 
-    const txn = await builder.icx.createOrder(icxOrder, script)
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -85,7 +85,7 @@ describe('create ICX order', () => {
     const txid = calculateTxid(txn)
     const order = listOrders[txid]
 
-    const currentHeight: number = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOrder.expiry
 
     expect(order).toStrictEqual({
@@ -115,7 +115,7 @@ describe('create ICX order', () => {
       expiry: 2880
     }
 
-    const txn = await builder.icx.createOrder(icxOrder, script)
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -127,7 +127,7 @@ describe('create ICX order', () => {
     const txid = calculateTxid(txn)
     const order = listOrders[txid]
 
-    const currentHeight = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOrder.expiry
 
     expect(order).toStrictEqual({
@@ -156,7 +156,7 @@ describe('create ICX order', () => {
       expiry: 2880
     }
 
-    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1000000')
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1000000')
   })
 
   it('should reject invalid negative amountFrom', async () => {
@@ -170,7 +170,7 @@ describe('create ICX order', () => {
       expiry: 2880
     }
 
-    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1500000000')
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1500000000')
   })
 
   it('should reject invalid negative expiry', async () => {
@@ -184,6 +184,6 @@ describe('create ICX order', () => {
       expiry: -2880
     }
 
-    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -2880')
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -2880')
   })
 })
