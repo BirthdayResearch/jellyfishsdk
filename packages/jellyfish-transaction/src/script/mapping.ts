@@ -57,7 +57,7 @@ import {
   UpdateOracle
 } from './dftx/dftx_oracles'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
+import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateProposal } from './dftx/dftx_governance'
 
 /**
