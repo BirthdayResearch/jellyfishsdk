@@ -108,8 +108,8 @@ describe('Loan', () => {
   })
 
   it('should not setDefaultLoanScheme with utxos not from foundation member', async () => {
-    const { txid, vout } = await testing.container.fundAddress(await testing.generateAddress(), 10)
-    const promise = testing.rpc.loan.setDefaultLoanScheme('scheme2', [{ txid, vout }])
+    const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
+    const promise = testing.rpc.loan.setDefaultLoanScheme('scheme2', [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DefaultLoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: setdefaultloanscheme')
   })
 })
