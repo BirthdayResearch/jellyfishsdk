@@ -50,11 +50,11 @@ export class Spv {
    *
    * @param {string} address Bitcoin address
    * @param {BigNumber} amount Bitcoin amount
-   * @param {SendToAddressOptions} [options]
+   * @param {SpvDefaultOptions} [options]
    * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
    * @return {Promise<SendMessageResult>}
    */
-  async sendToAddress (address: string, amount: BigNumber, options: SendToAddressOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+  async sendToAddress (address: string, amount: BigNumber, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
     return await this.client.call('spv_sendtoaddress', [address, amount, options.feeRate], 'bignumber')
   }
 
@@ -95,6 +95,40 @@ export class Spv {
   async claimHtlc (scriptAddress: string, destinationAddress: string, options: ClaimHtlcOptions): Promise<SendMessageResult> {
     return await this.client.call('spv_claimhtlc', [scriptAddress, destinationAddress, options.seed, options.feeRate], 'bignumber')
   }
+
+  /**
+   * Returns the HTLC secret if available.
+   *
+   * @param {string} address HTLC address
+   * @return {Promise<string>} HTLC secret
+   */
+  async getHtlcSeed (address: string): Promise<string> {
+    return await this.client.call('spv_gethtlcseed', [address], 'number')
+  }
+
+  /**
+   * Refunds all coins in HTLC address.
+   * Can be used after the timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
+   *
+   * @param {string} scriptAddress HTLC address
+   * @param {string} destinationAddress Destination for funds in the HTLC
+   * @param {SpvDefaultOptions} [options]
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
+   * @return {Promise<SendMessageResult>}
+   */
+  async refundHtlc (scriptAddress: string, destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<SendMessageResult> {
+    return await this.client.call('spv_refundhtlc', [scriptAddress, destinationAddress, options.feeRate], 'number')
+  }
+
+  /**
+   * List all outputs related to HTLC addresses in the wallet.
+   *
+   * @param {string | undefined} [scriptAddress] HTLC address to filter result
+   * @return {Promise<ListHtlcsOutputsResult[]>}
+   */
+  async listHtlcOutputs (scriptAddress?: string): Promise<ListHtlcsOutputsResult[]> {
+    return await this.client.call('spv_listhtlcoutputs', [scriptAddress], { amount: 'bignumber' })
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -110,7 +144,8 @@ export interface ReceivedByAddressInfo {
   txids: string[]
 }
 
-export interface SendToAddressOptions {
+export interface SpvDefaultOptions {
+  /** Fee rate in satoshis per KB */
   feeRate?: BigNumber
 }
 
@@ -153,4 +188,26 @@ export interface ClaimHtlcOptions {
   seed: string
   /** Fee rate in satoshis per KB */
   feeRate?: BigNumber
+}
+
+export interface SpentInfo {
+  /** The transaction id */
+  txid: string
+  /** Number of spent confirmations */
+  confirms: number
+}
+
+export interface ListHtlcsOutputsResult {
+  /** The transaction id */
+  txid: string
+  /** Output relating to the HTLC address */
+  vout: number
+  /** Total amount of BTC recieved by the address */
+  amount: BigNumber
+  /** HTLC address */
+  address: string
+  /** Number of confirmations */
+  confirms: number
+  /** Object containing spent info */
+  spent: SpentInfo
 }
