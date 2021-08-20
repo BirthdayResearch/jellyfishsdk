@@ -158,8 +158,8 @@ describe('Loan', () => {
   })
 
   it('should updateLoanScheme with utxos', async () => {
-    const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
-    const loanId = await testing.rpc.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme1', utxos: [{ txid, vout }] })
+    const utxo = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
+    const loanId = await testing.rpc.loan.updateLoanScheme(300, new BigNumber(3.5), { id: 'scheme1', utxos: [utxo] })
     expect(typeof loanId).toStrictEqual('string')
     expect(loanId.length).toStrictEqual(64)
     await testing.generate(1)

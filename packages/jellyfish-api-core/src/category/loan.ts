@@ -25,8 +25,8 @@ export class Loan {
    * @return {Promise<string>} Hex string of the transaction
    */
   async updateLoanScheme (minColRatio: number, interestRate: BigNumber, options: UpdateLoanSchemeOptions): Promise<string> {
-    const { activateAfterBlock = undefined, utxos = [] } = options
-    return await this.client.call('updateloanscheme', [minColRatio, interestRate, options.id, activateAfterBlock, utxos], 'number')
+    const { id, activateAfterBlock, utxos = [] } = options
+    return await this.client.call('updateloanscheme', [minColRatio, interestRate, id, activateAfterBlock, utxos], 'number')
   }
 }
 
