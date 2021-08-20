@@ -138,9 +138,9 @@ describe('Loan', () => {
   })
 
   it('should not destroyLoanScheme with utxos not from foundation member', async () => {
-    const { txid, vout } = await testing.container.fundAddress(await testing.generateAddress(), 10)
+    const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
-    const promise = testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [{ txid, vout }] })
+    const promise = testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [utxo] })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DestroyLoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: destroyloanscheme')
   })
 })
