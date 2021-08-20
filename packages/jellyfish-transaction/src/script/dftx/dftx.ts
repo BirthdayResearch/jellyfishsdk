@@ -46,7 +46,6 @@ import {
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
 import { CDestroyLoanScheme, DestroyLoanScheme } from './dftx_loans'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
@@ -166,8 +165,6 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
-      case CICXCreateOrder.OP_CODE:
-        return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       case CDestroyLoanScheme.OP_CODE:
         return compose<DestroyLoanScheme>(CDestroyLoanScheme.OP_NAME, d => new CDestroyLoanScheme(d))
       default:
