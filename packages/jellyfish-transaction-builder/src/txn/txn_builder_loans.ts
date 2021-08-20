@@ -14,6 +14,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async updateLoanScheme (updateLoanScheme: UpdateLoanScheme, changeScript: Script): Promise<TransactionSegWit> {
+    // NOTE(jingyi2811): By default, update is set to ffffffffffffffff which is 18446744073709551615 until it is overriden.
     updateLoanScheme.update = updateLoanScheme.update ?? new BigNumber('18446744073709551615')
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UPDATE_LOAN_SCHEME(updateLoanScheme),

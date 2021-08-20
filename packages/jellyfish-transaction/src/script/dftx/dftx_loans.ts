@@ -13,7 +13,7 @@ export interface UpdateLoanScheme {
   ratio: number // -----------------------| 4 bytes unsigned
   rate: BigNumber // ---------------------| 8 bytes
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  update?: BigNumber // -------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
+  update?: BigNumber // ------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
 }
 
 /**
@@ -31,6 +31,7 @@ export class CUpdateLoanScheme extends ComposableBuffer<UpdateLoanScheme> {
       ComposableBuffer.varUIntUtf8BE(() => uls.identifier, v => uls.identifier = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
+          // NOTE(jingyi2811): By default, update is set to ffffffffffffffff which is 18446744073709551615 until it is overriden.
           if (!readBigNumberUInt64(buffer).isEqualTo(new BigNumber('18446744073709551615'))) {
             uls.update = readBigNumberUInt64(buffer)
           }
