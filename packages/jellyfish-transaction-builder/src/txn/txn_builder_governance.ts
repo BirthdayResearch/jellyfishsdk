@@ -14,7 +14,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-  async createCfp (createCfp: CreateProposal, changeScript: Script, network = 'regtest'): Promise<TransactionSegWit> {
+  async createCfp (createCfp: CreateProposal, changeScript: Script, network = 'mainnet'): Promise<TransactionSegWit> {
     if (createCfp.type !== 0x01) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_CFP_TYPE,
         'CreateCfp type should equal 0x01'
@@ -35,7 +35,7 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
-  async createVoc (createVoc: CreateProposal, changeScript: Script, network = 'regtest'): Promise<TransactionSegWit> {
+  async createVoc (createVoc: CreateProposal, changeScript: Script, network = 'mainnet'): Promise<TransactionSegWit> {
     if (createVoc.type !== 0x03) {
       throw new TxnBuilderError(TxnBuilderErrorType.INVALID_VOC_TYPE,
         'CreateVoc type should be 0x03'

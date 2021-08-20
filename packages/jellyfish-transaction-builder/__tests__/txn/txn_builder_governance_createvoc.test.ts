@@ -24,7 +24,7 @@ describe('createVoc', () => {
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
+    await fundEllipticPair(testing.container, providers.ellipticPair, 101) // Amount needed for two createVoc creation + fees
     await providers.setupMocks()
   })
 
@@ -49,7 +49,7 @@ describe('createVoc', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toStrictEqual(5)
+    expect(outs[0].value).toStrictEqual(50)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     const listProposals = await testing.rpc.governance.listProposals()
@@ -153,7 +153,6 @@ describe('createVoc', () => {
       cycles: 2
     }
     const txn = await builder.governance.createVoc(createVoc, script)
-
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)

@@ -24,7 +24,7 @@ describe('createCfp', () => {
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
+    await fundEllipticPair(testing.container, providers.ellipticPair, 21) // Amount needed for two cfp creation + fees
     await providers.setupMocks()
   })
 
@@ -53,7 +53,7 @@ describe('createCfp', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[0].value).toStrictEqual(10)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     const listProposals = await testing.rpc.governance.listProposals()
