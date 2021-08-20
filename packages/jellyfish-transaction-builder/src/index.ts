@@ -5,7 +5,7 @@ import { TxnBuilderAccount } from './txn/txn_builder_account'
 import { TxnBuilderOracles } from './txn/txn_builder_oracles'
 import { TxnBuilderLiqPool } from './txn/txn_builder_liq_pool'
 import { TxnBuilderMasternode } from './txn/txn_builder_masternode'
-import { TxnBuilderLoans } from '@defichain/jellyfish-transaction-builder/txn/txn_builder_loans'
+import { TxnBuilderLoans } from './txn/txn_builder_loans'
 
 export * from './provider'
 export * from './txn/txn_fee'
