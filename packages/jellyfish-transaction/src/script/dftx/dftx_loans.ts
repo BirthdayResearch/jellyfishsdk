@@ -32,8 +32,9 @@ export class CUpdateLoanScheme extends ComposableBuffer<UpdateLoanScheme> {
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           // NOTE(jingyi2811): By default, update is set to ffffffffffffffff which is 18446744073709551615 until it is overriden.
-          if (!readBigNumberUInt64(buffer).isEqualTo(new BigNumber('18446744073709551615'))) {
-            uls.update = readBigNumberUInt64(buffer)
+          const num = readBigNumberUInt64(buffer)
+          if (num.isLessThan(new BigNumber('18446744073709551615'))) {
+            uls.update = num
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
