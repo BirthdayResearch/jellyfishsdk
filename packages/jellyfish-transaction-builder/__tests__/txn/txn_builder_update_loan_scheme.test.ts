@@ -163,7 +163,7 @@ describe('loan.updateLoanScheme()', () => {
     await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
 
-  it('should updateLoanScheme at block 150', async () => {
+  it('should updateLoanScheme at block 160', async () => {
     // Wait for block 150
     await testing.container.waitForBlockHeight(150)
 
@@ -237,7 +237,7 @@ describe('loan.updateLoanScheme()', () => {
     await testing.container.call('createloanscheme', [400, new BigNumber(4.5), 'scheme2'])
     await testing.generate(1)
 
-    // To update scheme on later block
+    // To update scheme at later block
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanScheme({
       ratio: 400,
@@ -251,7 +251,6 @@ describe('loan.updateLoanScheme()', () => {
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme scheme2 with same interestrate and mincolratio already exists (code 16)\', code: -26')
 
-    // Update at block 190
     await testing.container.waitForBlockHeight(190)
   })
 })
