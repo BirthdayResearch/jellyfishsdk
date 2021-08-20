@@ -13,23 +13,39 @@ import {
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
-  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolCreatePair, CPoolUpdatePair, PoolAddLiquidity, PoolRemoveLiquidity,
-  PoolSwap, PoolCreatePair, PoolUpdatePair
+  CPoolAddLiquidity,
+  CPoolCreatePair,
+  CPoolRemoveLiquidity,
+  CPoolSwap,
+  CPoolUpdatePair,
+  PoolAddLiquidity,
+  PoolCreatePair,
+  PoolRemoveLiquidity,
+  PoolSwap,
+  PoolUpdatePair
 } from './dftx_pool'
-import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
 import {
-  CAppointOracle,
+  CTokenCreate,
+  CTokenMint,
+  CTokenUpdate,
+  CTokenUpdateAny,
+  TokenCreate,
+  TokenMint,
+  TokenUpdate,
+  TokenUpdateAny
+} from './dftx_token'
+import {
   AppointOracle,
-  CUpdateOracle,
-  UpdateOracle,
+  CAppointOracle,
   CRemoveOracle,
-  RemoveOracle,
   CSetOracleData,
-  SetOracleData
+  CUpdateOracle,
+  RemoveOracle,
+  SetOracleData,
+  UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
 
 // Disabling no-return-assign makes the code cleaner with the setter and getter */
 /* eslint-disable no-return-assign */
@@ -148,8 +164,6 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
-      case CICXCreateOrder.OP_CODE:
-        return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
