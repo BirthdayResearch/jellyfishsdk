@@ -10,7 +10,7 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx_masternode'
+import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
   CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolCreatePair, CPoolUpdatePair, PoolAddLiquidity, PoolRemoveLiquidity,
@@ -142,10 +142,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
-      case CCreateMasterNode.OP_CODE:
-        return compose<CreateMasterNode>(CCreateMasterNode.OP_NAME, d => new CCreateMasterNode(d))
-      case CResignMasterNode.OP_CODE:
-        return compose<ResignMasterNode>(CResignMasterNode.OP_NAME, d => new CResignMasterNode(d))
+      case CCreateMasternode.OP_CODE:
+        return compose<CreateMasternode>(CCreateMasternode.OP_NAME, d => new CCreateMasternode(d))
+      case CResignMasternode.OP_CODE:
+        return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
       case CICXCreateOrder.OP_CODE:
