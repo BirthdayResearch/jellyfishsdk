@@ -27,8 +27,9 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
       ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          if (readBigNumberUInt64(buffer).isGreaterThan(0)) {
-            dls.height = readBigNumberUInt64(buffer)
+          const num = readBigNumberUInt64(buffer)
+          if (num.isGreaterThan(0)) {
+            dls.height = num
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
