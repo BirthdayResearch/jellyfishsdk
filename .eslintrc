@@ -1,0 +1,18 @@
+{
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "extends": [
+    "standard-with-typescript",
+    "standard-jsx"
+  ],
+  "ignorePatterns": [
+    "dist",
+    "*.json",
+    "website"
+  ],
+  "rules": {
+    "func-style": [2, "declaration"],
+    "import/no-default-export": "error"
+  }
+}
