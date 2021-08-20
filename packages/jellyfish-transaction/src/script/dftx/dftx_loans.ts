@@ -13,8 +13,7 @@ export interface UpdateLoanScheme {
   ratio: number // -----------------------| 4 bytes unsigned
   rate: BigNumber // ---------------------| 8 bytes
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  update: BigNumber // -------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
-  height?: BigNumber // -------------------| 8 bytes unsigned integer
+  update?: BigNumber // -------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
 }
 
 /**
@@ -30,15 +29,14 @@ export class CUpdateLoanScheme extends ComposableBuffer<UpdateLoanScheme> {
       ComposableBuffer.uInt32(() => uls.ratio, v => uls.ratio = v),
       ComposableBuffer.satoshiAsBigNumber(() => uls.rate, v => uls.rate = v),
       ComposableBuffer.varUIntUtf8BE(() => uls.identifier, v => uls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => uls.update, v => uls.update = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          if (readBigNumberUInt64(buffer).isGreaterThan(0)) {
-            uls.height = readBigNumberUInt64(buffer)
+          if (!readBigNumberUInt64(buffer).isEqualTo(new BigNumber('18446744073709551615'))) {
+            uls.update = readBigNumberUInt64(buffer)
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          writeBigNumberUInt64(uls.height ?? new BigNumber(0), buffer)
+          writeBigNumberUInt64(uls.update ?? new BigNumber('18446744073709551615'), buffer)
         }
       }
     ]

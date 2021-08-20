@@ -24,38 +24,78 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CUpdateLoanScheme.OP_CODE(0x4c)
-const data = 'c800000080b2e60e0000000006736368656d65ffffffffffffffff'
-const updateLoanScheme: UpdateLoanScheme = {
-  ratio: 200,
-  rate: new BigNumber(2.5),
-  identifier: 'scheme',
-  update: new BigNumber('18446744073709551615.99999999')
-}
+describe('UpdateLoanScheme', () => {
+  const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CUpdateLoanScheme.OP_CODE(0x4c)
+  const data = 'c800000080b2e60e0000000006736368656d65ffffffffffffffff'
+  const updateLoanScheme: UpdateLoanScheme = {
+    ratio: 200,
+    rate: new BigNumber(2.5),
+    identifier: 'scheme',
+    update: new BigNumber('18446744073709551615')
+  }
 
-it('should craft dftx with OP_CODES._()', () => {
-  const stack = [
-    OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_UPDATE_LOAN_SCHEME(updateLoanScheme)
-  ]
+  it('should craft dftx with OP_CODES._()', () => {
+    const stack = [
+      OP_CODES.OP_RETURN,
+      OP_CODES.OP_DEFI_TX_UPDATE_LOAN_SCHEME(updateLoanScheme)
+    ]
 
-  const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toStrictEqual(header + data)
-})
-
-describe('Composable', () => {
-  it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CUpdateLoanScheme(buffer)
-
-    expect(composable.toObject()).toStrictEqual(updateLoanScheme)
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
-  it('should compose from composable to buffer', () => {
-    const composable = new CUpdateLoanScheme(updateLoanScheme)
-    const buffer = new SmartBuffer()
-    composable.toBuffer(buffer)
+  describe('Composable', () => {
+    it('should compose from buffer to composable', () => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+      const composable = new CUpdateLoanScheme(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+      expect(composable.toObject()).toStrictEqual(updateLoanScheme)
+    })
+
+    it('should compose from composable to buffer', () => {
+      const composable = new CUpdateLoanScheme(updateLoanScheme)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+    })
+  })
+})
+
+describe('UpdateLoanScheme at certain block', () => {
+  const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CUpdateLoanScheme.OP_CODE(0x4c)
+  const data = 'c800000080b2e60e0000000006736368656d65c800000000000000'
+  const updateLoanScheme: UpdateLoanScheme = {
+    ratio: 200,
+    rate: new BigNumber(2.5),
+    identifier: 'scheme',
+    update: new BigNumber('200')
+  }
+
+  it('should craft dftx with OP_CODES._()', () => {
+    const stack = [
+      OP_CODES.OP_RETURN,
+      OP_CODES.OP_DEFI_TX_UPDATE_LOAN_SCHEME(updateLoanScheme)
+    ]
+
+    const buffer = toBuffer(stack)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
+  })
+
+  describe('Composable', () => {
+    it('should compose from buffer to composable', () => {
+      const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
+      const composable = new CUpdateLoanScheme(buffer)
+
+      expect(composable.toObject()).toStrictEqual(updateLoanScheme)
+    })
+
+    it('should compose from composable to buffer', () => {
+      const composable = new CUpdateLoanScheme(updateLoanScheme)
+      const buffer = new SmartBuffer()
+      composable.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
+    })
   })
 })
