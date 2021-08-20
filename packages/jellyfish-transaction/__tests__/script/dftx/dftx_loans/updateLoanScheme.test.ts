@@ -23,13 +23,13 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a204466547866' // OP_RETURN, PUSH_DATA(44665478, 66)
+const header = '6a204466547866' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CUpdateLoanScheme.OP_CODE(0x66)
 const data = 'c800000080b2e60e0000000006736368656d65ffffffffffffffff'
 const updateLoanScheme: UpdateLoanScheme = {
   ratio: 200,
-  rate: new BigNumber('2.5'),
+  rate: new BigNumber(2.5),
   identifier: 'scheme',
-  update: BigInt(-1)
+  update: new BigNumber(1)
 }
 
 it('should craft dftx with OP_CODES._()', () => {
