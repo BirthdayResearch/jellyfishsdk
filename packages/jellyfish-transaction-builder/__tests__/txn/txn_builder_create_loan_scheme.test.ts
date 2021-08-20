@@ -57,7 +57,7 @@ describe('loan.createLoanScheme()', () => {
       update: new BigNumber(0)
     }, script)
 
-    // Ensure the created txn is correct.
+    // Ensure the created txn is correct
     const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
