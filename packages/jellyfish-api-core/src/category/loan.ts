@@ -15,8 +15,8 @@ export class Loan {
    *
    * @param {string} id Unique identifier of the loan scheme, max 8 chars
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} [utxos.txid] Transaction Id
-   * @param {number} [utxos.vout] Output number
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
    * @return {Promise<string>} Hex string of the transaction
    */
   async setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string> {
