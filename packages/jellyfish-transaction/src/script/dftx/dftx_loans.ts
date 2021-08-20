@@ -1,3 +1,5 @@
+import { SmartBuffer } from 'smart-buffer'
+import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import BigNumber from 'bignumber.js'
 
@@ -23,7 +25,14 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
   composers (dls: DestroyLoanScheme): BufferComposer[] {
     return [
       ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          dls.height = readBigNumberUInt64(buffer)
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          writeBigNumberUInt64(dls.height ?? new BigNumber(0), buffer)
+        }
+      }
     ]
   }
 }
