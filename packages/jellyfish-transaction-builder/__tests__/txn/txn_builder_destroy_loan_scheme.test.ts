@@ -129,7 +129,7 @@ describe('loan.destroyLoanScheme()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
   })
 
-  it('should destroyLoanScheme with height 120', async () => {
+  it('should destroyLoanScheme with height', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
