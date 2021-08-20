@@ -1,7 +1,7 @@
 import { OP_CODES, Script, TransactionSegWit, ICXCreateOrder } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
-export class TxnBuilderICX extends P2WPKHTxnBuilder {
+export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   /**
    * ICX Create Order.
    *
