@@ -17,8 +17,8 @@ export class Loan {
    * @param {number} [activateAfterBlock] Block height at which new changes take effect
    * @param {DeleteLoanSchemeOptions} [options]
    * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
-   * @param {string} [options.utxos.txid] Transaction Id
-   * @param {number} [options.utxos.vout] Output number
+   * @param {string} options.utxos.txid Transaction Id
+   * @param {number} options.utxos.vout Output number
    * @return {Promise<string>} Hex string of the transaction
    */
   async destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanSchemeOptions = {}): Promise<string> {
