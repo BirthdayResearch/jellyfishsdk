@@ -23,7 +23,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a144466547844' // OP_RETURN(0x1a) (length 20 = 0x14) CDfTx.SIGNATURE(0x44665478) CDestroyLoanScheme.OP_CODE(0x44)
+const header = '6a144466547844' // OP_RETURN(0x6a) (length 20 = 0x14) CDfTx.SIGNATURE(0x44665478) CDestroyLoanScheme.OP_CODE(0x44)
 
 const data = '06736368656d65c800000000000000'
 const destroyLoanScheme: DestroyLoanScheme = {
