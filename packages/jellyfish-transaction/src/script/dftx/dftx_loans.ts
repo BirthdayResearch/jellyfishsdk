@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js'
  */
 export interface DestroyLoanScheme {
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  height: BigNumber // -------------------| 8 bytes unsigned integer
+  height?: BigNumber // -------------------| 8 bytes unsigned integer
 }
 
 /**
@@ -27,7 +27,9 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
       ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          dls.height = readBigNumberUInt64(buffer)
+          if (readBigNumberUInt64(buffer).isGreaterThan(0)) {
+            dls.height = readBigNumberUInt64(buffer)
+          }
         },
         toBuffer: (buffer: SmartBuffer): void => {
           writeBigNumberUInt64(dls.height ?? new BigNumber(0), buffer)
