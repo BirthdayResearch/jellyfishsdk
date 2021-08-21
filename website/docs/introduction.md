@@ -8,13 +8,13 @@ slug: /
 ## What is Jellyfish?
 
 A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized 
-finance on Bitcoin. Consisting of multiple packages with more to be added in the future, this JS library enable 
-developers to develop decentralized applications on top of DeFi Blockchain that are modern, easy to use and easy to 
+finance on Bitcoin. Consisting of multiple packages with more to be added in the future, this JS library enables 
+developers to create decentralized applications on top of DeFi Blockchain that are modern, easy to use and easy to 
 test.
 
 Written in TypeScript, jellyfish provides first-class citizen support for TypeScript with strongly typed interfaces of
 DeFi blockchain rpc exchanges. Built using modern JavaScript approaches, it emphasises a **future-first developer experience**
-and backport for compatibility. The protocol-agnostic core enable independent communication protocols, allowing
+and backport for compatibility. The protocol-agnostic core enables independent communication protocols, allowing
 vendor-agnostic middleware adaptable to any needs.
 
 ### Monorepo & packages 
