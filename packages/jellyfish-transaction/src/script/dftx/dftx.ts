@@ -47,9 +47,6 @@ import {
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * DeFi Transaction
  * [OP_RETURN, OP_PUSHDATA] Custom Transaction

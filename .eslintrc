@@ -14,5 +14,17 @@
   "rules": {
     "func-style": [2, "declaration"],
     "import/no-default-export": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/jellyfish-transaction/__tests__/**/*.test.ts",
+        "**/jellyfish-transaction/src/script/dftx/**/*.ts",
+        "**/jellyfish-transaction/src/*.ts"
+      ],
+      "rules": {
+        "no-return-assign": "off"
+      }
+    }
+  ]
 }
