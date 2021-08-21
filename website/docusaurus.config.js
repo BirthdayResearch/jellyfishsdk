@@ -1,7 +1,7 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'DeFi Jellyfish',
-  tagline: 'DeFiChain SDK. A collection of TypeScript + JavaScript tools and libraries for DeFi blockchain developers to build decentralized finance for Bitcoin',
+  tagline: 'DeFiChain SDK. A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin',
   url: 'https://jellyfish.defichain.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',

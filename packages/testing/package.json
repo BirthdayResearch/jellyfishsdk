@@ -2,7 +2,7 @@
   "private": false,
   "name": "@defichain/testing",
   "version": "0.0.0",
-  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi blockchain developers to build decentralized finance for Bitcoin",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
   "keywords": [
     "DeFiChain",
     "DeFi",
