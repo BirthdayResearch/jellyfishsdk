@@ -23,7 +23,7 @@ interface loan {
 }
 
 interface CreateLoanScheme {
-  minColRatio: number,
+  minColRatio: number
   interestRate: BigNumber
   id: string
 }
