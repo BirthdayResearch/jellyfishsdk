@@ -27,7 +27,8 @@ export class Loan {
     return await this.client.call('createloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, utxos], 'number')
   }
 
-  /* List all available loan schemes.
+  /**
+   * List all available loan schemes.
    *
    * @return {Promise<LoanSchemeResult[]>}
    */
