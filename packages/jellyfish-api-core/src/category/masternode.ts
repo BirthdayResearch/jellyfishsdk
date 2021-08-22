@@ -10,6 +10,11 @@ export enum MasternodeState {
   UNKNOWN = 'UNKNOWN'
 }
 
+export enum MasternodeTimeLock {
+  FIVE_YEAR = 'FIVEYEARTIMELOCK',
+  TEN_YEAR = 'TENYEARTIMELOCK'
+}
+
 /**
  * Masternode RPCs for DeFi Blockchain
  */
@@ -29,6 +34,7 @@ export class Masternode {
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} [options.utxos.txid] The transaction id
    * @param {string} [options.utxos.vout] The output number
+   * @param {MasternodeTimeLock} [options.timelock] specify a fix period (5 or 10 years) lock which cannot be resigned and cannot spend the collateral
    * @return {Promise<string>}
    */
   async createMasternode (
@@ -37,7 +43,11 @@ export class Masternode {
     options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string> {
     operatorAddress = operatorAddress ?? ownerAddress
-    return await this.client.call('createmasternode', [ownerAddress, operatorAddress, options.utxos], 'number')
+    const params = [ownerAddress, operatorAddress, options.utxos]
+    if (options.timelock !== undefined) {
+      params.push(options.timelock)
+    }
+    return await this.client.call('createmasternode', params, 'number')
   }
 
   /**
@@ -148,6 +158,7 @@ export interface UTXO {
 
 export interface CreateMasternodeOptions {
   utxos: UTXO[]
+  timelock?: MasternodeTimeLock
 }
 
 export interface MasternodePagination {
@@ -168,6 +179,9 @@ export interface MasternodeInfo {
   ownerIsMine: boolean
   operatorIsMine: boolean
   localMasternode: boolean
+  targetMultiplier?: number
+  targetMultipliers?: number[]
+  timelock?: number
 }
 
 export interface MasternodeResult<T> {

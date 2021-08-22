@@ -25,7 +25,7 @@ interface spv {
 
 ## getAddressPubKey
 
-Returns a Bitcoin address' public key.
+Returns a Bitcoin address's public key.
 
 ```ts title="client.spv.getAddressPubKey()"
 interface spv {

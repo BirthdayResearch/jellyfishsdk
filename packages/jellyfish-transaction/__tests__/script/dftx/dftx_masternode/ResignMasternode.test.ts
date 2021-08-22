@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import { OP_CODES } from '../../../../src'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
-import { CResignMasterNode, ResignMasterNode } from '../../../../src/script/dftx/dftx_masternode'
+import { CResignMasternode, ResignMasternode } from '../../../../src/script/dftx/dftx_masternode'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -23,14 +23,14 @@ it('should bi-directional buffer-object-buffer', () => {
 
 const header = '6a254466547852' // OP_RETURN, PUSH_DATA(44665478, 52)
 const data = 'bea590236c7d994fbc2283a0e84934022afc1adb8472e409c35ef9a7aa9920a3' // reversed, after buffer
-const resignMasterNode: ResignMasterNode = {
+const resignMasternode: ResignMasternode = {
   nodeId: 'a32099aaa7f95ec309e47284db1afc2a023449e8a08322bc4f997d6c2390a5be' // txid when mn created
 }
 
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(resignMasterNode)
+    OP_CODES.OP_DEFI_TX_RESIGN_MASTER_NODE(resignMasternode)
   ]
 
   const buffer = toBuffer(stack)
@@ -40,12 +40,12 @@ it('should craft dftx with OP_CODES._()', () => {
 describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CResignMasterNode(buffer)
-    expect(composable.toObject()).toStrictEqual(resignMasterNode)
+    const composable = new CResignMasternode(buffer)
+    expect(composable.toObject()).toStrictEqual(resignMasternode)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CResignMasterNode(resignMasterNode)
+    const composable = new CResignMasternode(resignMasternode)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
