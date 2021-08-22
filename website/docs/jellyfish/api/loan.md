@@ -19,12 +19,13 @@ Creates a loan scheme transaction.
 
 ```ts title="client.loan.createLoanScheme()"
 interface loan {
-  createLoanScheme (minColRatio: number, interestRate: BigNumber, options: CreateLoanSchemeOptions): Promise<string>
+  createLoanScheme (scheme: CreateLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
-interface CreateLoanSchemeOptions {
+interface CreateLoanScheme {
+  minColRatio: number,
+  interestRate: BigNumber
   id: string
-  utxos?: UTXO[]
 }
 
 interface UTXO {
