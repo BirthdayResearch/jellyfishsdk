@@ -23,7 +23,7 @@ export class Spv {
   }
 
   /**
-   * Returns a Bitcoin address' public key.
+   * Returns a Bitcoin address's public key.
    *
    * @param {string} address Bitcoin address
    * @return {Promise<string>} Public key

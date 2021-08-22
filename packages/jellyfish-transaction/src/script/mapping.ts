@@ -59,7 +59,7 @@ import {
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icxorderbook'
+import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC, CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icxorderbook'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -317,13 +317,20 @@ export const OP_CODES = {
       data: setGovernance
     })
   },
-
   OP_DEFI_TX_ICX_CREATE_ORDER: (createOrder: ICXCreateOrder) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CICXCreateOrder.OP_CODE,
       name: CICXCreateOrder.OP_NAME,
       data: createOrder
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC: (icxSubmitDFCHTLC: ICXSubmitDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitDFCHTLC.OP_CODE,
+      name: CICXSubmitDFCHTLC.OP_NAME,
+      data: icxSubmitDFCHTLC
     })
   },
 
