@@ -12,7 +12,7 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   async createOrder (createOrder: ICXCreateOrder, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(createOrder),
-     changeScript
+      changeScript
     )
   }
 
