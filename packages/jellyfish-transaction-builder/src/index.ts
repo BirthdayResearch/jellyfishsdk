@@ -6,6 +6,7 @@ import { TxnBuilderOracles } from './txn/txn_builder_oracles'
 import { TxnBuilderLiqPool } from './txn/txn_builder_liq_pool'
 import { TxnBuilderGovernance } from './txn/txn_builder_governance'
 import { TxnBuilderMasternode } from './txn/txn_builder_masternode'
+import { TxnBuilderICXOrderBook } from './txn/txn_builder_icxorderbook'
 
 export * from './provider'
 export * from './txn/txn_fee'
@@ -16,6 +17,7 @@ export * from './txn/txn_builder_account'
 export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_liq_pool'
 export * from './txn/txn_builder_masternode'
+export * from './txn/txn_builder_icxorderbook'
 
 /**
  * All in one transaction builder.
@@ -29,4 +31,5 @@ export class P2WPKHTransactionBuilder extends P2WPKHTxnBuilder {
   public readonly oracles = new TxnBuilderOracles(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
   public readonly governance = new TxnBuilderGovernance(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
   public readonly masternode = new TxnBuilderMasternode(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
+  public readonly icxorderbook = new TxnBuilderICXOrderBook(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
 }

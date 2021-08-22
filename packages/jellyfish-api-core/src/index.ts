@@ -14,6 +14,7 @@ import { ICXOrderBook } from './category/icxorderbook'
 import { Governance } from './category/governance'
 import { Spv } from './category/spv'
 import { Misc } from './category/misc'
+import { Loan } from './category/loan'
 
 export * from '@defichain/jellyfish-json'
 
@@ -32,6 +33,7 @@ export * as governance from './category/governance'
 export * as spv from './category/spv'
 export * as icxorderbook from './category/icxorderbook'
 export * as misc from './category/misc'
+export * as loan from './category/loan'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
@@ -52,6 +54,7 @@ export abstract class ApiClient {
   public readonly governance = new Governance(this)
   public readonly spv = new Spv(this)
   public readonly misc = new Misc(this)
+  public readonly loan = new Loan(this)
 
   /**
    * A promise based procedure call handling

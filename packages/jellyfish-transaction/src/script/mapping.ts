@@ -59,6 +59,7 @@ import {
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateProposal } from './dftx/dftx_governance'
+import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC } from './dftx/dftx_icxorderbook'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -330,6 +331,14 @@ export const OP_CODES = {
       type: CCreateVoc.OP_CODE,
       name: CCreateVoc.OP_NAME,
       data: createProposal
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC: (icxSubmitDFCHTLC: ICXSubmitDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitDFCHTLC.OP_CODE,
+      name: CICXSubmitDFCHTLC.OP_NAME,
+      data: icxSubmitDFCHTLC
     })
   },
 
