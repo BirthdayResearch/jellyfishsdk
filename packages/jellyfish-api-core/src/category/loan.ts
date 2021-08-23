@@ -48,7 +48,7 @@ export interface UTXO {
   vout: number
 }
 
-export interface LoanSchemeResult{
+export interface LoanSchemeResult {
   id: string
   mincolratio: BigNumber
   interestrate: BigNumber

@@ -43,7 +43,7 @@ interface loan {
   listLoanSchemes (): Promise<LoanSchemeResult[]>
 }
 
-interface LoanSchemeResult{
+interface LoanSchemeResult {
   id: string
   mincolratio: BigNumber
   interestrate: BigNumber
