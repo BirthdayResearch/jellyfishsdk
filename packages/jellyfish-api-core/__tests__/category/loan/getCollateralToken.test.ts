@@ -58,7 +58,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Token  does not exist!\', code: -8, method: getcollateraltoken')
   })
 
-  it('should getCollateralToken if height is set before a specific block', async () => {
+  it('should getCollateralToken if height is set before current height', async () => {
     // Wait for block 180
     await testing.container.waitForBlockHeight(180)
 
@@ -93,7 +93,7 @@ describe('Loan', () => {
     await testing.container.waitForBlockHeight(190)
   })
 
-  it('should not getCollateralToken if height is set after a specific block', async () => {
+  it('should not getCollateralToken if height is set after current height', async () => {
     // Wait for block 200
     await testing.container.waitForBlockHeight(200)
 
