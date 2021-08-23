@@ -16,6 +16,9 @@ describe('Loan', () => {
   })
 
   it('should getCollateralToken', async () => {
+    // Wait for block 150
+    await testing.container.waitForBlockHeight(150)
+
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
@@ -24,9 +27,6 @@ describe('Loan', () => {
       currency: 'EUR'
     }], 1])
     await testing.generate(1)
-
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
 
     const collateralTokenId = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
@@ -79,9 +79,6 @@ describe('Loan', () => {
     }])
     await testing.generate(1)
 
-    // Wait for block 190
-    await testing.container.waitForBlockHeight(190)
-
     const data = await testing.rpc.loan.getCollateralToken({ token: 'TSLA', height: 190 })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
@@ -91,6 +88,9 @@ describe('Loan', () => {
         activateAfterBlock: 185
       }
     })
+
+    // Wait for block 190
+    await testing.container.waitForBlockHeight(190)
   })
 
   it('should not getCollateralToken if token is not valid for a specific height', async () => {
