@@ -14,6 +14,7 @@ import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
 import { OracleMapper } from '@src/module.model/oracle'
 import { PriceTickerMapper } from '@src/module.model/price.ticker'
+import { MasternodeMapper } from '@src/module.model/masternode'
 
 @Global()
 @Module({
@@ -32,7 +33,8 @@ import { PriceTickerMapper } from '@src/module.model/price.ticker'
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
-    PriceTickerMapper
+    PriceTickerMapper,
+    MasternodeMapper
   ],
   exports: [
     ModelProbeIndicator,
@@ -49,7 +51,8 @@ import { PriceTickerMapper } from '@src/module.model/price.ticker'
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
-    PriceTickerMapper
+    PriceTickerMapper,
+    MasternodeMapper
   ]
 })
 export class ModelModule {

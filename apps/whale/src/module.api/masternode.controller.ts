@@ -1,14 +1,17 @@
-import { BadRequestException, Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { MasternodeData } from '@whale-api-client/api/masternodes'
-import { MasternodeInfo, MasternodePagination } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import { MasternodeMapper, Masternode } from '@src/module.model/masternode'
+import { BlockMapper } from '@src/module.model/block'
+import { MasternodeService } from './masternode.service'
 
 @Controller('/masternodes')
 export class MasternodeController {
   constructor (
-    protected readonly client: JsonRpcClient
+    protected readonly masternodeService: MasternodeService,
+    protected readonly blockMapper: BlockMapper,
+    protected readonly masternodeMapper: MasternodeMapper
   ) {
   }
 
@@ -22,17 +25,14 @@ export class MasternodeController {
   async list (
     @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<MasternodeData>> {
-    const options: MasternodePagination = {
-      including_start: query.next === undefined,
-      limit: query.size,
-      start: query.next
-    }
+    const items = await this.masternodeMapper.query(query.size, query.next)
 
-    const data = await this.client.masternode.listMasternodes(options, true)
-    const masternodes: MasternodeData[] = Object.entries(data)
-      .map(([id, value]): MasternodeData => mapMasternodeData(id, value))
-      .sort((a, b) => a.id.localeCompare(b.id))
-    return ApiPagedResponse.of(masternodes, query.size, item => item.id)
+    const block = await this.blockMapper.getHighest()
+    const height = block?.height ?? 0
+
+    const masternodes: MasternodeData[] = await Promise.all(items
+      .map(async value => await this.mapMasternodeData(value.id, value, height)))
+    return ApiPagedResponse.of(masternodes, query.size, item => item.sort)
   }
 
   /**
@@ -43,36 +43,37 @@ export class MasternodeController {
    */
   @Get('/:id')
   async get (@Param('id') id: string): Promise<MasternodeData> {
-    try {
-      const data = await this.client.masternode.getMasternode(id)
-      return mapMasternodeData(id, data[Object.keys(data)[0]])
-    } catch (err) {
-      if (err?.payload?.message === 'Masternode not found') {
-        throw new NotFoundException('Unable to find masternode')
-      } else {
-        throw new BadRequestException(err)
-      }
+    const data = await this.masternodeMapper.get(id)
+    if (data === undefined) {
+      throw new NotFoundException('Unable to find masternode')
     }
-  }
-}
 
-function mapMasternodeData (id: string, info: MasternodeInfo): MasternodeData {
-  return {
-    id,
-    state: info.state,
-    mintedBlocks: info.mintedBlocks,
-    owner: {
-      address: info.ownerAuthAddress
-    },
-    operator: {
-      address: info.operatorAuthAddress
-    },
-    creation: {
-      height: info.creationHeight
-    },
-    resign: {
-      tx: info.resignTx,
-      height: info.resignHeight
+    const block = await this.blockMapper.getHighest()
+    const height = block?.height ?? 0
+
+    return await this.mapMasternodeData(data.id, data, height)
+  }
+
+  async mapMasternodeData (id: string, info: Masternode, height: number): Promise<MasternodeData> {
+    return {
+      id,
+      sort: info.sort,
+      state: await this.masternodeService.getMasternodeState(info, height),
+      mintedBlocks: info.mintedBlocks,
+      owner: {
+        address: info.ownerAddress
+      },
+      operator: {
+        address: info.operatorAddress
+      },
+      creation: {
+        height: info.creationHeight
+      },
+      resign: info.resignTx === undefined ? undefined : {
+        tx: info.resignTx,
+        height: info.resignHeight
+      },
+      timelock: info.timelock
     }
   }
 }

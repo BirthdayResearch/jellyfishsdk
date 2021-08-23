@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AppModule } from '@src/app.module'
 import { ConfigService } from '@nestjs/config'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { newFastifyAdapter } from '@src/fastify'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Indexer } from '@src/module.indexer/indexer'
@@ -124,5 +124,17 @@ class TestConfigService extends ConfigService {
         provider: 'memory'
       }
     })
+  }
+}
+
+/**
+ * Delayed EunosPaya for Masternode testing
+ */
+export class DelayedEunosPayaTestContainer extends MasterNodeRegTestContainer {
+  protected getCmd (opts: StartOptions): string[] {
+    return [
+      ...super.getCmd(opts).filter(x => !x.includes('eunospayaheight')),
+      '-eunospayaheight=200'
+    ]
   }
 }

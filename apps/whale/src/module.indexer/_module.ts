@@ -12,6 +12,7 @@ import { VoutFinder } from '@src/module.indexer/model/_vout_finder'
 import { IndexStatusMapper } from '@src/module.indexer/status'
 import { DfTxIndexerModule } from '@src/module.indexer/model/dftx/_module'
 import { MainDfTxIndexer } from '@src/module.indexer/model/dftx.indexer'
+import { BlockMintedIndexer } from '@src/module.indexer/model/block.minted'
 
 @Module({
   providers: [
@@ -26,7 +27,8 @@ import { MainDfTxIndexer } from '@src/module.indexer/model/dftx.indexer'
     TransactionIndexer,
     TransactionVinIndexer,
     TransactionVoutIndexer,
-    MainDfTxIndexer
+    MainDfTxIndexer,
+    BlockMintedIndexer
   ],
   imports: [
     DfTxIndexerModule
