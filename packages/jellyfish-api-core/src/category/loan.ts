@@ -41,13 +41,7 @@ export class Loan {
    * @return {Promise<string>} collateralTokenId, also the txn id for txn created to set collateral token
    */
   async setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
-    const { token, factor, priceFeedId, activateAfterBlock } = collateralToken
-    return await this.client.call('setcollateraltoken', [{
-      token,
-      factor,
-      priceFeedId,
-      activateAfterBlock
-    }, utxos], 'bignumber')
+    return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'bignumber')
   }
 }
 
