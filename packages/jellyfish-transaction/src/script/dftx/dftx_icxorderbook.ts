@@ -79,12 +79,12 @@ export class CICXSubmitDFCHTLC extends ComposableBuffer<ICXSubmitDFCHTLC> {
  * ICXSubmitEXTHTLC DeFi transaction
  */
 export interface ICXSubmitEXTHTLC {
-  offerTx: string // ----------| 32 byte, txid for which offer is this HTLC
-  amount: BigNumber // --------| 8 byte, amount that is put in HTLC
-  hash: string // -------------| 32 byte, hash for the hash lock part
-  htlcScriptAddress: string // -| 1 byte for len + len bytes, script address of external htlc
-  ownerPubkey: string // -------| 1 byte for len + len bytes, pubkey of the owner to which the funds are refunded if HTLC timeouts
-  timeout: number // ----------| 4 byte, timeout (absolute in block) for expiration of external htlc in external chain blocks
+  offerTx: string // -----------| 32 byte, txid for which offer is this HTLC
+  amount: BigNumber // ---------| 8 byte, amount that is put in HTLC
+  hash: string // --------------| 32 byte, hash for the hash lock part
+  htlcScriptAddress: string // -| n = VarUInt{1-9 bytes}, + n bytes, script address of external htlc
+  ownerPubkey: string // -------| n = VarUInt{1-9 bytes}, + n bytes, pubkey of the owner to which the funds are refunded if HTLC timeouts
+  timeout: number // -----------| 4 byte, timeout (absolute in block) for expiration of external htlc in external chain blocks
 }
 
 /**
