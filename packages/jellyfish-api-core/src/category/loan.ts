@@ -28,25 +28,25 @@ export class Loan {
   }
 
   /**
-   * Set a colleteral token transaction.
+   * Set a collateral token transaction.
    *
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {number} collateralToken.factor Collateralization factor
    * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
-   * @param {number} [collateralToken.activateAfterBlock = undefined] changes will be active after the block height (Optional)
+   * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height (Optional)
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
-   * @return {Promise<string>} collateralTokenId, also the txn id for txn created to create colleteral token
+   * @return {Promise<string>} collateralTokenId, also the txn id for txn created to set collateral token
    */
-  async setColleteralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
+  async setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('setcollateraltoken', [{
       token: collateralToken.token,
       factor: collateralToken.factor,
       priceFeedId: collateralToken.priceFeedId,
       activateAfterBlock: collateralToken.activateAfterBlock
-    }, utxos], 'number')
+    }, utxos], 'bignumber')
   }
 }
 
@@ -58,7 +58,7 @@ export interface CreateLoanScheme {
 
 export interface SetCollateralToken {
   token: string
-  factor: number
+  factor: BigNumber
   priceFeedId: string
   activateAfterBlock?: number
 }

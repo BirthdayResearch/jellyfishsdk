@@ -34,18 +34,18 @@ interface UTXO {
 }
 ```
 
-## setColleteralToken
+## setCollateralToken
 
-Set a colleteral token transaction.
+Set a collateral token transaction.
 
-```ts title="client.loan.setColleteralToken()"
+```ts title="client.loan.setCollateralToken()"
 interface loan {
-  setColleteralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string>
+  setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string>
 }
 
 interface SetCollateralToken {
   token: string
-  factor: number
+  factor: BigNumber
   priceFeedId: string
   activateAfterBlock?: number
 }
