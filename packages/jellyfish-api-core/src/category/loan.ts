@@ -27,8 +27,13 @@ export class Loan {
     return await this.client.call('createloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, utxos], 'number')
   }
 
+  /**
+   * List collateral tokens.
+   *
+   * @return {Promise<CollateralTokensData>} CollateralToken
+   */
   async listCollateralTokens (): Promise<CollateralTokensData> {
-    return await this.client.call('listcollateraltokens', [], 'number')
+    return await this.client.call('listcollateraltokens', [], { factor: 'bignumber' })
   }
 }
 
@@ -44,12 +49,12 @@ export interface UTXO {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokensDetail
+  [key: string]: CollateralTokenDetail
 }
 
-export interface CollateralTokensDetail {
+export interface CollateralTokenDetail {
   token: string
-  factor: number
+  factor: BigNumber
   priceFeedId: string
   activateAfterBlock: number
 }

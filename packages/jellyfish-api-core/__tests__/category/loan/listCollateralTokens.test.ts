@@ -1,71 +1,68 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import BigNumber from 'bignumber.js'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-
-    await createToken(await container.getNewAddress(), 'AAPL', 1)
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
   })
-
-  async function createToken (address: string, symbol: string, amount: number): Promise<void> {
-    const metadata = {
-      symbol,
-      name: symbol,
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: address
-    }
-    await container.waitForWalletBalanceGTE(101)
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
-
-    await container.call('minttokens', [`${amount.toString()}@${symbol}`])
-    await container.generate(1)
-  }
 
   afterAll(async () => {
-    await container.stop()
-  })
-
-  it('should listCollateralTokens with empty object if there is no collateral tokens available', async () => {
-    const data = await client.loan.listCollateralTokens()
-    expect(Object.keys(data).length).toStrictEqual(0)
+    await testing.container.stop()
   })
 
   it('should listCollateralTokens', async () => {
-    const ownerAddress = await container.getNewAddress()
+    // Wait for block 150
+    await testing.container.waitForBlockHeight(150)
 
-    const priceFeeds = [
-      { token: 'AAPL', currency: 'EUR' }
-    ]
+    await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
 
-    const oracleId = await container.call('appointoracle', [ownerAddress, priceFeeds, 1])
-    await container.generate(1)
+    await testing.token.create({ symbol: 'TSLA' })
+    await testing.generate(1)
 
-    const txId = await container.call('setcollateraltoken', [{
+    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      factor: 1,
-      priceFeedId: oracleId,
-      activateAfterBlock: 200,
-      inputs: []
-    }]
-    )
-    await container.generate(1)
+      currency: 'EUR'
+    }], 1])
+    await testing.generate(1)
 
-    const data = await client.loan.listCollateralTokens()
+    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'TSLA',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const collateralTokenId1 = await testing.container.call('setcollateraltoken', [{
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId: priceFeedId1,
+      activateAfterBlock: 160
+    }])
+    await testing.generate(1)
+
+    const collateralTokenId2 = await testing.container.call('setcollateraltoken', [{
+      token: 'TSLA',
+      factor: new BigNumber(1),
+      priceFeedId: priceFeedId2,
+      activateAfterBlock: 170
+    }])
+    await testing.generate(1)
+
+    const data = await testing.rpc.loan.listCollateralTokens()
     expect(data).toStrictEqual({
-      [txId]: {
-        token: 'AAPL',
-        factor: 1,
-        priceFeedId: oracleId,
-        activateAfterBlock: 200
-      }
+      [collateralTokenId1]: { activateAfterBlock: 160, factor: 0.5, priceFeedId: priceFeedId1, token: 'AAPL' },
+      [collateralTokenId2]: { activateAfterBlock: 170, factor: 1, priceFeedId: priceFeedId2, token: 'TSLA' }
     })
+
+    // Update AAPL at block 160
+    await testing.container.waitForBlockHeight(160)
+
+    // Update TSLA at block 170
+    await testing.container.waitForBlockHeight(170)
   })
 })
