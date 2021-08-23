@@ -42,7 +42,11 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid public key length
    */
-  INVALID_PUB_KEY_LENGTH
+  INVALID_PUB_KEY_LENGTH,
+  /**
+   * Invalid `CreateOrder` amountToFill
+   */
+  INVALID_ICX_CREATE_ORDER_AMOUNT_TO_FILL
 }
 
 /**

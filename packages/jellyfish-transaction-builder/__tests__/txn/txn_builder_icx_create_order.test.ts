@@ -69,6 +69,7 @@ describe('create ICX order', () => {
       ownerAddress: script,
       receivePubkey: '0479013ea14516aa8a06d5f457f5bb340b69cf83c4ab423f899aa2f299fd05fa0afe7d29635fb0225995debcbce1d92675c84dfd13ed794effede594aee62debe2',
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(0.01),
       expiry: 2880
     }
@@ -112,6 +113,7 @@ describe('create ICX order', () => {
       ownerAddress: script,
       receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(0.01),
       expiry: 2880
     }
@@ -154,6 +156,7 @@ describe('create ICX order', () => {
       tokenId: parseInt(testing.icxorderbook.idDFI),
       ownerAddress: script,
       amountFrom: new BigNumber(2),
+      amountToFill: new BigNumber(2),
       orderPrice: new BigNumber(1000),
       expiry: 2880
     }
@@ -195,6 +198,7 @@ describe('create ICX order', () => {
       tokenId: 0,
       ownerAddress: script,
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(-0.01),
       expiry: 2880
     }
@@ -209,6 +213,7 @@ describe('create ICX order', () => {
       tokenId: 0,
       ownerAddress: script,
       amountFrom: new BigNumber(-15),
+      amountToFill: new BigNumber(-15),
       orderPrice: new BigNumber(0.01),
       expiry: 2880
     }
@@ -223,6 +228,7 @@ describe('create ICX order', () => {
       tokenId: 0,
       ownerAddress: script,
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(0.01),
       expiry: -2880
     }
@@ -238,10 +244,27 @@ describe('create ICX order', () => {
       ownerAddress: script,
       receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941' + '1234', // compressed public key + 2 extra bytes
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(0.01),
       expiry: 2880
     }
 
     await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('Create order receivePubkey buffer length should be 33 (COMPRESSED_PUBLIC_KEY_SIZE) or 65 (PUBLIC_KEY_SIZE)')
+  })
+
+  it('should reject with amountToFIll !== amountFrom', async () => {
+    const script = await providers.elliptic.script()
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.INTERNAL,
+      tokenId: parseInt(testing.icxorderbook.idDFI),
+      ownerAddress: script,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(14),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('Create order amountToFill should always equal amountFrom')
   })
 })

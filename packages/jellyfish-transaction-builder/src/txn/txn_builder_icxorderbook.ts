@@ -19,6 +19,11 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
         )
       }
     }
+    if (!createOrder.amountToFill.isEqualTo(createOrder.amountFrom)) {
+      throw new TxnBuilderError(TxnBuilderErrorType.INVALID_ICX_CREATE_ORDER_AMOUNT_TO_FILL,
+        'Create order amountToFill should always equal amountFrom'
+      )
+    }
 
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(createOrder),
