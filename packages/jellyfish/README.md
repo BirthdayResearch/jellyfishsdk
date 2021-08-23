@@ -5,7 +5,7 @@
 This is the entrypoint for most dApp developer. Distributed as `@defichain/jellyfish`, it bundles and creates 4 types of
 JavaScript packages for public use.
 
-This package provides conventional defaults and bundle all code required for dApps building. For library consumer, it is
+This package provides conventional defaults and bundles all code required for dApps building. For library consumer, it is
 just "plug and play", they don't need to care how it works underneath.
 
 1. `dist/jellyfish.cjs.js` for node.js

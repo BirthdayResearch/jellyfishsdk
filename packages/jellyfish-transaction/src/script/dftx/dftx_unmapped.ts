@@ -1,9 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * Unmapped DeFi OP that is valid but don't have a composer for it yet.
  */

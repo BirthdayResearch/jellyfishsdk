@@ -3,9 +3,6 @@ import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 export interface LiqPoolSplit {
   tokenId: number // -------------------| 4 bytes unsigned
   value: BigNumber // ------------------| 8 bytes unsigned

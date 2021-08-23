@@ -38,8 +38,6 @@ export enum SelectionModeType {
   FORWARD = 'forward'
 }
 
-type AccountRegexType = `${number}@${string}`
-
 /**
  * Account RPCs for DeFi Blockchain
  */
@@ -232,7 +230,7 @@ export class Account {
   }
 
   /**
-   * Create an UTXOs to Account transaction submitted to a connected node.
+   * Create a UTXOs to Account transaction submitted to a connected node.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
    * @param {BalanceTransferPayload} payload
@@ -365,7 +363,7 @@ export class Account {
   }
 
   /**
-   * Returns burn address and burnt coin and token information.
+   * Returns burn address, burnt coin and token information.
    * Requires full acindex for correct amount, tokens and feeburn values.
    *
    * @return {Promise<BurnInfo>}
@@ -412,7 +410,7 @@ export interface GetTokenBalancesOptions {
 }
 
 export interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string
 }
 
 export interface BalanceTransferAccountOptions {
@@ -451,7 +449,7 @@ export interface AccountHistoryCountOptions {
 }
 
 export interface AddressBalances {
-  [key: string]: AccountRegexType[]
+  [key: string]: string[]
 }
 
 export interface SendTokensOptions {

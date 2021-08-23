@@ -108,7 +108,7 @@ interface GetTokenBalancesOptions {
 
 ## utxosToAccount
 
-Create an UTXOs to Account transaction submitted to a connected node.
+Create a UTXOs to Account transaction submitted to a connected node.
 Optionally, specific UTXOs to spend to create that transaction.
 
 ```ts title="client.account.utxosToAccount()"
@@ -116,10 +116,8 @@ interface account {
   utxosToAccount (payload: BalanceTransferPayload, utxos: UTXO[] = []): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string // `${number}@${string}`
 }
 
 interface UTXO {
@@ -138,10 +136,8 @@ interface account {
   accountToAccount (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string // `${number}@${string}`
 }
 
 interface BalanceTransferAccountOptions {
@@ -164,10 +160,8 @@ interface account {
   accountToUtxos (from: string, payload: BalanceTransferPayload, options: BalanceTransferAccountOptions = { utxos: [] }): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 interface BalanceTransferPayload {
-  [key: string]: AccountRegexType
+  [key: string]: string // `${number}@${string}`
 }
 
 interface BalanceTransferAccountOptions {
@@ -299,8 +293,6 @@ interface account {
   ): Promise<string>
 }
 
-type AccountRegexType = `${number}@${string}`
-
 enum SelectionModeType {
   PIE = 'pie',
   CRUMBS = 'crumbs',
@@ -308,7 +300,7 @@ enum SelectionModeType {
 }
 
 interface AddressBalances {
-  [key: string]: AccountRegexType[]
+  [key: string]: string[] // `${number}@${string}`[]
 }
 
 interface SendTokensOptions {
@@ -391,7 +383,7 @@ interface BurnHistory {
 
 ## getBurnInfo
 
-Returns burn address and burnt coin and token information.
+Returns burn address, burnt coin and token information.
 Requires full acindex for correct amount, tokens and feeburn values.
 
 ```ts title="client.account.getBurnInfo()"
