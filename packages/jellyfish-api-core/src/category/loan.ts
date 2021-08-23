@@ -27,7 +27,16 @@ export class Loan {
     return await this.client.call('createloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, utxos], 'number')
   }
 
-  async getCollateralToken (token: string, height: number): Promise<any> {
+  /**
+   * Get collateral token.
+   *
+   * @param {GetCollateralToken} getCollateralToken
+   * @param {string} getCollateralToken.token Symbol or id of collateral token
+   * @param {number} getCollateralToken.height Valid at specified height
+   * @return {Promise<string>} CollateralToken
+   */
+  async getCollateralToken (getCollateralToken: GetCollateralToken): Promise<CollateralToken> {
+    const { token, height } = getCollateralToken
     return await this.client.call('getcollateraltoken', [{ token, height }], 'number')
   }
 }
@@ -41,4 +50,16 @@ export interface CreateLoanScheme {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface GetCollateralToken {
+  token: string
+  height: number
+}
+
+export interface CollateralToken {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock?: number
 }

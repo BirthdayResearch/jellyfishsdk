@@ -33,3 +33,25 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getCollateralToken
+
+Get collateral token.
+
+```ts title="client.loan.getCollateralToken()"
+interface loan {
+  getCollateralToken (getCollateralToken: GetCollateralToken): Promise<CollateralToken>
+}
+
+export interface GetCollateralToken {
+  token: string
+  height: number
+}
+
+export interface CollateralToken {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock?: number
+}
+```
