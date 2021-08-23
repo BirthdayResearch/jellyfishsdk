@@ -43,12 +43,12 @@ interface loan {
   getCollateralToken (getCollateralToken: GetCollateralToken): Promise<CollateralToken>
 }
 
-export interface GetCollateralToken {
+interface GetCollateralToken {
   token: string
   height: number
 }
 
-export interface CollateralToken {
+interface CollateralToken {
   token: string
   factor: BigNumber
   priceFeedId: string
