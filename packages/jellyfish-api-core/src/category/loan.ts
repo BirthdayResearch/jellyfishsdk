@@ -1,7 +1,8 @@
 import { ApiClient } from '../.'
+import BigNumber from 'bignumber.js'
 
 /**
- * loan RPCs for DeFi Blockchain
+ * Loan RPCs for DeFi Blockchain
  */
 export class Loan {
   private readonly client: ApiClient
@@ -10,23 +11,56 @@ export class Loan {
     this.client = client
   }
 
-  async setColleteralToken (token: string, factor: number, options: SetColleteralTokenOptions): Promise<string> {
-    const { activateAfterBlock = undefined, utxos = [] } = options
-    return await this.client.call('setcollateraltoken', [
-      {
-        token,
-        factor,
-        priceFeedId: options.priceFeedId,
-        activateAfterBlock
-      }, utxos
-    ], 'number')
+  /**
+   * Creates a loan scheme transaction.
+   *
+   * @param {CreateLoanScheme} scheme
+   * @param {number} scheme.minColRatio Minimum collateralization ratio
+   * @param {BigNumber} scheme.interestRate Interest rate
+   * @param {string} scheme.id Unique identifier of the loan scheme, max 8 chars
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanSchemeId, also the txn id for txn created to create loan scheme
+   */
+  async createLoanScheme (scheme: CreateLoanScheme, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, utxos], 'number')
+  }
+
+  /**
+   * Set a colleteral token transaction.
+   *
+   * @param {SetCollateralToken} collateralToken
+   * @param {string} collateralToken.token Symbol or id of collateral token
+   * @param {number} collateralToken.factor Collateralization factor
+   * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
+   * @param {number} [collateralToken.activateAfterBlock = undefined] changes will be active after the block height (Optional)
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} collateralTokenId, also the txn id for txn created to create colleteral token
+   */
+  async setColleteralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setcollateraltoken', [{
+      token: collateralToken.token,
+      factor: collateralToken.factor,
+      priceFeedId: collateralToken.priceFeedId,
+      activateAfterBlock: collateralToken.activateAfterBlock
+    }, utxos], 'number')
   }
 }
 
-export interface SetColleteralTokenOptions {
+export interface CreateLoanScheme {
+  minColRatio: number
+  interestRate: BigNumber
+  id: string
+}
+
+export interface SetCollateralToken {
+  token: string
+  factor: number
   priceFeedId: string
   activateAfterBlock?: number
-  utxos?: UTXO[]
 }
 
 export interface UTXO {

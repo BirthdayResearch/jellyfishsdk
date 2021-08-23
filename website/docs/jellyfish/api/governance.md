@@ -90,7 +90,7 @@ Returns list of proposals.
 
 ```ts title="client.governance.listProposals()"
 interface governance {
-  async listProposals ({
+  listProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]>
@@ -141,7 +141,7 @@ Vote on a community proposal.
 
 ```ts title="client.governance.vote()"
 interface governance {
-  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
+  vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
 }
 
 enum VoteDecision {

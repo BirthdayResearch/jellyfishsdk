@@ -28,6 +28,6 @@ based crypto operations.
 
 > `WalletAccount` & `WalletAccountProvider`
 
-Account in `jellyfish-wallet` provides an interface for all features of DeFi blockchain. This pushes the implementation
+Account in `jellyfish-wallet` provides an interface for all features of DeFi Blockchain. This pushes the implementation
 design to WalletAccount implementor. This also allows for upstream agnostic implementation. It could be full node, super
 node, or a networked API. 

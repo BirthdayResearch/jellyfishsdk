@@ -45,7 +45,7 @@ export class RawTx {
   }
 
   /**
-   * Sign inputs for raw transaction (serialized, hex-encoded), Providing an array of base58-encoded private keys that
+   * Sign inputs for raw transaction (serialized, hex-encoded), providing an array of base58-encoded private keys that
    * will be the keys used to sign the transaction. An optional array of previous transaction outputs that this
    * transaction depends on but may not yet be in the blockchain.
    *
@@ -70,7 +70,7 @@ export class RawTx {
 
   /**
    * Returns result of mempool acceptance tests indicating if raw transaction would be accepted by mempool.
-   * This checks if the transaction violates the consensus or policy rules. The fee rate is expressed is DFI/kB,
+   * This checks if the transaction violates the consensus or policy rules. The fee rate is expressed in DFI/kB,
    * using the vSize of the transaction.
    *
    * @param {string} signedTx signed raw transaction

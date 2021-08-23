@@ -22,8 +22,8 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a35446654786f' // OP_RETURN, PUSH_DATA(44665478, 6f)
-const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344'
+const header = '6a33446654786f' // OP_RETURN, PUSH_DATA(44665478, 6f)
+const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac01020454534c41034555520454534c4103555344'
 const appointOracle: AppointOracle = {
   script: {
     stack: [
@@ -37,11 +37,11 @@ const appointOracle: AppointOracle = {
   weightage: 1,
   priceFeeds: [
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'EUR'
     },
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'USD'
     }
   ]
