@@ -47,6 +47,7 @@ import {
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import { CSetGovernance, SetGovernance } from './dftx_governance'
 import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC } from './dftx_icxorderbook'
+import { CCreateLoanScheme, CreateLoanScheme } from './dftx_loans'
 
 /**
  * DeFi Transaction
@@ -164,6 +165,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
       case CICXSubmitDFCHTLC.OP_CODE:
         return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
+      case CCreateLoanScheme.OP_CODE:
+        return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

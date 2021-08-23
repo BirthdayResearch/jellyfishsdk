@@ -1,9 +1,6 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import BigNumber from 'bignumber.js'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * ICXSubmitDFCHTLC DeFi transaction
  */
