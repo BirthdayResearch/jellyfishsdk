@@ -3,12 +3,11 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { CreateCfp, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
-import { TxnBuilderError } from '../../src/txn/txn_builder_error'
 
 describe('createCfp', () => {
   let providers: MockProviders
@@ -23,9 +22,8 @@ describe('createCfp', () => {
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    await providers.randomizeEllipticPair()
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
+    await fundEllipticPair(testing.container, providers.ellipticPair, 21) // Amount needed for two cfp creation + fees
     await providers.setupMocks()
   })
 
@@ -35,7 +33,7 @@ describe('createCfp', () => {
 
   it('should createCfp', async () => {
     const script = await providers.elliptic.script()
-    const createCfp = {
+    const createCfp: CreateCfp = {
       type: 0x01,
       title: 'Testing new community fund proposal',
       amount: new BigNumber(100),
@@ -54,8 +52,8 @@ describe('createCfp', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toEqual(1)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].value).toStrictEqual(10)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     const listProposals = await testing.rpc.governance.listProposals()
     const txid = calculateTxid(txn)
@@ -74,30 +72,9 @@ describe('createCfp', () => {
     })
   })
 
-  it('should reject with invalid type', async () => {
-    const script = await providers.elliptic.script()
-    const createCfp = {
-      type: 0x02,
-      title: 'Testing new community fund proposal',
-      amount: new BigNumber(100),
-      address: {
-        stack: [
-          OP_CODES.OP_HASH160,
-          OP_CODES.OP_PUSHDATA_HEX_LE('8b5401d88a3d4e54fc701663dd99a5ab792af0a4'),
-          OP_CODES.OP_EQUAL
-        ]
-      },
-      cycles: 2
-    }
-    const promise = builder.governance.createCfp(createCfp, script)
-
-    await expect(promise).rejects.toThrow(TxnBuilderError)
-    await expect(promise).rejects.toThrow('CreateCfp type should equal 0x01')
-  })
-
   it('should reject with invalid title length', async () => {
     const script = await providers.elliptic.script()
-    const createCfp = {
+    const txn = await builder.governance.createCfp({
       type: 0x01,
       title: 'X'.repeat(150),
       amount: new BigNumber(100),
@@ -109,8 +86,7 @@ describe('createCfp', () => {
         ]
       },
       cycles: 2
-    }
-    const txn = await builder.governance.createCfp(createCfp, script)
+    }, script)
 
     const promise = sendTransaction(testing.container, txn)
 

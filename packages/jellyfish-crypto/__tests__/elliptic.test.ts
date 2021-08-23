@@ -158,3 +158,23 @@ describe('DER Signature: sign and verify', () => {
     expect(curvePair.verify(hash, signature)).toBeTruthy()
   })
 })
+
+describe('generate', () => {
+  it('should generate with 2 unique private key', async () => {
+    const pairA = Elliptic.random()
+    const pairB = Elliptic.random()
+
+    const keyA = await pairA.privateKey()
+    const keyB = await pairB.privateKey()
+    expect(keyA).not.toStrictEqual(keyB)
+  })
+
+  it('should generate with rng provided', async () => {
+    const hex = '1111111111111111111111111111111111111111111111111111111111111111'
+
+    const pair = Elliptic.random(() => Buffer.from(hex, 'hex'))
+
+    const privKey = await pair.privateKey()
+    expect(privKey.toString('hex')).toStrictEqual(hex)
+  })
+})

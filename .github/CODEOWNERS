@@ -3,7 +3,6 @@
 
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh
-/.idea/                                         @fuxingloh @jingyi2811 @thedoublejay
 
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis

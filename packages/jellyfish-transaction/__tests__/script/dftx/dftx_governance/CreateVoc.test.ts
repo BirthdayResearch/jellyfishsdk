@@ -1,6 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
-  CCreateVoc, CreateProposal
+  CCreateVoc, CreateVoc
 } from '../../../../src/script/dftx/dftx_governance'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -18,15 +18,15 @@ it('should bi-directional buffer-object-buffer', () => {
     )
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x45)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x45)
   })
 })
 
 describe('createVoc', () => {
-  const header = '6a274466547845' // OP_RETURN, PUSH_DATA(44665478, 45)
-  const data = '0300000000000000000002166e657720766f7465206f6620636f6e666964656e6365'
-  const CreateProposal: CreateProposal = {
+  const header = '6a274466547845' // OP_RETURN(0x6a) (length 39 = 0x27) CDfTx.SIGNATURE(0x44665478) CreateProposal.OP_CODE(0x46)
+  const data = '0300000000000000000002166e657720766f7465206f6620636f6e666964656e6365' // CreateProposal.type(0x03) CreateProposal.address (0x00) CreateProposal.amount(0x0000000000000000) CreateProposal.cycles(0x02) CreateProposal.title[BE](0x166e657720766f7465206f6620636f6e666964656e6365)
+  const CreateProposal: CreateVoc = {
     type: 0x03,
     title: 'new vote of confidence',
     amount: new BigNumber(0),
@@ -43,7 +43,7 @@ describe('createVoc', () => {
     ]
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(header + data)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
   describe('Composable', () => {
@@ -51,7 +51,7 @@ describe('createVoc', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CCreateVoc(buffer)
 
-      expect(composable.toObject()).toEqual(CreateProposal)
+      expect(composable.toObject()).toStrictEqual(CreateProposal)
     })
 
     it('should compose from composable to buffer', () => {
@@ -59,7 +59,7 @@ describe('createVoc', () => {
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
-      expect(buffer.toBuffer().toString('hex')).toEqual(data)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
     })
   })
 })

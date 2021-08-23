@@ -230,7 +230,7 @@ export class Account {
   }
 
   /**
-   * Create an UTXOs to Account transaction submitted to a connected node.
+   * Create a UTXOs to Account transaction submitted to a connected node.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
    * @param {BalanceTransferPayload} payload
@@ -363,7 +363,7 @@ export class Account {
   }
 
   /**
-   * Returns burn address and burnt coin and token information.
+   * Returns burn address, burnt coin and token information.
    * Requires full acindex for correct amount, tokens and feeburn values.
    *
    * @return {Promise<BurnInfo>}

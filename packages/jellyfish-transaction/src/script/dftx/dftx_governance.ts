@@ -5,9 +5,6 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 export interface LiqPoolSplit {
   tokenId: number // -------------------| 4 bytes unsigned
   value: BigNumber // ------------------| 8 bytes unsigned
@@ -105,25 +102,36 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
   }
 }
 
+export type ProposalType = 0x01 | 0x03 // 0x01 (CommunityFundRequest) | 0x03 (VoteOfConfidence)
+export type ProposalCycles = 0x01 | 0x02 | 0x03
+
 export interface CreateProposal {
-  type: number // -------------| 1 byte, 0x01 | 0x02 | 0x03
-  address: Script // ----------| n = VarUInt{1-9 bytes}, + n bytes
-  amount: BigNumber // --------| 8 bytes
-  cycles: number // -----------| 1 byte
-  title: string // ------------| Rest of buffer
+  type: ProposalType // ---------| 1 byte unsigned int
+  address: Script // ------------| n = VarUInt{1-9 bytes}, + n bytes
+  amount: BigNumber // ----------| 8 bytes unsigned
+  cycles: ProposalCycles // -----| 1 byte unsigned int
+  title: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+}
+
+export interface CreateCfp extends CreateProposal {
+  type: 0x01
+}
+export interface CreateVoc extends CreateProposal {
+  type: 0x03
+  cycles: 0x02
 }
 
 /**
  * Composable CCreateProposal, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
-class CCreateProposal extends ComposableBuffer<CreateProposal> {
-  composers (ccp: CreateProposal): BufferComposer[] {
+export class CCreateProposal extends ComposableBuffer<CreateProposal> {
+  composers (ccp: CreateCfp | CreateVoc): BufferComposer[] {
     return [
-      ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v),
+      ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v as ProposalType),
       ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
       ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
-      ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v),
+      ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v as ProposalCycles),
       ComposableBuffer.varUIntUtf8BE(() => ccp.title, v => ccp.title = v)
     ]
   }
@@ -148,7 +156,7 @@ export enum VoteDecision {
 export interface Vote {
   proposalId: string // -----------| 32 bytes hex string
   masternodeId: string // ---------| 32 bytes hex string
-  voteDecision: number // ---------| 1 byte unsigned int. 0x01 (YES) | 0x02 (NO) | 0x03 (NEUTRAL)
+  voteDecision: VoteDecision // ---| 1 byte unsigned int
 }
 
 /**
