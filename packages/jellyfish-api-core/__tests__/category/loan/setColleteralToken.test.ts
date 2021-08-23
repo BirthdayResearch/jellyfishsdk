@@ -13,7 +13,10 @@ describe('Loan', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     await testing.token.create({ symbol: 'AAPL' })
-    priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{ token: 'AAPL', currency: 'EUR' }], 1])
+    priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
     await testing.generate(1)
   })
 
@@ -22,7 +25,11 @@ describe('Loan', () => {
   })
 
   it('should setCollateralToken', async () => {
-    const collateralTokenId = await testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(0.5), priceFeedId })
+    const collateralTokenId = await testing.rpc.loan.setCollateralToken({
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId
+    })
     expect(typeof collateralTokenId).toStrictEqual('string')
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
@@ -54,7 +61,11 @@ describe('Loan', () => {
   })
 
   it('should not setCollateralToken if oracleId does not exist', async () => {
-    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(0.5), priceFeedId: '944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5' })
+    const promise = testing.rpc.loan.setCollateralToken({
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId: '944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5'
+    })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\noracle (944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5) does not exist!\', code: -32600, method: setcollateraltoken')
   })
 
@@ -105,7 +116,11 @@ describe('Loan', () => {
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
     await testing.generate(1)
 
-    const collateralTokenId = await testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(0.5), priceFeedId }, [{ txid, vout }])
+    const collateralTokenId = await testing.rpc.loan.setCollateralToken({
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId
+    }, [{ txid, vout }])
     expect(typeof collateralTokenId).toStrictEqual('string')
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
@@ -127,7 +142,11 @@ describe('Loan', () => {
 
   it('should not setCollateralToken with utxos not from foundation member', async () => {
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
-    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(0.5), priceFeedId }, [utxo])
+    const promise = testing.rpc.loan.setCollateralToken({
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId
+    }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setcollateraltoken')
   })
 })
