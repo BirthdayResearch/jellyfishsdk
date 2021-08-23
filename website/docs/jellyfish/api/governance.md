@@ -61,7 +61,7 @@ interface ProposalInfo {
   title: string
   type: ProposalType
   status: ProposalStatus
-  amount: number
+  amount: BigNumber
   cyclesPaid: number
   totalCycles: number
   finalizeAfter: number
@@ -90,7 +90,7 @@ Returns list of proposals.
 
 ```ts title="client.governance.listProposals()"
 interface governance {
-  listProposals ({
+  async listProposals ({
     type = ListProposalsType.ALL,
     status = ListProposalsStatus.ALL
   } = {}): Promise<ProposalInfo[]>
@@ -127,7 +127,7 @@ interface ProposalInfo {
   title: string
   type: ProposalType
   status: ProposalStatus
-  amount: number
+  amount: BigNumber
   cyclesPaid: number
   totalCycles: number
   finalizeAfter: number
@@ -141,7 +141,7 @@ Vote on a community proposal.
 
 ```ts title="client.governance.vote()"
 interface governance {
-  vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
+  async vote (data: VoteData, utxos: UTXO[] = []): Promise<string>
 }
 
 enum VoteDecision {
@@ -159,5 +159,27 @@ interface VoteData {
 interface UTXO {
   txid: string
   vout: number
+}
+```
+
+## listVotes
+
+Returns information about proposal votes.
+
+```ts title="client.governance.listVotes()"
+interface governance {
+  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
+}
+
+enum MasternodeType {
+  MINE = 'mine',
+  ALL = 'all'
+}
+
+interface ListVotesResult {
+  proposalId: string
+  masternodeId: string
+  cycle: number
+  vote: string
 }
 ```
