@@ -38,7 +38,11 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid `UpdateOracle` input
    */
-  INVALID_UPDATE_ORACLE_INPUT
+  INVALID_UPDATE_ORACLE_INPUT,
+  /**
+   * Invalid public key length
+   */
+  INVALID_PUB_KEY_LENGTH
 }
 
 /**
