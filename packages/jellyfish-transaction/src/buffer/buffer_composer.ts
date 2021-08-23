@@ -210,14 +210,15 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   *  HEX String without length specified, encoded into Buffer as the same order of the Hex String.
-   *  In short this read a hex and push it into the Buffer. It will not re-order the endian.
-   * `toBuffer` defaults to '' and writes 00 to buffer
+   * HEX String with length specified, encoded into Buffer as the same order of the Hex String.
+   * In short this read a hex and push it into the Buffer. It will not re-order the endian.
+   *
+   * When hex is `undefined` it will write `0x00` signifying zero byte length.
    *
    * @param getter to read HEX String. Writes its length then write the HEX string. Defaults to empty string.
    * @param setter to read ordered Buffer and set as the same ordered HEX String
    */
-  static optionalVarUIntHex (getter: () => string | undefined, setter: (data: string | undefined) => void): BufferComposer {
+  static varUIntOptionalHex (getter: () => string | undefined, setter: (data: string | undefined) => void): BufferComposer {
     return {
       fromBuffer: (buffer: SmartBuffer): void => {
         const length = readVarUInt(buffer)
@@ -227,10 +228,17 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
         }
       },
       toBuffer: (buffer: SmartBuffer): void => {
-        const hex = getter() ?? ''
-        const buff: Buffer = Buffer.from(hex, 'hex')
-        writeVarUInt(buff.length, buffer)
-        buffer.writeBuffer(buff)
+        const hex = getter()
+        if (hex !== undefined) {
+          if (hex === '') {
+            throw new Error('ComposableBuffer.varUIntOptionalHex.toBuffer attempting to write empty buffer')
+          }
+          const buff: Buffer = Buffer.from(hex, 'hex')
+          writeVarUInt(buff.length, buffer)
+          buffer.writeBuffer(buff)
+        } else {
+          writeVarUInt(0x00, buffer)
+        }
       }
     }
   }

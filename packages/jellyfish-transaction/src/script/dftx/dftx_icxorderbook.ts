@@ -39,7 +39,7 @@ export class CICXCreateOrder extends ComposableBuffer<ICXCreateOrder> {
       ComposableBuffer.uInt8(() => cco.orderType, v => cco.orderType = v),
       ComposableBuffer.varUInt(() => cco.tokenId, v => cco.tokenId = v),
       ComposableBuffer.single<Script>(() => cco.ownerAddress, v => cco.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.optionalVarUIntHex(() => cco.receivePubkey, v => cco.receivePubkey = v),
+      ComposableBuffer.varUIntOptionalHex(() => cco.receivePubkey, v => cco.receivePubkey = v),
       ComposableBuffer.satoshiAsBigNumber(() => cco.amountFrom, v => cco.amountFrom = v),
       ComposableBuffer.satoshiAsBigNumber(() => cco.amountFrom, v => cco.amountFrom = v), // Represents amountToFill: how much is left to fill the order. In case of createOrder, amountToFill is always equal to amountFrom. See https://github.com/DeFiCh/ain/blob/ff53dcee23db2ffe0da9b147a0a53956f4e7ee31/src/masternodes/icxorder.h#L32
       ComposableBuffer.satoshiAsBigNumber(() => cco.orderPrice, v => cco.orderPrice = v),
