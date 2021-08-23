@@ -36,8 +36,7 @@ export class Loan {
    * @return {Promise<string>} CollateralToken
    */
   async getCollateralToken (getCollateralToken: GetCollateralToken): Promise<CollateralToken> {
-    const { token, height } = getCollateralToken
-    return await this.client.call('getcollateraltoken', [{ token, height }], 'number')
+    return await this.client.call('getcollateraltoken', [getCollateralToken], 'number')
   }
 }
 
