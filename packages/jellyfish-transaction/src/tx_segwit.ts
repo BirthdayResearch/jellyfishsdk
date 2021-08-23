@@ -33,8 +33,6 @@ export interface WitnessProgram {
  * Composable WitnessProgram
  */
 export class CWitnessProgram extends ComposableBuffer<WitnessProgram> {
-  /* eslint-disable no-return-assign */
-
   composers (wp: WitnessProgram): BufferComposer[] {
     return [
       ComposableBuffer.uInt32(() => wp.version, v => wp.version = v),
