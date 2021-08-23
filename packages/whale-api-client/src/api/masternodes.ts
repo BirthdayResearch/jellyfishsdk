@@ -32,9 +32,13 @@ export class Masternodes {
 
 /**
  * Masternode data
+ *
+ * timelock is the number of weeks the masternode
+ * is locked up for
  */
 export interface MasternodeData {
   id: string
+  sort: string
   state: MasternodeState
   mintedBlocks: number
   owner: {
@@ -46,10 +50,11 @@ export interface MasternodeData {
   creation: {
     height: number
   }
-  resign: {
+  resign?: {
     tx: string
     height: number
   }
+  timelock: number
 }
 
 /**

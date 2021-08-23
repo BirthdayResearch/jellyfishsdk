@@ -15,6 +15,11 @@ beforeAll(async () => {
   await container.start()
   await container.waitForReady()
   await service.start()
+
+  await container.generate(1)
+  const height: number = (await client.rpc.call('getblockcount', [], 'number'))
+  await container.generate(1)
+  await service.waitForIndexedHeight(height)
 })
 
 afterAll(async () => {
@@ -28,21 +33,19 @@ afterAll(async () => {
 describe('list', () => {
   it('should list masternodes', async () => {
     const data = await client.masternodes.list()
-    expect(Object.keys(data[0]).length).toStrictEqual(7)
+    expect(Object.keys(data[0]).length).toStrictEqual(8)
     expect(data.hasNext).toStrictEqual(false)
     expect(data.nextToken).toStrictEqual(undefined)
 
     expect(data[0]).toStrictEqual({
-      id: '03280abd3d3ae8dc294c1a572cd7912c3c3e53044943eac62c2f6c4687c87f10',
+      id: 'e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4',
+      sort: '00000000e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4',
       state: 'ENABLED',
-      mintedBlocks: 0,
-      owner: { address: 'bcrt1qyeuu9rvq8a67j86pzvh5897afdmdjpyankp4mu' },
-      operator: { address: 'bcrt1qurwyhta75n2g75u2u5nds9p6w9v62y8wr40d2r' },
+      mintedBlocks: expect.any(Number),
+      owner: { address: 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU' },
+      operator: { address: 'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy' },
       creation: { height: 0 },
-      resign: {
-        tx: '0000000000000000000000000000000000000000000000000000000000000000',
-        height: -1
-      }
+      timelock: 0
     })
   })
 
@@ -50,12 +53,12 @@ describe('list', () => {
     const first = await client.masternodes.list(4)
     expect(first.length).toStrictEqual(4)
     expect(first.hasNext).toStrictEqual(true)
-    expect(first.nextToken).toStrictEqual(first[3].id)
+    expect(first.nextToken).toStrictEqual(`00000000${first[3].id}`)
 
     const next = await client.paginate(first)
     expect(next.length).toStrictEqual(4)
     expect(next.hasNext).toStrictEqual(true)
-    expect(next.nextToken).toStrictEqual(next[3].id)
+    expect(next.nextToken).toStrictEqual(`00000000${next[3].id}`)
 
     const last = await client.paginate(next)
     expect(last.length).toStrictEqual(0)
@@ -70,18 +73,16 @@ describe('get', () => {
     const masternode = (await client.masternodes.list(1))[0]
 
     const data = await client.masternodes.get(masternode.id)
-    expect(Object.keys(data).length).toStrictEqual(7)
+    expect(Object.keys(data).length).toStrictEqual(8)
     expect(data).toStrictEqual({
       id: masternode.id,
+      sort: '00000000e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4',
       state: masternode.state,
       mintedBlocks: masternode.mintedBlocks,
       owner: { address: masternode.owner.address },
       operator: { address: masternode.operator.address },
       creation: { height: masternode.creation.height },
-      resign: {
-        tx: masternode.resign.tx,
-        height: masternode.resign.height
-      }
+      timelock: 0
     })
   })
 
@@ -98,22 +99,6 @@ describe('get', () => {
         at: expect.any(Number),
         message: 'Unable to find masternode',
         url: `/v0.0/regtest/masternodes/${id}`
-      })
-    }
-  })
-
-  it('should fail and throw an error with malformed id', async () => {
-    expect.assertions(2)
-    try {
-      await client.masternodes.get('sdh183')
-    } catch (err) {
-      expect(err).toBeInstanceOf(WhaleApiException)
-      expect(err.error).toStrictEqual({
-        code: 400,
-        type: 'BadRequest',
-        at: expect.any(Number),
-        message: "RpcApiError: 'masternode id must be of length 64 (not 6, for 'sdh183')', code: -8, method: getmasternode",
-        url: '/v0.0/regtest/masternodes/sdh183'
       })
     }
   })
