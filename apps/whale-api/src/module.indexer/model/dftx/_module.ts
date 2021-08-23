@@ -3,16 +3,29 @@ import { AppointOracleIndexer } from '@src/module.indexer/model/dftx/appoint.ora
 import { RemoveOracleIndexer } from '@src/module.indexer/model/dftx/remove.oracle'
 import { UpdateOracleIndexer } from '@src/module.indexer/model/dftx/update.oracle'
 import { SetOracleDataIndexer } from '@src/module.indexer/model/dftx/set.oracle.data'
+import { CreateMasternodeIndexer } from '@src/module.indexer/model/dftx/create.masternode'
+import { ResignMasternodeIndexer } from '@src/module.indexer/model/dftx/resign.masternode'
+import { NetworkName } from '@defichain/jellyfish-network'
+import { ConfigService } from '@nestjs/config'
 
 const indexers = [
   AppointOracleIndexer,
   RemoveOracleIndexer,
   SetOracleDataIndexer,
-  UpdateOracleIndexer
+  UpdateOracleIndexer,
+  CreateMasternodeIndexer,
+  ResignMasternodeIndexer
 ]
 
 @Module({
-  providers: indexers,
+  providers: [...indexers,
+    {
+      provide: 'NETWORK',
+      useFactory: (configService: ConfigService): NetworkName => {
+        return configService.get<string>('network') as NetworkName
+      },
+      inject: [ConfigService]
+    }],
   exports: indexers
 })
 export class DfTxIndexerModule {

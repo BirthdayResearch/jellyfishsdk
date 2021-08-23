@@ -7,6 +7,7 @@ import { ApiValidationPipe } from '@src/module.api/pipes/api.validation.pipe'
 import { AddressController } from '@src/module.api/address.controller'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
 import { PoolPairService } from '@src/module.api/poolpair.service'
+import { MasternodeService } from '@src/module.api/masternode.service'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 import { ExceptionInterceptor } from '@src/module.api/interceptors/exception.interceptor'
@@ -56,7 +57,8 @@ import { RawtxController } from '@src/module.api/rawtx.controller'
     },
     DeFiDCache,
     SemaphoreCache,
-    PoolPairService
+    PoolPairService,
+    MasternodeService
   ]
 })
 export class ApiModule {
