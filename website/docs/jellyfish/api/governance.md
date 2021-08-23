@@ -168,7 +168,7 @@ Returns information about proposal votes.
 
 ```ts title="client.governance.listVotes()"
 interface governance {
-  listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
+  async listVotes (proposalId: string, masternode: MasternodeType | string = MasternodeType.MINE): Promise<ListVotesResult[]>
 }
 
 enum MasternodeType {
