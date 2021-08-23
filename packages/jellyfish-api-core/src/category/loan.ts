@@ -32,7 +32,7 @@ export class Loan {
    *
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
-   * @param {number} collateralToken.factor Collateralization factor
+   * @param {BigNumber} collateralToken.factor Collateralization factor
    * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
    * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height (Optional)
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -41,7 +41,7 @@ export class Loan {
    * @return {Promise<string>} collateralTokenId, also the txn id for txn created to set collateral token
    */
   async setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'bignumber')
+    return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'number')
   }
 }
 

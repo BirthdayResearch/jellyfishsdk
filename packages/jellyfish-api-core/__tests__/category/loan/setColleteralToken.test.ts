@@ -69,7 +69,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\noracle (944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5) does not exist!\', code: -32600, method: setcollateraltoken')
   })
 
-  it('should setCollateralToken at activateAfterBlock which is block 160', async () => {
+  it('should setCollateralToken at activateAfterBlock', async () => {
     // Wait for block 150
     await testing.container.waitForBlockHeight(150)
 
@@ -98,7 +98,7 @@ describe('Loan', () => {
     await testing.container.waitForBlockHeight(160)
   })
 
-  it('should not setCollateralToken if activateAfterBlock is less than current block', async () => {
+  it('should not setCollateralToken if activateAfterBlock is less than current height', async () => {
     // Wait for block 170
     await testing.container.waitForBlockHeight(170)
 
