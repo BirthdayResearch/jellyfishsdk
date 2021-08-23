@@ -16,8 +16,6 @@ function hexAsBuffer (hex: string | string[]): SmartBuffer {
   return buffer
 }
 
-/* eslint-disable no-return-assign */
-
 it('should format (4 bytes, 32 bytes, 8 bytes) hex with hexAsBufferLE', () => {
   // assert hexAsBufferLE conditions is as expected.
 

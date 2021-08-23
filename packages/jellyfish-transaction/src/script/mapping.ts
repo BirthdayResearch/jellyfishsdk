@@ -56,6 +56,10 @@ import {
   SetOracleData,
   UpdateOracle
 } from './dftx/dftx_oracles'
+import {
+  CCreateLoanScheme,
+  CreateLoanScheme
+} from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
@@ -331,6 +335,14 @@ export const OP_CODES = {
       type: CICXSubmitDFCHTLC.OP_CODE,
       name: CICXSubmitDFCHTLC.OP_NAME,
       data: icxSubmitDFCHTLC
+    })
+  },
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateLoanScheme.OP_CODE,
+      name: CCreateLoanScheme.OP_NAME,
+      data: createLoanScheme
     })
   },
 

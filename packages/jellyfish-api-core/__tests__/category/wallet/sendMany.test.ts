@@ -1,12 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
-import {
-  UTXO,
-  ListUnspentOptions,
-  Mode,
-  SendManyOptions
-} from '../../../src/category/wallet'
+import { ListUnspentOptions, Mode, SendManyOptions, UTXO } from '../../../src/category/wallet'
 
 describe('Send many', () => {
   const container = new MasterNodeRegTestContainer()
@@ -22,8 +17,10 @@ describe('Send many', () => {
     await container.stop()
   })
 
-  // Returns matching utxos for given transaction id and address.
-  const getMatchingUTXO = async (txId: string, address: string): Promise<UTXO[]> => {
+  /**
+   * Returns matching utxos for given transaction id and address.
+   */
+  async function getMatchingUTXO (txId: string, address: string): Promise<UTXO[]> {
     const options: ListUnspentOptions = {
       addresses: [address]
     }

@@ -3,9 +3,6 @@ import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 export enum ICXOrderType {
   /** type for DFI/BTC orders */
   INTERNAL = 0x1,
