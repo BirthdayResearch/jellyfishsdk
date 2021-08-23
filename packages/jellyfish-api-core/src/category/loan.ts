@@ -26,6 +26,15 @@ export class Loan {
   async createLoanScheme (scheme: CreateLoanScheme, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, utxos], 'number')
   }
+
+  /**
+   * List all available loan schemes.
+   *
+   * @return {Promise<LoanSchemeResult[]>}
+   */
+  async listLoanSchemes (): Promise<LoanSchemeResult[]> {
+    return await this.client.call('listloanschemes', [], 'bignumber')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -37,4 +46,11 @@ export interface CreateLoanScheme {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface LoanSchemeResult {
+  id: string
+  mincolratio: BigNumber
+  interestrate: BigNumber
+  default: boolean
 }

@@ -33,3 +33,20 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listLoanSchemes
+
+List all available loan schemes.
+
+```ts title="client.loan.listLoanSchemes()"
+interface loan {
+  listLoanSchemes (): Promise<LoanSchemeResult[]>
+}
+
+interface LoanSchemeResult {
+  id: string
+  mincolratio: BigNumber
+  interestrate: BigNumber
+  default: boolean
+}
+```

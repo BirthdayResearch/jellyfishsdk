@@ -257,7 +257,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   /**
    * Same prefix and created more than 1 hour ago
    */
-  const isStale = (containerInfo: ContainerInfo): boolean => {
+  function isStale (containerInfo: ContainerInfo): boolean {
     if (containerInfo.Names.filter((value) => value.startsWith(prefix)).length > 0) {
       return containerInfo.Created + 60 * 60 < Date.now() / 1000
     }
@@ -268,7 +268,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   /**
    * Stop container that are running, remove them after and their associated volumes
    */
-  const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
+  async function tryStopRemove (containerInfo: ContainerInfo): Promise<void> {
     const container = docker.getContainer(containerInfo.Id)
     if (containerInfo.State === 'running') {
       await container.stop()
