@@ -3,7 +3,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
+import { CreateVoc, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
@@ -34,7 +34,7 @@ describe('createVoc', () => {
 
   it('should createVoc', async () => {
     const script = await providers.elliptic.script()
-    const createVoc = {
+    const createVoc: CreateVoc = {
       type: 0x03,
       title: 'vote of confidence',
       amount: new BigNumber(0),
@@ -69,26 +69,9 @@ describe('createVoc', () => {
     })
   })
 
-  it('should reject with invalid type', async () => {
-    const script = await providers.elliptic.script()
-    const createVoc = {
-      type: 0x01,
-      title: 'vote of confidence',
-      amount: new BigNumber(0),
-      address: {
-        stack: []
-      },
-      cycles: 2
-    }
-    const promise = builder.governance.createVoc(createVoc, script)
-
-    await expect(promise).rejects.toThrow(TxnBuilderError)
-    await expect(promise).rejects.toThrow('CreateVoc type should be 0x03')
-  })
-
   it('should reject with invalid amount', async () => {
     const script = await providers.elliptic.script()
-    const createVoc = {
+    const promise = builder.governance.createVoc({
       type: 0x03,
       title: 'vote of confidence',
       amount: new BigNumber(10),
@@ -96,8 +79,7 @@ describe('createVoc', () => {
         stack: []
       },
       cycles: 2
-    }
-    const promise = builder.governance.createVoc(createVoc, script)
+    }, script)
 
     await expect(promise).rejects.toThrow(TxnBuilderError)
     await expect(promise).rejects.toThrow('CreateVoc amount should be 0')
@@ -105,7 +87,7 @@ describe('createVoc', () => {
 
   it('should reject with invalid address', async () => {
     const script = await providers.elliptic.script()
-    const createVoc = {
+    const promise = builder.governance.createVoc({
       type: 0x03,
       title: 'vote of confidence',
       amount: new BigNumber(0),
@@ -117,33 +99,15 @@ describe('createVoc', () => {
         ]
       },
       cycles: 2
-    }
-    const promise = builder.governance.createVoc(createVoc, script)
+    }, script)
 
     await expect(promise).rejects.toThrow(TxnBuilderError)
     await expect(promise).rejects.toThrow('CreateVoc address stack should be empty')
   })
 
-  it('should reject with invalid cycles', async () => {
-    const script = await providers.elliptic.script()
-    const createVoc = {
-      type: 0x03,
-      title: 'vote of confidence',
-      amount: new BigNumber(0),
-      address: {
-        stack: []
-      },
-      cycles: 3
-    }
-    const promise = builder.governance.createVoc(createVoc, script)
-
-    await expect(promise).rejects.toThrow(TxnBuilderError)
-    await expect(promise).rejects.toThrow('CreateVoc cycles should be 2')
-  })
-
   it('should reject with invalid title length', async () => {
     const script = await providers.elliptic.script()
-    const createVoc = {
+    const txn = await builder.governance.createVoc({
       type: 0x03,
       title: 'X'.repeat(150),
       amount: new BigNumber(0),
@@ -151,8 +115,7 @@ describe('createVoc', () => {
         stack: []
       },
       cycles: 2
-    }
-    const txn = await builder.governance.createVoc(createVoc, script)
+    }, script)
     const promise = sendTransaction(testing.container, txn)
 
     await expect(promise).rejects.toThrow(DeFiDRpcError)
