@@ -3,9 +3,6 @@ import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { CScriptBalances, CTokenBalance, ScriptBalances, TokenBalance } from './dftx_balance'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * UtxosToAccount DeFi Transaction
  */
