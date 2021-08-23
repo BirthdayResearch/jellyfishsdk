@@ -83,8 +83,8 @@ Package                                            | Description
 `@defichain/jellyfish-api-jsonrpc`                 | Implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification for api-core.
 `@defichain/jellyfish-crypto`                      | Cryptography operations for jellyfish, includes a simple 'secp256k1' EllipticPair.
 `@defichain/jellyfish-json`                        | Allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
-`@defichain/jellyfish-network`                     | Contains DeFi blockchain various network configuration for mainnet, testnet and regtest.
-`@defichain/jellyfish-testing`                     | Provides many abstractions for various commonly used setup pattern for DeFi blockchain.
+`@defichain/jellyfish-network`                     | Contains DeFi Blockchain various network configuration for mainnet, testnet and regtest.
+`@defichain/jellyfish-testing`                     | Provides many abstractions for various commonly used setup pattern for DeFi Blockchain.
 `@defichain/jellyfish-transaction`                 | Dead simple modern stateless raw transaction composer for the DeFi Blockchain.
 `@defichain/jellyfish-transaction-builder`         | Provides a high-high level abstraction for constructing transaction ready to be broadcast for DeFi Blockchain.
 `@defichain/jellyfish-transaction-signature`       | Stateless utility library to perform transaction signing.

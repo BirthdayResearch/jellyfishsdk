@@ -38,7 +38,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npx --no-install ts-standard
+      - run: npx --no-install eslint .
 
   size:
     name: Size Limit
