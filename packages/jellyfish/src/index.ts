@@ -1,11 +1,7 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 
-import {
-  Provider,
-  HttpProvider,
-  HttpProviderConstructor
-} from './provider'
+import { HttpProvider, HttpProviderConstructor, Provider } from './provider'
 
 /**
  * Client options for Jellyfish
@@ -108,4 +104,5 @@ export const Jellyfish: {
   HttpProvider
 }
 
+/* eslint-disable import/no-default-export */
 export default Jellyfish

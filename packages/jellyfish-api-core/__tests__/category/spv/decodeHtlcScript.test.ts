@@ -16,7 +16,9 @@ describe('Spv', () => {
   })
 
   /** Util function to replace a char at index in string */
-  const replaceAt = (s: string, index: number, replacement: string): string => s.substr(0, index) + replacement + s.substr(index + replacement.length)
+  function replaceAt (s: string, index: number, replacement: string): string {
+    return s.substr(0, index) + replacement + s.substr(index + replacement.length)
+  }
 
   it('should decodeHtlc', async () => {
     const pubKeyA = await container.call('spv_getaddresspubkey', [await container.call('spv_getnewaddress')])
