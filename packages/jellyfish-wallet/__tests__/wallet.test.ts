@@ -15,7 +15,7 @@ describe('discover accounts', () => {
 
   it('should discover [0] when [0] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
@@ -25,7 +25,7 @@ describe('discover accounts', () => {
 
   it('should discover [] when [1] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38'
+      'bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
@@ -35,8 +35,8 @@ describe('discover accounts', () => {
 
   it('should discover [0,1] when [0,1] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8',
-      'bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2',
+      'bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
@@ -46,9 +46,9 @@ describe('discover accounts', () => {
 
   it('should discover [0,1,2] when [0,1,2] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8',
-      'bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38',
-      'bcrt1q2v5wa73qe0ychdheppaeae5s594u3up2d0tha8'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2',
+      'bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp',
+      'bcrt1qhu2pkzfx4gc8r5nry89ma9xvvt6rz0r4xe5yyw'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
@@ -58,10 +58,10 @@ describe('discover accounts', () => {
 
   it('should discover [0,1] when [0,1,3,4] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8',
-      'bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38',
-      'bcrt1q9a2mrm2sp4xpu5k33jakr4jk9zqcwtf3ns3h7j',
-      'bcrt1qh7safzu8d2p02vlnhsm2995t3der3qk75wl8y6'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2',
+      'bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp',
+      'bcrt1q5kn8n6wne38q84z86ukghluh4d0seqp2rcfw5g',
+      'bcrt1qwtjj8kjc92zcya6jjprjvdn3h2vw9uh003q4c3'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
@@ -71,8 +71,8 @@ describe('discover accounts', () => {
 
   it('should discover [0] when [0,1] has activity as max account is set to 1', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8',
-      'bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2',
+      'bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
 
@@ -91,7 +91,7 @@ describe('is usable', () => {
 
   it('[0,1] should be usable when [0] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
     expect(await wallet.isUsable(0)).toStrictEqual(true)
@@ -100,8 +100,8 @@ describe('is usable', () => {
 
   it('[0,1,2] should be usable when [0,1] has activity', async () => {
     const accountProvider = new TestAccountProvider([
-      'bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8',
-      'bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38'
+      'bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2',
+      'bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp'
     ])
     const wallet = new JellyfishWallet(nodeProvider, accountProvider)
     expect(await wallet.isUsable(0)).toStrictEqual(true)
@@ -123,54 +123,54 @@ describe('get accounts', () => {
   it('should get account 0', async () => {
     const account = wallet.get(0)
     const address = await account.getAddress()
-    expect(address).toStrictEqual('bcrt1qtxqjthltev9zqzfqkgt3t758zmdq2twhf2hkj8')
+    expect(address).toStrictEqual('bcrt1qwm0jzcy0jfyel8he42u9536u9wzefmwr5mdkc2')
   })
 
   it('should get account 1', async () => {
     const account = wallet.get(1)
     const address = await account.getAddress()
-    expect(address).toStrictEqual('bcrt1qncjrhlntyyrv6dk5xjn0ep6sjfrqv478365v38')
+    expect(address).toStrictEqual('bcrt1qn823x6sqpc66fuy2g0ylufe4sfaculfs87sulp')
   })
 
   it('should get account 2', async () => {
     const account = wallet.get(2)
     const address = await account.getAddress()
-    expect(address).toStrictEqual('bcrt1q2v5wa73qe0ychdheppaeae5s594u3up2d0tha8')
+    expect(address).toStrictEqual('bcrt1qhu2pkzfx4gc8r5nry89ma9xvvt6rz0r4xe5yyw')
   })
 
   it('should get account 3', async () => {
     const account = wallet.get(3)
     const address = await account.getAddress()
-    expect(address).toStrictEqual('bcrt1q9a2mrm2sp4xpu5k33jakr4jk9zqcwtf3ns3h7j')
+    expect(address).toStrictEqual('bcrt1q5kn8n6wne38q84z86ukghluh4d0seqp2rcfw5g')
   })
 
   it('should get account 4', async () => {
     const address = await wallet.get(4).getAddress()
-    expect(address).toStrictEqual('bcrt1qh7safzu8d2p02vlnhsm2995t3der3qk75wl8y6')
+    expect(address).toStrictEqual('bcrt1qwtjj8kjc92zcya6jjprjvdn3h2vw9uh003q4c3')
   })
 
   it('should get account 5', async () => {
     const address = await wallet.get(5).getAddress()
-    expect(address).toStrictEqual('bcrt1qep3yprgx6q0pwuwat3hqj4fnkd3rfkd6cqev6j')
+    expect(address).toStrictEqual('bcrt1qcs3ny98wsfpch99mhp24gthzy0scz0l2ej43y0')
   })
 
   it('should get account 6', async () => {
     const address = await wallet.get(6).getAddress()
-    expect(address).toStrictEqual('bcrt1qqgwks52gufe3e2jplg6k40cat5prgtlr6f2p36')
+    expect(address).toStrictEqual('bcrt1qrl6m7payyuuwgqv6zmx5yk09l4najqphgljcpp')
   })
 
   it('should get account 7', async () => {
     const address = await wallet.get(7).getAddress()
-    expect(address).toStrictEqual('bcrt1q65yacygafrchwxv90wfc2jzdw6c4sl8ejn0mdf')
+    expect(address).toStrictEqual('bcrt1qm8y3cvv6g3az6k5lj3435d79wnepspx6j8hqqj')
   })
 
   it('should get account 8', async () => {
     const address = await wallet.get(8).getAddress()
-    expect(address).toStrictEqual('bcrt1qkt7rvkzk8qs7rk54vghrtzcdxfqazscmmp30hk')
+    expect(address).toStrictEqual('bcrt1qfm27gdjmr739est3jgv84cnxnavdp6y0zgm3wv')
   })
 
   it('should get account 9', async () => {
     const address = await wallet.get(9).getAddress()
-    expect(address).toStrictEqual('bcrt1qgpu5k3v66qjf8lc4p4lny0uwdxv6vf94axnjkf')
+    expect(address).toStrictEqual('bcrt1q4pj4gfe73x4ww58a42ysdktpj98fn64pjeh47d')
   })
 })

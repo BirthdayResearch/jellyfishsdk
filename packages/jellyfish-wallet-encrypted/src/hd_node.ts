@@ -1,7 +1,7 @@
 import { WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import * as bip32 from 'bip32'
 import { Bip32Options, MnemonicHdNode, MnemonicHdNodeProvider } from '@defichain/jellyfish-wallet-mnemonic'
-import { Scrypt } from './scrypt'
+import { PrivateKeyEncryption } from './encryption'
 
 /**
  * EncryptedMnemonicHdNode extends MnemonicHdNode to implement promise-based privKey resolution.
@@ -67,7 +67,7 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
   private constructor (
     private readonly data: EncryptedProviderData,
     private readonly options: Bip32Options,
-    private readonly scrypt: Scrypt,
+    private readonly scrypt: PrivateKeyEncryption,
     private readonly promptPassphrase: PromptPassphrase
   ) {
   }
@@ -96,7 +96,7 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
    * @param {string} passphrase to encrypt mnemonic words with
    * @return EncryptedProviderData with unencrypted "pubKey & chainCode" and scrypt encoded 'encryptedPrivKey'
    */
-  static async wordsToEncryptedData (words: string[], options: Bip32Options, scrypt: Scrypt, passphrase: string): Promise<EncryptedProviderData> {
+  static async wordsToEncryptedData (words: string[], options: Bip32Options, scrypt: PrivateKeyEncryption, passphrase: string): Promise<EncryptedProviderData> {
     const mnemonic = MnemonicHdNodeProvider.wordsToData(words, options)
     const privKey = Buffer.from(mnemonic.privKey, 'hex')
     const chainCode = Buffer.from(mnemonic.chainCode, 'hex')
@@ -118,7 +118,7 @@ export class EncryptedHdNodeProvider implements WalletHdNodeProvider<EncryptedMn
    * @param {PromptPassphrase} promptPassphrase for on-demand request passphrase to decrypt encrypted private key
    * @return EncryptedHdNodeProvider
    */
-  static init (data: EncryptedProviderData, options: Bip32Options, scrypt: Scrypt, promptPassphrase: PromptPassphrase): EncryptedHdNodeProvider {
+  static init (data: EncryptedProviderData, options: Bip32Options, scrypt: PrivateKeyEncryption, promptPassphrase: PromptPassphrase): EncryptedHdNodeProvider {
     return new EncryptedHdNodeProvider(data, options, scrypt, promptPassphrase)
   }
 }
