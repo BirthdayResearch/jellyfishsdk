@@ -42,6 +42,7 @@ export class Masternode {
     operatorAddress?: string,
     options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string> {
+    operatorAddress = operatorAddress ?? ownerAddress
     const params = [ownerAddress, operatorAddress, options.utxos]
     if (options.timelock !== undefined) {
       params.push(options.timelock)
