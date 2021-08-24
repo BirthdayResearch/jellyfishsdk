@@ -7,7 +7,7 @@ slug: /jellyfish/design
 
 ## Conventional defaults
 
-`@defichain/jellyfish` package provides conventional defaults and bundle all code required for dApps building. 
+`@defichain/jellyfish` package provides conventional defaults and bundles all code required for dApps building. 
 
 ```js
 import { Client, HttpProvider } from '@defichain/jellyfish'
@@ -23,7 +23,7 @@ client = new Client(new HttpProvider('http://foo:bar@localhost:8554'), {
 
 ## Promise-based client
 
-To prevent a "callback hell" structure where code get nested and messy; making it harder to understand.
+To prevent a "callback hell" structure where code gets nested and messy; making it harder to understand.
 A `Promise<?>` based design is used as async/await implementation are very mature today, it brings better quality of 
 life to modern development.
 
@@ -60,7 +60,7 @@ it('lost precision converting DFI 😥', () => {
   that path as 'bignumber'. Otherwise, it will default to number, This applies deeply.
 
 
-As not all number parsed are significant in all context, (e.g. `mining.getMiningInfo()`), this allows jellyfish library 
+As not all numbers parsed are significant in all context, (e.g. `mining.getMiningInfo()`), this allows jellyfish library 
 users to use the `number` for non precision sensitive operation (e.g. `networkhashps`) and BigNumber for precision 
 sensitive operations.
 
@@ -99,7 +99,7 @@ export class Mining {
 ## Protocol agnostic core
 
 ApiClient in `api-core` is a protocol agnostic DeFiChain client implementation with APIs separated into 
-their category. The protocol-agnostic core enable independent communication protocols, allowing
+their category. The protocol-agnostic core enables independent communication protocols, allowing
 vendor-agnostic middleware adaptable to any needs.
 
 ```ts

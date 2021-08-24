@@ -33,6 +33,15 @@ describe('Masternode', () => {
       expect(typeof currentMasternode.ownerIsMine).toStrictEqual('boolean')
       expect(typeof currentMasternode.localMasternode).toStrictEqual('boolean')
       expect(typeof currentMasternode.operatorIsMine).toStrictEqual('boolean')
+      if (currentMasternode.targetMultiplier !== undefined) {
+        expect(typeof currentMasternode.targetMultiplier).toStrictEqual('number')
+      }
+      if (currentMasternode.targetMultipliers !== undefined) {
+        expect(typeof currentMasternode.targetMultipliers).toStrictEqual('object')
+      }
+      if (currentMasternode.timelock !== undefined) {
+        expect(typeof currentMasternode.timelock).toStrictEqual('number')
+      }
     }
   })
 

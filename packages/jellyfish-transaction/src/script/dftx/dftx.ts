@@ -10,29 +10,50 @@ import {
   CUtxosToAccount,
   UtxosToAccount
 } from './dftx_account'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx_masternode'
+import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
 import {
-  CPoolAddLiquidity, CPoolRemoveLiquidity, CPoolSwap, CPoolCreatePair, CPoolUpdatePair, PoolAddLiquidity, PoolRemoveLiquidity,
-  PoolSwap, PoolCreatePair, PoolUpdatePair
+  CPoolAddLiquidity,
+  CPoolCreatePair,
+  CPoolRemoveLiquidity,
+  CPoolSwap,
+  CPoolUpdatePair,
+  PoolAddLiquidity,
+  PoolCreatePair,
+  PoolRemoveLiquidity,
+  PoolSwap,
+  PoolUpdatePair
 } from './dftx_pool'
-import { CTokenCreate, CTokenMint, CTokenUpdate, CTokenUpdateAny, TokenCreate, TokenMint, TokenUpdate, TokenUpdateAny } from './dftx_token'
 import {
-  CAppointOracle,
+  CTokenCreate,
+  CTokenMint,
+  CTokenUpdate,
+  CTokenUpdateAny,
+  TokenCreate,
+  TokenMint,
+  TokenUpdate,
+  TokenUpdateAny
+} from './dftx_token'
+import {
   AppointOracle,
-  CUpdateOracle,
-  UpdateOracle,
+  CAppointOracle,
   CRemoveOracle,
-  RemoveOracle,
   CSetOracleData,
-  SetOracleData
+  CUpdateOracle,
+  RemoveOracle,
+  SetOracleData,
+  UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
-import { CSetGovernance, SetGovernance } from './dftx_governance'
-import { CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
+import {
+  CSetGovernance,
+  SetGovernance,
+  CCreateCfp,
+  CCreateVoc,
+  CreateProposal
+} from './dftx_governance'
+import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC } from './dftx_icxorderbook'
+import { CCreateLoanScheme, CreateLoanScheme } from './dftx_loans'
 
 /**
  * DeFi Transaction
@@ -142,14 +163,20 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetOracleData>(CSetOracleData.OP_NAME, d => new CSetOracleData(d))
       case CAutoAuthPrep.OP_CODE:
         return compose(CAutoAuthPrep.OP_NAME, () => new CAutoAuthPrep())
-      case CCreateMasterNode.OP_CODE:
-        return compose<CreateMasterNode>(CCreateMasterNode.OP_NAME, d => new CCreateMasterNode(d))
-      case CResignMasterNode.OP_CODE:
-        return compose<ResignMasterNode>(CResignMasterNode.OP_NAME, d => new CResignMasterNode(d))
+      case CCreateMasternode.OP_CODE:
+        return compose<CreateMasternode>(CCreateMasternode.OP_NAME, d => new CCreateMasternode(d))
+      case CResignMasternode.OP_CODE:
+        return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
-      case CICXCreateOrder.OP_CODE:
-        return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
+      case CCreateCfp.OP_CODE:
+        return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
+      case CCreateVoc.OP_CODE:
+        return compose<CreateProposal>(CCreateVoc.OP_NAME, d => new CCreateVoc(d))
+      case CICXSubmitDFCHTLC.OP_CODE:
+        return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
+      case CCreateLoanScheme.OP_CODE:
+        return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
