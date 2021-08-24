@@ -2,7 +2,7 @@
   "private": false,
   "name": "@defichain/jellyfish-wallet-mnemonic",
   "version": "0.0.0",
-  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
   "keywords": [
     "DeFiChain",
     "DeFi",
@@ -38,6 +38,10 @@
     "@defichain/jellyfish-wallet": "0.0.0",
     "@defichain/jellyfish-transaction": "0.0.0",
     "bip32": "^2.0.6",
-    "bip39": "^3.0.4"
+    "bip39": "^3.0.4",
+    "create-hmac": "^1.1.7"
+  },
+  "devDependencies": {
+    "@types/create-hmac": "^1.1.0"
   }
 }

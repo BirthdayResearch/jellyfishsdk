@@ -1,6 +1,7 @@
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import { ListProposalsStatus, ListProposalsType, ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
+import BigNumber from 'bignumber.js'
 
 describe('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
@@ -8,7 +9,6 @@ describe('Governance', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
 
     await setup()
@@ -45,7 +45,7 @@ describe('Governance', () => {
       expect(typeof proposal.title).toStrictEqual('string')
       expect(typeof proposal.type).toStrictEqual('string')
       expect(typeof proposal.status).toStrictEqual('string')
-      expect(typeof proposal.amount).toStrictEqual('number')
+      expect(proposal.amount instanceof BigNumber).toStrictEqual(true)
       expect(typeof proposal.totalCycles).toStrictEqual('number')
       expect(typeof proposal.cyclesPaid).toStrictEqual('number')
       expect(typeof proposal.finalizeAfter).toStrictEqual('number')

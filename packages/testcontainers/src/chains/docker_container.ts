@@ -11,6 +11,16 @@ export abstract class DockerContainer {
     this.docker = new Dockerode(options)
   }
 
+  get id (): string {
+    return this.requireContainer().id
+  }
+
+  async getIp (name = 'default'): Promise<string> {
+    const { NetworkSettings: networkSettings } = await this.inspect()
+    const { Networks: networks } = networkSettings
+    return networks[name].IPAddress
+  }
+
   /**
    * Try pull docker image if it doesn't already exist.
    */
@@ -65,6 +75,36 @@ export abstract class DockerContainer {
         return reject(new Error('Unable to find rpc port, the container might have crashed'))
       })
     })
+  }
+
+  /**
+   * tty into docker
+   */
+  async exec (opts: { Cmd: string[] }): Promise<void> {
+    return await new Promise((resolve, reject) => {
+      const container = this.requireContainer()
+      container.exec({
+        Cmd: opts.Cmd
+      }, (error, exec) => {
+        if (error instanceof Error) {
+          reject(error)
+        } else {
+          exec?.start({})
+            .then(() => setTimeout(resolve, 100)) // to prevent stream race condition
+            .catch(reject)
+        }
+      })
+    })
+  }
+
+  /**
+   * Inspect docker container info
+   *
+   * @return {Promise<Record<string, any>>}
+   */
+  async inspect (): Promise<Record<string, any>> {
+    const container = this.requireContainer()
+    return await container.inspect()
   }
 }
 

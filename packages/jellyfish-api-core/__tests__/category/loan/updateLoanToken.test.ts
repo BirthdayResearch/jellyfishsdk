@@ -1,101 +1,51 @@
-// import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { Testing } from '@defichain/jellyfish-testing'
+import BigNumber from 'bignumber.js'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
-  // const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
   })
-
-  afterEach(async () => {
-    // TODO jingyi2811
-    // Currently, there is no way to delete every loan token created
-  })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
-  // setLoanTokenTx = self.nodes[0].setloantoken({
-  //   'symbol': "TSLAAAA",
-  //   'name': "Tesla",
-  //   'priceFeedId': oracle_id1,
-  //   'mintable': False,
-  //   'interest': 0.01})
 
   it('should updateLoanToken', async () => {
-    const tokens = await container.call('listtokens')
-    console.log(tokens)
+    const priceFeedId = await testing.container.call('appointoracle', [await container.getNewAddress('', 'legacy'), [{
+      currency: 'USD',
+      token: 'DFI'
+    }, { currency: 'USD', token: 'BTC' }], 10])
+    await testing.generate(1)
 
-    const address = await container.call('getnewaddress')
-    const metadata = {
-      symbol: 'BTC',
-      name: 'BTC token',
-      isDAT: true,
-      collateralAddress: address
-    }
-    await container.call('createtoken', [metadata])
-    await container.generate(1)
+    await testing.container.call('setloantoken', [
+      {
+        symbol: 'TSLAAAA',
+        name: 'Tesla',
+        priceFeedId,
+        mintable: false,
+        interest: new BigNumber(0.01)
+      }, []])
+    await testing.generate(1)
 
-    const address1 = await container.getNewAddress('', 'legacy')
+    await testing.rpc.loan.updateLoanToken({
+      token: 'TSLAAAA',
+      symbol: 'TSLA',
+      name: 'Tesla stock token',
+      priceFeedId,
+      mintable: true,
+      interest: new BigNumber(0.05)
+    })
 
-    const oracleId = await container.call('appointoracle', [address1,
-      [{ currency: 'USD', token: 'DFI' }, { currency: 'USD', token: 'BTC' }],
-      10])
-
-    await container.generate(1)
-
-    await container.call('setloantoken', [{
-      symbol: 'TSLAAAA',
-      name: 'Tesla',
-      priceFeedId: oracleId,
-      mintable: false,
-      interest: 0.01
-      // TODO jingyi2811
-      // There is bug in the c++ side
-      // Supposes no need to be passed in interest, and default value of 1 will be set
-      // But this is not the case now
-    }])
-
-    await container.generate(1)
-
-    const data = await container.call('listloantokens', [])
-    console.log(data)
-
-    // const updateTxId = await client.loan.updateLoanToken(
-    //   'TSLAAAA',
-    //   {
-    //     symbol: 'TSLA',
+    // await testing.container.call('updateloantoken', [
+    //   {token: 'TSLAAAA'},
+    //   {symbol: 'TSLA',
     //     name: 'Tesla stock token',
-    //     priceFeedId: oracleId,
+    //     priceFeedId,
     //     mintable: true,
-    //     interest: 0.05
-    //   },
+    //     interest: new BigNumber(0.05)},
+    //   []]
     // )
-    //
-    // await container.generate(1)
-
-    await container.call('updateloantoken', [
-      {
-        token: 'TSLAAAA'
-      },
-      {
-        symbol: 'TSLA',
-        name: 'Tesla stock token',
-        priceFeedId: oracleId,
-        mintable: true,
-        interest: 0.01
-      }
-    ])
-
-    await container.generate(1)
-
-    // TODO jingyi2811
-    // updateloantoken keeps on returning 'Token  is not a loan token! Can't alter other tokens with this tx!', code: -8
-    // even though I copy the same python test logic to here
+    await testing.generate(1)
   })
 })
