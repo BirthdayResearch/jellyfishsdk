@@ -16,33 +16,27 @@ describe('Loan', () => {
     await container.stop()
   })
 
-  it('should not listLoanTokens', async () => {
-    const data = await client.loan.listLoanTokens()
-    expect(Object.keys(data).length).toStrictEqual(0)
-  })
-
   it('should listLoanTokens', async () => {
-    const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{
+    const priceFeedId = await container.call('appointoracle', [await container.getNewAddress(), [{
       token: 'AAPL',
       currency: 'EUR'
     }], 1])
-
     await container.generate(1)
 
-    const txId = await container.call('setloantoken', [
-      {
-        symbol: 'ABC',
-        name: 'ABCTOKEN',
-        priceFeedId: oracleId,
-        interest: 0.01
-      }
-    ]
-    )
+    {
+      const data = await client.loan.listLoanTokens()
+      expect(data).toStrictEqual({})
+    }
 
+    const txId = await container.call('setloantoken', [{
+      symbol: 'AAPL',
+      name: 'APPLE',
+      priceFeedId,
+      interest: new BigNumber(0.01)
+    }])
     await container.generate(1)
 
     const data = await client.loan.listLoanTokens()
-
     expect(data).toStrictEqual(
       {
         [txId]: {
@@ -61,13 +55,13 @@ describe('Loan', () => {
               limit: new BigNumber(0),
               mintable: false,
               minted: new BigNumber(0),
-              name: 'ABCTOKEN',
-              symbol: 'ABC',
-              symbolKey: 'ABC',
+              name: 'APPLE',
+              symbol: 'AAPL',
+              symbolKey: 'AAPL',
               tradeable: true
             }
           },
-          priceFeedId: oracleId,
+          priceFeedId,
           interest: new BigNumber(0.01)
         }
       }
