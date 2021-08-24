@@ -50,3 +50,21 @@ interface LoanSchemeResult {
   default: boolean
 }
 ```
+
+## setLoanToken
+
+Creates (and submits to local node and network) a token for a price feed set in collateral token.
+
+```ts title="client.loan.setLoanToken()"
+interface loan {
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetLoanToken {
+  symbol: string
+  name: string,
+  priceFeedId: string
+  mintable?: boolean
+  interest?: number
+}
+```
