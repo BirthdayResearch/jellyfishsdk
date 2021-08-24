@@ -1,6 +1,7 @@
-import { BigNumber, RpcApiError } from '@defichain/jellyfish-api-core'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { MasterNodeRegTestContainer, ContainerGroup, GenesisKeys } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import BigNumber from 'bignumber.js'
 
 describe('Spv', () => {
   const group = new ContainerGroup([

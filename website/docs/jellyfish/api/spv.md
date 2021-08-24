@@ -184,6 +184,7 @@ interface ListHtlcsOutputsResult {
 
 ## createAnchor
 
+Create, sign and send anchor tx, using only SPV API.
 
 ```ts title=client.spv.createAnchor()"
 interface spv {
@@ -192,9 +193,16 @@ interface spv {
   ): Promise<CreateAnchorResult>
 }
 
+interface CreateAnchorInput {
+  txid: string
+  vout: number
+  amount: number
+  privkey: string
+}
+
 interface CreateAnchorOptions {
   send: boolean
-  feerate: BigNumber
+  feerate: number
 }
 
 interface CreateAnchorResult {

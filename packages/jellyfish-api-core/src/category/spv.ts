@@ -131,7 +131,7 @@ export class Spv {
   }
 
   /**
-   * Create, sign and send anchor tx, using only spv api
+   * Create, sign and send anchor tx, using only SPV API
    *
    * @param {CreateAnchorInput[]} createAnchorInputs Info from BTC chain
    * @param {string} createAnchorInput.txid The transaction id of the bitcoin UTXO to spent
