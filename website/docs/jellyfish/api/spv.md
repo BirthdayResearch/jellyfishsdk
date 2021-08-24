@@ -188,7 +188,7 @@ interface ListHtlcsOutputsResult {
 ```ts title=client.spv.createAnchor()"
 interface spv {
   createAnchor (
-    createAnchorInputs: CreateAnchorInput[], rewardAddress: string, options: CreateAnchorOptions = { send: true, feerate: new BigNumber('1000')}
+    createAnchorInputs: CreateAnchorInput[], rewardAddress: string, options: CreateAnchorOptions = { send: true, feerate: 1000 }
   ): Promise<CreateAnchorResult>
 }
 

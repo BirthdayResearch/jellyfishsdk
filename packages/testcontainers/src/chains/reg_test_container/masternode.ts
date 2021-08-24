@@ -136,7 +136,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const anchorTeams = await this.call('getanchorteams')
-      console.log('anchorTeams: ', anchorTeams)
       if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
         return true
       }
@@ -153,9 +152,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    */
   async waitForAnchorAuths (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
-      const anchorAuths = await this.call('spv_listanchorauths')
-      console.log('anchorAuths: ', anchorAuths)
-      if ((await this.call('spv_listanchorauths')).length > 0 && (await this.call('spv_listanchorauths'))[0].signers === nodesLength) {
+      const auths = await this.call('spv_listanchorauths')
+      if (auths.length > 0 && auths[0].signers === nodesLength) {
         return true
       }
       return false

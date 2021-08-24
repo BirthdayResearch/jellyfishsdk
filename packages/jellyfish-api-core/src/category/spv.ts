@@ -257,12 +257,20 @@ export interface CreateAnchorOptions {
 }
 
 export interface CreateAnchorResult {
+  /** the transaction hex */
   txHex: string
+  /** the transaction hash  */
   txHash: string
+  /** the anchor block hash */
   defiHash: string
+  /** the anchor block height */
   defiHeight: number
+  /** estimated anchor reward */
   estimatedReward: BigNumber
+  /** created anchor cost */
   cost: BigNumber
+  /** status of send result */
   sendResult: number
+  /** decoded sendResult */
   sendMessage: string
 }
