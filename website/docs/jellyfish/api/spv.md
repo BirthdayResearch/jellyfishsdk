@@ -181,3 +181,30 @@ interface ListHtlcsOutputsResult {
   spent: SpentInfo
 }
 ```
+
+## createAnchor
+
+
+```ts title=client.spv.createAnchor()"
+interface spv {
+  createAnchor (
+    createAnchorInputs: CreateAnchorInput[], rewardAddress: string, options: CreateAnchorOptions = { send: true, feerate: new BigNumber('1000')}
+  ): Promise<CreateAnchorResult>
+}
+
+interface CreateAnchorOptions {
+  send: boolean
+  feerate: BigNumber
+}
+
+interface CreateAnchorResult {
+  txHex: string
+  txHash: string
+  defiHash: string
+  defiHeight: number
+  estimatedReward: BigNumber
+  cost: BigNumber
+  sendResult: number
+  sendMessage: string
+}
+```
