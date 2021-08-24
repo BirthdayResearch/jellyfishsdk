@@ -69,6 +69,16 @@ export interface ListLoanTokenData {
 }
 
 export interface ListLoanTokenDetail {
+  token: TokenData
+  priceFeedId: string
+  interest: BigNumber
+}
+
+export interface TokenData {
+  [key: string]: TokenDetail
+}
+
+export interface TokenDetail {
   collateralAddress: string
   creationHeight: BigNumber
   creationTx: string

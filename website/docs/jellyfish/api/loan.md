@@ -50,3 +50,47 @@ interface LoanSchemeResult {
   default: boolean
 }
 ```
+
+## listLoanTokens
+
+List all created loan tokens.
+
+```ts title="client.loan.listLoanTokens()"
+interface loan {
+  listLoanTokens (): Promise<ListLoanTokenData>
+}
+
+interface ListLoanTokenData {
+  [key: string]: ListLoanTokenDetail
+}
+
+interface ListLoanTokenDetail {
+  token: TokenData
+  priceFeedId: string
+  interest: BigNumber
+}
+
+interface TokenData {
+  [key: string]: TokenDetail
+}
+
+interface TokenDetail {
+  collateralAddress: string
+  creationHeight: BigNumber
+  creationTx: string
+  decimal: BigNumber
+  destructionHeight: BigNumber
+  destructionTx: string
+  finalized: false
+  isDAT: boolean
+  isLPS: boolean
+  isLoanToken: boolean
+  limit: BigNumber
+  mintable: boolean
+  minted: BigNumber
+  name: string
+  symbol: string
+  symbolKey: string
+  tradeable: boolean
+}
+```
