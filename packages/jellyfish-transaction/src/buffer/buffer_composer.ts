@@ -394,6 +394,28 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * VarUInt sized hex string, encoded in BE order buffer.
+   * String is always BE, as Javascript is uses BE by default.
+   *
+   * @param getter to read BE ordered String and write as BE ordered Buffer
+   * @param setter to read BE ordered Buffer and set as BE ordered String
+   */
+  static varUIntHexBE (getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const length = readVarUInt(buffer)
+        const buff = Buffer.from(buffer.readBuffer(length))
+        setter(buff.toString('hex'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const buff: Buffer = Buffer.from(getter(), 'hex')
+        writeVarUInt(buff.length, buffer)
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
    * Unsigned Int8, 1 byte
    *
    * @param getter to read from to buffer

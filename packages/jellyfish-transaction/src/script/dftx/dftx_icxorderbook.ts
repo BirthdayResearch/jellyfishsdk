@@ -2,7 +2,6 @@ import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
-import { SmartBuffer } from 'smart-buffer'
 
 export enum ICXOrderType {
   /** type for DFI/BTC orders */
@@ -62,7 +61,7 @@ export interface ICXSubmitDFCHTLC {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CICXSubmitDFCHTLC extends ComposableBuffer<ICXSubmitDFCHTLC> {
-  static OP_CODE = 0x33
+  static OP_CODE = 0x33 // '3'
   static OP_NAME = 'OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC'
 
   composers (msg: ICXSubmitDFCHTLC): BufferComposer[] {
@@ -92,7 +91,7 @@ export interface ICXSubmitEXTHTLC {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
-  static OP_CODE = 0x34
+  static OP_CODE = 0x34 // '4'
   static OP_NAME = 'OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC'
 
   composers (msg: ICXSubmitEXTHTLC): BufferComposer[] {
@@ -101,19 +100,7 @@ export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
       ComposableBuffer.satoshiAsBigNumber(() => msg.amount, v => msg.amount = v),
       ComposableBuffer.hexBEBufferLE(32, () => msg.hash, v => msg.hash = v),
       ComposableBuffer.varUIntUtf8BE(() => msg.htlcScriptAddress, v => msg.htlcScriptAddress = v),
-      { // NOTE(surangap): may be use optionalVarUIntHex when available or move this piece of code to buffer_composer.ts
-        fromBuffer: (buffer: SmartBuffer): void => {
-          const length = buffer.readUInt8()
-          const buff = Buffer.from(buffer.readBuffer(length))
-          msg.ownerPubkey = buff.toString('hex')
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          const hex = msg.ownerPubkey
-          const buff: Buffer = Buffer.from(hex, 'hex')
-          buffer.writeUInt8(buff.length)
-          buffer.writeBuffer(buff)
-        }
-      },
+      ComposableBuffer.varUIntHexBE(() => msg.ownerPubkey, v => msg.ownerPubkey = v),
       ComposableBuffer.uInt32(() => msg.timeout, v => msg.timeout = v)
     ]
   }
