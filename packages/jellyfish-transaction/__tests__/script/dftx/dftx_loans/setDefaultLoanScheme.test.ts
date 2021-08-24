@@ -23,7 +23,6 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a0d4466547864' // OP_RETURN(0x6a) (length 13 = 0x0d) CDfTx.SIGNATURE(0x44665478) CSetDefaultLoanScheme.OP_CODE(0x64)
-
 const data = '07736368656d6532'
 const setDefaultLoanScheme: SetDefaultLoanScheme = {
   identifier: 'scheme2'
