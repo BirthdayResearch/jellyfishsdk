@@ -251,9 +251,9 @@ export interface CreateAnchorInput {
 
 export interface CreateAnchorOptions {
   /** Send to BTC network */
-  send: boolean
+  send?: boolean
   /** Feerate (satoshis) per 1000 bytes */
-  feerate: number
+  feerate?: number
 }
 
 export interface CreateAnchorResult {

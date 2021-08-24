@@ -201,8 +201,8 @@ interface CreateAnchorInput {
 }
 
 interface CreateAnchorOptions {
-  send: boolean
-  feerate: number
+  send?: boolean
+  feerate?: number
 }
 
 interface CreateAnchorResult {
