@@ -110,7 +110,7 @@ describe('submit EXT HTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     const EXTHTLCTxId = calculateTxid(txn)
     expect(HTLCs[EXTHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {

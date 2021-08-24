@@ -16,15 +16,15 @@ it('should bi-directional buffer-object-buffer', () => {
     )
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x34)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x34)
   })
 })
 
 const header = '6a4c964466547834' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 150 = 0x96) CDfTx.SIGNATURE(0x44665478) CICXSubmitEXTHTLC.OP_CODE(0x34)
 // ICXSubmitEXTHTLC.offerTx[LE](0x91470f554ca0816c2a11ed75a8e5939e915dbb62234ea51ac186ab2f8688e1db) ICXSubmitEXTHTLC.amount(0x8096980000000000)
 // ICXSubmitEXTHTLC.hash[LE](0x20521a24e5418c971da262215bd30bd79f52611a63e038295b603f64fdc07f95) ICXSubmitEXTHTLC.htlcscriptAddress(0x223133734a51397742576838737369684855674161436d4e574a62424147354872394e)
-// ICXSubmitEXTHTLC.ownerPubkey(0x21036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252) ICXSubmitEXTHTLC.timeout(0x18000000
+// ICXSubmitEXTHTLC.ownerPubkey(0x21036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252) ICXSubmitEXTHTLC.timeout(0x18000000)
 const data = '91470f554ca0816c2a11ed75a8e5939e915dbb62234ea51ac186ab2f8688e1db809698000000000020521a24e5418c971da262215bd30bd79f52611a63e038295b603f64fdc07f95223133734a51397742576838737369684855674161436d4e574a62424147354872394e21036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e625218000000'
 
 const submitEXTHTLC: ICXSubmitEXTHTLC = {
@@ -43,7 +43,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
