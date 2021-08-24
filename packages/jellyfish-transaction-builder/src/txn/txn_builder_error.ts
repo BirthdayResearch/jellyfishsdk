@@ -38,7 +38,15 @@ export enum TxnBuilderErrorType {
   /**
    * Invalid `UpdateOracle` input
    */
-  INVALID_UPDATE_ORACLE_INPUT
+  INVALID_UPDATE_ORACLE_INPUT,
+  /**
+   * Invalid `CreateVoc` amount, should be 0
+   */
+  INVALID_VOC_AMOUNT,
+  /**
+   * Invalid `CreateVoc` address, should be an empty stack
+   */
+  INVALID_VOC_ADDRESS,
 }
 
 /**
