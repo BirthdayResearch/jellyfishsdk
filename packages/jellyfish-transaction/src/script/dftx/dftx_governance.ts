@@ -147,11 +147,7 @@ export class CCreateVoc extends CCreateProposal {
   static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }
 
-export enum VoteDecision {
-  YES = 0x01,
-  NO = 0x02,
-  NEUTRAL = 0x03
-}
+export type VoteDecision = 0x01 | 0x02 | 0x03
 
 export interface Vote {
   proposalId: string // -----------| 32 bytes hex string
@@ -170,7 +166,7 @@ export class CVote extends ComposableBuffer<Vote> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => vote.proposalId, v => vote.proposalId = v),
       ComposableBuffer.hexBEBufferLE(32, () => vote.masternodeId, v => vote.masternodeId = v),
-      ComposableBuffer.uInt8(() => vote.voteDecision, v => vote.voteDecision = v)
+      ComposableBuffer.uInt8(() => vote.voteDecision, v => vote.voteDecision = v as VoteDecision)
     ]
   }
 }
