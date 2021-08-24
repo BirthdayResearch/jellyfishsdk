@@ -68,11 +68,11 @@ describe('Loan', () => {
   })
 
   it('should not setDefaultLoanScheme if the scheme is going to be deleted at future block', async () => {
-    await testing.container.call('createloanscheme', [300, new BigNumber(3.5), 'scheme3'])
-    await testing.generate(1)
-
     // Wait for block 110
     await testing.container.waitForBlockHeight(110)
+
+    await testing.container.call('createloanscheme', [300, new BigNumber(3.5), 'scheme3'])
+    await testing.generate(1)
 
     // To delete at block 120
     const loanSchemeId = await testing.container.call('destroyloanscheme', ['scheme3', 120])
