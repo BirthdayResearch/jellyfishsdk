@@ -17,11 +17,6 @@ describe('Loan', () => {
     await container.generate(1)
   })
 
-  afterEach(async () => {
-    // TODO jingyi2811
-    // Should be able to delete every loan token created
-  })
-
   afterAll(async () => {
     await container.stop()
   })
@@ -43,7 +38,7 @@ describe('Loan', () => {
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
     const txId = await client.loan.setLoanToken(
-      'ABCDEFGHI', // NOTE(jingyi2811): 9 letters.
+      'ABCDEFGHI',
       'ABCTOKEN',
       {
         priceFeedId: oracleId
@@ -53,7 +48,6 @@ describe('Loan', () => {
     await container.generate(1)
 
     const data = await container.call('listloantokens', [])
-    // NOTE(jingyi2811): Only take first 8 letters.
     expect(data[txId].token[1].symbol).toStrictEqual('ABCDEFGH')
     expect(data[txId].token[1].symbolKey).toStrictEqual('ABCDEFGH')
   })
