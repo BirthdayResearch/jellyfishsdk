@@ -37,7 +37,9 @@ export class Loan {
   }
 
   /**
-   * @param {UpdateLoanToken} loanToken // Updates an existing loan token
+   * Updates an existing loan token
+   *
+   * @param {UpdateLoanToken} loanToken
    * @param {string} loanToken.token // The tokens's symbol, id or creation tx
    * @param {string} loanToken.symbol // Token's symbol (unique), no longer than 8
    * @param {string} loanToken.name // Token's name, no longer than 128
@@ -47,8 +49,7 @@ export class Loan {
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
-   *
-   * @return {Promise<string>}
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
    */
   async updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
     const { token, symbol, name, priceFeedId, mintable, interest } = loanToken
