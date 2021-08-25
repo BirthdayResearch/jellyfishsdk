@@ -22,12 +22,12 @@ export interface StatsData {
     blocks: number
     tokens: number
     prices: number
-    // TODO(fuxingloh): `masternodes: number` must be indexed via aggregator
+    masternodes: number
   }
   tvl: {
     total: number
     dex: number
-    // TODO(fuxingloh): `masternode: number` must be indexed via aggregator
+    masternodes: number
   }
   burned: {
     total: number
@@ -37,5 +37,8 @@ export interface StatsData {
   }
   price: {
     usdt: number
+  }
+  masternodes: {
+    locked: Array<{weeks: number, tvl: number, count: number}>
   }
 }
