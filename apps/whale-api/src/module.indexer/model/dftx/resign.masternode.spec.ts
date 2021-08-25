@@ -2,6 +2,7 @@ import { createTestingApp, DelayedEunosPayaTestContainer, invalidateFromHeight, 
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeMapper } from '@src/module.model/masternode'
+import { MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 
 describe('resign masternode (pre eunos paya)', () => {
   const container = new DelayedEunosPayaTestContainer()
@@ -48,6 +49,20 @@ describe('resign masternode (pre eunos paya)', () => {
 
     expect(resignedMasternode?.resignHeight).toStrictEqual(resignHeight)
     expect(resignedMasternode?.resignTx).toStrictEqual(resignTx)
+
+    const masternodeStatsMapper = app.get(MasternodeStatsMapper)
+    const masternodeStats = await masternodeStatsMapper.getLatest()
+    expect(masternodeStats?.stats).toStrictEqual({
+      count: 8,
+      tvl: '80.00000000',
+      locked: [
+        {
+          weeks: 0,
+          count: 8,
+          tvl: '80.00000000'
+        }
+      ]
+    })
   })
 })
 
@@ -68,7 +83,7 @@ describe('invalidate', () => {
     await stopTestingApp(container, app)
   })
 
-  it('should create masternode and invalidate', async () => {
+  it('should resign masternode and invalidate', async () => {
     await container.generate(1)
 
     const ownerAddress = await client.wallet.getNewAddress()

@@ -6,6 +6,8 @@ import { MasternodeMapper } from '@src/module.model/masternode'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { P2PKH, P2WPKH } from '@defichain/jellyfish-address'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { MasternodeStatsMapper, TimelockStats } from '@src/module.model/masternode.stats'
+import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
@@ -14,6 +16,7 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
 
   constructor (
     private readonly masternodeMapper: MasternodeMapper,
+    private readonly masternodeStatsMapper: MasternodeStatsMapper,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
@@ -42,16 +45,52 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
         resignHeight: -1,
         mintedBlocks: 0,
         timelock: data.timelock ?? 0,
-        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
+        collateral: txn.vout[1].value.toFixed(8)
       })
+
+      await this.indexStats(block, data, txn.vout[1].value)
     }
   }
 
-  async invalidate (_: RawBlock, txns: Array<DfTxTransaction<CreateMasternode>>): Promise<void> {
+  async indexStats (block: RawBlock, data: CreateMasternode, collateral: BigNumber): Promise<void> {
+    const latest = await this.masternodeStatsMapper.getLatest()
+
+    await this.masternodeStatsMapper.put({
+      id: HexEncoder.encodeHeight(block.height),
+      stats: {
+        count: (latest?.stats?.count ?? 0) + 1,
+        tvl: new BigNumber(latest?.stats?.tvl ?? 0).plus(collateral).toFixed(8),
+        locked: this.mapTimelockStats(latest?.stats?.locked ?? [], {
+          weeks: data.timelock ?? 0,
+          count: 1,
+          tvl: collateral.toFixed(8)
+        })
+      },
+      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+    })
+  }
+
+  mapTimelockStats (latest: TimelockStats[], lockStats: TimelockStats): TimelockStats[] {
+    const existing = latest.find(x => x.weeks === lockStats.weeks)
+    if (existing === undefined) {
+      return [...latest, lockStats]
+    } else {
+      return latest.map(x => ({
+        ...x,
+        count: x.weeks === lockStats.weeks ? (x.count + lockStats.count) : x.count,
+        tvl: x.weeks === lockStats.weeks ? new BigNumber(x.tvl).plus(lockStats.tvl).toFixed(8) : x.tvl
+      }))
+    }
+  }
+
+  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<CreateMasternode>>): Promise<void> {
     for (const { txn } of txns) {
       const masternodeId = txn.txid
       await this.masternodeMapper.delete(masternodeId)
     }
+
+    await this.masternodeStatsMapper.delete(block.height)
   }
 }
 
