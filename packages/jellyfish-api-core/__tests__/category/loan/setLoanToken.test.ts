@@ -12,17 +12,18 @@ describe('Loan', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'TOKEN',
-      currency: 'CURRENCY'
+      token: 'Token',
+      currency: 'Currency'
     }], 1])
     await testing.generate(1)
   })
 
   it('should setLoanToken', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'TOKENA',
-      name: 'TOKENA',
+      symbol: 'Token1',
+      name: 'Token1',
       priceFeedId
     })
     expect(typeof loanTokenId).toStrictEqual('string')
@@ -34,9 +35,9 @@ describe('Loan', () => {
       [loanTokenId]: {
         token: {
           1: {
-            symbol: 'TOKENA',
-            symbolKey: 'TOKENA',
-            name: 'TOKENA',
+            symbol: 'Token1',
+            symbolKey: 'Token1',
+            name: 'Token1',
             decimal: 8,
             limit: 0,
             mintable: false,
@@ -62,7 +63,7 @@ describe('Loan', () => {
   it('should setLoanToken if symbol is more than 8 letters', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'ABCDEFGHI', // 9 letters
-      name: 'TOKEN2',
+      name: 'Token2',
       priceFeedId
     })
     await testing.generate(1)
@@ -75,7 +76,7 @@ describe('Loan', () => {
   it('should not setLoanToken if symbol is an empty string', async () => {
     const promise = testing.rpc.loan.setLoanToken({
       symbol: '',
-      name: 'TOKEN3',
+      name: 'Token3',
       priceFeedId
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
@@ -83,23 +84,23 @@ describe('Loan', () => {
 
   it('should not setLoanToken if token with same symbol was created before', async () => {
     await testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN4',
-      name: 'TOKEN4',
+      symbol: 'Token4',
+      name: 'Token4',
       priceFeedId
     })
     await testing.generate(1)
 
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN4',
-      name: 'TOKEN4',
+      symbol: 'Token4',
+      name: 'Token4',
       priceFeedId
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken \'TOKEN4\' already exists!\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken \'Token4\' already exists!\', code: -32600, method: setloantoken')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN5',
+      symbol: 'Token5',
       name: 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXY', // 129 letters
       priceFeedId
     })
@@ -112,8 +113,8 @@ describe('Loan', () => {
 
   it('should not setLoanToken if priceFeedId is invalid', async () => {
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN6',
-      name: 'TOKEN6',
+      symbol: 'Token6',
+      name: 'Token6',
       priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
     })
     await expect(promise).rejects.toThrow('Test LoanSetLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle!\', code: -32600, method: setloantoken')
@@ -121,8 +122,8 @@ describe('Loan', () => {
 
   it('should setLoanToken if mintable is false', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN7',
-      name: 'TOKEN7',
+      symbol: 'Token7',
+      name: 'Token7',
       priceFeedId,
       mintable: false
     })
@@ -133,8 +134,8 @@ describe('Loan', () => {
 
   it('should setLoanToken if there is interest', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN8',
-      name: 'TOKEN8',
+      symbol: 'Token8',
+      name: 'Token8',
       priceFeedId,
       interest: new BigNumber(0.5)
     })
@@ -145,8 +146,8 @@ describe('Loan', () => {
 
   it('should not setLoanToken if interest is less than 0', async () => {
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN9',
-      name: 'TOKEN9',
+      symbol: 'Token9',
+      name: 'Token9',
       priceFeedId,
       interest: new BigNumber(-0.01)
     })
@@ -156,8 +157,8 @@ describe('Loan', () => {
   it('should setLoanToken with utxos', async () => {
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN10',
-      name: 'TOKEN10',
+      symbol: 'Token10',
+      name: 'Token10',
       priceFeedId
     }, [{ txid, vout }])
     expect(typeof loanTokenId).toStrictEqual('string')
@@ -170,15 +171,15 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('TOKEN10')
-    expect(data[loanTokenId].token[index].name).toStrictEqual('TOKEN10')
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token10')
+    expect(data[loanTokenId].token[index].name).toStrictEqual('Token10')
   })
 
   it('should setLoanToken with utxos not from foundation member', async () => {
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'TOKEN11',
-      name: 'TOKEN11',
+      symbol: 'Token11',
+      name: 'Token11',
       priceFeedId
     }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setloantoken')
