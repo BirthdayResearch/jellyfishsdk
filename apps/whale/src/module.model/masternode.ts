@@ -52,6 +52,7 @@ export interface Masternode extends Model {
   resignTx?: string
   mintedBlocks: number
   timelock: number // number of weeks locked up
+  collateral: string // string as decimal: 0.0000
 
   block: {
     hash: string

@@ -4,6 +4,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeMapper } from '@src/module.model/masternode'
 import { MasternodeInfo } from '@defichain/jellyfish-api-core/dist/category/masternode'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 
 describe('genesis masternodes', () => {
   const container = new MasterNodeRegTestContainer()
@@ -43,6 +44,27 @@ describe('genesis masternodes', () => {
     expect(genesisNode?.creationHeight).toStrictEqual(masternodeRPCInfo.creationHeight)
     expect(genesisNode?.resignHeight).toStrictEqual(masternodeRPCInfo.resignHeight)
     expect(genesisNode?.mintedBlocks).toStrictEqual(masternodeRPCInfo.mintedBlocks)
+  })
+
+  it('should index genesis masternodes stats', async () => {
+    await container.generate(1)
+    const height = await client.blockchain.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, height)
+
+    const masternodeStatsMapper = app.get(MasternodeStatsMapper)
+    const masternodeStats = await masternodeStatsMapper.getLatest()
+    expect(masternodeStats?.stats).toStrictEqual({
+      count: 8,
+      tvl: '80.00000000',
+      locked: [
+        {
+          weeks: 0,
+          count: 8,
+          tvl: '80.00000000'
+        }
+      ]
+    })
   })
 })
 
@@ -129,6 +151,21 @@ describe('create masternode (post eunos paya)', () => {
     expect(masternode?.creationHeight).toStrictEqual(masternodeRPCInfo.creationHeight)
     expect(masternode?.resignHeight).toStrictEqual(masternodeRPCInfo.resignHeight)
     expect(masternode?.mintedBlocks).toStrictEqual(masternodeRPCInfo.mintedBlocks)
+
+    // Test stats here too
+    const masternodeStatsMapper = app.get(MasternodeStatsMapper)
+    const masternodeStats = await masternodeStatsMapper.getLatest()
+    expect(masternodeStats?.stats).toStrictEqual({
+      count: 9,
+      tvl: '82.00000000',
+      locked: [
+        {
+          weeks: 0,
+          count: 9,
+          tvl: '82.00000000'
+        }
+      ]
+    })
   })
 })
 

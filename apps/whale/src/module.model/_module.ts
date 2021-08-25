@@ -15,6 +15,7 @@ import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.curren
 import { OracleMapper } from '@src/module.model/oracle'
 import { PriceTickerMapper } from '@src/module.model/price.ticker'
 import { MasternodeMapper } from '@src/module.model/masternode'
+import { MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 
 @Global()
 @Module({
@@ -34,7 +35,8 @@ import { MasternodeMapper } from '@src/module.model/masternode'
     OracleTokenCurrencyMapper,
     OracleMapper,
     PriceTickerMapper,
-    MasternodeMapper
+    MasternodeMapper,
+    MasternodeStatsMapper
   ],
   exports: [
     ModelProbeIndicator,
@@ -52,7 +54,8 @@ import { MasternodeMapper } from '@src/module.model/masternode'
     OracleTokenCurrencyMapper,
     OracleMapper,
     PriceTickerMapper,
-    MasternodeMapper
+    MasternodeMapper,
+    MasternodeStatsMapper
   ]
 })
 export class ModelModule {
