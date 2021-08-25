@@ -1,34 +1,33 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should listLoanTokens', async () => {
-    const priceFeedId = await container.call('appointoracle', [await container.getNewAddress(), [{
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'EUR'
     }], 1])
-    await container.generate(1)
+    await testing.generate(1)
 
     {
-      const data = await client.loan.listLoanTokens()
+      const data = await testing.rpc.loan.listLoanTokens()
       expect(data).toStrictEqual({})
     }
 
-    const txId = await container.call('setloantoken', [{
+    const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'AAPL',
       name: 'APPLE',
       priceFeedId,
@@ -36,10 +35,10 @@ describe('Loan', () => {
     }])
     await container.generate(1)
 
-    const data = await client.loan.listLoanTokens()
+    const data = await testing.rpc.loan.listLoanTokens()
     expect(data).toStrictEqual(
       {
-        [txId]: {
+        [loanTokenId]: {
           token: {
             1: {
               collateralAddress: expect.any(String),

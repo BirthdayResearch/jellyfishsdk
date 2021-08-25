@@ -57,7 +57,7 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenData>
+  listLoanTokens (): Promise<ListLoanTokenData[]>
 }
 
 interface ListLoanTokenData {
