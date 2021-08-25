@@ -1,6 +1,6 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
+import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
 describe('Loan', () => {
@@ -18,6 +18,10 @@ describe('Loan', () => {
       currency: 'Currency'
     }], 1])
     await testing.generate(1)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
   })
 
   it('should setLoanToken', async () => {
