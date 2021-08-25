@@ -73,7 +73,6 @@ describe('make ICX offer', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs.length).toEqual(2)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
@@ -133,7 +132,6 @@ describe('make ICX offer', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs.length).toEqual(2)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
