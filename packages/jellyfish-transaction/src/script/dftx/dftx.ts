@@ -45,6 +45,7 @@ import {
   UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
+import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC, CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
 import {
   CSetGovernance,
   SetGovernance,
@@ -52,7 +53,6 @@ import {
   CCreateVoc,
   CreateProposal
 } from './dftx_governance'
-import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC } from './dftx_icxorderbook'
 import {
   CCreateLoanScheme,
   CreateLoanScheme,
@@ -174,6 +174,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
+      case CICXCreateOrder.OP_CODE:
+        return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       case CCreateCfp.OP_CODE:
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:

@@ -50,3 +50,18 @@ interface LoanSchemeResult {
   default: boolean
 }
 ```
+
+## setDefaultLoanScheme
+
+Sets the default loan scheme.
+
+```ts title="client.loan.setDefaultLoanScheme()"
+interface loan {
+  setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
