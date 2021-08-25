@@ -33,7 +33,7 @@ describe('Loan', () => {
   afterEach(async () => {
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    if (data[loanTokenId].token[index].symbol === 'Token2') { // If token2, always update it back to token1
+    if (data[loanTokenId].token[index].symbol === 'Token2') { // If Token2, always update it back to Token1
       await testing.rpc.loan.updateLoanToken({
         token: 'Token2',
         symbol: 'Token1',
@@ -161,6 +161,7 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX') // Only remain first 128 letters.
   })
 
+  // NOTE(jingyi2811): C++ side throw error with random wrong OracleId, expect e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b
   // it('should not updateLoanToken if priceFeed id is invalid', async () => {
   //   const promise = testing.rpc.loan.updateLoanToken({
   //     token: 'TEST',
@@ -170,7 +171,7 @@ describe('Loan', () => {
   //     mintable: true,
   //     interest: new BigNumber(0.01)
   //   })
-  //   await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\noracle (63b4c16d95d68ba65f1317cdcf79e03ef2a64b7e6479bda3801a24084c071693) does not exist!\', code: -32600, method: updateloantoken')
+  //   await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist!\', code: -32600, method: updateloantoken')
   // })
 
   it('should updateLoanToken if mintable is false', async () => {
@@ -218,6 +219,8 @@ describe('Loan', () => {
       name: 'Token2',
       priceFeedId
     }, [{ txid, vout }])
+    expect(typeof loanTokenId).toStrictEqual('string')
+    expect(loanTokenId.length).toStrictEqual(64)
     await testing.generate(1)
 
     const rawtx = await testing.container.call('getrawtransaction', [loanTokenId2, true])
