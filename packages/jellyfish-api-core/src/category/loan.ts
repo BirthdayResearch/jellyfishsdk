@@ -21,7 +21,7 @@ export class Loan {
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
-   * @return {Promise<string>} LoanSchemeId, also the txn id for txn created to create loan scheme
+   * @return {Promise<string>} LoanSchemeId, also the txn id for txn created to update loan scheme
    */
   async createLoanScheme (scheme: CreateLoanScheme, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, utxos], 'number')
