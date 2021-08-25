@@ -35,6 +35,19 @@ export class Loan {
   async listLoanSchemes (): Promise<LoanSchemeResult[]> {
     return await this.client.call('listloanschemes', [], 'bignumber')
   }
+
+  /**
+   * Sets the default loan scheme.
+   *
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Hex string of the transaction
+   */
+  async setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setdefaultloanscheme', [id, utxos], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -43,14 +56,14 @@ export interface CreateLoanScheme {
   id: string
 }
 
-export interface UTXO {
-  txid: string
-  vout: number
-}
-
 export interface LoanSchemeResult {
   id: string
   mincolratio: BigNumber
   interestrate: BigNumber
   default: boolean
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
 }
