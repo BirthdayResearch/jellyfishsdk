@@ -42,7 +42,7 @@ export class Loan {
    * @return {Promise<string>}
    */
   async updateLoanToken (updateLoanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
-    const { token, symbol, name, priceFeedId, mintable = undefined, interest = 0 } = updateLoanToken
+    const { token, symbol, name, priceFeedId, mintable, interest } = updateLoanToken
     return await this.client.call('updateloantoken', [
       token, { symbol, name, priceFeedId, mintable, interest }, utxos
     ], 'number')

@@ -50,3 +50,22 @@ interface LoanSchemeResult {
   default: boolean
 }
 ```
+
+## updateLoanToken
+
+Updates an existing loan token.
+
+```ts title="client.loan.updateLoanToken()"
+interface loan {
+  updateLoanToken (updateLoanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanToken {
+  token: string
+  symbol: string
+  name: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+```
