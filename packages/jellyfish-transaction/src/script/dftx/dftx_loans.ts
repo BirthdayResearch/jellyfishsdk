@@ -12,6 +12,13 @@ export interface CreateLoanScheme {
 }
 
 /**
+ * SetDefaultLoanScheme DeFi Transaction
+ */
+export interface SetDefaultLoanScheme {
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+}
+
+/**
  * Composable CreateLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -25,6 +32,21 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
       ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
       ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
       ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
+    ]
+  }
+}
+
+/**
+ * Composable SetDefaultLoanScheme, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme> {
+  static OP_CODE = 0x64 // 'd'
+  static OP_NAME = 'OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME'
+
+  composers (sdls: SetDefaultLoanScheme): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
     ]
   }
 }

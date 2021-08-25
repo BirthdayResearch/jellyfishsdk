@@ -1,16 +1,15 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
-  CCreateLoanScheme,
-  CreateLoanScheme
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
 } from '../../../../src/script/dftx/dftx_loans'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
-import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a20446654784cc800000080b2e60e0000000006736368656d650000000000000000'
+    '6a0d446654786407736368656d6532'
   ]
 
   fixtures.forEach(hex => {
@@ -19,23 +18,20 @@ it('should bi-directional buffer-object-buffer', () => {
     )
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toStrictEqual(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x4c)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x64)
   })
 })
 
-const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CCreateLoanScheme.OP_CODE(0x4c)
-const data = 'c800000080b2e60e0000000006736368656d650000000000000000'
-const createLoanScheme: CreateLoanScheme = {
-  ratio: 200,
-  rate: new BigNumber(2.5),
-  identifier: 'scheme',
-  update: new BigNumber(0)
+const header = '6a0d4466547864' // OP_RETURN(0x6a) (length 13 = 0x0d) CDfTx.SIGNATURE(0x44665478) CSetDefaultLoanScheme.OP_CODE(0x64)
+const data = '07736368656d6532'
+const setDefaultLoanScheme: SetDefaultLoanScheme = {
+  identifier: 'scheme2'
 }
 
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_CREATE_LOAN_SCHEME(createLoanScheme)
+    OP_CODES.OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME(setDefaultLoanScheme)
   ]
 
   const buffer = toBuffer(stack)
@@ -45,13 +41,13 @@ it('should craft dftx with OP_CODES._()', () => {
 describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CCreateLoanScheme(buffer)
+    const composable = new CSetDefaultLoanScheme(buffer)
 
-    expect(composable.toObject()).toStrictEqual(createLoanScheme)
+    expect(composable.toObject()).toStrictEqual(setDefaultLoanScheme)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CCreateLoanScheme(createLoanScheme)
+    const composable = new CSetDefaultLoanScheme(setDefaultLoanScheme)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
