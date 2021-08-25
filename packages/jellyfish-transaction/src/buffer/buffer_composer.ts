@@ -394,6 +394,28 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
+   * VarUInt sized hex string, encoded into Buffer as the same order of the hex String.
+   * In short this read a VarUInt sized hex and push it into the Buffer. It will not re-order the endian.
+   *
+   * @param getter to read hex String and write as the same ordered Buffer
+   * @param setter to read ordered Buffer and set as the same ordered hex String
+   */
+  static varUIntHex (getter: () => string, setter: (data: string) => void): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const length = readVarUInt(buffer)
+        const buff = Buffer.from(buffer.readBuffer(length))
+        setter(buff.toString('hex'))
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const buff: Buffer = Buffer.from(getter(), 'hex')
+        writeVarUInt(buff.length, buffer)
+        buffer.writeBuffer(buff)
+      }
+    }
+  }
+
+  /**
    * Unsigned Int8, 1 byte
    *
    * @param getter to read from to buffer
