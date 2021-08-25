@@ -67,4 +67,9 @@ interface SetLoanToken {
   mintable?: boolean
   interest?: BigNumber
 }
+
+interface UTXO {
+  txid: string
+  vout: number
+}
 ```
