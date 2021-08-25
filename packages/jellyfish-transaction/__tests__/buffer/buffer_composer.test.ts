@@ -760,6 +760,39 @@ describe('ComposableBuffer.varUIntUtf8BE', () => {
   })
 })
 
+describe('ComposableBuffer.varUIntHex', () => {
+  const composer = ComposableBuffer.varUIntHex(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([16]),
+    Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('9ea83a5c6579d282d189cc04b8e151ef')
+  })
+
+  it('should toBuffer', () => {
+    value = '9ea83a5c6579d282d189cc04b8e151ef'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
+  })
+})
+
 describe('ComposableBuffer.uInt8', () => {
   let value = 0x00
   const composer = ComposableBuffer.uInt8(() => value, (v: number) => value = v)
