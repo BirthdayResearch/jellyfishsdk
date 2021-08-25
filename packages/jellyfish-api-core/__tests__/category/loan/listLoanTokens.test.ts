@@ -33,7 +33,7 @@ describe('Loan', () => {
       priceFeedId,
       interest: new BigNumber(0.01)
     }])
-    await container.generate(1)
+    await testing.generate(1)
 
     const data = await testing.rpc.loan.listLoanTokens()
     expect(data).toStrictEqual(
