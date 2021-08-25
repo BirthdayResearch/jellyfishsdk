@@ -64,7 +64,14 @@ import {
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
-import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC, CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icxorderbook'
+import {
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXCreateOrder,
+  ICXCreateOrder,
+  CICXSubmitEXTHTLC,
+  ICXSubmitEXTHTLC
+} from './dftx/dftx_icxorderbook'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc } from './dftx/dftx_governance'
 
 /**
@@ -371,7 +378,14 @@ export const OP_CODES = {
       data: setDefaultLoanScheme
     })
   },
-
+  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitEXTHTLC.OP_CODE,
+      name: CICXSubmitEXTHTLC.OP_NAME,
+      data: icxSubmitEXTHTLC
+    })
+  },
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**
