@@ -36,6 +36,7 @@ describe('vote', () => {
     for (const id in masternodeList) {
       if (masternodeList[id].operatorAuthAddress === masternodeOperatorAddress) {
         masternodeId = id
+        break
       }
     }
 
@@ -100,6 +101,7 @@ describe('vote with masternode operator with legacy address', () => {
       if (masternodeList[id].localMasternode) {
         masternodeId = id
         masternodeOperatorAddress = masternodeList[id].operatorAuthAddress
+        break
       }
     }
 
