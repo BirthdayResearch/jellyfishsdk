@@ -39,18 +39,19 @@ export class Loan {
   /**
    * Creates (and submits to local node and network) a token for a price feed set in collateral token.
    *
-   * @param {SetLoanToken} loanToken // Token's symbol (unique), no longer than 8
+   * @param {SetLoanToken} loanToken
+   * @param {string} loanToken.name // Token's symbol (unique), no longer than 8
    * @param {string} loanToken.symbol // Token's name (optional), no longer than 128
    * @param {string} loanToken.priceFeedId // txid of oracle feeding the price
-   * @param {string} [loanToken.mintable] // Token's 'Mintable' property (bool, optional), default is 'True'
-   * @param {number} [loanToken.interest = 0] // Interest rate (default: 0)"},
+   * @param {string} [loanToken.mintable] // Token's 'Mintable' property, default=true
+   * @param {number} [loanToken.interest] // Interest rate, default=0
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
    */
   async setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string> {
-    const defaultLoanToken = { interest: 0 }
+    const defaultLoanToken = { interest: new BigNumber(0) }
     return await this.client.call('setloantoken', [{ ...defaultLoanToken, ...loanToken }, utxos], 'number')
   }
 }
@@ -73,7 +74,7 @@ export interface SetLoanToken {
   name: string
   priceFeedId: string
   mintable?: boolean
-  interest?: number
+  interest?: BigNumber
 }
 
 export interface UTXO {

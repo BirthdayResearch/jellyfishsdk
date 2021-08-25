@@ -65,6 +65,6 @@ interface SetLoanToken {
   name: string,
   priceFeedId: string
   mintable?: boolean
-  interest?: number
+  interest?: BigNumber
 }
 ```
