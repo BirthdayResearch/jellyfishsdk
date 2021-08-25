@@ -57,7 +57,7 @@ Updates an existing loan token.
 
 ```ts title="client.loan.updateLoanToken()"
 interface loan {
-  updateLoanToken (updateLoanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
+  updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UpdateLoanToken {
@@ -67,5 +67,10 @@ interface UpdateLoanToken {
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```
