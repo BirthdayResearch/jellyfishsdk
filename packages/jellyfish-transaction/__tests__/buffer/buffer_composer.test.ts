@@ -16,8 +16,6 @@ function hexAsBuffer (hex: string | string[]): SmartBuffer {
   return buffer
 }
 
-/* eslint-disable no-return-assign */
-
 it('should format (4 bytes, 32 bytes, 8 bytes) hex with hexAsBufferLE', () => {
   // assert hexAsBufferLE conditions is as expected.
 
@@ -521,9 +519,9 @@ describe('ComposableBuffer.optionalHex', () => {
   })
 })
 
-describe('ComposableBuffer.optionalVarUIntHex', () => {
+describe('ComposableBuffer.varUIntOptionalHex', () => {
   describe('has value', () => {
-    const composer = ComposableBuffer.optionalVarUIntHex(() => value, v => value = v)
+    const composer = ComposableBuffer.varUIntOptionalHex(() => value, v => value = v)
     const expectedBuffer = Buffer.from('21037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', 'hex')
     let value: string | undefined = ''
 
@@ -553,7 +551,7 @@ describe('ComposableBuffer.optionalVarUIntHex', () => {
   })
 
   describe('has NO value', () => {
-    const composer = ComposableBuffer.optionalVarUIntHex(() => value, v => value = v)
+    const composer = ComposableBuffer.varUIntOptionalHex(() => value, v => value = v)
     const expectedBuffer = Buffer.from('00', 'hex')
     let value: string | undefined
 

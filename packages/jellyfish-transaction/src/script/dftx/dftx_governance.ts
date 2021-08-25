@@ -2,9 +2,8 @@ import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 
 export interface LiqPoolSplit {
   tokenId: number // -------------------| 4 bytes unsigned
@@ -101,4 +100,49 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
       }
     ]
   }
+}
+
+export type ProposalType = 0x01 | 0x03 // 0x01 (CommunityFundRequest) | 0x03 (VoteOfConfidence)
+export type ProposalCycles = 0x01 | 0x02 | 0x03
+
+export interface CreateProposal {
+  type: ProposalType // ---------| 1 byte unsigned int
+  address: Script // ------------| n = VarUInt{1-9 bytes}, + n bytes
+  amount: BigNumber // ----------| 8 bytes unsigned
+  cycles: ProposalCycles // -----| 1 byte unsigned int
+  title: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+}
+
+export interface CreateCfp extends CreateProposal {
+  type: 0x01
+}
+export interface CreateVoc extends CreateProposal {
+  type: 0x03
+  cycles: 0x02
+}
+
+/**
+ * Composable CCreateProposal, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CCreateProposal extends ComposableBuffer<CreateProposal> {
+  composers (ccp: CreateCfp | CreateVoc): BufferComposer[] {
+    return [
+      ComposableBuffer.uInt8(() => ccp.type, v => ccp.type = v as ProposalType),
+      ComposableBuffer.single<Script>(() => ccp.address, v => ccp.address = v, v => new CScript(v)),
+      ComposableBuffer.satoshiAsBigNumber(() => ccp.amount, v => ccp.amount = v),
+      ComposableBuffer.uInt8(() => ccp.cycles, v => ccp.cycles = v as ProposalCycles),
+      ComposableBuffer.varUIntUtf8BE(() => ccp.title, v => ccp.title = v)
+    ]
+  }
+}
+
+export class CCreateCfp extends CCreateProposal {
+  static OP_CODE = 0x46 // 'F'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
+}
+
+export class CCreateVoc extends CCreateProposal {
+  static OP_CODE = 0x45 // 'E'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }

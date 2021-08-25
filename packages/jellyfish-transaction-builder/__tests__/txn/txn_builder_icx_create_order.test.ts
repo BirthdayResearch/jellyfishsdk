@@ -61,19 +61,20 @@ describe('create ICX order', () => {
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
   }
 
-  it('should create internal ICX order', async () => {
+  it('should create internal ICX order with uncompressed public key', async () => {
     const script = await providers.elliptic.script()
     const icxOrder: ICXCreateOrder = {
       orderType: ICXOrderType.INTERNAL,
       tokenId: parseInt(testing.icxorderbook.idDFI),
       ownerAddress: script,
-      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      receivePubkey: '0479013ea14516aa8a06d5f457f5bb340b69cf83c4ab423f899aa2f299fd05fa0afe7d29635fb0225995debcbce1d92675c84dfd13ed794effede594aee62debe2',
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(0.01),
       expiry: 2880
     }
 
-    const txn = await builder.icx.createOrder(icxOrder, script)
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -85,7 +86,51 @@ describe('create ICX order', () => {
     const txid = calculateTxid(txn)
     const order = listOrders[txid]
 
-    const currentHeight: number = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
+    const expectedExpireHeight = currentHeight + icxOrder.expiry
+
+    expect(order).toStrictEqual({
+      status: 'OPEN',
+      type: 'INTERNAL',
+      tokenFrom: 'DFI',
+      chainTo: 'BTC',
+      receivePubkey: icxOrder.receivePubkey,
+      amountFrom: icxOrder.amountFrom,
+      amountToFill: icxOrder.amountFrom,
+      orderPrice: icxOrder.orderPrice,
+      amountToFillInToAsset: icxOrder.amountFrom.multipliedBy(icxOrder.orderPrice),
+      ownerAddress: await providers.getAddress(),
+      height: new BigNumber(currentHeight),
+      expireHeight: new BigNumber(expectedExpireHeight)
+    })
+  })
+
+  it('should create internal ICX order with compressed public key', async () => {
+    const script = await providers.elliptic.script()
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.INTERNAL,
+      tokenId: parseInt(testing.icxorderbook.idDFI),
+      ownerAddress: script,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
+    const expectedRedeemScript = `6a${encoded}`
+
+    const outs = await sendTransaction(testing.container, txn)
+    await assertTxOuts(outs, expectedRedeemScript)
+
+    const listOrders = await testing.rpc.icxorderbook.listOrders()
+    const txid = calculateTxid(txn)
+    const order = listOrders[txid]
+
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOrder.expiry
 
     expect(order).toStrictEqual({
@@ -111,11 +156,12 @@ describe('create ICX order', () => {
       tokenId: parseInt(testing.icxorderbook.idDFI),
       ownerAddress: script,
       amountFrom: new BigNumber(2),
+      amountToFill: new BigNumber(2),
       orderPrice: new BigNumber(1000),
       expiry: 2880
     }
 
-    const txn = await builder.icx.createOrder(icxOrder, script)
+    const txn = await builder.icxorderbook.createOrder(icxOrder, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CREATE_ORDER(icxOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -127,7 +173,7 @@ describe('create ICX order', () => {
     const txid = calculateTxid(txn)
     const order = listOrders[txid]
 
-    const currentHeight = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOrder.expiry
 
     expect(order).toStrictEqual({
@@ -152,11 +198,12 @@ describe('create ICX order', () => {
       tokenId: 0,
       ownerAddress: script,
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(-0.01),
       expiry: 2880
     }
 
-    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1000000')
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1000000')
   })
 
   it('should reject invalid negative amountFrom', async () => {
@@ -166,11 +213,12 @@ describe('create ICX order', () => {
       tokenId: 0,
       ownerAddress: script,
       amountFrom: new BigNumber(-15),
+      amountToFill: new BigNumber(-15),
       orderPrice: new BigNumber(0.01),
       expiry: 2880
     }
 
-    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1500000000')
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -1500000000')
   })
 
   it('should reject invalid negative expiry', async () => {
@@ -180,10 +228,43 @@ describe('create ICX order', () => {
       tokenId: 0,
       ownerAddress: script,
       amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
       orderPrice: new BigNumber(0.01),
       expiry: -2880
     }
 
-    await expect(builder.icx.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -2880')
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -2880')
+  })
+
+  it('should reject with wrong receivePubkey length', async () => {
+    const script = await providers.elliptic.script()
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.INTERNAL,
+      tokenId: parseInt(testing.icxorderbook.idDFI),
+      ownerAddress: script,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941' + '1234', // compressed public key + 2 extra bytes
+      amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(15),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('Create order receivePubkey buffer length should be 33 (COMPRESSED_PUBLIC_KEY_SIZE) or 65 (PUBLIC_KEY_SIZE)')
+  })
+
+  it('should reject with amountToFIll !== amountFrom', async () => {
+    const script = await providers.elliptic.script()
+    const icxOrder: ICXCreateOrder = {
+      orderType: ICXOrderType.INTERNAL,
+      tokenId: parseInt(testing.icxorderbook.idDFI),
+      ownerAddress: script,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      amountToFill: new BigNumber(14),
+      orderPrice: new BigNumber(0.01),
+      expiry: 2880
+    }
+
+    await expect(builder.icxorderbook.createOrder(icxOrder, script)).rejects.toThrow('Create order amountToFill should always equal amountFrom')
   })
 })
