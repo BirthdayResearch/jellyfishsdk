@@ -149,9 +149,10 @@ export class Spv {
     rewardAddress: string,
     options: CreateAnchorOptions = { send: true, feerate: 1000 }
   ): Promise<CreateAnchorResult> {
+    const opts = { send: true, feerate: 1000, ...options }
     return await this.client.call(
       'spv_createanchor',
-      [createAnchorInputs, rewardAddress, options.send, options.feerate],
+      [createAnchorInputs, rewardAddress, opts.send, opts.feerate],
       { cost: 'bignumber', estimatedReward: 'bignumber' }
     )
   }
