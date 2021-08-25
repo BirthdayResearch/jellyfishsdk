@@ -100,7 +100,7 @@ describe('Loan', () => {
   })
 
   it('should updateLoanToken if symbol is more than 8 letters', async () => {
-    const loanTokenId3 = await testing.container.call('setloantoken', [{
+    const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token3',
       name: 'Token3',
       priceFeedId,
@@ -118,8 +118,8 @@ describe('Loan', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId3) + 1
-    expect(data[loanTokenId3].token[index].symbol).toStrictEqual('ABCDEFGH') // Only remain the first 8 letters
+    const index = Object.keys(data).indexOf(loanTokenId) + 1
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('ABCDEFGH') // Only remain the first 8 letters
   })
 
   it('should not updateLoanToken if symbol is an empty string', async () => {
@@ -166,7 +166,7 @@ describe('Loan', () => {
   })
 
   // NOTE(jingyi2811): C++ side throw error with random wrong OracleId, expect e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b
-  // it('should not updateLoanToken if priceFeed id is invalid', async () => {
+  // it('should not updateLoanToken if priceFeedId is invalid', async () => {
   //   const promise = testing.rpc.loan.updateLoanToken({
   //     token: 'Token1',
   //     symbol: 'Token2',

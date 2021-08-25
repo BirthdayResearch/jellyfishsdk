@@ -37,7 +37,7 @@ export class Loan {
   }
 
   /**
-   * Updates an existing loan token
+   * Updates an existing loan token.
    *
    * @param {UpdateLoanToken} loanToken
    * @param {string} loanToken.token // The tokens's symbol, id or creation tx
