@@ -147,7 +147,7 @@ export class CCreateVoc extends CCreateProposal {
   static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }
 
-export type VoteDecision = 0x01 | 0x02 | 0x03
+export type VoteDecision = 0x01 | 0x02 | 0x03 // VoteYes | VoteNo | VoteNeutral
 
 export interface Vote {
   proposalId: string // -----------| 32 bytes hex string
