@@ -132,12 +132,12 @@ describe('Loan', () => {
     await testing.generate(1)
   })
 
-  it('should setLoanToken if there is interest', async () => {
+  it('should setLoanToken if interest is greater than 0', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token8',
       name: 'Token8',
       priceFeedId,
-      interest: new BigNumber(0.5)
+      interest: new BigNumber(0.2)
     })
     expect(typeof loanTokenId).toStrictEqual('string')
     expect(loanTokenId.length).toStrictEqual(64)
