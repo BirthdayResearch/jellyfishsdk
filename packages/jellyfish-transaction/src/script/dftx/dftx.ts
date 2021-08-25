@@ -45,14 +45,14 @@ import {
   UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
-import { 
+import {
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXCreateOrder,
   ICXCreateOrder,
   CICXSubmitEXTHTLC,
   ICXSubmitEXTHTLC
- } from './dftx_icxorderbook'
+} from './dftx_icxorderbook'
 import {
   CSetGovernance,
   SetGovernance,

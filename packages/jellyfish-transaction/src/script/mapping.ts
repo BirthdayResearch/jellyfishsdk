@@ -64,12 +64,12 @@ import {
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
-import { 
-  CICXSubmitDFCHTLC, 
-  ICXSubmitDFCHTLC, 
-  CICXCreateOrder, 
-  ICXCreateOrder, 
-  CICXSubmitEXTHTLC, 
+import {
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXCreateOrder,
+  ICXCreateOrder,
+  CICXSubmitEXTHTLC,
   ICXSubmitEXTHTLC
 } from './dftx/dftx_icxorderbook'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc } from './dftx/dftx_governance'

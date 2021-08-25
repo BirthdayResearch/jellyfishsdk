@@ -100,7 +100,7 @@ export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
       ComposableBuffer.satoshiAsBigNumber(() => msg.amount, v => msg.amount = v),
       ComposableBuffer.hexBEBufferLE(32, () => msg.hash, v => msg.hash = v),
       ComposableBuffer.varUIntUtf8BE(() => msg.htlcScriptAddress, v => msg.htlcScriptAddress = v),
-      ComposableBuffer.varUIntHexBE(() => msg.ownerPubkey, v => msg.ownerPubkey = v),
+      ComposableBuffer.varUIntHex(() => msg.ownerPubkey, v => msg.ownerPubkey = v),
       ComposableBuffer.uInt32(() => msg.timeout, v => msg.timeout = v)
     ]
   }

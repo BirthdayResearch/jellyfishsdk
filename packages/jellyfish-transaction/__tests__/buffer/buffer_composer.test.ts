@@ -760,8 +760,8 @@ describe('ComposableBuffer.varUIntUtf8BE', () => {
   })
 })
 
-describe('ComposableBuffer.varUIntHexBE', () => {
-  const composer = ComposableBuffer.varUIntHexBE(() => value, (v: string) => value = v)
+describe('ComposableBuffer.varUIntHex', () => {
+  const composer = ComposableBuffer.varUIntHex(() => value, (v: string) => value = v)
   const expectedBuffer = Buffer.concat([
     Buffer.from([16]),
     Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
