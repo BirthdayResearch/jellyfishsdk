@@ -2,6 +2,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { MasterNodeRegTestContainer, ContainerGroup, GenesisKeys } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Spv', () => {
   const group = new ContainerGroup([
@@ -176,10 +177,10 @@ describe('Spv', () => {
     expect(anchor.sendResult).toStrictEqual(0)
     expect(anchor.sendMessage).toStrictEqual('Success')
 
+    // pending anchor list is updated
     {
       const pending = await group.get(0).call('spv_listanchorspending')
-      // pending does not contain active property
-      expect(pending.active).toBeUndefined()
+      expect(pending.length).toStrictEqual(1)
     }
 
     // generate the anchor block
@@ -222,14 +223,27 @@ describe('Spv', () => {
       expect(auths.length).toStrictEqual(0)
     }
   })
+})
+
+describe('Spv - createAnchor without quorum', () => {
+  const testing = Testing.create(new MasterNodeRegTestContainer())
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
 
   it('should be failed as min anchor quorum was not reached', async () => {
-    const auths = await group.get(0).call('spv_listanchorauths')
+    const auths = await testing.container.call('spv_listanchorauths')
     expect(auths.length).toStrictEqual(0)
 
-    const rewardAddress = await clients[0].spv.getNewAddress()
+    const rewardAddress = await testing.rpc.spv.getNewAddress()
 
-    const promise = clients[0].spv.createAnchor([{
+    const promise = testing.rpc.spv.createAnchor([{
       txid: '11a276bb25585f6973a4dd68373cffff41dbcaddf12bbc1c2b489d1dc84564ee',
       vout: 2,
       amount: 15800,
