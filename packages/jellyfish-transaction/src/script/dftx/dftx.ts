@@ -45,6 +45,7 @@ import {
   UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
+import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC, CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
 import {
   CSetGovernance,
   SetGovernance,
@@ -54,8 +55,12 @@ import {
   CVote,
   Vote
 } from './dftx_governance'
-import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC } from './dftx_icxorderbook'
-import { CCreateLoanScheme, CreateLoanScheme } from './dftx_loans'
+import {
+  CCreateLoanScheme,
+  CreateLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
+} from './dftx_loans'
 
 /**
  * DeFi Transaction
@@ -171,6 +176,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
+      case CICXCreateOrder.OP_CODE:
+        return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       case CCreateCfp.OP_CODE:
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:
@@ -181,6 +188,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
       case CCreateLoanScheme.OP_CODE:
         return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
+      case CSetDefaultLoanScheme.OP_CODE:
+        return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

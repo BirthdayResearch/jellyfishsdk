@@ -58,12 +58,14 @@ import {
 } from './dftx/dftx_oracles'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme
+  CreateLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
-import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC } from './dftx/dftx_icxorderbook'
+import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC, CICXCreateOrder, ICXCreateOrder } from './dftx/dftx_icxorderbook'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -321,6 +323,14 @@ export const OP_CODES = {
       data: setGovernance
     })
   },
+  OP_DEFI_TX_ICX_CREATE_ORDER: (createOrder: ICXCreateOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCreateOrder.OP_CODE,
+      name: CICXCreateOrder.OP_NAME,
+      data: createOrder
+    })
+  },
   OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -359,6 +369,14 @@ export const OP_CODES = {
       type: CCreateLoanScheme.OP_CODE,
       name: CCreateLoanScheme.OP_NAME,
       data: createLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetDefaultLoanScheme.OP_CODE,
+      name: CSetDefaultLoanScheme.OP_NAME,
+      data: setDefaultLoanScheme
     })
   },
 
