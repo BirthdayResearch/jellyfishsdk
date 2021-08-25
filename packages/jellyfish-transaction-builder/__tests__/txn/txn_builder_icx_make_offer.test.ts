@@ -64,11 +64,10 @@ describe('make ICX offer', () => {
       orderTx,
       amount: new BigNumber(0.1),
       ownerAddress: script,
-      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1942',
       expiry: 20,
       takerFee: new BigNumber(0.01)
     }
-    const txn = await builder.icx.makeOffer(icxOffer, script)
+    const txn = await builder.icxorderbook.makeOffer(icxOffer, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_MAKE_OFFER(icxOffer).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -93,7 +92,7 @@ describe('make ICX offer', () => {
     const txid = calculateTxid(txn)
     const offer = listOrders[txid]
 
-    const currentHeight = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOffer.expiry
 
     expect(offer).toStrictEqual({
@@ -128,7 +127,7 @@ describe('make ICX offer', () => {
       expiry: 20,
       takerFee: new BigNumber(0.01)
     }
-    const txn = await builder.icx.makeOffer(icxOffer, script)
+    const txn = await builder.icxorderbook.makeOffer(icxOffer, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_MAKE_OFFER(icxOffer).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -153,7 +152,7 @@ describe('make ICX offer', () => {
     const txid = calculateTxid(txn)
     const offer = listOrders[txid]
 
-    const currentHeight = await testing.rpc.blockchain.getBlockCount() // Get current block count to calculate expiry
+    const currentHeight = await testing.container.getBlockCount() // Get current block count to calculate expiry
     const expectedExpireHeight = currentHeight + icxOffer.expiry
 
     expect(offer).toStrictEqual({
