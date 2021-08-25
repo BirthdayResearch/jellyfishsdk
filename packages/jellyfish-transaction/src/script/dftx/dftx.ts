@@ -45,7 +45,14 @@ import {
   UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
-import { CICXSubmitDFCHTLC, ICXSubmitDFCHTLC, CICXCreateOrder, ICXCreateOrder } from './dftx_icxorderbook'
+import {
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXCreateOrder,
+  ICXCreateOrder,
+  CICXSubmitEXTHTLC,
+  ICXSubmitEXTHTLC
+} from './dftx_icxorderbook'
 import {
   CSetGovernance,
   SetGovernance,
@@ -190,6 +197,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
       case CSetDefaultLoanScheme.OP_CODE:
         return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
+      case CICXSubmitEXTHTLC.OP_CODE:
+        return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
