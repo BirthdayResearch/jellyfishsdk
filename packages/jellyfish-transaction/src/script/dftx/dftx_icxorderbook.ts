@@ -143,7 +143,7 @@ export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
  */
 export interface ICXClaimDFCHTLC {
   dfcHTLCTx: string // ----| 32 byte, txid of dfc htlc tx for which the claim is
-  seed: string // ---------| 1 byte for len + len bytes, secret seed for claiming htlc
+  seed: string // ---------| n = VarUInt{1-9 bytes}, + n bytes,, secret seed for claiming htlc
 }
 
 /**
@@ -157,19 +157,7 @@ export class CICXClaimDFCHTLC extends ComposableBuffer<ICXClaimDFCHTLC> {
   composers (msg: ICXClaimDFCHTLC): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => msg.dfcHTLCTx, v => msg.dfcHTLCTx = v),
-      { // NOTE(surangap): may be use optionalVarUIntHex when available or move this piece of code to buffer_composer.ts
-        fromBuffer: (buffer: SmartBuffer): void => {
-          const length = buffer.readUInt8()
-          const buff = Buffer.from(buffer.readBuffer(length))
-          msg.seed = buff.toString('hex')
-        },
-        toBuffer: (buffer: SmartBuffer): void => {
-          const hex = msg.seed
-          const buff: Buffer = Buffer.from(hex, 'hex')
-          buffer.writeUInt8(buff.length)
-          buffer.writeBuffer(buff)
-        }
-      }
+      ComposableBuffer.varUIntHex(() => msg.seed, v => msg.seed = v)
     ]
   }
 }

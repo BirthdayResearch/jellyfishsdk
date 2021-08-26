@@ -17,10 +17,10 @@ describe('claim DFC HTLC', () => {
   let builder: P2WPKHTransactionBuilder
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(container)
+    providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
@@ -28,7 +28,7 @@ describe('claim DFC HTLC', () => {
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
-    await container.generate(1)
+    await testing.generate(1)
     await testing.fixture.createPoolPair({
       a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
       b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
@@ -39,7 +39,7 @@ describe('claim DFC HTLC', () => {
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   afterEach(async () => {
@@ -93,7 +93,7 @@ describe('claim DFC HTLC', () => {
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CLAIM_DFC_HTLC(claimDFCHTLC).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
@@ -109,7 +109,7 @@ describe('claim DFC HTLC', () => {
     expect(outs[1].scriptPubKey.reqSigs).toStrictEqual(1)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    await container.generate(1)
+    await testing.generate(1)
 
     // List htlc and check
     const listHTLCOptions: ICXListHTLCOptions = {

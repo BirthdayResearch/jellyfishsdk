@@ -20,7 +20,7 @@ describe('submit EXT HTLC', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(container)
+    providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
@@ -87,7 +87,7 @@ describe('submit EXT HTLC', () => {
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC(submitEXTHTLC).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)

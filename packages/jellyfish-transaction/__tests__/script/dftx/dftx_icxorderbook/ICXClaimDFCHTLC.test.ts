@@ -6,7 +6,9 @@ import { CICXClaimDFCHTLC, ICXClaimDFCHTLC } from '../../../../src/script/dftx/d
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a464466547835da660ff1965fbdce08cf5ae1b75178abd6a9882d3206e0bf3a1fc7abd1ba969a20f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef'
+    '6a464466547835da660ff1965fbdce08cf5ae1b75178abd6a9882d3206e0bf3a1fc7abd1ba969a20f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef',
+    '6a364466547835da660ff1965fbdce08cf5ae1b75178abd6a9882d3206e0bf3a1fc7abd1ba969a10a9b534571e4e92e0c4610c6a6784ccef',
+    '6a274466547835da660ff1965fbdce08cf5ae1b75178abd6a9882d3206e0bf3a1fc7abd1ba969a01f7'
   ]
 
   fixtures.forEach(hex => {
