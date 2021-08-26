@@ -3,7 +3,8 @@ import {
   Script,
   TransactionSegWit,
   CreateVoc,
-  CreateCfp
+  CreateCfp,
+  Vote
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
@@ -49,6 +50,20 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
       OP_CODES.OP_DEFI_TX_CREATE_VOC(createVoc),
       changeScript,
       creationFee
+    )
+  }
+
+  /**
+   * Vote on a community proposal.
+   *
+   * @param {Vote} vote txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async vote (vote: Vote, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_VOTE(vote),
+      changeScript
     )
   }
 }

@@ -146,3 +146,27 @@ export class CCreateVoc extends CCreateProposal {
   static OP_CODE = 0x45 // 'E'
   static OP_NAME = 'OP_DEFI_TX_CREATE_VOC'
 }
+
+export type VoteDecision = 0x01 | 0x02 | 0x03 // VoteYes | VoteNo | VoteNeutral
+
+export interface Vote {
+  proposalId: string // -----------| 32 bytes hex string
+  masternodeId: string // ---------| 32 bytes hex string
+  voteDecision: VoteDecision // ---| 1 byte unsigned int
+}
+
+/**
+ * Composable CVote, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CVote extends ComposableBuffer<Vote> {
+  static OP_CODE = 0x56 // 'V'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
+  composers (vote: Vote): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => vote.proposalId, v => vote.proposalId = v),
+      ComposableBuffer.hexBEBufferLE(32, () => vote.masternodeId, v => vote.masternodeId = v),
+      ComposableBuffer.uInt8(() => vote.voteDecision, v => vote.voteDecision = v as VoteDecision)
+    ]
+  }
+}
