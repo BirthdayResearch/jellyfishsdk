@@ -29,7 +29,7 @@ interface mining {
 
 ## getMiningInfo
 
-Get minting-related information.
+Get mining-related information.
 
 ```ts title="client.mining.getMiningInfo()"
 interface mining {

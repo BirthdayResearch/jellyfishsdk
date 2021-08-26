@@ -7,27 +7,11 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    /**
-     * offer : {
-     * orderTx: b54d69947cb46474cdf75b88880ab003a84a17e5d38ce83d084e44f0ec9ebd4c,
-     * amount: new BigNumber(0.1),
-     * ownerAddress: 2N5gsroY5KKAtD9ufsF88TZQs6hyZxfCgFE
-     * expiry: 20
-     * takerFee: new BigNumber(0)
-     * }
-     */
     '6a4c5244665478324cbd9eecf0444e083de88cd3e5174aa803b00a88885bf7cd7464b47c94694db5809698000000000017a914887b8586ac0c39b0d07e6a479486f32ac4701c538700140000000000000000000000',
-    /**
-     * offer : {
-     * orderTx: 4ad7dfa848c913a02ecf93353eaaea7f6a564db5b74bb2f9b95c9dddf4fab2bf,
-     * amount: new BigNumber(100),
-     * ownerAddress: 2N2bPUvhmeg752fmQnBujWig2rci4oGgbA3
-     * receivePubkey: '0348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5'
-     * expiry: 20
-     * takerFee: new BigNumber(0)
-     * }
-     */
-    '6a4c734466547832bfb2faf4dd9d5cb9f9b24bb7b54d566a7feaaa3e3593cf2ea013c948a8dfd74a00e40b540200000017a914668960586aad364c3550ef3e944d356d77206eab87210348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5140000000000000000000000'
+    '6a4c52446654783286ef8673487055726f412f3a472bd87eba9514b2349162785501daaa950e779b809698000000000017a9147df9e0e2fdfe388555c189bf21a1417150c99a468700140000000000000000000000',
+    '6a4c734466547832bfb2faf4dd9d5cb9f9b24bb7b54d566a7feaaa3e3593cf2ea013c948a8dfd74a00e40b540200000017a914668960586aad364c3550ef3e944d356d77206eab87210348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5140000000000000000000000',
+    '6a4c7344665478324adf7be28d237ff1f888015fe9be58e45f3d0e2bdea13a533f0ea6d0c2d2965800e40b540200000017a9147df9e0e2fdfe388555c189bf21a1417150c99a4687210348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5140000000000000000000000',
+    '6a4c93446654783230d4008be1e0b3535ee0793a210e87c0b9490aa3a98294c472bde3318ccb077e00e40b540200000017a91444d349f8e932bd12dce80d6d623447bfceab3bda874104e6873a6492abfbcf66524249828eee1baf072f3b01db6c1fec05456876229f1ac462019d2cedc8a990056c4fd2df4a8eb930504c2af7dc2a5d776f7072491558140000000000000000000000' // with uncompressed public key
   ]
 
   fixtures.forEach(hex => {
@@ -41,8 +25,10 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 describe('MakeOffer', () => {
-  const header = '6a4c524466547832' // OP_RETURN PUSH_DATA(44665478, 32)
+  const header = '6a4c524466547832' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 82 = 0x52) CDfTx.SIGNATURE(0x44665478) CICXMakeOffer.OP_CODE(0x32)
   const data = '4cbd9eecf0444e083de88cd3e5174aa803b00a88885bf7cd7464b47c94694db5809698000000000017a914887b8586ac0c39b0d07e6a479486f32ac4701c538700140000000000000000000000'
+  // ICXMakeOffer.orderTx[LE](0x4cbd9eecf0444e083de88cd3e5174aa803b00a88885bf7cd7464b47c94694db5) ICXMakeOffer.amount(0x8096980000000000) ICXMakeOffer.address(0x17a914887b8586ac0c39b0d07e6a479486f32ac4701c5387)
+  // ICXMakeOffer.receivePubkey(0x00) ICXMakeOffer.expiry (0x14000000) ICXMakeOffer.takerFee(0x0000000000000000)
   const makeOffer: ICXMakeOffer = {
     orderTx: 'b54d69947cb46474cdf75b88880ab003a84a17e5d38ce83d084e44f0ec9ebd4c',
     amount: new BigNumber(0.1),
@@ -84,9 +70,11 @@ describe('MakeOffer', () => {
   })
 })
 
-describe('CreateOrder with receivePubkey', () => {
-  const header = '6a4c734466547832' // OP_RETURN PUSH_DATA(44665478, 32)
+describe('MakeOffer with receivePubkey', () => {
+  const header = '6a4c734466547832' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 115 = 0x73) CDfTx.SIGNATURE(0x44665478) CICXMakeOffer.OP_CODE(0x32)
   const data = 'bfb2faf4dd9d5cb9f9b24bb7b54d566a7feaaa3e3593cf2ea013c948a8dfd74a00e40b540200000017a914668960586aad364c3550ef3e944d356d77206eab87210348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5140000000000000000000000'
+  // ICXMakeOffer.orderTx[LE](0xbfb2faf4dd9d5cb9f9b24bb7b54d566a7feaaa3e3593cf2ea013c948a8dfd74a) ICXMakeOffer.amount(0x00e40b5402000000) ICXMakeOffer.address(0x17a914668960586aad364c3550ef3e944d356d77206eab87)
+  // ICXMakeOffer.receivePubkey(0x210348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5) ICXMakeOffer.expiry (0x14000000) ICXMakeOffer.takerFee(0x0000000000000000)
   const makeOffer: ICXMakeOffer = {
     orderTx: '4ad7dfa848c913a02ecf93353eaaea7f6a564db5b74bb2f9b95c9dddf4fab2bf',
     amount: new BigNumber(100),

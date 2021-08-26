@@ -1,8 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * Composable UtxosToAccount, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
