@@ -143,7 +143,7 @@ export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
  */
 export interface ICXClaimDFCHTLC {
   dfcHTLCTx: string // ----| 32 byte, txid of dfc htlc tx for which the claim is
-  seed: string // ---------| n = VarUInt{1-9 bytes}, + n bytes,, secret seed for claiming htlc
+  seed: string // ---------| n = VarUInt{1-9 bytes}, + n bytes, secret seed for claiming htlc
 }
 
 /**

@@ -73,9 +73,6 @@ import {
   SetDefaultLoanScheme
 } from './dftx_loans'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * DeFi Transaction
  * [OP_RETURN, OP_PUSHDATA] Custom Transaction

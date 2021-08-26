@@ -102,7 +102,7 @@ describe('claim DFC HTLC', () => {
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
@@ -117,7 +117,7 @@ describe('claim DFC HTLC', () => {
       closed: true
     }
     const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
     const claimTxId = calculateTxid(txn)
     if (HTLCs[claimTxId].type === icxorderbook.ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
