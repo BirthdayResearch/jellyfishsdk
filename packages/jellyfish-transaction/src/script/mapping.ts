@@ -63,16 +63,18 @@ import {
   SetDefaultLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
-import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
 import {
-  CICXSubmitDFCHTLC,
-  ICXSubmitDFCHTLC,
   CICXCreateOrder,
   ICXCreateOrder,
+  CICXMakeOffer,
+  ICXMakeOffer,
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
   ICXSubmitEXTHTLC
 } from './dftx/dftx_icxorderbook'
+import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -336,6 +338,14 @@ export const OP_CODES = {
       type: CICXCreateOrder.OP_CODE,
       name: CICXCreateOrder.OP_NAME,
       data: createOrder
+    })
+  },
+  OP_DEFI_TX_ICX_MAKE_OFFER: (makeOffer: ICXMakeOffer) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXMakeOffer.OP_CODE,
+      name: CICXMakeOffer.OP_NAME,
+      data: makeOffer
     })
   },
   OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {

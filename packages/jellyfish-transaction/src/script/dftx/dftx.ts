@@ -46,10 +46,12 @@ import {
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
 import {
-  CICXSubmitDFCHTLC,
-  ICXSubmitDFCHTLC,
   CICXCreateOrder,
   ICXCreateOrder,
+  CICXMakeOffer,
+  ICXMakeOffer,
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
   ICXSubmitEXTHTLC
 } from './dftx_icxorderbook'
@@ -185,6 +187,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
       case CICXCreateOrder.OP_CODE:
         return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
+      case CICXMakeOffer.OP_CODE:
+        return compose<ICXMakeOffer>(CICXMakeOffer.OP_NAME, d => new CICXMakeOffer(d))
       case CCreateCfp.OP_CODE:
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:
