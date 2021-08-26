@@ -6,8 +6,8 @@ import { Block, BlockMapper } from '@src/module.model/block'
 import { IndexStatusMapper, Status } from '@src/module.indexer/status'
 
 @Injectable()
-export class Indexer {
-  private readonly logger = new Logger(Indexer.name)
+export class RPCBlockProvider {
+  private readonly logger = new Logger(RPCBlockProvider.name)
   private indexing = false
 
   constructor (

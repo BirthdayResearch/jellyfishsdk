@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { newFastifyAdapter } from '@src/fastify'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { Indexer } from '@src/module.indexer/indexer'
+import { RPCBlockProvider } from '@src/module.indexer/rpc.block.provider'
 import { BlockMapper } from '@src/module.model/block'
 import waitForExpect from 'wait-for-expect'
 import { addressToHid } from '@src/module.api/address.controller'
@@ -39,7 +39,7 @@ export async function createTestingApp (container: MasterNodeRegTestContainer): 
  */
 export async function stopTestingApp (container: MasterNodeRegTestContainer, app: NestFastifyApplication): Promise<void> {
   try {
-    const indexer = app.get(Indexer)
+    const indexer = app.get(RPCBlockProvider)
     indexer.close()
     await app.close()
   } finally {

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { Indexer } from '@src/module.indexer/indexer'
+import { RPCBlockProvider } from '@src/module.indexer/rpc.block.provider'
 import { MainIndexer } from '@src/module.indexer/model/_main'
 import { BlockIndexer } from '@src/module.indexer/model/block'
 import { ScriptActivityIndexer } from '@src/module.indexer/model/script.activity'
@@ -16,7 +16,7 @@ import { BlockMintedIndexer } from '@src/module.indexer/model/block.minted'
 
 @Module({
   providers: [
-    Indexer,
+    RPCBlockProvider,
     MainIndexer,
     IndexStatusMapper,
     VoutFinder,
