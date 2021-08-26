@@ -47,6 +47,14 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async makeOffer (makeOffer: ICXMakeOffer, changeScript: Script): Promise<TransactionSegWit> {
+    if (makeOffer.receivePubkey !== undefined) {
+      const bufferLen = Buffer.from(makeOffer.receivePubkey, 'hex').length
+      if (bufferLen !== 33 && bufferLen !== 65) {
+        throw new TxnBuilderError(TxnBuilderErrorType.INVALID_PUB_KEY_LENGTH,
+          'Make offer receivePubkey buffer length should be 33 (COMPRESSED_PUBLIC_KEY_SIZE) or 65 (PUBLIC_KEY_SIZE)'
+        )
+      }
+    }
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_MAKE_OFFER(makeOffer),
       changeScript
