@@ -42,7 +42,7 @@ describe('close ICX order', () => {
     const closeOrder: ICXCloseOrder = {
       orderTx: createOrderTxId
     }
-    const txn = await builder.icx.closeOrder(closeOrder, script)
+    const txn = await builder.icxorderbook.closeOrder(closeOrder, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CLOSE_ORDER(closeOrder).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -68,5 +68,24 @@ describe('close ICX order', () => {
 
     expect(orderBefore).toBeDefined()
     expect(orderAfter).toBeUndefined()
+  })
+
+  it('should not close ICX order with wrong order id length', async () => {
+    const script = await providers.elliptic.script()
+    const closeOrder: ICXCloseOrder = {
+      orderTx: '1234'
+    }
+
+    await expect(builder.icxorderbook.closeOrder(closeOrder, script)).rejects.toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
+  })
+
+  it('should not close ICX order with order id which does not exist', async () => {
+    const script = await providers.elliptic.script()
+    const closeOrder: ICXCloseOrder = {
+      orderTx: '0'.repeat(64) // should be 32 bytes long
+    }
+    const txn = await builder.icxorderbook.closeOrder(closeOrder, script)
+
+    await expect(sendTransaction(container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOrderTx: order with creation tx 0000000000000000000000000000000000000000000000000000000000000000 does not exists! (code 16)', code: -26")
   })
 })
