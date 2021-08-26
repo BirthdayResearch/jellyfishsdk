@@ -216,3 +216,36 @@ interface CreateAnchorResult {
   sendMessage: string
 }
 ```
+
+## listAnchors
+
+List anchors
+
+```ts title=client.spv.createAnchor()"
+interface spv {
+  listAnchors (
+    options: ListAnchorsOptions = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1 }
+  ): Promise<ListAnchorsResult[]>
+}
+
+interface ListAnchorsOptions {
+  minBtcHeight?: number
+  maxBtcHeight?: number
+  minConfs?: number
+  maxConfs?: number
+}
+
+interface ListAnchorsResult {
+  btcBlockHeight: number
+  btcBlockHash: string
+  btcTxHash: string
+  previousAnchor: string
+  defiBlockHeight: number
+  defiBlockHash: string
+  rewardAddress: string
+  confirmations: number
+  signatures: number
+  active: boolean
+  anchorCreationHeight?: number
+}
+```

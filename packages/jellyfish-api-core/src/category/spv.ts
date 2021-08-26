@@ -156,6 +156,27 @@ export class Spv {
       { cost: 'bignumber', estimatedReward: 'bignumber' }
     )
   }
+
+  /**
+   * List anchors
+   *
+   * @param {ListAnchorsOptions} [options]
+   * @param {number} [options.minBtcHeight=-1]
+   * @param {number} [options.maxBtcHeight=-1]
+   * @param {number} [options.minConfs=-1]
+   * @param {number} [options.maxConfs=-1]
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchors (
+    options: ListAnchorsOptions = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1 }
+  ): Promise<ListAnchorsResult[]> {
+    const opts = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1, ...options }
+    return await this.client.call(
+      'spv_listanchors',
+      [opts.minBtcHeight, opts.maxBtcHeight, opts.minConfs, opts.maxConfs],
+      'number'
+    )
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -274,4 +295,40 @@ export interface CreateAnchorResult {
   sendResult: number
   /** decoded sendResult */
   sendMessage: string
+}
+
+export interface ListAnchorsOptions {
+  /** min BTC height */
+  minBtcHeight?: number
+  /** max BTC height */
+  maxBtcHeight?: number
+  /** min confirmations */
+  minConfs?: number
+  /** max confirmations */
+  maxConfs?: number
+}
+
+export interface ListAnchorsResult {
+  /** BTC block height */
+  btcBlockHeight: number
+  /** BTC block hash */
+  btcBlockHash: string
+  /** BTC transaction hash */
+  btcTxHash: string
+  /** previous anchor */
+  previousAnchor: string
+  /** defi block height */
+  defiBlockHeight: number
+  /** defi block hash */
+  defiBlockHash: string
+  /** anchor reward address */
+  rewardAddress: string
+  /** BTC confirmations */
+  confirmations: number
+  /** number of signatures */
+  signatures: number
+  /** anchor status */
+  active: boolean
+  /** anchor creation height */
+  anchorCreationHeight?: number
 }
