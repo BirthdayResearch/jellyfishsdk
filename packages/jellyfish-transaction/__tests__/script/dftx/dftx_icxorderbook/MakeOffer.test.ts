@@ -69,7 +69,7 @@ describe('MakeOffer', () => {
   })
 })
 
-describe('CreateOrder with receivePubkey', () => {
+describe('MakeOffer with receivePubkey', () => {
   const header = '6a4c734466547832' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 115 = 0x73) CDfTx.SIGNATURE(0x44665478) CICXMakeOffer.OP_CODE(0x32)
   const data = 'bfb2faf4dd9d5cb9f9b24bb7b54d566a7feaaa3e3593cf2ea013c948a8dfd74a00e40b540200000017a914668960586aad364c3550ef3e944d356d77206eab87210348790cb93b203a8ea5ce07279cb209d807b535b2ca8b0988a6f7a6578e41f7a5140000000000000000000000'
   // ICXMakeOffer.orderTx[LE](0xbfb2faf4dd9d5cb9f9b24bb7b54d566a7feaaa3e3593cf2ea013c948a8dfd74a) ICXMakeOffer.amount(0x00e40b5402000000) ICXMakeOffer.address(0x17a914668960586aad364c3550ef3e944d356d77206eab87)
