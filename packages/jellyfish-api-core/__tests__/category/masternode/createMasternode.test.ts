@@ -319,16 +319,24 @@ describe('Multinodes masternodes', () => {
       await group.waitForSync()
 
       const mnA0 = (await clientA.masternode.getMasternode(mnIdA0))[mnIdA0]
-      expect(mnA0.targetMultipliers).toStrictEqual([4, 4])
+      expect(mnA0.targetMultipliers).toBeDefined()
+      expect(mnA0.targetMultipliers?.length).toStrictEqual(2)
+      expect(mnA0.targetMultipliers?.every(tm => tm >= 4)).toBeTruthy() // [4, 4]
 
       const mnA5 = (await clientA.masternode.getMasternode(mnIdA5))[mnIdA5]
-      expect(mnA5.targetMultipliers).toStrictEqual([4, 4, 4])
+      expect(mnA5.targetMultipliers).toBeDefined()
+      expect(mnA5.targetMultipliers?.length).toStrictEqual(3)
+      expect(mnA5.targetMultipliers?.every(tm => tm >= 4)).toBeTruthy() // [4, 4, 4]
 
       const mnA10 = (await clientA.masternode.getMasternode(mnIdA10))[mnIdA10]
-      expect(mnA10.targetMultipliers).toStrictEqual([4, 4, 4, 4])
+      expect(mnA10.targetMultipliers).toBeDefined()
+      expect(mnA10.targetMultipliers?.length).toStrictEqual(4)
+      expect(mnA10.targetMultipliers?.every(tm => tm >= 4)).toBeTruthy() // [4, 4, 4, 4]
 
       const mnB0 = (await clientB.masternode.getMasternode(mnIdB0))[mnIdB0]
-      expect(mnB0.targetMultipliers).toStrictEqual([4, 4])
+      expect(mnB0.targetMultipliers).toBeDefined()
+      expect(mnB0.targetMultipliers?.length).toStrictEqual(2)
+      expect(mnB0.targetMultipliers?.every(tm => tm >= 4)).toBeTruthy() // [4, 4]
     }
 
     {
@@ -340,16 +348,24 @@ describe('Multinodes masternodes', () => {
       await group.waitForSync()
 
       const mnA0 = (await clientA.masternode.getMasternode(mnIdA0))[mnIdA0]
-      expect(mnA0.targetMultipliers).toStrictEqual([28, 28])
+      expect(mnA0.targetMultipliers).toBeDefined()
+      expect(mnA0.targetMultipliers?.length).toStrictEqual(2)
+      expect(mnA0.targetMultipliers?.every(tm => tm >= 28)).toBeTruthy() // [28, 28]
 
       const mnA5 = (await clientA.masternode.getMasternode(mnIdA5))[mnIdA5]
-      expect(mnA5.targetMultipliers).toStrictEqual([28, 28, 28])
+      expect(mnA5.targetMultipliers).toBeDefined()
+      expect(mnA5.targetMultipliers?.length).toStrictEqual(3)
+      expect(mnA5.targetMultipliers?.every(tm => tm >= 28)).toBeTruthy() // [28, 28, 28]
 
       const mnA10 = (await clientA.masternode.getMasternode(mnIdA10))[mnIdA10]
-      expect(mnA10.targetMultipliers).toStrictEqual([28, 28, 28, 28])
+      expect(mnA10.targetMultipliers).toBeDefined()
+      expect(mnA10.targetMultipliers?.length).toStrictEqual(4)
+      expect(mnA10.targetMultipliers?.every(tm => tm >= 28)).toBeTruthy() // [28, 28, 28, 28]
 
       const mnB0 = (await clientB.masternode.getMasternode(mnIdB0))[mnIdB0]
-      expect(mnB0.targetMultipliers).toStrictEqual([28, 28])
+      expect(mnB0.targetMultipliers).toBeDefined()
+      expect(mnB0.targetMultipliers?.length).toStrictEqual(2)
+      expect(mnB0.targetMultipliers?.every(tm => tm >= 28)).toBeTruthy() // [28, 28]
     }
 
     {
