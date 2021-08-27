@@ -273,3 +273,22 @@ interface ListAnchorsResult {
   anchorCreationHeight?: number
 }
 ```
+
+## listAnchorAuths
+
+List anchor auths
+
+```ts title=client.spv.listAnchorAuths()"
+interface spv {
+  listAnchorAuths (): Promise<ListAnchorAuthsResult[]>
+}
+
+interface ListAnchorAuthsResult {
+  previousAnchor: string
+  blockHeight: number
+  blockHash: string
+  creationHeight: number
+  signers: number
+  signees?: string[]
+}
+```

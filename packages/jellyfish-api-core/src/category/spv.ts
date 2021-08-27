@@ -158,15 +158,6 @@ export class Spv {
   }
 
   /**
-   * List pending anchors in mempool
-   *
-   * @return {Promise<ListAnchorsResult[]>}
-   */
-  async listAnchorsPending (): Promise<ListAnchorsResult[]> {
-    return await this.client.call('spv_listanchorspending', [], 'number')
-  }
-
-  /**
    * List anchors
    *
    * @param {ListAnchorsOptions} [options]
@@ -185,6 +176,24 @@ export class Spv {
       [opts.minBtcHeight, opts.maxBtcHeight, opts.minConfs, opts.maxConfs],
       'number'
     )
+  }
+
+  /**
+   * List pending anchors in mempool
+   *
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchorsPending (): Promise<ListAnchorsResult[]> {
+    return await this.client.call('spv_listanchorspending', [], 'number')
+  }
+
+  /**
+   * List anchor auths
+   *
+   * @return {Promise<ListAnchorAuthsResult[]>}
+   */
+  async listAnchorAuths (): Promise<ListAnchorAuthsResult[]> {
+    return await this.client.call('spv_listanchorauths', [], 'number')
   }
 }
 
@@ -292,9 +301,9 @@ export interface CreateAnchorResult {
   txHex: string
   /** the transaction hash  */
   txHash: string
-  /** the anchor block hash */
+  /** the defi block hash */
   defiHash: string
-  /** the anchor block height */
+  /** the defi block height */
   defiHeight: number
   /** estimated anchor reward */
   estimatedReward: BigNumber
@@ -340,4 +349,19 @@ export interface ListAnchorsResult {
   active?: boolean
   /** anchor creation height */
   anchorCreationHeight?: number
+}
+
+export interface ListAnchorAuthsResult {
+  /** previous anchor */
+  previousAnchor: string
+  /** defi block height */
+  blockHeight: number
+  /** defi block hash */
+  blockHash: string
+  /** anchor creation height */
+  creationHeight: number
+  /** number of anchor signers */
+  signers: number
+  /** anchor signees address */
+  signees?: string[]
 }
