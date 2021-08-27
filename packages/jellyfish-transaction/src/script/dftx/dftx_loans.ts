@@ -1,5 +1,6 @@
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import BigNumber from 'bignumber.js'
+import { SmartBuffer } from 'smart-buffer'
 
 /**
  * CreateLoanScheme DeFi Transaction
@@ -55,7 +56,7 @@ export interface SetCollateralToken {
   token: number // ---------------| VarUInt{1-9 bytes} Symbol or id of collateral token
   factor: BigNumber // -----------| 8 bytes unsigned Collateralization factor
   priceFeedId: string // ---------| 32 bytes hex string Txid of oracle feeding the price
-  activateAfterBlock: number // --| 4 bytes unsigned Changes will be active after the block height
+  activateAfterBlock?: number // --| 4 bytes unsigned Changes will be active after the block height
 }
 
 export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
@@ -67,7 +68,17 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
       ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v),
-      ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          const num = buffer.readUInt32LE()
+          if (num > 0) {
+            sct.activateAfterBlock = num
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          buffer.writeUInt32LE(sct.activateAfterBlock ?? 0)
+        }
+      }
     ]
   }
 }
