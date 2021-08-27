@@ -27,21 +27,21 @@ it('should bi-directional buffer-object-buffer', () => {
      *   identifier: 'scheme3',
      * }
      */
-    '6a15446654784407736368656d65318200000000000000',
+    '6a15446654784407736368656d65330000000000000000',
     /**
      * loan : {
      *   identifier: 'scheme1',
      *   height: new BigNumber(130)
      * }
      */
-    '6a15446654784407736368656d65328c00000000000000',
+    '6a15446654784407736368656d65318200000000000000',
     /**
      * loan : {
      *   identifier: 'scheme2',
      *   height: new BigNumber(140)
      * }
      */
-    '6a15446654784407736368656d65339600000000000000',
+    '6a15446654784407736368656d65328c00000000000000',
     /**
      * loan : {
      *   identifier: 'scheme3',
@@ -100,7 +100,7 @@ describe('DestroyLoanScheme with no height', () => {
 describe('DestroyLoanScheme with height', () => {
   const header = '6a154466547844' // OP_RETURN(0x6a) (length 20 = 0x14) CDfTx.SIGNATURE(0x44665478) CDestroyLoanScheme.OP_CODE(0x44)
 
-  const data = '07736368656d65318200000000000000'
+  const data = '07736368656d65330000000000000000'
   const destroyLoanScheme: DestroyLoanScheme = {
     identifier: 'scheme1',
     height: new BigNumber(130)
