@@ -221,7 +221,7 @@ interface CreateAnchorResult {
 
 List anchors
 
-```ts title=client.spv.createAnchor()"
+```ts title=client.spv.listAnchors()"
 interface spv {
   listAnchors (
     options: ListAnchorsOptions = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1 }
@@ -245,7 +245,31 @@ interface ListAnchorsResult {
   rewardAddress: string
   confirmations: number
   signatures: number
-  active: boolean
+  active?: boolean
+  anchorCreationHeight?: number
+}
+```
+
+## listAnchorsPending
+
+List pending anchors in mempool
+
+```ts title=client.spv.listAnchorsPending()"
+interface spv {
+  listAnchorsPending (): Promise<ListAnchorsResult[]>
+}
+
+interface ListAnchorsResult {
+  btcBlockHeight: number
+  btcBlockHash: string
+  btcTxHash: string
+  previousAnchor: string
+  defiBlockHeight: number
+  defiBlockHash: string
+  rewardAddress: string
+  confirmations: number
+  signatures: number
+  active?: boolean
   anchorCreationHeight?: number
 }
 ```

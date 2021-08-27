@@ -158,6 +158,15 @@ export class Spv {
   }
 
   /**
+   * List pending anchors in mempool
+   *
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchorsPending (): Promise<ListAnchorsResult[]> {
+    return await this.client.call('spv_listanchorspending', [], 'number')
+  }
+
+  /**
    * List anchors
    *
    * @param {ListAnchorsOptions} [options]
@@ -328,7 +337,7 @@ export interface ListAnchorsResult {
   /** number of signatures */
   signatures: number
   /** anchor status */
-  active: boolean
+  active?: boolean
   /** anchor creation height */
   anchorCreationHeight?: number
 }
