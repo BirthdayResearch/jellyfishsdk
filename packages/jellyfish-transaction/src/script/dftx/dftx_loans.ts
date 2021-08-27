@@ -53,9 +53,9 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
 }
 
 export interface SetCollateralToken {
-  token: number // ---------------| VarUInt{1-9 bytes} Symbol or id of collateral token
-  factor: BigNumber // -----------| 8 bytes unsigned Collateralization factor
-  priceFeedId: string // ---------| 32 bytes hex string Txid of oracle feeding the price
+  token: number // ----------------| VarUInt{1-9 bytes} Symbol or id of collateral token
+  factor: BigNumber // ------------| 8 bytes unsigned Collateralization factor
+  priceFeedId: string // ----------| 32 bytes hex string Txid of oracle feeding the price
   activateAfterBlock?: number // --| 4 bytes unsigned Changes will be active after the block height
 }
 

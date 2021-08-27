@@ -29,10 +29,13 @@ describe('loan.setCollateralToken()', () => {
     await testing.generate(1)
 
     await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
+
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'EUR'
     }], 1])
+    await testing.generate(1)
   })
 
   afterAll(async () => {
@@ -149,10 +152,13 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     await testing.generate(1)
 
     await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
+
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'EUR'
     }], 1])
+    await testing.generate(1)
 
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
@@ -206,10 +212,13 @@ describe('loan.setCollateralToken() with activateAfterBlock lesser than current 
     await testing.generate(1)
 
     await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
+
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'EUR'
     }], 1])
+    await testing.generate(1)
 
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)

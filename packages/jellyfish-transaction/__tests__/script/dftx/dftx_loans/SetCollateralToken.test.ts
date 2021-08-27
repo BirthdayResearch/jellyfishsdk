@@ -3,10 +3,10 @@ import {
   CSetCollateralToken,
   SetCollateralToken
 } from '../../../../src/script/dftx/dftx_loans'
-import BigNumber from 'bignumber.js'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
+import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -76,8 +76,8 @@ it('should bi-directional buffer-object-buffer', () => {
 describe('SetCollateralToken with no activateAfterBlock', () => {
   const header = '6a324466547863' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CCreateLoanScheme.OP_CODE(0x63)
   const data = '018096980000000000b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a00000000'
-  // SetCollateralToken.token[LE](01)
-  // SetCollateralToken.factor[LE](8096980000000000)
+  // SetCollateralToken.token[BE](01)
+  // SetCollateralToken.factor[BE](8096980000000000)
   // SetCollateralToken.priceFeedId[LE] (b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a)
   // SetCollateralToken.activateAfterBlock[LE] (00000000)
   const setCollateralToken: SetCollateralToken = {
