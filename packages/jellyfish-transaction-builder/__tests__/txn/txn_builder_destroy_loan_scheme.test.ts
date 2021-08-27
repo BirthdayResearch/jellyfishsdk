@@ -145,10 +145,6 @@ describe('loan.destroyLoanScheme() with height', () => {
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    // Default scheme
-    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-    await testing.generate(1)
-
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
     await providers.setupMocks() // Required to move utxos
@@ -159,6 +155,10 @@ describe('loan.destroyLoanScheme() with height', () => {
   })
 
   it('should destroyLoanScheme', async () => {
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
@@ -204,10 +204,6 @@ describe('loan.destroyLoanScheme() with height lesser than current height', () =
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    // Default scheme
-    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-    await testing.generate(1)
-
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
     await providers.setupMocks() // Required to move utxos
@@ -218,6 +214,10 @@ describe('loan.destroyLoanScheme() with height lesser than current height', () =
   })
 
   it('should not destroyLoanScheme', async () => {
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
