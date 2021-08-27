@@ -16,8 +16,6 @@ function hexAsBuffer (hex: string | string[]): SmartBuffer {
   return buffer
 }
 
-/* eslint-disable no-return-assign */
-
 it('should format (4 bytes, 32 bytes, 8 bytes) hex with hexAsBufferLE', () => {
   // assert hexAsBufferLE conditions is as expected.
 
@@ -521,6 +519,67 @@ describe('ComposableBuffer.optionalHex', () => {
   })
 })
 
+describe('ComposableBuffer.varUIntOptionalHex', () => {
+  describe('has value', () => {
+    const composer = ComposableBuffer.varUIntOptionalHex(() => value, v => value = v)
+    const expectedBuffer = Buffer.from('21037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', 'hex')
+    let value: string | undefined = ''
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+      expect(value).toStrictEqual('037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941')
+    })
+
+    it('should toBuffer', () => {
+      value = '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941'
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+    })
+
+    it('should not have side effect when reading and writing', () => {
+      const from = SmartBuffer.fromBuffer(expectedBuffer)
+      composer.fromBuffer(from)
+      const to = new SmartBuffer()
+      composer.toBuffer(to)
+
+      expect(from.toString()).toStrictEqual(to.toString())
+    })
+  })
+
+  describe('has NO value', () => {
+    const composer = ComposableBuffer.varUIntOptionalHex(() => value, v => value = v)
+    const expectedBuffer = Buffer.from('00', 'hex')
+    let value: string | undefined
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+      expect(value).toBeUndefined()
+    })
+
+    it('should toBuffer', () => {
+      value = undefined
+
+      const buffer = new SmartBuffer()
+      composer.toBuffer(buffer)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
+    })
+
+    it('should not have side effect when reading and writing', () => {
+      const from = SmartBuffer.fromBuffer(expectedBuffer)
+      composer.fromBuffer(from)
+      const to = new SmartBuffer()
+      composer.toBuffer(to)
+
+      expect(from.toString()).toStrictEqual(to.toString())
+    })
+  })
+})
+
 describe('ComposableBuffer.hexBE', () => {
   const composer = ComposableBuffer.hexBEBufferLE(16, () => value, (v: string) => value = v)
   const expectedBuffer = Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
@@ -689,6 +748,39 @@ describe('ComposableBuffer.varUIntUtf8BE', () => {
     composer.toBuffer(buffer)
 
     expect(buffer.toBuffer().toString('utf-8')).toStrictEqual(expectedBuffer.toString('utf-8'))
+  })
+
+  it('should not have side effect when reading and writing', () => {
+    const from = SmartBuffer.fromBuffer(expectedBuffer)
+    composer.fromBuffer(from)
+    const to = new SmartBuffer()
+    composer.toBuffer(to)
+
+    expect(from.toString()).toStrictEqual(to.toString())
+  })
+})
+
+describe('ComposableBuffer.varUIntHex', () => {
+  const composer = ComposableBuffer.varUIntHex(() => value, (v: string) => value = v)
+  const expectedBuffer = Buffer.concat([
+    Buffer.from([16]),
+    Buffer.from('9ea83a5c6579d282d189cc04b8e151ef', 'hex')
+  ])
+  let value = ''
+
+  it('should fromBuffer', () => {
+    composer.fromBuffer(SmartBuffer.fromBuffer(expectedBuffer))
+
+    expect(value).toStrictEqual('9ea83a5c6579d282d189cc04b8e151ef')
+  })
+
+  it('should toBuffer', () => {
+    value = '9ea83a5c6579d282d189cc04b8e151ef'
+
+    const buffer = new SmartBuffer()
+    composer.toBuffer(buffer)
+
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(expectedBuffer.toString('hex'))
   })
 
   it('should not have side effect when reading and writing', () => {

@@ -6,7 +6,7 @@ This package introduces a centralized testing framework for the jellyfish replac
 All methods within `@defichain/testing` have thus been deprecated.
 
 Testing is an essential part of any serious quality software developer work. This package provides many abstractions for
-various commonly used setup patterns for the DeFi blockchain. This keeps your testing setup DRY for repeated tests.
+various commonly used setup patterns for the DeFi Blockchain. This keeps your testing setup DRY for repeated tests.
 
 This new implementation warps a container on init via `Testing.create(container)` extending on top of rpc and
 container.

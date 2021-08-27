@@ -59,7 +59,7 @@ describe('CreateMasternode', () => {
 
     const script = await providers.elliptic.script()
 
-    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script, 'regtest')
 
     const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -105,7 +105,7 @@ describe('CreateMasternode', () => {
 
     const script = await providers.elliptic.script()
 
-    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script, 'regtest')
 
     const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -143,7 +143,7 @@ describe('CreateMasternode', () => {
 
     const script = await providers.elliptic.script()
 
-    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script, 'regtest')
 
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
@@ -173,7 +173,7 @@ describe('CreateMasternode', () => {
 
     const script = await providers.elliptic.script()
 
-    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script, 'regtest')
 
     try {
       await sendTransaction(container, txn)
@@ -232,7 +232,7 @@ describe('CreateMasternode with timelock', () => {
 
     const script = await providers.elliptic.script()
 
-    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script, 'regtest')
 
     const encoded: string = OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
@@ -272,7 +272,7 @@ describe('CreateMasternode with timelock', () => {
 
     const script = await providers.elliptic.script()
 
-    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script)
+    const txn: TransactionSegWit = await builder.masternode.create(createMasternode, script, 'regtest')
 
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)

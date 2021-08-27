@@ -25,7 +25,7 @@ interface spv {
 
 ## getAddressPubKey
 
-Returns a Bitcoin address' public key.
+Returns a Bitcoin address's public key.
 
 ```ts title="client.spv.getAddressPubKey()"
 interface spv {
@@ -179,5 +179,40 @@ interface ListHtlcsOutputsResult {
   address: string
   confirms: number
   spent: SpentInfo
+}
+```
+
+## createAnchor
+
+Create, sign and send anchor tx, using only SPV API.
+
+```ts title=client.spv.createAnchor()"
+interface spv {
+  createAnchor (
+    createAnchorInputs: CreateAnchorInput[], rewardAddress: string, options: CreateAnchorOptions = { send: true, feerate: 1000 }
+  ): Promise<CreateAnchorResult>
+}
+
+interface CreateAnchorInput {
+  txid: string
+  vout: number
+  amount: number
+  privkey: string
+}
+
+interface CreateAnchorOptions {
+  send?: boolean
+  feerate?: number
+}
+
+interface CreateAnchorResult {
+  txHex: string
+  txHash: string
+  defiHash: string
+  defiHeight: number
+  estimatedReward: BigNumber
+  cost: BigNumber
+  sendResult: number
+  sendMessage: string
 }
 ```

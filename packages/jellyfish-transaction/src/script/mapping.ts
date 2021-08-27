@@ -57,12 +57,26 @@ import {
   UpdateOracle
 } from './dftx/dftx_oracles'
 import {
+  CCreateLoanScheme,
+  CreateLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme,
   CDestroyLoanScheme,
   DestroyLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
+import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
+import {
+  CICXCreateOrder,
+  ICXCreateOrder,
+  CICXMakeOffer,
+  ICXMakeOffer,
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXSubmitEXTHTLC,
+  ICXSubmitEXTHTLC
+} from './dftx/dftx_icxorderbook'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
-import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -320,6 +334,70 @@ export const OP_CODES = {
       data: setGovernance
     })
   },
+  OP_DEFI_TX_ICX_CREATE_ORDER: (createOrder: ICXCreateOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCreateOrder.OP_CODE,
+      name: CICXCreateOrder.OP_NAME,
+      data: createOrder
+    })
+  },
+  OP_DEFI_TX_ICX_MAKE_OFFER: (makeOffer: ICXMakeOffer) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXMakeOffer.OP_CODE,
+      name: CICXMakeOffer.OP_NAME,
+      data: makeOffer
+    })
+  },
+  OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateCfp.OP_CODE,
+      name: CCreateCfp.OP_NAME,
+      data: createCfp
+    })
+  },
+  OP_DEFI_TX_CREATE_VOC: (createVoc: CreateVoc) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateVoc.OP_CODE,
+      name: CCreateVoc.OP_NAME,
+      data: createVoc
+    })
+  },
+  OP_DEFI_TX_VOTE: (vote: Vote) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CVote.OP_CODE,
+      name: CVote.OP_NAME,
+      data: vote
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC: (icxSubmitDFCHTLC: ICXSubmitDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitDFCHTLC.OP_CODE,
+      name: CICXSubmitDFCHTLC.OP_NAME,
+      data: icxSubmitDFCHTLC
+    })
+  },
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateLoanScheme.OP_CODE,
+      name: CCreateLoanScheme.OP_NAME,
+      data: createLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetDefaultLoanScheme.OP_CODE,
+      name: CSetDefaultLoanScheme.OP_NAME,
+      data: setDefaultLoanScheme
+    })
+  },
   OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -328,7 +406,14 @@ export const OP_CODES = {
       data: destroyLoanScheme
     })
   },
-
+  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitEXTHTLC.OP_CODE,
+      name: CICXSubmitEXTHTLC.OP_NAME,
+      data: icxSubmitEXTHTLC
+    })
+  },
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**
