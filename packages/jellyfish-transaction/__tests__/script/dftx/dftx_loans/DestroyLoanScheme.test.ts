@@ -10,8 +10,24 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a14446654784406736368656d650000000000000000',
-    '6a14446654784406736368656d65c800000000000000'
+    /**
+     * loan : {
+     *   identifier: 'scheme1',
+     * }
+     */
+    '6a15446654784407736368656d65310000000000000000',
+    /**
+     * loan : {
+     *   identifier: 'scheme2',
+     * }
+     */
+    '6a15446654784407736368656d65320000000000000000',
+    /**
+     * loan : {
+     *   identifier: 'scheme3',
+     * }
+     */
+    '6a15446654784407736368656d65330000000000000000'
   ]
 
   fixtures.forEach(hex => {
