@@ -127,7 +127,7 @@ describe('claim DFC HTLC', () => {
     }
   })
 
-  it('should return an error when ICXSubmitDFCHTLC.dfcHTLCTx length is invalid', async () => {
+  it('should return an error when ICXClaimDFCHTLC.dfcHTLCTx length is invalid', async () => {
     // ICX order creation,make offer, submit htlcs
     const createOrder = {
       chainTo: 'BTC',
@@ -170,5 +170,51 @@ describe('claim DFC HTLC', () => {
       seed: 'f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef'
     }
     await expect(builder.icxorderbook.claimDFCHTLC(claimDFCHTLC, script)).rejects.toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
+  })
+
+  it('should return an error when ICXClaimDFCHTLC.seed is incorrect', async () => {
+    // ICX order creation,make offer, submit htlcs
+    const createOrder = {
+      chainTo: 'BTC',
+      ownerAddress: testing.icxorderbook.accountDFI,
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    }
+    const { createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
+
+    const makeOffer = {
+      orderTx: createOrderTxId,
+      amount: new BigNumber(0.10),
+      ownerAddress: testing.icxorderbook.accountBTC
+    }
+    const { makeOfferTxId } = await testing.icxorderbook.createDFIBuyOffer(makeOffer)
+
+    const DFCHTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(10),
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      timeout: 1440
+    }
+    const { DFCHTLCTxId } = await testing.icxorderbook.createDFCHTLCForDFIBuyOffer(DFCHTLC)
+
+    const ExtHTLC = {
+      offerTx: makeOfferTxId,
+      amount: new BigNumber(0.10),
+      hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
+      htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
+      ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
+      timeout: 24
+    }
+    await testing.icxorderbook.submitExtHTLCForDFIBuyOffer(ExtHTLC)
+
+    // claim DFC HTLC
+    const script = await providers.elliptic.script()
+    const claimDFCHTLC: ICXClaimDFCHTLC = {
+      dfcHTLCTx: DFCHTLCTxId,
+      seed: 'INVALID_SEED'
+    }
+    const txn = await builder.icxorderbook.claimDFCHTLC(claimDFCHTLC, script)
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow('DeFiDRpcError: \'ICXClaimDFCHTLCTx: hash generated from given seed is different than in dfc htlc: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 - 957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220! (code 16)\', code: -26')
   })
 })
