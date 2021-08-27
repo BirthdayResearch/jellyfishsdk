@@ -67,6 +67,7 @@ describe('CreateOrder with receivePubkey', () => {
     },
     receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
     amountFrom: new BigNumber(15),
+    amountToFill: new BigNumber(15),
     orderPrice: new BigNumber(0.01),
     expiry: 2880
   }
@@ -112,6 +113,7 @@ describe('CreateOrder without receivePubkey', () => {
       ]
     },
     amountFrom: new BigNumber(2),
+    amountToFill: new BigNumber(2),
     orderPrice: new BigNumber(1000),
     expiry: 2880
   }
