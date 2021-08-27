@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { EllipticPair, Elliptic, Bech32, HRP, WIF } from '@defichain/jellyfish-crypto'
+import { Bech32, Elliptic, EllipticPair, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
 
 /**
@@ -13,6 +13,7 @@ import { RegTest } from '@defichain/jellyfish-network'
  * @param {EllipticPair} options.aEllipticPair
  * @param {EllipticPair} options.bEllipticPair
  * @return {Promise<string>}
+ * @deprecated use jellyfish-testing instead
  */
 export async function createSignedTxnHex (
   container: MasterNodeRegTestContainer,

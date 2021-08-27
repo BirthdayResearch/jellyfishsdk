@@ -103,6 +103,7 @@
       <w>iswatchonly</w>
       <w>iswitness</w>
       <w>jingyi</w>
+      <w>jouzo</w>
       <w>jsonrpc</w>
       <w>keyhash</w>
       <w>keypoololdest</w>
@@ -191,6 +192,7 @@
       <w>testcontainers</w>
       <w>testmempoolaccept</w>
       <w>thedoublejay</w>
+      <w>timelock</w>
       <w>toaltstack</w>
       <w>tradeable</w>
       <w>txcount</w>

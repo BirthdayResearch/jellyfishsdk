@@ -2,12 +2,19 @@ import { SmartBuffer } from 'smart-buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import { OP_CODES } from '../../../../src'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
-import { CCreateMasterNode, CreateMasterNode } from '../../../../src/script/dftx/dftx_masternode'
+import { CCreateMasternode, CreateMasternode } from '../../../../src/script/dftx/dftx_masternode'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
+    // Before EunosPaya
     '6a1a44665478430121978f97842d623b79acecd7201a60538c13e935', // undefined operator pkh, use collateral pkh
-    '6a2e446654784301742b337e0f40d5f229a89d3a26d53ae1093b6cff21978f97842d623b79acecd7201a60538c13e935' // specify another operator pkh
+    '6a1a44665478430147bfb0a67b85a1718381558434fbfe7c4866cf2e', // p2pkh
+    '6a1a4466547843040e12cde53c156560faa1d01d144d234a74b65395', // p2wpkh
+
+    // EunosPaya
+    '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950000', // default timelock 0000 if not specified
+    '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950401', // with timelock 5 years (260)
+    '6a1c4466547843040e12cde53c156560faa1d01d144d234a74b653950802' // with timelock 10 years (520)
   ]
 
   fixtures.forEach(hex => {
@@ -20,18 +27,18 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-describe('without `operatorPubKeyHash`', () => {
-  const header = '6a1a4466547843' // OP_RETURN (length 26 = 0x1a), PUSH_DATA(44665478, 43)
-  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff'
-  const createMasterNode: CreateMasterNode = {
-    type: 0x01,
-    collateralPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
+describe('CreateMasternode', () => {
+  const header = '6a1a4466547843' // OP_RETURN(0x6a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasternode.OP_CODE(0x43)
+  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorPubKeyHash(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff)
+  const createMasternode: CreateMasternode = {
+    operatorType: 0x01,
+    operatorPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff'
   }
 
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
+      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode)
     ]
 
     const buffer = toBuffer(stack)
@@ -41,12 +48,12 @@ describe('without `operatorPubKeyHash`', () => {
   describe('Composable', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-      const composable = new CCreateMasterNode(buffer)
-      expect(composable.toObject()).toStrictEqual(createMasterNode)
+      const composable = new CCreateMasternode(buffer)
+      expect(composable.toObject()).toStrictEqual(createMasternode)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CCreateMasterNode(createMasterNode)
+      const composable = new CCreateMasternode(createMasternode)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
@@ -55,19 +62,19 @@ describe('without `operatorPubKeyHash`', () => {
   })
 })
 
-describe('with `operatorPubKeyHash`', () => {
-  const header = '6a2e4466547843' // OP_RETURN (length 46 = 0x2e), PUSH_DATA(44665478, 43)
-  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff21978f97842d623b79acecd7201a60538c13e935'
-  const createMasterNode: CreateMasterNode = {
-    type: 0x01,
-    collateralPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
-    operatorPubKeyHash: '21978f97842d623b79acecd7201a60538c13e935'
+describe('CreateMasternode with timelock', () => {
+  const header = '6a1c4466547843' // OP_RETURN(0x1a) (length 28 = 0x1c) CDfTx.SIGNATURE(0x44665478) CCreateMasternode.OP_CODE(0x43)
+  const data = '01742b337e0f40d5f229a89d3a26d53ae1093b6cff0802' // CreateMasternode.operatorType(0x01) CreateMasternode.operatorPubKeyHash(0x742b337e0f40d5f229a89d3a26d53ae1093b6cff) CreateMasternode.timelock(0x0802)
+  const createMasternode: CreateMasternode = {
+    operatorType: 0x01,
+    operatorPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
+    timelock: 0x0208
   }
 
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasterNode)
+      OP_CODES.OP_DEFI_TX_CREATE_MASTER_NODE(createMasternode)
     ]
 
     const buffer = toBuffer(stack)
@@ -77,28 +84,16 @@ describe('with `operatorPubKeyHash`', () => {
   describe('Composable', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-      const composable = new CCreateMasterNode(buffer)
-      expect(composable.toObject()).toStrictEqual(createMasterNode)
+      const composable = new CCreateMasternode(buffer)
+      expect(composable.toObject()).toStrictEqual(createMasternode)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CCreateMasterNode(createMasterNode)
+      const composable = new CCreateMasternode(createMasternode)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
       expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
-    })
-
-    it('should reject if `CCreateMasterNode.operatorPubKeyHash` is not 20 bytes long', () => {
-      const composable = new CCreateMasterNode({
-        type: 0x01,
-        collateralPubKeyHash: '742b337e0f40d5f229a89d3a26d53ae1093b6cff',
-        operatorPubKeyHash: '21978f97842d623b79acecd7201a60538c13e9'
-      })
-      const buffer = new SmartBuffer()
-      expect(() =>
-        composable.toBuffer(buffer)
-      ).toThrow('ComposableBuffer.optionalHex.toBuffer invalid as length != getter().length')
     })
   })
 })

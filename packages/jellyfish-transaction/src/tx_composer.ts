@@ -6,9 +6,6 @@ import { OP_CODES, OPCode } from './script'
 import { readVarUInt, writeVarUInt } from './buffer/buffer_varuint'
 import { dSHA256 } from '@defichain/jellyfish-crypto'
 
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
-
 /**
  * USE CTransaction AT YOUR OWN RISK.
  * The TransactionBuilder has safety logic built-in to prevent overspent, CTransaction is its raw counter part.
