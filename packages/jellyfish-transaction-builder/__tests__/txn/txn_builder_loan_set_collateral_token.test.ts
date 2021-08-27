@@ -172,8 +172,8 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
       priceFeedId,
       activateAfterBlock: 160
     }, script)
-    const collateralTokenId = calculateTxid(txn)
     await sendTransaction(testing.container, txn)
+    const collateralTokenId = calculateTxid(txn)
     const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 160 }])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
