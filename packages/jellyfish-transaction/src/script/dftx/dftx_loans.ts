@@ -1,7 +1,7 @@
+import { SmartBuffer } from 'smart-buffer'
+import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
 import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
 import BigNumber from 'bignumber.js'
-import { readBigNumberUInt64, writeBigNumberUInt64 } from '@defichain/jellyfish-transaction/buffer/buffer_bignumber'
-import { SmartBuffer } from 'smart-buffer'
 
 /**
  * CreateLoanScheme DeFi Transaction

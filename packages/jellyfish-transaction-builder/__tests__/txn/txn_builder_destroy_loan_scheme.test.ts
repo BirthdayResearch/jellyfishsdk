@@ -7,47 +7,47 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 
-const container = new LoanMasterNodeRegTestContainer()
-const testing = Testing.create(container)
-
-let providers: MockProviders
-let builder: P2WPKHTransactionBuilder
-
-beforeAll(async () => {
-  await testing.container.start()
-  await testing.container.waitForWalletCoinbaseMaturity()
-
-  providers = await getProviders(testing.container)
-  providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
-
-  // Default scheme
-  await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-  await testing.generate(1)
-})
-
-afterAll(async () => {
-  await testing.container.stop()
-})
-
-beforeEach(async () => {
-  // Fund 10 DFI UTXO
-  await fundEllipticPair(testing.container, providers.ellipticPair, 10)
-  await providers.setupMocks() // Required to move utxos
-})
-
-afterEach(async () => {
-  const data = await testing.container.call('listloanschemes')
-  const result = data.filter((d: { default: boolean }) => !d.default)
-
-  for (let i = 0; i < result.length; i += 1) {
-    // Delete all schemes except default scheme
-    await testing.container.call('destroyloanscheme', [result[i].id])
-    await testing.generate(1)
-  }
-})
-
 describe('loan.destroyLoanScheme()', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  beforeEach(async () => {
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+  })
+
+  afterEach(async () => {
+    const data = await testing.container.call('listloanschemes')
+    const result = data.filter((d: { default: boolean }) => !d.default)
+
+    for (let i = 0; i < result.length; i += 1) {
+      // Delete all schemes except default scheme
+      await testing.container.call('destroyloanscheme', [result[i].id])
+      await testing.generate(1)
+    }
+  })
+
   it('should destroyLoanScheme', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
@@ -85,10 +85,10 @@ describe('loan.destroyLoanScheme()', () => {
     }
   })
 
-  it('should not destroyLoanScheme if identifier is an empty string', async () => {
+  it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: ''
+      identifier: '123456789'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -96,10 +96,10 @@ describe('loan.destroyLoanScheme()', () => {
     await expect(promise).rejects.toThrow('DestroyLoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
 
-  it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
+  it('should not destroyLoanScheme if identifier is an empty string', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: '123456789'
+      identifier: ''
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -128,13 +128,39 @@ describe('loan.destroyLoanScheme()', () => {
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'DestroyLoanSchemeTx: Cannot destroy default loan scheme, set new default first (code 16)\', code: -26')
   })
+})
 
-  it('should destroyLoanScheme with height', async () => {
-    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+describe('loan.destroyLoanScheme() with height', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
     await testing.generate(1)
 
-    // Wait for block 110
-    await testing.container.waitForBlockHeight(110)
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should destroyLoanScheme', async () => {
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+    await testing.generate(1)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
@@ -161,19 +187,44 @@ describe('loan.destroyLoanScheme()', () => {
       expect(result.length).toStrictEqual(0)
     }
   })
+})
 
-  it('should not destroyLoanScheme if height is lesser than current height', async () => {
+describe('loan.destroyLoanScheme() with height lesser than current height', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+  })
+
+  it('should not destroyLoanScheme', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    // Wait for block 130
-    await testing.container.waitForBlockHeight(130)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
-    // To delete at block 129, which should fail
+    // To delete at block 109, which should fail
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
       identifier: 'scheme',
-      height: new BigNumber(129)
+      height: new BigNumber(109)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
