@@ -75,7 +75,51 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test DestroyLoanSchemeTx execution failed:\nCannot destroy default loan scheme, set new default first\', code: -32600, method: destroyloanscheme')
   })
 
-  it('should destroyLoanScheme at activateAfterBlock which is block 120', async () => {
+  it('should destroyLoanScheme with utxos', async () => {
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+    await testing.generate(1)
+
+    const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
+    const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [{ txid, vout }] })
+    expect(typeof loanSchemeId).toStrictEqual('string')
+    expect(loanSchemeId.length).toStrictEqual(64)
+    await testing.generate(1)
+
+    const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(vout)
+
+    const data = await testing.container.call('listloanschemes')
+    const result = data.filter((d: { id: string }) => d.id === 'scheme')
+    expect(result.length).toStrictEqual(0)
+  })
+
+  it('should not destroyLoanScheme with utxos not from foundation member', async () => {
+    const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+    const promise = testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [utxo] })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test DestroyLoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: destroyloanscheme')
+  })
+})
+
+describe('Loan with activateAfterBlock at block 120', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should destroyLoanScheme', async () => {
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
@@ -105,42 +149,34 @@ describe('Loan', () => {
       expect(result.length).toStrictEqual(0)
     }
   })
+})
 
-  it('should not destroyLoanScheme if activateAfterBlock is lesser than current height', async () => {
+describe('Loan with activateAfterBlock which is lesser than current height', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should not destroyLoanScheme', async () => {
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
 
-    // Wait for block 130
-    await testing.container.waitForBlockHeight(130)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
-    // To delete at block 129, which should fail
-    const promise = testing.rpc.loan.destroyLoanScheme('scheme', 129)
+    // To delete at block 109, which should fail
+    const promise = testing.rpc.loan.destroyLoanScheme('scheme', 109)
     await expect(promise).rejects.toThrow('Destruction height below current block height, set future height\', code: -32600, method: destroyloanscheme')
-  })
-
-  it('should destroyLoanScheme with utxos', async () => {
-    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
-    await testing.generate(1)
-
-    const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
-    const loanSchemeId = await testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [{ txid, vout }] })
-    expect(typeof loanSchemeId).toStrictEqual('string')
-    expect(loanSchemeId.length).toStrictEqual(64)
-    await testing.generate(1)
-
-    const rawtx = await testing.container.call('getrawtransaction', [loanSchemeId, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(vout)
-
-    const data = await testing.container.call('listloanschemes')
-    const result = data.filter((d: { id: string }) => d.id === 'scheme')
-    expect(result.length).toStrictEqual(0)
-  })
-
-  it('should not destroyLoanScheme with utxos not from foundation member', async () => {
-    const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
-    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
-    const promise = testing.rpc.loan.destroyLoanScheme('scheme', undefined, { utxos: [utxo] })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test DestroyLoanSchemeTx execution failed:\ntx not from foundation member!\', code: -32600, method: destroyloanscheme')
   })
 })
