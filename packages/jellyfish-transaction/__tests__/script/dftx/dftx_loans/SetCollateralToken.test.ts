@@ -117,8 +117,8 @@ describe('SetCollateralToken with no activateAfterBlock', () => {
 describe('SetCollateralToken with activateAfterBlock', () => {
   const header = '6a324466547863' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CCreateLoanScheme.OP_CODE(0x63)
   const data = '018096980000000000b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a82000000'
-  // SetCollateralToken.token[LE](01)
-  // SetCollateralToken.factor[LE](8096980000000000)
+  // SetCollateralToken.token[BE](01)
+  // SetCollateralToken.factor[BE](8096980000000000)
   // SetCollateralToken.priceFeedId[LE] (b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a)
   // SetCollateralToken.activateAfterBlock[LE] (82000000)
   const setCollateralToken: SetCollateralToken = {
