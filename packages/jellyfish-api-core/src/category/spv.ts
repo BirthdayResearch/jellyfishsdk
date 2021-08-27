@@ -195,6 +195,16 @@ export class Spv {
   async listAnchorAuths (): Promise<ListAnchorAuthsResult[]> {
     return await this.client.call('spv_listanchorauths', [], 'number')
   }
+
+  /**
+   * Set last height on BTC chain, use for testing purpose
+   *
+   * @param {number} height
+   * @return {Promise<void>}
+   */
+  async setLastHeight (height: number): Promise<void> {
+    return await this.client.call('spv_setlastheight', [height], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {

@@ -219,7 +219,7 @@ interface CreateAnchorResult {
 
 ## listAnchors
 
-List anchors
+List anchors.
 
 ```ts title=client.spv.listAnchors()"
 interface spv {
@@ -252,7 +252,7 @@ interface ListAnchorsResult {
 
 ## listAnchorsPending
 
-List pending anchors in mempool
+List pending anchors in mempool.
 
 ```ts title=client.spv.listAnchorsPending()"
 interface spv {
@@ -276,7 +276,7 @@ interface ListAnchorsResult {
 
 ## listAnchorAuths
 
-List anchor auths
+List anchor auths.
 
 ```ts title=client.spv.listAnchorAuths()"
 interface spv {
@@ -290,5 +290,15 @@ interface ListAnchorAuthsResult {
   creationHeight: number
   signers: number
   signees?: string[]
+}
+```
+
+## setLastHeight
+
+Set last height on BTC chain, use for testing purpose.
+
+```ts title=client.spv.setLastHeight()"
+interface spv {
+  setLastHeight (): Promise<void>
 }
 ```
