@@ -213,6 +213,10 @@ describe('loan.destroyLoanScheme() with height lesser than current height', () =
     await providers.setupMocks() // Required to move utxos
   })
 
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
   it('should not destroyLoanScheme', async () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.generate(1)
