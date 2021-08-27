@@ -51,21 +51,23 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
   }
 }
 
-export interface SetColleteralToken {
-  token: number
-  factor: BigNumber
-  priceFeedId: string
+export interface SetCollateralToken {
+  token: number // ---------------| VarUInt{1-9 bytes} Symbol or id of collateral token
+  factor: BigNumber // -----------| 8 bytes unsigned Collateralization factor
+  priceFeedId: string // ---------| 32 bytes hex string Txid of oracle feeding the price
+  activateAfterBlock: number // --| 4 bytes unsigned Changes will be active after the block height
 }
 
-export class CSetColleteralToken extends ComposableBuffer<SetColleteralToken> {
-  static OP_CODE = 0x63
+export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
+  static OP_CODE = 0x63 // 'c'
   static OP_NAME = 'OP_DEFI_TX_SET_COLLETERAL_TOKEN'
 
-  composers (sct: SetColleteralToken): BufferComposer[] {
+  composers (sct: SetCollateralToken): BufferComposer[] {
     return [
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v)
+      ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v),
+      ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
     ]
   }
 }
