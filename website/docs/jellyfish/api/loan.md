@@ -86,11 +86,12 @@ Destroys a loan scheme.
 
 ```ts title="client.loan.destroyLoanScheme()"
 interface loan {
-  destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanSchemeOptions = {}): Promise<string>
+  destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
-interface DeleteLoanSchemeOptions {
-  utxos?: UTXO[]
+interface DestroyLoanScheme {
+  id: string
+  activateAfterBlock?: number
 }
 
 interface UTXO {
@@ -98,4 +99,3 @@ interface UTXO {
   vout: number
 }
 ```
-

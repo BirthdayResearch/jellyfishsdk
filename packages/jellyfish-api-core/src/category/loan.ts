@@ -28,15 +28,6 @@ export class Loan {
   }
 
   /**
-   * List all available loan schemes.
-   *
-   * @return {Promise<LoanSchemeResult[]>}
-   */
-  async listLoanSchemes (): Promise<LoanSchemeResult[]> {
-    return await this.client.call('listloanschemes', [], 'bignumber')
-  }
-
-  /**
    * Sets the default loan scheme.
    *
    * @param {string} id Unique identifier of the loan scheme, max 8 chars
@@ -52,17 +43,25 @@ export class Loan {
   /**
    * Destroys a loan scheme.
    *
-   * @param {string} id Unique identifier of the loan scheme, max 8 chars
-   * @param {number} [activateAfterBlock] Block height at which new changes take effect
-   * @param {DeleteLoanSchemeOptions} [options]
-   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
-   * @param {string} options.utxos.txid Transaction Id
-   * @param {number} options.utxos.vout Output number
+   * @param {DestroyLoanScheme} scheme
+   * @param {string} scheme.id Unique identifier of the loan scheme, max 8 chars
+   * @param {number} [scheme.activateAfterBlock] Block height at which new changes take effect
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
    * @return {Promise<string>} Hex string of the transaction
    */
-  async destroyLoanScheme (id: string, activateAfterBlock?: number, options: DeleteLoanSchemeOptions = {}): Promise<string> {
-    const { utxos = [] } = options
-    return await this.client.call('destroyloanscheme', [id, activateAfterBlock, utxos], 'number')
+  async destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('destroyloanscheme', [scheme.id, scheme.activateAfterBlock, utxos], 'number')
+  }
+
+  /**
+   * List all available loan schemes.
+   *
+   * @return {Promise<LoanSchemeResult[]>}
+   */
+  async listLoanSchemes (): Promise<LoanSchemeResult[]> {
+    return await this.client.call('listloanschemes', [], 'bignumber')
   }
 }
 
@@ -72,15 +71,16 @@ export interface CreateLoanScheme {
   id: string
 }
 
+export interface DestroyLoanScheme {
+  id: string
+  activateAfterBlock?: number
+}
+
 export interface LoanSchemeResult {
   id: string
   mincolratio: BigNumber
   interestrate: BigNumber
   default: boolean
-}
-
-export interface DeleteLoanSchemeOptions {
-  utxos?: UTXO[]
 }
 
 export interface UTXO {
