@@ -27,25 +27,25 @@ it('should bi-directional buffer-object-buffer', () => {
      *   identifier: 'scheme3',
      * }
      */
-    '6a15446654784407736368656d65330000000000000000',
-    /**
-     * loan : {
-     *   identifier: 'scheme1',
-     *   height: 130
-     * }
-     */
     '6a15446654784407736368656d65318200000000000000',
     /**
      * loan : {
-     *   identifier: 'scheme2',
-     *   height: 140
+     *   identifier: 'scheme1',
+     *   height: new BigNumber(130)
      * }
      */
     '6a15446654784407736368656d65328c00000000000000',
     /**
      * loan : {
+     *   identifier: 'scheme2',
+     *   height: new BigNumber(140)
+     * }
+     */
+    '6a15446654784407736368656d65339600000000000000',
+    /**
+     * loan : {
      *   identifier: 'scheme3',
-     *   height: 150
+     *   height: new BigNumber(150)
      * }
      */
     '6a15446654784407736368656d65339600000000000000'
@@ -102,7 +102,7 @@ describe('DestroyLoanScheme with height', () => {
 
   const data = '07736368656d65318200000000000000'
   const destroyLoanScheme: DestroyLoanScheme = {
-    identifier: 'scheme',
+    identifier: 'scheme1',
     height: new BigNumber(130)
   }
 
