@@ -59,7 +59,7 @@ describe('loan.createLoanScheme()', () => {
   it('should setCollateralToken', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
-      token: 'AAPL',
+      token: 1,
       factor: new BigNumber(0.5),
       priceFeedId
     }, script)
@@ -92,7 +92,7 @@ describe('loan.createLoanScheme()', () => {
   it('should not setCollateralToken if token does not exist', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.loans.setCollateralToken({
-      token: 'TSLA',
+      token: 1,
       factor: new BigNumber(0.5),
       priceFeedId
     }, script)
@@ -102,7 +102,7 @@ describe('loan.createLoanScheme()', () => {
   it('should not setCollateralToken if factor is greater than 1', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.loans.setCollateralToken({
-      token: 'AAPL',
+      token: 1,
       factor: new BigNumber(1.01),
       priceFeedId
     }, script)
@@ -112,7 +112,7 @@ describe('loan.createLoanScheme()', () => {
   it('should not setCollateralToken if factor is lesser than 0', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.loans.setCollateralToken({
-      token: 'AAPL',
+      token: 1,
       factor: new BigNumber(-0.01),
       priceFeedId
     }, script)
@@ -122,7 +122,7 @@ describe('loan.createLoanScheme()', () => {
   it('should not setCollateralToken if oracleId does not exist', async () => {
     const script = await providers.elliptic.script()
     const promise = builder.loans.setCollateralToken({
-      token: 'AAPL',
+      token: 1,
       factor: new BigNumber(0.5),
       priceFeedId: '944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5'
     }, script)
@@ -158,7 +158,7 @@ describe('loan.setCollateralToken() with height', () => {
     const script = await providers.elliptic.script()
     // To setCollateralToken at block 160
     const txn = await builder.loans.setCollateralToken({
-      token: 'AAPL',
+      token: 1,
       factor: new BigNumber(0.5),
       priceFeedId,
       activateAfterBlock: 160
@@ -172,7 +172,7 @@ describe('loan.setCollateralToken() with height', () => {
     const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 160 }])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
-        token: 'AAPL',
+        token: 1,
         factor: 0.5,
         priceFeedId,
         activateAfterBlock: 160
@@ -213,7 +213,7 @@ describe('loan.setCollateralToken() with height lesser than current height', () 
 
     // To setCollateralToken at block 169
     const promise = testing.rpc.loan.setCollateralToken({
-      token: 'AAPL',
+      token: 1,
       factor: new BigNumber(0.5),
       priceFeedId,
       activateAfterBlock: 169

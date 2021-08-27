@@ -69,8 +69,8 @@ import {
   CreateLoanScheme,
   CSetDefaultLoanScheme,
   SetDefaultLoanScheme,
-  CSetColleteralToken,
-  SetColleteralToken
+  CSetCollateralToken,
+  SetCollateralToken
 } from './dftx_loans'
 
 /**
@@ -205,8 +205,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
       case CICXSubmitEXTHTLC.OP_CODE:
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
-      case CSetColleteralToken.OP_CODE:
-        return compose<SetColleteralToken>(CSetColleteralToken.OP_NAME, d => new CSetColleteralToken(d))
+      case CSetCollateralToken.OP_CODE:
+        return compose<SetCollateralToken>(CSetCollateralToken.OP_NAME, d => new CSetCollateralToken(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
