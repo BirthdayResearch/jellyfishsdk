@@ -138,12 +138,12 @@ describe('Spv', () => {
 
   it('should listAnchors with maxBtcHeight', async () => {
     const anchors = await clients[0].spv.listAnchors({ maxBtcHeight: 10 })
-    expect(anchors.length).toStrictEqual(4)
+    expect(anchors.every(anchor => anchor.btcBlockHeight <= 10)).toStrictEqual(true)
   })
 
   it('should listAnchors with minConfs', async () => {
     const anchors = await clients[0].spv.listAnchors({ minConfs: 5 })
-    expect(anchors.length).toStrictEqual(4)
+    expect(anchors.every(anchor => anchor.confirmations >= 5)).toStrictEqual(true)
   })
 
   it('should listAnchors with maxConfs', async () => {
