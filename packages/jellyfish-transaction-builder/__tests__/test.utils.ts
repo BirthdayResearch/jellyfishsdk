@@ -73,6 +73,7 @@ export interface TxOut {
     hex: string
     type: string
     addresses: string[]
+    reqSigs: number
   }
   tokenId: number
 }

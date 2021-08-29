@@ -10,10 +10,10 @@ const CIPHER_ALGORITHM = 'aes-256-ctr'
  *
  * @param {Buffer} key  A passphrase of any length to used to generate a symmetric session key.
  * @param {Buffer} data  The clear-text message or buffer to be encrypted.
- * @param {(lengthOfBytes: number) => Buffer} rng Initialization vector generator, default using `crypto` or browserify `random-bytes` package
+ * @param {(number) => Buffer} [rng = randomBytes] cryptographically strong random values generator required for IV
  * @returns {Buffer}
  */
-function encrypt (key: Buffer, data: Buffer, rng: (lengthOfBytes: number) => Buffer = randomBytes): Buffer {
+function encrypt (key: Buffer, data: Buffer, rng: (numOfBytes: number) => Buffer = randomBytes): Buffer {
   const sha256 = SHA256(key)
   const initVector = rng(16)
 
