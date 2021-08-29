@@ -12,13 +12,6 @@ export interface CreateLoanScheme {
 }
 
 /**
- * SetDefaultLoanScheme DeFi Transaction
- */
-export interface SetDefaultLoanScheme {
-  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-}
-
-/**
  * Composable CreateLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -34,6 +27,13 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
       ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
     ]
   }
+}
+
+/**
+ * SetDefaultLoanScheme DeFi Transaction
+ */
+export interface SetDefaultLoanScheme {
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
 }
 
 /**
@@ -55,11 +55,11 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
  * SetLoanToken DeFi Transaction
  */
 export interface SetLoanToken {
-  symbol: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  name: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  priceFeedId: string // ------------| 32 bytes - vin[n].txid
-  mintable: boolean // ------------| 4 bytes
-  interest: BigNumber // ------------| 8 bytes unsigned
+  symbol: string // ------------| VarUInt{1-9 bytes} Symbol or id of collateral token
+  name: string // --------------| VarUInt{1-9 bytes} Token's name, no longer than 128 characters
+  priceFeedId: string // -------| 32 bytes, hex string Txid of oracle feeding the price
+  mintable: boolean // ---------| 4 bytes, mintable, Token's 'Mintable' property
+  interest: BigNumber // -------| 8 bytes unsigned, interest rate
 }
 
 /**

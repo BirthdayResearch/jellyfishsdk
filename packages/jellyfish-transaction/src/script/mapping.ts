@@ -61,6 +61,9 @@ import {
   CreateLoanScheme,
   CSetDefaultLoanScheme,
   SetDefaultLoanScheme
+  ,
+  CSetLoanToken,
+  SetLoanToken
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -75,10 +78,7 @@ import {
   ICXSubmitEXTHTLC
 } from './dftx/dftx_icxorderbook'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
-// import {
-//   CSetLoanToken,
-//   SetLoanToken
-// } from './dftx/dftx_loans'
+
 /**
  * @param num to map as OPCode, 1 byte long
  */
@@ -397,6 +397,14 @@ export const OP_CODES = {
       type: CSetDefaultLoanScheme.OP_CODE,
       name: CSetDefaultLoanScheme.OP_NAME,
       data: setDefaultLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_LOAN_TOKEN: (setLoanToken: SetLoanToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetLoanToken.OP_CODE,
+      name: CSetLoanToken.OP_NAME,
+      data: setLoanToken
     })
   },
   OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
