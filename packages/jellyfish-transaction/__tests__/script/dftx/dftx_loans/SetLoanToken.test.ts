@@ -10,7 +10,7 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a3e44665478670341424308414243544f4b454e328285aa986441e079aeab23539995ad48699121817788b6fccbca4b74710c1d00e1f5050000000000000001'
+    '6a3c446654786706546f6b656e3106546f6b656e31ea2aab6e885ba08b02775a7ef63c0f6c59c7c24bd5fb13a6209a4cf55645a325010000000000000000'
   ]
 
   fixtures.forEach(hex => {
@@ -23,14 +23,14 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a3e4466547867' // OP_RETURN, PUSH_DATA(4466547867, 67)
-const data = '0341424308414243544f4b454e328285aa986441e079aeab23539995ad48699121817788b6fccbca4b74710c1d00e1f5050000000000000001'
+const header = '6a3c4466547867' // OP_RETURN, PUSH_DATA(4466547867, 67)
+const data = '06546f6b656e3106546f6b656e31ea2aab6e885ba08b02775a7ef63c0f6c59c7c24bd5fb13a6209a4cf55645a325010000000000000000'
 const setLoanToken: SetLoanToken = {
-  symbol: 'ABC',
-  name: 'ABCTOKEN',
-  priceFeedId: '1d0c71744bcacbfcb688778121916948ad95995323abae79e0416498aa858232',
+  symbol: 'Token1',
+  name: 'Token1',
+  priceFeedId: '25a34556f54c9a20a613fbd54bc2c7596c0f3cf67e5a77028ba05b886eab2aea',
   mintable: true,
-  interest: new BigNumber(1)
+  interest: new BigNumber(0)
 }
 
 it('should craft dftx with OP_CODES._()', () => {

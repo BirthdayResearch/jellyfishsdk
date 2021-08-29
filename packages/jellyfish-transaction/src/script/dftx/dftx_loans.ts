@@ -75,7 +75,7 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
       ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
       ComposableBuffer.hexBEBufferLE(32, () => slt.priceFeedId, v => slt.priceFeedId = v),
-      ComposableBuffer.uBool32(() => slt.mintable, v => slt.mintable = v),
+      ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
     ]
   }

@@ -47,53 +47,46 @@ describe('loan.setLoanToken()', () => {
       symbol: 'Token1',
       name: 'Token1',
       priceFeedId,
-      mintable: true,
+      mintable: false,
       interest: new BigNumber(0)
     }, script)
 
-    // const loanTokenId = calculateTxid(txn)
-
-    // Ensure the created txn is correct
+    // Ensure the created txn is correct.
     const outs = await sendTransaction(testing.container, txn)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[1].value).toBeLessThan(10)
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    // Ensure you don't send all your balance away during set default loan scheme
-    const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toStrictEqual(1)
-    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
-
-    // const data = await testing.container.call('listloantokens', [])
-    // expect(data).toStrictEqual({
-    //   [loanTokenId]: {
-    //     token: {
-    //       1: {
-    //         symbol: 'Token1',
-    //         symbolKey: 'Token1',
-    //         name: 'Token1',
-    //         decimal: 8,
-    //         limit: 0,
-    //         mintable: false,
-    //         tradeable: true,
-    //         isDAT: true,
-    //         isLPS: false,
-    //         finalized: false,
-    //         isLoanToken: true,
-    //         minted: 0,
-    //         creationTx: loanTokenId,
-    //         creationHeight: expect.any(Number),
-    //         destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-    //         destructionHeight: -1,
-    //         collateralAddress: expect.any(String)
-    //       }
-    //     },
-    //     priceFeedId,
-    //     interest: 0
-    //   }
-    // })
+    const loanTokenId = calculateTxid(txn)
+    const data = await testing.container.call('listloantokens', [])
+    expect(data).toStrictEqual({
+      [loanTokenId]: {
+        token: {
+          1: {
+            symbol: 'Token1',
+            symbolKey: 'Token1',
+            name: 'Token1',
+            decimal: 8,
+            limit: 0,
+            mintable: false,
+            tradeable: true,
+            isDAT: true,
+            isLPS: false,
+            finalized: false,
+            isLoanToken: true,
+            minted: 0,
+            creationTx: loanTokenId,
+            creationHeight: expect.any(Number),
+            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+            destructionHeight: -1,
+            collateralAddress: expect.any(String)
+          }
+        },
+        priceFeedId,
+        interest: 0
+      }
+    })
   })
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
@@ -106,8 +99,8 @@ describe('loan.setLoanToken()', () => {
       interest: new BigNumber(0)
     }, script)
 
+    await sendTransaction(testing.container, txn)
     const loanTokenId = calculateTxid(txn)
-    // const outs = await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
@@ -116,26 +109,40 @@ describe('loan.setLoanToken()', () => {
 
   it('should not setLoanToken if symbol is an empty string', async () => {
     const script = await providers.elliptic.script()
-    const promise = builder.loans.setLoanToken({
+    const txn = await builder.loans.setLoanToken({
       symbol: '', // 9 letters
       name: 'Token3',
       priceFeedId,
       mintable: true,
       interest: new BigNumber(0)
     }, script)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
   })
 
   it('should not setLoanToken if token with same symbol was created before', async () => {
+    await testing.container.call('setloantoken', [{
+      symbol: 'Token4',
+      name: 'Token4',
+      priceFeedId,
+      mintable: true,
+      interest: new BigNumber(0)
+    }])
+    await testing.generate(1)
+
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+
     const script = await providers.elliptic.script()
-    const promise = builder.loans.setLoanToken({
+    const txn = await builder.loans.setLoanToken({
       symbol: 'Token4',
       name: 'Token4',
       priceFeedId,
       mintable: true,
       interest: new BigNumber(0)
     }, script)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken \'Token4\' already exists!\', code: -32600, method: setloantoken')
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token4\' already exists! (code 16)\', code: -26')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
@@ -147,63 +154,23 @@ describe('loan.setLoanToken()', () => {
       mintable: true,
       interest: new BigNumber(0)
     }, script)
+    await sendTransaction(testing.container, txn)
     const loanTokenId = calculateTxid(txn)
-    // const outs = await sendTransaction(testing.container, txn)
-
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX') // Only remain first 128 letters.
+    expect(data[loanTokenId].token[index].name).toStrictEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX') // Only remain first 128 letters.
   })
 
   it('should not setLoanToken if priceFeedId is invalid', async () => {
     const script = await providers.elliptic.script()
-    const promise = builder.loans.setLoanToken({
+    const txn = await builder.loans.setLoanToken({
       symbol: 'Token6',
       name: 'Token6',
       priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b',
       mintable: true,
       interest: new BigNumber(0)
     }, script)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken \'Token4\' already exists!\', code: -32600, method: setloantoken')
-  })
-
-  it('should setLoanToken if mintable is false', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.setLoanToken({
-      symbol: 'Token7',
-      name: 'Token7',
-      priceFeedId,
-      mintable: false,
-      interest: new BigNumber(0)
-    }, script)
-
-    // const loanTokenId = calculateTxid(txn)
-    await sendTransaction(testing.container, txn)
-  })
-
-  it('should setLoanToken if interest is greater than 0', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.setLoanToken({
-      symbol: 'Token8',
-      name: 'Token8',
-      priceFeedId,
-      mintable: false,
-      interest: new BigNumber(0.2)
-    }, script)
-
-    // const loanTokenId = calculateTxid(txn)
-    await sendTransaction(testing.container, txn)
-  })
-
-  it('should not setLoanToken if interest is less than 0', async () => {
-    const script = await providers.elliptic.script()
-    const promise = builder.loans.setLoanToken({
-      symbol: 'Token9',
-      name: 'Token9',
-      priceFeedId,
-      mintable: false,
-      interest: new BigNumber(-0.01)
-    }, script)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken \'Token4\' already exists!\', code: -32600, method: setloantoken')
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: oracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle! (code 16)\', code: -26')
   })
 })
