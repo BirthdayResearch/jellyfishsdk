@@ -1,3 +1,4 @@
+import randomBytes from 'randombytes'
 import * as bip39 from 'bip39'
 
 /**
@@ -33,10 +34,10 @@ export function validateMnemonicWord (word: string): boolean {
  * |  256  |  8 |   264  |  24  |
  *
  * @param {number} length the sentence length of the mnemonic code
- * @param {(number) => Buffer} rng random number generation, generate random num of bytes buffer
+ * @param {(number) => Buffer} [rng = randomBytes] cryptographically strong random values generator required
  * @return {string[]} generated mnemonic word list, (COLD STORAGE)
  */
-export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng?: (numOfBytes: number) => Buffer): string[] {
+export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng: (numOfBytes: number) => Buffer = randomBytes): string[] {
   const entropy = length / 3 * 32
   const sentence = bip39.generateMnemonic(entropy, rng)
   return sentence.split(' ')
@@ -48,4 +49,26 @@ export function generateMnemonicWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng?
  */
 export function mnemonicToSeed (mnemonic: string[]): Buffer {
   return bip39.mnemonicToSeedSync(mnemonic.join(' '))
+}
+
+/**
+ * @param {string[]} mnemonic words, (COLD)
+ * @return {Buffer} 32 byte
+ */
+export function mnemonicAsEntropy (mnemonic: string[]): Buffer {
+  const hex = bip39.mnemonicToEntropy(mnemonic.join(' '))
+  return Buffer.from(hex, 'hex')
+}
+
+/**
+ * @param {Buffer} entropy 32 bytes buffer
+ * @return {string[]} mnemonic words, (COLD)
+ */
+export function entropyAsMnemonic (entropy: Buffer): string[] {
+  if (entropy.length !== 32) {
+    throw new Error('expected entropy to be 32 byte long')
+  }
+
+  const sentence = bip39.entropyToMnemonic(entropy)
+  return sentence.split(' ')
 }

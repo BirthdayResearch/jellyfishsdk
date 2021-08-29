@@ -26,7 +26,16 @@ import {
   PoolSwap,
   PoolUpdatePair
 } from './dftx/dftx_pool'
-import { CTokenCreate, CTokenUpdate, CTokenUpdateAny, CTokenMint, TokenCreate, TokenUpdate, TokenUpdateAny, TokenMint } from './dftx/dftx_token'
+import {
+  CTokenCreate,
+  CTokenMint,
+  CTokenUpdate,
+  CTokenUpdateAny,
+  TokenCreate,
+  TokenMint,
+  TokenUpdate,
+  TokenUpdateAny
+} from './dftx/dftx_token'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -38,18 +47,23 @@ import {
   UtxosToAccount
 } from './dftx/dftx_account'
 import {
-  CAppointOracle,
   AppointOracle,
-  RemoveOracle,
+  CAppointOracle,
   CRemoveOracle,
-  UpdateOracle,
+  CSetOracleData,
   CUpdateOracle,
+  RemoveOracle,
   SetOracleData,
-  CSetOracleData
+  UpdateOracle
 } from './dftx/dftx_oracles'
+import {
+  CCreateLoanScheme,
+  CreateLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
+} from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
-import { CCreateMasterNode, CreateMasterNode, CResignMasterNode, ResignMasterNode } from './dftx/dftx_masternode'
-import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
+import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
 import {
   CICXCreateOrder,
   ICXCreateOrder,
@@ -58,8 +72,13 @@ import {
   CICXCloseOrder,
   ICXCloseOrder,
   CICXCloseOffer,
-  ICXCloseOffer
+  ICXCloseOffer,
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXSubmitEXTHTLC,
+  ICXSubmitEXTHTLC
 } from './dftx/dftx_icxorderbook'
+import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -293,20 +312,20 @@ export const OP_CODES = {
       data: null
     })
   },
-  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasterNode): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_MASTER_NODE: (createMasterNode: CreateMasternode): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateMasterNode.OP_CODE,
-      name: CCreateMasterNode.OP_NAME,
+      type: CCreateMasternode.OP_CODE,
+      name: CCreateMasternode.OP_NAME,
       data: createMasterNode
     })
   },
-  OP_DEFI_TX_RESIGN_MASTER_NODE: (resignMasterNode: ResignMasterNode): OP_DEFI_TX => {
+  OP_DEFI_TX_RESIGN_MASTER_NODE: (resignMasternode: ResignMasternode): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CResignMasterNode.OP_CODE,
-      name: CResignMasterNode.OP_NAME,
-      data: resignMasterNode
+      type: CResignMasternode.OP_CODE,
+      name: CResignMasternode.OP_NAME,
+      data: resignMasternode
     })
   },
   OP_DEFI_TX_SET_GOVERNANCE: (setGovernance: SetGovernance) => {
@@ -347,6 +366,62 @@ export const OP_CODES = {
       type: CICXCloseOffer.OP_CODE,
       name: CICXCloseOffer.OP_NAME,
       data: closeOffer
+    })
+  },
+  OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateCfp.OP_CODE,
+      name: CCreateCfp.OP_NAME,
+      data: createCfp
+    })
+  },
+  OP_DEFI_TX_CREATE_VOC: (createVoc: CreateVoc) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateVoc.OP_CODE,
+      name: CCreateVoc.OP_NAME,
+      data: createVoc
+    })
+  },
+  OP_DEFI_TX_VOTE: (vote: Vote) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CVote.OP_CODE,
+      name: CVote.OP_NAME,
+      data: vote
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC: (icxSubmitDFCHTLC: ICXSubmitDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitDFCHTLC.OP_CODE,
+      name: CICXSubmitDFCHTLC.OP_NAME,
+      data: icxSubmitDFCHTLC
+    })
+  },
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateLoanScheme.OP_CODE,
+      name: CCreateLoanScheme.OP_NAME,
+      data: createLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetDefaultLoanScheme.OP_CODE,
+      name: CSetDefaultLoanScheme.OP_NAME,
+      data: setDefaultLoanScheme
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitEXTHTLC.OP_CODE,
+      name: CICXSubmitEXTHTLC.OP_NAME,
+      data: icxSubmitEXTHTLC
     })
   },
 

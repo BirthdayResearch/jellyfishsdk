@@ -15,6 +15,7 @@ import { utxosToAccount } from './account'
  * @param {boolean} [options.tradeable=true]
  * @param {string} [options.collateralAddress]
  * @return {Promise<number>} id of the created token
+ * @deprecated use jellyfish-testing instead
  */
 export async function createToken (
   container: MasterNodeRegTestContainer,
@@ -48,6 +49,7 @@ export async function createToken (
  * @param {number} [options.utxoAmount]
  * @param {number} [options.mintAmount]
  * @return {Promise<string>}
+ * @deprecated use jellyfish-testing instead
  */
 export async function mintTokens (
   container: MasterNodeRegTestContainer,

@@ -258,8 +258,10 @@ describe('sendMany', () => {
     await container.stop()
   })
 
-  // Returns matching utxos for given transaction id and address.
-  const getMatchingUTXO = async (txId: string, address: string): Promise<UTXO[]> => {
+  /**
+   * Returns matching utxos for given transaction id and address.
+   */
+  async function getMatchingUTXO (txId: string, address: string): Promise<UTXO[]> {
     const options: ListUnspentOptions = {
       addresses: [address]
     }

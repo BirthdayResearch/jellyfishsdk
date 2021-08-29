@@ -2,4 +2,4 @@
 
 # @defichain/jellyfish-address
 
-DeFi blockchain address type builder, parser, validator library.
+DeFi Blockchain address type builder, parser, validator library.

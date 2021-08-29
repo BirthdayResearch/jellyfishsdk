@@ -1,62 +1,64 @@
 import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
-import { ContainerAdapterClient } from '../../../jellyfish-api-core/__tests__/container_adapter_client'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
 import { OP_CODES, ICXCloseOffer } from '@defichain/jellyfish-transaction'
-import { accountDFI, accountBTC, ICXSetup, symbolDFI } from '../../../jellyfish-api-core/__tests__/category/icxorderbook/icx_setup'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('close ICX offer', () => {
-  const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
-  const icxSetup = new ICXSetup(container, client)
+  const testing = Testing.create(new MasterNodeRegTestContainer())
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(container)
+    providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
 
-    // // steps required for ICX setup
-    await icxSetup.setAccounts(await providers.getAddress(), await providers.getAddress())
-    await icxSetup.createBTCToken()
-    await icxSetup.initializeTokensIds()
-    await icxSetup.mintBTCtoken(100)
-    await icxSetup.fundAccount(accountDFI, symbolDFI, 500)
-    await icxSetup.fundAccount(accountBTC, symbolDFI, 10) // for fee
-    await icxSetup.createBTCDFIPool()
-    await icxSetup.addLiquidityToBTCDFIPool(1, 100)
-    await icxSetup.setTakerFee(0.001)
+    await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
+    await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
+    await testing.generate(1)
+    await testing.fixture.createPoolPair({
+      a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
+      b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
+    })
+    testing.icxorderbook.DEX_DFI_PER_BTC_RATE = new BigNumber(100 / 1)
+    await testing.icxorderbook.setTakerFee(new BigNumber(0.001))
+    await testing.icxorderbook.initializeTokensIds()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should close ICX offer', async () => {
-    const { createOrderTxId } = await icxSetup.createDFISellOrder('BTC', accountDFI, '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941', new BigNumber(15), new BigNumber(0.01))
-    const { makeOfferTxId } = await icxSetup.createDFIBuyOffer(createOrderTxId, new BigNumber(0.10), accountBTC)
-    await container.generate(1)
+    const { createOrderTxId: orderTx } = await testing.icxorderbook.createDFISellOrder({
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    })
+    const { makeOfferTxId } = await testing.icxorderbook.createDFIBuyOffer({ orderTx })
+    await testing.container.generate(1)
 
-    const listOrders = await container.call('icx_listorders', [{ orderTx: createOrderTxId }])
+    const listOrders = await testing.rpc.icxorderbook.listOrders({ orderTx })
     const offerBefore = listOrders[makeOfferTxId]
 
     const script = await providers.elliptic.script()
     const closeOffer: ICXCloseOffer = {
       offerTx: makeOfferTxId
     }
-    const txn = await builder.icx.closeOffer(closeOffer, script)
+    const txn = await builder.icxorderbook.closeOffer(closeOffer, script)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CLOSE_OFFER(closeOffer).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs.length).toEqual(2)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
@@ -72,10 +74,29 @@ describe('close ICX offer', () => {
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    const listOrdersAfter = await container.call('icx_listorders', [{ orderTx: createOrderTxId }])
+    const listOrdersAfter = await testing.rpc.icxorderbook.listOrders({ orderTx })
+    const offerAfter = listOrdersAfter[makeOfferTxId]
 
-    expect(offerBefore.orderTx).toStrictEqual(createOrderTxId)
-    expect(offerBefore.status).toStrictEqual('OPEN')
-    expect(Object.keys(listOrdersAfter).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(offerBefore).toBeDefined()
+    expect(offerAfter).toBeUndefined()
+  })
+
+  it('should not close ICX offer with wrong order id length', async () => {
+    const script = await providers.elliptic.script()
+    const closeOffer: ICXCloseOffer = {
+      offerTx: '1234'
+    }
+
+    await expect(builder.icxorderbook.closeOffer(closeOffer, script)).rejects.toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
+  })
+
+  it('should not close ICX offer with offer id which does not exist', async () => {
+    const script = await providers.elliptic.script()
+    const closeOffer: ICXCloseOffer = {
+      offerTx: '0'.repeat(64) // 32 bytes long
+    }
+    const txn = await builder.icxorderbook.closeOffer(closeOffer, script)
+
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: offer with creation tx 0000000000000000000000000000000000000000000000000000000000000000 does not exists! (code 16)', code: -26")
   })
 })

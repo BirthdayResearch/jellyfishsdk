@@ -1,4 +1,3 @@
-import AbortController from 'abort-controller'
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'node-fetch'
 import { DockerContainer } from './docker_container'
@@ -63,6 +62,7 @@ export abstract class DeFiDContainer extends DockerContainer {
       '-printtoconsole',
       '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
+      '-rpcworkqueue=512',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
     ]
@@ -152,30 +152,15 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * For convenience sake, HTTP post to the RPC URL for the current node.
-   * Timeout error checked, in case if the node froze.
-   * Returns the raw JSON as string.
+   * Not error checked, returns the raw JSON as string.
    */
-  async post (body: string, timeout = 10000): Promise<string> {
-    const controller = new AbortController()
-    const id = setTimeout(() => controller.abort(), timeout)
-
+  async post (body: string): Promise<string> {
     const url = await this.getCachedRpcUrl()
-    const request = fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
-      body: body,
-      signal: controller.signal
+      body: body
     })
-
-    try {
-      const response = await request
-      clearTimeout(id)
-      return response.text()
-    } catch (err) {
-      if (err.type === 'aborted') {
-        throw new DeFiDRpcError(err)
-      }
-      throw err
-    }
+    return await response.text()
   }
 
   /**
@@ -214,7 +199,9 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   private async waitForRpc (timeout = 20000): Promise<void> {
     await waitForCondition(async () => {
-      return await this.getBlockCount().then(() => true).catch(() => false)
+      this.cachedRpcUrl = undefined
+      await this.getMiningInfo()
+      return true
     }, timeout, 200, 'waitForRpc')
   }
 
@@ -250,7 +237,6 @@ export abstract class DeFiDContainer extends DockerContainer {
    */
   async restart (timeout: number = 30000): Promise<void> {
     await this.container?.restart()
-    this.cachedRpcUrl = undefined
     await this.waitForRpc(timeout)
   }
 }
@@ -271,7 +257,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   /**
    * Same prefix and created more than 1 hour ago
    */
-  const isStale = (containerInfo: ContainerInfo): boolean => {
+  function isStale (containerInfo: ContainerInfo): boolean {
     if (containerInfo.Names.filter((value) => value.startsWith(prefix)).length > 0) {
       return containerInfo.Created + 60 * 60 < Date.now() / 1000
     }
@@ -282,7 +268,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   /**
    * Stop container that are running, remove them after and their associated volumes
    */
-  const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
+  async function tryStopRemove (containerInfo: ContainerInfo): Promise<void> {
     const container = docker.getContainer(containerInfo.Id)
     if (containerInfo.State === 'running') {
       await container.stop()
