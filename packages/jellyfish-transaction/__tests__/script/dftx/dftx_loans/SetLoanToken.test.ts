@@ -10,7 +10,36 @@ import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a3c446654786706546f6b656e3106546f6b656e31ea2aab6e885ba08b02775a7ef63c0f6c59c7c24bd5fb13a6209a4cf55645a325010000000000000000'
+    /**
+     * loan : {
+     *    symbol: 'Token1',
+     *    name: 'Token1',
+     *    priceFeedId: 6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     *    mintable: true,
+     *    interest: new BigNumber(0)
+     * }
+     */
+    '6a3c446654786706546f6b656e3106546f6b656e31ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010000000000000000',
+    /**
+     * loan : {
+     * symbol: 'Token2',
+     * name: 'Token2',
+     * priceFeedId: 6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     * mintable: false,
+     * interest: new BigNumber(0)
+     * }
+     */
+    '6a3c446654786706546f6b656e3206546f6b656e32ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d000000000000000000',
+    /**
+     * loan : {
+     * symbol: 'Token3',
+     * name: 'Token3',
+     * priceFeedId：6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     * mintable: true,
+     * interest: new BigNumber(12345)
+     * }
+     */
+    '6a3c446654786706546f6b656e3306546f6b656e33ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010019ef6d1f010000'
   ]
 
   fixtures.forEach(hex => {
@@ -23,12 +52,18 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a3c4466547867' // OP_RETURN, PUSH_DATA(4466547867, 67)
-const data = '06546f6b656e3106546f6b656e31ea2aab6e885ba08b02775a7ef63c0f6c59c7c24bd5fb13a6209a4cf55645a325010000000000000000'
+const header = '6a3c4466547867' // OP_RETURN(0x6a) (length 60 = 0x3c) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x67)
+const data = '06546f6b656e3106546f6b656e31ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010000000000000000'
+// SetLoanToken.symbol[BE](06546f6b656e31)
+// SetLoanToken.name[BE](06546f6b656e31)
+// SetLoanToken.priceFeedId[LE] (ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d)
+// SetLoanToken.mintable (01)
+// SetLoanToken.interest (0000000000000000)
+
 const setLoanToken: SetLoanToken = {
   symbol: 'Token1',
   name: 'Token1',
-  priceFeedId: '25a34556f54c9a20a613fbd54bc2c7596c0f3cf67e5a77028ba05b886eab2aea',
+  priceFeedId: '6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce',
   mintable: true,
   interest: new BigNumber(0)
 }
