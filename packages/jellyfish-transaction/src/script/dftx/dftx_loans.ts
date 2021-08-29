@@ -13,13 +13,6 @@ export interface CreateLoanScheme {
 }
 
 /**
- * SetDefaultLoanScheme DeFi Transaction
- */
-export interface SetDefaultLoanScheme {
-  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-}
-
-/**
  * Composable CreateLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -38,6 +31,13 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
 }
 
 /**
+ * SetDefaultLoanScheme DeFi Transaction
+ */
+export interface SetDefaultLoanScheme {
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+}
+
+/**
  * Composable SetDefaultLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -52,6 +52,9 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
   }
 }
 
+/**
+ * SetCollateralToken DeFi Transaction
+ */
 export interface SetCollateralToken {
   token: number // ----------------| VarUInt{1-9 bytes} Symbol or id of collateral token
   factor: BigNumber // ------------| 8 bytes unsigned Collateralization factor
@@ -59,6 +62,10 @@ export interface SetCollateralToken {
   activateAfterBlock?: number // --| 4 bytes unsigned Changes will be active after the block height
 }
 
+/**
+ * Composable SetCollateralToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
   static OP_CODE = 0x63 // 'c'
   static OP_NAME = 'OP_DEFI_TX_SET_COLLETERAL_TOKEN'
