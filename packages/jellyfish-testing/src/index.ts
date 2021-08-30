@@ -1,17 +1,19 @@
 import fetch from 'cross-fetch'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
 import { TestingToken } from './token'
 import { TestingFixture } from './fixture'
 import { TestingICX } from './icxorderbook'
+import { TestingMisc } from './misc'
 
 export * from './fixture'
 export * from './poolpair'
 export * from './rawtx'
 export * from './token'
 export * from './icxorderbook'
+export * from './misc'
 
 export class Testing {
   public readonly fixture = new TestingFixture(this)
@@ -19,6 +21,7 @@ export class Testing {
   public readonly poolpair = new TestingPoolPair(this.container, this.rpc)
   public readonly rawtx = new TestingRawTx(this.container, this.rpc)
   public readonly icxorderbook = new TestingICX(this)
+  public readonly misc = new TestingMisc(this.container, this.rpc)
 
   private readonly addresses: Record<string, string> = {}
 
@@ -79,5 +82,15 @@ class TestingJsonRpcClient extends JsonRpcClient {
       headers: this.options.headers,
       signal: controller.signal
     })
+  }
+}
+
+export class TestingGroup extends ContainerGroup {
+  constructor (readonly testings: Testing[] = []) {
+    super(testings.map(t => t.container))
+  }
+
+  getT (index: number): Testing {
+    return this.testings[index]
   }
 }

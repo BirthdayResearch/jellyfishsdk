@@ -1,61 +1,54 @@
-import { MasterNodeRegTestContainer, ContainerGroup, GenesisKeys } from '@defichain/testcontainers'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
+import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
 describe('Spv', () => {
-  const group = new ContainerGroup([
-    new MasterNodeRegTestContainer(GenesisKeys[0]),
-    new MasterNodeRegTestContainer(GenesisKeys[1]),
-    new MasterNodeRegTestContainer(GenesisKeys[2])
-  ])
+  const t0 = Testing.create(new MasterNodeRegTestContainer(GenesisKeys[0]))
+  const t1 = Testing.create(new MasterNodeRegTestContainer(GenesisKeys[1]))
+  const t2 = Testing.create(new MasterNodeRegTestContainer(GenesisKeys[2]))
+  const tGroup = new TestingGroup([t0, t1, t2])
 
   const clients = [
-    new ContainerAdapterClient(group.get(0)),
-    new ContainerAdapterClient(group.get(1)),
-    new ContainerAdapterClient(group.get(2))
+    new ContainerAdapterClient(tGroup.get(0)),
+    new ContainerAdapterClient(tGroup.get(1)),
+    new ContainerAdapterClient(tGroup.get(2))
   ]
 
   beforeAll(async () => {
-    await group.start()
-
+    await tGroup.start()
     await setup()
   })
 
   afterAll(async () => {
-    await group.stop()
+    await tGroup.stop()
   })
 
-  async function setMockTime (
-    clients: ContainerAdapterClient[], pastHour: number, futureHour = 0
-  ): Promise<void> {
-    const offset = Date.now() - (pastHour * 60 * 60 * 1000) + (futureHour * 60 * 60 * 1000)
-    for (let i = 0; i < clients.length; i += 1) {
-      await clients[i].misc.setMockTime(offset)
+  async function setMockTime (pastHour: number, futureHour = 0): Promise<void> {
+    for (let i = 0; i < tGroup.testings.length; i += 1) {
+      await tGroup.getT(i).misc.offsetTimeHourly(pastHour, futureHour)
     }
   }
 
   async function setup (): Promise<void> {
-    const auths = await group.get(0).call('spv_listanchorauths')
+    const auths = await tGroup.get(0).call('spv_listanchorauths')
     expect(auths.length).toStrictEqual(0)
 
     // time travel back 13 hours ago
-    await setMockTime(clients, 13)
+    await setMockTime(13)
 
     // 15 as anchor frequency
     for (let i = 0; i < 15; i += 1) {
-      const container = group.get(i % clients.length)
+      const container = tGroup.get(i % clients.length)
       await container.generate(1)
-      await group.waitForSync()
+      await tGroup.waitForSync()
     }
 
-    const blockCount = await group.get(0).getBlockCount()
-    expect(blockCount).toStrictEqual(15)
-
     // check the auth and confirm anchor mn teams
-    await group.get(0).waitForAnchorTeams(clients.length)
+    await tGroup.get(0).waitForAnchorTeams(clients.length)
 
     // assertion for team
     for (let i = 0; i < clients.length; i += 1) {
-      const container = group.get(i % clients.length)
+      const container = tGroup.get(i % clients.length)
       const team = await container.call('getanchorteams')
       expect(team.auth.length).toStrictEqual(clients.length)
       expect(team.confirm.length).toStrictEqual(clients.length)
@@ -69,38 +62,38 @@ describe('Spv', () => {
 
     // generate anchor auths
     for (let i = 1; i < 3 + 1; i += 1) {
-      await setMockTime(clients, 12, i)
-      await group.get(0).generate(15)
-      await group.waitForSync()
+      await setMockTime(12, i)
+      await tGroup.get(0).generate(15)
+      await tGroup.waitForSync()
     }
 
-    await group.get(0).waitForAnchorAuths(clients.length)
+    await tGroup.get(0).waitForAnchorAuths(clients.length)
 
     // check each container should be quorum ready
     for (let i = 0; i < clients.length; i += 1) {
-      const container = group.get(i % clients.length)
+      const container = tGroup.get(i % clients.length)
       const auths = await container.call('spv_listanchorauths')
       expect(auths.length).toStrictEqual(1)
       expect(auths[0].signers).toStrictEqual(clients.length)
     }
 
     await createAnchor()
-    await group.get(0).waitForBlockHeight(75)
-    await group.waitForSync()
+    await tGroup.get(0).waitForBlockHeight(75)
+    await tGroup.waitForSync()
 
     await createAnchor()
-    await group.get(0).waitForBlockHeight(90)
-    await group.waitForSync()
+    await tGroup.get(0).waitForBlockHeight(90)
+    await tGroup.waitForSync()
 
     await createAnchor()
-    await group.get(0).waitForBlockHeight(105)
-    await group.waitForSync()
+    await tGroup.get(0).waitForBlockHeight(105)
+    await tGroup.waitForSync()
 
     await createAnchor()
-    await group.get(0).generate(1)
-    await group.waitForSync()
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
 
-    await group.get(0).call('spv_setlastheight', [6])
+    await tGroup.get(0).call('spv_setlastheight', [6])
   }
 
   async function createAnchor (): Promise<void> {
