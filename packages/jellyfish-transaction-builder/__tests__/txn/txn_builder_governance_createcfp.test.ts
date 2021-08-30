@@ -8,6 +8,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('createCfp', () => {
   let providers: MockProviders
@@ -20,7 +21,7 @@ describe('createCfp', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
     await fundEllipticPair(testing.container, providers.ellipticPair, 21) // Amount needed for two cfp creation + fees
