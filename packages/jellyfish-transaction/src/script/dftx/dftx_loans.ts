@@ -51,21 +51,30 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
   }
 }
 
-export interface SetColleteralToken {
-  token: number
-  factor: BigNumber
-  priceFeedId: string
+/**
+ * UpdateLoanToken DeFi Transaction
+ */
+export interface UpdateLoanToken {
+  tokenTx: string // ------------| 32 bytes, hex string Txid of tokens's creation tx
+  symbol: string // ------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
+  name: string // ------------| VarUInt{1-9 bytes}, Token's name, no longer than 128 characters
+  priceFeedId: string // ------------| 32 bytes, hex string Txid of oracle feeding the price
+  mintable: boolean // ------------| 4 bytes, mintable, Token's 'Mintable' property
+  interest: BigNumber // ------------| 8 bytes unsigned, interest rate
 }
 
-export class CSetColleteralToken extends ComposableBuffer<SetColleteralToken> {
+export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
   static OP_CODE = 0x63
-  static OP_NAME = 'OP_DEFI_TX_SET_COLLETERAL_TOKEN'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_LOAN_TOKEN'
 
-  composers (sct: SetColleteralToken): BufferComposer[] {
+  composers (ult: UpdateLoanToken): BufferComposer[] {
     return [
-      ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
-      ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v)
+      ComposableBuffer.varUIntUtf8BE(() => ult.symbol, v => ult.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => ult.name, v => ult.name = v),
+      ComposableBuffer.hexBEBufferLE(32, () => ult.priceFeedId, v => ult.priceFeedId = v),
+      ComposableBuffer.uBool8(() => ult.mintable, v => ult.mintable = v),
+      ComposableBuffer.satoshiAsBigNumber(() => ult.interest, v => ult.interest = v),
+      ComposableBuffer.hexBEBufferLE(32, () => ult.tokenTx, v => ult.tokenTx = v)
     ]
   }
 }

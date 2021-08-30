@@ -30,17 +30,24 @@ export class CAppointOracle extends ComposableBuffer<AppointOracle> {
   }
 }
 
+/**
+ * RemoveOracle DeFi Transaction
+ */
 export interface RemoveOracle {
-  oracleId: string
+  oracleId: string // -------------------| 32 bytes hex string
 }
 
+/**
+ * Composable RemoveOracle, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CRemoveOracle extends ComposableBuffer<RemoveOracle> {
   static OP_CODE = 0x68
   static OP_NAME = 'OP_DEFI_TX_REMOVE_ORACLE'
 
-  composers (b: RemoveOracle): BufferComposer[] {
+  composers (ao: RemoveOracle): BufferComposer[] {
     return [
-      ComposableBuffer.hexBEBufferLE(32, () => b.oracleId, v => b.oracleId = v)
+      ComposableBuffer.hexBEBufferLE(32, () => ao.oracleId, v => ao.oracleId = v)
     ]
   }
 }
