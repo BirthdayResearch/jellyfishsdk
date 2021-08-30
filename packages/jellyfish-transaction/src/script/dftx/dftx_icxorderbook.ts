@@ -103,7 +103,6 @@ export class CICXCloseOrder extends ComposableBuffer<ICXCloseOrder> {
 /**
  * ICXCloseOffer DeFi Transaction
  */
-
 export interface ICXCloseOffer {
   offerTx: string // --------| 32 bytes, txid of offer which will be closed
 }

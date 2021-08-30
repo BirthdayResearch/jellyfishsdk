@@ -81,7 +81,7 @@ describe('close ICX offer', () => {
     expect(offerAfter).toBeUndefined()
   })
 
-  it('should not close ICX offer with wrong order id length', async () => {
+  it('should not close ICX offer with wrong offer id length', async () => {
     const script = await providers.elliptic.script()
     const closeOffer: ICXCloseOffer = {
       offerTx: '1234'
