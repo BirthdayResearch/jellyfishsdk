@@ -64,7 +64,7 @@ export interface UpdateLoanToken {
 }
 
 export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
-  static OP_CODE = 0x63
+  static OP_CODE = 0x66
   static OP_NAME = 'OP_DEFI_TX_UPDATE_LOAN_TOKEN'
 
   composers (ult: UpdateLoanToken): BufferComposer[] {
