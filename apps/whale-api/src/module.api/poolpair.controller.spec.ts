@@ -130,13 +130,15 @@ describe('list', () => {
         id: '2',
         symbol: 'B',
         reserve: '50',
-        blockCommission: '0'
+        blockCommission: '0',
+        displaySymbol: 'dB'
       },
       tokenB: {
         id: '0',
         symbol: 'DFI',
         reserve: '300',
-        blockCommission: '0'
+        blockCommission: '0',
+        displaySymbol: 'DFI'
       },
       apr: {
         reward: 0,
@@ -208,13 +210,15 @@ describe('get', () => {
         id: expect.any(String),
         symbol: 'USDT',
         reserve: '100',
-        blockCommission: '0'
+        blockCommission: '0',
+        displaySymbol: 'dUSDT'
       },
       tokenB: {
         id: '0',
         symbol: 'DFI',
         reserve: '200',
-        blockCommission: '0'
+        blockCommission: '0',
+        displaySymbol: 'DFI'
       },
       apr: {
         reward: 0,
