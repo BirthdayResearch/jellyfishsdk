@@ -424,7 +424,6 @@ export const OP_CODES = {
       data: icxClaimDFCHTLC
     })
   },
-
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**
