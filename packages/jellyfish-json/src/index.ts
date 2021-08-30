@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { parse, stringify, LosslessNumber } from 'lossless-json'
+import { LosslessNumber, parse, stringify } from 'lossless-json'
 import { PrecisionPath, remap } from './remap'
 
 export { BigNumber, LosslessNumber, PrecisionPath }
@@ -19,7 +19,7 @@ export type Precision = 'lossless' | 'bignumber' | 'number'
 /**
  * Revive lossless as a type
  */
-const reviveLosslessAs = (transformer: (string: string) => any) => {
+function reviveLosslessAs (transformer: (string: string) => any) {
   return (key: string, value: any) => {
     if (value instanceof LosslessNumber) {
       return transformer(value.toString())
@@ -67,7 +67,7 @@ export const JellyfishJSON = {
    * @param {any} value object to stringify, with no risk of losing precision.
    */
   stringify (value: any): string {
-    const replacer = (key: string, value: any): any => {
+    function replacer (key: string, value: any): any {
       if (value instanceof BigNumber) {
         return new LosslessNumber(value.toString())
       }

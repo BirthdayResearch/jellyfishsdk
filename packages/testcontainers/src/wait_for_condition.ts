@@ -10,7 +10,7 @@ export async function waitForCondition (condition: () => Promise<boolean>, timeo
   const expiredAt = Date.now() + timeout
 
   return await new Promise((resolve, reject) => {
-    const checkCondition = async (): Promise<void> => {
+    async function checkCondition (): Promise<void> {
       const isReady = await condition().catch(() => false)
       if (isReady) {
         resolve()

@@ -26,7 +26,7 @@ describe('Poolpair', () => {
     await setup()
   })
 
-  const setup = async (): Promise<void> => {
+  async function setup (): Promise<void> {
     await createToken(container, 'ELF', { collateralAddress: tokenAddress })
     await mintTokens(container, 'ELF', { address: dfiAddress })
     await createPoolPair(container, 'ELF', 'DFI')
