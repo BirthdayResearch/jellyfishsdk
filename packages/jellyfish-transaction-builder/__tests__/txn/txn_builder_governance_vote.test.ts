@@ -79,8 +79,8 @@ describe('vote', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toEqual(0)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
   })
 })
 

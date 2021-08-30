@@ -95,19 +95,19 @@ describe('liqPool.addLiquidity()', () => {
     const txn = await builder.liqPool.addLiquidity(addLiquidity, script)
     const outs = await sendTransaction(container, txn)
 
-    expect(outs.length).toEqual(2)
+    expect(outs.length).toStrictEqual(2)
     const encoded: string = OP_CODES.OP_DEFI_TX_POOL_ADD_LIQUIDITY(addLiquidity).asBuffer().toString('hex')
     // OP_RETURN + DfTx full buffer
     const expectedRedeemScript = `6a${encoded}`
-    expect(outs[0].value).toEqual(0)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     // change
     const change = await findOut(outs, providers.elliptic.ellipticPair)
     expect(change.value).toBeLessThan(1)
     expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
-    expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
-    expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
+    expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
 
     // updated balance
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
@@ -153,19 +153,19 @@ describe('liqPool.addLiquidity()', () => {
     const txn = await builder.liqPool.addLiquidity(addLiquidity, script)
     const outs = await sendTransaction(container, txn)
 
-    expect(outs.length).toEqual(2)
+    expect(outs.length).toStrictEqual(2)
     const encoded: string = OP_CODES.OP_DEFI_TX_POOL_ADD_LIQUIDITY(addLiquidity).asBuffer().toString('hex')
     // OP_RETURN + DfTx full buffer
     const expectedRedeemScript = `6a${encoded}`
-    expect(outs[0].value).toEqual(0)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     // change
     const change = await findOut(outs, providers.elliptic.ellipticPair)
     expect(change.value).toBeLessThan(1)
     expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
-    expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
-    expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
+    expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
 
     // updated balance
     const account = await jsonRpc.account.getAccount(await providers.getAddress())

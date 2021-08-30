@@ -140,7 +140,7 @@ describe('make ICX offer', () => {
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
@@ -200,7 +200,7 @@ describe('make ICX offer', () => {
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
