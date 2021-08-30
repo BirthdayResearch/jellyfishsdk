@@ -22,7 +22,6 @@
         "**/jellyfish-transaction/src/script/dftx/**/*.ts",
         "**/jellyfish-transaction/src/*.ts",
         "**/jellyfish-buffer/__tests__/**/*.test.ts",
-        "**/jellyfish-buffer/src/script/dftx/**/*.ts",
         "**/jellyfish-buffer/src/*.ts"
       ],
       "rules": {
