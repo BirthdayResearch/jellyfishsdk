@@ -59,7 +59,6 @@ describe('close ICX offer', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs.length).toEqual(2)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
@@ -68,7 +67,7 @@ describe('close ICX offer', () => {
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
