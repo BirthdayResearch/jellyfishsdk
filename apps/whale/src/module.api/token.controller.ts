@@ -74,6 +74,7 @@ function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
     minted: tokenInfo.minted.toFixed(),
     creation: { tx: tokenInfo.creationTx, height: tokenInfo.creationHeight.toNumber() },
     destruction: { tx: tokenInfo.destructionTx, height: tokenInfo.destructionHeight.toNumber() },
-    collateralAddress: tokenInfo.collateralAddress !== '' ? tokenInfo.collateralAddress : undefined
+    collateralAddress: tokenInfo.collateralAddress !== '' ? tokenInfo.collateralAddress : undefined,
+    displaySymbol: tokenInfo.isDAT && tokenInfo.symbol !== 'DFI' && !tokenInfo.isLPS ? `d${tokenInfo.symbol}` : tokenInfo.symbol
   }
 }
