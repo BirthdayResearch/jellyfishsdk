@@ -5,12 +5,12 @@ import { calculateTxid, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { ICXSubmitEXTHTLC } from '@defichain/jellyfish-transaction/script/dftx/dftx_icxorderbook'
-import { ICXEXTHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
-import { Testing } from '@defichain/jellyfish-testing'
+import { ICXClaimDFCHTLC } from '@defichain/jellyfish-transaction/script/dftx/dftx_icxorderbook'
+import { ICXClaimDFCHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
+import { Testing } from '@defichain/jellyfish-testing'
 
-describe('submit EXT HTLC', () => {
+describe('claim DFC HTLC', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let providers: MockProviders
@@ -46,8 +46,8 @@ describe('submit EXT HTLC', () => {
     await testing.icxorderbook.closeAllOpenOffers()
   })
 
-  it('should submit EXT HTLC for a DFC buy offer', async () => {
-    // ICX order creation, make offer and submit DFC HTLC
+  it('should claim DFC HTLC for a DFI sell order', async () => {
+    // ICX order creation,make offer, submit htlcs
     const createOrder = {
       chainTo: 'BTC',
       ownerAddress: testing.icxorderbook.accountDFI,
@@ -55,7 +55,7 @@ describe('submit EXT HTLC', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    const { order, createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
+    const { createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
 
     const makeOffer = {
       orderTx: createOrderTxId,
@@ -70,11 +70,9 @@ describe('submit EXT HTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       timeout: 1440
     }
-    await testing.icxorderbook.createDFCHTLCForDFIBuyOffer(DFCHTLC)
+    const { DFCHTLCTxId } = await testing.icxorderbook.createDFCHTLCForDFIBuyOffer(DFCHTLC)
 
-    // submit EXT HTLC
-    const script = await providers.elliptic.script()
-    const submitEXTHTLC: ICXSubmitEXTHTLC = {
+    const ExtHTLC = {
       offerTx: makeOfferTxId,
       amount: new BigNumber(0.10),
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
@@ -82,9 +80,17 @@ describe('submit EXT HTLC', () => {
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
       timeout: 24
     }
-    const txn = await builder.icxorderbook.submitEXTHTLC(submitEXTHTLC, script)
+    await testing.icxorderbook.submitExtHTLCForDFIBuyOffer(ExtHTLC)
 
-    const encoded: string = OP_CODES.OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC(submitEXTHTLC).asBuffer().toString('hex')
+    // claim DFC HTLC
+    const script = await providers.elliptic.script()
+    const claimDFCHTLC: ICXClaimDFCHTLC = {
+      dfcHTLCTx: DFCHTLCTxId,
+      seed: 'f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef'
+    }
+    const txn = await builder.icxorderbook.claimDFCHTLC(claimDFCHTLC, script)
+
+    const encoded: string = OP_CODES.OP_DEFI_TX_ICX_CLAIM_DFC_HTLC(claimDFCHTLC).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
@@ -92,11 +98,11 @@ describe('submit EXT HTLC', () => {
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
     expect(outs[0].tokenId).toStrictEqual(0)
-    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547834')).toBeTruthy()
+    expect(outs[0].scriptPubKey.asm.startsWith('OP_RETURN 4466547835')).toBeTruthy()
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
@@ -107,29 +113,22 @@ describe('submit EXT HTLC', () => {
 
     // List htlc and check
     const listHTLCOptions: ICXListHTLCOptions = {
-      offerTx: makeOfferTxId
+      offerTx: makeOfferTxId,
+      closed: true
     }
     const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
-    const EXTHTLCTxId = calculateTxid(txn)
-    expect(HTLCs[EXTHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
-      {
-        type: icxorderbook.ICXHTLCType.EXTERNAL,
-        status: icxorderbook.ICXHTLCStatus.OPEN,
-        offerTx: makeOfferTxId,
-        amount: submitEXTHTLC.amount,
-        amountInDFCAsset: submitEXTHTLC.amount.dividedBy(order.orderPrice),
-        htlcScriptAddress: submitEXTHTLC.htlcScriptAddress,
-        ownerPubkey: submitEXTHTLC.ownerPubkey,
-        hash: submitEXTHTLC.hash,
-        timeout: new BigNumber(submitEXTHTLC.timeout),
-        height: expect.any(BigNumber)
-      }
-    )
+    expect(Object.keys(HTLCs).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
+    const claimTxId = calculateTxid(txn)
+    if (HTLCs[claimTxId].type === icxorderbook.ICXHTLCType.CLAIM_DFC) {
+      // ICXClaimDFCHTLCInfo cast
+      const ClaimHTLCInfo: ICXClaimDFCHTLCInfo = HTLCs[claimTxId] as ICXClaimDFCHTLCInfo
+      expect(ClaimHTLCInfo.dfchtlcTx).toStrictEqual(DFCHTLCTxId)
+      expect(ClaimHTLCInfo.seed).toStrictEqual('f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef')
+    }
   })
 
-  it('should return an error when ICXSubmitEXTHTLC.amount is negative', async () => {
-    // ICX order creation, make offer and submit DFC HTLC
+  it('should return an error when ICXClaimDFCHTLC.dfcHTLCTx length is invalid', async () => {
+    // ICX order creation,make offer, submit htlcs
     const createOrder = {
       chainTo: 'BTC',
       ownerAddress: testing.icxorderbook.accountDFI,
@@ -154,21 +153,27 @@ describe('submit EXT HTLC', () => {
     }
     await testing.icxorderbook.createDFCHTLCForDFIBuyOffer(DFCHTLC)
 
-    // submit EXT HTLC
-    const script = await providers.elliptic.script()
-    const submitEXTHTLC: ICXSubmitEXTHTLC = {
+    const ExtHTLC = {
       offerTx: makeOfferTxId,
-      amount: new BigNumber(-0.10),
+      amount: new BigNumber(0.10),
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
       timeout: 24
     }
-    await expect(builder.icxorderbook.submitDFCHTLC(submitEXTHTLC, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -10000000')
+    await testing.icxorderbook.submitExtHTLCForDFIBuyOffer(ExtHTLC)
+
+    // claim DFC HTLC
+    const script = await providers.elliptic.script()
+    const claimDFCHTLC: ICXClaimDFCHTLC = {
+      dfcHTLCTx: 'INVALID_DFC_HTLC_TX_ID',
+      seed: 'f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef'
+    }
+    await expect(builder.icxorderbook.claimDFCHTLC(claimDFCHTLC, script)).rejects.toThrow('ComposableBuffer.hexBEBufferLE.toBuffer invalid as length != getter().length')
   })
 
-  it('should return an error when ICXSubmitEXTHTLC.timeout is negative', async () => {
-    // ICX order creation, make offer and submit DFC HTLC
+  it('should return an error when ICXClaimDFCHTLC.seed is incorrect', async () => {
+    // ICX order creation,make offer, submit htlcs
     const createOrder = {
       chainTo: 'BTC',
       ownerAddress: testing.icxorderbook.accountDFI,
@@ -191,18 +196,25 @@ describe('submit EXT HTLC', () => {
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       timeout: 1440
     }
-    await testing.icxorderbook.createDFCHTLCForDFIBuyOffer(DFCHTLC)
+    const { DFCHTLCTxId } = await testing.icxorderbook.createDFCHTLCForDFIBuyOffer(DFCHTLC)
 
-    // submit EXT HTLC
-    const script = await providers.elliptic.script()
-    const submitEXTHTLC: ICXSubmitEXTHTLC = {
+    const ExtHTLC = {
       offerTx: makeOfferTxId,
       amount: new BigNumber(0.10),
       hash: '957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220',
       htlcScriptAddress: '13sJQ9wBWh8ssihHUgAaCmNWJbBAG5Hr9N',
       ownerPubkey: '036494e7c9467c8c7ff3bf29e841907fb0fa24241866569944ea422479ec0e6252',
-      timeout: -24
+      timeout: 24
     }
-    await expect(builder.icxorderbook.submitDFCHTLC(submitEXTHTLC, script)).rejects.toThrow('The value of "value" is out of range. It must be >= 0 and <= 4294967295. Received -24')
+    await testing.icxorderbook.submitExtHTLCForDFIBuyOffer(ExtHTLC)
+
+    // claim DFC HTLC
+    const script = await providers.elliptic.script()
+    const claimDFCHTLC: ICXClaimDFCHTLC = {
+      dfcHTLCTx: DFCHTLCTxId,
+      seed: 'INVALID_SEED'
+    }
+    const txn = await builder.icxorderbook.claimDFCHTLC(claimDFCHTLC, script)
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow('DeFiDRpcError: \'ICXClaimDFCHTLCTx: hash generated from given seed is different than in dfc htlc: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 - 957fc0fd643f605b2938e0631a61529fd70bd35b2162a21d978c41e5241a5220! (code 16)\', code: -26')
   })
 })
