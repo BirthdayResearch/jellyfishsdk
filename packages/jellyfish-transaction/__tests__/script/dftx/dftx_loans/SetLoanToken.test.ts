@@ -22,21 +22,21 @@ it('should bi-directional buffer-object-buffer', () => {
     '6a3c446654786706546f6b656e3106546f6b656e31ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010000000000000000',
     /**
      * loan : {
-     * symbol: 'Token2',
-     * name: 'Token2',
-     * priceFeedId: 6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
-     * mintable: false,
-     * interest: new BigNumber(0)
+     *    symbol: 'Token2',
+     *    name: 'Token2',
+     *    priceFeedId: 6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     *    mintable: false,
+     *    interest: new BigNumber(0)
      * }
      */
     '6a3c446654786706546f6b656e3206546f6b656e32ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d000000000000000000',
     /**
      * loan : {
-     * symbol: 'Token3',
-     * name: 'Token3',
-     * priceFeedId：6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
-     * mintable: true,
-     * interest: new BigNumber(12345)
+     *    symbol: 'Token3',
+     *    name: 'Token3',
+     *    priceFeedId：6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     *    mintable: true,
+     *    interest: new BigNumber(12345)
      * }
      */
     '6a3c446654786706546f6b656e3306546f6b656e33ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010019ef6d1f010000'
