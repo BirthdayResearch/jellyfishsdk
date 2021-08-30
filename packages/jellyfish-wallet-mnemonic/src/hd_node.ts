@@ -23,9 +23,10 @@ export interface Bip32Options {
 }
 
 /**
- * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
- * Purpose [44'] / CoinType-agnostic [n] / Account [n] / Chain (ignored for now) [0] / Addresses [n]
+ * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet.
+ * MnemonicHdNode implementations is purpose and derivation agnostic.
  *
+ * Prior-art:
  * - BIP32 Hierarchical Deterministic Wallets
  * - BIP39 Mnemonic code for generating deterministic keys
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
