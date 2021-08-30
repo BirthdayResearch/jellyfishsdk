@@ -74,7 +74,9 @@ import {
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
 } from './dftx/dftx_icxorderbook'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 
@@ -412,6 +414,14 @@ export const OP_CODES = {
       type: CICXSubmitEXTHTLC.OP_CODE,
       name: CICXSubmitEXTHTLC.OP_NAME,
       data: icxSubmitEXTHTLC
+    })
+  },
+  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXClaimDFCHTLC.OP_CODE,
+      name: CICXClaimDFCHTLC.OP_NAME,
+      data: icxClaimDFCHTLC
     })
   },
 

@@ -65,3 +65,23 @@ interface UTXO {
   vout: number
 }
 ```
+
+## destroyLoanScheme
+
+Destroys a loan scheme.
+
+```ts title="client.loan.destroyLoanScheme()"
+interface loan {
+  destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
+}
+
+interface DestroyLoanScheme {
+  id: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
