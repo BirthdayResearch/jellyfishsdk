@@ -60,8 +60,7 @@ import {
   CCreateLoanScheme,
   CreateLoanScheme,
   CSetDefaultLoanScheme,
-  SetDefaultLoanScheme
-  ,
+  SetDefaultLoanScheme,
   CSetLoanToken,
   SetLoanToken
 } from './dftx/dftx_loans'

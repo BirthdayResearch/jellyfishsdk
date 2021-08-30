@@ -131,7 +131,6 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
-    await providers.setupMocks() // Required to move utxos
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({

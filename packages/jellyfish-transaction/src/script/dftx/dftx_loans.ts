@@ -55,8 +55,8 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
  * SetLoanToken DeFi Transaction
  */
 export interface SetLoanToken {
-  symbol: string // ------------| VarUInt{1-9 bytes} Symbol or id of collateral token
-  name: string // --------------| VarUInt{1-9 bytes} Token's name, no longer than 128 characters
+  symbol: string // ------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
+  name: string // --------------| VarUInt{1-9 bytes}, Token's name, no longer than 128 characters
   priceFeedId: string // -------| 32 bytes, hex string Txid of oracle feeding the price
   mintable: boolean // ---------| 4 bytes, mintable, Token's 'Mintable' property
   interest: BigNumber // -------| 8 bytes unsigned, interest rate
