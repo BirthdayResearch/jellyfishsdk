@@ -131,6 +131,15 @@ export class Spv {
   }
 
   /**
+   * List anchor rewards
+   *
+   * @return {Promise<ListAnchorRewardsResult[]>}
+   */
+  async listAnchorRewards (): Promise<ListAnchorRewardsResult[]> {
+    return await this.client.call('spv_listanchorrewards', [], 'number')
+  }
+
+  /**
    * Create, sign and send anchor tx, using only SPV API
    *
    * @param {CreateAnchorInput[]} createAnchorInputs Info from BTC chain
@@ -274,4 +283,11 @@ export interface CreateAnchorResult {
   sendResult: number
   /** decoded sendResult */
   sendMessage: string
+}
+
+export interface ListAnchorRewardsResult {
+  /** the anchor transaction hash */
+  AnchorTxHash: string
+  /** the reward transaction hash */
+  RewardTxHash: string
 }

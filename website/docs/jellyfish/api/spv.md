@@ -182,6 +182,21 @@ interface ListHtlcsOutputsResult {
 }
 ```
 
+## listAnchorRewards
+
+List anchor rewards.
+
+```ts title=client.spv.listAnchorRewards()"
+interface spv {
+  listAnchorRewards (): Promise<ListAnchorRewardsResult[]>
+}
+
+interface ListAnchorRewardsResult {
+  AnchorTxHash: string
+  RewardTxHash: string
+}
+```
+
 ## createAnchor
 
 Create, sign and send anchor tx, using only SPV API.

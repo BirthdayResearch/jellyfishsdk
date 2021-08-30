@@ -161,6 +161,26 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
+   * Wait for anchor reward confirms
+   *
+   * @param {string} [network=mainnet]
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorRewardConfirms (network = 'mainnet', timeout = 30000): Promise<void> {
+    // max signers in regtest is 3, others are 5
+    // majority is defined as 66% above
+    const majority = network === 'regtest' ? 2 : 3
+    return await waitForCondition(async () => {
+      const confirms = await this.call('spv_listanchorrewardconfirms')
+      if (confirms.length === 1 && confirms[0].signers >= majority) {
+        return true
+      }
+      return false
+    }, timeout, 100, 'waitForAnchorRewardConfrims')
+  }
+
+  /**
    * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
    * This allows for light wallet implementation testing.
