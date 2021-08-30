@@ -68,13 +68,13 @@ describe('account.accountToUtxos()', () => {
 
     const outs = await sendTransaction(container, txn)
 
-    expect(outs.length).toEqual(3)
+    expect(outs.length).toStrictEqual(3)
     const encoded: string = OP_CODES.OP_DEFI_TX_ACCOUNT_TO_UTXOS(accountToUtxos).asBuffer().toString('hex')
     // OP_RETURN + DfTx full buffer
     const expectedRedeemScript = `6a${encoded}`
-    expect(outs[0].value).toEqual(0)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
-    expect(outs[0].tokenId).toEqual(0)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
+    expect(outs[0].tokenId).toStrictEqual(0)
 
     const txOuts = await findOuts(outs, providers.elliptic.ellipticPair)
     expect(txOuts.length).toStrictEqual(2)
@@ -86,14 +86,14 @@ describe('account.accountToUtxos()', () => {
     // change returned
     expect(change.value).toBeLessThan(1)
     expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
-    expect(change.scriptPubKey.hex).toBe(expectedUtxosRedeemScript)
-    expect(change.scriptPubKey.addresses[0]).toBe(expectedOutAddress)
+    expect(change.scriptPubKey.hex).toStrictEqual(expectedUtxosRedeemScript)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(expectedOutAddress)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(expectedOutAddress)
 
     // minted utxos
     expect(minted.value).toStrictEqual(conversionAmount)
-    expect(minted.scriptPubKey.hex).toBe(expectedUtxosRedeemScript)
-    expect(minted.scriptPubKey.addresses[0]).toBe(expectedOutAddress)
+    expect(minted.scriptPubKey.hex).toStrictEqual(expectedUtxosRedeemScript)
+    expect(minted.scriptPubKey.addresses[0]).toStrictEqual(expectedOutAddress)
     expect(outs[2].scriptPubKey.addresses[0]).toStrictEqual(expectedOutAddress)
 
     // burnt token

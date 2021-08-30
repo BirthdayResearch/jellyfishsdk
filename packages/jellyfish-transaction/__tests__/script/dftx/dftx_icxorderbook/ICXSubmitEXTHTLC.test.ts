@@ -53,7 +53,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CICXSubmitEXTHTLC(buffer)
 
-    expect(composable.toObject()).toEqual(submitEXTHTLC)
+    expect(composable.toObject()).toStrictEqual(submitEXTHTLC)
   })
 
   it('should compose from composable to buffer', () => {
@@ -61,6 +61,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

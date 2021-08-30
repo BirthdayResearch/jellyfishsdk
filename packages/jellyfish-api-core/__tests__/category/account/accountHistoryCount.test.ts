@@ -58,7 +58,7 @@ describe('Account', () => {
     await waitForExpect(async () => {
       const count = await client.account.historyCount()
 
-      expect(typeof count).toBe('number')
+      expect(typeof count).toStrictEqual('number')
       expect(count).toBeGreaterThanOrEqual(0)
     })
   })
@@ -67,7 +67,7 @@ describe('Account', () => {
     await waitForExpect(async () => {
       const count = await client.account.historyCount('all')
 
-      expect(typeof count).toBe('number')
+      expect(typeof count).toStrictEqual('number')
       expect(count).toBeGreaterThanOrEqual(0)
     })
   })
@@ -79,7 +79,7 @@ describe('Account', () => {
       }
       const count = await client.account.historyCount('mine', options)
 
-      expect(typeof count).toBe('number')
+      expect(typeof count).toStrictEqual('number')
       expect(count).toBeGreaterThanOrEqual(0)
     })
   })
@@ -95,8 +95,8 @@ describe('Account', () => {
       const countWithDBTC = await client.account.historyCount('mine', options1)
       const countWithDETH = await client.account.historyCount('mine', options2)
 
-      expect(typeof countWithDBTC).toBe('number')
-      expect(typeof countWithDETH).toBe('number')
+      expect(typeof countWithDBTC).toStrictEqual('number')
+      expect(typeof countWithDETH).toStrictEqual('number')
       expect(countWithDBTC).toBeGreaterThanOrEqual(1)
       expect(countWithDETH).toBeGreaterThanOrEqual(1)
     })
@@ -109,7 +109,7 @@ describe('Account', () => {
       }
       const count = await client.account.historyCount('mine', options)
 
-      expect(typeof count).toBe('number')
+      expect(typeof count).toStrictEqual('number')
       expect(count).toBeGreaterThanOrEqual(0)
     })
   })
