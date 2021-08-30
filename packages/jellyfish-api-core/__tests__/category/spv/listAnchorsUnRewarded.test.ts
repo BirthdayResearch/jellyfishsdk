@@ -94,7 +94,7 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  it('should listAnchorRewardConfirms', async () => {
+  it('should listAnchorsUnrewarded', async () => {
     const anchor1 = await createAnchor()
     const anchor2 = await createAnchor()
 
@@ -105,8 +105,11 @@ describe('Spv', () => {
     await group.waitForSync()
 
     {
-      const rewardConfs = await clients[0].spv.listAnchorRewardConfirms()
+      const rewardConfs = await group.get(0).call('spv_listanchorrewardconfirms')
       expect(rewardConfs.length).toStrictEqual(0)
+
+      const unrewardeds = await clients[0].spv.listAnchorsUnrewarded()
+      expect(unrewardeds.length).toStrictEqual(0)
     }
 
     // 2 signers to confirm anchor reward
@@ -117,7 +120,7 @@ describe('Spv', () => {
     expect(anchors.length).toBeGreaterThan(0)
     const activeAnchor = anchors.find((anchor: any) => anchor.active === true)
 
-    const rewardConfs = await clients[0].spv.listAnchorRewardConfirms()
+    const rewardConfs = await group.get(0).call('spv_listanchorrewardconfirms')
     expect(rewardConfs.length).toBeGreaterThan(0)
     const rewardConf = rewardConfs[0]
     expect(typeof rewardConf.btcTxHeight).toStrictEqual('number')
@@ -128,5 +131,39 @@ describe('Spv', () => {
     expect(rewardConf.rewardAddress).toStrictEqual(activeAnchor.rewardAddress)
     expect(typeof rewardConf.confirmSignHash).toStrictEqual('string')
     expect(typeof rewardConf.signers).toStrictEqual('number')
+
+    {
+      const unrewardeds = await clients[0].spv.listAnchorsUnrewarded()
+      expect(unrewardeds.length).toBeGreaterThan(0)
+      const unrewarded = unrewardeds[0]
+      expect(typeof unrewarded.btcBlockHeight).toStrictEqual('number')
+      expect(typeof unrewarded.btcBlockHash).toStrictEqual('string')
+      expect(unrewarded.btcTxHash).toStrictEqual(rewardConf.btcTxHash)
+      expect(typeof unrewarded.previousAnchor).toStrictEqual('string')
+      expect(typeof unrewarded.defiBlockHeight).toStrictEqual('number')
+      expect(unrewarded.defiBlockHash).toStrictEqual(rewardConf.dfiBlockHash)
+      expect(unrewarded.rewardAddress).toStrictEqual(rewardConf.rewardAddress)
+      expect(typeof unrewarded.confirmations).toStrictEqual('number')
+      expect(typeof unrewarded.signatures).toStrictEqual('number')
+      expect(typeof unrewarded.anchorCreationHeight).toStrictEqual('number')
+    }
+
+    const commBalancesBefore = await group.get(0).call('listcommunitybalances')
+
+    await group.get(0).waitForAnchorRewardConfirms('regtest')
+    await group.get(0).generate(1)
+
+    const rewards = await clients[0].spv.listAnchorRewards()
+    expect(rewards.length).toBeGreaterThan(0)
+    expect(typeof rewards[0].AnchorTxHash).toStrictEqual('string')
+    expect(typeof rewards[0].RewardTxHash).toStrictEqual('string')
+
+    const commBalancesAfter = await group.get(0).call('listcommunitybalances')
+    expect(commBalancesBefore.AnchorReward > commBalancesAfter.AnchorReward).toStrictEqual(true)
+
+    {
+      const unrewardeds = await clients[0].spv.listAnchorsUnrewarded()
+      expect(unrewardeds.length).toStrictEqual(0)
+    }
   })
 })

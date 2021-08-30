@@ -133,10 +133,19 @@ export class Spv {
   /**
    * List anchor reward confirms
    *
-   * @return {Promise<ListAnchorRewardConfirmsResult>}
+   * @return {Promise<ListAnchorRewardConfirmsResult[]>}
    */
   async listAnchorRewardConfirms (): Promise<ListAnchorRewardConfirmsResult[]> {
     return await this.client.call('spv_listanchorrewardconfirms', [], 'number')
+  }
+
+  /**
+   * List anchors unrewarded
+   *
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchorsUnrewarded (): Promise<ListAnchorsResult[]> {
+    return await this.client.call('spv_listanchorsunrewarded', [], 'number')
   }
 
   /**
@@ -257,6 +266,32 @@ export interface ListHtlcsOutputsResult {
   spent: SpentInfo
 }
 
+export interface ListAnchorRewardConfirmsResult {
+  /** BTC transaction height */
+  btcTxHeight: number
+  /** BTC transaction hash */
+  btcTxHash: string
+  /** anchor height */
+  anchorHeight: number
+  /** DeFi block hash */
+  dfiBlockHash: string
+  /** Previous anchor height */
+  prevAnchorHeight: number
+  /** the reward address */
+  rewardAddress: string
+  /** the confirm sign hash */
+  confirmSignHash: string
+  /** number of signers */
+  signers: number
+}
+
+export interface ListAnchorRewardsResult {
+  /** the anchor transaction hash */
+  AnchorTxHash: string
+  /** the reward transaction hash */
+  RewardTxHash: string
+}
+
 export interface CreateAnchorInput {
   /** The transaction id of the bitcoin UTXO to spend */
   txid: string
@@ -294,28 +329,27 @@ export interface CreateAnchorResult {
   sendMessage: string
 }
 
-export interface ListAnchorRewardConfirmsResult {
-  /** BTC transaction height */
-  btcTxHeight: number
+export interface ListAnchorsResult {
+  /** BTC block height */
+  btcBlockHeight: number
+  /** BTC block hash */
+  btcBlockHash: string
   /** BTC transaction hash */
   btcTxHash: string
-  /** anchor height */
-  anchorHeight: number
-  /** DeFi block hash */
-  dfiBlockHash: string
-  /** Previous anchor height */
-  prevAnchorHeight: number
-  /** the reward address */
+  /** previous anchor */
+  previousAnchor: string
+  /** defi block height */
+  defiBlockHeight: number
+  /** defi block hash */
+  defiBlockHash: string
+  /** anchor reward address */
   rewardAddress: string
-  /** the confirm sign hash */
-  confirmSignHash: string
-  /** number of signers */
-  signers: number
-}
-
-export interface ListAnchorRewardsResult {
-  /** the anchor transaction hash */
-  AnchorTxHash: string
-  /** the reward transaction hash */
-  RewardTxHash: string
+  /** BTC confirmations */
+  confirmations: number
+  /** number of signatures */
+  signatures: number
+  /** anchor status */
+  active?: boolean
+  /** anchor creation height */
+  anchorCreationHeight?: number
 }

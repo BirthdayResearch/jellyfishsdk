@@ -203,6 +203,31 @@ export interface ListAnchorRewardConfirmsResult {
 }
 ```
 
+## listAnchorsUnrewarded
+
+List anchor unrewarded.
+
+```ts title=client.spv.listAnchorsUnrewarded()"
+interface spv {
+  listAnchorsUnrewarded (): Promise<ListAnchorsResult[]>
+}
+
+interface ListAnchorsResult {
+  btcBlockHeight: number
+  btcBlockHash: string
+  btcTxHash: string
+  previousAnchor: string
+  defiBlockHeight: number
+  defiBlockHash: string
+  rewardAddress: string
+  confirmations: number
+  signatures: number
+  active?: boolean
+  anchorCreationHeight?: number
+}
+
+```
+
 ## listAnchorRewards
 
 List anchor rewards.
