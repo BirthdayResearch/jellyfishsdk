@@ -33,6 +33,7 @@ export class Tokens {
 export interface TokenData {
   id: string
   symbol: string
+  displaySymbol: string
   symbolKey: string
   name: string
   decimal: number
