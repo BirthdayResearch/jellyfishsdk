@@ -131,6 +131,15 @@ export class Spv {
   }
 
   /**
+   * List anchor reward confirms
+   *
+   * @return {Promise<ListAnchorRewardConfirmsResult>}
+   */
+  async listAnchorRewardConfirms (): Promise<ListAnchorRewardConfirmsResult[]> {
+    return await this.client.call('spv_listanchorrewardconfirms', [], 'number')
+  }
+
+  /**
    * List anchor rewards
    *
    * @return {Promise<ListAnchorRewardsResult[]>}
@@ -283,6 +292,25 @@ export interface CreateAnchorResult {
   sendResult: number
   /** decoded sendResult */
   sendMessage: string
+}
+
+export interface ListAnchorRewardConfirmsResult {
+  /** BTC transaction height */
+  btcTxHeight: number
+  /** BTC transaction hash */
+  btcTxHash: string
+  /** anchor height */
+  anchorHeight: number
+  /** DeFi block hash */
+  dfiBlockHash: string
+  /** Previous anchor height */
+  prevAnchorHeight: number
+  /** the reward address */
+  rewardAddress: string
+  /** the confirm sign hash */
+  confirmSignHash: string
+  /** number of signers */
+  signers: number
 }
 
 export interface ListAnchorRewardsResult {

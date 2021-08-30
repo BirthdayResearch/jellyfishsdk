@@ -182,6 +182,27 @@ interface ListHtlcsOutputsResult {
 }
 ```
 
+## listAnchorRewardConfirms
+
+List anchor reward confirms.
+
+```ts title=client.spv.listAnchorRewardConfirms()"
+interface spv {
+  listAnchorRewardConfirms (): Promise<ListAnchorRewardConfirmsResult[]>
+}
+
+export interface ListAnchorRewardConfirmsResult {
+  btcTxHeight: number
+  btcTxHash: string
+  anchorHeight: number
+  dfiBlockHash: string
+  prevAnchorHeight: number
+  rewardAddress: string
+  confirmSignHash: string
+  signers: number
+}
+```
+
 ## listAnchorRewards
 
 List anchor rewards.
@@ -196,7 +217,6 @@ interface ListAnchorRewardsResult {
   RewardTxHash: string
 }
 ```
-
 ## createAnchor
 
 Create, sign and send anchor tx, using only SPV API.
