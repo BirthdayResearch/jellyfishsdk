@@ -5,7 +5,6 @@ import {
   DestroyLoanScheme
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
-import BigNumber from 'bignumber.js'
 
 export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   /**
@@ -44,7 +43,6 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async destroyLoanScheme (destroyLoanScheme: DestroyLoanScheme, changeScript: Script): Promise<TransactionSegWit> {
-    destroyLoanScheme.height = destroyLoanScheme.height ?? new BigNumber(0x00000000)
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_DESTROY_LOAN_SCHEME(destroyLoanScheme),
       changeScript
