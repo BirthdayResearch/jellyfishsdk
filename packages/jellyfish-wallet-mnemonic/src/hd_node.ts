@@ -174,8 +174,12 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
  */
 function fromWordsToSeed (words: string[], options: Bip32Options): bip32.BIP32Interface {
   const seed = mnemonicToSeed(words)
-  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
-  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
+  if (seed.length < 16) {
+    throw new TypeError('Seed should be at least 128 bits')
+  }
+  if (seed.length > 64) {
+    throw new TypeError('Seed should be at most 512 bits')
+  }
 
   const key = Buffer.from('@defichain/jellyfish-wallet-mnemonic', 'utf8')
   const I = createHmac('sha512', key).update(seed).digest()
