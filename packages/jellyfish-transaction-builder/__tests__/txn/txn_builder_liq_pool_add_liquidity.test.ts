@@ -7,11 +7,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken, mintTokens, sendTokensToAddress, utxosToAccount } from '@defichain/testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import {
-  findOut,
-  fundEllipticPair,
-  sendTransaction
-} from '../test.utils'
+import { findOut, fundEllipticPair, sendTransaction } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 
 const container = new MasterNodeRegTestContainer()
@@ -45,7 +41,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await providers.randomizeEllipticPair()
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
   // Fund 100 DFI TOKEN
   await providers.setupMocks() // required to move utxos

@@ -1,16 +1,12 @@
 import BigNumber from 'bignumber.js'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { OP_CODES, AccountToAccount } from '@defichain/jellyfish-transaction'
+import { AccountToAccount, OP_CODES } from '@defichain/jellyfish-transaction'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, mintTokens, sendTokensToAddress, utxosToAccount } from '@defichain/testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import {
-  findOut,
-  fundEllipticPair,
-  sendTransaction
-} from '../test.utils'
+import { findOut, fundEllipticPair, sendTransaction } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
 
@@ -46,7 +42,7 @@ afterAll(async () => {
 beforeEach(async () => {
   await providers.randomizeEllipticPair()
   await container.waitForWalletBalanceGTE(11.1)
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
   // Fund 10 DFI TOKEN
   await providers.setupMocks() // required to move utxos

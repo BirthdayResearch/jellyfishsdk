@@ -1,11 +1,12 @@
-import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction, TxOut } from '../test.utils'
-import { OP_CODES, ICXCreateOrder, ICXOrderType } from '@defichain/jellyfish-transaction'
+import { ICXCreateOrder, ICXOrderType, OP_CODES } from '@defichain/jellyfish-transaction'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('create ICX order', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
@@ -18,7 +19,7 @@ describe('create ICX order', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to testing.container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })

@@ -1,11 +1,12 @@
-import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
-import { OP_CODES, ICXMakeOffer } from '@defichain/jellyfish-transaction'
+import { ICXMakeOffer, OP_CODES } from '@defichain/jellyfish-transaction'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('make ICX offer', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
@@ -18,7 +19,7 @@ describe('make ICX offer', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to testing.container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // steps required for ICX setup
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())

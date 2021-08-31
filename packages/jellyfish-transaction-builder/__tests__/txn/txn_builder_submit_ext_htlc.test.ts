@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
@@ -9,6 +9,7 @@ import { ICXSubmitEXTHTLC } from '@defichain/jellyfish-transaction/script/dftx/d
 import { ICXEXTHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
 import { Testing } from '@defichain/jellyfish-testing'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('submit EXT HTLC', () => {
   const container = new MasterNodeRegTestContainer()
@@ -22,7 +23,7 @@ describe('submit EXT HTLC', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // steps required for ICX testing
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
