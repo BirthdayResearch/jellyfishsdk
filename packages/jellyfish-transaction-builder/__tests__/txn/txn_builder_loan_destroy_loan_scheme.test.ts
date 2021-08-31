@@ -6,6 +6,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('loan.destroyLoanScheme()', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -20,7 +21,7 @@ describe('loan.destroyLoanScheme()', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Default scheme
     await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
@@ -61,7 +62,8 @@ describe('loan.destroyLoanScheme()', () => {
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'scheme'
+      identifier: 'scheme',
+      height: new BigNumber(0)
     }, script)
 
     // Ensure the created txn is correct
@@ -88,7 +90,8 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: '123456789'
+      identifier: '123456789',
+      height: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -99,7 +102,8 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is an empty string', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: ''
+      identifier: '',
+      height: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -110,7 +114,8 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier does not exists', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'scheme2'
+      identifier: 'scheme2',
+      height: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -121,7 +126,8 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is a default scheme', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'default'
+      identifier: 'default',
+      height: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -143,7 +149,7 @@ describe('loan.destroyLoanScheme() with height', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
@@ -202,7 +208,7 @@ describe('loan.destroyLoanScheme() with height lesser than current height', () =
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
