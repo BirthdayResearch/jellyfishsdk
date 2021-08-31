@@ -92,7 +92,7 @@ describe('ICX Complex test scenarios', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -149,7 +149,7 @@ describe('ICX Complex test scenarios', () => {
       closed: true
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
     if (HTLCs[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast

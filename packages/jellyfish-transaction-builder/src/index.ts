@@ -27,13 +27,13 @@ export * from './txn/txn_builder_icxorderbook'
  * Currently only support sending from P2PKH operations.
  */
 export class P2WPKHTransactionBuilder extends P2WPKHTxnBuilder {
-  public readonly dex = new TxnBuilderDex(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly utxo = new TxnBuilderUtxo(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly account = new TxnBuilderAccount(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly liqPool = new TxnBuilderLiqPool(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly oracles = new TxnBuilderOracles(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly governance = new TxnBuilderGovernance(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly icxorderbook = new TxnBuilderICXOrderBook(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly masternode = new TxnBuilderMasternode(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
-  public readonly loans = new TxnBuilderLoans(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider)
+  public readonly dex = new TxnBuilderDex(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly utxo = new TxnBuilderUtxo(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly account = new TxnBuilderAccount(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly liqPool = new TxnBuilderLiqPool(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly oracles = new TxnBuilderOracles(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly governance = new TxnBuilderGovernance(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly icxorderbook = new TxnBuilderICXOrderBook(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly masternode = new TxnBuilderMasternode(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly loans = new TxnBuilderLoans(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
 }

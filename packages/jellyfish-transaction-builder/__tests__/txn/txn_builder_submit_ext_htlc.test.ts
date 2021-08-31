@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
@@ -9,6 +9,7 @@ import { ICXSubmitEXTHTLC } from '@defichain/jellyfish-transaction/script/dftx/d
 import { ICXEXTHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
 import { Testing } from '@defichain/jellyfish-testing'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('submit EXT HTLC', () => {
   const container = new MasterNodeRegTestContainer()
@@ -20,9 +21,9 @@ describe('submit EXT HTLC', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(container)
+    providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // steps required for ICX testing
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
@@ -87,7 +88,7 @@ describe('submit EXT HTLC', () => {
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC(submitEXTHTLC).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
@@ -96,7 +97,7 @@ describe('submit EXT HTLC', () => {
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')

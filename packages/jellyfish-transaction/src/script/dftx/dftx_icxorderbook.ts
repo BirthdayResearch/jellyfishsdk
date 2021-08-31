@@ -1,4 +1,4 @@
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
@@ -82,10 +82,10 @@ export class CICXMakeOffer extends ComposableBuffer<ICXMakeOffer> {
  * ICXSubmitDFCHTLC DeFi transaction
  */
 export interface ICXSubmitDFCHTLC {
-  offerTx: string // ----| 32 byte, txid for which offer is this HTLC
-  amount: BigNumber // --| 8 byte, amount that is put in HTLC
-  hash: string // -------| 32 byte, hash for the hash lock part
-  timeout: number // ----| 4 byte, timeout (absolute in blocks) for timelock part
+  offerTx: string // ----| 32 bytes, txid for which offer is this HTLC
+  amount: BigNumber // --| 8 bytes, amount that is put in HTLC
+  hash: string // -------| 32 bytes, hash for the hash lock part
+  timeout: number // ----| 4 bytes, timeout (absolute in blocks) for timelock part
 }
 
 /**
@@ -110,12 +110,12 @@ export class CICXSubmitDFCHTLC extends ComposableBuffer<ICXSubmitDFCHTLC> {
  * ICXSubmitEXTHTLC DeFi transaction
  */
 export interface ICXSubmitEXTHTLC {
-  offerTx: string // -----------| 32 byte, txid for which offer is this HTLC
-  amount: BigNumber // ---------| 8 byte, amount that is put in HTLC
-  hash: string // --------------| 32 byte, hash for the hash lock part
+  offerTx: string // -----------| 32 bytes, txid for which offer is this HTLC
+  amount: BigNumber // ---------| 8 bytes, amount that is put in HTLC
+  hash: string // --------------| 32 bytes, hash for the hash lock part
   htlcScriptAddress: string // -| n = VarUInt{1-9 bytes}, + n bytes, script address of external htlc
   ownerPubkey: string // -------| n = VarUInt{1-9 bytes}, + n bytes, pubkey of the owner to which the funds are refunded if HTLC timeouts
-  timeout: number // -----------| 4 byte, timeout (absolute in block) for expiration of external htlc in external chain blocks
+  timeout: number // -----------| 4 bytes, timeout (absolute in block) for expiration of external htlc in external chain blocks
 }
 
 /**
@@ -134,6 +134,30 @@ export class CICXSubmitEXTHTLC extends ComposableBuffer<ICXSubmitEXTHTLC> {
       ComposableBuffer.varUIntUtf8BE(() => msg.htlcScriptAddress, v => msg.htlcScriptAddress = v),
       ComposableBuffer.varUIntHex(() => msg.ownerPubkey, v => msg.ownerPubkey = v),
       ComposableBuffer.uInt32(() => msg.timeout, v => msg.timeout = v)
+    ]
+  }
+}
+
+/**
+ * ICXClaimDFCHTLC DeFi transaction
+ */
+export interface ICXClaimDFCHTLC {
+  dfcHTLCTx: string // ----| 32 bytes, txid of dfc htlc tx for which the claim is
+  seed: string // ---------| n = VarUInt{1-9 bytes}, + n bytes, secret seed for claiming htlc
+}
+
+/**
+ * Composable ICXClaimDFCHTLC, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CICXClaimDFCHTLC extends ComposableBuffer<ICXClaimDFCHTLC> {
+  static OP_CODE = 0x35
+  static OP_NAME = 'OP_DEFI_TX_ICX_CLAIM_DFC_HTLC'
+
+  composers (msg: ICXClaimDFCHTLC): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => msg.dfcHTLCTx, v => msg.dfcHTLCTx = v),
+      ComposableBuffer.varUIntHex(() => msg.seed, v => msg.seed = v)
     ]
   }
 }

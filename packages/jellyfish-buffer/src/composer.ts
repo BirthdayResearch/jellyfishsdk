@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from './buffer_varuint'
-import { getBitsFrom } from './buffer_bitmask'
-import { MAX_INT64, ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './buffer_bignumber'
+import { readVarUInt, writeVarUInt } from './varuint'
+import { getBitsFrom } from './bitmask'
+import { MAX_INT64, ONE_HUNDRED_MILLION, readBigNumberUInt64, writeBigNumberUInt64 } from './bignumber'
 
 export interface BufferComposer {
   fromBuffer: (buffer: SmartBuffer) => void

@@ -1,4 +1,4 @@
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
 
 /**

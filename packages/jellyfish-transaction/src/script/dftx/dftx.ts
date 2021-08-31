@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -53,7 +53,9 @@ import {
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
 } from './dftx_icxorderbook'
 import {
   CSetGovernance,
@@ -205,6 +207,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
       case CICXSubmitEXTHTLC.OP_CODE:
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
+      case CICXClaimDFCHTLC.OP_CODE:
+        return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       case CDestroyLoanScheme.OP_CODE:
         return compose<DestroyLoanScheme>(CDestroyLoanScheme.OP_NAME, d => new CDestroyLoanScheme(d))
       default:
