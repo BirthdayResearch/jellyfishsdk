@@ -236,6 +236,9 @@ describe('Loan with activateAfterBlock is less than current block', () => {
   })
 
   it('should not updateLoanScheme', async () => {
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme1'])
+    await testing.generate(1)
+
     await testing.container.waitForBlockHeight(110)
 
     // Attempt to updateLoanScheme at block 109
