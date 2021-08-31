@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
+import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'

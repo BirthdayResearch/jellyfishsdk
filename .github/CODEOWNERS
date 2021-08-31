@@ -10,6 +10,9 @@
 /packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap @Jouzo
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
+
+/packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
