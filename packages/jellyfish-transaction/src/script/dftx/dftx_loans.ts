@@ -55,7 +55,7 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
  * DestroyLoanScheme DeFi Transaction
  */
 export interface DestroyLoanScheme {
-  identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Symbol of the loan scheme
+  identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Unique identifier of the loan scheme
   height: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
 }
 
