@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../../src/buffer/buffer_composer'
-import { readVarUInt, writeVarUInt } from '../../src/buffer/buffer_varuint'
+import { BufferComposer, ComposableBuffer } from '../src/composer'
+import { readVarUInt, writeVarUInt } from '../src/varuint'
 
 function hexAsBuffer (hex: string | string[]): SmartBuffer {
   if (typeof hex === 'string') {

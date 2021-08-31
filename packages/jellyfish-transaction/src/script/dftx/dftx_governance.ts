@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer, readBigNumberUInt64, writeBigNumberUInt64 } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 
