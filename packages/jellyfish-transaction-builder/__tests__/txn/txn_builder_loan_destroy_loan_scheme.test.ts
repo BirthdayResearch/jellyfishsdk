@@ -62,8 +62,7 @@ describe('loan.destroyLoanScheme()', () => {
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'scheme',
-      height: new BigNumber(0)
+      identifier: 'scheme'
     }, script)
 
     // Ensure the created txn is correct
@@ -90,8 +89,7 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: '123456789',
-      height: new BigNumber(0)
+      identifier: '123456789'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -102,8 +100,7 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is an empty string', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: '',
-      height: new BigNumber(0)
+      identifier: ''
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -114,8 +111,7 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier does not exists', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'scheme2',
-      height: new BigNumber(0)
+      identifier: 'scheme2'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -126,8 +122,7 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is a default scheme', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'default',
-      height: new BigNumber(0)
+      identifier: 'default'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)

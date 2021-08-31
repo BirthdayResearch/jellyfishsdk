@@ -1,4 +1,6 @@
-import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { SmartBuffer } from 'smart-buffer'
+import { readBigNumberUInt64, writeBigNumberUInt64, BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+
 import BigNumber from 'bignumber.js'
 
 /**
@@ -56,7 +58,7 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
  */
 export interface DestroyLoanScheme {
   identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Unique identifier of the loan scheme
-  height: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
+  height?: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
 }
 
 /**
@@ -70,7 +72,14 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
   composers (dls: DestroyLoanScheme): BufferComposer[] {
     return [
       ComposableBuffer.varUIntUtf8BE(() => dls.identifier, v => dls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          dls.height = readBigNumberUInt64(buffer)
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          writeBigNumberUInt64(dls.height ?? new BigNumber(0x00000000), buffer)
+        }
+      }
     ]
   }
 }
