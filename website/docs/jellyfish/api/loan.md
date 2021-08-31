@@ -40,7 +40,7 @@ Updates an existing loan scheme.
 
 ```ts title="client.loan.updateLoanScheme()"
 interface loan {
-    updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string>
+  updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UpdateLoanScheme {
@@ -94,16 +94,16 @@ Destroys a loan scheme.
 
 ```ts title="client.loan.destroyLoanScheme()"
 interface loan {
-    destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
+  destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
 interface DestroyLoanScheme {
-    id: string
-    activateAfterBlock?: number
+  id: string
+  activateAfterBlock?: number
 }
 
 interface UTXO {
-    txid: string
-    vout: number
+  txid: string
+  vout: number
 }
 ```
