@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test
@@ -22,7 +26,7 @@ jobs:
 
       - run: npm run test:ci
 
-      - uses: codecov/codecov-action@51d810878be5422784e86451c0e7c14e5860ec47
+      - uses: codecov/codecov-action@5a8bb4701eca7ba3673f21664b887f652c58d0a3
         with:
           fail_ci_if_error: true
 
@@ -38,7 +42,7 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npx --no-install ts-standard
+      - run: npx --no-install eslint .
 
   size:
     name: Size Limit

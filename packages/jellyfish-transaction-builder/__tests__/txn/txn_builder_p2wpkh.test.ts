@@ -4,6 +4,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTxnBuilder } from '../../src'
 import { fundEllipticPair } from '../test.utils'
 import { CDfTx, DeFiOpUnmapped, OP_CODES, OP_DEFI_TX } from '@defichain/jellyfish-transaction'
+import { RegTest } from '@defichain/jellyfish-network'
 
 // P2WPKHTxnBuilder is abstract and not instantiable
 class TestBuilder extends P2WPKHTxnBuilder {}
@@ -28,7 +29,7 @@ beforeAll(async () => {
   await container.waitForWalletCoinbaseMaturity()
 
   providers = await getProviders(container)
-  builder = new TestBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new TestBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 })
 
 afterAll(async () => {

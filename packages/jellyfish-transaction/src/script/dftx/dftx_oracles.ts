@@ -1,11 +1,8 @@
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-import { CurrencyPair, CCurrencyPair, CTokenPrice, TokenPrice } from './dftx_price'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { CCurrencyPair, CTokenPrice, CurrencyPair, TokenPrice } from './dftx_price'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import BigNumber from 'bignumber.js'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
 
 /**
  * AppointOracle DeFi Transaction

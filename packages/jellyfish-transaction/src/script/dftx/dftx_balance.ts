@@ -1,10 +1,7 @@
 import BigNumber from 'bignumber.js'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
 
 export interface TokenBalance {
   token: number // ---------------------| 4 bytes unsigned

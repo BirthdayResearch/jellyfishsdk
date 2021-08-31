@@ -1,13 +1,9 @@
 import BigNumber from 'bignumber.js'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer, readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
-import { CScriptBalances, ScriptBalances, CTokenBalance, TokenBalance } from './dftx_balance'
-import { writeVarUInt, readVarUInt } from '../../buffer/buffer_varuint'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
+import { CScriptBalances, CTokenBalance, ScriptBalances, TokenBalance } from './dftx_balance'
 
 /**
  * PoolSwap DeFi Transaction

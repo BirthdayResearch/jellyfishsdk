@@ -23,9 +23,10 @@ export interface Bip32Options {
 }
 
 /**
- * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
- * Purpose [44'] / CoinType-agnostic [n] / Account [n] / Chain (ignored for now) [0] / Addresses [n]
+ * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet.
+ * MnemonicHdNode implementations is purpose and derivation agnostic.
  *
+ * Prior-art:
  * - BIP32 Hierarchical Deterministic Wallets
  * - BIP39 Mnemonic code for generating deterministic keys
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
@@ -173,8 +174,12 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
  */
 function fromWordsToSeed (words: string[], options: Bip32Options): bip32.BIP32Interface {
   const seed = mnemonicToSeed(words)
-  if (seed.length < 16) throw new TypeError('Seed should be at least 128 bits')
-  if (seed.length > 64) throw new TypeError('Seed should be at most 512 bits')
+  if (seed.length < 16) {
+    throw new TypeError('Seed should be at least 128 bits')
+  }
+  if (seed.length > 64) {
+    throw new TypeError('Seed should be at most 512 bits')
+  }
 
   const key = Buffer.from('@defichain/jellyfish-wallet-mnemonic', 'utf8')
   const I = createHmac('sha512', key).update(seed).digest()

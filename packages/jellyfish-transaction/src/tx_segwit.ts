@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Script, SIGHASH } from './tx'
-import { BufferComposer, ComposableBuffer } from './buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { CScript } from './tx_composer'
 
 /**
@@ -33,8 +33,6 @@ export interface WitnessProgram {
  * Composable WitnessProgram
  */
 export class CWitnessProgram extends ComposableBuffer<WitnessProgram> {
-  /* eslint-disable no-return-assign */
-
   composers (wp: WitnessProgram): BufferComposer[] {
     return [
       ComposableBuffer.uInt32(() => wp.version, v => wp.version = v),
