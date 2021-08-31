@@ -11,6 +11,8 @@
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
 
+/packages/jellyfish-block/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+
 /packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
 
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap

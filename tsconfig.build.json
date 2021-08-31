@@ -11,6 +11,7 @@
     {"path": "./packages/jellyfish-address/tsconfig.build.json"},
     {"path": "./packages/jellyfish-api-core/tsconfig.build.json"},
     {"path": "./packages/jellyfish-api-jsonrpc/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-block/tsconfig.build.json"},
     {"path": "./packages/jellyfish-buffer/tsconfig.build.json"},
     {"path": "./packages/jellyfish-crypto/tsconfig.build.json"},
     {"path": "./packages/jellyfish-json/tsconfig.build.json"},

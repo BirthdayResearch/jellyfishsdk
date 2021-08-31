@@ -65,6 +65,8 @@
 - color: fbca04
   name: area/jellyfish-api-jsonrpc
 - color: fbca04
+  name: area/jellyfish-block
+- color: fbca04
   name: area/jellyfish-buffer
 - color: fbca04
   name: area/jellyfish-crypto
