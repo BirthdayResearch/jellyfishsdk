@@ -12,6 +12,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -33,7 +34,7 @@ beforeAll(async () => {
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
 
   providers = await getProviders(container)
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
   // creating DFI-* pool pairs and funding liquidity
   for (const symbol of Object.keys(pairs)) {
