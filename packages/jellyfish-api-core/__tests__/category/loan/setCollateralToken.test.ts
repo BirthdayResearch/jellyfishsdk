@@ -43,7 +43,7 @@ describe('Loan', () => {
         token: 'AAPL',
         factor: 0.5,
         priceFeedId,
-        activateAfterBlock: expect.any(Number)
+        activateAfterBlock: await testing.container.getBlockCount()
       }
     })
   })
@@ -58,7 +58,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nsetCollateralToken factor must be lower or equal than 1.00000000!\', code: -32600, method: setcollateraltoken')
   })
 
-  it('should not setCollateralToken if factor is lesser than 0', async () => {
+  it('should not setCollateralToken if factor is less than 0', async () => {
     const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(-0.01), priceFeedId })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setcollateraltoken')
   })
@@ -93,7 +93,7 @@ describe('Loan', () => {
         token: 'AAPL',
         factor: 0.5,
         priceFeedId,
-        activateAfterBlock: expect.any(Number)
+        activateAfterBlock: await testing.container.getBlockCount()
       }
     })
   })
