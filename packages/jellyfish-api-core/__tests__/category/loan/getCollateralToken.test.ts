@@ -16,8 +16,8 @@ describe('Loan', () => {
   })
 
   it('should getCollateralToken', async () => {
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
@@ -32,20 +32,20 @@ describe('Loan', () => {
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId,
-      activateAfterBlock: 160
+      activateAfterBlock: 120
     }])
     await testing.generate(1)
 
     const data = await testing.rpc.loan.getCollateralToken({
       token: 'AAPL',
-      height: 160
+      height: 120
     })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
         factor: 0.5,
         priceFeedId,
-        activateAfterBlock: 160
+        activateAfterBlock: 120
       }
     })
   })
@@ -70,8 +70,8 @@ describe('Loan with height is set before current height', () => {
   })
 
   it('should getCollateralToken', async () => {
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
@@ -86,20 +86,20 @@ describe('Loan with height is set before current height', () => {
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId,
-      activateAfterBlock: 160
+      activateAfterBlock: 120
     }])
     await testing.generate(1)
 
     const data = await testing.rpc.loan.getCollateralToken({
       token: 'AAPL',
-      height: 170
+      height: 130
     })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
         factor: 0.5,
         priceFeedId,
-        activateAfterBlock: 160
+        activateAfterBlock: 120
       }
     })
   })
@@ -119,8 +119,8 @@ describe('Loan with height is set after current height', () => {
   })
 
   it('should getCollateralToken', async () => {
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
@@ -135,13 +135,13 @@ describe('Loan with height is set after current height', () => {
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId,
-      activateAfterBlock: 160
+      activateAfterBlock: 120
     }])
     await testing.generate(1)
 
     const data = await testing.rpc.loan.getCollateralToken({
       token: 'AAPL',
-      height: 159
+      height: 119
     })
     expect(data).toStrictEqual({})
   })
