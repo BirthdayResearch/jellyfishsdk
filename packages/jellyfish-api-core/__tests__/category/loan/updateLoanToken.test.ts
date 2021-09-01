@@ -155,14 +155,14 @@ describe('Loan', () => {
     await testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXY', // 129 letters
+      name: 'x'.repeat(129), // 129 letters
       priceFeedId
     })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX') // Only remain first 128 letters.
+    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain first 128 letters.
   })
 
   // NOTE(jingyi2811): C++ side throw error with random wrong OracleId, expect e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b
