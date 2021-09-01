@@ -112,7 +112,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain first 128 letters.
+    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
   it('should not setLoanToken if priceFeedId is invalid', async () => {
