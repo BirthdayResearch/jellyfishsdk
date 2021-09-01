@@ -70,12 +70,12 @@ export class Loan {
    * @return {Promise<CollateralTokensData>} CollateralToken
    */
   async listCollateralTokens (): Promise<CollateralTokensData> {
-    return await this.client.call('listcollateraltokens', [], { factor: 'bignumber' })
+    return await this.client.call('listcollateraltokens', [], 'bignumber')
   }
 }
 
 export interface CreateLoanScheme {
-  minColRatio: number
+  minColRatio: BigNumber
   interestRate: BigNumber
   id: string
 }

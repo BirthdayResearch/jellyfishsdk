@@ -16,8 +16,8 @@ describe('Loan', () => {
   })
 
   it('should listCollateralTokens', async () => {
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
@@ -41,7 +41,7 @@ describe('Loan', () => {
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId: priceFeedId1,
-      activateAfterBlock: 160
+      activateAfterBlock: 120
     }])
     await testing.generate(1)
 
@@ -49,20 +49,14 @@ describe('Loan', () => {
       token: 'TSLA',
       factor: new BigNumber(1),
       priceFeedId: priceFeedId2,
-      activateAfterBlock: 170
+      activateAfterBlock: 130
     }])
     await testing.generate(1)
 
     const data = await testing.rpc.loan.listCollateralTokens()
     expect(data).toStrictEqual({
-      [collateralTokenId1]: { activateAfterBlock: 160, factor: 0.5, priceFeedId: priceFeedId1, token: 'AAPL' },
-      [collateralTokenId2]: { activateAfterBlock: 170, factor: 1, priceFeedId: priceFeedId2, token: 'TSLA' }
+      [collateralTokenId1]: { activateAfterBlock: new BigNumber(120), factor: new BigNumber(0.5), priceFeedId: priceFeedId1, token: 'AAPL' },
+      [collateralTokenId2]: { activateAfterBlock: new BigNumber(130), factor: new BigNumber(1), priceFeedId: priceFeedId2, token: 'TSLA' }
     })
-
-    // Update AAPL at block 160
-    await testing.container.waitForBlockHeight(160)
-
-    // Update TSLA at block 170
-    await testing.container.waitForBlockHeight(170)
   })
 })
