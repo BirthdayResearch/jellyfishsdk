@@ -30,11 +30,11 @@ export class Loan {
   /**
    * Updates an existing loan scheme.
    *
-   * @param {UpdateLoanScheme} options
-   * @param {number} options.minColRatio Minimum collateralization ratio
-   * @param {BigNumber} options.interestRate Interest rate
-   * @param {string} options.id Unique identifier of the loan scheme, max 8 chars
-   * @param {number} [options.activateAfterBlock] Block height at which new changes take effect
+   * @param {UpdateLoanScheme} scheme
+   * @param {number} scheme.minColRatio Minimum collateralization ratio
+   * @param {BigNumber} scheme.interestRate Interest rate
+   * @param {string} scheme.id Unique identifier of the loan scheme, max 8 chars
+   * @param {number} [scheme.activateAfterBlock] Block height at which new changes take effect
    * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
    * @param {string} options.utxos.txid Transaction Id
    * @param {number} options.utxos.vout Output number

@@ -108,7 +108,7 @@ describe('Loan', () => {
     const promise = testing.rpc.loan.updateLoanScheme({
       minColRatio: 300,
       interestRate: new BigNumber(3.5),
-      id: '123456789'
+      id: 'x'.repeat(9)
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: updateloanscheme')
   })
@@ -222,7 +222,7 @@ describe('Loan with activateAfterBlock at block 120', () => {
   })
 })
 
-describe('Loan with activateAfterBlock is less than current block', () => {
+describe('Loan with activateAfterBlock less than current block', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
