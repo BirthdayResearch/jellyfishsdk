@@ -75,6 +75,7 @@ describe('listTokens', () => {
       id: '6',
       amount: '10.00000000',
       symbol: 'F',
+      displaySymbol: 'dF',
       symbolKey: 'F',
       name: 'F',
       isDAT: true,
