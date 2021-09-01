@@ -34,6 +34,58 @@ interface UTXO {
 }
 ```
 
+## listLoanSchemes
+
+List all available loan schemes.
+
+```ts title="client.loan.listLoanSchemes()"
+interface loan {
+  listLoanSchemes (): Promise<LoanSchemeResult[]>
+}
+
+interface LoanSchemeResult {
+  id: string
+  mincolratio: BigNumber
+  interestrate: BigNumber
+  default: boolean
+}
+```
+
+## setDefaultLoanScheme
+
+Sets the default loan scheme.
+
+```ts title="client.loan.setDefaultLoanScheme()"
+interface loan {
+  setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## destroyLoanScheme
+
+Destroys a loan scheme.
+
+```ts title="client.loan.destroyLoanScheme()"
+interface loan {
+  destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
+}
+
+interface DestroyLoanScheme {
+  id: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listCollateralTokens
 
 List collateral tokens.
