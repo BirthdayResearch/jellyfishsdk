@@ -1,10 +1,9 @@
 import BigNumber from 'bignumber.js'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer, readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 import { SmartBuffer } from 'smart-buffer'
 import { CScriptBalances, CTokenBalance, ScriptBalances, TokenBalance } from './dftx_balance'
-import { readVarUInt, writeVarUInt } from '../../buffer/buffer_varuint'
 
 /**
  * PoolSwap DeFi Transaction

@@ -95,8 +95,8 @@ export class ICXSetup {
     const pool = await this.container.call('getpoolpair', ['BTC-DFI'])
     const combToken = await this.container.call('gettoken', ['BTC-DFI'])
     const idDFIBTC = Object.keys(combToken)[0]
-    expect(pool[idDFIBTC].idTokenA).toBe(idBTC)
-    expect(pool[idDFIBTC].idTokenB).toBe(idDFI)
+    expect(pool[idDFIBTC].idTokenA).toStrictEqual(idBTC)
+    expect(pool[idDFIBTC].idTokenB).toStrictEqual(idDFI)
   }
 
   async addLiquidityToBTCDFIPool (amountInBTC: number, amountInDFI: number): Promise<void> {
@@ -176,7 +176,7 @@ export class ICXSetup {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await this.client.icxorderbook.listOrders({ orderTx: orderTx })
-    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     return {
@@ -207,7 +207,7 @@ export class ICXSetup {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
     expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).status).toStrictEqual(ICXHTLCStatus.OPEN)
 
@@ -237,7 +237,7 @@ export class ICXSetup {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).type).toStrictEqual(ICXHTLCType.EXTERNAL)
     expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).status).toStrictEqual(ICXHTLCStatus.OPEN)
 
