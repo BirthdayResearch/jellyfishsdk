@@ -103,6 +103,6 @@ interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   priceFeedId: string
-  activateAfterBlock: number
+  activateAfterBlock: BigNumber
 }
 ```
