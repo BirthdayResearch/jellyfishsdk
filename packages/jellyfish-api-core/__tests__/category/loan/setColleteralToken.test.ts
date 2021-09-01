@@ -12,7 +12,10 @@ describe('Loan', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+
     await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
+
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'EUR'
@@ -69,49 +72,6 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\noracle (944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5) does not exist!\', code: -32600, method: setcollateraltoken')
   })
 
-  it('should setCollateralToken at activateAfterBlock', async () => {
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
-
-    // To setCollateralToken at block 160
-    const collateralTokenId = await testing.rpc.loan.setCollateralToken({
-      token: 'AAPL',
-      factor: new BigNumber(0.5),
-      priceFeedId,
-      activateAfterBlock: 160
-    })
-    expect(typeof collateralTokenId).toStrictEqual('string')
-    expect(collateralTokenId.length).toStrictEqual(64)
-    await testing.generate(1)
-
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 160 }])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        priceFeedId,
-        activateAfterBlock: 160
-      }
-    })
-
-    // Update at block 160
-    await testing.container.waitForBlockHeight(160)
-  })
-
-  it('should not setCollateralToken if activateAfterBlock is less than current height', async () => {
-    // Wait for block 170
-    await testing.container.waitForBlockHeight(170)
-
-    // To setCollateralToken at block 169
-    const promise = testing.rpc.loan.setCollateralToken({
-      token: 'AAPL',
-      factor: new BigNumber(0.5),
-      priceFeedId,
-      activateAfterBlock: 169
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')
-  })
-
   it('should setCollateralToken with utxos', async () => {
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
     const collateralTokenId = await testing.rpc.loan.setCollateralToken({
@@ -146,5 +106,91 @@ describe('Loan', () => {
       priceFeedId
     }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setcollateraltoken')
+  })
+})
+
+describe('Loan with activateAfterBlock at block 160', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should setCollateralToken', async () => {
+    await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
+
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
+    await testing.generate(1)
+
+    // Wait for block 150
+    await testing.container.waitForBlockHeight(150)
+
+    // To setCollateralToken at block 160
+    const collateralTokenId = await testing.rpc.loan.setCollateralToken({
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId,
+      activateAfterBlock: 160
+    })
+    expect(typeof collateralTokenId).toStrictEqual('string')
+    expect(collateralTokenId.length).toStrictEqual(64)
+    await testing.generate(1)
+
+    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 160 }])
+    expect(data).toStrictEqual({
+      [collateralTokenId]: {
+        token: 'AAPL',
+        factor: 0.5,
+        priceFeedId,
+        activateAfterBlock: 160
+      }
+    })
+  })
+})
+
+describe('Loan with activateAfterBlock less than current block', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should not setCollateralToken', async () => {
+    await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
+
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
+    await testing.generate(1)
+
+    // Wait for block 150
+    await testing.container.waitForBlockHeight(150)
+
+    // To setCollateralToken at block 149
+    const promise = testing.rpc.loan.setCollateralTImpoken({
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId,
+      activateAfterBlock: 149
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')
   })
 })
