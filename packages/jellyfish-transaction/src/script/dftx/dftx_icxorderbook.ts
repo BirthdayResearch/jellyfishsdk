@@ -79,6 +79,28 @@ export class CICXMakeOffer extends ComposableBuffer<ICXMakeOffer> {
 }
 
 /**
+ * ICXCloseOrder DeFi Transaction
+ */
+export interface ICXCloseOrder {
+  orderTx: string // --------| 32 bytes, txid of order which will be closed
+}
+
+/**
+ * Composable ICXCloseOrder, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CICXCloseOrder extends ComposableBuffer<ICXCloseOrder> {
+  static OP_CODE = 0x36 // '6'
+  static OP_NAME = 'OP_DEFI_TX_ICX_CLOSE_ORDER'
+
+  composers (co: ICXCloseOrder): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => co.orderTx, v => co.orderTx = v)
+    ]
+  }
+}
+
+/**
  * ICXSubmitDFCHTLC DeFi transaction
  */
 export interface ICXSubmitDFCHTLC {
