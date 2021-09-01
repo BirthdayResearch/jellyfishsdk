@@ -68,10 +68,10 @@ export class Loan {
    * Creates (and submits to local node and network) a token for a price feed set in collateral token.
    *
    * @param {SetLoanToken} loanToken
-   * @param {string} loanToken.symbol // Token's symbol (unique), no longer than 8
-   * @param {string} loanToken.name // Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId // Txid of oracle feeding the price
-   * @param {boolean} [loanToken.mintable] // Token's 'Mintable' property, default=true
+   * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
+   * @param {string} loanToken.name Token's name, no longer than 128
+   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {boolean} [loanToken.mintable] Token's 'Mintable' property, default=true
    * @param {BigNumber} [loanToken.interest=new BigNumber(0)] // Interest rate, default=0
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id

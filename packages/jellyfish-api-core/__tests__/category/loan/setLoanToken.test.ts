@@ -66,7 +66,7 @@ describe('Loan', () => {
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'ABCDEFGHI', // 9 letters
+      symbol: 'x'.repeat(9), // 9 letters
       name: 'Token2',
       priceFeedId
     })
@@ -74,7 +74,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('ABCDEFGH') // Only remain the first 8 letters
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not setLoanToken if symbol is an empty string', async () => {
@@ -105,14 +105,14 @@ describe('Loan', () => {
   it('should setLoanToken if name is more than 128 letters', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token5',
-      name: 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXY', // 129 letters
+      name: 'x'.repeat(129), // 129 letters
       priceFeedId
     })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX') // Only remain first 128 letters.
+    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain first 128 letters.
   })
 
   it('should not setLoanToken if priceFeedId is invalid', async () => {
