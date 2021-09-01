@@ -92,11 +92,6 @@ export interface LoanSchemeResult {
   default: boolean
 }
 
-export interface UTXO {
-  txid: string
-  vout: number
-}
-
 export interface ListLoanTokenData {
   [key: string]: ListLoanTokenDetail
 }
@@ -129,4 +124,9 @@ export interface TokenDetail {
   symbol: string
   symbolKey: string
   tradeable: boolean
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
 }
