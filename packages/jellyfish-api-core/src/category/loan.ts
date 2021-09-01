@@ -71,7 +71,7 @@ export class Loan {
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {BigNumber} collateralToken.factor Collateralization factor
    * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
-   * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height (Optional)
+   * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
