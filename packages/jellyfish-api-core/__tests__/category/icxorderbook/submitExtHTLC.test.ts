@@ -86,7 +86,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
@@ -109,7 +109,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).type).toStrictEqual(ICXHTLCType.DFC)
     expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).status).toStrictEqual(ICXOrderStatus.OPEN)
     expect((HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).offerTx).toStrictEqual(makeOfferTxId)
@@ -132,7 +132,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterExtHTLC: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptionsAfterExtHTLC], 'bignumber')
-    expect(Object.keys(HTLCsAfterExtHTLC).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsAfterExtHTLC).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -189,7 +189,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     const accountDFIBeforeExtHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
@@ -210,7 +210,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -261,7 +261,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -319,7 +319,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCBeforeEXTHTLC
@@ -363,7 +363,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCBeforeEXTHTLC
@@ -394,7 +394,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCAfterDFCHTLC
@@ -425,7 +425,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCBeforeEXTHTLC
@@ -462,7 +462,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCAfterDFCHTLC
@@ -506,7 +506,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // No DFC HTLC submitted yet.
@@ -529,7 +529,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(1) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCAfterDFCHTLC
@@ -562,7 +562,7 @@ describe('ICXOrderBook.submitExtHTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await container.call('icx_listhtlcs', [listHTLCOptions])
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCAfterEXTHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // should have the same balance as accountBTCBeforeEXTHTLC

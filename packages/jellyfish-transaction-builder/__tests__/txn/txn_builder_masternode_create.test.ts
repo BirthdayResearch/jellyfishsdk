@@ -1,14 +1,11 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RegTest } from '@defichain/jellyfish-network'
-import { OP_CODES, CreateMasternode, TransactionSegWit } from '@defichain/jellyfish-transaction'
+import { CreateMasternode, OP_CODES, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { P2PKH, P2SH, P2WPKH } from '@defichain/jellyfish-address'
 import { DeFiDRpcError, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import {
-  fundEllipticPair,
-  sendTransaction
-} from '../test.utils'
+import { fundEllipticPair, sendTransaction } from '../test.utils'
 
 describe('CreateMasternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -32,7 +29,7 @@ describe('CreateMasternode', () => {
 
   beforeEach(async () => {
     await providers.randomizeEllipticPair()
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Note(canonbrother): in regtest, collateral amount must be equal to 2 and creation fee must be greater than 1
     // https://github.com/DeFiCh/ain/blob/85360ad432ae8c5ecbfbfc7d63dd5bc6fe41e875/src/masternodes/mn_checks.cpp#L439-L446
@@ -205,7 +202,7 @@ describe('CreateMasternode with timelock', () => {
 
   beforeEach(async () => {
     await providers.randomizeEllipticPair()
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // 0.00000755 is added for calculateFeeP2WPKH deduction
     // with timelock fee increases 0.000001

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 
 export interface CurrencyPair {
   token: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
