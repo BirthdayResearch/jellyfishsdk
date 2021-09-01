@@ -52,7 +52,7 @@ describe('Loan', () => {
             isLoanToken: true,
             minted: 0,
             creationTx: loanTokenId,
-            creationHeight: expect.any(Number),
+            creationHeight: await testing.container.getBlockCount(),
             destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
             destructionHeight: -1,
             collateralAddress: expect.any(String)
