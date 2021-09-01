@@ -73,6 +73,7 @@ export interface AddressToken {
   id: string
   amount: string
   symbol: string
+  displaySymbol: string
   symbolKey: string
   name: string
   isDAT: boolean
