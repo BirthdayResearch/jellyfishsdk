@@ -132,27 +132,27 @@ describe('Loan with activateAfterBlock at block 160', () => {
     }], 1])
     await testing.generate(1)
 
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
-    // To setCollateralToken at block 160
+    // To setCollateralToken at block 120
     const collateralTokenId = await testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId,
-      activateAfterBlock: 160
+      activateAfterBlock: 120
     })
     expect(typeof collateralTokenId).toStrictEqual('string')
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 160 }])
+    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 120 }])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
         factor: 0.5,
         priceFeedId,
-        activateAfterBlock: 160
+        activateAfterBlock: 120
       }
     })
   })
@@ -181,15 +181,15 @@ describe('Loan with activateAfterBlock less than current block', () => {
     }], 1])
     await testing.generate(1)
 
-    // Wait for block 150
-    await testing.container.waitForBlockHeight(150)
+    // Wait for block 110
+    await testing.container.waitForBlockHeight(110)
 
-    // To setCollateralToken at block 149
+    // To setCollateralToken at block 109
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId,
-      activateAfterBlock: 149
+      activateAfterBlock: 109
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')
   })
