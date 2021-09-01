@@ -185,7 +185,7 @@ describe('Loan with activateAfterBlock less than current block', () => {
     await testing.container.waitForBlockHeight(150)
 
     // To setCollateralToken at block 149
-    const promise = testing.rpc.loan.setCollateralTImpoken({
+    const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId,
