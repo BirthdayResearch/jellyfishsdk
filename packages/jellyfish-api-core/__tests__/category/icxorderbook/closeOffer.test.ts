@@ -76,7 +76,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // close offer makeOfferTxId - taker
@@ -85,7 +85,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check no more offers
     const ordersAfterCloseOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await await container.call('icx_listorders', [{ orderTx: createOrderTxId }])
-    expect(Object.keys(ordersAfterCloseOffer).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterCloseOffer).length).toStrictEqual(1) // extra entry for the warning text returned by the RPC atm.
 
     // check accountBTC balance, should be the same as accountBTCBeforeOffer
     const accountBTCAfterOfferClose: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
@@ -128,7 +128,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // close offer makeOfferTxId - taker
@@ -137,7 +137,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check no more offers
     const ordersAfterCloseOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await await container.call('icx_listorders', [{ orderTx: createOrderTxId }])
-    expect(Object.keys(ordersAfterCloseOffer).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterCloseOffer).length).toStrictEqual(1) // extra entry for the warning text returned by the RPC atm.
 
     // check accountBTC balance, should be the same as accountBTCBeforeOffer
     const accountBTCAfterOfferClose: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
@@ -181,7 +181,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // input utxos
@@ -193,7 +193,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check no more offers
     const ordersAfterCloseOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterCloseOffer).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterCloseOffer).length).toStrictEqual(1) // extra entry for the warning text returned by the RPC atm.
 
     // check accountBTC balance, should be the same as accountBTCBeforeOffer
     const accountBTCAfterOfferClose: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
@@ -237,7 +237,7 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     // close offer "INVALID_OFFER_TX_ID" - taker
@@ -248,6 +248,6 @@ describe('ICXOrderBook.closeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterCloseOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterCloseOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterCloseOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
   })
 })

@@ -18,7 +18,7 @@ describe('Server on masternode', () => {
     const info = await client.server.getRpcInfo()
     expect(info.active_commands[0].method).toStrictEqual('getrpcinfo')
     expect(info.active_commands[0].duration).toBeGreaterThanOrEqual(0)
-    expect(typeof info.logpath).toBe('string')
+    expect(typeof info.logpath).toStrictEqual('string')
     expect(info.logpath).toContain('regtest/debug.log')
   })
 })

@@ -5,11 +5,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import {
-  findOut,
-  fundEllipticPair,
-  sendTransaction
-} from '../test.utils'
+import { findOut, fundEllipticPair, sendTransaction } from '../test.utils'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { RegTest } from '@defichain/jellyfish-network'
 
@@ -24,7 +20,7 @@ beforeAll(async () => {
   await container.waitForWalletCoinbaseMaturity()
 
   providers = await getProviders(container)
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
   jsonRpc = new JsonRpcClient(await container.getCachedRpcUrl())
 })
 
