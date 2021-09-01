@@ -5,12 +5,9 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { addPoolLiquidity, createPoolPair, createToken, mintTokens } from '@defichain/testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
-import {
-  findOut,
-  fundEllipticPair,
-  sendTransaction
-} from '../test.utils'
+import { findOut, fundEllipticPair, sendTransaction } from '../test.utils'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
+import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -47,7 +44,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await providers.randomizeEllipticPair()
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
   await container.waitForWalletBalanceGTE(1)
 
@@ -83,20 +80,20 @@ describe('liqPool.removeLiquidity()', () => {
 
     const txn = await builder.liqPool.removeLiquidity(removeLiquidity, script)
     const outs = await sendTransaction(container, txn)
-    expect(outs.length).toEqual(2)
+    expect(outs.length).toStrictEqual(2)
 
     const encoded: string = OP_CODES.OP_DEFI_TX_POOL_REMOVE_LIQUIDITY(removeLiquidity).asBuffer().toString('hex')
     // OP_RETURN + DfTx full buffer
     const expectedRedeemScript = `6a${encoded}`
-    expect(outs[0].value).toEqual(0)
-    expect(outs[0].scriptPubKey.hex).toEqual(expectedRedeemScript)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     // change
     const change = await findOut(outs, providers.elliptic.ellipticPair)
     expect(change.value).toBeLessThan(1)
     expect(change.value).toBeGreaterThan(1 - 0.001) // deducted fee
-    expect(change.scriptPubKey.hex).toBe(`0014${HASH160(destPubKey).toString('hex')}`)
-    expect(change.scriptPubKey.addresses[0]).toBe(Bech32.fromPubKey(destPubKey, 'bcrt'))
+    expect(change.scriptPubKey.hex).toStrictEqual(`0014${HASH160(destPubKey).toString('hex')}`)
+    expect(change.scriptPubKey.addresses[0]).toStrictEqual(Bech32.fromPubKey(destPubKey, 'bcrt'))
 
     // updated balance, receive invidual token
     const account = await jsonRpc.account.getAccount(await providers.getAddress())

@@ -271,7 +271,7 @@ describe('ICXOrderBook.listOrders', () => {
 
     // now list orders with ICXListOrderOptions.limit=1
     const ordersWithLimit1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ limit: 1 })
-    expect(Object.keys(ordersWithLimit1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersWithLimit1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
 
     const accountBTCBeforeOffer: Record<string, BigNumber> = await client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // make offer to partial amount 10 DFI - taker
@@ -302,7 +302,7 @@ describe('ICXOrderBook.listOrders', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offesForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offesForOrder1).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offesForOrder1).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect((offesForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -328,7 +328,7 @@ describe('ICXOrderBook.listOrders', () => {
 
     // now list offers for orderTx = createOrderTxId with ICXListOrderOptions.limit=1
     const offesForOrder1WithLimit1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId, limit: 1 })
-    expect(Object.keys(offesForOrder1WithLimit1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offesForOrder1WithLimit1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
   })
 
   it('should test ICXListOrderOptions.closed parameter', async () => {
@@ -466,7 +466,7 @@ describe('ICXOrderBook.listOrders', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -496,7 +496,7 @@ describe('ICXOrderBook.listOrders', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1AfterCloseOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1AfterCloseOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1AfterCloseOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1AfterCloseOffer as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -511,7 +511,7 @@ describe('ICXOrderBook.listOrders', () => {
 
     // now list the ICX offers for orderTx = createOrderTxId with ICXListOrderOptions.closed=true and check
     const offersForOrder1AfterCloseOfferWithClosedTrue: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId, closed: true })
-    expect(Object.keys(offersForOrder1AfterCloseOfferWithClosedTrue).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1AfterCloseOfferWithClosedTrue).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     const offerInfoRetrived = offersForOrder1AfterCloseOfferWithClosedTrue as Record<string, ICXOfferInfo>
     expect(offerInfoRetrived[makeOffer2TxId].orderTx).toStrictEqual(offer2.orderTx)
     expect(offerInfoRetrived[makeOffer2TxId].status).toStrictEqual(ICXOrderStatus.CLOSED)
