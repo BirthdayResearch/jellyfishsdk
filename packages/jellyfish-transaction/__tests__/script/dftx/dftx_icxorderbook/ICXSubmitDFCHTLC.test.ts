@@ -7,7 +7,9 @@ import { BigNumber } from '@defichain/jellyfish-json'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
-    '6a4c514466547833d13ee165fbd163c95d2dff1a36d80d5e342603fb5640e4657719476d313d704900ca9a3b0000000020521a24e5418c971da262215bd30bd79f52611a63e038295b603f64fdc07f95a0050000'
+    '6a4c514466547833d13ee165fbd163c95d2dff1a36d80d5e342603fb5640e4657719476d313d704900ca9a3b0000000020521a24e5418c971da262215bd30bd79f52611a63e038295b603f64fdc07f95a0050000',
+    '6a4c514466547833d13ee165fbd163c95d2dff1a36d80d5e342603fb5640e4657719476d313d7049009435770000000020521a24e5418c971da262215bd30bd79f52611a63e038295b603f64fdc07f95a0050000',
+    '6a4c514466547833d13ee165fbd163c95d2dff1a36d80d5e342603fb5640e4657719476d313d704900286bee0000000020521a24e5418c971da262215bd30bd79f52611a63e038295b603f64fdc07f9528000000'
   ]
 
   fixtures.forEach(hex => {
@@ -16,8 +18,8 @@ it('should bi-directional buffer-object-buffer', () => {
     )
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x33)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x33)
   })
 })
 
@@ -40,7 +42,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
@@ -48,7 +50,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CICXSubmitDFCHTLC(buffer)
 
-    expect(composable.toObject()).toEqual(submitDFCHTLC)
+    expect(composable.toObject()).toStrictEqual(submitDFCHTLC)
   })
 
   it('should compose from composable to buffer', () => {
@@ -56,6 +58,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

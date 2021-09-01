@@ -42,6 +42,7 @@ issue:
         - jellyfish-address
         - jellyfish-api-core
         - jellyfish-api-jsonrpc
+        - jellyfish-buffer
         - jellyfish-crypto
         - jellyfish-json
         - jellyfish-network

@@ -7,15 +7,13 @@
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-api-core/                                   @fuxingloh @canonbrother @jingyi2811 @thedoublejay @ivan-zynesis @siradji @aikchun
-
-/packages/jellyfish-api-core/src/category/icxorderbook.ts       @fuxingloh @surangap @monstrobishi @canonbrother @Jouzo
-/packages/jellyfish-api-core/__tests__/category/icxorderbook    @fuxingloh @surangap @monstrobishi @canonbrother @Jouzo
-/packages/jellyfish-api-core/src/category/spv.ts                @fuxingloh @surangap @monstrobishi @canonbrother @Jouzo
-/packages/jellyfish-api-core/__tests__/category/spv             @fuxingloh @surangap @monstrobishi @canonbrother @Jouzo
+/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap @Jouzo
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
-/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
+
+/packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+
+/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
 

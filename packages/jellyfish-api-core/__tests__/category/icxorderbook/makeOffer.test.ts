@@ -102,7 +102,7 @@ describe('ICXOrderBook.makeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -171,7 +171,7 @@ describe('ICXOrderBook.makeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -241,7 +241,7 @@ describe('ICXOrderBook.makeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,
@@ -313,7 +313,7 @@ describe('ICXOrderBook.makeOffer', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const ordersAfterMakeOffer: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.call('icx_listorders', [{ orderTx: createOrderTxId }], 'bignumber')
-    expect(Object.keys(ordersAfterMakeOffer).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(ordersAfterMakeOffer).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((ordersAfterMakeOffer as Record<string, ICXOfferInfo>)[makeOfferTxId]).toStrictEqual(
       {
         orderTx: createOrderTxId,

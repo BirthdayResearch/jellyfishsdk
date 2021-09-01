@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { byteLength, readVarUInt, writeVarUInt } from '../../src/buffer/buffer_varuint'
+import { byteLength, readVarUInt, writeVarUInt } from '../src/varuint'
 
 it('readBigInt64LE should be equal (readUInt32LE + readUInt32LE * 0x100000000)', () => {
   const buffer = Buffer.allocUnsafe(8)

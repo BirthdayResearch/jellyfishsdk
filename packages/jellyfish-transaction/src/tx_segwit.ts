@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
 import { Script, SIGHASH } from './tx'
-import { BufferComposer, ComposableBuffer } from './buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { CScript } from './tx_composer'
 
 /**
