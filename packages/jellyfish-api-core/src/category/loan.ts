@@ -81,9 +81,7 @@ export class Loan {
    */
   async updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
     const { token, ...tokenData } = loanToken
-    return await this.client.call('updateloantoken', [
-      token, tokenData, utxos
-    ], 'number')
+    return await this.client.call('updateloantoken', [token, tokenData, utxos], 'number')
   }
 }
 
