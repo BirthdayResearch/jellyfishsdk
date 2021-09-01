@@ -42,8 +42,8 @@ describe('Loan', () => {
           token: {
             1: {
               collateralAddress: expect.any(String),
-              creationHeight: expect.any(BigNumber),
-              creationTx: expect.any(String),
+              creationHeight: new BigNumber(await testing.container.getBlockCount()),
+              creationTx: loanTokenId,
               decimal: new BigNumber(8),
               destructionHeight: new BigNumber(-1),
               destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
