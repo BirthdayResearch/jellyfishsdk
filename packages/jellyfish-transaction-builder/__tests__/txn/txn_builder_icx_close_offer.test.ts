@@ -2,10 +2,11 @@ import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontaine
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { WIF } from '@defichain/jellyfish-crypto'
-import { sendTransaction } from '../test.utils'
+import { fundEllipticPair, sendTransaction } from '../test.utils'
 import BigNumber from 'bignumber.js'
 import { OP_CODES, ICXCloseOffer } from '@defichain/jellyfish-transaction'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('close ICX offer', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
@@ -18,7 +19,7 @@ describe('close ICX offer', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountDFI]: `${500}@${testing.icxorderbook.symbolDFI}` })
@@ -44,7 +45,6 @@ describe('close ICX offer', () => {
       orderPrice: new BigNumber(0.01)
     })
     const { makeOfferTxId } = await testing.icxorderbook.createDFIBuyOffer({ orderTx })
-    await testing.container.generate(1)
 
     const listOrders = await testing.rpc.icxorderbook.listOrders({ orderTx })
     const offerBefore = listOrders[makeOfferTxId]
@@ -97,5 +97,24 @@ describe('close ICX offer', () => {
     const txn = await builder.icxorderbook.closeOffer(closeOffer, script)
 
     await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: offer with creation tx 0000000000000000000000000000000000000000000000000000000000000000 does not exists! (code 16)', code: -26")
+  })
+
+  it('should not close ICX order with input not from offer owner', async () => {
+    const { createOrderTxId: orderTx } = await testing.icxorderbook.createDFISellOrder({
+      receivePubkey: '037f9563f30c609b19fd435a19b8bde7d6db703012ba1aba72e9f42a87366d1941',
+      amountFrom: new BigNumber(15),
+      orderPrice: new BigNumber(0.01)
+    })
+    const { makeOfferTxId: offerTx } = await testing.icxorderbook.createDFIBuyOffer({ orderTx })
+
+    const newProviders = await getProviders(testing.container)
+    const newBuilder = new P2WPKHTransactionBuilder(newProviders.fee, newProviders.prevout, newProviders.elliptic, RegTest)
+    const newAddressScript = await newProviders.elliptic.script()
+    await fundEllipticPair(testing.container, newProviders.ellipticPair, 21)
+    await newProviders.setupMocks()
+
+    const txn = await newBuilder.icxorderbook.closeOffer({ offerTx }, newAddressScript)
+
+    await expect(sendTransaction(testing.container, txn)).rejects.toThrow("DeFiDRpcError: 'ICXCloseOfferTx: tx must have at least one input from offer owner (code 16)', code: -26")
   })
 })
