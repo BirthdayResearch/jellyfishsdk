@@ -75,7 +75,7 @@ export class Loan {
 }
 
 export interface CreateLoanScheme {
-  minColRatio: BigNumber
+  minColRatio: number
   interestRate: BigNumber
   id: string
 }
