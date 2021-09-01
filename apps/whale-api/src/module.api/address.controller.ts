@@ -119,6 +119,7 @@ function mapAddressToken (id: string, tokenInfo: TokenInfo, value: BigNumber): A
     symbolKey: tokenInfo.symbolKey,
     name: tokenInfo.name,
     isDAT: tokenInfo.isDAT,
-    isLPS: tokenInfo.isLPS
+    isLPS: tokenInfo.isLPS,
+    displaySymbol: tokenInfo.isDAT && tokenInfo.symbol !== 'DFI' && !tokenInfo.isLPS ? `d${tokenInfo.symbol}` : tokenInfo.symbol
   }
 }
