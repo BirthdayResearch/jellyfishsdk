@@ -77,7 +77,7 @@ describe('Loan', () => {
             isLoanToken: true,
             minted: 0,
             creationTx: loanTokenId,
-            creationHeight: expect.any(Number),
+            creationHeight: await testing.container.getBlockCount() - 1,
             destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
             destructionHeight: -1,
             collateralAddress: expect.any(String)
@@ -111,7 +111,7 @@ describe('Loan', () => {
 
     await testing.rpc.loan.updateLoanToken({
       token: 'Token3',
-      symbol: 'ABCDEFGHI', // 9 letters
+      symbol: 'x'.repeat(9), // 9 letters
       name: 'Token3',
       priceFeedId
     })
@@ -119,7 +119,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('ABCDEFGH') // Only remain the first 8 letters
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not updateLoanToken if symbol is an empty string', async () => {
