@@ -92,7 +92,7 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (getCollateralToken: GetCollateralToken): Promise<CollateralTokenResult>
+  getCollateralToken (collateralToken: GetCollateralToken): Promise<CollateralTokenResult>
 }
 
 interface GetCollateralToken {
