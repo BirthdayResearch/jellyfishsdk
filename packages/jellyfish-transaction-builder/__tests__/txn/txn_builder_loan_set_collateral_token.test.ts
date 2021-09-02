@@ -87,7 +87,7 @@ describe('loan.setCollateralToken()', () => {
         token: 'AAPL',
         factor: 0.5,
         priceFeedId,
-        activateAfterBlock: expect.any(Number)
+        activateAfterBlock: await testing.container.getBlockCount()
       }
     })
   })
