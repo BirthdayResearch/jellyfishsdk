@@ -58,11 +58,10 @@ import {
 } from './dftx/dftx_oracles'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme,
   CSetDefaultLoanScheme,
   SetDefaultLoanScheme,
   CUpdateLoanScheme,
-  UpdateLoanScheme
+  LoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -394,7 +393,7 @@ export const OP_CODES = {
       data: icxSubmitDFCHTLC
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CCreateLoanScheme.OP_CODE,
@@ -402,7 +401,7 @@ export const OP_CODES = {
       data: createLoanScheme
     })
   },
-  OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: UpdateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CUpdateLoanScheme.OP_CODE,
