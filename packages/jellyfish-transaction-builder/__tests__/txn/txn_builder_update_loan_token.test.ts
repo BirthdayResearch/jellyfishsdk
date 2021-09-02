@@ -222,18 +222,17 @@ describe('loan.updateLoanToken()', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWX') // Only remain the first 128 letters
   })
 
-  // NOTE(jingyi2811): There is bug in C++ side
-  // it('should not updateLoanToken if priceFeedId is invalid', async () => {
-  //   const script = await providers.elliptic.script()
-  //   const txn = await builder.loans.updateLoanToken({
-  //     symbol: 'Token2',
-  //     name: 'Token2',
-  //     priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b',
-  //     mintable: true,
-  //     interest: new BigNumber(0),
-  //     tokenTx: loanTokenId
-  //   }, script)
-  //   const promise = sendTransaction(testing.container, txn)
-  //   await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: oracle (5f69005ad4aa52d067fecd21ff75d484625d269bbae401a3937d21cbd0c384dd) does not exist! (code 16)\', code: -26')
-  // })
+  it('should not updateLoanToken if priceFeedId is invalid', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.updateLoanToken({
+      symbol: 'Token2',
+      name: 'Token2',
+      priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b',
+      mintable: true,
+      interest: new BigNumber(0),
+      tokenTx: loanTokenId
+    }, script)
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: oracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist! (code 16)\', code: -26')
+  })
 })
