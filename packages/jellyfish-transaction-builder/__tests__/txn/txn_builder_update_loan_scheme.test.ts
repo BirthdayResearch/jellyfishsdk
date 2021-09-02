@@ -6,6 +6,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new LoanMasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -19,7 +20,7 @@ beforeAll(async () => {
 
   providers = await getProviders(testing.container)
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
   // Default scheme
   await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
@@ -162,8 +163,36 @@ describe('loan.updateLoanScheme()', () => {
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: id cannot be empty or more than 8 chars long (code 16)\', code: -26')
   })
+})
 
-  it('should updateLoanScheme at block 160', async () => {
+describe('loan.updateLoanScheme() with height', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should updateLoanScheme', async () => {
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme1'])
+    await testing.generate(1)
+
     // Wait for block 150
     await testing.container.waitForBlockHeight(150)
 
@@ -185,7 +214,7 @@ describe('loan.updateLoanScheme()', () => {
       expect(result.length).toStrictEqual(1)
       expect(result[0]).toStrictEqual(
         {
-          default: false,
+          default: true,
           id: 'scheme1',
           interestrate: 2.5,
           mincolratio: 200
@@ -203,7 +232,7 @@ describe('loan.updateLoanScheme()', () => {
       expect(result.length).toStrictEqual(1)
       expect(result[0]).toStrictEqual(
         {
-          default: false,
+          default: true,
           id: 'scheme1',
           interestrate: 3.5,
           mincolratio: 300
@@ -211,28 +240,87 @@ describe('loan.updateLoanScheme()', () => {
       )
     }
   })
+})
 
-  it('should not updateLoanScheme if update is less than current block', async () => {
-    // Wait for block 170
-    await testing.container.waitForBlockHeight(170)
+describe('loan.updateLoanScheme() if update is less than current block', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
 
-    // Attempt to updateLoanScheme at block 169
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should not updateLoanScheme', async () => {
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme1'])
+    await testing.generate(1)
+
+    // Wait for block 150
+    await testing.container.waitForBlockHeight(150)
+
+    // Attempt to updateLoanScheme at block 149
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'scheme1',
-      update: new BigNumber(169)
+      update: new BigNumber(149)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: Update height below current block height, set future height (code 16)\', code: -26')
   })
+})
 
-  it('should not updateLoanScheme if same ratio and rate pending loan scheme created before', async () => {
-    // Wait for block 180
-    await testing.container.waitForBlockHeight(180)
+describe('loan.updateLoanScheme() if same ratio and rate pending loan scheme created before', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should not updateLoanScheme', async () => {
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme1'])
+    await testing.generate(1)
+
+    // Default scheme
+    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
+    await testing.generate(1)
+
+    // Wait for block 150
+    await testing.container.waitForBlockHeight(150)
 
     await testing.container.call('createloanscheme', [400, new BigNumber(4.5), 'scheme2'])
     await testing.generate(1)
@@ -243,14 +331,12 @@ describe('loan.updateLoanScheme()', () => {
       ratio: 400,
       rate: new BigNumber(4.5),
       identifier: 'scheme1',
-      update: new BigNumber(190)
+      update: new BigNumber(160)
     }, script)
 
     // Attempt to update same ratio and rate as the pending scheme
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme scheme2 with same interestrate and mincolratio already exists (code 16)\', code: -26')
-
-    await testing.container.waitForBlockHeight(190)
   })
 })
