@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
+import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
@@ -57,12 +57,30 @@ import {
   UpdateOracle
 } from './dftx/dftx_oracles'
 import {
+  CCreateLoanScheme,
+  CreateLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme,
   CUpdateLoanScheme,
   UpdateLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
+import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
+import {
+  CICXCreateOrder,
+  ICXCreateOrder,
+  CICXMakeOffer,
+  ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder,
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXSubmitEXTHTLC,
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
+} from './dftx/dftx_icxorderbook'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
-import { CSetGovernance, SetGovernance } from './dftx/dftx_governance'
 
 /**
  * @param num to map as OPCode, 1 byte long
@@ -320,12 +338,100 @@ export const OP_CODES = {
       data: setGovernance
     })
   },
+  OP_DEFI_TX_ICX_CREATE_ORDER: (createOrder: ICXCreateOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCreateOrder.OP_CODE,
+      name: CICXCreateOrder.OP_NAME,
+      data: createOrder
+    })
+  },
+  OP_DEFI_TX_ICX_MAKE_OFFER: (makeOffer: ICXMakeOffer) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXMakeOffer.OP_CODE,
+      name: CICXMakeOffer.OP_NAME,
+      data: makeOffer
+    })
+  },
+  OP_DEFI_TX_ICX_CLOSE_ORDER: (closeOrder: ICXCloseOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOrder.OP_CODE,
+      name: CICXCloseOrder.OP_NAME,
+      data: closeOrder
+    })
+  },
+  OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateCfp.OP_CODE,
+      name: CCreateCfp.OP_NAME,
+      data: createCfp
+    })
+  },
+  OP_DEFI_TX_CREATE_VOC: (createVoc: CreateVoc) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateVoc.OP_CODE,
+      name: CCreateVoc.OP_NAME,
+      data: createVoc
+    })
+  },
+  OP_DEFI_TX_VOTE: (vote: Vote) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CVote.OP_CODE,
+      name: CVote.OP_NAME,
+      data: vote
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC: (icxSubmitDFCHTLC: ICXSubmitDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitDFCHTLC.OP_CODE,
+      name: CICXSubmitDFCHTLC.OP_NAME,
+      data: icxSubmitDFCHTLC
+    })
+  },
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateLoanScheme.OP_CODE,
+      name: CCreateLoanScheme.OP_NAME,
+      data: createLoanScheme
+    })
+  },
   OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: UpdateLoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CUpdateLoanScheme.OP_CODE,
       name: CUpdateLoanScheme.OP_NAME,
       data: updateLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetDefaultLoanScheme.OP_CODE,
+      name: CSetDefaultLoanScheme.OP_NAME,
+      data: setDefaultLoanScheme
+    })
+  },
+  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitEXTHTLC.OP_CODE,
+      name: CICXSubmitEXTHTLC.OP_NAME,
+      data: icxSubmitEXTHTLC
+    })
+  },
+  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXClaimDFCHTLC.OP_CODE,
+      name: CICXClaimDFCHTLC.OP_NAME,
+      data: icxClaimDFCHTLC
     })
   },
 

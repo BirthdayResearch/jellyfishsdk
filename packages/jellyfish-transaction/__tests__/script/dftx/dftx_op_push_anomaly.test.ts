@@ -88,7 +88,7 @@ describe('CTransaction PoolSwap Anomaly', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     const composable = new CTransactionSegWit(buffer)
 
-    expect(composable.toObject()).toEqual(transaction)
+    expect(composable.toObject()).toStrictEqual(transaction)
   })
 
   it('should compose from composable to buffer', () => {
@@ -96,6 +96,6 @@ describe('CTransaction PoolSwap Anomaly', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(hex)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(hex)
   })
 })

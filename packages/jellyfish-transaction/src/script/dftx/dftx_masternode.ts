@@ -1,8 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 
 /**
  * CreateMasternode DeFi Transaction

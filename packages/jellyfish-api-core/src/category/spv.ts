@@ -23,7 +23,7 @@ export class Spv {
   }
 
   /**
-   * Returns a Bitcoin address' public key.
+   * Returns a Bitcoin address's public key.
    *
    * @param {string} address Bitcoin address
    * @return {Promise<string>} Public key
@@ -129,6 +129,33 @@ export class Spv {
   async listHtlcOutputs (scriptAddress?: string): Promise<ListHtlcsOutputsResult[]> {
     return await this.client.call('spv_listhtlcoutputs', [scriptAddress], { amount: 'bignumber' })
   }
+
+  /**
+   * Create, sign and send anchor tx, using only SPV API
+   *
+   * @param {CreateAnchorInput[]} createAnchorInputs Info from BTC chain
+   * @param {string} createAnchorInput.txid The transaction id of the bitcoin UTXO to spent
+   * @param {string} createAnchorInput.vout The output index to spend in UTXO for tx fee
+   * @param {number} createAnchorInput.amount Amount of output in satoshis (base unit)
+   * @param {string} createAnchorInput.privkey WIF private key of bitcoin for signing this output
+   * @param {string} rewardAddress User's P2PKH address (in DeFi chain) for reward
+   * @param {CreateAnchorOptions} [options]
+   * @param {boolean} [options.send=true] Send it to BTC network
+   * @param {BigNumber} [options.feerate=1000] Feerate (satoshis) per KB, default is 1000.
+   * @return {Promise<CreateAnchorResult>}
+   */
+  async createAnchor (
+    createAnchorInputs: CreateAnchorInput[],
+    rewardAddress: string,
+    options: CreateAnchorOptions = { send: true, feerate: 1000 }
+  ): Promise<CreateAnchorResult> {
+    const opts = { send: true, feerate: 1000, ...options }
+    return await this.client.call(
+      'spv_createanchor',
+      [createAnchorInputs, rewardAddress, opts.send, opts.feerate],
+      { cost: 'bignumber', estimatedReward: 'bignumber' }
+    )
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -210,4 +237,41 @@ export interface ListHtlcsOutputsResult {
   confirms: number
   /** Object containing spent info */
   spent: SpentInfo
+}
+
+export interface CreateAnchorInput {
+  /** The transaction id of the bitcoin UTXO to spend */
+  txid: string
+  /** The output index to spend in UTXO for tx fee */
+  vout: number
+  /** Amount of output in satoshis (base unit) */
+  amount: number
+  /** WIF private key of bitcoin of signing this output */
+  privkey: string
+}
+
+export interface CreateAnchorOptions {
+  /** Send to BTC network */
+  send?: boolean
+  /** Feerate (satoshis) per 1000 bytes */
+  feerate?: number
+}
+
+export interface CreateAnchorResult {
+  /** the transaction hex */
+  txHex: string
+  /** the transaction hash  */
+  txHash: string
+  /** the anchor block hash */
+  defiHash: string
+  /** the anchor block height */
+  defiHeight: number
+  /** estimated anchor reward */
+  estimatedReward: BigNumber
+  /** created anchor cost */
+  cost: BigNumber
+  /** status of send result */
+  sendResult: number
+  /** decoded sendResult */
+  sendMessage: string
 }

@@ -2,4 +2,4 @@
 
 # @defichain/jellyfish-network
 
-DeFi blockchain various network configuration for main, net and regtest.
+DeFi Blockchain various network configuration for main, net and regtest.

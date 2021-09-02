@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -45,11 +45,37 @@ import {
   UpdateOracle
 } from './dftx_oracles'
 import { CDeFiOpUnmapped, DeFiOpUnmapped } from './dftx_unmapped'
-import { CSetGovernance, SetGovernance } from './dftx_governance'
-import { CUpdateLoanScheme, UpdateLoanScheme } from './dftx_loans'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
+import {
+  CICXCreateOrder,
+  ICXCreateOrder,
+  CICXMakeOffer,
+  ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder,
+  CICXSubmitDFCHTLC,
+  ICXSubmitDFCHTLC,
+  CICXSubmitEXTHTLC,
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
+} from './dftx_icxorderbook'
+import {
+  CSetGovernance,
+  SetGovernance,
+  CCreateCfp,
+  CCreateVoc,
+  CreateProposal,
+  CVote,
+  Vote
+} from './dftx_governance'
+import {
+  CCreateLoanScheme,
+  CreateLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme,
+  CUpdateLoanScheme,
+  UpdateLoanScheme
+} from './dftx_loans'
 
 /**
  * DeFi Transaction
@@ -165,8 +191,30 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
+      case CICXCreateOrder.OP_CODE:
+        return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
+      case CICXMakeOffer.OP_CODE:
+        return compose<ICXMakeOffer>(CICXMakeOffer.OP_NAME, d => new CICXMakeOffer(d))
+      case CICXCloseOrder.OP_CODE:
+        return compose<ICXCloseOrder>(CICXCloseOrder.OP_NAME, d => new CICXCloseOrder(d))
+      case CCreateCfp.OP_CODE:
+        return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
+      case CCreateVoc.OP_CODE:
+        return compose<CreateProposal>(CCreateVoc.OP_NAME, d => new CCreateVoc(d))
+      case CVote.OP_CODE:
+        return compose<Vote>(CVote.OP_NAME, d => new CVote(d))
+      case CICXSubmitDFCHTLC.OP_CODE:
+        return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
+      case CCreateLoanScheme.OP_CODE:
+        return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
       case CUpdateLoanScheme.OP_CODE:
         return compose<UpdateLoanScheme>(CUpdateLoanScheme.OP_NAME, d => new CUpdateLoanScheme(d))
+      case CSetDefaultLoanScheme.OP_CODE:
+        return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
+      case CICXSubmitEXTHTLC.OP_CODE:
+        return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
+      case CICXClaimDFCHTLC.OP_CODE:
+        return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
