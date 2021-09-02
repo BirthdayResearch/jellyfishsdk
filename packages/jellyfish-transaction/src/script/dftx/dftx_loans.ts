@@ -32,7 +32,7 @@ export class CCreateLoanScheme extends ComposableBuffer<LoanScheme> {
       ComposableBuffer.uInt32(() => cls.ratio, v => cls.ratio = v),
       ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
       ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => cls.update ?? new BigNumber(0), v => cls.update = v)
+      ComposableBuffer.bigNumberUInt64(() => cls.update ?? new BigNumber('0xffffffffffffffff'), v => cls.update = v)
     ]
   }
 }
@@ -67,14 +67,17 @@ export class CUpdateLoanScheme extends ComposableBuffer<LoanScheme> {
       ComposableBuffer.varUIntUtf8BE(() => uls.identifier, v => uls.identifier = v),
       {
         fromBuffer: (buffer: SmartBuffer): void => {
-          // NOTE(jingyi2811): By default, update is set to ffffffffffffffff which is 18446744073709551615 until it is overriden.
-          // const num = readBigNumberUInt64(buffer)
-          // if (num.isLessThan(new BigNumber('0xffffffffffffffff'))) {
-          uls.update = readBigNumberUInt64(buffer)
-          // }
+          const num = readBigNumberUInt64(buffer)
+          if (num.isLessThan(new BigNumber('0xffffffffffffffff'))) {
+            uls.update = num
+          }
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          writeBigNumberUInt64(uls.update ?? new BigNumber('0xffffffffffffffff'), buffer)
+          if (uls.update !== undefined) {
+            writeBigNumberUInt64(uls.update, buffer)
+          } else {
+            writeBigNumberUInt64(new BigNumber('0xffffffffffffffff'), buffer)
+          }
         }
       }
     ]
