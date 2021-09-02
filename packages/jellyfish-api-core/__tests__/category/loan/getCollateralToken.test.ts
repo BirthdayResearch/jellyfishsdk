@@ -43,9 +43,9 @@ describe('Loan', () => {
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
-        factor: 0.5,
+        factor: new BigNumber(0.5),
         priceFeedId,
-        activateAfterBlock: 120
+        activateAfterBlock: new BigNumber(120)
       }
     })
   })
@@ -97,9 +97,9 @@ describe('Loan with height is set before current height', () => {
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
-        factor: 0.5,
+        factor: new BigNumber(0.5),
         priceFeedId,
-        activateAfterBlock: 120
+        activateAfterBlock: new BigNumber(120)
       }
     })
   })
@@ -118,7 +118,7 @@ describe('Loan with height is set after current height', () => {
     await testing.container.stop()
   })
 
-  it('should getCollateralToken', async () => {
+  it('should getCollateralToken as empty object', async () => {
     // Wait for block 110
     await testing.container.waitForBlockHeight(110)
 
