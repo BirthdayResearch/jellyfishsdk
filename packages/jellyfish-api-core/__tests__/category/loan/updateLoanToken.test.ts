@@ -165,16 +165,15 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
-  // NOTE(jingyi2811): C++ side throw error with random wrong OracleId, expect e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b
-  // it('should not updateLoanToken if priceFeedId is invalid', async () => {
-  //   const promise = testing.rpc.loan.updateLoanToken({
-  //     token: 'Token1',
-  //     symbol: 'Token2',
-  //     name: 'Token2',
-  //     priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b',
-  //   })
-  //   await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist!\', code: -32600, method: updateloantoken')
-  // })
+  it('should not updateLoanToken if priceFeedId is invalid', async () => {
+    const promise = testing.rpc.loan.updateLoanToken({
+      token: 'Token1',
+      symbol: 'Token2',
+      name: 'Token2',
+      priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist!\', code: -32600, method: updateloantoken')
+  })
 
   it('should updateLoanToken if mintable is false', async () => {
     const loanTokenId = await testing.rpc.loan.updateLoanToken({
