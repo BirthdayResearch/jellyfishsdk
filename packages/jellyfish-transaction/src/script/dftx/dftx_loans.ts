@@ -73,11 +73,7 @@ export class CUpdateLoanScheme extends ComposableBuffer<LoanScheme> {
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          if (uls.update !== undefined) {
-            writeBigNumberUInt64(uls.update, buffer)
-          } else {
-            writeBigNumberUInt64(new BigNumber('0xffffffffffffffff'), buffer)
-          }
+          writeBigNumberUInt64(uls.update ?? new BigNumber('0xffffffffffffffff'), buffer)
         }
       }
     ]
