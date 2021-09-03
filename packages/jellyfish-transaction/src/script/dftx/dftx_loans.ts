@@ -58,7 +58,7 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
  */
 export interface DestroyLoanScheme {
   identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Unique identifier of the loan scheme
-  height?: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
+  height: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
 }
 
 /**
@@ -77,7 +77,7 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
           dls.height = readBigNumberUInt64(buffer)
         },
         toBuffer: (buffer: SmartBuffer): void => {
-          writeBigNumberUInt64(dls.height ?? new BigNumber(0x00000000), buffer)
+          writeBigNumberUInt64(dls.height, buffer)
         }
       }
     ]
