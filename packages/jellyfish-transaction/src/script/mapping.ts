@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
+import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
@@ -71,6 +71,10 @@ import {
   ICXCreateOrder,
   CICXMakeOffer,
   ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer,
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
@@ -350,6 +354,22 @@ export const OP_CODES = {
       type: CICXMakeOffer.OP_CODE,
       name: CICXMakeOffer.OP_NAME,
       data: makeOffer
+    })
+  },
+  OP_DEFI_TX_ICX_CLOSE_ORDER: (closeOrder: ICXCloseOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOrder.OP_CODE,
+      name: CICXCloseOrder.OP_NAME,
+      data: closeOrder
+    })
+  },
+  OP_DEFI_TX_ICX_CLOSE_OFFER: (closeOffer: ICXCloseOffer) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOffer.OP_CODE,
+      name: CICXCloseOffer.OP_NAME,
+      data: closeOffer
     })
   },
   OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {

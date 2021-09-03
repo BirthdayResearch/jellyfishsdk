@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -50,6 +50,10 @@ import {
   ICXCreateOrder,
   CICXMakeOffer,
   ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer,
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
@@ -193,6 +197,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       case CICXMakeOffer.OP_CODE:
         return compose<ICXMakeOffer>(CICXMakeOffer.OP_NAME, d => new CICXMakeOffer(d))
+      case CICXCloseOrder.OP_CODE:
+        return compose<ICXCloseOrder>(CICXCloseOrder.OP_NAME, d => new CICXCloseOrder(d))
+      case CICXCloseOffer.OP_CODE:
+        return compose<ICXCloseOffer>(CICXCloseOffer.OP_NAME, d => new CICXCloseOffer(d))
       case CCreateCfp.OP_CODE:
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:

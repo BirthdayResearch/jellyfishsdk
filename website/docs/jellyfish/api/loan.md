@@ -34,6 +34,28 @@ interface UTXO {
 }
 ```
 
+## updateLoanScheme
+
+Updates an existing loan scheme.
+
+```ts title="client.loan.updateLoanScheme()"
+interface loan {
+  updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanScheme {
+  minColRatio: number
+  interestRate: BigNumber
+  id: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listLoanSchemes
 
 List all available loan schemes.
