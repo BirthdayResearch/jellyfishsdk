@@ -32,27 +32,16 @@ describe('Loan', () => {
   })
 
   it('should destroyLoanScheme', async () => {
-    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
+    await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme1'])
     await testing.generate(1)
 
-    // Before delete
-    {
-      const data = await testing.container.call('listloanschemes')
-      const result = data.filter((d: { id: string }) => d.id === 'scheme')
-      expect(result.length).toStrictEqual(1)
-    }
-
-    const loanSchemeId = await testing.rpc.loan.destroyLoanScheme({ id: 'scheme' })
+    const loanSchemeId = await testing.rpc.loan.destroyLoanScheme({ id: 'scheme1', activateAfterBlock: 130 })
     expect(typeof loanSchemeId).toStrictEqual('string')
     expect(loanSchemeId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    // After delete
-    {
-      const data = await testing.container.call('listloanschemes')
-      const result = data.filter((d: { id: string }) => d.id === 'scheme')
-      expect(result.length).toStrictEqual(0)
-    }
+    const tx: any = await container.call('getrawtransaction', [loanSchemeId, true])
+    console.log(tx.vout[0].scriptPubKey)
   })
 
   it('should not destroyLoanScheme if id is more than 8 chars long', async () => {
