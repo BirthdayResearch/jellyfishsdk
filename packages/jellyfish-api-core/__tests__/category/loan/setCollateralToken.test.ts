@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
-describe('Loan', () => {
+describe('Loan setCollateralToken', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -109,7 +109,7 @@ describe('Loan', () => {
   })
 })
 
-describe('Loan with activateAfterBlock at block 160', () => {
+describe('Loan setCollateralToken with activateAfterBlock', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -158,7 +158,7 @@ describe('Loan with activateAfterBlock at block 160', () => {
   })
 })
 
-describe('Loan with activateAfterBlock less than current block', () => {
+describe('Loan setCollateralToken with activateAfterBlock less than the current block', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
