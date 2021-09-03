@@ -5,6 +5,7 @@ import {
   ICXCreateOrder,
   ICXMakeOffer,
   ICXCloseOrder,
+  ICXCloseOffer,
   ICXSubmitDFCHTLC,
   ICXSubmitEXTHTLC,
   ICXClaimDFCHTLC
@@ -14,7 +15,7 @@ import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
 export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   /**
-   * ICX Create Order.
+   * Creates ICXCreateOrder transaction.
    *
    * @param {ICXCreateOrder} createOrder Create order txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
@@ -42,7 +43,7 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   }
 
   /**
-   * ICX Make Offer.
+   * Creates ICXMakeOffer transaction.
    *
    * @param {ICXMakeOffer} makeOffer txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
@@ -64,7 +65,7 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   }
 
   /**
-   * ICX Close Order.
+   * Creates ICXCloseOrder transaction.
    *
    * @param {ICXCloseOrder} closeOrder txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
@@ -73,6 +74,20 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   async closeOrder (closeOrder: ICXCloseOrder, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_CLOSE_ORDER(closeOrder),
+      changeScript
+    )
+  }
+
+  /**
+   * Creates ICXCloseOffer transaction.
+   *
+   * @param {ICXCloseOffer} closeOffer txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async closeOffer (closeOffer: ICXCloseOffer, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ICX_CLOSE_OFFER(closeOffer),
       changeScript
     )
   }
