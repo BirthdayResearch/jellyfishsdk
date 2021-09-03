@@ -4,6 +4,7 @@ import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { getProviders, MockProviders } from '../provider.mock'
 import { fundEllipticPair, randomEllipticPair } from '../test.utils'
 import { P2WPKHTransactionBuilder } from '../../src'
+import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -43,7 +44,7 @@ describe('FeeRateProvider', () => {
       }
     }
 
-    const builder = new P2WPKHTransactionBuilder(feeProvider, providers.prevout, providers.elliptic)
+    const builder = new P2WPKHTransactionBuilder(feeProvider, providers.prevout, providers.elliptic, RegTest)
     await expect(builder.utxo.sendAll(script))
       .rejects.toThrow('attempting to use a fee rate higher than MAX_FEE_RATE of 0.001 is not allowed')
   })
@@ -55,7 +56,7 @@ describe('FeeRateProvider', () => {
       }
     }
 
-    const builder = new P2WPKHTransactionBuilder(feeProvider, providers.prevout, providers.elliptic)
+    const builder = new P2WPKHTransactionBuilder(feeProvider, providers.prevout, providers.elliptic, RegTest)
     await expect(builder.utxo.sendAll(script))
       .rejects.toThrow('fee rate NaN is invalid')
   })
@@ -66,7 +67,7 @@ describe('PrevoutProvider', () => {
     await providers.randomizeEllipticPair()
     await providers.setupMocks()
 
-    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
     await expect(builder.utxo.sendAll(script))
       .rejects.toThrow('no prevouts available to create a transaction')
   })
@@ -75,13 +76,13 @@ describe('PrevoutProvider', () => {
     await providers.randomizeEllipticPair()
     await providers.setupMocks()
 
-    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
     await expect(builder.utxo.sendAll(script))
       .rejects.toThrow('no prevouts available to create a transaction')
   })
 
   it('should fail balance not enough in PrevoutProvider.collect(): MIN_BALANCE_NOT_ENOUGH', async () => {
-    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
     await expect(builder.utxo.send(new BigNumber(1000), script, script))
       .rejects.toThrow('not enough balance after combing all prevouts')
   })
@@ -89,7 +90,7 @@ describe('PrevoutProvider', () => {
 
 describe('EllipticPairProvider', () => {
   it('should fail as provided EllipticPair cannot sign transaction: SIGN_TRANSACTION_ERROR', async () => {
-    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    const builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
     providers.elliptic.ellipticPair = randomEllipticPair()
 
     await expect(builder.utxo.sendAll(script))

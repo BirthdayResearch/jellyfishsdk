@@ -9,6 +9,7 @@ import BigNumber from 'bignumber.js'
 import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-core/__tests__/category/governance/governance_container'
 import { governance } from '@defichain/jellyfish-api-core'
 import { TxnBuilderError } from '../../src/txn/txn_builder_error'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('createVoc', () => {
   let providers: MockProviders
@@ -21,10 +22,10 @@ describe('createVoc', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     await testing.container.waitForWalletBalanceGTE(11)
-    await fundEllipticPair(testing.container, providers.ellipticPair, 101) // Amount needed for two createVoc creation + fees
+    await fundEllipticPair(testing.container, providers.ellipticPair, 11) // Amount needed for two createVoc creation + fees
     await providers.setupMocks()
   })
 
@@ -49,7 +50,7 @@ describe('createVoc', () => {
     const expectedRedeemScript = `6a${encoded}`
 
     const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toStrictEqual(50)
+    expect(outs[0].value).toStrictEqual(5)
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
 
     const listProposals = await testing.rpc.governance.listProposals()

@@ -14,6 +14,7 @@ import { EllipticPairProvider, FeeRateProvider, Prevout, PrevoutProvider } from 
 import { calculateFeeP2WPKH } from './txn_fee'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 import { EllipticPair } from '@defichain/jellyfish-crypto'
+import { Network } from '@defichain/jellyfish-network'
 
 const MAX_FEE_RATE = new BigNumber('0.00100000')
 
@@ -24,7 +25,8 @@ export abstract class P2WPKHTxnBuilder {
   constructor (
     public readonly feeProvider: FeeRateProvider,
     public readonly prevoutProvider: PrevoutProvider,
-    public readonly ellipticPairProvider: EllipticPairProvider
+    public readonly ellipticPairProvider: EllipticPairProvider,
+    public readonly network: Network
   ) {
   }
 

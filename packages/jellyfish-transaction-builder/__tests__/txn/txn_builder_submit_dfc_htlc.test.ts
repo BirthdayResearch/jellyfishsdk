@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
@@ -9,6 +9,7 @@ import { ICXSubmitDFCHTLC } from '@defichain/jellyfish-transaction/script/dftx/d
 import { ICXDFCHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
 import { Testing } from '@defichain/jellyfish-testing'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('submit DFC HTLC', () => {
   const container = new MasterNodeRegTestContainer()
@@ -20,9 +21,9 @@ describe('submit DFC HTLC', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(container)
+    providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey)) // set it to container default
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // steps required for ICX testing
     await testing.icxorderbook.setAccounts(await providers.getAddress(), await providers.getAddress())
@@ -77,7 +78,7 @@ describe('submit DFC HTLC', () => {
     const encoded: string = OP_CODES.OP_DEFI_TX_ICX_SUBMIT_DFC_HTLC(submitDFCHTLC).asBuffer().toString('hex')
     const expectedRedeemScript = `6a${encoded}`
 
-    const outs = await sendTransaction(container, txn)
+    const outs = await sendTransaction(testing.container, txn)
     expect(outs.length).toStrictEqual(2)
     expect(outs[0].value).toStrictEqual(0)
     expect(outs[0].n).toStrictEqual(0)
@@ -86,7 +87,7 @@ describe('submit DFC HTLC', () => {
     expect(outs[0].scriptPubKey.hex).toStrictEqual(expectedRedeemScript)
     expect(outs[0].scriptPubKey.type).toStrictEqual('nulldata')
 
-    expect(outs[1].value).toEqual(expect.any(Number))
+    expect(outs[1].value).toStrictEqual(expect.any(Number))
     expect(outs[1].n).toStrictEqual(1)
     expect(outs[1].tokenId).toStrictEqual(0)
     expect(outs[1].scriptPubKey.type).toStrictEqual('witness_v0_keyhash')
@@ -100,7 +101,7 @@ describe('submit DFC HTLC', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     const DFCHTLCTxId = calculateTxid(txn)
     expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
       {
