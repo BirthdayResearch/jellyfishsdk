@@ -89,7 +89,7 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: '123456789'
+      identifier: 'x'.repeat(9)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
