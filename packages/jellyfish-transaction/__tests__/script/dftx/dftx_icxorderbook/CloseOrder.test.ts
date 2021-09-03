@@ -39,7 +39,7 @@ it('should bi-directional buffer-object-buffer', () => {
 
 describe('CloseOrder', () => {
   const header = '6a254466547836' // OP_RETURN(0x6a) (length 37 = 0x25) CDfTx.SIGNATURE(0x44665478) CICXCloseOrder.OP_CODE(0x36)
-  const data = '3bb3380de375459bf71a0b2dd4c1b392365834a5f1fbebc929415d79efd31152' // ICXCloseOrder.orderTx[LE](0x5211d3ef795d4129c9ebfbf1a534583692b3c1d42d0b1af79b4575e30d38b33b)
+  const data = '3bb3380de375459bf71a0b2dd4c1b392365834a5f1fbebc929415d79efd31152' // ICXCloseOrder.orderTx[LE](0x3bb3380de375459bf71a0b2dd4c1b392365834a5f1fbebc929415d79efd31152)
   const closeOrder: ICXCloseOrder = {
     orderTx: '5211d3ef795d4129c9ebfbf1a534583692b3c1d42d0b1af79b4575e30d38b33b'
   }
