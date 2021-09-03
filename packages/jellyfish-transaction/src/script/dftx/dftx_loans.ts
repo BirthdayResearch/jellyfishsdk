@@ -9,7 +9,7 @@ export interface CreateLoanScheme {
   ratio: number // -----------------------| 4 bytes unsigned
   rate: BigNumber // ---------------------| 8 bytes unsigned
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  update: BigNumber // -------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
+  update: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
 }
 
 /**
@@ -17,7 +17,7 @@ export interface CreateLoanScheme {
  */
 export interface DestroyLoanScheme {
   identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Unique identifier of the loan scheme
-  height?: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
+  height?: BigNumber // ------------------| 8 bytes unsigned integer, Activation block height
 }
 
 /**
