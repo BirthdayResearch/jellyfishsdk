@@ -1,6 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
 import { readBigNumberUInt64, writeBigNumberUInt64, BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
-
 import BigNumber from 'bignumber.js'
 
 /**
@@ -11,6 +10,14 @@ export interface CreateLoanScheme {
   rate: BigNumber // ---------------------| 8 bytes unsigned
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
   update: BigNumber // -------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
+}
+
+/**
+ * DestroyLoanScheme DeFi Transaction
+ */
+export interface DestroyLoanScheme {
+  identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Unique identifier of the loan scheme
+  height?: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
 }
 
 /**
@@ -39,29 +46,6 @@ export class CCreateLoanScheme extends ComposableBuffer<CreateLoanScheme> {
 }
 
 /**
- * Composable SetDefaultLoanScheme, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme> {
-  static OP_CODE = 0x64 // 'd'
-  static OP_NAME = 'OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME'
-
-  composers (sdls: SetDefaultLoanScheme): BufferComposer[] {
-    return [
-      ComposableBuffer.varUIntUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
-    ]
-  }
-}
-
-/**
- * DestroyLoanScheme DeFi Transaction
- */
-export interface DestroyLoanScheme {
-  identifier: string // ------------------| c = VarUInt{1-9 bytes} + c bytes UTF encoded string, Unique identifier of the loan scheme
-  height?: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height
-}
-
-/**
  * Composable DestroyLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -83,6 +67,21 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
           writeBigNumberUInt64(dls.height ?? new BigNumber('0x00000000'), buffer)
         }
       }
+    ]
+  }
+}
+
+/**
+ * Composable SetDefaultLoanScheme, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme> {
+  static OP_CODE = 0x64 // 'd'
+  static OP_NAME = 'OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME'
+
+  composers (sdls: SetDefaultLoanScheme): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
     ]
   }
 }
