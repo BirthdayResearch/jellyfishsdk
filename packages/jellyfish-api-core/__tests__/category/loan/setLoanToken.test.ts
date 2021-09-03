@@ -124,12 +124,12 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('Test LoanSetLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle!\', code: -32600, method: setloantoken')
   })
 
-  it('should setLoanToken if mintable is false', async () => {
+  it('should setLoanToken if mintable is true', async () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token7',
       name: 'Token7',
       priceFeedId,
-      mintable: false
+      mintable: true
     })
     expect(typeof loanTokenId).toStrictEqual('string')
     expect(loanTokenId.length).toStrictEqual(64)
