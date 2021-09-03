@@ -187,7 +187,6 @@ describe('block', () => {
         },
         sequence: 4294967294
       }
-
     ],
     vout: [
       {
@@ -226,7 +225,8 @@ describe('block', () => {
             hex: '03b72f262bd5b444366b7ab01c482da29afebdc40f8c866937be8a7b72e2be2fd3'
           }
         ]
-      }],
+      }
+    ],
     lockTime: 1155559
   }
 
@@ -337,8 +337,7 @@ describe('block', () => {
           hex: '030f5dd539dd1fd43e3eee8e06316fad5eb37751c701d52758d2ab9483378c332b'
         }
       ]
-    }
-    ],
+    }],
     lockTime: 0x00000000
   }
 
