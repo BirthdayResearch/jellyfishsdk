@@ -23,8 +23,8 @@ describe('block', () => {
     blockHeader,
     transactions: [{
       version: 0x4,
-      dummy: 0x00,
-      flags: 0x01,
+      marker: 0x00,
+      flag: 0x01,
       vin: [{
         txid: '0000000000000000000000000000000000000000000000000000000000000000',
         index: 0xffffffff,
@@ -72,13 +72,15 @@ describe('block', () => {
           tokenId: 0
         }
       ],
-      witness: {
-        scripts: [
-          {
-            hex: '0000000000000000000000000000000000000000000000000000000000000000'
-          }
-        ]
-      },
+      witness: [
+        {
+          scripts: [
+            {
+              hex: '0000000000000000000000000000000000000000000000000000000000000000'
+            }
+          ]
+        }
+      ],
       lockTime: 0x00000000
     }]
   }
