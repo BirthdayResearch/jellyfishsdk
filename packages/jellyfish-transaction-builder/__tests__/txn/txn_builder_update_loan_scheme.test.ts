@@ -162,7 +162,7 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
-      identifier: '123456789',
+      identifier: 'x'.repeat(9),
       update: new BigNumber(0)
     }, script)
 

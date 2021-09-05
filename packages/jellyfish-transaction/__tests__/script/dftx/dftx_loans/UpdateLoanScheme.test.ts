@@ -27,7 +27,16 @@ it('should bi-directional buffer-object-buffer', () => {
      *  update: new BigNumber('200')
      * }
      */
-    '6a20446654784cc800000080b2e60e0000000006736368656d65ffffffffffffffff'
+    '6a20446654784cc800000080b2e60e0000000006736368656d65ffffffffffffffff',
+    /**
+     * loan : {
+     *  ratio: 300,
+     *  rate: new BigNumber(3.5),
+     *  identifier: 'scheme',
+     *  update: new BigNumber('300')
+     * }
+     */
+    '6a20446654784c2c0100008093dc140000000006736368656d652c01000000000000'
   ]
 
   fixtures.forEach(hex => {
