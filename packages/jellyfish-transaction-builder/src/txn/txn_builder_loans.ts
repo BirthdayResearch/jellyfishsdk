@@ -4,7 +4,6 @@ import {
   SetDefaultLoanScheme
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
-import BigNumber from 'bignumber.js'
 
 export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   /**
@@ -43,8 +42,6 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @returns {Promise<TransactionSegWit>}
    */
   async updateLoanScheme (updateLoanScheme: LoanScheme, changeScript: Script): Promise<TransactionSegWit> {
-    // NOTE(jingyi2811): By default, update is set to 0xffffffffffffffff until it is overriden.
-    updateLoanScheme.update = updateLoanScheme.update ?? new BigNumber('0xffffffffffffffff')
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_UPDATE_LOAN_SCHEME(updateLoanScheme),
       changeScript

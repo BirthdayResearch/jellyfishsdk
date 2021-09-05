@@ -57,7 +57,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
-      identifier: 'scheme1'
+      identifier: 'scheme1',
+      update: new BigNumber(0)
     }, script)
 
     // Ensure the created txn is correct
@@ -91,7 +92,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 99,
       rate: new BigNumber(3.5),
-      identifier: 'scheme1'
+      identifier: 'scheme1',
+      update: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -104,7 +106,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(0.00999),
-      identifier: 'scheme1'
+      identifier: 'scheme1',
+      update: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -117,7 +120,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 100,
       rate: new BigNumber(1.5),
-      identifier: 'scheme1'
+      identifier: 'scheme1',
+      update: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn) // Failed because its minColRatio and interestRate are same as default
@@ -130,7 +134,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
-      identifier: 'scheme2'
+      identifier: 'scheme2',
+      update: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -143,7 +148,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
-      identifier: ''
+      identifier: '',
+      update: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -156,7 +162,8 @@ describe('loan.updateLoanScheme()', () => {
     const txn = await builder.loans.updateLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
-      identifier: '123456789'
+      identifier: '123456789',
+      update: new BigNumber(0)
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
