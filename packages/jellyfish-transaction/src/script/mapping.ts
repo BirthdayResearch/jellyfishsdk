@@ -60,7 +60,9 @@ import {
   CCreateLoanScheme,
   CreateLoanScheme,
   CSetDefaultLoanScheme,
-  SetDefaultLoanScheme
+  SetDefaultLoanScheme,
+  CDestroyLoanScheme,
+  DestroyLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -416,6 +418,14 @@ export const OP_CODES = {
       type: CSetDefaultLoanScheme.OP_CODE,
       name: CSetDefaultLoanScheme.OP_NAME,
       data: setDefaultLoanScheme
+    })
+  },
+  OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDestroyLoanScheme.OP_CODE,
+      name: CDestroyLoanScheme.OP_NAME,
+      data: destroyLoanScheme
     })
   },
   OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
