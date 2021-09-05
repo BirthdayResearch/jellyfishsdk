@@ -62,10 +62,20 @@ export class Loan {
   /**
    * List all available loan schemes.
    *
-   * @return {Promise<LoanSchemeResult[]>}
+   * @return {Promise<ListLoanSchemeResult[]>}
    */
-  async listLoanSchemes (): Promise<LoanSchemeResult[]> {
+  async listLoanSchemes (): Promise<ListLoanSchemeResult[]> {
     return await this.client.call('listloanschemes', [], 'bignumber')
+  }
+
+  /**
+   * Get loan scheme.
+   *
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars
+   * @return {Promise<GetLoanSchemeResult>}
+   */
+  async getLoanScheme (id: string): Promise<GetLoanSchemeResult> {
+    return await this.client.call('getloanscheme', [id], 'bignumber')
   }
 
   /**
@@ -100,11 +110,17 @@ export interface DestroyLoanScheme {
   activateAfterBlock?: number
 }
 
-export interface LoanSchemeResult {
+export interface ListLoanSchemeResult {
   id: string
   mincolratio: BigNumber
   interestrate: BigNumber
   default: boolean
+}
+
+export interface GetLoanSchemeResult {
+  id: string
+  mincolratio: BigNumber
+  interestrate: BigNumber
 }
 
 export interface UTXO {

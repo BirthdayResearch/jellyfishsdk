@@ -62,14 +62,30 @@ List all available loan schemes.
 
 ```ts title="client.loan.listLoanSchemes()"
 interface loan {
-  listLoanSchemes (): Promise<LoanSchemeResult[]>
+  listLoanSchemes (): Promise<ListLoanSchemeResult[]>
 }
 
-interface LoanSchemeResult {
+interface ListLoanSchemeResult {
   id: string
   mincolratio: BigNumber
   interestrate: BigNumber
   default: boolean
+}
+```
+
+## getLoanScheme
+
+Get loan scheme.
+
+```ts title="client.loan.getLoanScheme()"
+interface loan {
+  getLoanScheme (id: string): Promise<GetLoanSchemeResult>
+}
+
+interface GetLoanSchemeResult {
+  id: string
+  mincolratio: BigNumber
+  interestrate: BigNumber
 }
 ```
 
