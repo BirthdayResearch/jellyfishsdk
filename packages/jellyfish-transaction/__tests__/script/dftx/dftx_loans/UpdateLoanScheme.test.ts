@@ -18,25 +18,25 @@ it('should bi-directional buffer-object-buffer', () => {
      *   update: new BigNumber(0)
      * }
      */
-    '6a20446654784cc800000080b2e60e0000000006736368656d65ffffffffffffffff',
+    '6a20446654784cc800000000c817a80400000006736368656d650000000000000000',
     /**
      * loan : {
      *  ratio: 200,
      *  rate: new BigNumber(2.5),
      *  identifier: 'scheme',
-     *  update: new BigNumber('200')
+     *  update: new BigNumber(200)
      * }
      */
-    '6a20446654784cc800000080b2e60e0000000006736368656d65ffffffffffffffff',
+    '6a20446654784cc800000000c817a80400000006736368656d65c800000000000000',
     /**
      * loan : {
      *  ratio: 300,
      *  rate: new BigNumber(3.5),
      *  identifier: 'scheme',
-     *  update: new BigNumber('300')
+     *  update: new BigNumber(300)
      * }
      */
-    '6a20446654784c2c0100008093dc140000000006736368656d652c01000000000000'
+    '6a20446654784c2c01000000ac23fc0600000006736368656d652c01000000000000'
   ]
 
   fixtures.forEach(hex => {
@@ -51,12 +51,16 @@ it('should bi-directional buffer-object-buffer', () => {
 
 describe('UpdateLoanScheme', () => {
   const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CUpdateLoanScheme.OP_CODE(0x4c)
+  // UpdateLoanScheme.ratio[LE](c8000000)
+  // UpdateLoanScheme.rate[LE](80b2e60e00000000)
+  // UpdateLoanScheme.identifier[LE](06736368656d65)
+  // UpdateLoanScheme.update[LE](c800000000000000)
   const data = 'c800000080b2e60e0000000006736368656d65c800000000000000'
   const updateLoanScheme: LoanScheme = {
     ratio: 200,
     rate: new BigNumber(2.5),
     identifier: 'scheme',
-    update: new BigNumber('200')
+    update: new BigNumber(200)
   }
 
   it('should craft dftx with OP_CODES._()', () => {

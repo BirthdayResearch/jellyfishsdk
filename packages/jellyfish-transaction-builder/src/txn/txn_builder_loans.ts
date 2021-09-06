@@ -1,8 +1,8 @@
 import {
   OP_CODES, Script, TransactionSegWit,
   LoanScheme,
-  SetDefaultLoanScheme,
-  DestroyLoanScheme
+  DestroyLoanScheme,
+  SetDefaultLoanScheme
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
@@ -10,7 +10,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   /**
    * Create a loan scheme. Currently requires Foundation Authorization.
    *
-   * @param {CreateLoanScheme} createLoanScheme txn to create
+   * @param {LoanScheme} createLoanScheme txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */

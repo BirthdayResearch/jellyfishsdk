@@ -5,10 +5,10 @@ import BigNumber from 'bignumber.js'
  * CreateLoanScheme / UpdateLoanScheme DeFi Transaction
  */
 export interface LoanScheme {
-  ratio: number // -----------------------| 4 bytes unsigned
-  rate: BigNumber // ---------------------| 8 bytes unsigned
-  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  update: BigNumber // -------------------| 8 bytes unsigned integer, activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
+  ratio: number // -----------------------| 4 bytes unsigned, Minimum collateralization ratio
+  rate: BigNumber // ---------------------| 8 bytes unsigned, Interest rate
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Unique identifier of the loan scheme
+  update: BigNumber // -------------------| 8 bytes unsigned integer, Activation block height. 0 for createLoanScheme, > 0 for updateLoanScheme
 }
 
 /**
@@ -23,7 +23,7 @@ export interface DestroyLoanScheme {
  * SetDefaultLoanScheme DeFi Transaction
  */
 export interface SetDefaultLoanScheme {
-  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
+  identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Unique identifier of the loan scheme
 }
 
 /**
