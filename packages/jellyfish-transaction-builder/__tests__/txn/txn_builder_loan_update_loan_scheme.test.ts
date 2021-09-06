@@ -295,7 +295,7 @@ describe('loan.updateLoanScheme() with update less than current height', () => {
   })
 })
 
-describe('loan.updateLoanScheme() if same ratio and rate pending loan scheme created before', () => {
+describe('loan.updateLoanScheme() if a pending loan scheme exists with same rate and ratio', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 

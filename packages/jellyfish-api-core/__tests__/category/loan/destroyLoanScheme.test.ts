@@ -151,7 +151,7 @@ describe('Loan with activateAfterBlock at block 120', () => {
   })
 })
 
-describe('Loan with activateAfterBlock which is less than current height', () => {
+describe('Loan with activateAfterBlock which is below current height', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
