@@ -299,6 +299,6 @@ Set last height on BTC chain, use for testing purpose.
 
 ```ts title=client.spv.setLastHeight()"
 interface spv {
-  setLastHeight (): Promise<void>
+  setLastHeight (height: number): Promise<void>
 }
 ```
