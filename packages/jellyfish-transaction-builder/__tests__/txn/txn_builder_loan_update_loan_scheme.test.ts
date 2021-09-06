@@ -340,6 +340,6 @@ describe('loan.updateLoanScheme() if same ratio and rate pending loan scheme cre
     // Attempt to update same ratio and rate as the pending scheme
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme scheme2 with same interestrate and mincolratio already exists (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('LoanSchemeTx: Loan scheme scheme1 with same interestrate and mincolratio already exists (code 16)\', code: -26')
   })
 })
