@@ -58,7 +58,7 @@ describe('loan.updateLoanScheme()', () => {
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'scheme1',
-      update: new BigNumber('0xffffffffffffffff')
+      update: new BigNumber('0xffffffffffffffff') // NOTE(jingyi2811): 0xffffffffffffffff = std::numeric_limits<uint64_t>::max() indicates to update at next possible block.
     }, script)
 
     // Ensure the created txn is correct
