@@ -52,6 +52,8 @@ import {
   ICXMakeOffer,
   CICXCloseOrder,
   ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer,
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
@@ -70,10 +72,12 @@ import {
 } from './dftx_governance'
 import {
   CCreateLoanScheme,
-  CSetDefaultLoanScheme,
-  SetDefaultLoanScheme,
   CUpdateLoanScheme,
-  LoanScheme
+  LoanScheme,
+  CDestroyLoanScheme,
+  DestroyLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
 } from './dftx_loans'
 
 /**
@@ -196,6 +200,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXMakeOffer>(CICXMakeOffer.OP_NAME, d => new CICXMakeOffer(d))
       case CICXCloseOrder.OP_CODE:
         return compose<ICXCloseOrder>(CICXCloseOrder.OP_NAME, d => new CICXCloseOrder(d))
+      case CICXCloseOffer.OP_CODE:
+        return compose<ICXCloseOffer>(CICXCloseOffer.OP_NAME, d => new CICXCloseOffer(d))
       case CCreateCfp.OP_CODE:
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:
@@ -208,6 +214,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<LoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
       case CUpdateLoanScheme.OP_CODE:
         return compose<LoanScheme>(CUpdateLoanScheme.OP_NAME, d => new CUpdateLoanScheme(d))
+      case CDestroyLoanScheme.OP_CODE:
+        return compose<DestroyLoanScheme>(CDestroyLoanScheme.OP_NAME, d => new CDestroyLoanScheme(d))
       case CSetDefaultLoanScheme.OP_CODE:
         return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
       case CICXSubmitEXTHTLC.OP_CODE:

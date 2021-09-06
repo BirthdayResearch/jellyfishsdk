@@ -58,10 +58,12 @@ import {
 } from './dftx/dftx_oracles'
 import {
   CCreateLoanScheme,
-  CSetDefaultLoanScheme,
-  SetDefaultLoanScheme,
   CUpdateLoanScheme,
-  LoanScheme
+  LoanScheme,
+  CDestroyLoanScheme,
+  DestroyLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -72,6 +74,8 @@ import {
   ICXMakeOffer,
   CICXCloseOrder,
   ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer,
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
@@ -361,6 +365,14 @@ export const OP_CODES = {
       data: closeOrder
     })
   },
+  OP_DEFI_TX_ICX_CLOSE_OFFER: (closeOffer: ICXCloseOffer) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOffer.OP_CODE,
+      name: CICXCloseOffer.OP_NAME,
+      data: closeOffer
+    })
+  },
   OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -409,6 +421,14 @@ export const OP_CODES = {
       data: updateLoanScheme
     })
   },
+  OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDestroyLoanScheme.OP_CODE,
+      name: CDestroyLoanScheme.OP_NAME,
+      data: destroyLoanScheme
+    })
+  },
   OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -433,7 +453,6 @@ export const OP_CODES = {
       data: icxClaimDFCHTLC
     })
   },
-
   OP_0: new constants.OP_0(),
   OP_FALSE: new constants.OP_FALSE(),
   /**
