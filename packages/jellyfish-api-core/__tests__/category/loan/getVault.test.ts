@@ -1,26 +1,25 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { Testing } from '@defichain/jellyfish-testing'
 
-describe('Loan', () => {
+describe('Loan createVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should getVault', async () => {
     // NOTE(jingyi2811): default scheme
-    await container.call('createloanscheme', [100, 1, 'default'])
-    await container.generate(1)
+    await testing.container.call('createloanscheme', [100, 1, 'default'])
+    await testing.generate(1)
 
-    const ownerAddress = await container.getNewAddress()
+    const ownerAddress = await testing.generateAddre()
     const vaultId = await container.call('createvault', [ownerAddress, 'default'])
     await container.generate(1)
 
