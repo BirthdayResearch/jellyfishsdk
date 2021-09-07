@@ -1,3 +1,4 @@
+import createHmac from 'create-hmac'
 import * as bip32 from 'bip32'
 import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
@@ -22,9 +23,10 @@ export interface Bip32Options {
 }
 
 /**
- * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
- * Purpose [44'] / CoinType-agnostic [n] / Account [n] / Chain (ignored for now) [0] / Addresses [n]
+ * MnemonicHdNode implements the WalletHdNode from jellyfish-wallet.
+ * MnemonicHdNode implementations is purpose and derivation agnostic.
  *
+ * Prior-art:
  * - BIP32 Hierarchical Deterministic Wallets
  * - BIP39 Mnemonic code for generating deterministic keys
  * - BIP44 Multi-Account Hierarchy for Deterministic Wallets
@@ -146,8 +148,7 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
    * @return MnemonicProviderData
    */
   static wordsToData (words: string[], options: Bip32Options): MnemonicProviderData {
-    const seed = mnemonicToSeed(words)
-    const node = bip32.fromSeed(seed, options)
+    const node: bip32.BIP32Interface = fromWordsToSeed(words, options)
     const privKey = (node.privateKey as Buffer).toString('hex')
     const chainCode = node.chainCode.toString('hex')
     return { words, chainCode, privKey }
@@ -163,4 +164,27 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
   static generateWords (length: 12 | 15 | 18 | 21 | 24 = 24, rng?: (numOfBytes: number) => Buffer): string[] {
     return generateMnemonicWords(length, rng)
   }
+}
+
+/**
+ * Derive from mnemonic words using our own seed called '@defichain/jellyfish-wallet-mnemonic'.
+ *
+ * @param {string[]} words to convert into Bip32Interface
+ * @param {Bip32Options} options
+ */
+function fromWordsToSeed (words: string[], options: Bip32Options): bip32.BIP32Interface {
+  const seed = mnemonicToSeed(words)
+  if (seed.length < 16) {
+    throw new TypeError('Seed should be at least 128 bits')
+  }
+  if (seed.length > 64) {
+    throw new TypeError('Seed should be at most 512 bits')
+  }
+
+  const key = Buffer.from('@defichain/jellyfish-wallet-mnemonic', 'utf8')
+  const I = createHmac('sha512', key).update(seed).digest()
+  const IL = I.slice(0, 32)
+  const IR = I.slice(32)
+
+  return bip32.fromPrivateKey(IL, IR, options)
 }

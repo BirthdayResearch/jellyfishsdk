@@ -209,4 +209,43 @@ describe('Token on masternode', () => {
     expect(data.symbolKey).toStrictEqual('DFI')
     expect(data.name).toStrictEqual('Default Defi token')
   })
+
+  describe('extended test on whale usage pattern', () => {
+    it('should listTokens with { including_start: true, limit: 1, start: 0 }', async () => {
+      const result = await client.token.listTokens({
+        including_start: true,
+        limit: 1,
+        start: Number.parseInt('0')
+      }, true)
+
+      expect(result['0']).toStrictEqual(expect.objectContaining({
+        symbol: 'DFI',
+        symbolKey: 'DFI'
+      }))
+    })
+
+    it('should listTokens with { including_start: true, limit: 1, start: 1 }', async () => {
+      const result = await client.token.listTokens({
+        including_start: true,
+        limit: 1,
+        start: Number.parseInt('1')
+      }, true)
+
+      expect(result['1']).toStrictEqual(expect.objectContaining({
+        symbol: 'DBTC',
+        symbolKey: 'DBTC'
+      }))
+      console.log(result)
+    })
+
+    it('should listTokens with { including_start: true, limit: 1, start: 100 }', async () => {
+      const result = await client.token.listTokens({
+        including_start: true,
+        limit: 1,
+        start: Number.parseInt('100')
+      }, true)
+
+      expect(Object.values(result).length).toStrictEqual(1)
+    })
+  })
 })

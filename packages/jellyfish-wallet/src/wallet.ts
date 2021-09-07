@@ -24,7 +24,7 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
    * @return Promise<WalletAccount>
    */
   get (account: number): Account {
-    const path = `${account}/0/0`
+    const path = `1129/${account}/0/0`
     const node = this.nodeProvider.derive(path)
     return this.accountProvider.provide(node)
   }

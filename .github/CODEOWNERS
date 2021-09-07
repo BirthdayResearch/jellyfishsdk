@@ -3,33 +3,33 @@
 
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh
-/.idea/                                         @fuxingloh @jingyi2811 @thedoublejay
 
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-api-core/                                   @fuxingloh @canonbrother @jingyi2811 @thedoublejay @ivan-zynesis @siradji @aikchun
-
-/packages/jellyfish-api-core/src/category/icxorderbook.ts       @fuxingloh @surangap @monstrobishi @canonbrother
-/packages/jellyfish-api-core/__tests__/category/icxorderbook    @fuxingloh @surangap @monstrobishi @canonbrother
+/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap @Jouzo
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
-/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis
+
+/packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+
+/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-transaction/                            @fuxingloh @ivan-zynesis @canonbrother
-/packages/jellyfish-transaction/src/script/                 @fuxingloh @canonbrother @ivan-zynesis @jingyi2811
-/packages/jellyfish-transaction/src/script/dftx/            @fuxingloh @canonbrother @ivan-zynesis @monstrobishi
+/packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap @Jouzo
 
-/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @monstrobishi
-/packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis
-/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi
+/packages/jellyfish-transaction/                @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+/packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
+
+/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi @surangap
 /packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
+/packages/jellyfish-wallet-ledger/              @fuxingloh @surangap @ivan-zynesis
 
-/packages/testcontainers/                       @fuxingloh @canonbrother
+/packages/testcontainers/                       @fuxingloh @canonbrother @surangap
 /packages/testing/                              @fuxingloh @canonbrother
 
 lerna.json                                      @fuxingloh @canonbrother

@@ -17,13 +17,13 @@ it('should bi-directional buffer-object-buffer', () => {
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x74)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x74)
   })
 })
 
-const header = '6a4c5f4466547874' // OP_RETURN, PUSH_DATA(5f44665478, 74)
-const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d11976a914ad1eaafdd6edcf2260f28cb31e24117c240681ca88ac0503055445534c4103455552055445534c41034a5059055445534c4103555344'
+const header = '6a4c5c4466547874' // OP_RETURN, PUSH_DATA(5c44665478, 74)
+const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d11976a914ad1eaafdd6edcf2260f28cb31e24117c240681ca88ac05030454534c41034555520454534c41034a50590454534c4103555344'
 const updateOracle: UpdateOracle = {
   script: {
     stack: [
@@ -38,15 +38,15 @@ const updateOracle: UpdateOracle = {
   weightage: 5,
   priceFeeds: [
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'EUR'
     },
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'JPY'
     },
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'USD'
     }
   ]
@@ -59,7 +59,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
@@ -67,7 +67,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CUpdateOracle(buffer)
 
-    expect(composable.toObject()).toEqual(updateOracle)
+    expect(composable.toObject()).toStrictEqual(updateOracle)
   })
 
   it('should compose from composable to buffer', () => {
@@ -75,6 +75,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

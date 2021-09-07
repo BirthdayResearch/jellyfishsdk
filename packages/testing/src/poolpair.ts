@@ -6,6 +6,7 @@ import { getNewAddress } from './wallet'
 /**
  * @param {MasterNodeRegTestContainer} container
  * @return {Promise<PoolPairsResult>}
+ * @deprecated use jellyfish-testing instead
  */
 export async function listPoolPairs (container: MasterNodeRegTestContainer): Promise<poolpair.PoolPairsResult> {
   return await container.call('listpoolpairs')
@@ -22,6 +23,7 @@ export async function listPoolPairs (container: MasterNodeRegTestContainer): Pro
  * @param {string} [options.ownerAddress]
  * @param {CreatePoolPairUTXO[]} [options.utxos]
  * @return {Promise<string>}
+ * @deprecated use jellyfish-testing instead
  */
 export async function createPoolPair (
   container: MasterNodeRegTestContainer,
@@ -57,6 +59,7 @@ export interface CreatePoolPairOptions {
  * @param {number} options.amountB pair amount
  * @param {string} options.shareAddress for LP
  * @return {Promise<BigNumber>} amount LP token share
+ * @deprecated use jellyfish-testing instead
  */
 export async function addPoolLiquidity (
   container: MasterNodeRegTestContainer,
@@ -92,6 +95,7 @@ export interface AddPoolLiquidityMetadata {
  * @param {string} metadata.tokenLP to remove
  * @param {BigNumber} metadata.amountLP to remove
  * @return {Promise<string>} txid
+ * @deprecated use jellyfish-testing instead
  */
 export async function removePoolLiquidity (
   container: MasterNodeRegTestContainer,
@@ -120,6 +124,7 @@ export interface RemovePoolLiquidityMetadata {
  * @param {string} metadata.tokenTo
  * @param {number} [metadata.maxPrice]
  * @return {Promise<string>} txid
+ * @deprecated use jellyfish-testing instead
  */
 export async function poolSwap (
   container: MasterNodeRegTestContainer,
