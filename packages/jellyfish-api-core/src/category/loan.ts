@@ -28,16 +28,20 @@ export class Loan {
   }
 
   /**
-   * Sets the default loan scheme.
+   * Updates an existing loan scheme.
    *
-   * @param {string} id Unique identifier of the loan scheme, max 8 chars
-   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} utxos.txid Transaction Id
-   * @param {number} utxos.vout Output number
+   * @param {UpdateLoanScheme} scheme
+   * @param {number} scheme.minColRatio Minimum collateralization ratio
+   * @param {BigNumber} scheme.interestRate Interest rate
+   * @param {string} scheme.id Unique identifier of the loan scheme, max 8 chars
+   * @param {number} [scheme.activateAfterBlock] Block height at which new changes take effect
+   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
+   * @param {string} options.utxos.txid Transaction Id
+   * @param {number} options.utxos.vout Output number
    * @return {Promise<string>} Hex string of the transaction
    */
-  async setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('setdefaultloanscheme', [id, utxos], 'number')
+  async updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updateloanscheme', [scheme.minColRatio, scheme.interestRate, scheme.id, scheme.activateAfterBlock, utxos], 'number')
   }
 
   /**
@@ -65,6 +69,36 @@ export class Loan {
   }
 
   /**
+   * Sets the default loan scheme.
+   *
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Hex string of the transaction
+   */
+  async setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setdefaultloanscheme', [id, utxos], 'number')
+  }
+
+  /**
+   * Set a collateral token transaction.
+   *
+   * @param {SetCollateralToken} collateralToken
+   * @param {string} collateralToken.token Symbol or id of collateral token
+   * @param {BigNumber} collateralToken.factor Collateralization factor
+   * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
+   * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} collateralTokenId, also the txn id for txn created to set collateral token
+   */
+  async setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'number')
+  }
+
+  /**
    * List collateral tokens.
    *
    * @return {Promise<CollateralTokensData>} CollateralToken
@@ -80,6 +114,13 @@ export interface CreateLoanScheme {
   id: string
 }
 
+export interface UpdateLoanScheme {
+  minColRatio: number
+  interestRate: BigNumber
+  id: string
+  activateAfterBlock?: number
+}
+
 export interface DestroyLoanScheme {
   id: string
   activateAfterBlock?: number
@@ -90,6 +131,13 @@ export interface LoanSchemeResult {
   mincolratio: BigNumber
   interestrate: BigNumber
   default: boolean
+}
+
+export interface SetCollateralToken {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock?: number
 }
 
 export interface CollateralTokensData {
