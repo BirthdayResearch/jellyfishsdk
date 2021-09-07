@@ -109,7 +109,7 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
 */
 export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
   static OP_CODE = 0x63 // 'c'
-  static OP_NAME = 'OP_DEFI_TX_SET_COLLETERAL_TOKEN'
+  static OP_NAME = 'OP_DEFI_TX_SET_COLLATERAL_TOKEN'
 
   composers (sct: SetCollateralToken): BufferComposer[] {
     return [

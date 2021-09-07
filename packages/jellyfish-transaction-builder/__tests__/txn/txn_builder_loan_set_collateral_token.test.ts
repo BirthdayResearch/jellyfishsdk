@@ -6,6 +6,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('loan.setCollateralToken()', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -22,7 +23,7 @@ describe('loan.setCollateralToken()', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Default scheme
     await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
@@ -64,7 +65,8 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId
+      priceFeedId,
+      activateAfterBlock: 0
     }, script)
 
     // Ensure the created txn is correct
@@ -97,7 +99,8 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 2,
       factor: new BigNumber(0.5),
-      priceFeedId
+      priceFeedId,
+      activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: token 2 does not exist! (code 16)\', code: -26')
@@ -108,7 +111,8 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(1.01),
-      priceFeedId
+      priceFeedId,
+      activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
@@ -119,7 +123,8 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: '944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5'
+      priceFeedId: '944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5',
+      activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: oracle (944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5) does not exist! (code 16)\', code: -26')
@@ -139,7 +144,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
   })
 
   afterAll(async () => {
@@ -199,7 +204,7 @@ describe('loan.setCollateralToken() with activateAfterBlock lesser than current 
 
     providers = await getProviders(testing.container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
   })
 
   afterAll(async () => {
