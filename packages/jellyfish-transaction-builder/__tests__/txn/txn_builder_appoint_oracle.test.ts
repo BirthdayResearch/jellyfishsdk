@@ -1,8 +1,9 @@
-import { MasterNodeRegTestContainer, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
+import { RegTest } from '@defichain/jellyfish-network'
 
 describe('appoint oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -16,7 +17,7 @@ describe('appoint oracle', () => {
 
     providers = await getProviders(container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Prep 1000 DFI Token for testing
     await container.waitForWalletBalanceGTE(1001)
@@ -100,7 +101,7 @@ describe('appoint oracle', () => {
 
     providers = await getProviders(container)
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
     // Prep 1000 DFI Token for testing
     await container.waitForWalletBalanceGTE(1001)

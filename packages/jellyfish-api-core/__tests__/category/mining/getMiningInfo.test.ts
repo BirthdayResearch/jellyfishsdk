@@ -32,7 +32,7 @@ describe('Mining', () => {
     expect(mn1.operator).toBeDefined()
     expect(mn1.state).toStrictEqual('ENABLED')
     expect(mn1.generate).toStrictEqual(false)
-    expect(mn1.mintedblocks).toStrictEqual(0)
+    expect(typeof mn1.mintedblocks).toStrictEqual('number')
     expect(typeof mn1.lastblockcreationattempt).toStrictEqual('string')
     expect(typeof mn1.targetMultiplier).toStrictEqual('number')
 

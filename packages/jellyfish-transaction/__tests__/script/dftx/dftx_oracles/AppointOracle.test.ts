@@ -17,13 +17,13 @@ it('should bi-directional buffer-object-buffer', () => {
       SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
     )
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x6f)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x6f)
   })
 })
 
-const header = '6a35446654786f' // OP_RETURN, PUSH_DATA(44665478, 6f)
-const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac0102055445534c4103455552055445534c4103555344'
+const header = '6a33446654786f' // OP_RETURN, PUSH_DATA(44665478, 6f)
+const data = '1976a914c52fcb3c6dd28e530e5d162fee41f235bf7709cd88ac01020454534c41034555520454534c4103555344'
 const appointOracle: AppointOracle = {
   script: {
     stack: [
@@ -37,11 +37,11 @@ const appointOracle: AppointOracle = {
   weightage: 1,
   priceFeeds: [
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'EUR'
     },
     {
-      token: 'TESLA',
+      token: 'TSLA',
       currency: 'USD'
     }
   ]
@@ -54,7 +54,7 @@ it('should craft dftx with OP_CODES._()', () => {
   ]
 
   const buffer = toBuffer(stack)
-  expect(buffer.toString('hex')).toBe(header + data)
+  expect(buffer.toString('hex')).toStrictEqual(header + data)
 })
 
 describe('Composable', () => {
@@ -62,7 +62,7 @@ describe('Composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CAppointOracle(buffer)
 
-    expect(composable.toObject()).toEqual(appointOracle)
+    expect(composable.toObject()).toStrictEqual(appointOracle)
   })
 
   it('should compose from composable to buffer', () => {
@@ -70,6 +70,6 @@ describe('Composable', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(data)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
   })
 })

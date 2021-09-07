@@ -44,7 +44,7 @@ Removes oracle.
 
 ```ts title="client.oracle.removeOracle()"
 interface oracle {
-  removeOracle (oracleid: string, utxos: UTXO[] = []): Promise<string>
+  removeOracle (oracleId: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {
@@ -59,7 +59,7 @@ Update a price oracle for relay of real time price data.
 
 ```ts title="client.oracle.updateOracle()"
 interface oracle {
-  updateOracle (oracleid: string, address: string, options: UpdateOracleOptions = {}): Promise<string>
+  updateOracle (oracleId: string, address: string, options: UpdateOracleOptions = {}): Promise<string>
 }
 
 interface UpdateOracleOptions {
@@ -85,7 +85,7 @@ Set oracle data transaction.
 
 ```ts title="client.oracle.setOracleData()"
 interface oracle {
-  setOracleData (oracleid: string, timestamp: number, options: SetOracleDataOptions = {}): Promise<string>
+  setOracleData (oracleId: string, timestamp: number, options: SetOracleDataOptions = {}): Promise<string>
 }
 
 interface SetOracleDataOptions {
@@ -110,7 +110,7 @@ Returns oracle data.
 
 ```ts title="client.oracle.getOracleData()"
 interface oracle {
-  getOracleData (oracleid: string): Promise<OracleData>
+  getOracleData (oracleId: string): Promise<OracleData>
 }
 
 interface OracleData {

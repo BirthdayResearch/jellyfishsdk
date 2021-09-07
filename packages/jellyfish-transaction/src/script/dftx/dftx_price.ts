@@ -1,8 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 
 export interface CurrencyPair {
   token: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string

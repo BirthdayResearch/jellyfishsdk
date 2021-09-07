@@ -33,6 +33,12 @@ interface UTXO {
 
 interface CreateMasternodeOptions {
   utxos: UTXO[]
+  timelock?: MasternodeTimeLock
+}
+
+enum MasternodeTimeLock {
+  FIVE_YEAR = 'FIVEYEARTIMELOCK',
+  TEN_YEAR = 'TENYEARTIMELOCK'
 }
 ```
 

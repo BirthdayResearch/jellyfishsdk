@@ -2,7 +2,7 @@
   "private": false,
   "name": "@defichain/testcontainers",
   "version": "0.0.0",
-  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance on Bitcoin",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
   "keywords": [
     "DeFiChain",
     "DeFi",
@@ -36,10 +36,9 @@
   },
   "dependencies": {
     "dockerode": "^3.3.0",
-    "node-fetch": "^2.6.1"
+    "cross-fetch": "^3.1.4"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.2.6",
-    "@types/node-fetch": "^2.5.12"
+    "@types/dockerode": "^3.2.7"
   }
 }

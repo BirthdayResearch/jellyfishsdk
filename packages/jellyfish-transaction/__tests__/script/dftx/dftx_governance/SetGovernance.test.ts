@@ -24,8 +24,8 @@ it('should bi-directional buffer-object-buffer', () => {
     )
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toBe(0x47)
+    expect(buffer.toString('hex')).toStrictEqual(hex)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x47)
   })
 })
 
@@ -75,7 +75,7 @@ describe('multiple variable', () => {
     ]
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(header + data)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
   describe('Composable', () => {
@@ -83,7 +83,7 @@ describe('multiple variable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CSetGovernance(buffer)
 
-      expect(composable.toObject()).toEqual(setGovernance)
+      expect(composable.toObject()).toStrictEqual(setGovernance)
     })
 
     it('should compose from composable to buffer', () => {
@@ -91,7 +91,7 @@ describe('multiple variable', () => {
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
-      expect(buffer.toBuffer().toString('hex')).toEqual(data)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
     })
   })
 })
@@ -137,7 +137,7 @@ describe('single variable', () => {
     ]
 
     const buffer = toBuffer(stack)
-    expect(buffer.toString('hex')).toBe(header + data)
+    expect(buffer.toString('hex')).toStrictEqual(header + data)
   })
 
   describe('Composable', () => {
@@ -145,7 +145,7 @@ describe('single variable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CSetGovernance(buffer)
 
-      expect(composable.toObject()).toEqual(setGovernance)
+      expect(composable.toObject()).toStrictEqual(setGovernance)
     })
 
     it('should compose from composable to buffer', () => {
@@ -153,7 +153,7 @@ describe('single variable', () => {
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
-      expect(buffer.toBuffer().toString('hex')).toEqual(data)
+      expect(buffer.toBuffer().toString('hex')).toStrictEqual(data)
     })
   })
 })
@@ -179,7 +179,7 @@ describe('Unmapped Governance Variable handling', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(lpRewards + fooBaz, 'hex'))
     const composable = new CSetGovernance(buffer)
 
-    expect(composable.toObject()).toEqual(setGovernance)
+    expect(composable.toObject()).toStrictEqual(setGovernance)
   })
 
   it('should compose from composable to buffer', () => {
@@ -187,6 +187,6 @@ describe('Unmapped Governance Variable handling', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toEqual(lpRewards + fooBaz)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(lpRewards + fooBaz)
   })
 })

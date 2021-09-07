@@ -1,6 +1,7 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { DockerContainer } from './docker_container'
+import { waitForCondition } from '../wait_for_condition'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -14,6 +15,7 @@ export interface StartOptions {
   // TODO(fuxingloh): change to cookie based auth soon
   user?: string
   password?: string
+  timeout?: number
 }
 
 /**
@@ -27,7 +29,7 @@ export abstract class DeFiDContainer extends DockerContainer {
     if (process?.env?.DEFICHAIN_DOCKER_IMAGE !== undefined) {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
-    return 'defi/defichain:1.8.0'
+    return 'defi/defichain:HEAD-fabbb70'
   }
 
   public static readonly DefaultStartOptions = {
@@ -58,15 +60,16 @@ export abstract class DeFiDContainer extends DockerContainer {
     return [
       'defid',
       '-printtoconsole',
-      '-rpcallowip=172.17.0.0/16',
+      '-rpcallowip=0.0.0.0/0',
       '-rpcbind=0.0.0.0',
+      '-rpcworkqueue=512',
       `-rpcuser=${opts.user!}`,
       `-rpcpassword=${opts.password!}`
     ]
   }
 
   /**
-   * Create container and start it immediately
+   * Create container and start it immediately waiting for defid to be ready
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
     await this.tryPullImage()
@@ -81,6 +84,21 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
+    await this.waitForRpc(startOptions.timeout)
+  }
+
+  /**
+   * Set contents of ~/.defi/defi.conf
+   * @param {string[]} options to set
+   */
+  async setDeFiConf (options: string[]): Promise<void> {
+    if (options.length > 0) {
+      const fileContents = options.join('\n') + '\n'
+
+      await this.exec({
+        Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
+      })
+    }
   }
 
   /**
@@ -160,59 +178,37 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
+   * Convenience method to getbestblockhash, typing mapping is non exhaustive
+   */
+  async getBestBlockHash (): Promise<string> {
+    return await this.call('getbestblockhash', [])
+  }
+
+  /**
+   * Connect another node
+   * @param {string} ip
+   * @return {Promise<void>}
+   */
+  async addNode (ip: string): Promise<void> {
+    return await this.call('addnode', [ip, 'onetry'])
+  }
+
+  /**
    * Wait for rpc to be ready
-   * @param {number} [timeout=15000] in millis
+   * @param {number} [timeout=20000] in millis
    */
-  private async waitForRpc (timeout = 15000): Promise<void> {
-    const expiredAt = Date.now() + timeout
-
-    return await new Promise((resolve, reject) => {
-      const checkReady = (): void => {
-        this.cachedRpcUrl = undefined
-        this.getMiningInfo().then(() => {
-          resolve()
-        }).catch(err => {
-          if (expiredAt < Date.now()) {
-            reject(new Error(`DeFiDContainer docker not ready within given timeout of ${timeout}ms.\n${err.message as string}`))
-          } else {
-            setTimeout(() => void checkReady(), 200)
-          }
-        })
-      }
-
-      checkReady()
-    })
+  private async waitForRpc (timeout = 20000): Promise<void> {
+    await waitForCondition(async () => {
+      this.cachedRpcUrl = undefined
+      await this.getMiningInfo()
+      return true
+    }, timeout, 200, 'waitForRpc')
   }
 
   /**
-   * @param {() => Promise<boolean>} condition to wait for true
-   * @param {number} timeout duration when condition is not met
-   * @param {number} [interval=200] duration in ms
+   * @deprecated as container.start() will automatically wait for ready now, you don't need to call this anymore
    */
-  async waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200): Promise<void> {
-    const expiredAt = Date.now() + timeout
-
-    return await new Promise((resolve, reject) => {
-      const checkCondition = async (): Promise<void> => {
-        const isReady = await condition().catch(() => false)
-        if (isReady) {
-          resolve()
-        } else if (expiredAt < Date.now()) {
-          reject(new Error(`waitForCondition is not ready within given timeout of ${timeout}ms.`))
-        } else {
-          setTimeout(() => void checkCondition(), interval)
-        }
-      }
-
-      void checkCondition()
-    })
-  }
-
-  /**
-   * Wait for everything to be ready, override for additional hooks
-   * @param {number} [timeout=15000] duration, default to 15000ms
-   */
-  async waitForReady (timeout = 15000): Promise<void> {
+  async waitForReady (timeout = 20000): Promise<void> {
     return await this.waitForRpc(timeout)
   }
 
@@ -233,6 +229,16 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     }
   }
+
+  /**
+   * Restart container and wait for defid to be ready.
+   * This will stop the container and start it again with old data intact.
+   * @param {number} [timeout=30000] in millis
+   */
+  async restart (timeout: number = 30000): Promise<void> {
+    await this.container?.restart()
+    await this.waitForRpc(timeout)
+  }
 }
 
 /**
@@ -251,7 +257,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   /**
    * Same prefix and created more than 1 hour ago
    */
-  const isStale = (containerInfo: ContainerInfo): boolean => {
+  function isStale (containerInfo: ContainerInfo): boolean {
     if (containerInfo.Names.filter((value) => value.startsWith(prefix)).length > 0) {
       return containerInfo.Created + 60 * 60 < Date.now() / 1000
     }
@@ -262,7 +268,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   /**
    * Stop container that are running, remove them after and their associated volumes
    */
-  const tryStopRemove = async (containerInfo: ContainerInfo): Promise<void> => {
+  async function tryStopRemove (containerInfo: ContainerInfo): Promise<void> {
     const container = docker.getContainer(containerInfo.Id)
     if (containerInfo.State === 'running') {
       await container.stop()
@@ -271,7 +277,7 @@ async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
   }
 
   return await new Promise((resolve, reject) => {
-    docker.listContainers({ all: 1 }, (error, result) => {
+    docker.listContainers({ all: true }, (error, result) => {
       if (error instanceof Error) {
         return reject(error)
       }
