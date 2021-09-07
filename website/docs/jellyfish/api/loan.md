@@ -144,8 +144,8 @@ interface VaultData {
 }
 
 interface VaultDetail {
-  owneraddress: string
-  loanschemeid: string
-  isunderliquidation: boolean
+  ownerAddress: string
+  loanSchemeId: string
+  isUnderLiquidation: boolean
 }
 ```

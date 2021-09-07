@@ -27,12 +27,12 @@ describe('Loan listVault', () => {
     await testing.container.call('createloanscheme', [200, 2.5, 'scheme'])
     await testing.generate(1)
 
-    const owneraddress = await testing.generateAddress()
+    const ownerAddress = await testing.generateAddress()
 
-    const vaultId1 = await testing.container.call('createvault', [owneraddress, 'default'])
+    const vaultId1 = await testing.container.call('createvault', [ownerAddress, 'default'])
     await testing.generate(1)
 
-    const vaultId2 = await testing.container.call('createvault', [owneraddress, 'scheme'])
+    const vaultId2 = await testing.container.call('createvault', [ownerAddress, 'scheme'])
     await testing.generate(1)
 
     // After createVault
@@ -40,14 +40,14 @@ describe('Loan listVault', () => {
       const result = await testing.rpc.loan.listVaults()
       expect(result).toStrictEqual({
         [vaultId1]: {
-          owneraddress,
-          loanschemeid: 'default',
-          isunderliquidation: false
+          ownerAddress,
+          loanSchemeId: 'default',
+          isUnderLiquidation: false
         },
         [vaultId2]: {
-          owneraddress,
-          loanschemeid: 'scheme',
-          isunderliquidation: false
+          ownerAddress,
+          loanSchemeId: 'scheme',
+          isUnderLiquidation: false
         }
       })
     }

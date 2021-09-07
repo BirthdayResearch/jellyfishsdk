@@ -145,9 +145,9 @@ export interface VaultData {
 }
 
 export interface VaultDetail {
-  owneraddress: string
-  loanschemeid: string
-  isunderliquidation: boolean
+  ownerAddress: string
+  loanSchemeId: string
+  isUnderLiquidation: boolean
 }
 
 export interface UTXO {
