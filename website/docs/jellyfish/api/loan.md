@@ -107,3 +107,51 @@ interface UTXO {
   vout: number
 }
 ```
+
+## setCollateralToken
+
+Set a collateral token transaction.
+
+```ts title="client.loan.setCollateralToken()"
+interface loan {
+  setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetCollateralToken {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## listCollateralTokens
+
+List collateral tokens.
+
+```ts title="client.loan.listCollateralTokens()"
+interface loan {
+  listCollateralTokens (): Promise<CollateralTokensData>
+}
+
+interface CollateralTokensData {
+  [key: string]: CollateralTokenDetail
+}
+
+interface CollateralTokenDetail {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
