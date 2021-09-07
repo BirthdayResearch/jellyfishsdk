@@ -63,7 +63,9 @@ import {
   CDestroyLoanScheme,
   DestroyLoanScheme,
   CSetDefaultLoanScheme,
-  SetDefaultLoanScheme
+  SetDefaultLoanScheme,
+  CSetCollateralToken,
+  SetCollateralToken
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -435,6 +437,14 @@ export const OP_CODES = {
       type: CSetDefaultLoanScheme.OP_CODE,
       name: CSetDefaultLoanScheme.OP_NAME,
       data: setDefaultLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_COLLATERAL_TOKEN: (setCollateralToken: SetCollateralToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetCollateralToken.OP_CODE,
+      name: CSetCollateralToken.OP_NAME,
+      data: setCollateralToken
     })
   },
   OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
