@@ -2,7 +2,7 @@ import {
   OP_CODES, Script, TransactionSegWit,
   CreateLoanScheme,
   SetDefaultLoanScheme,
-  DestroyLoanScheme
+  DestroyLoanScheme, CreateVault
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 

@@ -1,5 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
+import { Script } from '@defichain/jellyfish-transaction/tx'
+import { CScript } from '@defichain/jellyfish-transaction/tx_composer'
 
 /**
  * CreateLoanScheme DeFi Transaction
@@ -73,6 +75,12 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
       ComposableBuffer.bigNumberUInt64(() => dls.height, v => dls.height = v)
     ]
   }
+}
+
+export interface CreateVault {
+  ownerAddress: Script
+  loanSchemeId: string
+  isUnderLiquidation: boolean
 }
 
 export class CCreateVault extends ComposableBuffer<CreateVault> {
