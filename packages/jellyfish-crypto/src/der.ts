@@ -33,7 +33,9 @@ export const DERSignature = {
 const DER = {
   to (buffer: Buffer): Buffer {
     let i = 0
-    while (buffer[i] === 0) ++i
+    while (buffer[i] === 0) {
+      ++i
+    }
 
     if (i === buffer.length) {
       return Buffer.alloc(1, 0)

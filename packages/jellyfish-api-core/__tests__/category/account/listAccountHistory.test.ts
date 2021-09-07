@@ -228,7 +228,7 @@ describe('listAccountHistory', () => {
 
     const history = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
 
-    expect(history).toEqual(
+    expect(history).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: 'AccountToAccount',
@@ -251,7 +251,7 @@ describe('listAccountHistory', () => {
 
     const history = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
 
-    expect(history).toEqual(
+    expect(history).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: 'UtxosToAccount',
@@ -279,7 +279,7 @@ describe('listAccountHistory', () => {
     await container.generate(1)
     const history = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
 
-    expect(history).toEqual(
+    expect(history).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: 'UtxosToAccount',
@@ -289,7 +289,7 @@ describe('listAccountHistory', () => {
         })
       ])
     )
-    expect(history).toEqual(
+    expect(history).toStrictEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: 'AccountToUtxos',
@@ -342,7 +342,7 @@ describe('listAccountHistory for poolpair', () => {
 
     expect(records.length).toStrictEqual(2)
 
-    expect(records).toEqual(expect.arrayContaining([
+    expect(records).toStrictEqual(expect.arrayContaining([
       expect.objectContaining({
         amounts: expect.arrayContaining([
           expect.stringContaining('DFI-DDAI')
@@ -368,7 +368,7 @@ describe('listAccountHistory for poolpair', () => {
 
     const histories = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
 
-    expect(histories).toEqual(expect.arrayContaining([
+    expect(histories).toStrictEqual(expect.arrayContaining([
       expect.objectContaining({
         type: 'RemovePoolLiquidity',
         amounts: expect.arrayContaining(['-20.00000000@DFI-DDAI'])
@@ -397,7 +397,7 @@ describe('listAccountHistory for poolpair', () => {
 
     const histories = await client.account.listAccountHistory('mine', { limit: 100, no_rewards: true })
 
-    expect(histories).toEqual(expect.arrayContaining([
+    expect(histories).toStrictEqual(expect.arrayContaining([
       expect.objectContaining({
         type: 'PoolSwap',
         amounts: expect.arrayContaining(['-5.00000000@DFI'])
