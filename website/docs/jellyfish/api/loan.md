@@ -129,3 +129,23 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listVaults
+
+List all available vaults.
+
+```ts title="client.loan.listVaults()"
+interface loan {
+  listVaults (): Promise<VaultData>
+}
+
+interface VaultData {
+  [key: string]: VaultDetail
+}
+
+interface VaultDetail {
+  owneraddress: string
+  loanschemeid: string
+  isunderliquidation: boolean
+}
+```

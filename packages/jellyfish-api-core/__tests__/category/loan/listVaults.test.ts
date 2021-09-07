@@ -1,47 +1,55 @@
-import { ContainerAdapterClient } from '../../container_adapter_client'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { Testing } from '@defichain/jellyfish-testing'
 
-describe('Loan', () => {
+describe('Loan listVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(container)
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
-    await container.stop()
-  })
-
-  it('should listVaults with empty array if there is no vault available', async () => {
-    const data = await client.loan.listVaults()
-    expect(Object.keys(data).length).toStrictEqual(0)
+    await testing.container.stop()
   })
 
   it('should listVaults', async () => {
-    // NOTE(jingyi2811): default scheme
-    await container.call('createloanscheme', [100, 1, 'default'])
-    await container.generate(1)
+    // Before createVault
+    {
+      const result = await testing.rpc.loan.listVaults()
+      expect(result).toStrictEqual({})
+    }
 
-    const loanschemeid = 'scheme'
+    await testing.container.call('createloanscheme', [100, 1.5, 'default'])
+    await testing.generate(1)
 
-    await container.call('createloanscheme', [200, 2, loanschemeid])
-    await container.generate(1)
+    await testing.container.call('createloanscheme', [200, 2.5, 'scheme'])
+    await testing.generate(1)
 
-    const owneraddress = await container.getNewAddress()
+    const owneraddress = await testing.generateAddress()
 
-    const vaultId = await container.call('createvault', [owneraddress, loanschemeid])
-    await container.generate(1)
+    const vaultId1 = await testing.container.call('createvault', [owneraddress, 'default'])
+    await testing.generate(1)
 
-    const result = await client.loan.listVaults()
-    expect(result).toStrictEqual({
-      [vaultId]: {
-        owneraddress,
-        loanschemeid,
-        isliquidated: false
-      }
-    })
+    const vaultId2 = await testing.container.call('createvault', [owneraddress, 'scheme'])
+    await testing.generate(1)
+
+    // After createVault
+    {
+      const result = await testing.rpc.loan.listVaults()
+      expect(result).toStrictEqual({
+        [vaultId1]: {
+          owneraddress,
+          loanschemeid: 'default',
+          isunderliquidation: false
+        },
+        [vaultId2]: {
+          owneraddress,
+          loanschemeid: 'scheme',
+          isunderliquidation: false
+        }
+      })
+    }
   })
 })
