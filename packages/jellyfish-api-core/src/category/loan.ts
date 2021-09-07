@@ -101,7 +101,7 @@ export class Loan {
   /**
    * List collateral tokens.
    *
-   * @return {Promise<CollateralTokensData>} CollateralToken
+   * @return {Promise<CollateralTokensData>} Get all collateral token
    */
   async listCollateralTokens (): Promise<CollateralTokensData> {
     return await this.client.call('listcollateraltokens', [], 'bignumber')

@@ -149,4 +149,9 @@ interface CollateralTokenDetail {
   priceFeedId: string
   activateAfterBlock: BigNumber
 }
+
+interface UTXO {
+  txid: string
+  vout: number
+}
 ```
