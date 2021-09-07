@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch'
-import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
@@ -85,12 +85,49 @@ class TestingJsonRpcClient extends JsonRpcClient {
   }
 }
 
-export class TestingGroup extends ContainerGroup {
-  constructor (readonly testings: Testing[] = []) {
-    super(testings.map(t => t.container))
+export class TestingGroup {
+  private constructor (
+    public readonly group: ContainerGroup,
+    public readonly testings: Testing[]
+  ) {
   }
 
-  getT (index: number): Testing {
+  static create (n = 1): TestingGroup {
+    const containers: MasterNodeRegTestContainer[] = []
+    const testings: Testing[] = []
+    for (let i = 0; i < n; i += 1) {
+      const container = new MasterNodeRegTestContainer(GenesisKeys[i])
+      containers.push(container)
+
+      const testing = Testing.create(container)
+      testings.push(testing)
+    }
+    const group = new ContainerGroup(containers)
+
+    return new TestingGroup(group, testings)
+  }
+
+  get (index: number): Testing {
     return this.testings[index]
+  }
+
+  length (): number {
+    return this.testings.length
+  }
+
+  async start (): Promise<void> {
+    return await this.group.start()
+  }
+
+  async stop (): Promise<void> {
+    return await this.group.stop()
+  }
+
+  async waitForSync (): Promise<void> {
+    return await this.group.waitForSync()
+  }
+
+  async waitForMempoolSync (txid: string, timeout = 15000): Promise<void> {
+    return await this.group.waitForMempoolSync(txid, timeout)
   }
 }
