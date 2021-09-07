@@ -46,6 +46,7 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a254466547856' // OP_RETURN(0x6a) (length 37 = 0x25) CDfTx.SIGNATURE(0x44665478) CCreateVault.OP_CODE(0x56)
+// @TODO missing documentation
 const data = '1600147f3b2ccdb32982c3fa5380112dffad8a6792bba807736368656d653100'
 const createVault: CreateVault = {
   ownerAddress: {
