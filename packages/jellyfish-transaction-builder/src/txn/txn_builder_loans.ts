@@ -65,7 +65,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-   * SetCollateralToken. Currently requires Foundation Authorization.
+   * Set a collateral token. Currently requires Foundation Authorization.
    *
    * @param {SetCollateralToken} setCollateralToken txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)

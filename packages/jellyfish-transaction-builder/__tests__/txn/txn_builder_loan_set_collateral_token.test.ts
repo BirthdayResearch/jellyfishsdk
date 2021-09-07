@@ -43,24 +43,11 @@ describe('loan.setCollateralToken()', () => {
     await testing.container.stop()
   })
 
-  beforeEach(async () => {
+  it('should setCollateralToken', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
     await providers.setupMocks() // required to move utxos
-  })
 
-  afterEach(async () => {
-    const data = await testing.container.call('listloanschemes')
-    const result = data.filter((d: { default: boolean }) => !d.default)
-
-    for (let i = 0; i < result.length; i += 1) {
-      // Delete all schemes except default scheme
-      await testing.container.call('destroyloanscheme', [result[i].id])
-      await testing.generate(1)
-    }
-  })
-
-  it('should setCollateralToken', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
@@ -165,8 +152,8 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
     await providers.setupMocks() // Required to move utxos
 
-    const script = await providers.elliptic.script()
     // To setCollateralToken at block 160
+    const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
