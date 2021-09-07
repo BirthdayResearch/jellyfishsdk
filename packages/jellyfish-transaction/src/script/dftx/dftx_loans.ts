@@ -30,10 +30,10 @@ export interface SetDefaultLoanScheme {
  * SetCollateralToken DeFi Transaction
  */
 export interface SetCollateralToken {
-  token: number // ----------------| VarUInt{1-9 bytes}, symbol or id of collateral token
-  factor: BigNumber // ------------| 8 bytes unsigned, collateralization factor
-  priceFeedId: string // ----------| 32 bytes, hex string Txid of oracle feeding the price
-  activateAfterBlock: number // ---| 4 bytes, unsigned Changes will be active after the block height
+  token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
+  factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
+  priceFeedId: string // ----------| 32 bytes hex string, Txid of oracle feeding the price
+  activateAfterBlock: number // ---| 4 bytes unsigned,  Changes will be active after the block height
 }
 
 /**
@@ -104,9 +104,9 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
 }
 
 /**
-* Composable SetCollateralToken, C stands for Composable.
-* Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
-*/
+ * Composable SetCollateralToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
   static OP_CODE = 0x63 // 'c'
   static OP_NAME = 'OP_DEFI_TX_SET_COLLATERAL_TOKEN'

@@ -152,10 +152,6 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
   })
 
   it('should setCollateralToken', async () => {
-    // Default scheme
-    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-    await testing.generate(1)
-
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
@@ -191,7 +187,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
   })
 })
 
-describe('loan.setCollateralToken() with activateAfterBlock lesser than current height', () => {
+describe('loan.setCollateralToken() with activateAfterBlock below current height', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -212,10 +208,6 @@ describe('loan.setCollateralToken() with activateAfterBlock lesser than current 
   })
 
   it('should not setCollateralToken', async () => {
-    // Default scheme
-    await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])
-    await testing.generate(1)
-
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
@@ -232,8 +224,8 @@ describe('loan.setCollateralToken() with activateAfterBlock lesser than current 
     // Wait for block 150
     await testing.container.waitForBlockHeight(150)
 
-    const script = await providers.elliptic.script()
     // To setCollateralToken at block 149
+    const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
