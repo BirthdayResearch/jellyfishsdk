@@ -1,9 +1,6 @@
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
-import { TokenBalance, CTokenBalance } from './dftx_balance'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { CTokenBalance, TokenBalance } from './dftx_balance'
 import BigNumber from 'bignumber.js'
-
-// Disabling no-return-assign makes the code cleaner with the setter and getter */
-/* eslint-disable no-return-assign */
 
 /**
  * TokenMint DeFi Transaction

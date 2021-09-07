@@ -10,15 +10,16 @@ import {
   utxosToAccount
 } from '@defichain/testing'
 import { RpcApiError } from '../../../src'
-import { PoolSwapMetadata, PoolPairInfo } from '@defichain/jellyfish-api-core/category/poolpair'
+import { PoolSwapMetadata } from '@defichain/jellyfish-api-core/category/poolpair'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('poolSwap', () => {
   const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
@@ -27,23 +28,14 @@ describe('poolSwap', () => {
   })
 
   it('should poolSwap', async () => {
-    const addressReceiver = await getNewAddress(container)
-    const tokenAddress = await getNewAddress(container)
-    const dfiAddress = await getNewAddress(container)
-    const poolLiquidityAddress = await getNewAddress(container)
-
-    await createToken(container, 'CAT', { collateralAddress: tokenAddress })
-    await utxosToAccount(container, 1200, { address: dfiAddress })
-    await mintTokens(container, 'CAT', { address: dfiAddress })
-    await createPoolPair(container, 'CAT', 'DFI')
-
-    await addPoolLiquidity(container, {
-      tokenA: 'CAT',
-      amountA: 1000,
-      tokenB: 'DFI',
-      amountB: 500,
-      shareAddress: poolLiquidityAddress
+    const poolPairBefore = await testing.fixture.createPoolPair({
+      a: { amount: 1000, symbol: 'CAT' },
+      b: { amount: 500, symbol: 'DFI' }
     })
+
+    const [addressReceiver, dfiAddress] = await testing.generateAddress(2)
+    await testing.token.dfi({ amount: 700, address: dfiAddress })
+    await testing.generate(1)
 
     const metadata: PoolSwapMetadata = {
       from: dfiAddress,
@@ -53,24 +45,22 @@ describe('poolSwap', () => {
       tokenTo: 'CAT'
     }
 
-    const poolpairResultBefore = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
-
     const hex = await client.poolpair.poolSwap(metadata)
     expect(typeof hex).toStrictEqual('string')
     expect(hex.length).toStrictEqual(64)
 
     await container.generate(1)
 
-    const poolpairResultAfter = Object.values(await container.call('getpoolpair', ['CAT-DFI']))[0] as PoolPairInfo
-    const reserveBAfter = new BigNumber(poolpairResultBefore.reserveB).plus(555) // 1055
-    const reserveAAfter = new BigNumber(poolpairResultBefore.totalLiquidity).pow(2).div(reserveBAfter) // 473.93364928032265610654
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
+    const reserveBAfter = new BigNumber(poolPairBefore.reserveB).plus(555) // 1055
+    const reserveAAfter = new BigNumber(poolPairBefore.totalLiquidity).pow(2).div(reserveBAfter) // 473.93364928032265610654
 
-    expect(new BigNumber(poolpairResultAfter.reserveB)).toStrictEqual(reserveBAfter)
-    expect(poolpairResultAfter.reserveA.toFixed(8)).toStrictEqual(reserveAAfter.toFixed(8))
+    expect(new BigNumber(poolPairAfter.reserveB)).toStrictEqual(reserveBAfter)
+    expect(poolPairAfter.reserveA.toFixed(8)).toStrictEqual(reserveAAfter.toFixed(8))
 
     const accountReceiver = (await client.account.getAccount(addressReceiver))[0]
     const accountReceiverBalance = new BigNumber(accountReceiver.split('@')[0]) // 526.06635072
-    const amountReceived = new BigNumber(poolpairResultBefore.reserveA).minus(reserveAAfter) // 526.06635071967734389346
+    const amountReceived = new BigNumber(poolPairBefore.reserveA).minus(reserveAAfter) // 526.06635071967734389346
 
     expect(accountReceiverBalance.toFixed(8)).toStrictEqual(amountReceived.toFixed(8))
   })

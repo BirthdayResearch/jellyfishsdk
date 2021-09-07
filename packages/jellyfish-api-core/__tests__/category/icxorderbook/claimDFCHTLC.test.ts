@@ -58,7 +58,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
       closed: true
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
     if (HTLCs[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
@@ -108,7 +108,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
       closed: true
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
     if (HTLCs[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
@@ -188,7 +188,7 @@ describe('ICXOrderBook.claimDFCHTLC', () => {
       closed: true
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
-    expect(Object.keys(HTLCs).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
     if (HTLCs[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
