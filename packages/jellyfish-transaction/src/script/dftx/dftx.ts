@@ -72,11 +72,12 @@ import {
 } from './dftx_governance'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme,
-  CSetDefaultLoanScheme,
-  SetDefaultLoanScheme,
+  CUpdateLoanScheme,
+  LoanScheme,
   CDestroyLoanScheme,
-  DestroyLoanScheme
+  DestroyLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
 } from './dftx_loans'
 
 /**
@@ -210,11 +211,13 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
       case CICXSubmitDFCHTLC.OP_CODE:
         return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
       case CCreateLoanScheme.OP_CODE:
-        return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
-      case CSetDefaultLoanScheme.OP_CODE:
-        return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
+        return compose<LoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
+      case CUpdateLoanScheme.OP_CODE:
+        return compose<LoanScheme>(CUpdateLoanScheme.OP_NAME, d => new CUpdateLoanScheme(d))
       case CDestroyLoanScheme.OP_CODE:
         return compose<DestroyLoanScheme>(CDestroyLoanScheme.OP_NAME, d => new CDestroyLoanScheme(d))
+      case CSetDefaultLoanScheme.OP_CODE:
+        return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
       case CICXSubmitEXTHTLC.OP_CODE:
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
       case CICXClaimDFCHTLC.OP_CODE:

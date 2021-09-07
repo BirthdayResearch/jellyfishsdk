@@ -58,11 +58,12 @@ import {
 } from './dftx/dftx_oracles'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme,
-  CSetDefaultLoanScheme,
-  SetDefaultLoanScheme,
+  CUpdateLoanScheme,
+  LoanScheme,
   CDestroyLoanScheme,
-  DestroyLoanScheme
+  DestroyLoanScheme,
+  CSetDefaultLoanScheme,
+  SetDefaultLoanScheme
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -404,7 +405,7 @@ export const OP_CODES = {
       data: icxSubmitDFCHTLC
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CCreateLoanScheme.OP_CODE,
@@ -412,12 +413,12 @@ export const OP_CODES = {
       data: createLoanScheme
     })
   },
-  OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CSetDefaultLoanScheme.OP_CODE,
-      name: CSetDefaultLoanScheme.OP_NAME,
-      data: setDefaultLoanScheme
+      type: CUpdateLoanScheme.OP_CODE,
+      name: CUpdateLoanScheme.OP_NAME,
+      data: updateLoanScheme
     })
   },
   OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {
@@ -426,6 +427,14 @@ export const OP_CODES = {
       type: CDestroyLoanScheme.OP_CODE,
       name: CDestroyLoanScheme.OP_NAME,
       data: destroyLoanScheme
+    })
+  },
+  OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetDefaultLoanScheme.OP_CODE,
+      name: CSetDefaultLoanScheme.OP_NAME,
+      data: setDefaultLoanScheme
     })
   },
   OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {

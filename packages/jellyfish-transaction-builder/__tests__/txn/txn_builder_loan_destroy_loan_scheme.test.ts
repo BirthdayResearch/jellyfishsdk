@@ -195,7 +195,7 @@ describe('loan.destroyLoanScheme() with height', () => {
   })
 })
 
-describe('loan.destroyLoanScheme() with height lesser than current height', () => {
+describe('loan.destroyLoanScheme() with height less than current height', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
