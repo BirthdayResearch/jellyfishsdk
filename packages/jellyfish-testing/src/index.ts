@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch'
-import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
@@ -92,11 +92,11 @@ export class TestingGroup {
   ) {
   }
 
-  static create (n = 1): TestingGroup {
+  static create (n: number, init: (index: number) => MasterNodeRegTestContainer): TestingGroup {
     const containers: MasterNodeRegTestContainer[] = []
     const testings: Testing[] = []
     for (let i = 0; i < n; i += 1) {
-      const container = new MasterNodeRegTestContainer(GenesisKeys[i])
+      const container = init(i)
       containers.push(container)
 
       const testing = Testing.create(container)
@@ -121,6 +121,12 @@ export class TestingGroup {
 
   async stop (): Promise<void> {
     return await this.group.stop()
+  }
+
+  async exec (runner: (testing: Testing) => Promise<void>): Promise<void> {
+    for (let i = 0; i < this.testings.length; i += 1) {
+      await runner(this.testings[i])
+    }
   }
 
   async waitForSync (): Promise<void> {

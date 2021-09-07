@@ -1,8 +1,8 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 describe('Spv', () => {
-  const tGroup = TestingGroup.create(3)
+  const tGroup = TestingGroup.create(3, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
 
   beforeAll(async () => {
     await tGroup.start()
@@ -13,9 +13,9 @@ describe('Spv', () => {
     await tGroup.stop()
   })
 
-  async function setMockTime (pastHour: number, futureHour = 0): Promise<void> {
+  async function setMockTime (offsetHour: number): Promise<void> {
     for (let i = 0; i < tGroup.testings.length; i += 1) {
-      await tGroup.get(i).misc.offsetTimeHourly(pastHour, futureHour)
+      await tGroup.get(i).misc.offsetTimeHourly(offsetHour)
     }
   }
 
@@ -24,7 +24,7 @@ describe('Spv', () => {
     expect(auths.length).toStrictEqual(0)
 
     // time travel back 13 hours ago
-    await setMockTime(13)
+    await setMockTime(-13)
 
     // 15 as anchor frequency
     for (let i = 0; i < 15; i += 1) {
@@ -52,7 +52,7 @@ describe('Spv', () => {
 
     // generate anchor auths
     for (let i = 1; i < 3 + 1; i += 1) {
-      await setMockTime(12, i)
+      await setMockTime(-12 + i)
       await tGroup.get(0).generate(15)
       await tGroup.waitForSync()
     }
