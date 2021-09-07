@@ -98,6 +98,11 @@ export class Loan {
     return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'number')
   }
 
+  /**
+   * Returns information about vault.
+   *
+   * @return {Promise<VaultData>}
+   */
   async getVault (vaultId: string): Promise<VaultData> {
     return await this.client.call('getvault', [vaultId], 'number')
   }
@@ -136,9 +141,9 @@ export interface SetCollateralToken {
 }
 
 export interface VaultData {
-  loanschemeid: string
-  owneraddress: string
-  isunderliquidation: false
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: false
 }
 
 export interface UTXO {
