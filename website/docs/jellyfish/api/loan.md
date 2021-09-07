@@ -129,3 +129,29 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listCollateralTokens
+
+List collateral tokens.
+
+```ts title="client.loan.listCollateralTokens()"
+interface loan {
+  listCollateralTokens (): Promise<CollateralTokensData>
+}
+
+interface CollateralTokensData {
+  [key: string]: CollateralTokenDetail
+}
+
+interface CollateralTokenDetail {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```

@@ -97,6 +97,15 @@ export class Loan {
   async setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'number')
   }
+
+  /**
+   * List collateral tokens.
+   *
+   * @return {Promise<CollateralTokensData>} Get all collateral tokens
+   */
+  async listCollateralTokens (): Promise<CollateralTokensData> {
+    return await this.client.call('listcollateraltokens', [], 'bignumber')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -129,6 +138,17 @@ export interface SetCollateralToken {
   factor: BigNumber
   priceFeedId: string
   activateAfterBlock?: number
+}
+
+export interface CollateralTokensData {
+  [key: string]: CollateralTokenDetail
+}
+
+export interface CollateralTokenDetail {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
 }
 
 export interface UTXO {
