@@ -25,18 +25,18 @@ describe('Loan getLoanScheme', () => {
     )
   })
 
-  it('should not getLoanScheme if id is an empty string', async () => {
-    const promise = testing.rpc.loan.getLoanScheme('')
-    await expect(promise).rejects.toThrow('RpcApiError: \'Cannot find existing loan scheme with id scheme2\', code: -8, method: getloanscheme')
-  })
-
-  it('should not getLoanScheme if id is more than 8 characters', async () => {
-    const promise = testing.rpc.loan.getLoanScheme('x'.repeat(8))
-    await expect(promise).rejects.toThrow('RpcApiError: \'Cannot find existing loan scheme with id scheme2\', code: -8, method: getloanscheme')
-  })
-
   it('should not getLoanScheme if id does not exist', async () => {
     const promise = testing.rpc.loan.getLoanScheme('scheme2')
     await expect(promise).rejects.toThrow('RpcApiError: \'Cannot find existing loan scheme with id scheme2\', code: -8, method: getloanscheme')
+  })
+
+  it('should not getLoanScheme if id is an empty string', async () => {
+    const promise = testing.rpc.loan.getLoanScheme('')
+    await expect(promise).rejects.toThrow('RpcApiError: \'id cannot be empty or more than 8 chars long\', code: -8, method: getloanscheme')
+  })
+
+  it('should not getLoanScheme if id is more than 8 characters', async () => {
+    const promise = testing.rpc.loan.getLoanScheme('x'.repeat(9))
+    await expect(promise).rejects.toThrow('RpcApiError: \'id cannot be empty or more than 8 chars long\', code: -8, method: getloanscheme')
   })
 })
