@@ -82,7 +82,7 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
  */
 export interface CreateVault {
   ownerAddress: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, Vault's owner address
-  loanSchemeId: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
+  schemeId: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
   isUnderLiquidation: boolean // -------------| 1 byte, Vault is under liquidation
 }
 
@@ -97,7 +97,7 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
   composers (cv: CreateVault): BufferComposer[] {
     return [
       ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
-      ComposableBuffer.varUIntUtf8BE(() => cv.loanSchemeId, v => cv.loanSchemeId = v),
+      ComposableBuffer.varUIntUtf8BE(() => cv.schemeId, v => cv.schemeId = v),
       ComposableBuffer.uBool8(() => cv.isUnderLiquidation, v => cv.isUnderLiquidation = v)
     ]
   }
