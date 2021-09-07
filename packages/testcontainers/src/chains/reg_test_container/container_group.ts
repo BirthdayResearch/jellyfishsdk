@@ -76,7 +76,7 @@ export class ContainerGroup {
    * @param {string} txid to wait for in mempool
    * @param {number} [timeout=150000] in millis
    */
-  async waitForMempoolSync (txid: string, timeout: number = 15000): Promise<void> {
+  async waitForMempoolSync (txid: string, timeout: number = 20000): Promise<void> {
     await waitForCondition(async () => {
       const txns = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('getrawtransaction', [txid, false])
