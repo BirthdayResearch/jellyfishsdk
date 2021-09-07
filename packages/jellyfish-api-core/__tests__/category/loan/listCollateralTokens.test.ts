@@ -37,11 +37,14 @@ describe('Loan listCollateralTokens', () => {
     }], 1])
     await testing.generate(1)
 
+    // Wait for block 120
+    await testing.container.waitForBlockHeight(120)
+
+    // Execute at block 121
     const collateralTokenId1 = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: priceFeedId1,
-      activateAfterBlock: 120
+      priceFeedId: priceFeedId1
     }])
     await testing.generate(1)
 
@@ -55,7 +58,8 @@ describe('Loan listCollateralTokens', () => {
 
     const data = await testing.rpc.loan.listCollateralTokens()
     expect(data).toStrictEqual({
-      [collateralTokenId1]: { activateAfterBlock: new BigNumber(120), factor: new BigNumber(0.5), priceFeedId: priceFeedId1, token: 'AAPL' },
+      // activateAfterBlock = 122, which is the next block after setcollateraltoken executed
+      [collateralTokenId1]: { activateAfterBlock: new BigNumber(122), factor: new BigNumber(0.5), priceFeedId: priceFeedId1, token: 'AAPL' },
       [collateralTokenId2]: { activateAfterBlock: new BigNumber(130), factor: new BigNumber(1), priceFeedId: priceFeedId2, token: 'TSLA' }
     })
   })
