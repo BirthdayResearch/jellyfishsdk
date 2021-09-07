@@ -84,8 +84,8 @@ interface loan {
 
 interface GetLoanSchemeResult {
   id: string
-  mincolratio: BigNumber
   interestrate: BigNumber
+  mincolratio: BigNumber
 }
 ```
 

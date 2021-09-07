@@ -71,7 +71,7 @@ export class Loan {
   /**
    * Get loan scheme.
    *
-   * @param {string} id Unique identifier of the loan scheme
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars.
    * @return {Promise<GetLoanSchemeResult>}
    */
   async getLoanScheme (id: string): Promise<GetLoanSchemeResult> {
@@ -163,8 +163,8 @@ export interface CollateralTokenDetail {
 
 export interface GetLoanSchemeResult {
   id: string
-  mincolratio: BigNumber
   interestrate: BigNumber
+  mincolratio: BigNumber
 }
 
 export interface UTXO {
