@@ -1,5 +1,5 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
-import fetch from 'node-fetch'
+import fetch from 'cross-fetch'
 import { DockerContainer } from './docker_container'
 import { waitForCondition } from '../wait_for_condition'
 
