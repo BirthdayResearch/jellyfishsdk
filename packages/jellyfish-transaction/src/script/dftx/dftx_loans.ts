@@ -77,14 +77,21 @@ export class CDestroyLoanScheme extends ComposableBuffer<DestroyLoanScheme> {
   }
 }
 
+/**
+ * CreateVault DeFi Transaction
+ */
 export interface CreateVault {
-  ownerAddress: Script
-  loanSchemeId: string
-  isUnderLiquidation: boolean
+  ownerAddress: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, Vault's owner address
+  loanSchemeId: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
+  isUnderLiquidation: boolean // -------------| 1 byte, Vault is under liquidation
 }
 
+/**
+ * Composable CreateVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
 export class CCreateVault extends ComposableBuffer<CreateVault> {
-  static OP_CODE = 0x56
+  static OP_CODE = 0x56 // 'V'
   static OP_NAME = 'OP_DEFI_TX_CREATE_VAULT'
 
   composers (cv: CreateVault): BufferComposer[] {
