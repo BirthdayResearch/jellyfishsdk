@@ -74,7 +74,7 @@ export class ContainerGroup {
    * Wait for all container to receive the same txid in mempool
    *
    * @param {string} txid to wait for in mempool
-   * @param {number} [timeout=150000] in millis
+   * @param {number} [timeout=20000] in millis
    */
   async waitForMempoolSync (txid: string, timeout: number = 20000): Promise<void> {
     await waitForCondition(async () => {
@@ -88,9 +88,9 @@ export class ContainerGroup {
 
   /**
    * Wait for all container to sync up
-   * @param {number} [timeout=150000] in millis
+   * @param {number} [timeout=20000] in millis
    */
-  async waitForSync (timeout: number = 15000): Promise<void> {
+  async waitForSync (timeout: number = 20000): Promise<void> {
     await waitForCondition(async () => {
       const hashes = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.getBestBlockHash()
