@@ -34,7 +34,7 @@ describe('loan.setCollateralToken()', () => {
 
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
   })
@@ -105,6 +105,27 @@ describe('loan.setCollateralToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
   })
 
+  it('should not setCollateralToken if oracle does not contain USD price', async () => {
+    await testing.token.create({ symbol: 'TSLA' })
+    await testing.generate(1)
+
+    const priceFeedId: string = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'TSLA',
+      currency: 'SGD'
+    }], 1])
+    await testing.generate(1)
+
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.setCollateralToken({
+      token: 1,
+      factor: new BigNumber(0.5),
+      priceFeedId,
+      activateAfterBlock: 0
+    }, script)
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetCollateralTokenTx: oracle (${priceFeedId}) does not conntain USD price for this token! (code 16)', code: -26`)
+  })
+
   it('should not setCollateralToken if oracleId does not exist', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
@@ -144,7 +165,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
 
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
@@ -200,7 +221,7 @@ describe('loan.setCollateralToken() with activateAfterBlock below current height
 
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 

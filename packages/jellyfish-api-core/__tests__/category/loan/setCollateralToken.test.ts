@@ -18,7 +18,7 @@ describe('Loan setCollateralToken', () => {
 
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
   })
@@ -61,6 +61,24 @@ describe('Loan setCollateralToken', () => {
   it('should not setCollateralToken if factor is less than 0', async () => {
     const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(-0.01), priceFeedId })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setcollateraltoken')
+  })
+
+  it('should not setCollateralToken if oracle does not contain USD price', async () => {
+    await testing.token.create({ symbol: 'TSLA' })
+    await testing.generate(1)
+
+    const priceFeedId: string = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'TSLA',
+      currency: 'SGD'
+    }], 1])
+    await testing.generate(1)
+
+    const promise = testing.rpc.loan.setCollateralToken({
+      token: 'TSLA',
+      factor: new BigNumber(0.5),
+      priceFeedId
+    })
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test LoanSetCollateralTokenTx execution failed:\noracle (${priceFeedId}) does not conntain USD price for this token!', code: -32600, method: setcollateraltoken`)
   })
 
   it('should not setCollateralToken if oracleId does not exist', async () => {
@@ -128,7 +146,7 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
 
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
@@ -177,7 +195,7 @@ describe('Loan setCollateralToken with activateAfterBlock less than the current 
 
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
