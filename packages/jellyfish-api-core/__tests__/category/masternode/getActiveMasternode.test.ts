@@ -22,7 +22,7 @@ describe('Masternode', () => {
     await group.stop()
   })
 
-  it('should getActiveMasternodesCount', async () => {
+  it('should getActiveMasternodeCount', async () => {
     const addresses = [
       await group.get(0).getNewAddress(),
       await group.get(1).getNewAddress()
