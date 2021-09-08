@@ -96,11 +96,11 @@ interface loan {
 }
 
 interface GetCollateralToken {
-  token: string
-  height: number
+  token?: string
+  height?: number
 }
 
-interface CollateralToken {
+interface CollateralTokenResult {
   token: string
   factor: BigNumber
   priceFeedId: string
