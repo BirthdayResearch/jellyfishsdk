@@ -56,7 +56,7 @@ describe('Spv', () => {
     }
 
     // generate 2 anchor auths
-    await tGroup.get(0).anchor.generateAnchorAuths(tGroup, 2, initOffsetHour)
+    await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
 
     await tGroup.get(0).container.waitForAnchorAuths(tGroup.length())
 

@@ -53,7 +53,7 @@ describe('Spv', () => {
       expect(team.confirm.includes(GenesisKeys[2].operator.address))
     }
 
-    await tGroup.get(0).anchor.generateAnchorAuths(tGroup, 2, initOffsetHour)
+    await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
 
     await tGroup.get(0).container.waitForAnchorAuths(tGroup.length())
 
