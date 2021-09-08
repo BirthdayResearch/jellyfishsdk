@@ -1,5 +1,5 @@
 import fetch from 'cross-fetch'
-import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, GenesisKeys, MasterNodeKey, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
@@ -92,16 +92,23 @@ export class TestingGroup {
   ) {
   }
 
-  static create (n: number, init: (index: number) => MasterNodeRegTestContainer): TestingGroup {
-    const containers: MasterNodeRegTestContainer[] = []
-    const testings: Testing[] = []
-    for (let i = 0; i < n; i += 1) {
-      const container = init(i)
-      containers.push(container)
+  static create (n: number, mnKeys?: MasterNodeKey[]): TestingGroup {
+    let containers: MasterNodeRegTestContainer[] = []
+    let testings: Testing[] = []
 
-      const testing = Testing.create(container)
-      testings.push(testing)
+    if (mnKeys !== undefined && mnKeys.length > 0) {
+      containers = mnKeys.map(k => new MasterNodeRegTestContainer(k))
+      testings = containers.map(c => Testing.create(c))
+    } else {
+      for (let i = 0; i < n; i += 1) {
+        const container = new MasterNodeRegTestContainer(GenesisKeys[i])
+        containers.push(container)
+
+        const testing = Testing.create(container)
+        testings.push(testing)
+      }
     }
+
     const group = new ContainerGroup(containers)
 
     return new TestingGroup(group, testings)

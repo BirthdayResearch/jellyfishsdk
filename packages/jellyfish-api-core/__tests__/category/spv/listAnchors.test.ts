@@ -1,8 +1,9 @@
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { GenesisKeys } from '@defichain/testcontainers'
 
 describe('Spv', () => {
-  const tGroup = TestingGroup.create(3, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
+  const mnKeys = [GenesisKeys[0], GenesisKeys[2], GenesisKeys[5]]
+  const tGroup = TestingGroup.create(3, mnKeys)
 
   beforeAll(async () => {
     await tGroup.start()
