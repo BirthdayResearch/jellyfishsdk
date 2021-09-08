@@ -73,6 +73,22 @@ interface LoanSchemeResult {
 }
 ```
 
+## getLoanScheme
+
+Get loan scheme.
+
+```ts title="client.loan.getLoanScheme()"
+interface loan {
+  getLoanScheme (id: string): Promise<GetLoanSchemeResult>
+}
+
+interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
+}
+```
+
 ## setDefaultLoanScheme
 
 Sets the default loan scheme.

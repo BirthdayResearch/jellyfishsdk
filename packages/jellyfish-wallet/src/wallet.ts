@@ -5,18 +5,33 @@ import { WalletHdNode, WalletHdNodeProvider } from './wallet_hd_node'
  * Jellyfish managed wallet.
  * WalletHdNode instance is provided by WalletHdNodeProvider.
  * WalletAccount instance for interfacing layer/upstream to service will be provided by WalletAccountProvider.
+ *
+ * JellyfishWallet doesn't follow BIP-44.
  */
 export class JellyfishWallet<Account extends WalletAccount, HdNode extends WalletHdNode> {
-  private readonly nodeProvider: WalletHdNodeProvider<HdNode>
-  private readonly accountProvider: WalletAccountProvider<Account>
+  static COIN_TYPE_BTC: number = 0
+  static COIN_TYPE_DFI: number = 1129
+  /**
+   * Default purpose, for Light Wallet Implementation
+   */
+  static PURPOSE_LIGHT_WALLET: number = 0
+  /**
+   * For Masternode creation UTXO locking
+   */
+  static PURPOSE_LIGHT_MASTERNODE: number = 1
 
   /**
    * @param {WalletHdNodeProvider} nodeProvider
    * @param {WalletAccountProvider} accountProvider
+   * @param {number} [coinType=1129] COIN_TYPE_DFI
+   * @param {number} [purpose=0] PURPOSE_LIGHT_WALLET
    */
-  constructor (nodeProvider: WalletHdNodeProvider<HdNode>, accountProvider: WalletAccountProvider<Account>) {
-    this.nodeProvider = nodeProvider
-    this.accountProvider = accountProvider
+  constructor (
+    private readonly nodeProvider: WalletHdNodeProvider<HdNode>,
+    private readonly accountProvider: WalletAccountProvider<Account>,
+    private readonly coinType: number = JellyfishWallet.COIN_TYPE_DFI,
+    private readonly purpose: number = JellyfishWallet.PURPOSE_LIGHT_WALLET
+  ) {
   }
 
   /**
@@ -24,7 +39,7 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
    * @return Promise<WalletAccount>
    */
   get (account: number): Account {
-    const path = `1129/${account}/0/0`
+    const path = `${this.coinType}/${this.purpose}/0/${account}`
     const node = this.nodeProvider.derive(path)
     return this.accountProvider.provide(node)
   }
