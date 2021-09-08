@@ -112,10 +112,9 @@ describe('loan.setLoanToken()', () => {
   //   const index = Object.keys(data).indexOf(loanTokenId) + 1
   //   expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   // })
-  //
   // it('should not setLoanToken if symbol is an empty string', async () => {
   //   const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-  //     token: '',
+  //     token: 'token3',
   //     currency: 'USD'
   //   }], 1])
   //   await testing.generate(1)
