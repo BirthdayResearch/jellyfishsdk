@@ -2,8 +2,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
 describe('Spv', () => {
-  const mnKeys = [GenesisKeys[0], GenesisKeys[2], GenesisKeys[5]]
-  const tGroup = TestingGroup.create(3, mnKeys)
+  const tGroup = TestingGroup.create(3)
 
   beforeAll(async () => {
     await tGroup.start()

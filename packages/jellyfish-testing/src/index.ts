@@ -92,16 +92,22 @@ export class TestingGroup {
   ) {
   }
 
-  static create (n: number, mnKeys?: MasterNodeKey[]): TestingGroup {
+  static create (n: number, Container?: typeof MasterNodeRegTestContainer, mnKeys?: MasterNodeKey[]): TestingGroup {
     let containers: MasterNodeRegTestContainer[] = []
     let testings: Testing[] = []
 
     if (mnKeys !== undefined && mnKeys.length > 0) {
-      containers = mnKeys.map(k => new MasterNodeRegTestContainer(k))
+      containers = Container !== undefined
+        ? mnKeys.map(k => new Container(k))
+        : mnKeys.map(k => new MasterNodeRegTestContainer(k))
+
       testings = containers.map(c => Testing.create(c))
     } else {
       for (let i = 0; i < n; i += 1) {
-        const container = new MasterNodeRegTestContainer(GenesisKeys[i])
+        const container = Container !== undefined
+          ? new Container(GenesisKeys[i])
+          : new MasterNodeRegTestContainer(GenesisKeys[i])
+
         containers.push(container)
 
         const testing = Testing.create(container)
