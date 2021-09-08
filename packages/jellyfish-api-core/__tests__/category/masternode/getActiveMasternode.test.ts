@@ -22,19 +22,15 @@ describe('Masternode', () => {
     await group.stop()
   })
 
-  it('should getActiveMasternodeCount', async () => {
-    const addresses = [
-      await group.get(0).getNewAddress(),
-      await group.get(1).getNewAddress()
-    ]
-
-    for (let i = 0; i < addresses.length; i++) {
-      await clients[i].masternode.createMasternode(addresses[i])
-      await group.get(i).generate(20, addresses[i])
+  it('should getActiveMasternodeCount = 2', async () => {
+    for (let i = 0; i < 2; i++) {
+      const address = group.get(i).getNewAddress()
+      await clients[i].masternode.createMasternode(address)
+      await group.get(i).generate(20, address)
       await group.waitForSync()
     }
+    
     const activeMasternodes = await clients[0].masternode.getActiveMasternodeCount()
-
-    expect(activeMasternodes).toStrictEqual(addresses.length)
+    expect(activeMasternodes).toStrictEqual(2)
   })
 })
