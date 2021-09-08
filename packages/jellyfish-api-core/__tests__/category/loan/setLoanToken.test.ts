@@ -62,40 +62,39 @@ describe('Loan', () => {
     })
   })
 
-  // NOTE(jingyi2811): There are bugs in the C++ side
-  // it('should setLoanToken if symbol is more than 8 letters', async () => {
-  //   const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-  //     token: 'x'.repeat(8),
-  //     currency: 'USD'
-  //   }], 1])
-  //   await testing.generate(1)
-  //
-  //   const loanTokenId = await testing.rpc.loan.setLoanToken({
-  //     symbol: 'x'.repeat(9), // 9 letters
-  //     name: 'Token2',
-  //     priceFeedId
-  //   })
-  //   await testing.generate(1)
-  //
-  //   const data = await testing.container.call('listloantokens', [])
-  //   const index = Object.keys(data).indexOf(loanTokenId) + 1
-  //   expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
-  // })
-  //
-  // it('should not setLoanToken if symbol is an empty string', async () => {
-  //   const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-  //     token: '',
-  //     currency: 'USD'
-  //   }], 1])
-  //   await testing.generate(1)
-  //
-  //   const promise = testing.rpc.loan.setLoanToken({
-  //     symbol: '',
-  //     name: 'Token3',
-  //     priceFeedId
-  //   })
-  //   await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
-  // })
+  it('should setLoanToken if symbol is more than 8 letters', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'x'.repeat(8),
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
+      symbol: 'x'.repeat(9), // 9 letters
+      name: 'Token2',
+      priceFeedId
+    })
+    await testing.generate(1)
+
+    const data = await testing.container.call('listloantokens', [])
+    const index = Object.keys(data).indexOf(loanTokenId) + 1
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+  })
+
+  it('should not setLoanToken if symbol is an empty string', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token3',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const promise = testing.rpc.loan.setLoanToken({
+      symbol: '',
+      name: 'Token3',
+      priceFeedId
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
+  })
 
   it('should not setLoanToken if token with same symbol was created before', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
@@ -150,7 +149,7 @@ describe('Loan', () => {
       name: 'Token6',
       priceFeedId
     })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Test LoanSetLoanTokenTx execution failed:\noracle (${priceFeedId}) does not conntain USD price for this token!', code: -32600, method: setloantoken`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test LoanSetLoanTokenTx execution failed:\noracle (${priceFeedId}) does not contain USD price for this token!', code: -32600, method: setloantoken`)
   })
 
   it('should not setLoanToken if priceFeedId is invalid', async () => {
@@ -162,7 +161,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle!\', code: -32600, method: setloantoken')
   })
 
-  it('should setLoanToken if mintable is true', async () => {
+  it('should setLoanToken if mintable is false', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token8',
       currency: 'USD'
@@ -173,7 +172,7 @@ describe('Loan', () => {
       symbol: 'Token8',
       name: 'Token8',
       priceFeedId,
-      mintable: true
+      mintable: false
     })
     expect(typeof loanTokenId).toStrictEqual('string')
     expect(loanTokenId.length).toStrictEqual(64)
