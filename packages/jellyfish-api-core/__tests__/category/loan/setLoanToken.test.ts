@@ -240,7 +240,7 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('Token11')
   })
 
-  it('should setLoanToken with utxos not from foundation member', async () => {
+  it('should not setLoanToken with utxos not from foundation member', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token12',
       currency: 'USD'
