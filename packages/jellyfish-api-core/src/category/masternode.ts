@@ -149,6 +149,16 @@ export class Masternode {
   async getGov (name: string): Promise<Record<string, any>> {
     return await this.client.call('getgov', [name], 'bignumber')
   }
+
+  /**
+   * Returns number of unique masternodes in the last specified number of blocks.
+   *
+   * @param {number} [blockCount = 20160] The number of blocks to check for unique masternodes. 20160 is the default.
+   * @return {Promise<number>} Number of unique masternodes seen
+   */
+  async getActiveMasternodeCount (blockCount: number = 20160): Promise<number> {
+    return await this.client.call('getactivemasternodecount', [blockCount], 'number')
+  }
 }
 
 export interface UTXO {
