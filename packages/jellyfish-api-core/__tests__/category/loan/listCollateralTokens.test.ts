@@ -27,7 +27,7 @@ describe('Loan listCollateralTokens', () => {
 
     const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
