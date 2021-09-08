@@ -8,13 +8,13 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 
-const container = new LoanMasterNodeRegTestContainer()
-const testing = Testing.create(container)
-
-let providers: MockProviders
-let builder: P2WPKHTransactionBuilder
-
 describe('loan.setLoanToken()', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -88,53 +88,52 @@ describe('loan.setLoanToken()', () => {
     })
   })
 
-  // NOTE(jingyi2811): There are bugs in the C++ side
-  // it('should setLoanToken if symbol is more than 8 letters', async () => {
-  //   const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-  //     token: 'x'.repeat(8),
-  //     currency: 'USD'
-  //   }], 1])
-  //   await testing.generate(1)
-  //
-  //   const script = await providers.elliptic.script()
-  //   const txn = await builder.loans.setLoanToken({
-  //     symbol: 'x'.repeat(8), // 9 letters
-  //     name: 'x'.repeat(8),
-  //     priceFeedId,
-  //     mintable: true,
-  //     interest: new BigNumber(0)
-  //   }, script)
-  //
-  //   await sendTransaction(testing.container, txn)
-  //   const loanTokenId = calculateTxid(txn)
-  //
-  //   const data = await testing.container.call('listloantokens', [])
-  //   const index = Object.keys(data).indexOf(loanTokenId) + 1
-  //   expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
-  // })
-  // it('should not setLoanToken if symbol is an empty string', async () => {
-  //   const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-  //     token: 'token3',
-  //     currency: 'USD'
-  //   }], 1])
-  //   await testing.generate(1)
-  //
-  //   const script = await providers.elliptic.script()
-  //   const txn = await builder.loans.setLoanToken({
-  //     symbol: '',
-  //     name: '',
-  //     priceFeedId,
-  //     mintable: true,
-  //     interest: new BigNumber(0)
-  //   }, script)
-  //
-  //   await sendTransaction(testing.container, txn)
-  //   const loanTokenId = calculateTxid(txn)
-  //
-  //   const data = await testing.container.call('listloantokens', [])
-  //   const index = Object.keys(data).indexOf(loanTokenId) + 1
-  //   expect(data[loanTokenId].token[index].symbol).toStrictEqual('') // Only remain the first 8 letters
-  // })
+  it('should setLoanToken if symbol is more than 8 letters', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'x'.repeat(8),
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.setLoanToken({
+      symbol: 'x'.repeat(8), // 9 letters
+      name: 'x'.repeat(8),
+      priceFeedId,
+      mintable: true,
+      interest: new BigNumber(0)
+    }, script)
+
+    await sendTransaction(testing.container, txn)
+    const loanTokenId = calculateTxid(txn)
+
+    const data = await testing.container.call('listloantokens', [])
+    const index = Object.keys(data).indexOf(loanTokenId) + 1
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+  })
+  it('should not setLoanToken if symbol is an empty string', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'token3',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.setLoanToken({
+      symbol: '',
+      name: '',
+      priceFeedId,
+      mintable: true,
+      interest: new BigNumber(0)
+    }, script)
+
+    await sendTransaction(testing.container, txn)
+    const loanTokenId = calculateTxid(txn)
+
+    const data = await testing.container.call('listloantokens', [])
+    const index = Object.keys(data).indexOf(loanTokenId) + 1
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('') // Only remain the first 8 letters
+  })
 
   it('should not setLoanToken if token with same symbol was created before', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
@@ -176,7 +175,7 @@ describe('loan.setLoanToken()', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token5',
-      name: 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXY',
+      name: 'x'.repeat(129),
       priceFeedId,
       mintable: true,
       interest: new BigNumber(3.5)
@@ -204,7 +203,7 @@ describe('loan.setLoanToken()', () => {
       interest: new BigNumber(4.5)
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetLoanTokenTx: oracle (${priceFeedId}) does not conntain USD price for this token! (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetLoanTokenTx: oracle (${priceFeedId}) does not contain USD price for this token! (code 16)', code: -26`)
   })
 
   it('should not setLoanToken if priceFeedId is invalid', async () => {
@@ -221,7 +220,7 @@ describe('loan.setLoanToken()', () => {
   })
 })
 
-describe('loan.setCollateralToken() if mintable is false', () => {
+describe('loan.setLoanToken() if mintable is false', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -294,7 +293,7 @@ describe('loan.setCollateralToken() if mintable is false', () => {
   })
 })
 
-describe('loan.setCollateralToken() if interest is 0', () => {
+describe('loan.setLoanToken() if interest is 0', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -330,7 +329,7 @@ describe('loan.setCollateralToken() if interest is 0', () => {
       symbol: 'Token1',
       name: 'Token1',
       priceFeedId,
-      mintable: false,
+      mintable: true,
       interest: new BigNumber(0)
     }, script)
 
@@ -346,7 +345,7 @@ describe('loan.setCollateralToken() if interest is 0', () => {
             name: 'Token1',
             decimal: 8,
             limit: 0,
-            mintable: false,
+            mintable: true,
             tradeable: true,
             isDAT: true,
             isLPS: false,

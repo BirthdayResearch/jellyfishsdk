@@ -123,7 +123,7 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetCollateralTokenTx: oracle (${priceFeedId}) does not conntain USD price for this token! (code 16)', code: -26`)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetCollateralTokenTx: oracle (${priceFeedId}) does not contain USD price for this token! (code 16)', code: -26`)
   })
 
   it('should not setCollateralToken if oracleId does not exist', async () => {
