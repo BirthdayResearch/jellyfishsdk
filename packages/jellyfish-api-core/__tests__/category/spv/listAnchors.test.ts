@@ -20,11 +20,14 @@ describe('Spv', () => {
   }
 
   async function setup (): Promise<void> {
-    const auths = await tGroup.get(0).container.call('spv_listanchorauths')
-    expect(auths.length).toStrictEqual(0)
+    {
+      const auths = await tGroup.get(0).container.call('spv_listanchorauths')
+      expect(auths.length).toStrictEqual(0)
+    }
 
-    // time travel back 13 hours ago
-    await setMockTime(-13)
+    // time travel back 12 hours ago
+    const initOffsetHour = -12
+    await setMockTime(initOffsetHour)
 
     // 15 as anchor frequency
     for (let i = 0; i < 15; i += 1) {
@@ -50,12 +53,7 @@ describe('Spv', () => {
       expect(team.confirm.includes(GenesisKeys[2].operator.address))
     }
 
-    // generate anchor auths
-    for (let i = 1; i < 3 + 1; i += 1) {
-      await setMockTime(-12 + i)
-      await tGroup.get(0).generate(15)
-      await tGroup.waitForSync()
-    }
+    await tGroup.get(0).anchor.generateAnchorAuths(tGroup, 2, initOffsetHour)
 
     await tGroup.get(0).container.waitForAnchorAuths(tGroup.length())
 
@@ -63,7 +61,7 @@ describe('Spv', () => {
     for (let i = 0; i < tGroup.length(); i += 1) {
       const { container } = tGroup.get(i % tGroup.length())
       const auths = await container.call('spv_listanchorauths')
-      expect(auths.length).toStrictEqual(1)
+      expect(auths.length).toStrictEqual(2)
       expect(auths[0].signers).toStrictEqual(tGroup.length())
     }
 

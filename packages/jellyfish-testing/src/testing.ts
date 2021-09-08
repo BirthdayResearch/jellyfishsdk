@@ -5,6 +5,7 @@ import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
 import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
+import { TestingAnchor } from './anchor'
 import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
@@ -15,6 +16,7 @@ export class Testing {
   public readonly rawtx = new TestingRawTx(this.container, this.rpc)
   public readonly icxorderbook = new TestingICX(this)
   public readonly misc = new TestingMisc(this.container, this.rpc)
+  public readonly anchor = new TestingAnchor(this.container, this.rpc)
 
   private readonly addresses: Record<string, string> = {}
 

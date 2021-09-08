@@ -24,8 +24,9 @@ describe('Spv', () => {
     const auths = await tGroup.get(0).container.call('spv_listanchorauths')
     expect(auths.length).toStrictEqual(0)
 
-    // time travel back 13 hours ago
-    await setMockTime(-13)
+    // time travel back 12 hours ago
+    const initOffsetHour = -12
+    await setMockTime(initOffsetHour)
 
     // 15 as anchor frequency
     for (let i = 0; i < 15; i += 1) {
@@ -54,12 +55,8 @@ describe('Spv', () => {
       expect(team.confirm.includes(GenesisKeys[2].operator.address))
     }
 
-    // generate anchor auths
-    for (let i = 1; i < 3 + 1; i += 1) {
-      await setMockTime(-12 + i)
-      await tGroup.get(0).generate(15)
-      await tGroup.waitForSync()
-    }
+    // generate 2 anchor auths
+    await tGroup.get(0).anchor.generateAnchorAuths(tGroup, 2, initOffsetHour)
 
     await tGroup.get(0).container.waitForAnchorAuths(tGroup.length())
 
@@ -67,25 +64,14 @@ describe('Spv', () => {
     for (let i = 0; i < tGroup.length(); i += 1) {
       const { container } = tGroup.get(i % tGroup.length())
       const auths = await container.call('spv_listanchorauths')
-      expect(auths.length).toStrictEqual(1)
+      expect(auths.length).toStrictEqual(2)
       expect(auths[0].signers).toStrictEqual(tGroup.length())
     }
 
     await createAnchor()
-    await tGroup.get(0).container.waitForBlockHeight(75)
-    await tGroup.waitForSync()
-
     await createAnchor()
-    await tGroup.get(0).container.waitForBlockHeight(90)
-    await tGroup.waitForSync()
-
     await createAnchor()
-    await tGroup.get(0).container.waitForBlockHeight(105)
-    await tGroup.waitForSync()
-
     await createAnchor()
-    await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
   }
 
   async function createAnchor (): Promise<void> {
@@ -99,7 +85,7 @@ describe('Spv', () => {
   }
 
   it('should listAnchorsPending', async () => {
-    const anchors = await tGroup.get(0).rpc.spv.listAnchors()
+    const anchors = await tGroup.get(0).rpc.spv.listAnchorsPending()
     expect(anchors.length).toStrictEqual(4)
     for (const anchor of anchors) {
       expect(typeof anchor.btcBlockHeight).toStrictEqual('number')
