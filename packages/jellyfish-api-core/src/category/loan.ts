@@ -69,6 +69,16 @@ export class Loan {
   }
 
   /**
+   * Get loan scheme.
+   *
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars.
+   * @return {Promise<GetLoanSchemeResult>}
+   */
+  async getLoanScheme (id: string): Promise<GetLoanSchemeResult> {
+    return await this.client.call('getloanscheme', [id], 'bignumber')
+  }
+
+  /**
    * Sets the default loan scheme.
    *
    * @param {string} id Unique identifier of the loan scheme, max 8 chars
@@ -149,6 +159,12 @@ export interface CollateralTokenDetail {
   factor: BigNumber
   priceFeedId: string
   activateAfterBlock: BigNumber
+}
+
+export interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
 }
 
 export interface UTXO {
