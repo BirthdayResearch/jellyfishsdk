@@ -77,27 +77,11 @@ describe('Loan getCollateralToken with parameter token only', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
-  let priceFeedId: string
-  let collateralTokenId: string
-
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
     await testing.token.create({ symbol: 'AAPL' })
-    await testing.generate(1)
-
-    priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'AAPL',
-      currency: 'EUR'
-    }], 1])
-    await testing.generate(1)
-
-    collateralTokenId = await testing.container.call('setcollateraltoken', [{
-      token: 'AAPL',
-      factor: new BigNumber(0.5),
-      priceFeedId // Activate at next block
-    }])
     await testing.generate(1)
   })
 
@@ -106,6 +90,19 @@ describe('Loan getCollateralToken with parameter token only', () => {
   })
 
   it('should getCollateralToken', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'AAPL',
+      currency: 'EUR'
+    }], 1])
+    await testing.generate(1)
+
+    const collateralTokenId = await testing.container.call('setcollateraltoken', [{
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      priceFeedId // Activate at next block
+    }])
+    await testing.generate(1)
+
     const data = await testing.rpc.loan.getCollateralToken({
       token: 'AAPL'
     })
@@ -171,6 +168,11 @@ describe('Loan getCollateralToken with parameter block only', () => {
     })
   })
 
+  it('should getCollateralToken with empty string if block is below current height', async () => {
+    const data = await testing.rpc.loan.getCollateralToken({ height: 50 })
+    expect(data).toStrictEqual({})
+  })
+
   it('should getCollateralToken if block is after current height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ height: 150 })
     expect(data).toStrictEqual({
@@ -181,11 +183,6 @@ describe('Loan getCollateralToken with parameter block only', () => {
         activateAfterBlock: new BigNumber(await testing.container.getBlockCount())
       }
     })
-  })
-
-  it('should getCollateralToken with empty string if block is below current height', async () => {
-    const data = await testing.rpc.loan.getCollateralToken({ height: 50 })
-    expect(data).toStrictEqual({})
   })
 })
 

@@ -104,7 +104,7 @@ export interface CollateralTokenResult {
   token: string
   factor: BigNumber
   priceFeedId: string
-  activateAfterBlock?: BigNumber
+  activateAfterBlock: BigNumber
 }
 
 export interface UTXO {
