@@ -29,7 +29,7 @@ export class WhaleWalletAccount extends WalletAccount {
   withTransactionBuilder (): P2WPKHTransactionBuilder {
     return new P2WPKHTransactionBuilder(this.feeRateProvider, this.prevoutProvider, {
       get: (_) => this
-    })
+    }, this.network)
   }
 }
 
