@@ -122,7 +122,7 @@ describe('Loan getCollateralToken with parameter token only', () => {
   })
 })
 
-describe('Loan getCollateralToken with parameter block only', () => {
+describe('Loan getCollateralToken with parameter height only', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -168,12 +168,12 @@ describe('Loan getCollateralToken with parameter block only', () => {
     })
   })
 
-  it('should getCollateralToken with empty string if block is below current height', async () => {
+  it('should getCollateralToken with empty string if height is below current height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ height: 50 })
     expect(data).toStrictEqual({})
   })
 
-  it('should getCollateralToken if block is after current height', async () => {
+  it('should getCollateralToken if height is after current height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ height: 150 })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
