@@ -53,19 +53,19 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a3c4466547867' // OP_RETURN(0x6a) (length 60 = 0x3c) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x67)
-const data = '06546f6b656e3106546f6b656e31ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010000000000000000'
-// SetLoanToken.symbol[BE](06546f6b656e31)
-// SetLoanToken.name[BE](06546f6b656e31)
+const data = '06546f6b656e3306546f6b656e33ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010019ef6d1f010000'
+// SetLoanToken.symbol[LE](06546f6b656e33)
+// SetLoanToken.name[LE](06546f6b656e33)
 // SetLoanToken.priceFeedId[LE] (ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d)
-// SetLoanToken.mintable (01)
-// SetLoanToken.interest (0000000000000000)
+// SetLoanToken.mintable(01)
+// SetLoanToken.interest[LE](0019ef6d1f010000)
 
 const setLoanToken: SetLoanToken = {
-  symbol: 'Token1',
-  name: 'Token1',
+  symbol: 'Token3',
+  name: 'Token3',
   priceFeedId: '6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce',
   mintable: true,
-  interest: new BigNumber(0)
+  interest: new BigNumber(12345)
 }
 
 it('should craft dftx with OP_CODES._()', () => {
