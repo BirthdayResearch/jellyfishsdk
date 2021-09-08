@@ -18,7 +18,7 @@ describe('Loan getCollateralToken with parameter token and height', () => {
 
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
@@ -92,7 +92,7 @@ describe('Loan getCollateralToken with parameter token only', () => {
   it('should getCollateralToken', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
@@ -138,7 +138,7 @@ describe('Loan getCollateralToken with parameter height only', () => {
 
     priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
@@ -205,7 +205,7 @@ describe('Loan getCollateralToken with no parameter', () => {
 
     const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
-      currency: 'EUR'
+      currency: 'USD'
     }], 1])
     await testing.generate(1)
 
