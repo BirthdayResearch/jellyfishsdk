@@ -168,7 +168,7 @@ Get information about governance variable
 interface masternode {
   getGov (name: string): Promise<Record<string, any>>
 }
-``````
+```
 
 ## getActiveMasternodeCount
 
