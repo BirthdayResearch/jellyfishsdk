@@ -1,3 +1,4 @@
+import fetch from 'cross-fetch'
 import { TestingFixture } from '@defichain/jellyfish-testing/fixture'
 import { TestingToken } from '@defichain/jellyfish-testing/token'
 import { TestingPoolPair } from '@defichain/jellyfish-testing/poolpair'
