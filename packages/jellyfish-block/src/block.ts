@@ -9,7 +9,7 @@ import {
 import { SmartBuffer } from 'smart-buffer'
 
 export interface Block {
-  blockHeader: BlockHeader // -------------| 124 bytes + signature (n = VarUInt{1-9 bytes} + n bytes)
+  blockHeader: BlockHeader // --------------------------------| 124 bytes + signature (n = VarUInt{1-9 bytes} + n bytes)
   transactions: Array<TransactionSegWit | Transaction> // ----| n = VarUInt{1-9 bytes}, + n transactions, list of transactions
 }
 
