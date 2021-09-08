@@ -156,10 +156,10 @@ interface loan {
 }
 
 interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
+  [key: string]: CollateralTokenResult
 }
 
-interface CollateralTokenDetail {
+interface CollateralTokenResult {
   token: string
   factor: BigNumber
   priceFeedId: string
