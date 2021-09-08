@@ -14,9 +14,9 @@ describe('Spv', () => {
   })
 
   async function setMockTime (offsetHour: number): Promise<void> {
-    for (let i = 0; i < tGroup.testings.length; i += 1) {
-      await tGroup.get(i).misc.offsetTimeHourly(offsetHour)
-    }
+    await tGroup.exec(async testing => {
+      await testing.misc.offsetTimeHourly(offsetHour)
+    })
   }
 
   async function setup (): Promise<void> {
