@@ -135,7 +135,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle!\', code: -32600, method: setloantoken')
   })
 
-  it('should setLoanToken if there is name', async () => {
+  it('should setLoanToken with the given name', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token6',
       currency: 'USD'
