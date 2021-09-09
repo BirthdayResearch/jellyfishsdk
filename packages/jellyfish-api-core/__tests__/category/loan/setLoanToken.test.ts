@@ -190,7 +190,7 @@ describe('Loan', () => {
     await testing.generate(1)
   })
 
-  it('should setLoanToken if interest is greater than 0', async () => {
+  it('should setLoanToken if interest number is greater than 0 and has less than 9 digits in the fractional part', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token9',
       currency: 'USD'
@@ -200,14 +200,14 @@ describe('Loan', () => {
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token9',
       priceFeedId,
-      interest: new BigNumber(0.2)
+      interest: new BigNumber(15.12345678) // 8 digits in the fractional part
     })
     expect(typeof loanTokenId).toStrictEqual('string')
     expect(loanTokenId.length).toStrictEqual(64)
     await testing.generate(1)
   })
 
-  it('should not setLoanToken if interest is less than 0', async () => {
+  it('should not setLoanToken if interest number is greater than 0 and has more than 8 digits in the fractional part', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token10',
       currency: 'USD'
@@ -217,21 +217,36 @@ describe('Loan', () => {
     const promise = testing.rpc.loan.setLoanToken({
       symbol: 'Token10',
       priceFeedId,
-      interest: new BigNumber(-0.01)
+      interest: new BigNumber(15.123456789) // 9 digits in the fractional part
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -3, method: setloantoken')
   })
 
-  it('should setLoanToken with utxos', async () => {
+  it('should setLoanToken if interest number is lesser than 0', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token11',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const promise = testing.rpc.loan.setLoanToken({
+      symbol: 'Token11',
+      priceFeedId,
+      interest: new BigNumber(-15.12345678)
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
+  })
+
+  it('should setLoanToken with utxos', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token12',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'Token11',
+      symbol: 'Token12',
       priceFeedId
     }, [{ txid, vout }])
     expect(typeof loanTokenId).toStrictEqual('string')
@@ -244,20 +259,20 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token11')
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token12')
     expect(data[loanTokenId].token[index].name).toStrictEqual('')
   })
 
   it('should not setLoanToken with utxos not from foundation member', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token12',
+      token: 'Token13',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token12',
+      symbol: 'Token13',
       priceFeedId
     }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setloantoken')
