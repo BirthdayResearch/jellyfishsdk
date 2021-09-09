@@ -168,7 +168,7 @@ export class Spv {
    * @return {Promise<ListAnchorsResult[]>}
    */
   async listAnchors (
-    options: ListAnchorsOptions = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1 }
+    options: ListAnchorsOptions = {}
   ): Promise<ListAnchorsResult[]> {
     const opts = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1, ...options }
     return await this.client.call(
