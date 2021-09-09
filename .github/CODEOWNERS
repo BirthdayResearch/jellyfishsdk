@@ -1,8 +1,8 @@
 # Define individuals that are responsible for code in this repository.
 # More details are here: https://help.github.com/articles/about-codeowners/
 
-/.github/                                       @fuxingloh
-/.husky/                                        @fuxingloh
+/.github/                                       @fuxingloh @monstrobishi
+/.husky/                                        @fuxingloh @monstrobishi
 
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
@@ -39,7 +39,10 @@ tsconfig.build.json                             @fuxingloh @canonbrother @ivan-z
 jest.config.js                                  @fuxingloh @canonbrother @ivan-zynesis
 package.json                                    @fuxingloh
 package-lock.json                               @fuxingloh
+.codeclimate.yml                                @fuxingloh
+.eslintrc                                       @fuxingloh
+netlify.toml                                    @fuxingloh
 
-CONTRIBUTING.md                                 @fuxingloh @canonbrother @jingyi2811
+CONTRIBUTING.md                                 @fuxingloh
 README.md                                       @fuxingloh
 LICENSE                                         @fuxingloh
