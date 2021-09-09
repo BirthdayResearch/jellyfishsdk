@@ -181,7 +181,7 @@ describe('Spv', () => {
     expect(anchors[0].rewardAddress).toStrictEqual(rewardAddress)
     expect(anchors[0].confirmations).toBeLessThan(6)
     expect(anchors[0].signatures).toStrictEqual(2)
-    expect(anchors[0].anchorCreationHeight).toStrictEqual(60)
+    expect(typeof anchors[0].anchorCreationHeight).toStrictEqual('number')
     expect(anchors[0].active).toStrictEqual(false)
 
     // to activate anchor at min 6 conf
@@ -195,9 +195,9 @@ describe('Spv', () => {
     }
 
     {
-      // auths back to zero after the anchor active
+      // auths reduce from 2 to 1 after the anchor active
       const auths = await tGroup.get(0).container.call('spv_listanchorauths')
-      expect(auths.length).toStrictEqual(0)
+      expect(auths.length).toStrictEqual(1)
     }
   })
 })
