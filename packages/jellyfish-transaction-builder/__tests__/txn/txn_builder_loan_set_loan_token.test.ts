@@ -83,7 +83,7 @@ describe('loan.setLoanToken()', () => {
           }
         },
         priceFeedId,
-        interest: 0
+        interest: 0.5
       }
     })
   })
@@ -315,28 +315,6 @@ describe('loan.setLoanToken()', () => {
       priceFeedId,
       mintable: false,
       interest: new BigNumber(15.12345678)
-    }, script)
-
-    await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
-    expect(typeof loanTokenId).toStrictEqual('string')
-    expect(loanTokenId.length).toStrictEqual(64)
-  })
-
-  it('should setLoanToken if interest number is lesser than 0', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token12',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
-
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.setLoanToken({
-      symbol: 'Token12',
-      name: 'Token12',
-      priceFeedId,
-      mintable: false,
-      interest: new BigNumber(-15.12345678)
     }, script)
 
     await sendTransaction(testing.container, txn)
