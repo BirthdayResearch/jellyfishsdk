@@ -183,7 +183,7 @@ interface loan {
 
 interface SetLoanToken {
   symbol: string
-  name: string
+  name?: string
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber

@@ -122,7 +122,7 @@ export class Loan {
    *
    * @param {SetLoanToken} loanToken
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
-   * @param {string} loanToken.name Token's name, no longer than 128
+   * @param {string} [loanToken.name] Token's name, no longer than 128
    * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
    * @param {boolean} [loanToken.mintable] Token's 'Mintable' property, default=true
    * @param {BigNumber} [loanToken.interest] Interest rate, default=0
@@ -187,7 +187,7 @@ export interface GetLoanSchemeResult {
 
 export interface SetLoanToken {
   symbol: string
-  name: string
+  name?: string
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
