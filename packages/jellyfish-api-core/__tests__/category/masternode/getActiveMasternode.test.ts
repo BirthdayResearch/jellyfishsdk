@@ -29,7 +29,7 @@ describe('Masternode', () => {
       await group.get(i).generate(20, address)
       await group.waitForSync()
     }
-    
+
     const activeMasternodes = await clients[0].masternode.getActiveMasternodeCount()
     expect(activeMasternodes).toStrictEqual(2)
   })
