@@ -24,7 +24,7 @@ describe('Masternode', () => {
 
   it('should getActiveMasternodeCount = 2', async () => {
     for (let i = 0; i < 2; i++) {
-      const address = group.get(i).getNewAddress()
+      const address = await group.get(i).getNewAddress()
       await clients[i].masternode.createMasternode(address)
       await group.get(i).generate(20, address)
       await group.waitForSync()
