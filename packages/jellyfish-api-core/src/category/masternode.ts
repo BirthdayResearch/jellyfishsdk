@@ -153,7 +153,7 @@ export class Masternode {
   /**
    * Returns number of unique masternodes in the last specified number of blocks.
    *
-   * @param {number} [blockCount = 20160] The number of blocks to check for unique masternodes. 20160 is the default.
+   * @param {number} [blockCount=20160] The number of blocks to check for unique masternodes.
    * @return {Promise<number>} Number of unique masternodes seen
    */
   async getActiveMasternodeCount (blockCount: number = 20160): Promise<number> {
