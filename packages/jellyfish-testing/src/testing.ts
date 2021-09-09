@@ -116,6 +116,7 @@ export class TestingGroup {
     return await this.group.waitForSync()
   }
 
+  /* istanbul ignore next, TODO(canonbrother) */
   async waitForMempoolSync (txid: string, timeout = 15000): Promise<void> {
     return await this.group.waitForMempoolSync(txid, timeout)
   }
