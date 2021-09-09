@@ -124,15 +124,19 @@ export class Loan {
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
    * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
-   * @param {boolean} [loanToken.mintable] Token's 'Mintable' property, default=true
-   * @param {BigNumber} [loanToken.interest] Interest rate, default=0
+   * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property, default=true
+   * @param {BigNumber} [loanToken.interest = 0] Interest rate, default=0
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
    */
   async setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('setloantoken', [loanToken, utxos], 'number')
+    const defaultData = {
+      mintable: true,
+      interest: 0
+    }
+    return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
   }
 }
 

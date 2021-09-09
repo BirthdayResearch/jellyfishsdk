@@ -41,7 +41,7 @@ describe('Loan', () => {
             name: '',
             decimal: 8,
             limit: 0,
-            mintable: false,
+            mintable: true,
             tradeable: true,
             isDAT: true,
             isLPS: false,
