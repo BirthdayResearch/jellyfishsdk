@@ -222,7 +222,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -3, method: setloantoken')
   })
 
-  it('should setLoanToken if interest number is lesser than 0', async () => {
+  it('should setLoanToken if interest number is less than 0', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token11',
       currency: 'USD'
