@@ -34,6 +34,28 @@ interface UTXO {
 }
 ```
 
+## updateLoanScheme
+
+Updates an existing loan scheme.
+
+```ts title="client.loan.updateLoanScheme()"
+interface loan {
+  updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanScheme {
+  minColRatio: number
+  interestRate: BigNumber
+  id: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listLoanSchemes
 
 List all available loan schemes.
@@ -51,6 +73,22 @@ interface LoanSchemeResult {
 }
 ```
 
+## getLoanScheme
+
+Get loan scheme.
+
+```ts title="client.loan.getLoanScheme()"
+interface loan {
+  getLoanScheme (id: string): Promise<GetLoanSchemeResult>
+}
+
+interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
+}
+```
+
 ## setDefaultLoanScheme
 
 Sets the default loan scheme.
@@ -58,6 +96,74 @@ Sets the default loan scheme.
 ```ts title="client.loan.setDefaultLoanScheme()"
 interface loan {
   setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## destroyLoanScheme
+
+Destroys a loan scheme.
+
+```ts title="client.loan.destroyLoanScheme()"
+interface loan {
+  destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
+}
+
+interface DestroyLoanScheme {
+  id: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## setCollateralToken
+
+Set a collateral token transaction.
+
+```ts title="client.loan.setCollateralToken()"
+interface loan {
+  setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetCollateralToken {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## listCollateralTokens
+
+List collateral tokens.
+
+```ts title="client.loan.listCollateralTokens()"
+interface loan {
+  listCollateralTokens (): Promise<CollateralTokensData>
+}
+
+interface CollateralTokensData {
+  [key: string]: CollateralTokenDetail
+}
+
+interface CollateralTokenDetail {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
 }
 
 interface UTXO {

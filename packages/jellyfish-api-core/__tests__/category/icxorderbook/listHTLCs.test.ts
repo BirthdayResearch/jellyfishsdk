@@ -83,7 +83,7 @@ describe('ICXOrderBook.listHTLCs', () => {
 
     // List the ICX offers for orderTx = createOrderTxId and check
     const offersForOrder1: Record<string, ICXOrderInfo | ICXOfferInfo> = await client.icxorderbook.listOrders({ orderTx: createOrderTxId })
-    expect(Object.keys(offersForOrder1).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(offersForOrder1).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect((offersForOrder1 as Record<string, ICXOfferInfo>)[makeOfferTxId].status).toStrictEqual(ICXOrderStatus.OPEN)
 
     const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await client.call('getaccount', [accountDFI, {}, true], 'bignumber')
@@ -105,7 +105,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.DFC,
@@ -137,7 +137,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterExtHTLC: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterExtHTLC)
-    expect(Object.keys(HTLCsAfterExtHTLC).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsAfterExtHTLC).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -190,7 +190,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.DFC,
@@ -222,7 +222,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterExtHTLC: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterExtHTLC)
-    expect(Object.keys(HTLCsAfterExtHTLC).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsAfterExtHTLC).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -257,7 +257,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       limit: 1
     }
     const HTLCsWithLimit1: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithLimit1)
-    expect(Object.keys(HTLCsWithLimit1).length).toBe(2)
+    expect(Object.keys(HTLCsWithLimit1).length).toStrictEqual(2)
   })
 
   it.skip('should list closed HTLCs with ICXListHTLCOptions.closed parameter after HTLCs are expired', async () => {
@@ -297,7 +297,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -336,7 +336,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterExpiry: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterExpiry)
-    expect(Object.keys(HTLCsAfterExpiry).length).toBe(2) // NOTE(surangap): EXT HTLC will still be in OPEN state
+    expect(Object.keys(HTLCsAfterExpiry).length).toStrictEqual(2) // NOTE(surangap): EXT HTLC will still be in OPEN state
 
     // List refended htlcs also and check
     const listHTLCOptionsWithRefunded = {
@@ -344,7 +344,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       closed: true
     }
     const HTLCsWithRefunded: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithRefunded)
-    expect(Object.keys(HTLCsWithRefunded).length).toBe(3)
+    expect(Object.keys(HTLCsWithRefunded).length).toStrictEqual(3)
   })
 
   it('should list closed HTLCs with ICXListHTLCOptions.closed parameter after DFC HTLC claim', async () => {
@@ -370,7 +370,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.DFC,
@@ -402,7 +402,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterExtHTLC: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterExtHTLC)
-    expect(Object.keys(HTLCsAfterExtHTLC).length).toBe(3) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsAfterExtHTLC).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCsAfterExtHTLC[ExtHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.EXTERNAL,
@@ -440,7 +440,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCsAfterClaim: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsAfterClaim)
-    expect(Object.keys(HTLCsAfterClaim).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsAfterClaim).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
     if (HTLCsAfterClaim[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
@@ -455,7 +455,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       closed: true
     }
     const HTLCsWithClosed: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsWithClosed)
-    expect(Object.keys(HTLCsWithClosed).length).toBe(4) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsWithClosed).length).toStrictEqual(4) // extra entry for the warning text returned by the RPC atm.
     // we have a common field "type", use that to narrow down the record
     if (HTLCsWithClosed[claimTxId].type === ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
@@ -502,7 +502,7 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: makeOfferTxId
     }
     const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptions)
-    expect(Object.keys(HTLCs).length).toBe(2) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
       {
         type: ICXHTLCType.DFC,
@@ -522,13 +522,13 @@ describe('ICXOrderBook.listHTLCs', () => {
       offerTx: '123'
     }
     const HTLCsForIncorrectOfferTx: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsIncorrectOfferTx)
-    expect(Object.keys(HTLCsForIncorrectOfferTx).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsForIncorrectOfferTx).length).toStrictEqual(1) // extra entry for the warning text returned by the RPC atm.
 
     // List htlcs with invalid offer tx "INVALID_OFFER_TX" and check
     const listHTLCOptionsIncorrectOfferTx2 = {
       offerTx: 'INVALID_OFFER_TX'
     }
     const HTLCsForIncorrectOfferTx2: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await client.icxorderbook.listHTLCs(listHTLCOptionsIncorrectOfferTx2)
-    expect(Object.keys(HTLCsForIncorrectOfferTx2).length).toBe(1) // extra entry for the warning text returned by the RPC atm.
+    expect(Object.keys(HTLCsForIncorrectOfferTx2).length).toStrictEqual(1) // extra entry for the warning text returned by the RPC atm.
   })
 })

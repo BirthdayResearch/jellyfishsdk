@@ -4,15 +4,18 @@ import {
   TransactionSegWit,
   ICXCreateOrder,
   ICXMakeOffer,
+  ICXCloseOrder,
+  ICXCloseOffer,
   ICXSubmitDFCHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  ICXClaimDFCHTLC
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 
 export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   /**
-   * ICX Create Order.
+   * Creates ICXCreateOrder transaction.
    *
    * @param {ICXCreateOrder} createOrder Create order txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
@@ -40,7 +43,7 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   }
 
   /**
-   * ICX Make Offer.
+   * Creates ICXMakeOffer transaction.
    *
    * @param {ICXMakeOffer} makeOffer txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
@@ -57,6 +60,34 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
     }
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_MAKE_OFFER(makeOffer),
+      changeScript
+    )
+  }
+
+  /**
+   * Creates ICXCloseOrder transaction.
+   *
+   * @param {ICXCloseOrder} closeOrder txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async closeOrder (closeOrder: ICXCloseOrder, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ICX_CLOSE_ORDER(closeOrder),
+      changeScript
+    )
+  }
+
+  /**
+   * Creates ICXCloseOffer transaction.
+   *
+   * @param {ICXCloseOffer} closeOffer txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async closeOffer (closeOffer: ICXCloseOffer, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ICX_CLOSE_OFFER(closeOffer),
       changeScript
     )
   }
@@ -85,6 +116,20 @@ export class TxnBuilderICXOrderBook extends P2WPKHTxnBuilder {
   async submitEXTHTLC (icxSubmitEXTHTLC: ICXSubmitEXTHTLC, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC(icxSubmitEXTHTLC),
+      changeScript
+    )
+  }
+
+  /**
+   * Creates claimDFCHTLC transaction.
+   *
+   * @param {ICXClaimDFCHTLC} icxClaimDFCHTLC txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (transfer value + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async claimDFCHTLC (icxClaimDFCHTLC: ICXClaimDFCHTLC, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_ICX_CLAIM_DFC_HTLC(icxClaimDFCHTLC),
       changeScript
     )
   }

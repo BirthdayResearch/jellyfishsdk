@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import {
   AccountToAccount,
   AccountToUtxos,
@@ -50,10 +50,16 @@ import {
   ICXCreateOrder,
   CICXMakeOffer,
   ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer,
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
 } from './dftx_icxorderbook'
 import {
   CSetGovernance,
@@ -66,9 +72,14 @@ import {
 } from './dftx_governance'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme,
+  CUpdateLoanScheme,
+  LoanScheme,
+  CDestroyLoanScheme,
+  DestroyLoanScheme,
   CSetDefaultLoanScheme,
-  SetDefaultLoanScheme
+  SetDefaultLoanScheme,
+  CSetCollateralToken,
+  SetCollateralToken
 } from './dftx_loans'
 
 /**
@@ -189,6 +200,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       case CICXMakeOffer.OP_CODE:
         return compose<ICXMakeOffer>(CICXMakeOffer.OP_NAME, d => new CICXMakeOffer(d))
+      case CICXCloseOrder.OP_CODE:
+        return compose<ICXCloseOrder>(CICXCloseOrder.OP_NAME, d => new CICXCloseOrder(d))
+      case CICXCloseOffer.OP_CODE:
+        return compose<ICXCloseOffer>(CICXCloseOffer.OP_NAME, d => new CICXCloseOffer(d))
       case CCreateCfp.OP_CODE:
         return compose<CreateProposal>(CCreateCfp.OP_NAME, d => new CCreateCfp(d))
       case CCreateVoc.OP_CODE:
@@ -198,11 +213,19 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
       case CICXSubmitDFCHTLC.OP_CODE:
         return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
       case CCreateLoanScheme.OP_CODE:
-        return compose<CreateLoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
+        return compose<LoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
+      case CUpdateLoanScheme.OP_CODE:
+        return compose<LoanScheme>(CUpdateLoanScheme.OP_NAME, d => new CUpdateLoanScheme(d))
+      case CDestroyLoanScheme.OP_CODE:
+        return compose<DestroyLoanScheme>(CDestroyLoanScheme.OP_NAME, d => new CDestroyLoanScheme(d))
       case CSetDefaultLoanScheme.OP_CODE:
         return compose<SetDefaultLoanScheme>(CSetDefaultLoanScheme.OP_NAME, d => new CSetDefaultLoanScheme(d))
+      case CSetCollateralToken.OP_CODE:
+        return compose<SetCollateralToken>(CSetCollateralToken.OP_NAME, d => new CSetCollateralToken(d))
       case CICXSubmitEXTHTLC.OP_CODE:
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
+      case CICXClaimDFCHTLC.OP_CODE:
+        return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

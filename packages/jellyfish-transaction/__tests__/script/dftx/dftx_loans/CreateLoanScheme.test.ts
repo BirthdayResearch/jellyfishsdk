@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme
+  LoanScheme
 } from '../../../../src/script/dftx/dftx_loans'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -25,7 +25,7 @@ it('should bi-directional buffer-object-buffer', () => {
 
 const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CCreateLoanScheme.OP_CODE(0x4c)
 const data = 'c800000080b2e60e0000000006736368656d650000000000000000'
-const createLoanScheme: CreateLoanScheme = {
+const createLoanScheme: LoanScheme = {
   ratio: 200,
   rate: new BigNumber(2.5),
   identifier: 'scheme',

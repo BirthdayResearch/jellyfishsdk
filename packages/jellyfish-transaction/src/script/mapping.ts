@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { readVarUInt, writeVarUInt } from '../buffer/buffer_varuint'
+import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
@@ -58,9 +58,14 @@ import {
 } from './dftx/dftx_oracles'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme,
+  CUpdateLoanScheme,
+  LoanScheme,
+  CDestroyLoanScheme,
+  DestroyLoanScheme,
   CSetDefaultLoanScheme,
-  SetDefaultLoanScheme
+  SetDefaultLoanScheme,
+  CSetCollateralToken,
+  SetCollateralToken
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -69,10 +74,16 @@ import {
   ICXCreateOrder,
   CICXMakeOffer,
   ICXMakeOffer,
+  CICXCloseOrder,
+  ICXCloseOrder,
+  CICXCloseOffer,
+  ICXCloseOffer,
   CICXSubmitDFCHTLC,
   ICXSubmitDFCHTLC,
   CICXSubmitEXTHTLC,
-  ICXSubmitEXTHTLC
+  ICXSubmitEXTHTLC,
+  CICXClaimDFCHTLC,
+  ICXClaimDFCHTLC
 } from './dftx/dftx_icxorderbook'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
 
@@ -348,6 +359,22 @@ export const OP_CODES = {
       data: makeOffer
     })
   },
+  OP_DEFI_TX_ICX_CLOSE_ORDER: (closeOrder: ICXCloseOrder) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOrder.OP_CODE,
+      name: CICXCloseOrder.OP_NAME,
+      data: closeOrder
+    })
+  },
+  OP_DEFI_TX_ICX_CLOSE_OFFER: (closeOffer: ICXCloseOffer) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXCloseOffer.OP_CODE,
+      name: CICXCloseOffer.OP_NAME,
+      data: closeOffer
+    })
+  },
   OP_DEFI_TX_CREATE_CFP: (createCfp: CreateCfp) => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -380,12 +407,28 @@ export const OP_CODES = {
       data: icxSubmitDFCHTLC
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CCreateLoanScheme.OP_CODE,
       name: CCreateLoanScheme.OP_NAME,
       data: createLoanScheme
+    })
+  },
+  OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: LoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateLoanScheme.OP_CODE,
+      name: CUpdateLoanScheme.OP_NAME,
+      data: updateLoanScheme
+    })
+  },
+  OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDestroyLoanScheme.OP_CODE,
+      name: CDestroyLoanScheme.OP_NAME,
+      data: destroyLoanScheme
     })
   },
   OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
@@ -396,12 +439,28 @@ export const OP_CODES = {
       data: setDefaultLoanScheme
     })
   },
+  OP_DEFI_TX_SET_COLLATERAL_TOKEN: (setCollateralToken: SetCollateralToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetCollateralToken.OP_CODE,
+      name: CSetCollateralToken.OP_NAME,
+      data: setCollateralToken
+    })
+  },
   OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CICXSubmitEXTHTLC.OP_CODE,
       name: CICXSubmitEXTHTLC.OP_NAME,
       data: icxSubmitEXTHTLC
+    })
+  },
+  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXClaimDFCHTLC.OP_CODE,
+      name: CICXClaimDFCHTLC.OP_NAME,
+      data: icxClaimDFCHTLC
     })
   },
   OP_0: new constants.OP_0(),

@@ -6,6 +6,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new LoanMasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -19,7 +20,7 @@ beforeAll(async () => {
 
   providers = await getProviders(testing.container)
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
   // Default scheme
   await testing.container.call('createloanscheme', [100, new BigNumber(1.5), 'default'])

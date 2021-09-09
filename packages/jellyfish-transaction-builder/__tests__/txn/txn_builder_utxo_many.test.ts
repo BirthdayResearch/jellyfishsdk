@@ -4,12 +4,8 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
-import {
-  findOut,
-  fundEllipticPair,
-  randomEllipticPair,
-  sendTransaction
-} from '../test.utils'
+import { findOut, fundEllipticPair, randomEllipticPair, sendTransaction } from '../test.utils'
+import { RegTest } from '@defichain/jellyfish-network'
 
 const container = new MasterNodeRegTestContainer()
 let providers: MockProviders
@@ -21,7 +17,7 @@ beforeAll(async () => {
   await container.waitForWalletCoinbaseMaturity()
 
   providers = await getProviders(container)
-  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic)
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 })
 
 afterAll(async () => {

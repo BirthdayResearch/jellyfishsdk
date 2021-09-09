@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { readBigNumberUInt64, writeBigNumberUInt64 } from '../../buffer/buffer_bignumber'
-import { BufferComposer, ComposableBuffer } from '../../buffer/buffer_composer'
+import { BufferComposer, ComposableBuffer, readBigNumberUInt64, writeBigNumberUInt64 } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
 
@@ -138,7 +137,7 @@ export class CCreateProposal extends ComposableBuffer<CreateProposal> {
 }
 
 export class CCreateCfp extends CCreateProposal {
-  static OP_CODE = 0x46 // 'F'
+  static OP_CODE = 0x65 // 'e'
   static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
 }
 
@@ -160,7 +159,7 @@ export interface Vote {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CVote extends ComposableBuffer<Vote> {
-  static OP_CODE = 0x56 // 'V'
+  static OP_CODE = 0x4f // 'O'
   static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
   composers (vote: Vote): BufferComposer[] {
     return [

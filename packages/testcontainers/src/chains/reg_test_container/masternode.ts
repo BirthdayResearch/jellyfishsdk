@@ -133,6 +133,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
+  /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const anchorTeams = await this.call('getanchorteams')
@@ -150,6 +151,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
+  /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorAuths (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const auths = await this.call('spv_listanchorauths')
