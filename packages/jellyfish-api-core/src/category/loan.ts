@@ -116,6 +116,28 @@ export class Loan {
   async listCollateralTokens (): Promise<CollateralTokensData> {
     return await this.client.call('listcollateraltokens', [], 'bignumber')
   }
+
+  /**
+   * Creates (and submits to local node and network) a token for a price feed set in collateral token.
+   *
+   * @param {SetLoanToken} loanToken
+   * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
+   * @param {string} [loanToken.name] Token's name, no longer than 128
+   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
+   * @param {BigNumber} [loanToken.interest = 0] Interest rate
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
+   */
+  async setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string> {
+    const defaultData = {
+      mintable: true,
+      interest: 0
+    }
+    return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -165,6 +187,14 @@ export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+}
+
+export interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
 }
 
 export interface UTXO {
