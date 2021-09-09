@@ -173,15 +173,47 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
-  it('should setLoanToken if mintable is false', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  it('should setLoanToken if two loan tokens have the same name', async () => {
+    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token8',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
-    const loanTokenId = await testing.rpc.loan.setLoanToken({
+    await testing.rpc.loan.setLoanToken({
       symbol: 'Token8',
+      name: 'TokenX',
+      priceFeedId: priceFeedId1
+    })
+    await testing.generate(1)
+
+    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token9',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
+      symbol: 'Token9',
+      name: 'TokenX',
+      priceFeedId: priceFeedId2
+    })
+    await testing.generate(1)
+
+    expect(typeof loanTokenId).toStrictEqual('string')
+    expect(loanTokenId.length).toStrictEqual(64)
+    await testing.generate(1)
+  })
+
+  it('should setLoanToken if mintable is false', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token10',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
+      symbol: 'Token10',
       priceFeedId,
       mintable: false
     })
@@ -192,13 +224,13 @@ describe('Loan', () => {
 
   it('should setLoanToken if interest number is greater than 0 and has less than 9 digits in the fractional part', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token9',
+      token: 'Token11',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'Token9',
+      symbol: 'Token11',
       priceFeedId,
       interest: new BigNumber(15.12345678) // 8 digits in the fractional part
     })
@@ -209,13 +241,13 @@ describe('Loan', () => {
 
   it('should not setLoanToken if interest number is greater than 0 and has more than 8 digits in the fractional part', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token10',
+      token: 'Token12',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token10',
+      symbol: 'Token12',
       priceFeedId,
       interest: new BigNumber(15.123456789) // 9 digits in the fractional part
     })
@@ -224,13 +256,13 @@ describe('Loan', () => {
 
   it('should not setLoanToken if interest number is less than 0', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token11',
+      token: 'Token13',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token11',
+      symbol: 'Token13',
       priceFeedId,
       interest: new BigNumber(-15.12345678)
     })
@@ -239,13 +271,13 @@ describe('Loan', () => {
 
   it('should not setLoanToken if interest number is greater than 1200000000', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token12',
+      token: 'Token14',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token12',
+      symbol: 'Token14',
       priceFeedId,
       interest: new BigNumber('1200000000').plus('0.00000001')
     })
@@ -254,14 +286,14 @@ describe('Loan', () => {
 
   it('should setLoanToken with utxos', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token12',
+      token: 'Token15',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'Token12',
+      symbol: 'Token15',
       priceFeedId
     }, [{ txid, vout }])
     expect(typeof loanTokenId).toStrictEqual('string')
@@ -274,20 +306,20 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token12')
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token15')
     expect(data[loanTokenId].token[index].name).toStrictEqual('')
   })
 
   it('should not setLoanToken with utxos not from foundation member', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token13',
+      token: 'Token16',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.setLoanToken({
-      symbol: 'Token13',
+      symbol: 'Token16',
       priceFeedId
     }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setloantoken')
