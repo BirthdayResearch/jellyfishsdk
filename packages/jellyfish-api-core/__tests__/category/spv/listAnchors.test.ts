@@ -1,3 +1,4 @@
+import { CreateAnchorResult } from '@defichain/jellyfish-api-core/category/spv'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
@@ -65,28 +66,39 @@ describe('Spv', () => {
       expect(auths[0].signers).toStrictEqual(tGroup.length())
     }
 
-    await createAnchor()
-    await tGroup.get(0).container.waitForBlockHeight(75)
-    await tGroup.waitForSync()
-
-    await createAnchor()
-    await tGroup.get(0).container.waitForBlockHeight(90)
-    await tGroup.waitForSync()
-
-    await createAnchor()
-    await tGroup.get(0).container.waitForBlockHeight(105)
-    await tGroup.waitForSync()
-
-    await createAnchor()
+    await tGroup.get(0).container.call('spv_setlastheight', [1])
+    const anchor1 = await createAnchor()
     await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    await tGroup.get(0).container.call('spv_setlastheight', [2])
+    const anchor2 = await createAnchor()
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    await tGroup.get(0).container.call('spv_setlastheight', [3])
+    const anchor3 = await createAnchor()
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    await tGroup.get(0).container.call('spv_setlastheight', [4])
+    const anchor4 = await createAnchor()
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    await tGroup.get(1).container.call('spv_sendrawtx', [anchor1.txHex])
+    await tGroup.get(1).container.call('spv_sendrawtx', [anchor2.txHex])
+    await tGroup.get(1).container.call('spv_sendrawtx', [anchor3.txHex])
+    await tGroup.get(1).container.call('spv_sendrawtx', [anchor4.txHex])
+    await tGroup.get(1).generate(1)
     await tGroup.waitForSync()
 
     await tGroup.get(0).container.call('spv_setlastheight', [6])
   }
 
-  async function createAnchor (): Promise<void> {
+  async function createAnchor (): Promise<CreateAnchorResult> {
     const rewardAddress = await tGroup.get(0).rpc.spv.getNewAddress()
-    await tGroup.get(0).rpc.spv.createAnchor([{
+    return await tGroup.get(0).rpc.spv.createAnchor([{
       txid: '11a276bb25585f6973a4dd68373cffff41dbcaddf12bbc1c2b489d1dc84564ee',
       vout: 2,
       amount: 15800,
@@ -113,22 +125,26 @@ describe('Spv', () => {
   })
 
   it('should listAnchors with minBtcHeight', async () => {
-    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ minBtcHeight: 10 })
-    expect(anchors.length).toStrictEqual(0)
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ minBtcHeight: 4 })
+    expect(anchors.length).toStrictEqual(1)
+    expect(anchors.every(anchor => anchor.btcBlockHeight <= 4)).toStrictEqual(true)
   })
 
   it('should listAnchors with maxBtcHeight', async () => {
-    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ maxBtcHeight: 10 })
-    expect(anchors.every(anchor => anchor.btcBlockHeight <= 10)).toStrictEqual(true)
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ maxBtcHeight: 3 })
+    expect(anchors.length).toStrictEqual(3)
+    expect(anchors.every(anchor => anchor.btcBlockHeight <= 3)).toStrictEqual(true)
   })
 
   it('should listAnchors with minConfs', async () => {
     const anchors = await tGroup.get(0).rpc.spv.listAnchors({ minConfs: 5 })
+    expect(anchors.length).toStrictEqual(2)
     expect(anchors.every(anchor => anchor.confirmations >= 5)).toStrictEqual(true)
   })
 
   it('should listAnchors with maxConfs', async () => {
-    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ minConfs: 10 })
-    expect(anchors.length).toStrictEqual(0)
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ maxConfs: 3 })
+    expect(anchors.length).toStrictEqual(1)
+    expect(anchors.every(anchor => anchor.confirmations <= 3)).toStrictEqual(true)
   })
 })
