@@ -106,6 +106,7 @@ describe('loan.setLoanToken()', () => {
 
     await sendTransaction(testing.container, txn)
     const loanTokenId = calculateTxid(txn)
+
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
     expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
@@ -156,6 +157,7 @@ describe('loan.setLoanToken()', () => {
       mintable: true,
       interest: new BigNumber(3.5)
     }, script)
+
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
   })
@@ -191,7 +193,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: oracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle! (code 16)\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {
@@ -212,6 +214,7 @@ describe('loan.setLoanToken()', () => {
 
     await sendTransaction(testing.container, txn)
     const loanTokenId = calculateTxid(txn)
+
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
     expect(data[loanTokenId].token[index].name).toStrictEqual('Token6')
@@ -235,6 +238,7 @@ describe('loan.setLoanToken()', () => {
 
     await sendTransaction(testing.container, txn)
     const loanTokenId = calculateTxid(txn)
+
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
     expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
