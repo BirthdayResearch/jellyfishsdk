@@ -44,7 +44,7 @@ export interface SetLoanToken {
   name: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
   priceFeedId: string // -------| 32 bytes, hex string, Txid of oracle feeding the price
   mintable: boolean // ---------| 1 byte, mintable, Token's 'Mintable' property
-  interest: BigNumber // -------| 8 bytes signed, interest rate
+  interest: BigNumber // -------| 8 bytes unsigned, interest rate
 }
 
 /**
