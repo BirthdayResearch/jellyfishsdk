@@ -6,7 +6,6 @@ describe('Spv', () => {
 
   beforeAll(async () => {
     await tGroup.start()
-
     await setup()
   })
 
