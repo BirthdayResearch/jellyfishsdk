@@ -1,4 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
+import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 import { toBuffer, toOPCodes } from './_buffer'
 import { OPCode, StaticCode } from './opcode'
 import { OP_PUSHDATA } from './data'
@@ -85,7 +86,6 @@ import {
   ICXClaimDFCHTLC
 } from './dftx/dftx_icxorderbook'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx/dftx_masternode'
-import { readVarUInt, writeVarUInt } from '@defichain/jellyfish-buffer'
 
 /**
  * @param num to map as OPCode, 1 byte long

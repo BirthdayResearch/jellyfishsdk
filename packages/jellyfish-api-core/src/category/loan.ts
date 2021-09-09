@@ -150,7 +150,7 @@ export class Loan {
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} Transaction id of the transaction
    */
-   async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
+  async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
   }
 }
