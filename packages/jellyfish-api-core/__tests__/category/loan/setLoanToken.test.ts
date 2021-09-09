@@ -237,6 +237,21 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
   })
 
+  it('should not setLoanToken if interest number is greater than 1200000000', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token12',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const promise = testing.rpc.loan.setLoanToken({
+      symbol: 'Token12',
+      priceFeedId,
+      interest: new BigNumber('1200000000').plus('0.00000001')
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setloantoken')
+  })
+
   it('should setLoanToken with utxos', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token12',
