@@ -145,7 +145,7 @@ describe('Loan createVault', () => {
     })
   })
 
-  it('should not createVault with utxos not from foundation member', async () => {
+  it('should not createVault with utxos not from the owner', async () => {
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.createVault({
       ownerAddress: GenesisKeys[0].owner.address,
@@ -171,7 +171,7 @@ describe('Loan createVault with scheme set to be destroyed', () => {
     await testing.container.stop()
   })
 
-  it('should not createVault', async () => {
+  it('should not createVault with scheme set to be destroyed', async () => {
     // Default scheme
     await testing.rpc.loan.createLoanScheme({
       minColRatio: 100,
@@ -204,7 +204,7 @@ describe('Loan createVault with scheme set to be destroyed', () => {
   })
 })
 
-describe('should createVault if CreateVault.loanSchemeId is not given and no default scheme', () => {
+describe('Loan createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -217,7 +217,7 @@ describe('should createVault if CreateVault.loanSchemeId is not given and no def
     await testing.container.stop()
   })
 
-  it('should not createVault', async () => {
+  it('should not createVault when no default scheme and CreateVault.loanSchemeId is not given', async () => {
     const promise = testing.rpc.loan.createVault({
       ownerAddress: await testing.generateAddress()
     })
