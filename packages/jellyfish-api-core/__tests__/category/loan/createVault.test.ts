@@ -93,7 +93,7 @@ describe('Loan createVault', () => {
     const data = await testing.container.call('getvault', [vaultId])
     expect(data).toStrictEqual({
       loanSchemeId: 'default', // Get default loan scheme
-      ownerAddress: expect.any(String),
+      ownerAddress: ownerAddress,
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
