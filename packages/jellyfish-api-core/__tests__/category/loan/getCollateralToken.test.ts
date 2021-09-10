@@ -236,7 +236,7 @@ describe('Loan getCollateralToken with no parameter', () => {
 
     // Only remain AAPL which has already been activated
     {
-      const data = await testing.rpc.loan.getCollateralToken({})
+      const data = await testing.rpc.loan.getCollateralToken()
       expect(data).toStrictEqual({
         [collateralTokenId1]: {
           token: 'AAPL',
