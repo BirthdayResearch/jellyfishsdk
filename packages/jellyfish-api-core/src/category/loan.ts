@@ -138,6 +138,21 @@ export class Loan {
     }
     return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
   }
+
+  /**
+   * Creates a vault transaction.
+   *
+   * @param {CreateVault} vault
+   * @param {string} vault.ownerAddress Any valid address or "" to generate a new address
+   * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max). If empty, the default loan scheme will be selected
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -195,6 +210,11 @@ export interface SetLoanToken {
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+export interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
 }
 
 export interface UTXO {
