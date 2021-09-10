@@ -1,5 +1,5 @@
 import { SmartBuffer } from 'smart-buffer'
-import { CBlockHeader, BlockHeader } from '../src/blockHeader'
+import { CBlockHeader, BlockHeader } from '../../src/blockHeader'
 import BigNumber from 'bignumber.js'
 
 describe('blockHeader', () => {
