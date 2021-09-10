@@ -3,7 +3,8 @@ import {
   LoanScheme,
   DestroyLoanScheme,
   SetDefaultLoanScheme,
-  SetCollateralToken
+  SetCollateralToken,
+  SetLoanToken
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
@@ -74,6 +75,20 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async setCollateralToken (setCollateralToken: SetCollateralToken, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_SET_COLLATERAL_TOKEN(setCollateralToken),
+      changeScript
+    )
+  }
+
+  /**
+   * Set loan token. Currently requires Foundation Authorization.
+   *
+   * @param {SetLoanToken} setLoanToken txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async setLoanToken (setLoanToken: SetLoanToken, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_SET_LOAN_TOKEN(setLoanToken),
       changeScript
     )
   }

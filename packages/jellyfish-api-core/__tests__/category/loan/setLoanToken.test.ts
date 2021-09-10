@@ -144,14 +144,14 @@ describe('Loan', () => {
 
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token6',
-      name: 'Token6',
+      name: '',
       priceFeedId
     })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token6')
+    expect(data[loanTokenId].token[index].name).toStrictEqual('')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
