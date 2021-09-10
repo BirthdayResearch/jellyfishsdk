@@ -78,7 +78,7 @@ describe('Loan setCollateralToken', () => {
       factor: new BigNumber(0.5),
       priceFeedId
     })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Test LoanSetCollateralTokenTx execution failed:\noracle (${priceFeedId}) does not conntain USD price for this token!', code: -32600, method: setcollateraltoken`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test LoanSetCollateralTokenTx execution failed:\noracle (${priceFeedId}) does not contain USD price for this token!', code: -32600, method: setcollateraltoken`)
   })
 
   it('should not setCollateralToken if oracleId does not exist', async () => {
