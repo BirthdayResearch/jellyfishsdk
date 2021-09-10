@@ -120,7 +120,7 @@ interface loan {
 interface UpdateLoanToken {
   token: string
   symbol: string
-  name: string
+  name?: string
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber

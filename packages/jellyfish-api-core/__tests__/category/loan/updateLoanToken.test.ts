@@ -54,7 +54,6 @@ describe('Loan', () => {
     await testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId
     })
     await testing.generate(1)
@@ -66,10 +65,10 @@ describe('Loan', () => {
           1: {
             symbol: 'Token2',
             symbolKey: 'Token2',
-            name: 'Token2',
+            name: 'Token1',
             decimal: 8,
             limit: 0,
-            mintable: false,
+            mintable: true,
             tradeable: true,
             isDAT: true,
             isLPS: false,
@@ -93,41 +92,40 @@ describe('Loan', () => {
     const promise = testing.rpc.loan.updateLoanToken({
       token: 'Token2',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Token Token2 does not exist!\', code: -8, method: updateloantoken')
   })
 
-  // NOTE(jingyi2811): There is bug in the c++ side
-  // it('should updateLoanToken if symbol is more than 8 letters', async () => {
-  //   const loanTokenId = await testing.container.call('setloantoken', [{
-  //     symbol: 'Token3',
-  //     name: 'Token3',
-  //     priceFeedId,
-  //     mintable: true,
-  //     interest: new BigNumber(0.01)
-  //   }, []])
-  //   await testing.generate(1)
-  //
-  //   await testing.rpc.loan.updateLoanToken({
-  //     token: 'Token3',
-  //     symbol: 'x'.repeat(9), // 9 letters
-  //     name: 'Token3',
-  //     priceFeedId
-  //   })
-  //   await testing.generate(1)
-  //
-  //   const data = await testing.container.call('listloantokens', [])
-  //   const index = Object.keys(data).indexOf(loanTokenId) + 1
-  //   expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
-  // })
+  it('should updateLoanToken if symbol is more than 8 letters', async () => {
+    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token3',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const loanTokenId = await testing.container.call('setloantoken', [{
+      symbol: 'Token3',
+      priceFeedId
+    }, []])
+    await testing.generate(1)
+
+    await testing.rpc.loan.updateLoanToken({
+      token: 'Token3',
+      symbol: 'x'.repeat(9), // 9 letters
+      priceFeedId
+    })
+    await testing.generate(1)
+
+    const data = await testing.container.call('listloantokens', [])
+    const index = Object.keys(data).indexOf(loanTokenId) + 1
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+  })
 
   it('should not updateLoanToken if symbol is an empty string', async () => {
     const promise = testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: '',
-      name: 'Token2',
       priceFeedId
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: updateloantoken')
@@ -143,19 +141,28 @@ describe('Loan', () => {
     await testing.container.call('setloantoken', [{
       symbol: 'Token4',
       name: 'Token4',
-      priceFeedId: priceFeedId1,
-      mintable: true,
-      interest: new BigNumber(0.01)
+      priceFeedId: priceFeedId1
     }, []])
     await testing.generate(1)
 
     const promise = testing.rpc.loan.updateLoanToken({
       token: 'Token4',
-      symbol: 'Token1', // Already exists
-      name: 'Token4',
+      symbol: 'Token1', // Same name as Token1's symbol
       priceFeedId
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntoken with key \'Token1\' already exists!\', code: -32600, method: updateloantoken')
+  })
+
+  it('should updateLoanToken with the given name', async () => {
+    const loanTokenId = await testing.rpc.loan.updateLoanToken({
+      token: 'Token1',
+      symbol: 'Token2',
+      name: 'Token2',
+      priceFeedId
+    })
+    await testing.generate(1)
+    expect(typeof loanTokenId).toStrictEqual('string')
+    expect(loanTokenId.length).toStrictEqual(64)
   })
 
   it('should updateLoanToken if name is more than 128 letters', async () => {
@@ -172,49 +179,90 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
+  it('should updateLoanToken if same name exists in other loan token', async () => {
+    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token5',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'Token5',
+      priceFeedId: priceFeedId2
+    })
+    await testing.generate(1)
+
+    const loanTokenId = await testing.rpc.loan.updateLoanToken({
+      token: 'Token5',
+      symbol: 'Token6',
+      name: 'Token1', // Same name as Token1's name
+      priceFeedId: priceFeedId2
+    })
+
+    expect(typeof loanTokenId).toStrictEqual('string')
+    expect(loanTokenId.length).toStrictEqual(64)
+    await testing.generate(1)
+  })
+
   it('should not updateLoanToken if priceFeedId is invalid', async () => {
     const promise = testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist!\', code: -32600, method: updateloantoken')
   })
 
-  it('should updateLoanToken if mintable is true', async () => {
+  it('should updateLoanToken if mintable is false', async () => {
     const loanTokenId = await testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId,
-      mintable: true
+      mintable: false
     })
     expect(typeof loanTokenId).toStrictEqual('string')
     expect(loanTokenId.length).toStrictEqual(64)
     await testing.generate(1)
   })
 
-  it('should updateLoanToken if interest is greater than 0', async () => {
+  it('should updateLoanToken if interest number is greater than 0 and has less than 9 digits in the fractional part', async () => {
     const loanTokenId = await testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId,
-      interest: new BigNumber(0.02)
+      interest: new BigNumber(15.12345678) // 8 digits in the fractional part
     })
     expect(typeof loanTokenId).toStrictEqual('string')
     expect(loanTokenId.length).toStrictEqual(64)
     await testing.generate(1)
   })
 
-  it('should not updateLoanToken if interest is less than 0', async () => {
+  it('should not updateLoanToken if interest number is greater than 0 and has more than 8 digits in the fractional part', async () => {
     const promise = testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId,
-      interest: new BigNumber(-0.01)
+      interest: new BigNumber(15.123456789) // 9 digits in the fractional part
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid amount\', code: -3, method: updateloantoken')
+  })
+
+  it('should not updateLoanToken if interest number is less than 0', async () => {
+    const promise = testing.rpc.loan.updateLoanToken({
+      token: 'Token1',
+      symbol: 'Token2',
+      priceFeedId,
+      interest: new BigNumber(-15.12345678)
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: updateloantoken')
+  })
+
+  it('should not updateLoanToken if interest number is greater than 1200000000', async () => {
+    const promise = testing.rpc.loan.updateLoanToken({
+      token: 'Token1',
+      symbol: 'Token2',
+      priceFeedId,
+      interest: new BigNumber('1200000000').plus('0.00000001')
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: updateloantoken')
   })
@@ -224,7 +272,6 @@ describe('Loan', () => {
     const loanTokenId2 = await testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId
     }, [{ txid, vout }])
     expect(typeof loanTokenId).toStrictEqual('string')
@@ -238,7 +285,6 @@ describe('Loan', () => {
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
     expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token2')
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token2')
   })
 
   it('should updateLoanToken with utxos not from foundation member', async () => {
@@ -246,7 +292,6 @@ describe('Loan', () => {
     const promise = testing.rpc.loan.updateLoanToken({
       token: 'Token1',
       symbol: 'Token2',
-      name: 'Token2',
       priceFeedId
     }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: updateloantoken')
