@@ -138,6 +138,18 @@ export class Loan {
     }
     return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
   }
+
+  /**
+   * Quick access to multiple API with consolidated total collateral and loan value.
+   * 1. @see {@link listCollateralTokens}
+   * 2. @see {@link listLoanTokens}
+   * 3. @see {@link listLoanSchemes}
+   *
+   * @returns {Promise<GetLoanInfoResult>}
+   */
+  async getLoanInfo (): Promise<GetLoanInfoResult> {
+    return await this.client.call('getloaninfo', [], 'bignumber')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -195,6 +207,38 @@ export interface SetLoanToken {
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+export interface TokenData {
+  [key: string]: TokenDetail
+}
+
+export interface TokenDetail {
+  collateralAddress: string
+  creationHeight: BigNumber
+  creationTx: string
+  decimal: BigNumber
+  destructionHeight: BigNumber
+  destructionTx: string
+  finalized: false
+  isDAT: boolean
+  isLPS: boolean
+  isLoanToken: boolean
+  limit: BigNumber
+  mintable: boolean
+  minted: BigNumber
+  name: string
+  symbol: string
+  symbolKey: string
+  tradeable: boolean
+}
+
+export interface GetLoanInfoResult {
+  'Collateral tokens': CollateralTokensData
+  'Loan tokens': TokenData
+  'Loan schemes': GetLoanSchemeResult[]
+  collateralValueUSD: BigNumber
+  loanValueUSD: BigNumber
 }
 
 export interface UTXO {
