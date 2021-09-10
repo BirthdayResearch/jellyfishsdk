@@ -65,7 +65,7 @@ describe('loan.setLoanToken()', () => {
           1: {
             symbol: 'Token1',
             symbolKey: 'Token1',
-            name: '',
+            name: 'Token1',
             decimal: 8,
             limit: 0,
             mintable: true,
