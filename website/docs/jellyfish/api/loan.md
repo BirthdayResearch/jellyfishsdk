@@ -34,6 +34,28 @@ interface UTXO {
 }
 ```
 
+## updateLoanScheme
+
+Updates an existing loan scheme.
+
+```ts title="client.loan.updateLoanScheme()"
+interface loan {
+  updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanScheme {
+  minColRatio: number
+  interestRate: BigNumber
+  id: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listLoanSchemes
 
 List all available loan schemes.
@@ -48,6 +70,22 @@ interface LoanSchemeResult {
   mincolratio: BigNumber
   interestrate: BigNumber
   default: boolean
+}
+```
+
+## getLoanScheme
+
+Get loan scheme.
+
+```ts title="client.loan.getLoanScheme()"
+interface loan {
+  getLoanScheme (id: string): Promise<GetLoanSchemeResult>
+}
+
+interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
 }
 ```
 
@@ -86,6 +124,76 @@ interface UTXO {
 }
 ```
 
+## setCollateralToken
+
+Set a collateral token transaction.
+
+```ts title="client.loan.setCollateralToken()"
+interface loan {
+  setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetCollateralToken {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## listCollateralTokens
+
+List collateral tokens.
+
+```ts title="client.loan.listCollateralTokens()"
+interface loan {
+  listCollateralTokens (): Promise<CollateralTokensData>
+}
+
+interface CollateralTokensData {
+  [key: string]: CollateralTokenDetail
+}
+
+interface CollateralTokenDetail {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## setLoanToken
+
+Creates (and submits to local node and network) a token for a price feed set in collateral token.
+
+```ts title="client.loan.setLoanToken()"
+interface loan {
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
 ## listLoanTokens
 
 List all created loan tokens.
