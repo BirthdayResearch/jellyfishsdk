@@ -200,6 +200,7 @@
       <w>txindex</w>
       <w>txinwitness</w>
       <w>txnotokens</w>
+      <w>txns</w>
       <w>uacomment</w>
       <w>unpkg</w>
       <w>utxo</w>

@@ -40,14 +40,14 @@ List all available loan schemes.
 
 ```ts title="client.loan.listLoanSchemes()"
 interface loan {
-    listLoanSchemes (): Promise<LoanSchemeResult[]>
+  listLoanSchemes (): Promise<LoanSchemeResult[]>
 }
 
 interface LoanSchemeResult {
-    id: string
-    mincolratio: BigNumber
-    interestrate: BigNumber
-    default: boolean
+  id: string
+  mincolratio: BigNumber
+  interestrate: BigNumber
+  default: boolean
 }
 ```
 
@@ -86,6 +86,28 @@ interface UTXO {
 }
 ```
 
+## setLoanToken
+
+Creates (and submits to local node and network) a token for a price feed set in collateral token.
+
+```ts title="client.loan.setLoanToken()"
+interface loan {
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
 ## updateLoanToken
 
 Updates an existing loan token.
