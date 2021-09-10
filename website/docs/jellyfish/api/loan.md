@@ -151,7 +151,6 @@ interface UTXO {
 List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
-
 interface loan {
   listCollateralTokens (): Promise<CollateralTokensData>
 }
