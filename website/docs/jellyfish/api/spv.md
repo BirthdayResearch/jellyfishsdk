@@ -225,7 +225,6 @@ interface ListAnchorsResult {
   active?: boolean
   anchorCreationHeight?: number
 }
-
 ```
 
 ## listAnchorRewards

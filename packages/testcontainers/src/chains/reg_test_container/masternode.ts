@@ -169,10 +169,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForAnchorRewardConfirms (network = 'mainnet', timeout = 30000): Promise<void> {
+  async waitForAnchorRewardConfirms (timeout = 30000): Promise<void> {
+    // extra info here
     // max signers in regtest is 3, others are 5
     // majority is defined as 66% above
-    const majority = network === 'regtest' ? 2 : 3
+    const majority = 2
     return await waitForCondition(async () => {
       const confirms = await this.call('spv_listanchorrewardconfirms')
       if (confirms.length === 1 && confirms[0].signers >= majority) {
