@@ -194,3 +194,59 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getLoanInfo
+
+Quick access to multiple API with consolidated total collateral and loan value.
+
+```ts title="client.loan.getLoanInfo()"
+interface loan {
+  getLoanInfo (): Promise<GetLoanInfoResult>
+}
+
+interface GetLoanInfoResult {
+  'Collateral tokens': {
+    [key: string]: CollateralTokenDetail
+  }
+  'Loan tokens': {
+    [key: string]: TokenDetail
+  }
+  'Loan schemes': GetLoanSchemeResult[]
+  collateralValueUSD: BigNumber
+  loanValueUSD: BigNumber
+}
+
+interface CollateralTokenDetail {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
+export interface TokenDetail {
+  collateralAddress: string
+  creationHeight: BigNumber
+  creationTx: string
+  decimal: BigNumber
+  destructionHeight: BigNumber
+  destructionTx: string
+  finalized: false
+  isDAT: boolean
+  isLPS: boolean
+  isLoanToken: boolean
+  limit: BigNumber
+  mintable: boolean
+  minted: BigNumber
+  name: string
+  symbol: string
+  symbolKey: string
+  tradeable: boolean
+}
+
+interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
+}
+
+```
