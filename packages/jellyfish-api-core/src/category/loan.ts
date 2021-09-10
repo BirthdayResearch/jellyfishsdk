@@ -118,6 +118,18 @@ export class Loan {
   }
 
   /**
+   * Get collateral token.
+   *
+   * @param {GetCollateralToken} [collateralToken = {}]
+   * @param {string} [collateralToken.token] Symbol or id of collateral token
+   * @param {number} [collateralToken.height] Valid at specified height
+   * @return {Promise<CollateralTokenResult>} Collateral token result
+   */
+  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenResult> {
+    return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
+  }
+
+  /**
    * Creates (and submits to local node and network) a token for a price feed set in collateral token.
    *
    * @param {SetLoanToken} loanToken
@@ -137,18 +149,6 @@ export class Loan {
       interest: 0
     }
     return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
-  }
-
-  /**
-   * Get collateral token.
-   *
-   * @param {GetCollateralToken} [collateralToken = {}]
-   * @param {string} [collateralToken.token] Symbol or id of collateral token
-   * @param {number} [collateralToken.height] Valid at specified height
-   * @return {Promise<CollateralTokenResult>} Collateral token result
-   */
-  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenResult> {
-    return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
   }
 }
 
@@ -185,28 +185,13 @@ export interface SetCollateralToken {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
-}
-
-export interface CollateralTokenDetail {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
+  [key: string]: CollateralTokenResult
 }
 
 export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
-}
-
-export interface SetLoanToken {
-  symbol: string
-  name?: string
-  priceFeedId: string
-  mintable?: boolean
-  interest?: BigNumber
 }
 
 export interface GetCollateralToken {
@@ -219,6 +204,14 @@ export interface CollateralTokenResult {
   factor: BigNumber
   priceFeedId: string
   activateAfterBlock: BigNumber
+}
+
+export interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
 }
 
 export interface UTXO {

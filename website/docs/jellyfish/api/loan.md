@@ -151,42 +151,21 @@ interface UTXO {
 List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
+import { CollateralTokenResult } from './loan'
+
 interface loan {
   listCollateralTokens (): Promise<CollateralTokensData>
 }
 
 interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
+  [key: string]: CollateralTokenResult
 }
 
-interface CollateralTokenDetail {
+interface CollateralTokenResult {
   token: string
   factor: BigNumber
   priceFeedId: string
   activateAfterBlock: BigNumber
-}
-
-interface UTXO {
-  txid: string
-  vout: number
-}
-```
-
-## setLoanToken
-
-Creates (and submits to local node and network) a token for a price feed set in collateral token.
-
-```ts title="client.loan.setLoanToken()"
-interface loan {
-  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
-}
-
-interface SetLoanToken {
-  symbol: string
-  name?: string
-  priceFeedId: string
-  mintable?: boolean
-  interest?: BigNumber
 }
 
 interface UTXO {
@@ -214,5 +193,28 @@ interface CollateralTokenResult {
   factor: BigNumber
   priceFeedId: string
   activateAfterBlock: BigNumber
+}
+```
+
+## setLoanToken
+
+Creates (and submits to local node and network) a token for a price feed set in collateral token.
+
+```ts title="client.loan.setLoanToken()"
+interface loan {
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```
