@@ -20,7 +20,6 @@ export * from './txn/txn_builder_loans'
 export * from './txn/txn_builder_liq_pool'
 export * from './txn/txn_builder_icxorderbook'
 export * from './txn/txn_builder_masternode'
-export * from './txn/txn_builder_icxorderbook'
 
 /**
  * All in one transaction builder.
