@@ -123,9 +123,9 @@ export class Loan {
    * @param {GetCollateralToken} [collateralToken = {}]
    * @param {string} [collateralToken.token] Symbol or id of collateral token
    * @param {number} [collateralToken.height] Valid at specified height
-   * @return {Promise<CollateralTokenResult>} Collateral token result
+   * @return {Promise<CollateralTokenDetails>} Collateral token result
    */
-  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenResult> {
+  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails> {
     return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
   }
 
@@ -185,7 +185,7 @@ export interface SetCollateralToken {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokenResult
+  [key: string]: CollateralTokenDetails
 }
 
 export interface GetLoanSchemeResult {
@@ -199,7 +199,7 @@ export interface GetCollateralToken {
   height?: number
 }
 
-export interface CollateralTokenResult {
+export interface CollateralTokenDetails {
   token: string
   factor: BigNumber
   priceFeedId: string

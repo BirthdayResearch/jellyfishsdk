@@ -156,10 +156,10 @@ interface loan {
 }
 
 interface CollateralTokensData {
-  [key: string]: CollateralTokenResult
+  [key: string]: CollateralTokenDetails
 }
 
-interface CollateralTokenResult {
+interface CollateralTokenDetails {
   token: string
   factor: BigNumber
   priceFeedId: string
@@ -178,7 +178,7 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenResult>
+  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
 }
 
 interface GetCollateralToken {
@@ -186,7 +186,7 @@ interface GetCollateralToken {
   height?: number
 }
 
-interface CollateralTokenResult {
+interface CollateralTokenDetails {
   token: string
   factor: BigNumber
   priceFeedId: string
