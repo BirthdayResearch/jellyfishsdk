@@ -56,7 +56,7 @@ const header = '6a3c4466547867' // OP_RETURN(0x6a) (length 60 = 0x3c) CDfTx.SIGN
 const data = '06546f6b656e3306546f6b656e33ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d017802964900000000'
 // SetLoanToken.symbol[BE](06546f6b656e33)
 // SetLoanToken.name[BE](06546f6b656e33)
-// SetLoanToken.priceFeedId[BE] (ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d)
+// SetLoanToken.priceFeedId[LE] (ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d)
 // SetLoanToken.mintable(01)
 // SetLoanToken.interest[LE](7802964900000000)
 
