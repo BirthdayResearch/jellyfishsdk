@@ -16,34 +16,52 @@ describe('Loan', () => {
   })
 
   it('should listLoanTokens', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'AAPL',
-      currency: 'EUR'
-    }], 1])
-    await testing.generate(1)
-
     {
       const data = await testing.rpc.loan.listLoanTokens()
       expect(data).toStrictEqual({})
     }
 
-    const loanTokenId = await testing.container.call('setloantoken', [{
+    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'AAPL',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const loanTokenId1 = await testing.container.call('setloantoken', [{
       symbol: 'AAPL',
       name: 'APPLE',
-      priceFeedId,
+      priceFeedId: priceFeedId1,
       interest: new BigNumber(0.01)
     }])
     await testing.generate(1)
 
+    const height1 = new BigNumber(await testing.container.getBlockCount())
+
+    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'TSLA',
+      currency: 'USD'
+    }], 1])
+    await testing.generate(1)
+
+    const loanTokenId2 = await testing.container.call('setloantoken', [{
+      symbol: 'TSLA',
+      name: 'TESLA',
+      priceFeedId: priceFeedId2,
+      interest: new BigNumber(0.02)
+    }])
+    await testing.generate(1)
+
+    const height2 = new BigNumber(await testing.container.getBlockCount())
+
     const data = await testing.rpc.loan.listLoanTokens()
     expect(data).toStrictEqual(
       {
-        [loanTokenId]: {
+        [loanTokenId1]: {
           token: {
             1: {
               collateralAddress: expect.any(String),
-              creationHeight: new BigNumber(await testing.container.getBlockCount()),
-              creationTx: loanTokenId,
+              creationHeight: new BigNumber(height1),
+              creationTx: loanTokenId1,
               decimal: new BigNumber(8),
               destructionHeight: new BigNumber(-1),
               destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
@@ -52,7 +70,7 @@ describe('Loan', () => {
               isLPS: false,
               isLoanToken: true,
               limit: new BigNumber(0),
-              mintable: false,
+              mintable: true,
               minted: new BigNumber(0),
               name: 'APPLE',
               symbol: 'AAPL',
@@ -60,8 +78,33 @@ describe('Loan', () => {
               tradeable: true
             }
           },
-          priceFeedId,
+          priceFeedId: priceFeedId1,
           interest: new BigNumber(0.01)
+        },
+        [loanTokenId2]: {
+          token: {
+            2: {
+              collateralAddress: expect.any(String),
+              creationHeight: new BigNumber(height2),
+              creationTx: loanTokenId2,
+              decimal: new BigNumber(8),
+              destructionHeight: new BigNumber(-1),
+              destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+              finalized: false,
+              isDAT: true,
+              isLPS: false,
+              isLoanToken: true,
+              limit: new BigNumber(0),
+              mintable: true,
+              minted: new BigNumber(0),
+              name: 'TESLA',
+              symbol: 'TSLA',
+              symbolKey: 'TSLA',
+              tradeable: true
+            }
+          },
+          priceFeedId: priceFeedId2,
+          interest: new BigNumber(0.02)
         }
       }
     )
