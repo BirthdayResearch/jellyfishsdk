@@ -156,10 +156,10 @@ interface loan {
 }
 
 interface CollateralTokensData {
-  [key: string]: CollateralTokenDetails
+  [key: string]: CollateralTokenDetail
 }
 
-interface CollateralTokenDetails {
+interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   priceFeedId: string
@@ -169,28 +169,6 @@ interface CollateralTokenDetails {
 interface UTXO {
   txid: string
   vout: number
-}
-```
-
-## getCollateralToken
-
-Get collateral token.
-
-```ts title="client.loan.getCollateralToken()"
-interface loan {
-  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
-}
-
-interface GetCollateralToken {
-  token?: string
-  height?: number
-}
-
-interface CollateralTokenDetails {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
 }
 ```
 
