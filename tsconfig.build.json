@@ -4,7 +4,7 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
+    "sourceMap": true
   },
   "files": [],
   "references": [
@@ -15,6 +15,7 @@
     {"path": "./packages/jellyfish-crypto/tsconfig.build.json"},
     {"path": "./packages/jellyfish-json/tsconfig.build.json"},
     {"path": "./packages/jellyfish-network/tsconfig.build.json"},
+    {"path": "./packages/jellyfish-oracle/tsconfig.build.json"},
     {"path": "./packages/jellyfish-testing/tsconfig.build.json"},
     {"path": "./packages/jellyfish-transaction/tsconfig.build.json"},
     {"path": "./packages/jellyfish-transaction-builder/tsconfig.build.json"},

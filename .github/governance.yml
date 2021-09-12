@@ -46,6 +46,7 @@ issue:
         - jellyfish-crypto
         - jellyfish-json
         - jellyfish-network
+        - jellyfish-oracle
         - jellyfish-testing
         - jellyfish-transaction
         - jellyfish-transaction-builder

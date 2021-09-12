@@ -51,6 +51,11 @@ labels:
     matcher:
       files: "packages/jellyfish-network/**"
 
+  - label: area/jellyfish-oracle
+    sync: true
+    matcher:
+      files: "packages/jellyfish-oracle/**"
+
   - label: area/jellyfish-testing
     sync: true
     matcher:
