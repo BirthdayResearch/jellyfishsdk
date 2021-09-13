@@ -114,7 +114,6 @@ describe('Loan getCollateralToken with parameters token or height', () => {
       priceFeedId,
       activateAfterBlock: 120
     }])
-
     await testing.generate(1)
   })
 
@@ -170,40 +169,6 @@ describe('Loan getCollateralToken with parameters token or height', () => {
     })
   })
 
-  describe('Loan getCollateralToken with parameter token only', () => {
-    it('should getCollateralToken', async () => {
-      const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-        token: 'AAPL',
-        currency: 'USD'
-      }], 1])
-      await testing.generate(1)
-
-      const collateralTokenId = await testing.container.call('setcollateraltoken', [{
-        token: 'AAPL',
-        factor: new BigNumber(0.5),
-        priceFeedId // Activate at next block
-      }])
-      await testing.generate(1)
-
-      const data = await testing.rpc.loan.getCollateralToken({
-        token: 'AAPL'
-      })
-      expect(data).toStrictEqual({
-        [collateralTokenId]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          priceFeedId,
-          activateAfterBlock: new BigNumber(await testing.container.getBlockCount())
-        }
-      })
-    })
-
-    it('should not getCollateralToken if token does not exist', async () => {
-      const promise = testing.rpc.loan.getCollateralToken({ token: 'TSLA' })
-      await expect(promise).rejects.toThrow('RpcApiError: \'Token  does not exist!\', code: -8, method: getcollateraltoken')
-    })
-  })
-
   describe('Loan getCollateralToken with parameter height only', () => {
     it('should getCollateralToken', async () => {
       const data = await testing.rpc.loan.getCollateralToken({
@@ -234,6 +199,39 @@ describe('Loan getCollateralToken with parameters token or height', () => {
           activateAfterBlock: new BigNumber(120)
         }
       })
+    })
+  })
+
+  describe('Loan getCollateralToken with parameter token only', () => {
+    it('should getCollateralToken', async () => {
+      {
+        const data = await testing.rpc.loan.getCollateralToken({
+          token: 'AAPL'
+        })
+        expect(data).toStrictEqual({})
+      }
+
+      // Wait for block 120
+      await testing.container.waitForBlockHeight(120)
+
+      {
+        const data = await testing.rpc.loan.getCollateralToken({
+          token: 'AAPL'
+        })
+        expect(data).toStrictEqual({
+          [collateralTokenId]: {
+            token: 'AAPL',
+            factor: new BigNumber(0.5),
+            priceFeedId,
+            activateAfterBlock: new BigNumber(120)
+          }
+        })
+      }
+    })
+
+    it('should not getCollateralToken if token does not exist', async () => {
+      const promise = testing.rpc.loan.getCollateralToken({ token: 'TSLA' })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Token  does not exist!\', code: -8, method: getcollateraltoken')
     })
   })
 })
