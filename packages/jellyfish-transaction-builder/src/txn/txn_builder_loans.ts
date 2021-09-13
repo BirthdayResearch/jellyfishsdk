@@ -94,6 +94,14 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
     )
   }
 
+  /**
+   * Creates vault transaction.
+   *
+   * @param {CreateVault} createVault txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VAULT(createVault),

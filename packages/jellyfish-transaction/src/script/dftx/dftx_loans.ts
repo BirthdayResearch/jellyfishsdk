@@ -158,7 +158,7 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
  */
 export interface CreateVault {
   ownerAddress: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, Vault's owner address
-  schemeId: string // --------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
+  schemeId: string // ------------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
   isUnderLiquidation: boolean // -------------| 1 byte, Vault is under liquidation
 }
 

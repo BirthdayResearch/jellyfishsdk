@@ -27,6 +27,14 @@ it('should bi-directional buffer-object-buffer', () => {
     '6a2544665478561600148eca904c1e4bab2c7212938cb89728741539355507736368656d653200',
     /**
      * loan : {
+     *   ownerAddress: 'bcrt1q0uajendn9xpv87jnsqgjmlad3fne9wagcxjdt2',
+     *   schemeId: ''
+     *   isUnderLiquidation: false
+     * }
+     */
+    '6a1e44665478561600145c51469b068db1a7af14db363a74935eb34a628f0000',
+    /**
+     * loan : {
      *   ownerAddress: 'bcrt1q3m9fqnq7fw4jcusjjwxt39egws2njd24xa5e4c',
      *   schemeId: 'scheme3'
      *   isUnderLiquidation: true
