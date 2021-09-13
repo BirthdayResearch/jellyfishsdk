@@ -55,12 +55,12 @@ describe('Loan getCollateralToken with parameter token and height', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Token  does not exist!\', code: -8, method: getcollateraltoken')
   })
 
-  it('should getCollateralToken with empty string if height is below current height', async () => {
+  it('should getCollateralToken with empty string if the height is below the activation block height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ token: 'AAPL', height: 50 })
     expect(data).toStrictEqual({})
   })
 
-  it('should getCollateralToken if height is after current height', async () => {
+  it('should getCollateralToken if the height is after the activation block height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ token: 'AAPL', height: 150 })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
@@ -168,12 +168,12 @@ describe('Loan getCollateralToken with parameter height only', () => {
     })
   })
 
-  it('should getCollateralToken with empty string if height is below current height', async () => {
+  it('should getCollateralToken with empty string if the height is below the activation block height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ height: 50 })
     expect(data).toStrictEqual({})
   })
 
-  it('should getCollateralToken if height is after current height', async () => {
+  it('should getCollateralToken if the height is after the activation block height', async () => {
     const data = await testing.rpc.loan.getCollateralToken({ height: 150 })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
