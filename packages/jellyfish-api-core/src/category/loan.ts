@@ -122,7 +122,7 @@ export class Loan {
    *
    * @param {GetCollateralToken} [collateralToken = {}]
    * @param {string} [collateralToken.token] Symbol of collateral token
-   * @param {number} [collateralToken.height] Valid at specified height
+   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
    * @return {Promise<CollateralTokenDetails>} Collateral token result
    */
   async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails> {
