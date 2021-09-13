@@ -10,7 +10,7 @@ import {
   utxosToAccount
 } from '@defichain/testing'
 import { RpcApiError } from '../../../src'
-import { PoolSwapMetadata } from '@defichain/jellyfish-api-core/category/poolpair'
+import { poolpair } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 
 describe('poolSwap', () => {
@@ -37,7 +37,7 @@ describe('poolSwap', () => {
     await testing.token.dfi({ amount: 700, address: dfiAddress })
     await testing.generate(1)
 
-    const metadata: PoolSwapMetadata = {
+    const metadata: poolpair.PoolSwapMetadata = {
       from: dfiAddress,
       tokenFrom: 'DFI',
       amountFrom: 555,
@@ -83,7 +83,7 @@ describe('poolSwap', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const metadata: PoolSwapMetadata = {
+    const metadata: poolpair.PoolSwapMetadata = {
       from: dfiAddress,
       tokenFrom: 'DFI',
       amountFrom: 492,
@@ -121,7 +121,7 @@ describe('poolSwap', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const metadata: PoolSwapMetadata = {
+    const metadata: poolpair.PoolSwapMetadata = {
       from: dfiAddress,
       tokenFrom: 'DFI',
       amountFrom: 492,
@@ -152,7 +152,7 @@ describe('poolSwap', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const metadata: PoolSwapMetadata = {
+    const metadata: poolpair.PoolSwapMetadata = {
       from: dfiAddress,
       tokenFrom: 'DFI',
       amountFrom: 150,
@@ -184,7 +184,7 @@ describe('poolSwap', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const metadata: PoolSwapMetadata = {
+    const metadata: poolpair.PoolSwapMetadata = {
       from: dfiAddress,
       amountFrom: 2,
       tokenFrom: 'DFI',
@@ -196,7 +196,7 @@ describe('poolSwap', () => {
 
   it('should not poolSwap with invalid token', async () => {
     const address = await getNewAddress(container)
-    const metadata: PoolSwapMetadata = {
+    const metadata: poolpair.PoolSwapMetadata = {
       from: address,
       amountFrom: 2,
       tokenFrom: 'INVALIDTOKEN',
