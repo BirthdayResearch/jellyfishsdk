@@ -121,7 +121,7 @@ export class Loan {
    * Get collateral token.
    *
    * @param {GetCollateralToken} [collateralToken = {}]
-   * @param {string} [collateralToken.token] Symbol or id of collateral token
+   * @param {string} [collateralToken.token] Symbol of collateral token
    * @param {number} [collateralToken.height] Valid at specified height
    * @return {Promise<CollateralTokenDetails>} Collateral token result
    */
