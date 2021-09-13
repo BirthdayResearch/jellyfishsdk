@@ -169,39 +169,6 @@ describe('Loan getCollateralToken with parameters token or height', () => {
     })
   })
 
-  describe('Loan getCollateralToken with parameter height only', () => {
-    it('should getCollateralToken', async () => {
-      const data = await testing.rpc.loan.getCollateralToken({
-        height: 120
-      })
-      expect(data).toStrictEqual({
-        [collateralTokenId]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          priceFeedId,
-          activateAfterBlock: new BigNumber(120)
-        }
-      })
-    })
-
-    it('should getCollateralToken with empty string if the height is below the activation block height', async () => {
-      const data = await testing.rpc.loan.getCollateralToken({ height: 50 })
-      expect(data).toStrictEqual({})
-    })
-
-    it('should getCollateralToken if the height is after the activation block height', async () => {
-      const data = await testing.rpc.loan.getCollateralToken({ height: 150 })
-      expect(data).toStrictEqual({
-        [collateralTokenId]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          priceFeedId,
-          activateAfterBlock: new BigNumber(120)
-        }
-      })
-    })
-  })
-
   describe('Loan getCollateralToken with parameter token only', () => {
     it('should getCollateralToken', async () => {
       {
@@ -232,6 +199,39 @@ describe('Loan getCollateralToken with parameters token or height', () => {
     it('should not getCollateralToken if token does not exist', async () => {
       const promise = testing.rpc.loan.getCollateralToken({ token: 'TSLA' })
       await expect(promise).rejects.toThrow('RpcApiError: \'Token  does not exist!\', code: -8, method: getcollateraltoken')
+    })
+  })
+
+  describe('Loan getCollateralToken with parameter height only', () => {
+    it('should getCollateralToken', async () => {
+      const data = await testing.rpc.loan.getCollateralToken({
+        height: 120
+      })
+      expect(data).toStrictEqual({
+        [collateralTokenId]: {
+          token: 'AAPL',
+          factor: new BigNumber(0.5),
+          priceFeedId,
+          activateAfterBlock: new BigNumber(120)
+        }
+      })
+    })
+
+    it('should getCollateralToken with empty string if the height is below the activation block height', async () => {
+      const data = await testing.rpc.loan.getCollateralToken({ height: 50 })
+      expect(data).toStrictEqual({})
+    })
+
+    it('should getCollateralToken if the height is after the activation block height', async () => {
+      const data = await testing.rpc.loan.getCollateralToken({ height: 150 })
+      expect(data).toStrictEqual({
+        [collateralTokenId]: {
+          token: 'AAPL',
+          factor: new BigNumber(0.5),
+          priceFeedId,
+          activateAfterBlock: new BigNumber(120)
+        }
+      })
     })
   })
 })
