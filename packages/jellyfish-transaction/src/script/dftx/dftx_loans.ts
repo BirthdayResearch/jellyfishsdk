@@ -1,7 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
-import { Script } from '@defichain/jellyfish-transaction/tx'
-import { CScript } from '@defichain/jellyfish-transaction/tx_composer'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 
 /**
  * CreateLoanScheme / UpdateLoanScheme DeFi Transaction
