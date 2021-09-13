@@ -16,16 +16,8 @@ describe('Block', () => {
     await testing.container.stop()
   })
 
-  /**
-   * Wait for block hash to reach a certain height
-   */
-  async function waitForBlockHash (height: number): Promise<string> {
-    await testing.container.waitForBlockHeight(height)
-    return await testing.rpc.blockchain.getBlockHash(height)
-  }
-
   it('should getBlock with verbosity=1 and have same data as CBlock composer to object', async () => {
-    const blockHash = await waitForBlockHash(1)
+    const blockHash = await testing.misc.waitForBlockHash(1)
     const hexData = await testing.rpc.blockchain.getBlock(blockHash, 0)
     const buffer = SmartBuffer.fromBuffer(Buffer.from(hexData, 'hex'))
     const composable = new CBlock(buffer)
@@ -45,7 +37,7 @@ describe('Block', () => {
   })
 
   it('should getBlock with verbosity=2 and have same data as CBlock composer to object', async () => {
-    const blockHash = await waitForBlockHash(1)
+    const blockHash = await testing.misc.waitForBlockHash(1)
     const hexData = await testing.rpc.blockchain.getBlock(blockHash, 0)
     const buffer = SmartBuffer.fromBuffer(Buffer.from(hexData, 'hex'))
     const composable = new CBlock(buffer)
