@@ -6,8 +6,5 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-  },
-  "references": [
-    {"path": "../jellyfish-wallet-mnemonic/tsconfig.build.json"}
-  ]
+  }
 }
