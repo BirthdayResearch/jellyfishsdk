@@ -32,6 +32,7 @@
       <w>checksig</w>
       <w>checksigverify</w>
       <w>clarkequayheight</w>
+      <w>codeclimate</w>
       <w>codeseparator</w>
       <w>createmasternode</w>
       <w>createpoolpair</w>
@@ -44,6 +45,7 @@
       <w>dakotaheight</w>
       <w>debugexclude</w>
       <w>defi</w>
+      <w>defich</w>
       <w>defichain</w>
       <w>defid</w>
       <w>descendantcount</w>
@@ -52,6 +54,7 @@
       <w>devnet</w>
       <w>dftx</w>
       <w>dockerode</w>
+      <w>dogfooding</w>
       <w>dummypos</w>
       <w>dumpprivkey</w>
       <w>emissionburn</w>
@@ -83,6 +86,7 @@
       <w>gettxout</w>
       <w>getunconfirmedbalance</w>
       <w>getwalletinfo</w>
+      <w>ghcr</w>
       <w>greaterthan</w>
       <w>greaterthanorequal</w>
       <w>hdkeypath</w>
@@ -200,6 +204,7 @@
       <w>txindex</w>
       <w>txinwitness</w>
       <w>txnotokens</w>
+      <w>txns</w>
       <w>uacomment</w>
       <w>unpkg</w>
       <w>utxo</w>

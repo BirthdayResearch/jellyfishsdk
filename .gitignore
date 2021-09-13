@@ -38,3 +38,7 @@ coverage
 
 # typescript
 tsconfig.build.tsbuildinfo
+
+# Level
+.level
+.leveldb

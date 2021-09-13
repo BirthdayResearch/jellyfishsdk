@@ -2,6 +2,13 @@
 
 ## All features must be unit tested with accepted coverage. (Target 100%)
 
+```txt
+packages/
+├─ jellyfish-*/
+│  ├─ __tests__/following-src-structure.test.ts
+│  └─ src/following-src-structure.ts
+```
+
 Each package or functionality must be accompanied by full coverage testing.
 
 Due to Javascript type coercion, all test assertions must use strict equality checking.
@@ -30,13 +37,12 @@ Each pull request with feature change should have accompanying documentations un
 
 ## Explicit over implicit
 
-Each package, feature, code and decision should be explicit and well documented over implicitly guessing.
+- Each package, feature, code and decision should be explicit and well documented over implicitly guessing.
+- Each test must be written explicitly as clear as possible with no implicit guessing.
 
 ## TypeScript
 
 TypeScript must be used for all code written in this project.
-
-> Heavily adapted from [deno style guide](https://github.com/denoland/deno/blob/main/docs/contributing/style_guide.md).
 
 ### Document and maintain browser compatibility.
 
@@ -44,9 +50,12 @@ TypeScript must be used for all code written in this project.
 
 ### Do not depend on external code. (never if possible)
 
-### Use underscores, not dashes in filenames.
+### Use PascalCase and period, not underscores, or dashes in filenames.
 
-Example: Use `foo_bar.ts` instead of `foo-bar.ts`.
+Example: Use `FooBar.ts` instead of `foo-bar.ts` or `foo_bar.ts`.
+
+> Previously the preferred method is underscores (`foo_bar.ts`), this has be deprecated in favour of PascalCase.
+> PascalCase follows the natural class naming pattern while underscores or dashes doesn't.
 
 ### Exported functions: max 2 args, put the rest into an options object.
 
