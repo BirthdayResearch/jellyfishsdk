@@ -195,11 +195,6 @@ describe('Loan getCollateralToken with parameters token or height', () => {
         })
       }
     })
-
-    it('should not getCollateralToken if token does not exist', async () => {
-      const promise = testing.rpc.loan.getCollateralToken({ token: 'TSLA' })
-      await expect(promise).rejects.toThrow('RpcApiError: \'Token  does not exist!\', code: -8, method: getcollateraltoken')
-    })
   })
 
   describe('Loan getCollateralToken with parameter height only', () => {
