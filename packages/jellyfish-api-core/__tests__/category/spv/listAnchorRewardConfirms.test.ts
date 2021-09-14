@@ -1,4 +1,4 @@
-import { CreateAnchorResult } from '@defichain/jellyfish-api-core/category/spv'
+import { spv } from '@defichain/jellyfish-api-core'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
@@ -68,7 +68,7 @@ describe('Spv', () => {
     await tGroup.waitForSync()
   }
 
-  async function createAnchor (): Promise<CreateAnchorResult> {
+  async function createAnchor (): Promise<spv.CreateAnchorResult> {
     const rewardAddress = await tGroup.get(0).rpc.spv.getNewAddress()
     return await tGroup.get(0).rpc.spv.createAnchor([{
       txid: '11a276bb25585f6973a4dd68373cffff41dbcaddf12bbc1c2b489d1dc84564ee',
