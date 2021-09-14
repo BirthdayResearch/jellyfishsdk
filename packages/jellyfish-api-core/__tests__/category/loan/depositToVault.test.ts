@@ -18,6 +18,10 @@ describe('Loan', () => {
     collateralAddr = collateralAddress
   })
 
+  afterAll(async () => {
+    await tGroup.stop()
+  })
+
   async function setup (): Promise<any> {
     // token setup
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
@@ -129,7 +133,10 @@ describe('Loan', () => {
   it('should depositToVault', async () => {
     {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vId])
-      expect(vaultBefore.collateralAmounts).toStrictEqual([])
+      const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
+        ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
+        : undefined
+      const vaultBeforeDFIAmt = vaultBeforeDFIAcc !== undefined ? Number(vaultBeforeDFIAcc.split('@')[0]) : 0
 
       const depositId = await tGroup.get(0).rpc.loan.depositToVault({
         id: vId, from: collateralAddr, amount: '10000@DFI'
@@ -139,12 +146,17 @@ describe('Loan', () => {
       await tGroup.waitForSync()
 
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vId])
-      expect(vaultAfter.collateralAmounts).toStrictEqual(['10000.00000000@DFI'])
+      const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
+      const vaultAFterDFIAmt = Number(vaultAfterDFIAcc.split('@')[0])
+      expect(vaultAFterDFIAmt - vaultBeforeDFIAmt).toStrictEqual(10000)
     }
 
     {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vId])
-      expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI'])
+      const vaultBeforeBTCAcc = vaultBefore.collateralAmounts.length > 0
+        ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'BTC')
+        : undefined
+      const vaultBeforeBTCAmt = vaultBeforeBTCAcc !== undefined ? Number(vaultBeforeBTCAcc.split('@')[0]) : 0
 
       const depositId = await tGroup.get(0).rpc.loan.depositToVault({
         id: vId, from: collateralAddr, amount: '1@BTC'
@@ -154,14 +166,18 @@ describe('Loan', () => {
       await tGroup.waitForSync()
 
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vId])
-      expect(vaultAfter.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
+      const vaultAfterBTCAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'BTC')
+      const vaultAFterBTCAmt = Number(vaultAfterBTCAcc.split('@')[0])
+      expect(vaultAFterBTCAmt - vaultBeforeBTCAmt).toStrictEqual(1)
     }
   })
 
   it('should depositToVault with utxos', async () => {
     const vaultBefore = await tGroup.get(0).container.call('getvault', [vId])
-    const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
-    const vaultBeforeDFIAmt = Number(vaultBeforeDFIAcc.split('@')[0])
+    const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
+      ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
+      : undefined
+    const vaultBeforeDFIAmt = vaultBeforeDFIAcc !== undefined ? Number(vaultBeforeDFIAcc.split('@')[0]) : 0
 
     const utxo = await tGroup.get(0).container.fundAddress(collateralAddr, 250)
     const depositId = await tGroup.get(0).rpc.loan.depositToVault({
@@ -174,7 +190,7 @@ describe('Loan', () => {
     const vaultAfter = await tGroup.get(0).container.call('getvault', [vId])
     const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
     const vaultAFterDFIAmt = Number(vaultAfterDFIAcc.split('@')[0])
-    expect(vaultBeforeDFIAmt + 250).toStrictEqual(vaultAFterDFIAmt)
+    expect(vaultAFterDFIAmt - vaultBeforeDFIAmt).toStrictEqual(250)
 
     const rawtx = await tGroup.get(0).container.call('getrawtransaction', [depositId, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)

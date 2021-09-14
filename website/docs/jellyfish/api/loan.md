@@ -235,3 +235,23 @@ interface UTXO {
   vout: number
 }
 ```
+
+## takeLoan
+
+Take loan.
+
+```ts title="client.loan.takeLoan()"
+interface loan {
+  takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface TakeLoanMetadata {
+  vaultId: string
+  amounts: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
