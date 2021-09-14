@@ -22,6 +22,10 @@ describe('Loan', () => {
     // He choose a scheme that has @minColRatio and @interest and create a vault
     const minColRatio = 150 // Vault's minColRatio
     const interestRate = new BigNumber(3) // Vault's interest
+
+    const dfiCollateralFactor = new BigNumber(1) // DFI CollateralFactor
+    const dbtcCollateralFactor = new BigNumber(1) // DBTC CollateralFactor
+
     const DFIPrice = 1 // Current DFI Price
     const BTCPrice = 100 // Current BTC price
     const TSLAFirstPrice = 10 // First TSLA Price
@@ -92,14 +96,14 @@ describe('Loan', () => {
     // 6 - setCollateralToken for DFI and DBTC
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
-      factor: new BigNumber(1),
+      factor: dfiCollateralFactor,
       priceFeedId: oracleId
     })
     await container.generate(1)
 
     await testing.rpc.loan.setCollateralToken({
       token: 'DBTC',
-      factor: new BigNumber(1),
+      factor: dbtcCollateralFactor,
       priceFeedId: oracleId
     })
     await container.generate(1)
