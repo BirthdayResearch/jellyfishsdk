@@ -1,4 +1,4 @@
-import { Block, Transaction } from '@defichain/jellyfish-api-core/category/blockchain'
+import { blockchain } from '@defichain/jellyfish-api-core'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
@@ -15,7 +15,7 @@ describe('setMockTime', () => {
     await container.stop()
   })
 
-  async function getBlock (): Promise<Block<Transaction>> {
+  async function getBlock (): Promise<blockchain.Block<blockchain.Transaction>> {
     const count = await client.blockchain.getBlockCount()
     const hash = await client.blockchain.getBlockHash(count)
     return await client.blockchain.getBlock(hash, 2)
