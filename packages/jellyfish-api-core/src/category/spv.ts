@@ -140,7 +140,7 @@ export class Spv {
   }
 
   /**
-   * List anchors unrewarded
+   * List unrewarded anchors
    *
    * @return {Promise<ListAnchorsResult[]>}
    */

@@ -104,7 +104,7 @@ describe('Spv', () => {
 
     const anchors = await tGroup.get(0).container.call('spv_listanchors')
     expect(anchors.length).toBeGreaterThan(0)
-    const activeAnchor = anchors.find((anchor: any) => anchor.active === true)
+    const activeAnchor = anchors.find((anchor: any) => anchor.active)
 
     const rewardConfs = await tGroup.get(0).container.call('spv_listanchorrewardconfirms')
     expect(rewardConfs.length).toBeGreaterThan(0)
@@ -112,7 +112,7 @@ describe('Spv', () => {
     expect(typeof rewardConf.btcTxHeight).toStrictEqual('number')
     expect(rewardConf.btcTxHash).toStrictEqual(activeAnchor.btcTxHash)
     expect(rewardConf.anchorHeight).toStrictEqual(activeAnchor.defiBlockHeight)
-    expect(typeof rewardConf.dfiBlockHash).toStrictEqual('string')
+    expect(rewardConf.dfiBlockHash).toStrictEqual(activeAnchor.defiBlockHash)
     expect(typeof rewardConf.prevAnchorHeight).toStrictEqual('number')
     expect(rewardConf.rewardAddress).toStrictEqual(activeAnchor.rewardAddress)
     expect(typeof rewardConf.confirmSignHash).toStrictEqual('string')

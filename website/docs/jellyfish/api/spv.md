@@ -205,7 +205,7 @@ export interface ListAnchorRewardConfirmsResult {
 
 ## listAnchorsUnrewarded
 
-List anchor unrewarded.
+List unrewarded anchors.
 
 ```ts title=client.spv.listAnchorsUnrewarded()"
 interface spv {

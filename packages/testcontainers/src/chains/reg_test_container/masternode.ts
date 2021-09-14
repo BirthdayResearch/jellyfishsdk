@@ -165,7 +165,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   /**
    * Wait for anchor reward confirms
    *
-   * @param {string} [network=mainnet]
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
