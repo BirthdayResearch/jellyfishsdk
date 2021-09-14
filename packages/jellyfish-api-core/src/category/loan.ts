@@ -164,9 +164,9 @@ export class Loan {
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
-   * @returns
+   * @return {Promise<string>}
    */
-  async depositToVault (vault: DepositVault, utxos: UTXO[] = []): Promise<any> {
+  async depositToVault (vault: DepositVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('deposittovault', [vault.id, vault.from, vault.amount, utxos], 'number')
   }
 }
