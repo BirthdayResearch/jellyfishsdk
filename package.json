@@ -49,7 +49,7 @@
   },
   "lint-staged": {
     "*.{ts,js}": [
-      "npm run lint"
+      "eslint --fix"
     ]
   },
   "size-limit": [
