@@ -32,6 +32,8 @@ describe('Block', () => {
     expect(composableObject.blockHeader.time).toStrictEqual(block.time)
     expect(composableObject.blockHeader.bits).toStrictEqual(parseInt(block.bits, 16))
     expect(composableObject.blockHeader.height).toStrictEqual(new BigNumber(block.height))
+    expect(composableObject.blockHeader.stakeModifier).toStrictEqual(block.stakeModifier)
+    expect(composableObject.blockHeader.mintedBlocks).toStrictEqual(new BigNumber(block.mintedBlocks))
 
     expect(composableObject.transactions.length).toStrictEqual(block.tx.length)
   })
@@ -51,6 +53,8 @@ describe('Block', () => {
     expect(composableObject.blockHeader.time).toStrictEqual(block.time)
     expect(composableObject.blockHeader.bits).toStrictEqual(parseInt(block.bits, 16))
     expect(composableObject.blockHeader.height).toStrictEqual(new BigNumber(block.height))
+    expect(composableObject.blockHeader.stakeModifier).toStrictEqual(block.stakeModifier)
+    expect(composableObject.blockHeader.mintedBlocks).toStrictEqual(new BigNumber(block.mintedBlocks))
 
     expect(composableObject.transactions.length).toStrictEqual(1)
     expect(composableObject.transactions.length).toStrictEqual(block.tx.length)
