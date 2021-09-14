@@ -171,3 +171,44 @@ interface UTXO {
   vout: number
 }
 ```
+
+## setLoanToken
+
+Creates (and submits to local node and network) a token for a price feed set in collateral token.
+
+```ts title="client.loan.setLoanToken()"
+interface loan {
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## createVault
+
+Creates a vault transaction.
+
+```ts title="client.loan.createVault()"
+interface loan {
+  createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
+}
+interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
+}
+interface UTXO {
+  txid: string
+  vout: number
+}
+```

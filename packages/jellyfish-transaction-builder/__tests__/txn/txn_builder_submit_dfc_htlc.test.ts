@@ -4,9 +4,7 @@ import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { ICXSubmitDFCHTLC } from '@defichain/jellyfish-transaction/script/dftx/dftx_icxorderbook'
-import { ICXDFCHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
+import { ICXSubmitDFCHTLC, OP_CODES } from '@defichain/jellyfish-transaction'
 import { Testing } from '@defichain/jellyfish-testing'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
 import { RegTest } from '@defichain/jellyfish-network'
@@ -31,8 +29,14 @@ describe('submit DFC HTLC', () => {
     await testing.rpc.account.utxosToAccount({ [testing.icxorderbook.accountBTC]: `${10}@${testing.icxorderbook.symbolDFI}` }) // for fee
     await testing.generate(1)
     await testing.fixture.createPoolPair({
-      a: { amount: '1', symbol: testing.icxorderbook.symbolBTC },
-      b: { amount: '100', symbol: testing.icxorderbook.symbolDFI }
+      a: {
+        amount: '1',
+        symbol: testing.icxorderbook.symbolBTC
+      },
+      b: {
+        amount: '100',
+        symbol: testing.icxorderbook.symbolDFI
+      }
     })
     testing.icxorderbook.DEX_DFI_PER_BTC_RATE = new BigNumber(100 / 1)
     await testing.icxorderbook.setTakerFee(new BigNumber(0.001))
@@ -56,7 +60,10 @@ describe('submit DFC HTLC', () => {
       amountFrom: new BigNumber(15),
       orderPrice: new BigNumber(0.01)
     }
-    const { order, createOrderTxId } = await testing.icxorderbook.createDFISellOrder(createOrder)
+    const {
+      order,
+      createOrderTxId
+    } = await testing.icxorderbook.createDFISellOrder(createOrder)
 
     const makeOffer = {
       orderTx: createOrderTxId,
@@ -97,13 +104,13 @@ describe('submit DFC HTLC', () => {
     await testing.generate(1)
 
     // List htlc and check
-    const listHTLCOptions: ICXListHTLCOptions = {
+    const listHTLCOptions: icxorderbook.ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
     const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toStrictEqual(2) // extra entry for the warning text returned by the RPC atm.
     const DFCHTLCTxId = calculateTxid(txn)
-    expect(HTLCs[DFCHTLCTxId] as ICXDFCHTLCInfo).toStrictEqual(
+    expect(HTLCs[DFCHTLCTxId] as icxorderbook.ICXDFCHTLCInfo).toStrictEqual(
       {
         type: icxorderbook.ICXHTLCType.DFC,
         status: icxorderbook.ICXHTLCStatus.OPEN,
