@@ -153,6 +153,22 @@ export class Loan {
   async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
   }
+
+  /**
+   * Deposit to vault
+   *
+   * @param {DepositVault} vault
+   * @param {string} vault.id Vault id
+   * @param {string} vault.from Collateral address
+   * @param {string} vault.amount In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @returns
+   */
+  async depositToVault (vault: DepositVault, utxos: UTXO[] = []): Promise<any> {
+    return await this.client.call('deposittovault', [vault.id, vault.from, vault.amount, utxos], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -220,4 +236,10 @@ export interface CreateVault {
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface DepositVault {
+  id: string
+  from: string
+  amount: string // amount@symbol
 }

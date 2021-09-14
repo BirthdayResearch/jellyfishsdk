@@ -203,10 +203,33 @@ Creates a vault transaction.
 interface loan {
   createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
 }
+
 interface CreateVault {
   ownerAddress: string
   loanSchemeId?: string
 }
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## depositToVault
+
+Deposit to vault.
+
+```ts title="client.loan.depositToVault()"
+interface loan {
+  depositToVault (vault: DepositVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface DepositVault {
+  id: string
+  from: string
+  amount: string // amount@symbol
+}
+
 interface UTXO {
   txid: string
   vout: number
