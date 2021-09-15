@@ -142,7 +142,7 @@ export class Loan {
   /**
    * List all created loan tokens.
    *
-   * @return {Promise<ListLoanTokenData[]>}
+   * @return {Promise<ListLoanTokenResult[]>}
    */
   async listLoanTokens (): Promise<ListLoanTokenResult[]> {
     return await this.client.call('listloantokens', [], 'bignumber')
@@ -206,11 +206,6 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface UTXO {
-  txid: string
-  vout: number
-}
-
 export interface ListLoanTokenResult {
   [key: string]: ListLoanDetail
 }
@@ -243,4 +238,9 @@ export interface LoanTokenInfo {
   symbol: string
   symbolKey: string
   tradeable: boolean
+}
+
+export interface UTXO {
+  txid: string
+  vout: number
 }
