@@ -6,23 +6,20 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Loan', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
-  let vId: string
-  let vaultAddr: string
+  let vaultId: string
+  let vaultAddress: string
 
   beforeAll(async () => {
     await tGroup.start()
     await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
-
-    const { vaultId, vaultAddress } = await setup()
-    vId = vaultId
-    vaultAddr = vaultAddress
+    await setup()
   })
 
   afterAll(async () => {
     await tGroup.stop()
   })
 
-  async function setup (): Promise<any> {
+  async function setup (): Promise<void> {
     // token setup
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 20000 })
@@ -87,8 +84,8 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
-    const vaultAddress = await tGroup.get(0).generateAddress()
-    const vaultId = await tGroup.get(0).rpc.loan.createVault({
+    vaultAddress = await tGroup.get(0).generateAddress()
+    vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
@@ -106,8 +103,6 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
-
-    return { vaultId, vaultAddress }
   }
 
   it('should not takeLoan on nonexistent vault', async () => {
@@ -121,7 +116,7 @@ describe('Loan', () => {
 
   it('should not takeLoan on nonexistent loan token', async () => {
     const promise = tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '1@BTC'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -130,7 +125,7 @@ describe('Loan', () => {
 
   it('should not takeLoan on invalid token', async () => {
     const promise = tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '1@INVALID'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -139,16 +134,16 @@ describe('Loan', () => {
 
   it('should not takeLoan on incorrect auth', async () => {
     const promise = tGroup.get(1).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '30@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Incorrect authorization for ${vaultAddr}`)
+    await expect(promise).rejects.toThrow(`Incorrect authorization for ${vaultAddress}`)
   })
 
   it('should not takeLoan while exceed vault collateralization ratio', async () => {
     const promise = tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '300000@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -161,7 +156,7 @@ describe('Loan', () => {
     await tGroup.waitForSync()
 
     const promise = tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '30@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -173,42 +168,42 @@ describe('Loan', () => {
   })
 
   it('should takeLoan', async () => {
-    const vaultBefore = await tGroup.get(0).container.call('getvault', [vId])
+    const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
     const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
       ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
       : undefined
     const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
 
     const txid = await tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '30@TSLA'
     })
     expect(typeof txid).toStrictEqual('string')
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
-    const vaultAfter = await tGroup.get(0).container.call('getvault', [vId])
+    const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
     const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
     expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(30)
   })
 
   it('should takeLoan with utxos', async () => {
-    const vaultBefore = await tGroup.get(0).container.call('getvault', [vId])
+    const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
     const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
       ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
       : undefined
     const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
 
-    const utxo = await tGroup.get(0).container.fundAddress(vaultAddr, 250)
+    const utxo = await tGroup.get(0).container.fundAddress(vaultAddress, 250)
     const txid = await tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vId,
+      vaultId: vaultId,
       amounts: '5@TSLA'
     }, [utxo])
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
-    const vaultAfter = await tGroup.get(0).container.call('getvault', [vId])
+    const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
     const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
     expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5)
