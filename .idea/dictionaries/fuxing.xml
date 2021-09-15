@@ -213,6 +213,7 @@
       <w>utxostoaccount</w>
       <w>validateaddress</w>
       <w>varint</w>
+      <w>vercel</w>
       <w>verif</w>
       <w>verificationprogress</w>
       <w>verifymessage</w>
