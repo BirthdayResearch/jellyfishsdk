@@ -227,20 +227,20 @@ interface loan {
 }
 
 interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetail
+  [key: string]: LoanTokenInfo
 }
 
-interface LoanTokenDetail {
+interface LoanTokenInfo {
   token: LoanTokenData
   priceFeedId: string
   interest: BigNumber
 }
 
 interface LoanTokenData {
-  [key: string]: LoanTokenInfo
+  [key: string]: LoanTokenDetail
 }
 
-interface LoanTokenInfo {
+interface LoanTokenDetail {
   collateralAddress: string
   creationHeight: BigNumber
   creationTx: string

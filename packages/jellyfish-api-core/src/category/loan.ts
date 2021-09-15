@@ -239,20 +239,20 @@ export interface SetLoanToken {
 }
 
 export interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetail
+  [key: string]: LoanTokenInfo
 }
 
-export interface LoanTokenDetail {
+export interface LoanTokenInfo {
   token: LoanTokenData
   priceFeedId: string
   interest: BigNumber
 }
 
 export interface LoanTokenData {
-  [key: string]: LoanTokenInfo
+  [key: string]: LoanTokenDetail
 }
 
-export interface LoanTokenInfo {
+export interface LoanTokenDetail {
   collateralAddress: string
   creationHeight: BigNumber
   creationTx: string
