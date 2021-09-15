@@ -5,6 +5,7 @@ module.exports = {
     '@defichain/jellyfish-address': '<rootDir>/packages/jellyfish-address/src',
     '@defichain/jellyfish-api-core': '<rootDir>/packages/jellyfish-api-core/src',
     '@defichain/jellyfish-api-jsonrpc': '<rootDir>/packages/jellyfish-api-jsonrpc/src',
+    '@defichain/jellyfish-block': '<rootDir>/packages/jellyfish-block/src',
     '@defichain/jellyfish-buffer': '<rootDir>/packages/jellyfish-buffer/src',
     '@defichain/jellyfish-crypto': '<rootDir>/packages/jellyfish-crypto/src',
     '@defichain/jellyfish-json': '<rootDir>/packages/jellyfish-json/src',

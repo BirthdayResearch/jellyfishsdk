@@ -15,7 +15,7 @@ export enum SIGHASH {
  * A transaction is a transfer of DeFi values that is broadcast to the DeFi network and collected into blocks.
  * The transfer of value in DeFi includes unspent, account token, liquidity, masternode creation, etc...
  *
- * @see https://github.com/DeFiCh/ain/blob/a011b9db38ce6d3d5c1b67c1e3bad9365b86f2ce/src/primitives/transaction.h#L217
+ * @see https://github.com/DeFiCh/ain/blob/a011b9db38ce6d3d5c1b67c1e3bad9365b86f2ce/src/primitives/transaction.h#L210
  */
 export interface Transaction {
   /**
