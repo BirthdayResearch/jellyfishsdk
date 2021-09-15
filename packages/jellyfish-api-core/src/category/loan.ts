@@ -118,6 +118,18 @@ export class Loan {
   }
 
   /**
+   * Get collateral token.
+   *
+   * @param {GetCollateralToken} [collateralToken = {}]
+   * @param {string} [collateralToken.token] Symbol of collateral token
+   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
+   * @return {Promise<CollateralTokenDetails>} Collateral token result
+   */
+  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails> {
+    return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
+  }
+
+  /**
    * Creates (and submits to local node and network) a token for a price feed set in collateral token.
    *
    * @param {SetLoanToken} loanToken
@@ -188,20 +200,25 @@ export interface SetCollateralToken {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
-}
-
-export interface CollateralTokenDetail {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
+  [key: string]: CollateralTokenDetails
 }
 
 export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+}
+
+export interface GetCollateralToken {
+  token?: string
+  height?: number
+}
+
+export interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
 }
 
 export interface SetLoanToken {
