@@ -1,6 +1,6 @@
-# Ocean DEX API
+# Ocean Masternodes API
 
-This is a very simple example to fetch live DEX Pool Pair information from `ocean.defichain.com`.
+This is a very simple example to fetch Masternode information from `ocean.defichain.com` with pagination.
 
 The ocean API is a publicly available endpoint to provide DeFiChain developers access to a fleet of highly available
 data nodes powered by the jellyfish ecosystem.
