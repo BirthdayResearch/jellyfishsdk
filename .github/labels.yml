@@ -57,6 +57,8 @@
 - color: fbca04
   name: area/website
 - color: fbca04
+  name: area/examples
+- color: fbca04
   name: area/jellyfish
 - color: fbca04
   name: area/jellyfish-address
