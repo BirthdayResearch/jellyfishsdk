@@ -209,14 +209,7 @@ export interface SetCollateralToken {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
-}
-
-export interface CollateralTokenDetail {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
+  [key: string]: CollateralTokenDetails
 }
 
 export interface GetLoanSchemeResult {
