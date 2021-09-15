@@ -31,7 +31,7 @@ describe('Loan', () => {
       symbol: 'AAPL',
       name: 'APPLE',
       priceFeedId: priceFeedId1,
-      mintable: false,
+      mintable: true,
       interest: new BigNumber(0.01)
     }])
     await testing.generate(1)
@@ -48,7 +48,7 @@ describe('Loan', () => {
       symbol: 'TSLA',
       name: 'TESLA',
       priceFeedId: priceFeedId2,
-      mintable: true,
+      mintable: false,
       interest: new BigNumber(0.02)
     }])
     await testing.generate(1)
@@ -62,7 +62,7 @@ describe('Loan', () => {
           token: {
             1: {
               collateralAddress: expect.any(String),
-              creationHeight: new BigNumber(height1),
+              creationHeight: height1,
               creationTx: loanTokenId1,
               decimal: new BigNumber(8),
               destructionHeight: new BigNumber(-1),
@@ -72,7 +72,7 @@ describe('Loan', () => {
               isLPS: false,
               isLoanToken: true,
               limit: new BigNumber(0),
-              mintable: false,
+              mintable: true,
               minted: new BigNumber(0),
               name: 'APPLE',
               symbol: 'AAPL',
@@ -87,7 +87,7 @@ describe('Loan', () => {
           token: {
             2: {
               collateralAddress: expect.any(String),
-              creationHeight: new BigNumber(height2),
+              creationHeight: height2,
               creationTx: loanTokenId2,
               decimal: new BigNumber(8),
               destructionHeight: new BigNumber(-1),
@@ -97,7 +97,7 @@ describe('Loan', () => {
               isLPS: false,
               isLoanToken: true,
               limit: new BigNumber(0),
-              mintable: true,
+              mintable: false,
               minted: new BigNumber(0),
               name: 'TESLA',
               symbol: 'TSLA',
