@@ -31,6 +31,7 @@ describe('Loan', () => {
       symbol: 'AAPL',
       name: 'APPLE',
       priceFeedId: priceFeedId1,
+      mintable: false,
       interest: new BigNumber(0.01)
     }])
     await testing.generate(1)
@@ -47,6 +48,7 @@ describe('Loan', () => {
       symbol: 'TSLA',
       name: 'TESLA',
       priceFeedId: priceFeedId2,
+      mintable: true,
       interest: new BigNumber(0.02)
     }])
     await testing.generate(1)
@@ -70,7 +72,7 @@ describe('Loan', () => {
               isLPS: false,
               isLoanToken: true,
               limit: new BigNumber(0),
-              mintable: true,
+              mintable: false,
               minted: new BigNumber(0),
               name: 'APPLE',
               symbol: 'AAPL',
