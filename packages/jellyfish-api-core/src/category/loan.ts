@@ -154,9 +154,9 @@ export class Loan {
   /**
    * List all created loan tokens.
    *
-   * @return {Promise<ListLoanTokenData[]>}
+   * @return {Promise<ListLoanTokenResult[]>}
    */
-  async listLoanTokens (): Promise<ListLoanTokenData[]> {
+  async listLoanTokens (): Promise<ListLoanTokenResult[]> {
     return await this.client.call('listloantokens', [], 'bignumber')
   }
 
@@ -238,21 +238,21 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface ListLoanTokenData {
-  [key: string]: ListLoanTokenDetail
+export interface ListLoanTokenResult {
+  [key: string]: LoanTokenDetail
 }
 
-export interface ListLoanTokenDetail {
-  token: TokenData
+export interface LoanTokenDetail {
+  token: LoanTokenData
   priceFeedId: string
   interest: BigNumber
 }
 
-export interface TokenData {
-  [key: string]: TokenDetail
+export interface LoanTokenData {
+  [key: string]: LoanTokenInfo
 }
 
-export interface TokenDetail {
+export interface LoanTokenInfo {
   collateralAddress: string
   creationHeight: BigNumber
   creationTx: string

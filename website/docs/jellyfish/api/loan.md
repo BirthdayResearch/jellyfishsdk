@@ -223,24 +223,24 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenData[]>
+  listLoanTokens (): Promise<ListLoanTokenResult[]>
 }
 
-interface ListLoanTokenData {
-  [key: string]: ListLoanTokenDetail
+interface ListLoanTokenResult {
+  [key: string]: LoanTokenDetail
 }
 
-interface ListLoanTokenDetail {
-  token: TokenData
+interface LoanTokenDetail {
+  token: LoanTokenData
   priceFeedId: string
   interest: BigNumber
 }
 
-interface TokenData {
-  [key: string]: TokenDetail
+interface LoanTokenData {
+  [key: string]: LoanTokenInfo
 }
 
-interface TokenDetail {
+interface LoanTokenInfo {
   collateralAddress: string
   creationHeight: BigNumber
   creationTx: string
