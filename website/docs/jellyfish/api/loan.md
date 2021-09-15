@@ -156,10 +156,10 @@ interface loan {
 }
 
 interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
+  [key: string]: CollateralTokenDetails
 }
 
-interface CollateralTokenDetail {
+interface CollateralTokenDetails {
   token: string
   factor: BigNumber
   priceFeedId: string
@@ -169,6 +169,28 @@ interface CollateralTokenDetail {
 interface UTXO {
   txid: string
   vout: number
+}
+```
+
+## getCollateralToken
+
+Get collateral token.
+
+```ts title="client.loan.getCollateralToken()"
+interface loan {
+  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
+}
+
+interface GetCollateralToken {
+  token?: string
+  height?: number
+}
+
+interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
 }
 ```
 
@@ -194,6 +216,7 @@ interface UTXO {
   vout: number
 }
 ```
+
 ## listLoanTokens
 
 List all created loan tokens.
@@ -235,5 +258,23 @@ interface TokenDetail {
   symbol: string
   symbolKey: string
   tradeable: boolean
+}
+```
+
+## createVault
+
+Creates a vault transaction.
+
+```ts title="client.loan.createVault()"
+interface loan {
+  createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
+}
+interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
+}
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```

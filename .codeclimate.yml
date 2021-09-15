@@ -11,4 +11,5 @@ exclude_patterns:
   - "**/node_modules/"
   - "**/*.test.ts"
   - "**/*.test.tsx"
+  - "**/*.e2e.ts"
   - "**/*.d.ts"
