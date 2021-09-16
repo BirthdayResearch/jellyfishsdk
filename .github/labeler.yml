@@ -31,6 +31,11 @@ labels:
     matcher:
       files: "packages/jellyfish-api-jsonrpc/**"
 
+  - label: area/jellyfish-block
+    sync: true
+    matcher:
+      files: "packages/jellyfish-block/**"
+
   - label: area/jellyfish-buffer
     sync: true
     matcher:

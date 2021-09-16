@@ -69,6 +69,16 @@ export class Loan {
   }
 
   /**
+   * Get loan scheme.
+   *
+   * @param {string} id Unique identifier of the loan scheme, max 8 chars.
+   * @return {Promise<GetLoanSchemeResult>}
+   */
+  async getLoanScheme (id: string): Promise<GetLoanSchemeResult> {
+    return await this.client.call('getloanscheme', [id], 'bignumber')
+  }
+
+  /**
    * Sets the default loan scheme.
    *
    * @param {string} id Unique identifier of the loan scheme, max 8 chars
@@ -96,6 +106,64 @@ export class Loan {
    */
   async setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('setcollateraltoken', [collateralToken, utxos], 'number')
+  }
+
+  /**
+   * List collateral tokens.
+   *
+   * @return {Promise<CollateralTokensData>} Get all collateral tokens
+   */
+  async listCollateralTokens (): Promise<CollateralTokensData> {
+    return await this.client.call('listcollateraltokens', [], 'bignumber')
+  }
+
+  /**
+   * Get collateral token.
+   *
+   * @param {GetCollateralToken} [collateralToken = {}]
+   * @param {string} [collateralToken.token] Symbol of collateral token
+   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
+   * @return {Promise<CollateralTokenDetails>} Collateral token result
+   */
+  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails> {
+    return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
+  }
+
+  /**
+   * Creates (and submits to local node and network) a token for a price feed set in collateral token.
+   *
+   * @param {SetLoanToken} loanToken
+   * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
+   * @param {string} [loanToken.name] Token's name, no longer than 128
+   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
+   * @param {BigNumber} [loanToken.interest = 0] Interest rate
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
+   */
+  async setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string> {
+    const defaultData = {
+      mintable: true,
+      interest: 0
+    }
+    return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
+  }
+
+  /**
+   * Creates a vault transaction.
+   *
+   * @param {CreateVault} vault
+   * @param {string} vault.ownerAddress Any valid address or "" to generate a new address
+   * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max). If empty, the default loan scheme will be selected
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
   }
 
   /**
@@ -138,6 +206,41 @@ export interface SetCollateralToken {
   factor: BigNumber
   priceFeedId: string
   activateAfterBlock?: number
+}
+
+export interface CollateralTokensData {
+  [key: string]: CollateralTokenDetails
+}
+
+export interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
+}
+
+export interface GetCollateralToken {
+  token?: string
+  height?: number
+}
+
+export interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
+export interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+export interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
 }
 
 export interface VaultData {

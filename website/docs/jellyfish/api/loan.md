@@ -73,6 +73,22 @@ interface LoanSchemeResult {
 }
 ```
 
+## getLoanScheme
+
+Get loan scheme.
+
+```ts title="client.loan.getLoanScheme()"
+interface loan {
+  getLoanScheme (id: string): Promise<GetLoanSchemeResult>
+}
+
+interface GetLoanSchemeResult {
+  id: string
+  interestrate: BigNumber
+  mincolratio: BigNumber
+}
+```
+
 ## setDefaultLoanScheme
 
 Sets the default loan scheme.
@@ -124,6 +140,95 @@ interface SetCollateralToken {
   activateAfterBlock?: number
 }
 
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## listCollateralTokens
+
+List collateral tokens.
+
+```ts title="client.loan.listCollateralTokens()"
+interface loan {
+  listCollateralTokens (): Promise<CollateralTokensData>
+}
+
+interface CollateralTokensData {
+  [key: string]: CollateralTokenDetails
+}
+
+interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## getCollateralToken
+
+Get collateral token.
+
+```ts title="client.loan.getCollateralToken()"
+interface loan {
+  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
+}
+
+interface GetCollateralToken {
+  token?: string
+  height?: number
+}
+
+interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+```
+
+## setLoanToken
+
+Creates (and submits to local node and network) a token for a price feed set in collateral token.
+
+```ts title="client.loan.setLoanToken()"
+interface loan {
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface SetLoanToken {
+  symbol: string
+  name?: string
+  priceFeedId: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## createVault
+
+Creates a vault transaction.
+
+```ts title="client.loan.createVault()"
+interface loan {
+  createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
+}
+interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
+}
 interface UTXO {
   txid: string
   vout: number

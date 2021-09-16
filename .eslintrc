@@ -12,9 +12,18 @@
     "website"
   ],
   "rules": {
-    "curly": ["error", "all"],
-    "brace-style": ["error", "1tbs"],
-    "func-style": [2, "declaration"],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "brace-style": [
+      "error",
+      "1tbs"
+    ],
+    "func-style": [
+      2,
+      "declaration"
+    ],
     "import/no-default-export": "error"
   },
   "overrides": [
@@ -23,6 +32,8 @@
         "**/jellyfish-transaction/__tests__/**/*.test.ts",
         "**/jellyfish-transaction/src/script/dftx/**/*.ts",
         "**/jellyfish-transaction/src/*.ts",
+        "**/jellyfish-block/__tests__/**/*.test.ts",
+        "**/jellyfish-block/src/*.ts",
         "**/jellyfish-buffer/__tests__/**/*.test.ts",
         "**/jellyfish-buffer/src/*.ts"
       ],

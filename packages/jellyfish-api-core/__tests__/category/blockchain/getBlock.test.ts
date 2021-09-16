@@ -1,38 +1,27 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ContainerAdapterClient } from '../../container_adapter_client'
-import { blockchain } from '../../../src'
 import BigNumber from 'bignumber.js'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Block', () => {
-  const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
+    await testing.container.start()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
-  /**
-   * Wait for block hash to reach a certain height
-   */
-  async function waitForBlockHash (height: number): Promise<string> {
-    await container.waitForBlockHeight(height)
-    return await client.blockchain.getBlockHash(height)
-  }
-
   it('should getBlock with verbosity 0 and return just a string that is serialized, hex-encoded data for block', async () => {
-    const blockHash = await waitForBlockHash(1)
-    const hash: string = await client.blockchain.getBlock(blockHash, 0)
+    const blockHash = await testing.misc.waitForBlockHash(1)
+    const hash = await testing.rpc.blockchain.getBlock(blockHash, 0)
     expect(typeof hash).toStrictEqual('string')
   })
 
   it('should getBlock with verbosity 1 and return block with tx as hex', async () => {
-    const blockHash = await waitForBlockHash(1)
-    const block: blockchain.Block<string> = await client.blockchain.getBlock(blockHash, 1)
+    const blockHash = await testing.misc.waitForBlockHash(1)
+    const block = await testing.rpc.blockchain.getBlock(blockHash, 1)
 
     expect(block.hash.length).toStrictEqual(64)
 
@@ -67,8 +56,8 @@ describe('Block', () => {
   })
 
   it('should getBlock with verbosity 2 and return block with tx as RawText', async () => {
-    const blockHash = await waitForBlockHash(1)
-    const block: blockchain.Block<blockchain.Transaction> = await client.blockchain.getBlock(blockHash, 2)
+    const blockHash = await testing.misc.waitForBlockHash(1)
+    const block = await testing.rpc.blockchain.getBlock(blockHash, 2)
 
     expect(block.tx.length).toBeGreaterThanOrEqual(1)
     expect(block.tx[0].vin[0].coinbase).toStrictEqual('5100')

@@ -4,9 +4,7 @@ import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { ICXSubmitEXTHTLC } from '@defichain/jellyfish-transaction/script/dftx/dftx_icxorderbook'
-import { ICXEXTHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
+import { ICXSubmitEXTHTLC, OP_CODES } from '@defichain/jellyfish-transaction'
 import { Testing } from '@defichain/jellyfish-testing'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
 import { RegTest } from '@defichain/jellyfish-network'
@@ -107,13 +105,13 @@ describe('submit EXT HTLC', () => {
     await testing.generate(1)
 
     // List htlc and check
-    const listHTLCOptions: ICXListHTLCOptions = {
+    const listHTLCOptions: icxorderbook.ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
     const HTLCs = await testing.rpc.icxorderbook.listHTLCs(listHTLCOptions)
     expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     const EXTHTLCTxId = calculateTxid(txn)
-    expect(HTLCs[EXTHTLCTxId] as ICXEXTHTLCInfo).toStrictEqual(
+    expect(HTLCs[EXTHTLCTxId] as icxorderbook.ICXEXTHTLCInfo).toStrictEqual(
       {
         type: icxorderbook.ICXHTLCType.EXTERNAL,
         status: icxorderbook.ICXHTLCStatus.OPEN,

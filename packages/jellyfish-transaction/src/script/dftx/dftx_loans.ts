@@ -27,6 +27,27 @@ export interface SetDefaultLoanScheme {
 }
 
 /**
+ * SetCollateralToken DeFi Transaction
+ */
+export interface SetCollateralToken {
+  token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
+  factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
+  priceFeedId: string // ----------| 32 bytes hex string, Txid of oracle feeding the price
+  activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
+}
+
+/**
+ * SetLoanToken DeFi Transaction
+ */
+export interface SetLoanToken {
+  symbol: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
+  name: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
+  priceFeedId: string // -------| 32 bytes, hex string, Txid of oracle feeding the price
+  mintable: boolean // ---------| 1 byte, mintable, Token's 'Mintable' property
+  interest: BigNumber // -------| 8 bytes unsigned, interest rate
+}
+
+/**
  * Composable CreateLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
@@ -89,6 +110,43 @@ export class CSetDefaultLoanScheme extends ComposableBuffer<SetDefaultLoanScheme
   composers (sdls: SetDefaultLoanScheme): BufferComposer[] {
     return [
       ComposableBuffer.varUIntUtf8BE(() => sdls.identifier, v => sdls.identifier = v)
+    ]
+  }
+}
+
+/**
+ * Composable SetCollateralToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
+  static OP_CODE = 0x63 // 'c'
+  static OP_NAME = 'OP_DEFI_TX_SET_COLLATERAL_TOKEN'
+
+  composers (sct: SetCollateralToken): BufferComposer[] {
+    return [
+      ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
+      ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
+      ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v),
+      ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
+    ]
+  }
+}
+
+/**
+ * Composable SetLoanToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
+  static OP_CODE = 0x67 // 'g'
+  static OP_NAME = 'OP_DEFI_TX_SET_LOAN_TOKEN'
+
+  composers (slt: SetLoanToken): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
+      ComposableBuffer.hexBEBufferLE(32, () => slt.priceFeedId, v => slt.priceFeedId = v),
+      ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
+      ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
     ]
   }
 }
