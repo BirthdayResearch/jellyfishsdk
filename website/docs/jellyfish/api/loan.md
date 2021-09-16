@@ -231,33 +231,33 @@ interface ListLoanTokenResult {
 }
 
 interface LoanTokenDetails {
-  token: LoanTokenData
+  token: token.TokenResult
   priceFeedId: string
   interest: BigNumber
 }
 
-interface LoanTokenData {
-  [key: string]: LoanTokenInfo
+interface TokenResult {
+  [id: string]: TokenInfo
 }
 
-interface LoanTokenInfo {
-  collateralAddress: string
-  creationHeight: BigNumber
-  creationTx: string
-  decimal: BigNumber
-  destructionHeight: BigNumber
-  destructionTx: string
-  finalized: boolean
-  isDAT: boolean
-  isLPS: boolean
-  isLoanToken: boolean
-  limit: BigNumber
-  mintable: boolean
-  minted: BigNumber
-  name: string
+interface TokenInfo {
   symbol: string
   symbolKey: string
+  name: string
+  decimal: BigNumber
+  limit: BigNumber
+  mintable: boolean
   tradeable: boolean
+  isDAT: boolean
+  isLPS: boolean
+  isLoanToken?: boolean
+  finalized: boolean
+  minted: BigNumber
+  creationTx: string
+  creationHeight: BigNumber
+  destructionTx: string
+  destructionHeight: BigNumber
+  collateralAddress: string
 }
 ```
 

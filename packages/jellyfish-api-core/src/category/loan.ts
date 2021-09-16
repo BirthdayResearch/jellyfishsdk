@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, token } from '..'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -243,33 +243,9 @@ export interface ListLoanTokenResult {
 }
 
 export interface LoanTokenDetails {
-  token: LoanTokenData
+  token: token.TokenResult
   priceFeedId: string
   interest: BigNumber
-}
-
-export interface LoanTokenData {
-  [key: string]: LoanTokenInfo
-}
-
-export interface LoanTokenInfo {
-  collateralAddress: string
-  creationHeight: BigNumber
-  creationTx: string
-  decimal: BigNumber
-  destructionHeight: BigNumber
-  destructionTx: string
-  finalized: boolean
-  isDAT: boolean
-  isLPS: boolean
-  isLoanToken: boolean
-  limit: BigNumber
-  mintable: boolean
-  minted: BigNumber
-  name: string
-  symbol: string
-  symbolKey: string
-  tradeable: boolean
 }
 
 export interface CreateVault {
