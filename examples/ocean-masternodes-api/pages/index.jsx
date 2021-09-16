@@ -15,7 +15,7 @@ export default function Index ({
   const [token, setToken] = useState(nextToken)
 
   async function loadMore () {
-    if (next === undefined) {
+    if (token === undefined) {
       return
     }
     const response = await api.masternodes.list(60, token)
