@@ -227,10 +227,10 @@ interface loan {
 }
 
 interface ListLoanTokenResult {
-  [key: string]: ListLoanDetail
+  [key: string]: LoanTokenDetails
 }
 
-interface ListLoanDetail {
+interface LoanTokenDetails {
   token: LoanTokenData
   priceFeedId: string
   interest: BigNumber
@@ -247,7 +247,7 @@ interface LoanTokenInfo {
   decimal: BigNumber
   destructionHeight: BigNumber
   destructionTx: string
-  finalized: false
+  finalized: boolean
   isDAT: boolean
   isLPS: boolean
   isLoanToken: boolean
