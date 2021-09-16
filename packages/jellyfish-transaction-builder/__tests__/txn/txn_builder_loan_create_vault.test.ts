@@ -59,8 +59,7 @@ describe('loans.createVault', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: 'scheme',
-      isUnderLiquidation: false
+      schemeId: 'scheme'
     }, script)
 
     // Ensure the created txn is correct
@@ -77,17 +76,18 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
     const txid = calculateTxid(txn)
-
     await testing.generate(1)
-    const data = await testing.container.call('getvault', [txid])
+
+    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'scheme',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
   })
 
@@ -95,8 +95,7 @@ describe('loans.createVault', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: '',
-      isUnderLiquidation: false
+      schemeId: ''
     }, script)
 
     // Ensure the created txn is correct
@@ -115,51 +114,16 @@ describe('loans.createVault', () => {
     const txid = calculateTxid(txn)
 
     await testing.generate(1)
-    const data = await testing.container.call('getvault', [txid])
+    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'default',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
-    })
-  })
-
-  it('should createVault wtih isUnderLiquidation true', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.createVault({
-      ownerAddress: script,
-      schemeId: 'scheme',
-      isUnderLiquidation: true
-    }, script)
-
-    // Ensure the created txn is correct
-    const outs = await sendTransaction(testing.container, txn)
-    expect(outs[0].value).toStrictEqual(0)
-    expect(outs[1].value).toBeLessThan(10)
-    expect(outs[1].value).toBeGreaterThan(9.999)
-    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
-
-    // Ensure you don't send all your balance away
-    const prevouts = await providers.prevout.all()
-    expect(prevouts.length).toStrictEqual(1)
-    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
-
-    const txid = calculateTxid(txn)
-
-    await testing.generate(1)
-    const data = await testing.container.call('getvault', [txid])
-    expect(data).toStrictEqual({
-      loanSchemeId: 'scheme',
-      ownerAddress: await providers.getAddress(),
-      isUnderLiquidation: true,
-      collateralAmounts: [],
-      loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
   })
 
@@ -167,8 +131,7 @@ describe('loans.createVault', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: 'scheme2',
-      isUnderLiquidation: false
+      schemeId: 'scheme2'
     }, script)
 
     // Ensure the created txn is correct
@@ -187,21 +150,21 @@ describe('loans.createVault', () => {
     const txid = calculateTxid(txn)
 
     await testing.generate(1)
-    const data = await testing.container.call('getvault', [txid])
+    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
 
     const txn2 = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: 'scheme2',
-      isUnderLiquidation: false
+      schemeId: 'scheme2'
     }, script)
 
     // Ensure the created txn is correct
@@ -220,15 +183,16 @@ describe('loans.createVault', () => {
     const txid2 = calculateTxid(txn2)
 
     await testing.generate(1)
-    const data2 = await testing.container.call('getvault', [txid2])
+    const data2 = await testing.rpc.call('getvault', [txid2], 'bignumber')
     expect(data2).toStrictEqual({
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
 
     // Still it should be two different vaults
@@ -244,21 +208,19 @@ describe('loans.createVault', () => {
           OP_CODES.OP_PUSHDATA_HEX_LE('7f3b2ccdb32982c3fa5380112dffad8a6792bba9')
         ]
       },
-      schemeId: 'scheme',
-      isUnderLiquidation: false
+      schemeId: 'scheme'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('VaultTx: tx must have at least one input from token owner 00147f3b2ccdb32982c3fa5380112dffad8a6792bba9 (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('VaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
   })
 
   it('should not createVault if loanSchemeId is invalid', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: 'scheme3',
-      isUnderLiquidation: false
+      schemeId: 'scheme3'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -282,8 +244,7 @@ describe('loans.createVault', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: 'scheme4',
-      isUnderLiquidation: false
+      schemeId: 'scheme4'
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
@@ -322,8 +283,7 @@ describe('loans.createVault when no default scheme and the given schemeId is emp
     const script = await providers.elliptic.script()
     const txn = await builder.loans.createVault({
       ownerAddress: script,
-      schemeId: '',
-      isUnderLiquidation: false
+      schemeId: ''
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
