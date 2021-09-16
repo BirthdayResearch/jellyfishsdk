@@ -234,3 +234,31 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getVault
+
+Returns information about vault.
+
+```ts title="client.loan.createVault()"
+interface loan {
+  getVault (vaultId: string): Promise<VaultDetails>
+}
+
+interface VaultDetails {
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: number
+}
+
+interface AuctionBatchDetails {
+  index: number
+  collaterals: string[]
+  loan: string
+}
+```

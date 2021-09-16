@@ -169,10 +169,11 @@ export class Loan {
   /**
    * Returns information about vault.
    *
-   * @return {Promise<VaultData>}
+   * @param {string} vaultId vault hex id
+   * @return {Promise<VaultDetails>}
    */
-  async getVault (vaultId: string): Promise<VaultData> {
-    return await this.client.call('getvault', [vaultId], 'number')
+  async getVault (vaultId: string): Promise<VaultDetails> {
+    return await this.client.call('getvault', [vaultId], 'bignumber')
   }
 }
 
@@ -243,10 +244,22 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
-export interface VaultData {
+export interface VaultDetails {
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: false
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: number
+}
+
+export interface AuctionBatchDetails {
+  index: number
+  collaterals: string[]
+  loan: string
 }
 
 export interface UTXO {
