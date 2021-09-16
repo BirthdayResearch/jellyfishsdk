@@ -4,6 +4,8 @@
 /.github/                                       @fuxingloh @monstrobishi
 /.husky/                                        @fuxingloh @monstrobishi
 
+/examples/                                      @fuxingloh
+
 /packages/jellyfish/                            @fuxingloh @canonbrother
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
