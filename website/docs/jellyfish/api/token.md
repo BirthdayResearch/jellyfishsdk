@@ -86,7 +86,7 @@ interface TokenInfo {
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
-  isLoanToken?: boolean
+  isLoanToken: boolean
   finalized: boolean
   minted: BigNumber
   creationTx: string
@@ -126,7 +126,7 @@ interface TokenInfo {
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
-  isLoanToken?: boolean
+  isLoanToken: boolean
   finalized: boolean
   minted: BigNumber
   creationTx: string
