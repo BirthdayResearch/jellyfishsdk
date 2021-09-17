@@ -1,19 +1,30 @@
 [![CI](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml/badge.svg)](https://github.com/DeFiCh/jellyfish/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7019f1d74a0500951b2a/maintainability)](https://codeclimate.com/github/DeFiCh/jellyfish/maintainability)
-[![TS-Standard](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
 
 # [@defichain/jellyfish](https://jellyfish.defichain.com)
 
-DeFiChain SDK. A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build
-decentralized finance on Bitcoin.
+> https://jellyfish.defichain.com
 
-> 🚧 @defichain/jellyfish is considered BETA SOFTWARE with frequent minor breaking releases. Used in production at
-> @defichain. This is a free software, @defichain assumes no responsibility nor liability if there is a bug in the
-> implementation.
+DeFiChain Jellyfish SDK. A collection of TypeScript + JavaScript tools and libraries to build Native DeFi products.
+
+<details>
+<summary><b>Watch this space!</b></summary>
+
+We are consolidating all jellyfish ecosystem projects ocean, whale, playground, and salmon into this repository.
+
+- For better synergy of DeFiChain open source development across all concerns.
+- Consistent versioning for all ecosystem releases with a single source of truth.
+- Documentation for the entirety of the jellyfish ecosystem via `jellyfish.defichain.com`. Incorporating sample and
+  playground.
+- Early regression detection upstream to downstream changes with monolithic repo structure.
+
+</details>
 
 ## Installation
+
+> We are deprecating the CJS/UMD bundle in `@defichain/jellyfish`, please use individual packages (`@defichain/jellyfish-*`) for better control of what you need.
 
 ### Node
 
@@ -39,7 +50,7 @@ client.mining.getMiningInfo().then((info) => {
 ### ES6 Modules
 
 ```js
-import {Client} from '@defichain/jellyfish'
+import { Client } from '@defichain/jellyfish'
 
 const client = new Client('http://localhost:8554')
 const info = await client.mining.getMiningInfo()
@@ -48,7 +59,7 @@ const info = await client.mining.getMiningInfo()
 ### Providers
 
 ```js
-import {Client, HttpProvider} from '@defichain/jellyfish'
+import { Client, HttpProvider } from '@defichain/jellyfish'
 
 const options = {} // optional
 
@@ -77,10 +88,10 @@ version tag.
 
 Package                                            | Description
 ---------------------------------------------------|-------------
-`@defichain/jellyfish`                             | Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts
 `@defichain/jellyfish-address`                     | Provide address builder, parser, validator utility library for DeFi Blockchain.
 `@defichain/jellyfish-api-core`                    | A protocol agnostic DeFi Blockchain client interfaces, with a "foreign function interface" design.
 `@defichain/jellyfish-api-jsonrpc`                 | Implements the [JSON-RPC 1.0](https://www.jsonrpc.org/specification_v1) specification for api-core.
+`@defichain/jellyfish-block`                       | Stateless raw block composer for the DeFi Blockchain.
 `@defichain/jellyfish-buffer`                      | Buffer composer for jellyfish.
 `@defichain/jellyfish-crypto`                      | Cryptography operations for jellyfish, includes a simple 'secp256k1' EllipticPair.
 `@defichain/jellyfish-json`                        | Allows parsing of JSON with 'lossless', 'bignumber' and 'number' numeric precision.
@@ -91,10 +102,11 @@ Package                                            | Description
 `@defichain/jellyfish-transaction-signature`       | Stateless utility library to perform transaction signing.
 `@defichain/jellyfish-wallet`                      | Jellyfish wallet is a managed wallet, where account can get discovered from an HD seed.
 `@defichain/jellyfish-wallet-classic`              | WalletClassic implements a simple, single elliptic pair wallet.
-`@defichain/jellyfish-wallet-encrypted`            | Library to encrypt MnemonicHdNode as EncryptedMnemonicHdNode. Able to perform as MnemonicHdNode with passphrase known. 
+`@defichain/jellyfish-wallet-encrypted`            | Library to encrypt MnemonicHdNode as EncryptedMnemonicHdNode. Able to perform as MnemonicHdNode with passphrase known.
 `@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
-~~@defichain/testing~~                             | Provides rich test fixture setup functions for effective and effortless testing.
+~~@defichain/jellyfish~~                           | (deprecated) ~~Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts~~
+~~@defichain/testing~~                             | (deprecated) ~~Provides rich test fixture setup functions for effective and effortless testing.~~
 
 ## Developing & Contributing
 
@@ -132,11 +144,30 @@ jest `--maxConcurrency` count. Test are known to be flaky due to the usage of mu
 concurrency. Although testcontainers cleans up after itself, there are cases where the tests fail exceptionally you
 might need to occasionally: `docker system prune --volumes`.
 
-Coverage is collected at each pull request to main with `codecov`; more testing 🚀 less 🐛 = 😎
+#### Unit Testing
 
-```shell
-jest
-```
+Unit testing are created to test each individual units/components of a software. As they are unit tests, they should
+accompany each unitized component or module. They follow the naming semantic of `*.test.ts` and are placed together in
+the same directory structure in `/__tests__` of the code you are testing. Code coverage is collected for this.
+
+#### End-to-end Testing
+
+On top of unit tests, this provides additional testing that tests the entire lifecycle. All dependencies and modules are
+integrated together as expected. They follow the naming semantic of `*.e2e.ts`. Code coverage is collected for this.
+
+For API service endpoints that are meant to be consumed by developer, the testing should also be done in the `*-cient`
+packages. Dogfooding at its finest.
+
+#### Sanity Testing
+
+On top of end-to-end testing, sanity testing is done after the docker image is build. This kind of testing is performed
+to ascertain the possibility of bugs within the workflow that generate the builds. To identify and determine whether a
+build artifact (docker) should be rejected. This is only done on CI and you are not expected to perform them manually.
+
+#### Code coverage
+
+Coverage is collected for all applicable tests at each pull request to main branch with `codecov`. The more testing 🚀
+less 🐛 = 😎
 
 ### Publishing
 
@@ -145,8 +176,11 @@ by [GitHub releases](https://github.com/DeFiCh/jellyfish/releases) with connecte
 release `types: [ published, prereleased ]`, GitHub Action will automatically build all packages in this repo and
 publish it into npm.
 
-* release are tagged as `@latest`
-* prerelease are tagged as `@next` (please use this cautiously)
+For packages with accompanying docker images, they are published automatically to GitHub Container Registry
+(ghcr.io/defich). When a new [GitHub releases](https://github.com/DeFiCh/whale/releases) is triggered, GitHub Action
+will automatically build the docker image in this repo and publish it. Two images are created for each release
+targeting `linux/amd64` and `linux/arm64`. The latest tag will always be updated with the last release and semantic
+release is enforced for each release.
 
 ### IntelliJ IDEA
 

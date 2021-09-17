@@ -5,10 +5,12 @@ module.exports = {
     '@defichain/jellyfish-address': '<rootDir>/packages/jellyfish-address/src',
     '@defichain/jellyfish-api-core': '<rootDir>/packages/jellyfish-api-core/src',
     '@defichain/jellyfish-api-jsonrpc': '<rootDir>/packages/jellyfish-api-jsonrpc/src',
+    '@defichain/jellyfish-block': '<rootDir>/packages/jellyfish-block/src',
     '@defichain/jellyfish-buffer': '<rootDir>/packages/jellyfish-buffer/src',
     '@defichain/jellyfish-crypto': '<rootDir>/packages/jellyfish-crypto/src',
     '@defichain/jellyfish-json': '<rootDir>/packages/jellyfish-json/src',
     '@defichain/jellyfish-network': '<rootDir>/packages/jellyfish-network/src',
+    '@defichain/jellyfish-testing': '<rootDir>/packages/jellyfish-testing/src',
     '@defichain/jellyfish-transaction-signature': '<rootDir>/packages/jellyfish-transaction-signature/src',
     '@defichain/jellyfish-transaction-builder': '<rootDir>/packages/jellyfish-transaction-builder/src',
     '@defichain/jellyfish-transaction': '<rootDir>/packages/jellyfish-transaction/src',
@@ -17,8 +19,7 @@ module.exports = {
     '@defichain/jellyfish-wallet-mnemonic': '<rootDir>/packages/jellyfish-wallet-mnemonic/src',
     '@defichain/jellyfish-wallet': '<rootDir>/packages/jellyfish-wallet/src',
     '@defichain/testcontainers': '<rootDir>/packages/testcontainers/src',
-    '@defichain/testing': '<rootDir>/packages/testing/src',
-    '@defichain/jellyfish-testing': '<rootDir>/packages/jellyfish-testing/src'
+    '@defichain/testing': '<rootDir>/packages/testing/src'
   },
   verbose: true,
   clearMocks: true,

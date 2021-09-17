@@ -1,31 +1,20 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ContainerAdapterClient } from '../../container_adapter_client'
-import { blockchain } from '../../../src'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('BlockHeader', () => {
-  const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForReady()
+    await testing.container.start()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
-  /**
-   * Wait for block hash to reach a certain height
-   */
-  async function waitForBlockHash (height: number): Promise<string> {
-    await container.waitForBlockHeight(height)
-    return await client.blockchain.getBlockHash(height)
-  }
-
   it('should getBlockHeader with verbosity true and return block with tx as hex', async () => {
-    const blockHash = await waitForBlockHash(1)
-    const blockHeader: blockchain.BlockHeader = await client.blockchain.getBlockHeader(blockHash, true)
+    const blockHash = await testing.misc.waitForBlockHash(1)
+    const blockHeader = await testing.rpc.blockchain.getBlockHeader(blockHash, true)
 
     expect(blockHeader.hash.length).toStrictEqual(64)
 
@@ -49,8 +38,8 @@ describe('BlockHeader', () => {
   })
 
   it('should getBlockHeader with verbosity false and return a string that is serialized, hex-encoded data for block header', async () => {
-    const blockHash = await waitForBlockHash(1)
-    const hash: string = await client.blockchain.getBlockHeader(blockHash, false)
+    const blockHash = await testing.misc.waitForBlockHash(1)
+    const hash = await testing.rpc.blockchain.getBlockHeader(blockHash, false)
     expect(typeof hash).toStrictEqual('string')
   })
 })
