@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, token } from '..'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -176,6 +176,15 @@ export class Loan {
   }
 
   /**
+   * List all created loan tokens.
+   *
+   * @return {Promise<ListLoanTokenResult[]>}
+   */
+  async listLoanTokens (): Promise<ListLoanTokenResult[]> {
+    return await this.client.call('listloantokens', [], 'bignumber')
+  }
+
+  /**
    * Creates a vault transaction.
    *
    * @param {CreateVault} vault
@@ -251,6 +260,16 @@ export interface SetLoanToken {
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+export interface ListLoanTokenResult {
+  [key: string]: LoanTokenDetails
+}
+
+export interface LoanTokenDetails {
+  token: token.TokenResult
+  priceFeedId: string
+  interest: BigNumber
 }
 
 export interface UpdateLoanToken {

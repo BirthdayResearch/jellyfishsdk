@@ -1,5 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
 
 /**
  * CreateLoanScheme / UpdateLoanScheme DeFi Transaction
@@ -147,6 +149,30 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
       ComposableBuffer.hexBEBufferLE(32, () => slt.priceFeedId, v => slt.priceFeedId = v),
       ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
+    ]
+  }
+}
+
+/**
+ * CreateVault DeFi Transaction
+ */
+export interface CreateVault {
+  ownerAddress: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, Vault's owner address
+  schemeId: string // ------------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
+}
+
+/**
+ * Composable CreateVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CCreateVault extends ComposableBuffer<CreateVault> {
+  static OP_CODE = 0x56 // 'V'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_VAULT'
+
+  composers (cv: CreateVault): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
+      ComposableBuffer.varUIntUtf8BE(() => cv.schemeId, v => cv.schemeId = v)
     ]
   }
 }
