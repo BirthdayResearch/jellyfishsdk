@@ -155,7 +155,7 @@ export class Loan {
    * Updates an existing loan token.
    *
    * @param {UpdateLoanToken} loanToken
-   * @param {string} loanToken.token Previous tokens's symbol (unique), no longer than 8
+   * @param {string} loanToken.token Previous tokens's symbol, id or creation tx (unique)
    * @param {string} loanToken.symbol New token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
    * @param {string} loanToken.priceFeedId Txid of oracle feeding the price

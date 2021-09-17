@@ -50,9 +50,9 @@ describe('Loan', () => {
     await testing.container.stop()
   })
 
-  it('should updateLoanToken', async () => {
+  it('should updateLoanToken by symbol as token', async () => {
     await testing.rpc.loan.updateLoanToken({
-      token: 'Token1',
+      token: 'Token1', // Update by symbol
       symbol: 'Token2',
       priceFeedId
     })
@@ -86,6 +86,30 @@ describe('Loan', () => {
         interest: 0
       }
     })
+  })
+
+  it('should updateLoanToken by id as token', async () => {
+    await testing.rpc.loan.updateLoanToken({
+      token: '1', // Update by id
+      symbol: 'Token2',
+      priceFeedId
+    })
+    await testing.generate(1)
+
+    const data = await testing.container.call('listloantokens', [])
+    expect(data[loanTokenId].token[1].symbol).toStrictEqual('Token2')
+  })
+
+  it('should updateLoanToken by creationTx as token', async () => {
+    await testing.rpc.loan.updateLoanToken({
+      token: loanTokenId, // Update by creationTx
+      symbol: 'Token2',
+      priceFeedId
+    })
+    await testing.generate(1)
+
+    const data = await testing.container.call('listloantokens', [])
+    expect(data[loanTokenId].token[1].symbol).toStrictEqual('Token2')
   })
 
   it('should not updateLoanToken if token does not exist', async () => {
