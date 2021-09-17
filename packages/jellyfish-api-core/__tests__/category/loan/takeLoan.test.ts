@@ -111,7 +111,7 @@ describe('Loan', () => {
       amounts: '30@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Cannot find existing vault with id ${'0'.repeat(64)}`)
+    await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
   })
 
   it('should not takeLoan on nonexistent loan token', async () => {
@@ -183,9 +183,10 @@ describe('Loan', () => {
     await tGroup.waitForSync()
 
     const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
+    console.log('vaultAfter: ', vaultAfter)
     const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-    expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(30)
+    expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(30.0000171)
   })
 
   it('should takeLoan with utxos', async () => {
@@ -206,7 +207,7 @@ describe('Loan', () => {
     const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
     const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-    expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5)
+    expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.000062700000001)
 
     const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txid, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)

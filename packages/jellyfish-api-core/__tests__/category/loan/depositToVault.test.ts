@@ -105,7 +105,7 @@ describe('Loan', () => {
       id: vaultId, from: collateralAddress, amount: '1@BTC'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('First deposit must be in DFI')
+    await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI thus first deposit must be DFI')
   })
 
   it('should be failed as insufficient fund', async () => {
@@ -130,7 +130,7 @@ describe('Loan', () => {
       id: '0'.repeat(64), from: collateralAddress, amount: '10000@DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`vault <${'0'.repeat(64)}> not found`)
+    await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
   })
 
   it('should depositToVault', async () => {

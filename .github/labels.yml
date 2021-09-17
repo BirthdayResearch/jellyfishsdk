@@ -57,6 +57,8 @@
 - color: fbca04
   name: area/website
 - color: fbca04
+  name: area/examples
+- color: fbca04
   name: area/jellyfish
 - color: fbca04
   name: area/jellyfish-address
@@ -64,6 +66,8 @@
   name: area/jellyfish-api-core
 - color: fbca04
   name: area/jellyfish-api-jsonrpc
+- color: fbca04
+  name: area/jellyfish-block
 - color: fbca04
   name: area/jellyfish-buffer
 - color: fbca04

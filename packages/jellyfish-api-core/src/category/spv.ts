@@ -131,6 +131,33 @@ export class Spv {
   }
 
   /**
+   * List anchor reward confirms
+   *
+   * @return {Promise<ListAnchorRewardConfirmsResult[]>}
+   */
+  async listAnchorRewardConfirms (): Promise<ListAnchorRewardConfirmsResult[]> {
+    return await this.client.call('spv_listanchorrewardconfirms', [], 'number')
+  }
+
+  /**
+   * List unrewarded anchors
+   *
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchorsUnrewarded (): Promise<ListAnchorsResult[]> {
+    return await this.client.call('spv_listanchorsunrewarded', [], 'number')
+  }
+
+  /**
+   * List anchor rewards
+   *
+   * @return {Promise<ListAnchorRewardsResult[]>}
+   */
+  async listAnchorRewards (): Promise<ListAnchorRewardsResult[]> {
+    return await this.client.call('spv_listanchorrewards', [], 'number')
+  }
+
+  /**
    * Create, sign and send anchor tx, using only SPV API
    *
    * @param {CreateAnchorInput[]} createAnchorInputs Info from BTC chain
@@ -286,6 +313,32 @@ export interface ListHtlcsOutputsResult {
   confirms: number
   /** Object containing spent info */
   spent: SpentInfo
+}
+
+export interface ListAnchorRewardConfirmsResult {
+  /** BTC transaction height */
+  btcTxHeight: number
+  /** BTC transaction hash */
+  btcTxHash: string
+  /** anchor height */
+  anchorHeight: number
+  /** DeFi block hash */
+  dfiBlockHash: string
+  /** Previous anchor height */
+  prevAnchorHeight: number
+  /** the reward address */
+  rewardAddress: string
+  /** the confirm sign hash */
+  confirmSignHash: string
+  /** number of signers */
+  signers: number
+}
+
+export interface ListAnchorRewardsResult {
+  /** the anchor transaction hash */
+  AnchorTxHash: string
+  /** the reward transaction hash */
+  RewardTxHash: string
 }
 
 export interface CreateAnchorInput {

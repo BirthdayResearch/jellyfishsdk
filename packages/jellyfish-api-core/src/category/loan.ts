@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, token } from '..'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -118,6 +118,18 @@ export class Loan {
   }
 
   /**
+   * Get collateral token.
+   *
+   * @param {GetCollateralToken} [collateralToken = {}]
+   * @param {string} [collateralToken.token] Symbol of collateral token
+   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
+   * @return {Promise<CollateralTokenDetails>} Collateral token result
+   */
+  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails> {
+    return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
+  }
+
+  /**
    * Creates (and submits to local node and network) a token for a price feed set in collateral token.
    *
    * @param {SetLoanToken} loanToken
@@ -137,6 +149,15 @@ export class Loan {
       interest: 0
     }
     return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
+  }
+
+  /**
+   * List all created loan tokens.
+   *
+   * @return {Promise<ListLoanTokenResult[]>}
+   */
+  async listLoanTokens (): Promise<ListLoanTokenResult[]> {
+    return await this.client.call('listloantokens', [], 'bignumber')
   }
 
   /**
@@ -219,14 +240,7 @@ export interface SetCollateralToken {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
-}
-
-export interface CollateralTokenDetail {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
+  [key: string]: CollateralTokenDetails
 }
 
 export interface GetLoanSchemeResult {
@@ -235,12 +249,34 @@ export interface GetLoanSchemeResult {
   mincolratio: BigNumber
 }
 
+export interface GetCollateralToken {
+  token?: string
+  height?: number
+}
+
+export interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
+}
+
 export interface SetLoanToken {
   symbol: string
   name?: string
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+export interface ListLoanTokenResult {
+  [key: string]: LoanTokenDetails
+}
+
+export interface LoanTokenDetails {
+  token: token.TokenResult
+  priceFeedId: string
+  interest: BigNumber
 }
 
 export interface CreateVault {
