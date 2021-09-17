@@ -83,7 +83,7 @@ describe('Loan', () => {
           }
         },
         priceFeedId,
-        interest: 0.01
+        interest: 0
       }
     })
   })
@@ -179,7 +179,7 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
-  it('should updateLoanToken if same name exists in other loan token', async () => {
+  it('should updateLoanToken if two loan tokens have the same name', async () => {
     const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token5',
       currency: 'USD'

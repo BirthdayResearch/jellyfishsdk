@@ -152,6 +152,30 @@ export class Loan {
   }
 
   /**
+   * Updates an existing loan token.
+   *
+   * @param {UpdateLoanToken} loanToken
+   * @param {string} loanToken.token Previous tokens's symbol (unique), no longer than 8
+   * @param {string} loanToken.symbol New token's symbol (unique), no longer than 8
+   * @param {string} [loanToken.name] Token's name, no longer than 128
+   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
+   * @param {BigNumber} [loanToken.interest = 0] Interest rate
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to update loan token
+   */
+  async updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
+    const defaultData = {
+      mintable: true,
+      interest: 0
+    }
+    const { token, ...tokenData } = loanToken
+    return await this.client.call('updateloantoken', [token, { ...defaultData, ...tokenData }, utxos], 'number')
+  }
+
+  /**
    * Creates a vault transaction.
    *
    * @param {CreateVault} vault
@@ -164,26 +188,6 @@ export class Loan {
    */
   async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
-  }
-
-  /**
-   * Updates an existing loan token.
-   *
-   * @param {UpdateLoanToken} loanToken
-   * @param {string} loanToken.token The tokens's symbol, id or creation tx
-   * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
-   * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
-   * @param {boolean} [loanToken.mintable] Token's 'Mintable' property, default=false
-   * @param {BigNumber} [loanToken.interest] Interest rate, default=0
-   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} utxos.txid Transaction Id
-   * @param {number} utxos.vout Output number
-   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to update loan token
-   */
-  async updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
-    const { token, ...tokenData } = loanToken
-    return await this.client.call('updateloantoken', [token, tokenData, utxos], 'number')
   }
 }
 
@@ -249,11 +253,6 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface CreateVault {
-  ownerAddress: string
-  loanSchemeId?: string
-}
-
 export interface UpdateLoanToken {
   token: string
   symbol: string
@@ -261,6 +260,11 @@ export interface UpdateLoanToken {
   priceFeedId: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+export interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
 }
 
 export interface UTXO {
