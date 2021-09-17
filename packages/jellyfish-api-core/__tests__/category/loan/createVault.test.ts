@@ -2,10 +2,6 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
-import { P2PKH } from '@defichain/jellyfish-address'
-import { RegTest } from '@defichain/jellyfish-network'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { SmartBuffer } from 'smart-buffer'
 
 describe('Loan createVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -47,15 +43,16 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('getvault', [vaultId])
+    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
   })
 
@@ -68,15 +65,16 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('getvault', [vaultId])
+    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'scheme',
       ownerAddress: expect.any(String),
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
   })
 
@@ -90,15 +88,16 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('getvault', [vaultId])
+    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
   })
 
@@ -133,15 +132,16 @@ describe('Loan createVault', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(txid)
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
-    const data = await testing.container.call('getvault', [vaultId])
+    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
       isUnderLiquidation: false,
       collateralAmounts: [],
       loanAmount: [],
-      collateralValue: expect.any(String),
-      loanValue: expect.any(String)
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
     })
   })
 
@@ -152,9 +152,7 @@ describe('Loan createVault', () => {
       loanSchemeId: 'scheme'
     }, [utxo])
 
-    const sBuff = new SmartBuffer()
-    OP_CODES.toBuffer(P2PKH.fromAddress(RegTest, GenesisKeys[0].owner.address, P2PKH).getScript().stack, sBuff)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\ntx must have at least one input from token owner ' + sBuff.toString('hex').substring(2) + '\', code: -32600, method: createvault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\ntx must have at least one input from token owner\', code: -32600, method: createvault')
   })
 })
 
