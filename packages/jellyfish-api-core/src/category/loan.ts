@@ -154,25 +154,20 @@ export class Loan {
   /**
    * Updates an existing loan token.
    *
-   * @param {UpdateLoanToken} loanToken
-   * @param {string} loanToken.token Previous tokens's symbol, id or creation tx (unique)
-   * @param {string} loanToken.symbol New token's symbol (unique), no longer than 8
-   * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
-   * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
-   * @param {BigNumber} [loanToken.interest = 0] Interest rate
+   * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
+   * @param {UpdateLoanToken} newTokenDetails
+   * @param {string} [newTokenDetails.symbol] New token's symbol (unique), no longer than 8
+   * @param {string} [newTokenDetails.name] Token's name, no longer than 128
+   * @param {string} [newTokenDetails.priceFeedId] Txid of oracle feeding the price
+   * @param {boolean} [newTokenDetails.mintable] Token's 'Mintable' property
+   * @param {BigNumber} [newTokenDetails.interest] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} LoanTokenId, also the txn id for txn created to update loan token
    */
-  async updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
-    const defaultData = {
-      mintable: true,
-      interest: 0
-    }
-    const { token, ...tokenData } = loanToken
-    return await this.client.call('updateloantoken', [token, { ...defaultData, ...tokenData }, utxos], 'number')
+  async updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updateloantoken', [oldToken, newTokenDetails, utxos], 'number')
   }
 
   /**
@@ -273,10 +268,9 @@ export interface LoanTokenDetails {
 }
 
 export interface UpdateLoanToken {
-  token: string
-  symbol: string
+  symbol?: string
   name?: string
-  priceFeedId: string
+  priceFeedId?: string
   mintable?: boolean
   interest?: BigNumber
 }

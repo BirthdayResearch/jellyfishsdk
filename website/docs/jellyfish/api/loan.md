@@ -223,14 +223,13 @@ Updates an existing loan token.
 
 ```ts title="client.loan.updateLoanToken()"
 interface loan {
-  updateLoanToken (loanToken: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
+  updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UpdateLoanToken {
-  token: string
-  symbol: string
+  symbol?: string
   name?: string
-  priceFeedId: string
+  priceFeedId?: string
   mintable?: boolean
   interest?: BigNumber
 }
