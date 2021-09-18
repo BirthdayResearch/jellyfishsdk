@@ -53,19 +53,23 @@ beforeEach(async () => {
 afterEach(async () => {
   const data = await testing.container.call('listloantokens', [])
   const index = Object.keys(data).indexOf(loanTokenId) + 1
-  if (data[loanTokenId].token[index].symbol === 'Token2') { // If Token2, always update it back to Token1
-    await testing.container.call('updateloantoken', [
-      'Token2',
-      {
-        symbol: 'Token1',
-        name: 'Token1',
-        priceFeedId,
-        mintable: true,
-        interest: new BigNumber(0)
-      }, []
-    ])
-    await testing.generate(1)
+  if (data[loanTokenId].token[index].symbol === 'Token1') { // If Token1, always update its name, priceFeedId, mintable and interest values back to their original values
+    await testing.rpc.loan.updateLoanToken('Token1', {
+      name: 'Token1',
+      priceFeedId,
+      mintable: true,
+      interest: new BigNumber(0.01)
+    })
+  } else if (data[loanTokenId].token[index].symbol === 'Token2') { // If Token2, always update it back to Token1
+    await testing.rpc.loan.updateLoanToken('Token2', {
+      symbol: 'Token1',
+      name: 'Token1',
+      priceFeedId,
+      mintable: true,
+      interest: new BigNumber(0.01)
+    })
   }
+  await testing.generate(1)
 })
 
 describe('loan.updateLoanToken()', () => {
