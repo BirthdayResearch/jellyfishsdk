@@ -90,7 +90,7 @@ describe('loan.destroyLoanScheme()', () => {
   it('should not destroyLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.destroyLoanScheme({
-      identifier: 'txn_builder_update_loan_token1.test.ts'.repeat(9),
+      identifier: 'x'.repeat(9),
       height: new BigNumber(0)
     }, script)
 

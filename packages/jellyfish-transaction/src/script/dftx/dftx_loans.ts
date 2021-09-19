@@ -170,7 +170,7 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
-  static OP_CODE = 0x66
+  static OP_CODE = 0x66 // 'f'
   static OP_NAME = 'OP_DEFI_TX_UPDATE_LOAN_TOKEN'
 
   composers (ult: UpdateLoanToken): BufferComposer[] {

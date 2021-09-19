@@ -63,20 +63,20 @@ describe('Loan', () => {
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
     const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'txn_builder_update_loan_token1.test.ts'.repeat(8),
+      token: 'x'.repeat(8),
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const loanTokenId = await testing.rpc.loan.setLoanToken({
-      symbol: 'txn_builder_update_loan_token1.test.ts'.repeat(9), // 9 letters
+      symbol: 'x'.repeat(9), // 9 letters
       priceFeedId
     })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('txn_builder_update_loan_token1.test.ts'.repeat(8)) // Only remain the first 8 letters
+    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not setLoanToken if symbol is an empty string', async () => {
@@ -163,14 +163,14 @@ describe('Loan', () => {
 
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token7',
-      name: 'txn_builder_update_loan_token1.test.ts'.repeat(129), // 129 letters
+      name: 'x'.repeat(129), // 129 letters
       priceFeedId
     })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('txn_builder_update_loan_token1.test.ts'.repeat(128)) // Only remain the first 128 letters.
+    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
   it('should setLoanToken if two loan tokens have the same name', async () => {

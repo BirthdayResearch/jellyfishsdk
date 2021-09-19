@@ -24,8 +24,8 @@ export interface Transaction {
    * V4 contains tokenId in vout
    */
   version: number // -------------------| 4 bytes
-  vin: Vin[] // ------------------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts Vin
-  vout: Vout[] // ----------------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts Vout
+  vin: Vin[] // ------------------------| c = VarUInt{1-9 bytes}, + c x Vin
+  vout: Vout[] // ----------------------| c = VarUInt{1-9 bytes}, + c x Vout
   lockTime: number // ------------------| 4 bytes
 }
 
@@ -70,9 +70,9 @@ export interface TransactionSegWit extends Transaction {
   version: number // -------------------| 4 bytes
   marker: number // --------------------| 1 byte
   flag: number // ----------------------| 1 byte
-  vin: Vin[] // ------------------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts Vin
-  vout: Vout[] // ----------------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts Vout
-  witness: Witness[] // ----------------| count(vin) txn_builder_update_loan_token1.test.ts Witness
+  vin: Vin[] // ------------------------| c = VarUInt{1-9 bytes}, + c x Vin
+  vout: Vout[] // ----------------------| c = VarUInt{1-9 bytes}, + c x Vout
+  witness: Witness[] // ----------------| count(vin) x Witness
   lockTime: number // ------------------| 4 bytes
 }
 
@@ -80,14 +80,14 @@ export interface TransactionSegWit extends Transaction {
  * Script witness consist of a stack of byte arrays.
  *
  * Each vin has its own script witness. The number of script witnesses is not explicitly encoded as it is implied by
- * count(vin): 'count(vin) txn_builder_update_loan_token1.test.ts Witness', hence the VarUInt is omitted.
+ * count(vin): 'count(vin) x Witness', hence the VarUInt is omitted.
  * Each witness program is linked to a vin of the same index.
  *
  * Inside each script witness, it is encoded as a var_int item count followed by each item encoded as a var_int length
  * followed by a string of bytes.
  */
 export interface Witness {
-  scripts: WitnessScript[] // ----------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts (n = VarUInt{1-9 bytes}, + n bytes)
+  scripts: WitnessScript[] // ----------| c = VarUInt{1-9 bytes}, + c (n = VarUInt{1-9 bytes}, + n bytes)
 }
 
 /**

@@ -39,7 +39,7 @@ export class CTokenAmount extends ComposableBuffer<TokenAmount> {
 
 export interface TokenPrice {
   token: string // ---------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  prices: TokenAmount[] // -------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenAmount
+  prices: TokenAmount[] // -------------| c = VarUInt{1-9 bytes}, + c x TokenAmount
 }
 
 /**

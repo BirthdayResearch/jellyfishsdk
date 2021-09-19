@@ -3,10 +3,10 @@ import {
   CUpdateLoanToken,
   UpdateLoanToken
 } from '../../../../src/script/dftx/dftx_loans'
-import BigNumber from 'bignumber.js'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
+import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
@@ -38,11 +38,11 @@ it('should bi-directional buffer-object-buffer', () => {
      *    name: 'Token4',
      *    priceFeedId：'3eaca4cd0124c54bf01b52f0bd6f377af745bc5a2910a98d10cb306ab598387e'
      *    mintable: true,
-     *    interest: new BigNumber(12345)
+     *    interest: new BigNumber(12.345678)
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a4c5c446654786606546f6b656e3406546f6b656e347e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e010019ef6d1f010000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
+    '6a4c5c446654786606546f6b656e3406546f6b656e347e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
   ]
 
   fixtures.forEach(hex => {
@@ -56,19 +56,19 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a4c5c4466547866' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 92 = 0x5c) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x66)
-const data = '06546f6b656e3206546f6b656e327e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e010000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
-// SetLoanToken.symbol[BE](06546f6b656e32)
-// SetLoanToken.name[BE](06546f6b656e32)
-// SetLoanToken.priceFeedId[LE] (7e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e)
-// SetLoanToken.mintable (01)
-// SetLoanToken.interest (0000000000000000)
-// UpdateLoanToken.tokenTx[LE] (133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20)
+const data = '06546f6b656e3406546f6b656e347e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
+// UpdateLoanToken.symbol[BE](06546f6b656e34)
+// UpdateLoanToken.name[BE](06546f6b656e34)
+// UpdateLoanToken.priceFeedId[LE](7e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e)
+// UpdateLoanToken.mintable(01)
+// UpdateLoanToken.interest[LE](7802964900000000)
+// UpdateLoanToken.tokenTx[LE](133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20)
 const updateLoanToken: UpdateLoanToken = {
-  symbol: 'Token2',
-  name: 'Token2',
+  symbol: 'Token4',
+  name: 'Token4',
   priceFeedId: '3eaca4cd0124c54bf01b52f0bd6f377af745bc5a2910a98d10cb306ab598387e',
   mintable: true,
-  interest: new BigNumber(0),
+  interest: new BigNumber(12.345678),
   tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13'
 }
 

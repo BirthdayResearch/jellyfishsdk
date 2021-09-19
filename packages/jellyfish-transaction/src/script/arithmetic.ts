@@ -235,7 +235,7 @@ export class OP_MAX extends StaticCode {
 }
 
 /**
- *   Returns 1 if txn_builder_update_loan_token1.test.ts is within the specified range (left-inclusive), 0 otherwise.
+ *   Returns 1 if x is within the specified range (left-inclusive), 0 otherwise.
  */
 export class OP_WITHIN extends StaticCode {
   constructor () {

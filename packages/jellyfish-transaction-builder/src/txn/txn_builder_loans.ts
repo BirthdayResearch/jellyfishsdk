@@ -5,8 +5,8 @@ import {
   SetDefaultLoanScheme,
   SetCollateralToken,
   SetLoanToken,
-  // CUpdateLoanToken,
-  CreateVault, UpdateLoanToken
+  UpdateLoanToken,
+  CreateVault
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 

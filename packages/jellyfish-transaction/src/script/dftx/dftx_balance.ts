@@ -23,7 +23,7 @@ export class CTokenBalance extends ComposableBuffer<TokenBalance> {
 
 export interface ScriptBalances {
   script: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes
-  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenBalance
+  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
 }
 
 /**

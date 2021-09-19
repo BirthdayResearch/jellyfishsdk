@@ -36,7 +36,7 @@ describe('Loan getLoanScheme', () => {
   })
 
   it('should not getLoanScheme if id is more than 8 characters', async () => {
-    const promise = testing.rpc.loan.getLoanScheme('txn_builder_update_loan_token1.test.ts'.repeat(9))
+    const promise = testing.rpc.loan.getLoanScheme('x'.repeat(9))
     await expect(promise).rejects.toThrow('RpcApiError: \'id cannot be empty or more than 8 chars long\', code: -8, method: getloanscheme')
   })
 })
