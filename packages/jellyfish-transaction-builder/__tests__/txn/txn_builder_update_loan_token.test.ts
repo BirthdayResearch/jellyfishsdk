@@ -41,10 +41,6 @@ beforeAll(async () => {
   await testing.generate(1)
 })
 
-afterAll(async () => {
-  await testing.container.stop()
-})
-
 beforeEach(async () => {
   await fundEllipticPair(testing.container, providers.ellipticPair, 10) // Fund 10 DFI UTXO
   await providers.setupMocks() // Required to move utxos
@@ -72,8 +68,12 @@ afterEach(async () => {
   await testing.generate(1)
 })
 
+afterAll(async () => {
+  await testing.container.stop()
+})
+
 describe('loan.updateLoanToken()', () => {
-  it('should updateLoanToken', async () => {
+  it('should updateLoanToken by symbol as token', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
@@ -221,7 +221,7 @@ describe('loan.updateLoanToken()', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
-      name: 'x'.repeat(129), // 129 letters,
+      name: 'txn_builder_update_loan_token1.test.ts'.repeat(129), // 129 letters,
       priceFeedId,
       mintable: true,
       interest: new BigNumber(0.08),
@@ -231,7 +231,7 @@ describe('loan.updateLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters
+    expect(data[loanTokenId].token[index].name).toStrictEqual('txn_builder_update_loan_token1.test.ts'.repeat(128)) // Only remain the first 128 letters
   })
 
   it('should not updateLoanToken if priceFeedId is invalid', async () => {

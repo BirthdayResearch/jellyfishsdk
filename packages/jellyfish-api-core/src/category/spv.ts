@@ -131,6 +131,33 @@ export class Spv {
   }
 
   /**
+   * List anchor reward confirms
+   *
+   * @return {Promise<ListAnchorRewardConfirmsResult[]>}
+   */
+  async listAnchorRewardConfirms (): Promise<ListAnchorRewardConfirmsResult[]> {
+    return await this.client.call('spv_listanchorrewardconfirms', [], 'number')
+  }
+
+  /**
+   * List unrewarded anchors
+   *
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchorsUnrewarded (): Promise<ListAnchorsResult[]> {
+    return await this.client.call('spv_listanchorsunrewarded', [], 'number')
+  }
+
+  /**
+   * List anchor rewards
+   *
+   * @return {Promise<ListAnchorRewardsResult[]>}
+   */
+  async listAnchorRewards (): Promise<ListAnchorRewardsResult[]> {
+    return await this.client.call('spv_listanchorrewards', [], 'number')
+  }
+
+  /**
    * Create, sign and send anchor tx, using only SPV API
    *
    * @param {CreateAnchorInput[]} createAnchorInputs Info from BTC chain
@@ -155,6 +182,55 @@ export class Spv {
       [createAnchorInputs, rewardAddress, opts.send, opts.feerate],
       { cost: 'bignumber', estimatedReward: 'bignumber' }
     )
+  }
+
+  /**
+   * List anchors
+   *
+   * @param {ListAnchorsOptions} [options]
+   * @param {number} [options.minBtcHeight=-1]
+   * @param {number} [options.maxBtcHeight=-1]
+   * @param {number} [options.minConfs=-1]
+   * @param {number} [options.maxConfs=-1]
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchors (
+    options: ListAnchorsOptions = {}
+  ): Promise<ListAnchorsResult[]> {
+    const opts = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1, ...options }
+    return await this.client.call(
+      'spv_listanchors',
+      [opts.minBtcHeight, opts.maxBtcHeight, opts.minConfs, opts.maxConfs],
+      'number'
+    )
+  }
+
+  /**
+   * List pending anchors in mempool
+   *
+   * @return {Promise<ListAnchorsResult[]>}
+   */
+  async listAnchorsPending (): Promise<ListAnchorsResult[]> {
+    return await this.client.call('spv_listanchorspending', [], 'number')
+  }
+
+  /**
+   * List anchor auths
+   *
+   * @return {Promise<ListAnchorAuthsResult[]>}
+   */
+  async listAnchorAuths (): Promise<ListAnchorAuthsResult[]> {
+    return await this.client.call('spv_listanchorauths', [], 'number')
+  }
+
+  /**
+   * Set last height on BTC chain, use for testing purpose
+   *
+   * @param {number} height
+   * @return {Promise<void>}
+   */
+  async setLastHeight (height: number): Promise<void> {
+    return await this.client.call('spv_setlastheight', [height], 'number')
   }
 }
 
@@ -239,6 +315,32 @@ export interface ListHtlcsOutputsResult {
   spent: SpentInfo
 }
 
+export interface ListAnchorRewardConfirmsResult {
+  /** BTC transaction height */
+  btcTxHeight: number
+  /** BTC transaction hash */
+  btcTxHash: string
+  /** anchor height */
+  anchorHeight: number
+  /** DeFi block hash */
+  dfiBlockHash: string
+  /** Previous anchor height */
+  prevAnchorHeight: number
+  /** the reward address */
+  rewardAddress: string
+  /** the confirm sign hash */
+  confirmSignHash: string
+  /** number of signers */
+  signers: number
+}
+
+export interface ListAnchorRewardsResult {
+  /** the anchor transaction hash */
+  AnchorTxHash: string
+  /** the reward transaction hash */
+  RewardTxHash: string
+}
+
 export interface CreateAnchorInput {
   /** The transaction id of the bitcoin UTXO to spend */
   txid: string
@@ -262,9 +364,9 @@ export interface CreateAnchorResult {
   txHex: string
   /** the transaction hash  */
   txHash: string
-  /** the anchor block hash */
+  /** the defi block hash */
   defiHash: string
-  /** the anchor block height */
+  /** the defi block height */
   defiHeight: number
   /** estimated anchor reward */
   estimatedReward: BigNumber
@@ -274,4 +376,55 @@ export interface CreateAnchorResult {
   sendResult: number
   /** decoded sendResult */
   sendMessage: string
+}
+
+export interface ListAnchorsOptions {
+  /** min BTC height */
+  minBtcHeight?: number
+  /** max BTC height */
+  maxBtcHeight?: number
+  /** min confirmations */
+  minConfs?: number
+  /** max confirmations */
+  maxConfs?: number
+}
+
+export interface ListAnchorsResult {
+  /** BTC block height */
+  btcBlockHeight: number
+  /** BTC block hash */
+  btcBlockHash: string
+  /** BTC transaction hash */
+  btcTxHash: string
+  /** previous anchor */
+  previousAnchor: string
+  /** defi block height */
+  defiBlockHeight: number
+  /** defi block hash */
+  defiBlockHash: string
+  /** anchor reward address */
+  rewardAddress: string
+  /** BTC confirmations */
+  confirmations: number
+  /** number of signatures */
+  signatures: number
+  /** anchor status */
+  active?: boolean
+  /** anchor creation height */
+  anchorCreationHeight?: number
+}
+
+export interface ListAnchorAuthsResult {
+  /** previous anchor */
+  previousAnchor: string
+  /** defi block height */
+  blockHeight: number
+  /** defi block hash */
+  blockHash: string
+  /** anchor creation height */
+  creationHeight: number
+  /** number of anchor signers */
+  signers: number
+  /** anchor signees address */
+  signees?: string[]
 }

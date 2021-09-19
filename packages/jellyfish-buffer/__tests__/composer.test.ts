@@ -44,7 +44,7 @@ function shouldToBuffer<T> (composer: BufferComposer, hex: string | string[], va
 describe('ComposableBuffer deep implementation', () => {
   interface Root {
     ver: number // 1 byte
-    items: Item[] // c = VarUInt{1-9 bytes}, + c x Item
+    items: Item[] // c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts Item
     text: string // n = VarUInt{1-9 bytes}, + n bytes
   }
 

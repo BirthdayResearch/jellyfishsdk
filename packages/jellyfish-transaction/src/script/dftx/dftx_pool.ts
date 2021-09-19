@@ -42,7 +42,7 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
  * PoolAddLiquidity DeFi Transaction
  */
 export interface PoolAddLiquidity {
-  from: ScriptBalances[] // ------------| c = VarUInt{1-9 bytes}, + c x ScriptBalances
+  from: ScriptBalances[] // ------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts ScriptBalances
   shareAddress: Script // --------------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
@@ -98,7 +98,7 @@ export interface PoolCreatePair {
   ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
   status: boolean // ----------------------| 1 byte
   pairSymbol: string // -------------------| VarUInt{1-9 bytes}, + c bytes UTF encoded string
-  customRewards: TokenBalance[] // --------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  customRewards: TokenBalance[] // --------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenBalance
 }
 
 /**
@@ -148,7 +148,7 @@ export interface PoolUpdatePair {
   status: boolean // ----------------------| 4 bytes
   commission: BigNumber // ----------------| 8 bytes
   ownerAddress: Script // -----------------| n = VarUInt{1-9 bytes}, + n bytes
-  customRewards: TokenBalance[] // --------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  customRewards: TokenBalance[] // --------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenBalance
 }
 
 /**

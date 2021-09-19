@@ -108,7 +108,7 @@ describe('Loan', () => {
     const promise = testing.rpc.loan.updateLoanScheme({
       minColRatio: 300,
       interestRate: new BigNumber(3.5),
-      id: 'x'.repeat(9)
+      id: 'txn_builder_update_loan_token1.test.ts'.repeat(9)
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSchemeTx execution failed:\nid cannot be empty or more than 8 chars long\', code: -32600, method: updateloanscheme')
   })

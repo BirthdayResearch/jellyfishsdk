@@ -58,11 +58,20 @@ import {
 } from './dftx/dftx_oracles'
 import {
   CCreateLoanScheme,
-  CreateLoanScheme,
+  CUpdateLoanScheme,
+  LoanScheme,
+  CDestroyLoanScheme,
+  DestroyLoanScheme,
   CSetDefaultLoanScheme,
   SetDefaultLoanScheme,
+  CSetCollateralToken,
+  SetCollateralToken,
+  CSetLoanToken,
+  SetLoanToken,
   CUpdateLoanToken,
-  UpdateLoanToken
+  UpdateLoanToken,
+  CCreateVault,
+  CreateVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -404,12 +413,28 @@ export const OP_CODES = {
       data: icxSubmitDFCHTLC
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: CreateLoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CCreateLoanScheme.OP_CODE,
       name: CCreateLoanScheme.OP_NAME,
       data: createLoanScheme
+    })
+  },
+  OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: LoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateLoanScheme.OP_CODE,
+      name: CUpdateLoanScheme.OP_NAME,
+      data: updateLoanScheme
+    })
+  },
+  OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDestroyLoanScheme.OP_CODE,
+      name: CDestroyLoanScheme.OP_NAME,
+      data: destroyLoanScheme
     })
   },
   OP_DEFI_TX_SET_DEFAULT_LOAN_SCHEME: (setDefaultLoanScheme: SetDefaultLoanScheme): OP_DEFI_TX => {
@@ -420,12 +445,20 @@ export const OP_CODES = {
       data: setDefaultLoanScheme
     })
   },
-  OP_DEFI_TX_UPDATE_LOAN_TOKEN: (updateLoanToken: UpdateLoanToken): OP_DEFI_TX => {
+  OP_DEFI_TX_SET_COLLATERAL_TOKEN: (setCollateralToken: SetCollateralToken): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CUpdateLoanToken.OP_CODE,
-      name: CUpdateLoanToken.OP_NAME,
-      data: updateLoanToken
+      type: CSetCollateralToken.OP_CODE,
+      name: CSetCollateralToken.OP_NAME,
+      data: setCollateralToken
+    })
+  },
+  OP_DEFI_TX_SET_LOAN_TOKEN: (setLoanToken: SetLoanToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetLoanToken.OP_CODE,
+      name: CSetLoanToken.OP_NAME,
+      data: setLoanToken
     })
   },
   OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
@@ -442,6 +475,22 @@ export const OP_CODES = {
       type: CICXClaimDFCHTLC.OP_CODE,
       name: CICXClaimDFCHTLC.OP_NAME,
       data: icxClaimDFCHTLC
+    })
+  },
+  OP_DEFI_TX_UPDATE_LOAN_TOKEN: (updateLoanToken: UpdateLoanToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateLoanToken.OP_CODE,
+      name: CUpdateLoanToken.OP_NAME,
+      data: updateLoanToken
+    })
+  },
+  OP_DEFI_TX_CREATE_VAULT: (createVault: CreateVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateVault.OP_CODE,
+      name: CCreateVault.OP_NAME,
+      data: createVault
     })
   },
   OP_0: new constants.OP_0(),

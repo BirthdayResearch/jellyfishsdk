@@ -38,6 +38,7 @@ issue:
         - core
         - workflow
         - website
+        - examples
         - jellyfish
         - jellyfish-address
         - jellyfish-api-core

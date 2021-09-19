@@ -133,6 +133,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
+  /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const anchorTeams = await this.call('getanchorteams')
@@ -150,6 +151,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
+  /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorAuths (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const auths = await this.call('spv_listanchorauths')
@@ -158,6 +160,26 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       return false
     }, timeout, 100, 'waitForAnchorAuths')
+  }
+
+  /**
+   * Wait for anchor reward confirms
+   *
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorRewardConfirms (timeout = 30000): Promise<void> {
+    // extra info here
+    // max signers in regtest is 3, others are 5
+    // majority is defined as 66% above
+    const majority = 2
+    return await waitForCondition(async () => {
+      const confirms = await this.call('spv_listanchorrewardconfirms')
+      if (confirms.length === 1 && confirms[0].signers >= majority) {
+        return true
+      }
+      return false
+    }, timeout, 100, 'waitForAnchorRewardConfrims')
   }
 
   /**

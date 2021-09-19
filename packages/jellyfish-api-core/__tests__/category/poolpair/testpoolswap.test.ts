@@ -3,7 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import BigNumber from 'bignumber.js'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { RpcApiError } from '../../../src'
-import { PoolPairInfo, PoolPairsResult } from '@defichain/jellyfish-api-core/category/poolpair'
+import { poolpair } from '@defichain/jellyfish-api-core'
 
 describe('Poolpair', () => {
   const container = new MasterNodeRegTestContainer()
@@ -35,7 +35,7 @@ describe('Poolpair', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const poolpairResult: PoolPairsResult = await container.call('getpoolpair', ['CAT-DFI'])
+    const poolpairResult: poolpair.PoolPairsResult = await container.call('getpoolpair', ['CAT-DFI'])
     expect(Object.keys(poolpairResult).length).toStrictEqual(1)
 
     // Note(canonbrother): simulate poolswap calculation to find reserveB
@@ -45,7 +45,7 @@ describe('Poolpair', () => {
     // ? = 707.10678118^2 / 1666 = 300.120048014
     // 1666 : 300.120048014 = 707.10678118
     // 500 - 300.120048014 = 199.879951986  <-- testpoolswap returns
-    const poolpair: PoolPairInfo = Object.values(poolpairResult)[0]
+    const poolpair: poolpair.PoolPairInfo = Object.values(poolpairResult)[0]
     const reserveAAfter: BigNumber = new BigNumber(poolpair.reserveA).plus(666)
     const reserveBAfter: BigNumber = new BigNumber(poolpair.totalLiquidity).pow(2).div(reserveAAfter)
 
@@ -142,7 +142,7 @@ describe('Poolpair', () => {
       shareAddress: poolLiquidityAddress
     })
 
-    const poolpairResultBefore: PoolPairsResult = await container.call('getpoolpair', ['DOG-DFI'])
+    const poolpairResultBefore: poolpair.PoolPairsResult = await container.call('getpoolpair', ['DOG-DFI'])
     expect(Object.keys(poolpairResultBefore).length).toStrictEqual(1)
 
     await client.poolpair.testPoolSwap({
@@ -153,7 +153,7 @@ describe('Poolpair', () => {
       tokenTo: 'DFI'
     })
 
-    const poolpairResultAfter: PoolPairsResult = await container.call('getpoolpair', ['DOG-DFI'])
+    const poolpairResultAfter: poolpair.PoolPairsResult = await container.call('getpoolpair', ['DOG-DFI'])
     expect(Object.keys(poolpairResultAfter).length).toStrictEqual(1)
 
     expect(poolpairResultBefore).toStrictEqual(poolpairResultAfter)

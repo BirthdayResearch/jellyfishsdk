@@ -10,7 +10,7 @@ import BigNumber from 'bignumber.js'
 export interface AppointOracle {
   script: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes
   weightage: number // ------------------| 1 byte unsigned int
-  priceFeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c x CurrencyPair
+  priceFeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts CurrencyPair
 }
 
 /**
@@ -59,7 +59,7 @@ export interface UpdateOracle {
   oracleId: string // -------------------| 32 bytes hex string
   script: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes
   weightage: number // ------------------| 1 byte unsigned int
-  priceFeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c x CurrencyPair
+  priceFeeds: CurrencyPair[] // ---------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts CurrencyPair
 }
 
 /**
@@ -86,7 +86,7 @@ export class CUpdateOracle extends ComposableBuffer<UpdateOracle> {
 export interface SetOracleData {
   oracleId: string // -------------------| 32 bytes hex string
   timestamp: BigNumber // ---------------| 8 bytes unsigned integer
-  tokens: TokenPrice[] // ---------------| c = VarUInt{1-9 bytes}, + c x TokenPrice
+  tokens: TokenPrice[] // ---------------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenPrice
 }
 
 /**

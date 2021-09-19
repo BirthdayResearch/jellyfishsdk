@@ -30,7 +30,7 @@ export class CUtxosToAccount extends ComposableBuffer<UtxosToAccount> {
  */
 export interface AccountToUtxos {
   from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes
-  balances: TokenBalance[] // -----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  balances: TokenBalance[] // -----------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenBalance
   mintingOutputsStart: number // --------| 4 bytes unsigned
 }
 

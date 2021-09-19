@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js'
  * TokenMint DeFi Transaction
  */
 export interface TokenMint {
-  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c x TokenBalance
+  balances: TokenBalance[] // ----------| c = VarUInt{1-9 bytes}, + c txn_builder_update_loan_token1.test.ts TokenBalance
 }
 
 /**
