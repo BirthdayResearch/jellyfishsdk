@@ -160,10 +160,6 @@ export class Loan {
     return await this.client.call('listloantokens', [], 'bignumber')
   }
 
-  async updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('updateloantoken', [oldToken, newTokenDetails, utxos], 'number')
-  }
-
   /**
    * Creates a vault transaction.
    *
@@ -255,14 +251,6 @@ export interface LoanTokenDetails {
 export interface CreateVault {
   ownerAddress: string
   loanSchemeId?: string
-}
-
-export interface UpdateLoanToken {
-  symbol?: string
-  name?: string
-  priceFeedId?: string
-  mintable?: boolean
-  interest?: BigNumber
 }
 
 export interface UTXO {

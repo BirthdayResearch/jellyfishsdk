@@ -87,7 +87,7 @@ export interface TransactionSegWit extends Transaction {
  * followed by a string of bytes.
  */
 export interface Witness {
-  scripts: WitnessScript[] // ----------| c = VarUInt{1-9 bytes}, + c (n = VarUInt{1-9 bytes}, + n bytes)
+  scripts: WitnessScript[] // ----------| c = VarUInt{1-9 bytes}, + c x (n = VarUInt{1-9 bytes}, + n bytes)
 }
 
 /**
