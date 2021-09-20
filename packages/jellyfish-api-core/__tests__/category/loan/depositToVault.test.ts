@@ -235,13 +235,14 @@ describe('Loan', () => {
 
   it('should be failed as vault must contain min 50% of DFI', async () => {
     await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '100@DFI'
+      vaultId: vaultId1, from: collateralAddress, amount: '1000@DFI'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
+    // deposit * factor >= collateralValue / 2
     const promise = tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '100@BTC'
+      vaultId: vaultId1, from: collateralAddress, amount: '0.11@BTC'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')

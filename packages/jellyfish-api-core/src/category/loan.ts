@@ -195,8 +195,8 @@ export class Loan {
    * Take loan
    *
    * @param {TakeLoanMetadata} metadata
-   * @param {string} vaultId Vault id
-   * @param {string} amounts In "amount@symbol" format
+   * @param {string} metadata.vaultId Vault id
+   * @param {string} metadata.amounts In "amount@symbol" format
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
