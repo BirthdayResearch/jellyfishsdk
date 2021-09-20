@@ -8,6 +8,7 @@ describe('Loan', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let vaultId1: string
+  let liqVaultId: string
   let collateralAddress: string
   let vaultAddress: string
 
@@ -24,30 +25,33 @@ describe('Loan', () => {
   async function setup (): Promise<void> {
     // token setup
     collateralAddress = await tGroup.get(0).container.getNewAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 20000 })
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 30000 })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).token.mint({ symbol: 'BTC', amount: 20000 })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
+    await tGroup.get(0).token.create({ symbol: 'CAT', collateralAddress })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.mint({ symbol: 'CAT', amount: 10000 })
+    await tGroup.get(0).generate(1)
 
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' }
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'CAT', currency: 'USD' }
     ]
     const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@CAT', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
 
     // collateral token
     await tGroup.get(0).rpc.loan.setCollateralToken({
@@ -65,13 +69,19 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
+    await tGroup.get(0).rpc.loan.setCollateralToken({
+      token: 'CAT',
+      factor: new BigNumber(0.1),
+      priceFeedId: oracleId
+    })
+    await tGroup.get(0).generate(1)
+
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
       priceFeedId: oracleId
     })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
 
     // loan scheme set up
     await tGroup.get(0).rpc.loan.createLoanScheme({
@@ -80,7 +90,6 @@ describe('Loan', () => {
       id: 'scheme'
     })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
 
     vaultAddress = await tGroup.get(0).generateAddress()
     vaultId = await tGroup.get(0).rpc.loan.createVault({
@@ -88,12 +97,38 @@ describe('Loan', () => {
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
 
     vaultId1 = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
+    await tGroup.get(0).generate(1)
+
+    // set up liquidated vault here
+    liqVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await tGroup.get(0).generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: liqVaultId, from: collateralAddress, amount: '1@CAT'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: liqVaultId,
+      amounts: '100@TSLA'
+    })
+    await tGroup.get(0).generate(1)
+
+    // liquidated: true
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
   }
@@ -233,6 +268,16 @@ describe('Loan', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 
+  it('should not depositToVault with arbitrary utxos', async () => {
+    const utxo = await tGroup.get(0).container.fundAddress(await tGroup.get(0).generateAddress(), 10)
+
+    const promise = tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: vaultId1, from: collateralAddress, amount: '1@BTC'
+    }, [utxo])
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
+  })
+
   it('should be failed as vault must contain min 50% of DFI', async () => {
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '1000@DFI'
@@ -246,5 +291,16 @@ describe('Loan', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+  })
+
+  it('should not deposit to liquidated vault', async () => {
+    const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
+    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+
+    const promise = tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: liqVaultId, from: collateralAddress, amount: '1000@DFI'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Cannot deposit to vault under liquidation')
   })
 })
