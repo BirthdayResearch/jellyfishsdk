@@ -9,6 +9,7 @@ describe('Loan', () => {
   let vaultId: string
   let vaultId1: string
   let collateralAddress: string
+  let vaultAddress: string
 
   beforeAll(async () => {
     await tGroup.start()
@@ -25,10 +26,8 @@ describe('Loan', () => {
     collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 20000 })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
     await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
     await tGroup.get(0).token.mint({ symbol: 'BTC', amount: 20000 })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
@@ -58,15 +57,13 @@ describe('Loan', () => {
       // activateAfterBlock: 130  // <- hit socket hang up
     })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'BTC',
-      factor: new BigNumber(1),
+      factor: new BigNumber(0.5),
       priceFeedId: oracleId
     })
     await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
 
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
@@ -85,8 +82,9 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
+    vaultAddress = await tGroup.get(0).generateAddress()
     vaultId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
+      ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
@@ -125,6 +123,14 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow(`Incorrect authorization for ${addr}`)
   })
 
+  it('should be failed as deposit by other node', async () => {
+    const promise = tGroup.get(1).rpc.loan.depositToVault({
+      id: vaultId, from: collateralAddress, amount: '300@DFI'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`Incorrect authorization for ${collateralAddress}`)
+  })
+
   it('should be failed as vault is not exists', async () => {
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       id: '0'.repeat(64), from: collateralAddress, amount: '10000@DFI'
@@ -136,6 +142,13 @@ describe('Loan', () => {
   it('should depositToVault', async () => {
     {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
+      expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
+      expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
+      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
+      expect(vaultBefore.loanAmount).toStrictEqual([])
+      expect(vaultBefore.loanValue).toStrictEqual(0)
+      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
+
       const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
         ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
         : undefined
@@ -149,9 +162,23 @@ describe('Loan', () => {
       await tGroup.waitForSync()
 
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
+      // check the changes after deposit
+      expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
+      expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
+      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
+      expect(vaultAfter.loanAmount).toStrictEqual(vaultBefore.loanAmount)
+      expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
+      expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
+
+      // assert collateralAmounts
       const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
       const vaultAFterDFIAmt = Number(vaultAfterDFIAcc.split('@')[0])
       expect(vaultAFterDFIAmt - vaultBeforeDFIAmt).toStrictEqual(10000)
+
+      // assert collateralValue
+      // calculate DFI collateral value with factor
+      const dfiDeposit = 10000 * 1 * 1 // deposit 10000 DFI * priceFeed 1 USD * 1 factor
+      expect(vaultAfter.collateralValue - vaultBefore.collateralValue).toStrictEqual(dfiDeposit)
     }
 
     {
@@ -169,9 +196,15 @@ describe('Loan', () => {
       await tGroup.waitForSync()
 
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
+      // assert collateralAmounts
       const vaultAfterBTCAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'BTC')
       const vaultAFterBTCAmt = Number(vaultAfterBTCAcc.split('@')[0])
       expect(vaultAFterBTCAmt - vaultBeforeBTCAmt).toStrictEqual(1)
+
+      // assert collateralValue
+      // calculate BTC collateral value with factor
+      const btcDeposit = 1 * 10000 * 0.5 // deposit 1 BTC * priceFeed 10000 USD * 0.5 factor
+      expect(vaultAfter.collateralValue - vaultBefore.collateralValue).toStrictEqual(btcDeposit)
     }
   })
 
