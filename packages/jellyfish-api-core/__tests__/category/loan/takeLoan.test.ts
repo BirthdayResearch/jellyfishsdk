@@ -89,12 +89,12 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      id: vaultId, from: collateralAddress, amount: '10000@DFI'
+      vaultId: vaultId, from: collateralAddress, amount: '10000@DFI'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      id: vaultId, from: collateralAddress, amount: '1@BTC'
+      vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
     })
     await tGroup.get(0).generate(1)
 
@@ -107,7 +107,7 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      id: vaultId1, from: collateralAddress, amount: '12000@DFI'
+      vaultId: vaultId1, from: collateralAddress, amount: '12000@DFI'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()

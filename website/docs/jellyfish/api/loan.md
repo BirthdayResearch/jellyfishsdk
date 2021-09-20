@@ -291,7 +291,7 @@ interface loan {
 }
 
 interface DepositVault {
-  id: string
+  vaultId: string
   from: string
   amount: string // amount@symbol
 }
