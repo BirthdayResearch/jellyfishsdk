@@ -76,6 +76,8 @@ describe('P2PKH', () => {
       expect(p2pkh.type).toStrictEqual('P2PKH')
       expect(p2pkh.valid).toBeTruthy()
 
+      console.log(p2pkh)
+
       const scriptStack = p2pkh.getScript()
       expect(scriptStack.stack.length).toStrictEqual(5)
       expect(scriptStack.stack[0]).toStrictEqual(OP_CODES.OP_DUP)

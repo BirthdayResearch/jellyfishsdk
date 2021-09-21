@@ -4,7 +4,7 @@ import { wallet } from '@defichain/jellyfish-api-core'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 import { fromScript, fromScriptHex } from '@defichain/jellyfish-address'
-import { fromScriptP2WPKH } from '../../src/script/p2wpkh'
+import { fromScriptP2WPKH } from '../../src/script/P2WPKH'
 import { NetworkName } from '@defichain/jellyfish-network'
 
 describe('with regtest container', () => {
@@ -52,16 +52,40 @@ it('should convert from Script', () => {
   {
     const address = fromScriptP2WPKH(script, 'mainnet')
     expect(address).toStrictEqual('df1qpe7q4vvtxpdunpazvmwqdh3xlnatfdt2xr8mpv')
+
+    const decoded = fromScript(script, 'mainnet')
+    expect(decoded).toStrictEqual({
+      type: 'p2wpkh',
+      address: address,
+      script: script,
+      network: 'mainnet'
+    })
   }
 
   {
     const address = fromScriptP2WPKH(script, 'testnet')
     expect(address).toStrictEqual('tf1qpe7q4vvtxpdunpazvmwqdh3xlnatfdt24nagpg')
+
+    const decoded = fromScript(script, 'testnet')
+    expect(decoded).toStrictEqual({
+      type: 'p2wpkh',
+      address: address,
+      script: script,
+      network: 'testnet'
+    })
   }
 
   {
     const address = fromScriptP2WPKH(script, 'regtest')
     expect(address).toStrictEqual('bcrt1qpe7q4vvtxpdunpazvmwqdh3xlnatfdt2xghtpf')
+
+    const decoded = fromScript(script, 'regtest')
+    expect(decoded).toStrictEqual({
+      type: 'p2wpkh',
+      address: address,
+      script: script,
+      network: 'regtest'
+    })
   }
 })
 

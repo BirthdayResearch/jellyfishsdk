@@ -80,4 +80,4 @@ export const DeFiAddress = {
   from
 }
 
-export * from './script/script'
+export * from './script'
