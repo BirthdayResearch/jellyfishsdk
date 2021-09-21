@@ -4,7 +4,7 @@ import { wallet } from '@defichain/jellyfish-api-core'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
 import { fromScript, fromScriptHex } from '@defichain/jellyfish-address'
-import { fromScriptP2PKH } from '../../src/script/p2pkh'
+import { fromScriptP2PKH } from '../../src/script/P2PKH'
 import { NetworkName } from '@defichain/jellyfish-network'
 
 describe('with regtest container', () => {
