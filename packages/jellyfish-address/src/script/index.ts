@@ -11,7 +11,7 @@ export { DecodedAddress }
 
 /**
  * Convert a script to address, this operation requires the network to be known.
- * A script is network agnostic while address is prefixed with network unique human readable part.
+ * A script is network agnostic while the address is prefixed with the network's unique human readable part.
  *
  * @param {Script} script to convert into address
  * @param {NetworkName} network to prefix human readable part of the address
@@ -63,7 +63,7 @@ export function fromScript (script: Script, network: NetworkName): DecodedAddres
 
 /**
  * Convert a script to address, this operation requires the network to be known.
- * A script is network agnostic while address is prefixed with network unique human readable part.
+ * A script is network agnostic while the address is prefixed with the network's unique human readable part.
  *
  * @param {string} hex of the script to convert into address, without VarUInt length
  * @param {NetworkName} network to prefix human readable part of the address
