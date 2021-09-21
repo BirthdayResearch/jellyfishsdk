@@ -12,3 +12,5 @@ export * from './script'
 export * from './tx'
 export * from './tx_composer'
 export * from './tx_segwit'
+
+export { toOPCodes } from './script/_buffer'

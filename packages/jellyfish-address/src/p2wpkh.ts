@@ -95,5 +95,6 @@ export function fromScriptP2WPKH (script: Script, network: NetworkName): string 
   }
 
   const hash = script.stack[1] as OP_PUSHDATA
-  return Bech32.fromHash160(hash.asBuffer(), getHRP(network), 0x00)
+  const buffer = Buffer.from(hash.hex, 'hex')
+  return Bech32.fromHash160(buffer, getHRP(network), 0x00)
 }
