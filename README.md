@@ -2,6 +2,7 @@
 [![codecov](https://codecov.io/gh/DeFiCh/jellyfish/branch/main/graph/badge.svg?token=IYL9K0WROA)](https://codecov.io/gh/DeFiCh/jellyfish)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7019f1d74a0500951b2a/maintainability)](https://codeclimate.com/github/DeFiCh/jellyfish/maintainability)
 [![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
 # [@defichain/jellyfish](https://jellyfish.defichain.com)
 
@@ -21,12 +22,6 @@ We are consolidating all jellyfish ecosystem projects ocean, whale, playground, 
 - Early regression detection upstream to downstream changes with monolithic repo structure.
 
 </details>
-
-## Documentation & Community
-
-> [https://jellyfish.defichain.com](https://jellyfish.defichain.com)
-
-[![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
 ## Packages
 
