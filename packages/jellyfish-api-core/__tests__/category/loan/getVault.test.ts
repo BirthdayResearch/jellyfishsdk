@@ -6,12 +6,13 @@ describe('Loan getVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string
+  let oracleId: string
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     collateralAddress = await testing.generateAddress()
-    await testing.token.dfi({ address: collateralAddress, amount: 20000 })
+    await testing.token.dfi({ address: collateralAddress, amount: 30000 })
     await testing.token.create({ symbol: 'BTC', collateralAddress })
     await testing.generate(1)
     await testing.token.mint({ symbol: 'BTC', amount: 20000 })
@@ -28,7 +29,7 @@ describe('Loan getVault', () => {
       { token: 'BTC', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' }
     ]
-    const oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+    oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await testing.generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
@@ -40,7 +41,6 @@ describe('Loan getVault', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       priceFeedId: oracleId
-      // activateAfterBlock: 130  // <- hit socket hang up
     })
     await testing.rpc.loan.setCollateralToken({
       token: 'BTC',
@@ -137,17 +137,55 @@ describe('Loan getVault', () => {
     })
   })
 
+  it('should getVault with liquidated vault', async () => {
+    const ownerAddress = await testing.generateAddress()
+    const vaultId = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
+    await testing.generate(1)
+
+    await testing.container.call('deposittovault', [vaultId, collateralAddress, '10000@DFI'])
+    await testing.generate(1)
+    await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@BTC'])
+    await testing.generate(1)
+
+    // take loan
+    await testing.container.call('takeloan', [{ vaultId: vaultId, amounts: '30@TSLA' }])
+    await testing.generate(1)
+
+    // check vault not under liquidation.
+    const data = await testing.rpc.loan.getVault(vaultId)
+    expect(data.isUnderLiquidation).toStrictEqual(false)
+
+    // make vault enter under liquidation state by a price hike of the loan token
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
+    await testing.generate(1)
+
+    // get auction details
+    const autionDetails: [] = await testing.rpc.call('listauctions', [], 'bignumber')
+
+    const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
+    expect(vaultDataAfterPriceHike).toStrictEqual({
+      loanSchemeId: 'default', // Get default loan scheme
+      ownerAddress: ownerAddress,
+      isUnderLiquidation: true,
+      batches: autionDetails.filter((auction: {vaultId: string}) => auction.vaultId === vaultId).map((auction: {batches: []}) => auction.batches)[0]
+    })
+
+    // set the price oracle back to original price
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+  })
+
   it('should not getVault if vault id is invalid', async () => {
     // Pass non existing hex id
     const promise = testing.rpc.loan.getVault('2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f')
     await expect(promise).rejects.toThrow('RpcApiError: \'Vault <2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f> not found\', code: -20, method: getvault')
 
-    // Pass non hex id
-    const promise2 = testing.rpc.loan.getVault('INVALID_VAULT_ID')
-    await expect(promise2).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 16, for \'INVALID_VAULT_ID\')\', code: -8, method: getvault')
-
     // Pass hex id with invalid length
     const promise3 = testing.rpc.loan.getVault(Buffer.from('INVALID_VAULT_ID').toString('hex'))
     await expect(promise3).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 32, for \'494e56414c49445f5641554c545f4944\')\', code: -8, method: getvault')
+
+    // Pass non hex id
+    const promise2 = testing.rpc.loan.getVault('x'.repeat(64))
+    await expect(promise2).rejects.toThrow('RpcApiError: \'vaultId must be hexadecimal string (not \'' + 'x'.repeat(64) + '\')\', code: -8, method: getvault')
   })
 })
