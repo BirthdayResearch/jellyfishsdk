@@ -2,6 +2,8 @@ import { SmartBuffer } from 'smart-buffer'
 import { Script, toOPCodes } from '@defichain/jellyfish-transaction'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { fromScriptP2WPKH } from './p2wpkh'
+import { Address } from './address'
+import { fromScriptP2WSH } from './p2wsh'
 
 /**
  * Convert a script to address, this operation requires the network to be known.
@@ -11,10 +13,25 @@ import { fromScriptP2WPKH } from './p2wpkh'
  * @param {NetworkName} network to prefix human readable part of the address
  * @return {string | undefined} address if is a recognizable, undefined if fail to parse
  */
-export function fromScript (script: Script, network: NetworkName): string | undefined {
+export function fromScript (script: Script, network: NetworkName): Address | undefined {
   const p2wpkh = fromScriptP2WPKH(script, network)
   if (p2wpkh !== undefined) {
-    return p2wpkh
+    return {
+      type: 'p2wpkh',
+      address: p2wpkh,
+      script: script,
+      network: network
+    }
+  }
+
+  const p2wsh = fromScriptP2WSH(script, network)
+  if (p2wsh !== undefined) {
+    return {
+      type: 'p2wsh',
+      address: p2wsh,
+      script: script,
+      network: network
+    }
   }
 
   return undefined
@@ -28,8 +45,10 @@ export function fromScript (script: Script, network: NetworkName): string | unde
  * @param {NetworkName} network to prefix human readable part of the address
  * @return {string | undefined} address if is a recognizable, undefined if fail to parse
  */
-export function fromScriptHex (hex: string, network: NetworkName): string | undefined {
+export function fromScriptHex (hex: string, network: NetworkName): Address | undefined {
   const buffer = Buffer.from(hex, 'hex')
-  const stack = toOPCodes(SmartBuffer.fromBuffer(buffer))
-  return fromScript({ stack: stack }, network)
+  const script: Script = {
+    stack: toOPCodes(SmartBuffer.fromBuffer(buffer))
+  }
+  return fromScript(script, network)
 }

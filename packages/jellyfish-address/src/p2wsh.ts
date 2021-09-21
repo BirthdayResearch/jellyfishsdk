@@ -65,22 +65,3 @@ export class P2WSH extends Bech32Address {
     return new P2WSH(network, utf8, hex, true)
   }
 }
-
-function isScriptP2WSH (script: Script): boolean {
-  return script.stack.length === 2 &&
-    script.stack[0].type === OP_CODES.OP_0.type &&
-    script.stack[1].type === 'OP_PUSHDATA' &&
-    (script.stack[1] as OP_PUSHDATA).length() === 32
-}
-
-export function fromScriptP2WPKH (script: Script, network: NetworkName): string | undefined {
-  if (!isScriptP2WSH(script)) {
-    return undefined
-  }
-
-  const hash = script.stack[1] as OP_PUSHDATA
-  const buffer = Buffer.from(hash.hex, 'hex')
-  const hrp = getNetwork(network).bech32.hrp
-  return undefined
-  // return Bech32.fromHash160(buffer, hrp, 0x00)
-}
