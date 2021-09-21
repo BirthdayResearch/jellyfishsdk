@@ -158,14 +158,6 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow(`Incorrect authorization for ${addr}`)
   })
 
-  it('should be failed as deposit by other node', async () => {
-    const promise = tGroup.get(1).rpc.loan.depositToVault({
-      vaultId: vaultId, from: collateralAddress, amount: '300@DFI'
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Incorrect authorization for ${collateralAddress}`)
-  })
-
   it('should be failed as vault is not exists', async () => {
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: '0'.repeat(64), from: collateralAddress, amount: '10000@DFI'
@@ -241,6 +233,37 @@ describe('Loan', () => {
       const btcDeposit = 1 * 10000 * 0.5 // deposit 1 BTC * priceFeed 10000 USD * 0.5 factor
       expect(vaultAfter.collateralValue - vaultBefore.collateralValue).toStrictEqual(btcDeposit)
     }
+  })
+
+  it('should be able to depositToVault by anyone', async () => {
+    const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
+
+    const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
+      ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
+      : undefined
+    const vaultBeforeDFIAmt = vaultBeforeDFIAcc !== undefined ? Number(vaultBeforeDFIAcc.split('@')[0]) : 0
+
+    // test node1 deposits to vault
+    const addr = await tGroup.get(1).generateAddress()
+    await tGroup.get(1).token.dfi({ address: addr, amount: 100 })
+    await tGroup.get(1).generate(1)
+    const depositId = await tGroup.get(1).rpc.loan.depositToVault({
+      vaultId: vaultId, from: addr, amount: '2@DFI'
+    })
+    expect(typeof depositId).toStrictEqual('string')
+    await tGroup.get(1).generate(1)
+    await tGroup.waitForSync()
+    const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
+
+    // compare colalteralAmounts
+    const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
+    const vaultAFterDFIAmt = Number(vaultAfterDFIAcc.split('@')[0])
+    expect(vaultAFterDFIAmt - vaultBeforeDFIAmt).toStrictEqual(2)
+
+    // compare collateralValue
+    // calculate DFI collateral value with factor
+    const dfiDeposit = 2 * 1 * 1 // deposit 10000 DFI * priceFeed 1 USD * 1 factor
+    expect(vaultAfter.collateralValue - vaultBefore.collateralValue).toStrictEqual(dfiDeposit)
   })
 
   it('should depositToVault with utxos', async () => {
