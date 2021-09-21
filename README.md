@@ -22,64 +22,13 @@ We are consolidating all jellyfish ecosystem projects ocean, whale, playground, 
 
 </details>
 
-## Installation
-
-> We are deprecating the CJS/UMD bundle in `@defichain/jellyfish`, please use individual packages (`@defichain/jellyfish-*`) for better control of what you need.
-
-### Node
-
-```shell
-npm install @defichain/jellyfish
-```
-
-## Getting Started
-
-### CJS for Node
-
-```js
-const jellyfish = require('@defichain/jellyfish')
-const client = new jellyfish.Client('http://localhost:8554', {
-  timeout: 20000
-})
-
-client.mining.getMiningInfo().then((info) => {
-  console.log(info)
-})
-```
-
-### ES6 Modules
-
-```js
-import { Client } from '@defichain/jellyfish'
-
-const client = new Client('http://localhost:8554')
-const info = await client.mining.getMiningInfo()
-```
-
-### Providers
-
-```js
-import { Client, HttpProvider } from '@defichain/jellyfish'
-
-const options = {} // optional
-
-const user = ''
-const password = ''
-const port = '8554'
-const localClient = new Client(new HttpProvider(`http://${user}:${password}@localhost:${port}/`), options)
-```
-
 ## Documentation & Community
 
 > [https://jellyfish.defichain.com](https://jellyfish.defichain.com)
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/c5b7a65e-aeec-4e12-a7b7-300cbc1a8069/deploy-status)](https://app.netlify.com/sites/cranky-franklin-5e59ef/deploys)
 
-Following the idea of everything in the main branch is production ready; all pull request must be accompanied by a
-documentation change under the `website/` folder. Hence, the main branch should be treated as a release with
-documentations.
-
-### Packages
+## Packages
 
 DeFi Jellyfish follows a monorepo methodology, all maintained packages are in the same repo and published with the same
 version tag.
@@ -113,81 +62,7 @@ Package                                            | Description
 Thanks for contributing, appreciate all the help we can get. Feel free to make a pull-request, we will guide you along
 the way to make it merge-able. Here are some of our documented [contributing guidelines](CONTRIBUTING.md).
 
-You need `node v14`, and `npm v7` for this project, it's required to set
-up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
-
-```shell
-npm install
-```
-
-### Project References
-
-For monorepo to work seamlessly, some configuration is required. It's amazing as your code can jump across all
-sub-packages, you don't need to build the project in every package when you update or clone.
-
-Configurations required when introducing new package:
-
-1. root `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
-2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.json here
-3. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is
-   configured `tsc -b ./tsconfig.build.json`
-
-### Testing
-
-`jest.config.js` is set up at the root project level as well as at each submodule. You can run jest at root to test all
-modules or individually at each submodule. By default, only regtest chain are used for normal testing. If you use
-IntelliJ IDEA, you can right-click any file to test it individually and have it reported to the IDE.
-
-Docker is required to run the tests as [`@defichain/testcontainers`](./packages/testcontainers) will automatically spin
-up `regtest` instances for testing. The number of containers it will spin up concurrently is dependent on your
-jest `--maxConcurrency` count. Test are known to be flaky due to the usage of multiple Docker containers for test
-concurrency. Although testcontainers cleans up after itself, there are cases where the tests fail exceptionally you
-might need to occasionally: `docker system prune --volumes`.
-
-#### Unit Testing
-
-Unit testing are created to test each individual units/components of a software. As they are unit tests, they should
-accompany each unitized component or module. They follow the naming semantic of `*.test.ts` and are placed together in
-the same directory structure in `/__tests__` of the code you are testing. Code coverage is collected for this.
-
-#### End-to-end Testing
-
-On top of unit tests, this provides additional testing that tests the entire lifecycle. All dependencies and modules are
-integrated together as expected. They follow the naming semantic of `*.e2e.ts`. Code coverage is collected for this.
-
-For API service endpoints that are meant to be consumed by developer, the testing should also be done in the `*-cient`
-packages. Dogfooding at its finest.
-
-#### Sanity Testing
-
-On top of end-to-end testing, sanity testing is done after the docker image is build. This kind of testing is performed
-to ascertain the possibility of bugs within the workflow that generate the builds. To identify and determine whether a
-build artifact (docker) should be rejected. This is only done on CI and you are not expected to perform them manually.
-
-#### Code coverage
-
-Coverage is collected for all applicable tests at each pull request to main branch with `codecov`. The more testing 🚀
-less 🐛 = 😎
-
-### Publishing
-
-`"version": "0.0.0"` is used because publishing will be done automatically
-by [GitHub releases](https://github.com/DeFiCh/jellyfish/releases) with connected workflows. On
-release `types: [ published, prereleased ]`, GitHub Action will automatically build all packages in this repo and
-publish it into npm.
-
-For packages with accompanying docker images, they are published automatically to GitHub Container Registry
-(ghcr.io/defich). When a new [GitHub releases](https://github.com/DeFiCh/whale/releases) is triggered, GitHub Action
-will automatically build the docker image in this repo and publish it. Two images are created for each release
-targeting `linux/amd64` and `linux/arm64`. The latest tag will always be updated with the last release and semantic
-release is enforced for each release.
-
-### IntelliJ IDEA
-
-IntelliJ IDEA is the IDE of choice for writing and maintaining this library. IntelliJ's files are included for
-convenience with basic toolchain setup but use of IntelliJ is totally optional.
-
-### Security issues
+## Security issues
 
 If you discover a security vulnerability in
 `@defichain/jellyfish`, [please see submit it privately](https://github.com/DeFiCh/.github/blob/main/SECURITY.md).
