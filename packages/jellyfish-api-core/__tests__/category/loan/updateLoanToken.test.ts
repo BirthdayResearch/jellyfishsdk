@@ -7,14 +7,13 @@ describe('Loan', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
-  let priceFeedId: string
   let loanTokenId: string
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token1',
       currency: 'USD'
     }], 1])
@@ -23,7 +22,7 @@ describe('Loan', () => {
     loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token1',
       name: 'Token1',
-      priceFeedId,
+      priceFeedId: 'Token1/USD',
       mintable: true,
       interest: new BigNumber(0.01)
     }, []])
@@ -36,7 +35,7 @@ describe('Loan', () => {
     if (data[loanTokenId].token[index].symbol === 'Token1') { // If Token1, always update its name, priceFeedId, mintable and interest values back to their original values
       await testing.rpc.loan.updateLoanToken('Token1', {
         name: 'Token1',
-        priceFeedId,
+        priceFeedId: 'Token1/USD',
         mintable: true,
         interest: new BigNumber(0.01)
       })
@@ -44,7 +43,7 @@ describe('Loan', () => {
       await testing.rpc.loan.updateLoanToken('Token2', {
         symbol: 'Token1',
         name: 'Token1',
-        priceFeedId,
+        priceFeedId: 'Token1/USD',
         mintable: true,
         interest: new BigNumber(0.01)
       })
@@ -84,7 +83,7 @@ describe('Loan', () => {
             collateralAddress: expect.any(String)
           }
         },
-        priceFeedId,
+        priceFeedId: 'Token1/USD',
         interest: 0.01
       }
     })
@@ -112,7 +111,7 @@ describe('Loan', () => {
   })
 
   it('should updateLoanToken if symbol is more than 8 letters', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token3',
       currency: 'USD'
     }], 1])
@@ -120,7 +119,7 @@ describe('Loan', () => {
 
     const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token3',
-      priceFeedId
+      priceFeedId: 'Token3/USD'
     }, []])
     await testing.generate(1)
 
@@ -146,8 +145,8 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: updateloantoken')
   })
 
-  it('should not updateLoanToken if token with same symbol was created before', async () => {
-    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  it('should not updateLoanToken if the symbol is used in other token', async () => {
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token4',
       currency: 'USD'
     }], 1])
@@ -156,7 +155,7 @@ describe('Loan', () => {
     await testing.container.call('setloantoken', [{
       symbol: 'Token4',
       name: 'Token4',
-      priceFeedId: priceFeedId1
+      priceFeedId: 'Token4/USD'
     }, []])
     await testing.generate(1)
 
@@ -183,7 +182,7 @@ describe('Loan', () => {
   })
 
   it('should updateLoanToken if two loan tokens have the same name', async () => {
-    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token5',
       currency: 'USD'
     }], 1])
@@ -191,7 +190,7 @@ describe('Loan', () => {
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token5',
-      priceFeedId: priceFeedId2
+      priceFeedId: 'Token5/USD'
     })
     await testing.generate(1)
 
@@ -204,40 +203,57 @@ describe('Loan', () => {
   })
 
   it('should updateLoanToken with given priceFeedId', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token2',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
-    await testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', priceFeedId })
+    await testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', priceFeedId: 'Token2/USD' })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
-    expect(data[loanTokenId].priceFeedId).toStrictEqual(priceFeedId)
+    expect(data[loanTokenId].priceFeedId).toStrictEqual('Token2/USD')
   })
 
-  it('should not updateLoanToken if priceFeedId is invalid', async () => {
-    const promise = testing.rpc.loan.updateLoanToken('Token1', { priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\noracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist!\', code: -32600, method: updateloantoken')
+  it('should not updateLoanToken if priceFeedId does not belong to any oracle', async () => {
+    const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', priceFeedId: 'X/USD' })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\nPrice feed X/USD does not belong to any oracle\', code: -32600, method: updateloantoken')
   })
 
-  it('should updateLoanToken if mintable is true', async () => {
-    await testing.rpc.loan.updateLoanToken('Token1', { mintable: true })
-    await testing.generate(1)
-
-    const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].mintable).toStrictEqual(true)
+  it('should not updateLoanToken if priceFeedId is not in correct format', async () => {
+    const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', priceFeedId: 'X' }) // Must be in token/currency format
+    await expect(promise).rejects.toThrow('RpcApiError: \'price feed not in valid format - token/currency!\', code: -8, method: updateloantoken')
   })
 
-  it('should updateLoanToken if mintable is false', async () => {
-    await testing.rpc.loan.updateLoanToken('Token1', { mintable: false })
-    await testing.generate(1)
+  it('should not updateLoanToken if priceFeedId is an empty string', async () => {
+    const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', priceFeedId: '' })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid parameters, argument "priceFeedId" must be non-null\', code: -8, method: updateloantoken')
+  })
 
-    const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].mintable).toStrictEqual(false)
+  it('should not updateLoanToken if token/currency of priceFeedId contains empty string', async () => {
+    const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', priceFeedId: '/' })
+    await expect(promise).rejects.toThrow('RpcApiError: \'token/currency contains empty string\', code: -8, method: updateloantoken')
+  })
+
+  it('should updateLoanToken with given mintable flag', async () => {
+    {
+      await testing.rpc.loan.updateLoanToken('Token1', { mintable: false })
+      await testing.generate(1)
+
+      const data = await testing.container.call('listloantokens', [])
+      const index = Object.keys(data).indexOf(loanTokenId) + 1
+      expect(data[loanTokenId].token[index].mintable).toStrictEqual(false)
+    }
+
+    {
+      await testing.rpc.loan.updateLoanToken('Token1', { mintable: true })
+      await testing.generate(1)
+
+      const data = await testing.container.call('listloantokens', [])
+      const index = Object.keys(data).indexOf(loanTokenId) + 1
+      expect(data[loanTokenId].token[index].mintable).toStrictEqual(true)
+    }
   })
 
   it('should updateLoanToken if interest number is greater than 0 and has less than 9 digits in the fractional part', async () => {
