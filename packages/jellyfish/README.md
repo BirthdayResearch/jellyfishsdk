@@ -2,13 +2,5 @@
 
 # @defichain/jellyfish
 
-This is the entrypoint for most dApp developer. Distributed as `@defichain/jellyfish`, it bundles and creates 4 types of
-JavaScript packages for public use.
-
-This package provides conventional defaults and bundles all code required for dApps building. For library consumer, it is
-just "plug and play", they don't need to care how it works underneath.
-
-1. `dist/jellyfish.cjs.js` for node.js
-1. `dist/jellyfish.umd.js` for browser
-1. `dist/jellyfish.esm.js` for ES6 module
-1. `dist/jellyfish.d.ts` for TypeScript definitions
+CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of
+your dependencies.

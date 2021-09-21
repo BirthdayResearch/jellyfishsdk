@@ -5,6 +5,8 @@ import { HttpProvider, HttpProviderConstructor, Provider } from './provider'
 
 /**
  * Client options for Jellyfish
+ *
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
  */
 export interface JellyfishOptions {
   /**
@@ -19,6 +21,9 @@ export interface JellyfishOptions {
   headers?: string[][] | Record<string, string>
 }
 
+/**
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
+ */
 const JellyfishOptionsDefault = {
   timeout: 60000
 }
@@ -33,6 +38,8 @@ const JellyfishOptionsDefault = {
  * @param options jellyfish client options
  *
  * @constructor
+ *
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
  */
 function initClient (provider: string | Provider, options?: JellyfishOptions): ApiClient {
   const url = typeof provider === 'string' ? provider : provider.url
@@ -42,6 +49,9 @@ function initClient (provider: string | Provider, options?: JellyfishOptions): A
   )
 }
 
+/**
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
+ */
 interface ClientConstructor {
   new (provider: string | Provider, options?: JellyfishOptions): ApiClient
 
@@ -50,6 +60,8 @@ interface ClientConstructor {
 
 /**
  * Initialize a Jellyfish Client
+ *
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
  */
 export const Client: ClientConstructor = initClient as ClientConstructor
 export {
@@ -95,6 +107,8 @@ export {
  * @example <caption>CommonJS</caption>
  * var jf = require('@defichain/jellyfish')
  * var client1 = jf.Client(`http://${user}:${password}@127.0.0.1:${port}/`)
+ *
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
  */
 export const Jellyfish: {
   Client: ClientConstructor
@@ -105,4 +119,7 @@ export const Jellyfish: {
 }
 
 /* eslint-disable import/no-default-export */
+/**
+ * @deprecated CJS and UMD bundles has been deprecated, please use individual packages (@defichain/jellyfish-*) for better control of your dependencies.
+ */
 export default Jellyfish
