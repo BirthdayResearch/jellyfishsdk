@@ -4,7 +4,7 @@ import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
 
 import { Bech32Address } from './bech32_address'
 import { Validator } from './address'
-import { Bech32, HRP } from '@defichain/jellyfish-crypto'
+import { Bech32 } from '@defichain/jellyfish-crypto'
 
 export class P2WPKH extends Bech32Address {
   static SAMPLE = 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq'
@@ -71,17 +71,6 @@ export class P2WPKH extends Bech32Address {
   }
 }
 
-function getHRP (network: NetworkName): HRP {
-  switch (network) {
-    case 'mainnet':
-      return 'df'
-    case 'regtest':
-      return 'bcrt'
-    case 'testnet':
-      return 'tf'
-  }
-}
-
 function isScriptP2WPKH (script: Script): boolean {
   return script.stack.length === 2 &&
     script.stack[0].type === OP_CODES.OP_0.type &&
@@ -96,5 +85,6 @@ export function fromScriptP2WPKH (script: Script, network: NetworkName): string 
 
   const hash = script.stack[1] as OP_PUSHDATA
   const buffer = Buffer.from(hash.hex, 'hex')
-  return Bech32.fromHash160(buffer, getHRP(network), 0x00)
+  const hrp = getNetwork(network).bech32.hrp
+  return Bech32.fromHash160(buffer, hrp, 0x00)
 }
