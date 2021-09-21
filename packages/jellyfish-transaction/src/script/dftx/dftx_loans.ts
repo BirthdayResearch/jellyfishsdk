@@ -2,6 +2,7 @@ import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
+import { CCurrencyPair, CurrencyPair } from './dftx_price'
 
 /**
  * CreateLoanScheme / UpdateLoanScheme DeFi Transaction
@@ -34,7 +35,7 @@ export interface SetDefaultLoanScheme {
 export interface SetCollateralToken {
   token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
   factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
-  priceFeedId: string // ----------| 32 bytes hex string, Txid of oracle feeding the price
+  priceFeedId: CurrencyPair // ----| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, token/currency pair to use for price of token
   activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
 }
 
@@ -42,11 +43,11 @@ export interface SetCollateralToken {
  * SetLoanToken DeFi Transaction
  */
 export interface SetLoanToken {
-  symbol: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
-  name: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
-  priceFeedId: string // -------| 32 bytes, hex string, Txid of oracle feeding the price
-  mintable: boolean // ---------| 1 byte, mintable, Token's 'Mintable' property
-  interest: BigNumber // -------| 8 bytes unsigned, interest rate
+  symbol: string // -------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
+  name: string // ---------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
+  priceFeedId: CurrencyPair // --| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, token/currency pair to use for price of token
+  mintable: boolean // ----------| 1 byte, mintable, Token's 'Mintable' property
+  interest: BigNumber // --------| 8 bytes unsigned, interest rate
 }
 
 /**
@@ -128,7 +129,7 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
     return [
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v),
+      ComposableBuffer.varUInt1(() => sct.priceFeedId, v => sct.priceFeedId = v, sct => new CCurrencyPair(sct)),
       ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
     ]
   }
@@ -146,7 +147,7 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
     return [
       ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
-      ComposableBuffer.hexBEBufferLE(32, () => slt.priceFeedId, v => slt.priceFeedId = v),
+      ComposableBuffer.varUInt1(() => slt.priceFeedId, v => slt.priceFeedId = v, v => new CCurrencyPair(v)),
       ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
     ]
