@@ -57,7 +57,7 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: oracleId
+      priceFeedId: 'DFI/USD'
       // activateAfterBlock: 130  // <- hit socket hang up
     })
     await tGroup.get(0).generate(1)
@@ -65,21 +65,21 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: oracleId
+      priceFeedId: 'BTC/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'CAT',
       factor: new BigNumber(0.1),
-      priceFeedId: oracleId
+      priceFeedId: 'CAT/USD'
     })
     await tGroup.get(0).generate(1)
 
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: oracleId
+      priceFeedId: 'TSLA/USD'
     })
     await tGroup.get(0).generate(1)
 
