@@ -97,7 +97,7 @@ export class Loan {
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {BigNumber} collateralToken.factor Collateralization factor
-   * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
+   * @param {string} collateralToken.priceFeedId token/currency pair to use for price of token
    * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
@@ -135,7 +135,7 @@ export class Loan {
    * @param {SetLoanToken} loanToken
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {string} loanToken.priceFeedId token/currency pair to use for price of token
    * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
    * @param {BigNumber} [loanToken.interest = 0] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend

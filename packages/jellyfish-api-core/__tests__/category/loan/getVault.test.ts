@@ -40,19 +40,19 @@ describe('Loan getVault', () => {
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: oracleId
+      priceFeedId: 'DFI/USD'
     })
     await testing.rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: oracleId
+      priceFeedId: 'BTC/USD'
     })
     await testing.generate(1)
 
     // loan token
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: oracleId
+      priceFeedId: 'TSLA/USD'
     })
     await testing.generate(1)
   })
