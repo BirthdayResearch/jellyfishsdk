@@ -35,7 +35,7 @@ export interface SetDefaultLoanScheme {
 export interface SetCollateralToken {
   token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
   factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
-  priceFeedId: CurrencyPair // ----| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, token/currency pair to use for price of token
+  priceFeedId: CurrencyPair // ----| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
 }
 
@@ -45,7 +45,7 @@ export interface SetCollateralToken {
 export interface SetLoanToken {
   symbol: string // -------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
   name: string // ---------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
-  priceFeedId: CurrencyPair // --| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, token/currency pair to use for price of token
+  priceFeedId: CurrencyPair // --| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   mintable: boolean // ----------| 1 byte, mintable, Token's 'Mintable' property
   interest: BigNumber // --------| 8 bytes unsigned, interest rate
 }
