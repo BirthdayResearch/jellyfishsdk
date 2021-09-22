@@ -131,15 +131,6 @@ describe('Loan', () => {
     expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
-  it('should updateLoanToken by given symbol', async () => {
-    await testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2' })
-    await testing.generate(1)
-
-    const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('Token2')
-  })
-
   it('should not updateLoanToken if symbol is an empty string', async () => {
     const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: '' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: updateloantoken')
