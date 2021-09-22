@@ -1,12 +1,12 @@
 import { Network } from '@defichain/jellyfish-network'
 import { bech32 } from 'bech32'
-import { Address, AddressType, Validator } from './address'
+import { Address, AddressTypeDeprecated, Validator } from './address'
 
 export abstract class Bech32Address extends Address {
   static MAX_LENGTH = 90
   static MAX_HUMAN_READABLE_LENGTH = 83
 
-  constructor (network: Network, utf8String: string, valid: boolean, addressType: AddressType) {
+  constructor (network: Network, utf8String: string, valid: boolean, addressType: AddressTypeDeprecated) {
     super(network, utf8String.toLowerCase(), valid, addressType)
   }
 

@@ -8,7 +8,30 @@ import { fromBase58CheckP2PKH, fromScriptP2PKH } from './P2PKH'
 import { fromBech32 } from './Bech32'
 import { fromBase58Check } from './Base58Check'
 
-export type AddressType = 'p2wpkh' | 'p2wsh' | 'p2sh' | 'p2pkh'
+/**
+ * Known Address Types
+ */
+export enum AddressType {
+  /**
+   * Pay to Witness Public Key Hash
+   * Native SEGWIT with Bech32
+   */
+  P2WPKH = 'P2WPKH',
+  /**
+   * Pay to Witness Script Hash
+   * Native SEGWIT with Bech32
+   */
+  P2WSH = 'P2WSH',
+  /**
+   * Pay to Script Hash
+   */
+  P2SH = 'P2SH',
+  /**
+   * Pay to Public Key Hash
+   * Also known as legacy
+   */
+  P2PKH = 'P2PKH',
+}
 
 export interface DecodedAddress {
   type: AddressType
@@ -17,8 +40,14 @@ export interface DecodedAddress {
   network: NetworkName
 }
 
-// TODO(fuxingloh): heavy documentations & testing
-
+/**
+ * Convert a address to script, this operation requires the network to be known.
+ * A script is network agnostic while the address is prefixed with the network's unique human readable part.
+ *
+ * @param {string} address to convert into Script
+ * @param {NetworkName} network to prefix human readable part of the address
+ * @return {DecodedAddress | undefined} DecodedAddress if is a recognizable, undefined if fail to parse
+ */
 export function fromAddress (address: string, network: NetworkName): DecodedAddress | undefined {
   try {
     const decodedBech32 = fromBech32(address)
@@ -26,7 +55,7 @@ export function fromAddress (address: string, network: NetworkName): DecodedAddr
     const p2wpkh = fromBech32P2WPKH(decodedBech32, network)
     if (p2wpkh !== undefined) {
       return {
-        type: 'p2wpkh',
+        type: AddressType.P2WPKH,
         address: address,
         script: p2wpkh,
         network: network
@@ -36,7 +65,7 @@ export function fromAddress (address: string, network: NetworkName): DecodedAddr
     const p2wsh = fromBech32P2WSH(decodedBech32, network)
     if (p2wsh !== undefined) {
       return {
-        type: 'p2wsh',
+        type: AddressType.P2WSH,
         address: address,
         script: p2wsh,
         network: network
@@ -51,7 +80,7 @@ export function fromAddress (address: string, network: NetworkName): DecodedAddr
     const p2pkh = fromBase58CheckP2PKH(decodedBase58Check, network)
     if (p2pkh !== undefined) {
       return {
-        type: 'p2pkh',
+        type: AddressType.P2PKH,
         address: address,
         script: p2pkh,
         network: network
@@ -61,7 +90,7 @@ export function fromAddress (address: string, network: NetworkName): DecodedAddr
     const p2sh = fromBase58CheckP2SH(decodedBase58Check, network)
     if (p2sh !== undefined) {
       return {
-        type: 'p2sh',
+        type: AddressType.P2SH,
         address: address,
         script: p2sh,
         network: network
@@ -85,7 +114,7 @@ export function fromScript (script: Script, network: NetworkName): DecodedAddres
   const p2wpkh = fromScriptP2WPKH(script, network)
   if (p2wpkh !== undefined) {
     return {
-      type: 'p2wpkh',
+      type: AddressType.P2WPKH,
       address: p2wpkh,
       script: script,
       network: network
@@ -95,7 +124,7 @@ export function fromScript (script: Script, network: NetworkName): DecodedAddres
   const p2wsh = fromScriptP2WSH(script, network)
   if (p2wsh !== undefined) {
     return {
-      type: 'p2wsh',
+      type: AddressType.P2WSH,
       address: p2wsh,
       script: script,
       network: network
@@ -105,7 +134,7 @@ export function fromScript (script: Script, network: NetworkName): DecodedAddres
   const p2pkh = fromScriptP2PKH(script, network)
   if (p2pkh !== undefined) {
     return {
-      type: 'p2pkh',
+      type: AddressType.P2PKH,
       address: p2pkh,
       script: script,
       network: network
@@ -115,7 +144,7 @@ export function fromScript (script: Script, network: NetworkName): DecodedAddres
   const p2sh = fromScriptP2SH(script, network)
   if (p2sh !== undefined) {
     return {
-      type: 'p2sh',
+      type: AddressType.P2SH,
       address: p2sh,
       script: script,
       network: network
