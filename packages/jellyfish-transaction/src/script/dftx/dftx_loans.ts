@@ -129,7 +129,7 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
     return [
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.varUInt1(() => sct.priceFeedId, v => sct.priceFeedId = v, sct => new CCurrencyPair(sct)),
+      ComposableBuffer.single(() => sct.priceFeedId, v => sct.priceFeedId = v, sct => new CCurrencyPair(sct)),
       ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
     ]
   }
@@ -147,7 +147,7 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
     return [
       ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
-      ComposableBuffer.varUInt1(() => slt.priceFeedId, v => slt.priceFeedId = v, v => new CCurrencyPair(v)),
+      ComposableBuffer.single(() => slt.priceFeedId, v => slt.priceFeedId = v, v => new CCurrencyPair(v)),
       ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
     ]

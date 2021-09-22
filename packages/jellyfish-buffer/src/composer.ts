@@ -533,28 +533,6 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
   }
 
   /**
-   * VarUInt1 helper method, 1 - 9 bytes
-   *
-   * @param getter to read from to buffer
-   * @param setter to set to from buffer
-   * @param asC map single object into ComposableBuffer Object
-   */
-  static varUInt1<T> (
-    getter: () => T,
-    setter: (data: T) => void,
-    asC: (data: SmartBuffer | T) => ComposableBuffer<T>
-  ): BufferComposer {
-    return {
-      fromBuffer: (buffer: SmartBuffer): void => {
-        setter(asC(buffer).data)
-      },
-      toBuffer: (buffer: SmartBuffer): void => {
-        asC(getter()).toBuffer(buffer)
-      }
-    }
-  }
-
-  /**
    * Imposing mask over bits method, 1 byte
    *
    * @param length of the input array to read/set
