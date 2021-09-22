@@ -17,7 +17,7 @@ function _checksum (bytes: Buffer): Buffer {
  */
 export function toBase58Check (buffer: Buffer, prefix: number): string {
   if (buffer.length !== 20) {
-    throw new Error('Base buffer length must be either 20')
+    throw new Error('Base58Check buffer length must be 20')
   }
 
   const prefixed = Buffer.from([
