@@ -176,16 +176,20 @@ describe('Loan getVault', () => {
   })
 
   it('should not getVault if vault id is invalid', async () => {
-    // Pass non existing hex id
-    const promise = testing.rpc.loan.getVault('2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f')
-    await expect(promise).rejects.toThrow('RpcApiError: \'Vault <2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f> not found\', code: -20, method: getvault')
-
-    // Pass hex id with invalid length
-    const promise3 = testing.rpc.loan.getVault(Buffer.from('INVALID_VAULT_ID').toString('hex'))
-    await expect(promise3).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 32, for \'494e56414c49445f5641554c545f4944\')\', code: -8, method: getvault')
-
-    // Pass non hex id
-    const promise2 = testing.rpc.loan.getVault('x'.repeat(64))
-    await expect(promise2).rejects.toThrow('RpcApiError: \'vaultId must be hexadecimal string (not \'' + 'x'.repeat(64) + '\')\', code: -8, method: getvault')
+    {
+      // Pass non existing hex id
+      const promise = testing.rpc.loan.getVault('2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f')
+      await expect(promise).rejects.toThrow('RpcApiError: \'Vault <2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f> not found\', code: -20, method: getvault')
+    }
+    {
+      // Pass hex id with invalid length
+      const promise = testing.rpc.loan.getVault(Buffer.from('INVALID_VAULT_ID').toString('hex'))
+      await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 32, for \'494e56414c49445f5641554c545f4944\')\', code: -8, method: getvault')
+    }
+    {
+      // Pass non hex id
+      const promise = testing.rpc.loan.getVault('x'.repeat(64))
+      await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be hexadecimal string (not \'' + 'x'.repeat(64) + '\')\', code: -8, method: getvault')
+    }
   })
 })

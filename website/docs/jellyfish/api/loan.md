@@ -283,7 +283,7 @@ interface UTXO {
 
 Returns information about vault.
 
-```ts title="client.loan.createVault()"
+```ts title="client.loan.getVault()"
 interface loan {
   getVault (vaultId: string): Promise<VaultDetails>
 }
@@ -297,11 +297,11 @@ interface VaultDetails {
   loanAmount?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  currentRatio?: number
+  currentRatio?: BigNumber
 }
 
 interface AuctionBatchDetails {
-  index: number
+  index: BigNumber
   collaterals: string[]
   loan: string
 }

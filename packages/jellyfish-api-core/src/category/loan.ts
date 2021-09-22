@@ -272,11 +272,11 @@ export interface VaultDetails {
   loanAmount?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  currentRatio?: number
+  currentRatio?: BigNumber
 }
 
 export interface AuctionBatchDetails {
-  index: number
+  index: BigNumber
   collaterals: string[]
   loan: string
 }
