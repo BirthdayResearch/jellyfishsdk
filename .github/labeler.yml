@@ -11,6 +11,11 @@ labels:
     matcher:
       files: "website/**"
 
+  - label: area/examples
+    sync: true
+    matcher:
+      files: "examples/**"
+
   - label: area/jellyfish
     sync: true
     matcher:
