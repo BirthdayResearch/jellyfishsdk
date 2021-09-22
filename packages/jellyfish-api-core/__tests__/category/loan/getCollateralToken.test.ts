@@ -19,7 +19,7 @@ describe('Loan getCollateralToken', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
@@ -28,7 +28,7 @@ describe('Loan getCollateralToken', () => {
     const collateralTokenId1 = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: priceFeedId1
+      priceFeedId: 'AAPL/USD'
     }]) // Activate at next block
     await testing.generate(1)
     const blockCount = new BigNumber(await testing.container.getBlockCount())
@@ -36,7 +36,7 @@ describe('Loan getCollateralToken', () => {
     await testing.token.create({ symbol: 'TSLA' })
     await testing.generate(1)
 
-    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'TSLA',
       currency: 'USD'
     }], 1])
@@ -45,7 +45,7 @@ describe('Loan getCollateralToken', () => {
     const collateralTokenId2 = await testing.container.call('setcollateraltoken', [{
       token: 'TSLA',
       factor: new BigNumber(1),
-      priceFeedId: priceFeedId2,
+      priceFeedId: 'TSLA/USD',
       activateAfterBlock: 120
     }])
     await testing.generate(1)
@@ -57,7 +57,7 @@ describe('Loan getCollateralToken', () => {
         [collateralTokenId1]: {
           token: 'AAPL',
           factor: new BigNumber(0.5),
-          priceFeedId: priceFeedId1,
+          priceFeedId: 'AAPL/USD',
           activateAfterBlock: blockCount
         }
       })
@@ -73,13 +73,13 @@ describe('Loan getCollateralToken', () => {
         [collateralTokenId1]: {
           token: 'AAPL',
           factor: new BigNumber(0.5),
-          priceFeedId: priceFeedId1,
+          priceFeedId: 'AAPL/USD',
           activateAfterBlock: blockCount
         },
         [collateralTokenId2]: {
           token: 'TSLA',
           factor: new BigNumber(1),
-          priceFeedId: priceFeedId2,
+          priceFeedId: 'TSLA/USD',
           activateAfterBlock: new BigNumber(120)
         }
       }
@@ -93,7 +93,6 @@ describe('Loan getCollateralToken with parameters token or height', () => {
   const testing = Testing.create(container)
 
   let collateralTokenId: string
-  let priceFeedId: string
 
   beforeAll(async () => {
     await testing.container.start()
@@ -102,7 +101,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
@@ -111,7 +110,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
     collateralTokenId = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId,
+      priceFeedId: 'AAPL/USD',
       activateAfterBlock: 120
     }])
     await testing.generate(1)
@@ -131,7 +130,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
         [collateralTokenId]: {
           token: 'AAPL',
           factor: new BigNumber(0.5),
-          priceFeedId,
+          priceFeedId: 'AAPL/USD',
           activateAfterBlock: new BigNumber(120)
         }
       })
@@ -162,7 +161,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
         [collateralTokenId]: {
           token: 'AAPL',
           factor: new BigNumber(0.5),
-          priceFeedId,
+          priceFeedId: 'AAPL/USD',
           activateAfterBlock: new BigNumber(120)
         }
       })
@@ -189,7 +188,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
           [collateralTokenId]: {
             token: 'AAPL',
             factor: new BigNumber(0.5),
-            priceFeedId,
+            priceFeedId: 'AAPL/USD',
             activateAfterBlock: new BigNumber(120)
           }
         })
@@ -206,7 +205,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
         [collateralTokenId]: {
           token: 'AAPL',
           factor: new BigNumber(0.5),
-          priceFeedId,
+          priceFeedId: 'AAPL/USD',
           activateAfterBlock: new BigNumber(120)
         }
       })
@@ -223,7 +222,7 @@ describe('Loan getCollateralToken with parameters token or height', () => {
         [collateralTokenId]: {
           token: 'AAPL',
           factor: new BigNumber(0.5),
-          priceFeedId,
+          priceFeedId: 'AAPL/USD',
           activateAfterBlock: new BigNumber(120)
         }
       })

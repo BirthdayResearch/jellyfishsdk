@@ -38,9 +38,11 @@
     "@defichain/jellyfish-crypto": "0.0.0",
     "@defichain/jellyfish-network": "0.0.0",
     "@defichain/jellyfish-transaction": "0.0.0",
+    "bech32": "^2.0.0",
     "bs58": "^4.0.1"
   },
   "devDependencies": {
+    "@types/bech32": "^1.1.2",
     "@types/bs58": "^4.0.1"
   }
 }
