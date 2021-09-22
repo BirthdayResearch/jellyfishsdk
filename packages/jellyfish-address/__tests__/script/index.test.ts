@@ -9,6 +9,14 @@ it('should fail if invalid address "invalid address"', () => {
   }
 })
 
+it('should fail with invalid b58c invalid length', () => {
+  const address = 'Z6vheJ9YCUxiAquYexbxzcUsJpkxhTyaYcy'
+
+  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+    expect(fromAddress(address, network)).toBeUndefined()
+  }
+})
+
 it('should fail with invalid b58c prefix', () => {
   const address = 'JBuS81VT8ouPrT6YS55qoS74D13Cw7h1Y'
 
@@ -35,6 +43,14 @@ it('should fail with invalid b58c removed prefix', () => {
 
 it('should fail with invalid b58c trimmed checksum', () => {
   const address = 'dFFPENo7FPMJpDV6fUcfo4QfkZrfrV1Uf'
+
+  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+    expect(fromAddress(address, network)).toBeUndefined()
+  }
+})
+
+it('should fail with invalid bech32 invalid length', () => {
+  const address = 'df1qzd9swjvg9s39apj8muarg96s03h4kfuhqq7g2f22'
 
   for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
     expect(fromAddress(address, network)).toBeUndefined()

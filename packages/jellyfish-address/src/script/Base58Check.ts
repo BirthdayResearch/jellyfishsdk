@@ -1,4 +1,5 @@
 import { SHA256 } from '@defichain/jellyfish-crypto'
+import { Network } from '@defichain/jellyfish-network'
 import bs58 from 'bs58'
 
 /**
@@ -8,6 +9,8 @@ function _checksum (bytes: Buffer): Buffer {
   return SHA256(SHA256(bytes)).slice(0, 4)
 }
 
+export type B58CPrefix = Network['scriptHashPrefix'] | Network['pubKeyHashPrefix']
+
 /**
  * Base58 with Checksum for P2SH and P2PKH addresses.
  *
@@ -15,7 +18,7 @@ function _checksum (bytes: Buffer): Buffer {
  * @param {number} prefix 1 byte length network prefix
  * @returns string base58check encoded address
  */
-export function toBase58Check (buffer: Buffer, prefix: number): string {
+export function toBase58Check (buffer: Buffer, prefix: B58CPrefix): string {
   if (buffer.length !== 20) {
     throw new Error('Base58Check buffer length must be 20')
   }
