@@ -25,13 +25,13 @@ describe('Loan listCollateralTokens', () => {
     await testing.token.create({ symbol: 'TSLA' })
     await testing.generate(1)
 
-    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
-    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'TSLA',
       currency: 'USD'
     }], 1])
@@ -44,14 +44,14 @@ describe('Loan listCollateralTokens', () => {
     const collateralTokenId1 = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: priceFeedId1
+      priceFeedId: 'AAPL/USD'
     }])
     await testing.generate(1)
 
     const collateralTokenId2 = await testing.container.call('setcollateraltoken', [{
       token: 'TSLA',
       factor: new BigNumber(1),
-      priceFeedId: priceFeedId2,
+      priceFeedId: 'TSLA/USD',
       activateAfterBlock: 130
     }])
     await testing.generate(1)
@@ -59,8 +59,8 @@ describe('Loan listCollateralTokens', () => {
     const data = await testing.rpc.loan.listCollateralTokens()
     expect(data).toStrictEqual({
       // activateAfterBlock = 122, which is the next block after setcollateraltoken executed
-      [collateralTokenId1]: { activateAfterBlock: new BigNumber(122), factor: new BigNumber(0.5), priceFeedId: priceFeedId1, token: 'AAPL' },
-      [collateralTokenId2]: { activateAfterBlock: new BigNumber(130), factor: new BigNumber(1), priceFeedId: priceFeedId2, token: 'TSLA' }
+      [collateralTokenId1]: { activateAfterBlock: new BigNumber(122), factor: new BigNumber(0.5), priceFeedId: 'AAPL/USD', token: 'AAPL' },
+      [collateralTokenId2]: { activateAfterBlock: new BigNumber(130), factor: new BigNumber(1), priceFeedId: 'TSLA/USD', token: 'TSLA' }
     })
   })
 })

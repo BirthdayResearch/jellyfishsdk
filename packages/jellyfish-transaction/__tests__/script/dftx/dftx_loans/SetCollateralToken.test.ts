@@ -14,29 +14,29 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    token: '1',
      *    factor: new BigNumber(0.1),
-     *    priceFeedId: 1aebaa5def9093a82dabeeb34f3ec29cc41db50229fd24a2793d5b8dfbc2e8b3
-     *    activateAfterBlock: new BigNumber(0)
+     *    priceFeedId: {token: 'Token1', currency: 'USD'}
+     *    activateAfterBlock: 0
      * }
      */
-    '6a324466547863018096980000000000b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a00000000',
+    '6a1d446654786301809698000000000006546f6b656e310355534400000000',
     /**
      * loan : {
      *    token: '1',
      *    factor: new BigNumber(0.1),
-     *    priceFeedId: 1aebaa5def9093a82dabeeb34f3ec29cc41db50229fd24a2793d5b8dfbc2e8b3
-     *    activateAfterBlock: new BigNumber(130)
+     *    priceFeedId: {token: 'Token1', currency: 'USD'}
+     *    activateAfterBlock: 130
      * }
      */
-    '6a324466547863018096980000000000b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a82000000',
+    '6a1d446654786301809698000000000006546f6b656e310355534482000000',
     /**
      * loan : {
      *    token: '2',
      *    factor: new BigNumber(0.2),
-     *    priceFeedId: 9f93d1d056c79082d8fee54079d38b986ca78654f84c90a97335a71df390e50d
-     *    activateAfterBlock: new BigNumber(140)
+     *    priceFeedId: {token: 'Token2', currency: 'USD'}
+     *    activateAfterBlock: 140
      * }
      */
-    '6a32446654786302002d3101000000000de590f31da73573a9904cf85486a76c988bd37940e5fed88290c756d0d1939f8c000000'
+    '6a1d446654786302002d31010000000006546f6b656e32035553448c000000'
   ]
 
   fixtures.forEach(hex => {
@@ -50,16 +50,16 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 describe('SetCollateralToken', () => {
-  const header = '6a324466547863' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CSetCollateralToken.OP_CODE(0x63)
+  const header = '6a1d4466547863' // OP_RETURN(0x6a) (length 29 = 0x1d) CDfTx.SIGNATURE(0x44665478) CSetCollateralToken.OP_CODE(0x63)
   // SetCollateralToken.token[LE](01)
   // SetCollateralToken.factor[LE](8096980000000000)
-  // SetCollateralToken.priceFeedId[LE] (b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a)
+  // SetCollateralToken.priceFeedId[BE] (06546f6b656e3103555344)
   // SetCollateralToken.activateAfterBlock[LE] (82000000)
-  const data = '018096980000000000b3e8c2fb8d5b3d79a224fd2902b51dc49cc23e4fb3eeab2da89390ef5daaeb1a82000000'
+  const data = '01809698000000000006546f6b656e310355534482000000'
   const setCollateralToken: SetCollateralToken = {
     token: 1,
-    factor: new BigNumber('0.1'),
-    priceFeedId: '1aebaa5def9093a82dabeeb34f3ec29cc41db50229fd24a2793d5b8dfbc2e8b3',
+    factor: new BigNumber(0.1),
+    priceFeedId: { token: 'Token1', currency: 'USD' },
     activateAfterBlock: 130
   }
 

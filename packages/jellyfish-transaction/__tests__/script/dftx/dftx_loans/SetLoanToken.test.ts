@@ -14,32 +14,32 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    symbol: 'Token1',
      *    name: 'Token1',
-     *    priceFeedId: 6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     *    priceFeedId: {token: 'Token1', currency: 'USD'},
      *    mintable: true,
      *    interest: new BigNumber(0)
      * }
      */
-    '6a3c446654786706546f6b656e3106546f6b656e31ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d010000000000000000',
+    '6a27446654786706546f6b656e3106546f6b656e3106546f6b656e3103555344010000000000000000',
     /**
      * loan : {
      *    symbol: 'Token2',
      *    name: 'Token2',
-     *    priceFeedId: 6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     *    priceFeedId: {token: 'Token2', currency: 'USD'},
      *    mintable: false,
      *    interest: new BigNumber(0)
      * }
      */
-    '6a3c446654786706546f6b656e3206546f6b656e32ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d000000000000000000',
+    '6a27446654786706546f6b656e3206546f6b656e3206546f6b656e3203555344000000000000000000',
     /**
      * loan : {
      *    symbol: 'Token3',
      *    name: 'Token3',
-     *    priceFeedId：6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce
+     *    priceFeedId: {token: 'Token3', currency: 'USD'},
      *    mintable: true,
      *    interest: new BigNumber(12.345678)
      * }
      */
-    '6a3c446654786706546f6b656e3306546f6b656e33ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d017802964900000000'
+    '6a27446654786706546f6b656e3306546f6b656e3306546f6b656e3303555344017802964900000000'
   ]
 
   fixtures.forEach(hex => {
@@ -52,18 +52,18 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a3c4466547867' // OP_RETURN(0x6a) (length 60 = 0x3c) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x67)
-const data = '06546f6b656e3306546f6b656e33ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d017802964900000000'
+const header = '6a274466547867' // OP_RETURN(0x6a) (length 39 = 0x27) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x67)
+const data = '06546f6b656e3306546f6b656e3306546f6b656e3303555344017802964900000000'
 // SetLoanToken.symbol[BE](06546f6b656e33)
 // SetLoanToken.name[BE](06546f6b656e33)
-// SetLoanToken.priceFeedId[LE] (ce15ec6badc149aad6333dfda818bda5be4939539fdffb7cbe9e2bb6a8cf986d)
+// SetLoanToken.priceFeedId[BE] (06546f6b656e3303555344)
 // SetLoanToken.mintable(01)
 // SetLoanToken.interest[LE](7802964900000000)
 
 const setLoanToken: SetLoanToken = {
   symbol: 'Token3',
   name: 'Token3',
-  priceFeedId: '6d98cfa8b62b9ebe7cfbdf9f533949bea5bd18a8fd3d33d6aa49c1ad6bec15ce',
+  priceFeedId: { token: 'Token3', currency: 'USD' },
   mintable: true,
   interest: new BigNumber(12.345678)
 }
