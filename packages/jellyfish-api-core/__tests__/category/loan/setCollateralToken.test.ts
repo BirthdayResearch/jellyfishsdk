@@ -61,7 +61,7 @@ describe('Loan setCollateralToken', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setcollateraltoken')
   })
 
-  it('should not setCollateralToken if oracleId does not exist', async () => {
+  it('should not setCollateralToken if priceFeedId does not belong to any oracle', async () => {
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),

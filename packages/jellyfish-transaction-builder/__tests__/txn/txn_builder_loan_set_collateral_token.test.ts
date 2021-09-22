@@ -103,7 +103,7 @@ describe('loan.setCollateralToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
   })
 
-  it('should not setCollateralToken if oracleId does not exist', async () => {
+  it('should not setCollateralToken if priceFeedId does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,

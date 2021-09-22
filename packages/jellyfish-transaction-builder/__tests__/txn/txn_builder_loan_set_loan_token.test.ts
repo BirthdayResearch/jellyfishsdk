@@ -162,7 +162,7 @@ describe('loan.setLoanToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
   })
 
-  it('should not setLoanToken if oracleId does not exist', async () => {
+  it('should not setLoanToken if priceFeedId does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token4',
