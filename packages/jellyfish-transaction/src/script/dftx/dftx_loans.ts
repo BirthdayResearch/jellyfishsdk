@@ -35,7 +35,7 @@ export interface SetDefaultLoanScheme {
 export interface SetCollateralToken {
   token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
   factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
-  priceFeedId: CurrencyPair // ----| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  currencyPair: CurrencyPair // ----| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
 }
 
@@ -45,7 +45,7 @@ export interface SetCollateralToken {
 export interface SetLoanToken {
   symbol: string // -------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
   name: string // ---------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
-  priceFeedId: CurrencyPair // --| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  currencyPair: CurrencyPair // --| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   mintable: boolean // ----------| 1 byte, mintable, Token's 'Mintable' property
   interest: BigNumber // --------| 8 bytes unsigned, interest rate
 }
@@ -129,7 +129,7 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
     return [
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.single(() => sct.priceFeedId, v => sct.priceFeedId = v, sct => new CCurrencyPair(sct)),
+      ComposableBuffer.single(() => sct.currencyPair, v => sct.currencyPair = v, sct => new CCurrencyPair(sct)),
       ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
     ]
   }
@@ -147,7 +147,7 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
     return [
       ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
-      ComposableBuffer.single(() => slt.priceFeedId, v => slt.priceFeedId = v, v => new CCurrencyPair(v)),
+      ComposableBuffer.single(() => slt.currencyPair, v => slt.currencyPair = v, v => new CCurrencyPair(v)),
       ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
     ]

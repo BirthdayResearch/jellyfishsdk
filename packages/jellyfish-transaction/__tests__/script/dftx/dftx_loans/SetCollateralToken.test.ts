@@ -59,7 +59,7 @@ describe('SetCollateralToken', () => {
   const setCollateralToken: SetCollateralToken = {
     token: 1,
     factor: new BigNumber(0.1),
-    priceFeedId: { token: 'Token1', currency: 'USD' },
+    currencyPair: { token: 'Token1', currency: 'USD' },
     activateAfterBlock: 130
   }
 

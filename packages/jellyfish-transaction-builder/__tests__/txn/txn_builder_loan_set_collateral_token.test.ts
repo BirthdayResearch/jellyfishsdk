@@ -50,7 +50,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
 
@@ -84,7 +84,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 2,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -96,7 +96,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(1.01),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -108,7 +108,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'MFST', currency: 'USD' },
+      currencyPair: { token: 'MFST', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -155,7 +155,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 160
     }, script)
     await sendTransaction(testing.container, txn)
@@ -214,7 +214,7 @@ describe('loan.setCollateralToken() with activateAfterBlock below current height
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 149
     }, script)
     const promise = sendTransaction(testing.container, txn)

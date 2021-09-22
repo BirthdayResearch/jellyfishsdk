@@ -63,7 +63,7 @@ const data = '06546f6b656e3306546f6b656e3306546f6b656e33035553440178029649000000
 const setLoanToken: SetLoanToken = {
   symbol: 'Token3',
   name: 'Token3',
-  priceFeedId: { token: 'Token3', currency: 'USD' },
+  currencyPair: { token: 'Token3', currency: 'USD' },
   mintable: true,
   interest: new BigNumber(12.345678)
 }

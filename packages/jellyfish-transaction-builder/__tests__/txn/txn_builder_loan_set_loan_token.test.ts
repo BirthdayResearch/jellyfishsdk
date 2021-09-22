@@ -45,7 +45,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token1',
       name: 'Token1',
-      priceFeedId: { token: 'Token1', currency: 'USD' },
+      currencyPair: { token: 'Token1', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.5)
     }, script)
@@ -99,7 +99,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'x'.repeat(9), // 9 letters
       name: 'x'.repeat(9),
-      priceFeedId: { token: 'x'.repeat(8), currency: 'USD' },
+      currencyPair: { token: 'x'.repeat(8), currency: 'USD' },
       mintable: true,
       interest: new BigNumber(1.5)
     }, script)
@@ -123,7 +123,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: '',
       name: '',
-      priceFeedId: { token: 'Token2', currency: 'USD' },
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(2.5)
     }, script)
@@ -153,7 +153,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token3',
       name: 'Token3',
-      priceFeedId: { token: 'Token3', currency: 'USD' },
+      currencyPair: { token: 'Token3', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(3.5)
     }, script)
@@ -167,7 +167,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token4',
       name: 'Token4',
-      priceFeedId: { token: 'MFST', currency: 'USD' },
+      currencyPair: { token: 'MFST', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(4.5)
     }, script)
@@ -187,7 +187,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token5',
       name: 'Token5',
-      priceFeedId: { token: 'Token5', currency: 'USD' },
+      currencyPair: { token: 'Token5', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(6.5)
     }, script)
@@ -211,7 +211,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token6',
       name: 'x'.repeat(129), // 129 letters
-      priceFeedId: { token: 'Token6', currency: 'USD' },
+      currencyPair: { token: 'Token6', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(7.5)
     }, script)
@@ -248,7 +248,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token8',
       name: 'TokenX',
-      priceFeedId: { token: 'Token8', currency: 'USD' },
+      currencyPair: { token: 'Token8', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(8.5)
     }, script)
@@ -270,7 +270,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token9',
       name: 'Token9',
-      priceFeedId: { token: 'Token9', currency: 'USD' },
+      currencyPair: { token: 'Token9', currency: 'USD' },
       mintable: false,
       interest: new BigNumber(9.5)
     }, script)
@@ -292,7 +292,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token10',
       name: 'Token10',
-      priceFeedId: { token: 'Token10', currency: 'USD' },
+      currencyPair: { token: 'Token10', currency: 'USD' },
       mintable: false,
       interest: new BigNumber(15.12345678)
     }, script)
