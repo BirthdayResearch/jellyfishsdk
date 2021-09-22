@@ -28,7 +28,7 @@ function isBase58CheckP2PKH (decoded: DecodedBase58Check, network: NetworkName):
 }
 
 export function fromBase58CheckP2PKH (decoded: DecodedBase58Check, network: NetworkName): Script | undefined {
-  if (isBase58CheckP2PKH(decoded, network)) {
+  if (!isBase58CheckP2PKH(decoded, network)) {
     return undefined
   }
 

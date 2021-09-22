@@ -21,12 +21,12 @@ export function fromScriptP2WPKH (script: Script, network: NetworkName): string 
 
 function isBech32P2WPKH (decoded: DecodedBech32, network: NetworkName): boolean {
   return decoded.hrp === getNetwork(network).bech32.hrp &&
-    decoded.version !== 0x00 &&
+    decoded.version === 0x00 &&
     decoded.buffer.length === 20
 }
 
 export function fromBech32P2WPKH (decoded: DecodedBech32, network: NetworkName): Script | undefined {
-  if (isBech32P2WPKH(decoded, network)) {
+  if (!isBech32P2WPKH(decoded, network)) {
     return undefined
   }
 

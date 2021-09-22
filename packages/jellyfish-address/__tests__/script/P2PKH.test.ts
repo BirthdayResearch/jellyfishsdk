@@ -3,7 +3,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { wallet } from '@defichain/jellyfish-api-core'
 import { OP_CODES, Script } from '@defichain/jellyfish-transaction'
 import { HASH160 } from '@defichain/jellyfish-crypto'
-import { fromScript, fromScriptHex } from '@defichain/jellyfish-address'
+import { AddressType, DecodedAddress, fromAddress, fromScript, fromScriptHex } from '@defichain/jellyfish-address'
 import { fromScriptP2PKH } from '../../src/script/P2PKH'
 import { NetworkName } from '@defichain/jellyfish-network'
 
@@ -33,18 +33,22 @@ describe('with regtest container', () => {
       ]
     }
 
-    expect(fromScript(script, 'regtest')).toStrictEqual({
-      type: 'p2pkh',
+    const expected: DecodedAddress = {
+      type: AddressType.P2PKH,
       address: address,
       script: script,
       network: 'regtest'
-    })
+    }
+
+    expect(fromScript(script, 'regtest')).toStrictEqual(expected)
+    expect(fromAddress(address, 'regtest')).toStrictEqual(expected)
+
     expect(fromScriptHex(info.scriptPubKey, 'regtest')?.address).toStrictEqual(address)
     expect(fromScriptP2PKH(script, 'regtest')).toStrictEqual(address)
   })
 })
 
-it('should convert from Script', () => {
+it('should convert from Script/Address', () => {
   const script: Script = {
     stack: [
       OP_CODES.OP_DUP,
@@ -56,159 +60,161 @@ it('should convert from Script', () => {
   }
 
   {
-    const address = fromScriptP2PKH(script, 'mainnet')
-    expect(address).toStrictEqual('8GqsSfmyuu6pquKFRTeNkQu5brLUc5hAt5')
-
-    const decoded = fromScript(script, 'mainnet')
-    expect(decoded).toStrictEqual({
-      type: 'p2pkh',
-      address: address,
+    const expected: DecodedAddress = {
+      type: AddressType.P2PKH,
+      address: '8GqsSfmyuu6pquKFRTeNkQu5brLUc5hAt5',
       script: script,
       network: 'mainnet'
-    })
+    }
+
+    expect(fromScriptP2PKH(script, 'mainnet')).toStrictEqual(expected.address)
+    expect(fromScript(script, 'mainnet')).toStrictEqual(expected)
+    expect(fromAddress(expected.address, 'mainnet')).toStrictEqual(expected)
   }
 
   {
-    const address = fromScriptP2PKH(script, 'testnet')
-    expect(address).toStrictEqual('74q4VLt7nMiCPbtzMCeRJ35iiLZeSUm1Ub')
-
-    const decoded = fromScript(script, 'testnet')
-    expect(decoded).toStrictEqual({
-      type: 'p2pkh',
-      address: address,
+    const expected: DecodedAddress = {
+      type: AddressType.P2PKH,
+      address: '74q4VLt7nMiCPbtzMCeRJ35iiLZeSUm1Ub',
       script: script,
       network: 'testnet'
-    })
+    }
+
+    expect(fromScriptP2PKH(script, 'testnet')).toStrictEqual(expected.address)
+    expect(fromScript(script, 'testnet')).toStrictEqual(expected)
+    expect(fromAddress(expected.address, 'testnet')).toStrictEqual(expected)
   }
 
   {
-    const address = fromScriptP2PKH(script, 'regtest')
-    expect(address).toStrictEqual('mhGy1mVmwgCJuDHJhUd1r5DF8mJChBAVW8')
-
-    const decoded = fromScript(script, 'regtest')
-    expect(decoded).toStrictEqual({
-      type: 'p2pkh',
-      address: address,
+    const expected: DecodedAddress = {
+      type: AddressType.P2PKH,
+      address: 'mhGy1mVmwgCJuDHJhUd1r5DF8mJChBAVW8',
       script: script,
       network: 'regtest'
-    })
+    }
+
+    expect(fromScriptP2PKH(script, 'regtest')).toStrictEqual(expected.address)
+    expect(fromScript(script, 'regtest')).toStrictEqual(expected)
+    expect(fromAddress(expected.address, 'regtest')).toStrictEqual(expected)
   }
 })
 
-it('should fail to convert from script, if length != 5', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
-      OP_CODES.OP_EQUALVERIFY
-    ]
-  }
+describe('invalid should fail', () => {
+  it('should fail to convert from script, if length != 5', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_DUP,
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
+        OP_CODES.OP_EQUALVERIFY
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
-})
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 
-it('should fail to convert from script, if [0] != OP_DUP', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_0,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
-      OP_CODES.OP_EQUALVERIFY,
-      OP_CODES.OP_CHECKSIG
-    ]
-  }
+  it('should fail to convert from script, if [0] != OP_DUP', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_0,
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
+        OP_CODES.OP_EQUALVERIFY,
+        OP_CODES.OP_CHECKSIG
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
-})
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 
-it('should fail to convert from script, if [1] != OP_SHA256', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_SHA256,
-      OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
-      OP_CODES.OP_EQUALVERIFY,
-      OP_CODES.OP_CHECKSIG
-    ]
-  }
+  it('should fail to convert from script, if [1] != OP_SHA256', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_DUP,
+        OP_CODES.OP_SHA256,
+        OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
+        OP_CODES.OP_EQUALVERIFY,
+        OP_CODES.OP_CHECKSIG
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
-})
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 
-it('should fail to convert from script, if [2] != OP_PUSHDATA', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_RETURN,
-      OP_CODES.OP_EQUALVERIFY,
-      OP_CODES.OP_CHECKSIG
-    ]
-  }
+  it('should fail to convert from script, if [2] != OP_PUSHDATA', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_DUP,
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_RETURN,
+        OP_CODES.OP_EQUALVERIFY,
+        OP_CODES.OP_CHECKSIG
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
-})
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 
-it('should fail to convert from script, if [2].length != 20', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b279700'),
-      OP_CODES.OP_EQUALVERIFY,
-      OP_CODES.OP_CHECKSIG
-    ]
-  }
+  it('should fail to convert from script, if [2].length != 20', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_DUP,
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b279700'),
+        OP_CODES.OP_EQUALVERIFY,
+        OP_CODES.OP_CHECKSIG
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
-})
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 
-it('should fail to convert from script, if [3] != OP_EQUALVERIFY', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_CHECKSIG
-    ]
-  }
+  it('should fail to convert from script, if [3] != OP_EQUALVERIFY', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_DUP,
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_CHECKSIG
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
-})
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 
-it('should fail to convert from script, if [4] != OP_CHECKSIG', () => {
-  const script: Script = {
-    stack: [
-      OP_CODES.OP_DUP,
-      OP_CODES.OP_HASH160,
-      OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
-      OP_CODES.OP_EQUALVERIFY,
-      OP_CODES.OP_DUP
-    ]
-  }
+  it('should fail to convert from script, if [4] != OP_CHECKSIG', () => {
+    const script: Script = {
+      stack: [
+        OP_CODES.OP_DUP,
+        OP_CODES.OP_HASH160,
+        OP_CODES.OP_PUSHDATA_HEX_LE('134b0749882c225e8647df3a3417507c6f5b2797'),
+        OP_CODES.OP_EQUALVERIFY,
+        OP_CODES.OP_DUP
+      ]
+    }
 
-  for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
-    expect(fromScriptP2PKH(script, network)).toBeUndefined()
-    expect(fromScript(script, network)).toBeUndefined()
-  }
+    for (const network of Array.of<NetworkName>('mainnet', 'testnet', 'regtest')) {
+      expect(fromScriptP2PKH(script, network)).toBeUndefined()
+      expect(fromScript(script, network)).toBeUndefined()
+    }
+  })
 })

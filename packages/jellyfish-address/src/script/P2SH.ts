@@ -26,7 +26,7 @@ function isBase58CheckP2PSH (decoded: DecodedBase58Check, network: NetworkName):
 }
 
 export function fromBase58CheckP2SH (decoded: DecodedBase58Check, network: NetworkName): Script | undefined {
-  if (isBase58CheckP2PSH(decoded, network)) {
+  if (!isBase58CheckP2PSH(decoded, network)) {
     return undefined
   }
 
