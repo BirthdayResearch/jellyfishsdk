@@ -41,7 +41,7 @@ export interface DecodedAddress {
 }
 
 /**
- * Convert a address to script, this operation requires the network to be known.
+ * Convert an address to a script, this operation requires the network to be known.
  * A script is network agnostic while the address is prefixed with the network's unique human readable part.
  *
  * @param {string} address to convert into Script

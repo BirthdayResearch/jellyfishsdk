@@ -1,4 +1,4 @@
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MainNetContainer, MasterNodeRegTestContainer, TestNetContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { wallet } from '@defichain/jellyfish-api-core'
 import { fromOPCodes, OP_CODES, Script } from '@defichain/jellyfish-transaction'
@@ -19,37 +19,133 @@ describe('with regtest container', () => {
     await container.stop()
   })
 
-  it('should generate address as with defid', async () => {
-    const address = await testing.rpc.wallet.getNewAddress('', wallet.AddressType.P2SH_SEGWIT)
-    const info = await testing.rpc.wallet.getAddressInfo(address)
+  it('should generate address as with defid 100 times', async () => {
+    for (let i = 0; i < 100; i++) {
+      const address = await testing.rpc.wallet.getNewAddress('', wallet.AddressType.P2SH_SEGWIT)
+      const info = await testing.rpc.wallet.getAddressInfo(address)
 
-    const p2wpkh: Script = {
-      stack: [
-        OP_CODES.OP_0,
-        OP_CODES.OP_PUSHDATA(HASH160(Buffer.from(info.pubkey, 'hex')), 'little')
-      ]
+      const p2wpkh: Script = {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA(HASH160(Buffer.from(info.pubkey, 'hex')), 'little')
+        ]
+      }
+
+      const script: Script = {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA(HASH160(fromOPCodes(p2wpkh.stack)), 'little'),
+          OP_CODES.OP_EQUAL
+        ]
+      }
+
+      const expected: DecodedAddress = {
+        type: AddressType.P2SH,
+        address: address,
+        script: script,
+        network: 'regtest'
+      }
+
+      expect(fromScript(script, 'regtest')).toStrictEqual(expected)
+      expect(fromAddress(address, 'regtest')).toStrictEqual(expected)
+
+      expect(fromScriptHex(info.scriptPubKey, 'regtest')?.address).toStrictEqual(address)
+      expect(fromScriptP2SH(script, 'regtest')).toStrictEqual(address)
     }
+  })
+})
 
-    const script: Script = {
-      stack: [
-        OP_CODES.OP_HASH160,
-        OP_CODES.OP_PUSHDATA(HASH160(fromOPCodes(p2wpkh.stack)), 'little'),
-        OP_CODES.OP_EQUAL
-      ]
+describe('with testnet container', () => {
+  const container = new TestNetContainer()
+
+  beforeAll(async () => {
+    await container.start()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should generate address as with defid 100 times', async () => {
+    for (let i = 0; i < 100; i++) {
+      const address = await container.call('getnewaddress', ['', 'p2sh-segwit'])
+      const info = await container.call('getaddressinfo', [address])
+
+      const p2wpkh: Script = {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA(HASH160(Buffer.from(info.pubkey, 'hex')), 'little')
+        ]
+      }
+
+      const script: Script = {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA(HASH160(fromOPCodes(p2wpkh.stack)), 'little'),
+          OP_CODES.OP_EQUAL
+        ]
+      }
+
+      const expected: DecodedAddress = {
+        type: AddressType.P2SH,
+        address: address,
+        script: script,
+        network: 'testnet'
+      }
+
+      expect(fromScript(script, 'testnet')).toStrictEqual(expected)
+      expect(fromAddress(address, 'testnet')).toStrictEqual(expected)
+
+      expect(fromScriptHex(info.scriptPubKey, 'testnet')?.address).toStrictEqual(address)
+      expect(fromScriptP2SH(script, 'testnet')).toStrictEqual(address)
     }
+  })
+})
 
-    const expected: DecodedAddress = {
-      type: AddressType.P2SH,
-      address: address,
-      script: script,
-      network: 'regtest'
+describe('with mainnet container', () => {
+  const container = new MainNetContainer()
+
+  beforeAll(async () => {
+    await container.start()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should generate address as with defid 100 times', async () => {
+    for (let i = 0; i < 100; i++) {
+      const address = await container.call('getnewaddress', ['', 'p2sh-segwit'])
+      const info = await container.call('getaddressinfo', [address])
+
+      const p2wpkh: Script = {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA(HASH160(Buffer.from(info.pubkey, 'hex')), 'little')
+        ]
+      }
+
+      const script: Script = {
+        stack: [
+          OP_CODES.OP_HASH160,
+          OP_CODES.OP_PUSHDATA(HASH160(fromOPCodes(p2wpkh.stack)), 'little'),
+          OP_CODES.OP_EQUAL
+        ]
+      }
+
+      const expected: DecodedAddress = {
+        type: AddressType.P2SH,
+        address: address,
+        script: script,
+        network: 'mainnet'
+      }
+
+      expect(fromScript(script, 'mainnet')).toStrictEqual(expected)
+      expect(fromAddress(address, 'mainnet')).toStrictEqual(expected)
+
+      expect(fromScriptHex(info.scriptPubKey, 'mainnet')?.address).toStrictEqual(address)
+      expect(fromScriptP2SH(script, 'mainnet')).toStrictEqual(address)
     }
-
-    expect(fromScript(script, 'regtest')).toStrictEqual(expected)
-    expect(fromAddress(address, 'regtest')).toStrictEqual(expected)
-
-    expect(fromScriptHex(info.scriptPubKey, 'regtest')?.address).toStrictEqual(address)
-    expect(fromScriptP2SH(script, 'regtest')).toStrictEqual(address)
   })
 })
 
