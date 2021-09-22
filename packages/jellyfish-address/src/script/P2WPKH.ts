@@ -1,6 +1,6 @@
 import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
 import { getNetwork, NetworkName } from '@defichain/jellyfish-network'
-import { toBech32 } from './Bech32'
+import { DecodedBech32, toBech32 } from './Bech32'
 
 function isScriptP2WPKH (script: Script): boolean {
   return script.stack.length === 2 &&
@@ -17,4 +17,23 @@ export function fromScriptP2WPKH (script: Script, network: NetworkName): string 
   const buffer = Buffer.from(hash.hex, 'hex')
   const hrp = getNetwork(network).bech32.hrp
   return toBech32(buffer, hrp, 0x00)
+}
+
+function isBech32P2WPKH (decoded: DecodedBech32, network: NetworkName): boolean {
+  return decoded.hrp === getNetwork(network).bech32.hrp &&
+    decoded.version !== 0x00 &&
+    decoded.buffer.length === 20
+}
+
+export function fromBech32P2WPKH (decoded: DecodedBech32, network: NetworkName): Script | undefined {
+  if (isBech32P2WPKH(decoded, network)) {
+    return undefined
+  }
+
+  return {
+    stack: [
+      OP_CODES.OP_0,
+      OP_CODES.OP_PUSHDATA(Buffer.from(decoded.buffer), 'little')
+    ]
+  }
 }

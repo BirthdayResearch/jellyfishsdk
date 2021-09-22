@@ -4,7 +4,7 @@ import bs58 from 'bs58'
 /**
  * @param {Buffer} bytes 21 bytes
  */
-function checksum (bytes: Buffer): Buffer {
+function _checksum (bytes: Buffer): Buffer {
   return SHA256(SHA256(bytes)).slice(0, 4)
 }
 
@@ -26,7 +26,32 @@ export function toBase58Check (buffer: Buffer, prefix: number): string {
   ])
   const prefixedChecked = Buffer.from([
     ...prefixed,
-    ...checksum(prefixed)
+    ..._checksum(prefixed)
   ])
   return bs58.encode(prefixedChecked)
+}
+
+export interface DecodedBase58Check {
+  buffer: Buffer
+  prefix: number
+}
+
+export function fromBase58Check (address: string): DecodedBase58Check {
+  const buffer = bs58.decode(address)
+  if (buffer.length !== 25) {
+    throw new Error('Invalid Base58Check address, length != 25')
+  }
+
+  const prefixed = buffer.slice(0, 21)
+  const checksum = buffer.slice(21, 25)
+
+  const expectedChecksum = _checksum(prefixed)
+  if (checksum.compare(expectedChecksum) !== 0) {
+    throw new Error('Invalid Base58Check address, checksum invalid')
+  }
+
+  return {
+    prefix: prefixed[0],
+    buffer: prefixed.slice(1, 21)
+  }
 }
