@@ -95,6 +95,7 @@
       <w>htlc</w>
       <w>icxorderbook</w>
       <w>ifdup</w>
+      <w>importaddress</w>
       <w>importprivkey</w>
       <w>infima</w>
       <w>initialblockdownload</w>
