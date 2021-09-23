@@ -132,7 +132,7 @@ describe('loan.setLoanToken()', () => {
     await expect(promise).rejects.toThrow('LoanSetLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
   })
 
-  it('should not setLoanToken if token with same symbol was created before', async () => {
+  it('should not setLoanToken if the symbol is used in other token', async () => {
     await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token3',
       currency: 'USD'

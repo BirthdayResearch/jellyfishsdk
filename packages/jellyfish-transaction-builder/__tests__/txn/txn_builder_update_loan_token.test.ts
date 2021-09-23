@@ -169,7 +169,7 @@ describe('loan.updateLoanToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
   })
 
-  it('should not updateLoanToken if token with same symbol was created before', async () => {
+  it('should not updateLoanToken if the symbol is used in other token', async () => {
     const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token4',
       currency: 'USD'

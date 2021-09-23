@@ -56,7 +56,7 @@ export interface SetLoanToken {
 export interface UpdateLoanToken {
   symbol: string // ------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
   name: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
-  priceFeedId: string // -------| 32 bytes, hex string, Txid of oracle feeding the price
+  priceFeedId: string // -------| 32 bytes, hex string, Token/currency pair to use for price of token
   mintable: boolean // ---------| 1 byte, mintable, Token's 'Mintable' property
   interest: BigNumber // -------| 8 bytes unsigned, interest rate
   tokenTx: string // -----------| 32 bytes, hex string Txid of tokens's creation tx
