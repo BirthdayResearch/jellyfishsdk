@@ -2,7 +2,7 @@
 id: misc
 title: Misc API
 sidebar_label: Misc API
-slug: /jellyfish/api/misc
+slug: /jellyfish-api-core/misc
 ---
 
 ```js

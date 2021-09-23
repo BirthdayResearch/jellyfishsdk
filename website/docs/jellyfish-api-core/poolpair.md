@@ -2,7 +2,7 @@
 id: poolpair
 title: Pool Pair API
 sidebar_label: Pool Pair API
-slug: /jellyfish/api/poolpair
+slug: /jellyfish-api-core/poolpair
 ---
 
 ```js

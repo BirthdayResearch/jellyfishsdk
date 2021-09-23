@@ -1,6 +1,6 @@
 ---
 id: jellyfish
-title: Testcontainers + Jellyfish
+title: Testcontainers + Jelly
 sidebar_label: Testcontainers + Jellyfish
 slug: /testcontainers/jellyfish
 ---

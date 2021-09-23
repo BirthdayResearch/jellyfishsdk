@@ -25,23 +25,6 @@ const features = [
     )
   },
   {
-    title: 'Protocol-agnostic',
-    description: (
-      <>
-        Independent of communication protocols, allowing vendor-agnostic middleware adaptable to your needs.
-      </>
-    )
-  },
-  {
-    title: 'Easy to Use',
-    description: (
-      <>
-        <code>@defichain/jellyfish</code> was designed from the ground up to be easily integrated with any
-        JavaScript environment.
-      </>
-    )
-  },
-  {
     title: 'Easy to Test',
     description: (
       <>

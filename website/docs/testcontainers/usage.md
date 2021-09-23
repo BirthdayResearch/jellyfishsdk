@@ -1,7 +1,7 @@
 ---
 id: usage
-title: Testcontainers usage
-sidebar_label: Testcontainers usage
+title: Usage
+sidebar_label: Usage
 slug: /testcontainers/usage
 ---
 

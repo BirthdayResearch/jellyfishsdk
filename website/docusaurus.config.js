@@ -1,6 +1,6 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: 'DeFiChain Jellyfish SDK',
+  title: 'Jellyfish Ecosystem',
   tagline: 'A collection of TypeScript + JavaScript tools and libraries to build Native DeFi products.',
   url: 'https://jellyfish.defichain.com',
   baseUrl: '/',
@@ -23,7 +23,7 @@ module.exports = {
       respectPrefersColorScheme: true
     },
     navbar: {
-      title: 'Jellyfish',
+      title: 'Jellyfish Ecosystem',
       logo: {
         alt: 'DeFiChain Logo',
         src: 'img/defichain.svg'
@@ -31,14 +31,32 @@ module.exports = {
       items: [
         {
           to: 'docs',
-          activeBasePath: 'docs/jellyfish',
+          activeBasePath: 'docs/core',
+          label: 'SDK',
+          position: 'left'
+        },
+        {
+          to: 'docs/ocean/stats',
+          activeBasePath: 'docs/ocean',
+          label: 'Ocean APIs',
+          position: 'left'
+        },
+        {
+          to: 'docs/jellyfish-api-core/blockchain',
+          activeBasePath: 'docs/jellyfish-api-core',
           label: 'Full Node APIs',
           position: 'left'
         },
         {
           to: 'docs/testcontainers',
           activeBasePath: 'docs/testcontainers',
-          label: 'Testcontainers',
+          label: 'Samples',
+          position: 'left'
+        },
+        {
+          to: 'docs/testcontainers',
+          activeBasePath: 'docs/testcontainers',
+          label: 'Testing',
           position: 'left'
         },
         {
@@ -49,21 +67,16 @@ module.exports = {
       ]
     },
     footer: {
-      style: 'dark',
       links: [
         {
           title: 'DeFiChain',
           items: [
             {
-              label: '$DFI',
-              to: 'https://defichain.com/dfi/'
-            },
-            {
               label: 'Foundation',
               to: 'https://defichain.com/foundation/'
             },
             {
-              label: 'White paper',
+              label: 'White Paper',
               to: 'https://defichain.com/white-paper/'
             },
             {
@@ -77,7 +90,7 @@ module.exports = {
           items: [
             {
               label: 'Twitter',
-              href: 'https://twitter.com/defichain'
+              to: 'https://twitter.com/defichain'
             },
             {
               label: 'Reddit',
@@ -85,7 +98,7 @@ module.exports = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/DeFiCh'
+              to: 'https://github.com/DeFiCh'
             }
           ]
         },
@@ -107,19 +120,13 @@ module.exports = {
             {
               html: `
                 <a href="https://www.netlify.com" target="_blank" rel="noreferrer noopener" aria-label="Deploys by Netlify">
-                  <img src="https://www.netlify.com/img/global/badges/netlify-color-accent.svg" alt="Deploys by Netlify" />
+                  <img src="https://www.netlify.com/img/global/badges/netlify-light.svg" alt="Deploys by Netlify" />      
                 </a>
               `
             }
           ]
         }
       ],
-      logo: {
-        alt: 'DeFi Blockchain',
-        src: 'img/defi-blockchain.png',
-        href: 'https://defichain.com'
-      },
-      copyright: `Copyright © ${new Date().getFullYear()} DeFiChain Foundation & DeFi Jellyfish Contributors`
     }
   },
   presets: [

@@ -2,7 +2,7 @@
 id: governance
 title: Governance API
 sidebar_label: Governance API
-slug: /jellyfish/api/governance
+slug: /jellyfish-api-core/governance
 ---
 
 ```js

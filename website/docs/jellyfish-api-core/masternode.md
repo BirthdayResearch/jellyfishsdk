@@ -2,7 +2,7 @@
 id: masternode
 title: Masternode API
 sidebar_label: Masternode API
-slug: /jellyfish/api/masternode
+slug: /jellyfish-api-core/masternode
 ---
 
 ```js

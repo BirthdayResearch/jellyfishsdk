@@ -1,33 +1,42 @@
 module.exports = {
   docs: [
-    'introduction',
-    'jellyfish/design',
-    'jellyfish/usage',
+    'core/introduction',
+    'core/design',
+    'core/usage',
+  ],
+  'jellyfish-api-core': [
     {
       type: 'category',
-      label: 'DeFi APIs',
+      label: 'RPC APIs',
       collapsed: false,
       items: [
-        'jellyfish/api/blockchain',
-        'jellyfish/api/mining',
-        'jellyfish/api/net',
-        'jellyfish/api/rawtx',
-        'jellyfish/api/wallet',
-        'jellyfish/api/poolpair',
-        'jellyfish/api/token',
-        'jellyfish/api/account',
-        'jellyfish/api/oracle',
-        'jellyfish/api/server',
-        'jellyfish/api/masternode',
-        'jellyfish/api/governance',
-        'jellyfish/api/spv',
-        'jellyfish/api/loan'
+        'jellyfish-api-core/blockchain',
+        'jellyfish-api-core/mining',
+        'jellyfish-api-core/net',
+        'jellyfish-api-core/rawtx',
+        'jellyfish-api-core/wallet',
+        'jellyfish-api-core/poolpair',
+        'jellyfish-api-core/token',
+        'jellyfish-api-core/account',
+        'jellyfish-api-core/oracle',
+        'jellyfish-api-core/server',
+        'jellyfish-api-core/masternode',
+        'jellyfish-api-core/governance',
+        'jellyfish-api-core/spv',
+        'jellyfish-api-core/loan'
       ]
     }
   ],
-  testcontainers: [
-    'testcontainers/overview',
-    'testcontainers/usage',
-    'testcontainers/jellyfish'
+  'testing': [
+    {
+      type: 'category',
+      label: 'Testcontainers',
+      collapsed: false,
+      items: [
+        'testcontainers/overview',
+        'testcontainers/usage',
+        'testcontainers/jellyfish'
+      ]
+    }
   ]
 }

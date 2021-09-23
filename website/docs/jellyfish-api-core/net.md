@@ -2,7 +2,7 @@
 id: net
 title: Net API
 sidebar_label: Net API
-slug: /jellyfish/api/net
+slug: /jellyfish-api-core/net
 ---
 
 ```js

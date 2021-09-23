@@ -2,7 +2,7 @@
 id: loan
 title: Loan API
 sidebar_label: Loan API
-slug: /jellyfish/api/loan
+slug: /jellyfish-api-core/loan
 ---
 
 ```js

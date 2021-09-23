@@ -2,7 +2,7 @@
 id: blockchain
 title: Blockchain API
 sidebar_label: Blockchain API
-slug: /jellyfish/api/blockchain
+slug: /jellyfish-api-core/blockchain
 ---
 
 ```js
