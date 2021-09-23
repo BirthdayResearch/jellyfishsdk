@@ -211,8 +211,6 @@ describe('Masternode', () => {
   })
 
   it('should be failed as min 2 DFI (regtest) is needed', async () => {
-    expect.assertions(2)
-
     const balanceBefore = await container.call('getbalance')
 
     await client.wallet.sendToAddress('bcrt1ql0ys2ahu4e9uhjn2l0mehhh4e0mmh7npyhx0re', balanceBefore - 1)
