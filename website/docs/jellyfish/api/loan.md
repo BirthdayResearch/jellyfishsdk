@@ -315,7 +315,7 @@ Deposit to vault.
 
 ```ts title="client.loan.depositToVault()"
 interface loan {
-  depositToVault (vault: DepositVault, utxos: UTXO[] = []): Promise<string>
+  depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string>
 }
 
 interface DepositVault {
