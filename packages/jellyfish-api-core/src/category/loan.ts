@@ -234,6 +234,27 @@ export class Loan {
   async takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('takeloan', [metadata, utxos], 'number')
   }
+
+  /**
+   * To obtain the liquidated vault by offering a particular up for bid
+   *
+   * @param {AuctionBid} auctionBid
+   * @param {string} auctionBid.vaultId Vault Id
+   * @param {index} auctionBid.index Auction index
+   * @param {from} auctionBid.from Address to get token
+   * @param {amount} auctionBid.amount in "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async auctionBid (auctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call(
+      'auctionbid',
+      [auctionBid.vaultId, auctionBid.index, auctionBid.from, auctionBid.amount, utxos],
+      'number'
+    )
+  }
 }
 
 export interface CreateLoanScheme {
@@ -353,4 +374,11 @@ export interface DepositVault {
 export interface TakeLoanMetadata {
   vaultId: string
   amounts: string // amount@symbol
+}
+
+export interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
 }

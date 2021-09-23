@@ -372,3 +372,25 @@ interface UTXO {
   vout: number
 }
 ```
+
+## auctionLoan
+
+To obtain the liquidated vault by offering a particular up for bid.
+
+```ts title="client.loan.auctionBid()"
+interface loan {
+  auctionBid (auctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+}
+
+interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
