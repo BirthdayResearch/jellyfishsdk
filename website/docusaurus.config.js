@@ -30,9 +30,21 @@ module.exports = {
       },
       items: [
         {
-          to: 'docs',
-          activeBasePath: 'docs',
-          label: 'Docs',
+          to: 'ecosystem',
+          activeBasePath: 'ecosystem',
+          label: 'Ecosystem',
+          position: 'left'
+        },
+        {
+          to: 'node',
+          activeBasePath: 'node',
+          label: 'Full Node APIs',
+          position: 'left'
+        },
+        {
+          to: 'testing',
+          activeBasePath: 'testing',
+          label: 'Testing',
           position: 'left'
         },
         {
@@ -110,13 +122,37 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          path: '../docs',
-          editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website'
+          path: '../docs/ecosystem',
+          routeBasePath: 'ecosystem',
+          editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+          sidebarCollapsed: false,
         },
         theme: {
           customCss: require.resolve('./src/css/theme.css')
         }
       }
     ]
-  ]
+  ],
+  plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'node',
+        path: '../docs/node',
+        routeBasePath: 'node',
+        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        sidebarCollapsed: false,
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'testing',
+        path: '../docs/testing',
+        routeBasePath: 'testing',
+        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        sidebarCollapsed: false,
+      },
+    ],
+  ],
 }

@@ -2,7 +2,7 @@
 id: usage
 title: Usage
 sidebar_label: Usage
-slug: /jellyfish/usage
+slug: /usage
 ---
 
 ## @defichain/jellyfish

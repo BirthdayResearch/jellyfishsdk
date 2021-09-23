@@ -2,7 +2,7 @@
 id: design
 title: Design
 sidebar_label: Design
-slug: /jellyfish/design
+slug: /design
 ---
 
 ## Conventional defaults

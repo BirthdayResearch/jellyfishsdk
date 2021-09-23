@@ -2,7 +2,7 @@
 id: usage
 title: Testcontainers usage
 sidebar_label: Testcontainers usage
-slug: /testcontainers/usage
+slug: /usage
 ---
 
 ## Installation

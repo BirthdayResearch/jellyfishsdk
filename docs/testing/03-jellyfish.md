@@ -2,7 +2,7 @@
 id: jellyfish
 title: Testcontainers + Jellyfish
 sidebar_label: Testcontainers + Jellyfish
-slug: /testcontainers/jellyfish
+slug: /jellyfish
 ---
 
 ## Using with Jellyfish
