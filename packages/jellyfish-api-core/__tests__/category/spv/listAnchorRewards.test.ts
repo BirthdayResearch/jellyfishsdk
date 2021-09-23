@@ -129,7 +129,6 @@ describe('Spv', () => {
 
     const commBalancesBefore = await tGroup.get(0).container.call('listcommunitybalances')
 
-    await tGroup.get(0).container.waitForAnchorRewardConfirms()
     await tGroup.get(0).generate(1)
 
     const rewards = await tGroup.get(0).rpc.spv.listAnchorRewards()

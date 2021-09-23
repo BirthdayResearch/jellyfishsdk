@@ -222,11 +222,9 @@ describe('Masternode', () => {
 
     const ownerAddress = await client.wallet.getNewAddress('', AddressType.LEGACY)
 
-    try {
-      await client.masternode.createMasternode(ownerAddress)
-    } catch (err) {
-      expect(err.message).toStrictEqual('RpcApiError: \'Insufficient funds\', code: -4, method: createmasternode')
-    }
+    const promise = client.masternode.createMasternode(ownerAddress)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Insufficient funds\', code: -4, method: createmasternode')
   })
 })
 
