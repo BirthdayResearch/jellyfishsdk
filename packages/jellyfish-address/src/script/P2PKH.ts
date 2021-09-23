@@ -1,6 +1,6 @@
 import { OP_CODES, OP_PUSHDATA, Script } from '@defichain/jellyfish-transaction'
 import { getNetwork, NetworkName } from '@defichain/jellyfish-network'
-import { toBase58Check } from './Base58Check'
+import { DecodedBase58Check, toBase58Check } from './Base58Check'
 
 function isScriptP2PKH (script: Script): boolean {
   return script.stack.length === 5 &&
@@ -20,4 +20,25 @@ export function fromScriptP2PKH (script: Script, network: NetworkName): string |
   const buffer = Buffer.from(hash.hex, 'hex')
   const prefix = getNetwork(network).pubKeyHashPrefix
   return toBase58Check(buffer, prefix)
+}
+
+function isBase58CheckP2PKH (decoded: DecodedBase58Check, network: NetworkName): boolean {
+  return decoded.prefix === getNetwork(network).pubKeyHashPrefix &&
+    decoded.buffer.length === 20
+}
+
+export function fromBase58CheckP2PKH (decoded: DecodedBase58Check, network: NetworkName): Script | undefined {
+  if (!isBase58CheckP2PKH(decoded, network)) {
+    return undefined
+  }
+
+  return {
+    stack: [
+      OP_CODES.OP_DUP,
+      OP_CODES.OP_HASH160,
+      OP_CODES.OP_PUSHDATA(Buffer.from(decoded.buffer), 'little'),
+      OP_CODES.OP_EQUALVERIFY,
+      OP_CODES.OP_CHECKSIG
+    ]
+  }
 }
