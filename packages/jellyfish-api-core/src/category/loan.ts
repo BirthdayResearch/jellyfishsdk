@@ -97,7 +97,7 @@ export class Loan {
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {BigNumber} collateralToken.factor Collateralization factor
-   * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
+   * @param {string} collateralToken.priceFeedId token/currency pair to use for price of token
    * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
@@ -135,7 +135,7 @@ export class Loan {
    * @param {SetLoanToken} loanToken
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {string} loanToken.priceFeedId token/currency pair to use for price of token
    * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
    * @param {BigNumber} [loanToken.interest = 0] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -149,6 +149,25 @@ export class Loan {
       interest: 0
     }
     return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
+  }
+
+  /**
+   * Updates an existing loan token.
+   *
+   * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
+   * @param {UpdateLoanToken} newTokenDetails
+   * @param {string} [newTokenDetails.symbol] New token's symbol (unique), no longer than 8
+   * @param {string} [newTokenDetails.name] Token's name, no longer than 128
+   * @param {string} [newTokenDetails.priceFeedId] token/currency pair to use for price of token
+   * @param {boolean} [newTokenDetails.mintable] Token's 'Mintable' property
+   * @param {BigNumber} [newTokenDetails.interest] Interest rate
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to update loan token
+   */
+  async updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updateloantoken', [oldToken, newTokenDetails, utxos], 'number')
   }
 
   /**
@@ -173,6 +192,16 @@ export class Loan {
    */
   async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
+  }
+
+  /**
+   * Returns information about vault.
+   *
+   * @param {string} vaultId vault hex id
+   * @return {Promise<VaultDetails>}
+   */
+  async getVault (vaultId: string): Promise<VaultDetails> {
+    return await this.client.call('getvault', [vaultId], 'bignumber')
   }
 }
 
@@ -248,9 +277,35 @@ export interface LoanTokenDetails {
   interest: BigNumber
 }
 
+export interface UpdateLoanToken {
+  symbol?: string
+  name?: string
+  priceFeedId?: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
 export interface CreateVault {
   ownerAddress: string
   loanSchemeId?: string
+}
+
+export interface VaultDetails {
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: BigNumber
+}
+
+export interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
 }
 
 export interface UTXO {

@@ -217,6 +217,29 @@ interface UTXO {
 }
 ```
 
+## updateLoanToken
+
+Updates an existing loan token.
+
+```ts title="client.loan.updateLoanToken()"
+interface loan {
+  updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanToken {
+  symbol?: string
+  name?: string
+  priceFeedId?: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listLoanTokens
 
 List all created loan tokens.
@@ -276,5 +299,33 @@ interface CreateVault {
 interface UTXO {
   txid: string
   vout: number
+}
+```
+
+## getVault
+
+Returns information about vault.
+
+```ts title="client.loan.getVault()"
+interface loan {
+  getVault (vaultId: string): Promise<VaultDetails>
+}
+
+interface VaultDetails {
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: BigNumber
+}
+
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
 }
 ```

@@ -79,3 +79,5 @@ export const DeFiAddress = {
   guess,
   from
 }
+
+export * from './script'

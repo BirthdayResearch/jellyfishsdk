@@ -21,7 +21,7 @@ describe('Loan', () => {
       expect(data).toStrictEqual({})
     }
 
-    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
@@ -30,7 +30,7 @@ describe('Loan', () => {
     const loanTokenId1 = await testing.container.call('setloantoken', [{
       symbol: 'AAPL',
       name: 'APPLE',
-      priceFeedId: priceFeedId1,
+      priceFeedId: 'AAPL/USD',
       mintable: true,
       interest: new BigNumber(0.01)
     }])
@@ -38,7 +38,7 @@ describe('Loan', () => {
 
     const height1 = new BigNumber(await testing.container.getBlockCount())
 
-    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'TSLA',
       currency: 'USD'
     }], 1])
@@ -47,7 +47,7 @@ describe('Loan', () => {
     const loanTokenId2 = await testing.container.call('setloantoken', [{
       symbol: 'TSLA',
       name: 'TESLA',
-      priceFeedId: priceFeedId2,
+      priceFeedId: 'TSLA/USD',
       mintable: false,
       interest: new BigNumber(0.02)
     }])
@@ -80,7 +80,7 @@ describe('Loan', () => {
               tradeable: true
             }
           },
-          priceFeedId: priceFeedId1,
+          priceFeedId: 'AAPL/USD',
           interest: new BigNumber(0.01)
         },
         [loanTokenId2]: {
@@ -105,7 +105,7 @@ describe('Loan', () => {
               tradeable: true
             }
           },
-          priceFeedId: priceFeedId2,
+          priceFeedId: 'TSLA/USD',
           interest: new BigNumber(0.02)
         }
       }
