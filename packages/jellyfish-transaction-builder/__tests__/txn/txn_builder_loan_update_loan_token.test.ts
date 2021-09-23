@@ -242,8 +242,8 @@ describe('loan.updateLoanToken()', () => {
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
-      symbol: 'Token1',
-      name: 'Token1',
+      symbol: 'Token5',
+      name: 'Token5',
       currencyPair: { token: 'Token1', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.08),
@@ -253,7 +253,7 @@ describe('loan.updateLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token1')
+    expect(data[loanTokenId].token[index].name).toStrictEqual('Token5')
   })
 
   it('should not updateLoanToken if priceFeedId does not belong to any oracle', async () => {
