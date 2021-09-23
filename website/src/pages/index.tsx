@@ -19,24 +19,8 @@ const features = [
     title: 'Modern',
     description: (
       <>
-        Built using modern JavaScript approaches - ES6, Strict & Mono-repo. Transpiled and bundled backwards for compatibility.
-      </>
-    )
-  },
-  {
-    title: 'Protocol-agnostic',
-    description: (
-      <>
-        Independent of communication protocols, allowing vendor-agnostic middleware adaptable to your needs.
-      </>
-    )
-  },
-  {
-    title: 'Easy to Use',
-    description: (
-      <>
-        <code>@defichain/jellyfish</code> was designed from the ground up to be easily integrated with any
-        JavaScript environment.
+        Built using modern JavaScript approaches - ES6, Strict & Mono-repo. Transpiled and bundled backwards for
+        compatibility.
       </>
     )
   },
@@ -51,7 +35,10 @@ const features = [
   }
 ]
 
-function Feature ({ title, description }) {
+function Feature ({
+  title,
+  description
+}): JSX.Element {
   return (
     <div className={clsx('col col--4')}>
       <h3>{title}</h3>
@@ -61,20 +48,15 @@ function Feature ({ title, description }) {
 }
 
 export default function Home () {
-  const context = useDocusaurusContext()
-  const { siteConfig = {} } = context
+  const siteConfig = useDocusaurusContext().siteConfig
   return (
-    <Layout
-      title='Build dApps on DeFi Blockchain'
-      description={siteConfig.tagline}
-    >
-
+    <Layout description={siteConfig.tagline}>
       <header className={clsx('hero', styles.heroBanner)}>
-        <div className='container'>
-          <h1 className='hero__title'>
+        <div className="container">
+          <h1 className="hero__title">
             {siteConfig.title}
           </h1>
-          <p className='hero__subtitle'>
+          <p className="hero__subtitle">
             {siteConfig.tagline}
           </p>
 
@@ -94,7 +76,7 @@ export default function Home () {
 
       <main>
         <section>
-          <div className='container'>
+          <div className="container">
             <div className={clsx('row', styles.features)}>
               {features.map((props, idx) => (
                 <Feature key={idx} {...props} />
