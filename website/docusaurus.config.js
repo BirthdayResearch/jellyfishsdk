@@ -35,14 +35,8 @@ module.exports = {
       items: [
         {
           to: 'docs',
-          activeBasePath: 'docs/jellyfish',
-          label: 'Jellyfish',
-          position: 'left'
-        },
-        {
-          to: 'docs/testcontainers',
-          activeBasePath: 'docs/testcontainers',
-          label: 'Testcontainers',
+          activeBasePath: 'docs',
+          label: 'SDK',
           position: 'left'
         },
         {
@@ -131,7 +125,7 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          path: '../docs',
           editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website'
         },
         theme: {

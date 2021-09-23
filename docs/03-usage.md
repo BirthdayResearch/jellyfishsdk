@@ -1,7 +1,7 @@
 ---
 id: usage
-title: Jellyfish usage
-sidebar_label: Jellyfish usage
+title: Usage
+sidebar_label: Usage
 slug: /jellyfish/usage
 ---
 
