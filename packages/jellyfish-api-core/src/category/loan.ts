@@ -152,6 +152,25 @@ export class Loan {
   }
 
   /**
+   * Updates an existing loan token.
+   *
+   * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
+   * @param {UpdateLoanToken} newTokenDetails
+   * @param {string} [newTokenDetails.symbol] New token's symbol (unique), no longer than 8
+   * @param {string} [newTokenDetails.name] Token's name, no longer than 128
+   * @param {string} [newTokenDetails.priceFeedId] token/currency pair to use for price of token
+   * @param {boolean} [newTokenDetails.mintable] Token's 'Mintable' property
+   * @param {BigNumber} [newTokenDetails.interest] Interest rate
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to update loan token
+   */
+  async updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updateloantoken', [oldToken, newTokenDetails, utxos], 'number')
+  }
+
+  /**
    * List all created loan tokens.
    *
    * @return {Promise<ListLoanTokenResult[]>}
@@ -256,6 +275,14 @@ export interface LoanTokenDetails {
   token: token.TokenResult
   priceFeedId: string
   interest: BigNumber
+}
+
+export interface UpdateLoanToken {
+  symbol?: string
+  name?: string
+  priceFeedId?: string
+  mintable?: boolean
+  interest?: BigNumber
 }
 
 export interface CreateVault {

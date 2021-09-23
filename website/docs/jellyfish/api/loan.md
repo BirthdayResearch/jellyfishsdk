@@ -217,6 +217,29 @@ interface UTXO {
 }
 ```
 
+## updateLoanToken
+
+Updates an existing loan token.
+
+```ts title="client.loan.updateLoanToken()"
+interface loan {
+  updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanToken {
+  symbol?: string
+  name?: string
+  priceFeedId?: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listLoanTokens
 
 List all created loan tokens.
