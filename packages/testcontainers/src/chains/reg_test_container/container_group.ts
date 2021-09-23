@@ -113,14 +113,14 @@ export class ContainerGroup {
     return await waitForCondition(async () => {
       for (let i = 0; i < 15; i += 1) {
         const container = this.containers[i % 15]
-        const anchorTeams = await container.call('getanchorteams')
-        if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
-          return true
-        }
         await container.generate(1)
         await this.waitForSync()
       }
-      return true
+      const anchorTeams = await this.containers[0].call('getanchorteams')
+      if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
+        return true
+      }
+      return false
     }, timeout, 100, 'waitForAnchorTeams')
   }
 
