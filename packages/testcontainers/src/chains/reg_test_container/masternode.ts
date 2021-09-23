@@ -127,42 +127,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
-   * Wait for anchor teams
-   *
-   * @param {number} nodesLength
-   * @param {number} [timeout=30000] in ms
-   * @return {Promise<void>}
-   */
-  /* istanbul ignore next, TODO(canonbrother) */
-  async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const anchorTeams = await this.call('getanchorteams')
-      if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
-        return true
-      }
-      return false
-    }, timeout, 100, 'waitForAnchorTeams')
-  }
-
-  /**
-   * Wait for anchor auths
-   *
-   * @param {number} nodesLength
-   * @param {number} [timeout=30000] in ms
-   * @return {Promise<void>}
-   */
-  /* istanbul ignore next, TODO(canonbrother) */
-  async waitForAnchorAuths (nodesLength: number, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      const auths = await this.call('spv_listanchorauths')
-      if (auths.length > 0 && auths[0].signers === nodesLength) {
-        return true
-      }
-      return false
-    }, timeout, 100, 'waitForAnchorAuths')
-  }
-
-  /**
    * Wait for anchor reward confirms
    *
    * @param {number} [timeout=30000] in ms

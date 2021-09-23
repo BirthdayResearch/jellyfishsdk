@@ -1,14 +1,13 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../wait_for_condition'
 import { MasterNodeRegTestContainer } from '../../chains/reg_test_container/masternode'
-import { RegTestContainer } from '../../chains/reg_test_container/index'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode
   protected network?: Network
 
   public constructor (
-    protected readonly containers: RegTestContainer[] = [],
+    protected readonly containers: MasterNodeRegTestContainer[] = [],
     protected readonly name = `testcontainers-${Math.floor(Math.random() * 10000000)}`,
     options?: DockerOptions
   ) {
@@ -20,7 +19,7 @@ export class ContainerGroup {
    * @return {MasterNodeRegTestContainer} casted as MN convenience but it might be just a RegTestContainer
    */
   get (index: number): MasterNodeRegTestContainer {
-    return this.containers[index] as MasterNodeRegTestContainer
+    return this.containers[index]
   }
 
   async start (): Promise<void> {
@@ -35,7 +34,9 @@ export class ContainerGroup {
         if (err instanceof Error) {
           return reject(err)
         }
-        return resolve(data)
+        return data !== undefined
+          ? resolve(data)
+          : undefined
       })
     })
 
@@ -60,7 +61,7 @@ export class ContainerGroup {
   /**
    * @param {DeFiDContainer} container to add into container group with addnode
    */
-  async add (container: RegTestContainer): Promise<void> {
+  async add (container: MasterNodeRegTestContainer): Promise<void> {
     await this.requireNetwork().connect({ Container: container.id })
 
     for (const each of this.containers) {
@@ -98,6 +99,28 @@ export class ContainerGroup {
 
       return hashes.every(value => value === hashes[0])
     }, timeout, 200, 'waitForSync')
+  }
+
+  /**
+   * Wait for anchor teams
+   *
+   * @param {number} nodesLength
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      for (let i = 0; i < 15; i += 1) {
+        const container = this.containers[i % 15]
+        const anchorTeams = await container.call('getanchorteams')
+        if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
+          return true
+        }
+        await container.generate(1)
+        await this.waitForSync()
+      }
+      return true
+    }, timeout, 100, 'waitForAnchorTeams')
   }
 
   /**

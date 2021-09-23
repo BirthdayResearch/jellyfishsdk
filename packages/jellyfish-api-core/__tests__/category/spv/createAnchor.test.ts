@@ -29,20 +29,8 @@ describe('Spv', () => {
     const initOffsetHour = -12
     await setMockTime(initOffsetHour)
 
-    // 15 as anchor frequency
-    for (let i = 0; i < 15; i += 1) {
-      const { container } = tGroup.get(i % tGroup.length())
-      await container.generate(1)
-      await tGroup.waitForSync()
-    }
-
-    {
-      const count = await tGroup.get(0).container.getBlockCount()
-      expect(count).toStrictEqual(15)
-    }
-
     // check the auth and confirm anchor mn teams at current height 15
-    await tGroup.get(0).container.waitForAnchorTeams(tGroup.length())
+    await tGroup.waitForAnchorTeams(tGroup.length())
 
     // assertion for team
     for (let i = 0; i < tGroup.length(); i += 1) {
@@ -69,8 +57,6 @@ describe('Spv', () => {
     // then every 15 blocks will be matched again
     // generate 2 anchor auths
     await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
-
-    await tGroup.get(0).container.waitForAnchorAuths(tGroup.length())
 
     // check each container should be quorum ready
     for (let i = 0; i < tGroup.length(); i += 1) {

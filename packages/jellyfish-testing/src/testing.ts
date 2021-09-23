@@ -106,7 +106,7 @@ export class TestingGroup {
     return await this.group.stop()
   }
 
-  async exec (runner: (testing: Testing) => Promise<void>): Promise<void> {
+  async exec (runner: (testing: Testing) => Promise<any>): Promise<any> {
     for (let i = 0; i < this.testings.length; i += 1) {
       await runner(this.testings[i])
     }
@@ -116,9 +116,19 @@ export class TestingGroup {
     return await this.group.waitForSync()
   }
 
-  /* istanbul ignore next, TODO(canonbrother) */
-  async waitForMempoolSync (txid: string, timeout = 15000): Promise<void> {
+  async waitForMempoolSync (txid: string, timeout = 20000): Promise<void> {
     return await this.group.waitForMempoolSync(txid, timeout)
+  }
+
+  /**
+   * Wait for anchor teams
+   *
+   * @param {number} nodesLength
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
+    return await this.group.waitForAnchorTeams(nodesLength, timeout)
   }
 }
 

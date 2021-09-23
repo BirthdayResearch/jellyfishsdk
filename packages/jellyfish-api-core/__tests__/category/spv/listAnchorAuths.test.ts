@@ -38,7 +38,7 @@ describe('Spv', () => {
     expect(blockCount).toStrictEqual(15)
 
     // check the auth and confirm anchor mn teams
-    await tGroup.get(0).container.waitForAnchorTeams(tGroup.length())
+    await tGroup.waitForAnchorTeams(tGroup.length())
 
     // assertion for team
     for (let i = 0; i < tGroup.length(); i += 1) {
@@ -57,7 +57,13 @@ describe('Spv', () => {
     // generate 2 anchor auths
     await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
 
-    await tGroup.get(0).container.waitForAnchorAuths(tGroup.length())
+    // check each container should be quorum ready
+    for (let i = 0; i < tGroup.length(); i += 1) {
+      const { container } = tGroup.get(i % tGroup.length())
+      const auths = await container.call('spv_listanchorauths')
+      expect(auths.length).toStrictEqual(2)
+      expect(auths[0].signers).toStrictEqual(tGroup.length())
+    }
   }
 
   it('should listAnchorAuths', async () => {
