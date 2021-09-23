@@ -14,35 +14,35 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    symbol: 'Token2',
      *    name: 'Token2',
-     *    priceFeedId：'3eaca4cd0124c54bf01b52f0bd6f377af745bc5a2910a98d10cb306ab598387e'
+     *    currencyPair: { token: 'Token2', currency: 'USD' },
      *    mintable: true,
      *    interest: new BigNumber(0)
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a4c5c446654786606546f6b656e3206546f6b656e327e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e010000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
+    '6a47446654786606546f6b656e3206546f6b656e3206546f6b656e3203555344010000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
     /**
      * loan : {
      *    symbol: 'Token3',
      *    name: 'Token3',
-     *    priceFeedId：'3eaca4cd0124c54bf01b52f0bd6f377af745bc5a2910a98d10cb306ab598387e'
+     *    currencyPair: { token: 'Token3', currency: 'USD' },
      *    mintable: false,
      *    interest: new BigNumber(0)
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a4c5c446654786606546f6b656e3306546f6b656e337e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e000000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
+    '6a47446654786606546f6b656e3306546f6b656e3306546f6b656e3303555344000000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
     /**
      * loan : {
      *    symbol: 'Token4',
      *    name: 'Token4',
-     *    priceFeedId：'3eaca4cd0124c54bf01b52f0bd6f377af745bc5a2910a98d10cb306ab598387e'
+     *    currencyPair: { token: 'Token4', currency: 'USD' },
      *    mintable: true,
      *    interest: new BigNumber(12.345678)
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a4c5c446654786606546f6b656e3406546f6b656e347e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
+    '6a47446654786606546f6b656e3406546f6b656e3406546f6b656e3403555344017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
   ]
 
   fixtures.forEach(hex => {
@@ -55,18 +55,18 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a4c5c4466547866' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 92 = 0x5c) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x66)
-const data = '06546f6b656e3406546f6b656e347e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
+const header = '6a474466547866' // OP_RETURN(0x6a) OP_PUSHDATA1(0x47) (length 68 = 0x44) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x66)
+const data = '06546f6b656e3406546f6b656e3406546f6b656e3403555344017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
 // UpdateLoanToken.symbol[BE](06546f6b656e34)
 // UpdateLoanToken.name[BE](06546f6b656e34)
-// UpdateLoanToken.priceFeedId[LE](7e3898b56a30cb108da910295abc45f77a376fbdf0521bf04bc52401cda4ac3e)
+// UpdateLoanToken.currencyPair[BE] (06546f6b656e3403555344)
 // UpdateLoanToken.mintable(01)
 // UpdateLoanToken.interest[LE](7802964900000000)
 // UpdateLoanToken.tokenTx[LE](133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20)
 const updateLoanToken: UpdateLoanToken = {
   symbol: 'Token4',
   name: 'Token4',
-  priceFeedId: '3eaca4cd0124c54bf01b52f0bd6f377af745bc5a2910a98d10cb306ab598387e',
+  currencyPair: { token: 'Token4', currency: 'USD' },
   mintable: true,
   interest: new BigNumber(12.345678),
   tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13'

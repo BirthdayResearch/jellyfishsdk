@@ -14,7 +14,6 @@ const testing = Testing.create(container)
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
-let priceFeedId: string
 let loanTokenId: string
 
 beforeAll(async () => {
@@ -25,8 +24,14 @@ beforeAll(async () => {
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
-  priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  await testing.container.call('appointoracle', [await testing.generateAddress(), [{
     token: 'Token1',
+    currency: 'USD'
+  }], 1])
+  await testing.generate(1)
+
+  await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    token: 'Token2',
     currency: 'USD'
   }], 1])
   await testing.generate(1)
@@ -34,7 +39,7 @@ beforeAll(async () => {
   loanTokenId = await testing.container.call('setloantoken', [{
     symbol: 'Token1',
     name: 'Token1',
-    priceFeedId,
+    priceFeedId: 'Token1/USD',
     mintable: true,
     interest: new BigNumber(0.01)
   }, []])
@@ -53,7 +58,7 @@ afterEach(async () => {
     await testing.rpc.loan.updateLoanToken('Token2', {
       symbol: 'Token1',
       name: 'Token1',
-      priceFeedId,
+      priceFeedId: 'Token1/USD',
       mintable: true,
       interest: new BigNumber(0.01)
     })
@@ -71,7 +76,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
       name: 'Token2',
-      priceFeedId,
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.01),
       tokenTx: loanTokenId
@@ -114,14 +119,14 @@ describe('loan.updateLoanToken()', () => {
             collateralAddress: expect.any(String)
           }
         },
-        priceFeedId,
+        priceFeedId: 'Token2/USD',
         interest: 0.01
       }
     })
   })
 
   it('should updateLoanToken if symbol is more than 8 letters', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token3',
       currency: 'USD'
     }], 1])
@@ -130,7 +135,7 @@ describe('loan.updateLoanToken()', () => {
     const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token3',
       name: 'Token3',
-      priceFeedId,
+      priceFeedId: 'Token3/USD',
       mintable: true,
       interest: new BigNumber(0.03)
     }, []])
@@ -143,7 +148,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: 'x'.repeat(9), // 9 letters
       name: 'Token3',
-      priceFeedId,
+      currencyPair: { token: 'Token3', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.04),
       tokenTx: loanTokenId
@@ -160,7 +165,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: '',
       name: 'Token2',
-      priceFeedId,
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.05),
       tokenTx: loanTokenId
@@ -170,7 +175,7 @@ describe('loan.updateLoanToken()', () => {
   })
 
   it('should not updateLoanToken if the symbol is used in other token', async () => {
-    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token4',
       currency: 'USD'
     }], 1])
@@ -179,7 +184,7 @@ describe('loan.updateLoanToken()', () => {
     const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token4',
       name: 'Token4',
-      priceFeedId: priceFeedId1,
+      priceFeedId: 'Token4/USD',
       mintable: true,
       interest: new BigNumber(0.06)
     }, []])
@@ -192,7 +197,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token1',
       name: 'Token4',
-      priceFeedId,
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.07),
       tokenTx: loanTokenId
@@ -206,7 +211,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
       name: 'x'.repeat(129), // 129 letters,
-      priceFeedId,
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.08),
       tokenTx: loanTokenId
@@ -219,7 +224,7 @@ describe('loan.updateLoanToken()', () => {
   })
 
   it('should updateLoanToken if two loan tokens have the same name', async () => {
-    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token5',
       currency: 'USD'
     }], 1])
@@ -228,7 +233,7 @@ describe('loan.updateLoanToken()', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token5',
       name: 'Token5',
-      priceFeedId: priceFeedId2
+      priceFeedId: 'Token5/USD'
     })
     await testing.generate(1)
 
@@ -239,7 +244,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token1',
       name: 'Token1',
-      priceFeedId,
+      currencyPair: { token: 'Token1', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.08),
       tokenTx: loanTokenId
@@ -251,18 +256,18 @@ describe('loan.updateLoanToken()', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('Token1')
   })
 
-  it('should not updateLoanToken if priceFeedId is invalid', async () => {
+  it('should not updateLoanToken if priceFeedId does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
       name: 'Token2',
-      priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b',
+      currencyPair: { token: 'MFST', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.09),
       tokenTx: loanTokenId
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: oracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
   })
 
   it('should not updateLoanToken if tokenTx does not exist', async () => {
@@ -270,7 +275,7 @@ describe('loan.updateLoanToken()', () => {
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
       name: 'Token2',
-      priceFeedId,
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.02),
       tokenTx: 'd6e157b66957dda2297947e31ac2a1d0c92eae515f35bc1ebad9478d06efa3c0'
