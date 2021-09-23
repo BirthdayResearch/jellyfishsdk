@@ -230,7 +230,7 @@ describe('loan.updateLoanToken()', () => {
     }], 1])
     await testing.generate(1)
 
-    await testing.rpc.loan.setLoanToken({
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token5',
       name: 'Token5',
       priceFeedId: 'Token5/USD'
@@ -243,7 +243,7 @@ describe('loan.updateLoanToken()', () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token5',
-      name: 'Token5',
+      name: 'Token1',
       currencyPair: { token: 'Token1', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.08),
@@ -253,7 +253,7 @@ describe('loan.updateLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token5')
+    expect(data[loanTokenId].token[index].name).toStrictEqual('Token1')
   })
 
   it('should not updateLoanToken if priceFeedId does not belong to any oracle', async () => {
