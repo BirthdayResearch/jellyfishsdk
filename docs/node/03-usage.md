@@ -5,52 +5,13 @@ sidebar_label: Usage
 slug: /usage
 ---
 
-## @defichain/jellyfish
-
-### Installation
+## Installation
 
 ```shell
-npm install @defichain/jellyfish
+npm i -D @defichain/jellyfish-api-jsonrpc
 ```
 
-### ES6 Modules + TypeScript
-
-```ts
-import {Client, MiningInfo} from '@defichain/jellyfish'
-
-const client = new Client('http://localhost:8554')
-const info: MiningInfo  = await client.mining.getMiningInfo()
-```
-
-### CommonJS for Node
-
-```js
-const jellyfish = require('@defichain/jellyfish')
-const client = new jellyfish.Client('http://localhost:8554', {
-  timeout: 20000
-})
-
-client.mining.getMiningInfo().then((info) => {
-  console.log(info)
-})
-```
-
-### Providers
-
-```js
-import {Client, HttpProvider} from '@defichain/jellyfish'
-
-const options = {} // optional
-
-// TODO(fuxingloh): WIP, more coventional default will be introduced with convenience
-const localClient = new Client(new HttpProvider('http://localhost:8554'), options)
-```
-
-## Advanced usage
-
-### JsonRpcClient
-
-You can use `@defichain/jellyfish-api-jsonrpc` directly without using `@defichain/jellyfish`.
+## JsonRpcClient
 
 ```ts
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -58,7 +19,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 ```
 
-### ApiClient
+## ApiClient
 
 You can extend `ApiClient` with the `@defichain/jellyfish-api-core` package to create your own transport exchange specification.
 
@@ -75,7 +36,7 @@ class SpecClient extends ApiClient {
 const client = new SpecClient('http://localhost:8554')
 ```
 
-### `call` Method
+## `call` Method
 
 You can use the `.call` method directly by specifying:
 

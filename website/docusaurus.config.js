@@ -42,7 +42,7 @@ module.exports = {
           position: 'left'
         },
         {
-          to: 'testing',
+          to: 'testing/testcontainers',
           activeBasePath: 'testing',
           label: 'Testing',
           position: 'left'
