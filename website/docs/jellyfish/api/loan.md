@@ -292,10 +292,12 @@ Creates a vault transaction.
 interface loan {
   createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
 }
+
 interface CreateVault {
   ownerAddress: string
   loanSchemeId?: string
 }
+
 interface UTXO {
   txid: string
   vout: number
@@ -327,5 +329,46 @@ interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+```
+
+## depositToVault
+
+Deposit to vault.
+
+```ts title="client.loan.depositToVault()"
+interface loan {
+  depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface DepositVault {
+  vaultId: string
+  from: string
+  amount: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## takeLoan
+
+Take loan.
+
+```ts title="client.loan.takeLoan()"
+interface loan {
+  takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface TakeLoanMetadata {
+  vaultId: string
+  amounts: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```
