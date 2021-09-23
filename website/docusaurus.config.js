@@ -23,16 +23,16 @@ module.exports = {
       respectPrefersColorScheme: true
     },
     navbar: {
-      title: 'DeFi Jellyfish',
+      title: 'Jellyfish',
       logo: {
         alt: 'DeFiChain Logo',
-        src: 'img/defichain.svg'
+        src: 'img/logo.svg'
       },
       items: [
         {
           to: 'docs',
           activeBasePath: 'docs',
-          label: 'SDK',
+          label: 'Docs',
           position: 'left'
         },
         {
@@ -48,12 +48,12 @@ module.exports = {
           title: 'DeFiChain',
           items: [
             {
-              label: 'Foundation',
-              to: 'https://defichain.com/foundation/'
-            },
-            {
               label: 'White Paper',
               to: 'https://defichain.com/white-paper/'
+            },
+            {
+              label: 'Pink Paper',
+              to: 'https://github.com/DeFiCh/pinkpaper'
             },
             {
               label: 'Developers',
@@ -114,7 +114,7 @@ module.exports = {
           editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website'
         },
         theme: {
-          customCss: require.resolve('./src/css/custom.css')
+          customCss: require.resolve('./src/css/theme.css')
         }
       }
     ]
