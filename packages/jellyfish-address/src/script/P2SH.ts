@@ -20,13 +20,13 @@ export function fromScriptP2SH (script: Script, network: NetworkName): string | 
   return toBase58Check(buffer, prefix)
 }
 
-function isBase58CheckP2PSH (decoded: DecodedBase58Check, network: NetworkName): boolean {
+function isBase58CheckP2SH (decoded: DecodedBase58Check, network: NetworkName): boolean {
   return decoded.prefix === getNetwork(network).scriptHashPrefix &&
     decoded.buffer.length === 20
 }
 
 export function fromBase58CheckP2SH (decoded: DecodedBase58Check, network: NetworkName): Script | undefined {
-  if (!isBase58CheckP2PSH(decoded, network)) {
+  if (!isBase58CheckP2SH(decoded, network)) {
     return undefined
   }
 
