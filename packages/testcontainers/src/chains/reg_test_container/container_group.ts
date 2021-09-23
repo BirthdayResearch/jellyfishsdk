@@ -115,12 +115,13 @@ export class ContainerGroup {
         const container = this.containers[i % 15]
         await container.generate(1)
         await this.waitForSync()
+
+        const teams = await Promise.all(Object.values(this.containers).map(async container => {
+          return await container.call('getanchorteams')
+        }))
+        return teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)
       }
-      const anchorTeams = await this.containers[0].call('getanchorteams')
-      if (anchorTeams.auth.length === nodesLength && anchorTeams.confirm.length === nodesLength) {
-        return true
-      }
-      return false
+      return true
     }, timeout, 100, 'waitForAnchorTeams')
   }
 
