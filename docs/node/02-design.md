@@ -2,24 +2,8 @@
 id: design
 title: Design
 sidebar_label: Design
-slug: /jellyfish/design
+slug: /design
 ---
-
-## Conventional defaults
-
-`@defichain/jellyfish` package provides conventional defaults and bundles all code required for dApps building. 
-
-```js
-import { Client, HttpProvider } from '@defichain/jellyfish'
-
-// Coventional Defaults
-let client = new Client()
-
-// Explicit Configuration
-client = new Client(new HttpProvider('http://foo:bar@localhost:8554'), {
-    timeout: 30000
-})
-```
 
 ## Promise-based client
 
