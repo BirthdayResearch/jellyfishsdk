@@ -114,6 +114,7 @@ export interface TokenInfo {
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
+  isLoanToken: boolean
   finalized: boolean
   minted: BigNumber
   creationTx: string

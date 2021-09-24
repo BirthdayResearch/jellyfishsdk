@@ -1,0 +1,29 @@
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# node_modules
+node_modules
+
+# dist & pack
+dist
+*.tgz
+
+# debug log
+lerna-debug.log
+
+coverage
+
+# vscode
+.vscode
+
+# typescript
+tsconfig.build.tsbuildinfo
+
+# Level
+.next
