@@ -27,11 +27,11 @@ describe('Spv', () => {
     const initOffsetHour = -12
     await setMockTime(initOffsetHour)
 
-    const blockCount = await tGroup.get(0).container.getBlockCount()
-    expect(blockCount).toStrictEqual(15)
-
     // check the auth and confirm anchor mn teams
     await tGroup.waitForAnchorTeams(tGroup.length())
+
+    const blockCount = await tGroup.get(0).container.getBlockCount()
+    expect(blockCount).toStrictEqual(15)
 
     // assertion for team
     for (let i = 0; i < tGroup.length(); i += 1) {
