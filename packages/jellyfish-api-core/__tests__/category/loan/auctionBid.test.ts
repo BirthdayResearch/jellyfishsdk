@@ -5,11 +5,9 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Loan', () => {
-  const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
+  const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
-  let vaultAddress: string
   let oracleId: string
-  let timestamp: number
   let node1ColAddr: string
 
   async function setup (): Promise<void> {
@@ -31,7 +29,7 @@ describe('Loan', () => {
     ]
     oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
-    timestamp = Math.floor(new Date().getTime() / 1000)
+    const timestamp = Math.floor(new Date().getTime() / 1000)
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
@@ -42,7 +40,6 @@ describe('Loan', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       priceFeedId: 'DFI/USD'
-      // activateAfterBlock: 130  // <- hit socket hang up
     })
     await tGroup.get(0).generate(1)
 
@@ -68,7 +65,7 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    vaultAddress = await tGroup.get(0).generateAddress()
+    const vaultAddress = await tGroup.get(0).generateAddress()
     vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
