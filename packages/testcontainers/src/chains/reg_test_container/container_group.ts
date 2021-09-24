@@ -112,16 +112,14 @@ export class ContainerGroup {
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       for (let i = 0; i < 15; i += 1) {
-        const container = this.containers[i % 15]
+        const container = this.containers[i % nodesLength]
         await container.generate(1)
         await this.waitForSync()
-
-        const teams = await Promise.all(Object.values(this.containers).map(async container => {
-          return await container.call('getanchorteams')
-        }))
-        return teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)
       }
-      return true
+      const teams = await Promise.all(Object.values(this.containers).map(async container => {
+        return await container.call('getanchorteams')
+      }))
+      return teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)
     }, timeout, 100, 'waitForAnchorTeams')
   }
 

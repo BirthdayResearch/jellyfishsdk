@@ -128,7 +128,7 @@ export class TestingGroup {
    * @return {Promise<void>}
    */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
-    return await this.group.waitForAnchorTeams(nodesLength, timeout)
+    await this.group.waitForAnchorTeams(nodesLength, timeout)
   }
 }
 
