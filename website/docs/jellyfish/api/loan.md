@@ -373,7 +373,7 @@ interface UTXO {
 }
 ```
 
-## auctionLoan
+## auctionBid
 
 To obtain the liquidated vault by offering a particular up for bid.
 
