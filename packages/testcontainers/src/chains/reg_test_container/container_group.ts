@@ -82,8 +82,6 @@ export class ContainerGroup {
       const txns = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('getrawtransaction', [txid, false])
       }))
-      txns.forEach(txn => console.log('txn: ', txn, txns[0]))
-
       return txns.every(value => value === txns[0])
     }, timeout, 200, 'waitForMempoolSync')
   }
@@ -130,8 +128,7 @@ export class ContainerGroup {
       const cAuths = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('spv_listanchorauths')
       }))
-      console.log('cAuths: ', cAuths, cAuths.forEach(auths => auths.forEach((auth: any) => console.log('signees: ', auth.signers, auth.signees))))
-      return cAuths.every(auths => auths.every((auth: any) => auth.signers === this.containers.length))
+      return cAuths.every(auths => auths.length === this.containers.length)
     }, timeout, 100, 'waitForAnchorAuths')
   }
 
