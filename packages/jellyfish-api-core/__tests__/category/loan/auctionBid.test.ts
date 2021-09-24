@@ -307,13 +307,13 @@ describe('Loan', () => {
         : undefined
       const node1BeforeTSLAAmt = node1BeforeTSLAAcc !== undefined ? Number(node1BeforeTSLAAcc.split('@')[0]) : 0
 
-      const utxo = await tGroup.get(0).container.fundAddress(node1ColAddr, 50)
+      const utxo = await tGroup.get(1).container.fundAddress(node1ColAddr, 1)
 
       const txid = await tGroup.get(1).rpc.loan.auctionBid({
         vaultId: vaultId,
         index: 0,
         from: node1ColAddr,
-        amount: '550@TSLA' // (525 * 1%) + 525 = 530.25
+        amount: '600@TSLA' // (525 * 1%) + 525 = 530.25
       }, [utxo])
       expect(typeof txid).toStrictEqual('string')
       await tGroup.get(1).container.generate(1)
@@ -324,7 +324,10 @@ describe('Loan', () => {
         ? node1ColAccAfter.find((amt: string) => amt.split('@')[1] === 'TSLA')
         : undefined
       const node1AfterTSLAAmt = node1AfterTSLAAcc !== undefined ? Number(node1AfterTSLAAcc.split('@')[0]) : 0
-      expect(node1BeforeTSLAAmt - node1AfterTSLAAmt).toStrictEqual(25) // ?? not sure how it calculated yet
+      // Due to same bidder, origin balance was 927
+      // first bid 525 -> 927 - 525 = 427
+      // next bid 600 -> 600 - 525 = 75, just need pay more 75
+      expect(node1BeforeTSLAAmt - node1AfterTSLAAmt).toStrictEqual(75)
 
       const rawtx = await tGroup.get(1).container.call('getrawtransaction', [txid, true])
       expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
