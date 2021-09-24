@@ -106,7 +106,7 @@ export class TestingGroup {
     return await this.group.stop()
   }
 
-  async exec (runner: (testing: Testing) => Promise<any>): Promise<any> {
+  async exec (runner: (testing: Testing) => Promise<void>): Promise<void> {
     for (let i = 0; i < this.testings.length; i += 1) {
       await runner(this.testings[i])
     }
