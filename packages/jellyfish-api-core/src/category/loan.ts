@@ -205,6 +205,15 @@ export class Loan {
   }
 
   /**
+   * List all available vaults.
+   *
+   * @return {Promise<VaultData>}
+   */
+  async listVaults (): Promise<Record<string, VaultDetails>> {
+    return await this.client.call('listvaults', [], 'bignumber')
+  }
+
+  /**
    * Deposit to vault
    *
    * @param {DepositVault} depositVault
