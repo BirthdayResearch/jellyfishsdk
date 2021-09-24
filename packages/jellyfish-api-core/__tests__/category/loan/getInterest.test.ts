@@ -11,7 +11,7 @@ describe('Loan', () => {
 
   async function setup (): Promise<void> {
     // token setup
-    const collateralAddress = await testing.container.getNewAddress()
+    const collateralAddress = await testing.generateAddress()
     await testing.token.dfi({ address: collateralAddress, amount: 30000 })
     await testing.generate(1)
 
@@ -73,12 +73,6 @@ describe('Loan', () => {
 
     const vaultAddress = await testing.generateAddress()
     const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: vaultAddress,
-      loanSchemeId: 'scheme'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
