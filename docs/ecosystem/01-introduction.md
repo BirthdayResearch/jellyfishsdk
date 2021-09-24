@@ -12,11 +12,6 @@ finance on Bitcoin. Consisting of multiple packages with more to be added in the
 developers to create decentralized applications on top of DeFi Blockchain that are modern, easy to use and easy to 
 test.
 
-Written in TypeScript, jellyfish provides first-class citizen support for TypeScript with strongly typed interfaces of
-DeFi Blockchain rpc exchanges. Built using modern JavaScript approaches, it emphasises a **future-first developer experience**
-and backport for compatibility. The protocol-agnostic core enables independent communication protocols, allowing
-vendor-agnostic middleware adaptable to any needs.
-
 ### Monorepo & packages 
 
 As with all modern JavaScript projects, jellyfish follows a monorepo structure with its concerns separated. All packages

@@ -1,5 +1,5 @@
 import { getNetwork, NetworkName } from '@defichain/jellyfish-network'
-import { Address, AddressType, UnknownTypeAddress } from './address'
+import { Address, AddressTypeDeprecated, UnknownTypeAddress } from './address'
 import { Base58Address } from './base58_address'
 import { Bech32Address } from './bech32_address'
 import { P2PKH } from './p2pkh'
@@ -19,6 +19,8 @@ export * from './p2wsh'
  * When insist to use the "network" decoded from raw address, instead of passing one based on running application environment
  * @param address raw human readable address (utf-8)
  * @returns DefiAddress or a child class
+ *
+ * @deprecated use fromAddress(address: string, network: NetworkName | string) instead
  */
 function guess (address: string): Address {
   const networks: NetworkName[] = ['mainnet', 'testnet', 'regtest']
@@ -36,10 +38,12 @@ function guess (address: string): Address {
  * @param net to be validated against the decoded one from the raw address
  * @param address raw human readable address (utf-8)
  * @returns DefiAddress or a child class
+ *
+ * @deprecated use fromAddress(address: string, network: NetworkName | string) instead
  */
 function from<T extends Address> (net: NetworkName, address: string): T {
   const network = getNetwork(net)
-  const possible: Map<AddressType, Address> = new Map()
+  const possible: Map<AddressTypeDeprecated, Address> = new Map()
   possible.set('Unknown', new UnknownTypeAddress(network, address))
   possible.set('P2PKH', Base58Address.fromAddress<P2PKH>(network, address, P2PKH))
   possible.set('P2SH', Base58Address.fromAddress<P2SH>(network, address, P2SH))
@@ -63,7 +67,7 @@ function from<T extends Address> (net: NetworkName, address: string): T {
 
   // else select the closest guess (most validator passed)
   // default, when non have validator passed
-  let highestKey: AddressType = 'Unknown'
+  let highestKey: AddressTypeDeprecated = 'Unknown'
   let highestCount = 0
 
   possible.forEach((val, key) => {
@@ -75,8 +79,17 @@ function from<T extends Address> (net: NetworkName, address: string): T {
   return (possible.get(highestKey) as T)
 }
 
+/**
+ * @deprecated use fromAddress(address: string, network: NetworkName | string) instead
+ */
 export const DeFiAddress = {
+  /**
+   * @deprecated use fromAddress(address: string, network: NetworkName | string) instead
+   */
   guess,
+  /**
+   * @deprecated use fromAddress(address: string, network: NetworkName | string) instead
+   */
   from
 }
 
