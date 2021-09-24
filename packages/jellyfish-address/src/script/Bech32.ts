@@ -26,3 +26,25 @@ export function toBech32 (buffer: Buffer, hrp: HRP, version: 0x00): string {
   words.unshift(version)
   return bech32.encode(hrp, words)
 }
+
+export interface DecodedBech32 {
+  buffer: Buffer
+  hrp: string
+  version: number
+}
+
+export function fromBech32 (address: string): DecodedBech32 {
+  const {
+    prefix,
+    words
+  } = bech32.decode(address)
+
+  const version = words.splice(0, 1)[0]
+  const buffer = Buffer.from(bech32.fromWords(words))
+
+  return {
+    buffer: buffer,
+    hrp: prefix,
+    version: version
+  }
+}

@@ -1,12 +1,15 @@
 import { SHA256 } from '@defichain/jellyfish-crypto'
+import { Network } from '@defichain/jellyfish-network'
 import bs58 from 'bs58'
 
 /**
  * @param {Buffer} bytes 21 bytes
  */
-function checksum (bytes: Buffer): Buffer {
+function _checksum (bytes: Buffer): Buffer {
   return SHA256(SHA256(bytes)).slice(0, 4)
 }
+
+export type B58CPrefix = Network['scriptHashPrefix'] | Network['pubKeyHashPrefix']
 
 /**
  * Base58 with Checksum for P2SH and P2PKH addresses.
@@ -15,9 +18,9 @@ function checksum (bytes: Buffer): Buffer {
  * @param {number} prefix 1 byte length network prefix
  * @returns string base58check encoded address
  */
-export function toBase58Check (buffer: Buffer, prefix: number): string {
+export function toBase58Check (buffer: Buffer, prefix: B58CPrefix): string {
   if (buffer.length !== 20) {
-    throw new Error('Base buffer length must be either 20')
+    throw new Error('Base58Check buffer length must be 20')
   }
 
   const prefixed = Buffer.from([
@@ -26,7 +29,32 @@ export function toBase58Check (buffer: Buffer, prefix: number): string {
   ])
   const prefixedChecked = Buffer.from([
     ...prefixed,
-    ...checksum(prefixed)
+    ..._checksum(prefixed)
   ])
   return bs58.encode(prefixedChecked)
+}
+
+export interface DecodedBase58Check {
+  buffer: Buffer
+  prefix: number
+}
+
+export function fromBase58Check (address: string): DecodedBase58Check {
+  const buffer = bs58.decode(address)
+  if (buffer.length !== 25) {
+    throw new Error('Invalid Base58Check address, length != 25')
+  }
+
+  const prefixed = buffer.slice(0, 21)
+  const checksum = buffer.slice(21, 25)
+
+  const expectedChecksum = _checksum(prefixed)
+  if (checksum.compare(expectedChecksum) !== 0) {
+    throw new Error('Invalid Base58Check address, checksum invalid')
+  }
+
+  return {
+    prefix: prefixed[0],
+    buffer: prefixed.slice(1, 21)
+  }
 }

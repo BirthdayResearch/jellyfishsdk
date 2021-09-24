@@ -68,6 +68,8 @@ import {
   SetCollateralToken,
   CSetLoanToken,
   SetLoanToken,
+  CUpdateLoanToken,
+  UpdateLoanToken,
   CCreateVault,
   CreateVault
 } from './dftx/dftx_loans'
@@ -473,6 +475,14 @@ export const OP_CODES = {
       type: CICXClaimDFCHTLC.OP_CODE,
       name: CICXClaimDFCHTLC.OP_NAME,
       data: icxClaimDFCHTLC
+    })
+  },
+  OP_DEFI_TX_UPDATE_LOAN_TOKEN: (updateLoanToken: UpdateLoanToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateLoanToken.OP_CODE,
+      name: CUpdateLoanToken.OP_NAME,
+      data: updateLoanToken
     })
   },
   OP_DEFI_TX_CREATE_VAULT: (createVault: CreateVault): OP_DEFI_TX => {
