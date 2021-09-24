@@ -174,7 +174,7 @@ export class Loan {
    * Get interest info
    *
    * @param {string} id
-   * @param {string} token
+   * @param {string} [token]
    * @return {Promise<Interest[]>}
    */
   async getInterest (id: string, token?: string): Promise<Interest[]> {

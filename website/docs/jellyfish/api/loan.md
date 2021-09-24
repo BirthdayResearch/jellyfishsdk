@@ -240,6 +240,22 @@ interface UTXO {
 }
 ```
 
+## getInterest
+
+Get interest info.
+
+```ts title="client.loan.getInterest()"
+interface loan {
+  getInterest (id: string, token?: string): Promise<Interest[]>
+}
+
+interface Interest {
+  token: string
+  totalInterest: BigNumber
+  interestPerBlock: BigNumber
+}
+```
+
 ## listLoanTokens
 
 List all created loan tokens.
