@@ -82,6 +82,7 @@ export class ContainerGroup {
       const txns = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('getrawtransaction', [txid, false])
       }))
+
       return txns.every(value => value === txns[0])
     }, timeout, 200, 'waitForMempoolSync')
   }
