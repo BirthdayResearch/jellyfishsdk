@@ -49,7 +49,7 @@ describe('Loan', () => {
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.setLoanToken({
+    txUber = await testing.rpc.loan.setLoanToken({
       symbol: 'UBER',
       priceFeedId: 'UBER/USD',
       interest: new BigNumber('5')
@@ -97,11 +97,10 @@ describe('Loan', () => {
 
     interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount()
 
-    txUber = await testing.rpc.loan.takeLoan({
+    await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
       amounts: '50@UBER'
     })
-    console.log('txUber: ', txUber)
     await testing.generate(1)
 
     await testing.rpc.loan.takeLoan({
@@ -157,12 +156,12 @@ describe('Loan', () => {
       expect(interests[0].token).toStrictEqual('TSLA')
     }
 
-    // creationTx ?? not working
-    // {
-    //   const interests = await testing.rpc.loan.getInterest('scheme', txUber)
-    //   expect(interests.length).toStrictEqual(1)
-    //   expect(interests[0].token).toStrictEqual('UBER')
-    // }
+    // creationTx
+    {
+      const interests = await testing.rpc.loan.getInterest('scheme', txUber)
+      expect(interests.length).toStrictEqual(1)
+      expect(interests[0].token).toStrictEqual('UBER')
+    }
 
     // id
     {
