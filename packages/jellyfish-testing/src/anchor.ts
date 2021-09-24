@@ -24,6 +24,13 @@ export class TestingGroupAnchor {
       })
       await this.testingGroup.get(0).generate(15)
       await this.testingGroup.waitForSync()
+      const c = await this.testingGroup.get(0).container.getBlockCount()
+      const a0 = await this.testingGroup.get(0).container.call('spv_listanchorauths')
+      const a1 = await this.testingGroup.get(1).container.call('spv_listanchorauths')
+      const a2 = await this.testingGroup.get(2).container.call('spv_listanchorauths')
+      console.log('a0: ', i, c, a0)
+      console.log('a1: ', i, c, a1)
+      console.log('a2: ', i, c, a2)
     }
   }
 }
