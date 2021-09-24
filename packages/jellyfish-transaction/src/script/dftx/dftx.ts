@@ -82,6 +82,8 @@ import {
   SetCollateralToken,
   CSetLoanToken,
   SetLoanToken,
+  CUpdateLoanToken,
+  UpdateLoanToken,
   CCreateVault,
   CreateVault
 } from './dftx_loans'
@@ -228,6 +230,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetCollateralToken>(CSetCollateralToken.OP_NAME, d => new CSetCollateralToken(d))
       case CSetLoanToken.OP_CODE:
         return compose<SetLoanToken>(CSetLoanToken.OP_NAME, d => new CSetLoanToken(d))
+      case CUpdateLoanToken.OP_CODE:
+        return compose<UpdateLoanToken>(CUpdateLoanToken.OP_NAME, d => new CUpdateLoanToken(d))
       case CICXSubmitEXTHTLC.OP_CODE:
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
       case CICXClaimDFCHTLC.OP_CODE:
