@@ -22,16 +22,7 @@ export class TestingGroupAnchor {
       await this.testingGroup.exec(async testing => {
         await testing.misc.offsetTimeHourly(initOffsetHour + i)
       })
-      const count = await this.testingGroup.get(0).container.call('getblockcount')
-      const auths1 = await this.testingGroup.get(0).container.call('spv_listanchorauths')
-      console.log('generateAnchorAuths auths1: ', count, auths1)
-
       await this.testingGroup.get(0).generate(15)
-
-      const count1 = await this.testingGroup.get(0).container.call('getblockcount')
-      const auths2 = await this.testingGroup.get(0).container.call('spv_listanchorauths')
-      console.log('generateAnchorAuths auths2: ', count1, auths2)
-
       await this.testingGroup.waitForSync()
     }
   }

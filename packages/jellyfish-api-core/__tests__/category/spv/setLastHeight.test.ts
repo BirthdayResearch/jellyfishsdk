@@ -48,13 +48,13 @@ describe('Spv', () => {
     }
 
     // generate 2 anchor auths
-    await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
+    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour))
 
     // check each container should be quorum ready
     for (let i = 0; i < tGroup.length(); i += 1) {
       const { container } = tGroup.get(i % tGroup.length())
       const auths = await container.call('spv_listanchorauths')
-      console.log('auths: ', auths)
+      console.log('setlastheight auths: ', i, auths)
       expect(auths.length).toStrictEqual(2)
       expect(auths[0].signers).toStrictEqual(tGroup.length())
     }

@@ -1,6 +1,7 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../wait_for_condition'
 import { MasterNodeRegTestContainer } from '../../chains/reg_test_container/masternode'
+import { ListAnchorAuthsResult } from 'jellyfish-api-core/src/category/spv'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode
@@ -112,7 +113,7 @@ export class ContainerGroup {
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       for (let i = 0; i < 15; i += 1) { // 15 as anchor frequency
-        const container = this.containers[i % nodesLength]
+        const container = this.containers[i % this.containers.length]
         await container.generate(1)
         await this.waitForSync()
       }
@@ -121,6 +122,18 @@ export class ContainerGroup {
       }))
       return teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)
     }, timeout, 100, 'waitForAnchorTeams')
+  }
+
+  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      await genAnchorAuthsCallback()
+      // check each container should be quorum ready
+      const cAuths = await Promise.all(Object.values(this.containers).map(async container => {
+        return await container.call('spv_listanchorauths')
+      }))
+      console.log('cAuths: ', cAuths, cAuths.forEach(auths => auths.forEach((auth: ListAnchorAuthsResult) => console.log('signees: ', auth.signers, auth.signees))))
+      return cAuths.every(auths => auths.every((auth: ListAnchorAuthsResult) => auth.signers === this.containers.length))
+    }, timeout, 100, 'waitForAnchorAuths')
   }
 
   /**
