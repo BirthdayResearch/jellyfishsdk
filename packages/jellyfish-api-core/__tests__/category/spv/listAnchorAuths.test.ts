@@ -27,13 +27,6 @@ describe('Spv', () => {
     const initOffsetHour = -12
     await setMockTime(initOffsetHour)
 
-    // 15 as anchor frequency
-    for (let i = 0; i < 15; i += 1) {
-      const { container } = tGroup.get(i % tGroup.length())
-      await container.generate(1)
-      await tGroup.waitForSync()
-    }
-
     const blockCount = await tGroup.get(0).container.getBlockCount()
     expect(blockCount).toStrictEqual(15)
 

@@ -28,13 +28,6 @@ describe('Spv', () => {
     const initOffsetHour = -12
     await setMockTime(initOffsetHour)
 
-    // 15 as anchor frequency
-    for (let i = 0; i < 15; i += 1) {
-      const { container } = tGroup.get(i % tGroup.length())
-      await container.generate(1)
-      await tGroup.waitForSync()
-    }
-
     // check the auth and confirm anchor mn teams
     await tGroup.waitForAnchorTeams(tGroup.length())
 

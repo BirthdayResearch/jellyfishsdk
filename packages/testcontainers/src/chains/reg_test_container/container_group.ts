@@ -111,7 +111,7 @@ export class ContainerGroup {
    */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
-      for (let i = 0; i < 15; i += 1) {
+      for (let i = 0; i < 15; i += 1) { // 15 as anchor frequency
         const container = this.containers[i % nodesLength]
         await container.generate(1)
         await this.waitForSync()
