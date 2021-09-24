@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  CodeQL-Build:
+  CodeQL:
     runs-on: ubuntu-latest
 
     permissions:
