@@ -122,14 +122,22 @@ export class ContainerGroup {
     }, timeout, 100, 'waitForAnchorTeams')
   }
 
-  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, timeout = 30000): Promise<void> {
+  /**
+   * Wait for anchor auths
+   *
+   * @param {() => Promise<void>} genAnchorAuthsCallback
+   * @param {number} numOfAuths
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, numOfAuths: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       await genAnchorAuthsCallback()
       // check each container should be quorum ready
       const cAuths = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('spv_listanchorauths')
       }))
-      return cAuths.every(auths => auths.length === this.containers.length)
+      return cAuths.every(auths => auths.length === numOfAuths)
     }, timeout, 100, 'waitForAnchorAuths')
   }
 

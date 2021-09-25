@@ -124,6 +124,7 @@ export class TestingGroup {
    * Wait for anchor teams
    *
    * @param {number} nodesLength
+   * @param {number} numOfAuths
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
@@ -131,8 +132,8 @@ export class TestingGroup {
     await this.group.waitForAnchorTeams(nodesLength, timeout)
   }
 
-  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, timeout = 30000): Promise<void> {
-    await this.group.waitForAnchorAuths(genAnchorAuthsCallback, timeout)
+  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, numOfAuths: number, timeout = 30000): Promise<void> {
+    await this.group.waitForAnchorAuths(genAnchorAuthsCallback, numOfAuths, timeout)
   }
 }
 
