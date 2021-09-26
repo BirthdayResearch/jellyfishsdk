@@ -2,10 +2,12 @@ import { BlockController, parseHeight } from '@src/module.api/block.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
 let controller: BlockController
+let client: JsonRpcClient
 
 beforeAll(async () => {
   await container.start()
@@ -15,6 +17,15 @@ beforeAll(async () => {
 
   await waitForIndexedHeight(app, 100)
   controller = app.get(BlockController)
+  client = new JsonRpcClient(await container.getCachedRpcUrl())
+
+  const address = await container.getNewAddress()
+  for (let i = 0; i < 4; i += 1) {
+    await container.call('sendtoaddress', [address, 0.1])
+  }
+
+  await container.generate(3)
+  await waitForIndexedHeight(app, 103)
 })
 
 afterAll(async () => {
@@ -84,14 +95,14 @@ describe('list', () => {
 describe('getTransactions', () => {
   it('should get transactions from a block by hash', async () => {
     const blockHash = await container.call('getblockhash', [100])
-    const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30, next: '10' })
+    const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30 })
 
     expect(paginatedTransactions.data.length).toBeGreaterThanOrEqual(1)
     expect(paginatedTransactions.data[0].block.height).toStrictEqual(100)
   })
 
   it('getTransactions should not get transactions by height', async () => {
-    const paginatedTransactions = await controller.getTransactions('0', { size: 30, next: '10' })
+    const paginatedTransactions = await controller.getTransactions('0', { size: 30 })
 
     expect(paginatedTransactions.data.length).toStrictEqual(0)
   })
@@ -106,6 +117,20 @@ describe('getTransactions', () => {
     const paginatedTransactions = await controller.getTransactions('999999999999', { size: 30 })
 
     expect(paginatedTransactions.data.length).toStrictEqual(0)
+  })
+
+  it('should list transactions in the right order', async () => {
+    const blockHash = await container.call('getblockhash', [103])
+    const paginatedTransactions = await controller.getTransactions(blockHash, { size: 30 })
+
+    expect(paginatedTransactions.data.length).toBeGreaterThanOrEqual(4)
+    expect(paginatedTransactions.data[0].block.height).toStrictEqual(103)
+
+    const rpcBlock = await client.blockchain.getBlock(blockHash, 2)
+    expect(paginatedTransactions.data[0].hash).toStrictEqual(rpcBlock.tx[0].hash)
+    expect(paginatedTransactions.data[1].hash).toStrictEqual(rpcBlock.tx[1].hash)
+    expect(paginatedTransactions.data[2].hash).toStrictEqual(rpcBlock.tx[2].hash)
+    expect(paginatedTransactions.data[3].hash).toStrictEqual(rpcBlock.tx[3].hash)
   })
 })
 

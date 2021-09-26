@@ -73,6 +73,7 @@ export interface Block extends Model {
   masternode: string
   minter: string
   minterBlockCount: number
+  reward: string // ------------| reward string as decimal
 
   stakeModifier: string
   merkleroot: string

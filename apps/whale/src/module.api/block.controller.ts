@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
-import { Block, BlockMapper } from '@src/module.model/block'
+import { BlockMapper, Block } from '@src/module.model/block'
 import { Transaction, TransactionMapper } from '@src/module.model/transaction'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
@@ -51,9 +51,9 @@ export class BlockController {
       return ApiPagedResponse.empty()
     }
 
-    const transactions = await this.transactionMapper.queryByBlockHash(hash, query.size, query.next)
+    const transactions = await this.transactionMapper.queryByBlockHash(hash, query.size, parseHeight(query.next))
     return ApiPagedResponse.of(transactions, query.size, transaction => {
-      return transaction.id
+      return transaction.order.toString()
     })
   }
 }

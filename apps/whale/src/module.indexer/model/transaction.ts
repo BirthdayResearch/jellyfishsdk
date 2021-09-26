@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { defid, Indexer, RawBlock } from '@src/module.indexer/model/_abstract'
 import { Transaction, TransactionMapper } from '@src/module.model/transaction'
+import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class TransactionIndexer extends Indexer {
@@ -9,8 +10,11 @@ export class TransactionIndexer extends Indexer {
   }
 
   async index (block: RawBlock): Promise<void> {
-    for (const txn of block.tx) {
-      await this.mapper.put(this.map(block, txn))
+    for (const [order, txn] of block.tx.entries()) {
+      const totalVOut = txn.vout.reduce<BigNumber>((prev, vout) => {
+        return prev.plus(vout.value)
+      }, new BigNumber(0))
+      await this.mapper.put(this.map(block, txn, order, totalVOut.toFixed(8)))
     }
   }
 
@@ -20,9 +24,10 @@ export class TransactionIndexer extends Indexer {
     }
   }
 
-  map (block: RawBlock, txn: defid.Transaction): Transaction {
+  map (block: RawBlock, txn: defid.Transaction, order: number, totalVOut: string): Transaction {
     return {
       id: txn.txid,
+      order: order,
       block: {
         hash: block.hash,
         height: block.height,
@@ -37,7 +42,8 @@ export class TransactionIndexer extends Indexer {
       weight: txn.weight,
       lockTime: txn.locktime,
       vinCount: txn.vin.length,
-      voutCount: txn.vout.length
+      voutCount: txn.vout.length,
+      totalVoutValue: totalVOut
     }
   }
 }
