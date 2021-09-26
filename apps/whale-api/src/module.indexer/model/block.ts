@@ -9,14 +9,15 @@ export class BlockIndexer extends Indexer {
   }
 
   async index (block: RawBlock): Promise<void> {
-    await this.mapper.put(this.map(block))
+    const reward = block.tx[0].vout[0].value.toFixed(8)
+    await this.mapper.put(this.map(block, reward))
   }
 
   async invalidate (block: RawBlock): Promise<void> {
     await this.mapper.delete(block.hash)
   }
 
-  map (block: RawBlock): Block {
+  map (block: RawBlock, reward: string): Block {
     return {
       id: block.hash,
       hash: block.hash,
@@ -34,7 +35,8 @@ export class BlockIndexer extends Indexer {
       merkleroot: block.merkleroot,
       size: block.size,
       sizeStripped: block.strippedsize,
-      weight: block.weight
+      weight: block.weight,
+      reward: reward
     }
   }
 }

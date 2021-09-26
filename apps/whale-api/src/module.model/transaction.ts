@@ -5,15 +5,15 @@ import { Database, SortOrder } from '@src/module.database/database'
 const TransactionMapping: ModelMapping<Transaction> = {
   type: 'transaction',
   index: {
-    block_txid: {
-      name: 'transaction_block_txid',
+    block_order: {
+      name: 'transaction_block_order',
       partition: {
         type: 'string',
         key: (b: Transaction) => b.block.hash
       },
       sort: {
-        type: 'string',
-        key: (b: Transaction) => b.txid
+        type: 'number',
+        key: (b: Transaction) => b.order
       }
     }
   }
@@ -24,8 +24,8 @@ export class TransactionMapper {
   public constructor (protected readonly database: Database) {
   }
 
-  async queryByBlockHash (hash: string, limit: number, gt?: string): Promise<Transaction[]> {
-    return await this.database.query(TransactionMapping.index.block_txid, {
+  async queryByBlockHash (hash: string, limit: number, gt?: number): Promise<Transaction[]> {
+    return await this.database.query(TransactionMapping.index.block_order, {
       partitionKey: hash,
       limit: limit,
       order: SortOrder.ASC,
@@ -51,6 +51,7 @@ export class TransactionMapper {
  */
 export interface Transaction extends Model {
   id: string // ----------------| unique id of the transaction, same as the txid
+  order: number // --------------| tx order
 
   block: {
     hash: string
@@ -66,6 +67,7 @@ export interface Transaction extends Model {
   size: number
   vSize: number
   weight: number
+  totalVoutValue: string
 
   lockTime: number
 

@@ -37,7 +37,8 @@ beforeEach(async () => {
       time: 0,
       transactionCount: 0,
       version: 0,
-      weight: 0
+      weight: 0,
+      reward: ''
     })
   }
 
