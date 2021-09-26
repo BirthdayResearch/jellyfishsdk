@@ -54,6 +54,7 @@ export interface Block {
   masternode: string
   minter: string
   minterBlockCount: number
+  reward: string // ------------| reward string as decimal
 
   stakeModifier: string
   merkleroot: string

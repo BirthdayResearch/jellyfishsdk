@@ -69,6 +69,7 @@ describe('get', () => {
     const transaction = await client.transactions.get(txid)
     expect(transaction).toStrictEqual({
       id: txid,
+      order: expect.any(Number),
       block: {
         hash: expect.any(String),
         height: expect.any(Number),
@@ -83,7 +84,8 @@ describe('get', () => {
       weight: expect.any(Number),
       lockTime: expect.any(Number),
       vinCount: expect.any(Number),
-      voutCount: expect.any(Number)
+      voutCount: expect.any(Number),
+      totalVoutValue: expect.any(String)
     })
   })
 

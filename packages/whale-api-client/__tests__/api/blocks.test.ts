@@ -45,7 +45,8 @@ const ExpectedBlock = {
   merkleroot: expect.stringMatching(/[0-f]{64}/),
   size: expect.any(Number),
   sizeStripped: expect.any(Number),
-  weight: expect.any(Number)
+  weight: expect.any(Number),
+  reward: expect.any(String)
 }
 
 describe('list', () => {
@@ -124,6 +125,7 @@ describe('get', () => {
 describe('getTransactions', () => {
   const ExpectedTransaction = {
     id: expect.stringMatching(/[0-f]{64}/),
+    order: expect.any(Number),
     block: {
       hash: expect.stringMatching(/[0-f]{64}/),
       height: expect.any(Number),
@@ -138,7 +140,8 @@ describe('getTransactions', () => {
     weight: expect.any(Number),
     lockTime: expect.any(Number),
     vinCount: expect.any(Number),
-    voutCount: expect.any(Number)
+    voutCount: expect.any(Number),
+    totalVoutValue: expect.any(String)
   }
 
   it('should getTransactions through hash', async () => {
