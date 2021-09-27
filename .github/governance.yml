@@ -57,6 +57,9 @@ issue:
         - jellyfish-wallet-mnemonic
         - testcontainers
         - testing
+        - ocean-api-client
+        - ocean-api-core
+        - ocean-api-server
       multiple: true
       needs:
         comment: |

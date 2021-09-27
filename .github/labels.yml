@@ -58,6 +58,7 @@
   name: area/website
 - color: fbca04
   name: area/examples
+# Area - Packages
 - color: fbca04
   name: area/jellyfish-address
 - color: fbca04
@@ -94,6 +95,13 @@
   name: area/testcontainers
 - color: fbca04
   name: area/testing
+# Area - Ocean
+- color: fbca04
+  name: area/ocean-api-client
+- color: fbca04
+  name: area/ocean-api-core
+- color: fbca04
+  name: area/ocean-api-server
 
 # Priority
 - color: d93f0b

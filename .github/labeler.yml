@@ -100,3 +100,18 @@ labels:
     sync: true
     matcher:
       files: "packages/testing/**"
+
+  - label: area/ocean-api-client
+    sync: true
+    matcher:
+      files: "ocean/ocean-api-client/**"
+
+  - label: area/ocean-api-core
+    sync: true
+    matcher:
+      files: "ocean/ocean-api-core/**"
+
+  - label: area/ocean-api-server
+    sync: true
+    matcher:
+      files: "ocean/ocean-api-server/**"

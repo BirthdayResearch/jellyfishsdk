@@ -35,6 +35,10 @@
 /packages/testcontainers/                       @fuxingloh @canonbrother @surangap
 /packages/testing/                              @fuxingloh @canonbrother
 
+/ocean/ocean-api-client                         @fuxingloh
+/ocean/ocean-api-core                           @fuxingloh
+/ocean/ocean-api-server                         @fuxingloh
+
 lerna.json                                      @fuxingloh @canonbrother
 tsconfig.json                                   @fuxingloh @canonbrother @ivan-zynesis
 tsconfig.base.json                              @fuxingloh @canonbrother @ivan-zynesis
