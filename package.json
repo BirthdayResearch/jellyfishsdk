@@ -10,6 +10,7 @@
   "workspaces": [
     "./",
     "./packages/*",
+    "./ocean/*",
     "./website"
   ],
   "engines": {
