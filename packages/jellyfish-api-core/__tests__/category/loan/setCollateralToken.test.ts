@@ -35,7 +35,7 @@ describe('Loan setCollateralToken', () => {
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL' }])
+    const data = await testing.container.call('listcollateraltokens', [])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
@@ -112,7 +112,7 @@ describe('Loan setCollateralToken', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(txid)
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL' }])
+    const data = await testing.container.call('listcollateraltokens', [])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
