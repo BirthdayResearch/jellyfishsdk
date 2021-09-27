@@ -173,8 +173,8 @@ export class Loan {
   /**
    * Get interest info
    *
-   * @param {string} id
-   * @param {string} [token]
+   * @param {string} id Loan scheme id
+   * @param {string} [token] Specified by loan token id, loan token name and loan toekn creation tx
    * @return {Promise<Interest[]>}
    */
   async getInterest (id: string, token?: string): Promise<Interest[]> {
