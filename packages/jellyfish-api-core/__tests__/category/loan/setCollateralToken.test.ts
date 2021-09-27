@@ -171,7 +171,7 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 120 }])
+    const data = await testing.container.call('listcollateraltokens', [{ all: true }])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
