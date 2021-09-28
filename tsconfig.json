@@ -3,22 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@defichain/jellyfish-address": ["packages/jellyfish-address/src"],
-      "@defichain/jellyfish-api-core": ["packages/jellyfish-api-core/src"],
-      "@defichain/jellyfish-api-jsonrpc": ["packages/jellyfish-api-jsonrpc/src"],
-      "@defichain/jellyfish-block": ["packages/jellyfish-block/src"],
-      "@defichain/jellyfish-buffer": ["packages/jellyfish-buffer/src"],
-      "@defichain/jellyfish-crypto": ["packages/jellyfish-crypto/src"],
-      "@defichain/jellyfish-json": ["packages/jellyfish-json/src"],
-      "@defichain/jellyfish-network": ["packages/jellyfish-network/src"],
-      "@defichain/jellyfish-testing": ["packages/jellyfish-testing/src"],
-      "@defichain/jellyfish-transaction": ["packages/jellyfish-transaction/src"],
-      "@defichain/jellyfish-transaction-builder": ["packages/jellyfish-transaction-builder/src"],
-      "@defichain/jellyfish-transaction-signature": ["packages/jellyfish-transaction-signature/src"],
-      "@defichain/jellyfish-wallet": ["packages/jellyfish-wallet/src"],
-      "@defichain/jellyfish-wallet-classic": ["packages/jellyfish-wallet-classic/src"],
-      "@defichain/jellyfish-wallet-encrypted": ["packages/jellyfish-wallet-encrypted/src"],
-      "@defichain/jellyfish-wallet-mnemonic": ["packages/jellyfish-wallet-mnemonic/src"],
+      "@defichain/jellyfish-*": ["packages/jellyfish-*/src"],
       "@defichain/testcontainers": ["packages/testcontainers/src"],
       "@defichain/testing": ["packages/testing/src"],
     }
