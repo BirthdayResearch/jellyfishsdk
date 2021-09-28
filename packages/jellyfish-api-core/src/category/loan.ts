@@ -111,12 +111,12 @@ export class Loan {
   /**
    * List collateral tokens.
    *
-   * @param {GetCollateralToken} [collateralToken = {}]
+   * @param {ListCollateralTokens} [collateralToken = {}]
    * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
    * @param {boolean} [collateralToken.all] True = All transactions, false =  Activated transactions
    * @return {Promise<CollateralTokensData>} Get all collateral tokens
    */
-  async listCollateralTokens (collateralToken: GetCollateralToken = {}): Promise<CollateralTokensData> {
+  async listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData> {
     return await this.client.call('listcollateraltokens', [collateralToken], 'bignumber')
   }
 
@@ -279,7 +279,7 @@ export interface GetLoanSchemeResult {
   mincolratio: BigNumber
 }
 
-export interface GetCollateralToken {
+export interface ListCollateralTokens {
   height?: number
   all?: boolean
 }
