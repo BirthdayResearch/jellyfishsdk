@@ -8,6 +8,7 @@ import { UpdateOracleIndexer } from '@src/module.indexer/model/dftx/update.oracl
 import { SetOracleDataIndexer } from '@src/module.indexer/model/dftx/set.oracle.data'
 import { CreateMasternodeIndexer } from '@src/module.indexer/model/dftx/create.masternode'
 import { ResignMasternodeIndexer } from '@src/module.indexer/model/dftx/resign.masternode'
+import { CreateTokenIndexer } from '@src/module.indexer/model/dftx/create.token'
 import { Injectable, Logger } from '@nestjs/common'
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
 
@@ -22,7 +23,8 @@ export class MainDfTxIndexer extends Indexer {
     private readonly updateOracle: UpdateOracleIndexer,
     private readonly setOracleData: SetOracleDataIndexer,
     private readonly createMasternode: CreateMasternodeIndexer,
-    private readonly resignMasternode: ResignMasternodeIndexer
+    private readonly resignMasternode: ResignMasternodeIndexer,
+    private readonly createToken: CreateTokenIndexer
   ) {
     super()
     this.indexers = [
@@ -31,7 +33,8 @@ export class MainDfTxIndexer extends Indexer {
       removeOracle,
       setOracleData,
       createMasternode,
-      resignMasternode
+      resignMasternode,
+      createToken
     ]
   }
 
