@@ -34,17 +34,13 @@ describe('Loan listCollateralTokens with empty param or all param', () => {
     }], 1])
     await testing.generate(1)
 
-    // Wait for block 120
-    await testing.container.waitForBlockHeight(120)
-
-    // Execute at block 121
     const collateralTokenId1 = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
       priceFeedId: 'AAPL/USD'
     }])
-    // Confirm at block 122
-    await testing.generate(1)
+    await testing.generate(1) // Activate at next block
+    const blockCount = await testing.container.getBlockCount()
 
     const collateralTokenId2 = await testing.container.call('setcollateraltoken', [{
       token: 'TSLA',
@@ -61,7 +57,7 @@ describe('Loan listCollateralTokens with empty param or all param', () => {
       expect(data1).toStrictEqual(data2)
       expect(data1).toStrictEqual({
         [collateralTokenId1]: {
-          activateAfterBlock: new BigNumber(122),
+          activateAfterBlock: new BigNumber(blockCount),
           factor: new BigNumber(0.5),
           priceFeedId: 'AAPL/USD',
           token: 'AAPL'
@@ -69,27 +65,28 @@ describe('Loan listCollateralTokens with empty param or all param', () => {
       })
     }
 
-    // List all collateral tokens
-    const data = await testing.rpc.loan.listCollateralTokens({ all: true })
-    expect(data).toStrictEqual({
-      // activateAfterBlock = 122, which is the next block after setcollateraltoken executed
-      [collateralTokenId1]: {
-        activateAfterBlock: new BigNumber(122),
-        factor: new BigNumber(0.5),
-        priceFeedId: 'AAPL/USD',
-        token: 'AAPL'
-      },
-      [collateralTokenId2]: {
-        activateAfterBlock: new BigNumber(130),
-        factor: new BigNumber(1),
-        priceFeedId: 'TSLA/USD',
-        token: 'TSLA'
-      }
-    })
+    {
+      // List all collateral tokens
+      const data = await testing.rpc.loan.listCollateralTokens({ all: true })
+      expect(data).toStrictEqual({
+        [collateralTokenId1]: {
+          activateAfterBlock: new BigNumber(blockCount),
+          factor: new BigNumber(0.5),
+          priceFeedId: 'AAPL/USD',
+          token: 'AAPL'
+        },
+        [collateralTokenId2]: {
+          activateAfterBlock: new BigNumber(130),
+          factor: new BigNumber(1),
+          priceFeedId: 'TSLA/USD',
+          token: 'TSLA'
+        }
+      })
+    }
   })
 })
 
-describe('Loan listCollateralTokens with token or height', () => {
+describe('Loan listCollateralTokens with height', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -132,27 +129,10 @@ describe('Loan listCollateralTokens with token or height', () => {
         }
       })
     }
-
-    {
-      const data = await testing.rpc.loan.listCollateralTokens({ token: 'AAPL' })
-      expect(data).toStrictEqual({
-        [collateralTokenId]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          priceFeedId: 'AAPL/USD',
-          activateAfterBlock: new BigNumber(blockCount)
-        }
-      })
-    }
   })
 
   it('should listCollateralToken with empty string if the height is below the activation block height', async () => {
     const data = await testing.rpc.loan.listCollateralTokens({ height: 50 })
     expect(data).toStrictEqual({})
-  })
-
-  it('should not listCollateralToken if token does not exist', async () => {
-    const promise = testing.rpc.loan.listCollateralTokens({ token: 'TSLA' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Token TSLA does not exist!\', code: -8, method: listcollateraltokens')
   })
 })

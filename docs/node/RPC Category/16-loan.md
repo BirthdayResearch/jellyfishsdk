@@ -156,7 +156,6 @@ interface loan {
 }
 
 interface GetCollateralToken {
-  token?: string
   height?: number
   all?: boolean
 }
