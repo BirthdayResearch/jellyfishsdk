@@ -152,7 +152,13 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens (): Promise<CollateralTokensData>
+  listCollateralTokens (collateralToken: GetCollateralToken = {}): Promise<CollateralTokensData>
+}
+
+interface GetCollateralToken {
+  token?: string
+  height?: number
+  all?: boolean
 }
 
 interface CollateralTokensData {
