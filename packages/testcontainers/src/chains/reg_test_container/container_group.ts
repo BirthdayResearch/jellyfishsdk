@@ -75,15 +75,13 @@ export class ContainerGroup {
    * Wait for all container to receive the same txid in mempool
    *
    * @param {string} txid to wait for in mempool
-   * @param {number} [timeout=20000] in millis
+   * @param {number} [timeout=30000] in millis
    */
-  async waitForMempoolSync (txid: string, timeout: number = 20000): Promise<void> {
+  async waitForMempoolSync (txid: string, timeout: number = 30000): Promise<void> {
     await waitForCondition(async () => {
       const txns = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('getrawtransaction', [txid, false])
       }))
-      console.log('txns: ', txns)
-
       return txns.every(value => value === txns[0])
     }, timeout, 200, 'waitForMempoolSync')
   }
