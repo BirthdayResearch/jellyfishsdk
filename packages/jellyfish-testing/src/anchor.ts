@@ -24,6 +24,14 @@ export class TestingGroupAnchor {
       })
       await this.testingGroup.get(0).generate(15)
       await this.testingGroup.waitForSync()
+
+      const count = await this.testingGroup.get(0).container.getBlockCount()
+      const auths0 = await this.testingGroup.get(0).container.call('spv_listanchorauths')
+      const auths1 = await this.testingGroup.get(1).container.call('spv_listanchorauths')
+      const auths2 = await this.testingGroup.get(2).container.call('spv_listanchorauths')
+      console.log('auths0: ', count, auths0)
+      console.log('auths1: ', count, auths1)
+      console.log('auths2: ', count, auths2)
     }
   }
 }
