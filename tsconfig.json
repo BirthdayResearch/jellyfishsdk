@@ -3,6 +3,7 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "@defichain/ocean-*": ["ocean/ocean-*/src"],
       "@defichain/jellyfish-*": ["packages/jellyfish-*/src"],
       "@defichain/testcontainers": ["packages/testcontainers/src"],
       "@defichain/testing": ["packages/testing/src"],
