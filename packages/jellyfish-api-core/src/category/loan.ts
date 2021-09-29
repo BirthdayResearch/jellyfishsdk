@@ -245,6 +245,22 @@ export class Loan {
   async takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('takeloan', [metadata, utxos], 'number')
   }
+
+  /**
+   * List all available auctions.
+   *
+   * @return {ListAuction[]}
+   */
+  async listAuctions (): Promise<AuctionDetail[]> {
+    return await this.client.call('listauctions', [], 'bignumber')
+  }
+}
+
+export interface AuctionDetail {
+  vaultId: string
+  batchCount: BigNumber
+  liquidationPenalty: BigNumber
+  batches: AuctionBatchDetails[]
 }
 
 export interface CreateLoanScheme {

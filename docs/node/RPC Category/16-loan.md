@@ -388,3 +388,26 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listAuctions
+
+List all available auctions.
+
+```ts title="client.loan.listAuctions()"
+interface loan {
+  listAuctions (): Promise<AuctionDetail[]>
+}
+
+interface AuctionDetail {
+  vaultId: string,
+  batchCount: BigNumber
+  liquidationPenalty: BigNumber
+  batches: AuctionBatchDetails[]
+}
+
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
+```
