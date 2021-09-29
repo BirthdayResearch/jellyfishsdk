@@ -172,6 +172,17 @@ export class Loan {
   }
 
   /**
+   * Get interest info
+   *
+   * @param {string} id Loan scheme id
+   * @param {string} [token] Specified by loan token id, loan token name and loan toekn creation tx
+   * @return {Promise<Interest[]>}
+   */
+  async getInterest (id: string, token?: string): Promise<Interest[]> {
+    return await this.client.call('getinterest', [id, token], 'bignumber')
+  }
+
+  /**
    * List all created loan tokens.
    *
    * @return {Promise<ListLoanTokenResult[]>}
@@ -315,6 +326,12 @@ export interface UpdateLoanToken {
   priceFeedId?: string
   mintable?: boolean
   interest?: BigNumber
+}
+
+export interface Interest {
+  token: string
+  totalInterest: BigNumber
+  interestPerBlock: BigNumber
 }
 
 export interface CreateVault {

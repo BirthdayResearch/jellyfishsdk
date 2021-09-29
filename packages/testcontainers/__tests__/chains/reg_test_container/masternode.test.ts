@@ -17,4 +17,10 @@ describe('masternode', () => {
     const count = await container.getBlockCount()
     expect(count).toBeGreaterThan(3)
   })
+
+  it('should waitForGenerate', async () => {
+    await container.waitForGenerate(100)
+    const count = await container.getBlockCount()
+    expect(count).toBeGreaterThanOrEqual(100)
+  })
 })
