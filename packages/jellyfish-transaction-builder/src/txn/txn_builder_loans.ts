@@ -6,7 +6,8 @@ import {
   SetCollateralToken,
   SetLoanToken,
   UpdateLoanToken,
-  CreateVault
+  CreateVault,
+  UpdateVault
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
@@ -120,6 +121,21 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VAULT(createVault),
+      changeScript
+    )
+  }
+
+  /**
+   * Update vault transaction.
+   *
+   * @param {UpdateVault} updateVault txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+
+  async updateVault (updateVault: UpdateVault, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_UPDATE_VAULT(updateVault),
       changeScript
     )
   }
