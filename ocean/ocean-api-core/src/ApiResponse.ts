@@ -46,7 +46,7 @@ export class ApiPagedResponse<T> extends Array<T> {
   }
 
   /**
-   * @param {WhaleApiResponse} response that holds the data array and next token
+   * @param {ApiResponse} response that holds the data array and next token
    * @param {ApiMethod} method of the REST endpoint
    * @param {string} endpoint to paginate query
    */

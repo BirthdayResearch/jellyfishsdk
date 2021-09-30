@@ -36,7 +36,9 @@
   },
   "dependencies": {
     "@defichain/ocean-api-core": "0.0.0",
+    "@defichain/jellyfish-api-core": "0.0.0",
     "@nestjs/common": "^8.0.8",
+    "@nestjs/config": "^1.0.1",
     "@nestjs/core": "^8.0.8",
     "@nestjs/platform-fastify": "^8.0.8",
     "@nestjs/schedule": "^1.0.1",
