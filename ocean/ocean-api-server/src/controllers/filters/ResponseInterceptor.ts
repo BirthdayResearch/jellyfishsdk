@@ -9,18 +9,31 @@ import { ApiPagedResponse, ApiResponse } from '@defichain/ocean-api-core/src'
  * If ApiPagedResponse is provided, it will not transform that.
  */
 @Injectable()
-export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse> {
-  intercept (context: ExecutionContext, next: CallHandler<T>): Observable<ApiResponse> {
+export class ResponseInterceptor<T> implements NestInterceptor<T> {
+  intercept (context: ExecutionContext, next: CallHandler<T>): Observable<any> {
     if (!isVersionPrefixed(context)) {
       return next.handle()
     }
 
-    return next.handle().pipe(map(result => {
+    return next.handle().pipe(map((result): ApiResponse<any> => {
       if (result instanceof ApiPagedResponse) {
-        return result
+        return {
+          data: [...result],
+          page: result.page
+        }
       }
 
       return { data: result }
     }))
   }
+}
+
+/**
+ * @param {ExecutionContext} context to check if path is version prefixed
+ * @return {boolean}
+ */
+export function isVersionPrefixed (context: ExecutionContext): boolean {
+  const request = context.switchToHttp().getRequest()
+  const url: string = request.raw?.url
+  return url.startsWith('/v')
 }

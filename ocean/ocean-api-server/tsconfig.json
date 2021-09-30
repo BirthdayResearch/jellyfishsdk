@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "strict": true,
-    "module": "commonjs",
-    "esModuleInterop": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -12,13 +9,7 @@
     "target": "es2019",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "resolveJsonModule": true,
-    "paths": {
-      "@defichain/ocean-*": ["ocean/ocean-*/src"],
-      "@defichain/jellyfish-*": ["packages/jellyfish-*/src"],
-      "@defichain/testcontainers": ["packages/testcontainers/src"],
-    }
   }
 }

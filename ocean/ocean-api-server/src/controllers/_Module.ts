@@ -2,6 +2,11 @@ import { CacheModule, Module } from '@nestjs/common'
 import { ActuatorController } from './ActuatorController'
 import { FeeController } from './FeeController'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { ApiValidationPipe } from './filters/ApiValidationPipe'
+import { ResponseInterceptor } from './filters/ResponseInterceptor'
+import { ExceptionInterceptor } from './filters/ExceptionInterceptor'
+import { ConfigService } from '@nestjs/config'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 /**
  * Exposed ApiModule for public interfacing

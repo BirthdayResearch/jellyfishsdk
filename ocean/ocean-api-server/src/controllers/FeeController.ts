@@ -1,5 +1,5 @@
 import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { ApiClient, mining } from '@defichain/jellyfish-api-core'
 
 @Controller('/fee')
 export class FeeController {
@@ -15,7 +15,7 @@ export class FeeController {
    */
   @Get('/estimate')
   async estimate (@Query('confirmationTarget', ParseIntPipe) confirmationTarget: number = 10): Promise<number> {
-    const estimation = await this.client.mining.estimateSmartFee(confirmationTarget, EstimateMode.CONSERVATIVE)
+    const estimation = await this.client.mining.estimateSmartFee(confirmationTarget, mining.EstimateMode.CONSERVATIVE)
     if (estimation.feerate !== undefined) {
       return estimation.feerate
     }

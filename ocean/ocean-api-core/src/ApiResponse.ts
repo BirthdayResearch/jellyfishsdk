@@ -83,6 +83,13 @@ export class ApiPagedResponse<T> extends Array<T> {
   }
 
   /**
+   * @return {ApiPage | undefined} page
+   */
+  get page (): ApiPage | undefined {
+    return this._paginate.page
+  }
+
+  /**
    * @return {boolean} whether there a next set of items to paginate
    */
   get hasNext (): boolean {

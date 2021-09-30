@@ -1,4 +1,4 @@
-import { ApiError } from './ApiError'
+import { ApiError, ApiErrorType } from './ApiError'
 
 /**
  * Wrapped exception from ApiError
@@ -24,7 +24,7 @@ export class ApiException extends Error {
   /**
    * @return {string} error type
    */
-  get type (): string {
+  get type (): ApiErrorType {
     return this.error.type
   }
 
