@@ -10,6 +10,7 @@ describe('Loan', () => {
   let vaultAddress: string
   let vaultId1: string
   let vaultAddress1: string
+  let liqVaultId: string
 
   async function setup (): Promise<void> {
     // token setup
@@ -28,7 +29,8 @@ describe('Loan', () => {
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
-      { token: 'AMZN', currency: 'USD' }
+      { token: 'AMZN', currency: 'USD' },
+      { token: 'UBER', currency: 'USD' }
     ]
     const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
@@ -39,7 +41,8 @@ describe('Loan', () => {
         { tokenAmount: '1@DFI', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
         { tokenAmount: '2@TSLA', currency: 'USD' },
-        { tokenAmount: '4@AMZN', currency: 'USD' }
+        { tokenAmount: '4@AMZN', currency: 'USD' },
+        { tokenAmount: '4@UBER', currency: 'USD' }
       ]
     })
     await tGroup.get(0).generate(1)
@@ -72,6 +75,13 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'AMZN',
       priceFeedId: 'AMZN/USD'
+    })
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'UBER',
+      priceFeedId: 'UBER/USD'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
@@ -111,8 +121,32 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '12000@DFI'
+      vaultId: vaultId1, from: collateralAddress, amount: '10000@DFI'
     })
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    // createVault for liquidation
+    const liqVaultAddress = await tGroup.get(0).generateAddress()
+    liqVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: liqVaultAddress,
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: liqVaultId,
+      amounts: '1000@UBER'
+    })
+    await tGroup.get(0).generate(1)
+
+    // liquidated: true
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@UBER', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
   }
@@ -342,6 +376,18 @@ describe('Loan', () => {
       await tGroup.get(0).container.call('updateloantoken', ['TSLA', { mintable: true }])
       await tGroup.get(0).generate(1)
       await tGroup.waitForSync()
+    })
+
+    it('should not takeLoan on liquidation vault', async () => {
+      const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
+      expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+
+      const promise = tGroup.get(0).rpc.loan.takeLoan({
+        vaultId: liqVaultId,
+        amounts: '30@UBER'
+      })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('Cannot take loan on vault under liquidation')
     })
   })
 })
