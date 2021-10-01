@@ -209,11 +209,21 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface TokenData {
-  [key: string]: TokenDetail
+export interface LoanTokenResult {
+  [loanTokenId: string]: LoanTokenInfo
 }
 
-export interface TokenDetail {
+export interface LoanTokenInfo {
+  token: MappedTokenInfo
+  priceFeedId: string
+  interest: BigNumber
+}
+
+export interface MappedTokenInfo {
+  [tokenId: number]: TokenInfo
+}
+
+export interface TokenInfo {
   collateralAddress: string
   creationHeight: BigNumber
   creationTx: string
@@ -235,7 +245,7 @@ export interface TokenDetail {
 
 export interface GetLoanInfoResult {
   'Collateral tokens': CollateralTokensData
-  'Loan tokens': TokenData
+  'Loan tokens': LoanTokenResult
   'Loan schemes': GetLoanSchemeResult[]
   collateralValueUSD: BigNumber
   loanValueUSD: BigNumber

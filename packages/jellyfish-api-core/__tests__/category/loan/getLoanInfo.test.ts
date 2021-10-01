@@ -159,7 +159,7 @@ describe('Loan', () => {
               token: {
                 2: {
                   collateralAddress: GenesisKeys[0].owner.address,
-                  creationHeight: new BigNumber(height),
+                  creationHeight: height,
                   creationTx: loanTokenId,
                   decimal: new BigNumber(8),
                   destructionHeight: new BigNumber(-1),
