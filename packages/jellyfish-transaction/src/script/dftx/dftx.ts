@@ -85,7 +85,9 @@ import {
   CUpdateLoanToken,
   UpdateLoanToken,
   CCreateVault,
-  CreateVault
+  CreateVault,
+  CUpdateVault,
+  UpdateVault
 } from './dftx_loans'
 
 /**
@@ -238,6 +240,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       case CCreateVault.OP_CODE:
         return compose<CreateVault>(CCreateVault.OP_NAME, d => new CCreateVault(d))
+      case CUpdateVault.OP_CODE:
+        return compose<UpdateVault>(CUpdateVault.OP_NAME, d => new CUpdateVault(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
