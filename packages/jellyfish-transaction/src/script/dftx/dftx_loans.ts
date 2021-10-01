@@ -1,4 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { CTokenBalanceVarInt, TokenBalanceVarInt } from '@defichain/jellyfish-transaction'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
@@ -206,6 +207,32 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
     return [
       ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.varUIntUtf8BE(() => cv.schemeId, v => cv.schemeId = v)
+    ]
+  }
+}
+
+/**
+ * DepositToVault DeFi Transaction
+ */
+export interface DepositToVault {
+  vaultId: string // ---------------| 32 bytes, Vault Id
+  from: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
+  amount: TokenBalanceVarInt
+}
+
+/**
+ * Composable DepositToVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CDepositToVault extends ComposableBuffer<DepositToVault> {
+  static OP_CODE = 0x53 // 'S'
+  static OP_NAME = 'OP_DEFI_TX_DEPOSIT_TO_VAULT'
+
+  composers (dv: DepositToVault): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => dv.vaultId, v => dv.vaultId = v),
+      ComposableBuffer.single<Script>(() => dv.from, v => dv.from = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => dv.amount, v => dv.amount = v, v => new CTokenBalanceVarInt(v))
     ]
   }
 }
