@@ -13,12 +13,11 @@ export interface ApiValidationProperty {
 /**
  * Rich constraints validation error coming from DeFi Whale API.
  */
-export class ApiValidationException extends ApiException {
+export class ApiValidationException extends ApiException<{ properties: ApiValidationProperty[] }> {
   /**
    * @return {ApiValidationProperty[]} that failed constraints validation
    */
   get properties (): ApiValidationProperty[] {
-    const error = this.error as any
-    return error.validation.properties
+    return this.error.payload.properties
   }
 }

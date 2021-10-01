@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common'
 import { Observable, throwError } from 'rxjs'
 import { catchError } from 'rxjs/operators'
-import { isVersionPrefixed } from './ResponseInterceptor'
 import { ApiErrorType, ApiException } from '@defichain/ocean-api-core'
 
 /**
@@ -20,10 +19,6 @@ export class ExceptionInterceptor implements NestInterceptor {
   private readonly logger = new Logger(ExceptionInterceptor.name)
 
   intercept (context: ExecutionContext, next: CallHandler): Observable<any> {
-    if (!isVersionPrefixed(context)) {
-      return next.handle()
-    }
-
     const url: string = context.switchToHttp().getRequest().raw?.url
 
     return next.handle().pipe(catchError(err => {
@@ -42,7 +37,8 @@ export class ExceptionInterceptor implements NestInterceptor {
         type: err.type,
         at: err.at,
         message: err.message,
-        url: url
+        url: url,
+        payload: undefined
       })
     }
 
@@ -50,21 +46,30 @@ export class ExceptionInterceptor implements NestInterceptor {
       return new NestJSApiException(err, url)
     }
 
-    return new UnknownApiException(url)
+    // TODO(fuxingloh): HealthCheck Error?
+
+    return new ApiException({
+      code: HttpStatus.INTERNAL_SERVER_ERROR,
+      type: ApiErrorType.UnknownError,
+      at: Date.now(),
+      url: url,
+      payload: undefined,
+    })
   }
 }
 
 /**
  * Intercept NestJS exception and map into ApiException
  */
-export class NestJSApiException extends ApiException {
+class NestJSApiException extends ApiException {
   constructor (exception: HttpException, url: string) {
     super({
       code: NestJSApiException.mapCode(exception),
       type: NestJSApiException.mapType(exception),
       at: Date.now(),
       message: exception.message,
-      url: url
+      url: url,
+      payload: undefined,
     })
   }
 
@@ -122,16 +127,5 @@ export class NestJSApiException extends ApiException {
       default:
         return ApiErrorType.UnknownError
     }
-  }
-}
-
-export class UnknownApiException extends ApiException {
-  constructor (url: string) {
-    super({
-      code: HttpStatus.INTERNAL_SERVER_ERROR,
-      type: ApiErrorType.UnknownError,
-      at: Date.now(),
-      url: url
-    })
   }
 }

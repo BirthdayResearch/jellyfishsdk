@@ -1,9 +1,7 @@
-import { ApiErrorType } from './ApiError'
 import { ApiValidationException } from './ApiValidationException'
-import { ApiException } from './ApiException'
+import { ApiErrorType, ApiException } from './ApiException'
 import { ApiResponse } from '../ApiResponse'
 
-export * from './ApiError'
 export * from './ApiException'
 export * from './ApiValidationException'
 export * from './ClientException'

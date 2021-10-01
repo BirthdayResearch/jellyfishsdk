@@ -1,10 +1,29 @@
-import { ApiError, ApiErrorType } from './ApiError'
+export enum ApiErrorType {
+  ValidationError = 'ValidationError',
+  BadRequest = 'BadRequest',
+  NotFound = 'NotFound',
+  Conflict = 'Conflict',
+  Forbidden = 'Forbidden',
+  Unauthorized = 'Unauthorized',
+  BadGateway = 'BadGateway',
+  TimeoutError = 'TimeoutError',
+  UnknownError = 'UnknownError',
+}
+
+export interface ApiError<T = any> {
+  code: number
+  type: ApiErrorType
+  at: number
+  message?: string
+  url?: string
+  payload: T
+}
 
 /**
  * Wrapped exception from ApiError
  */
-export class ApiException extends Error {
-  constructor (readonly error: ApiError) {
+export class ApiException<P = any> extends Error {
+  constructor (readonly error: ApiError<P>) {
     super(ApiException.generateMessage(error))
   }
 
