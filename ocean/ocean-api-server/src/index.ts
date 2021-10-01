@@ -1,4 +1,4 @@
-import { RootModule } from './RootModule'
+import { RootModule } from './modules/RootModule'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import packageJson from '../package.json'
@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config'
  * Get version from Config, fallback to package.json
  */
 function getVersion (app: NestFastifyApplication): string {
-  const [major, minor] = packageJson.version.split('.')
+  const [major, minor] = packageJson.version.split('.') as [string, string, string]
   const defaultVersion = `v${major}.${minor}`
   return app.get(ConfigService).get<string>('version', defaultVersion)
 }

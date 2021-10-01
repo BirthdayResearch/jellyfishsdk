@@ -1,10 +1,10 @@
 import { CacheModule, Module } from '@nestjs/common'
-import { ActuatorController } from './ActuatorController'
-import { FeeController } from './FeeController'
+import { ActuatorController } from '../controllers/ActuatorController'
+import { FeeController } from '../controllers/FeeController'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { GlobalValidationPipe } from './filters/GlobalValidationPipe'
-import { ResponseInterceptor } from './filters/ResponseInterceptor'
-import { ExceptionInterceptor } from './filters/ExceptionInterceptor'
+import { GlobalValidationPipe } from '../controllers/filters/GlobalValidationPipe'
+import { ResponseInterceptor } from '../controllers/filters/ResponseInterceptor'
+import { ExceptionInterceptor } from '../controllers/filters/ExceptionInterceptor'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
 
@@ -15,7 +15,7 @@ import { NetworkName } from '@defichain/jellyfish-network'
   imports: [CacheModule.register()],
   controllers: [
     ActuatorController,
-    FeeController,
+    FeeController
   ],
   providers: [
     {

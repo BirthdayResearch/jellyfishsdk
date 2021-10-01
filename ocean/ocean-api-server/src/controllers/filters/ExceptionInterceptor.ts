@@ -53,7 +53,7 @@ export class ExceptionInterceptor implements NestInterceptor {
       type: ApiErrorType.UnknownError,
       at: Date.now(),
       url: url,
-      payload: undefined,
+      payload: undefined
     })
   }
 }
@@ -69,7 +69,7 @@ class NestJSApiException extends ApiException {
       at: Date.now(),
       message: exception.message,
       url: url,
-      payload: undefined,
+      payload: undefined
     })
   }
 

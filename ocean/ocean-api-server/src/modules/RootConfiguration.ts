@@ -4,14 +4,16 @@
  * This configuration can be injected/replaced at runtime by overriding provider 'ConfigService' or
  * replacing the config module.
  */
-export const RootConfiguration = (): any => ({
-  isProd: process.env.NODE_ENV === 'production',
-  /**
-   * Allows you to override ocean endpoint version.
-   */
-  version: process.env.OCEAN_VERSION,
-  network: process.env.OCEAN_NETWORK,
-  defid: {
-    url: process.env.OCEAN_DEFID_URL
+export function RootConfiguration (): object {
+  return {
+    isProd: process.env.NODE_ENV === 'production',
+    /**
+     * Allows you to override ocean endpoint version.
+     */
+    version: process.env.OCEAN_VERSION,
+    network: process.env.OCEAN_NETWORK,
+    defid: {
+      url: process.env.OCEAN_DEFID_URL
+    }
   }
-})
+}

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { RootConfiguration } from './RootConfiguration'
-import { ControllerModule } from './controllers/_Module'
+import { ControllerModule } from './ControllerModule'
 
 @Module({
   imports: [
@@ -9,7 +9,7 @@ import { ControllerModule } from './controllers/_Module'
       isGlobal: true,
       load: [RootConfiguration]
     }),
-    ControllerModule,
+    ControllerModule
   ]
 })
 export class RootModule {

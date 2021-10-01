@@ -27,7 +27,7 @@ export class ApiException<P = any> extends Error {
     super(ApiException.generateMessage(error))
   }
 
-  private static generateMessage (error: ApiError) {
+  private static generateMessage (error: ApiError): string {
     const url = error.url !== undefined && error.url !== null ? `(${error.url})` : ''
     const msg = error.message !== undefined && error.message !== null ? `: ${error.message}` : ''
     return `${error.code} - ${error.type} ${url} ${msg}`

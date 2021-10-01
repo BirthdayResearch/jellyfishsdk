@@ -51,7 +51,7 @@ export class OceanApiClient {
       network: 'mainnet',
       ...options
     }
-    this.options.url = this.options.url!.replace(/\/$/, '')
+    this.options.url = this.options.url?.replace(/\/$/, '')
   }
 
   /**
@@ -135,7 +135,7 @@ export class OceanApiClient {
       network,
       timeout
     } = this.options
-    const url = `${urlString}/${version as string}/${network as string}/${path}`
+    const url = `${urlString as string}/${version as string}/${network as string}/${path}`
 
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
