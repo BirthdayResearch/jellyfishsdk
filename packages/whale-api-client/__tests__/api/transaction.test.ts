@@ -146,7 +146,7 @@ describe('getVouts', () => {
     expect(vouts.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('should return list of vouts when next is out of range', async () => {
+  it.skip('should return list of vouts when next is out of range', async () => {
     const blockHash = await container.call('getblockhash', [100])
     const block = await rpcClient.blockchain.getBlock(blockHash, 2)
 
