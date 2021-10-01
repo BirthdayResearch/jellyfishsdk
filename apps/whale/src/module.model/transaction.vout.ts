@@ -30,7 +30,7 @@ export class TransactionVoutMapper {
    * @param {number} limit number of results
    * @param {string} gt n
    */
-  async query (txid: string, limit: number, gt?: number): Promise<TransactionVout[]> {
+  async query (txid: string, limit: number, gt?: string): Promise<TransactionVout[]> {
     return await this.database.query(TransactionVoutMapping.index.txid_n, {
       partitionKey: txid,
       limit: limit,

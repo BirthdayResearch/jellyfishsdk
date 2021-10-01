@@ -33,7 +33,7 @@ export class TransactionController {
 
   @Get('/:txid/vins')
   async getVins (@Param('txid') txid: string, @Query() query: PaginationQuery): Promise<ApiPagedResponse<TransactionVin>> {
-    const vin = await this.transactionVinMapper.query(txid, query.size)
+    const vin = await this.transactionVinMapper.query(txid, query.size, query.next)
 
     return ApiPagedResponse.of(vin, query.size, vout => {
       return vout.id
@@ -42,7 +42,7 @@ export class TransactionController {
 
   @Get('/:txid/vouts')
   async getVouts (@Param('txid') txid: string, @Query() query: PaginationQuery): Promise<ApiPagedResponse<TransactionVout>> {
-    const vout = await this.transactionVoutMapper.query(txid, query.size)
+    const vout = await this.transactionVoutMapper.query(txid, query.size, query.next)
 
     return ApiPagedResponse.of(vout, query.size, vout => {
       return vout.n.toString()
