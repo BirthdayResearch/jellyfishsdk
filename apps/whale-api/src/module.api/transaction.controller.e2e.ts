@@ -134,7 +134,7 @@ describe('getVouts', () => {
     expect(vout.data.length).toBeGreaterThanOrEqual(1)
   })
 
-  it('should return list of vout when next is out of range', async () => {
+  it.skip('should return list of vout when next is out of range', async () => {
     const blockHash = await container.call('getblockhash', [37])
     const block = await client.blockchain.getBlock(blockHash, 2)
 
