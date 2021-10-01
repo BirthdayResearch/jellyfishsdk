@@ -17,4 +17,12 @@ export class TestingMisc {
     const offset = Date.now() + (offsetBy * 60 * 60 * 1000)
     await this.rpc.misc.setMockTime(offset)
   }
+
+  /**
+   * Wait for block hash to reach a certain height
+   */
+  async waitForBlockHash (height: number): Promise<string> {
+    await this.container.waitForBlockHeight(height)
+    return await this.rpc.blockchain.getBlockHash(height)
+  }
 }

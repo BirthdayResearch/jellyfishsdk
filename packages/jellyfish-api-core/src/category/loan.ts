@@ -1,4 +1,4 @@
-import { ApiClient } from '../.'
+import { ApiClient, token } from '..'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -97,7 +97,7 @@ export class Loan {
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {BigNumber} collateralToken.factor Collateralization factor
-   * @param {string} collateralToken.priceFeedId txid of oracle feeding the price
+   * @param {string} collateralToken.priceFeedId token/currency pair to use for price of token
    * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
@@ -118,12 +118,24 @@ export class Loan {
   }
 
   /**
+   * Get collateral token.
+   *
+   * @param {GetCollateralToken} [collateralToken = {}]
+   * @param {string} [collateralToken.token] Symbol of collateral token
+   * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
+   * @return {Promise<CollateralTokenDetails>} Collateral token result
+   */
+  async getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails> {
+    return await this.client.call('getcollateraltoken', [collateralToken], 'bignumber')
+  }
+
+  /**
    * Creates (and submits to local node and network) a token for a price feed set in collateral token.
    *
    * @param {SetLoanToken} loanToken
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId Txid of oracle feeding the price
+   * @param {string} loanToken.priceFeedId token/currency pair to use for price of token
    * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
    * @param {BigNumber} [loanToken.interest = 0] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -149,6 +161,101 @@ export class Loan {
    */
   async getLoanInfo (): Promise<GetLoanInfoResult> {
     return await this.client.call('getloaninfo', [], 'bignumber')
+  }
+
+  /**
+   * Updates an existing loan token.
+   *
+   * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
+   * @param {UpdateLoanToken} newTokenDetails
+   * @param {string} [newTokenDetails.symbol] New token's symbol (unique), no longer than 8
+   * @param {string} [newTokenDetails.name] Token's name, no longer than 128
+   * @param {string} [newTokenDetails.priceFeedId] token/currency pair to use for price of token
+   * @param {boolean} [newTokenDetails.mintable] Token's 'Mintable' property
+   * @param {BigNumber} [newTokenDetails.interest] Interest rate
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} LoanTokenId, also the txn id for txn created to update loan token
+   */
+  async updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updateloantoken', [oldToken, newTokenDetails, utxos], 'number')
+  }
+
+  /**
+   * Get interest info
+   *
+   * @param {string} id Loan scheme id
+   * @param {string} [token] Specified by loan token id, loan token name and loan toekn creation tx
+   * @return {Promise<Interest[]>}
+   */
+  async getInterest (id: string, token?: string): Promise<Interest[]> {
+    return await this.client.call('getinterest', [id, token], 'bignumber')
+  }
+
+  /**
+   * List all created loan tokens.
+   *
+   * @return {Promise<ListLoanTokenResult[]>}
+   */
+  async listLoanTokens (): Promise<ListLoanTokenResult[]> {
+    return await this.client.call('listloantokens', [], 'bignumber')
+  }
+
+  /**
+   * Creates a vault transaction.
+   *
+   * @param {CreateVault} vault
+   * @param {string} vault.ownerAddress Any valid address or "" to generate a new address
+   * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max). If empty, the default loan scheme will be selected
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
+  }
+
+  /**
+   * Returns information about vault.
+   *
+   * @param {string} vaultId vault hex id
+   * @return {Promise<VaultDetails>}
+   */
+  async getVault (vaultId: string): Promise<VaultDetails> {
+    return await this.client.call('getvault', [vaultId], 'bignumber')
+  }
+
+  /**
+   * Deposit to vault
+   *
+   * @param {DepositVault} depositVault
+   * @param {string} depositVault.vaultId Vault id
+   * @param {string} depositVault.from Collateral address
+   * @param {string} depositVault.amount In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('deposittovault', [depositVault.vaultId, depositVault.from, depositVault.amount, utxos], 'number')
+  }
+
+  /**
+   * Take loan
+   *
+   * @param {TakeLoanMetadata} metadata
+   * @param {string} metadata.vaultId Vault id
+   * @param {string} metadata.amounts In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('takeloan', [metadata, utxos], 'number')
   }
 }
 
@@ -185,20 +292,25 @@ export interface SetCollateralToken {
 }
 
 export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetail
-}
-
-export interface CollateralTokenDetail {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
+  [key: string]: CollateralTokenDetails
 }
 
 export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+}
+
+export interface GetCollateralToken {
+  token?: string
+  height?: number
+}
+
+export interface CollateralTokenDetails {
+  token: string
+  factor: BigNumber
+  priceFeedId: string
+  activateAfterBlock: BigNumber
 }
 
 export interface SetLoanToken {
@@ -209,49 +321,68 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface LoanTokenResult {
-  [loanTokenId: string]: LoanTokenInfo
+export interface ListLoanTokenResult {
+  [key: string]: LoanTokenDetails
 }
 
-export interface LoanTokenInfo {
-  token: MappedTokenInfo
+export interface LoanTokenDetails {
+  token: token.TokenResult
   priceFeedId: string
   interest: BigNumber
 }
 
-export interface MappedTokenInfo {
-  [tokenId: number]: TokenInfo
-}
-
-export interface TokenInfo {
-  collateralAddress: string
-  creationHeight: BigNumber
-  creationTx: string
-  decimal: BigNumber
-  destructionHeight: BigNumber
-  destructionTx: string
-  finalized: false
-  isDAT: boolean
-  isLPS: boolean
-  isLoanToken: boolean
-  limit: BigNumber
-  mintable: boolean
-  minted: BigNumber
-  name: string
-  symbol: string
-  symbolKey: string
-  tradeable: boolean
-}
-
 export interface GetLoanInfoResult {
-  'Collateral tokens': CollateralTokensData
-  'Loan tokens': LoanTokenResult
-  'Loan schemes': GetLoanSchemeResult[]
-  collateralValueUSD: BigNumber
-  loanValueUSD: BigNumber
+  [key: string]: ListLoanTokenResult
+}
+export interface UpdateLoanToken {
+  symbol?: string
+  name?: string
+  priceFeedId?: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+export interface Interest {
+  token: string
+  totalInterest: BigNumber
+  interestPerBlock: BigNumber
+}
+
+export interface CreateVault {
+  ownerAddress: string
+  loanSchemeId?: string
+}
+
+export interface VaultDetails {
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: BigNumber
+}
+
+export interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
 }
 
 export interface UTXO {
   txid: string
   vout: number
+}
+
+export interface DepositVault {
+  vaultId: string
+  from: string
+  amount: string // amount@symbol
+}
+
+export interface TakeLoanMetadata {
+  vaultId: string
+  amounts: string // amount@symbol
 }

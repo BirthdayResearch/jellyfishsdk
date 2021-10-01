@@ -38,10 +38,11 @@ issue:
         - core
         - workflow
         - website
-        - jellyfish
+        - examples
         - jellyfish-address
         - jellyfish-api-core
         - jellyfish-api-jsonrpc
+        - jellyfish-block
         - jellyfish-buffer
         - jellyfish-crypto
         - jellyfish-json
@@ -51,8 +52,8 @@ issue:
         - jellyfish-transaction-builder
         - jellyfish-transaction-signature
         - jellyfish-wallet
-        - jellyfish-wallet-encrypted
         - jellyfish-wallet-classic
+        - jellyfish-wallet-encrypted
         - jellyfish-wallet-mnemonic
         - testcontainers
         - testing

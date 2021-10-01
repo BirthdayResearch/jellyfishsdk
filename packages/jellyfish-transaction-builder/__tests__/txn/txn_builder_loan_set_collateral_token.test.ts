@@ -15,8 +15,6 @@ describe('loan.setCollateralToken()', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
 
-  let priceFeedId: string
-
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -32,7 +30,7 @@ describe('loan.setCollateralToken()', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
@@ -46,13 +44,13 @@ describe('loan.setCollateralToken()', () => {
   it('should setCollateralToken', async () => {
     // Fund 10 DFI UTXO
     await fundEllipticPair(testing.container, providers.ellipticPair, 10)
-    await providers.setupMocks() // required to move utxos
+    await providers.setupMocks() // Required to move utxos
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId,
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
 
@@ -75,7 +73,7 @@ describe('loan.setCollateralToken()', () => {
       [collateralTokenId]: {
         token: 'AAPL',
         factor: 0.5,
-        priceFeedId,
+        priceFeedId: 'AAPL/USD',
         activateAfterBlock: await testing.container.getBlockCount()
       }
     })
@@ -86,7 +84,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 2,
       factor: new BigNumber(0.5),
-      priceFeedId,
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -98,44 +96,23 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(1.01),
-      priceFeedId,
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
   })
 
-  it('should not setCollateralToken if oracle does not contain USD price', async () => {
-    await testing.token.create({ symbol: 'TSLA' })
-    await testing.generate(1)
-
-    const priceFeedId: string = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'TSLA',
-      currency: 'SGD'
-    }], 1])
-    await testing.generate(1)
-
+  it('should not setCollateralToken if priceFeedId does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId,
+      currencyPair: { token: 'MFST', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetCollateralTokenTx: oracle (${priceFeedId}) does not contain USD price for this token! (code 16)', code: -26`)
-  })
-
-  it('should not setCollateralToken if oracleId does not exist', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.setCollateralToken({
-      token: 1,
-      factor: new BigNumber(0.5),
-      priceFeedId: '944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5',
-      activateAfterBlock: 0
-    }, script)
-    const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: oracle (944d7ce67a0bd6d18e7ba7cbd3ec12ac81a13aa92876cb697ec0b33bf50652f5) does not exist! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
   })
 })
 
@@ -163,7 +140,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
@@ -178,7 +155,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId,
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 160
     }, script)
     await sendTransaction(testing.container, txn)
@@ -188,7 +165,7 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
       [collateralTokenId]: {
         token: 'AAPL',
         factor: 0.5,
-        priceFeedId,
+        priceFeedId: 'AAPL/USD',
         activateAfterBlock: 160
       }
     })
@@ -219,7 +196,7 @@ describe('loan.setCollateralToken() with activateAfterBlock below current height
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
@@ -237,7 +214,7 @@ describe('loan.setCollateralToken() with activateAfterBlock below current height
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId,
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 149
     }, script)
     const promise = sendTransaction(testing.container, txn)

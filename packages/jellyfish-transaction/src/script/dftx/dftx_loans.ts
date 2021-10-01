@@ -1,5 +1,8 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import BigNumber from 'bignumber.js'
+import { Script } from '../../tx'
+import { CScript } from '../../tx_composer'
+import { CCurrencyPair, CurrencyPair } from './dftx_price'
 
 /**
  * CreateLoanScheme / UpdateLoanScheme DeFi Transaction
@@ -32,8 +35,31 @@ export interface SetDefaultLoanScheme {
 export interface SetCollateralToken {
   token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
   factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
-  priceFeedId: string // ----------| 32 bytes hex string, Txid of oracle feeding the price
+  currencyPair: CurrencyPair // ---| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
+}
+
+/**
+ * SetLoanToken DeFi Transaction
+ */
+export interface SetLoanToken {
+  symbol: string // -------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
+  name: string // ---------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
+  currencyPair: CurrencyPair // -| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  mintable: boolean // ----------| 1 byte, mintable, Token's 'Mintable' property
+  interest: BigNumber // --------| 8 bytes unsigned, interest rate
+}
+
+/**
+ * UpdateLoanToken DeFi Transaction
+ */
+export interface UpdateLoanToken {
+  symbol: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
+  name: string // ----------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
+  currencyPair: CurrencyPair // --| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  mintable: boolean // -----------| 1 byte, mintable, Token's 'Mintable' property
+  interest: BigNumber // ---------| 8 bytes unsigned, interest rate
+  tokenTx: string // -------------| 32 bytes, hex string Txid of tokens's creation tx
 }
 
 /**
@@ -115,8 +141,71 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
     return [
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.hexBEBufferLE(32, () => sct.priceFeedId, v => sct.priceFeedId = v),
+      ComposableBuffer.single(() => sct.currencyPair, v => sct.currencyPair = v, sct => new CCurrencyPair(sct)),
       ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
+    ]
+  }
+}
+
+/**
+ * Composable SetLoanToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
+  static OP_CODE = 0x67 // 'g'
+  static OP_NAME = 'OP_DEFI_TX_SET_LOAN_TOKEN'
+
+  composers (slt: SetLoanToken): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
+      ComposableBuffer.single(() => slt.currencyPair, v => slt.currencyPair = v, v => new CCurrencyPair(v)),
+      ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
+      ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
+    ]
+  }
+}
+
+/**
+ * Composable UpdateLoanToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
+  static OP_CODE = 0x66 // 'f'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_LOAN_TOKEN'
+
+  composers (ult: UpdateLoanToken): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => ult.symbol, v => ult.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => ult.name, v => ult.name = v),
+      ComposableBuffer.single(() => ult.currencyPair, v => ult.currencyPair = v, v => new CCurrencyPair(v)),
+      ComposableBuffer.uBool8(() => ult.mintable, v => ult.mintable = v),
+      ComposableBuffer.satoshiAsBigNumber(() => ult.interest, v => ult.interest = v),
+      ComposableBuffer.hexBEBufferLE(32, () => ult.tokenTx, v => ult.tokenTx = v)
+    ]
+  }
+}
+
+/**
+ * CreateVault DeFi Transaction
+ */
+export interface CreateVault {
+  ownerAddress: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, Vault's owner address
+  schemeId: string // ------------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
+}
+
+/**
+ * Composable CreateVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CCreateVault extends ComposableBuffer<CreateVault> {
+  static OP_CODE = 0x56 // 'V'
+  static OP_NAME = 'OP_DEFI_TX_CREATE_VAULT'
+
+  composers (cv: CreateVault): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
+      ComposableBuffer.varUIntUtf8BE(() => cv.schemeId, v => cv.schemeId = v)
     ]
   }
 }

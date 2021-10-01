@@ -4,9 +4,7 @@ import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, sendTransaction } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
-import { OP_CODES } from '@defichain/jellyfish-transaction'
-import { ICXClaimDFCHTLC } from '@defichain/jellyfish-transaction/script/dftx/dftx_icxorderbook'
-import { ICXClaimDFCHTLCInfo, ICXListHTLCOptions } from '@defichain/jellyfish-api-core/category/icxorderbook'
+import { ICXClaimDFCHTLC, OP_CODES } from '@defichain/jellyfish-transaction'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
@@ -113,7 +111,7 @@ describe('claim DFC HTLC', () => {
     await testing.generate(1)
 
     // List htlc and check
-    const listHTLCOptions: ICXListHTLCOptions = {
+    const listHTLCOptions: icxorderbook.ICXListHTLCOptions = {
       offerTx: makeOfferTxId,
       closed: true
     }
@@ -122,7 +120,7 @@ describe('claim DFC HTLC', () => {
     const claimTxId = calculateTxid(txn)
     if (HTLCs[claimTxId].type === icxorderbook.ICXHTLCType.CLAIM_DFC) {
       // ICXClaimDFCHTLCInfo cast
-      const ClaimHTLCInfo: ICXClaimDFCHTLCInfo = HTLCs[claimTxId] as ICXClaimDFCHTLCInfo
+      const ClaimHTLCInfo: icxorderbook.ICXClaimDFCHTLCInfo = HTLCs[claimTxId] as icxorderbook.ICXClaimDFCHTLCInfo
       expect(ClaimHTLCInfo.dfchtlcTx).toStrictEqual(DFCHTLCTxId)
       expect(ClaimHTLCInfo.seed).toStrictEqual('f75a61ad8f7a6e0ab701d5be1f5d4523a9b534571e4e92e0c4610c6a6784ccef')
     }
