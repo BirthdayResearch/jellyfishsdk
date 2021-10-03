@@ -28,6 +28,17 @@ export class ActuatorProbes extends Array<ProbeIndicator> {
   ]
 })
 export class ActuatorModule {
+  constructor (
+    private readonly probes: ActuatorProbes
+  ) {
+  }
+
+  /**
+   * Cleanup all probes when shutdown as it won't be released automatically.
+   */
+  onApplicationShutdown (): void {
+    this.probes.splice(0)
+  }
 }
 
 /**
