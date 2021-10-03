@@ -13,8 +13,14 @@ export enum ApiErrorType {
 }
 
 export interface ApiError<T = any> {
+  /**
+   * @return {number} Status code
+   */
   code: number
   type: ApiErrorType
+  /**
+   * @return {number} Milliseconds since Epoch
+   */
   at: number
   message?: string
   url?: string
