@@ -4,6 +4,7 @@ import { StubServer } from './StubServer'
 import { StubClient } from './StubClient'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 export class OceanApiTesting {
   constructor (
@@ -31,6 +32,13 @@ export class OceanApiTesting {
 
   get rpc (): ApiClient {
     return this.testing.rpc
+  }
+
+  get app (): NestFastifyApplication {
+    if (this.stubServer.app === undefined) {
+      throw new Error('not yet initialized')
+    }
+    return this.stubServer.app
   }
 
   get client (): OceanApiClient {

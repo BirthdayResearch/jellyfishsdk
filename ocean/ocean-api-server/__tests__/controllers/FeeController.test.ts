@@ -1,7 +1,6 @@
 import { OceanApiTesting } from '../../testing/OceanApiTesting'
 
 const apiTesting = OceanApiTesting.create()
-const client = apiTesting.client
 
 beforeEach(async () => {
   await apiTesting.start()
@@ -12,7 +11,7 @@ afterEach(async () => {
 })
 
 it('should be fixed fee of 0.00005000 when there are no transactions', async () => {
-  const feeRate = await client.fee.estimate()
+  const feeRate = await apiTesting.client.fee.estimate()
   expect(feeRate).toStrictEqual(0.00005000)
 })
 
@@ -29,6 +28,6 @@ it('should have fee of not 0.00005 with transactions activity', async () => {
     await apiTesting.container.generate(1)
   }
 
-  const feeRate = await client.fee.estimate()
+  const feeRate = await apiTesting.client.fee.estimate()
   expect(feeRate).not.toStrictEqual(0.00005000)
 })

@@ -1,4 +1,12 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common'
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+  HttpStatus,
+  Logger,
+  ServiceUnavailableException
+} from '@nestjs/common'
 import { ApiError, ApiErrorType, ApiException } from '@defichain/ocean-api-core'
 
 @Catch()
@@ -10,11 +18,25 @@ export class ErrorFilter implements ExceptionFilter {
 
     const ctx = host.switchToHttp()
     const url: string = ctx.getRequest().raw?.url
-    const response = ctx.getResponse()
+    const ctxResponse = ctx.getResponse()
 
-    const apiError = mapError(err, url)
-    response.status(apiError.code)
-      .send({ error: apiError })
+    const res = mapResponse(err, url)
+    ctxResponse.status(res.error.code).send(res)
+  }
+}
+
+function mapResponse (err: Error, url: string): { error: ApiError, data?: any } {
+  const error = mapError(err, url)
+
+  if (err instanceof ServiceUnavailableException) {
+    return {
+      error: error,
+      data: err.getResponse()
+    }
+  }
+
+  return {
+    error
   }
 }
 
@@ -40,8 +62,6 @@ function mapError (err: Error, url: string): ApiError {
       payload: undefined
     }
   }
-
-  // TODO(fuxingloh): HealthCheck Error?
 
   return {
     code: HttpStatus.INTERNAL_SERVER_ERROR,

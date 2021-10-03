@@ -7,18 +7,13 @@ import { ResponseInterceptor } from '../controllers/filters/ResponseInterceptor'
 import { ErrorFilter } from '../controllers/filters/ErrorFilter'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { TerminusModule } from '@nestjs/terminus'
 
 /**
  * Exposed ApiModule for public interfacing
  */
 @Module({
   imports: [
-    CacheModule.register(),
-    TerminusModule
-  ],
-  exports: [
-    TerminusModule
+    CacheModule.register()
   ],
   controllers: [
     ActuatorController,

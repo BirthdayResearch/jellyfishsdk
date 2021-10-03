@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common'
-import { ControllerModule } from './ControllerModule'
-import { FullNodeModule } from './FullNodeModule'
-import { ConfigModule } from '@nestjs/config'
-import packageJson from '../../package.json'
 import * as Joi from 'joi'
+import { Module } from '@nestjs/common'
+import packageJson from '../../package.json'
+import { ConfigModule } from '@nestjs/config'
+import { ControllerModule } from './ControllerModule'
+import { AinModule } from './AinModule'
+import { ActuatorModule } from './ActuatorModule'
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import * as Joi from 'joi'
       cache: true,
       validationSchema: ENV_VALIDATION_SCHEMA()
     }),
-    FullNodeModule,
+    ActuatorModule,
+    AinModule,
     ControllerModule
   ]
 })
