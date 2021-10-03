@@ -47,7 +47,7 @@ describe('Spv', () => {
       expect(team.confirm.includes(GenesisKeys[2].operator.address))
     }
 
-    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour), 2)
+    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour), 60)
 
     await tGroup.get(0).container.call('spv_setlastheight', [1])
     const anchor1 = await createAnchor()

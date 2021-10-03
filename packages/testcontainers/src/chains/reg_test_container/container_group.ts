@@ -109,34 +109,41 @@ export class ContainerGroup {
    */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
-      for (let i = 0; i < 15; i += 1) { // 15 as anchor frequency
+      const teams = await Promise.all(Object.values(this.containers).map(async container => {
+        return await container.call('getanchorteams')
+      }))
+      if (teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)) {
+        return true
+      }
+      for (let i = 0; i < 15; i += 1) { // anchor frequency = 15
         const container = this.containers[i % this.containers.length]
         await container.generate(1)
         await this.waitForSync()
       }
-      const teams = await Promise.all(Object.values(this.containers).map(async container => {
-        return await container.call('getanchorteams')
-      }))
-      return teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)
+      return false
     }, timeout, 100, 'waitForAnchorTeams')
   }
 
   /**
    * Wait for anchor auths
    *
-   * @param {() => Promise<void>} genAnchorAuthsCallback
+   * @param {() => Promise<void>} genAnchorAuths
    * @param {number} numOfAuths
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, numOfAuths: number, timeout = 30000): Promise<void> {
-    return await waitForCondition(async () => {
-      await genAnchorAuthsCallback()
-      // check each container should be quorum ready
+  async waitForAnchorAuths (genAnchorAuths: () => Promise<void>, height: number, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => { // check each container should be quorum ready
       const cAuths = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('spv_listanchorauths')
       }))
-      return cAuths.every(auths => auths.length === numOfAuths)
+      if (cAuths.length > 0) {
+        for (let i = 0; i < cAuths[i].length; i += 1) {
+          return cAuths[i].every((auth: any) => auth.blockHeight <= height && auth.signers >= 2)
+        }
+      }
+      await genAnchorAuths()
+      return false
     }, timeout, 100, 'waitForAnchorAuths')
   }
 
