@@ -2,6 +2,8 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { OceanApiClient } from '@defichain/ocean-api-client'
 import { StubServer } from './StubServer'
 import { StubClient } from './StubClient'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ApiClient } from '@defichain/jellyfish-api-core'
 
 export class OceanApiTesting {
   constructor (
@@ -21,6 +23,14 @@ export class OceanApiTesting {
 
   get testing (): Testing {
     return this.testingGroup.get(0)
+  }
+
+  get container (): MasterNodeRegTestContainer {
+    return this.testing.container
+  }
+
+  get rpc (): ApiClient {
+    return this.testing.rpc
   }
 
   get client (): OceanApiClient {

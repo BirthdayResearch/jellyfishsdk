@@ -30,7 +30,7 @@ export interface OceanApiClientOptions {
   version?: string
 
   /**
-   * Network that whale client is configured to
+   * Network that ocean client is configured to
    */
   network?: 'mainnet' | 'testnet' | 'regtest' | string
 }
