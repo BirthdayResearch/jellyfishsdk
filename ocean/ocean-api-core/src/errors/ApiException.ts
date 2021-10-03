@@ -1,3 +1,5 @@
+import { ApiResponse, ApiValidationException } from '@defichain/ocean-api-core'
+
 export enum ApiErrorType {
   ValidationError = 'ValidationError',
   BadRequest = 'BadRequest',
@@ -59,5 +61,25 @@ export class ApiException<P = any> extends Error {
    */
   get url (): string | undefined {
     return this.error.url
+  }
+
+  /**
+   * @param {ApiResponse} response to check and raise error if any
+   * @throws {ApiException} raised error
+   */
+  static raiseIfError (response: ApiResponse<any>): void {
+    const error = response.error
+    if (error === undefined) {
+      return
+    }
+
+    if (typeof error === 'object') {
+      if (error.code === 422 && error.type === ApiErrorType.ValidationError) {
+        throw new ApiValidationException(error)
+      }
+      throw new ApiException(error)
+    }
+
+    throw new Error('Unrecognized Error: ' + JSON.stringify(response))
   }
 }

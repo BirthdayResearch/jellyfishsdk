@@ -1,4 +1,4 @@
-import { ApiError } from './errors'
+import { ApiError } from './errors/ApiException'
 
 export interface ApiResponse<T> {
   data: T

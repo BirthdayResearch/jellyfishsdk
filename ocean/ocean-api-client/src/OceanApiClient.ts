@@ -3,11 +3,11 @@ import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
 import { Fee } from './api/Fee'
 import {
+  ApiException,
   ApiMethod,
   ApiPagedResponse,
   ApiResponse,
   ClientException,
-  raiseIfError,
   TimeoutException
 } from '@defichain/ocean-api-core'
 
@@ -118,7 +118,7 @@ export class OceanApiClient {
     const json = object !== undefined ? JSON.stringify(object) : undefined
     const raw = await this.requestAsString(method, path, json)
     const response: ApiResponse<T> = JSON.parse(raw.body)
-    raiseIfError(response)
+    ApiException.raiseIfError(response)
     return response
   }
 
