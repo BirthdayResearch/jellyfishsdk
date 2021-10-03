@@ -17,9 +17,12 @@ export function raiseIfError (response: ApiResponse<any>): void {
     return
   }
 
-  if (error.code === 422 && error.type === ApiErrorType.ValidationError) {
-    throw new ApiValidationException(error)
+  if (typeof error === 'object') {
+    if (error.code === 422 && error.type === ApiErrorType.ValidationError) {
+      throw new ApiValidationException(error)
+    }
+    throw new ApiException(error)
   }
 
-  throw new ApiException(error)
+  throw new Error('Unrecognized Error: ' + JSON.stringify(response))
 }

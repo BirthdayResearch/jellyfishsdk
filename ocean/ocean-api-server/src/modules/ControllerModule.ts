@@ -1,18 +1,25 @@
 import { CacheModule, Module } from '@nestjs/common'
 import { ActuatorController } from '../controllers/ActuatorController'
 import { FeeController } from '../controllers/FeeController'
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { GlobalValidationPipe } from '../controllers/filters/GlobalValidationPipe'
 import { ResponseInterceptor } from '../controllers/filters/ResponseInterceptor'
-import { ExceptionInterceptor } from '../controllers/filters/ExceptionInterceptor'
+import { ErrorFilter } from '../controllers/filters/ErrorFilter'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { TerminusModule } from '@nestjs/terminus'
 
 /**
  * Exposed ApiModule for public interfacing
  */
 @Module({
-  imports: [CacheModule.register()],
+  imports: [
+    CacheModule.register(),
+    TerminusModule
+  ],
+  exports: [
+    TerminusModule
+  ],
   controllers: [
     ActuatorController,
     FeeController
@@ -27,8 +34,8 @@ import { NetworkName } from '@defichain/jellyfish-network'
       useClass: ResponseInterceptor
     },
     {
-      provide: APP_INTERCEPTOR,
-      useClass: ExceptionInterceptor
+      provide: APP_FILTER,
+      useClass: ErrorFilter
     },
     {
       provide: 'NETWORK_NAME',

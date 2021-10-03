@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { ApiPagedResponse, ApiResponse } from '@defichain/ocean-api-core/src'
+import { ApiPagedResponse, ApiResponse } from '@defichain/ocean-api-core'
 
 /**
  * Transforms all response from module.api into a object {data:...}
