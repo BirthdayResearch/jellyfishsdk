@@ -17,6 +17,8 @@ import { PriceTickerMapper } from '@src/module.model/price.ticker'
 import { MasternodeMapper } from '@src/module.model/masternode'
 import { MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 import { TokenMapper } from '@src/module.model/token'
+import { PoolPairMapper } from '@src/module.model/poolpair'
+import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
 
 @Global()
 @Module({
@@ -38,7 +40,9 @@ import { TokenMapper } from '@src/module.model/token'
     PriceTickerMapper,
     MasternodeMapper,
     MasternodeStatsMapper,
-    TokenMapper
+    TokenMapper,
+    PoolPairMapper,
+    PoolPairTokenMapper
   ],
   exports: [
     ModelProbeIndicator,
@@ -58,7 +62,9 @@ import { TokenMapper } from '@src/module.model/token'
     PriceTickerMapper,
     MasternodeMapper,
     MasternodeStatsMapper,
-    TokenMapper
+    TokenMapper,
+    PoolPairMapper,
+    PoolPairTokenMapper
   ]
 })
 export class ModelModule {
