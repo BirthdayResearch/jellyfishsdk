@@ -1,11 +1,23 @@
 import { BigNumber } from '@defichain/jellyfish-api-core'
 import {
-  ICXOrder, ICXGenericResult, ICXOrderInfo, ICXOfferInfo, ICXOffer, ICXOrderStatus, ICXHTLCType, ICXHTLCStatus, HTLC,
-  ICXClaimDFCHTLCInfo, ICXDFCHTLCInfo, ICXEXTHTLCInfo, ICXListHTLCOptions, ExtHTLC
+  ExtHTLC,
+  HTLC,
+  ICXClaimDFCHTLCInfo,
+  ICXDFCHTLCInfo,
+  ICXEXTHTLCInfo,
+  ICXGenericResult,
+  ICXHTLCStatus,
+  ICXHTLCType,
+  ICXListHTLCOptions,
+  ICXOffer,
+  ICXOfferInfo,
+  ICXOrder,
+  ICXOrderInfo,
+  ICXOrderStatus
 } from '../../../src/category/icxorderbook'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createToken, mintTokens, accountToAccount } from '@defichain/testing'
-import { ContainerAdapterClient } from 'jellyfish-api-core/__tests__/container_adapter_client'
+import { accountToAccount, createToken, mintTokens } from '@defichain/testing'
+import { ContainerAdapterClient } from '../../container_adapter_client'
 
 // globals
 export let symbolDFI: string

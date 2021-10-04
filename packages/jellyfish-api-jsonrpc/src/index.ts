@@ -58,13 +58,13 @@ export class JsonRpcClient extends ApiClient {
     const text = await response.text()
 
     switch (response.status) {
-      case 200:
-      default:
-        return JsonRpcClient.parse(method, text, precision)
-
       case 401:
       case 404:
         throw new ClientApiError(`${response.status} - ${response.statusText}`)
+
+      case 200:
+      default:
+        return JsonRpcClient.parse(method, text, precision)
     }
   }
 
