@@ -139,7 +139,6 @@ describe('Loan listCollateralTokens with height only', () => {
     }])
     await testing.generate(1)
 
-    // Only remain AAPL which has already been activated
     {
       const data = await testing.rpc.loan.listCollateralTokens({ height: blockCount })
       expect(data).toStrictEqual({
