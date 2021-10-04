@@ -184,9 +184,9 @@ export class Loan {
   /**
    * List all created loan tokens.
    *
-   * @return {Promise<ListLoanTokenResult[]>}
+   * @return {Promise<ListLoanTokenResult>}
    */
-  async listLoanTokens (): Promise<ListLoanTokenResult[]> {
+  async listLoanTokens (): Promise<ListLoanTokenResult> {
     return await this.client.call('listloantokens', [], 'bignumber')
   }
 

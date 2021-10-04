@@ -165,11 +165,6 @@ interface CollateralTokenDetails {
   priceFeedId: string
   activateAfterBlock: BigNumber
 }
-
-interface UTXO {
-  txid: string
-  vout: number
-}
 ```
 
 ## getCollateralToken
@@ -262,7 +257,7 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenResult[]>
+  listLoanTokens (): Promise<ListLoanTokenResult>
 }
 
 interface ListLoanTokenResult {
