@@ -247,7 +247,7 @@ export class Loan {
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
-   * @return {Promise<string>}
+   * @return {Promise<string>} The transaction id
    */
   async auctionBid (auctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call(
