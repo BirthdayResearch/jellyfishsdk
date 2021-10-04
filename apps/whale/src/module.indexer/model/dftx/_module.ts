@@ -3,6 +3,7 @@ import { AppointOracleIndexer } from '@src/module.indexer/model/dftx/appoint.ora
 import { RemoveOracleIndexer } from '@src/module.indexer/model/dftx/remove.oracle'
 import { UpdateOracleIndexer } from '@src/module.indexer/model/dftx/update.oracle'
 import { SetOracleDataIndexer } from '@src/module.indexer/model/dftx/set.oracle.data'
+import { SetOracleDataIntervalIndexer } from '@src/module.indexer/model/dftx/set.oracle.data.interval'
 import { CreateMasternodeIndexer } from '@src/module.indexer/model/dftx/create.masternode'
 import { ResignMasternodeIndexer } from '@src/module.indexer/model/dftx/resign.masternode'
 import { CreateTokenIndexer } from '@src/module.indexer/model/dftx/create.token'
@@ -18,6 +19,7 @@ const indexers = [
   UpdateOracleIndexer,
   CreateMasternodeIndexer,
   ResignMasternodeIndexer,
+  SetOracleDataIntervalIndexer,
   CreateTokenIndexer,
   CreatePoolPairIndexer,
   UpdatePoolPairIndexer
