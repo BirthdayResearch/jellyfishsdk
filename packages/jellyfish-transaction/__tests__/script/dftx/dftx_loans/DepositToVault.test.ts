@@ -25,7 +25,15 @@ it('should bi-directional buffer-object-buffer', () => {
         amount: '1@BTC'
       }
      */
-    '6a454466547853aec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed16001488d52b9b1dded932272e0c9bebb0dccdd46ecf990100e1f50500000000'
+    '6a454466547853aec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed16001488d52b9b1dded932272e0c9bebb0dccdd46ecf990100e1f50500000000',
+    /**
+     * DepositVault : {
+        vaultId: 'ed59b0558f03d547819c1990bfbade53656170e2c311d9b8b418a6a74ae4c2af',
+        from: 'bcrt1qyeuu9rvq8a67j86pzvh5897afdmdjpyankp4mu',
+        amount: '1@BTC'
+      }
+     */
+    '6a454466547853afc2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed1600149d04d9764bdd97432f13411fe9753f808dc279260100e1f50500000000'
   ]
 
   fixtures.forEach(hex => {
@@ -39,7 +47,8 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a454466547853' // OP_RETURN(0x6a) (length 69 = 0x45) CDfTx.SIGNATURE(0x44665478) CDepositToVault.OP_CODE(0x53)
-// DepositToVault.vaultId[LE](0xaec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed) DepositToVault.from(0x16001488d52b9b1dded932272e0c9bebb0dccdd46ecf99)
+// DepositToVault.vaultId[LE](0xaec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed)
+// DepositToVault.from(0x16001488d52b9b1dded932272e0c9bebb0dccdd46ecf99)
 // DepositToVault.amount(0x000010a5d4e8000000)
 const data = 'aec2e44aa7a618b4b8d911c3e270616553debabf90199c8147d5038f55b059ed16001488d52b9b1dded932272e0c9bebb0dccdd46ecf99000010a5d4e8000000'
 const depositToVault: DepositToVault = {

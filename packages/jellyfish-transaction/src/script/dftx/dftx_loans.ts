@@ -217,7 +217,7 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
 export interface DepositToVault {
   vaultId: string // ---------------| 32 bytes, Vault Id
   from: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
-  amount: TokenBalanceVarInt
+  amount: TokenBalanceVarInt // ----| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
 }
 
 /**
@@ -228,11 +228,11 @@ export class CDepositToVault extends ComposableBuffer<DepositToVault> {
   static OP_CODE = 0x53 // 'S'
   static OP_NAME = 'OP_DEFI_TX_DEPOSIT_TO_VAULT'
 
-  composers (dv: DepositToVault): BufferComposer[] {
+  composers (dtv: DepositToVault): BufferComposer[] {
     return [
-      ComposableBuffer.hexBEBufferLE(32, () => dv.vaultId, v => dv.vaultId = v),
-      ComposableBuffer.single<Script>(() => dv.from, v => dv.from = v, v => new CScript(v)),
-      ComposableBuffer.single<TokenBalanceVarInt>(() => dv.amount, v => dv.amount = v, v => new CTokenBalanceVarInt(v))
+      ComposableBuffer.hexBEBufferLE(32, () => dtv.vaultId, v => dtv.vaultId = v),
+      ComposableBuffer.single<Script>(() => dtv.from, v => dtv.from = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => dtv.amount, v => dtv.amount = v, v => new CTokenBalanceVarInt(v))
     ]
   }
 }

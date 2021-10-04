@@ -14,7 +14,6 @@ describe('Loan', () => {
   let vaultId: string
   let liqVaultId: string
   let collateralAddress: string
-  let vaultAddress: string
 
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
@@ -96,7 +95,7 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    vaultAddress = await tGroup.get(0).generateAddress()
+    const vaultAddress = await tGroup.get(0).generateAddress()
     vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
