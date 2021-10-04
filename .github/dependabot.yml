@@ -3,18 +3,16 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
     labels:
       - "kind/dependencies"
     ignore:
-      - dependency-name: "parcel"
-      - dependency-name: "@parcel/*"
       - dependency-name: "@defichain/*"
 
   - package-ecosystem: 'npm'
     directory: '/website'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
     labels:
       - "kind/dependencies"
     ignore:
