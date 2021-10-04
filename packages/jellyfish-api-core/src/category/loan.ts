@@ -123,7 +123,7 @@ export class Loan {
   /**
    * Get collateral token.
    *
-   * @param {string} token
+   * @param {string} token symbol or id
    * @return {Promise<CollateralTokenDetails>} Collateral token result
    */
   async getCollateralToken (token: string): Promise<CollateralTokenDetails> {
