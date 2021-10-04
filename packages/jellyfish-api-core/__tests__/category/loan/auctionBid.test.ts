@@ -13,7 +13,6 @@ let bobVaultAddr: string
 let oracleId: string
 let timestamp: number
 let bobColAddr: string
-let bobLoanAddr: string
 
 async function setup (): Promise<void> {
   // token setup
@@ -102,7 +101,7 @@ async function setup (): Promise<void> {
   })
   await bob.generate(1)
 
-  bobLoanAddr = await bob.generateAddress()
+  const bobLoanAddr = await bob.generateAddress()
   await bob.rpc.loan.takeLoan({
     vaultId: bobVaultId,
     amounts: '1000@TSLA',
