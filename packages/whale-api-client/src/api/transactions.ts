@@ -76,6 +76,9 @@ export interface TransactionVin {
     n: number
     value: string
     tokenId?: number
+    script: {
+      hex: string
+    }
   }
   script?: {
     hex: string
