@@ -23,7 +23,7 @@ export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {
   }
 
   async index (block: RawBlock, txns: Array<DfTxTransaction<SetOracleData>>): Promise<void> {
-    const feeds = this.mapPriceFeeds(block, txns)
+    const feeds = mapPriceFeeds(block, txns)
     const pairs = new Set<[string, string]>()
 
     for (const feed of feeds) {
@@ -44,27 +44,6 @@ export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {
         price: aggregated
       })
     }
-  }
-
-  private mapPriceFeeds (block: RawBlock, txns: Array<DfTxTransaction<SetOracleData>>): OraclePriceFeed[] {
-    return txns.map(({ txn, dftx: { data } }) => {
-      return data.tokens.map((tokenPrice) => {
-        return tokenPrice.prices.map((tokenAmount): OraclePriceFeed => {
-          return {
-            id: `${tokenPrice.token}-${tokenAmount.currency}-${data.oracleId}-${txn.txid}`,
-            key: `${tokenPrice.token}-${tokenAmount.currency}-${data.oracleId}`,
-            sort: HexEncoder.encodeHeight(block.height) + txn.txid,
-            amount: tokenAmount.amount.toFixed(),
-            currency: tokenAmount.currency,
-            block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
-            oracleId: data.oracleId,
-            time: data.timestamp.toNumber(),
-            token: tokenPrice.token,
-            txid: txn.txid
-          }
-        })
-      })
-    }).flat(2)
   }
 
   private async mapPriceAggregated (block: RawBlock, token: string, currency: string): Promise<OraclePriceAggregated | undefined> {
@@ -117,7 +96,7 @@ export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {
   }
 
   async invalidate (block: RawBlock, txns: Array<DfTxTransaction<SetOracleData>>): Promise<void> {
-    const feeds = this.mapPriceFeeds(block, txns)
+    const feeds = mapPriceFeeds(block, txns)
     const pairs = new Set<[string, string]>()
 
     for (const feed of feeds) {
@@ -130,4 +109,25 @@ export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {
       // price ticker won't be deleted
     }
   }
+}
+
+export function mapPriceFeeds (block: RawBlock, txns: Array<DfTxTransaction<SetOracleData>>): OraclePriceFeed[] {
+  return txns.map(({ txn, dftx: { data } }) => {
+    return data.tokens.map((tokenPrice) => {
+      return tokenPrice.prices.map((tokenAmount): OraclePriceFeed => {
+        return {
+          id: `${tokenPrice.token}-${tokenAmount.currency}-${data.oracleId}-${txn.txid}`,
+          key: `${tokenPrice.token}-${tokenAmount.currency}-${data.oracleId}`,
+          sort: HexEncoder.encodeHeight(block.height) + txn.txid,
+          amount: tokenAmount.amount.toFixed(),
+          currency: tokenAmount.currency,
+          block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
+          oracleId: data.oracleId,
+          time: data.timestamp.toNumber(),
+          token: tokenPrice.token,
+          txid: txn.txid
+        }
+      })
+    })
+  }).flat(2)
 }

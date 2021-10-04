@@ -37,6 +37,10 @@ export class OraclePriceAggregatedMapper {
     return await this.database.put(OraclePriceAggregatedMapping, aggregated)
   }
 
+  async get (id: string): Promise<OraclePriceAggregated | undefined> {
+    return await this.database.get(OraclePriceAggregatedMapping, id)
+  }
+
   async delete (id: string): Promise<void> {
     return await this.database.delete(OraclePriceAggregatedMapping, id)
   }
