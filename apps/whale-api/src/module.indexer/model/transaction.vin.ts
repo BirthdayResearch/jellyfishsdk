@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Indexer, defid, RawBlock } from '@src/module.indexer/model/_abstract'
+import { defid, Indexer, RawBlock } from '@src/module.indexer/model/_abstract'
 import { TransactionVin, TransactionVinMapper } from '@src/module.model/transaction.vin'
 import { TransactionVout } from '@src/module.model/transaction.vout'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
@@ -49,7 +49,10 @@ export class TransactionVinIndexer extends Indexer {
         txid: vout.txid,
         n: vout.n,
         value: vout.value,
-        tokenId: vout.tokenId
+        tokenId: vout.tokenId,
+        script: {
+          hex: vout.script.hex
+        }
       } : undefined,
       script: vin.scriptSig !== undefined ? {
         hex: vin.scriptSig.hex

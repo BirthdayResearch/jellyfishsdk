@@ -60,6 +60,9 @@ export interface TransactionVin extends Model {
     n: number
     value: string
     tokenId?: number
+    script: {
+      hex: string
+    }
   }
 
   script?: {
