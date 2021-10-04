@@ -153,9 +153,9 @@ export class Loan {
 
   /**
    * Quick access to multiple API with consolidated total collateral and loan value.
-   * 1. @see {@link listCollateralTokens}
-   * 2. @see {@link listLoanTokens}
-   * 3. @see {@link listLoanSchemes}
+   * @see {@link listCollateralTokens}
+   * @see {@link listLoanTokens}
+   * @see {@link listLoanSchemes}
    *
    * @returns {Promise<GetLoanInfoResult>}
    */
