@@ -80,15 +80,13 @@ function mapErrorCode (exception: HttpException): HttpStatus {
     case HttpStatus.UNAUTHORIZED:
     case HttpStatus.FORBIDDEN:
     case HttpStatus.CONFLICT:
+    case HttpStatus.BAD_GATEWAY:
+    case HttpStatus.SERVICE_UNAVAILABLE:
       return exception.getStatus()
 
     case HttpStatus.GATEWAY_TIMEOUT:
     case HttpStatus.REQUEST_TIMEOUT:
       return HttpStatus.REQUEST_TIMEOUT
-
-    case HttpStatus.BAD_GATEWAY:
-    case HttpStatus.SERVICE_UNAVAILABLE:
-      return HttpStatus.SERVICE_UNAVAILABLE
 
     default:
       return HttpStatus.INTERNAL_SERVER_ERROR
@@ -120,8 +118,10 @@ function mapErrorType (exception: HttpException): ApiErrorType {
       return ApiErrorType.TimeoutError
 
     case HttpStatus.BAD_GATEWAY:
-    case HttpStatus.SERVICE_UNAVAILABLE:
       return ApiErrorType.BadGateway
+
+    case HttpStatus.SERVICE_UNAVAILABLE:
+      return ApiErrorType.ServiceUnavailable
 
     default:
       return ApiErrorType.UnknownError

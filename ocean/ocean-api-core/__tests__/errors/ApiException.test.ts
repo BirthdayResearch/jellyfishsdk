@@ -148,6 +148,22 @@ describe('raise all error types', () => {
     }).toThrow('502 - BadGateway (/raise) : message')
   })
 
+  it('should raise ServiceUnavailable', () => {
+    expect(() => {
+      ApiException.raiseIfError({
+        data: undefined,
+        error: {
+          code: 503,
+          type: ApiErrorType.ServiceUnavailable,
+          at: 1633280252888,
+          message: 'message',
+          url: '/raise',
+          payload: undefined
+        }
+      })
+    }).toThrow('503 - ServiceUnavailable (/raise) : message')
+  })
+
   it('should raise TimeoutError', () => {
     expect(() => {
       ApiException.raiseIfError({

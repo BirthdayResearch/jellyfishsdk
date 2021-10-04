@@ -8,6 +8,7 @@ export enum ApiErrorType {
   Forbidden = 'Forbidden',
   Unauthorized = 'Unauthorized',
   BadGateway = 'BadGateway',
+  ServiceUnavailable = 'ServiceUnavailable',
   TimeoutError = 'TimeoutError',
   UnknownError = 'UnknownError',
 }
