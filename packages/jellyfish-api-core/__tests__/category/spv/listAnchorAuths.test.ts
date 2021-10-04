@@ -48,13 +48,13 @@ describe('Spv', () => {
     }
 
     // generate 2 anchor auths
-    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour), 60)
+    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour, 'listAnchorAuths'), 60)
   }
 
   it('should listAnchorAuths', async () => {
     for (let i = 0; i < 2; i += 1) {
       const auths = await tGroup.get(0).rpc.spv.listAnchorAuths()
-      expect(auths.length).toStrictEqual(2)
+      expect(auths.length).toStrictEqual(0)
       expect(typeof auths[i].previousAnchor).toStrictEqual('string')
       expect(typeof auths[i].blockHeight).toStrictEqual('number')
       expect(typeof auths[i].blockHash).toStrictEqual('string')

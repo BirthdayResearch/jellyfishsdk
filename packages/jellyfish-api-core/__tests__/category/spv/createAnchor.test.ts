@@ -56,7 +56,7 @@ describe('Spv', () => {
     // set 3 hours because block height and hash chosen is then 3 hours
     // then every 15 blocks will be matched again
     // generate 2 anchor auths
-    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour), 60)
+    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour, 'createAnchor'), 60)
   }
 
   it('should be failed as invalid txid', async () => {

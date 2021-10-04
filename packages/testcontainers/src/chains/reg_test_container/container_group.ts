@@ -134,16 +134,12 @@ export class ContainerGroup {
    */
   async waitForAnchorAuths (genAnchorAuths: () => Promise<void>, height: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => { // check each container should be quorum ready
+      await genAnchorAuths()
       const cAuths = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('spv_listanchorauths')
       }))
-      if (cAuths.length > 0) {
-        for (let i = 0; i < cAuths[i].length; i += 1) {
-          return cAuths[i].every((auth: any) => auth.blockHeight <= height && auth.signers >= 2)
-        }
-      }
-      await genAnchorAuths()
-      return false
+      const bools = cAuths.map(auths => auths.find((auth: any) => auth.blockHeight <= height && auth.signers >= 2))
+      return bools.every(b => b !== undefined && b !== false)
     }, timeout, 100, 'waitForAnchorAuths')
   }
 
