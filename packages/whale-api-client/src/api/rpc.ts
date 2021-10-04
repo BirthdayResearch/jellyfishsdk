@@ -8,11 +8,12 @@ export class Rpc {
   }
 
   /**
-   * @param {string} method the RPC method
+   * @param {string} method of the RPC method
    * @param {any[]} params to send upstream
    * @param {Precision | PrecisionPath} precision for JSON parsing
    * @throws WhaleApiException instanceof for upstream errors
    * @throws WhaleClientException instanceof for local issues
+   * @returns {Promise<T>}
    */
   async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
     const body = JellyfishJSON.stringify({ params: params })

@@ -6,6 +6,8 @@ export class Transactions {
   }
 
   /**
+   * Get a Transaction
+   *
    * @param {string} id of transaction to query
    * @return {Promise<Transaction>}
    */
@@ -14,6 +16,8 @@ export class Transactions {
   }
 
   /**
+   * Get a list of vins of a Transaction
+   *
    * @param {string} txid of the transaction
    * @param {number} [size=30] size to query
    * @param {string} [next] next token for next slice of vin
@@ -24,6 +28,8 @@ export class Transactions {
   }
 
   /**
+   * Get a list of vouts of a Transaction
+   *
    * @param {string} txid of the transaction
    * @param {number} [size=30] size to query
    * @param {string} [next] next token for next slice of vout

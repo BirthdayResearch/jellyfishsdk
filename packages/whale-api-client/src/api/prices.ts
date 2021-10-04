@@ -9,20 +9,52 @@ export class Prices {
   constructor (private readonly client: WhaleApiClient) {
   }
 
+  /**
+   * Get a list of PriceTicker
+   *
+   * @param {number} [size=30] for the number of records per page
+   * @param {string} [next] offset for the next page
+   * @return {Promise<PriceTicker>}
+   */
   async list (size: number = 30, next?: string): Promise<ApiPagedResponse<PriceTicker>> {
     return await this.client.requestList('GET', 'prices', size, next)
   }
 
+  /**
+   * Get a PriceTicker
+   *
+   * @param {string} token symbol for the PriceTicker
+   * @param {string} currency fiat currency for the PriceTicker
+   * @return {Promise<PriceTicker>}
+   */
   async get (token: string, currency: string): Promise<PriceTicker> {
     const key = `${token}-${currency}`
     return await this.client.requestData('GET', `prices/${key}`)
   }
 
+  /**
+   * Get a list of rice feed
+   *
+   * @param {string} token symbol for the PriceTicker
+   * @param {string} currency fiat for the PriceTicker
+   * @param {number} [size=30] for number of records per page
+   * @param {string} [next] offset for the next page
+   * @return {Promise<ApiPagedResponse<PriceFeed>>}
+   */
   async getFeed (token: string, currency: string, size: number = 30, next?: string): Promise<ApiPagedResponse<PriceFeed>> {
     const key = `${token}-${currency}`
     return await this.client.requestList('GET', `prices/${key}/feed`, size, next)
   }
 
+  /**
+   * Get a list of Oracles
+   *
+   * @param {string} token symbol for the PriceOracle
+   * @param {string} currency fiat currency for the PriceOracle
+   * @param {number} [size=30] for number of records per page
+   * @param {string} [next] offset for the next page
+   * @return {Promise<ApiPagedResponse<PriceOracle>>}
+   */
   async getOracles (token: string, currency: string, size: number = 30, next?: string): Promise<ApiPagedResponse<PriceOracle>> {
     const key = `${token}-${currency}`
     return await this.client.requestList('GET', `prices/${key}/oracles`, size, next)
