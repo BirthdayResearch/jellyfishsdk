@@ -218,10 +218,18 @@ export class Loan {
   /**
    * List all available vaults.
    *
-   * @return {Promise<Record<string, VaultDetails>>} Object including details of the vaults.
+   * @param {VaultPagination} [pagination]
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @param {ListVaultOptions} [options]
+   * @param {string} [options.ownerAddress] Address of the vault owner
+   * @param {string} [options.loanSchemeId] Vault's loan scheme id
+   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
+   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
    */
-  async listVaults (): Promise<Record<string, VaultDetails>> {
-    return await this.client.call('listvaults', [], 'bignumber')
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
+    return await this.client.call('listvaults', [options, pagination], 'bignumber')
   }
 
   /**
@@ -348,6 +356,7 @@ export interface CreateVault {
 }
 
 export interface VaultDetails {
+  vaultId?: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
@@ -379,4 +388,16 @@ export interface DepositVault {
 export interface TakeLoanMetadata {
   vaultId: string
   amounts: string // amount@symbol
+}
+
+export interface VaultPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
+}
+
+export interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  isUnderLiquidation?: boolean
 }

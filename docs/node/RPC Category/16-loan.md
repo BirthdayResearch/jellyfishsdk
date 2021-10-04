@@ -330,6 +330,7 @@ interface loan {
 }
 
 interface VaultDetails {
+  vaultId?: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
@@ -354,10 +355,23 @@ List all available vaults.
 
 ```ts title="client.loan.listVaults()"
 interface loan {
-  listVaults (): Promise<Record<string, VaultDetails>>
+  listVaults (options: ListVaultOptions, pagination: VaultPagination): Promise<VaultDetails[]>
+}
+
+interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  isUnderLiquidation?: boolean
+}
+
+interface VaultPagination {
+  start?: number
+  including_start?: boolean
+  limit?: number
 }
 
 interface VaultDetails {
+  vaultId?: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
