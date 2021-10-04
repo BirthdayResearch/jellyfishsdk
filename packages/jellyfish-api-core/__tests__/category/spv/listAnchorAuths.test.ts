@@ -54,7 +54,7 @@ describe('Spv', () => {
   it('should listAnchorAuths', async () => {
     for (let i = 0; i < 2; i += 1) {
       const auths = await tGroup.get(0).rpc.spv.listAnchorAuths()
-      expect(auths.length).toStrictEqual(0)
+      expect(auths.length).toStrictEqual(2)
       expect(typeof auths[i].previousAnchor).toStrictEqual('string')
       expect(typeof auths[i].blockHeight).toStrictEqual('number')
       expect(typeof auths[i].blockHash).toStrictEqual('string')
