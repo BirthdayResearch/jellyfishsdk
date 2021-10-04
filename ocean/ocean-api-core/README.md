@@ -1,1 +1,0 @@
-# @defichain/ocean-api-core
