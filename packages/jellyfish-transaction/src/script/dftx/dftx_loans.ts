@@ -1,5 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
-import { CTokenBalanceVarInt, TokenBalanceVarInt } from '@defichain/jellyfish-transaction'
+import { CTokenBalanceVarInt, TokenBalanceVarInt } from './dftx_balance'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'

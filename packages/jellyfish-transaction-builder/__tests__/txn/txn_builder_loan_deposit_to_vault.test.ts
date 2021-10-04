@@ -71,7 +71,6 @@ describe('Loan', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       priceFeedId: 'DFI/USD'
-      // activateAfterBlock: 130  // <- hit socket hang up
     })
     await tGroup.get(0).generate(1)
 
@@ -212,7 +211,7 @@ describe('Loan', () => {
     await fundEllipticPair(tGroup.get(1).container, newProviders.ellipticPair, 10)
     // 2 DFI utxo to account
     await tGroup.get(1).token.dfi({ address: await newProviders.getAddress(), amount: 2 })
-    await tGroup.get(1).generate(1) // NOTE(surangap): mempool shit
+    await tGroup.get(1).generate(1) // NOTE(surangap): mempool problem?
 
     // fund elliptic pair with 10 DFI for fees
     await fundEllipticPair(tGroup.get(1).container, newProviders.ellipticPair, 10)
@@ -251,7 +250,7 @@ describe('Loan', () => {
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
-    // Fund 10 DFI UTXO to providers.getAddress() for fees // NOTE(surangap)
+    // Fund 10 DFI UTXO to providers.getAddress() for fees
     await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
 
     const script = await providers.elliptic.script()
