@@ -24,7 +24,7 @@ export class TestingToken {
 
   async dfi (options: TestingTokenDFI): Promise<string> {
     const { amount, address } = options
-    await this.container.waitForWalletBalanceGTE(new BigNumber(amount).toNumber())
+    await this.container.waitForWalletBalanceGTE(new BigNumber(amount).toNumber(), 60000)
 
     const to = address ?? await this.container.getNewAddress()
     const account = `${new BigNumber(amount).toFixed(8)}@0`
