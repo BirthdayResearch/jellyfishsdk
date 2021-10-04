@@ -3,34 +3,34 @@ import { StubService } from '../stub.service'
 import { WhaleApiClient } from '../../src'
 import { StubWhaleApiClient } from '../stub.client'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-
-let container: MasterNodeRegTestContainer
-let service: StubService
-let rpcClient: JsonRpcClient
-let apiClient: WhaleApiClient
-
-beforeAll(async () => {
-  container = new MasterNodeRegTestContainer()
-  service = new StubService(container)
-  apiClient = new StubWhaleApiClient(service)
-
-  await container.start()
-  await container.waitForReady()
-  await container.waitForWalletCoinbaseMaturity()
-  await service.start()
-
-  rpcClient = new JsonRpcClient(await container.getCachedRpcUrl())
-})
-
-afterAll(async () => {
-  try {
-    await service.stop()
-  } finally {
-    await container.stop()
-  }
-})
+import { PriceFeedTimeInterval } from '@whale-api-client/api/prices'
 
 describe('oracles', () => {
+  let container: MasterNodeRegTestContainer
+  let service: StubService
+  let rpcClient: JsonRpcClient
+  let apiClient: WhaleApiClient
+
+  beforeAll(async () => {
+    container = new MasterNodeRegTestContainer()
+    service = new StubService(container)
+    apiClient = new StubWhaleApiClient(service)
+
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await service.start()
+
+    rpcClient = new JsonRpcClient(await container.getCachedRpcUrl())
+  })
+
+  afterAll(async () => {
+    try {
+      await service.stop()
+    } finally {
+      await container.stop()
+    }
+  })
   interface OracleSetup {
     id: string
     address: string
@@ -234,5 +234,93 @@ describe('oracles', () => {
         }
       })
     })
+  })
+})
+
+describe('pricefeed with interval', () => {
+  let container: MasterNodeRegTestContainer
+  let service: StubService
+  let client: JsonRpcClient
+  let apiClient: WhaleApiClient
+
+  beforeAll(async () => {
+    container = new MasterNodeRegTestContainer()
+    service = new StubService(container)
+    apiClient = new StubWhaleApiClient(service)
+
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+    await service.start()
+
+    client = new JsonRpcClient(await container.getCachedRpcUrl())
+  })
+
+  afterAll(async () => {
+    try {
+      await service.stop()
+    } finally {
+      await container.stop()
+    }
+  })
+
+  it('should get interval', async () => {
+    const address = await container.getNewAddress()
+    const oracleId = await client.oracle.appointOracle(address, [
+      { token: 'S1', currency: 'USD' }
+    ], {
+      weightage: 1
+    })
+    await container.generate(1)
+
+    const oneMinute = 60
+    const timeNow = Math.floor(new Date().getTime() / 1000)
+    for (let i = 0; i < 60; i++) {
+      const mockTime = timeNow + i * oneMinute
+      const price = (i + 1).toFixed(2)
+      await client.oracle.setOracleData(oracleId, timeNow + 5 * 60 - 1, {
+        prices: [
+          { tokenAmount: `${price}@S1`, currency: 'USD' }
+        ]
+      })
+      await client.call('setmocktime', [mockTime], 'number')
+      await container.generate(1)
+    }
+
+    const height = await container.getBlockCount()
+    await container.generate(1)
+    await service.waitForIndexedHeight(height)
+
+    const noInterval = await apiClient.prices.getFeed('S1', 'USD', 60)
+    expect(noInterval.length).toStrictEqual(60)
+
+    const interval5Minutes = await apiClient.prices.getFeedWithInterval('S1', 'USD', PriceFeedTimeInterval.FIVE_MINUTES, 60)
+    expect(interval5Minutes.length).toStrictEqual(10)
+    expect(interval5Minutes.map(x => x.aggregated.amount)).toStrictEqual(
+      [
+        '60.00000000',
+        '56.50000000',
+        '50.50000000',
+        '44.50000000',
+        '38.50000000',
+        '32.50000000',
+        '26.50000000',
+        '20.50000000',
+        '14.50000000',
+        '6.00000000'
+      ]
+    )
+
+    const interval10Minutes = await apiClient.prices.getFeedWithInterval('S1', 'USD', PriceFeedTimeInterval.TEN_MINUTES, 60)
+    expect(interval10Minutes.length).toStrictEqual(5)
+    expect(interval10Minutes.map(x => x.aggregated.amount)).toStrictEqual(
+      [
+        '55.00000000',
+        '44.00000000',
+        '33.00000000',
+        '22.00000000',
+        '8.50000000'
+      ]
+    )
   })
 })
