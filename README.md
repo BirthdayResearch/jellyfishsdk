@@ -49,7 +49,6 @@ Package                                            | Description
 `@defichain/jellyfish-wallet-encrypted`            | Library to encrypt MnemonicHdNode as EncryptedMnemonicHdNode. Able to perform as MnemonicHdNode with passphrase known.
 `@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
-~~@defichain/jellyfish~~                           | (deprecated) ~~Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts~~
 ~~@defichain/testing~~                             | (deprecated) ~~Provides rich test fixture setup functions for effective and effortless testing.~~
 
 ## Developing & Contributing
@@ -60,10 +59,10 @@ the way to make it merge-able. Here are some of our documented [contributing gui
 ## Security issues
 
 If you discover a security vulnerability in
-`@defichain/jellyfish`, [please see submit it privately](https://github.com/DeFiCh/.github/blob/main/SECURITY.md).
+`DeFiCh/jellyfish`, [please see submit it privately](https://github.com/DeFiCh/.github/blob/main/SECURITY.md).
 
 ## License & Disclaimer
 
-By using `@defichain/jellyfish` (this repo), you (the user) agree to be bound by [the terms of this license](LICENSE).
+By using `DeFiCh/jellyfish` (this repo), you (the user) agree to be bound by [the terms of this license](LICENSE).
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FDeFiCh%2Fjellyfish?ref=badge_large)

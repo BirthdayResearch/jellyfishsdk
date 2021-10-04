@@ -38,5 +38,4 @@ Package                                            | Description
 `@defichain/jellyfish-wallet-encrypted`            | Library to encrypt MnemonicHdNode as EncryptedMnemonicHdNode. Able to perform as MnemonicHdNode with passphrase known.
 `@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
-~~@defichain/jellyfish~~                           | (deprecated) ~~Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts~~
 ~~@defichain/testing~~                             | (deprecated) ~~Provides rich test fixture setup functions for effective and effortless testing.~~
