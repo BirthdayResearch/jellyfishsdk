@@ -6,7 +6,7 @@ slug: /jellyfish/api/loan
 ---
 
 ```js
-import { Client } from '@defichain/jellyfish'
+import {Client} from '@defichain/jellyfish'
 const client = new Client()
 
 // Using client.loan.
