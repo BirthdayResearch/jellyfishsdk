@@ -197,13 +197,19 @@ describe('Loan updateVault', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot find existing loan scheme with id 1234\', code: -32600, method: updatevault')
   })
 
+  it('should not updateVault if owner address and loanSchemeId are not set', async () => {
+    const promise = testing.rpc.loan.updateVault(createVaultId, {})
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'At least ownerAddress OR loanSchemeId must be set\', code: -8, method: updatevault')
+  })
+
   // There is a bug in the c++ side
   // it('should updateVault with utxos', async () => {
   //   const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
   //   const createVaultId = await testing.rpc.loan.createVault({
   //     ownerAddress: GenesisKeys[0].owner.address,
   //     loanSchemeId: 'scheme'
-  //   }, [{ txid, vout }])
+  //   })
   //   await testing.generate(1)
   //
   //   const updateVaultId = await testing.rpc.loan.updateVault(createVaultId, {
