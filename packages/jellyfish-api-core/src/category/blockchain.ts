@@ -69,12 +69,12 @@ export class Blockchain {
   async getBlock<T> (hash: string, verbosity: 0 | 1 | 2): Promise<string | Block<T>> {
     return await this.client.call('getblock', [hash, verbosity], verbosity === 2
       ? {
-        tx: {
-          vout: {
-            value: 'bignumber'
+          tx: {
+            vout: {
+              value: 'bignumber'
+            }
           }
         }
-      }
       : 'number')
   }
 
