@@ -6,6 +6,9 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
+/**
+ * Universal OceanApi Testing framework.
+ */
 export class OceanApiTesting {
   constructor (
     private readonly testingGroup: TestingGroup,
@@ -46,7 +49,15 @@ export class OceanApiTesting {
   }
 
   /**
-   * Starts connected services for testing.
+   * @param {boolean} bool to enable PlaygroundModule for OceanApiTest
+   * @see PlaygroundModule
+   */
+  playgroundEnable (bool: boolean): void {
+    this.stubServer.playgroundEnable = bool
+  }
+
+  /**
+   * Start connected services for testing.
    *
    * @see TestingGroup
    * @see Testing

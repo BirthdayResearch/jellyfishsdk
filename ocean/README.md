@@ -22,4 +22,4 @@ via [jellyfish.defichain.com](https://jellyfish.defichain.com).
 
 ### @defichain/ocean-api-server
 
-### @defichain/ocean-api-playground
+### @defichain/ocean-playground

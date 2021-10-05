@@ -115,3 +115,8 @@ labels:
     sync: true
     matcher:
       files: "ocean/ocean-api-server/**"
+
+  - label: area/ocean-playground
+    sync: true
+    matcher:
+      files: "ocean/ocean-playground/**"

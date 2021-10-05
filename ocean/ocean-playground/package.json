@@ -1,6 +1,6 @@
 {
   "private": false,
-  "name": "@defichain/ocean-api-server",
+  "name": "@defichain/ocean-playground",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
   "keywords": [
@@ -35,24 +35,8 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
-    "@defichain/ocean-api-core": "0.0.0",
-    "@defichain/ocean-playground": "0.0.0",
-    "@defichain/jellyfish-api-core": "0.0.0",
-    "@nestjs/common": "^8.0.8",
-    "@nestjs/config": "^1.0.1",
-    "@nestjs/core": "^8.0.8",
-    "@nestjs/platform-fastify": "^8.0.8",
-    "@nestjs/schedule": "^1.0.1",
-    "@nestjs/terminus": "^8.0.1",
-    "cache-manager": "^3.4.4",
-    "class-transformer": "^0.4.0",
-    "class-validator": "^0.13.1",
-    "joi": "^17.4.2"
+    "@defichain/jellyfish-api-core": "0.0.0"
   },
   "devDependencies": {
-    "@defichain/ocean-api-server": "0.0.0",
-    "@nestjs/cli": "^8.1.1",
-    "@nestjs/schematics": "^8.0.3",
-    "@nestjs/testing": "^8.0.8"
   }
 }

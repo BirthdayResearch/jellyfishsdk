@@ -38,6 +38,7 @@
 /ocean/ocean-api-client                         @fuxingloh
 /ocean/ocean-api-core                           @fuxingloh
 /ocean/ocean-api-server                         @fuxingloh
+/ocean/ocean-playground                         @fuxingloh
 
 lerna.json                                      @fuxingloh @canonbrother
 tsconfig.json                                   @fuxingloh @canonbrother @ivan-zynesis

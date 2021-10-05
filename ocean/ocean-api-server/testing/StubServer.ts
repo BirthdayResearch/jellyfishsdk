@@ -10,6 +10,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
  * Configures a TestingModule that is configured to connect to a provided @defichain/testcontainers.
  */
 export class StubServer extends RootServer {
+  /**
+   * @see PlaygroundModule
+   */
+  public playgroundEnable: boolean = false
+
   constructor (private readonly container: MasterNodeRegTestContainer) {
     super()
   }
@@ -20,7 +25,10 @@ export class StubServer extends RootServer {
       imports: [
         RootModule,
         ConfigModule.forFeature(() => {
-          return { FULL_NODE_URL: url }
+          return {
+            FULL_NODE_URL: url,
+            PLAYGROUND_ENABLE: this.playgroundEnable
+          }
         })
       ]
     }).compile()
