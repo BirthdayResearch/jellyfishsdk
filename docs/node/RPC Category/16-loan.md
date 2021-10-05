@@ -178,12 +178,6 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
-}
-
-interface GetCollateralToken {
-  token?: string
-  height?: number
   getCollateralToken (token: string): Promise<CollateralTokenDetails>
 }
 
