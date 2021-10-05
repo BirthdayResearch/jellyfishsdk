@@ -102,6 +102,8 @@
   name: area/ocean-api-core
 - color: fbca04
   name: area/ocean-api-server
+- color: fbca04
+  name: area/ocean-playground
 
 # Priority
 - color: d93f0b

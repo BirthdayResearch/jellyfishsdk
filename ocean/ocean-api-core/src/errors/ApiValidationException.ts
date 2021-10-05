@@ -11,7 +11,7 @@ export interface ApiValidationProperty {
 }
 
 /**
- * Rich constraints validation error coming from DeFi Whale API.
+ * Rich constraints validation error coming from Ocean API.
  */
 export class ApiValidationException extends ApiException<{ properties: ApiValidationProperty[] }> {
   /**

@@ -60,6 +60,7 @@ issue:
         - ocean-api-client
         - ocean-api-core
         - ocean-api-server
+        - ocean-api-playground
       multiple: true
       needs:
         comment: |

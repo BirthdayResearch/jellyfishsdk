@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config'
 
 /**
  * Client stubs are simulations of a real client, which are used for functional testing.
- * StubWhaleApiClient simulate a real WhaleApiClient connected to a DeFi Whale Service.
+ * StubClient simulate a real OceanApiClient connected to a Ocean API.
  */
 export class StubClient extends OceanApiClient {
   constructor (readonly service: StubServer) {
