@@ -138,7 +138,7 @@ describe('Loan', () => {
       const txn = await builder.loans.depositToVault({
         vaultId: vaultId,
         from: script,
-        amount: { token: 0, amount: new BigNumber(10000) }
+        tokenAmount: { token: 0, amount: new BigNumber(10000) }
       }, script)
 
       // Ensure the created txn is correct
@@ -170,7 +170,7 @@ describe('Loan', () => {
       const txn = await builder.loans.depositToVault({
         vaultId: vaultId,
         from: script,
-        amount: { token: 1, amount: new BigNumber(1) }
+        tokenAmount: { token: 1, amount: new BigNumber(1) }
       }, script)
 
       // Ensure the created txn is correct
@@ -218,7 +218,7 @@ describe('Loan', () => {
     const txn = await newBuilder.loans.depositToVault({
       vaultId: vaultId,
       from: newScript,
-      amount: { token: 0, amount: new BigNumber(2) }
+      tokenAmount: { token: 0, amount: new BigNumber(2) }
     }, newScript)
 
     const outs = await sendTransaction(tGroup.get(1).container, txn)
@@ -256,7 +256,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      amount: { token: 1, amount: new BigNumber(1) }
+      tokenAmount: { token: 1, amount: new BigNumber(1) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -273,7 +273,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      amount: { token: 0, amount: new BigNumber(99999) }
+      tokenAmount: { token: 0, amount: new BigNumber(99999) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -289,7 +289,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: fromScript,
-      amount: { token: 0, amount: new BigNumber(1) }
+      tokenAmount: { token: 0, amount: new BigNumber(1) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -302,7 +302,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: '0'.repeat(64),
       from: script,
-      amount: { token: 0, amount: new BigNumber(99999) }
+      tokenAmount: { token: 0, amount: new BigNumber(99999) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -331,7 +331,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      amount: { token: 1, amount: new BigNumber(0.11) }
+      tokenAmount: { token: 1, amount: new BigNumber(0.11) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -347,7 +347,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: liqVaultId,
       from: script,
-      amount: { token: 0, amount: new BigNumber(1000) }
+      tokenAmount: { token: 0, amount: new BigNumber(1000) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)

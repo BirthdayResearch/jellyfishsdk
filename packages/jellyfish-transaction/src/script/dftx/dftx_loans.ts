@@ -215,9 +215,9 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
  * DepositToVault DeFi Transaction
  */
 export interface DepositToVault {
-  vaultId: string // ---------------| 32 bytes, Vault Id
-  from: Script // ------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
-  amount: TokenBalanceVarInt // ----| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
+  vaultId: string // ------------------| 32 bytes, Vault Id
+  from: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
+  tokenAmount: TokenBalanceVarInt // --| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
 }
 
 /**
@@ -232,7 +232,7 @@ export class CDepositToVault extends ComposableBuffer<DepositToVault> {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => dtv.vaultId, v => dtv.vaultId = v),
       ComposableBuffer.single<Script>(() => dtv.from, v => dtv.from = v, v => new CScript(v)),
-      ComposableBuffer.single<TokenBalanceVarInt>(() => dtv.amount, v => dtv.amount = v, v => new CTokenBalanceVarInt(v))
+      ComposableBuffer.single<TokenBalanceVarInt>(() => dtv.tokenAmount, v => dtv.tokenAmount = v, v => new CTokenBalanceVarInt(v))
     ]
   }
 }

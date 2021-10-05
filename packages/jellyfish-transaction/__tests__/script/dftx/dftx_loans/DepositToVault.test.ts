@@ -59,7 +59,7 @@ const depositToVault: DepositToVault = {
       OP_CODES.OP_PUSHDATA_HEX_LE('88d52b9b1dded932272e0c9bebb0dccdd46ecf99')
     ]
   },
-  amount: { token: 0, amount: new BigNumber(10000) }
+  tokenAmount: { token: 0, amount: new BigNumber(10000) }
 }
 
 it('should craft dftx with OP_CODES._()', () => {
