@@ -29,7 +29,8 @@
       "error",
       2,
       {
-        "offsetTernaryExpressions": true
+        "offsetTernaryExpressions": true,
+        "SwitchCase": 1
       }
     ],
     "import/no-default-export": "error"
