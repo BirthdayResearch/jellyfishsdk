@@ -232,6 +232,17 @@ export class Spv {
   async setLastHeight (height: number): Promise<void> {
     return await this.client.call('spv_setlastheight', [height], 'number')
   }
+
+  /**
+   * Gets all HTLC contracts stored in wallet and creates refunds transactions for all that have expired
+   *
+   * @param {string} destinationAddress Destination for funds in the HTLC
+   * @param {SpvDefaultOptions} [options]
+   * @return {Promise<RefundHTCLAllResult>}
+   */
+  async refundHTLCAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<RefundHTCLAllResult> {
+    return await this.client.call('spv_refundhtlcall', [destinationAddress, options.feeRate], 'number')
+  }
 }
 
 export interface ReceivedByAddressInfo {
@@ -427,4 +438,8 @@ export interface ListAnchorAuthsResult {
   signers: number
   /** anchor signees address */
   signees?: string[]
+}
+
+export interface RefundHTCLAllResult {
+  txid: string
 }
