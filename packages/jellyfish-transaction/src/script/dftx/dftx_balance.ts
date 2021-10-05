@@ -38,3 +38,24 @@ export class CScriptBalances extends ComposableBuffer<ScriptBalances> {
     ]
   }
 }
+
+/**
+ * TokenBalanceVarInt
+ */
+export interface TokenBalanceVarInt {
+  token: number // ---------------------| VarUInt{1-9 bytes}
+  amount: BigNumber // -----------------| 8 bytes unsigned
+}
+
+/**
+ * Composable TokenBalanceVarInt, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenBalanceVarInt extends ComposableBuffer<TokenBalanceVarInt> {
+  composers (tb: TokenBalanceVarInt): BufferComposer[] {
+    return [
+      ComposableBuffer.varUInt(() => tb.token, v => tb.token = v),
+      ComposableBuffer.satoshiAsBigNumber(() => tb.amount, v => tb.amount = v)
+    ]
+  }
+}
