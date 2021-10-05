@@ -152,7 +152,12 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens (): Promise<CollateralTokensData>
+  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData>
+}
+
+interface ListCollateralTokens {
+  height?: number
+  all?: boolean
 }
 
 interface CollateralTokensData {
@@ -165,11 +170,6 @@ interface CollateralTokenDetails {
   priceFeedId: string
   activateAfterBlock: BigNumber
 }
-
-interface UTXO {
-  txid: string
-  vout: number
-}
 ```
 
 ## getCollateralToken
@@ -178,12 +178,7 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
-}
-
-interface GetCollateralToken {
-  token?: string
-  height?: number
+  getCollateralToken (token: string): Promise<CollateralTokenDetails>
 }
 
 interface CollateralTokenDetails {
@@ -262,7 +257,7 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenResult[]>
+  listLoanTokens (): Promise<ListLoanTokenResult>
 }
 
 interface ListLoanTokenResult {
