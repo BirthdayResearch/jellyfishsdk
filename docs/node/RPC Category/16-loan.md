@@ -19,10 +19,7 @@ Creates a loan scheme transaction.
 
 ```ts title="client.loan.createLoanScheme()"
 interface loan {
-  createLoanScheme(
-    scheme: CreateLoanScheme,
-    utxos: UTXO[] = []
-  ): Promise<string>
+  createLoanScheme (scheme: CreateLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
 interface CreateLoanScheme {
@@ -43,10 +40,7 @@ Updates an existing loan scheme.
 
 ```ts title="client.loan.updateLoanScheme()"
 interface loan {
-  updateLoanScheme(
-    scheme: UpdateLoanScheme,
-    utxos: UTXO[] = []
-  ): Promise<string>
+  updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UpdateLoanScheme {
@@ -68,7 +62,7 @@ List all available loan schemes.
 
 ```ts title="client.loan.listLoanSchemes()"
 interface loan {
-  listLoanSchemes(): Promise<LoanSchemeResult[]>
+  listLoanSchemes (): Promise<LoanSchemeResult[]>
 }
 
 interface LoanSchemeResult {
@@ -85,7 +79,7 @@ Get loan scheme.
 
 ```ts title="client.loan.getLoanScheme()"
 interface loan {
-  getLoanScheme(id: string): Promise<GetLoanSchemeResult>
+  getLoanScheme (id: string): Promise<GetLoanSchemeResult>
 }
 
 interface GetLoanSchemeResult {
@@ -101,7 +95,7 @@ Sets the default loan scheme.
 
 ```ts title="client.loan.setDefaultLoanScheme()"
 interface loan {
-  setDefaultLoanScheme(id: string, utxos: UTXO[] = []): Promise<string>
+  setDefaultLoanScheme (id: string, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UTXO {
@@ -116,10 +110,7 @@ Destroys a loan scheme.
 
 ```ts title="client.loan.destroyLoanScheme()"
 interface loan {
-  destroyLoanScheme(
-    scheme: DestroyLoanScheme,
-    utxos: UTXO[] = []
-  ): Promise<string>
+  destroyLoanScheme (scheme: DestroyLoanScheme, utxos: UTXO[] = []): Promise<string>
 }
 
 interface DestroyLoanScheme {
@@ -139,10 +130,7 @@ Set a collateral token transaction.
 
 ```ts title="client.loan.setCollateralToken()"
 interface loan {
-  setCollateralToken(
-    collateralToken: SetCollateralToken,
-    utxos: UTXO[] = []
-  ): Promise<string>
+  setCollateralToken (collateralToken: SetCollateralToken, utxos: UTXO[] = []): Promise<string>
 }
 
 interface SetCollateralToken {
@@ -164,9 +152,7 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens(
-    collateralToken: ListCollateralTokens = {}
-  ): Promise<CollateralTokensData>
+  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData>
 }
 
 interface ListCollateralTokens {
@@ -192,15 +178,13 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken(
-    collateralToken: GetCollateralToken = {}
-  ): Promise<CollateralTokenDetails>
+  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
 }
 
 interface GetCollateralToken {
   token?: string
   height?: number
-  getCollateralToken(token: string): Promise<CollateralTokenDetails>
+  getCollateralToken (token: string): Promise<CollateralTokenDetails>
 }
 
 interface CollateralTokenDetails {
@@ -217,7 +201,7 @@ Quick access to multiple API with consolidated total collateral and loan value.
 
 ```ts title="client.loan.getLoanInfo()"
 interface loan {
-  getLoanInfo(): Promise<GetLoanInfoResult>
+  getLoanInfo (): Promise<GetLoanInfoResult>
 }
 
 interface GetLoanInfoResult {
@@ -272,7 +256,7 @@ Creates (and submits to local node and network) a token for a price feed set in 
 
 ```ts title="client.loan.setLoanToken()"
 interface loan {
-  setLoanToken(loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
+  setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string>
 }
 
 interface SetLoanToken {
@@ -295,11 +279,7 @@ Updates an existing loan token.
 
 ```ts title="client.loan.updateLoanToken()"
 interface loan {
-  updateLoanToken(
-    oldToken: string,
-    newTokenDetails: UpdateLoanToken,
-    utxos: UTXO[] = []
-  ): Promise<string>
+  updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
 }
 
 interface UpdateLoanToken {
@@ -322,7 +302,7 @@ Get interest info.
 
 ```ts title="client.loan.getInterest()"
 interface loan {
-  getInterest(id: string, token?: string): Promise<Interest[]>
+  getInterest (id: string, token?: string): Promise<Interest[]>
 }
 
 interface Interest {
@@ -338,7 +318,7 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens(): Promise<ListLoanTokenResult>
+  listLoanTokens (): Promise<ListLoanTokenResult>
 }
 
 interface ListLoanTokenResult {
@@ -382,7 +362,7 @@ Creates a vault transaction.
 
 ```ts title="client.loan.createVault()"
 interface loan {
-  createVault(vault: CreateVault, utxos: UTXO[] = []): Promise<string>
+  createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
 }
 
 interface CreateVault {
@@ -402,7 +382,7 @@ Returns information about vault.
 
 ```ts title="client.loan.getVault()"
 interface loan {
-  getVault(vaultId: string): Promise<VaultDetails>
+  getVault (vaultId: string): Promise<VaultDetails>
 }
 
 interface VaultDetails {
@@ -430,10 +410,7 @@ Deposit to vault.
 
 ```ts title="client.loan.depositToVault()"
 interface loan {
-  depositToVault(
-    depositVault: DepositVault,
-    utxos: UTXO[] = []
-  ): Promise<string>
+  depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string>
 }
 
 interface DepositVault {
@@ -454,7 +431,7 @@ Take loan.
 
 ```ts title="client.loan.takeLoan()"
 interface loan {
-  takeLoan(metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string>
+  takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
 interface TakeLoanMetadata {
