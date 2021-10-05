@@ -38,10 +38,10 @@
     "@defichain/ocean-api-core": "0.0.0",
     "@defichain/ocean-playground": "0.0.0",
     "@defichain/jellyfish-api-core": "0.0.0",
-    "@nestjs/common": "^8.0.8",
-    "@nestjs/config": "^1.0.1",
-    "@nestjs/core": "^8.0.8",
-    "@nestjs/platform-fastify": "^8.0.8",
+    "@nestjs/common": "^8.0.10",
+    "@nestjs/config": "^1.0.2",
+    "@nestjs/core": "^8.0.10",
+    "@nestjs/platform-fastify": "^8.0.10",
     "@nestjs/schedule": "^1.0.1",
     "@nestjs/terminus": "^8.0.1",
     "cache-manager": "^3.4.4",
@@ -51,8 +51,8 @@
   },
   "devDependencies": {
     "@defichain/ocean-api-server": "0.0.0",
-    "@nestjs/cli": "^8.1.1",
+    "@nestjs/cli": "^8.1.2",
     "@nestjs/schematics": "^8.0.3",
-    "@nestjs/testing": "^8.0.8"
+    "@nestjs/testing": "^8.0.10"
   }
 }
