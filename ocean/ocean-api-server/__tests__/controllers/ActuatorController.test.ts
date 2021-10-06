@@ -70,7 +70,7 @@ describe('no peers', () => {
         at: expect.any(Number),
         code: 503,
         message: 'Service Unavailable Exception',
-        type: 'BadGateway',
+        type: 'ServiceUnavailable',
         url: '/_actuator/probes/readiness'
       }
     })
