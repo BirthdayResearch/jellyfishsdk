@@ -17,7 +17,6 @@
     "node": ">=14.x"
   },
   "scripts": {
-    "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
     "website:build": "npm run build --workspace=website",
     "build": "lerna run --scope '@defichain/*' build",
