@@ -1,6 +1,11 @@
+import { RegTestGenesisKeys } from '@defichain/jellyfish-network'
+
 export { DockerOptions } from 'dockerode'
 
-export * from './testkeys'
+/**
+ * @deprecated use `import { RegTestGenesisKeys } from '@defichain/jellyfish-network'`
+ */
+export const GenesisKeys = RegTestGenesisKeys
 
 export * from './chains/defid_container'
 export * from './chains/main_net_container'
