@@ -7,6 +7,7 @@ import { PoolPairService } from '@src/module.api/poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PriceTickerMapper } from '@src/module.model/price.ticker'
 import { MasternodeStats, MasternodeStatsMapper } from '@src/module.model/masternode.stats'
+import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/blockchain'
 
 @Controller('/stats')
 export class StatsController {
@@ -22,15 +23,14 @@ export class StatsController {
 
   @Get()
   async get (): Promise<StatsData> {
-    const block = await this.blockMapper.getHighest()
-    const height = requireValue(block?.height, 'count.blocks')
+    const block = requireValue(await this.blockMapper.getHighest(), 'block')
 
     const masternodes = await this.cachedGet('masternodes', this.getMasternodes.bind(this), 300)
 
     return {
       count: {
         ...await this.cachedGet('count', this.getCount.bind(this), 1800),
-        blocks: height
+        blocks: block.height
       },
       burned: await this.cachedGet('burned', this.getBurned.bind(this), 1800),
       tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 300),
@@ -38,8 +38,9 @@ export class StatsController {
       masternodes: {
         locked: masternodes.locked
       },
+      emission: await this.cachedGet('emission', this.getEmission.bind(this), 1800),
       blockchain: {
-        difficulty: block?.difficulty ?? 0
+        difficulty: block.difficulty
       }
     }
   }
@@ -118,6 +119,57 @@ export class StatsController {
       })
     }
   }
+
+  private async getEmission (): Promise<StatsData['emission']> {
+    const blockInfo = requireValue(await this.getBlockChainInfo(), 'emission')
+    const eunosHeight = blockInfo.softforks.eunos.height ?? 0
+
+    return getEmission(eunosHeight, blockInfo.blocks)
+  }
+
+  private async getBlockChainInfo (): Promise<BlockchainInfo | undefined> {
+    return await this.cache.get<BlockchainInfo>('BLOCK_INFO', async () => {
+      return await this.rpcClient.blockchain.getBlockchainInfo()
+    })
+  }
+}
+
+export function getEmission (eunosHeight: number, height: number): StatsData['emission'] {
+  const total = getBlockSubsidy(eunosHeight, height)
+  const masternode = new BigNumber(new BigNumber('0.3333').times(total).toFixed(8))
+  const dex = new BigNumber(new BigNumber('0.2545').times(total).toFixed(8))
+  const community = new BigNumber(new BigNumber('0.0491').times(total).toFixed(8))
+  const anchor = new BigNumber(new BigNumber('0.0002').times(total).toFixed(8))
+  const burned = total.minus(masternode.plus(dex).plus(community).plus(anchor))
+
+  return {
+    masternode: masternode.toNumber(),
+    dex: dex.toNumber(),
+    community: community.toNumber(),
+    anchor: anchor.toNumber(),
+    burned: burned.toNumber(),
+    total: total.toNumber()
+  }
+}
+
+export function getBlockSubsidy (eunosHeight: number, height: number): BigNumber {
+  let blockSubsidy = new BigNumber(405.04)
+
+  if (height >= eunosHeight) {
+    const reductionAmount = new BigNumber(0.01658) // 1.658%
+    const reductions = Math.floor((height - eunosHeight) / 32690) // Two weeks
+
+    for (let i = reductions; i > 0; i--) {
+      const amount = reductionAmount.times(blockSubsidy)
+      if (amount.lte(0.00001)) {
+        return new BigNumber(0)
+      }
+
+      blockSubsidy = blockSubsidy.minus(amount)
+    }
+  }
+
+  return blockSubsidy
 }
 
 function requireValue<T> (value: T | undefined, name: string): T {
