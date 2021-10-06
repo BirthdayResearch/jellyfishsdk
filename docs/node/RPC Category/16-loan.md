@@ -355,7 +355,7 @@ List all available vaults.
 
 ```ts title="client.loan.listVaults()"
 interface loan {
-  listVaults (options: ListVaultOptions, pagination: VaultPagination): Promise<VaultDetails[]>
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
 }
 
 interface ListVaultOptions {
@@ -365,7 +365,7 @@ interface ListVaultOptions {
 }
 
 interface VaultPagination {
-  start?: number
+  start?: string
   including_start?: boolean
   limit?: number
 }

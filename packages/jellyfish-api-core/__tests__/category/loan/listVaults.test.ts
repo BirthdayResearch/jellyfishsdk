@@ -2,7 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 
-describe('Loan listVault', () => {
+describe('Loan listVaults', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string
@@ -127,7 +127,7 @@ describe('Loan listVault', () => {
   })
 })
 
-describe('Loan listVault with options and pagination', () => {
+describe('Loan listVaults with options and pagination', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string
@@ -295,7 +295,7 @@ describe('Loan listVault with options and pagination', () => {
 
     // fetch the second page
     const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId })
-    // should be 2 entries
+    // should be 1 entries
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(1)
 
     // fetch the second page with including_start = true
