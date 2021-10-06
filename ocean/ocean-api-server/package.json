@@ -38,6 +38,7 @@
     "@defichain/ocean-api-core": "0.0.0",
     "@defichain/ocean-playground": "0.0.0",
     "@defichain/jellyfish-api-core": "0.0.0",
+    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
     "@nestjs/common": "^8.0.10",
     "@nestjs/config": "^1.0.2",
     "@nestjs/core": "^8.0.10",
@@ -53,6 +54,8 @@
     "@defichain/ocean-api-client": "0.0.0",
     "@nestjs/cli": "^8.1.2",
     "@nestjs/schematics": "^8.0.3",
-    "@nestjs/testing": "^8.0.10"
+    "@nestjs/testing": "^8.0.10",
+    "@types/cache-manager": "^3.4.2",
+    "@types/cron": "^1.7.3"
   }
 }

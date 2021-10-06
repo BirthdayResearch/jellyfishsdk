@@ -1,11 +1,16 @@
 {
   "extends": "../../tsconfig.build.json",
   "include": [
-    "./src/**/*"
+    "./src/**/*",
+    "package.json"
   ],
   "compilerOptions": {
+    "lib": [
+      "dom"
+    ],
     "outDir": "./dist",
-    "rootDir": "./src",
-    "removeComments": true
+    "rootDir": "./",
+    "removeComments": true,
+    "resolveJsonModule": true
   }
 }
