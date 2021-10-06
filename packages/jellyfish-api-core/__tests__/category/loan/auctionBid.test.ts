@@ -9,9 +9,6 @@ const alice = tGroup.get(0)
 const bob = tGroup.get(1)
 let aliceColAddr: string
 let bobVaultId: string
-let bobVaultAddr: string
-let oracleId: string
-let timestamp: number
 let bobColAddr: string
 
 async function setup (): Promise<void> {
@@ -30,9 +27,9 @@ async function setup (): Promise<void> {
     { token: 'BTC', currency: 'USD' },
     { token: 'TSLA', currency: 'USD' }
   ]
-  oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
+  const oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
   await alice.generate(1)
-  timestamp = Math.floor(new Date().getTime() / 1000)
+  const timestamp = Math.floor(new Date().getTime() / 1000)
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
@@ -84,7 +81,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  bobVaultAddr = await bob.generateAddress()
+  const bobVaultAddr = await bob.generateAddress()
   bobVaultId = await bob.rpc.loan.createVault({
     ownerAddress: bobVaultAddr,
     loanSchemeId: 'scheme'
@@ -344,10 +341,21 @@ describe('test fail auctionBid', () => {
       vaultId: '0'.repeat(64),
       index: 0,
       from: bobColAddr,
-      amount: '600@DFI'
+      amount: '550@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
+  })
+
+  it('should not auctionBid on non-existent batches index', async () => {
+    const promise = bob.rpc.loan.auctionBid({
+      vaultId: bobVaultId,
+      index: 99,
+      from: bobColAddr,
+      amount: '550@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`No batch to vault/index ${bobVaultId}/99`)
   })
 
   it('should not auctionBid as vault is not under liquidation', async () => {
