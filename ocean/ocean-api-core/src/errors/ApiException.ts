@@ -1,5 +1,8 @@
 import { ApiResponse, ApiValidationException } from '../'
 
+/**
+ * Known ApiErrorType from Ocean
+ */
 export enum ApiErrorType {
   ValidationError = 'ValidationError',
   BadRequest = 'BadRequest',
