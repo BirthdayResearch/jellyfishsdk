@@ -1,4 +1,4 @@
-import { ApiResponse, ApiValidationException } from '@defichain/ocean-api-core'
+import { ApiResponse, ApiValidationException } from '../'
 
 export enum ApiErrorType {
   ValidationError = 'ValidationError',
