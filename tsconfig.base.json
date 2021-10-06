@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     "incremental": true,
     "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true
   }
 }
