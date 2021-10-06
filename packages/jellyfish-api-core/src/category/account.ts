@@ -262,7 +262,7 @@ export class Account {
   }
 
   /**
-   * Create an Account to UXTOS transaction submitted to a connected node.
+   * Create an Account to UTXOS transaction submitted to a connected node.
    * Optionally, specific UTXOs to spend to create that transaction.
    *
    * @param {string} from
