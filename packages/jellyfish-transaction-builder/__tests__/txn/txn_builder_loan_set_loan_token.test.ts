@@ -82,7 +82,7 @@ describe('loan.setLoanToken()', () => {
             collateralAddress: expect.any(String)
           }
         },
-        priceFeedId: 'Token1/USD',
+        fixedIntervalPriceId: 'Token1/USD',
         interest: 0.5
       }
     })
@@ -141,7 +141,7 @@ describe('loan.setLoanToken()', () => {
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token3',
-      priceFeedId: 'Token3/USD'
+      fixedIntervalPriceId: 'Token3/USD'
     })
     await testing.generate(1)
 
@@ -162,7 +162,7 @@ describe('loan.setLoanToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
   })
 
-  it('should not setLoanToken if priceFeedId does not belong to any oracle', async () => {
+  it('should not setLoanToken if currencyPair does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token4',
@@ -234,7 +234,7 @@ describe('loan.setLoanToken()', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token7',
       name: 'TokenX',
-      priceFeedId: 'Token7/USD'
+      fixedIntervalPriceId: 'Token7/USD'
     })
     await testing.generate(1)
 
