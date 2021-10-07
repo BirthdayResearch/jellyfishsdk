@@ -1,7 +1,7 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../wait_for_condition'
-import { MasterNodeRegTestContainer } from '../../chains/reg_test_container/masternode'
-import { RegTestContainer } from '../../chains/reg_test_container/index'
+import { MasterNodeRegTestContainer } from './masternode'
+import { RegTestContainer } from './index'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode

@@ -1,4 +1,4 @@
-import { GenesisKeys, MasterNodeKey } from '../../testkeys'
+import { MasterNodeKey, RegTestGenesisKeys } from '@defichain/jellyfish-network'
 import { waitForCondition } from '../../wait_for_condition'
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../defid_container'
@@ -11,11 +11,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
 
   /**
-   * @param {string} [masternodeKey=GenesisKeys[0]] pair to use for minting
+   * @param {string} [masternodeKey=RegTestGenesisKeys[0]] pair to use for minting
    * @param {string} [image=DeFiDContainer.image] docker image name
    * @param {DockerOptions} [options]
    */
-  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
+  constructor (masternodeKey: MasterNodeKey = RegTestGenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
     this.masternodeKey = masternodeKey
   }
