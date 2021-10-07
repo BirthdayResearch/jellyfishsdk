@@ -8,12 +8,11 @@ const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(Ge
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
 let bobVaultId: string
-let bobVaultAddr: string
 let bobVaultId1: string
+let bobVaultAddr: string
 let bobVaultAddr1: string
 let bobLiqVaultId: string
 let bobloanAddr: string
-let bobColAddr: string
 
 async function setup (): Promise<void> {
   // token setup
@@ -117,7 +116,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  bobColAddr = await bob.generateAddress()
+  const bobColAddr = await bob.generateAddress()
   await bob.token.dfi({ address: bobColAddr, amount: 30000 })
   await bob.generate(1)
   await tGroup.waitForSync()
@@ -292,7 +291,7 @@ describe('loanPayback', () => {
 })
 
 describe('loanPayback multiple amounts', () => {
-  it('should loanPayback with multiple amounts', async () => {
+  it('should loanPayback more than one amount', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -442,6 +441,22 @@ describe('loanPayback failed', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('There is no loan on token (AMZN) in this vault!')
+  })
+
+  it('should not loanPayback on empty vault', async () => {
+    const emptyVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: bobVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+
+    const promise = bob.rpc.loan.loanPayback({
+      vaultId: emptyVaultId,
+      amounts: '30@AMZN',
+      from: bobloanAddr
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`Vault with id ${emptyVaultId} has no collaterals`)
   })
 
   it('should not loanPayback on liquidation vault', async () => {
