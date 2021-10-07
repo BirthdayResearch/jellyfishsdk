@@ -161,6 +161,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter.length > 0).toStrictEqual(true)
   expect(auctionsAfter[0].vaultId).toStrictEqual(bobVaultId)
   expect(auctionsAfter[0].batchCount).toStrictEqual(2)
+  expect(auctionsAfter[0].liquidationHeight).toStrictEqual(157)
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00000000@TSLA')
@@ -182,6 +183,7 @@ describe('test auctionBid', () => {
       {
         vaultId: bobVaultId,
         batchCount: 2,
+        liquidationHeight: 157,
         liquidationPenalty: 5,
         batches: [
           {
@@ -247,12 +249,13 @@ describe('test auctionBid', () => {
       {
         vaultId: bobVaultId,
         batchCount: 1,
+        liquidationHeight: 194,
         liquidationPenalty: 5,
         batches: [
           {
             index: 0,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '509.52380952@TSLA'
+            loan: '509.52380952@TSLA' // 535 / (1 + 0.5) https://github.com/DeFiCh/pinkpaper/tree/main/loan#collateral-auction
           }
         ]
       }
