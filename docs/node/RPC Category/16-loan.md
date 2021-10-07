@@ -325,6 +325,48 @@ interface loan {
 }
 
 interface VaultDetails {
+  vaultId?: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: BigNumber
+}
+
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
+```
+
+## listVaults
+
+List all available vaults.
+
+```ts title="client.loan.listVaults()"
+interface loan {
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
+}
+
+interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  isUnderLiquidation?: boolean
+}
+
+interface VaultPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
+}
+
+interface VaultDetails {
+  vaultId?: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean

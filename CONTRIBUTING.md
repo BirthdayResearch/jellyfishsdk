@@ -14,10 +14,9 @@ sub-packages, you don't need to build the project in every package when you upda
 
 Configurations required when introducing new package:
 
-1. root `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
-2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.json here
-3. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is
-   configured `tsc -b ./tsconfig.build.json`
+1. root-package `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
+2. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is configured
+   with `tsc -b ./tsconfig.build.json`
 
 ## Testing
 
