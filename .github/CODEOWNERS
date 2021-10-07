@@ -4,12 +4,15 @@
 /.github/                                       @fuxingloh @monstrobishi
 /.husky/                                        @fuxingloh @monstrobishi
 
-/packages/jellyfish/                            @fuxingloh @canonbrother
+/examples/                                      @fuxingloh
+
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
 /packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap @Jouzo
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
+
+/packages/jellyfish-block/                      @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
 
 /packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
 

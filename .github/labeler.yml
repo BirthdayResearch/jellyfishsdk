@@ -11,10 +11,10 @@ labels:
     matcher:
       files: "website/**"
 
-  - label: area/jellyfish
+  - label: area/examples
     sync: true
     matcher:
-      files: "packages/jellyfish/**"
+      files: "examples/**"
 
   - label: area/jellyfish-address
     sync: true
@@ -30,6 +30,11 @@ labels:
     sync: true
     matcher:
       files: "packages/jellyfish-api-jsonrpc/**"
+
+  - label: area/jellyfish-block
+    sync: true
+    matcher:
+      files: "packages/jellyfish-block/**"
 
   - label: area/jellyfish-buffer
     sync: true

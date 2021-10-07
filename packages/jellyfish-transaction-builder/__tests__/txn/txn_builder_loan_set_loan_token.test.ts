@@ -35,7 +35,7 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token1',
       currency: 'USD'
     }], 1])
@@ -45,7 +45,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token1',
       name: 'Token1',
-      priceFeedId,
+      currencyPair: { token: 'Token1', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(0.5)
     }, script)
@@ -82,14 +82,14 @@ describe('loan.setLoanToken()', () => {
             collateralAddress: expect.any(String)
           }
         },
-        priceFeedId,
+        priceFeedId: 'Token1/USD',
         interest: 0.5
       }
     })
   })
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'x'.repeat(8),
       currency: 'USD'
     }], 1])
@@ -99,7 +99,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'x'.repeat(9), // 9 letters
       name: 'x'.repeat(9),
-      priceFeedId,
+      currencyPair: { token: 'x'.repeat(8), currency: 'USD' },
       mintable: true,
       interest: new BigNumber(1.5)
     }, script)
@@ -113,7 +113,7 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should not setLoanToken if symbol is an empty string', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token2',
       currency: 'USD'
     }], 1])
@@ -123,7 +123,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: '',
       name: '',
-      priceFeedId,
+      currencyPair: { token: 'Token2', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(2.5)
     }, script)
@@ -132,8 +132,8 @@ describe('loan.setLoanToken()', () => {
     await expect(promise).rejects.toThrow('LoanSetLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
   })
 
-  it('should not setLoanToken if token with same symbol was created before', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  it('should not setLoanToken if the symbol is used in other token', async () => {
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token3',
       currency: 'USD'
     }], 1])
@@ -141,7 +141,7 @@ describe('loan.setLoanToken()', () => {
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token3',
-      priceFeedId
+      priceFeedId: 'Token3/USD'
     })
     await testing.generate(1)
 
@@ -153,7 +153,7 @@ describe('loan.setLoanToken()', () => {
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token3',
       name: 'Token3',
-      priceFeedId,
+      currencyPair: { token: 'Token3', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(3.5)
     }, script)
@@ -162,52 +162,32 @@ describe('loan.setLoanToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
   })
 
-  it('should not setLoanToken if priceFeedId does not contain USD price', async () => {
-    const priceFeedId: string = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token4',
-      currency: 'Token4'
-    }], 1])
-    await testing.generate(1)
-
+  it('should not setLoanToken if priceFeedId does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token4',
       name: 'Token4',
-      priceFeedId,
+      currencyPair: { token: 'MFST', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(4.5)
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'LoanSetLoanTokenTx: oracle (${priceFeedId}) does not contain USD price for this token! (code 16)', code: -26`)
-  })
-
-  it('should not setLoanToken if priceFeedId is invalid', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.setLoanToken({
-      symbol: 'Token5',
-      name: 'Token5',
-      priceFeedId: 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b',
-      mintable: true,
-      interest: new BigNumber(5.5)
-    }, script)
-
-    const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: oracle (e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b) does not exist or not valid oracle! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token6',
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token5',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
-      symbol: 'Token6',
-      name: 'Token6',
-      priceFeedId,
+      symbol: 'Token5',
+      name: 'Token5',
+      currencyPair: { token: 'Token5', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(6.5)
     }, script)
@@ -217,21 +197,21 @@ describe('loan.setLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token6')
+    expect(data[loanTokenId].token[index].name).toStrictEqual('Token5')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token7',
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token6',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
-      symbol: 'Token7',
+      symbol: 'Token6',
       name: 'x'.repeat(129), // 129 letters
-      priceFeedId,
+      currencyPair: { token: 'Token6', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(7.5)
     }, script)
@@ -245,30 +225,30 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken if two loan tokens have the same name', async () => {
-    const priceFeedId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token8',
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token7',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
-      symbol: 'Token8',
+      symbol: 'Token7',
       name: 'TokenX',
-      priceFeedId: priceFeedId1
+      priceFeedId: 'Token7/USD'
     })
     await testing.generate(1)
 
-    const priceFeedId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token9',
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token8',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
-      symbol: 'Token9',
+      symbol: 'Token8',
       name: 'TokenX',
-      priceFeedId: priceFeedId2,
+      currencyPair: { token: 'Token8', currency: 'USD' },
       mintable: true,
       interest: new BigNumber(8.5)
     }, script)
@@ -280,17 +260,17 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken if mintable is false', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token10',
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token9',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
-      symbol: 'Token10',
-      name: 'Token10',
-      priceFeedId,
+      symbol: 'Token9',
+      name: 'Token9',
+      currencyPair: { token: 'Token9', currency: 'USD' },
       mintable: false,
       interest: new BigNumber(9.5)
     }, script)
@@ -302,17 +282,17 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken if interest number is greater than 0', async () => {
-    const priceFeedId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token11',
+    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+      token: 'Token10',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
-      symbol: 'Token11',
-      name: 'Token11',
-      priceFeedId,
+      symbol: 'Token10',
+      name: 'Token10',
+      currencyPair: { token: 'Token10', currency: 'USD' },
       mintable: false,
       interest: new BigNumber(15.12345678)
     }, script)

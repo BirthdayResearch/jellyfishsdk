@@ -16,13 +16,11 @@
 !.yarn/versions
 .pnp.*
 
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-parcel-bundle-reports
-
 # node_modules
 node_modules
+package-lock.json
+!/package-lock.json
+yarn.lock
 
 # dist & pack
 dist

@@ -1,8 +1,8 @@
-import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer, StartOptions, GenesisKeys, MasterNodeKey } from '@defichain/testcontainers'
 
 export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
-  constructor () {
-    super(undefined, 'defi/defichain:HEAD-85c78d8')
+  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0]) {
+    super(masternodeKey, 'defi/defichain:HEAD-59c8ad7')
   }
 
   protected getCmd (opts: StartOptions): string[] {

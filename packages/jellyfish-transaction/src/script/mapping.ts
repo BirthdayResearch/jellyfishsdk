@@ -67,7 +67,13 @@ import {
   CSetCollateralToken,
   SetCollateralToken,
   CSetLoanToken,
-  SetLoanToken
+  SetLoanToken,
+  CUpdateLoanToken,
+  UpdateLoanToken,
+  CCreateVault,
+  CreateVault,
+  CDepositToVault,
+  DepositToVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -471,6 +477,30 @@ export const OP_CODES = {
       type: CICXClaimDFCHTLC.OP_CODE,
       name: CICXClaimDFCHTLC.OP_NAME,
       data: icxClaimDFCHTLC
+    })
+  },
+  OP_DEFI_TX_UPDATE_LOAN_TOKEN: (updateLoanToken: UpdateLoanToken): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateLoanToken.OP_CODE,
+      name: CUpdateLoanToken.OP_NAME,
+      data: updateLoanToken
+    })
+  },
+  OP_DEFI_TX_CREATE_VAULT: (createVault: CreateVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCreateVault.OP_CODE,
+      name: CCreateVault.OP_NAME,
+      data: createVault
+    })
+  },
+  OP_DEFI_TX_DEPOSIT_TO_VAULT: (depositToVault: DepositToVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDepositToVault.OP_CODE,
+      name: CDepositToVault.OP_NAME,
+      data: depositToVault
     })
   },
   OP_0: new constants.OP_0(),

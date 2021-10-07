@@ -12,3 +12,8 @@ export * from './script'
 export * from './tx'
 export * from './tx_composer'
 export * from './tx_segwit'
+
+/**
+ * Need to refactor this interface, it's not consistent
+ */
+export { toOPCodes, toBuffer as fromOPCodes } from './script/_buffer'

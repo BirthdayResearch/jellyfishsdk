@@ -1,4 +1,4 @@
-import { GenesisKeys, MasterNodeKey } from '../../testkeys'
+import { MasterNodeKey, RegTestGenesisKeys } from '@defichain/jellyfish-network'
 import { waitForCondition } from '../../wait_for_condition'
 import { DockerOptions } from 'dockerode'
 import { DeFiDContainer, StartOptions } from '../defid_container'
@@ -11,11 +11,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
 
   /**
-   * @param {string} [masternodeKey=GenesisKeys[0]] pair to use for minting
+   * @param {string} [masternodeKey=RegTestGenesisKeys[0]] pair to use for minting
    * @param {string} [image=DeFiDContainer.image] docker image name
    * @param {DockerOptions} [options]
    */
-  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
+  constructor (masternodeKey: MasterNodeKey = RegTestGenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
     this.masternodeKey = masternodeKey
   }
@@ -160,6 +160,26 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       return false
     }, timeout, 100, 'waitForAnchorAuths')
+  }
+
+  /**
+   * Wait for anchor reward confirms
+   *
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorRewardConfirms (timeout = 30000): Promise<void> {
+    // extra info here
+    // max signers in regtest is 3, others are 5
+    // majority is defined as 66% above
+    const majority = 2
+    return await waitForCondition(async () => {
+      const confirms = await this.call('spv_listanchorrewardconfirms')
+      if (confirms.length === 1 && confirms[0].signers >= majority) {
+        return true
+      }
+      return false
+    }, timeout, 100, 'waitForAnchorRewardConfrims')
   }
 
   /**
