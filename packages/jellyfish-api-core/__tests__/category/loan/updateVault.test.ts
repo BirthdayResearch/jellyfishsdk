@@ -74,7 +74,7 @@ describe('Loan updateVault', () => {
   })
 
   beforeEach(async () => {
-    // Always update the vault back to default vault
+    // Always update the vault back to default scheme
     await testing.rpc.loan.updateVault(createVaultId, {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'default'
@@ -184,7 +184,7 @@ describe('Loan updateVault', () => {
 
   it('should not updateVault if ownerAddress is invalid', async () => {
     const promise = testing.rpc.loan.updateVault(createVaultId, {
-      ownerAddress: '1234'
+      ownerAddress: 'INVALID_SCHEME_ID'
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Error: Invalid owner address\', code: -5, method: updatevault')
   })
@@ -203,48 +203,57 @@ describe('Loan updateVault', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'At least ownerAddress OR loanSchemeId must be set\', code: -8, method: updatevault')
   })
 
-  // There is a bug in the c++ side
-  // it('should updateVault with utxos', async () => {
-  //   const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
-  //   const createVaultId = await testing.rpc.loan.createVault({
-  //     ownerAddress: GenesisKeys[0].owner.address,
-  //     loanSchemeId: 'scheme'
-  //   })
-  //   await testing.generate(1)
-  //
-  //   const updateVaultId = await testing.rpc.loan.updateVault(createVaultId, {
-  //     ownerAddress: GenesisKeys[0].owner.address,
-  //     loanSchemeId: 'scheme'
-  //   }, [{ txid, vout }])
-  //   expect(typeof updateVaultId).toStrictEqual('string')
-  //   expect(updateVaultId.length).toStrictEqual(64)
-  //   await testing.generate(1)
-  //
-  //   const rawtx = await testing.container.call('getrawtransaction', [updateVaultId, true])
-  //   expect(rawtx.vin[0].txid).toStrictEqual(txid)
-  //   expect(rawtx.vin[0].vout).toStrictEqual(vout)
-  //
-  //   const data = await testing.rpc.call('getvault', [createVaultId], 'bignumber')
-  //   expect(data).toStrictEqual({
-  //     loanSchemeId: 'scheme',
-  //     ownerAddress: GenesisKeys[0].owner.address,
-  //     isUnderLiquidation: false,
-  //     collateralAmounts: [],
-  //     loanAmount: [],
-  //     collateralValue: expect.any(BigNumber),
-  //     loanValue: expect.any(BigNumber),
-  //     currentRatio: expect.any(BigNumber)
-  //   })
-  // })
+  it('should updateVault with utxos', async () => {
+    const createVaultId = await testing.rpc.loan.createVault({
+      ownerAddress: GenesisKeys[0].owner.address,
+      loanSchemeId: 'scheme'
+    })
+    await testing.generate(1)
+
+    const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
+    const updateVaultId = await testing.rpc.loan.updateVault(createVaultId, {
+      ownerAddress: GenesisKeys[0].owner.address,
+      loanSchemeId: 'scheme'
+    }, [{ txid, vout }])
+    expect(typeof updateVaultId).toStrictEqual('string')
+    expect(updateVaultId.length).toStrictEqual(64)
+    await testing.generate(1)
+
+    const rawtx = await testing.container.call('getrawtransaction', [updateVaultId, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(vout)
+
+    const data = await testing.rpc.call('getvault', [createVaultId], 'bignumber')
+    expect(data).toStrictEqual({
+      loanSchemeId: 'scheme',
+      ownerAddress: GenesisKeys[0].owner.address,
+      isUnderLiquidation: false,
+      collateralAmounts: [],
+      loanAmount: [],
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
+    })
+  })
 
   it('should not updateVault with utxos not from the owner', async () => {
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.updateVault(createVaultId, {
-      ownerAddress: GenesisKeys[0].owner.address,
+      ownerAddress: GenesisKeys[1].owner.address,
       loanSchemeId: 'scheme'
     }, [utxo])
 
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\ntx must have at least one input from token owner\', code: -32600, method: updatevault')
+  })
+
+  it('should be failed as different auth address', async () => {
+    const ownerAddress = GenesisKeys[1].owner.address
+    const promise = testing.rpc.loan.updateVault(createVaultId, {
+      ownerAddress,
+      loanSchemeId: 'scheme'
+    })
+
+    await expect(promise).rejects.toThrow(`Incorrect authorization for ${ownerAddress}`)
   })
 })
 
