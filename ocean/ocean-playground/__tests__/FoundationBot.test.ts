@@ -1,5 +1,5 @@
 import { PlaygroundTesting } from '../testing/PlaygroundTesting'
-import { FoundationKeys } from '../src/FoundationBot'
+import { FoundationBot } from '../src/FoundationBot'
 
 const playgroundTesting = PlaygroundTesting.create()
 
@@ -13,7 +13,7 @@ afterAll(async () => {
 })
 
 it('should have all foundation keys after bootstrap', async () => {
-  for (const key of FoundationKeys) {
+  for (const key of FoundationBot.Keys) {
     {
       const info = await playgroundTesting.rpc.wallet.getAddressInfo(key.owner.address)
       expect(info).toBeDefined()

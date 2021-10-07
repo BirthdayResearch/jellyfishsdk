@@ -1,12 +1,12 @@
 import { AbstractBot } from './AbstractBot'
-import { FoundationKeys } from './FoundationBot'
+import { FoundationBot } from './FoundationBot'
 
 /**
  * Generate a block every cycle
  */
 export class BlockGenerateBot extends AbstractBot {
   private static randomNodeAddress (): string {
-    const items = FoundationKeys
+    const items = FoundationBot.Keys
     return items[Math.floor(Math.random() * items.length)].operator.address
   }
 
