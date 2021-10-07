@@ -15,7 +15,7 @@ export interface MasterNodeKey {
  *
  * 2 first and 2 last of genesis MNs acts as foundation members
  */
-export const GenesisKeys: MasterNodeKey[] = [
+export const RegTestGenesisKeys: MasterNodeKey[] = [
   {
     owner: {
       address: 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU',
