@@ -14,6 +14,7 @@ module.exports = {
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '.*/__tests__/.*',
+    '.*/testing/.*',
     '/examples/',
     '/website/'
   ]
