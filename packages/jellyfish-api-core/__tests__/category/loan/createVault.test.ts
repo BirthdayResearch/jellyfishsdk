@@ -56,28 +56,6 @@ describe('Loan createVault', () => {
     })
   })
 
-  it('should createVault with a generated ownerAddress if the given ownerAddress is an empty string', async () => {
-    const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: '',
-      loanSchemeId: 'scheme'
-    })
-    expect(typeof vaultId).toStrictEqual('string')
-    expect(vaultId.length).toStrictEqual(64)
-    await testing.generate(1)
-
-    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
-    expect(data).toStrictEqual({
-      loanSchemeId: 'scheme',
-      ownerAddress: expect.any(String),
-      isUnderLiquidation: false,
-      collateralAmounts: [],
-      loanAmount: [],
-      collateralValue: expect.any(BigNumber),
-      loanValue: expect.any(BigNumber),
-      currentRatio: expect.any(BigNumber)
-    })
-  })
-
   it('should createVault with default scheme if CreateVault.loanSchemeId is not given', async () => {
     const ownerAddress = await testing.generateAddress()
     const vaultId = await testing.rpc.loan.createVault({
@@ -103,15 +81,16 @@ describe('Loan createVault', () => {
 
   it('should not createVault if ownerAddress is invalid', async () => {
     const promise = testing.rpc.loan.createVault({
-      ownerAddress: '1234'
+      ownerAddress: '1234',
+      loanSchemeId: 'scheme'
     })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Error: Invalid owner address\', code: -5, method: createvault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'recipient script (1234) does not solvable/non-standard\', code: -5, method: createvault')
   })
 
   it('should not createVault if loanSchemeId is invalid', async () => {
     const promise = testing.rpc.loan.createVault({
-      ownerAddress: '',
+      ownerAddress: await testing.generateAddress(),
       loanSchemeId: '1234'
     })
 

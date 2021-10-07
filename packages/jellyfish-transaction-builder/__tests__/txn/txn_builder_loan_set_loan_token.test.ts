@@ -45,6 +45,10 @@ describe('loan.setLoanToken()', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token1', currency: 'USD' }] })
     await testing.generate(1)
 
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token1',
@@ -189,7 +193,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: no live oracles for specified request (code 16)\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {
@@ -200,7 +204,7 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token8', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token5', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -228,7 +232,7 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token9', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token6', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -256,7 +260,7 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     const timestamp1 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@Token10', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@Token7', currency: 'USD' }] })
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
@@ -273,7 +277,7 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     const timestamp2 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@Token11', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@Token8', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -299,7 +303,7 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token12', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token9', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -325,7 +329,7 @@ describe('loan.setLoanToken()', () => {
     await testing.generate(1)
 
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token14', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token10', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()

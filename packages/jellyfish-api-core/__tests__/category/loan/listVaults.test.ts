@@ -31,24 +31,25 @@ describe('Loan listVaults', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
+    await testing.generate(1)
 
     // collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
 
     // loan tokens
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'AAPL',
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     })
     await testing.generate(1)
   })
@@ -158,24 +159,25 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
+    await testing.generate(1)
 
     // collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
 
     // loan tokens
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'AAPL',
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     })
     await testing.generate(1)
 
