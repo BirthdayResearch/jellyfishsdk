@@ -24,22 +24,30 @@ beforeAll(async () => {
   providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
-  await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
     token: 'Token1',
     currency: 'USD'
   }], 1])
   await testing.generate(1)
 
-  await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  const timestamp1 = Math.floor(new Date().getTime() / 1000)
+  await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@Token1', currency: 'USD' }] })
+  await testing.generate(1)
+
+  const oracleId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
     token: 'Token2',
     currency: 'USD'
   }], 1])
   await testing.generate(1)
 
+  const timestamp2 = Math.floor(new Date().getTime() / 1000)
+  await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@Token2', currency: 'USD' }] })
+  await testing.generate(1)
+
   loanTokenId = await testing.container.call('setloantoken', [{
     symbol: 'Token1',
     name: 'Token1',
-    priceFeedId: 'Token1/USD',
+    fixedIntervalPriceId: 'Token1/USD',
     mintable: true,
     interest: new BigNumber(0.01)
   }, []])
@@ -58,7 +66,7 @@ afterEach(async () => {
     await testing.rpc.loan.updateLoanToken('Token2', {
       symbol: 'Token1',
       name: 'Token1',
-      priceFeedId: 'Token1/USD',
+      fixedIntervalPriceId: 'Token1/USD',
       mintable: true,
       interest: new BigNumber(0.01)
     })
@@ -119,23 +127,27 @@ describe('loan.updateLoanToken()', () => {
             collateralAddress: expect.any(String)
           }
         },
-        priceFeedId: 'Token2/USD',
+        fixedIntervalPriceId: 'Token2/USD',
         interest: 0.01
       }
     })
   })
 
   it('should updateLoanToken if symbol is more than 8 letters', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token3',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token3', currency: 'USD' }] })
+    await testing.generate(1)
+
     const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token3',
       name: 'Token3',
-      priceFeedId: 'Token3/USD',
+      fixedIntervalPriceId: 'Token3/USD',
       mintable: true,
       interest: new BigNumber(0.03)
     }, []])
@@ -175,16 +187,20 @@ describe('loan.updateLoanToken()', () => {
   })
 
   it('should not updateLoanToken if the symbol is used in other token', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token4',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token4', currency: 'USD' }] })
+    await testing.generate(1)
+
     const loanTokenId = await testing.container.call('setloantoken', [{
       symbol: 'Token4',
       name: 'Token4',
-      priceFeedId: 'Token4/USD',
+      fixedIntervalPriceId: 'Token4/USD',
       mintable: true,
       interest: new BigNumber(0.06)
     }, []])
@@ -224,16 +240,20 @@ describe('loan.updateLoanToken()', () => {
   })
 
   it('should updateLoanToken if two loan tokens have the same name', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token5',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token5', currency: 'USD' }] })
+    await testing.generate(1)
+
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token5',
       name: 'Token5',
-      priceFeedId: 'Token5/USD'
+      fixedIntervalPriceId: 'Token5/USD'
     })
     await testing.generate(1)
 
@@ -256,7 +276,7 @@ describe('loan.updateLoanToken()', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('Token1') // Same name as Token1's name
   })
 
-  it('should not updateLoanToken if priceFeedId does not belong to any oracle', async () => {
+  it('should not updateLoanToken if fixedIntervalPriceId does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',
