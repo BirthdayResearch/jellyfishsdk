@@ -276,7 +276,7 @@ describe('loan.updateLoanToken()', () => {
     expect(data[loanTokenId].token[index].name).toStrictEqual('Token1') // Same name as Token1's name
   })
 
-  it('should not updateLoanToken if fixedIntervalPriceId does not belong to any oracle', async () => {
+  it('should not updateLoanToken if currencyPair does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
       symbol: 'Token2',

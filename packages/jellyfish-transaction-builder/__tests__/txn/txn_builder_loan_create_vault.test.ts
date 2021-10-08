@@ -71,7 +71,6 @@ describe('loans.createVault', () => {
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(7.97)
 
     const txid = calculateTxid(txn)
     await testing.generate(1)
