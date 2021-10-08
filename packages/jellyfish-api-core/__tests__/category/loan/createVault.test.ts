@@ -59,7 +59,8 @@ describe('Loan createVault', () => {
   it('should createVault with default scheme if CreateVault.loanSchemeId is not given', async () => {
     const ownerAddress = await testing.generateAddress()
     const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: ownerAddress
+      ownerAddress: ownerAddress,
+      loanSchemeId: ''
     })
 
     expect(typeof vaultId).toStrictEqual('string')
