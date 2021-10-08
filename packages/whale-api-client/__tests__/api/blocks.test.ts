@@ -66,10 +66,10 @@ describe('list', () => {
     expect(last.hasNext).toStrictEqual(false)
   })
 
-  it('should get paginated list of 60 even if request page size is  more than 60', async () => {
-    const first = await client.blocks.list(100)
+  it('should get paginated list of 100 even if request page size is  more than 100', async () => {
+    const first = await client.blocks.list(150)
 
-    expect(first.length).toStrictEqual(60)
+    expect(first.length).toStrictEqual(100)
     expect(first[0]).toStrictEqual(ExpectedBlock)
   })
 
