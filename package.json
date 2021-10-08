@@ -25,7 +25,7 @@
     "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
     "build": "lerna run build",
-    "version": "lerna version $1 --yes --no-push --no-git-tag-version",
+    "version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
     "publish:next": "lerna exec -- npm publish --tag next --access public",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "lint": "eslint . --fix",
