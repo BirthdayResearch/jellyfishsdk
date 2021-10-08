@@ -266,7 +266,7 @@ describe('loanPayback', () => {
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.collateralValue).toStrictEqual(15000) // DFI(10000) + BTC(1 * 10000 * 0.5)
     expect(vaultBefore.loanAmount).toStrictEqual(['40.00002280@TSLA']) // 40 + (40 * 0.00000057)
-    expect(vaultBefore.loanValue).toStrictEqual(80.0000456) // 40.00002280 * 2 (::1 TSLA = 2 DFI)
+    expect(vaultBefore.loanValue).toStrictEqual(80.0000456) // 40.00002280 * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.0000456 * 100
 
     const txid = await bob.rpc.loan.loanPayback({
