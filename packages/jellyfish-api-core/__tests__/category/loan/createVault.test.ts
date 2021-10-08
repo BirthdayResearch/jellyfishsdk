@@ -150,7 +150,8 @@ describe('Loan createVault', () => {
 
     it('should not createVault when no default scheme and CreateVault.loanSchemeId is not given', async () => {
       const promise = testing.rpc.loan.createVault({
-        ownerAddress: await testing.generateAddress()
+        ownerAddress: await testing.generateAddress(),
+        loanSchemeId: ''
       })
 
       await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\nThere is not default loan scheme\', code: -32600, method: createvault')
