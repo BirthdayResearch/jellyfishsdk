@@ -42,7 +42,6 @@ describe('Loan', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DFI/USD'
-      // activateAfterBlock: 130  // <- hit socket hang up
     })
     await tGroup.get(0).generate(1)
 
