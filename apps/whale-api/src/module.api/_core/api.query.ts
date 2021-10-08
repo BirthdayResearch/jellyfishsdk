@@ -11,7 +11,7 @@ import { Type, Transform } from 'class-transformer'
 export class PaginationQuery {
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => value > 60 ? 60 : value)
+  @Transform(({ value }) => value > 100 ? 100 : value)
   @Min(0)
   @Type(() => Number)
   size: number = 30
