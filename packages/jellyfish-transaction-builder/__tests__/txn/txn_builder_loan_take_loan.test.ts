@@ -14,6 +14,7 @@ describe('loans.takeLoan', () => {
   let vaultId: string
   let vaultAddress: string
   let collateralAddress: string
+  let liqVaultId: string
 
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
@@ -34,10 +35,18 @@ describe('loans.takeLoan', () => {
     await tGroup.stop()
   })
 
+  async function fundForFeesIfUTXONotAvailable (amount: number): Promise<void> {
+    const prevouts = await providers.prevout.all()
+    if (prevouts.length === 0) {
+      // Fund 10 DFI UTXO to providers.getAddress() for fees
+      await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    }
+  }
+
   async function setup (): Promise<void> {
     // token setup
     collateralAddress = await tGroup.get(0).container.getNewAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 50000 })
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 70000 })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
     await tGroup.get(0).generate(1)
@@ -50,7 +59,10 @@ describe('loans.takeLoan', () => {
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
-      { token: 'CAT', currency: 'USD' }
+      { token: 'AMZN', currency: 'USD' },
+      { token: 'UBER', currency: 'USD' },
+      { token: 'CAT', currency: 'USD' },
+      { token: 'XYZ', currency: 'USD' }
     ]
     const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
@@ -58,7 +70,11 @@ describe('loans.takeLoan', () => {
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '4@AMZN', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '4@UBER', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@CAT', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '4@XYZ', currency: 'USD' }] })
+
     await tGroup.get(0).generate(1)
 
     // collateral token
@@ -84,8 +100,26 @@ describe('loans.takeLoan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'AMZN',
+      priceFeedId: 'AMZN/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'UBER',
+      priceFeedId: 'UBER/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'CAT',
       priceFeedId: 'CAT/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'XYZ',
+      priceFeedId: 'XYZ/USD'
     })
     await tGroup.get(0).generate(1)
 
@@ -113,12 +147,35 @@ describe('loans.takeLoan', () => {
       vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
     })
     await tGroup.get(0).generate(1)
+
+    // createVault for liquidation
+    const liqVaultAddress = await tGroup.get(0).generateAddress()
+    liqVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: liqVaultAddress,
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: liqVaultId,
+      amounts: '1000@XYZ'
+    })
+    await tGroup.get(0).generate(1)
+
+    // liquidated: true
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@XYZ', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
   }
 
   it('should takeLoan', async () => {
     const vaultAddress = await providers.getAddress()
-    vaultId = await tGroup.get(0).rpc.loan.createVault({
+    const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
@@ -134,15 +191,15 @@ describe('loans.takeLoan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // Fund 10 DFI UTXO to providers.getAddress() for fees after setup()
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
 
     const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId)
     const script = await providers.elliptic.script()
     const txn = await builder.loans.takeLoan({
       vaultId: vaultId,
       to: { stack: [] },
-      tokenAmounts: [{ token: 2, amount: new BigNumber(40) }]
+      tokenAmounts: [{ token: 2, amount: new BigNumber(40) }] // 40@TSLA
     }, script)
 
     // Ensure the created txn is correct
@@ -170,16 +227,15 @@ describe('loans.takeLoan', () => {
     const vaultAfterLoanTSLAAmount = Number(vaultAfterLoanTSLAAcc?.split('@')[0])
 
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'TSLA')
-    const interestAccuredTSLA = interestAfterTSLA?.totalInterest
 
-    expect(new BigNumber(vaultAfterLoanTSLAAmount - vaultBeforeLoanTSLAAmount)).toStrictEqual(new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestAccuredTSLA as BigNumber)))
+    expect(new BigNumber(vaultAfterLoanTSLAAmount - vaultBeforeLoanTSLAAmount)).toStrictEqual(new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestAfterTSLA?.totalInterest as BigNumber)))
     // check the account of the vault address
     expect(await tGroup.get(0).rpc.account.getAccount(await providers.getAddress())).toStrictEqual(['40.00000000@TSLA'])
   })
 
   it('should takeLoan to a given address', async () => {
     const vaultAddress = await providers.getAddress()
-    vaultId = await tGroup.get(0).rpc.loan.createVault({
+    const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
@@ -195,8 +251,8 @@ describe('loans.takeLoan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // Fund 10 DFI UTXO to providers.getAddress() for fees after setup()
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
 
     const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId)
     const script = await providers.elliptic.script()
@@ -204,7 +260,7 @@ describe('loans.takeLoan', () => {
     const txn = await builder.loans.takeLoan({
       vaultId: vaultId,
       to: P2WPKH.fromAddress(RegTest, toAddress, P2WPKH).getScript(),
-      tokenAmounts: [{ token: 3, amount: new BigNumber(40) }]
+      tokenAmounts: [{ token: 5, amount: new BigNumber(40) }]
     }, script)
 
     // Ensure the created txn is correct
@@ -239,9 +295,77 @@ describe('loans.takeLoan', () => {
     expect(await tGroup.get(1).rpc.account.getAccount(toAddress)).toStrictEqual(['40.00000000@CAT'])
   })
 
+  it('should takeLoan multiple tokens', async () => {
+    const vaultAddress = await providers.getAddress()
+    const vaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: vaultAddress,
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '10000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
+    })
+    await tGroup.get(0).generate(1)
+
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
+
+    const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId)
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.takeLoan({
+      vaultId: vaultId,
+      to: { stack: [] },
+      tokenAmounts: [{ token: 3, amount: new BigNumber(40) }, { token: 4, amount: new BigNumber(30) }] // 40@AMZN, 30@UBER
+    }, script)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(tGroup.get(0).container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    // Ensure you don't send all your balance away
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
+
+    const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId)
+    const interestAfter = await tGroup.get(0).rpc.loan.getInterest('scheme')
+
+    const vaultBeforeLoanAMZNAcc = vaultBefore.loanAmount?.find((amt: string) => amt.split('@')[1] === 'AMZN')
+    const vaultBeforeLoanAMZNAmount = vaultBeforeLoanAMZNAcc !== undefined ? Number(vaultBeforeLoanAMZNAcc?.split('@')[0]) : 0
+    const vaultBeforeLoanUBERAcc = vaultBefore.loanAmount?.find((amt: string) => amt.split('@')[1] === 'UBER')
+    const vaultBeforeLoanUBERAmount = vaultBeforeLoanUBERAcc !== undefined ? Number(vaultBeforeLoanUBERAcc?.split('@')[0]) : 0
+
+    const vaultAfterLoanAMZNAcc = vaultAfter.loanAmount?.find((amt: string) => amt.split('@')[1] === 'AMZN')
+    const vaultAfterLoanAMZNAmount = Number(vaultAfterLoanAMZNAcc?.split('@')[0])
+    const vaultAfterLoanUBERAcc = vaultAfter.loanAmount?.find((amt: string) => amt.split('@')[1] === 'UBER')
+    const vaultAfterLoanUBERAmount = Number(vaultAfterLoanUBERAcc?.split('@')[0])
+
+    const interestAfterAMZN = interestAfter.find((interest: { 'token': string }) => interest.token === 'AMZN')
+    const interestAfterUBER = interestAfter.find((interest: { 'token': string }) => interest.token === 'UBER')
+
+    expect(new BigNumber(vaultAfterLoanAMZNAmount - vaultBeforeLoanAMZNAmount)).toStrictEqual(new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestAfterAMZN?.totalInterest as BigNumber)))
+    expect(new BigNumber(vaultAfterLoanUBERAmount - vaultBeforeLoanUBERAmount)).toStrictEqual(new BigNumber(30).plus(new BigNumber(30).multipliedBy(interestAfterUBER?.totalInterest as BigNumber)))
+
+    // check the account of the vault address
+    expect(await tGroup.get(0).rpc.account.getAccount(await providers.getAddress())).toStrictEqual(expect.arrayContaining(['40.00000000@AMZN', '30.00000000@UBER']))
+  })
+
   it('should not takeLoan on nonexistent vault', async () => {
-    // Fund 10 DFI UTXO to providers.getAddress() for fees
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.takeLoan({
@@ -256,19 +380,19 @@ describe('loans.takeLoan', () => {
   })
 
   it('should not takeLoan on nonexistent loan token', async () => {
-    // Fund 10 DFI UTXO to providers.getAddress() for fees
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.takeLoan({
       vaultId: vaultId,
       to: { stack: [] },
-      tokenAmounts: [{ token: 5, amount: new BigNumber(40) }]
+      tokenAmounts: [{ token: 1, amount: new BigNumber(40) }] // BTC(1) is not a loan token
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('Loan token with id (5) does not exist!')
+    await expect(promise).rejects.toThrow('Loan token with id (1) does not exist!')
   })
 
   it('should not takeLoan by other than the vault owner', async () => {
@@ -293,8 +417,8 @@ describe('loans.takeLoan', () => {
   })
 
   it('should not takeLoan while exceed vault collateralization ratio', async () => {
-    // Fund 10 DFI UTXO to providers.getAddress() for fees
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.takeLoan({
@@ -313,8 +437,8 @@ describe('loans.takeLoan', () => {
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
-    // Fund 10 DFI UTXO to providers.getAddress() for fees
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.takeLoan({
@@ -330,5 +454,24 @@ describe('loans.takeLoan', () => {
     await tGroup.get(0).container.call('updateloantoken', ['TSLA', { mintable: true }])
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
+  })
+
+  it('should not takeLoan on liquidation vault', async () => {
+    const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
+    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+
+    // fund if UTXO is not available for fees
+    await fundForFeesIfUTXONotAvailable(10)
+    const script = await providers.elliptic.script()
+
+    const txn = await builder.loans.takeLoan({
+      vaultId: liqVaultId,
+      to: { stack: [] },
+      tokenAmounts: [{ token: 4, amount: new BigNumber(30) }]
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('Cannot take loan on vault under liquidation')
   })
 })
