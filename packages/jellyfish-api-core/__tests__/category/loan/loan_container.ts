@@ -2,7 +2,7 @@ import { MasterNodeRegTestContainer, StartOptions, GenesisKeys, MasterNodeKey } 
 
 export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor (masternodeKey: MasterNodeKey = GenesisKeys[0]) {
-    super(undefined, 'defi/defichain:HEAD-333f43e')
+    super(masternodeKey, 'defi/defichain:epic-loans-b1981e5')
   }
 
   protected getCmd (opts: StartOptions): string[] {
