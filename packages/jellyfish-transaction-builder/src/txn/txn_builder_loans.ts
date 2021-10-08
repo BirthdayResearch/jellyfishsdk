@@ -7,7 +7,8 @@ import {
   SetLoanToken,
   UpdateLoanToken,
   CreateVault,
-  DepositToVault
+  DepositToVault,
+  AuctionBid
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 
@@ -136,6 +137,21 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async depositToVault (depositToVault: DepositToVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_DEPOSIT_TO_VAULT(depositToVault),
+      changeScript
+    )
+  }
+
+  /**
+   * AuctionBid transaction.
+   *
+   * @param {AuctionBid} auctionBid txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+
+  async auctionBid (auctionBid: AuctionBid, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_AUCTION_BID(auctionBid),
       changeScript
     )
   }
