@@ -30,10 +30,14 @@ describe('loan.setCollateralToken()', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
   })
 
@@ -140,10 +144,14 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
     // Fund 10 DFI UTXO
