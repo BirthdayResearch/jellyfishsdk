@@ -97,7 +97,7 @@ export class Loan {
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {BigNumber} collateralToken.factor Collateralization factor
-   * @param {string} collateralToken.priceFeedId token/currency pair to use for price of token
+   * @param {string} collateralToken.fixedIntervalPriceId token/currency pair to use for price of token
    * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
@@ -136,7 +136,7 @@ export class Loan {
    * @param {SetLoanToken} loanToken
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId token/currency pair to use for price of token
+   * @param {string} loanToken.fixedIntervalPriceId token/currency pair to use for price of token
    * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
    * @param {BigNumber} [loanToken.interest = 0] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -159,7 +159,7 @@ export class Loan {
    * @param {UpdateLoanToken} newTokenDetails
    * @param {string} [newTokenDetails.symbol] New token's symbol (unique), no longer than 8
    * @param {string} [newTokenDetails.name] Token's name, no longer than 128
-   * @param {string} [newTokenDetails.priceFeedId] token/currency pair to use for price of token
+   * @param {string} [newTokenDetails.fixedIntervalPriceId] token/currency pair to use for price of token
    * @param {boolean} [newTokenDetails.mintable] Token's 'Mintable' property
    * @param {BigNumber} [newTokenDetails.interest] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -293,7 +293,7 @@ export interface LoanSchemeResult {
 export interface SetCollateralToken {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock?: number
 }
 
@@ -315,14 +315,14 @@ export interface ListCollateralTokens {
 export interface CollateralTokenDetails {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
 }
 
 export interface SetLoanToken {
   symbol: string
   name?: string
-  priceFeedId: string
+  fixedIntervalPriceId: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -333,14 +333,14 @@ export interface ListLoanTokenResult {
 
 export interface LoanTokenDetails {
   token: token.TokenResult
-  priceFeedId: string
+  fixedIntervalPriceId: string
   interest: BigNumber
 }
 
 export interface UpdateLoanToken {
   symbol?: string
   name?: string
-  priceFeedId?: string
+  fixedIntervalPriceId?: string
   mintable?: boolean
   interest?: BigNumber
 }
