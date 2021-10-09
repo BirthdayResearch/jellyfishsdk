@@ -40,8 +40,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@defichain/jellyfish-transaction-builder": ">=0.46.2",
-    "@defichain/jellyfish-wallet": ">=0.46.2",
+    "@defichain/jellyfish-transaction-builder": "0.46.2",
+    "@defichain/jellyfish-wallet": "0.46.2",
     "@defichain/whale-api-client": "0.0.0"
   }
 }
