@@ -45,6 +45,7 @@ describe('Loan createVault', () => {
 
     const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
@@ -69,6 +70,7 @@ describe('Loan createVault', () => {
 
     const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
@@ -114,6 +116,7 @@ describe('Loan createVault', () => {
 
     const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
       isUnderLiquidation: false,
@@ -124,16 +127,6 @@ describe('Loan createVault', () => {
       currentRatio: expect.any(BigNumber)
     })
   })
-
-  // it('should not createVault with utxos not from the owner', async () => {
-  //   const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
-  //   const promise = testing.rpc.loan.createVault({
-  //     ownerAddress: GenesisKeys[0].owner.address,
-  //     loanSchemeId: 'scheme'
-  //   }, [utxo])
-  //
-  //   await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\ntx must have at least one input from token owner\', code: -32600, method: createvault')
-  // })
 
   describe('Loan createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
     const container = new LoanMasterNodeRegTestContainer()

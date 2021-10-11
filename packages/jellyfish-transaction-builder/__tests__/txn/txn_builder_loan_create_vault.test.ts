@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
+import { OP_CODES } from '@defichain/jellyfish-transaction'
 
 describe('loans.createVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -77,6 +78,7 @@ describe('loans.createVault', () => {
 
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: txid,
       loanSchemeId: 'scheme',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
@@ -111,6 +113,7 @@ describe('loans.createVault', () => {
     await testing.generate(1)
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: txid,
       loanSchemeId: 'default',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
@@ -145,6 +148,7 @@ describe('loans.createVault', () => {
     await testing.generate(1)
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: txid,
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
@@ -176,6 +180,7 @@ describe('loans.createVault', () => {
     await testing.generate(1)
     const data2 = await testing.rpc.call('getvault', [txid2], 'bignumber')
     expect(data2).toStrictEqual({
+      vaultId: txid2,
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
@@ -190,22 +195,45 @@ describe('loans.createVault', () => {
     expect(txid2).not.toStrictEqual(txid)
   })
 
-  // it('should not createVault if ownerAddress is incorrect', async () => {
-  //   const script = await providers.elliptic.script()
-  //   const txn = await builder.loans.createVault({
-  //     ownerAddress: {
-  //       stack: [
-  //         OP_CODES.OP_0,
-  //         OP_CODES.OP_PUSHDATA_HEX_LE('7f3b2ccdb32982c3fa5380112dffad8a6792bba9')
-  //       ]
-  //     },
-  //     schemeId: 'scheme'
-  //   }, script)
-  //
-  //   const promise = sendTransaction(testing.container, txn)
-  //   await expect(promise).rejects.toThrow(DeFiDRpcError)
-  //   await expect(promise).rejects.toThrow('VaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
-  // })
+  it('should createVault for any address', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createVault({
+      ownerAddress: {
+        stack: [
+          OP_CODES.OP_0,
+          OP_CODES.OP_PUSHDATA_HEX_LE('7f3b2ccdb32982c3fa5380112dffad8a6792bba9')
+        ]
+      },
+      schemeId: 'scheme'
+    }, script)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(testing.container, txn)
+    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    // Ensure you don't send all your balance away
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+
+    const txid = calculateTxid(txn)
+
+    await testing.generate(1)
+    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
+    expect(data).toStrictEqual({
+      vaultId: txid,
+      loanSchemeId: 'scheme',
+      ownerAddress: 'bcrt1q0uajendn9xpv87jnsqgjmlad3fne9waf9sxckc',
+      isUnderLiquidation: false,
+      collateralAmounts: [],
+      loanAmount: [],
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
+    })
+  })
 
   it('should not createVault if loanSchemeId is invalid', async () => {
     const script = await providers.elliptic.script()

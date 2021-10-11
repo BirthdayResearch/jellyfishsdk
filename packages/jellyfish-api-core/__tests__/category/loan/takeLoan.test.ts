@@ -207,14 +207,14 @@ describe('Loan', () => {
       expect(vaultAfter.collateralValue).toStrictEqual(vaultBefore.collateralValue)
 
       const interestInfo = await tGroup.get(0).container.call('getinterest', ['scheme', 'TSLA'])
-      const loanAmount = new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestInfo[0].totalInterest))
-      expect(vaultAfter.loanAmount).toStrictEqual([loanAmount.toFixed(8) + '@TSLA']) // 40.00002280@TSLA
+      const loanAmount = new BigNumber(40).plus(interestInfo[0].totalInterest)
+      expect(vaultAfter.loanAmount).toStrictEqual([loanAmount.toFixed(8) + '@TSLA']) // 40.00004566@TSLA
       expect(vaultAfter.loanValue).toStrictEqual(loanAmount.multipliedBy(2).toNumber())
       expect(vaultAfter.currentRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
 
       const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
       const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(40.00002280)
+      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(40.00004566)
     })
   })
 
@@ -247,7 +247,7 @@ describe('Loan', () => {
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId1])
       const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
       const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.00000285)
+      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.0000057)
 
       const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txid, true])
       expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
