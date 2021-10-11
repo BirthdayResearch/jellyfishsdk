@@ -242,7 +242,7 @@ export class CDepositToVault extends ComposableBuffer<DepositToVault> {
  */
 export interface TakeLoan {
   vaultId: string // ------------------| 32 bytes, Id of vault used for loan
-  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address to transfer tokens (optional)
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address to transfer tokens, empty stack when no address is specified.
   tokenAmounts: TokenBalance[] // -----| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), loan token amounts
 }
 
