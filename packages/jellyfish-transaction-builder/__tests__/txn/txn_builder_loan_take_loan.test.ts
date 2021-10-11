@@ -228,7 +228,7 @@ describe('loans.takeLoan', () => {
 
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'TSLA')
 
-    expect(new BigNumber(vaultAfterLoanTSLAAmount - vaultBeforeLoanTSLAAmount)).toStrictEqual(new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestAfterTSLA?.totalInterest as BigNumber)))
+    expect(new BigNumber(vaultAfterLoanTSLAAmount - vaultBeforeLoanTSLAAmount)).toStrictEqual(new BigNumber(40).plus(interestAfterTSLA?.totalInterest as BigNumber))
     // check the account of the vault address
     expect(await tGroup.get(0).rpc.account.getAccount(await providers.getAddress())).toStrictEqual(['40.00000000@TSLA'])
   })
@@ -290,7 +290,7 @@ describe('loans.takeLoan', () => {
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'CAT')
     const interestAccuredTSLA = interestAfterTSLA?.totalInterest
 
-    expect(new BigNumber(vaultAfterLoanTSLAAmount - vaultBeforeLoanTSLAAmount)).toStrictEqual(new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestAccuredTSLA as BigNumber)))
+    expect(new BigNumber(vaultAfterLoanTSLAAmount - vaultBeforeLoanTSLAAmount)).toStrictEqual(new BigNumber(40).plus(interestAccuredTSLA as BigNumber))
     // check toAddress account
     expect(await tGroup.get(1).rpc.account.getAccount(toAddress)).toStrictEqual(['40.00000000@CAT'])
   })
@@ -356,8 +356,8 @@ describe('loans.takeLoan', () => {
     const interestAfterAMZN = interestAfter.find((interest: { 'token': string }) => interest.token === 'AMZN')
     const interestAfterUBER = interestAfter.find((interest: { 'token': string }) => interest.token === 'UBER')
 
-    expect(new BigNumber(vaultAfterLoanAMZNAmount - vaultBeforeLoanAMZNAmount)).toStrictEqual(new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestAfterAMZN?.totalInterest as BigNumber)))
-    expect(new BigNumber(vaultAfterLoanUBERAmount - vaultBeforeLoanUBERAmount)).toStrictEqual(new BigNumber(30).plus(new BigNumber(30).multipliedBy(interestAfterUBER?.totalInterest as BigNumber)))
+    expect(new BigNumber(vaultAfterLoanAMZNAmount - vaultBeforeLoanAMZNAmount)).toStrictEqual(new BigNumber(40).plus(interestAfterAMZN?.totalInterest as BigNumber))
+    expect(new BigNumber(vaultAfterLoanUBERAmount - vaultBeforeLoanUBERAmount)).toStrictEqual(new BigNumber(30).plus(interestAfterUBER?.totalInterest as BigNumber))
 
     // check the account of the vault address
     expect(await tGroup.get(0).rpc.account.getAccount(await providers.getAddress())).toStrictEqual(expect.arrayContaining(['40.00000000@AMZN', '30.00000000@UBER']))
