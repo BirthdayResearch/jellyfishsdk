@@ -144,7 +144,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-   * Take laon transaction.
+   * Take loan transaction.
    *
    * @param {TakeLoan} takeLoan txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)

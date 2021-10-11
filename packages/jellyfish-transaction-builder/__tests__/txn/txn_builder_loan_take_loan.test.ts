@@ -81,45 +81,45 @@ describe('loans.takeLoan', () => {
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: 'BTC/USD'
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await tGroup.get(0).generate(1)
 
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'AMZN',
-      priceFeedId: 'AMZN/USD'
+      fixedIntervalPriceId: 'AMZN/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'UBER',
-      priceFeedId: 'UBER/USD'
+      fixedIntervalPriceId: 'UBER/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'CAT',
-      priceFeedId: 'CAT/USD'
+      fixedIntervalPriceId: 'CAT/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'XYZ',
-      priceFeedId: 'XYZ/USD'
+      fixedIntervalPriceId: 'XYZ/USD'
     })
     await tGroup.get(0).generate(1)
 
