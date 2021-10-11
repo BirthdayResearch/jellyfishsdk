@@ -31,24 +31,25 @@ describe('Loan listVaults', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
+    await testing.generate(1)
 
     // collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
 
     // loan tokens
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'AAPL',
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     })
     await testing.generate(1)
   })
@@ -66,12 +67,12 @@ describe('Loan listVaults', () => {
 
     // create an empty vault
     const ownerAddress1 = await testing.generateAddress()
-    const vaultId1 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress1 })
+    const vaultId1 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress1, loanSchemeId: 'default' })
     await testing.generate(1)
 
     // create a vault and deposit collateral
     const ownerAddress2 = await testing.generateAddress()
-    const vaultId2 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress2 })
+    const vaultId2 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress2, loanSchemeId: 'default' })
     await testing.generate(1)
     await testing.rpc.loan.depositToVault({ vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
@@ -90,7 +91,7 @@ describe('Loan listVaults', () => {
 
     // create a vault and make it liqudated.
     const ownerAddress4 = await testing.generateAddress()
-    const vaultId4 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress4 })
+    const vaultId4 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress4, loanSchemeId: 'default' })
     await testing.generate(1)
     await testing.rpc.loan.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
@@ -158,35 +159,36 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
+    await testing.generate(1)
 
     // collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
 
     // loan tokens
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'AAPL',
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     })
     await testing.generate(1)
 
     // create an empty vault
     ownerAddress1 = await testing.generateAddress()
-    vaultId1 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress1 })
+    vaultId1 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress1, loanSchemeId: 'default' })
     await testing.generate(1)
 
     // create a vault and deposit collateral
     ownerAddress2 = await testing.generateAddress()
-    vaultId2 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress2 })
+    vaultId2 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress2, loanSchemeId: 'default' })
     await testing.generate(1)
     await testing.rpc.loan.depositToVault({ vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
@@ -205,7 +207,7 @@ describe('Loan listVaults with options and pagination', () => {
 
     // create a vault and make it liqudated.
     ownerAddress4 = await testing.generateAddress()
-    vaultId4 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress4 })
+    vaultId4 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress4, loanSchemeId: 'default' })
     await testing.generate(1)
     await testing.rpc.loan.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
@@ -214,7 +216,7 @@ describe('Loan listVaults with options and pagination', () => {
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp2 = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp2, { prices: [{ tokenAmount: '1000@AAPL', currency: 'USD' }] })
-    await testing.generate(1)
+    await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
   })
 
   afterAll(async () => {

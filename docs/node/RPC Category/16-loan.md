@@ -136,7 +136,7 @@ interface loan {
 interface SetCollateralToken {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock?: number
 }
 
@@ -167,7 +167,7 @@ interface CollateralTokensData {
 interface CollateralTokenDetails {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
 }
 ```
@@ -184,7 +184,7 @@ interface loan {
 interface CollateralTokenDetails {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
 }
 ```
@@ -201,7 +201,7 @@ interface loan {
 interface SetLoanToken {
   symbol: string
   name?: string
-  priceFeedId: string
+  fixedIntervalPriceId: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -224,7 +224,7 @@ interface loan {
 interface UpdateLoanToken {
   symbol?: string
   name?: string
-  priceFeedId?: string
+  fixedIntervalPriceId?: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -266,7 +266,7 @@ interface ListLoanTokenResult {
 
 interface LoanTokenDetails {
   token: token.TokenResult
-  priceFeedId: string
+  fixedIntervalPriceId: string
   interest: BigNumber
 }
 

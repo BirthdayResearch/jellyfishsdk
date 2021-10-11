@@ -35,24 +35,25 @@ describe('Loan getVault', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await testing.generate(1)
 
     // collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await testing.rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: 'BTC/USD'
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
 
     // loan token
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
   })
@@ -158,7 +159,7 @@ describe('Loan getVault', () => {
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
-    await testing.generate(1)
+    await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
     const autionDetails: [] = await testing.rpc.call('listauctions', [], 'bignumber')

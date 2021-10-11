@@ -37,28 +37,27 @@ describe('Loan', () => {
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
-      // activateAfterBlock: 130  // <- hit socket hang up
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await testing.generate(1)
 
     // loan token
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
 
     txUber = await testing.rpc.loan.setLoanToken({
       symbol: 'UBER',
-      priceFeedId: 'UBER/USD',
+      fixedIntervalPriceId: 'UBER/USD',
       interest: new BigNumber('5')
     })
     await testing.generate(1)
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'AMZN',
-      priceFeedId: 'AMZN/USD',
+      fixedIntervalPriceId: 'AMZN/USD',
       interest: new BigNumber('2')
     })
     await testing.generate(1)

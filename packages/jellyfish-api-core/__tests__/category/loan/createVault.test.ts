@@ -56,32 +56,11 @@ describe('Loan createVault', () => {
     })
   })
 
-  it('should createVault with a generated ownerAddress if the given ownerAddress is an empty string', async () => {
-    const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: '',
-      loanSchemeId: 'scheme'
-    })
-    expect(typeof vaultId).toStrictEqual('string')
-    expect(vaultId.length).toStrictEqual(64)
-    await testing.generate(1)
-
-    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
-    expect(data).toStrictEqual({
-      loanSchemeId: 'scheme',
-      ownerAddress: expect.any(String),
-      isUnderLiquidation: false,
-      collateralAmounts: [],
-      loanAmount: [],
-      collateralValue: expect.any(BigNumber),
-      loanValue: expect.any(BigNumber),
-      currentRatio: expect.any(BigNumber)
-    })
-  })
-
   it('should createVault with default scheme if CreateVault.loanSchemeId is not given', async () => {
     const ownerAddress = await testing.generateAddress()
     const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: ownerAddress
+      ownerAddress: ownerAddress,
+      loanSchemeId: ''
     })
 
     expect(typeof vaultId).toStrictEqual('string')
@@ -103,15 +82,16 @@ describe('Loan createVault', () => {
 
   it('should not createVault if ownerAddress is invalid', async () => {
     const promise = testing.rpc.loan.createVault({
-      ownerAddress: '1234'
+      ownerAddress: '1234',
+      loanSchemeId: 'scheme'
     })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Error: Invalid owner address\', code: -5, method: createvault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'recipient script (1234) does not solvable/non-standard\', code: -5, method: createvault')
   })
 
   it('should not createVault if loanSchemeId is invalid', async () => {
     const promise = testing.rpc.loan.createVault({
-      ownerAddress: '',
+      ownerAddress: await testing.generateAddress(),
       loanSchemeId: '1234'
     })
 
@@ -145,14 +125,37 @@ describe('Loan createVault', () => {
     })
   })
 
-  it('should not createVault with utxos not from the owner', async () => {
-    const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
-    const promise = testing.rpc.loan.createVault({
-      ownerAddress: GenesisKeys[0].owner.address,
-      loanSchemeId: 'scheme'
-    }, [utxo])
+  // it('should not createVault with utxos not from the owner', async () => {
+  //   const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
+  //   const promise = testing.rpc.loan.createVault({
+  //     ownerAddress: GenesisKeys[0].owner.address,
+  //     loanSchemeId: 'scheme'
+  //   }, [utxo])
+  //
+  //   await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\ntx must have at least one input from token owner\', code: -32600, method: createvault')
+  // })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\ntx must have at least one input from token owner\', code: -32600, method: createvault')
+  describe('Loan createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
+    const container = new LoanMasterNodeRegTestContainer()
+    const testing = Testing.create(container)
+
+    beforeAll(async () => {
+      await testing.container.start()
+      await testing.container.waitForWalletCoinbaseMaturity()
+    })
+
+    afterAll(async () => {
+      await testing.container.stop()
+    })
+
+    it('should not createVault when no default scheme and CreateVault.loanSchemeId is not given', async () => {
+      const promise = testing.rpc.loan.createVault({
+        ownerAddress: await testing.generateAddress(),
+        loanSchemeId: ''
+      })
+
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\nThere is not default loan scheme\', code: -32600, method: createvault')
+    })
   })
 })
 
@@ -199,27 +202,5 @@ describe('Loan createVault with scheme set to be destroyed', () => {
     })
 
     await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\nCannot set scheme as loan scheme, set to be destroyed on block 120\', code: -32600, method: createvault')
-  })
-})
-
-describe('Loan createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
-  const container = new LoanMasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-  })
-
-  afterAll(async () => {
-    await testing.container.stop()
-  })
-
-  it('should not createVault when no default scheme and CreateVault.loanSchemeId is not given', async () => {
-    const promise = testing.rpc.loan.createVault({
-      ownerAddress: await testing.generateAddress()
-    })
-
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test VaultTx execution failed:\nThere is not default loan scheme\', code: -32600, method: createvault')
   })
 })
