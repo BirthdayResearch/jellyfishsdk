@@ -5,7 +5,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 
 describe('Loan', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
-  let vaultWithCollaterals: string // Vault with collateral token deposited
+  let vaultWithCollateral: string // Vault with collateral token deposited
 
   let vaultWithoutCollateral1: string // Vaults without collateral token deposited
   let vaultWithoutCollateral2: string
@@ -44,7 +44,7 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
 
-    // loan scheme set up
+    // loan scheme setup
     await tGroup.get(0).rpc.loan.createLoanScheme({
       minColRatio: 150,
       interestRate: new BigNumber(3),
@@ -52,7 +52,7 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // collateral token set up
+    // collateral token setup
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
@@ -60,7 +60,7 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // loan token set up
+    // loan token setup
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
@@ -68,14 +68,14 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     // Vaults setup
-    vaultWithCollaterals = await tGroup.get(0).rpc.loan.createVault({
+    vaultWithCollateral = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultWithCollaterals, from: collateralAddress, amount: '2@DFI'
+      vaultId: vaultWithCollateral, from: collateralAddress, amount: '2@DFI'
     })
     await tGroup.get(0).generate(1)
 
@@ -125,10 +125,10 @@ describe('Loan', () => {
     {
       const address = await tGroup.get(0).generateAddress()
       const addressAccountBefore = await tGroup.get(0).rpc.account.getAccount(address)
-      expect(addressAccountBefore).toStrictEqual([])
+      expect(addressAccountBefore).toStrictEqual([]) // 0 DFI
 
       const txId = await tGroup.get(0).rpc.loan.closeVault({
-        vaultId: vaultWithCollaterals,
+        vaultId: vaultWithCollateral,
         to: address
       })
       await tGroup.get(0).generate(1)
@@ -143,7 +143,7 @@ describe('Loan', () => {
     {
       const address = await tGroup.get(0).generateAddress()
       const addressAccountBefore = await tGroup.get(0).rpc.account.getAccount(address)
-      expect(addressAccountBefore).toStrictEqual([])
+      expect(addressAccountBefore).toStrictEqual([]) // 0 DFI
 
       const txId = await tGroup.get(0).rpc.loan.closeVault({
         vaultId: vaultWithoutCollateral1,
