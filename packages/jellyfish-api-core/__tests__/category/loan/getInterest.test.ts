@@ -123,8 +123,8 @@ describe('Loan', () => {
      *
      * [{
      *  token: 'TSLA',
-     *  totalInterest: 0.00000285,
-     *  interestPerBlock: 0.00000057
+     *  totalInterest: 0.00228308,
+     *  interestPerBlock: 0.00057077
      * }]
      */
     expect(interests.length).toStrictEqual(3)

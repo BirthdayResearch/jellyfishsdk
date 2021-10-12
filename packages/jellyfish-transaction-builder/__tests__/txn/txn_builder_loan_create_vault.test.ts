@@ -74,8 +74,6 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    await testing.generate(1)
-
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       vaultId: txid,
@@ -109,8 +107,6 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-
-    await testing.generate(1)
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       vaultId: txid,
@@ -144,8 +140,6 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-
-    await testing.generate(1)
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       vaultId: txid,
@@ -158,6 +152,8 @@ describe('loans.createVault', () => {
       loanValue: expect.any(BigNumber),
       currentRatio: expect.any(BigNumber)
     })
+
+    await testing.generate(1)
 
     const txn2 = await builder.loans.createVault({
       ownerAddress: script,
@@ -176,8 +172,6 @@ describe('loans.createVault', () => {
     expect(prevouts2[0].value.toNumber()).toBeLessThan(10)
 
     const txid2 = calculateTxid(txn2)
-
-    await testing.generate(1)
     const data2 = await testing.rpc.call('getvault', [txid2], 'bignumber')
     expect(data2).toStrictEqual({
       vaultId: txid2,
@@ -219,8 +213,6 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-
-    await testing.generate(1)
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       vaultId: txid,
