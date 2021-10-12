@@ -78,10 +78,10 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   // mint loan token TSLA
-  await alice.token.mint({ symbol: 'TSLA', amount: 21000 })
+  await alice.token.mint({ symbol: 'TSLA', amount: 30000 })
   await alice.generate(1)
 
-  await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['21000@TSLA'] })
+  await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['30000@TSLA'] })
   await alice.generate(1)
 
   // setLoanToken AMZN
@@ -258,8 +258,39 @@ afterEach(async () => {
   await tGroup.stop()
 })
 
-describe('loanPayback', () => {
-  it('should loanPayback', async () => {
+describe('loanPayback over', () => {
+  it('should overpay', async () => {
+    await alice.rpc.account.sendTokensToAddress({}, { [bobloanAddr]: ['5@TSLA'] })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    const vaultBefore = await bob.container.call('getvault', [bobVaultId])
+    expect(vaultBefore.loanAmount).toStrictEqual(['40.00006849@TSLA'])
+    expect(vaultBefore.loanValue).toStrictEqual(['80.00013698@TSLA'])
+    expect(vaultBefore.currentRatio).toStrictEqual(18750)
+
+    const bobLoanAccBefore = await bob.rpc.account.getAccount(bobloanAddr)
+    expect(bobLoanAccBefore).toStrictEqual(['45.00000000@TSLA'])
+
+    await bob.rpc.loan.loanPayback({
+      vaultId: bobVaultId,
+      amounts: '45@TSLA',
+      from: bobloanAddr
+    })
+    await bob.generate(1)
+
+    const vaultAfter = await bob.container.call('getvault', [bobVaultId])
+    expect(vaultAfter.loanAmount).toStrictEqual([])
+    expect(vaultAfter.loanValue).toStrictEqual(0)
+    expect(vaultAfter.currentRatio).toStrictEqual(-1)
+
+    const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
+    expect(bobLoanAccAfter).toStrictEqual(['4.99993151@TSLA']) // 45 - 40.00006849
+  })
+})
+
+describe('loanPayback partially', () => {
+  it('should loanPayback partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -527,11 +558,9 @@ describe('loanPayback failed', () => {
 
   it('should not loanPayback while insufficient amount', async () => {
     const vault = await bob.rpc.loan.getVault(bobVaultId)
-    console.log('vault: ', vault, vault.loanValue?.toFixed(8))
     expect(vault.loanAmount).toStrictEqual(['40.00004566@TSLA'])
 
     const bobLoanAcc = await bob.rpc.account.getAccount(bobloanAddr)
-    console.log('bobLoanAcc: ', bobLoanAcc)
     expect(bobLoanAcc).toStrictEqual(['40.00000000@TSLA'])
 
     const promise = bob.rpc.loan.loanPayback({
