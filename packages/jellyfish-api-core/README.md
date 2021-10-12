@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-core)](https://www.npmjs.com/package/@defichain/jellyfish-api-core/v/latest)
-
 # @defichain/jellyfish-api-core
 
 `@defichain/jellyfish-api-core` is a protocol agnostic DeFiChain client implementation with APIs separated into their
