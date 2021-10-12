@@ -5,26 +5,5 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-  },
-  "files": [],
-  "references": [
-    {"path": "./packages/jellyfish-address/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-api-core/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-api-jsonrpc/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-block/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-buffer/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-crypto/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-json/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-network/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-testing/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-transaction/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-transaction-builder/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-transaction-signature/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-wallet/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-wallet-classic/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-wallet-encrypted/tsconfig.build.json"},
-    {"path": "./packages/jellyfish-wallet-mnemonic/tsconfig.build.json"},
-    {"path": "./packages/testcontainers/tsconfig.build.json"},
-    {"path": "./packages/testing/tsconfig.build.json"}
- ]
+  }
 }

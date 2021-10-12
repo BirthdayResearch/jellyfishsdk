@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/testing)](https://www.npmjs.com/package/@defichain/testing/v/latest)
-
 # @defichain/testing
 
 Testing is an essential part of any serious quality software developer work. This package provides many abstractions for
