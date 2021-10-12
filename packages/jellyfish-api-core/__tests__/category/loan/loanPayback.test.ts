@@ -316,7 +316,7 @@ describe('loanPayback partially', () => {
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     expect(vaultAfter.loanAmount).toStrictEqual(['27.00007648@TSLA']) // 40.00004566 - 13 + totalInterest
-    expect(vaultAfter.loanValue).toStrictEqual(54.00015296) // 27.00007648 * 2 (::1 TSLA = 2 DFI)
+    expect(vaultAfter.loanValue).toStrictEqual(54.00015296) // 27.00007648 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00015296 * 100
 
     const burnInfoAfter = await bob.container.call('getburninfo')
@@ -347,7 +347,7 @@ describe('loanPayback by anyone', () => {
     expect(loanAccAfter).toStrictEqual(['100000.00000000@DFI', '29999.00000000@BTC', '9992.00000000@TSLA'])
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     expect(vaultAfter.loanAmount).toStrictEqual(['32.00008218@TSLA']) // 40.00004566 - 8 + totalInterest
-    expect(vaultAfter.loanValue).toStrictEqual(64.00016436) // 32.00008218 * 2 (::1 TSLA = 2 DFI)
+    expect(vaultAfter.loanValue).toStrictEqual(64.00016436) // 32.00008218 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.currentRatio).toStrictEqual(23437) // 15000 / 64.00016436 * 100
   })
 })
@@ -484,7 +484,7 @@ describe('loanPayback with utxos', () => {
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     expect(vaultAfter.loanAmount).toStrictEqual(['27.00009931@TSLA']) // 40.00004566 - 13 + totalInterest
-    expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 DFI)
+    expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00019862 * 100
 
     const rawtx = await bob.container.call('getrawtransaction', [txid, true])
