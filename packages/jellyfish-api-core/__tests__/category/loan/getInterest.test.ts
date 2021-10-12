@@ -86,9 +86,9 @@ describe('Loan', () => {
       vaultId: vaultId,
       amounts: '1000@TSLA'
     })
-    await testing.generate(1)
+    interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount() // interest should be calculated from the current block(inclusive)
 
-    interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.generate(1)
 
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
@@ -107,6 +107,9 @@ describe('Loan', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     await setup()
+    // set BigNumber configs to match defid
+    BigNumber.set({ DECIMAL_PLACES: 8 })
+    BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_DOWN })
   })
 
   afterAll(async () => {
@@ -120,8 +123,8 @@ describe('Loan', () => {
      *
      * [{
      *  token: 'TSLA',
-     *  totalInterest: 0.00000285,
-     *  interestPerBlock: 0.00000057
+     *  totalInterest: 0.00228308,
+     *  interestPerBlock: 0.00057077
      * }]
      */
     expect(interests.length).toStrictEqual(3)
@@ -129,15 +132,15 @@ describe('Loan', () => {
     expect(interests[1].token).toStrictEqual('UBER')
     expect(interests[2].token).toStrictEqual('AMZN')
 
-    // calculate interest per block
+    // calculate interest per block for TSLA
     const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
-    const interestPerBlock = (netInterest * 1) / (365 * blocksPerDay) //  netInterest * rate.count / 365 * blocksPerDay
-    expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8))
+    const interestPerBlock = new BigNumber(netInterest).multipliedBy(1000).dividedBy(365 * blocksPerDay) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
+    expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, 1))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = ((blockHeight - interestTSLABlockHeight + 1) * interestPerBlock)
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight - interestTSLABlockHeight + 1)
     expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8))
   })
 
