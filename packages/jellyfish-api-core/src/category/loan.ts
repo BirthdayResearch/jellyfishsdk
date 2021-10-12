@@ -374,7 +374,7 @@ export interface CreateVault {
 }
 
 export interface VaultDetails {
-  vaultId?: string
+  vaultId: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
