@@ -258,15 +258,15 @@ afterEach(async () => {
   await tGroup.stop()
 })
 
-describe('loanPayback over', () => {
-  it('should overpay', async () => {
+describe('loanPayback', () => {
+  it('should loanPayback', async () => {
     await alice.rpc.account.sendTokensToAddress({}, { [bobloanAddr]: ['5@TSLA'] })
     await alice.generate(1)
     await tGroup.waitForSync()
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.loanAmount).toStrictEqual(['40.00006849@TSLA'])
-    expect(vaultBefore.loanValue).toStrictEqual(['80.00013698@TSLA'])
+    expect(vaultBefore.loanValue).toStrictEqual(80.00013698)
     expect(vaultBefore.currentRatio).toStrictEqual(18750)
 
     const bobLoanAccBefore = await bob.rpc.account.getAccount(bobloanAddr)
@@ -274,7 +274,7 @@ describe('loanPayback over', () => {
 
     await bob.rpc.loan.loanPayback({
       vaultId: bobVaultId,
-      amounts: '45@TSLA',
+      amounts: '45@TSLA', // try pay over loan amount
       from: bobloanAddr
     })
     await bob.generate(1)
@@ -327,7 +327,7 @@ describe('loanPayback partially', () => {
 describe('loanPayback by anyone', () => {
   it('should loanPayback by anyone', async () => {
     const loanAccBefore = await bob.container.call('getaccount', [aliceColAddr])
-    expect(loanAccBefore).toStrictEqual(['100000.00000000@DFI', '29999.00000000@BTC', '1000.00000000@TSLA'])
+    expect(loanAccBefore).toStrictEqual(['100000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.collateralValue).toStrictEqual(15000) // DFI(10000) + BTC(1 * 10000 * 0.5)
@@ -344,7 +344,7 @@ describe('loanPayback by anyone', () => {
     await alice.generate(1)
 
     const loanAccAfter = await bob.container.call('getaccount', [aliceColAddr])
-    expect(loanAccAfter).toStrictEqual(['100000.00000000@DFI', '29999.00000000@BTC', '992.00000000@TSLA'])
+    expect(loanAccAfter).toStrictEqual(['100000.00000000@DFI', '29999.00000000@BTC', '9992.00000000@TSLA'])
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     expect(vaultAfter.loanAmount).toStrictEqual(['32.00008218@TSLA']) // 40.00004566 - 8 + totalInterest
     expect(vaultAfter.loanValue).toStrictEqual(64.00016436) // 32.00008218 * 2 (::1 TSLA = 2 DFI)
