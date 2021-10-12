@@ -340,6 +340,8 @@ describe('Loan', () => {
   })
 
   it('should not deposit to liquidated vault', async () => {
+    await tGroup.get(0).generate(6)
+
     const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
     expect(liqVault.isUnderLiquidation).toStrictEqual(true)
 
