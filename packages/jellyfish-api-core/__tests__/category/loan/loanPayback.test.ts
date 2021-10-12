@@ -525,14 +525,22 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`There are no loans on this vault (${bobVaultId1})`)
   })
 
-  it('should not loanPayback while exceeds loan value', async () => {
+  it('should not loanPayback while insufficient amount', async () => {
+    const vault = await bob.rpc.loan.getVault(bobVaultId)
+    console.log('vault: ', vault, vault.loanValue?.toFixed(8))
+    expect(vault.loanAmount).toStrictEqual(['40.00004566@TSLA'])
+
+    const bobLoanAcc = await bob.rpc.account.getAccount(bobloanAddr)
+    console.log('bobLoanAcc: ', bobLoanAcc)
+    expect(bobLoanAcc).toStrictEqual(['40.00000000@TSLA'])
+
     const promise = bob.rpc.loan.loanPayback({
       vaultId: bobVaultId,
       amounts: '41@TSLA',
       from: bobloanAddr
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    // loanValue 80.0000456 - loanPayback 80 =  0.00004560
+    // loanAmount 40.00004566 - balance 40 =  0.00004566
     await expect(promise).rejects.toThrow('amount 0.00000000 is less than 0.00004566')
   })
 
