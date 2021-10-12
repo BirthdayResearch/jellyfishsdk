@@ -120,8 +120,9 @@ describe('Loan', () => {
   })
 
   // it('should not closeVault as different auth address', async () => {
-  //   const promise = tGroup.get(1).rpc.loan.closeVault({ vaultId: vaultId1, to: vaultAddress2 })
-  //   await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${vaultAddress2}', code: -5, method: closevault`)
+  //   const address = await tGroup.get(1).generateAddress()
+  //   const promise = tGroup.get(1).rpc.loan.closeVault({ vaultId: vaultId2, to: address })
+  //   await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${address}', code: -5, method: closevault`)
   // })
   //
   // it('should closeVault with utxos', async () => {
