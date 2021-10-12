@@ -39,21 +39,21 @@ async function setup (): Promise<void> {
   await alice.rpc.loan.setCollateralToken({
     token: 'DFI',
     factor: new BigNumber(1),
-    priceFeedId: 'DFI/USD'
+    fixedIntervalPriceId: 'DFI/USD'
   })
   await alice.generate(1)
 
   await alice.rpc.loan.setCollateralToken({
     token: 'BTC',
     factor: new BigNumber(1),
-    priceFeedId: 'BTC/USD'
+    fixedIntervalPriceId: 'BTC/USD'
   })
   await alice.generate(1)
 
   // loan token
   await alice.rpc.loan.setLoanToken({
     symbol: 'TSLA',
-    priceFeedId: 'TSLA/USD'
+    fixedIntervalPriceId: 'TSLA/USD'
   })
   await alice.generate(1)
 
