@@ -263,6 +263,21 @@ export class Loan {
   async takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('takeloan', [metadata, utxos], 'number')
   }
+
+  /**
+   * Close vault
+   *
+   * @param {CloseVault} closeVault
+   * @param {string} closeVault.vaultId Vault id
+   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -401,4 +416,9 @@ export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
   isUnderLiquidation?: boolean
+}
+
+export interface CloseVault {
+  vaultId: string
+  to: string
 }

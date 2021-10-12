@@ -2,7 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { GenesisKeys } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
+// import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Loan', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
@@ -133,76 +133,49 @@ describe('Loan', () => {
     await tGroup.waitForSync()
   }
 
-  it('should depositToVault', async () => {
-    // {
-    // const depositId =
-    await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId, from: collateralAddress, amount: '10000@DFI'
-    })
-    await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
-    // }
-
-    {
-      const depositId = await tGroup.get(0).rpc.loan.depositToVault({
-        vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
-      })
-      expect(typeof depositId).toStrictEqual('string')
-      await tGroup.get(0).generate(1)
-      await tGroup.waitForSync()
-    }
+  it('should closeVault', async () => {
+    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultId, to: collateralAddress })
+    expect(typeof txId).toStrictEqual('string')
+    expect(txId.length).toStrictEqual(64)
   })
 
-  it('should be able to depositToVault by anyone', async () => {
-    // const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
-    //
-    // const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
-    //   ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
-    //   : undefined
-    // const vaultBeforeDFIAmt = vaultBeforeDFIAcc !== undefined ? Number(vaultBeforeDFIAcc.split('@')[0]) : 0
-
-    // test node1 deposits to vault
-    const addr = await tGroup.get(1).generateAddress()
-    await tGroup.get(1).token.dfi({ address: addr, amount: 100 })
-    await tGroup.get(1).generate(1)
-    const depositId = await tGroup.get(1).rpc.loan.depositToVault({
-      vaultId: vaultId, from: addr, amount: '2@DFI'
-    })
-    expect(typeof depositId).toStrictEqual('string')
-    await tGroup.get(1).generate(1)
-    await tGroup.waitForSync()
-    // const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
-
-    // // compare colalteralAmounts
-    // const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
-    // const vaultAFterDFIAmt = Number(vaultAfterDFIAcc.split('@')[0])
-    // expect(vaultAFterDFIAmt - vaultBeforeDFIAmt).toStrictEqual(2)
-    //
-    // // compare collateralValue
-    // // calculate DFI collateral value with factor
-    // const dfiDeposit = 2 * 1 * 1 // deposit 10000 DFI * priceFeed 1 USD * 1 factor
-    // expect(vaultAfter.collateralValue - vaultBefore.collateralValue).toStrictEqual(dfiDeposit)
+  it('should closeVault as vault does not exist', async () => {
+    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: '0'.repeat(64), to: collateralAddress })
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}> does not found', code: -5, method: closevault`)
   })
 
-  it('should depositToVault with utxos', async () => {
-    // const utxo =
-    await tGroup.get(0).container.fundAddress(collateralAddress, 250)
-    // const depositId = await tGroup.get(0).rpc.loan.depositToVault({
-    //   vaultId: vaultId, from: collateralAddress, amount: '250@DFI'
-    // }, [utxo])
-    // expect(typeof depositId).toStrictEqual('string')
-    await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
-  })
-
-  it('should not deposit to liquidated vault', async () => {
+  it('should not closeVault for liquidated vault', async () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
     expect(liqVault.isUnderLiquidation).toStrictEqual(true)
 
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: liqVaultId, from: collateralAddress, amount: '1000@DFI'
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Cannot deposit to vault under liquidation')
+    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: '0'.repeat(64), to: collateralAddress })
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}>  does not found', code: -5, method: closevault`)
   })
+
+  it('should not closeVault as different auth address', async () => {
+    const collateralAddress = await tGroup.get(1).generateAddress()
+    const promise = tGroup.get(1).rpc.loan.closeVault({ vaultId: vaultId, to: collateralAddress })
+    await expect(promise).rejects.toThrow(`Error: RpcApiError: 'Incorrect authorization for ${collateralAddress}', code: -5, method: closevault`)
+  })
+  //
+  // it('should closeVault with utxos', async () => {
+  //   const utxo = await tGroup.get(0).container.fundAddress(collateralAddress, 250)
+  //   const address = await tGroup.get(0).generateAddress()
+  //   const txId = await tGroup.get(0).rpc.loan.closeVault({vaultId: vaultId2, to: address})
+  //   expect(typeof txId).toStrictEqual('string')
+  //   expect(txId.length).toStrictEqual(64)
+  //   const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txId, true])
+  //   expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
+  //   expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
+  // })
+  //
+  // it('should not depositToVault with arbitrary utxos', async () => {
+  //   const utxo = await tGroup.get(0).container.fundAddress(await tGroup.get(0).generateAddress(), 10)
+  //
+  //   const promise = tGroup.get(0).rpc.loan.depositToVault({
+  //     vaultId: vaultId2, from: collateralAddress, amount: '1@BTC'
+  //   }, [utxo])
+  //   await expect(promise).rejects.toThrow(RpcApiError)
+  //   await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
+  // })
 })
