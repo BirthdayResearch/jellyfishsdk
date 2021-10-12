@@ -250,7 +250,7 @@ export interface CloseVault {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CCloseVault extends ComposableBuffer<CloseVault> {
-  static OP_CODE = 0x63 // 'c'
+  static OP_CODE = 0x65 // 'e'
   static OP_NAME = 'OP_DEFI_TX_CLOSE_VAULT'
 
   composers (cv: CloseVault): BufferComposer[] {

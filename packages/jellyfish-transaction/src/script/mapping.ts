@@ -73,7 +73,9 @@ import {
   CCreateVault,
   CreateVault,
   CDepositToVault,
-  DepositToVault
+  DepositToVault,
+  CCloseVault,
+  CloseVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -501,6 +503,14 @@ export const OP_CODES = {
       type: CDepositToVault.OP_CODE,
       name: CDepositToVault.OP_NAME,
       data: depositToVault
+    })
+  },
+  OP_DEFI_TX_CLOSE_VAULT: (closeVault: CloseVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCloseVault.OP_CODE,
+      name: CCloseVault.OP_NAME,
+      data: closeVault
     })
   },
   OP_0: new constants.OP_0(),
