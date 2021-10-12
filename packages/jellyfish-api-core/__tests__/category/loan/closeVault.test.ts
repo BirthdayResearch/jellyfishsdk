@@ -26,23 +26,17 @@ describe('Loan', () => {
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 30000 })
     await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'BTC', amount: 20000 })
-    await tGroup.get(0).generate(1)
 
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
-      { token: 'BTC', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' }
     ]
     const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
 
@@ -51,13 +45,6 @@ describe('Loan', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DFI/USD'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.setCollateralToken({
-      token: 'BTC',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'BTC/USD'
     })
     await tGroup.get(0).generate(1)
 
