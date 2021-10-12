@@ -25,7 +25,7 @@ describe('Loan updateVault', () => {
 
     // Another scheme
     await testing.rpc.loan.createLoanScheme({
-      minColRatio: 200,
+      minColRatio: 500,
       interestRate: new BigNumber(0.5),
       id: 'scheme'
     })
@@ -44,20 +44,21 @@ describe('Loan updateVault', () => {
     await testing.generate(1)
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+
     await testing.generate(1)
 
     // Add collateralToken
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await testing.generate(1)
 
     // Add setLoanToken
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
 
@@ -94,6 +95,7 @@ describe('Loan updateVault', () => {
 
     const data = await testing.rpc.call('getvault', [createVaultId], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: createVaultId,
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
@@ -137,7 +139,7 @@ describe('Loan updateVault', () => {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await testing.generate(1)
+    await testing.generate(100)
 
     {
       const data = await testing.rpc.loan.getVault(vaultId)
@@ -225,6 +227,7 @@ describe('Loan updateVault', () => {
 
     const data = await testing.rpc.call('getvault', [createVaultId], 'bignumber')
     expect(data).toStrictEqual({
+      vaultId: createVaultId,
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
       isUnderLiquidation: false,
@@ -244,16 +247,6 @@ describe('Loan updateVault', () => {
     }, [utxo])
 
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\ntx must have at least one input from token owner\', code: -32600, method: updatevault')
-  })
-
-  it('should be failed as different auth address', async () => {
-    const ownerAddress = GenesisKeys[1].owner.address
-    const promise = testing.rpc.loan.updateVault(createVaultId, {
-      ownerAddress,
-      loanSchemeId: 'scheme'
-    })
-
-    await expect(promise).rejects.toThrow(`Incorrect authorization for ${ownerAddress}`)
   })
 })
 
