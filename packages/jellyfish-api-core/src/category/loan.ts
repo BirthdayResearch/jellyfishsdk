@@ -97,7 +97,7 @@ export class Loan {
    * @param {SetCollateralToken} collateralToken
    * @param {string} collateralToken.token Symbol or id of collateral token
    * @param {BigNumber} collateralToken.factor Collateralization factor
-   * @param {string} collateralToken.priceFeedId token/currency pair to use for price of token
+   * @param {string} collateralToken.fixedIntervalPriceId token/currency pair to use for price of token
    * @param {number} [collateralToken.activateAfterBlock] changes will be active after the block height
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
@@ -136,7 +136,7 @@ export class Loan {
    * @param {SetLoanToken} loanToken
    * @param {string} loanToken.symbol Token's symbol (unique), no longer than 8
    * @param {string} [loanToken.name] Token's name, no longer than 128
-   * @param {string} loanToken.priceFeedId token/currency pair to use for price of token
+   * @param {string} loanToken.fixedIntervalPriceId token/currency pair to use for price of token
    * @param {boolean} [loanToken.mintable = true] Token's 'Mintable' property
    * @param {BigNumber} [loanToken.interest = 0] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -159,7 +159,7 @@ export class Loan {
    * @param {UpdateLoanToken} newTokenDetails
    * @param {string} [newTokenDetails.symbol] New token's symbol (unique), no longer than 8
    * @param {string} [newTokenDetails.name] Token's name, no longer than 128
-   * @param {string} [newTokenDetails.priceFeedId] token/currency pair to use for price of token
+   * @param {string} [newTokenDetails.fixedIntervalPriceId] token/currency pair to use for price of token
    * @param {boolean} [newTokenDetails.mintable] Token's 'Mintable' property
    * @param {BigNumber} [newTokenDetails.interest] Interest rate
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
@@ -207,22 +207,6 @@ export class Loan {
   }
 
   /**
-   * Update a vault transaction.
-   *
-   * @param {string} vaultId
-   * @param {UpdateVault} vault
-   * @param {string} [vault.ownerAddress] Any valid address
-   * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
-   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} utxos.txid Transaction Id
-   * @param {number} utxos.vout Output number
-   * @return {Promise<string>} Transaction id of the transaction
-   */
-  async updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('updatevault', [vaultId, vault, utxos], 'number')
-  }
-
-  /**
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
@@ -230,6 +214,23 @@ export class Loan {
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
     return await this.client.call('getvault', [vaultId], 'bignumber')
+  }
+
+  /**
+   * List all available vaults.
+   *
+   * @param {VaultPagination} [pagination]
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @param {ListVaultOptions} [options]
+   * @param {string} [options.ownerAddress] Address of the vault owner
+   * @param {string} [options.loanSchemeId] Vault's loan scheme id
+   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
+   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
+   */
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
+    return await this.client.call('listvaults', [options, pagination], 'bignumber')
   }
 
   /**
@@ -292,7 +293,7 @@ export interface LoanSchemeResult {
 export interface SetCollateralToken {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock?: number
 }
 
@@ -314,14 +315,14 @@ export interface ListCollateralTokens {
 export interface CollateralTokenDetails {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
 }
 
 export interface SetLoanToken {
   symbol: string
   name?: string
-  priceFeedId: string
+  fixedIntervalPriceId: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -332,14 +333,14 @@ export interface ListLoanTokenResult {
 
 export interface LoanTokenDetails {
   token: token.TokenResult
-  priceFeedId: string
+  fixedIntervalPriceId: string
   interest: BigNumber
 }
 
 export interface UpdateLoanToken {
   symbol?: string
   name?: string
-  priceFeedId?: string
+  fixedIntervalPriceId?: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -355,12 +356,8 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
-export interface UpdateVault {
-  ownerAddress?: string
-  loanSchemeId?: string
-}
-
 export interface VaultDetails {
+  vaultId?: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
@@ -378,6 +375,11 @@ export interface AuctionBatchDetails {
   loan: string
 }
 
+export interface UTXO {
+  txid: string
+  vout: number
+}
+
 export interface DepositVault {
   vaultId: string
   from: string
@@ -389,7 +391,14 @@ export interface TakeLoanMetadata {
   amounts: string // amount@symbol
 }
 
-export interface UTXO {
-  txid: string
-  vout: number
+export interface VaultPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
+}
+
+export interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  isUnderLiquidation?: boolean
 }
