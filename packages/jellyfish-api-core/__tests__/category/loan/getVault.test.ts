@@ -69,6 +69,7 @@ describe('Loan getVault', () => {
 
     const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
@@ -92,6 +93,7 @@ describe('Loan getVault', () => {
 
     const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
@@ -123,16 +125,17 @@ describe('Loan getVault', () => {
 
     const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
-      // 30 TSLA + (30 TSLA * total interest)
-      loanAmount: [new BigNumber(30).plus(new BigNumber(30).multipliedBy(interestInfo[0].totalInterest)).toFixed(8) + '@TSLA'], // 30.00000570@TSLA
+      // 30 TSLA + total interest
+      loanAmount: [new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8) + '@TSLA'], // 30.00001140@TSLA
       // (10000 DFI * DFIUSD Price * DFI collaterization factor 1) + (1BTC * BTCUSD Price * BTC collaterization factor 0.5)
       collateralValue: new BigNumber(10000 * 1 * 1).plus(new BigNumber(1 * 10000 * 0.5)),
-      // (30 TSLA + (30 TSLA * total interest)) * TSLAUSD Price
-      loanValue: new BigNumber(30).plus(new BigNumber(30).multipliedBy(interestInfo[0].totalInterest)).multipliedBy(2),
+      // (30 TSLA + total interest) * TSLAUSD Price
+      loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       // lround ((collateral value / loan value) * 100)
       currentRatio: new BigNumber(data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100).toFixed(0, 4) as string)
     })
@@ -166,6 +169,7 @@ describe('Loan getVault', () => {
 
     const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
     expect(vaultDataAfterPriceHike).toStrictEqual({
+      vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: true,
