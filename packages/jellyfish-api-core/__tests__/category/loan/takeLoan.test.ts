@@ -10,7 +10,6 @@ describe('Loan', () => {
   let vaultAddress: string
   let vaultId1: string
   let vaultAddress1: string
-  let liqVaultId: string
 
   async function setup (): Promise<void> {
     // token setup
@@ -28,23 +27,13 @@ describe('Loan', () => {
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' },
-      { token: 'AMZN', currency: 'USD' },
-      { token: 'UBER', currency: 'USD' }
+      { token: 'TSLA', currency: 'USD' }
     ]
     const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, {
-      prices: [
-        { tokenAmount: '1@DFI', currency: 'USD' },
-        { tokenAmount: '10000@BTC', currency: 'USD' },
-        { tokenAmount: '2@TSLA', currency: 'USD' },
-        { tokenAmount: '4@AMZN', currency: 'USD' },
-        { tokenAmount: '4@UBER', currency: 'USD' }
-      ]
-    })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }, { tokenAmount: '10000@BTC', currency: 'USD' }, { tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
@@ -68,20 +57,6 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
-
-    await tGroup.get(0).rpc.loan.setLoanToken({
-      symbol: 'AMZN',
-      fixedIntervalPriceId: 'AMZN/USD'
-    })
-    await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
-
-    await tGroup.get(0).rpc.loan.setLoanToken({
-      symbol: 'UBER',
-      fixedIntervalPriceId: 'UBER/USD'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
@@ -121,32 +96,8 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '10000@DFI'
+      vaultId: vaultId1, from: collateralAddress, amount: '12000@DFI'
     })
-    await tGroup.get(0).generate(1)
-    await tGroup.waitForSync()
-
-    // createVault for liquidation
-    const liqVaultAddress = await tGroup.get(0).generateAddress()
-    liqVaultId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: liqVaultAddress,
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: liqVaultId,
-      amounts: '1000@UBER'
-    })
-    await tGroup.get(0).generate(1)
-
-    // liquidated: true
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@UBER', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
   }
@@ -162,160 +113,6 @@ describe('Loan', () => {
       await tGroup.stop()
     })
 
-    it('should takeLoan', async () => {
-      const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
-      expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
-      expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
-      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
-      expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
-      expect(vaultBefore.collateralValue).toStrictEqual(15000)
-      expect(vaultBefore.loanAmount).toStrictEqual([])
-      expect(vaultBefore.loanValue).toStrictEqual(0)
-      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
-
-      const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
-        ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
-        : undefined
-      const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
-
-      const txid = await tGroup.get(0).rpc.loan.takeLoan({
-        vaultId: vaultId,
-        amounts: '40@TSLA'
-      })
-      expect(typeof txid).toStrictEqual('string')
-      await tGroup.get(0).generate(1)
-      await tGroup.waitForSync()
-
-      const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
-      expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
-      expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
-      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
-      expect(vaultAfter.collateralAmounts).toStrictEqual(vaultBefore.collateralAmounts)
-      expect(vaultAfter.collateralValue).toStrictEqual(vaultBefore.collateralValue)
-
-      const interestInfo = await tGroup.get(0).container.call('getinterest', ['scheme', 'TSLA'])
-      const loanAmount = new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestInfo[0].totalInterest))
-      expect(vaultAfter.loanAmount).toStrictEqual([loanAmount.toFixed(8) + '@TSLA']) // 40.00002280@TSLA
-      expect(vaultAfter.loanValue).toStrictEqual(loanAmount.multipliedBy(2).toNumber())
-      expect(vaultAfter.currentRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
-
-      const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
-      const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(40.00002280)
-    })
-  })
-
-  describe('takeLoan multiple amounts', () => {
-    beforeAll(async () => {
-      await tGroup.start()
-      await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
-      await setup()
-    })
-
-    afterAll(async () => {
-      await tGroup.stop()
-    })
-
-    it('should takeLoan with multiple amounts', async () => {
-      const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
-      expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
-      expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
-      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
-      expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
-      expect(vaultBefore.collateralValue).toStrictEqual(15000)
-      expect(vaultBefore.loanAmount).toStrictEqual([])
-      expect(vaultBefore.loanValue).toStrictEqual(0)
-      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
-
-      const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
-        ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
-        : undefined
-      const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
-
-      const vaultBeforeAMZNAcc = vaultBefore.loanAmount.length > 0
-        ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'AMZN')
-        : undefined
-      const vaultBeforeAMZNAmt = vaultBeforeAMZNAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
-
-      const txid = await tGroup.get(0).rpc.loan.takeLoan({
-        vaultId: vaultId,
-        amounts: ['40@TSLA', '15@AMZN']
-      })
-      expect(typeof txid).toStrictEqual('string')
-      await tGroup.get(0).generate(1)
-      await tGroup.waitForSync()
-
-      const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
-      expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
-      expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
-      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
-      expect(vaultAfter.collateralAmounts).toStrictEqual(vaultBefore.collateralAmounts)
-      expect(vaultAfter.collateralValue).toStrictEqual(vaultBefore.collateralValue)
-
-      const interestInfo = await tGroup.get(0).container.call('getinterest', ['scheme'])
-      const loanAmountTSLA = new BigNumber(40).plus(new BigNumber(40).multipliedBy(interestInfo[0].totalInterest))
-      const loanAmountAMZN = new BigNumber(15).plus(new BigNumber(15).multipliedBy(interestInfo[1].totalInterest))
-      expect(vaultAfter.loanAmount).toStrictEqual([loanAmountTSLA.toFixed(8) + '@TSLA', loanAmountAMZN.toFixed(8) + '@AMZN']) // [40.00002280@TSLA, 15.00000855@AMZN]
-      expect(vaultAfter.loanValue).toStrictEqual(loanAmountTSLA.multipliedBy(2).toNumber() + loanAmountAMZN.multipliedBy(4).toNumber())
-      expect(vaultAfter.currentRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
-
-      const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
-      const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(40.00002280)
-
-      const vaultAfterAMZNAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'AMZN')
-      const vaultAfterAMZNAmt = Number(vaultAfterAMZNAcc.split('@')[0])
-      expect(vaultAfterAMZNAmt - vaultBeforeAMZNAmt).toStrictEqual(15.00000855)
-    })
-  })
-
-  describe('takeLoan with utxos', () => {
-    beforeAll(async () => {
-      await tGroup.start()
-      await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
-      await setup()
-    })
-
-    afterAll(async () => {
-      await tGroup.stop()
-    })
-
-    it('should takeLoan with utxos', async () => {
-      const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId1])
-      const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
-        ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
-        : undefined
-      const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
-
-      const utxo = await tGroup.get(0).container.fundAddress(vaultAddress1, 250)
-      const txid = await tGroup.get(0).rpc.loan.takeLoan({
-        vaultId: vaultId1,
-        amounts: '5@TSLA'
-      }, [utxo])
-      await tGroup.get(0).generate(1)
-      await tGroup.waitForSync()
-
-      const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId1])
-      const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
-      const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.00000285)
-
-      const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txid, true])
-      expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
-      expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
-    })
-  })
-
-  describe('takeLoan failed', () => {
-    beforeAll(async () => {
-      await tGroup.start()
-      await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
-      await setup()
-    })
-
-    afterAll(async () => {
-      await tGroup.stop()
-    })
     it('should not takeLoan on nonexistent vault', async () => {
       const promise = tGroup.get(0).rpc.loan.takeLoan({
         vaultId: '0'.repeat(64),
@@ -378,16 +175,83 @@ describe('Loan', () => {
       await tGroup.waitForSync()
     })
 
-    it('should not takeLoan on liquidation vault', async () => {
-      const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
-      expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    it('should takeLoan', async () => {
+      const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
+      expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
+      expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
+      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
+      expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
+      expect(vaultBefore.collateralValue).toStrictEqual(15000)
+      expect(vaultBefore.loanAmount).toStrictEqual([])
+      expect(vaultBefore.loanValue).toStrictEqual(0)
+      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
 
-      const promise = tGroup.get(0).rpc.loan.takeLoan({
-        vaultId: liqVaultId,
-        amounts: '30@UBER'
+      const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
+        ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
+        : undefined
+      const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
+
+      const txid = await tGroup.get(0).rpc.loan.takeLoan({
+        vaultId: vaultId,
+        amounts: '40@TSLA'
       })
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Cannot take loan on vault under liquidation')
+      expect(typeof txid).toStrictEqual('string')
+      await tGroup.get(0).generate(1)
+      await tGroup.waitForSync()
+
+      const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
+      expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
+      expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
+      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
+      expect(vaultAfter.collateralAmounts).toStrictEqual(vaultBefore.collateralAmounts)
+      expect(vaultAfter.collateralValue).toStrictEqual(vaultBefore.collateralValue)
+
+      const interestInfo = await tGroup.get(0).container.call('getinterest', ['scheme', 'TSLA'])
+      const loanAmount = new BigNumber(40).plus(interestInfo[0].totalInterest)
+      expect(vaultAfter.loanAmount).toStrictEqual([loanAmount.toFixed(8) + '@TSLA']) // 40.00004566@TSLA
+      expect(vaultAfter.loanValue).toStrictEqual(loanAmount.multipliedBy(2).toNumber())
+      expect(vaultAfter.currentRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
+
+      const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
+      const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
+      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(40.00004566)
+    })
+  })
+
+  describe('takeLoan with utxos', () => {
+    beforeAll(async () => {
+      await tGroup.start()
+      await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
+      await setup()
+    })
+
+    afterAll(async () => {
+      await tGroup.stop()
+    })
+
+    it('should takeLoan with utxos', async () => {
+      const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId1])
+      const vaultBeforeTSLAAcc = vaultBefore.loanAmount.length > 0
+        ? vaultBefore.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
+        : undefined
+      const vaultBeforeTSLAAmt = vaultBeforeTSLAAcc !== undefined ? Number(vaultBeforeTSLAAcc.split('@')[0]) : 0
+
+      const utxo = await tGroup.get(0).container.fundAddress(vaultAddress1, 250)
+      const txid = await tGroup.get(0).rpc.loan.takeLoan({
+        vaultId: vaultId1,
+        amounts: '5@TSLA'
+      }, [utxo])
+      await tGroup.get(0).generate(1)
+      await tGroup.waitForSync()
+
+      const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId1])
+      const vaultAfterTSLAAcc = vaultAfter.loanAmount.find((amt: string) => amt.split('@')[1] === 'TSLA')
+      const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
+      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.0000057)
+
+      const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txid, true])
+      expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
+      expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
     })
   })
 })
