@@ -75,7 +75,9 @@ import {
   CDepositToVault,
   DepositToVault,
   TakeLoan,
-  CTakeLoan
+  CTakeLoan,
+  CloseVault,
+  CCloseVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
