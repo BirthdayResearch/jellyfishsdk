@@ -315,9 +315,9 @@ describe('loanPayback by anyone', () => {
     const loanAccAfter = await bob.container.call('getaccount', [aliceColAddr])
     expect(loanAccAfter).toStrictEqual(['100000.00000000@DFI', '29999.00000000@BTC', '992.00000000@TSLA'])
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmount).toStrictEqual(['27.00007648@TSLA']) // 40.00004566 - 13 + totalInterest
-    expect(vaultAfter.loanValue).toStrictEqual(54.00015296) // 27.00007648 * 2 (::1 TSLA = 2 DFI)
-    expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00015296 * 100
+    expect(vaultAfter.loanAmount).toStrictEqual(['32.00008218@TSLA']) // 40.00004566 - 8 + totalInterest
+    expect(vaultAfter.loanValue).toStrictEqual(64.00016436) // 32.00008218 * 2 (::1 TSLA = 2 DFI)
+    expect(vaultAfter.currentRatio).toStrictEqual(23437) // 15000 / 64.00016436 * 100
   })
 })
 
