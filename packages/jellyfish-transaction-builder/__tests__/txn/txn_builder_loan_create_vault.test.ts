@@ -71,7 +71,6 @@ describe('loans.createVault', () => {
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
-    expect(prevouts[0].value.toNumber()).toBeGreaterThan(7.97)
 
     const txid = calculateTxid(txn)
     await testing.generate(1)
@@ -79,6 +78,40 @@ describe('loans.createVault', () => {
     const data = await testing.rpc.call('getvault', [txid], 'bignumber')
     expect(data).toStrictEqual({
       loanSchemeId: 'scheme',
+      ownerAddress: await providers.getAddress(),
+      isUnderLiquidation: false,
+      collateralAmounts: [],
+      loanAmount: [],
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      currentRatio: expect.any(BigNumber)
+    })
+  })
+
+  it('should createVault with the default scheme if the given schemeId is empty', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createVault({
+      ownerAddress: script,
+      schemeId: ''
+    }, script)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(testing.container, txn)
+    expect(outs[0].value).toStrictEqual(1)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
+
+    // Ensure you don't send all your balance away
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+
+    const txid = calculateTxid(txn)
+
+    await testing.generate(1)
+    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
+    expect(data).toStrictEqual({
+      loanSchemeId: 'default',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
       collateralAmounts: [],

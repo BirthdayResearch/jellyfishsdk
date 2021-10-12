@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-transaction-builder)](https://www.npmjs.com/package/@defichain/jellyfish-transaction-builder/v/latest)
-
 # @defichain/jellyfish-transaction-builder
 
 While jellyfish-transaction provides a dead simple, modern, stateless raw transaction builder for DeFi. Constructing a

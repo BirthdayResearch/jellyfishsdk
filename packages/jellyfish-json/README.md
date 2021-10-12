@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-json)](https://www.npmjs.com/package/@defichain/jellyfish-json/v/latest)
-
 # @defichain/jellyfish-json
 
 `JellyfishJSON` allows parsing of JSON with `'lossless'`, `'bignumber'` and `'number'` numeric precision.

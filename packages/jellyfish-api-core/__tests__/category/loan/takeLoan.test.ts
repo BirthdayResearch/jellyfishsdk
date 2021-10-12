@@ -74,14 +74,14 @@ describe('Loan', () => {
 
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'AMZN',
-      priceFeedId: 'AMZN/USD'
+      fixedIntervalPriceId: 'AMZN/USD'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'UBER',
-      priceFeedId: 'UBER/USD'
+      fixedIntervalPriceId: 'UBER/USD'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()

@@ -159,7 +159,7 @@ describe('Loan getVault', () => {
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
-    await testing.generate(12) // / Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
+    await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
     const autionDetails: [] = await testing.rpc.call('listauctions', [], 'bignumber')
