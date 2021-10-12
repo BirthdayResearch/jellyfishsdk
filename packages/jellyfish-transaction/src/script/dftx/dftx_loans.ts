@@ -236,3 +236,27 @@ export class CDepositToVault extends ComposableBuffer<DepositToVault> {
     ]
   }
 }
+
+/**
+ * CloseVault DeFi Transaction
+ */
+export interface CloseVault {
+  vaultId: string // ------------------| 32 bytes, Vault Id
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateralcollateral
+}
+
+/**
+ * Composable CloseVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CCloseVault extends ComposableBuffer<CloseVault> {
+  static OP_CODE = 0x63 // 'c'
+  static OP_NAME = 'OP_DEFI_TX_CLOSE_VAULT'
+
+  composers (cv: CloseVault): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => cv.vaultId, v => cv.vaultId = v),
+      ComposableBuffer.single<Script>(() => cv.to, v => cv.to = v, v => new CScript(v))
+    ]
+  }
+}
