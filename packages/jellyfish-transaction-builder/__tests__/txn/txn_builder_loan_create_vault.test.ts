@@ -263,3 +263,42 @@ describe('loans.createVault', () => {
     await expect(promise).rejects.toThrow('VaultTx: Cannot set scheme4 as loan scheme, set to be destroyed on block 150 (code 16)\', code: -26')
   })
 })
+
+describe('loans.createVault when no default scheme and the given schemeId is empty', () => {
+  const container = new LoanMasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(testing.container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  beforeEach(async () => {
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+  })
+
+  it('should not createVault when no default scheme and given schemeId is empty', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.createVault({
+      ownerAddress: script,
+      schemeId: ''
+    }, script)
+
+    const promise = sendTransaction(testing.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('VaultTx: There is not default loan scheme (code 16)\', code: -26')
+  })
+})
