@@ -74,6 +74,8 @@ import {
   CreateVault,
   CDepositToVault,
   DepositToVault,
+  CWithdrawFromVault,
+  WithdrawFromVault,
   TakeLoan,
   CTakeLoan
 } from './dftx/dftx_loans'
@@ -503,6 +505,14 @@ export const OP_CODES = {
       type: CDepositToVault.OP_CODE,
       name: CDepositToVault.OP_NAME,
       data: depositToVault
+    })
+  },
+  OP_DEFI_TX_WITHDRAW_FROM_VAULT: (WithdrawFromVault: WithdrawFromVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CWithdrawFromVault.OP_CODE,
+      name: CWithdrawFromVault.OP_NAME,
+      data: WithdrawFromVault
     })
   },
   OP_DEFI_TX_TAKE_LOAN: (takeLoan: TakeLoan): OP_DEFI_TX => {
