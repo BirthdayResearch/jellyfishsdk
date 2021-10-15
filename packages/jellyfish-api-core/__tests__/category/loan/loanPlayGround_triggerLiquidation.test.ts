@@ -70,6 +70,7 @@ describe('Loan', () => {
     await container.call('minttokens', ['100@DBTC'])
     await container.generate(1)
 
+
     // 4 - AppointOracle and setOracleData for Collateral Token = DFI, BTC and LoanToken = TSLA
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
@@ -98,23 +99,29 @@ describe('Loan', () => {
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: dfiCollateralFactor,
-      priceFeedId: oracleId
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await container.generate(1)
 
     await testing.rpc.loan.setCollateralToken({
       token: 'DBTC',
       factor: dbtcCollateralFactor,
-      priceFeedId: oracleId
+      fixedIntervalPriceId: 'DBTC/USD'
     })
     await container.generate(1)
 
     // 7 - setLoanToken for TSLA
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: oracleId
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await container.generate(1)
+
+    // Mint TSLA token
+    await container.call('minttokens', ['100@TSLA'])
+    await container.generate(1)
+
+    const addressAccountAfter = await testing.rpc.account.getAccount(genesisAddress)
 
     // 8 - Deposit DFI and BTC to vault
     await testing.container.call('deposittovault', [vaultId, genesisAddress, `${depositDFIAmount}@DFI`])
@@ -128,38 +135,61 @@ describe('Loan', () => {
     await container.generate(1)
 
     {
-      const loanInfo = await testing.container.call('getloaninfo', [])
-      console.log(loanInfo)
-    }
-
-    {
-      const vault = await testing.container.call('getvault', [vaultId])
-      console.log(vault)
-    }
-
-    {
-      const vault = await testing.container.call('listvaults', [])
-      console.log(vault)
-    }
-
-    {
       const auctionList = await testing.container.call('listauctions', [])
-      console.log(JSON.stringify(auctionList)) // aution should be empty
+      //console.log(JSON.stringify(auctionList)) // auction should be empty
     }
+
+    // await testing.container.call('auctionbid', [{ vaultId: vaultId, amounts: `${borrowedTSLAAmount}@TSLA` }])
+    // await container.generate(1)
+
+    // {"vaultId", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "Vault id"},
+    // {"index", RPCArg::Type::NUM, RPCArg::Optional::NO, "Auction index"},
+    // {"from", RPCArg::Type::STR, RPCArg::Optional::NO, "Address to get tokens"},
+    // {"amount", RPCArg::Type::STR, RPCArg::Optional::NO, "Amount of amount@symbol format"},
+
+    // {
+    //   const loanInfo = await testing.container.call('getloaninfo', [])
+    //   console.log(loanInfo)
+    // }
+    //
+    // {
+    //   const vault = await testing.container.call('getvault', [vaultId])
+    //   console.log(vault)
+    // }
+    //
+    // {
+    //   const vault = await testing.container.call('listvaults', [])
+    //   console.log(vault)
+    // }
 
     // 10 - Trigger liquidation if TSLA price increase
     const prices4 = [{ tokenAmount: `${TSLALatestPrice}@TSLA`, currency: 'USD' }]
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: prices4 })
-    await container.generate(1)
-
-    {
-      const vault = await testing.container.call('getvault', [vaultId])
-      console.log(vault)
-    }
+    await container.generate(10)
+    const blockCount = await testing.container.getBlockCount()
+    console.log(blockCount)
 
     {
       const auctionList = await testing.container.call('listauctions', [])
       console.log(JSON.stringify(auctionList))
+    }
+
+    // {"vaultId", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "Vault id"},
+    // {"index", RPCArg::Type::NUM, RPCArg::Optional::NO, "Auction index"},
+    // {"from", RPCArg::Type::STR, RPCArg::Optional::NO, "Address to get tokens"},
+    // {"amount"
+
+    const x = await testing.container.call('auctionbid', [vaultId, 0, genesisAddress, '8@TSLA'])
+    await container.generate(1)
+
+    {
+      const vault = await testing.container.call('getvault', [vaultId])
+      console.log("%j", vault);
+    }
+
+    {
+      const auction = await testing.container.call('listauctions', [])
+      console.log(JSON.stringify((auction)))
     }
   })
 })

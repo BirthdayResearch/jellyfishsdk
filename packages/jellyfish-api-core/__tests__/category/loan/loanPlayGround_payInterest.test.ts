@@ -115,21 +115,21 @@ describe('Loan', () => {
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: dfiCollateralFactor,
-      priceFeedId: oracleId
+      fixedIntervalPriceId: oracleId
     })
     await container.generate(1)
 
     await testing.rpc.loan.setCollateralToken({
       token: 'DBTC',
       factor: dbtcCollateralFactor,
-      priceFeedId: oracleId
+      fixedIntervalPriceId: oracleId
     })
     await container.generate(1)
 
     // 7 - setLoanToken for TSLA
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: oracleId,
+      fixedIntervalPriceId: oracleId,
       interest: new BigNumber(2)
     })
     await container.generate(1)
