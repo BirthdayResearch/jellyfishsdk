@@ -80,7 +80,7 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  it('should listAnchorsUnrewarded', async () => {
+  it.skip('should listAnchorsUnrewarded', async () => {
     const anchor1 = await createAnchor()
     const anchor2 = await createAnchor()
 
