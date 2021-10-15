@@ -9,7 +9,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 
-describe('Loan', () => {
+describe('loans.depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let liqVaultId: string
@@ -69,21 +69,21 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: 'BTC/USD'
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await tGroup.get(0).generate(1)
 
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await tGroup.get(0).generate(1)
 

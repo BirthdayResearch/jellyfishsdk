@@ -21,16 +21,20 @@ describe('Loan', () => {
       expect(data).toStrictEqual({})
     }
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp1 = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
+    await testing.generate(1)
+
     const loanTokenId1 = await testing.container.call('setloantoken', [{
       symbol: 'AAPL',
       name: 'APPLE',
-      priceFeedId: 'AAPL/USD',
+      fixedIntervalPriceId: 'AAPL/USD',
       mintable: true,
       interest: new BigNumber(0.01)
     }])
@@ -38,16 +42,20 @@ describe('Loan', () => {
 
     const height1 = new BigNumber(await testing.container.getBlockCount())
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'TSLA',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp2 = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@TSLA', currency: 'USD' }] })
+    await testing.generate(1)
+
     const loanTokenId2 = await testing.container.call('setloantoken', [{
       symbol: 'TSLA',
       name: 'TESLA',
-      priceFeedId: 'TSLA/USD',
+      fixedIntervalPriceId: 'TSLA/USD',
       mintable: false,
       interest: new BigNumber(0.02)
     }])
@@ -80,7 +88,7 @@ describe('Loan', () => {
               tradeable: true
             }
           },
-          priceFeedId: 'AAPL/USD',
+          fixedIntervalPriceId: 'AAPL/USD',
           interest: new BigNumber(0.01)
         },
         [loanTokenId2]: {
@@ -105,7 +113,7 @@ describe('Loan', () => {
               tradeable: true
             }
           },
-          priceFeedId: 'TSLA/USD',
+          fixedIntervalPriceId: 'TSLA/USD',
           interest: new BigNumber(0.02)
         }
       }
