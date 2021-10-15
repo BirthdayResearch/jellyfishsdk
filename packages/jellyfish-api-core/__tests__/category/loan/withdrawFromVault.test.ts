@@ -293,7 +293,7 @@ describe('Loan', () => {
         amount: '9.876@DFI'
       })
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
+      await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> does not found`)
     })
 
     it('should not withdrawFromVault with invalid collateral token', async () => {
@@ -331,7 +331,7 @@ describe('Loan', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow(`Collateral for vault <${vaultId1}> not found`)
+      await expect(promise).rejects.toThrow(`Collateral for vault <${vaultId2}> not found`)
     })
 
     it('should not withdrawFromVault liquidated vault', async () => {
@@ -403,7 +403,7 @@ describe('Loan', () => {
       }, [utxo])
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('\'tx must have at least one input from token owner\', code: -32600, method: withdrawfromvault')
+      await expect(promise).rejects.toThrow('Insufficient funds')
     })
   })
 })
