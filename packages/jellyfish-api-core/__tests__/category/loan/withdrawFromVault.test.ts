@@ -183,8 +183,8 @@ describe('Loan', () => {
       const destinationAddress = await anotherMn.generateAddress()
 
       { // before
-        const balances = await anotherMn.rpc.account.getTokenBalances({ limit: 100 }, false, { symbolLookup: true })
-        expect(balances.length).toStrictEqual(0)
+        const accountBalances = await anotherMn.rpc.account.getAccount(destinationAddress)
+        expect(accountBalances.length).toStrictEqual(0)
 
         const { collateralAmounts } = await tGroup.get(0).rpc.loan.getVault(vaultId1)
         expect(collateralAmounts?.length).toStrictEqual(2)
@@ -211,13 +211,14 @@ describe('Loan', () => {
         amount: '9.876@DFI'
       })
       await tGroup.get(0).generate(1)
+      await tGroup.waitForSync()
 
       { // after first withdrawal
-        // const balances = await anotherMn.rpc.account.getTokenBalances()
-        // TODO(@ivan-zynesis): await blockchain side fixes, `to` do not receive withdrawn collateral
-        // expect(receivedWithdrawn.length).toStrictEqual(1)
+        const accountBalances = await tGroup.get(0).rpc.account.getAccount(destinationAddress)
+        expect(accountBalances.length).toStrictEqual(1)
+        expect(accountBalances[0]).toStrictEqual('9.87600000@DFI')
 
-        const { collateralAmounts } = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+        const { collateralAmounts } = await anotherMn.rpc.loan.getVault(vaultId1)
         expect(collateralAmounts?.length).toStrictEqual(2)
 
         {
@@ -242,12 +243,15 @@ describe('Loan', () => {
         amount: '0.123@BTC'
       })
       await tGroup.get(0).generate(1)
+      await tGroup.waitForSync()
 
       { // after second withdrawal
-        // const balances = await anotherMn.rpc.account.getTokenBalances()
-        // TODO(@ivan-zynesis): await blockchain side fixes, `to` do not receive withdrawn collateral
+        const accountBalances = await anotherMn.rpc.account.getAccount(destinationAddress)
+        expect(accountBalances.length).toStrictEqual(2)
+        expect(accountBalances[0]).toStrictEqual('9.87600000@DFI')
+        expect(accountBalances[1]).toStrictEqual('0.12300000@BTC')
 
-        const { collateralAmounts } = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+        const { collateralAmounts } = await anotherMn.rpc.loan.getVault(vaultId1)
         expect(collateralAmounts?.length).toStrictEqual(2)
 
         {
