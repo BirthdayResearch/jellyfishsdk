@@ -16,6 +16,9 @@ let bobloanAddr: string
 let tslaLoanHeight: number
 let aliceColAddr: string
 
+const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
+const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
+
 async function setup (): Promise<void> {
   // token setup
   aliceColAddr = await alice.container.getNewAddress()
@@ -303,13 +306,33 @@ describe('loanPayback partially', () => {
     expect(vaultBefore.loanValue).toStrictEqual(80.00009132) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.0000456 * 100
 
+    {
+      const interests = await bob.rpc.loan.getInterest('scheme')
+      const height = await bob.container.getBlockCount()
+      const tslaInterestPerBlock = (netInterest * 40) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
+      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight + 1)
+      expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
+      expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
+    }
+
     const txid = await bob.rpc.loan.loanPayback({
       vaultId: bobVaultId,
       amounts: '13@TSLA',
       from: bobloanAddr
     })
     expect(typeof txid).toStrictEqual('string')
+    tslaLoanHeight = await bob.container.getBlockCount()
     await bob.generate(1)
+
+    // assert interest by 27
+    {
+      const interests = await bob.rpc.loan.getInterest('scheme')
+      const height = await bob.container.getBlockCount()
+      const tslaInterestPerBlock = (netInterest * 27) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
+      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight + 1)
+      expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
+      expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
+    }
 
     const loanAccAfter = await bob.container.call('getaccount', [bobloanAddr])
     expect(loanAccAfter).toStrictEqual(['27.00000000@TSLA']) // 40 - 13 = 27
@@ -376,9 +399,6 @@ describe('loanPayback multiple amounts', () => {
       const tslaAmt = Number(tslaTokenAmt.split('@')[0])
       const amznTokenAmt = loanTokenAccBefore.find((amt: string) => amt.split('@')[1] === 'AMZN')
       const amznAmt = Number(amznTokenAmt.split('@')[0])
-
-      const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
-      const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
       // tsla interest
       const tslaInterestPerBlock = (netInterest * tslaAmt) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
