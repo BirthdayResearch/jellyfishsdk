@@ -325,7 +325,7 @@ interface loan {
 }
 
 interface VaultDetails {
-  vaultId?: string
+  vaultId: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
@@ -366,7 +366,7 @@ interface VaultPagination {
 }
 
 interface VaultDetails {
-  vaultId?: string
+  vaultId: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
