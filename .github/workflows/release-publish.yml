@@ -2,7 +2,7 @@ name: Publish
 
 on:
   release:
-    types: [ published, prereleased ]
+    types: [ published ]
 
 jobs:
   npm:
@@ -11,7 +11,7 @@ jobs:
     environment: NPM Release Publishing
     steps:
       - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
-      - uses: actions/setup-node@25316bbc1f10ac9d8798711f44914b1cf3c4e954
+      - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
         with:
           node-version: '15'
 
@@ -31,16 +31,7 @@ jobs:
       - run: npm run build
       - run: npm run version ${{ steps.version.outputs.result }}
 
-      - name: Publish Next
-        if: github.event.release.prerelease
-        run: |
-          npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          npm run publish:next
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
-      - name: Publish Latest
-        if: "!github.event.release.prerelease"
+      - name: Publish
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
           npm run publish:latest

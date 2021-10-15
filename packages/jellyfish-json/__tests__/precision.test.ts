@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js'
  */
 describe('number will lose precision', () => {
   it('1200000000.00000003 should not lose precision as a number but it does', () => {
+    /* eslint-disable no-loss-of-precision */
     const dfi = 1200000000.00000003
 
     expect(() => {

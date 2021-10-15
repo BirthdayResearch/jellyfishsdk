@@ -71,7 +71,11 @@ import {
   CUpdateLoanToken,
   UpdateLoanToken,
   CCreateVault,
-  CreateVault
+  CreateVault,
+  CDepositToVault,
+  DepositToVault,
+  TakeLoan,
+  CTakeLoan
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -491,6 +495,22 @@ export const OP_CODES = {
       type: CCreateVault.OP_CODE,
       name: CCreateVault.OP_NAME,
       data: createVault
+    })
+  },
+  OP_DEFI_TX_DEPOSIT_TO_VAULT: (depositToVault: DepositToVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDepositToVault.OP_CODE,
+      name: CDepositToVault.OP_NAME,
+      data: depositToVault
+    })
+  },
+  OP_DEFI_TX_TAKE_LOAN: (takeLoan: TakeLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTakeLoan.OP_CODE,
+      name: CTakeLoan.OP_NAME,
+      data: takeLoan
     })
   },
   OP_0: new constants.OP_0(),
