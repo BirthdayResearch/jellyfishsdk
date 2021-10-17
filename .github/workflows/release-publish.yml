@@ -31,6 +31,10 @@ jobs:
       - run: npm run build
       - run: npm run version:set ${{ steps.version.outputs.result }}
 
+      - name: find and replace peerDependencies # because lerna doesn't update peers deps
+        run: |
+          find packages/*/package.json ocean/*/package.json -type f -exec sed -i 's#    "defichain": "0.0.0"#    "defichain": "${{ steps.version.outputs.result }}"#g' {} \;
+
       - name: Publish
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
