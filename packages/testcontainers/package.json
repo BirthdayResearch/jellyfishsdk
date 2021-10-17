@@ -26,6 +26,9 @@
     "dockerode": "^3.3.1",
     "cross-fetch": "^3.1.4"
   },
+  "peerDependencies": {
+    "defichain": "0.0.0"
+  },
   "devDependencies": {
     "@types/dockerode": "^3.2.7"
   }

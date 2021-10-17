@@ -28,6 +28,9 @@
     "bip39": "^3.0.4",
     "create-hmac": "^1.1.7"
   },
+  "peerDependencies": {
+    "defichain": "0.0.0"
+  },
   "devDependencies": {
     "@types/create-hmac": "^1.1.0"
   }

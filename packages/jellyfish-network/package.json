@@ -20,5 +20,8 @@
   ],
   "scripts": {
     "build": "tsc -b ./tsconfig.build.json"
+  },
+  "peerDependencies": {
+    "defichain": "0.0.0"
   }
 }

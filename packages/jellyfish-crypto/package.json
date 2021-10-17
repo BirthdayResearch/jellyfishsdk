@@ -31,6 +31,9 @@
     "tiny-secp256k1": "^1.1.6",
     "wif": "^2.0.6"
   },
+  "peerDependencies": {
+    "defichain": "0.0.0"
+  },
   "devDependencies": {
     "@types/bech32": "^1.1.2",
     "@types/bs58": "^4.0.1",

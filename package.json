@@ -15,6 +15,7 @@
   "license": "MIT",
   "files": [],
   "workspaces": [
+    "./",
     "./packages/*"
   ],
   "engines": {
@@ -23,9 +24,8 @@
   "scripts": {
     "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
-    "build": "lerna run build",
-    "version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
-    "publish:next": "lerna exec -- npm publish --tag next --access public",
+    "build": "lerna run --scope '@defichain/*' build",
+    "version:set": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",

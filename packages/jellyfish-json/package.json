@@ -21,11 +21,12 @@
   "scripts": {
     "build": "tsc -b ./tsconfig.build.json"
   },
-  "peerDependencies": {
-    "bignumber.js": "^9.0.1"
-  },
   "dependencies": {
     "@types/lossless-json": "^1.0.1",
+    "bignumber.js": "^9.0.1",
     "lossless-json": "^1.0.5"
+  },
+  "peerDependencies": {
+    "defichain": "0.0.0"
   }
 }
