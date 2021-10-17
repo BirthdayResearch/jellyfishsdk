@@ -13,19 +13,6 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "contributors": [
-    {
-      "name": "DeFiChain Foundation",
-      "email": "engineering@defichain.com",
-      "url": "https://defichain.com/"
-    },
-    {
-      "name": "DeFi Blockchain Contributors"
-    },
-    {
-      "name": "DeFi Jellyfish Contributors"
-    }
-  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -39,22 +26,22 @@
     "@defichain/ocean-playground": "0.0.0",
     "@defichain/jellyfish-api-core": "0.0.0",
     "@defichain/jellyfish-api-jsonrpc": "0.0.0",
-    "@nestjs/common": "^8.0.11",
-    "@nestjs/config": "^1.0.2",
-    "@nestjs/core": "^8.0.11",
-    "@nestjs/platform-fastify": "^8.0.11",
-    "@nestjs/schedule": "^1.0.1",
-    "@nestjs/terminus": "^8.0.1",
-    "cache-manager": "^3.4.4",
-    "class-transformer": "^0.4.0",
-    "class-validator": "^0.13.1",
-    "joi": "^17.4.2"
+    "@nestjs/common": "^8.2.3",
+    "@nestjs/config": "^1.1.5",
+    "@nestjs/core": "^8.2.3",
+    "@nestjs/platform-fastify": "^8.2.3",
+    "@nestjs/schedule": "^1.0.2",
+    "@nestjs/terminus": "^8.0.3",
+    "cache-manager": "^3.6.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "joi": "^17.5.0"
   },
   "devDependencies": {
     "@defichain/ocean-api-client": "0.0.0",
-    "@nestjs/cli": "^8.1.2",
-    "@nestjs/schematics": "^8.0.3",
-    "@nestjs/testing": "^8.0.11",
+    "@nestjs/cli": "^8.1.5",
+    "@nestjs/schematics": "^8.0.5",
+    "@nestjs/testing": "^8.2.3",
     "@types/cache-manager": "^3.4.2",
     "@types/cron": "^1.7.3"
   }
