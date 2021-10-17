@@ -30,7 +30,7 @@
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",
-    "test:ci": "jest --ci --coverage --forceExit --maxWorkers=4",
+    "test:ci": "jest --ci --coverage --forceExit --maxWorkers=5",
     "all": "npm run clean && npm run build && npm run lint && npm run test"
   },
   "devDependencies": {
