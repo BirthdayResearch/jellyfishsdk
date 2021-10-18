@@ -322,6 +322,8 @@ describe('loanPayback partially', () => {
       const interests = await bob.rpc.loan.getInterest('scheme') // gets the interest at block x+2
       console.log(JSON.stringify(interests)) // [{"token":"TSLA","totalInterest":"0.00003082","interestPerBlock":"0.00001541"},{"token":"UBER","totalInterest":"0","interestPerBlock":"0"}]
     }
+
+    // @Antoniy - so at a block x+2 this usecase has total interest of 0.00004566(already paid) + 0.00003082 = 0.00007648
   })
 
   it('should loanPayback partially', async () => {
