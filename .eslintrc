@@ -24,6 +24,15 @@
       2,
       "declaration"
     ],
+    "indent": "off",
+    "@typescript-eslint/indent": [
+      "error",
+      2,
+      {
+        "offsetTernaryExpressions": true,
+        "SwitchCase": 1
+      }
+    ],
     "import/no-default-export": "error"
   },
   "overrides": [
