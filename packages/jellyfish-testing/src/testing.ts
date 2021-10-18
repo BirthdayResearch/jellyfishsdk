@@ -106,7 +106,7 @@ export class TestingGroup {
     return await this.group.stop()
   }
 
-  async exec (runner: (testing: Testing) => Promise<any>): Promise<any> {
+  async exec (runner: (testing: Testing) => Promise<void>): Promise<void> {
     for (let i = 0; i < this.testings.length; i += 1) {
       await runner(this.testings[i])
     }
@@ -124,11 +124,16 @@ export class TestingGroup {
    * Wait for anchor teams
    *
    * @param {number} nodesLength
+   * @param {number} numOfAuths
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
-    return await this.group.waitForAnchorTeams(nodesLength, timeout)
+    await this.group.waitForAnchorTeams(nodesLength, timeout)
+  }
+
+  async waitForAnchorAuths (genAnchorAuthsCallback: () => Promise<void>, numOfAuths: number, timeout = 30000): Promise<void> {
+    await this.group.waitForAnchorAuths(genAnchorAuthsCallback, numOfAuths, timeout)
   }
 }
 

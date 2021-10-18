@@ -75,9 +75,9 @@ export class ContainerGroup {
    * Wait for all container to receive the same txid in mempool
    *
    * @param {string} txid to wait for in mempool
-   * @param {number} [timeout=20000] in millis
+   * @param {number} [timeout=30000] in millis
    */
-  async waitForMempoolSync (txid: string, timeout: number = 20000): Promise<void> {
+  async waitForMempoolSync (txid: string, timeout: number = 30000): Promise<void> {
     await waitForCondition(async () => {
       const txns = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.call('getrawtransaction', [txid, false])
@@ -88,9 +88,9 @@ export class ContainerGroup {
 
   /**
    * Wait for all container to sync up
-   * @param {number} [timeout=20000] in millis
+   * @param {number} [timeout=30000] in millis
    */
-  async waitForSync (timeout: number = 20000): Promise<void> {
+  async waitForSync (timeout: number = 30000): Promise<void> {
     await waitForCondition(async () => {
       const hashes = await Promise.all(Object.values(this.containers).map(async container => {
         return await container.getBestBlockHash()
@@ -109,18 +109,38 @@ export class ContainerGroup {
    */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
-      for (let i = 0; i < 15; i += 1) {
-        const container = this.containers[i % 15]
+      const teams = await Promise.all(Object.values(this.containers).map(async container => {
+        return await container.call('getanchorteams')
+      }))
+      if (teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)) {
+        return true
+      }
+      for (let i = 0; i < 15; i += 1) { // anchor frequency = 15
+        const container = this.containers[i % this.containers.length]
         await container.generate(1)
         await this.waitForSync()
-
-        const teams = await Promise.all(Object.values(this.containers).map(async container => {
-          return await container.call('getanchorteams')
-        }))
-        return teams.every(team => team.auth.length === nodesLength && team.confirm.length === nodesLength)
       }
-      return true
+      return false
     }, timeout, 100, 'waitForAnchorTeams')
+  }
+
+  /**
+   * Wait for anchor auths
+   *
+   * @param {() => Promise<void>} genAnchorAuths
+   * @param {number} numOfAuths
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForAnchorAuths (genAnchorAuths: () => Promise<void>, height: number, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => { // check each container should be quorum ready
+      await genAnchorAuths()
+      const cAuths = await Promise.all(Object.values(this.containers).map(async container => {
+        return await container.call('spv_listanchorauths')
+      }))
+      const bools = cAuths.map(auths => auths.find((auth: any) => auth.blockHeight <= height && auth.signers >= 2))
+      return bools.every(b => b !== undefined && b !== false)
+    }, timeout, 100, 'waitForAnchorAuths')
   }
 
   /**

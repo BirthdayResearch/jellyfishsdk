@@ -22,7 +22,7 @@ it('should generateAnchorAuths', async () => {
   await setMockTime(initOffsetHour)
   await tGroup.waitForAnchorTeams(3)
 
-  await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
+  await tGroup.anchor.generateAnchorAuths(2, initOffsetHour, 'generateAnchorAuths')
 
   for (let i = 0; i < 2; i += 1) {
     const auths = await tGroup.get(0).rpc.spv.listAnchorAuths()

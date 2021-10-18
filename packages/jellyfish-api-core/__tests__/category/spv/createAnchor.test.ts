@@ -56,15 +56,7 @@ describe('Spv', () => {
     // set 3 hours because block height and hash chosen is then 3 hours
     // then every 15 blocks will be matched again
     // generate 2 anchor auths
-    await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
-
-    // check each container should be quorum ready
-    for (let i = 0; i < tGroup.length(); i += 1) {
-      const { container } = tGroup.get(i % tGroup.length())
-      const auths = await container.call('spv_listanchorauths')
-      expect(auths.length).toStrictEqual(2)
-      expect(auths[0].signers).toStrictEqual(tGroup.length())
-    }
+    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour, 'createAnchor'), 60)
   }
 
   it('should be failed as invalid txid', async () => {

@@ -27,18 +27,11 @@ describe('Spv', () => {
     const initOffsetHour = -12
     await setMockTime(initOffsetHour)
 
-    // 15 as anchor frequency
-    for (let i = 0; i < 15; i += 1) {
-      const { container } = tGroup.get(i % tGroup.length())
-      await container.generate(1)
-      await tGroup.waitForSync()
-    }
+    // check the auth and confirm anchor mn teams
+    await tGroup.waitForAnchorTeams(tGroup.length())
 
     const blockCount = await tGroup.get(0).container.getBlockCount()
     expect(blockCount).toStrictEqual(15)
-
-    // check the auth and confirm anchor mn teams
-    await tGroup.waitForAnchorTeams(tGroup.length())
 
     // assertion for team
     for (let i = 0; i < tGroup.length(); i += 1) {
@@ -55,15 +48,7 @@ describe('Spv', () => {
     }
 
     // generate 2 anchor auths
-    await tGroup.anchor.generateAnchorAuths(2, initOffsetHour)
-
-    // check each container should be quorum ready
-    for (let i = 0; i < tGroup.length(); i += 1) {
-      const { container } = tGroup.get(i % tGroup.length())
-      const auths = await container.call('spv_listanchorauths')
-      expect(auths.length).toStrictEqual(2)
-      expect(auths[0].signers).toStrictEqual(tGroup.length())
-    }
+    await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour, 'listAnchorAuths'), 60)
   }
 
   it('should listAnchorAuths', async () => {
