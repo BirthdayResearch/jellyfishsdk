@@ -58,7 +58,6 @@ describe('Spv', () => {
     for (let i = 0; i < tGroup.length(); i += 1) {
       const { container } = tGroup.get(i % tGroup.length())
       const auths = await container.call('spv_listanchorauths')
-      console.log('auths: ', auths)
       expect(auths.length).toStrictEqual(2)
       expect(auths[0].signers).toStrictEqual(tGroup.length())
     }

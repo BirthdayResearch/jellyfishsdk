@@ -235,7 +235,6 @@ describe('Token on masternode', () => {
         symbol: 'DBTC',
         symbolKey: 'DBTC'
       }))
-      console.log(result)
     })
 
     it('should listTokens with { including_start: true, limit: 1, start: 100 }', async () => {
