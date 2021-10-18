@@ -293,6 +293,37 @@ describe('loanPayback', () => {
 })
 
 describe('loanPayback partially', () => {
+  it('usecase1 - should take loan', async () => {
+    // loan of 40 TSLA was already taken at LN:245. consider this as block x
+    await bob.generate(1) // block x+1
+
+    {
+      const interests = await bob.rpc.loan.getInterest('scheme') // gets the interest at block x+2
+      console.log(JSON.stringify(interests)) // this prints [{"token":"TSLA","totalInterest":"0.00006849","interestPerBlock":"0.00002283"},{"token":"UBER","totalInterest":"0","interestPerBlock":"0"}]
+    }
+  })
+
+  it('usecase2 - should take loan and partial repayment', async () => {
+    // loan of 40 TSLA was already taken at LN:245 consider this as block x
+    // payback 13 TSLA
+    await bob.rpc.loan.loanPayback({
+      vaultId: bobVaultId,
+      amounts: '13@TSLA',
+      from: bobloanAddr
+    })
+
+    {
+      const interests = await bob.rpc.loan.getInterest('scheme') // gets the interest at block x+1, this is the total interest paid at the partial repayment.
+      console.log(JSON.stringify(interests)) // [{"token":"TSLA","totalInterest":"0.00004566","interestPerBlock":"0.00002283"},{"token":"UBER","totalInterest":"0.00074191","interestPerBlock":"0.00005707"}]
+    }
+    await bob.generate(1) // block x+1
+
+    {
+      const interests = await bob.rpc.loan.getInterest('scheme') // gets the interest at block x+2
+      console.log(JSON.stringify(interests)) // [{"token":"TSLA","totalInterest":"0.00003082","interestPerBlock":"0.00001541"},{"token":"UBER","totalInterest":"0","interestPerBlock":"0"}]
+    }
+  })
+
   it('should loanPayback partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
