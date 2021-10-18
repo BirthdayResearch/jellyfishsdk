@@ -15,6 +15,7 @@ let bobLiqVaultId: string
 let bobloanAddr: string
 let tslaLoanHeight: number
 let aliceColAddr: string
+let bobColAddr: string
 
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
@@ -121,7 +122,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  const bobColAddr = await bob.generateAddress()
+  bobColAddr = await bob.generateAddress()
   await bob.token.dfi({ address: bobColAddr, amount: 30000 })
   await bob.generate(1)
   await tGroup.waitForSync()
@@ -324,6 +325,90 @@ describe('loanPayback partially', () => {
     }
 
     // @Antoniy - so at a block x+2 this usecase has total interest of 0.00004566(already paid) + 0.00003082 = 0.00007648
+  })
+
+  it('usecase3 - loan interest problem over multiple takeloans', async () => {
+    // fund bobColAddr
+    await bob.token.dfi({ address: bobColAddr, amount: 30000 })
+    await bob.generate(1)
+
+    const vault1 = await bob.rpc.loan.createVault({
+      ownerAddress: bobVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    const vault2 = await bob.rpc.loan.createVault({
+      ownerAddress: bobVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    const vault3 = await bob.rpc.loan.createVault({
+      ownerAddress: bobVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+
+    // depositToVault DFI 500 to each
+    await bob.rpc.loan.depositToVault({
+      vaultId: vault1, from: bobColAddr, amount: '500@DFI'
+    })
+    await bob.rpc.loan.depositToVault({
+      vaultId: vault2, from: bobColAddr, amount: '500@DFI'
+    })
+    await bob.rpc.loan.depositToVault({
+      vaultId: vault3, from: bobColAddr, amount: '500@DFI'
+    })
+    await bob.generate(1)
+
+    // take loan 2@TSLA vault1
+    await bob.rpc.loan.takeLoan({
+      vaultId: vault1,
+      amounts: '2@TSLA'
+    })
+    await bob.generate(1)
+
+    // take loan 2@TSLA vault2
+    await bob.rpc.loan.takeLoan({
+      vaultId: vault2,
+      amounts: '2@TSLA'
+    })
+    await bob.generate(1)
+
+    // take loan 2@TSLA vault3
+    await bob.rpc.loan.takeLoan({
+      vaultId: vault3,
+      amounts: '2@TSLA'
+    })
+    await bob.generate(1)
+
+    // list vaults should print the total loan values for next block(inclusive)
+    {
+      const vault = await bob.container.call('getvault', [vault1])
+      console.log(JSON.stringify(vault))
+    }
+    {
+      const vault = await bob.container.call('getvault', [vault2])
+      console.log(JSON.stringify(vault))
+    }
+    {
+      const vault3info = await bob.container.call('getvault', [vault3])
+      console.log(JSON.stringify(vault3info))
+    }
+
+    // so the above console logs prints the following. check the loanAmount property. do you guys agree on that?
+    /*
+    {"vaultId":"5a7bb3181166afb204405a4fe96ec04ece0115b5fa6b6e09c953be1563b04cd0","loanSchemeId":"scheme","ownerAddress":"bcrt1quu7lu5te7kcnscm2u4ewapckhv0f8cuc2ggq89","isUnderLiquidation":false,"collateralAmounts":["500.00000000@DFI"],"loanAmount":["2.00000838@TSLA"],"collateralValue":500,"loanValue":4.00001676,"currentRatio":12500}
+
+    at packages/jellyfish-api-core/__tests__/category/loan/loanPayback.test.ts:387:15
+        at runMicrotasks (<anonymous>)
+
+console.log
+  {"vaultId":"c50eb15a3492a1ddbfee509296c960b665d1e531d8dfb1123308122886de2737","loanSchemeId":"scheme","ownerAddress":"bcrt1quu7lu5te7kcnscm2u4ewapckhv0f8cuc2ggq89","isUnderLiquidation":false,"collateralAmounts":["500.00000000@DFI"],"loanAmount":["2.00000838@TSLA"],"collateralValue":500,"loanValue":4.00001676,"currentRatio":12500}
+
+    at packages/jellyfish-api-core/__tests__/category/loan/loanPayback.test.ts:391:15
+        at runMicrotasks (<anonymous>)
+
+console.log
+  {"vaultId":"3df9f382bc6d49be2c8202f7f0261d288bbed9e412e716ad94c8788ba9e11d41","loanSchemeId":"scheme","ownerAddress":"bcrt1quu7lu5te7kcnscm2u4ewapckhv0f8cuc2ggq89","isUnderLiquidation":false,"collateralAmounts":["500.00000000@DFI"],"loanAmount":["2.00000838@TSLA"],"collateralValue":500,"loanValue":4.00001676,"currentRatio":12500}
+    */
   })
 
   it('should loanPayback partially', async () => {
