@@ -1,6 +1,6 @@
 import { Bs58 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
-import { Address, AddressType, Validator } from './address'
+import { Address, AddressTypeDeprecated, Validator } from './address'
 
 export abstract class Base58Address extends Address {
   static MIN_LENGTH = 26
@@ -10,7 +10,7 @@ export abstract class Base58Address extends Address {
   hex: string
   static DATA_HEX_LENGTH = 40 // hex char count
 
-  constructor (network: Network, utf8String: string, hex: string, valid: boolean, type: AddressType) {
+  constructor (network: Network, utf8String: string, hex: string, valid: boolean, type: AddressTypeDeprecated) {
     super(network, utf8String, valid, type)
     this.hex = hex
   }

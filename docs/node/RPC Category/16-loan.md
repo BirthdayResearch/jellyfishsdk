@@ -136,7 +136,7 @@ interface loan {
 interface SetCollateralToken {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock?: number
 }
 
@@ -152,7 +152,12 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens (): Promise<CollateralTokensData>
+  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData>
+}
+
+interface ListCollateralTokens {
+  height?: number
+  all?: boolean
 }
 
 interface CollateralTokensData {
@@ -162,13 +167,8 @@ interface CollateralTokensData {
 interface CollateralTokenDetails {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
-}
-
-interface UTXO {
-  txid: string
-  vout: number
 }
 ```
 
@@ -178,18 +178,13 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (collateralToken: GetCollateralToken = {}): Promise<CollateralTokenDetails>
-}
-
-interface GetCollateralToken {
-  token?: string
-  height?: number
+  getCollateralToken (token: string): Promise<CollateralTokenDetails>
 }
 
 interface CollateralTokenDetails {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
 }
 ```
@@ -206,7 +201,7 @@ interface loan {
 interface SetLoanToken {
   symbol: string
   name?: string
-  priceFeedId: string
+  fixedIntervalPriceId: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -217,13 +212,52 @@ interface UTXO {
 }
 ```
 
+## updateLoanToken
+
+Updates an existing loan token.
+
+```ts title="client.loan.updateLoanToken()"
+interface loan {
+  updateLoanToken (oldToken: string, newTokenDetails: UpdateLoanToken, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateLoanToken {
+  symbol?: string
+  name?: string
+  fixedIntervalPriceId?: string
+  mintable?: boolean
+  interest?: BigNumber
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## getInterest
+
+Get interest info.
+
+```ts title="client.loan.getInterest()"
+interface loan {
+  getInterest (id: string, token?: string): Promise<Interest[]>
+}
+
+interface Interest {
+  token: string
+  totalInterest: BigNumber
+  interestPerBlock: BigNumber
+}
+```
+
 ## listLoanTokens
 
 List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenResult[]>
+  listLoanTokens (): Promise<ListLoanTokenResult>
 }
 
 interface ListLoanTokenResult {
@@ -232,7 +266,7 @@ interface ListLoanTokenResult {
 
 interface LoanTokenDetails {
   token: token.TokenResult
-  priceFeedId: string
+  fixedIntervalPriceId: string
   interest: BigNumber
 }
 
@@ -269,10 +303,123 @@ Creates a vault transaction.
 interface loan {
   createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string>
 }
+
 interface CreateVault {
   ownerAddress: string
   loanSchemeId?: string
 }
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## getVault
+
+Returns information about vault.
+
+```ts title="client.loan.getVault()"
+interface loan {
+  getVault (vaultId: string): Promise<VaultDetails>
+}
+
+interface VaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: BigNumber
+}
+
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
+```
+
+## listVaults
+
+List all available vaults.
+
+```ts title="client.loan.listVaults()"
+interface loan {
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
+}
+
+interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  isUnderLiquidation?: boolean
+}
+
+interface VaultPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
+}
+
+interface VaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmount?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  currentRatio?: BigNumber
+}
+
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
+```
+
+## depositToVault
+
+Deposit to vault.
+
+```ts title="client.loan.depositToVault()"
+interface loan {
+  depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface DepositVault {
+  vaultId: string
+  from: string
+  amount: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## takeLoan
+
+Take loan.
+
+```ts title="client.loan.takeLoan()"
+interface loan {
+  takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface TakeLoanMetadata {
+  vaultId: string
+  amounts: string // amount@symbol
+}
+
 interface UTXO {
   txid: string
   vout: number

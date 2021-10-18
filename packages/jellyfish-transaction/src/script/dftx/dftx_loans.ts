@@ -1,4 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
+import { CTokenBalance, CTokenBalanceVarInt, TokenBalance, TokenBalanceVarInt } from './dftx_balance'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
@@ -35,7 +36,7 @@ export interface SetDefaultLoanScheme {
 export interface SetCollateralToken {
   token: number // ----------------| VarUInt{1-9 bytes}, Symbol or id of collateral token
   factor: BigNumber // ------------| 8 bytes unsigned, Collateralization factor
-  priceFeedId: CurrencyPair // ----| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  currencyPair: CurrencyPair // ---| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   activateAfterBlock: number // ---| 4 bytes unsigned, Changes will be active after the block height
 }
 
@@ -45,9 +46,21 @@ export interface SetCollateralToken {
 export interface SetLoanToken {
   symbol: string // -------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
   name: string // ---------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
-  priceFeedId: CurrencyPair // --| priceFeedId: CurrencyPair // ----| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  currencyPair: CurrencyPair // -| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
   mintable: boolean // ----------| 1 byte, mintable, Token's 'Mintable' property
   interest: BigNumber // --------| 8 bytes unsigned, interest rate
+}
+
+/**
+ * UpdateLoanToken DeFi Transaction
+ */
+export interface UpdateLoanToken {
+  symbol: string // --------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Symbol or id of collateral token
+  name: string // ----------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Token's name, no longer than 128 characters
+  currencyPair: CurrencyPair // --| c1 = VarUInt{1-9 bytes} + c1 bytes UTF encoded string for token + c2 = VarUInt{1-9 bytes} + c2 bytes UTF encoded string for currency, token/currency pair to use for price of token
+  mintable: boolean // -----------| 1 byte, mintable, Token's 'Mintable' property
+  interest: BigNumber // ---------| 8 bytes unsigned, interest rate
+  tokenTx: string // -------------| 32 bytes, hex string Txid of tokens's creation tx
 }
 
 /**
@@ -129,7 +142,7 @@ export class CSetCollateralToken extends ComposableBuffer<SetCollateralToken> {
     return [
       ComposableBuffer.varUInt(() => sct.token, v => sct.token = v),
       ComposableBuffer.satoshiAsBigNumber(() => sct.factor, v => sct.factor = v),
-      ComposableBuffer.single(() => sct.priceFeedId, v => sct.priceFeedId = v, sct => new CCurrencyPair(sct)),
+      ComposableBuffer.single(() => sct.currencyPair, v => sct.currencyPair = v, sct => new CCurrencyPair(sct)),
       ComposableBuffer.uInt32(() => sct.activateAfterBlock, v => sct.activateAfterBlock = v)
     ]
   }
@@ -147,9 +160,29 @@ export class CSetLoanToken extends ComposableBuffer<SetLoanToken> {
     return [
       ComposableBuffer.varUIntUtf8BE(() => slt.symbol, v => slt.symbol = v),
       ComposableBuffer.varUIntUtf8BE(() => slt.name, v => slt.name = v),
-      ComposableBuffer.single(() => slt.priceFeedId, v => slt.priceFeedId = v, v => new CCurrencyPair(v)),
+      ComposableBuffer.single(() => slt.currencyPair, v => slt.currencyPair = v, v => new CCurrencyPair(v)),
       ComposableBuffer.uBool8(() => slt.mintable, v => slt.mintable = v),
       ComposableBuffer.satoshiAsBigNumber(() => slt.interest, v => slt.interest = v)
+    ]
+  }
+}
+
+/**
+ * Composable UpdateLoanToken, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateLoanToken extends ComposableBuffer<UpdateLoanToken> {
+  static OP_CODE = 0x66 // 'f'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_LOAN_TOKEN'
+
+  composers (ult: UpdateLoanToken): BufferComposer[] {
+    return [
+      ComposableBuffer.varUIntUtf8BE(() => ult.symbol, v => ult.symbol = v),
+      ComposableBuffer.varUIntUtf8BE(() => ult.name, v => ult.name = v),
+      ComposableBuffer.single(() => ult.currencyPair, v => ult.currencyPair = v, v => new CCurrencyPair(v)),
+      ComposableBuffer.uBool8(() => ult.mintable, v => ult.mintable = v),
+      ComposableBuffer.satoshiAsBigNumber(() => ult.interest, v => ult.interest = v),
+      ComposableBuffer.hexBEBufferLE(32, () => ult.tokenTx, v => ult.tokenTx = v)
     ]
   }
 }
@@ -174,6 +207,58 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
     return [
       ComposableBuffer.single<Script>(() => cv.ownerAddress, v => cv.ownerAddress = v, v => new CScript(v)),
       ComposableBuffer.varUIntUtf8BE(() => cv.schemeId, v => cv.schemeId = v)
+    ]
+  }
+}
+
+/**
+ * DepositToVault DeFi Transaction
+ */
+export interface DepositToVault {
+  vaultId: string // ------------------| 32 bytes, Vault Id
+  from: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
+  tokenAmount: TokenBalanceVarInt // --| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
+}
+
+/**
+ * Composable DepositToVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CDepositToVault extends ComposableBuffer<DepositToVault> {
+  static OP_CODE = 0x53 // 'S'
+  static OP_NAME = 'OP_DEFI_TX_DEPOSIT_TO_VAULT'
+
+  composers (dtv: DepositToVault): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => dtv.vaultId, v => dtv.vaultId = v),
+      ComposableBuffer.single<Script>(() => dtv.from, v => dtv.from = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => dtv.tokenAmount, v => dtv.tokenAmount = v, v => new CTokenBalanceVarInt(v))
+    ]
+  }
+}
+
+/**
+ * TakeLoan DeFi Transaction
+ */
+export interface TakeLoan {
+  vaultId: string // ------------------| 32 bytes, Id of vault used for loan
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address to transfer tokens, empty stack when no address is specified.
+  tokenAmounts: TokenBalance[] // -----| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), loan token amounts
+}
+
+/**
+ * Composable TakeLoan, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTakeLoan extends ComposableBuffer<TakeLoan> {
+  static OP_CODE = 0x46 // 'F'
+  static OP_NAME = 'OP_DEFI_TX_TAKE_LOAN'
+
+  composers (tl: TakeLoan): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => tl.vaultId, v => tl.vaultId = v),
+      ComposableBuffer.single<Script>(() => tl.to, v => tl.to = v, v => new CScript(v)),
+      ComposableBuffer.varUIntArray(() => tl.tokenAmounts, v => tl.tokenAmounts = v, v => new CTokenBalance(v))
     ]
   }
 }

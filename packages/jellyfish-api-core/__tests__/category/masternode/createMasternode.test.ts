@@ -253,7 +253,9 @@ describe('Multinodes masternodes', () => {
   })
 
   // timelock 10 -> 4, 5 -> 3, 0 -> 2
-  it('should createMasternode targetMultiplier checker', async () => {
+  it.skip('should createMasternode targetMultiplier checker', async () => {
+    // TODO(canonbrother): due to the sporadic flaky nature of anchor test, we have disabled it now so that it does not
+    //  impact our CI workflow
     const addrA0 = await clientA.wallet.getNewAddress('mnA0', AddressType.LEGACY)
     const mnIdA0 = await clientA.masternode.createMasternode(addrA0)
     await group.waitForMempoolSync(mnIdA0)

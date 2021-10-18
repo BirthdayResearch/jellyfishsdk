@@ -12,17 +12,10 @@ finance on Bitcoin. Consisting of multiple packages with more to be added in the
 developers to create decentralized applications on top of DeFi Blockchain that are modern, easy to use and easy to 
 test.
 
-Written in TypeScript, jellyfish provides first-class citizen support for TypeScript with strongly typed interfaces of
-DeFi Blockchain rpc exchanges. Built using modern JavaScript approaches, it emphasises a **future-first developer experience**
-and backport for compatibility. The protocol-agnostic core enables independent communication protocols, allowing
-vendor-agnostic middleware adaptable to any needs.
-
 ### Monorepo & packages 
 
 As with all modern JavaScript projects, jellyfish follows a monorepo structure with its concerns separated. All packages
 maintained in this repo are published with the same version tag and follows the `DeFiCh/ain` releases.
-
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
 
 Package                                            | Description
 ---------------------------------------------------|-------------
@@ -43,5 +36,4 @@ Package                                            | Description
 `@defichain/jellyfish-wallet-encrypted`            | Library to encrypt MnemonicHdNode as EncryptedMnemonicHdNode. Able to perform as MnemonicHdNode with passphrase known.
 `@defichain/jellyfish-wallet-mnemonic`             | MnemonicHdNode implements the WalletHdNode from jellyfish-wallet; a CoinType-agnostic HD Wallet for noncustodial DeFi.
 `@defichain/testcontainers`                        | Provides a lightweight, throw away instances for DeFiD node provisioned automatically in a Docker container.
-~~@defichain/jellyfish~~                           | (deprecated) ~~Library bundled usage entrypoint with conventional defaults for 4 bundles: umd, esm, cjs and d.ts~~
 ~~@defichain/testing~~                             | (deprecated) ~~Provides rich test fixture setup functions for effective and effortless testing.~~

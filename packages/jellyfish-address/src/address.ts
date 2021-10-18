@@ -1,17 +1,17 @@
 import { Network } from '@defichain/jellyfish-network'
 import { Script } from '@defichain/jellyfish-transaction'
 
-export type AddressType = 'Unknown' | 'P2PKH' | 'P2SH' | 'P2WPKH' | 'P2WSH'
+export type AddressTypeDeprecated = 'Unknown' | 'P2PKH' | 'P2SH' | 'P2WPKH' | 'P2WSH'
 export type Validator = () => boolean
 
 export abstract class Address {
   network: Network
   utf8String: string
-  type: AddressType
+  type: AddressTypeDeprecated
   valid: boolean
   validatorPassed: number
 
-  constructor (network: Network, utf8String: string, valid: boolean, type: AddressType) {
+  constructor (network: Network, utf8String: string, valid: boolean, type: AddressTypeDeprecated) {
     this.network = network
     this.utf8String = utf8String
     this.valid = valid

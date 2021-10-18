@@ -14,7 +14,7 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    symbol: 'Token1',
      *    name: 'Token1',
-     *    priceFeedId: {token: 'Token1', currency: 'USD'},
+     *    currencyPair: {token: 'Token1', currency: 'USD'},
      *    mintable: true,
      *    interest: new BigNumber(0)
      * }
@@ -24,7 +24,7 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    symbol: 'Token2',
      *    name: 'Token2',
-     *    priceFeedId: {token: 'Token2', currency: 'USD'},
+     *    currencyPair: {token: 'Token2', currency: 'USD'},
      *    mintable: false,
      *    interest: new BigNumber(0)
      * }
@@ -34,7 +34,7 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    symbol: 'Token3',
      *    name: 'Token3',
-     *    priceFeedId: {token: 'Token3', currency: 'USD'},
+     *    currencyPair: {token: 'Token3', currency: 'USD'},
      *    mintable: true,
      *    interest: new BigNumber(12.345678)
      * }
@@ -56,14 +56,14 @@ const header = '6a274466547867' // OP_RETURN(0x6a) (length 39 = 0x27) CDfTx.SIGN
 const data = '06546f6b656e3306546f6b656e3306546f6b656e3303555344017802964900000000'
 // SetLoanToken.symbol[BE](06546f6b656e33)
 // SetLoanToken.name[BE](06546f6b656e33)
-// SetLoanToken.priceFeedId[BE] (06546f6b656e3303555344)
+// SetLoanToken.currencyPair[BE] (06546f6b656e3303555344)
 // SetLoanToken.mintable(01)
 // SetLoanToken.interest[LE](7802964900000000)
 
 const setLoanToken: SetLoanToken = {
   symbol: 'Token3',
   name: 'Token3',
-  priceFeedId: { token: 'Token3', currency: 'USD' },
+  currencyPair: { token: 'Token3', currency: 'USD' },
   mintable: true,
   interest: new BigNumber(12.345678)
 }

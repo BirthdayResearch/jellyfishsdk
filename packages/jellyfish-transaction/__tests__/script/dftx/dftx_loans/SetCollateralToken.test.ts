@@ -14,7 +14,7 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    token: '1',
      *    factor: new BigNumber(0.1),
-     *    priceFeedId: {token: 'Token1', currency: 'USD'}
+     *    currencyPair: {token: 'Token1', currency: 'USD'}
      *    activateAfterBlock: 0
      * }
      */
@@ -23,7 +23,7 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    token: '1',
      *    factor: new BigNumber(0.1),
-     *    priceFeedId: {token: 'Token1', currency: 'USD'}
+     *    currencyPair: {token: 'Token1', currency: 'USD'}
      *    activateAfterBlock: 130
      * }
      */
@@ -32,7 +32,7 @@ it('should bi-directional buffer-object-buffer', () => {
      * loan : {
      *    token: '2',
      *    factor: new BigNumber(0.2),
-     *    priceFeedId: {token: 'Token2', currency: 'USD'}
+     *    currencyPair: {token: 'Token2', currency: 'USD'}
      *    activateAfterBlock: 140
      * }
      */
@@ -53,13 +53,13 @@ describe('SetCollateralToken', () => {
   const header = '6a1d4466547863' // OP_RETURN(0x6a) (length 29 = 0x1d) CDfTx.SIGNATURE(0x44665478) CSetCollateralToken.OP_CODE(0x63)
   // SetCollateralToken.token[LE](01)
   // SetCollateralToken.factor[LE](8096980000000000)
-  // SetCollateralToken.priceFeedId[BE] (06546f6b656e3103555344)
+  // SetCollateralToken.currencyPair[BE] (06546f6b656e3103555344)
   // SetCollateralToken.activateAfterBlock[LE] (82000000)
   const data = '01809698000000000006546f6b656e310355534482000000'
   const setCollateralToken: SetCollateralToken = {
     token: 1,
     factor: new BigNumber(0.1),
-    priceFeedId: { token: 'Token1', currency: 'USD' },
+    currencyPair: { token: 'Token1', currency: 'USD' },
     activateAfterBlock: 130
   }
 

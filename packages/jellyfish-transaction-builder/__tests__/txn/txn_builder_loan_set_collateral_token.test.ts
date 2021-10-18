@@ -30,10 +30,14 @@ describe('loan.setCollateralToken()', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
   })
 
@@ -50,7 +54,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
 
@@ -68,12 +72,12 @@ describe('loan.setCollateralToken()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
     const collateralTokenId = calculateTxid(txn)
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL' }])
+    const data = await testing.container.call('getcollateraltoken', ['AAPL'])
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
         factor: 0.5,
-        priceFeedId: 'AAPL/USD',
+        fixedIntervalPriceId: 'AAPL/USD',
         activateAfterBlock: await testing.container.getBlockCount()
       }
     })
@@ -84,7 +88,7 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 2,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -96,19 +100,19 @@ describe('loan.setCollateralToken()', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(1.01),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
   })
 
-  it('should not setCollateralToken if priceFeedId does not belong to any oracle', async () => {
+  it('should not setCollateralToken if currencyPair does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'MFST', currency: 'USD' },
+      currencyPair: { token: 'MFST', currency: 'USD' },
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
@@ -140,10 +144,14 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
     // Fund 10 DFI UTXO
@@ -155,18 +163,18 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 160
     }, script)
     await sendTransaction(testing.container, txn)
     const collateralTokenId = calculateTxid(txn)
-    const data = await testing.container.call('getcollateraltoken', [{ token: 'AAPL', height: 160 }])
+    const data = await testing.rpc.loan.listCollateralTokens({ all: true })
     expect(data).toStrictEqual({
       [collateralTokenId]: {
         token: 'AAPL',
-        factor: 0.5,
-        priceFeedId: 'AAPL/USD',
-        activateAfterBlock: 160
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        activateAfterBlock: new BigNumber(160)
       }
     })
   })
@@ -214,7 +222,7 @@ describe('loan.setCollateralToken() with activateAfterBlock below current height
     const txn = await builder.loans.setCollateralToken({
       token: 1,
       factor: new BigNumber(0.5),
-      priceFeedId: { token: 'AAPL', currency: 'USD' },
+      currencyPair: { token: 'AAPL', currency: 'USD' },
       activateAfterBlock: 149
     }, script)
     const promise = sendTransaction(testing.container, txn)

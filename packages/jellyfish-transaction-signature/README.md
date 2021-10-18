@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-transaction-signature)](https://www.npmjs.com/package/@defichain/jellyfish-transaction-signature/v/latest)
-
 # @defichain/jellyfish-transaction-signature
 
 Stateless utility library to perform transaction signing.

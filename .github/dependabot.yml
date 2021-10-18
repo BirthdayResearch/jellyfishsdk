@@ -3,22 +3,22 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
     labels:
       - "kind/dependencies"
     ignore:
-      - dependency-name: "parcel"
-      - dependency-name: "@parcel/*"
       - dependency-name: "@defichain/*"
+    versioning-strategy: 'increase'
 
   - package-ecosystem: 'npm'
     directory: '/website'
     schedule:
-      interval: 'weekly'
+      interval: 'daily'
     labels:
       - "kind/dependencies"
     ignore:
       - dependency-name: "@defichain/*"
+    versioning-strategy: 'increase'
 
   - package-ecosystem: "github-actions"
     directory: "/"
