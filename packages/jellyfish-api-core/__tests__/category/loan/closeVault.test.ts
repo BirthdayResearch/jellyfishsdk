@@ -184,7 +184,7 @@ describe('Loan', () => {
 
   it('should not closeVault for vault with loan taken', async () => {
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLoanTakenId, to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow(`RpcApiError: \'Test CloseVaultTx execution failed:\nVault <${vaultWithLoanTakenId}> has loans\', code: -32600, method: closevault`)
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLoanTakenId}> has loans', code: -32600, method: closevault`)
   })
 
   it('should not closeVault for liquidated vault', async () => {
@@ -192,7 +192,7 @@ describe('Loan', () => {
     expect(liqVault.isUnderLiquidation).toStrictEqual(true)
 
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: closevault')
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Vault is under liquidation.', code: -26, method: closevault`)
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
