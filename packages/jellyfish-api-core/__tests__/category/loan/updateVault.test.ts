@@ -139,7 +139,7 @@ describe('Loan updateVault', () => {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await testing.generate(100)
+    await testing.generate(6)
 
     {
       const data = await testing.rpc.loan.getVault(vaultId)
