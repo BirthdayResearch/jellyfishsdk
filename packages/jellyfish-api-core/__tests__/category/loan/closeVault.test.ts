@@ -183,8 +183,6 @@ describe('Loan', () => {
   })
 
   it('should not closeVault for vault with loan taken', async () => {
-    const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLoanTakenId])
-
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLoanTakenId, to: await tGroup.get(0).generateAddress() })
     await expect(promise).rejects.toThrow(`RpcApiError: \'Test CloseVaultTx execution failed:\nVault <${vaultWithLoanTakenId}> has loans\', code: -32600, method: closevault`)
   })
