@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Loan', () => {
+describe('Loan getInterest', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let interestTSLABlockHeight: number

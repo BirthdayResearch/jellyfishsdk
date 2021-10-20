@@ -183,6 +183,16 @@ export class Loan {
   }
 
   /**
+   * Get loan token.
+   *
+   * @param {string} token Symbol or id of loan token
+   * @return {Promise<LoanTokenDetails>} Loan token details
+   */
+  async getLoanToken (token: string): Promise<LoanTokenDetails> {
+    return await this.client.call('getloantoken', [token], 'bignumber')
+  }
+
+  /**
    * List all created loan tokens.
    *
    * @return {Promise<ListLoanTokenResult>}

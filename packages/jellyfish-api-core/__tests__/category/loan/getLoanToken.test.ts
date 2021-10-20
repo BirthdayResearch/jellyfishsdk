@@ -2,7 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 
-describe('Loan listLoanTokens', () => {
+describe('Loan getLoanToken', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -15,44 +15,38 @@ describe('Loan listLoanTokens', () => {
     await testing.container.stop()
   })
 
-  it('should listLoanTokens', async () => {
-    {
-      const data = await testing.rpc.loan.listLoanTokens()
-      expect(data).toStrictEqual({})
-    }
-
-    const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+  it('should getLoanToken', async () => {
+    const oracleIdAAPL = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const timestamp1 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleIdAAPL, timestamp1, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
-    const loanTokenId1 = await testing.container.call('setloantoken', [{
+    const loanTokenIdAAPL = await testing.rpc.loan.setLoanToken({
       symbol: 'AAPL',
       name: 'APPLE',
       fixedIntervalPriceId: 'AAPL/USD',
       mintable: true,
       interest: new BigNumber(0.01)
-    }])
+    })
     await testing.generate(1)
+    const heightAAPL = new BigNumber(await testing.container.getBlockCount())
 
-    const height1 = new BigNumber(await testing.container.getBlockCount())
-
-    const oracleId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleIdTSLA = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'TSLA',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
     const timestamp2 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleIdTSLA, timestamp2, { prices: [{ tokenAmount: '0.5@TSLA', currency: 'USD' }] })
     await testing.generate(1)
 
-    const loanTokenId2 = await testing.container.call('setloantoken', [{
+    const loanTokenIdTSLA = await testing.container.call('setloantoken', [{
       symbol: 'TSLA',
       name: 'TESLA',
       fixedIntervalPriceId: 'TSLA/USD',
@@ -60,18 +54,19 @@ describe('Loan listLoanTokens', () => {
       interest: new BigNumber(0.02)
     }])
     await testing.generate(1)
+    const heightTSLA = new BigNumber(await testing.container.getBlockCount())
 
-    const height2 = new BigNumber(await testing.container.getBlockCount())
-
-    const data = await testing.rpc.loan.listLoanTokens()
-    expect(data).toStrictEqual(
-      {
-        [loanTokenId1]: {
+    {
+      const data1 = await testing.rpc.loan.getLoanToken('AAPL')
+      const data2 = await testing.rpc.loan.getLoanToken('1')
+      expect(data1).toStrictEqual(data2)
+      expect(data1).toStrictEqual(
+        {
           token: {
             1: {
               collateralAddress: expect.any(String),
-              creationHeight: height1,
-              creationTx: loanTokenId1,
+              creationHeight: heightAAPL,
+              creationTx: loanTokenIdAAPL,
               decimal: new BigNumber(8),
               destructionHeight: new BigNumber(-1),
               destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
@@ -90,13 +85,21 @@ describe('Loan listLoanTokens', () => {
           },
           fixedIntervalPriceId: 'AAPL/USD',
           interest: new BigNumber(0.01)
-        },
-        [loanTokenId2]: {
+        }
+      )
+    }
+
+    {
+      const data1 = await testing.rpc.loan.getLoanToken('TSLA')
+      const data2 = await testing.rpc.loan.getLoanToken('2')
+      expect(data1).toStrictEqual(data2)
+      expect(data1).toStrictEqual(
+        {
           token: {
             2: {
               collateralAddress: expect.any(String),
-              creationHeight: height2,
-              creationTx: loanTokenId2,
+              creationHeight: heightTSLA,
+              creationTx: loanTokenIdTSLA,
               decimal: new BigNumber(8),
               destructionHeight: new BigNumber(-1),
               destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
@@ -116,7 +119,23 @@ describe('Loan listLoanTokens', () => {
           fixedIntervalPriceId: 'TSLA/USD',
           interest: new BigNumber(0.02)
         }
-      }
-    )
+      )
+    }
+  })
+
+  it('should not getLoanToken if token does not exists', async () => {
+    const promise1 = testing.rpc.loan.getLoanToken('UBER')
+    await expect(promise1).rejects.toThrow('RpcApiError: \'Token UBER does not exist!\', code: -8, method: getloantoken')
+
+    const promise2 = testing.rpc.loan.getLoanToken('3')
+    await expect(promise2).rejects.toThrow('RpcApiError: \'Token 3 does not exist!\', code: -8, method: getloantoken')
+  })
+
+  it('should not getLoanToken if the token exists but not a loan token', async () => {
+    const promise1 = testing.rpc.loan.getLoanToken('DFI')
+    await expect(promise1).rejects.toThrow('RpcApiError: \'<DFI> is not a valid loan token!\', code: -20, method: getloantoken')
+
+    const promise2 = testing.rpc.loan.getLoanToken('0')
+    await expect(promise2).rejects.toThrow('RpcApiError: \'<0> is not a valid loan token!\', code: -20, method: getloantoken')
   })
 })
