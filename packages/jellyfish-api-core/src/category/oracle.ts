@@ -129,6 +129,10 @@ export class Oracle {
   async listPrices (): Promise<ListPricesData[]> {
     return await this.client.call('listprices', [], 'bignumber')
   }
+
+  async getFixedIntervalPrice (id: string): Promise<any> {
+    return await this.client.call('getfixedintervalprice', [id], 'number')
+  }
 }
 
 export interface AppointOracleOptions {
