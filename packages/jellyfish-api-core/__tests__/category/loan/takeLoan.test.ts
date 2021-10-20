@@ -208,7 +208,7 @@ describe('Loan', () => {
 
       const interestInfo = await tGroup.get(0).container.call('getinterest', ['scheme', 'TSLA'])
       const loanAmount = new BigNumber(40).plus(interestInfo[0].totalInterest)
-      expect(vaultAfter.loanAmounts).toStrictEqual([loanAmount.toFixed(8) + '@TSLA']) // 40.00004566@TSLA
+      expect(vaultAfter.loanAmounts).toStrictEqual([loanAmount.toFixed(8) + '@TSLA']) // 40.00002283@TSLA
       expect(vaultAfter.loanValue).toStrictEqual(loanAmount.multipliedBy(2).toNumber())
       expect(vaultAfter.currentRatio).toStrictEqual('Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100)%')
 
