@@ -358,11 +358,14 @@ export interface VaultDetails {
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
+  invalidPrice: boolean
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
-  loanAmount?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
+  interestValue?: BigNumber,
   currentRatio?: BigNumber
 }
 

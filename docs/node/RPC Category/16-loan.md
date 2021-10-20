@@ -152,7 +152,7 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensDetails[]>
+  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokenDetail[]>
 }
 
 interface ListCollateralTokens {
@@ -327,11 +327,14 @@ interface VaultDetails {
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
+  invalidPrice: boolean
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
-  loanAmount?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
+  interestValue?: BigNumber,
   currentRatio?: BigNumber
 }
 
@@ -368,11 +371,14 @@ interface VaultDetails {
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
+  invalidPrice: boolean
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
-  loanAmount?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
+  interestValue?: BigNumber,
   currentRatio?: BigNumber
 }
 
