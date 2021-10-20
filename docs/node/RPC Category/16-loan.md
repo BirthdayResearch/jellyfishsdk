@@ -152,7 +152,7 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData>
+  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensDetails[]>
 }
 
 interface ListCollateralTokens {
@@ -160,15 +160,12 @@ interface ListCollateralTokens {
   all?: boolean
 }
 
-interface CollateralTokensData {
-  [key: string]: CollateralTokenDetails
-}
-
-interface CollateralTokenDetails {
+interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
+  tokenId: string
 }
 ```
 
@@ -178,14 +175,15 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (token: string): Promise<CollateralTokenDetails>
+  getCollateralToken (token: string): Promise<CollateralTokenDetail>
 }
 
-interface CollateralTokenDetails {
+interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
+  tokenId: string
 }
 ```
 
@@ -261,13 +259,13 @@ interface loan {
 }
 
 interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetails
+  token: LoanTokenDetails
+  fixedIntervalPriceId: string
+  interest: BigNumber
 }
 
 interface LoanTokenDetails {
-  token: token.TokenResult
-  fixedIntervalPriceId: string
-  interest: BigNumber
+  [key: string]: token.TokenResult
 }
 
 interface TokenResult {
