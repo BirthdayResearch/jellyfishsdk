@@ -125,6 +125,25 @@ export class PoolPair {
   }
 
   /**
+   *  Creates a composite swap (swap between multiple poolpairs) transaction with given metadata.
+   *
+   * @param {PoolSwapMetadata} metadata a provided information to create pool swap transaction
+   * @param {string} metadata.from address of the owner of tokenFrom
+   * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenFrom
+   * @param {to} metadata.to address of the owner of tokenTo
+   * @param {tokenTo} metadata.tokenTo swap to token {symbol/id}
+   * @param {maxPrice} [metadata.maxPrice] acceptable max price
+   * @param {UTXO[]} [utxos = []] array for utxos to spend from.
+   * @param {string} utxos.txid the transaction id.
+   * @param {number} utxos.vout the output number.
+   * @return {Promise<string>}  hex of performed transaction
+   */
+  async compositeSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('compositeswap', [metadata, utxos], 'bignumber')
+  }
+
+  /**
    * Create a test pool swap transaction to check pool swap's return result
    *
    * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
