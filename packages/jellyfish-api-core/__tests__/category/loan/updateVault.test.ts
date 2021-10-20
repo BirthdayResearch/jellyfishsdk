@@ -39,12 +39,18 @@ describe('Loan updateVault', () => {
     // Setup oracle
     oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
       { token: 'DFI', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' }
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'MSFT', currency: 'USD' },
     ], { weightage: 1 })
     await testing.generate(1)
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
 
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '3@MSFT', currency: 'USD' }] })
     await testing.generate(1)
 
     // Add collateralToken
@@ -59,6 +65,12 @@ describe('Loan updateVault', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'MSFT',
+      fixedIntervalPriceId: 'MSFT/USD'
     })
     await testing.generate(1)
 
@@ -110,8 +122,8 @@ describe('Loan updateVault', () => {
     })
   })
 
-  it('should not updateVault if new chosen scheme could trigger liquidation', async () => {
-    // Create another vault that is going to be liquidated
+  it('should not updateVault if any of the asset\'s price is invalid', async () => {
+    // Create another vault
     const vaultId = await testing.rpc.loan.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
@@ -127,22 +139,19 @@ describe('Loan updateVault', () => {
     // Take loan
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
-      amounts: '50@TSLA'
+      amounts: '30@MSFT'
     })
     await testing.generate(1)
 
-    // Not yet get liquidated
-    {
-      const data = await testing.rpc.loan.getVault(vaultId)
-      expect(data.isUnderLiquidation).toStrictEqual(false)
-    }
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.3@MSFT', currency: 'USD' }] })
+    await testing.generate(1)
 
-    // Update to a scheme that could liquidate the vault
+    // Unable to update to new scheme as MSFT price is invalid
     const promise = testing.rpc.loan.updateVault(vaultId, {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 500\', code: -32600, method: updatevault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
   })
 
   it('should updateVault with loanSchemeId only', async () => {
@@ -181,7 +190,7 @@ describe('Loan updateVault', () => {
       expect(data.isUnderLiquidation).toStrictEqual(false)
     }
 
-    // Update to a scheme that could liquidate the vault
+    // Unable to update to new scheme as it could liquidate the vault
     const promise = testing.rpc.loan.updateVault(vaultId, {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
