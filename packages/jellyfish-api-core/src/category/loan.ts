@@ -365,7 +365,7 @@ export interface VaultDetails {
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber,
+  interestValue?: BigNumber
   currentRatio?: BigNumber
 }
 

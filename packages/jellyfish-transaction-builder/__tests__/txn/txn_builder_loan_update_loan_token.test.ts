@@ -64,8 +64,8 @@ beforeEach(async () => {
 afterEach(async () => {
   const data = await testing.container.call('listloantokens', [])
   const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
-  if(result.length > 0) {
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+  if (result.length > 0) {
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     if (token.symbol === 'Token2') { // If Token2, always update it back to Token1
       await testing.rpc.loan.updateLoanToken('Token2', {
         symbol: 'Token1',
@@ -172,7 +172,7 @@ describe('loan.updateLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token3/USD')
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
@@ -240,7 +240,7 @@ describe('loan.updateLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters
   })
 
@@ -278,7 +278,7 @@ describe('loan.updateLoanToken()', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token1/USD')
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('Token1')
   })
 

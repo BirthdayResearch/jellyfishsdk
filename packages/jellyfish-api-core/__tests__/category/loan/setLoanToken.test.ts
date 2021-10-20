@@ -39,7 +39,8 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     expect(data).toStrictEqual([{
-      token: { '1': {
+      token: {
+        1: {
           collateralAddress: expect.any(String),
           creationHeight: await testing.container.getBlockCount(),
           creationTx: loanTokenId,
@@ -57,9 +58,10 @@ describe('Loan', () => {
           symbol: 'Token1',
           symbolKey: 'Token1',
           tradeable: true
-        }},
+        }
+      },
       fixedIntervalPriceId: 'Token1/USD',
-      interest: 0,
+      interest: 0
     }])
   })
 
@@ -82,7 +84,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
@@ -180,7 +182,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token8/USD')
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('')
   })
 
@@ -204,7 +206,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token9/USD')
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
@@ -373,7 +375,7 @@ describe('Loan', () => {
 
     const data = await testing.container.call('listloantokens', [])
     const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
-    let token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('')
   })
 

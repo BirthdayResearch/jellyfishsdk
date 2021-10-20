@@ -74,11 +74,11 @@ describe('loan.setCollateralToken()', () => {
     const collateralTokenId = calculateTxid(txn)
     const data = await testing.container.call('getcollateraltoken', ['AAPL'])
     expect(data).toStrictEqual({
-        token: 'AAPL',
-        factor: 0.5,
-        fixedIntervalPriceId: 'AAPL/USD',
-        activateAfterBlock: await testing.container.getBlockCount(),
-        tokenId: collateralTokenId
+      token: 'AAPL',
+      factor: 0.5,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: await testing.container.getBlockCount(),
+      tokenId: collateralTokenId
     })
   })
 
@@ -169,12 +169,12 @@ describe('loan.setCollateralToken() with activateAfterBlock', () => {
     const collateralTokenId = calculateTxid(txn)
     const data = await testing.rpc.loan.listCollateralTokens({ all: true })
     expect(data).toStrictEqual([{
-        token: 'AAPL',
-        factor: new BigNumber(0.5),
-        fixedIntervalPriceId: 'AAPL/USD',
-        activateAfterBlock: new BigNumber(160),
-        tokenId: collateralTokenId
-      }]
+      token: 'AAPL',
+      factor: new BigNumber(0.5),
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: new BigNumber(160),
+      tokenId: collateralTokenId
+    }]
     )
   })
 })
