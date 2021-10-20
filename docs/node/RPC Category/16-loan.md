@@ -261,13 +261,13 @@ interface loan {
 }
 
 interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetails
+  token: LoanTokenDetails
+  fixedIntervalPriceId: string
+  interest: BigNumber
 }
 
 interface LoanTokenDetails {
-  token: token.TokenResult
-  fixedIntervalPriceId: string
-  interest: BigNumber
+  [key: string]: token.TokenResult
 }
 
 interface TokenResult {

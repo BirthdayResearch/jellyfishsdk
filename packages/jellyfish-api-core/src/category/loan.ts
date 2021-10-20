@@ -328,13 +328,13 @@ export interface SetLoanToken {
 }
 
 export interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetails
+  token: LoanTokenDetails
+  fixedIntervalPriceId: string
+  interest: BigNumber
 }
 
 export interface LoanTokenDetails {
-  token: token.TokenResult
-  fixedIntervalPriceId: string
-  interest: BigNumber
+  [key: string]: token.TokenResult
 }
 
 export interface UpdateLoanToken {

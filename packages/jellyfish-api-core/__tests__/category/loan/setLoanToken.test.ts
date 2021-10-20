@@ -36,33 +36,29 @@ describe('Loan', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
-    expect(data).toStrictEqual({
-      [loanTokenId]: {
-        token: {
-          1: {
-            symbol: 'Token1',
-            symbolKey: 'Token1',
-            name: '',
-            decimal: 8,
-            limit: 0,
-            mintable: true,
-            tradeable: true,
-            isDAT: true,
-            isLPS: false,
-            finalized: false,
-            isLoanToken: true,
-            minted: 0,
-            creationTx: loanTokenId,
-            creationHeight: await testing.container.getBlockCount(),
-            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-            destructionHeight: -1,
-            collateralAddress: expect.any(String)
-          }
-        },
-        fixedIntervalPriceId: 'Token1/USD',
-        interest: 0
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: { '1': {
+          collateralAddress: expect.any(String),
+          creationHeight: await testing.container.getBlockCount(),
+          creationTx: loanTokenId,
+          decimal: 8,
+          destructionHeight: -1,
+          destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+          finalized: false,
+          isDAT: true,
+          isLPS: false,
+          isLoanToken: true,
+          limit: 0,
+          mintable: true,
+          minted: 0,
+          name: '',
+          symbol: 'Token1',
+          symbolKey: 'Token1',
+          tradeable: true
+        }},
+      fixedIntervalPriceId: 'Token1/USD',
+      interest: 0,
+    }])
   })
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
@@ -78,13 +74,15 @@ describe('Loan', () => {
 
     const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'x'.repeat(9), // 9 letters
-      fixedIntervalPriceId: 'Token1/USD'
+      fixedIntervalPriceId: `${'x'.repeat(9)}/USD`
     })
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+    const index = Object.keys(data).length
+    console.log(Object.keys(data))
+
+    expect(data[index].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not setLoanToken if symbol is an empty string', async () => {
