@@ -130,6 +130,8 @@ describe('Loan getVault', () => {
     const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
     const data = await testing.rpc.loan.getVault(vaultId)
+    const currentRatioValue: string = data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100).toFixed(0, 4) as string
+
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
@@ -146,7 +148,7 @@ describe('Loan getVault', () => {
       loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       interestValue: new BigNumber(0.0000114),
       // lround ((collateral value / loan value) * 100)
-      currentRatio: `${new BigNumber(data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100).toFixed(0, 4) as string)}%`
+      currentRatio: `${currentRatioValue}%`
     })
   })
 
