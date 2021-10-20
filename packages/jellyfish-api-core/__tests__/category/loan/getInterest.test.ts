@@ -140,7 +140,7 @@ describe('Loan', () => {
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight - interestTSLABlockHeight + 1)
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight - interestTSLABlockHeight)
     expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8))
   })
 
