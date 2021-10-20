@@ -110,7 +110,7 @@ describe('Loan updateVault', () => {
     })
   })
 
-  it('should updateVault if new chosen scheme trigger liquidation', async () => {
+  it('should not updateVault if new chosen scheme could trigger liquidation', async () => {
     // Create another vault that is going to be liquidated
     const vaultId = await testing.rpc.loan.createVault({
       ownerAddress: collateralAddress,
@@ -137,7 +137,51 @@ describe('Loan updateVault', () => {
       expect(data.isUnderLiquidation).toStrictEqual(false)
     }
 
-    // Update to different scheme and get liquidated
+    // Update to a scheme that could liquidate the vault
+    const promise = testing.rpc.loan.updateVault(vaultId, {
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 500\', code: -32600, method: updatevault')
+  })
+
+  it('should updateVault with loanSchemeId only', async () => {
+    await testing.rpc.loan.updateVault(createVaultId, {
+      loanSchemeId: 'scheme'
+    })
+    await testing.generate(1)
+
+    const data = await testing.rpc.loan.getVault(createVaultId)
+    expect(data.loanSchemeId).toStrictEqual('scheme')
+  })
+
+  it('should not updateVault if new chosen scheme could trigger liquidation', async () => {
+    // Create another vault
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(1)
+
+    // Deposit to vault
+    await testing.rpc.loan.depositToVault({
+      vaultId, from: collateralAddress, amount: '100@DFI'
+    })
+    await testing.generate(1)
+
+    // Take loan
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '50@TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const data = await testing.rpc.loan.getVault(vaultId)
+      expect(data.isUnderLiquidation).toStrictEqual(false)
+    }
+
+    // Update to a scheme that could liquidate the vault
     const promise = testing.rpc.loan.updateVault(vaultId, {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
