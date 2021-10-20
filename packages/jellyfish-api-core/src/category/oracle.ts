@@ -130,8 +130,29 @@ export class Oracle {
     return await this.client.call('listprices', [], 'bignumber')
   }
 
-  async getFixedIntervalPrice (id: string): Promise<any> {
-    return await this.client.call('getfixedintervalprice', [id], 'number')
+  /**
+   * Get fixed interval price.
+   *
+   * @param {string} id Price feed id
+   * @return {Promsie<FixedIntervalPrice>}
+   */
+  async getFixedIntervalPrice (id: string): Promise<FixedIntervalPrice> {
+    return await this.client.call('getfixedintervalprice', [id], {
+      activePrice: 'bignumber',
+      nextPrice: 'bignumber'
+    })
+  }
+
+  /**
+   * List all fixed interval prices.
+   *
+   * @returns {Promise<ListFixedIntervalPrice[]}
+   */
+  async listFixedIntervalPrices (): Promise<ListFixedIntervalPrice[]> {
+    return await this.client.call('listfixedintervalprices', [], {
+      activePrice: 'bignumber',
+      nextPrice: 'bignumber'
+    })
   }
 }
 
@@ -207,4 +228,36 @@ export interface ListPricesData {
    * @example true or display error msg if false
    */
   ok: boolean | string
+}
+
+export interface FixedIntervalPrice {
+  activePriceBlock: number
+  nextPriceBlock: number
+  fixedIntervalPriceId: string
+  activePrice: BigNumber
+  nextPrice: BigNumber
+  timestamp: number
+  isValid: true
+}
+
+/**
+ * [
+ *  { activePriceBlock, nextPriceBlock },
+ *  {
+ *    priceFeedId,
+ *    activePrice,
+ *    nextPrice,
+ *    timestamp,
+ *     isValid,
+ *  }
+ * ]
+ */
+export interface ListFixedIntervalPrice {
+  activePriceBlock?: number
+  nextPriceBlock?: number
+  priceFeedId?: string
+  activePrice?: BigNumber
+  nextPrice?: BigNumber
+  timestamp?: number
+  isValid?: true
 }

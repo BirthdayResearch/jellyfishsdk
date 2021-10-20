@@ -76,28 +76,40 @@ describe('Oracle', () => {
     await testing.generate(1)
   }
 
-  it('should getFixedIntervalPrices', async () => {
+  it('should listFixedIntervalPrices', async () => {
     {
-      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
-      console.log('price: ', price)
-      expect(price).toStrictEqual({
-        activePriceBlock: expect.any(Number),
-        nextPriceBlock: expect.any(Number),
-        fixedIntervalPriceId: 'UBER/USD',
-        activePrice: new BigNumber('0'),
-        nextPrice: new BigNumber('8'),
-        timestamp: expect.any(Number),
-        isValid: false
-      })
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices()
+      expect(prices).toStrictEqual([
+        { activePriceBlock: expect.any(Number), nextPriceBlock: expect.any(Number) },
+        {
+          priceFeedId: 'BTC/USD',
+          activePrice: new BigNumber('60000'),
+          nextPrice: new BigNumber('60000'),
+          timestamp: expect.any(Number),
+          isValid: true
+        },
+        {
+          priceFeedId: 'DFI/USD',
+          activePrice: new BigNumber('1'),
+          nextPrice: new BigNumber('1'),
+          timestamp: expect.any(Number),
+          isValid: true
+        },
+        {
+          priceFeedId: 'UBER/USD',
+          activePrice: new BigNumber('0'),
+          nextPrice: new BigNumber('8'),
+          timestamp: expect.any(Number),
+          isValid: false
+        }
+      ])
     }
 
     {
       await testing.generate(6)
-      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
-      expect(price).toStrictEqual({
-        activePriceBlock: expect.any(Number),
-        nextPriceBlock: expect.any(Number),
-        fixedIntervalPriceId: 'UBER/USD',
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices()
+      expect(prices[3]).toStrictEqual({
+        priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
         timestamp: expect.any(Number),
@@ -107,11 +119,9 @@ describe('Oracle', () => {
 
     {
       await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '32@UBER', currency: 'USD' }] })
-      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
-      expect(price).toStrictEqual({
-        activePriceBlock: expect.any(Number),
-        nextPriceBlock: expect.any(Number),
-        fixedIntervalPriceId: 'UBER/USD',
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices()
+      expect(prices[3]).toStrictEqual({
+        priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
         timestamp: expect.any(Number),
@@ -121,11 +131,9 @@ describe('Oracle', () => {
 
     {
       await testing.generate(6)
-      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
-      expect(price).toStrictEqual({
-        activePriceBlock: expect.any(Number),
-        nextPriceBlock: expect.any(Number),
-        fixedIntervalPriceId: 'UBER/USD',
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices()
+      expect(prices[3]).toStrictEqual({
+        priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('32'),
         timestamp: expect.any(Number),
@@ -135,11 +143,9 @@ describe('Oracle', () => {
 
     {
       await testing.generate(6)
-      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
-      expect(price).toStrictEqual({
-        activePriceBlock: expect.any(Number),
-        nextPriceBlock: expect.any(Number),
-        fixedIntervalPriceId: 'UBER/USD',
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices()
+      expect(prices[3]).toStrictEqual({
+        priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('32'),
         nextPrice: new BigNumber('32'),
         timestamp: expect.any(Number),

@@ -255,6 +255,7 @@ export class Loan {
    * @param {TakeLoanMetadata} metadata
    * @param {string} metadata.vaultId Vault id
    * @param {string} metadata.amounts In "amount@symbol" format
+   * @param {string} [metadata.to] Address to receive tokens
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
@@ -388,7 +389,8 @@ export interface DepositVault {
 
 export interface TakeLoanMetadata {
   vaultId: string
-  amounts: string // amount@symbol
+  amounts: string | string[] // amount@symbol
+  to?: string
 }
 
 export interface VaultPagination {
