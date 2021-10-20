@@ -99,10 +99,13 @@ describe('Loan updateVault', () => {
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -135,16 +138,11 @@ describe('Loan updateVault', () => {
     }
 
     // Update to different scheme and get liquidated
-    await testing.rpc.loan.updateVault(vaultId, {
+    const promise = testing.rpc.loan.updateVault(vaultId, {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await testing.generate(6)
-
-    {
-      const data = await testing.rpc.loan.getVault(vaultId)
-      expect(data.isUnderLiquidation).toStrictEqual(true)
-    }
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 500\', code: -32600, method: updatevault')
   })
 
   it('should updateVault with loanSchemeId only', async () => {
@@ -231,10 +229,13 @@ describe('Loan updateVault', () => {
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
