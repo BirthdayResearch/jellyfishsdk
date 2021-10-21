@@ -63,14 +63,13 @@ describe('Loan listCollateralTokens with empty param, all param or (height + all
       const data1 = await testing.rpc.loan.listCollateralTokens()
       const data2 = await testing.rpc.loan.listCollateralTokens({ all: false })
       expect(data1).toStrictEqual(data2)
-      expect(data1).toStrictEqual({
-        [collateralTokenId1]: {
-          activateAfterBlock: new BigNumber(blockCount),
-          factor: new BigNumber(0.5),
-          fixedIntervalPriceId: 'AAPL/USD',
-          token: 'AAPL'
-        }
-      })
+      expect(data1).toStrictEqual([{
+        activateAfterBlock: new BigNumber(blockCount),
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        token: 'AAPL',
+        tokenId: collateralTokenId1
+      }])
     }
 
     {
@@ -78,20 +77,20 @@ describe('Loan listCollateralTokens with empty param, all param or (height + all
       const data1 = await testing.rpc.loan.listCollateralTokens({ all: true })
       const data2 = await testing.rpc.loan.listCollateralTokens({ height: 50, all: true }) // if height and all combination used, only all is considered.
       expect(data1).toStrictEqual(data2)
-      expect(data1).toStrictEqual({
-        [collateralTokenId1]: {
-          activateAfterBlock: new BigNumber(blockCount),
-          factor: new BigNumber(0.5),
-          fixedIntervalPriceId: 'AAPL/USD',
-          token: 'AAPL'
-        },
-        [collateralTokenId2]: {
-          activateAfterBlock: new BigNumber(130),
-          factor: new BigNumber(1),
-          fixedIntervalPriceId: 'TSLA/USD',
-          token: 'TSLA'
-        }
-      })
+      expect(data1).toStrictEqual([{
+        activateAfterBlock: new BigNumber(blockCount),
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        token: 'AAPL',
+        tokenId: collateralTokenId1
+      }, {
+        activateAfterBlock: new BigNumber(130),
+        factor: new BigNumber(1),
+        fixedIntervalPriceId: 'TSLA/USD',
+        token: 'TSLA',
+        tokenId: collateralTokenId2
+      }]
+      )
     }
   })
 })
@@ -157,37 +156,37 @@ describe('Loan listCollateralTokens with height only', () => {
 
     {
       const data = await testing.rpc.loan.listCollateralTokens({ height: blockCount })
-      expect(data).toStrictEqual({
-        [collateralTokenId1]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          fixedIntervalPriceId: 'AAPL/USD',
-          activateAfterBlock: new BigNumber(blockCount)
-        }
-      })
+      expect(data).toStrictEqual([{
+        token: 'AAPL',
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        activateAfterBlock: new BigNumber(blockCount),
+        tokenId: collateralTokenId1
+      }])
     }
 
     {
       const data = await testing.rpc.loan.listCollateralTokens({ height: 130 })
-      expect(data).toStrictEqual({
-        [collateralTokenId1]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          fixedIntervalPriceId: 'AAPL/USD',
-          activateAfterBlock: new BigNumber(blockCount)
-        },
-        [collateralTokenId2]: {
-          token: 'TSLA',
-          factor: new BigNumber(1.0),
-          fixedIntervalPriceId: 'TSLA/USD',
-          activateAfterBlock: new BigNumber(130)
-        }
-      })
+      expect(data).toStrictEqual([{
+        token: 'AAPL',
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        activateAfterBlock: new BigNumber(blockCount),
+        tokenId: collateralTokenId1
+      },
+      {
+        token: 'TSLA',
+        factor: new BigNumber(1.0),
+        fixedIntervalPriceId: 'TSLA/USD',
+        activateAfterBlock: new BigNumber(130),
+        tokenId: collateralTokenId2
+      }
+      ])
     }
   })
 
   it('should listCollateralToken with empty string if the height is below the activation block height', async () => {
     const data = await testing.rpc.loan.listCollateralTokens({ height: 50 })
-    expect(data).toStrictEqual({})
+    expect(data).toStrictEqual([])
   })
 })

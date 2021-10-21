@@ -86,9 +86,8 @@ describe('Loan', () => {
       vaultId: vaultId,
       amounts: '1000@TSLA'
     })
-    interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount() // interest should be calculated from the current block(inclusive)
-
     await testing.generate(1)
+    interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount() // interest should be calculated from the block where the takeloan tx gets included(inclusive).
 
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
@@ -117,7 +116,7 @@ describe('Loan', () => {
   })
 
   it('should getInterest', async () => {
-    const interests = await testing.rpc.loan.getInterest('scheme')
+    const interests = await testing.rpc.loan.getInterest('scheme') // getinterest RPC returns the interest for (current height + 1)
     /**
      * output:
      *
@@ -140,7 +139,7 @@ describe('Loan', () => {
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight - interestTSLABlockHeight + 1)
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
     expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8))
   })
 
