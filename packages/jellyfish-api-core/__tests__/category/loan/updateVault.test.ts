@@ -206,6 +206,51 @@ describe('Loan updateVault', () => {
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 150\', code: -32600, method: updatevault')
   })
 
+  it('should not updateVault if the current vault was liquidated', async () => {
+    // Create another vault
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(1)
+
+    // Deposit to vault
+    await testing.rpc.loan.depositToVault({
+      vaultId, from: collateralAddress, amount: '100@DFI'
+    })
+    await testing.generate(1)
+
+    // Take loan
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '50@TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const data = await testing.rpc.loan.getVault(vaultId)
+      expect(data.isUnderLiquidation).toStrictEqual(false)
+    }
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '20@TSLA', currency: 'USD' }] })
+    await testing.generate(7)
+
+    {
+      const data = await testing.rpc.loan.getVault(vaultId)
+      expect(data.isUnderLiquidation).toStrictEqual(true)
+    }
+
+    // Unable to update to the new vault as the current vault was liquidated
+    const promise = testing.rpc.loan.updateVault(vaultId, {
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: updatevault')
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await testing.generate(6)
+  })
+
   it('should updateVault with loanSchemeId only', async () => {
     await testing.rpc.loan.updateVault(createVaultId, {
       loanSchemeId: 'scheme'
