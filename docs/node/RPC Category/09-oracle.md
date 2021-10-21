@@ -231,7 +231,11 @@ List all fixed interval prices.
 
 ```ts title="client.oracle.listFixedIntervalPrices()"
 interface oracle {
-  listFixedIntervalPrices (pagination: FixedIntervalPricePagination): Promise<ListFixedIntervalPrice[]>
+  listFixedIntervalPrices (
+    pagination: FixedIntervalPricePagination = {
+      including_start: true
+      limit: 100
+    }): Promise<ListFixedIntervalPrice[]>
 }
 
 interface FixedIntervalPricePagination {

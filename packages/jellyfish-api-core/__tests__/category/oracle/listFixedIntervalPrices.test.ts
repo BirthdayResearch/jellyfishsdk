@@ -257,7 +257,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('11'),
         nextPrice: new BigNumber('13'),
         timestamp: expect.any(Number),
-        isValid: false
+        isValid: true
       })
     }
   })
