@@ -105,8 +105,6 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    const address2 = await tGroup.get(0).generateAddress()
-
     // vaultWithoutCollateral1Id
     vaultWithoutCollateral1Id = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
@@ -148,8 +146,9 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     // vaultWithPayBackLoanId
+    const vaultWithPayBackLoanAddress = await tGroup.get(0).generateAddress()
     vaultWithPayBackLoanId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: address2,
+      ownerAddress: vaultWithPayBackLoanAddress,
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
@@ -165,11 +164,11 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // Send TSLA to address2 so it has enough TSLA to pay back loan
-    await tGroup.get(0).rpc.account.sendTokensToAddress({}, { [address2]: ['5@TSLA'] })
+    // Send TSLA to vaultWithPayBackLoanAddress so it has enough TSLA to pay back loan
+    await tGroup.get(0).rpc.account.sendTokensToAddress({}, { [vaultWithPayBackLoanAddress]: ['5@TSLA'] })
     await tGroup.get(0).generate(1)
 
-    await tGroup.get(0).rpc.container.call('loanpayback', [{ vaultId: vaultWithPayBackLoanId, from: address2, amounts: '2@TSLA' }])
+    await tGroup.get(0).rpc.container.call('loanpayback', [{ vaultId: vaultWithPayBackLoanId, from: vaultWithPayBackLoanAddress, amounts: '2@TSLA' }])
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
@@ -258,10 +257,10 @@ describe('Loan', () => {
   })
 
   it('should closeVault if loan is paid back', async () => {
-    const address = await tGroup.get(0).generateAddress()
-    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: address })
+    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: await tGroup.get(0).generateAddress() })
     expect(typeof txId).toStrictEqual('string')
     expect(txId.length).toStrictEqual(64)
+    await tGroup.get(0).generate(1)
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
