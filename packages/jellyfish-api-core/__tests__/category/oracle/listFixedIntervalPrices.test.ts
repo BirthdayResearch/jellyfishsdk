@@ -1,6 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
+import { FixedIntervalPricePagination } from 'packages/jellyfish-api-core/src/category/oracle'
 
 describe('Oracle', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -151,6 +152,31 @@ describe('Oracle', () => {
         timestamp: expect.any(Number),
         isValid: true
       })
+    }
+  })
+
+  it('should listFixedIntervalPrices with limit', async () => {
+    const prices = await testing.rpc.oracle.listFixedIntervalPrices({ limit: 1 })
+    expect(prices.length).toStrictEqual(1)
+  })
+
+  it('should listFixedIntervalPrices with pagination start and including_start', async () => {
+    {
+      const pagination: FixedIntervalPricePagination = {
+        start: 'DFI/USD'
+      }
+
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices(pagination)
+      expect(prices[1].priceFeedId).toStrictEqual('DFI/USD')
+    }
+
+    {
+      const pagination: FixedIntervalPricePagination = {
+        start: 'UBER/USD'
+      }
+
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices(pagination)
+      expect(prices[1].priceFeedId).toStrictEqual('UBER/USD')
     }
   })
 })

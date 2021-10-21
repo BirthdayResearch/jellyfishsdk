@@ -146,10 +146,18 @@ export class Oracle {
   /**
    * List all fixed interval prices.
    *
-   * @returns {Promise<ListFixedIntervalPrice[]}
+   * @param {FixedIntervalPricePagination} pagination
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start = true] Include starting position.
+   * @param {string} [pagination.limit = 100] Maximum number of orders to return.
+   * @return {Promise<ListFixedIntervalPrice[]}
    */
-  async listFixedIntervalPrices (): Promise<ListFixedIntervalPrice[]> {
-    return await this.client.call('listfixedintervalprices', [], {
+  async listFixedIntervalPrices (
+    pagination: FixedIntervalPricePagination = {
+      including_start: true,
+      limit: 100
+    }): Promise<ListFixedIntervalPrice[]> {
+    return await this.client.call('listfixedintervalprices', [pagination], {
       activePrice: 'bignumber',
       nextPrice: 'bignumber'
     })
@@ -260,4 +268,10 @@ export interface ListFixedIntervalPrice {
   nextPrice?: BigNumber
   timestamp?: number
   isValid?: true
+}
+
+export interface FixedIntervalPricePagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
 }

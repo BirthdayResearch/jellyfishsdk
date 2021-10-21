@@ -1,6 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Oracle', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -79,7 +80,6 @@ describe('Oracle', () => {
   it('should getFixedIntervalPrices', async () => {
     {
       const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
-      console.log('price: ', price)
       expect(price).toStrictEqual({
         activePriceBlock: expect.any(Number),
         nextPriceBlock: expect.any(Number),
@@ -146,5 +146,17 @@ describe('Oracle', () => {
         isValid: true
       })
     }
+  })
+
+  it('should not getFixedIntervalPrice as empty id', async () => {
+    const promise = testing.rpc.oracle.getFixedIntervalPrice('')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Invalid parameters, argument "fixedIntervalPriceId" must be non-null')
+  })
+
+  it('should not getFixedIntervalPrice as non-existence price id', async () => {
+    const promise = testing.rpc.oracle.getFixedIntervalPrice('DURIAN/USD')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('fixedIntervalPrice with id <DURIAN/USD> not found')
   })
 })
