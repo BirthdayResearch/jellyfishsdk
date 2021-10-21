@@ -9,7 +9,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 
-describe('Loan', () => {
+describe('loans.depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let liqVaultId: string
@@ -331,7 +331,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      tokenAmount: { token: 1, amount: new BigNumber(0.11) }
+      tokenAmount: { token: 1, amount: new BigNumber(0.22) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
