@@ -429,3 +429,18 @@ interface UTXO {
   vout: number
 }
 ```
+
+## closeVault
+
+Close vault.
+
+```ts title="client.loan.closeVault()"
+interface loan {
+  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface CloseVault {
+  vaultId: string
+  to: string
+}
+```
