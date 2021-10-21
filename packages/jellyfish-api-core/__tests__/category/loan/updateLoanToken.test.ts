@@ -35,25 +35,25 @@ describe('Loan', () => {
   })
 
   afterEach(async () => {
-      const data = await testing.container.call('getloantoken', [loanTokenId])
-      const tokenInfo = Object.values(data.token)[0] as TokenInfo
-      if (tokenInfo.symbol === 'Token1') { // If Token1, always update its name, fixedIntervalPriceId, mintable and interest values back to their original values
-        await testing.rpc.loan.updateLoanToken('Token1', {
-          name: 'Token1',
-          fixedIntervalPriceId: 'Token1/USD',
-          mintable: true,
-          interest: new BigNumber(0.01)
-        })
-      } else if (tokenInfo.symbol === 'Token2') { // If Token2, always update it back to Token1
-        await testing.rpc.loan.updateLoanToken('Token2', {
-          symbol: 'Token1',
-          name: 'Token1',
-          fixedIntervalPriceId: 'Token1/USD',
-          mintable: true,
-          interest: new BigNumber(0.01)
-        })
-      }
-      await testing.generate(1)
+    const data = await testing.container.call('getloantoken', [loanTokenId])
+    const tokenInfo = Object.values(data.token)[0] as TokenInfo
+    if (tokenInfo.symbol === 'Token1') { // If Token1, always update its name, fixedIntervalPriceId, mintable and interest values back to their original values
+      await testing.rpc.loan.updateLoanToken('Token1', {
+        name: 'Token1',
+        fixedIntervalPriceId: 'Token1/USD',
+        mintable: true,
+        interest: new BigNumber(0.01)
+      })
+    } else if (tokenInfo.symbol === 'Token2') { // If Token2, always update it back to Token1
+      await testing.rpc.loan.updateLoanToken('Token2', {
+        symbol: 'Token1',
+        name: 'Token1',
+        fixedIntervalPriceId: 'Token1/USD',
+        mintable: true,
+        interest: new BigNumber(0.01)
+      })
+    }
+    await testing.generate(1)
   })
 
   afterAll(async () => {

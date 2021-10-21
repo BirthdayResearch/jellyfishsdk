@@ -203,10 +203,10 @@ describe('Loan', () => {
     })
     await testing.generate(1)
 
-      const data = await testing.container.call('getloantoken', [loanTokenId])
-      const tokenInfo = Object.values(data.token)[0] as TokenInfo
-      expect(tokenInfo.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
-    })
+    const data = await testing.container.call('getloantoken', [loanTokenId])
+    const tokenInfo = Object.values(data.token)[0] as TokenInfo
+    expect(tokenInfo.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
+  })
 
   it('should setLoanToken if two loan tokens have the same name', async () => {
     const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
