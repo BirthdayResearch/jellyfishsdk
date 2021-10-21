@@ -25,7 +25,7 @@ describe('Loan updateVault', () => {
 
     // Another scheme
     await testing.rpc.loan.createLoanScheme({
-      minColRatio: 500,
+      minColRatio: 150,
       interestRate: new BigNumber(0.5),
       id: 'scheme'
     })
@@ -39,18 +39,11 @@ describe('Loan updateVault', () => {
     // Setup oracle
     oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
       { token: 'DFI', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' },
-      { token: 'MSFT', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' }
     ], { weightage: 1 })
     await testing.generate(1)
-
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.generate(1)
-
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
-    await testing.generate(1)
-
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '3@MSFT', currency: 'USD' }] })
     await testing.generate(1)
 
     // Add collateralToken
@@ -65,12 +58,6 @@ describe('Loan updateVault', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'MSFT',
-      fixedIntervalPriceId: 'MSFT/USD'
     })
     await testing.generate(1)
 
@@ -139,19 +126,40 @@ describe('Loan updateVault', () => {
     // Take loan
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
-      amounts: '30@MSFT'
+      amounts: '50@TSLA'
     })
     await testing.generate(1)
 
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.3@MSFT', currency: 'USD' }] })
-    await testing.generate(1)
+    {
+      // DFI price is valid
+      const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['DFI/USD'])
+      expect(fixedIntervalPrice.isValid).toStrictEqual(true)
+    }
 
-    // Unable to update to new scheme as MSFT price is invalid
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
+    await testing.generate(6)
+
+    {
+      // DFI price is invalid because its price drop 90%
+      const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['DFI/USD'])
+      expect(fixedIntervalPrice.isValid).toStrictEqual(false)
+    }
+
+    // Unable to update to new scheme as DFI price is invalid
     const promise = testing.rpc.loan.updateVault(vaultId, {
       ownerAddress: await testing.generateAddress(),
-      loanSchemeId: 'scheme'
+      loanSchemeId: 'default'
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await testing.generate(12)
+
+    {
+      // DFI price is valid after it recovers back to the original price
+      const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['DFI/USD'])
+      expect(fixedIntervalPrice.isValid).toStrictEqual(true)
+    }
   })
 
   it('should updateVault with loanSchemeId only', async () => {
@@ -195,7 +203,7 @@ describe('Loan updateVault', () => {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 500\', code: -32600, method: updatevault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 150\', code: -32600, method: updatevault')
   })
 
   it('should updateVault with loanSchemeId only', async () => {
