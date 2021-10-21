@@ -18,7 +18,7 @@ describe('Loan listLoanTokens', () => {
   it('should listLoanTokens', async () => {
     {
       const data = await testing.rpc.loan.listLoanTokens()
-      expect(data).toStrictEqual({})
+      expect(data).toStrictEqual([])
     }
 
     const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
@@ -64,59 +64,57 @@ describe('Loan listLoanTokens', () => {
     const height2 = new BigNumber(await testing.container.getBlockCount())
 
     const data = await testing.rpc.loan.listLoanTokens()
-    expect(data).toStrictEqual(
+    expect(data).toStrictEqual([
       {
-        [loanTokenId1]: {
-          token: {
-            1: {
-              collateralAddress: expect.any(String),
-              creationHeight: height1,
-              creationTx: loanTokenId1,
-              decimal: new BigNumber(8),
-              destructionHeight: new BigNumber(-1),
-              destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-              finalized: false,
-              isDAT: true,
-              isLPS: false,
-              isLoanToken: true,
-              limit: new BigNumber(0),
-              mintable: true,
-              minted: new BigNumber(0),
-              name: 'APPLE',
-              symbol: 'AAPL',
-              symbolKey: 'AAPL',
-              tradeable: true
-            }
-          },
-          fixedIntervalPriceId: 'AAPL/USD',
-          interest: new BigNumber(0.01)
+        token: {
+          1: {
+            collateralAddress: expect.any(String),
+            creationHeight: height1,
+            creationTx: loanTokenId1,
+            decimal: new BigNumber(8),
+            destructionHeight: new BigNumber(-1),
+            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+            finalized: false,
+            isDAT: true,
+            isLPS: false,
+            isLoanToken: true,
+            limit: new BigNumber(0),
+            mintable: true,
+            minted: new BigNumber(0),
+            name: 'APPLE',
+            symbol: 'AAPL',
+            symbolKey: 'AAPL',
+            tradeable: true
+          }
         },
-        [loanTokenId2]: {
-          token: {
-            2: {
-              collateralAddress: expect.any(String),
-              creationHeight: height2,
-              creationTx: loanTokenId2,
-              decimal: new BigNumber(8),
-              destructionHeight: new BigNumber(-1),
-              destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-              finalized: false,
-              isDAT: true,
-              isLPS: false,
-              isLoanToken: true,
-              limit: new BigNumber(0),
-              mintable: false,
-              minted: new BigNumber(0),
-              name: 'TESLA',
-              symbol: 'TSLA',
-              symbolKey: 'TSLA',
-              tradeable: true
-            }
-          },
-          fixedIntervalPriceId: 'TSLA/USD',
-          interest: new BigNumber(0.02)
-        }
+        fixedIntervalPriceId: 'AAPL/USD',
+        interest: new BigNumber(0.01)
+      },
+      {
+        token: {
+          2: {
+            collateralAddress: expect.any(String),
+            creationHeight: height2,
+            creationTx: loanTokenId2,
+            decimal: new BigNumber(8),
+            destructionHeight: new BigNumber(-1),
+            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+            finalized: false,
+            isDAT: true,
+            isLPS: false,
+            isLoanToken: true,
+            limit: new BigNumber(0),
+            mintable: false,
+            minted: new BigNumber(0),
+            name: 'TESLA',
+            symbol: 'TSLA',
+            symbolKey: 'TSLA',
+            tradeable: true
+          }
+        },
+        fixedIntervalPriceId: 'TSLA/USD',
+        interest: new BigNumber(0.02)
       }
-    )
+    ])
   })
 })

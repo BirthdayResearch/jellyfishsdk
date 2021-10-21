@@ -171,7 +171,7 @@ describe('Loan depositToVault', () => {
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
       expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
       expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
-      expect(vaultBefore.loanAmount).toStrictEqual([])
+      expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
       expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
 
@@ -192,7 +192,7 @@ describe('Loan depositToVault', () => {
       expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
       expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
       expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
-      expect(vaultAfter.loanAmount).toStrictEqual(vaultBefore.loanAmount)
+      expect(vaultAfter.loanAmounts).toStrictEqual(vaultBefore.loanAmounts)
       expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
       expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
 

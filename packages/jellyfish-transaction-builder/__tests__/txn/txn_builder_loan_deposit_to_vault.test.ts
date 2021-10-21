@@ -331,7 +331,7 @@ describe('loans.depositToVault', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      tokenAmount: { token: 1, amount: new BigNumber(0.11) }
+      tokenAmount: { token: 1, amount: new BigNumber(0.22) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
