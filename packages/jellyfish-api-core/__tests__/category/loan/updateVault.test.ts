@@ -228,7 +228,7 @@ describe('Loan updateVault', () => {
     await testing.generate(1)
 
     // DFI price is invalid because its price drop 90%
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '20@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
     // DFI price is valid back after 7 blocks. Vault is liquidated
     await testing.generate(7)
 
@@ -239,8 +239,8 @@ describe('Loan updateVault', () => {
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: updatevault')
 
-    //
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    // DFI price recovers back to the original price
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.generate(6)
   })
 
