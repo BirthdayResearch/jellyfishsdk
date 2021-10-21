@@ -81,6 +81,7 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
+    // Mint TSLA
     await tGroup.get(0).token.mint({ symbol: 'TSLA', amount: 30000 })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).poolpair.create({ tokenA: 'TSLA', tokenB: 'DUSD' })
@@ -92,6 +93,7 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     // Vaults setup
+    // vaultWithCollateralId
     vaultWithCollateralId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
@@ -105,6 +107,47 @@ describe('Loan', () => {
 
     const address2 = await tGroup.get(0).generateAddress()
 
+    // vaultWithoutCollateral1Id
+    vaultWithoutCollateral1Id = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await tGroup.get(0).generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    // vaultWithoutCollateral2Id
+    vaultAddressWithoutCollateral2Id = await tGroup.get(0).generateAddress()
+    vaultWithoutCollateral2Id = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: vaultAddressWithoutCollateral2Id,
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    // vaultWithoutCollateral3Id
+    vaultWithoutCollateral3Id = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await tGroup.get(0).generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    // vaultWithLoanTakenId
+    vaultWithLoanTakenId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await tGroup.get(0).generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: vaultWithLoanTakenId, from: collateralAddress, amount: '10000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: vaultWithLoanTakenId,
+      amounts: '1@TSLA'
+    })
+    await tGroup.get(0).generate(1)
+
+    // vaultWithPayBackLoanId
     vaultWithPayBackLoanId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: address2,
       loanSchemeId: 'scheme'
@@ -134,42 +177,7 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    vaultWithoutCollateral1Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    vaultAddressWithoutCollateral2Id = await tGroup.get(0).generateAddress()
-    vaultWithoutCollateral2Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: vaultAddressWithoutCollateral2Id,
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    vaultWithoutCollateral3Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    vaultWithLoanTakenId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultWithLoanTakenId, from: collateralAddress, amount: '10000@DFI'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vaultWithLoanTakenId,
-      amounts: '1@TSLA'
-    })
-    await tGroup.get(0).generate(1)
-
+    // vaultWithLiquidationId
     vaultWithLiquidationId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
