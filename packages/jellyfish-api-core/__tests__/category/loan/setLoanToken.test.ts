@@ -173,17 +173,16 @@ describe('Loan', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token8', currency: 'USD' }] })
     await testing.generate(1)
 
-    await testing.rpc.loan.setLoanToken({
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token8',
       name: '',
       fixedIntervalPriceId: 'Token8/USD'
     })
     await testing.generate(1)
 
-    const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token8/USD')
-    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
-    expect(token.name).toStrictEqual('')
+    const data = await testing.container.call('getloantoken', [loanTokenId])
+    const tokenInfo = Object.values(data.token)[0] as TokenInfo
+    expect(tokenInfo.name).toStrictEqual('')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
@@ -197,18 +196,17 @@ describe('Loan', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token9', currency: 'USD' }] })
     await testing.generate(1)
 
-    await testing.rpc.loan.setLoanToken({
+    const loanTokenId = await testing.rpc.loan.setLoanToken({
       symbol: 'Token9',
       name: 'x'.repeat(129), // 129 letters
       fixedIntervalPriceId: 'Token9/USD'
     })
     await testing.generate(1)
 
-    const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token9/USD')
-    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
-    expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
-  })
+      const data = await testing.container.call('getloantoken', [loanTokenId])
+      const tokenInfo = Object.values(data.token)[0] as TokenInfo
+      expect(tokenInfo.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
+    })
 
   it('should setLoanToken if two loan tokens have the same name', async () => {
     const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
@@ -373,10 +371,9 @@ describe('Loan', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(txid)
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
-    const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
-    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
-    expect(token.name).toStrictEqual('')
+    const data = await testing.container.call('getloantoken', [loanTokenId])
+    const tokenInfo = Object.values(data.token)[0] as TokenInfo
+    expect(tokenInfo.name).toStrictEqual('')
   })
 
   it('should not setLoanToken with utxos not from foundation member', async () => {
