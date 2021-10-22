@@ -221,9 +221,9 @@ describe('loans.takeLoan', () => {
     const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId)
     const interestAfter = await tGroup.get(0).rpc.loan.getInterest('scheme', 'TSLA')
 
-    const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmount?.find((amt: string) => amt.split('@')[1] === 'TSLA')
+    const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultBeforeLoanTSLAAmount = vaultBeforeLoanTSLAAcc !== undefined ? Number(vaultBeforeLoanTSLAAcc?.split('@')[0]) : 0
-    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmount?.find((amt: string) => amt.split('@')[1] === 'TSLA')
+    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultAfterLoanTSLAAmount = Number(vaultAfterLoanTSLAAcc?.split('@')[0])
 
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'TSLA')
@@ -282,9 +282,9 @@ describe('loans.takeLoan', () => {
     const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId)
     const interestAfter = await tGroup.get(0).rpc.loan.getInterest('scheme', 'CAT')
 
-    const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmount?.find((amt: string) => amt.split('@')[1] === 'CAT')
+    const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'CAT')
     const vaultBeforeLoanTSLAAmount = vaultBeforeLoanTSLAAcc !== undefined ? Number(vaultBeforeLoanTSLAAcc?.split('@')[0]) : 0
-    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmount?.find((amt: string) => amt.split('@')[1] === 'CAT')
+    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'CAT')
     const vaultAfterLoanTSLAAmount = Number(vaultAfterLoanTSLAAcc?.split('@')[0])
 
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'CAT')
@@ -343,14 +343,14 @@ describe('loans.takeLoan', () => {
     const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId)
     const interestAfter = await tGroup.get(0).rpc.loan.getInterest('scheme')
 
-    const vaultBeforeLoanAMZNAcc = vaultBefore.loanAmount?.find((amt: string) => amt.split('@')[1] === 'AMZN')
+    const vaultBeforeLoanAMZNAcc = vaultBefore.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'AMZN')
     const vaultBeforeLoanAMZNAmount = vaultBeforeLoanAMZNAcc !== undefined ? Number(vaultBeforeLoanAMZNAcc?.split('@')[0]) : 0
-    const vaultBeforeLoanUBERAcc = vaultBefore.loanAmount?.find((amt: string) => amt.split('@')[1] === 'UBER')
+    const vaultBeforeLoanUBERAcc = vaultBefore.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'UBER')
     const vaultBeforeLoanUBERAmount = vaultBeforeLoanUBERAcc !== undefined ? Number(vaultBeforeLoanUBERAcc?.split('@')[0]) : 0
 
-    const vaultAfterLoanAMZNAcc = vaultAfter.loanAmount?.find((amt: string) => amt.split('@')[1] === 'AMZN')
+    const vaultAfterLoanAMZNAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'AMZN')
     const vaultAfterLoanAMZNAmount = Number(vaultAfterLoanAMZNAcc?.split('@')[0])
-    const vaultAfterLoanUBERAcc = vaultAfter.loanAmount?.find((amt: string) => amt.split('@')[1] === 'UBER')
+    const vaultAfterLoanUBERAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'UBER')
     const vaultAfterLoanUBERAmount = Number(vaultAfterLoanUBERAcc?.split('@')[0])
 
     const interestAfterAMZN = interestAfter.find((interest: { 'token': string }) => interest.token === 'AMZN')
