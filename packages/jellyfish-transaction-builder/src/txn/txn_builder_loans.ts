@@ -166,6 +166,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
+
   async closeVault (closeVault: CloseVault, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CLOSE_VAULT(closeVault),

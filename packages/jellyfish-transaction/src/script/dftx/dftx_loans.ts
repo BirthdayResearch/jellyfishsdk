@@ -268,7 +268,7 @@ export class CTakeLoan extends ComposableBuffer<TakeLoan> {
  */
 export interface CloseVault {
   vaultId: string // ------------------| 32 bytes, Vault Id
-  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateralcollateral
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address
 }
 
 /**

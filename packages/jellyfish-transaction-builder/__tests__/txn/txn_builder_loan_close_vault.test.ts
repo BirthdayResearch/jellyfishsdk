@@ -28,11 +28,9 @@ describe('loans.closeVault', () => {
     providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey))
     builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
-    // Fund 30000 DFI UTXO to providers.getAddress() for funds
-    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
     await setup()
 
-    // Fund 10 DFI UTXO to providers.getAddress() for fees after setup()
+    // Fund 10 DFI UTXO
     await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
   })
 
