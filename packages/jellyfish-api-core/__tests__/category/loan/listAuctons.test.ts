@@ -15,7 +15,7 @@ describe('Loan listAuctions', () => {
     await testing.container.waitForWalletCoinbaseMaturity()
 
     collateralAddress = await testing.generateAddress()
-    await testing.token.dfi({ address: collateralAddress, amount: 30000 })
+    await testing.token.dfi({ address: collateralAddress, amount: 40000 })
     await testing.token.create({ symbol: 'BTC', collateralAddress })
     await testing.generate(1)
     await testing.token.mint({ symbol: 'BTC', amount: 20000 })
@@ -72,9 +72,9 @@ describe('Loan listAuctions', () => {
     const vaultId1 = await testing.rpc.container.call('createvault', [ownerAddress1, 'default'])
     await testing.generate(1)
 
-    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '10000@DFI'])
+    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '20000@DFI'])
     await testing.generate(1)
-    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '1@BTC'])
+    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '2@BTC'])
     await testing.generate(1)
 
     await testing.container.call('takeloan', [{
@@ -99,89 +99,127 @@ describe('Loan listAuctions', () => {
     }])
     await testing.generate(1)
 
-    // Not liquidated
+    // There is no auctions if there is no liquidation
     const data = await testing.rpc.loan.listAuctions()
     expect(data).toStrictEqual([])
 
-    // make vault enter liquidation state by a price hike of the loan token
+    // Going to liquidate the vault by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2000@TSLA', currency: 'USD' }] })
 
-    await testing.generate(6)
+    {
+      // Don't liquidate vault after 1 block
+      await testing.generate(1)
+      const vault = await testing.rpc.loan.getVault(vaultId2)
+      expect(vault.isUnderLiquidation).toStrictEqual(false)
+      // List auction returns empty array
+      const data = await testing.rpc.loan.listAuctions()
+      expect(data).toStrictEqual([])
+    }
 
-    // Liquidated
-    const data1: AuctionDetail[] = await testing.rpc.loan.listAuctions()
-    const result1 = data1.filter(d => d.vaultId === vaultId1)
-    expect(result1).toStrictEqual(
-      [{
-        batchCount: new BigNumber(2),
-        batches: [
-          {
-            collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
-            ],
-            index: new BigNumber(0),
-            loan: '20.00005299@TSLA'
-          },
-          {
-            collaterals: [
-              '3333.33340000@DFI',
-              '0.33333334@BTC'
-            ],
-            index: new BigNumber(1),
-            loan: '10.00002680@TSLA'
-          }
-        ],
-        liquidationPenalty: new BigNumber(5),
-        liquidationHeight: new BigNumber(162),
-        vaultId: vaultId1
-      }]
-    )
+    {
+      // Liquidate block after 10 blocks
+      await testing.generate(9)
+      const vault = await testing.rpc.loan.getVault(vaultId2)
+      expect(vault.isUnderLiquidation).toStrictEqual(true)
+      // The collateral tokens of vault that are liquidated are sent to auction
+      const data: AuctionDetail[] = await testing.rpc.loan.listAuctions()
+      const result1 = data.filter(d => d.vaultId === vaultId1)
 
-    const data2: AuctionDetail[] = await testing.rpc.loan.listAuctions()
-    const result2 = data2.filter(d => d.vaultId === vaultId2)
-    expect(result2).toStrictEqual(
-      [{
-        batchCount: new BigNumber(4),
-        batches: [
-          {
-            collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
-            ],
-            index: new BigNumber(0),
-            loan: '20.00003783@TSLA'
-          },
-          {
-            collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
-            ],
-            index: new BigNumber(1),
-            loan: '20.00003783@TSLA'
-          },
-          {
-            collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
-            ],
-            index: new BigNumber(2),
-            loan: '20.00003783@TSLA'
-          },
-          {
-            collaterals: [
-              '0.00020000@DFI',
-              '0.00000002@BTC'
-            ],
-            index: new BigNumber(3),
-            loan: '0.00000060@TSLA'
-          }
-        ],
-        liquidationPenalty: new BigNumber(5),
-        liquidationHeight: new BigNumber(162),
-        vaultId: vaultId2
-      }]
-    )
+      // Auction are divided into 4 batches,
+      // the USD equivalent amount of every collateral tokens of non last batch is always 10,000
+      // For 1st, 2nd and 3rd batch,
+      // BTC qty (6666.6666) * BTC price (1) * BTC Col factor (1) + DFI qty (0.66666666) * DFI price (10000) * BTC Col factor (0.5)
+      expect(6666.6666 * 1 * 1 + 0.66666666 * 10000 * 0.5).toStrictEqual(9999.999899999999) // We can assume this is 10,000
+      expect(result1).toStrictEqual(
+        [{
+          batchCount: new BigNumber(4),
+          batches: [
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.66666666@BTC'
+              ],
+              index: new BigNumber(0),
+              loan: '10.00002649@TSLA'
+            },
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.66666666@BTC'
+              ],
+              index: new BigNumber(1),
+              loan: '10.00002649@TSLA'
+            },
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.66666666@BTC'
+              ],
+              index: new BigNumber(2),
+              loan: '10.00002649@TSLA'
+            },
+            {
+              collaterals: [
+                '0.00020000@DFI',
+                '0.00000002@BTC'
+              ],
+              index: new BigNumber(3),
+              loan: '0.00000030@TSLA'
+            }
+          ],
+          liquidationHeight: new BigNumber(162),
+          liquidationPenalty: new BigNumber(5),
+          vaultId: vaultId1
+        }]
+      )
+    }
+
+    {
+      const data = await testing.rpc.loan.listAuctions()
+      const result2 = data.filter(d => d.vaultId === vaultId2)
+      expect(result2).toStrictEqual(
+        [{
+          batchCount: new BigNumber(4),
+          batches: [
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.66666666@BTC'
+              ],
+              index: new BigNumber(0),
+              loan: '20.00003783@TSLA'
+            },
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.66666666@BTC'
+              ],
+              index: new BigNumber(1),
+              loan: '20.00003783@TSLA'
+            },
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.66666666@BTC'
+              ],
+              index: new BigNumber(2),
+              loan: '20.00003783@TSLA'
+            },
+            {
+              collaterals: [
+                '0.00020000@DFI',
+                '0.00000002@BTC'
+              ],
+              index: new BigNumber(3),
+              loan: '0.00000060@TSLA'
+            }
+          ],
+          liquidationPenalty: new BigNumber(5),
+          liquidationHeight: new BigNumber(162),
+          vaultId: vaultId2
+        }]
+      )
+    }
   })
 })

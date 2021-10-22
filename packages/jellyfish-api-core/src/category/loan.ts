@@ -339,10 +339,6 @@ export interface SetCollateralToken {
   activateAfterBlock?: number
 }
 
-export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetails
-}
-
 export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
