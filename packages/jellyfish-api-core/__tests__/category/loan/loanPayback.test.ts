@@ -305,7 +305,7 @@ describe('loanPayback success', () => {
     expect(bobLoanAccAfter).toStrictEqual(['4.99995434@TSLA']) // 45 - 40.00004566
   })
 
-  it('should loanPayback partially', async () => {
+  it.only('should loanPayback partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -390,7 +390,7 @@ describe('loanPayback success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001827@TSLA'])
     expect(vaultAfter.loanValue).toStrictEqual(64.0000822) // 32.0000411 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.interestValue).toStrictEqual(0.00003654)
-    expect(vaultAfter.currentRatio).toStrictEqual(23437) // 15000 / 64.00016436 * 100
+    expect(vaultAfter.currentRatio).toStrictEqual('23437%') // 15000 / 64.00016436 * 100
   })
 
   it('should loanPayback more than one amount', async () => {
