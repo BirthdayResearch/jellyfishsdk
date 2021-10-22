@@ -494,9 +494,10 @@ interface loan {
 }
 
 interface AuctionDetail {
-  vaultId: string,
+  vaultId: string
   batchCount: BigNumber
   liquidationPenalty: BigNumber
+  liquidationHeight: BigNumber
   batches: AuctionBatchDetails[]
 }
 
