@@ -437,7 +437,7 @@ export interface TakeLoanMetadata {
 export interface LoanPaybackMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
-  from?: string
+  from: string
 }
 
 export interface VaultPagination {

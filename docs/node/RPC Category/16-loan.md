@@ -385,6 +385,21 @@ interface AuctionBatchDetails {
 }
 ```
 
+## closeVault
+
+Close vault.
+
+```ts title="client.loan.closeVault()"
+interface loan {
+  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface CloseVault {
+  vaultId: string
+  to: string
+}
+```
+
 ## listVaults
 
 List all available vaults.
@@ -462,6 +477,7 @@ interface loan {
 interface TakeLoanMetadata {
   vaultId: string
   amounts: string // amount@symbol
+  to?: string
 }
 
 interface UTXO {
@@ -470,17 +486,23 @@ interface UTXO {
 }
 ```
 
-## closeVault
+## loanPayback
 
-Close vault.
+Return loan in a desired amount.
 
-```ts title="client.loan.closeVault()"
+```ts title="client.loan.loanPayback()"
 interface loan {
-  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+  loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-interface CloseVault {
+export interface LoanPaybackMetadata {
   vaultId: string
-  to: string
+  amounts: string | string[] // amount@symbol
+  from: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```
