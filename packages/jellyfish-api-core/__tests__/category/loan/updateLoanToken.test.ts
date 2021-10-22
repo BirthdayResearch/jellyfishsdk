@@ -4,7 +4,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 import { TokenInfo } from '../../../src/category/token'
 
-describe('Loan', () => {
+describe('Loan updateLoanToken', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 

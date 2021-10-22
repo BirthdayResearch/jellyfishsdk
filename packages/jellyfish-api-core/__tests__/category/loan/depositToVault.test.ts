@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Loan', () => {
+describe('Loan depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let vaultId1: string
