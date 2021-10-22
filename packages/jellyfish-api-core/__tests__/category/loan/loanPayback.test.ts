@@ -305,7 +305,7 @@ describe('loanPayback success', () => {
     expect(bobLoanAccAfter).toStrictEqual(['4.99995434@TSLA']) // 45 - 40.00004566
   })
 
-  it.only('should loanPayback partially', async () => {
+  it('should loanPayback partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
