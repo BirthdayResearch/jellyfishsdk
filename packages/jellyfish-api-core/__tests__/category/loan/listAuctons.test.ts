@@ -174,52 +174,5 @@ describe('Loan listAuctions', () => {
         }]
       )
     }
-
-    {
-      const data = await testing.rpc.loan.listAuctions()
-      const result2 = data.filter(d => d.vaultId === vaultId2)
-      expect(result2).toStrictEqual(
-        [{
-          batchCount: new BigNumber(4),
-          batches: [
-            {
-              collaterals: [
-                '6666.66660000@DFI',
-                '0.66666666@BTC'
-              ],
-              index: new BigNumber(0),
-              loan: '20.00003783@TSLA'
-            },
-            {
-              collaterals: [
-                '6666.66660000@DFI',
-                '0.66666666@BTC'
-              ],
-              index: new BigNumber(1),
-              loan: '20.00003783@TSLA'
-            },
-            {
-              collaterals: [
-                '6666.66660000@DFI',
-                '0.66666666@BTC'
-              ],
-              index: new BigNumber(2),
-              loan: '20.00003783@TSLA'
-            },
-            {
-              collaterals: [
-                '0.00020000@DFI',
-                '0.00000002@BTC'
-              ],
-              index: new BigNumber(3),
-              loan: '0.00000060@TSLA'
-            }
-          ],
-          liquidationPenalty: new BigNumber(5),
-          liquidationHeight: new BigNumber(162),
-          vaultId: vaultId2
-        }]
-      )
-    }
   })
 })
