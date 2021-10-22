@@ -16,6 +16,7 @@ describe('Loan listAuctions', () => {
 
     collateralAddress = await testing.generateAddress()
     await testing.token.dfi({ address: collateralAddress, amount: 40000 })
+    await testing.generate(1)
     await testing.token.create({ symbol: 'BTC', collateralAddress })
     await testing.generate(1)
     await testing.token.mint({ symbol: 'BTC', amount: 20000 })
