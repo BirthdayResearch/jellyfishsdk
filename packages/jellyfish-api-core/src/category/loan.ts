@@ -278,6 +278,7 @@ export interface AuctionDetail {
   vaultId: string
   batchCount: BigNumber
   liquidationPenalty: BigNumber
+  liquidationHeight: BigNumber
   batches: AuctionBatchDetails[]
 }
 

@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { ListAuction } from '../../../src/category/loan'
+import { AuctionDetail } from '../../../src/category/loan'
 
 describe('Loan listAuctions', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -39,24 +39,25 @@ describe('Loan listAuctions', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await testing.generate(1)
 
     // collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await testing.rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: 'BTC/USD'
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
 
     // loan token
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
   })
@@ -102,13 +103,14 @@ describe('Loan listAuctions', () => {
     const data = await testing.rpc.loan.listAuctions()
     expect(data).toStrictEqual([])
 
-    // make vault enter under liquidation state by a price hike of the loan token
+    // make vault enter liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
-    await testing.generate(1)
+
+    await testing.generate(6)
 
     // Liquidated
-    const data1: ListAuction[] = await testing.rpc.loan.listAuctions()
+    const data1: AuctionDetail[] = await testing.rpc.loan.listAuctions()
     const result1 = data1.filter(d => d.vaultId === vaultId1)
     expect(result1).toStrictEqual(
       [{
@@ -120,7 +122,7 @@ describe('Loan listAuctions', () => {
               '0.66666666@BTC'
             ],
             index: new BigNumber(0),
-            loan: '19.99999980@TSLA'
+            loan: '20.00005299@TSLA'
           },
           {
             collaterals: [
@@ -128,15 +130,16 @@ describe('Loan listAuctions', () => {
               '0.33333334@BTC'
             ],
             index: new BigNumber(1),
-            loan: '10.00000020@TSLA'
+            loan: '10.00002680@TSLA'
           }
         ],
         liquidationPenalty: new BigNumber(5),
+        liquidationHeight: new BigNumber(162),
         vaultId: vaultId1
       }]
     )
 
-    const data2: ListAuction[] = await testing.rpc.loan.listAuctions()
+    const data2: AuctionDetail[] = await testing.rpc.loan.listAuctions()
     const result2 = data2.filter(d => d.vaultId === vaultId2)
     expect(result2).toStrictEqual(
       [{
@@ -148,7 +151,7 @@ describe('Loan listAuctions', () => {
               '0.66666666@BTC'
             ],
             index: new BigNumber(0),
-            loan: '19.99999980@TSLA'
+            loan: '20.00003783@TSLA'
           },
           {
             collaterals: [
@@ -156,7 +159,7 @@ describe('Loan listAuctions', () => {
               '0.66666666@BTC'
             ],
             index: new BigNumber(1),
-            loan: '19.99999980@TSLA'
+            loan: '20.00003783@TSLA'
           },
           {
             collaterals: [
@@ -164,7 +167,7 @@ describe('Loan listAuctions', () => {
               '0.66666666@BTC'
             ],
             index: new BigNumber(2),
-            loan: '19.99999980@TSLA'
+            loan: '20.00003783@TSLA'
           },
           {
             collaterals: [
@@ -176,6 +179,7 @@ describe('Loan listAuctions', () => {
           }
         ],
         liquidationPenalty: new BigNumber(5),
+        liquidationHeight: new BigNumber(162),
         vaultId: vaultId2
       }]
     )
