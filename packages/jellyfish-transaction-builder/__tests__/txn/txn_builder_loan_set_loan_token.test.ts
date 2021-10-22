@@ -7,6 +7,8 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
+import { ListLoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
+import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 
 describe('loan.setLoanToken()', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -67,33 +69,31 @@ describe('loan.setLoanToken()', () => {
 
     const loanTokenId = calculateTxid(txn)
     const data = await testing.container.call('listloantokens', [])
-    expect(data).toStrictEqual({
-      [loanTokenId]: {
-        token: {
-          1: {
-            symbol: 'Token1',
-            symbolKey: 'Token1',
-            name: 'Token1',
-            decimal: 8,
-            limit: 0,
-            mintable: true,
-            tradeable: true,
-            isDAT: true,
-            isLPS: false,
-            finalized: false,
-            isLoanToken: true,
-            minted: 0,
-            creationTx: loanTokenId,
-            creationHeight: await testing.container.getBlockCount(),
-            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-            destructionHeight: -1,
-            collateralAddress: expect.any(String)
-          }
-        },
-        fixedIntervalPriceId: 'Token1/USD',
-        interest: 0.5
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: {
+        1: {
+          collateralAddress: expect.any(String),
+          creationHeight: await testing.container.getBlockCount(),
+          creationTx: loanTokenId,
+          decimal: 8,
+          destructionHeight: -1,
+          destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+          finalized: false,
+          isDAT: true,
+          isLPS: false,
+          isLoanToken: true,
+          limit: 0,
+          mintable: true,
+          minted: 0,
+          name: 'Token1',
+          symbol: 'Token1',
+          symbolKey: 'Token1',
+          tradeable: true
+        }
+      },
+      fixedIntervalPriceId: 'Token1/USD',
+      interest: 0.5
+    }])
   })
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
@@ -117,11 +117,11 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not setLoanToken if symbol is an empty string', async () => {
@@ -217,11 +217,11 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token5')
+    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token5/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.name).toStrictEqual('Token5')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
@@ -245,11 +245,11 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
+    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token6/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
   it('should setLoanToken if two loan tokens have the same name', async () => {
