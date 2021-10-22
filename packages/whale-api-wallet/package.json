@@ -15,22 +15,6 @@
   "repository": "DeFiCh/whale",
   "bugs": "https://github.com/DeFiCh/whale/issues",
   "license": "MIT",
-  "contributors": [
-    {
-      "name": "DeFiChain Foundation",
-      "email": "engineering@defichain.com",
-      "url": "https://defichain.com/"
-    },
-    {
-      "name": "DeFi Blockchain Contributors"
-    },
-    {
-      "name": "DeFi Jellyfish Contributors"
-    },
-    {
-      "name": "DeFi Whale Contributors"
-    }
-  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -40,8 +24,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@defichain/jellyfish-transaction-builder": "0.47.1",
-    "@defichain/jellyfish-wallet": "0.47.1",
+    "@defichain/jellyfish-transaction-builder": "^0.47.1",
+    "@defichain/jellyfish-wallet": "^0.47.1",
     "@defichain/whale-api-client": "0.0.0"
   }
 }
