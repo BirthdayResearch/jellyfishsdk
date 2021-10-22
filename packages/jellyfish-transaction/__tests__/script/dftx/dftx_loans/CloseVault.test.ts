@@ -45,7 +45,7 @@ it('should bi-directional buffer-object-buffer', () => {
 const header = '6a3c4466547865' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CCreateLoanScheme.OP_CODE(0x65)
 // CloseVault.vaultId[LE](0x5490de6280bcd61c0f26342cb3254b41354c24f28e01ce4f003f21ca6d156a18)
 // CloseVault.to(0x16001463f29965a35135ecdf4ec0b3fe5627a7166e3f9e)
-const data = '5490de6280bcd61c0f26342cb3254b41354c24f28e01ce4f003f21ca6d156a18'
+const data = '5490de6280bcd61c0f26342cb3254b41354c24f28e01ce4f003f21ca6d156a1816001463f29965a35135ecdf4ec0b3fe5627a7166e3f9e'
 const closeVault: CloseVault = {
   vaultId: '186a156dca213f004fce018ef2244c35414b25b32c34260f1cd6bc8062de9054',
   to: {

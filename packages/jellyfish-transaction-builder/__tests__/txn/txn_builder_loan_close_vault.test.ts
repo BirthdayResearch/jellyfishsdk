@@ -11,9 +11,9 @@ import { RegTest } from '@defichain/jellyfish-network'
 describe('loans.closeVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultWithCollateralId: string // Vault with collateral token deposited
-  let vaultWithoutCollateralId: string
-  let vaultWithLoanTakenId: string // Vault with loan taken
+  let vaultWithoutCollateralId: string // Vault without collateral token deposited
   let vaultWithPayBackLoanId: string // Vault with loan taken paid back
+  let vaultWithLoanTakenId: string // Vault with loan taken
   let vaultWithLiquidationId: string // Vault with liquidation event triggered
   let oracleId: string
 
@@ -117,24 +117,6 @@ describe('loans.closeVault', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // vaultWithLoanTakenId
-    vaultWithLoanTakenId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await providers.getAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultWithLoanTakenId, from: collateralAddress, amount: '10000@DFI'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: vaultWithLoanTakenId,
-      amounts: '1@TSLA'
-    })
-    await tGroup.get(0).generate(1)
-
     // vaultWithPayBackLoanId
     const vaultWithPayBackLoanAddress = await providers.getAddress()
     vaultWithPayBackLoanId = await tGroup.get(0).rpc.loan.createVault({
@@ -163,6 +145,24 @@ describe('loans.closeVault', () => {
 
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultWithPayBackLoanId, from: collateralAddress, amount: '2@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    // vaultWithLoanTakenId
+    vaultWithLoanTakenId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await providers.getAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: vaultWithLoanTakenId, from: collateralAddress, amount: '10000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: vaultWithLoanTakenId,
+      amounts: '1@TSLA'
     })
     await tGroup.get(0).generate(1)
 
@@ -217,6 +217,21 @@ describe('loans.closeVault', () => {
     await tGroup.waitForSync()
   })
 
+  it('should closeVault if loan is paid back', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithPayBackLoanId,
+      to: script
+    }, script)
+
+    await sendTransaction(tGroup.get(0).container, txn)
+    const txId = calculateTxid(txn)
+
+    expect(typeof txId).toStrictEqual('string')
+    expect(txId.length).toStrictEqual(64)
+    await tGroup.get(0).generate(1)
+  })
+
   it('should not closeVault as vault does not exist', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.closeVault({
@@ -251,21 +266,6 @@ describe('loans.closeVault', () => {
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: Cannot close vault under liquidation (code 16)\', code: -26')
-  })
-
-  it('should closeVault if loan is paid back', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.closeVault({
-      vaultId: vaultWithPayBackLoanId,
-      to: script
-    }, script)
-
-    await sendTransaction(tGroup.get(0).container, txn)
-    const txId = calculateTxid(txn)
-
-    expect(typeof txId).toStrictEqual('string')
-    expect(txId.length).toStrictEqual(64)
-    await tGroup.get(0).generate(1)
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
