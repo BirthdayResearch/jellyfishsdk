@@ -20,6 +20,7 @@ This new implementation warps a container on init via `Testing.create(container)
 Install as dev only as you don't need this in production. **Please don't use this in production!**
 
 ```shell
+npm i defichain
 npm i -D @defichain/jellyfish-testing
 ```
 
