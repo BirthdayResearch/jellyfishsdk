@@ -16,17 +16,16 @@ describe('Loan listAuctions', () => {
 
     collateralAddress = await testing.generateAddress()
     await testing.token.dfi({ address: collateralAddress, amount: 40000 })
-    await testing.generate(1)
     await testing.token.create({ symbol: 'BTC', collateralAddress })
     await testing.generate(1)
     await testing.token.mint({ symbol: 'BTC', amount: 20000 })
     await testing.generate(1)
 
-    // loan scheme
+    // Loan scheme
     await testing.container.call('createloanscheme', [100, 1, 'default'])
     await testing.generate(1)
 
-    // price oracle
+    // Price oracle
     const addr = await testing.generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
@@ -42,7 +41,7 @@ describe('Loan listAuctions', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.generate(1)
 
-    // collateral tokens
+    // Collateral tokens
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
@@ -55,7 +54,7 @@ describe('Loan listAuctions', () => {
     })
     await testing.generate(1)
 
-    // loan token
+    // Loan token
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
@@ -69,8 +68,7 @@ describe('Loan listAuctions', () => {
 
   it('should listAuctions', async () => {
     // Vault 1
-    const ownerAddress1 = await testing.generateAddress()
-    const vaultId1 = await testing.rpc.container.call('createvault', [ownerAddress1, 'default'])
+    const vaultId1 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
     await testing.generate(1)
 
     await testing.container.call('deposittovault', [vaultId1, collateralAddress, '20000@DFI'])
@@ -100,27 +98,22 @@ describe('Loan listAuctions', () => {
     }])
     await testing.generate(1)
 
-    // There is no auctions if there is no liquidation
-    const data = await testing.rpc.loan.listAuctions()
-    expect(data).toStrictEqual([])
+    {
+      // If there is no liquidation, return an empty array object
+      const data = await testing.rpc.loan.listAuctions()
+      expect(data).toStrictEqual([])
+    }
 
     // Going to liquidate the vault by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2000@TSLA', currency: 'USD' }] })
 
-    {
-      // Don't liquidate vault after 1 block
-      await testing.generate(1)
-      const vault = await testing.rpc.loan.getVault(vaultId2)
-      expect(vault.isUnderLiquidation).toStrictEqual(false)
-      // List auction returns empty array
-      const data = await testing.rpc.loan.listAuctions()
-      expect(data).toStrictEqual([])
-    }
+    const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['TSLA/USD'])
+    await testing.container.waitForBlockHeight(fixedIntervalPrice.nextPriceBlock) // Wait for the price to be valid
+    await testing.container.generate(6) // Wait for 6 more blocks to trigger liquidation
 
     {
-      // Liquidate block after 10 blocks
-      await testing.generate(9)
+      // Liquidation
       const vault = await testing.rpc.loan.getVault(vaultId2)
       expect(vault.isUnderLiquidation).toStrictEqual(true)
       // The collateral tokens of vault that are liquidated are sent to auction
@@ -131,7 +124,7 @@ describe('Loan listAuctions', () => {
       // the USD equivalent amount of every collateral tokens of non last batch is always 10,000
       // For 1st, 2nd and 3rd batch,
       // BTC qty (6666.6666) * BTC price (1) * BTC Col factor (1) + DFI qty (0.66666666) * DFI price (10000) * BTC Col factor (0.5)
-      expect(6666.6666 * 1 * 1 + 0.66666666 * 10000 * 0.5).toStrictEqual(9999.999899999999) // We can assume this is 10,000
+      expect(6666.6666 * 1 * 1 + 0.66666666 * 10000 * 0.5).toStrictEqual(9999.999899999999) // We can assume this is 10,000, there is minor discrepancy after the division.
       expect(result1).toStrictEqual(
         [{
           batchCount: new BigNumber(4),
