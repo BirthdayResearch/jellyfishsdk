@@ -108,9 +108,8 @@ describe('Loan listAuctions', () => {
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2000@TSLA', currency: 'USD' }] })
 
-    const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['TSLA/USD'])
-    await testing.container.waitForBlockHeight(fixedIntervalPrice.nextPriceBlock) // Wait for the price to be valid
-    await testing.container.generate(6) // Wait for 6 more blocks to trigger liquidation
+    await container.waitForPriceInvalid('TSLA/USD')
+    await container.waitForPriceValid('TSLA/USD')
 
     {
       // Liquidation
