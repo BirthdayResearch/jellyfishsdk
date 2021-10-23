@@ -15,7 +15,7 @@ describe('Loan updateVault', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    // Default scheme
+    // Scheme
     await testing.rpc.loan.createLoanScheme({
       minColRatio: 100,
       interestRate: new BigNumber(1.5),
@@ -23,7 +23,6 @@ describe('Loan updateVault', () => {
     })
     await testing.generate(1)
 
-    // Another scheme
     await testing.rpc.loan.createLoanScheme({
       minColRatio: 150,
       interestRate: new BigNumber(0.5),
@@ -36,7 +35,7 @@ describe('Loan updateVault', () => {
     await testing.token.dfi({ amount: 10000, address: collateralAddress })
     await testing.generate(1)
 
-    // Setup oracle
+    // Oracle
     oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
       { token: 'DFI', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' }
@@ -46,7 +45,7 @@ describe('Loan updateVault', () => {
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.generate(1)
 
-    // Add collateralToken
+    // Collateral token
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
@@ -54,7 +53,7 @@ describe('Loan updateVault', () => {
     })
     await testing.generate(1)
 
-    // Add setLoanToken
+    // Loan token
     await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
@@ -96,7 +95,7 @@ describe('Loan updateVault', () => {
     expect(data).toStrictEqual({
       vaultId: createVaultId,
       loanSchemeId: 'scheme',
-      ownerAddress: ownerAddress,
+      ownerAddress,
       isUnderLiquidation: false,
       invalidPrice: false,
       collateralAmounts: [],
@@ -130,20 +129,11 @@ describe('Loan updateVault', () => {
     })
     await testing.generate(1)
 
-    {
-      // DFI price is valid
-      const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['DFI/USD'])
-      expect(fixedIntervalPrice.isValid).toStrictEqual(true)
-    }
-
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
-    await testing.generate(6)
+    await testing.generate(1)
 
-    {
-      // DFI price is invalid because its price drop 90%
-      const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['DFI/USD'])
-      expect(fixedIntervalPrice.isValid).toStrictEqual(false)
-    }
+    // Wait for the price become invalid
+    await container.waitForPriceInvalid('DFI/USD')
 
     // Unable to update to new scheme as DFI price is invalid
     const promise = testing.rpc.loan.updateVault(vaultId, {
@@ -152,14 +142,14 @@ describe('Loan updateVault', () => {
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
 
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.generate(12)
+    await container.waitForPriceValid('DFI/USD')
 
-    {
-      // DFI price is valid after it recovers back to the original price
-      const fixedIntervalPrice = await testing.container.call('getfixedintervalprice', ['DFI/USD'])
-      expect(fixedIntervalPrice.isValid).toStrictEqual(true)
-    }
+    // Update back the price
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await testing.generate(1)
+
+    await container.waitForPriceInvalid('DFI/USD')
+    await container.waitForPriceValid('DFI/USD')
   })
 
   it('should updateVault with loanSchemeId only', async () => {
@@ -229,8 +219,8 @@ describe('Loan updateVault', () => {
 
     // DFI price is invalid because its price drop 90%
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
-    // DFI price is valid back after 7 blocks. Vault is liquidated
-    await testing.generate(7)
+    await container.waitForPriceInvalid('DFI/USD')
+    await container.waitForPriceValid('DFI/USD')
 
     // Unable to update vault if the vault is under liquidation
     const promise = testing.rpc.loan.updateVault(vaultId, {
