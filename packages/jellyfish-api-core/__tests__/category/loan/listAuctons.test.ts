@@ -111,61 +111,59 @@ describe('Loan listAuctions', () => {
     await container.waitForPriceInvalid('TSLA/USD')
     await container.waitForPriceValid('TSLA/USD')
 
-    {
-      // Liquidation
-      const vault = await testing.rpc.loan.getVault(vaultId2)
-      expect(vault.isUnderLiquidation).toStrictEqual(true)
-      // The collateral tokens of vault that are liquidated are sent to auction
-      const data: AuctionDetail[] = await testing.rpc.loan.listAuctions()
-      const result1 = data.filter(d => d.vaultId === vaultId1)
+    // Liquidation
+    const vault = await testing.rpc.loan.getVault(vaultId2)
+    expect(vault.isUnderLiquidation).toStrictEqual(true)
+    // The collateral tokens of vault that are liquidated are sent to auction
+    const data: AuctionDetail[] = await testing.rpc.loan.listAuctions()
+    const result1 = data.filter(d => d.vaultId === vaultId1)
 
-      // Auction are divided into 4 batches,
-      // the USD equivalent amount of every collateral tokens of non last batch is always 10,000
-      // For 1st, 2nd and 3rd batch,
-      // BTC qty (6666.6666) * BTC price (1) * BTC Col factor (1) + DFI qty (0.66666666) * DFI price (10000) * BTC Col factor (0.5)
-      expect(6666.6666 * 1 * 1 + 0.66666666 * 10000 * 0.5).toStrictEqual(9999.999899999999) // We can assume this is 10,000, there is minor discrepancy after the division.
-      expect(result1).toStrictEqual(
-        [{
-          batchCount: new BigNumber(4),
-          batches: [
-            {
-              collaterals: [
-                '6666.66660000@DFI',
-                '0.66666666@BTC'
-              ],
-              index: new BigNumber(0),
-              loan: '10.00002649@TSLA'
-            },
-            {
-              collaterals: [
-                '6666.66660000@DFI',
-                '0.66666666@BTC'
-              ],
-              index: new BigNumber(1),
-              loan: '10.00002649@TSLA'
-            },
-            {
-              collaterals: [
-                '6666.66660000@DFI',
-                '0.66666666@BTC'
-              ],
-              index: new BigNumber(2),
-              loan: '10.00002649@TSLA'
-            },
-            {
-              collaterals: [
-                '0.00020000@DFI',
-                '0.00000002@BTC'
-              ],
-              index: new BigNumber(3),
-              loan: '0.00000030@TSLA'
-            }
-          ],
-          liquidationHeight: new BigNumber(162),
-          liquidationPenalty: new BigNumber(5),
-          vaultId: vaultId1
-        }]
-      )
-    }
+    // Auction are divided into 4 batches,
+    // the USD equivalent amount of every collateral tokens of non last batch is always 10,000
+    // For 1st, 2nd and 3rd batch,
+    // DFI qty (6666.6666) * DFI price (1) * DFI Col factor (1) + BTC qty (0.66666666) * BTC price (10000) * BTC Col factor (0.5)
+    expect(6666.6666 * 1 * 1 + 0.66666666 * 10000 * 0.5).toStrictEqual(9999.999899999999) // We can assume this is 10,000, there is minor discrepancy after the division.
+    expect(result1).toStrictEqual(
+      [{
+        batchCount: new BigNumber(4),
+        batches: [
+          {
+            collaterals: [
+              '6666.66660000@DFI',
+              '0.66666666@BTC'
+            ],
+            index: new BigNumber(0),
+            loan: '10.00002649@TSLA'
+          },
+          {
+            collaterals: [
+              '6666.66660000@DFI',
+              '0.66666666@BTC'
+            ],
+            index: new BigNumber(1),
+            loan: '10.00002649@TSLA'
+          },
+          {
+            collaterals: [
+              '6666.66660000@DFI',
+              '0.66666666@BTC'
+            ],
+            index: new BigNumber(2),
+            loan: '10.00002649@TSLA'
+          },
+          {
+            collaterals: [
+              '0.00020000@DFI',
+              '0.00000002@BTC'
+            ],
+            index: new BigNumber(3),
+            loan: '0.00000030@TSLA'
+          }
+        ],
+        liquidationHeight: new BigNumber(162),
+        liquidationPenalty: new BigNumber(5),
+        vaultId: vaultId1
+      }]
+    )
   })
 })
