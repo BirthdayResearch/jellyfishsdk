@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-wallet-mnemonic)](https://www.npmjs.com/package/@defichain/jellyfish-wallet-mnemonic/v/latest)
-
 # @defichain/jellyfish-wallet-mnemonic
 
 MnemonicHdNode implements the WalletHdNode from jellyfish-wallet. HdNode implementations is purpose and derivation

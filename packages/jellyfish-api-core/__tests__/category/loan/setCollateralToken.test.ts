@@ -14,10 +14,14 @@ describe('Loan setCollateralToken', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
   })
 
@@ -29,70 +33,69 @@ describe('Loan setCollateralToken', () => {
     const collateralTokenId = await testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     })
     expect(typeof collateralTokenId).toStrictEqual('string')
     expect(collateralTokenId.length).toStrictEqual(64)
     await testing.generate(1)
 
     const data = await testing.container.call('listcollateraltokens', [])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        priceFeedId: 'AAPL/USD',
-        activateAfterBlock: await testing.container.getBlockCount()
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: 'AAPL',
+      factor: 0.5,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: await testing.container.getBlockCount(),
+      tokenId: collateralTokenId
+    }])
   })
 
   it('should not setCollateralToken if token does not exist', async () => {
-    const promise = testing.rpc.loan.setCollateralToken({ token: 'TSLA', factor: new BigNumber(0.5), priceFeedId: 'AAPL/USD' })
+    const promise = testing.rpc.loan.setCollateralToken({ token: 'TSLA', factor: new BigNumber(0.5), fixedIntervalPriceId: 'AAPL/USD' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Token TSLA does not exist!\', code: -8, method: setcollateraltoken')
   })
 
   it('should not setCollateralToken if factor is greater than 1', async () => {
-    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), priceFeedId: 'AAPL/USD' })
+    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), fixedIntervalPriceId: 'AAPL/USD' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nsetCollateralToken factor must be lower or equal than 1.00000000!\', code: -32600, method: setcollateraltoken')
   })
 
   it('should not setCollateralToken if factor is less than 0', async () => {
-    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(-0.01), priceFeedId: 'AAPL/USD' })
+    const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(-0.01), fixedIntervalPriceId: 'AAPL/USD' })
     await expect(promise).rejects.toThrow('RpcApiError: \'Amount out of range\', code: -3, method: setcollateraltoken')
   })
 
-  it('should not setCollateralToken if priceFeedId does not belong to any oracle', async () => {
+  it('should not setCollateralToken if fixedIntervalPriceId does not belong to any oracle', async () => {
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'MFST/USD'
+      fixedIntervalPriceId: 'MFST/USD'
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nPrice feed MFST/USD does not belong to any oracle\', code: -32600, method: setcollateraltoken')
   })
 
-  it('should not setLoanToken if priceFeedId is not in correct format', async () => {
+  it('should not setLoanToken if fixedIntervalPriceId is not in correct format', async () => {
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'X'
+      fixedIntervalPriceId: 'X'
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'price feed not in valid format - token/currency!\', code: -8, method: setcollateraltoken')
   })
 
-  it('should not setLoanToken if priceFeedId is an empty string', async () => {
+  it('should not setLoanToken if fixedIntervalPriceId is an empty string', async () => {
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: ''
+      fixedIntervalPriceId: ''
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid parameters, argument "priceFeedId" must be non-null\', code: -8, method: setcollateraltoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Invalid parameters, argument "fixedIntervalPriceId" must be non-null\', code: -8, method: setcollateraltoken')
   })
 
-  it('should not setLoanToken if token/currency of priceFeedId contains empty string', async () => {
+  it('should not setLoanToken if token/currency of fixedIntervalPriceId contains empty string', async () => {
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: '/'
+      fixedIntervalPriceId: '/'
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'token/currency contains empty string\', code: -8, method: setcollateraltoken')
   })
@@ -102,7 +105,7 @@ describe('Loan setCollateralToken', () => {
     const collateralTokenId = await testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     }, [{ txid, vout }])
     expect(typeof collateralTokenId).toStrictEqual('string')
     expect(collateralTokenId.length).toStrictEqual(64)
@@ -113,14 +116,13 @@ describe('Loan setCollateralToken', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
     const data = await testing.container.call('listcollateraltokens', [])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        priceFeedId: 'AAPL/USD',
-        activateAfterBlock: await testing.container.getBlockCount()
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: 'AAPL',
+      factor: 0.5,
+      tokenId: collateralTokenId,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: await testing.container.getBlockCount()
+    }])
   })
 
   it('should not setCollateralToken with utxos not from foundation member', async () => {
@@ -128,7 +130,7 @@ describe('Loan setCollateralToken', () => {
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'AAPL/USD'
+      fixedIntervalPriceId: 'AAPL/USD'
     }, [utxo])
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setcollateraltoken')
   })
@@ -151,10 +153,14 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
     // Wait for block 110
@@ -164,7 +170,7 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
     const collateralTokenId = await testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'AAPL/USD',
+      fixedIntervalPriceId: 'AAPL/USD',
       activateAfterBlock: 120
     })
     expect(typeof collateralTokenId).toStrictEqual('string')
@@ -172,14 +178,13 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listcollateraltokens', [{ all: true }])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        priceFeedId: 'AAPL/USD',
-        activateAfterBlock: 120
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: 'AAPL',
+      factor: 0.5,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: 120,
+      tokenId: collateralTokenId
+    }])
   })
 })
 
@@ -200,10 +205,14 @@ describe('Loan setCollateralToken with activateAfterBlock less than the current 
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
     await testing.generate(1)
 
     // Wait for block 110
@@ -213,7 +222,7 @@ describe('Loan setCollateralToken with activateAfterBlock less than the current 
     const promise = testing.rpc.loan.setCollateralToken({
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'AAPL/USD',
+      fixedIntervalPriceId: 'AAPL/USD',
       activateAfterBlock: 109
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')

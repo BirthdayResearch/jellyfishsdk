@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-testing)](https://www.npmjs.com/package/@defichain/jellyfish-testing/v/latest)
-
 # @defichain/jellyfish-testing
 
 This package introduces a centralized testing framework for the jellyfish replacing the existing `@defichain/testing`.

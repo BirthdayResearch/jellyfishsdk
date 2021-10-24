@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-wallet)](https://www.npmjs.com/package/@defichain/jellyfish-wallet/v/latest)
-
 # @defichain/jellyfish-wallet
 
 > If you want to use multiple/change address please use defid directly.

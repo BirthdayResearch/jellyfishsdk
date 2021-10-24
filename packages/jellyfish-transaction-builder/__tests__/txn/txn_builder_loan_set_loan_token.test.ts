@@ -7,6 +7,8 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
+import { ListLoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
+import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 
 describe('loan.setLoanToken()', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -35,11 +37,19 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token1',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token1', currency: 'USD' }] })
+    await testing.generate(1)
+
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(testing.container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
@@ -59,40 +69,42 @@ describe('loan.setLoanToken()', () => {
 
     const loanTokenId = calculateTxid(txn)
     const data = await testing.container.call('listloantokens', [])
-    expect(data).toStrictEqual({
-      [loanTokenId]: {
-        token: {
-          1: {
-            symbol: 'Token1',
-            symbolKey: 'Token1',
-            name: 'Token1',
-            decimal: 8,
-            limit: 0,
-            mintable: true,
-            tradeable: true,
-            isDAT: true,
-            isLPS: false,
-            finalized: false,
-            isLoanToken: true,
-            minted: 0,
-            creationTx: loanTokenId,
-            creationHeight: await testing.container.getBlockCount(),
-            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-            destructionHeight: -1,
-            collateralAddress: expect.any(String)
-          }
-        },
-        priceFeedId: 'Token1/USD',
-        interest: 0.5
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: {
+        1: {
+          collateralAddress: expect.any(String),
+          creationHeight: await testing.container.getBlockCount(),
+          creationTx: loanTokenId,
+          decimal: 8,
+          destructionHeight: -1,
+          destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+          finalized: false,
+          isDAT: true,
+          isLPS: false,
+          isLoanToken: true,
+          limit: 0,
+          mintable: true,
+          minted: 0,
+          name: 'Token1',
+          symbol: 'Token1',
+          symbolKey: 'Token1',
+          tradeable: true
+        }
+      },
+      fixedIntervalPriceId: 'Token1/USD',
+      interest: 0.5
+    }])
   })
 
   it('should setLoanToken if symbol is more than 8 letters', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'x'.repeat(8),
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: `0.5@${'x'.repeat(8)}`, currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -105,18 +117,22 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not setLoanToken if symbol is an empty string', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token2',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token2', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -133,15 +149,19 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should not setLoanToken if the symbol is used in other token', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token3',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token3', currency: 'USD' }] })
+    await testing.generate(1)
+
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token3',
-      priceFeedId: 'Token3/USD'
+      fixedIntervalPriceId: 'Token3/USD'
     })
     await testing.generate(1)
 
@@ -162,7 +182,7 @@ describe('loan.setLoanToken()', () => {
     await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
   })
 
-  it('should not setLoanToken if priceFeedId does not belong to any oracle', async () => {
+  it('should not setLoanToken if currencyPair does not belong to any oracle', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.setLoanToken({
       symbol: 'Token4',
@@ -173,14 +193,18 @@ describe('loan.setLoanToken()', () => {
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: no live oracles for specified request (code 16)\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token5',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token5', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -193,18 +217,22 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token5')
+    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token5/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.name).toStrictEqual('Token5')
   })
 
   it('should setLoanToken if name is more than 128 letters', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token6',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token6', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -217,31 +245,39 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     await sendTransaction(testing.container, txn)
-    const loanTokenId = calculateTxid(txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
+    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token6/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })
 
   it('should setLoanToken if two loan tokens have the same name', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token7',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp1 = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@Token7', currency: 'USD' }] })
+    await testing.generate(1)
+
     await testing.rpc.loan.setLoanToken({
       symbol: 'Token7',
       name: 'TokenX',
-      priceFeedId: 'Token7/USD'
+      fixedIntervalPriceId: 'Token7/USD'
     })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token8',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp2 = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@Token8', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -260,10 +296,14 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken if mintable is false', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token9',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token9', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
@@ -282,10 +322,14 @@ describe('loan.setLoanToken()', () => {
   })
 
   it('should setLoanToken if interest number is greater than 0', async () => {
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'Token10',
       currency: 'USD'
     }], 1])
+    await testing.generate(1)
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@Token10', currency: 'USD' }] })
     await testing.generate(1)
 
     const script = await providers.elliptic.script()

@@ -88,6 +88,8 @@ import {
   CreateVault,
   DepositToVault,
   CDepositToVault,
+  CTakeLoan,
+  TakeLoan,
   AuctionBid,
   CAuctionBid
 } from './dftx_loans'
@@ -244,6 +246,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<CreateVault>(CCreateVault.OP_NAME, d => new CCreateVault(d))
       case CDepositToVault.OP_CODE:
         return compose<DepositToVault>(CDepositToVault.OP_NAME, d => new CDepositToVault(d))
+      case CTakeLoan.OP_CODE:
+        return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
       case CAuctionBid.OP_CODE:
         return compose<AuctionBid>(CAuctionBid.OP_NAME, d => new CAuctionBid(d))
       default:

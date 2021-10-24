@@ -57,28 +57,28 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: 'BTC/USD'
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'CAT',
       factor: new BigNumber(0.1),
-      priceFeedId: 'CAT/USD'
+      fixedIntervalPriceId: 'CAT/USD'
     })
     await tGroup.get(0).generate(1)
 
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await tGroup.get(0).generate(1)
 
@@ -171,7 +171,7 @@ describe('Loan', () => {
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
       expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
       expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
-      expect(vaultBefore.loanAmount).toStrictEqual([])
+      expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
       expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
 
@@ -192,7 +192,7 @@ describe('Loan', () => {
       expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
       expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
       expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
-      expect(vaultAfter.loanAmount).toStrictEqual(vaultBefore.loanAmount)
+      expect(vaultAfter.loanAmounts).toStrictEqual(vaultBefore.loanAmounts)
       expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
       expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
 
@@ -309,7 +309,7 @@ describe('Loan', () => {
 
     // deposit * factor >= collateralValue / 2
     const promise = tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '0.11@BTC'
+      vaultId: vaultId1, from: collateralAddress, amount: '0.201@BTC' // Throw error if more than 0.2
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')

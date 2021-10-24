@@ -19,16 +19,20 @@ describe('Loan getCollateralToken', () => {
     await testing.token.create({ symbol: 'AAPL' })
     await testing.generate(1)
 
-    await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
       token: 'AAPL',
       currency: 'USD'
     }], 1])
     await testing.generate(1)
 
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '0.5@AAPL', currency: 'USD' }] })
+    await testing.generate(1)
+
     const collateralTokenId = await testing.container.call('setcollateraltoken', [{
       token: 'AAPL',
       factor: new BigNumber(0.5),
-      priceFeedId: 'AAPL/USD',
+      fixedIntervalPriceId: 'AAPL/USD',
       activateAfterBlock: 120
     }])
     await testing.generate(1)
@@ -48,12 +52,11 @@ describe('Loan getCollateralToken', () => {
       const data2 = await testing.rpc.loan.getCollateralToken('1')
       expect(data1).toStrictEqual(data2)
       expect(data1).toStrictEqual({
-        [collateralTokenId]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          priceFeedId: 'AAPL/USD',
-          activateAfterBlock: new BigNumber(120)
-        }
+        token: 'AAPL',
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        activateAfterBlock: new BigNumber(120),
+        tokenId: collateralTokenId
       })
     }
   })

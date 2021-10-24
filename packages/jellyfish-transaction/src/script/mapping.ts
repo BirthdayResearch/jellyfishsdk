@@ -74,6 +74,8 @@ import {
   CreateVault,
   CDepositToVault,
   DepositToVault,
+  TakeLoan,
+  CTakeLoan,
   CAuctionBid,
   AuctionBid
 } from './dftx/dftx_loans'
@@ -511,6 +513,14 @@ export const OP_CODES = {
       type: CAuctionBid.OP_CODE,
       name: CAuctionBid.OP_NAME,
       data: auctionBid
+    })
+  },
+  OP_DEFI_TX_TAKE_LOAN: (takeLoan: TakeLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTakeLoan.OP_CODE,
+      name: CTakeLoan.OP_NAME,
+      data: takeLoan
     })
   },
   OP_0: new constants.OP_0(),

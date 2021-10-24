@@ -136,7 +136,7 @@ interface loan {
 interface SetCollateralToken {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock?: number
 }
 
@@ -152,7 +152,7 @@ List collateral tokens.
 
 ```ts title="client.loan.listCollateralTokens()"
 interface loan {
-  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData>
+  listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokenDetail[]>
 }
 
 interface ListCollateralTokens {
@@ -160,15 +160,12 @@ interface ListCollateralTokens {
   all?: boolean
 }
 
-interface CollateralTokensData {
-  [key: string]: CollateralTokenDetails
-}
-
-interface CollateralTokenDetails {
+interface CollateralTokenDetail {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
+  tokenId: string
 }
 ```
 
@@ -178,14 +175,15 @@ Get collateral token.
 
 ```ts title="client.loan.getCollateralToken()"
 interface loan {
-  getCollateralToken (token: string): Promise<CollateralTokenDetails>
+  getCollateralToken (token: string): Promise<CollateralTokenDetail>
 }
 
-interface CollateralTokenDetails {
+interface CollateralTokenDetail {
   token: string
   factor: BigNumber
-  priceFeedId: string
+  fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
+  tokenId: string
 }
 ```
 
@@ -201,7 +199,7 @@ interface loan {
 interface SetLoanToken {
   symbol: string
   name?: string
-  priceFeedId: string
+  fixedIntervalPriceId: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -224,7 +222,7 @@ interface loan {
 interface UpdateLoanToken {
   symbol?: string
   name?: string
-  priceFeedId?: string
+  fixedIntervalPriceId?: string
   mintable?: boolean
   interest?: BigNumber
 }
@@ -261,13 +259,13 @@ interface loan {
 }
 
 interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetails
+  token: LoanTokenDetails
+  fixedIntervalPriceId: string
+  interest: BigNumber
 }
 
 interface LoanTokenDetails {
-  token: token.TokenResult
-  priceFeedId: string
-  interest: BigNumber
+  [key: string]: token.TokenResult
 }
 
 interface TokenResult {
@@ -325,15 +323,18 @@ interface loan {
 }
 
 interface VaultDetails {
-  vaultId?: string
+  vaultId: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
+  invalidPrice: boolean
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
-  loanAmount?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
+  interestValue?: BigNumber,
   currentRatio?: BigNumber
 }
 
@@ -366,15 +367,18 @@ interface VaultPagination {
 }
 
 interface VaultDetails {
-  vaultId?: string
+  vaultId: string
   loanSchemeId: string
   ownerAddress: string
   isUnderLiquidation: boolean
+  invalidPrice: boolean
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
-  loanAmount?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
+  interestValue?: BigNumber,
   currentRatio?: BigNumber
 }
 
