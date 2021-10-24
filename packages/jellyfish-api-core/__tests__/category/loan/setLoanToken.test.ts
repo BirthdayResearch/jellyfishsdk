@@ -5,7 +5,7 @@ import { GenesisKeys } from '@defichain/testcontainers'
 import { ListLoanTokenResult } from '../../../src/category/loan'
 import { TokenInfo } from '../../../src/category/token'
 
-describe('Loan', () => {
+describe('Loan setLoanToken', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 

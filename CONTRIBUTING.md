@@ -92,8 +92,9 @@ TODO comments should usually include the author's github username in parentheses
 
 `"version": "0.0.0"` is used because publishing will be done automatically
 by [GitHub releases](https://github.com/DeFiCh/jellyfish/releases) with connected workflows. On
-release `types: [ published, prereleased ]`, GitHub Action will automatically build all packages in this repo and
-publish it into npm.
+release `types: [ published ]`, GitHub Action will automatically build all packages in this repo and publish it into
+npm. All packages in this mono-repo will require `"peerDependencies": "defichain"` this setup ensures all
+subsequent `@defichain/*` package uses the same version.
 
 For packages with accompanying docker images, they are published automatically to GitHub Container Registry
 (ghcr.io/defich). When a new [GitHub releases](https://github.com/DeFiCh/whale/releases) is triggered, GitHub Action

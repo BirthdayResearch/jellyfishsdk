@@ -183,6 +183,16 @@ export class Loan {
   }
 
   /**
+   * Get loan token.
+   *
+   * @param {string} token Symbol or id of loan token
+   * @return {Promise<LoanTokenDetails>} Loan token details
+   */
+  async getLoanToken (token: string): Promise<LoanTokenDetails> {
+    return await this.client.call('getloantoken', [token], 'bignumber')
+  }
+
+  /**
    * List all created loan tokens.
    *
    * @return {Promise<ListLoanTokenResult>}
@@ -214,6 +224,21 @@ export class Loan {
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
     return await this.client.call('getvault', [vaultId], 'bignumber')
+  }
+
+  /**
+   * Close vault
+   *
+   * @param {CloseVault} closeVault
+   * @param {string} closeVault.vaultId Vault id
+   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
   }
 
   /**
@@ -431,4 +456,9 @@ export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
   isUnderLiquidation?: boolean
+}
+
+export interface CloseVault {
+  vaultId: string
+  to: string
 }
