@@ -249,6 +249,46 @@ interface Interest {
 }
 ```
 
+## getLoanToken
+
+Get loan token.
+
+```ts title="client.loan.getLoanToken()"
+interface loan {
+  getLoanToken (token: string): Promise<LoanTokenDetails>
+}
+
+interface LoanTokenDetails {
+  token: token.TokenResult
+  fixedIntervalPriceId: string
+  interest: BigNumber
+}
+
+interface TokenResult {
+  [id: string]: TokenInfo
+}
+
+interface TokenInfo {
+  symbol: string
+  symbolKey: string
+  name: string
+  decimal: BigNumber
+  limit: BigNumber
+  mintable: boolean
+  tradeable: boolean
+  isDAT: boolean
+  isLPS: boolean
+  isLoanToken: boolean
+  finalized: boolean
+  minted: BigNumber
+  creationTx: string
+  creationHeight: BigNumber
+  destructionTx: string
+  destructionHeight: BigNumber
+  collateralAddress: string
+}
+```
+
 ## listLoanTokens
 
 List all created loan tokens.
@@ -342,6 +382,21 @@ interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+```
+
+## closeVault
+
+Close vault.
+
+```ts title="client.loan.closeVault()"
+interface loan {
+  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface CloseVault {
+  vaultId: string
+  to: string
 }
 ```
 
