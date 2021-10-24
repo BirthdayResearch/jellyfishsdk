@@ -117,10 +117,6 @@ describe('Loan getInterest', () => {
   })
 
   it('should getInterest', async () => {
-    const vault = await testing.rpc.loan.getVault(vaultId)
-    const tslaTokenAmt = vault.loanAmounts?.find(loan => loan.split('@')[1] === 'TSLA')
-    const tslaAmt = Number(tslaTokenAmt?.split('@')[0])
-
     const interests = await testing.rpc.loan.getInterest('scheme') // getinterest RPC returns the interest for (current height + 1)
     /**
      * output:
@@ -139,7 +135,7 @@ describe('Loan getInterest', () => {
     // calculate interest per block for TSLA
     const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
-    const interestPerBlock = new BigNumber(netInterest).multipliedBy(tslaAmt).dividedBy(365 * blocksPerDay) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
+    const interestPerBlock = new BigNumber(netInterest).multipliedBy(1000).dividedBy(365 * blocksPerDay) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
     expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, 1))
 
     // calculate total interest
