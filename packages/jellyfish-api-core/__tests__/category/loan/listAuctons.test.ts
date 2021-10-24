@@ -119,6 +119,13 @@ describe('Loan listAuctions', () => {
       const data: AuctionDetail[] = await testing.rpc.loan.listAuctions()
       const result1 = data.filter(d => d.vaultId === vaultId1)
 
+      const x = await testing.rpc.loan.getVault(vaultId1)
+      console.log(JSON.stringify(x))
+
+      const y = await testing.rpc.loan.listVaults(
+        { limit: 100 }
+      )
+      console.log(JSON.stringify(y))
       // Auction are divided into 4 batches,
       // the USD equivalent amount of every collateral tokens of non last batch is always 10,000
       // For 1st, 2nd and 3rd batch,

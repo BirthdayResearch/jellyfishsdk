@@ -28,6 +28,8 @@ describe('Loan listLoanSchemes', () => {
     await testing.container.call('createloanscheme', [200, new BigNumber(2.5), 'scheme'])
     await testing.container.generate(1)
 
+    const data = await testing.rpc.loan.getLoanScheme('scheme')
+    console.log(data)
     // After createLoanScheme
     {
       const data = await testing.rpc.loan.listLoanSchemes()
