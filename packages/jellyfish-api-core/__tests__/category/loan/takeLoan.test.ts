@@ -247,7 +247,7 @@ describe('Loan takeLoan', () => {
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId1])
       const vaultAfterTSLAAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'TSLA')
       const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
-      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.0000057)
+      expect(vaultAfterTSLAAmt - vaultBeforeTSLAAmt).toStrictEqual(5.00000285)
 
       const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txid, true])
       expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
