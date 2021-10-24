@@ -87,7 +87,8 @@ describe('Loan', () => {
       vaultId: vaultId,
       amounts: '1000@TSLA'
     })
-    interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.generate(1)
+    interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount() // interest should be calculated from the block where the takeloan tx gets included(inclusive).
 
     await testing.generate(1)
 
@@ -108,6 +109,9 @@ describe('Loan', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     await setup()
+    // set BigNumber configs to match defid
+    BigNumber.set({ DECIMAL_PLACES: 8 })
+    BigNumber.set({ ROUNDING_MODE: BigNumber.ROUND_DOWN })
   })
 
   afterAll(async () => {
@@ -115,11 +119,7 @@ describe('Loan', () => {
   })
 
   it('should getInterest', async () => {
-    const vault = await testing.rpc.loan.getVault(vaultId)
-    const tslaTokenAmt = vault.loanAmount?.find(loan => loan.split('@')[1] === 'TSLA')
-    const tslaAmt = Number(tslaTokenAmt?.split('@')[0])
-
-    const interests = await testing.rpc.loan.getInterest('scheme')
+    const interests = await testing.rpc.loan.getInterest('scheme') // getinterest RPC returns the interest for (current height + 1)
     /**
      * output:
      *
@@ -134,16 +134,16 @@ describe('Loan', () => {
     expect(interests[1].token).toStrictEqual('UBER')
     expect(interests[2].token).toStrictEqual('AMZN')
 
-    // calculate interest per block
+    // calculate interest per block for TSLA
     const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
-    const interestPerBlock = (netInterest * tslaAmt) / (365 * blocksPerDay) //  netInterest * loanInterest / 365 * blocksPerDay
-    expect(interests[0].interestPerBlock.toFixed(7)).toStrictEqual(interestPerBlock.toFixed(7))
+    const interestPerBlock = new BigNumber(netInterest).multipliedBy(1000).dividedBy(365 * blocksPerDay) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
+    expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, 1))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = ((blockHeight - interestTSLABlockHeight + 1) * interestPerBlock)
-    expect(interests[0].totalInterest.toFixed(6)).toStrictEqual(totalInterest.toFixed(6))
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
+    expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8))
   })
 
   it('should getInterest with token', async () => {

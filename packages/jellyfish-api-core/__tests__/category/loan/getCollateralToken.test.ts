@@ -52,12 +52,11 @@ describe('Loan getCollateralToken', () => {
       const data2 = await testing.rpc.loan.getCollateralToken('1')
       expect(data1).toStrictEqual(data2)
       expect(data1).toStrictEqual({
-        [collateralTokenId]: {
-          token: 'AAPL',
-          factor: new BigNumber(0.5),
-          fixedIntervalPriceId: 'AAPL/USD',
-          activateAfterBlock: new BigNumber(120)
-        }
+        token: 'AAPL',
+        factor: new BigNumber(0.5),
+        fixedIntervalPriceId: 'AAPL/USD',
+        activateAfterBlock: new BigNumber(120),
+        tokenId: collateralTokenId
       })
     }
   })
