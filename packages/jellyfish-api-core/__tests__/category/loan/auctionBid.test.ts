@@ -134,8 +134,8 @@ async function setup (): Promise<void> {
   await bob.generate(1) // interest * 4 => 1000.00228308@TSLA
   await tGroup.waitForSync()
 
-  // increase 10x of TSLA price
-  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '20@TSLA', currency: 'USD' }] })
+  // increase TSLA price
+  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
   await alice.generate(1) // interest * 5 => 1000.00285385@TSLA
 
   // check vault status before liquidated
