@@ -1,5 +1,5 @@
-import { MasterNodeRegTestContainer } from './masternode'
-import { DeFiDContainer, StartOptions } from '../defid_container'
+import { MasterNodeRegTestContainer } from './Masternode'
+import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
 import Dockerode, { ContainerInfo } from 'dockerode'
 
 async function getContainerInfoByName (docker: Dockerode, name: string): Promise<ContainerInfo | undefined> {
