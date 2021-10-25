@@ -419,12 +419,6 @@ describe('auctionBid success', () => {
   })
 })
 
-// 530 504.99980024
-// 535 509.99980024
-// 550 524.99980024
-// 580 554.99980024
-// 600 574.99980024
-
 describe('auctionBid failed', () => {
   it('next bid is required 1% higher', async () => {
     await bob.rpc.loan.auctionBid({
