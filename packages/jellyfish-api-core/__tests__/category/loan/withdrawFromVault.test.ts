@@ -174,7 +174,8 @@ describe('Loan', () => {
       await tGroup.get(0).generate(1)
       current = next
     }
-    await tGroup.get(0).generate(5) // wait for newest price to be accepted
+    // wait for newest price to be accepted, total 12 blocks
+    await tGroup.get(0).generate(11)
   }
 
   describe('success cases', () => {
@@ -318,6 +319,17 @@ describe('Loan', () => {
       await expect(promise).rejects.toThrow(`Collateral for vault <${vaultId1}> not found`)
     })
 
+    it('should not withdrawFromVault cause DFI less than 50% of total collateral value', async () => {
+      const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
+        vaultId: vaultId1,
+        to: await tGroup.get(0).generateAddress(),
+        amount: '6000.00000001@DFI' // $4000 of DFI vs $5000 of BTC (tested with 5001, do not work, there are extra margin)
+      })
+
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+    })
+
     it('should not withdrawFromVault exceeded minCollateralRatio', async () => {
       /**
         * collateral = 10000 DFI  = 10000 USD
@@ -336,7 +348,7 @@ describe('Loan', () => {
 
     it('should not withdrawFromVault liquidated vault', async () => {
       // trigger liquidation
-      // min collateral required = (10000 DFI * 1 USD/DFI + 1 BTC * 0.5 (col-factor) * 10000 UDF/BTC) / 149.5% = 15000 / 1.495 = 10033.44... USD
+      // min collateral required = (10000 DFI * 1 USD/DFI + 1 BTC * 0.5 (col-factor) * 10000 USD/BTC) / 149.5% = 15000 / 1.495 = 10033.44... USD
       await waitForOraclePriceGraduallyChange(2, 100.4)
 
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
@@ -346,9 +358,9 @@ describe('Loan', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme - 149 < 150')
+      await expect(promise).rejects.toThrow('Cannot withdraw from vault under liquidation')
 
-      // stop liq
+      // stop liq, revert TSLA price to $2
       await waitForOraclePriceGraduallyChange(100.4, 2)
       // wait/ensure auction period to ended, 6 hr * * 60 min * 2 (blocks per min)
       await tGroup.get(0).generate(6 * 6 * 2)
@@ -366,7 +378,7 @@ describe('Loan', () => {
       // min collateral required = (10000 DFI * 1 USD/DFI + 1 BTC * 0.5 (col-factor) * 10000 UDF/BTC) / 149.5% = 15000 / 1.495 = 10033.44... USD
       await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
         prices: [{
-          tokenAmount: `${2 * 1.31}@TSLA`, // bump price for 31%
+          tokenAmount: `${2 * 5}@TSLA`, // bump price for 31%
           currency: 'USD'
         }]
       })
