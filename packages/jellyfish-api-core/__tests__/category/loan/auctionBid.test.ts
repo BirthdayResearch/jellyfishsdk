@@ -104,7 +104,7 @@ async function setup (): Promise<void> {
     amounts: '1000@TSLA',
     to: bobLoanAddr
   })
-  await bob.generate(1)
+  await bob.generate(1) // interest * 1 => 1000.00057077@TSLA
 
   const bobLoanAcc = await bob.container.call('getaccount', [bobLoanAddr])
   expect(bobLoanAcc).toStrictEqual(['1000.00000000@TSLA'])
@@ -115,14 +115,14 @@ async function setup (): Promise<void> {
     tokenB: 'TSLA',
     ownerAddress: aliceColAddr
   })
-  await bob.generate(1)
+  await bob.generate(1) // interest * 2 => 1000.00114154@TSLA
 
   // add DFI-TSLA
   await bob.poolpair.add({
     a: { symbol: 'DFI', amount: 500 },
     b: { symbol: 'TSLA', amount: 1000 }
   })
-  await bob.generate(1)
+  await bob.generate(1) // interest * 3 => 1000.00171231@TSLA
 
   await bob.poolpair.swap({
     from: bobColAddr,
@@ -131,12 +131,12 @@ async function setup (): Promise<void> {
     to: bobColAddr,
     tokenTo: 'TSLA'
   })
-  await bob.generate(1)
+  await bob.generate(1) // interest * 4 => 1000.00228308@TSLA
   await tGroup.waitForSync()
 
   // increase 10x of TSLA price
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '20@TSLA', currency: 'USD' }] })
-  await alice.generate(1)
+  await alice.generate(1) // interest * 5 => 1000.00285385@TSLA
 
   // check vault status before liquidated
   const vaultBefore = await bob.container.call('getvault', [bobVaultId])
@@ -150,11 +150,25 @@ async function setup (): Promise<void> {
   expect(vaultBefore.currentRatio).toStrictEqual('1000%')
   expect(vaultBefore.invalidPrice).toStrictEqual(false)
 
+  // *6 => 1000.00342462@TSLA
+  // *7 => 1000.00399539@TSLA
+  // *8 => 1000.00456616@TSLA
+  {
+    await alice.generate(4) // *9 => 1000.00513693@TSLA
+    const vault = await bob.container.call('getvault', [bobVaultId])
+    expect(vault.isUnderLiquidation).toStrictEqual(false)
+    expect(vault.invalidPrice).toStrictEqual(true)
+  }
+
   const auctionsBefore = await alice.container.call('listauctions')
   expect(auctionsBefore.length).toStrictEqual(0)
 
-  await alice.generate(12)
-  await tGroup.waitForSync()
+  // *10 => 1000.0057077@TSLA
+  // *11 => 1000.00627847@TSLA
+  // *12 => 1000.00684924@TSLA
+  // *13 => 1000.00742001@TSLA
+  // *14 => 1000.00799078@TSLA
+  await alice.generate(6)
 
   // vault is liquidated now
   const vaultAfter = await bob.container.call('getvault', [bobVaultId])
@@ -165,7 +179,7 @@ async function setup (): Promise<void> {
   expect(vaultAfter.loanValue).toStrictEqual(undefined)
   expect(vaultAfter.invalidPrice).toStrictEqual(false)
   expect(vaultAfter.batches).toStrictEqual([
-    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' },
+    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' }, // refer to ln: 171, the last interest generated loanAmt divided by 2
     { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' }
   ])
 
@@ -177,6 +191,8 @@ async function setup (): Promise<void> {
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00399539@TSLA')
+
+  await tGroup.waitForSync()
 }
 
 beforeEach(async () => {
@@ -203,7 +219,7 @@ describe('test auctionBid', () => {
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
-      amount: '526@TSLA' // (500.00456616 * 5%) + 500 = 525.000228308, min first bid is 525.000228308
+      amount: '526@TSLA' // (500.00399539 * 5%) + 500 = 525.00419516, min first bid is 525.00419516
     })
     expect(typeof txid).toStrictEqual('string')
     await bob.container.generate(1)
