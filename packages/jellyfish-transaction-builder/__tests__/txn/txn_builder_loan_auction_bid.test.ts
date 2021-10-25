@@ -164,9 +164,9 @@ describe('Loan', () => {
     await bob.generate(1)
     await tGroup.waitForSync()
 
-    // increase 10x of TSLA price
-    await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '20@TSLA', currency: 'USD' }] })
-    await alice.generate(1)
+    // increase TSLA price
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
+    await alice.generate(1) // interest * 5 => 1000.00285385@TSLA
 
     // check vault status before liquidated
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
@@ -180,11 +180,25 @@ describe('Loan', () => {
     expect(vaultBefore.currentRatio).toStrictEqual('1000%')
     expect(vaultBefore.invalidPrice).toStrictEqual(false)
 
+    // *6 => 1000.00342462@TSLA
+    // *7 => 1000.00399539@TSLA
+    // *8 => 1000.00456616@TSLA
+    {
+      await alice.generate(4) // *9 => 1000.00513693@TSLA
+      const vault = await bob.container.call('getvault', [bobVaultId])
+      expect(vault.isUnderLiquidation).toStrictEqual(false)
+      expect(vault.invalidPrice).toStrictEqual(true)
+    }
+
     const auctionsBefore = await alice.container.call('listauctions')
     expect(auctionsBefore.length).toStrictEqual(0)
 
-    await alice.generate(12)
-    await tGroup.waitForSync()
+    // *10 => 1000.0057077@TSLA
+    // *11 => 1000.00627847@TSLA
+    // *12 => 1000.00684924@TSLA
+    // *13 => 1000.00742001@TSLA
+    // *14 => 1000.00799078@TSLA
+    await alice.generate(6)
 
     // vault is liquidated now
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
@@ -207,6 +221,8 @@ describe('Loan', () => {
     expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
     expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
     expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00399539@TSLA')
+
+    await tGroup.waitForSync()
   }
 
   it('should auctionBid', async () => {
@@ -306,6 +322,18 @@ describe('Loan', () => {
         ]
       }
     ])
+    /**
+     * The pattern is tested by several last bid amount
+     *
+     * | last bid     | loan         | recovered    | last bid vs recovered |
+     * |--------------|--------------|--------------|-----------------------|
+     * | 525.00419516 | 500.00399539 | 500.00399539 | 1.05                  |
+     * | 530          | 500.00399539 | 504.9998002  | 1.049505366           |
+     * | 535          | 500.00399539 | 509.9998002  | 1.049020019           |
+     * | 550          | 500.00399539 | 524.9998002  | 1.047619446           |
+     * | 580          | 500.00399539 | 554.9998002  | 1.045045421           |
+     * | 600          | 500.00399539 | 574.9998002  | 1.043478623           |
+     */
 
     const bobColAccEndBid = await bob.rpc.account.getAccount(bobColAddr)
     // compare to bobColAccAfter ['8900.00000000@DFI', '19.45454546@TSLA']
@@ -314,6 +342,131 @@ describe('Loan', () => {
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
     expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '9465.00000000@TSLA'])
+  })
+
+  it('should auctionBid on all batches', async () => {
+    // test bob bids on first index
+    {
+      const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
+      expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
+
+      await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+      const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+      const txn = await bBuilder.loans.auctionBid({
+        vaultId: bobVaultId,
+        index: '00000000',
+        from: bobColScript,
+        tokenAmount: { token: 2, amount: new BigNumber(526) } //  min first bid includes penatly 5%
+      }, bobColScript)
+
+      // Ensure the created txn is correct
+      const outs = await sendTransaction(bob.container, txn)
+      expect(outs[0].value).toStrictEqual(0)
+      expect(outs[1].value).toBeLessThan(10)
+      expect(outs[1].value).toBeGreaterThan(9.999)
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await bProviders.getAddress())
+
+      // Ensure you don't send all your balance away
+      const prevouts = await bProviders.prevout.all()
+      expect(prevouts.length).toStrictEqual(1)
+      expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+      expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+      await bob.container.generate(1)
+      await tGroup.waitForSync()
+
+      const bobColAccAfter = await bob.rpc.account.getAccount(bobColAddr)
+      expect(bobColAccAfter).toStrictEqual(['8900.00000000@DFI', '19.45454546@TSLA'])
+
+      const auctions = await bob.container.call('listauctions')
+      expect(auctions[0]).toStrictEqual({
+        vaultId: bobVaultId,
+        liquidationHeight: 168,
+        batchCount: 2,
+        liquidationPenalty: 5,
+        batches: [
+          {
+            index: 0,
+            collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
+            loan: '500.00399539@TSLA',
+            highestBid: '526.00000000@TSLA'
+          },
+          {
+            index: 1,
+            collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
+            loan: '500.00399539@TSLA'
+          }
+        ]
+      })
+    }
+
+    // test alice bids on second index
+    {
+      const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
+      expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
+
+      await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
+      const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
+
+      const txn = await aBuilder.loans.auctionBid({
+        vaultId: bobVaultId,
+        index: '00000001',
+        from: aliceColScript,
+        tokenAmount: { token: 2, amount: new BigNumber(600) }
+      }, aliceColScript)
+
+      // Ensure the created txn is correct
+      const outs = await sendTransaction(alice.container, txn)
+      expect(outs[0].value).toStrictEqual(0)
+      expect(outs[1].value).toBeLessThan(10)
+      expect(outs[1].value).toBeGreaterThan(9.999)
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await aProviders.getAddress())
+
+      // Ensure you don't send all your balance away
+      const prevouts = await aProviders.prevout.all()
+      expect(prevouts.length).toStrictEqual(1)
+      expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+      expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
+      await alice.generate(1)
+      await tGroup.waitForSync()
+
+      const aliceColAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
+      expect(aliceColAccAfter).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '9400.00000000@TSLA'])
+
+      const auctions = await alice.container.call('listauctions')
+      expect(auctions[0]).toStrictEqual({
+        vaultId: bobVaultId,
+        liquidationHeight: 168,
+        batchCount: 2,
+        liquidationPenalty: 5,
+        batches: [{
+          index: 0,
+          collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
+          loan: '500.00399539@TSLA',
+          highestBid: '526.00000000@TSLA'
+        },
+        {
+          index: 1,
+          collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
+          loan: '500.00399539@TSLA',
+          highestBid: '600.00000000@TSLA'
+        }]
+      })
+    }
+
+    // end the auction and alice win the bid
+    await bob.generate(36)
+
+    const auctions = await alice.container.call('listauctions')
+    expect(auctions).toStrictEqual([]) // no more auctions
+
+    const bobColAccEndBid = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobColAccEndBid).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
+
+    const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
+    expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
   })
 
   it('next bid is required 1% higher', async () => {
