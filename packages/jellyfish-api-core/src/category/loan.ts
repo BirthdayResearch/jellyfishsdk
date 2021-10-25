@@ -291,7 +291,7 @@ export class Loan {
   }
 
   /**
-   * To obtain the liquidated vault by offering a particular up for bid
+   * Bid to vault in auction
    *
    * @param {AuctionBid} auctionBid
    * @param {string} auctionBid.vaultId Vault Id
