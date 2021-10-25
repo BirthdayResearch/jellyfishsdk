@@ -116,6 +116,7 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * Get host machine url used for defid rpc calls with auth
+   * TODO(fuxingloh): not a great design when network config changed, the url and ports get refresh
    */
   async getCachedRpcUrl (): Promise<string> {
     if (this.cachedRpcUrl === undefined) {
@@ -141,7 +142,10 @@ export abstract class DeFiDContainer extends DockerContainer {
     })
 
     const text = await this.post(body)
-    const { result, error } = JSON.parse(text)
+    const {
+      result,
+      error
+    } = JSON.parse(text)
 
     if (error !== undefined && error !== null) {
       throw new DeFiDRpcError(error)
