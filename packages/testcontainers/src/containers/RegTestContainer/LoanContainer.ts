@@ -1,5 +1,6 @@
-import { MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
-import { RegTestFoundationKeys, MasterNodeKey } from '@defichain/jellyfish-network'
+import { MasterNodeKey, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { StartOptions } from '../DeFiDContainer'
+import { MasterNodeRegTestContainer } from './Masternode'
 
 export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor (masternodeKey: MasterNodeKey = RegTestFoundationKeys[0]) {
