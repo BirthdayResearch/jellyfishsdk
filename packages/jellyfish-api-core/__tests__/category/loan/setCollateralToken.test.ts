@@ -40,14 +40,13 @@ describe('Loan setCollateralToken', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listcollateraltokens', [])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        fixedIntervalPriceId: 'AAPL/USD',
-        activateAfterBlock: await testing.container.getBlockCount()
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: 'AAPL',
+      factor: 0.5,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: await testing.container.getBlockCount(),
+      tokenId: collateralTokenId
+    }])
   })
 
   it('should not setCollateralToken if token does not exist', async () => {
@@ -117,14 +116,13 @@ describe('Loan setCollateralToken', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
     const data = await testing.container.call('listcollateraltokens', [])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        fixedIntervalPriceId: 'AAPL/USD',
-        activateAfterBlock: await testing.container.getBlockCount()
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: 'AAPL',
+      factor: 0.5,
+      tokenId: collateralTokenId,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: await testing.container.getBlockCount()
+    }])
   })
 
   it('should not setCollateralToken with utxos not from foundation member', async () => {
@@ -180,14 +178,13 @@ describe('Loan setCollateralToken with activateAfterBlock', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listcollateraltokens', [{ all: true }])
-    expect(data).toStrictEqual({
-      [collateralTokenId]: {
-        token: 'AAPL',
-        factor: 0.5,
-        fixedIntervalPriceId: 'AAPL/USD',
-        activateAfterBlock: 120
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: 'AAPL',
+      factor: 0.5,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activateAfterBlock: 120,
+      tokenId: collateralTokenId
+    }])
   })
 })
 
