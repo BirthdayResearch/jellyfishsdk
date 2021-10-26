@@ -3,6 +3,7 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
+import { GenesisKeys } from '@defichain/testcontainers'
 
 describe('compositeSwap', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -196,6 +197,56 @@ describe('compositeSwap', () => {
       expect(toBalances.length).toStrictEqual(1)
       expect(toBalances[0]).toStrictEqual('1.66666667@XYZ')
     }
+  })
+
+  it('should not compositeSwap - invalid auth', async () => {
+    const anotherMn = new LoanMasterNodeRegTestContainer(GenesisKeys[1])
+    await anotherMn.start()
+    const notMine = await anotherMn.getNewAddress()
+    await testing.token.send({ symbol: 'CAT', amount: 45.6, address: notMine })
+    await testing.generate(1)
+
+    { // has balance
+      const fromBalances = await client.account.getAccount(notMine)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('45.60000000@CAT')
+    }
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: notMine,
+      tokenFrom: 'CAT',
+      amountFrom: 1,
+      to: await testing.generateAddress(),
+      tokenTo: 'DOG'
+    }
+
+    const promise = client.poolpair.compositeSwap(metadata)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Incorrect authorization')
+  })
+
+  it('should not compositeSwap - Cannot find usable pool pair', async () => {
+    const fromAddress = await testing.generateAddress()
+
+    await testing.token.create({ symbol: 'TSLA' })
+    await testing.token.create({ symbol: 'APPL' })
+    await container.generate(1)
+    await testing.poolpair.create({ tokenA: 'TSLA', tokenB: 'DFI' })
+    await container.generate(1)
+    await testing.token.mint({ symbol: 'TSLA', amount: 100 })
+    await container.generate(1)
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'TSLA',
+      amountFrom: 50,
+      to: await testing.generateAddress(),
+      tokenTo: 'APPL'
+    }
+
+    const promise = client.poolpair.compositeSwap(metadata)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Cannot find usable pool pair')
   })
 
   it('should not compositeSwap - lack of liquidity', async () => {
