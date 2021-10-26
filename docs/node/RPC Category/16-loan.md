@@ -486,6 +486,27 @@ interface UTXO {
 }
 ```
 
+## loanPayback
+
+Return loan in a desired amount.
+
+```ts title="client.loan.loanPayback()"
+interface loan {
+  loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface LoanPaybackMetadata {
+  vaultId: string
+  amounts: string | string[] // amount@symbol
+  from: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## auctionBid
 
 To obtain the liquidated vault by offering a particular up for bid.
