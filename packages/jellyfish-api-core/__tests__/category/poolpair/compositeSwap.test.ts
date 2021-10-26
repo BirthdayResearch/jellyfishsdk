@@ -249,6 +249,26 @@ describe('compositeSwap', () => {
     await expect(promise).rejects.toThrow('Cannot find usable pool pair')
   })
 
+  it('should not compositeSwap - status false poolpair equivalent to not exist', async () => {
+    const fromAddress = await testing.generateAddress()
+    await testing.token.create({ symbol: 'FALSE' })
+    await container.generate(1)
+    await testing.poolpair.create({ tokenA: 'FALSE', tokenB: 'DFI', status: false })
+    await container.generate(1)
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'FALSE',
+      amountFrom: 50,
+      to: await testing.generateAddress(),
+      tokenTo: 'DOG'
+    }
+
+    const promise = client.poolpair.compositeSwap(metadata)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Cannot find usable pool pair')
+  })
+
   it('should not compositeSwap - lack of liquidity', async () => {
     const fromAddress = await testing.generateAddress()
 
