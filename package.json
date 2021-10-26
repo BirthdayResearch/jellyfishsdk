@@ -1,21 +1,21 @@
 {
+  "private": false,
   "name": "defichain",
-  "private": true,
-  "license": "MIT",
-  "contributors": [
-    {
-      "name": "DeFiChain Foundation",
-      "email": "engineering@defichain.com",
-      "url": "https://defichain.com/"
-    },
-    {
-      "name": "DeFi Blockchain Contributors"
-    },
-    {
-      "name": "DeFi Jellyfish Contributors"
-    }
+  "version": "0.0.0",
+  "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
+  "keywords": [
+    "DeFiChain",
+    "DeFi",
+    "Blockchain",
+    "API",
+    "Bitcoin"
   ],
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "files": [],
   "workspaces": [
+    "./",
     "./packages/*"
   ],
   "engines": {
@@ -24,9 +24,8 @@
   "scripts": {
     "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
-    "build": "lerna run build",
-    "version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
-    "publish:next": "lerna exec -- npm publish --tag next --access public",
+    "build": "lerna run --scope '@defichain/*' build",
+    "version:set": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",
@@ -39,10 +38,10 @@
     "eslint-config-standard-jsx": "^10.0.0",
     "eslint-config-standard-with-typescript": "^21.0.1",
     "husky": "^7.0.2",
-    "jest": "^27.2.5",
+    "jest": "^27.3.1",
     "lerna": "^4.0.0",
-    "lint-staged": "^11.2.3",
-    "ts-jest": "^27.0.6",
+    "lint-staged": "^11.2.4",
+    "ts-jest": "^27.0.7",
     "typescript": "4.2.4",
     "wait-for-expect": "^3.0.2"
   },

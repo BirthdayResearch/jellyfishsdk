@@ -7,6 +7,8 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
+import { LoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
+import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 
 const container = new LoanMasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -61,17 +63,20 @@ beforeEach(async () => {
 
 afterEach(async () => {
   const data = await testing.container.call('listloantokens', [])
-  const index = Object.keys(data).indexOf(loanTokenId) + 1
-  if (data[loanTokenId].token[index].symbol === 'Token2') { // If Token2, always update it back to Token1
-    await testing.rpc.loan.updateLoanToken('Token2', {
-      symbol: 'Token1',
-      name: 'Token1',
-      fixedIntervalPriceId: 'Token1/USD',
-      mintable: true,
-      interest: new BigNumber(0.01)
-    })
+  const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
+  if (result.length > 0) {
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    if (token.symbol === 'Token2') { // If Token2, always update it back to Token1
+      await testing.rpc.loan.updateLoanToken('Token2', {
+        symbol: 'Token1',
+        name: 'Token1',
+        fixedIntervalPriceId: 'Token1/USD',
+        mintable: true,
+        interest: new BigNumber(0.01)
+      })
+    }
+    await testing.generate(1)
   }
-  await testing.generate(1)
 })
 
 afterAll(async () => {
@@ -104,33 +109,31 @@ describe('loan.updateLoanToken()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
     const data = await testing.container.call('listloantokens', [])
-    expect(data).toStrictEqual({
-      [loanTokenId]: {
-        token: {
-          1: {
-            symbol: 'Token2',
-            symbolKey: 'Token2',
-            name: 'Token2',
-            decimal: 8,
-            limit: 0,
-            mintable: true,
-            tradeable: true,
-            isDAT: true,
-            isLPS: false,
-            finalized: false,
-            isLoanToken: true,
-            minted: 0,
-            creationTx: loanTokenId,
-            creationHeight: expect.any(Number),
-            destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
-            destructionHeight: -1,
-            collateralAddress: expect.any(String)
-          }
-        },
-        fixedIntervalPriceId: 'Token2/USD',
-        interest: 0.01
-      }
-    })
+    expect(data).toStrictEqual([{
+      token: {
+        1: {
+          symbol: 'Token2',
+          symbolKey: 'Token2',
+          name: 'Token2',
+          decimal: 8,
+          limit: 0,
+          mintable: true,
+          tradeable: true,
+          isDAT: true,
+          isLPS: false,
+          finalized: false,
+          isLoanToken: true,
+          minted: 0,
+          creationTx: loanTokenId,
+          creationHeight: expect.any(Number),
+          destructionTx: '0000000000000000000000000000000000000000000000000000000000000000',
+          destructionHeight: -1,
+          collateralAddress: expect.any(String)
+        }
+      },
+      fixedIntervalPriceId: 'Token2/USD',
+      interest: 0.01
+    }])
   })
 
   it('should updateLoanToken if symbol is more than 8 letters', async () => {
@@ -168,8 +171,9 @@ describe('loan.updateLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token3/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
 
   it('should not updateLoanToken if symbol is an empty string', async () => {
@@ -235,8 +239,9 @@ describe('loan.updateLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters
   })
 
   it('should updateLoanToken if two loan tokens have the same name', async () => {
@@ -272,8 +277,9 @@ describe('loan.updateLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const index = Object.keys(data).indexOf(loanTokenId) + 1
-    expect(data[loanTokenId].token[index].name).toStrictEqual('Token1') // Same name as Token1's name
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token1/USD')
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    expect(token.name).toStrictEqual('Token1')
   })
 
   it('should not updateLoanToken if currencyPair does not belong to any oracle', async () => {

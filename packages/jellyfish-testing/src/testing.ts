@@ -6,7 +6,8 @@ import { TestingRawTx } from './rawtx'
 import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
 import { TestingGroupAnchor } from './anchor'
-import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class Testing {
@@ -74,7 +75,7 @@ export class TestingGroup {
    */
   static create (
     n: number,
-    init = (index: number) => new MasterNodeRegTestContainer(GenesisKeys[index])
+    init = (index: number) => new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
   ): TestingGroup {
     const containers: MasterNodeRegTestContainer[] = []
     const testings: Testing[] = []
