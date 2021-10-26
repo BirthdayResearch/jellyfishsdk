@@ -1,7 +1,7 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'cross-fetch'
-import { DockerContainer } from './docker_container'
-import { waitForCondition } from '../wait_for_condition'
+import { DockerContainer } from './DockerContainer'
+import { waitForCondition } from '../utils'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
