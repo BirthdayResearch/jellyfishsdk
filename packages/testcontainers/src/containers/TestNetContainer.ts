@@ -1,5 +1,5 @@
 import { DockerOptions } from 'dockerode'
-import { DeFiDContainer, StartOptions } from './defid_container'
+import { DeFiDContainer, StartOptions } from './DeFiDContainer'
 
 export class TestNetContainer extends DeFiDContainer {
   /**
