@@ -1,2 +1,2 @@
 export * from './Network'
-export * from './RegTestGenesisKey'
+export * from './RegTestFoundationKeys'
