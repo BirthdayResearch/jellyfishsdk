@@ -19,6 +19,7 @@ import {
   CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CCompositeSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
   PoolCreatePair,
@@ -190,6 +191,14 @@ export const OP_CODES = {
       signature: CDfTx.SIGNATURE,
       type: CPoolSwap.OP_CODE,
       name: CPoolSwap.OP_NAME,
+      data: poolSwap
+    })
+  },
+  OP_DEFI_TX_COMPOSITE_SWAP: (poolSwap: PoolSwap): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCompositeSwap.OP_CODE,
+      name: CCompositeSwap.OP_NAME,
       data: poolSwap
     })
   },

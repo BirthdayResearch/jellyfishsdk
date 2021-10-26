@@ -39,6 +39,17 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
 }
 
 /**
+ * Composable CompositeSwap, C stands for Composable.
+ * Extends from CPoolSwap as it contains same data structure but with different DfTx OP_CODE.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ * @throws Error if more than 8 decimals
+ */
+export class CCompositeSwap extends CPoolSwap {
+  static OP_CODE = 0xff // FIXME: waiting defichain team to confirm the hex code
+  static OP_NAME = 'OP_DEFI_TX_COMPOSITE_SWAP'
+}
+
+/**
  * PoolAddLiquidity DeFi Transaction
  */
 export interface PoolAddLiquidity {
