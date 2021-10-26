@@ -37,6 +37,45 @@ describe('compositeSwap', () => {
       b: { symbol: 'DFI', amount: 10000 }
     })
     await container.generate(1)
+
+    // consensus should pick the path with better rate
+    await testing.token.create({ symbol: 'ABC' })
+    await testing.token.create({ symbol: 'PATHA' })
+    await testing.token.create({ symbol: 'PATHB' })
+    await testing.token.create({ symbol: 'XYZ' })
+    await container.generate(1)
+
+    await testing.poolpair.create({ tokenA: 'ABC', tokenB: 'PATHA' })
+    await testing.poolpair.create({ tokenA: 'XYZ', tokenB: 'PATHA' })
+    await testing.poolpair.create({ tokenA: 'ABC', tokenB: 'PATHB' })
+    await testing.poolpair.create({ tokenA: 'XYZ', tokenB: 'PATHB' })
+    await container.generate(1)
+    await testing.token.mint({ symbol: 'ABC', amount: 10000 })
+    await testing.token.mint({ symbol: 'PATHA', amount: 10000 })
+    await testing.token.mint({ symbol: 'PATHB', amount: 10000 })
+    await testing.token.mint({ symbol: 'XYZ', amount: 10000 })
+    await container.generate(1)
+
+    // PATH A: expensive
+    await testing.poolpair.add({
+      a: { symbol: 'ABC', amount: 3000 },
+      b: { symbol: 'PATHA', amount: 1 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'XYZ', amount: 5 },
+      b: { symbol: 'PATHA', amount: 1 }
+    })
+
+    // PATH B: 10x cheaper than PATH A
+    await testing.poolpair.add({
+      a: { symbol: 'ABC', amount: 3000 },
+      b: { symbol: 'PATHB', amount: 1 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'XYZ', amount: 5 },
+      b: { symbol: 'PATHB', amount: 1 }
+    })
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -116,12 +155,46 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(1)
-      console.log('output:', toBalances[0])
       const [amount, symbol] = toBalances[0].split('@')
       expect(symbol).toStrictEqual('DOG')
       // allow test to run standalone, with first case success swap, TokenTo/TokenFrom price reduced
       expect(Number(amount)).toBeGreaterThan(13)
       expect(Number(amount)).toBeLessThan(14)
+    }
+  })
+
+  it('Should compositeSwap with lower rate path', async () => {
+    const [toAddress, fromAddress] = await testing.generateAddress(2)
+    await testing.token.send({ symbol: 'ABC', amount: 3001, address: fromAddress })
+    await testing.generate(1)
+
+    { // before swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('3001.00000000@ABC')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+    }
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'ABC',
+      amountFrom: 3000,
+      to: toAddress,
+      tokenTo: 'XYZ'
+    }
+    await client.poolpair.compositeSwap(metadata)
+    await container.generate(1)
+
+    { // after swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('1.00000000@ABC')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(1)
+      expect(toBalances[0]).toStrictEqual('1.66666667@XYZ')
     }
   })
 
