@@ -27,8 +27,5 @@
     "@defichain/jellyfish-transaction-builder": "^0.48.1",
     "@defichain/jellyfish-wallet": "^0.48.1",
     "@defichain/whale-api-client": "0.0.0"
-  },
-  "peerDependencies": {
-    "defichain": "^0.48.1"
   }
 }
