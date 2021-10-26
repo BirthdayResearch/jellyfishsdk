@@ -186,18 +186,18 @@ export class Loan {
    * Get loan token.
    *
    * @param {string} token Symbol or id of loan token
-   * @return {Promise<LoanTokenDetails>} Loan token details
+   * @return {Promise<LoanTokenResult>} Loan token details
    */
-  async getLoanToken (token: string): Promise<LoanTokenDetails> {
+  async getLoanToken (token: string): Promise<LoanTokenResult> {
     return await this.client.call('getloantoken', [token], 'bignumber')
   }
 
   /**
    * List all created loan tokens.
    *
-   * @return {Promise<ListLoanTokenResult>}
+   * @return {Promise<LoanTokenResult[]>}
    */
-  async listLoanTokens (): Promise<ListLoanTokenResult> {
+  async listLoanTokens (): Promise<LoanTokenResult[]> {
     return await this.client.call('listloantokens', [], 'bignumber')
   }
 
@@ -349,14 +349,10 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface ListLoanTokenResult {
-  token: LoanTokenDetails
+export interface LoanTokenResult {
+  token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
-}
-
-export interface LoanTokenDetails {
-  [key: string]: token.TokenResult
 }
 
 export interface UpdateLoanToken {

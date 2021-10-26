@@ -255,10 +255,10 @@ Get loan token.
 
 ```ts title="client.loan.getLoanToken()"
 interface loan {
-  getLoanToken (token: string): Promise<LoanTokenDetails>
+  getLoanToken (token: string): Promise<LoanTokenResult>
 }
 
-interface LoanTokenDetails {
+interface LoanTokenResult {
   token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
@@ -295,17 +295,13 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenResult>
+  listLoanTokens (): Promise<LoanTokenResult[]>
 }
 
-interface ListLoanTokenResult {
-  token: LoanTokenDetails
+interface LoanTokenResult {
+  token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
-}
-
-interface LoanTokenDetails {
-  [key: string]: token.TokenResult
 }
 
 interface TokenResult {
