@@ -35,7 +35,7 @@ describe('container error handling', () => {
     }
 
     container = new InvalidCmd()
-    return expect(container.start({ timeout: 5000 }))
+    return await expect(container.start({ timeout: 5000 }))
       .rejects.toThrow(/waitForRpc is not ready within given timeout of 5000ms./)
   })
 
