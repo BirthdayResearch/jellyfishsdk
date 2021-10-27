@@ -117,7 +117,7 @@ describe('dex.compositeSwap()', () => {
     expect(account).toContain('9.00000000@PIG')
     expect(account).toContain('4.16666668@DOG')
 
-    // refected on DEXes
+    // reflected on DEXes
     const pigPair = Object.values(await jsonRpc.poolpair.getPoolPair('PIG-DFI', true))
     expect(pigPair.length).toStrictEqual(1)
     expect(pigPair[0].reserveA).toStrictEqual(new BigNumber(11))
@@ -187,7 +187,7 @@ describe('dex.compositeSwap()', () => {
     expect(account).toContain('9.00000000@CAT')
     expect(account).toContain('4.16666668@FISH')
 
-    // refected on DEXes
+    // reflected on DEXes
     const catPair = Object.values(await jsonRpc.poolpair.getPoolPair('CAT-DFI', true))
     expect(catPair.length).toStrictEqual(1)
     expect(catPair[0].reserveA).toStrictEqual(new BigNumber(11))
@@ -203,7 +203,7 @@ describe('dex.compositeSwap()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 
-  it('should fail if path is not possible to achieve composite swap', async () => {
+  it('should fail if path specified is not possible to achieve desired composite swap', async () => {
     // create another pair not composite swap-able
     await testing.token.create({ symbol: 'TSLA' })
     await testing.token.create({ symbol: 'DUSD' })
