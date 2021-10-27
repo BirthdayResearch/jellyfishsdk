@@ -91,7 +91,7 @@ import {
   CTakeLoan,
   TakeLoan
 } from './dftx_loans'
-import { CCompositeSwap } from '@defichain/jellyfish-transaction'
+import { CCompositeSwap, CompositeSwap } from '@defichain/jellyfish-transaction'
 
 /**
  * DeFi Transaction
@@ -168,7 +168,7 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
       case CPoolSwap.OP_CODE:
         return compose<PoolSwap>(CPoolSwap.OP_NAME, d => new CPoolSwap(d))
       case CCompositeSwap.OP_CODE:
-        return compose<PoolSwap>(CCompositeSwap.OP_NAME, d => new CCompositeSwap(d))
+        return compose<CompositeSwap>(CCompositeSwap.OP_NAME, d => new CCompositeSwap(d))
       case CPoolAddLiquidity.OP_CODE:
         return compose<PoolAddLiquidity>(CPoolAddLiquidity.OP_NAME, d => new CPoolAddLiquidity(d))
       case CPoolRemoveLiquidity.OP_CODE:

@@ -130,6 +130,29 @@ export abstract class ComposableBuffer<T> implements BufferComposer {
     }
   }
 
+  static varUIntArrayRaw<T> (
+    arrayGetter: () => T[],
+    arraySetter: (data: T[]) => void,
+    writeBuffer: (data: T, buffer: SmartBuffer) => void,
+    readBuffer: (buffer: SmartBuffer) => T
+  ): BufferComposer {
+    return {
+      fromBuffer: (buffer: SmartBuffer): void => {
+        const length = readVarUInt(buffer)
+        const array: T[] = []
+        for (let i = 0; i < length; i++) {
+          array.push(readBuffer(buffer))
+        }
+        arraySetter(array)
+      },
+      toBuffer: (buffer: SmartBuffer): void => {
+        const array = arrayGetter()
+        writeVarUInt(array.length, buffer)
+        array.forEach(data => writeBuffer(data, buffer))
+      }
+    }
+  }
+
   /**
    * The length of the array must be known and given to the composer, use varUIntArray if length is set as VarUInt.
    *
