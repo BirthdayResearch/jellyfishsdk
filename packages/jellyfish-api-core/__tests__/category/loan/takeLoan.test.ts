@@ -210,7 +210,7 @@ describe('Loan takeLoan', () => {
       const loanAmounts = new BigNumber(40).plus(interestInfo[0].totalInterest)
       expect(vaultAfter.loanAmounts).toStrictEqual([loanAmounts.toFixed(8) + '@TSLA']) // 40.00002283@TSLA
       expect(vaultAfter.loanValue).toStrictEqual(loanAmounts.multipliedBy(2).toNumber())
-      expect(vaultAfter.currentRatio).toStrictEqual(`${Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100)}%`)
+      expect(vaultAfter.currentRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
 
       const vaultAfterTSLAAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'TSLA')
       const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])
