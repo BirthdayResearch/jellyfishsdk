@@ -35,7 +35,7 @@ export class ContainerGroup {
         if (err instanceof Error) {
           return reject(err)
         }
-        return resolve(data)
+        return resolve(data as Network)
       })
     })
 
@@ -108,7 +108,13 @@ export class ContainerGroup {
       await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
-    await this.requireNetwork().remove()
+    for (const network of await this.docker.listNetworks()) {
+      if (network.Name.includes('testcontainers-')) {
+        // docker v4, create a network adapter for each container
+        // the prune can fail without each removed
+        await this.docker.getNetwork(network.Id).remove()
+      }
+    }
     await this.docker.pruneContainers()
   }
 }
