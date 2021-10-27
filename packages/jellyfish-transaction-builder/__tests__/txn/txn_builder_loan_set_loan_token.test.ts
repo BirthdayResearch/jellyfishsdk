@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
-import { ListLoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
+import { LoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
 import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 
 describe('loan.setLoanToken()', () => {
@@ -119,7 +119,7 @@ describe('loan.setLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
@@ -219,7 +219,7 @@ describe('loan.setLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token5/USD')
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token5/USD')
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('Token5')
   })
@@ -247,7 +247,7 @@ describe('loan.setLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token6/USD')
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token6/USD')
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters.
   })

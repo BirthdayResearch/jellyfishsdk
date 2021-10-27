@@ -3,7 +3,7 @@ import { RegTestContainer } from './'
 /**
  * SPV RPCs(test purposes only) for Bitcoin blockchain
  */
-export class Spv {
+export class SPV {
   private readonly client: RegTestContainer
 
   constructor (client: RegTestContainer) {

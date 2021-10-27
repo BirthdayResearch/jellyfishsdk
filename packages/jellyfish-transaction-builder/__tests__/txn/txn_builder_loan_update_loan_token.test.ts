@@ -7,7 +7,7 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
-import { ListLoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
+import { LoanTokenResult } from '@defichain/jellyfish-api-core/src/category/loan'
 import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 
 const container = new LoanMasterNodeRegTestContainer()
@@ -63,7 +63,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
   const data = await testing.container.call('listloantokens', [])
-  const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
+  const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
   if (result.length > 0) {
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     if (token.symbol === 'Token2') { // If Token2, always update it back to Token1
@@ -171,7 +171,7 @@ describe('loan.updateLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token3/USD')
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token3/USD')
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })
@@ -239,7 +239,7 @@ describe('loan.updateLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('x'.repeat(128)) // Only remain the first 128 letters
   })
@@ -277,7 +277,7 @@ describe('loan.updateLoanToken()', () => {
     await sendTransaction(testing.container, txn)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === 'Token1/USD')
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token1/USD')
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.name).toStrictEqual('Token1')
   })

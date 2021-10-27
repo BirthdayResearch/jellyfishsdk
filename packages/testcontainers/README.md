@@ -17,6 +17,7 @@ With `@defichain/testcontainers`, it allows the JS developers to:
 Install as dev only as you don't need this in production. **Please don't use this in production!**
 
 ```shell
+npm i defichain
 npm i -D @defichain/testcontainers
 ```
 
