@@ -9,8 +9,6 @@ let container: LoanMasterNodeRegTestContainer
 let service: StubService
 let client: WhaleApiClient
 
-let collateralTokenId1: string
-
 beforeAll(async () => {
   container = new LoanMasterNodeRegTestContainer()
   service = new StubService(container)
@@ -22,25 +20,12 @@ beforeAll(async () => {
 
   const testing = Testing.create(container)
 
-  await testing.token.create({ symbol: 'AAPL' })
-  await testing.generate(1)
-
-  await testing.token.create({ symbol: 'TSLA' })
-  await testing.generate(1)
-
-  await testing.token.create({ symbol: 'MSFT' })
-  await testing.generate(1)
-
-  await testing.token.create({ symbol: 'FB' })
-  await testing.generate(1)
-
-  const oracleId = await testing.rpc.oracle.appointOracle(await container.getNewAddress(),
-    [
-      { token: 'AAPL', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' },
-      { token: 'MSFT', currency: 'USD' },
-      { token: 'FB', currency: 'USD' }
-    ], { weightage: 1 })
+  const oracleId = await testing.container.call('appointoracle', [await testing.generateAddress(), [
+    { token: 'AAPL', currency: 'USD' },
+    { token: 'TSLA', currency: 'USD' },
+    { token: 'MSFT', currency: 'USD' },
+    { token: 'FB', currency: 'USD' }
+  ], 1])
   await testing.generate(1)
 
   await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
@@ -69,32 +54,36 @@ beforeAll(async () => {
   })
   await testing.generate(1)
 
-  collateralTokenId1 = await testing.rpc.loan.setCollateralToken({
-    token: 'AAPL',
-    factor: new BigNumber(0.1),
-    fixedIntervalPriceId: 'AAPL/USD'
-  })
+  await testing.container.call('setloantoken', [{
+    symbol: 'AAPL',
+    fixedIntervalPriceId: 'AAPL/USD',
+    mintable: false,
+    interest: new BigNumber(0.01)
+  }])
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'TSLA',
-    factor: new BigNumber(0.2),
-    fixedIntervalPriceId: 'TSLA/USD'
-  })
+  await testing.container.call('setloantoken', [{
+    symbol: 'TSLA',
+    fixedIntervalPriceId: 'TSLA/USD',
+    mintable: false,
+    interest: new BigNumber(0.02)
+  }])
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'MSFT',
-    factor: new BigNumber(0.3),
-    fixedIntervalPriceId: 'MSFT/USD'
-  })
+  await testing.container.call('setloantoken', [{
+    symbol: 'MSFT',
+    fixedIntervalPriceId: 'MSFT/USD',
+    mintable: false,
+    interest: new BigNumber(0.03)
+  }])
   await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'FB',
-    factor: new BigNumber(0.4),
-    fixedIntervalPriceId: 'FB/USD'
-  })
+  await testing.container.call('setloantoken', [{
+    symbol: 'FB',
+    fixedIntervalPriceId: 'FB/USD',
+    mintable: false,
+    interest: new BigNumber(0.04)
+  }])
   await testing.generate(1)
 })
 
@@ -107,16 +96,13 @@ afterAll(async () => {
 })
 
 describe('list', () => {
-  it('should listCollateralTokens', async () => {
-    const result = await client.loan.listCollateralToken()
+  it('should listLoanTokens', async () => {
+    const result = await client.loan.listLoanToken()
     expect(result.length).toStrictEqual(4)
-
-    // Not deterministic ordering due to use of id
     expect(result[0]).toStrictEqual({
       tokenId: expect.any(String),
-      priceFeedId: expect.any(String),
-      factor: expect.any(String),
-      activateAfterBlock: expect.any(Number),
+      interest: expect.any(String),
+      fixedIntervalPriceId: expect.any(String),
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -134,18 +120,22 @@ describe('list', () => {
         isDAT: true,
         isLPS: false,
         limit: '0',
-        mintable: true,
+        mintable: false,
         minted: '0',
-        name: expect.any(String),
+        name: '',
         symbol: expect.any(String),
         symbolKey: expect.any(String),
         tradeable: true
       }
     })
+
+    expect(result[1].tokenId.length).toStrictEqual(64)
+    expect(result[2].tokenId.length).toStrictEqual(64)
+    expect(result[3].tokenId.length).toStrictEqual(64)
   })
 
-  it('should listCollateral with pagination', async () => {
-    const first = await client.loan.listCollateralToken(2)
+  it('should listLoanTokens with pagination', async () => {
+    const first = await client.loan.listLoanToken(2)
 
     expect(first.length).toStrictEqual(2)
     expect(first.hasNext).toStrictEqual(true)
@@ -166,13 +156,12 @@ describe('list', () => {
 })
 
 describe('get', () => {
-  it('should get collateral token by symbol', async () => {
-    const data = await client.loan.getCollateralToken('AAPL')
+  it('should get loan token by symbol', async () => {
+    const data = await client.loan.getLoanToken('AAPL')
     expect(data).toStrictEqual({
-      tokenId: collateralTokenId1,
-      factor: '0.1',
-      priceFeedId: 'AAPL/USD',
-      activateAfterBlock: 108,
+      tokenId: expect.any(String),
+      fixedIntervalPriceId: 'AAPL/USD',
+      interest: '0.01',
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -186,45 +175,45 @@ describe('get', () => {
         },
         displaySymbol: 'dAAPL',
         finalized: false,
-        id: expect.any(String),
+        id: '1',
         isDAT: true,
         isLPS: false,
         limit: '0',
-        mintable: true,
+        mintable: false,
         minted: '0',
-        name: 'AAPL',
+        name: '',
         symbol: 'AAPL',
-        symbolKey: expect.any(String),
+        symbolKey: 'AAPL',
         tradeable: true
       }
     })
   })
 
-  it('should fail due to getting non-existent or malformed collateral token id', async () => {
+  it('should fail due to getting non-existent or malformed loan token id', async () => {
     expect.assertions(4)
     try {
-      await client.loan.getCollateralToken('999')
+      await client.loan.getLoanToken('999')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
         code: 404,
         type: 'NotFound',
         at: expect.any(Number),
-        message: 'Unable to find collateral token',
-        url: '/v0.0/regtest/loans/collaterals/999'
+        message: 'Unable to find loan token',
+        url: '/v0.0/regtest/loans/tokens/999'
       })
     }
 
     try {
-      await client.loan.getCollateralToken('$*@')
+      await client.loan.getLoanToken('$*@')
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
         code: 404,
         type: 'NotFound',
         at: expect.any(Number),
-        message: 'Unable to find collateral token',
-        url: '/v0.0/regtest/loans/collaterals/$*@'
+        message: 'Unable to find loan token',
+        url: '/v0.0/regtest/loans/tokens/$*@'
       })
     }
   })
