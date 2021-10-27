@@ -502,6 +502,7 @@ interface UTXO {
   vout: number
 }
 ```
+
 ## listAuctions
 
 List all available auctions.

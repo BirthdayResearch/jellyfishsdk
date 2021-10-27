@@ -309,7 +309,7 @@ export class Loan {
   /**
    * List all available auctions.
    *
-   * @return {ListAuction[]}
+   * @return {Promise<AuctionDetail[]>}
    */
   async listAuctions (): Promise<AuctionDetail[]> {
     return await this.client.call('listauctions', [], 'bignumber')
