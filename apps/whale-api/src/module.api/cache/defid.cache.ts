@@ -1,7 +1,7 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common'
 import { Cache } from 'cache-manager'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
+import { TokenInfo, TokenResult } from '@defichain/jellyfish-api-core/dist/category/token'
 import { CachePrefix, GlobalCache } from '@src/module.api/cache/global.cache'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 
@@ -18,6 +18,9 @@ export class DeFiDCache extends GlobalCache {
     return await this.batch<TokenInfo>(CachePrefix.TOKEN_INFO, ids, this.fetchTokenInfo.bind(this))
   }
 
+  /**
+   * @param {string} id numeric id of token
+   */
   async getTokenInfo (id: string): Promise<TokenInfo | undefined> {
     return await this.get<TokenInfo>(CachePrefix.TOKEN_INFO, id, this.fetchTokenInfo.bind(this))
   }
@@ -31,6 +34,18 @@ export class DeFiDCache extends GlobalCache {
     }, true)
 
     return result[id]
+  }
+
+  async batchTokenInfoBySymbol (symbols: string[]): Promise<Record<string, TokenResult | undefined>> {
+    return await this.batch<TokenResult>(CachePrefix.TOKEN_INFO_SYMBOL, symbols, this.fetchTokenInfoBySymbol.bind(this))
+  }
+
+  async getTokenInfoBySymbol (symbol: string): Promise<TokenResult | undefined> {
+    return await this.get<TokenResult>(CachePrefix.TOKEN_INFO_SYMBOL, symbol, this.fetchTokenInfoBySymbol.bind(this))
+  }
+
+  private async fetchTokenInfoBySymbol (symbol: string): Promise<TokenResult | undefined> {
+    return await this.rpcClient.token.getToken(symbol)
   }
 
   async getPoolPairInfo (id: string): Promise<PoolPairInfo | undefined> {

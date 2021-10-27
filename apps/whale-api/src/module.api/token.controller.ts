@@ -58,7 +58,7 @@ export class TokenController {
   }
 }
 
-function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
+export function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
   return {
     id: id,
     symbol: tokenInfo.symbol,
