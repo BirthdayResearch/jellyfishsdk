@@ -331,7 +331,7 @@ describe('loans.depositToVault', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      tokenAmount: { token: 1, amount: new BigNumber(0.11) }
+      tokenAmount: { token: 1, amount: new BigNumber(0.22) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -340,6 +340,8 @@ describe('loans.depositToVault', () => {
   })
 
   it('should not deposit to liquidated vault', async () => {
+    await tGroup.get(0).generate(6)
+
     const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
     expect(liqVault.isUnderLiquidation).toStrictEqual(true)
 

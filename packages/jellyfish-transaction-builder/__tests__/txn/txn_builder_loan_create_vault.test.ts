@@ -80,10 +80,13 @@ describe('loans.createVault', () => {
       loanSchemeId: 'scheme',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -113,10 +116,13 @@ describe('loans.createVault', () => {
       loanSchemeId: 'default',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -146,10 +152,13 @@ describe('loans.createVault', () => {
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
 
@@ -178,10 +187,13 @@ describe('loans.createVault', () => {
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
 
@@ -219,10 +231,13 @@ describe('loans.createVault', () => {
       loanSchemeId: 'scheme',
       ownerAddress: 'bcrt1q0uajendn9xpv87jnsqgjmlad3fne9waf9sxckc',
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })

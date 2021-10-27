@@ -49,10 +49,13 @@ describe('Loan createVault', () => {
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -74,10 +77,13 @@ describe('Loan createVault', () => {
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -120,10 +126,13 @@ describe('Loan createVault', () => {
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
       isUnderLiquidation: false,
+      invalidPrice: false,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
