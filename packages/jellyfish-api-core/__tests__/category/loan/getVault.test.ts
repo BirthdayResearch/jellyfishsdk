@@ -65,7 +65,7 @@ describe('Loan getVault', () => {
   it('should getVault', async () => {
     const ownerAddress = await testing.generateAddress()
     const vaultId = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
-    await container.generate(1)
+    await testing.container.generate(1)
 
     const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
