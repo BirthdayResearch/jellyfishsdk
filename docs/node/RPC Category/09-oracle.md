@@ -245,12 +245,10 @@ interface FixedIntervalPricePagination {
 }
 
 interface ListFixedIntervalPrice {
-  activePriceBlock?: number
-  nextPriceBlock?: number
-  priceFeedId?: string
-  activePrice?: BigNumber
-  nextPrice?: BigNumber
-  timestamp?: number
-  isValid?: true
+  priceFeedId: string
+  activePrice: BigNumber
+  nextPrice: BigNumber
+  timestamp: number
+  isValid: true
 }
 ```
