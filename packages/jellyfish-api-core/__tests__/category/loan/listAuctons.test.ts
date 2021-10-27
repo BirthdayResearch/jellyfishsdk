@@ -1,7 +1,6 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { AuctionDetail } from '../../../src/category/loan'
 
 describe('Loan listAuctions', () => {
   const container = new LoanMasterNodeRegTestContainer()
