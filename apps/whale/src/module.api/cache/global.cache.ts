@@ -7,7 +7,8 @@ export interface CacheOption {
 export enum CachePrefix {
   SEMAPHORE = -1,
   TOKEN_INFO = 0,
-  POOL_PAIR_INFO = 1
+  POOL_PAIR_INFO = 1,
+  TOKEN_INFO_SYMBOL = 2
 }
 
 export class GlobalCache {

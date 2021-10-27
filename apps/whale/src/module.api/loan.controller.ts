@@ -1,17 +1,31 @@
-import { BadRequestException, Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
+import {
+  BadRequestException,
+  ConflictException,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  Query
+} from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import {
   CollateralTokenDetail,
   GetLoanSchemeResult,
-  LoanSchemeResult
+  LoanSchemeResult,
+  LoanTokenResult
 } from '@defichain/jellyfish-api-core/dist/category/loan'
-import { CollateralToken, LoanScheme } from '@whale-api-client/api/loan'
+import { CollateralToken, LoanScheme, LoanToken } from '@whale-api-client/api/loan'
+import { mapTokenData } from '@src/module.api/token.controller'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 
 @Controller('/loans')
 export class LoanController {
-  constructor (private readonly client: JsonRpcClient) {
+  constructor (
+    private readonly client: JsonRpcClient,
+    private readonly deFiDCache: DeFiDCache
+  ) {
   }
 
   /**
@@ -63,9 +77,10 @@ export class LoanController {
   ): Promise<ApiPagedResponse<CollateralToken>> {
     const result = (await this.client.loan.listCollateralTokens())
       .sort((a, b) => a.tokenId.localeCompare(b.tokenId))
-      .map(value => mapCollateralToken(value))
+      .map(async value => await this.mapCollateralToken(value))
+    const items = await Promise.all(result)
 
-    return createFakePagination(query, result, item => item.tokenId)
+    return createFakePagination(query, items, item => item.tokenId)
   }
 
   /**
@@ -78,13 +93,69 @@ export class LoanController {
   async getCollateral (@Param('id') id: string): Promise<CollateralToken> {
     try {
       const data = await this.client.loan.getCollateralToken(id)
-      return mapCollateralToken(data)
+      return await this.mapCollateralToken(data)
     } catch (err) {
       if (err?.payload?.message === `Token ${id} does not exist!`) {
         throw new NotFoundException('Unable to find collateral token')
       } else {
         throw new BadRequestException(err)
       }
+    }
+  }
+
+  /**
+   * Paginate loan tokens.
+   *
+   * @param {PaginationQuery} query
+   * @return {Promise<ApiPagedResponse<LoanToken>>}
+   */
+  @Get('/tokens')
+  async listLoanToken (
+    @Query() query: PaginationQuery
+  ): Promise<ApiPagedResponse<LoanToken>> {
+    const result = Object.entries(await this.client.loan.listLoanTokens())
+      .map(([, value]) => {
+        return mapLoanToken(value)
+      }).sort((a, b) => a.tokenId.localeCompare(b.tokenId))
+
+    return createFakePagination(query, result, item => item.tokenId)
+  }
+
+  /**
+   * Get information about a loan token with given loan token.
+   *
+   * @param {string} id
+   * @return {Promise<LoanTokenResult>}
+   */
+  @Get('/tokens/:id')
+  async getLoanToken (@Param('id') id: string): Promise<LoanToken> {
+    try {
+      const data = await this.client.loan.getLoanToken(id)
+      return mapLoanToken(data)
+    } catch (err) {
+      if (err?.payload?.message === `Token ${id} does not exist!`) {
+        throw new NotFoundException('Unable to find loan token')
+      } else {
+        throw new BadRequestException(err)
+      }
+    }
+  }
+
+  async mapCollateralToken (detail: CollateralTokenDetail): Promise<CollateralToken> {
+    const result = await this.deFiDCache.getTokenInfoBySymbol(detail.token)
+    if (result === undefined) {
+      throw new ConflictException('unable to find token')
+    }
+
+    const id = Object.keys(result)[0]
+    const tokenInfo = result[id]
+
+    return {
+      tokenId: detail.tokenId,
+      token: mapTokenData(id, tokenInfo),
+      factor: detail.factor.toFixed(),
+      priceFeedId: detail.fixedIntervalPriceId,
+      activateAfterBlock: detail.activateAfterBlock.toNumber()
     }
   }
 }
@@ -113,12 +184,13 @@ function mapLoanScheme (result: LoanSchemeResult | GetLoanSchemeResult): LoanSch
   }
 }
 
-function mapCollateralToken (detail: CollateralTokenDetail): CollateralToken {
+function mapLoanToken (result: LoanTokenResult): LoanToken {
+  const id = Object.keys(result.token)[0]
+  const tokenInfo = result.token[id]
   return {
-    token: detail.token,
-    tokenId: detail.tokenId,
-    factor: detail.factor.toFixed(),
-    priceFeedId: detail.fixedIntervalPriceId,
-    activateAfterBlock: detail.activateAfterBlock.toNumber()
+    tokenId: tokenInfo.creationTx,
+    token: mapTokenData(id, tokenInfo),
+    interest: result.interest.toFixed(),
+    fixedIntervalPriceId: result.fixedIntervalPriceId
   }
 }

@@ -105,36 +105,36 @@ describe('list', () => {
   it('should listCollateralTokens', async () => {
     const result = await controller.listCollateral({ size: 100 })
     expect(result.data.length).toStrictEqual(4)
-    expect(result.data).toStrictEqual([
-      {
-        token: expect.any(String),
-        tokenId: expect.any(String),
-        priceFeedId: expect.any(String),
-        factor: expect.any(String),
-        activateAfterBlock: expect.any(Number)
-      },
-      {
-        token: expect.any(String),
-        tokenId: expect.any(String),
-        priceFeedId: expect.any(String),
-        factor: expect.any(String),
-        activateAfterBlock: expect.any(Number)
-      },
-      {
-        token: expect.any(String),
-        tokenId: expect.any(String),
-        priceFeedId: expect.any(String),
-        factor: expect.any(String),
-        activateAfterBlock: expect.any(Number)
-      },
-      {
-        token: expect.any(String),
-        tokenId: expect.any(String),
-        priceFeedId: expect.any(String),
-        factor: expect.any(String),
-        activateAfterBlock: expect.any(Number)
+    expect(result.data[0]).toStrictEqual({
+      tokenId: expect.any(String),
+      priceFeedId: expect.any(String),
+      factor: expect.any(String),
+      activateAfterBlock: expect.any(Number),
+      token: {
+        collateralAddress: expect.any(String),
+        creation: {
+          height: expect.any(Number),
+          tx: expect.any(String)
+        },
+        decimal: 8,
+        destruction: {
+          height: -1,
+          tx: expect.any(String)
+        },
+        displaySymbol: expect.any(String),
+        finalized: false,
+        id: expect.any(String),
+        isDAT: true,
+        isLPS: false,
+        limit: '0',
+        mintable: true,
+        minted: '0',
+        name: expect.any(String),
+        symbol: expect.any(String),
+        symbolKey: expect.any(String),
+        tradeable: true
       }
-    ])
+    })
   })
 
   it('should listCollateralTokens with pagination', async () => {
@@ -174,10 +174,33 @@ describe('get', () => {
     expect(data).toStrictEqual(
       {
         tokenId: collateralTokenId1,
-        token: 'AAPL',
         priceFeedId: 'AAPL/USD',
         factor: '0.1',
-        activateAfterBlock: 108
+        activateAfterBlock: 108,
+        token: {
+          collateralAddress: expect.any(String),
+          creation: {
+            height: expect.any(Number),
+            tx: expect.any(String)
+          },
+          decimal: 8,
+          destruction: {
+            height: -1,
+            tx: expect.any(String)
+          },
+          displaySymbol: 'dAAPL',
+          finalized: false,
+          id: expect.any(String),
+          isDAT: true,
+          isLPS: false,
+          limit: '0',
+          mintable: true,
+          minted: '0',
+          name: 'AAPL',
+          symbol: 'AAPL',
+          symbolKey: expect.any(String),
+          tradeable: true
+        }
       }
     )
   })
