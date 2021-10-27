@@ -57,7 +57,6 @@ export class CCompositeSwap extends ComposableBuffer<CompositeSwap> {
   static OP_NAME = 'OP_DEFI_TX_COMPOSITE_SWAP'
 
   composers (cs: CompositeSwap): BufferComposer[] {
-    console.log('start composer CompositeSwap', cs)
     return [
       ComposableBuffer.single<PoolSwap>(() => cs.swapInfo, v => cs.swapInfo = v, v => new CPoolSwap(v)),
       ComposableBuffer.varUIntArrayRaw<number>(
