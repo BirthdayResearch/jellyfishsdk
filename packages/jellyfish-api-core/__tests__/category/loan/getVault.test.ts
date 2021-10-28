@@ -1,6 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
+import { VaultState } from 'packages/jellyfish-api-core/src/category/loan'
 
 describe('Loan getVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -72,8 +73,7 @@ describe('Loan getVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
@@ -99,8 +99,7 @@ describe('Loan getVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
       loanAmounts: [],
       interestAmounts: [],
@@ -136,8 +135,7 @@ describe('Loan getVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
       // 30 TSLA + total interest
       loanAmounts: [new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8) + '@TSLA'], // 30.00001140@TSLA
@@ -168,7 +166,7 @@ describe('Loan getVault', () => {
 
     // check vault not under liquidation.
     const data = await testing.rpc.loan.getVault(vaultId)
-    expect(data.isUnderLiquidation).toStrictEqual(false)
+    expect(data.state).toStrictEqual(VaultState.ACTIVE)
 
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
@@ -183,8 +181,7 @@ describe('Loan getVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: true,
-      invalidPrice: false,
+      state: VaultState.IN_LIQUIDATION,
       batches: autionDetails.filter((auction: {vaultId: string}) => auction.vaultId === vaultId).map((auction: {batches: []}) => auction.batches)[0]
     })
 

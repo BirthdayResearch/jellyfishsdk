@@ -391,12 +391,20 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
+export enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inLiquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayLiquidate',
+  FROZEN_IN_LIQUIDATION = 'frozenInLiquidation'
+}
+
 export interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
+  state: VaultState
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]
