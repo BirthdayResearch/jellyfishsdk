@@ -3,7 +3,8 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { UTXO } from 'packages/jellyfish-api-core/src/category/wallet'
 
 describe('compositeSwap', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -162,6 +163,94 @@ describe('compositeSwap', () => {
       expect(Number(amount)).toBeGreaterThan(13)
       expect(Number(amount)).toBeLessThan(14)
     }
+  })
+
+  it('should compositeSwap with utxo specified', async () => {
+    const [toAddress, fromAddress] = await testing.generateAddress(2)
+    await testing.token.send({ symbol: 'CAT', amount: 45.6, address: fromAddress })
+    await testing.generate(1)
+
+    const utxo = await container.fundAddress(fromAddress, 10)
+
+    { // before swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('45.60000000@CAT')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+
+      const unspents = await container.call('listunspent')
+      const unspent = unspents.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
+      expect(unspent).not.toStrictEqual(undefined)
+    }
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'CAT',
+      amountFrom: 12.3,
+      to: toAddress,
+      tokenTo: 'DOG',
+      maxPrice: 1.2
+    }
+
+    const hex = await client.poolpair.compositeSwap(metadata, [utxo])
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+    await container.generate(1)
+
+    { // after swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('33.30000000@CAT')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(1)
+      const [amount, symbol] = toBalances[0].split('@')
+      expect(symbol).toStrictEqual('DOG')
+      // allow test to run standalone, with first case success swap, TokenTo/TokenFrom price reduced
+      expect(Number(amount)).toBeGreaterThan(13)
+      expect(Number(amount)).toBeLessThan(14)
+
+      const unspents = await container.call('listunspent')
+      const unspent = unspents.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
+      expect(unspent).toStrictEqual(undefined)
+    }
+  })
+
+  it('should not compositeSwap with utxo not belongs to account owner', async () => {
+    const [toAddress, fromAddress] = await testing.generateAddress(2)
+    await testing.token.send({ symbol: 'CAT', amount: 45.6, address: fromAddress })
+    await testing.generate(1)
+
+    const randomAddress = await testing.generateAddress()
+    const utxo = await container.fundAddress(randomAddress, 10)
+
+    { // before swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('45.60000000@CAT')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+
+      const unspents = await container.call('listunspent')
+      const unspent = unspents.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
+      expect(unspent).not.toStrictEqual(undefined)
+    }
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'CAT',
+      amountFrom: 12.3,
+      to: toAddress,
+      tokenTo: 'DOG',
+      maxPrice: 1.2
+    }
+
+    const promise = client.poolpair.compositeSwap(metadata, [utxo])
+    await expect(promise).toThrowError(DeFiDRpcError)
+    await expect(promise).toThrowError('tx must have at least one input from account owner')
   })
 
   it('Should compositeSwap with lower rate path', async () => {

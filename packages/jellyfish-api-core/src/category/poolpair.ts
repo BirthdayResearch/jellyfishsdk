@@ -140,7 +140,7 @@ export class PoolPair {
    * @return {Promise<string>}  hex of performed transaction
    */
   async compositeSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('compositeswap', [metadata, utxos], 'bignumber')
+    return await this.client.call('compositeswap', [metadata, utxos], 'number')
   }
 
   /**
