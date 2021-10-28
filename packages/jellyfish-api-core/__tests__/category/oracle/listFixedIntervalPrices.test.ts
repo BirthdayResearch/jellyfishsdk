@@ -95,28 +95,28 @@ describe('Oracle', () => {
           activePrice: new BigNumber('60000'),
           nextPrice: new BigNumber('60000'),
           timestamp: expect.any(Number),
-          isValid: true
+          isLive: true
         },
         {
           priceFeedId: 'DFI/USD',
           activePrice: new BigNumber('1'),
           nextPrice: new BigNumber('1'),
           timestamp: expect.any(Number),
-          isValid: true
+          isLive: true
         },
         {
           priceFeedId: 'TSLA/USD',
           activePrice: new BigNumber('0'),
           nextPrice: new BigNumber('2'),
           timestamp: expect.any(Number),
-          isValid: false
+          isLive: false
         },
         {
           priceFeedId: 'UBER/USD',
           activePrice: new BigNumber('0'),
           nextPrice: new BigNumber('8'),
           timestamp: expect.any(Number),
-          isValid: false
+          isLive: false
         }
       ])
     }
@@ -129,7 +129,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
         timestamp: expect.any(Number),
-        isValid: true
+        isLive: true
       })
     }
 
@@ -141,7 +141,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
         timestamp: expect.any(Number),
-        isValid: true
+        isLive: true
       })
     }
 
@@ -153,7 +153,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('32'),
         timestamp: expect.any(Number),
-        isValid: false
+        isLive: false
       })
     }
 
@@ -165,7 +165,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('32'),
         nextPrice: new BigNumber('32'),
         timestamp: expect.any(Number),
-        isValid: true
+        isLive: true
       })
     }
   })
@@ -207,7 +207,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('2'),
         nextPrice: new BigNumber('2'),
         timestamp: expect.any(Number),
-        isValid: true
+        isLive: true
       })
     }
 
@@ -220,7 +220,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('2'),
         nextPrice: new BigNumber('11'),
         timestamp: expect.any(Number),
-        isValid: false
+        isLive: false
       })
     }
 
@@ -233,7 +233,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('2'),
         nextPrice: new BigNumber('11'),
         timestamp: expect.any(Number),
-        isValid: false
+        isLive: false
       })
     }
 
@@ -246,7 +246,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('2'),
         nextPrice: new BigNumber('11'),
         timestamp: expect.any(Number),
-        isValid: false
+        isLive: false
       })
 
       await testing.generate(6)
@@ -256,7 +256,7 @@ describe('Oracle', () => {
         activePrice: new BigNumber('11'),
         nextPrice: new BigNumber('13'),
         timestamp: expect.any(Number),
-        isValid: true
+        isLive: true
       })
     }
   })

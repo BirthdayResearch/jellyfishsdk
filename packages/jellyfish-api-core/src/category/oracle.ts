@@ -245,7 +245,7 @@ export interface FixedIntervalPrice {
   activePrice: BigNumber
   nextPrice: BigNumber
   timestamp: number
-  isValid: true
+  isLive: true
 }
 
 export interface ListFixedIntervalPrice {
@@ -253,7 +253,7 @@ export interface ListFixedIntervalPrice {
   activePrice: BigNumber
   nextPrice: BigNumber
   timestamp: number
-  isValid: true
+  isLive: true
 }
 
 export interface FixedIntervalPricePagination {

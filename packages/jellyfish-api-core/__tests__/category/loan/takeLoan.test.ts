@@ -179,7 +179,7 @@ describe('Loan takeLoan', () => {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
       expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
-      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
+      expect(vaultBefore.state).toStrictEqual('active')
       expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
       expect(vaultBefore.collateralValue).toStrictEqual(15000)
       expect(vaultBefore.loanAmounts).toStrictEqual([])
