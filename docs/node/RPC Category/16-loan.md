@@ -376,7 +376,6 @@ interface VaultDetails {
   liquidationPenalty?: number
   batchCount?: number
   batches?: AuctionBatchDetails[]
-  isUnderLiquidation?: boolean
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
@@ -385,6 +384,7 @@ interface VaultDetails {
   interestValue?: BigNumber | string // empty string if nothing
   currentRatio?: number
 }
+
 
 interface AuctionBatchDetails {
   index: BigNumber
@@ -399,8 +399,16 @@ List all available vaults.
 
 ```ts title="client.loan.listVaults()"
 interface loan {
-  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
 }
+
+interface ListVaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+}
+
 
 interface ListVaultOptions {
   ownerAddress?: string
@@ -412,31 +420,6 @@ interface VaultPagination {
   start?: string
   including_start?: boolean
   limit?: number
-}
-
-interface VaultDetails {
-  vaultId: string
-  loanSchemeId: string
-  ownerAddress: string
-  state: VaultState
-  liquidationHeight?: number
-  liquidationPenalty?: number
-  batchCount?: number
-  batches?: AuctionBatchDetails[]
-  isUnderLiquidation?: boolean
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
-}
-
-interface AuctionBatchDetails {
-  index: BigNumber
-  collaterals: string[]
-  loan: string
 }
 ```
 
