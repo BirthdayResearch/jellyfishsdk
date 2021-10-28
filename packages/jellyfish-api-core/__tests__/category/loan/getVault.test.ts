@@ -146,7 +146,7 @@ describe('Loan getVault', () => {
       loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       interestValue: new BigNumber(0.0000114),
       // lround ((collateral value / loan value) * 100)
-      currentRatio: currentRatioValue
+      currentRatio: Math.ceil(currentRatioValue)
     })
   })
 
@@ -174,17 +174,17 @@ describe('Loan getVault', () => {
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
-    const autionDetails: [] = await testing.rpc.call('listauctions', [], 'bignumber')
+    const autionDetails: [] = await testing.container.call('listauctions')
 
     const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
     expect(vaultDataAfterPriceHike).toStrictEqual({
       vaultId: vaultId,
-      liquidationHeight: new BigNumber('168'),
-      liquidationPenalty: new BigNumber('5'),
+      liquidationHeight: 168,
+      liquidationPenalty: 5,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       state: VaultState.IN_LIQUIDATION,
-      batchCount: new BigNumber('2'),
+      batchCount: 2,
       batches: autionDetails.filter((auction: {vaultId: string}) => auction.vaultId === vaultId).map((auction: {batches: []}) => auction.batches)[0]
     })
 
