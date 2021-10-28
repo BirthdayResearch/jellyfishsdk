@@ -367,7 +367,7 @@ enum VaultState {
   FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
 }
 
-export interface VaultDetails {
+interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
@@ -414,7 +414,7 @@ interface VaultPagination {
   limit?: number
 }
 
-export interface VaultDetails {
+interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
@@ -506,7 +506,7 @@ interface loan {
   loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-export interface LoanPaybackMetadata {
+interface LoanPaybackMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
