@@ -186,18 +186,18 @@ export class Loan {
    * Get loan token.
    *
    * @param {string} token Symbol or id of loan token
-   * @return {Promise<LoanTokenDetails>} Loan token details
+   * @return {Promise<LoanTokenResult>} Loan token details
    */
-  async getLoanToken (token: string): Promise<LoanTokenDetails> {
+  async getLoanToken (token: string): Promise<LoanTokenResult> {
     return await this.client.call('getloantoken', [token], 'bignumber')
   }
 
   /**
    * List all created loan tokens.
    *
-   * @return {Promise<ListLoanTokenResult>}
+   * @return {Promise<LoanTokenResult[]>}
    */
-  async listLoanTokens (): Promise<ListLoanTokenResult> {
+  async listLoanTokens (): Promise<LoanTokenResult[]> {
     return await this.client.call('listloantokens', [], 'bignumber')
   }
 
@@ -224,6 +224,21 @@ export class Loan {
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
     return await this.client.call('getvault', [vaultId], 'bignumber')
+  }
+
+  /**
+   * Close vault
+   *
+   * @param {CloseVault} closeVault
+   * @param {string} closeVault.vaultId Vault id
+   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
   }
 
   /**
@@ -280,7 +295,8 @@ export class Loan {
    *
    * @param {TakeLoanMetadata} metadata
    * @param {string} metadata.vaultId Vault id
-   * @param {string} metadata.amounts In "amount@symbol" format
+   * @param {string | string[]} metadata.amounts In "amount@symbol" format
+   * @param {string} [metadata.to] Address to receive tokens
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
@@ -291,18 +307,19 @@ export class Loan {
   }
 
   /**
-   * Close vault
+   * Return loan in a desired amount.
    *
-   * @param {CloseVault} closeVault
-   * @param {string} closeVault.vaultId Vault id
-   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {LoanPaybackMetadata} metadata
+   * @param {string} metadata.vaultId Vault id
+   * @param {string| string[]} metadata.amounts In "amount@symbol" format
+   * @param {string} metadata.from Address from transfer tokens
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
-   * @return {Promise<string>}
+   * @return {Promise<string>} txid
    */
-  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
+  async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('loanpayback', [metadata, utxos], 'number')
   }
 }
 
@@ -365,14 +382,10 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface ListLoanTokenResult {
-  token: LoanTokenDetails
+export interface LoanTokenResult {
+  token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
-}
-
-export interface LoanTokenDetails {
-  [key: string]: token.TokenResult
 }
 
 export interface UpdateLoanToken {
@@ -435,7 +448,14 @@ export interface WithdrawVault {
 
 export interface TakeLoanMetadata {
   vaultId: string
-  amounts: string // amount@symbol
+  amounts: string | string[] // amount@symbol
+  to?: string
+}
+
+export interface LoanPaybackMetadata {
+  vaultId: string
+  amounts: string | string[] // amount@symbol
+  from: string
 }
 
 export interface VaultPagination {

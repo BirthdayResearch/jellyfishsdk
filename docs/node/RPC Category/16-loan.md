@@ -255,10 +255,10 @@ Get loan token.
 
 ```ts title="client.loan.getLoanToken()"
 interface loan {
-  getLoanToken (token: string): Promise<LoanTokenDetails>
+  getLoanToken (token: string): Promise<LoanTokenResult>
 }
 
-interface LoanTokenDetails {
+interface LoanTokenResult {
   token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
@@ -295,17 +295,13 @@ List all created loan tokens.
 
 ```ts title="client.loan.listLoanTokens()"
 interface loan {
-  listLoanTokens (): Promise<ListLoanTokenResult>
+  listLoanTokens (): Promise<LoanTokenResult[]>
 }
 
-interface ListLoanTokenResult {
-  token: LoanTokenDetails
+interface LoanTokenResult {
+  token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
-}
-
-interface LoanTokenDetails {
-  [key: string]: token.TokenResult
 }
 
 interface TokenResult {
@@ -382,6 +378,21 @@ interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+```
+
+## closeVault
+
+Close vault.
+
+```ts title="client.loan.closeVault()"
+interface loan {
+  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface CloseVault {
+  vaultId: string
+  to: string
 }
 ```
 
@@ -483,6 +494,7 @@ interface loan {
 interface TakeLoanMetadata {
   vaultId: string
   amounts: string // amount@symbol
+  to?: string
 }
 
 interface UTXO {
@@ -491,17 +503,23 @@ interface UTXO {
 }
 ```
 
-## closeVault
+## loanPayback
 
-Close vault.
+Return loan in a desired amount.
 
-```ts title="client.loan.closeVault()"
+```ts title="client.loan.loanPayback()"
 interface loan {
-  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+  loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-interface CloseVault {
+export interface LoanPaybackMetadata {
   vaultId: string
-  to: string
+  amounts: string | string[] // amount@symbol
+  from: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
 }
 ```
