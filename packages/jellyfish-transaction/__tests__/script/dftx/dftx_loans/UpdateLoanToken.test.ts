@@ -20,7 +20,7 @@ it('should bi-directional buffer-object-buffer', () => {
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a47446654786606546f6b656e3206546f6b656e3206546f6b656e3203555344010000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
+    '6a47446654787806546f6b656e3206546f6b656e3206546f6b656e3203555344010000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
     /**
      * loan : {
      *    symbol: 'Token3',
@@ -31,7 +31,7 @@ it('should bi-directional buffer-object-buffer', () => {
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a47446654786606546f6b656e3306546f6b656e3306546f6b656e3303555344000000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
+    '6a47446654787806546f6b656e3306546f6b656e3306546f6b656e3303555344000000000000000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20',
     /**
      * loan : {
      *    symbol: 'Token4',
@@ -42,7 +42,7 @@ it('should bi-directional buffer-object-buffer', () => {
      *    tokenTx: '207fb6dca77e46e58506bfa1a186d1b0c8c183e89a9f7296f58b06d1007a3d13',
      * }
      */
-    '6a47446654786606546f6b656e3406546f6b656e3406546f6b656e3403555344017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
+    '6a47446654787806546f6b656e3406546f6b656e3406546f6b656e3403555344017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
   ]
 
   fixtures.forEach(hex => {
@@ -51,11 +51,11 @@ it('should bi-directional buffer-object-buffer', () => {
     )
     const buffer = toBuffer(stack)
     expect(buffer.toString('hex')).toStrictEqual(hex)
-    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x66)
+    expect((stack[1] as OP_DEFI_TX).tx.type).toStrictEqual(0x78)
   })
 })
 
-const header = '6a474466547866' // OP_RETURN(0x6a) OP_PUSHDATA1(0x47) (length 68 = 0x44) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x66)
+const header = '6a474466547878' // OP_RETURN(0x6a) OP_PUSHDATA1(0x47) (length 68 = 0x44) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x78)
 const data = '06546f6b656e3406546f6b656e3406546f6b656e3403555344017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
 // UpdateLoanToken.symbol[BE](06546f6b656e34)
 // UpdateLoanToken.name[BE](06546f6b656e34)
