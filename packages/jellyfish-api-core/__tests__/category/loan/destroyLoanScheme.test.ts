@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
-describe('Loan', () => {
+describe('Loan destroyLoanScheme', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 

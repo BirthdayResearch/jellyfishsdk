@@ -8,7 +8,7 @@ slug: /usage
 ## Installation
 
 ```shell
-npm i -D @defichain/jellyfish-api-jsonrpc
+npm i defichain @defichain/jellyfish-api-jsonrpc
 ```
 
 ## JsonRpcClient

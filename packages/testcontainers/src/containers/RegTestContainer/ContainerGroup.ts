@@ -1,6 +1,6 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
-import { waitForCondition } from '../../wait_for_condition'
-import { MasterNodeRegTestContainer } from './masternode'
+import { waitForCondition } from '../../utils'
+import { MasterNodeRegTestContainer } from './Masternode'
 import { RegTestContainer } from './index'
 
 export class ContainerGroup {
@@ -105,8 +105,10 @@ export class ContainerGroup {
    */
   async stop (): Promise<void> {
     for (const container of this.containers) {
+      await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
     await this.requireNetwork().remove()
+    await this.docker.pruneContainers()
   }
 }

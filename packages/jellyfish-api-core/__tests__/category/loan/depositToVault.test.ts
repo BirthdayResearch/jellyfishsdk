@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Loan', () => {
+describe('Loan depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let vaultId1: string
@@ -171,7 +171,7 @@ describe('Loan', () => {
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
       expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
       expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
-      expect(vaultBefore.loanAmount).toStrictEqual([])
+      expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
       expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
 
@@ -192,7 +192,7 @@ describe('Loan', () => {
       expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
       expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
       expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
-      expect(vaultAfter.loanAmount).toStrictEqual(vaultBefore.loanAmount)
+      expect(vaultAfter.loanAmounts).toStrictEqual(vaultBefore.loanAmounts)
       expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
       expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
 
@@ -309,13 +309,15 @@ describe('Loan', () => {
 
     // deposit * factor >= collateralValue / 2
     const promise = tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '0.11@BTC'
+      vaultId: vaultId1, from: collateralAddress, amount: '0.201@BTC' // Throw error if more than 0.2
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
   })
 
   it('should not deposit to liquidated vault', async () => {
+    await tGroup.get(0).generate(6)
+
     const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
     expect(liqVault.isUnderLiquidation).toStrictEqual(true)
 

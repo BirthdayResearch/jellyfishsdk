@@ -13,19 +13,6 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "contributors": [
-    {
-      "name": "DeFiChain Foundation",
-      "email": "engineering@defichain.com",
-      "url": "https://defichain.com/"
-    },
-    {
-      "name": "DeFi Blockchain Contributors"
-    },
-    {
-      "name": "DeFi Jellyfish Contributors"
-    }
-  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -37,5 +24,8 @@
   "dependencies": {
     "@defichain/jellyfish-wallet": "0.0.0",
     "@defichain/jellyfish-transaction": "0.0.0"
+  },
+  "peerDependencies": {
+    "defichain": "0.0.0"
   }
 }
