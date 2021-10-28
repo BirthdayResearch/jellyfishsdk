@@ -3,8 +3,9 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
-import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys } from '@defichain/testcontainers'
 import { UTXO } from 'packages/jellyfish-api-core/src/category/wallet'
+import BigNumber from 'bignumber.js'
 
 describe('compositeSwap', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -74,7 +75,7 @@ describe('compositeSwap', () => {
       b: { symbol: 'PATHB', amount: 1 }
     })
     await testing.poolpair.add({
-      a: { symbol: 'XYZ', amount: 5 },
+      a: { symbol: 'XYZ', amount: 50 },
       b: { symbol: 'PATHB', amount: 1 }
     })
     await container.generate(1)
@@ -218,12 +219,12 @@ describe('compositeSwap', () => {
     }
   })
 
-  it('should not compositeSwap with utxo not belongs to account owner', async () => {
+  it('should not compositeSwap with not mine utxo', async () => {
     const [toAddress, fromAddress] = await testing.generateAddress(2)
     await testing.token.send({ symbol: 'CAT', amount: 45.6, address: fromAddress })
     await testing.generate(1)
 
-    const randomAddress = await testing.generateAddress()
+    const randomAddress = await container.getNewAddress()
     const utxo = await container.fundAddress(randomAddress, 10)
 
     { // before swap
@@ -233,10 +234,6 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(0)
-
-      const unspents = await container.call('listunspent')
-      const unspent = unspents.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
-      expect(unspent).not.toStrictEqual(undefined)
     }
 
     const metadata: poolpair.PoolSwapMetadata = {
@@ -249,8 +246,8 @@ describe('compositeSwap', () => {
     }
 
     const promise = client.poolpair.compositeSwap(metadata, [utxo])
-    await expect(promise).toThrowError(DeFiDRpcError)
-    await expect(promise).toThrowError('tx must have at least one input from account owner')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('tx must have at least one input from account owner')
   })
 
   it('Should compositeSwap with lower rate path', async () => {
@@ -284,7 +281,17 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(1)
-      expect(toBalances[0]).toStrictEqual('1.66666667@XYZ')
+      expect(toBalances[0]).toStrictEqual('16.66666667@XYZ')
+
+      // pool (ABC-PATHA)'s ABC unchanged
+      const pathA = Object.values(await client.poolpair.getPoolPair('ABC-PATHA'))
+      expect(pathA.length).toStrictEqual(1)
+      expect(pathA[0].reserveA).toStrictEqual(new BigNumber(3000))
+
+      // path B taken, pool (ABC-PATHB)'s ABC increased
+      const pathB = Object.values(await client.poolpair.getPoolPair('ABC-PATHB'))
+      expect(pathB.length).toStrictEqual(1)
+      expect(pathB[0].reserveA).toStrictEqual(new BigNumber(6000))
     }
   })
 
