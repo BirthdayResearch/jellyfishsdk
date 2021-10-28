@@ -358,12 +358,19 @@ interface loan {
   getVault (vaultId: string): Promise<VaultDetails>
 }
 
+enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inliquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayliquidate',
+  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
+}
+
 interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]

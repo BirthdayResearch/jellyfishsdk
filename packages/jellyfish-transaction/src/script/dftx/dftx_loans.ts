@@ -251,7 +251,7 @@ export interface TakeLoan {
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CTakeLoan extends ComposableBuffer<TakeLoan> {
-  static OP_CODE = 0x46 // 'F'
+  static OP_CODE = 0x58 // 'X'
   static OP_NAME = 'OP_DEFI_TX_TAKE_LOAN'
 
   composers (tl: TakeLoan): BufferComposer[] {

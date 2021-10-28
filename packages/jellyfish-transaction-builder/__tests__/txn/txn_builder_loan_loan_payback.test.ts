@@ -1,27 +1,35 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError } from '@defichain/testcontainers'
+import { getProviders, MockProviders } from '../provider.mock'
+import { P2WPKHTransactionBuilder } from '../../src'
+import { fundEllipticPair, sendTransaction } from '../test.utils'
+import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
+import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
-import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { RegTest, RegTestGenesisKeys } from '@defichain/jellyfish-network'
+import { P2WPKH } from '@defichain/jellyfish-address'
 
-const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
+const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(RegTestGenesisKeys[i]))
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
+let bobColAddr: string
 let bobVaultId: string
 let bobVaultId1: string
 let bobVaultAddr: string
 let bobVaultAddr1: string
 let bobLiqVaultId: string
-let bobloanAddr: string
 let tslaLoanHeight: number
 let aliceColAddr: string
-
+let aProviders: MockProviders
+let aBuilder: P2WPKHTransactionBuilder
+let bProviders: MockProviders
+let bBuilder: P2WPKHTransactionBuilder
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
 async function setup (): Promise<void> {
   // token setup
-  aliceColAddr = await alice.container.getNewAddress()
+  aliceColAddr = await aProviders.getAddress()
   await alice.token.dfi({ address: aliceColAddr, amount: 30000 })
   await alice.generate(1)
   await alice.token.create({ symbol: 'BTC', collateralAddress: aliceColAddr })
@@ -121,10 +129,12 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  const bobColAddr = await bob.generateAddress()
+  bobColAddr = await bProviders.getAddress()
   await bob.token.dfi({ address: bobColAddr, amount: 30000 })
   await bob.generate(1)
   await tGroup.waitForSync()
+
+  // await alice.rpc.account.sendTokensToAddress({}, { [bobColAddr]: ['40@TSLA'] })
 
   await alice.rpc.account.accountToAccount(aliceColAddr, { [bobColAddr]: '1@BTC' })
   await alice.generate(1)
@@ -241,30 +251,38 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  bobloanAddr = await bob.generateAddress()
   await bob.rpc.loan.takeLoan({
     vaultId: bobVaultId,
-    to: bobloanAddr,
+    to: bobColAddr,
     amounts: '40@TSLA'
   })
+  tslaLoanHeight = await bob.container.getBlockCount()
   await bob.generate(1)
   await tGroup.waitForSync()
-  tslaLoanHeight = await bob.container.getBlockCount()
 }
 
+beforeEach(async () => {
+  await tGroup.start()
+  await alice.container.waitForWalletCoinbaseMaturity()
+
+  aProviders = await getProviders(alice.container)
+  aProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[0].owner.privKey))
+  aBuilder = new P2WPKHTransactionBuilder(aProviders.fee, aProviders.prevout, aProviders.elliptic, RegTest)
+
+  bProviders = await getProviders(bob.container)
+  bProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[1].owner.privKey))
+  bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
+
+  await setup()
+})
+
+afterEach(async () => {
+  await tGroup.stop()
+})
+
 describe('loanPayback success', () => {
-  beforeEach(async () => {
-    await tGroup.start()
-    await alice.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  afterEach(async () => {
-    await tGroup.stop()
-  })
-
   it('should loanPayback', async () => {
-    await alice.rpc.account.sendTokensToAddress({}, { [bobloanAddr]: ['5@TSLA'] })
+    await alice.rpc.account.sendTokensToAddress({}, { [bobColAddr]: ['5@TSLA'] })
     await alice.generate(1)
     await tGroup.waitForSync()
 
@@ -272,7 +290,7 @@ describe('loanPayback success', () => {
       const interests = await bob.rpc.loan.getInterest('scheme')
       const height = await bob.container.getBlockCount()
       const tslaInterestPerBlock = (netInterest * 40) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaInterestTotal = tslaInterestPerBlock * (height + 1 - tslaLoanHeight)
+      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight)
       expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
       expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
     }
@@ -282,16 +300,33 @@ describe('loanPayback success', () => {
     expect(vaultBefore.loanValue).toStrictEqual(80.00009132)
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00004566@TSLA'])
     expect(vaultBefore.interestValue).toStrictEqual(0.00009132)
-    expect(vaultBefore.currentRatio).toStrictEqual('18750%')
+    expect(vaultBefore.currentRatio).toStrictEqual(18750)
 
-    const bobLoanAccBefore = await bob.rpc.account.getAccount(bobloanAddr)
-    expect(bobLoanAccBefore).toStrictEqual(['45.00000000@TSLA'])
+    const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobColAccBefore).toStrictEqual(['45.00000000@TSLA'])
 
-    await bob.rpc.loan.loanPayback({
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId,
-      amounts: '45@TSLA', // try pay over loan amount
-      from: bobloanAddr
-    })
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(45) }] // try pay over loan amount
+    }, bobColScript)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await bProviders.getAddress())
+
+    // Ensure you don't send all your balance away
+    const prevouts = await bProviders.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
     await bob.generate(1)
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
@@ -301,16 +336,16 @@ describe('loanPayback success', () => {
     expect(vaultAfter.loanValue).toStrictEqual(0)
     expect(vaultAfter.currentRatio).toStrictEqual(-1)
 
-    const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
-    expect(bobLoanAccAfter).toStrictEqual(['4.99995434@TSLA']) // 45 - 40.00004566
+    const bobColAccAfter = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobColAccAfter).toStrictEqual(['4.99990868@TSLA']) // 45 - 40.00004566
   })
 
   it('should loanPayback partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
-    const loanAccBefore = await bob.container.call('getaccount', [bobloanAddr])
-    expect(loanAccBefore).toStrictEqual(['40.00000000@TSLA'])
+    const bobColAccBefore = await bob.container.call('getaccount', [bobColAddr])
+    expect(bobColAccBefore).toStrictEqual(['40.00000000@TSLA'])
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.collateralValue).toStrictEqual(15000) // DFI(10000) + BTC(1 * 10000 * 0.5)
@@ -318,48 +353,53 @@ describe('loanPayback success', () => {
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00002283@TSLA'])
     expect(vaultBefore.loanValue).toStrictEqual(80.00004566) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(0.00004566)
-    expect(vaultBefore.currentRatio).toStrictEqual('18750%') // 15000 / 80.00004566 * 100
+    expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.00004566 * 100
 
     {
       const interests = await bob.rpc.loan.getInterest('scheme')
       const height = await bob.container.getBlockCount()
       const tslaInterestPerBlock = (netInterest * 40) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaInterestTotal = tslaInterestPerBlock * (height + 1 - tslaLoanHeight)
+      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight)
       expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
       expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
     }
 
-    const txid = await bob.rpc.loan.loanPayback({
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId,
-      amounts: '13@TSLA',
-      from: bobloanAddr
-    })
-    expect(typeof txid).toStrictEqual('string')
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(13) }]
+    }, bobColScript)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await bProviders.getAddress())
+
+    // Ensure you don't send all your balance away
+    const prevouts = await bProviders.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
     await bob.generate(1)
-    tslaLoanHeight = await bob.container.getBlockCount()
 
-    // assert interest by 27
-    {
-      const interests = await bob.rpc.loan.getInterest('scheme')
-      const height = await bob.container.getBlockCount()
-      const tslaInterestPerBlock = (netInterest * 27) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaInterestTotal = tslaInterestPerBlock * (height + 1 - tslaLoanHeight)
-      expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
-      expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
-    }
-
-    const loanAccAfter = await bob.container.call('getaccount', [bobloanAddr])
-    expect(loanAccAfter).toStrictEqual(['27.00000000@TSLA']) // 40 - 13 = 27
+    const bobColAccAfter = await bob.container.call('getaccount', [bobColAddr])
+    expect(bobColAccAfter).toStrictEqual(['27.00000000@TSLA']) // 40 - 13 = 27
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmounts).toStrictEqual(['27.00003824@TSLA']) // 40.00002283 - 13 + new totalInterest
-    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001541@TSLA'])
-    expect(vaultAfter.loanValue).toStrictEqual(54.00007648) // 27.00003824 * 2 (::1 TSLA = 2 USD)
-    expect(vaultAfter.interestValue).toStrictEqual(0.00003082)
-    expect(vaultAfter.currentRatio).toStrictEqual('27778%') // 15000 / 54.00007648 * 100
+    expect(vaultAfter.loanAmounts).toStrictEqual(['27.00009931@TSLA']) // 40.00004566 - 13 + totalInterest
+    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00003082@TSLA'])
+    expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 USD)
+    expect(vaultAfter.interestValue).toStrictEqual(0.00006164)
+    expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00007648 * 100
 
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000457)
+    expect(burnInfoAfter.paybackburn).toStrictEqual(0.0000137)
   })
 
   it('should loanPayback by anyone', async () => {
@@ -372,25 +412,40 @@ describe('loanPayback success', () => {
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00002283@TSLA'])
     expect(vaultBefore.loanValue).toStrictEqual(80.00004566) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(0.00004566)
-    expect(vaultBefore.currentRatio).toStrictEqual('18750%') // 15000 / 80.0000456 * 100
+    expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.0000456 * 100
 
-    const txid = await alice.rpc.loan.loanPayback({
+    await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
+    const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
+
+    const txn = await aBuilder.loans.loanPayback({
       vaultId: bobVaultId,
-      amounts: '8@TSLA',
-      from: aliceColAddr
-    })
-    expect(typeof txid).toStrictEqual('string')
+      from: aliceColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(13) }]
+    }, aliceColScript)
+
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(alice.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await aProviders.getAddress())
+
+    // Ensure you don't send all your balance away
+    const prevouts = await aProviders.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
     await alice.generate(1)
 
     const loanAccAfter = await bob.container.call('getaccount', [aliceColAddr])
-    expect(loanAccAfter).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '9992.00000000@TSLA'])
+    expect(loanAccAfter).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '9987.00000000@TSLA'])
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmounts).toStrictEqual(['32.00004110@TSLA']) // 40.00002283 - 8 + totalInterest
-    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001827@TSLA'])
-    expect(vaultAfter.loanValue).toStrictEqual(64.0000822) // 32.0000411 * 2 (::1 TSLA = 2 USD)
-    expect(vaultAfter.interestValue).toStrictEqual(0.00003654)
-    expect(vaultAfter.currentRatio).toStrictEqual('23437%') // 15000 / 64.00016436 * 100
+    expect(vaultAfter.loanAmounts).toStrictEqual(['27.00009931@TSLA']) // 40.00002283 - 8 + totalInterest
+    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00003082@TSLA'])
+    expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 USD)
+    expect(vaultAfter.interestValue).toStrictEqual(0.00006164)
+    expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00019862 * 100
   })
 
   it('should loanPayback more than one amount', async () => {
@@ -400,12 +455,12 @@ describe('loanPayback success', () => {
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
       amounts: ['15@AMZN'],
-      to: bobloanAddr
+      to: bobColAddr
     })
-    await bob.generate(1)
     const amznLoanHeight = await bob.container.getBlockCount()
+    await bob.generate(1)
 
-    const loanTokenAccBefore = await bob.container.call('getaccount', [bobloanAddr])
+    const loanTokenAccBefore = await bob.container.call('getaccount', [bobColAddr])
     expect(loanTokenAccBefore).toStrictEqual(['40.00000000@TSLA', '15.00000000@AMZN'])
 
     // first loanPayback
@@ -419,11 +474,11 @@ describe('loanPayback success', () => {
 
       // tsla interest
       const tslaInterestPerBlock = (netInterest * tslaAmt) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaTotalInterest = ((blockHeight + 1 - tslaLoanHeight) * tslaInterestPerBlock)
+      const tslaTotalInterest = ((blockHeight - tslaLoanHeight) * tslaInterestPerBlock)
 
       // amzn interest
       const amznInterestPerBlock = (netInterest * amznAmt) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const amznTotalInterest = ((blockHeight + 1 - amznLoanHeight) * amznInterestPerBlock)
+      const amznTotalInterest = ((blockHeight - amznLoanHeight) * amznInterestPerBlock)
 
       const interests = await bob.rpc.loan.getInterest('scheme')
 
@@ -443,39 +498,68 @@ describe('loanPayback success', () => {
       expect(vaultBefore.loanAmounts).toStrictEqual(['40.00004566@TSLA', '15.00000856@AMZN']) // eg: tslaTakeLoanAmt + tslaTotalInterest
       expect(vaultBefore.interestAmounts).toStrictEqual(['0.00004566@TSLA', '0.00000856@AMZN'])
       expect(vaultBefore.loanValue).toStrictEqual(140.00012556) // (40.00004566 * 2) + (15.00009856 * 4)
-      expect(vaultBefore.currentRatio).toStrictEqual('10714%') // 15000 / 140.00012556 * 100
+      expect(vaultBefore.currentRatio).toStrictEqual(10714) // 15000 / 140.00012556 * 100
 
-      const txid = await bob.rpc.loan.loanPayback({
+      await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+      const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+      const txn = await bBuilder.loans.loanPayback({
         vaultId: bobVaultId,
-        amounts: ['13@TSLA', '6@AMZN'],
-        from: bobloanAddr
-      })
-      expect(typeof txid).toStrictEqual('string')
+        from: bobColScript,
+        tokenAmounts: [{ token: 2, amount: new BigNumber(13) }, { token: 3, amount: new BigNumber(6) }]
+      }, bobColScript)
+
+      // Ensure the created txn is correct
+      const outs = await sendTransaction(bob.container, txn)
+      expect(outs[0].value).toStrictEqual(0)
+      expect(outs[1].value).toBeLessThan(10)
+      expect(outs[1].value).toBeGreaterThan(9.999)
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await bProviders.getAddress())
+
+      // Ensure you don't send all your balance away
+      const prevouts = await bProviders.prevout.all()
+      expect(prevouts.length).toStrictEqual(1)
+      expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+      expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
+
       await bob.generate(1)
 
       const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-      expect(vaultAfter.loanAmounts).toStrictEqual(['27.00006107@TSLA', '9.00001370@AMZN'])
-      expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001541@TSLA', '0.00000514@AMZN'])
-      expect(vaultAfter.loanValue).toStrictEqual(90.00017694)
-      expect(vaultAfter.interestValue).toStrictEqual(0.00005138)
-      expect(vaultAfter.currentRatio).toStrictEqual('16667%')
+      expect(vaultAfter.loanAmounts).toStrictEqual(['27.00012214@TSLA', '9.00003596@AMZN'])
+      expect(vaultAfter.interestAmounts).toStrictEqual(['0.00003082@TSLA', '0.00001028@AMZN'])
+      expect(vaultAfter.loanValue).toStrictEqual(90.00038812)
+      expect(vaultAfter.interestValue).toStrictEqual(0.00010276)
+      expect(vaultAfter.currentRatio).toStrictEqual(16667)
 
-      const loanTokenAccAfter = await bob.container.call('getaccount', [bobloanAddr])
+      const loanTokenAccAfter = await bob.container.call('getaccount', [bobColAddr])
       expect(loanTokenAccAfter).toStrictEqual(['27.00000000@TSLA', '9.00000000@AMZN'])
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00002084)
     }
 
     // second loanPayback
     {
-      const txid2 = await bob.rpc.loan.loanPayback({
+      const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+      const txn = await bBuilder.loans.loanPayback({
         vaultId: bobVaultId,
-        amounts: ['13@TSLA', '6@AMZN'],
-        from: bobloanAddr
-      })
-      expect(typeof txid2).toStrictEqual('string')
-      await bob.generate(1)
+        from: bobColScript,
+        tokenAmounts: [{ token: 2, amount: new BigNumber(13) }, { token: 3, amount: new BigNumber(6) }]
+      }, bobColScript)
+
+      // Ensure the created txn is correct
+      const outs = await sendTransaction(bob.container, txn)
+      expect(outs[0].value).toStrictEqual(0)
+      expect(outs[1].value).toBeLessThan(10)
+      expect(outs[1].value).toBeGreaterThan(9.999)
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await bProviders.getAddress())
+
+      // Ensure you don't send all your balance away
+      const prevouts = await bProviders.prevout.all()
+      expect(prevouts.length).toStrictEqual(1)
+      expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+      expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
       const interests = await bob.rpc.loan.getInterest('scheme')
 
@@ -492,137 +576,101 @@ describe('loanPayback success', () => {
       expect(amzInterestPerBlk).toStrictEqual('0.00000172')
 
       const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-      expect(vaultAfter.loanAmounts).toStrictEqual(['14.00006906@TSLA', '3.00001542@AMZN'])
+      expect(vaultAfter.loanAmounts).toStrictEqual(['14.00013013@TSLA', '3.00003768@AMZN'])
       expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000799@TSLA', '0.00000172@AMZN'])
-      expect(vaultAfter.loanValue).toStrictEqual(40.0001998)
+      expect(vaultAfter.loanValue).toStrictEqual(40.00041098)
       expect(vaultAfter.interestValue).toStrictEqual(0.00002286)
-      expect(vaultAfter.currentRatio).toStrictEqual('37500%')
+      expect(vaultAfter.currentRatio).toStrictEqual(37500)
 
-      const loanTokenAccAfter = await bob.container.call('getaccount', [bobloanAddr])
+      const loanTokenAccAfter = await bob.container.call('getaccount', [bobColAddr])
       expect(loanTokenAccAfter).toStrictEqual(['14.00000000@TSLA', '3.00000000@AMZN']) // (27 - 13), (9 - 6)
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001361)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00002804)
     }
-  })
-
-  it('should loanPayback with utxos', async () => {
-    const vaultBefore = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultBefore.loanAmounts).toStrictEqual(['40.00002283@TSLA']) // 40 + totalInterest
-    expect(vaultBefore.interestAmounts).toStrictEqual(['0.00002283@TSLA'])
-    expect(vaultBefore.loanValue).toStrictEqual(80.00004566) // loanAmount * 2 (::1 TSLA = 2 USD)
-    expect(vaultBefore.interestValue).toStrictEqual(0.00004566)
-    expect(vaultBefore.currentRatio).toStrictEqual('18750%') // 15000 / 80.00004566 * 100
-
-    const utxo = await bob.container.fundAddress(bobloanAddr, 250)
-
-    const txid = await bob.rpc.loan.loanPayback({
-      vaultId: bobVaultId,
-      amounts: '13@TSLA',
-      from: bobloanAddr
-    }, [utxo])
-    expect(typeof txid).toStrictEqual('string')
-    await bob.generate(1)
-
-    const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmounts).toStrictEqual(['27.00006107@TSLA']) // 40.00002283 - 13 + totalInterest
-    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001541@TSLA'])
-    expect(vaultAfter.loanValue).toStrictEqual(54.00012214) // 27.00006107 * 2 (::1 TSLA = 2 USD)
-    expect(vaultAfter.interestValue).toStrictEqual(0.00003082)
-    expect(vaultAfter.currentRatio).toStrictEqual('27778%') // 15000 / 54.00012214 * 100
-
-    const rawtx = await bob.container.call('getrawtransaction', [txid, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 })
 
 describe('loanPayback failed', () => {
-  beforeAll(async () => {
-    await tGroup.start()
-    await alice.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  afterAll(async () => {
-    await tGroup.stop()
-  })
-
-  it('should not loanPayback on nonexistent vault', async () => {
-    const promise = bob.rpc.loan.loanPayback({
-      vaultId: '0'.repeat(64),
-      amounts: '30@TSLA',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Cannot find existing vault with id ${'0'.repeat(64)}`)
-  })
-
-  it('should not loanPayback on nonexistent loan token', async () => {
-    const promise = bob.rpc.loan.loanPayback({
-      vaultId: bobVaultId,
-      amounts: '1@BTC',
-      from: bobloanAddr
-
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Loan token with id (1) does not exist!')
-  })
-
-  it('should not loanPayback on invalid token', async () => {
-    const promise = bob.rpc.loan.loanPayback({
-      vaultId: bobVaultId,
-      amounts: '1@INVALID',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Invalid Defi token: INVALID')
-  })
-
-  it('should not loanPayback on incorrect auth', async () => {
-    const promise = alice.rpc.loan.loanPayback({
-      vaultId: bobVaultId,
-      amounts: '30@TSLA',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`Address (${bobloanAddr}) is not owned by the wallet`)
-  })
-
-  it('should not loanPayback as no loan on vault', async () => {
-    const promise = bob.rpc.loan.loanPayback({
-      vaultId: bobVaultId1,
-      amounts: '30@TSLA',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow(`There are no loans on this vault (${bobVaultId1})`)
-  })
-
   it('should not loanPayback while insufficient amount', async () => {
     const vault = await bob.rpc.loan.getVault(bobVaultId)
     expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
 
-    const bobLoanAcc = await bob.rpc.account.getAccount(bobloanAddr)
+    const bobLoanAcc = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobLoanAcc).toStrictEqual(['40.00000000@TSLA'])
 
-    const promise = bob.rpc.loan.loanPayback({
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+    const script = await bProviders.elliptic.script()
+
+    const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId,
-      amounts: '41@TSLA',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    // loanAmount 40.00002283 - balance 40 =  0.00002283
-    await expect(promise).rejects.toThrow('amount 0.00000000 is less than 0.00002283')
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(41) }]
+    }, script)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('amount 0.00000000 is less than 0.00006849')
+  })
+
+  it('should not loanPayback on nonexistent vault', async () => {
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
+      vaultId: '0'.repeat(64),
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`Cannot find existing vault with id ${'0'.repeat(64)}`)
+  })
+
+  it('should not loanPayback on nonexistent loan token', async () => {
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
+      vaultId: bobVaultId,
+      from: bobColScript,
+      tokenAmounts: [{ token: 1, amount: new BigNumber(1) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('Loan token with id (1) does not exist!')
+  })
+
+  it('should not loanPayback as no loan on vault', async () => {
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
+      vaultId: bobVaultId1,
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`There are no loans on this vault (${bobVaultId1})`)
   })
 
   it('should not loanPayback as no token in this vault', async () => {
-    const promise = bob.rpc.loan.loanPayback({
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId,
-      amounts: '30@AMZN',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
+      from: bobColScript,
+      tokenAmounts: [{ token: 3, amount: new BigNumber(30) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('There is no loan on token (AMZN) in this vault!')
   })
 
@@ -633,12 +681,17 @@ describe('loanPayback failed', () => {
     })
     await bob.generate(1)
 
-    const promise = bob.rpc.loan.loanPayback({
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
       vaultId: emptyVaultId,
-      amounts: '30@AMZN',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow(`Vault with id ${emptyVaultId} has no collaterals`)
   })
 
@@ -648,23 +701,32 @@ describe('loanPayback failed', () => {
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inliquidation')
 
-    const promise = bob.rpc.loan.loanPayback({
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await bBuilder.loans.loanPayback({
       vaultId: bobLiqVaultId,
-      amounts: '30@UBER',
-      from: bobloanAddr
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('Cannot payback loan on vault under liquidation')
   })
 
   it('should not loanPayback with arbitrary utxo', async () => {
-    const utxo = await bob.container.fundAddress(bobVaultAddr, 250)
-    const promise = bob.rpc.loan.loanPayback({
+    await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
+    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const txn = await aBuilder.loans.loanPayback({
       vaultId: bobVaultId,
-      amounts: '13@TSLA',
-      from: bobloanAddr
-    }, [utxo])
-    await expect(promise).rejects.toThrow(RpcApiError)
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
+    }, bobColScript)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
   })
 })
