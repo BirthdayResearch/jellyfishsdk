@@ -223,7 +223,11 @@ export class Loan {
    * @return {Promise<VaultDetails>}
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
-    return await this.client.call('getvault', [vaultId], 'bignumber')
+    return await this.client.call(
+      'getvault',
+      [vaultId],
+      { collateralAmounts: 'bignumber' }
+    )
   }
 
   /**
@@ -405,6 +409,9 @@ export interface VaultDetails {
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
+  liquidationHeight: BigNumber
+  liquidationPenalty: BigNumber
+  batchCount: BigNumber
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]

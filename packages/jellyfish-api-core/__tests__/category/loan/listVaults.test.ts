@@ -231,13 +231,13 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        state: 'active'
+        isUnderLiquidation: false
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'scheme',
-        state: 'active'
+        isUnderLiquidation: false
       }
     ]))
   })
@@ -250,7 +250,7 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        state: 'active'
+        isUnderLiquidation: false
       }
     ])
   })
@@ -263,19 +263,19 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        state: 'active'
+        isUnderLiquidation: false
       },
       {
         vaultId: vaultId2,
         ownerAddress: ownerAddress2,
         loanSchemeId: 'default',
-        state: 'active'
+        isUnderLiquidation: false
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        state: 'active'
+        isUnderLiquidation: false
       }
     ]))
 
@@ -285,7 +285,7 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId4,
         ownerAddress: ownerAddress4,
         loanSchemeId: 'default',
-        state: 'inliquidation'
+        isUnderLiquidation: true
       }
     ])
   })

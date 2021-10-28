@@ -146,7 +146,7 @@ describe('Loan getVault', () => {
       loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       interestValue: new BigNumber(0.0000114),
       // lround ((collateral value / loan value) * 100)
-      currentRatio: `${currentRatioValue}%`
+      currentRatio: new BigNumber(currentRatioValue)
     })
   })
 
@@ -179,9 +179,12 @@ describe('Loan getVault', () => {
     const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
     expect(vaultDataAfterPriceHike).toStrictEqual({
       vaultId: vaultId,
+      liquidationHeight: new BigNumber('168'),
+      liquidationPenalty: new BigNumber('5'),
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       state: VaultState.IN_LIQUIDATION,
+      batchCount: new BigNumber('2'),
       batches: autionDetails.filter((auction: {vaultId: string}) => auction.vaultId === vaultId).map((auction: {batches: []}) => auction.batches)[0]
     })
 
