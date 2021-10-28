@@ -223,22 +223,11 @@ export class Loan {
    * @return {Promise<VaultDetails>}
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
-    return await this.client.call('getvault', [vaultId], 'bignumber')
-  }
-
-  /**
-   * Close vault
-   *
-   * @param {CloseVault} closeVault
-   * @param {string} closeVault.vaultId Vault id
-   * @param {string} closeVault.to Valid address to receive collateral tokens
-   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} utxos.txid Transaction Id
-   * @param {number} utxos.vout Output number
-   * @return {Promise<string>}
-   */
-  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
+    return await this.client.call(
+      'getvault',
+      [vaultId],
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
+    )
   }
 
   /**
@@ -255,7 +244,26 @@ export class Loan {
    * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
    */
   async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
-    return await this.client.call('listvaults', [options, pagination], 'bignumber')
+    return await this.client.call(
+      'listvaults',
+      [options, pagination],
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
+    )
+  }
+
+  /**
+   * Close vault
+   *
+   * @param {CloseVault} closeVault
+   * @param {string} closeVault.vaultId Vault id
+   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
   }
 
   /**
@@ -405,17 +413,18 @@ export interface VaultDetails {
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
-  liquidationHeight: BigNumber
-  liquidationPenalty: BigNumber
-  batchCount: BigNumber
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  isUnderLiquidation?: boolean
+  batchCount?: number
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber
-  currentRatio?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
 export interface AuctionBatchDetails {

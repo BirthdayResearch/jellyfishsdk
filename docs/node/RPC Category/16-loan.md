@@ -367,39 +367,29 @@ enum VaultState {
   FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
 }
 
-interface VaultDetails {
+export interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
+  state: VaultState
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
   batches?: AuctionBatchDetails[]
+  isUnderLiquidation?: boolean
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber,
-  currentRatio?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
 interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
-}
-```
-
-## closeVault
-
-Close vault.
-
-```ts title="client.loan.closeVault()"
-interface loan {
-  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
-}
-
-interface CloseVault {
-  vaultId: string
-  to: string
 }
 ```
 
@@ -424,26 +414,44 @@ interface VaultPagination {
   limit?: number
 }
 
-interface VaultDetails {
+export interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
+  state: VaultState
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
   batches?: AuctionBatchDetails[]
+  isUnderLiquidation?: boolean
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber,
-  currentRatio?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
 interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+```
+
+## closeVault
+
+Close vault.
+
+```ts title="client.loan.closeVault()"
+interface loan {
+  closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface CloseVault {
+  vaultId: string
+  to: string
 }
 ```
 

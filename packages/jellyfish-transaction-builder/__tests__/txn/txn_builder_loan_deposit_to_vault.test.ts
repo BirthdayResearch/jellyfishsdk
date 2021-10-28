@@ -131,7 +131,7 @@ describe('loans.depositToVault', () => {
     await tGroup.waitForSync()
   }
 
-  it.only('should depositToVault', async () => {
+  it('should depositToVault', async () => {
     {
       const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId)
       const script = await providers.elliptic.script()
@@ -158,7 +158,6 @@ describe('loans.depositToVault', () => {
       await tGroup.waitForSync()
 
       const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId)
-      console.log('vaultAfter: ', vaultAfter)
       // check the changes after deposit
       // calculate DFI collateral value with factor
       const dfiDeposit = 10000 * 1 * 1 // deposit 10000 DFI * priceFeed 1 USD * 1 factor
