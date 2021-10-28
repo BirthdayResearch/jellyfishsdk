@@ -108,6 +108,64 @@ describe('Loan updateVault', () => {
     })
   })
 
+  it('should updateVault with owner address only', async () => {
+    const ownerAddress = await testing.generateAddress()
+    await testing.rpc.loan.updateVault(createVaultId, {
+      ownerAddress
+    })
+    await testing.generate(1)
+
+    const data = await testing.rpc.loan.getVault(createVaultId)
+    expect(data.ownerAddress).toStrictEqual(ownerAddress)
+  })
+
+  it('should updateVault with loanSchemeId only', async () => {
+    await testing.rpc.loan.updateVault(createVaultId, {
+      loanSchemeId: 'scheme'
+    })
+    await testing.generate(1)
+
+    const data = await testing.rpc.loan.getVault(createVaultId)
+    expect(data.loanSchemeId).toStrictEqual('scheme')
+  })
+
+  it('should not updateVault if vaultId is invalid', async () => {
+    const promise = testing.rpc.loan.updateVault('b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60', {
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Vault <b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60> does not found\', code: -5, method: updatevault')
+  })
+
+  it('should not updateVault if the length of vaultId is not 64', async () => {
+    const promise = testing.rpc.loan.updateVault('x', {
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 1, for \'x\')\', code: -8, method: updatevault')
+  })
+
+  it('should not updateVault if ownerAddress is invalid', async () => {
+    const promise = testing.rpc.loan.updateVault(createVaultId, {
+      ownerAddress: 'INVALID_OWNER_ADDRESS'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Error: Invalid owner address\', code: -5, method: updatevault')
+  })
+
+  it('should not updateVault if loanSchemeId is invalid', async () => {
+    const promise = testing.rpc.loan.updateVault(createVaultId, {
+      loanSchemeId: 'INVALID_SCHEME_ID'
+    })
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot find existing loan scheme with id INVALID_SCHEME_ID\', code: -32600, method: updatevault')
+  })
+
+  it('should not updateVault if owner address and loanSchemeId are not set', async () => {
+    const promise = testing.rpc.loan.updateVault(createVaultId, {})
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'At least ownerAddress OR loanSchemeId must be set\', code: -8, method: updatevault')
+  })
+
   it('should not updateVault if any of the asset\'s price is invalid', async () => {
     // Create another vault
     const vaultId = await testing.rpc.loan.createVault({
@@ -150,16 +208,6 @@ describe('Loan updateVault', () => {
 
     await testing.container.waitForPriceInvalid('DFI/USD')
     await testing.container.waitForPriceValid('DFI/USD')
-  })
-
-  it('should updateVault with loanSchemeId only', async () => {
-    await testing.rpc.loan.updateVault(createVaultId, {
-      loanSchemeId: 'scheme'
-    })
-    await testing.generate(1)
-
-    const data = await testing.rpc.loan.getVault(createVaultId)
-    expect(data.loanSchemeId).toStrictEqual('scheme')
   })
 
   it('should not updateVault if new chosen scheme could trigger liquidation', async () => {
@@ -229,67 +277,10 @@ describe('Loan updateVault', () => {
     })
     await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: updatevault')
 
-    // DFI price recovers back to the original price
+    // Update back the price
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.generate(6)
-  })
-
-  it('should updateVault with loanSchemeId only', async () => {
-    await testing.rpc.loan.updateVault(createVaultId, {
-      loanSchemeId: 'scheme'
-    })
-    await testing.generate(1)
-
-    const data = await testing.rpc.loan.getVault(createVaultId)
-    expect(data.loanSchemeId).toStrictEqual('scheme')
-  })
-
-  it('should updateVault with owner address only', async () => {
-    const ownerAddress = await testing.generateAddress()
-    await testing.rpc.loan.updateVault(createVaultId, {
-      ownerAddress
-    })
-    await testing.generate(1)
-
-    const data = await testing.rpc.loan.getVault(createVaultId)
-    expect(data.ownerAddress).toStrictEqual(ownerAddress)
-  })
-
-  it('should not updateVault if vaultId is invalid', async () => {
-    const promise = testing.rpc.loan.updateVault('b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60', {
-      ownerAddress: await testing.generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Vault <b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60> does not found\', code: -5, method: updatevault')
-  })
-
-  it('should not updateVault if the length of vaultId is not 64', async () => {
-    const promise = testing.rpc.loan.updateVault('x', {
-      ownerAddress: await testing.generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 1, for \'x\')\', code: -8, method: updatevault')
-  })
-
-  it('should not updateVault if ownerAddress is invalid', async () => {
-    const promise = testing.rpc.loan.updateVault(createVaultId, {
-      ownerAddress: 'INVALID_OWNER_ADDRESS'
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Error: Invalid owner address\', code: -5, method: updatevault')
-  })
-
-  it('should not updateVault if loanSchemeId is invalid', async () => {
-    const promise = testing.rpc.loan.updateVault(createVaultId, {
-      loanSchemeId: 'INVALID_SCHEME_ID'
-    })
-
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot find existing loan scheme with id INVALID_SCHEME_ID\', code: -32600, method: updatevault')
-  })
-
-  it('should not updateVault if owner address and loanSchemeId are not set', async () => {
-    const promise = testing.rpc.loan.updateVault(createVaultId, {})
-
-    await expect(promise).rejects.toThrow('RpcApiError: \'At least ownerAddress OR loanSchemeId must be set\', code: -8, method: updatevault')
+    await testing.container.waitForPriceInvalid('DFI/USD')
+    await testing.container.waitForPriceValid('DFI/USD')
   })
 
   it('should updateVault with utxos', async () => {

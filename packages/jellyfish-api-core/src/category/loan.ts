@@ -222,7 +222,7 @@ export class Loan {
    * @param {string} vaultId
    * @param {UpdateVault} vault
    * @param {string} [vault.ownerAddress] Any valid address
-   * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
+   * @param {string} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
