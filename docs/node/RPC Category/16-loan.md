@@ -367,7 +367,7 @@ enum VaultState {
   FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
 }
 
-export interface VaultDetails {
+interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
@@ -376,7 +376,6 @@ export interface VaultDetails {
   liquidationPenalty?: number
   batchCount?: number
   batches?: AuctionBatchDetails[]
-  isUnderLiquidation?: boolean
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
@@ -399,8 +398,16 @@ List all available vaults.
 
 ```ts title="client.loan.listVaults()"
 interface loan {
-  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
 }
+
+interface ListVaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+}
+
 
 interface ListVaultOptions {
   ownerAddress?: string
@@ -412,31 +419,6 @@ interface VaultPagination {
   start?: string
   including_start?: boolean
   limit?: number
-}
-
-export interface VaultDetails {
-  vaultId: string
-  loanSchemeId: string
-  ownerAddress: string
-  state: VaultState
-  liquidationHeight?: number
-  liquidationPenalty?: number
-  batchCount?: number
-  batches?: AuctionBatchDetails[]
-  isUnderLiquidation?: boolean
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
-}
-
-interface AuctionBatchDetails {
-  index: BigNumber
-  collaterals: string[]
-  loan: string
 }
 ```
 
@@ -506,7 +488,7 @@ interface loan {
   loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-export interface LoanPaybackMetadata {
+interface LoanPaybackMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string

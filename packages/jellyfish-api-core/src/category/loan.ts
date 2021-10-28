@@ -241,14 +241,10 @@ export class Loan {
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
    * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
-   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
+   * @return {Promise<ListVaultDetails[]>} Array of objects including details of the vaults.
    */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
-    return await this.client.call(
-      'listvaults',
-      [options, pagination],
-      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
-    )
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]> {
+    return await this.client.call('listvaults', [options, pagination], 'number')
   }
 
   /**
@@ -415,7 +411,6 @@ export interface VaultDetails {
   state: VaultState
   liquidationHeight?: number
   liquidationPenalty?: number
-  isUnderLiquidation?: boolean
   batchCount?: number
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
@@ -431,6 +426,13 @@ export interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+
+export interface ListVaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
 }
 
 export interface UTXO {
