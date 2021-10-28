@@ -385,7 +385,6 @@ interface VaultDetails {
   currentRatio?: number
 }
 
-
 interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
