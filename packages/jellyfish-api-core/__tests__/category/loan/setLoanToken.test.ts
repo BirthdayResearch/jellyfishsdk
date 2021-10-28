@@ -2,7 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
-import { ListLoanTokenResult } from '../../../src/category/loan'
+import { LoanTokenResult } from '../../../src/category/loan'
 import { TokenInfo } from '../../../src/category/token'
 
 describe('Loan setLoanToken', () => {
@@ -83,7 +83,7 @@ describe('Loan setLoanToken', () => {
     await testing.generate(1)
 
     const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: ListLoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
+    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === `${'x'.repeat(8)}/USD`)
     const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
     expect(token.symbol).toStrictEqual('x'.repeat(8)) // Only remain the first 8 letters
   })

@@ -8,6 +8,7 @@ describe('Loan getInterest', () => {
   const testing = Testing.create(container)
   let interestTSLABlockHeight: number
   let txUber: string
+  let vaultId: string
 
   async function setup (): Promise<void> {
     // token setup
@@ -71,7 +72,7 @@ describe('Loan getInterest', () => {
     await testing.generate(1)
 
     const vaultAddress = await testing.generateAddress()
-    const vaultId = await testing.rpc.loan.createVault({
+    vaultId = await testing.rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })

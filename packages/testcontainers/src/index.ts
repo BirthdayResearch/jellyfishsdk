@@ -1,22 +1,24 @@
-import { RegTestGenesisKeys, MasterNodeKey as MNK } from '@defichain/jellyfish-network'
+import { MasterNodeKey as MNK, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 export { DockerOptions } from 'dockerode'
 
 /**
  * Moved to @defichain/jellyfish-network
- * @deprecated use `import { RegTestGenesisKeys } from '@defichain/jellyfish-network'`
+ * @deprecated use `import { RegTestFoundationKeys } from '@defichain/jellyfish-network'`
  */
-export const GenesisKeys = RegTestGenesisKeys
+export const GenesisKeys = RegTestFoundationKeys
 /**
  * Moved to @defichain/jellyfish-network
  * @deprecated use `import { MasterNodeKey } from '@defichain/jellyfish-network'`
  */
 export type MasterNodeKey = MNK
 
-export * from './chains/defid_container'
-export * from './chains/main_net_container'
-export * from './chains/test_net_container'
-export * from './chains/reg_test_container/index'
-export * from './chains/reg_test_container/masternode'
-export * from './chains/reg_test_container/persistent'
-export * from './chains/reg_test_container/container_group'
+export * from './containers/DeFiDContainer'
+export * from './containers/MainNetContainer'
+export * from './containers/TestNetContainer'
+export * from './containers/RegTestContainer/index'
+export * from './containers/RegTestContainer/Masternode'
+export * from './containers/RegTestContainer/Persistent'
+export * from './containers/RegTestContainer/ContainerGroup'
+
+export * from './containers/RegTestContainer/LoanContainer'
