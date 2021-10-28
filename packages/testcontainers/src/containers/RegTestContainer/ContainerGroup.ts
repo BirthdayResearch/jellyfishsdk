@@ -32,7 +32,7 @@ export class ContainerGroup {
           Config: []
         }
       }, (err, data) => {
-        if (err instanceof Error) {
+        if (err instanceof Error || data === undefined) {
           return reject(err)
         }
         return resolve(data)
@@ -108,6 +108,7 @@ export class ContainerGroup {
       await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
+
     await this.requireNetwork().remove()
     await this.docker.pruneContainers()
   }

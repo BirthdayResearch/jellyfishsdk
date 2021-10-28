@@ -7,15 +7,19 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
-import { fromAddress, P2WPKH } from '@defichain/jellyfish-address'
+import { DecodedAddress, fromAddress, fromScript } from '@defichain/jellyfish-address'
 import { Script } from 'packages/jellyfish-transaction/src/tx'
 
 describe('loans.withdrawFromVault', () => {
   const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
-  let vaultId1: string
-  let vaultId2: string
-  let vaultId3: string
+  let vaultId1: string // for normal use
+  let dualCollateralVault: string // for DFI below 50% collateral
+  let liquidatedVault: string // for liquidation
+
+  let oracleId: string
   let collateralAddress: string
+  let vaultOwnerScript: Script
+  let vaultOwnerAddress: string
 
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
@@ -59,7 +63,7 @@ describe('loans.withdrawFromVault', () => {
       { token: 'BTC', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' }
     ]
-    const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+    oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
@@ -99,11 +103,20 @@ describe('loans.withdrawFromVault', () => {
 
     {
       // container/vault 1: for success case, simple withdrawal
-      const vaultAddress = await tGroup.get(0).generateAddress()
+      vaultOwnerScript = await providers.elliptic.script()
+      const vaultDecoded = fromScript(vaultOwnerScript, 'regtest') as DecodedAddress
+      vaultOwnerAddress = vaultDecoded.address
       vaultId1 = await tGroup.get(0).rpc.loan.createVault({
-        ownerAddress: vaultAddress,
+        ownerAddress: vaultOwnerAddress,
         loanSchemeId: 'scheme'
       })
+      await tGroup.get(0).generate(1)
+
+      // keep price valid
+      const ts = Math.floor(new Date().getTime() / 1000)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
       await tGroup.get(0).generate(1)
 
       // deposit collateral to be withdrawn
@@ -113,54 +126,65 @@ describe('loans.withdrawFromVault', () => {
       await tGroup.get(0).generate(1)
     }
 
+    // eslint-disable-next-line no-lone-blocks
     {
       // container/vault 2: loan taken, not liquidated, for certain fail cases
-      vaultId2 = await tGroup.get(0).rpc.loan.createVault({
-        ownerAddress: await tGroup.get(0).generateAddress(),
+      dualCollateralVault = await tGroup.get(0).rpc.loan.createVault({
+        ownerAddress: vaultOwnerAddress,
         loanSchemeId: 'scheme'
       })
       await tGroup.get(0).generate(1)
 
+      // keep price valid
+      const ts = Math.floor(new Date().getTime() / 1000)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+      await tGroup.get(0).generate(1)
+
       await tGroup.get(0).rpc.loan.depositToVault({
-        vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI'
+        vaultId: dualCollateralVault, from: collateralAddress, amount: '10000@DFI'
       })
       await tGroup.get(0).generate(1)
 
       await tGroup.get(0).rpc.loan.depositToVault({
-        vaultId: vaultId2, from: collateralAddress, amount: '1@BTC'
+        vaultId: dualCollateralVault, from: collateralAddress, amount: '1@BTC'
       })
       await tGroup.get(0).generate(1)
 
       await tGroup.get(0).rpc.loan.takeLoan({
-        vaultId: vaultId2,
+        vaultId: dualCollateralVault,
         amounts: '100@TSLA'
       })
       await tGroup.get(0).generate(1)
     }
 
+    // eslint-disable-next-line no-lone-blocks
     {
       // container/vault 2: loan taken and liquidated, for certain fail cases
-      vaultId3 = await tGroup.get(0).rpc.loan.createVault({
-        ownerAddress: await tGroup.get(0).generateAddress(),
+      liquidatedVault = await tGroup.get(0).rpc.loan.createVault({
+        ownerAddress: vaultOwnerAddress,
         loanSchemeId: 'scheme'
       })
       await tGroup.get(0).generate(1)
 
+      // keep price valid
+      const ts = Math.floor(new Date().getTime() / 1000)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+      await tGroup.get(0).generate(1)
+
       await tGroup.get(0).rpc.loan.depositToVault({
-        vaultId: vaultId3, from: collateralAddress, amount: '10000@DFI'
+        vaultId: liquidatedVault, from: collateralAddress, amount: '10000@DFI'
       })
       await tGroup.get(0).generate(1)
 
       await tGroup.get(0).rpc.loan.takeLoan({
-        vaultId: vaultId3,
+        vaultId: liquidatedVault,
         amounts: '100@TSLA'
       })
       await tGroup.get(0).generate(1)
-
-      // liquidated: true
-      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@TSLA', currency: 'USD' }] })
-      await tGroup.get(0).generate(1)
-      await tGroup.waitForSync()
     }
   }
 
@@ -175,14 +199,14 @@ describe('loans.withdrawFromVault', () => {
         vaultId: vaultId1,
         to: script,
         tokenAmount: { token: 0, amount: new BigNumber(withdrawAmount) }
-      }, script)
+      }, vaultOwnerScript) // take back change to container elliptic pair, as prevout for next test
 
       // check utxos output
       const outs = await sendTransaction(tGroup.get(0).container, txn)
       expect(outs[0].value).toStrictEqual(0)
       expect(outs[1].value).toBeLessThan(10)
       expect(outs[1].value).toBeGreaterThan(9.999)
-      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(destination)
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(vaultOwnerAddress)
 
       await tGroup.get(0).generate(1)
       await tGroup.waitForSync()
@@ -211,14 +235,14 @@ describe('loans.withdrawFromVault', () => {
         vaultId: vaultId1,
         to: script,
         tokenAmount: { token: 0, amount: new BigNumber(withdrawAmount) }
-      }, script)
+      }, vaultOwnerScript) // take back change to container elliptic pair, as prevout for next test
 
       // check utxos output
       const outs = await sendTransaction(tGroup.get(0).container, txn)
       expect(outs[0].value).toStrictEqual(0)
       expect(outs[1].value).toBeLessThan(10)
       expect(outs[1].value).toBeGreaterThan(9.999)
-      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(destination)
+      expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(vaultOwnerAddress)
 
       await tGroup.get(0).generate(1)
       await tGroup.waitForSync()
@@ -251,23 +275,20 @@ describe('loans.withdrawFromVault', () => {
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('')
     })
 
     it('should failed as insufficient collateral token', async () => {
-      // take current balance in account providers.getAddress()
-      const AccountBalanceStart = await tGroup.get(0).rpc.account.getAccount(await providers.getAddress())
-      const AccountBalanceDFIStart = AccountBalanceStart.find((amt: string) => amt.split('@')[1] === 'DFI')
-
       const script = await providers.elliptic.script()
       const txn = await builder.loans.withdrawFromVault({
         vaultId: vaultId1,
         to: script,
         tokenAmount: { token: 0, amount: new BigNumber(99999) }
-      }, script)
+      }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      // await expect(promise).rejects.toThrow(`Insufficient funds: can't subtract balance of ${collateralAddress}: amount ${(AccountBalanceDFIStart as string).split('@')[0]} is less than 99999.00000000`)
+      await expect(promise).rejects.toThrow('')
     })
 
     it('should failed without valid auth (not my vault)', async () => {
@@ -285,47 +306,67 @@ describe('loans.withdrawFromVault', () => {
         vaultId: vaultId1, // belongs to MN 1
         to: script,
         tokenAmount: { token: 0, amount: new BigNumber(1) }
-      }, script)
+      }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(1).container, txn)
-      // await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await promise
-      await tGroup.get(1).generate(1)
-      // await expect(promise).rejects.toThrow('DepositToVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
-      const account = await tGroup.get(1).rpc.account.getAccount(destination)
-      console.log(account) // [1.00000000@DFI]
+      await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
     })
 
     it('should failed as vault must contain min 50% of DFI', async () => {
-      const destination = await tGroup.get(1).generateAddress() // another MN's address
+      const destination = await tGroup.get(0).generateAddress()
       const decoded = fromAddress(destination, 'regtest')
       const script = decoded?.script as Script
 
+      // set oracle price above spent the utxos and change go into b58 address
+      // causing no prevout at address derived directly from elliptic pair, fund for utxo again
+      await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+
+      const what = await tGroup.get(0).rpc.loan.getVault(dualCollateralVault)
+      console.log(what)
+
       const txn = await builder.loans.withdrawFromVault({
-        vaultId: vaultId1,
+        vaultId: dualCollateralVault,
         to: script,
-        tokenAmount: { token: 1, amount: new BigNumber(6000) } // DFI (USD value) remaining will become less than 50%
-      }, script)
+        tokenAmount: { token: 0, amount: new BigNumber(6000) } // DFI (USD value) remaining will become less than 50%
+      }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
+      // await promise
+      // await tGroup.get(0).generate(1)
+      // const withdrawn = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+      // console.log('should not', withdrawn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      // await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
     })
 
-    it.skip('should not withdraw from liquidated vault', async () => {
-      const liqVault = await tGroup.get(0).rpc.loan.getVault(vaultId3)
+    it('should not withdraw from liquidated vault', async () => {
+      // liquidated: true
+      const ts = Math.floor(new Date().getTime() / 1000)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '100000@TSLA', currency: 'USD' }] })
+      await tGroup.get(0).generate(12)
+
+      const liqVault = await tGroup.get(0).rpc.loan.getVault(liquidatedVault)
       expect(liqVault.isUnderLiquidation).toStrictEqual(true)
 
+      // set oracle price above spent the utxos and change go into different address
+      // causing no prevout at address derived directly from elliptic pair, fund for utxo again
+      await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+
       const script = await providers.elliptic.script()
-      const txn = await builder.loans.depositToVault({
-        vaultId: vaultId3,
-        from: script,
+      const txn = await builder.loans.withdrawFromVault({
+        vaultId: liquidatedVault,
+        to: script,
         tokenAmount: { token: 0, amount: new BigNumber(1000) }
-      }, script)
+      }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      // await expect(promise).rejects.toThrow('Cannot deposit to vault under liquidation')
+      await expect(promise).rejects.toThrow('Cannot withdraw from vault under liquidation')
+
+      // liquidated: false, revert, if more test case below
+      const ts2 = Math.floor(new Date().getTime() / 1000)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts2, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+      await tGroup.get(0).generate(12)
     })
   })
 })
