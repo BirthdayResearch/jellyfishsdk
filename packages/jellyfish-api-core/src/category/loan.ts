@@ -240,10 +240,10 @@ export class Loan {
    * @param {ListVaultOptions} [options]
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
-   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
-   * @return {Promise<ListVaultDetails[]>} Array of objects including details of the vaults.
+   * @param {boolean} [options.state = 'Collateralized'] vault's state
+   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
    */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]> {
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
     return await this.client.call('listvaults', [options, pagination], 'number')
   }
 
@@ -307,7 +307,7 @@ export class Loan {
    * @return {Promise<string>} txid
    */
   async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('loanpayback', [metadata, utxos], 'number')
+    return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
 }
 
@@ -401,7 +401,6 @@ export enum VaultState {
   IN_LIQUIDATION = 'inliquidation',
   FROZEN = 'frozen',
   MAY_LIQUIDATE = 'mayliquidate',
-  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
 }
 
 export interface VaultDetails {
@@ -426,13 +425,6 @@ export interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
-}
-
-export interface ListVaultDetails {
-  vaultId: string
-  loanSchemeId: string
-  ownerAddress: string
-  isUnderLiquidation: boolean
 }
 
 export interface UTXO {
@@ -467,7 +459,7 @@ export interface VaultPagination {
 export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
-  isUnderLiquidation?: boolean
+  state?: VaultState
 }
 
 export interface CloseVault {

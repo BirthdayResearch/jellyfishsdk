@@ -401,18 +401,34 @@ interface loan {
   listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
 }
 
-interface ListVaultDetails {
+interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
+  state: VaultState
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
 
 interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
-  isUnderLiquidation?: boolean
+  state?: VaultState
 }
 
 interface VaultPagination {
