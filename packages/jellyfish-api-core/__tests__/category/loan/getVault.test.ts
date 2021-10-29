@@ -1,6 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
+import { VaultState } from '../../../src/category/loan'
 
 describe('Loan getVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -72,15 +73,14 @@ describe('Loan getVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      currentRatio: expect.any(Number)
     })
   })
 
@@ -99,8 +99,7 @@ describe('Loan getVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
       loanAmounts: [],
       interestAmounts: [],
@@ -108,7 +107,7 @@ describe('Loan getVault', () => {
       collateralValue: new BigNumber(10000 * 1 * 1).plus(new BigNumber(1 * 10000 * 0.5)),
       loanValue: new BigNumber(0),
       interestValue: '',
-      currentRatio: new BigNumber(-1)
+      currentRatio: -1
     })
   })
 
@@ -130,14 +129,13 @@ describe('Loan getVault', () => {
     const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
     const data = await testing.rpc.loan.getVault(vaultId)
-    const currentRatioValue: string = data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100).toFixed(0, 4) as string
+    const currentRatioValue: number = data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100).toNumber() as number
 
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
       // 30 TSLA + total interest
       loanAmounts: [new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8) + '@TSLA'], // 30.00001140@TSLA
@@ -148,7 +146,7 @@ describe('Loan getVault', () => {
       loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       interestValue: new BigNumber(0.0000114),
       // lround ((collateral value / loan value) * 100)
-      currentRatio: `${currentRatioValue}%`
+      currentRatio: Math.ceil(currentRatioValue)
     })
   })
 
@@ -168,7 +166,7 @@ describe('Loan getVault', () => {
 
     // check vault not under liquidation.
     const data = await testing.rpc.loan.getVault(vaultId)
-    expect(data.isUnderLiquidation).toStrictEqual(false)
+    expect(data.state).toStrictEqual(VaultState.ACTIVE)
 
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
@@ -176,15 +174,17 @@ describe('Loan getVault', () => {
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
-    const autionDetails: [] = await testing.rpc.call('listauctions', [], 'bignumber')
+    const autionDetails: [] = await testing.container.call('listauctions')
 
     const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
     expect(vaultDataAfterPriceHike).toStrictEqual({
       vaultId: vaultId,
+      liquidationHeight: 168,
+      liquidationPenalty: 5,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: true,
-      invalidPrice: false,
+      state: VaultState.IN_LIQUIDATION,
+      batchCount: 2,
       batches: autionDetails.filter((auction: {vaultId: string}) => auction.vaultId === vaultId).map((auction: {batches: []}) => auction.batches)[0]
     })
 

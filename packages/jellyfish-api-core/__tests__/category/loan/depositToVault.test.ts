@@ -170,7 +170,7 @@ describe('Loan depositToVault', () => {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
       expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
-      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
+      expect(vaultBefore.state).toStrictEqual('active')
       expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
       expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
@@ -191,7 +191,7 @@ describe('Loan depositToVault', () => {
       // check the changes after deposit
       expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
       expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
-      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
+      expect(vaultAfter.state).toStrictEqual(vaultBefore.state)
       expect(vaultAfter.loanAmounts).toStrictEqual(vaultBefore.loanAmounts)
       expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
       expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
@@ -319,7 +319,7 @@ describe('Loan depositToVault', () => {
     await tGroup.get(0).generate(6)
 
     const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
-    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    expect(liqVault.state).toStrictEqual('inliquidation')
 
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '1000@DFI'
