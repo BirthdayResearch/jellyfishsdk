@@ -79,11 +79,13 @@ describe('loans.createVault', () => {
       vaultId: txid,
       loanSchemeId: 'scheme',
       ownerAddress: await providers.getAddress(),
-      isUnderLiquidation: false,
+      state: 'active',
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -112,11 +114,13 @@ describe('loans.createVault', () => {
       vaultId: txid,
       loanSchemeId: 'default',
       ownerAddress: await providers.getAddress(),
-      isUnderLiquidation: false,
+      state: 'active',
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -145,11 +149,13 @@ describe('loans.createVault', () => {
       vaultId: txid,
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
-      isUnderLiquidation: false,
+      state: 'active',
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
 
@@ -177,11 +183,13 @@ describe('loans.createVault', () => {
       vaultId: txid2,
       loanSchemeId: 'scheme2',
       ownerAddress: await providers.getAddress(),
-      isUnderLiquidation: false,
+      state: 'active',
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
 
@@ -218,11 +226,13 @@ describe('loans.createVault', () => {
       vaultId: txid,
       loanSchemeId: 'scheme',
       ownerAddress: 'bcrt1q0uajendn9xpv87jnsqgjmlad3fne9waf9sxckc',
-      isUnderLiquidation: false,
+      state: 'active',
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })

@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: NPM Release Publishing
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: actions/checkout@1e204e9a9253d643386038d443f96446fa156a97
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
         with:
           node-version: '15'
@@ -29,7 +29,12 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm run version ${{ steps.version.outputs.result }}
+      - run: npm run version:set ${{ steps.version.outputs.result }}
+
+      - name: find and replace peerDependencies # because lerna doesn't update peers deps
+        # TODO(fuxingloh): add ocean/*/package.json when enabled
+        run: |
+          find packages/*/package.json -type f -exec sed -i 's#    "defichain": "0.0.0"#    "defichain": "${{ steps.version.outputs.result }}"#g' {} \;
 
       - name: Publish
         run: |

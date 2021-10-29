@@ -1,7 +1,7 @@
 import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'cross-fetch'
-import { DockerContainer } from './docker_container'
-import { waitForCondition } from '../wait_for_condition'
+import { DockerContainer } from './DockerContainer'
+import { waitForCondition } from '../utils'
 
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
@@ -116,6 +116,7 @@ export abstract class DeFiDContainer extends DockerContainer {
 
   /**
    * Get host machine url used for defid rpc calls with auth
+   * TODO(fuxingloh): not a great design when network config changed, the url and ports get refresh
    */
   async getCachedRpcUrl (): Promise<string> {
     if (this.cachedRpcUrl === undefined) {
@@ -141,7 +142,10 @@ export abstract class DeFiDContainer extends DockerContainer {
     })
 
     const text = await this.post(body)
-    const { result, error } = JSON.parse(text)
+    const {
+      result,
+      error
+    } = JSON.parse(text)
 
     if (error !== undefined && error !== null) {
       throw new DeFiDRpcError(error)

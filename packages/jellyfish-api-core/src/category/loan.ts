@@ -114,9 +114,9 @@ export class Loan {
    * @param {ListCollateralTokens} [collateralToken = {}]
    * @param {number} [collateralToken.height = CurrentBlockheight] Valid at specified height
    * @param {boolean} [collateralToken.all] True = All transactions, false =  Activated transactions
-   * @return {Promise<CollateralTokensData>} Get all collateral tokens
+   * @return {Promise<CollateralTokenDetail[]>} Get all collateral tokens
    */
-  async listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokensData> {
+  async listCollateralTokens (collateralToken: ListCollateralTokens = {}): Promise<CollateralTokenDetail[]> {
     return await this.client.call('listcollateraltokens', [collateralToken], 'bignumber')
   }
 
@@ -124,9 +124,9 @@ export class Loan {
    * Get collateral token.
    *
    * @param {string} token symbol or id
-   * @return {Promise<CollateralTokenDetails>} Collateral token result
+   * @return {Promise<CollateralTokenDetail>} Collateral token result
    */
-  async getCollateralToken (token: string): Promise<CollateralTokenDetails> {
+  async getCollateralToken (token: string): Promise<CollateralTokenDetail> {
     return await this.client.call('getcollateraltoken', [token], 'bignumber')
   }
 
@@ -195,11 +195,21 @@ export class Loan {
   }
 
   /**
+   * Get loan token.
+   *
+   * @param {string} token Symbol or id of loan token
+   * @return {Promise<LoanTokenResult>} Loan token details
+   */
+  async getLoanToken (token: string): Promise<LoanTokenResult> {
+    return await this.client.call('getloantoken', [token], 'bignumber')
+  }
+
+  /**
    * List all created loan tokens.
    *
-   * @return {Promise<ListLoanTokenResult>}
+   * @return {Promise<LoanTokenResult[]>}
    */
-  async listLoanTokens (): Promise<ListLoanTokenResult> {
+  async listLoanTokens (): Promise<LoanTokenResult[]> {
     return await this.client.call('listloantokens', [], 'bignumber')
   }
 
@@ -225,7 +235,11 @@ export class Loan {
    * @return {Promise<VaultDetails>}
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
-    return await this.client.call('getvault', [vaultId], 'bignumber')
+    return await this.client.call(
+      'getvault',
+      [vaultId],
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
+    )
   }
 
   /**
@@ -239,10 +253,25 @@ export class Loan {
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
    * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
-   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
+   * @return {Promise<ListVaultDetails[]>} Array of objects including details of the vaults.
    */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
-    return await this.client.call('listvaults', [options, pagination], 'bignumber')
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]> {
+    return await this.client.call('listvaults', [options, pagination], 'number')
+  }
+
+  /**
+   * Close vault
+   *
+   * @param {CloseVault} closeVault
+   * @param {string} closeVault.vaultId Vault id
+   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
   }
 
   /**
@@ -266,7 +295,8 @@ export class Loan {
    *
    * @param {TakeLoanMetadata} metadata
    * @param {string} metadata.vaultId Vault id
-   * @param {string} metadata.amounts In "amount@symbol" format
+   * @param {string | string[]} metadata.amounts In "amount@symbol" format
+   * @param {string} [metadata.to] Address to receive tokens
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
@@ -274,6 +304,22 @@ export class Loan {
    */
   async takeLoan (metadata: TakeLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('takeloan', [metadata, utxos], 'number')
+  }
+
+  /**
+   * Return loan in a desired amount.
+   *
+   * @param {LoanPaybackMetadata} metadata
+   * @param {string} metadata.vaultId Vault id
+   * @param {string| string[]} metadata.amounts In "amount@symbol" format
+   * @param {string} metadata.from Address from transfer tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} txid
+   */
+  async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('loanpayback', [metadata, utxos], 'number')
   }
 }
 
@@ -309,10 +355,6 @@ export interface SetCollateralToken {
   activateAfterBlock?: number
 }
 
-export interface CollateralTokensData {
-  [key: string]: CollateralTokenDetails
-}
-
 export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
@@ -324,11 +366,12 @@ export interface ListCollateralTokens {
   all?: boolean
 }
 
-export interface CollateralTokenDetails {
+export interface CollateralTokenDetail {
   token: string
   factor: BigNumber
   fixedIntervalPriceId: string
   activateAfterBlock: BigNumber
+  tokenId: string
 }
 
 export interface SetLoanToken {
@@ -339,11 +382,7 @@ export interface SetLoanToken {
   interest?: BigNumber
 }
 
-export interface ListLoanTokenResult {
-  [key: string]: LoanTokenDetails
-}
-
-export interface LoanTokenDetails {
+export interface LoanTokenResult {
   token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
@@ -371,23 +410,44 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
+export enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inliquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayliquidate',
+  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
+}
+
 export interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
+  state: VaultState
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
-  loanAmount?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  currentRatio?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
 export interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+
+export interface ListVaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
 }
 
 export interface UTXO {
@@ -403,7 +463,14 @@ export interface DepositVault {
 
 export interface TakeLoanMetadata {
   vaultId: string
-  amounts: string // amount@symbol
+  amounts: string | string[] // amount@symbol
+  to?: string
+}
+
+export interface LoanPaybackMetadata {
+  vaultId: string
+  amounts: string | string[] // amount@symbol
+  from: string
 }
 
 export interface VaultPagination {
@@ -416,4 +483,9 @@ export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
   isUnderLiquidation?: boolean
+}
+
+export interface CloseVault {
+  vaultId: string
+  to: string
 }

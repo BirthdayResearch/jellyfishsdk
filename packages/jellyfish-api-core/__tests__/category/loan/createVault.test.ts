@@ -2,6 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
+import { VaultState } from '../../../src/category/loan'
 
 describe('Loan createVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -48,11 +49,13 @@ describe('Loan createVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -73,11 +76,13 @@ describe('Loan createVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })
@@ -119,11 +124,13 @@ describe('Loan createVault', () => {
       vaultId: vaultId,
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
-      isUnderLiquidation: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
-      loanAmount: [],
+      loanAmounts: [],
+      interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
+      interestValue: '',
       currentRatio: expect.any(BigNumber)
     })
   })

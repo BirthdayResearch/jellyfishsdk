@@ -9,7 +9,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 
-describe('Loan', () => {
+describe('loans.depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let liqVaultId: string
@@ -331,7 +331,7 @@ describe('Loan', () => {
     const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
-      tokenAmount: { token: 1, amount: new BigNumber(0.11) }
+      tokenAmount: { token: 1, amount: new BigNumber(0.22) }
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
@@ -340,8 +340,10 @@ describe('Loan', () => {
   })
 
   it('should not deposit to liquidated vault', async () => {
+    await tGroup.get(0).generate(6)
+
     const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
-    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    expect(liqVault.state).toStrictEqual('inliquidation')
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.depositToVault({
