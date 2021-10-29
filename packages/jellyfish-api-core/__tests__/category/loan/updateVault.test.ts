@@ -227,7 +227,7 @@ describe('Loan updateVault', () => {
     // Take loan
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
-      amounts: '50@TSLA'
+      amounts: '34@TSLA'
     })
     await testing.generate(1)
 
@@ -241,7 +241,7 @@ describe('Loan updateVault', () => {
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 100 < 150\', code: -32600, method: updatevault')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nVault does not have enough collateralization ratio defined by loan scheme - 147 < 150\', code: -32600, method: updatevault')
   })
 
   it('should not updateVault if the vault is under liquidation', async () => {
@@ -265,10 +265,9 @@ describe('Loan updateVault', () => {
     })
     await testing.generate(1)
 
-    // DFI price is invalid because its price drop 90%
-    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
-    await testing.container.waitForPriceInvalid('DFI/USD')
-    await testing.container.waitForPriceValid('DFI/USD')
+    // DFI price drops and trigger liquidation event
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
+    await testing.generate(10)
 
     // Unable to update vault if the vault is under liquidation
     const promise = testing.rpc.loan.updateVault(vaultId, {
@@ -279,8 +278,7 @@ describe('Loan updateVault', () => {
 
     // Update back the price
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.container.waitForPriceInvalid('DFI/USD')
-    await testing.container.waitForPriceValid('DFI/USD')
+    await testing.generate(1)
   })
 
   it('should updateVault with utxos', async () => {
