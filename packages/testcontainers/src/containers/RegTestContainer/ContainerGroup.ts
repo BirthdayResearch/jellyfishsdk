@@ -31,7 +31,7 @@ export class ContainerGroup {
           Config: []
         }
       }, (err, data) => {
-        if (err instanceof Error) {
+        if (err instanceof Error || data === undefined) {
           return reject(err)
         }
         return data !== undefined
