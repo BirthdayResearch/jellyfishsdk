@@ -189,7 +189,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
-      if (!data.isValid) {
+      if (!data.isLive) {
         await this.generate(1)
       } else {
         return true
@@ -202,7 +202,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
-      if (data.isValid) {
+      if (data.isLive) {
         await this.generate(1)
       } else {
         return true

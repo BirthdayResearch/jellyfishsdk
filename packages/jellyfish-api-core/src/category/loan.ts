@@ -217,6 +217,22 @@ export class Loan {
   }
 
   /**
+   * Update a vault transaction.
+   *
+   * @param {string} vaultId
+   * @param {UpdateVault} vault
+   * @param {string} [vault.ownerAddress] Any valid address
+   * @param {string} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatevault', [vaultId, vault, utxos], 'number')
+  }
+
+  /**
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
@@ -392,6 +408,11 @@ export interface Interest {
 
 export interface CreateVault {
   ownerAddress: string
+  loanSchemeId?: string
+}
+
+export interface UpdateVault {
+  ownerAddress?: string
   loanSchemeId?: string
 }
 

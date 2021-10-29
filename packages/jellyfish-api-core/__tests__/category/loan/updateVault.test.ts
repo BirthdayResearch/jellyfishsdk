@@ -96,8 +96,7 @@ describe('Loan updateVault', () => {
       vaultId: createVaultId,
       loanSchemeId: 'scheme',
       ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: 'active',
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
@@ -188,7 +187,6 @@ describe('Loan updateVault', () => {
     await testing.generate(1)
 
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
-    await testing.generate(1)
 
     // Wait for the price become invalid
     await testing.container.waitForPriceInvalid('DFI/USD')
@@ -233,7 +231,7 @@ describe('Loan updateVault', () => {
 
     {
       const data = await testing.rpc.loan.getVault(vaultId)
-      expect(data.isUnderLiquidation).toStrictEqual(false)
+      expect(data.state).toStrictEqual('active')
     }
 
     // Unable to update to new scheme as it could liquidate the vault
@@ -265,9 +263,19 @@ describe('Loan updateVault', () => {
     })
     await testing.generate(1)
 
+    {
+      const data = await testing.rpc.loan.getVault(vaultId)
+      expect(data.state).toStrictEqual('active')
+    }
+
     // DFI price drops and trigger liquidation event
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
     await testing.generate(10)
+
+    {
+      const data = await testing.rpc.loan.getVault(vaultId)
+      expect(data.state).toStrictEqual('inliquidation')
+    }
 
     // Unable to update vault if the vault is under liquidation
     const promise = testing.rpc.loan.updateVault(vaultId, {
@@ -306,8 +314,7 @@ describe('Loan updateVault', () => {
       vaultId: createVaultId,
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: 'active',
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
