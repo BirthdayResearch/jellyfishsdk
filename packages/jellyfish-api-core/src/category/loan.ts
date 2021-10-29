@@ -217,29 +217,34 @@ export class Loan {
   }
 
   /**
-   * Update a vault transaction.
-   *
-   * @param {string} vaultId
-   * @param {UpdateVault} vault
-   * @param {string} [vault.ownerAddress] Any valid address
-   * @param {string} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
-   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} utxos.txid Transaction Id
-   * @param {number} utxos.vout Output number
-   * @return {Promise<string>} Transaction id of the transaction
-   */
-  async updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('updatevault', [vaultId, vault, utxos], 'number')
-  }
-
-  /**
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
    * @return {Promise<VaultDetails>}
    */
   async getVault (vaultId: string): Promise<VaultDetails> {
-    return await this.client.call('getvault', [vaultId], 'bignumber')
+    return await this.client.call(
+      'getvault',
+      [vaultId],
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
+    )
+  }
+
+  /**
+   * List all available vaults.
+   *
+   * @param {VaultPagination} [pagination]
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @param {ListVaultOptions} [options]
+   * @param {string} [options.ownerAddress] Address of the vault owner
+   * @param {string} [options.loanSchemeId] Vault's loan scheme id
+   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
+   * @return {Promise<ListVaultDetails[]>} Array of objects including details of the vaults.
+   */
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]> {
+    return await this.client.call('listvaults', [options, pagination], 'number')
   }
 
   /**
@@ -255,23 +260,6 @@ export class Loan {
    */
   async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
-  }
-
-  /**
-   * List all available vaults.
-   *
-   * @param {VaultPagination} [pagination]
-   * @param {string} [pagination.start]
-   * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit=100]
-   * @param {ListVaultOptions} [options]
-   * @param {string} [options.ownerAddress] Address of the vault owner
-   * @param {string} [options.loanSchemeId] Vault's loan scheme id
-   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
-   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
-   */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
-    return await this.client.call('listvaults', [options, pagination], 'bignumber')
   }
 
   /**
@@ -407,31 +395,44 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
-export interface UpdateVault {
-  ownerAddress?: string
-  loanSchemeId?: string
+export enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inliquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayliquidate',
+  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
 }
 
 export interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
+  state: VaultState
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber
-  currentRatio?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
 export interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+
+export interface ListVaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
 }
 
 export interface UTXO {
