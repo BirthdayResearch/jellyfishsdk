@@ -388,9 +388,30 @@ export interface LoanTokenResult {
   interest: BigNumber
 }
 
-export interface GetLoanInfoResult {
-  [key: string]: ListLoanTokenResult
+export interface LoanConfig {
+  fixedintervalblocks: BigNumber
+  maxpricedeviationpct: BigNumber
+  minoraclesperprice: BigNumber
+  scheme: string
 }
+
+export interface LoanSummary {
+  collateraltokens: BigNumber
+  collateralvalueinusd: BigNumber
+  loantokens: BigNumber
+  loanvalueinusd: BigNumber
+  openauctions: BigNumber
+  openvaults: BigNumber
+  schemes: BigNumber
+}
+
+export interface GetLoanInfoResult {
+  currentpriceblock: BigNumber
+  nextpriceblock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
+}
+
 export interface UpdateLoanToken {
   symbol?: string
   name?: string

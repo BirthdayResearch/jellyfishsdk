@@ -1,24 +1,33 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GetLoanInfoResult } from 'packages/jellyfish-api-core/src/category/loan'
 
-async function expectEmptyLoanInfo (testing: Testing): Promise<void> {
-  const data = await testing.rpc.loan.getLoanInfo()
-  expect(data).toStrictEqual({
-    'Collateral tokens': {},
-    'Loan tokens': {},
-    'Loan schemes': [],
-    collateralValueUSD: new BigNumber(0),
-    loanValueUSD: new BigNumber(0)
-  })
+const startingData: GetLoanInfoResult = {
+  currentpriceblock: new BigNumber(104),
+  defaults: {
+    fixedintervalblocks: new BigNumber(6),
+    maxpricedeviationpct: new BigNumber(30),
+    minoraclesperprice: new BigNumber(1),
+    scheme: ''
+  },
+  nextpriceblock: new BigNumber(110),
+  totals: {
+    collateraltokens: new BigNumber(0),
+    collateralvalueinusd: new BigNumber(0),
+    loantokens: new BigNumber(0),
+    loanvalueinusd: new BigNumber(0),
+    openauctions: new BigNumber(0),
+    openvaults: new BigNumber(0),
+    schemes: new BigNumber(0)
+  }
 }
 
 function now (): number {
   return Math.floor(new Date().getTime() / 1000)
 }
 
-describe('Loan', () => {
+describe('Loan - getLoanInfo', () => {
   let container: LoanMasterNodeRegTestContainer
   let testing: Testing
   let collateralOraclId!: string
@@ -29,19 +38,33 @@ describe('Loan', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     await testing.token.create({ symbol: 'BTC' })
+    await testing.token.create({ symbol: 'ETH' })
     await testing.generate(1)
 
-    // prep as collateral
     collateralOraclId = await testing.rpc.oracle.appointOracle(
       await testing.generateAddress(),
       [
+        // collateral tokens, existed
+        { token: 'DFI', currency: 'USD' },
         { token: 'BTC', currency: 'USD' },
-        { token: 'DFI', currency: 'USD' }
+        { token: 'ETH', currency: 'USD' },
+
+        // to be loan tokens, haven't exist
+        { token: 'TSLA', currency: 'USD' },
+        { token: 'AMZN', currency: 'USD' }
       ],
       { weightage: 1 }
     )
     await testing.generate(1)
-    await testing.rpc.oracle.setOracleData(collateralOraclId, now(), { prices: [{ tokenAmount: '1@BTC', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(collateralOraclId, now(), {
+      prices: [
+        { tokenAmount: '1@DFI', currency: 'USD' },
+        { tokenAmount: '10000@BTC', currency: 'USD' },
+        { tokenAmount: '100@ETH', currency: 'USD' },
+        { tokenAmount: '5@TSLA', currency: 'USD' },
+        { tokenAmount: '5@AMZN', currency: 'USD' }
+      ]
+    })
     await testing.generate(1)
   })
 
@@ -49,220 +72,491 @@ describe('Loan', () => {
     await testing.container.stop()
   })
 
-  it('should getLoanInfo - include collateral tokens', async () => {
-    // Before setCollateralToken
-    await expectEmptyLoanInfo(testing)
+  it('should count collateral tokens', async () => {
+    {
+      // Before setCollateralToken
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(startingData)
+    }
 
-    // set collateral
-    const collateralTokenId = await testing.rpc.loan.setCollateralToken({
+    // set collateral 1
+    await testing.rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
       fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
 
-    // After setCollateralToken
-    {
+    { // After setCollateralToken 1
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
-        'Collateral tokens': {
-          [collateralTokenId]: {
-            activateAfterBlock: new BigNumber(105),
-            factor: new BigNumber(0.5),
-            fixedIntervalPriceId: 'BTC/USD',
-            token: 'BTC'
-          }
-        },
-        'Loan tokens': {},
-        'Loan schemes': [],
-        collateralValueUSD: new BigNumber(0),
-        loanValueUSD: new BigNumber(0)
+        ...startingData,
+        totals: {
+          ...startingData.totals,
+          collateraltokens: new BigNumber(1)
+        }
+      })
+    }
+
+    // set collateral 2
+    await testing.rpc.loan.setCollateralToken({
+      token: 'ETH',
+      factor: new BigNumber(0.8),
+      fixedIntervalPriceId: 'ETH/USD'
+    })
+    await testing.generate(1)
+
+    { // After setCollateralToken 2
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...startingData,
+        totals: {
+          ...startingData.totals,
+          collateraltokens: new BigNumber(2)
+        }
       })
     }
   })
 
-  it('should getLoanInfo - include loan schemes', async () => {
-    // Before createLoanScheme
-    await expectEmptyLoanInfo(testing)
-
-    await testing.container.call('createloanscheme', [
-      100,
-      new BigNumber(1.5),
-      'default'
-    ])
-    await testing.container.generate(1)
-
-    await testing.container.call('createloanscheme', [
-      200,
-      new BigNumber(2.5),
-      'scheme'
-    ])
-    await testing.container.generate(1)
-
-    // After createLoanScheme
+  it('should count loan tokens', async () => {
     {
+      // Before setLoanToken
       const data = await testing.rpc.loan.getLoanInfo()
-      expect(data).toStrictEqual({
-        'Collateral tokens': {},
-        'Loan tokens': {},
-        'Loan schemes': [
-          {
-            id: 'default',
-            mincolratio: new BigNumber(100),
-            interestrate: new BigNumber(1.5),
-            default: true
-          },
-          {
-            id: 'scheme',
-            mincolratio: new BigNumber(200),
-            interestrate: new BigNumber(2.5),
-            default: false
-          }
-        ],
-        collateralValueUSD: new BigNumber(0),
-        loanValueUSD: new BigNumber(0)
-      })
+      expect(data).toStrictEqual(startingData)
     }
-  })
 
-  it('should getLoanInfo - include loan tokens', async () => {
-    // Before setLoanToken
-    await expectEmptyLoanInfo(testing)
-
-    // setLoanToken with new token
-    const tslaOracleId = await testing.rpc.oracle.appointOracle(
-      await testing.generateAddress(),
-      [{
-        token: 'TSLA',
-        currency: 'USD'
-      }],
-      { weightage: 1 }
-    )
-    await testing.generate(1)
-    await testing.rpc.oracle.setOracleData(tslaOracleId, now(), { prices: [{ tokenAmount: '1@TSLA', currency: 'USD' }] })
-    await testing.generate(1)
-    const loanTokenId = await testing.rpc.loan.setLoanToken({
+    await testing.rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      name: 'TESLA',
       fixedIntervalPriceId: 'TSLA/USD'
     })
     await testing.generate(1)
-    const height = new BigNumber(await testing.container.getBlockCount())
 
-    // After setLoanToken
-    {
+    { // After setLoanToken 1
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
-        'Collateral tokens': {},
-        'Loan tokens': {
-          [loanTokenId]: {
-            token: {
-              2: {
-                collateralAddress: GenesisKeys[0].owner.address,
-                creationHeight: height,
-                creationTx: expect.any(String),
-                decimal: new BigNumber(8),
-                destructionHeight: new BigNumber(-1),
-                destructionTx:
-                  '0000000000000000000000000000000000000000000000000000000000000000',
-                finalized: false,
-                isDAT: true,
-                isLPS: false,
-                isLoanToken: true,
-                limit: new BigNumber(0),
-                mintable: true,
-                minted: new BigNumber(0),
-                name: 'TESLA',
-                symbol: 'TSLA',
-                symbolKey: 'TSLA',
-                tradeable: true
-              }
-            },
-            fixedIntervalPriceId: 'TSLA/USD',
-            interest: new BigNumber(0)
-          }
-        },
-        'Loan schemes': [],
-        collateralValueUSD: new BigNumber(0),
-        loanValueUSD: new BigNumber(0)
+        ...startingData,
+        totals: {
+          ...startingData.totals,
+          loantokens: new BigNumber(1)
+        }
+      })
+    }
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'AMZN',
+      fixedIntervalPriceId: 'AMZN/USD'
+    })
+    await testing.generate(1)
+
+    { // After setLoanToken 2
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...startingData,
+        totals: {
+          ...startingData.totals,
+          loantokens: new BigNumber(2)
+        }
       })
     }
   })
 
-  it('should getLoanInfo - include collateral value and loan value', async () => {
-    { // extra setup: setCollateral, setLoan, createVault, deposit, takeLoan
-      await testing.rpc.loan.setCollateralToken({
-        token: 'BTC',
-        factor: new BigNumber(1),
-        fixedIntervalPriceId: 'BTC/USD'
-      })
-      await testing.rpc.oracle.setOracleData(collateralOraclId, now(), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-      await testing.generate(1)
-      await testing.rpc.loan.setCollateralToken({
-        token: 'DFI',
-        factor: new BigNumber(1),
-        fixedIntervalPriceId: 'DFI/USD'
-      })
-      await testing.generate(1)
-
-      const tslaOracleId = await testing.rpc.oracle.appointOracle(
-        await testing.generateAddress(),
-        [{
-          token: 'TSLA',
-          currency: 'USD'
-        }],
-        { weightage: 1 }
-      )
-      await testing.generate(1)
-      await testing.rpc.oracle.setOracleData(tslaOracleId, now(), { prices: [{ tokenAmount: '1@TSLA', currency: 'USD' }] })
-      await testing.generate(1)
-      await testing.rpc.loan.setLoanToken({
-        symbol: 'TSLA',
-        name: 'TESLA',
-        fixedIntervalPriceId: 'TSLA/USD'
-      })
-      await testing.generate(1)
-
-      // loan scheme set up
-      await testing.rpc.loan.createLoanScheme({
-        minColRatio: 1000,
-        interestRate: new BigNumber(3),
-        id: 'scheme'
-      })
-      await testing.generate(1)
-
-      const vaultAddress = await testing.generateAddress()
-      const vaultId = await testing.rpc.loan.createVault({
-        ownerAddress: vaultAddress,
-        loanSchemeId: 'scheme'
-      })
-      await testing.generate(1)
-
-      // fund vault for balance just enough for loan amount
-      const collateralAddress = await container.getNewAddress()
-      await testing.token.mint({ amount: 50, symbol: 'BTC' })
-      await testing.token.dfi({ amount: 50, address: collateralAddress })
-      await testing.generate(1)
-      await testing.token.send({ address: collateralAddress, amount: 50, symbol: 'BTC' })
-      await testing.generate(1)
-      await testing.rpc.loan.depositToVault({ vaultId: vaultId, from: collateralAddress, amount: '50@DFI' })
-      await testing.generate(1)
-      await testing.rpc.loan.depositToVault({ vaultId: vaultId, from: collateralAddress, amount: '50@BTC' })
-      await testing.generate(1)
-
-      await testing.rpc.loan.takeLoan({
-        vaultId: vaultId,
-        amounts: '9.9@TSLA'
-      })
-      await testing.generate(1)
+  it('should return with latest current price block and next price block', async () => {
+    {
+      // Before setCollateralToken
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(startingData)
     }
 
-    // After setLoanToken
+    await testing.generate(6)
+
     {
+      // after 6 (fixedintervalblocks) blocks
       const data = await testing.rpc.loan.getLoanInfo()
-      expect(data.collateralValueUSD).toStrictEqual(new BigNumber(100)) // total collateral usd value
-      expect((data.loanValueUSD as any as BigNumber).gt(9.9))
-      expect((data.loanValueUSD as any as BigNumber).lt(9.9001))
+      expect(data).toStrictEqual({
+        ...startingData,
+        currentpriceblock: new BigNumber(110),
+        nextpriceblock: new BigNumber(116)
+      })
+    }
+  })
+
+  it('should return with latest default loan scheme and total scheme count', async () => {
+    { // before createLoanScheme
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(startingData)
+    }
+
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(2),
+      id: 'scheme1'
+    })
+    await testing.container.generate(1)
+
+    { // After createLoanScheme
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...startingData,
+        totals: {
+          ...startingData.totals,
+          schemes: new BigNumber(1)
+        },
+        defaults: {
+          ...startingData.defaults,
+          scheme: 'scheme1' // first created scheme automatically used as default
+        }
+      })
+    }
+
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 200,
+      interestRate: new BigNumber(0.5),
+      id: 'scheme2'
+    })
+    await testing.container.generate(1)
+    await testing.rpc.loan.setDefaultLoanScheme('scheme2')
+    await testing.container.generate(1)
+
+    { // After create and set new default scheme
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...startingData,
+        totals: {
+          ...startingData.totals,
+          schemes: new BigNumber(2)
+        },
+        defaults: {
+          ...startingData.defaults,
+          scheme: 'scheme2' // first created scheme automatically used as default
+        }
+      })
+    }
+  })
+
+  // combine tests for 2 fields, only collateral deposited vault counted, empty vault is not
+  it('should count total open vaults and total collateral deposited', async () => {
+    // extra preps
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD',
+      activateAfterBlock: await testing.rpc.blockchain.getBlockCount() + 1
+    })
+    await testing.generate(2)
+
+    // require at one scheme for vault creation
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(2),
+      id: 'scheme1'
+    })
+    await testing.container.generate(1)
+
+    const extendedStartingData: GetLoanInfoResult = {
+      ...startingData,
+      defaults: {
+        ...startingData.defaults,
+        scheme: 'scheme1'
+      },
+      totals: {
+        ...startingData.totals,
+        schemes: new BigNumber(1),
+        collateraltokens: new BigNumber(1)
+      }
+    }
+
+    { // before
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(extendedStartingData)
+    }
+
+    // create vault and deposit collateral
+    const vault1Id = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress()
+    })
+    await testing.container.generate(1)
+
+    const tempAddress = await testing.generateAddress()
+    await testing.token.dfi({ amount: 10000, address: tempAddress })
+    await testing.container.generate(1)
+    await testing.rpc.loan.depositToVault({
+      vaultId: vault1Id,
+      from: tempAddress,
+      amount: '10000@DFI'
+    })
+    await testing.container.generate(1)
+
+    { // After create vault 1
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...extendedStartingData,
+        currentpriceblock: new BigNumber(110),
+        nextpriceblock: new BigNumber(116),
+        totals: {
+          ...startingData.totals,
+          collateraltokens: new BigNumber(1),
+          collateralvalueinusd: new BigNumber(10000),
+          schemes: new BigNumber(1),
+          openvaults: new BigNumber(1)
+        }
+      })
+    }
+
+    // create empty vault
+    await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress()
+    })
+    await testing.container.generate(1)
+
+    { // After create 2nd vault without deposit collateral
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...extendedStartingData,
+        currentpriceblock: new BigNumber(110),
+        nextpriceblock: new BigNumber(116),
+        totals: {
+          ...startingData.totals,
+          collateraltokens: new BigNumber(1),
+          collateralvalueinusd: new BigNumber(10000),
+          schemes: new BigNumber(1),
+          openvaults: new BigNumber(1) // unchanged
+        }
+      })
+    }
+  })
+
+  it('should return with total taken loan usd value', async () => {
+    // extra preps
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD',
+      activateAfterBlock: await testing.rpc.blockchain.getBlockCount() + 1
+    })
+    await testing.generate(2) // ensure collateral token activated
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(2),
+      id: 'scheme1'
+    })
+    await testing.container.generate(1)
+
+    const vault1Id = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress()
+    })
+    await testing.container.generate(1)
+
+    const tempAddress = await testing.generateAddress()
+    await testing.token.dfi({ amount: 10000, address: tempAddress })
+    await testing.container.generate(1)
+    await testing.rpc.loan.depositToVault({
+      vaultId: vault1Id,
+      from: tempAddress,
+      amount: '10000@DFI'
+    })
+    await testing.container.generate(1)
+
+    const extendedStartingData: GetLoanInfoResult = {
+      ...startingData,
+      currentpriceblock: new BigNumber(110),
+      nextpriceblock: new BigNumber(116),
+      defaults: {
+        ...startingData.defaults,
+        scheme: 'scheme1'
+      },
+      totals: {
+        ...startingData.totals,
+        schemes: new BigNumber(1),
+        collateraltokens: new BigNumber(1),
+        collateralvalueinusd: new BigNumber(10000),
+        openvaults: new BigNumber(1),
+        loantokens: new BigNumber(1)
+      }
+    }
+
+    { // before
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(extendedStartingData)
+    }
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vault1Id,
+      amounts: '2@TSLA'
+    })
+    await testing.container.generate(1)
+
+    { // After loan taken
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...extendedStartingData,
+        totals: {
+          ...extendedStartingData.totals,
+          loanvalueinusd: expect.any(BigNumber)
+        }
+      })
+      // loan value will include some interest
+      expect(data.totals.loanvalueinusd.gt(10)).toBeTruthy() // 2 * 5
+      expect(data.totals.loanvalueinusd.lt(10.0001)).toBeTruthy()
+    }
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vault1Id,
+      amounts: '1@TSLA'
+    })
+    await testing.container.generate(1)
+
+    { // After loan taken
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...extendedStartingData,
+        totals: {
+          ...extendedStartingData.totals,
+          loanvalueinusd: expect.any(BigNumber)
+        }
+      })
+      // loan value will include some interest
+      expect(data.totals.loanvalueinusd.gt(15)).toBeTruthy() // 3 * 5
+      expect(data.totals.loanvalueinusd.lt(15.0001)).toBeTruthy()
+    }
+  })
+
+  it('should return with updated loan related governance variables', async () => {
+    { // before
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(startingData)
+    }
+
+    await testing.rpc.masternode.setGovWithHeight({
+      ORACLE_BLOCK_INTERVAL: 7
+    }, 111) // activate after next price block
+    await testing.generate(1)
+
+    { // after govvar set
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...startingData,
+        defaults: {
+          ...startingData.defaults,
+          fixedintervalblocks: new BigNumber(6)
+        }
+      })
+    }
+
+    await testing.container.waitForBlockHeight(111)
+
+    { // after govvar activated
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...startingData,
+        currentpriceblock: new BigNumber(106),
+        nextpriceblock: new BigNumber(113),
+        defaults: {
+          ...startingData.defaults,
+          fixedintervalblocks: new BigNumber(7)
+        }
+      })
+    }
+  })
+
+  it('should count all ongoing auctions', async () => {
+    // extra preps
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD',
+      activateAfterBlock: await testing.rpc.blockchain.getBlockCount() + 1
+    })
+    await testing.generate(2) // ensure collateral token activated
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(2),
+      id: 'scheme1'
+    })
+    await testing.container.generate(1)
+
+    const vault1Id = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress()
+    })
+    await testing.container.generate(1)
+
+    const tempAddress = await testing.generateAddress()
+    await testing.token.dfi({ amount: 10000, address: tempAddress })
+    await testing.container.generate(1)
+    await testing.rpc.loan.depositToVault({
+      vaultId: vault1Id,
+      from: tempAddress,
+      amount: '10000@DFI'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vault1Id,
+      amounts: '500@TSLA'
+    })
+    await testing.container.generate(1)
+
+    const extendedStartingData: GetLoanInfoResult = {
+      ...startingData,
+      currentpriceblock: new BigNumber(110),
+      nextpriceblock: new BigNumber(116),
+      defaults: {
+        ...startingData.defaults,
+        scheme: 'scheme1'
+      },
+      totals: {
+        ...startingData.totals,
+        schemes: new BigNumber(1),
+        collateraltokens: new BigNumber(1),
+        collateralvalueinusd: new BigNumber(10000),
+        openvaults: new BigNumber(1),
+        loantokens: new BigNumber(1),
+        loanvalueinusd: expect.any(BigNumber)
+      }
+    }
+
+    { // before any vault liquidated
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual(extendedStartingData)
+    }
+
+    await testing.rpc.oracle.setOracleData(collateralOraclId, now(), {
+      prices: [
+        { tokenAmount: '21@TSLA', currency: 'USD' }
+      ]
+    })
+    await testing.container.generate(12)
+
+    { // After loan taken
+      const auctions = await testing.container.call('listauctions')
+      expect(auctions.length).toStrictEqual(1)
+
+      const data = await testing.rpc.loan.getLoanInfo()
+      expect(data).toStrictEqual({
+        ...extendedStartingData,
+        currentpriceblock: expect.any(BigNumber),
+        nextpriceblock: expect.any(BigNumber),
+        totals: {
+          ...extendedStartingData.totals,
+          // vault liquidated
+          openvaults: new BigNumber(0),
+          collateralvalueinusd: new BigNumber(0),
+          openauctions: new BigNumber(1)
+        }
+      })
     }
   })
 })

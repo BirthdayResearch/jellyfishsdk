@@ -197,48 +197,27 @@ interface loan {
 }
 
 interface GetLoanInfoResult {
-  'Collateral tokens': {
-    [key: string]: CollateralTokenDetail
-  }
-  'Loan tokens': {
-    [key: string]: TokenDetail
-  }
-  'Loan schemes': GetLoanSchemeResult[]
-  collateralValueUSD: BigNumber
-  loanValueUSD: BigNumber
+  currentpriceblock: BigNumber
+  nextpriceblock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
 }
 
-interface CollateralTokenDetail {
-  token: string
-  factor: BigNumber
-  priceFeedId: string
-  activateAfterBlock: BigNumber
+export interface LoanConfig {
+  fixedintervalblocks: BigNumber
+  maxpricedeviationpct: BigNumber
+  minoraclesperprice: BigNumber
+  scheme: string
 }
 
-export interface TokenDetail {
-  collateralAddress: string
-  creationHeight: BigNumber
-  creationTx: string
-  decimal: BigNumber
-  destructionHeight: BigNumber
-  destructionTx: string
-  finalized: false
-  isDAT: boolean
-  isLPS: boolean
-  isLoanToken: boolean
-  limit: BigNumber
-  mintable: boolean
-  minted: BigNumber
-  name: string
-  symbol: string
-  symbolKey: string
-  tradeable: boolean
-}
-
-interface GetLoanSchemeResult {
-  id: string
-  interestrate: BigNumber
-  mincolratio: BigNumber
+export interface LoanSummary {
+  collateraltokens: BigNumber
+  collateralvalueinusd: BigNumber
+  loantokens: BigNumber
+  loanvalueinusd: BigNumber
+  openauctions: BigNumber
+  openvaults: BigNumber
+  schemes: BigNumber
 }
 ```
 
