@@ -140,7 +140,7 @@ describe('loans.closeVault', () => {
     await tGroup.get(0).rpc.account.sendTokensToAddress({}, { [vaultWithPayBackLoanAddress]: ['5@TSLA'] })
     await tGroup.get(0).generate(1)
 
-    await tGroup.get(0).rpc.container.call('loanpayback', [{ vaultId: vaultWithPayBackLoanId, from: vaultWithPayBackLoanAddress, amounts: '2@TSLA' }])
+    await tGroup.get(0).rpc.container.call('paybackloan', [{ vaultId: vaultWithPayBackLoanId, from: vaultWithPayBackLoanAddress, amounts: '2@TSLA' }])
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
@@ -241,7 +241,7 @@ describe('loans.closeVault', () => {
 
   it('should not closeVault for liquidated vault', async () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
-    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    expect(liqVault.state).toStrictEqual('inliquidation')
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.closeVault({
