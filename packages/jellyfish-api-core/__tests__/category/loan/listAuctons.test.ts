@@ -48,7 +48,7 @@ describe('Loan listAuctions', () => {
     })
     await testing.rpc.loan.setCollateralToken({
       token: 'BTC',
-      factor: new BigNumber(0.5),
+      factor: new BigNumber(1),
       fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
@@ -67,7 +67,8 @@ describe('Loan listAuctions', () => {
 
   it('should listAuctions', async () => {
     // Vault 1
-    const vaultId1 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
+    const ownerAddress = await testing.generateAddress()
+    const vaultId1 = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
     await testing.generate(1)
 
     await testing.container.call('deposittovault', [vaultId1, collateralAddress, '20000@DFI'])
@@ -77,7 +78,7 @@ describe('Loan listAuctions', () => {
 
     await testing.container.call('takeloan', [{
       vaultId: vaultId1,
-      amounts: '30@TSLA'
+      amounts: '19000@TSLA'
     }])
     await testing.generate(1)
 
@@ -92,7 +93,7 @@ describe('Loan listAuctions', () => {
 
     await testing.container.call('takeloan', [{
       vaultId: vaultId2,
-      amounts: '60@TSLA'
+      amounts: '20000@TSLA'
     }])
     await testing.generate(1)
 
@@ -102,16 +103,27 @@ describe('Loan listAuctions', () => {
       expect(data).toStrictEqual([])
     }
 
+    {
+      const vault1 = await testing.rpc.loan.getVault(vaultId1)
+      expect(vault1.state).toStrictEqual('active')
+
+      const vault2 = await testing.rpc.loan.getVault(vaultId2)
+      expect(vault2.state).toStrictEqual('active')
+    }
+
     // Going to liquidate the vault by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2000@TSLA', currency: 'USD' }] })
-
-    await testing.container.waitForPriceInvalid('TSLA/USD')
-    await testing.container.waitForPriceValid('TSLA/USD')
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2.2@TSLA', currency: 'USD' }] })
+    await testing.generate(10)
 
     // Liquidation
-    const vault = await testing.rpc.loan.getVault(vaultId2)
-    expect(vault.isUnderLiquidation).toStrictEqual(true)
+    {
+      const vault1 = await testing.rpc.loan.getVault(vaultId1)
+      expect(vault1.state).toStrictEqual('inliquidation')
+
+      const vault2 = await testing.rpc.loan.getVault(vaultId2)
+      expect(vault2.state).toStrictEqual('inliquidation')
+    }
     // The collateral tokens of vault that are liquidated are sent to auction
     const data = await testing.rpc.loan.listAuctions()
     expect(data.length).toStrictEqual(2)
@@ -127,37 +139,40 @@ describe('Loan listAuctions', () => {
         batches: [
           {
             collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
+              '5000.00000000@DFI',
+              '0.50000000@BTC'
             ],
             index: new BigNumber(0),
-            loan: '10.00002649@TSLA'
+            loan: '4750.01265218@TSLA'
           },
           {
             collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
+              '5000.00000000@DFI',
+              '0.50000000@BTC'
             ],
             index: new BigNumber(1),
-            loan: '10.00002649@TSLA'
+            loan: '4750.01265218@TSLA'
           },
           {
             collaterals: [
-              '6666.66660000@DFI',
-              '0.66666666@BTC'
+              '5000.00000000@DFI',
+              '0.50000000@BTC'
             ],
             index: new BigNumber(2),
-            loan: '10.00002649@TSLA'
+            loan: '4750.01265218@TSLA'
           },
           {
             collaterals: [
-              '0.00020000@DFI',
-              '0.00000002@BTC'
+              '5000.00000000@DFI',
+              '0.50000000@BTC'
             ],
             index: new BigNumber(3),
-            loan: '0.00000030@TSLA'
+            loan: '4750.01265218@TSLA'
           }
         ],
+        loanSchemeId: 'default',
+        ownerAddress,
+        state: 'inliquidation',
         liquidationHeight: new BigNumber(162),
         liquidationPenalty: new BigNumber(5),
         vaultId: vaultId1
