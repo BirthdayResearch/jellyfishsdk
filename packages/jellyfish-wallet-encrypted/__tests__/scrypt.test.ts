@@ -9,9 +9,7 @@ it('should be able to generate from random (same) passphrase into multiple desir
   expect(secret2.length).toStrictEqual(40)
 })
 
-// intentional skip: the unit test is inconsistent, scrypt performance depend on processor
-// adjusting the difficulty do not always scale the time accordingly
-it.skip('configurable params (easy-hard)', async () => {
+it('configurable params (easy-hard)', async () => {
   const easy = new Scrypt(
     16384,
     8,
