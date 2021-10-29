@@ -297,7 +297,7 @@ export class Loan {
   /**
    * Return loan in a desired amount.
    *
-   * @param {LoanPaybackMetadata} metadata
+   * @param {PaybackLoanMetadata} metadata
    * @param {string} metadata.vaultId Vault id
    * @param {string| string[]} metadata.amounts In "amount@symbol" format
    * @param {string} metadata.from Address from transfer tokens
@@ -306,7 +306,7 @@ export class Loan {
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} txid
    */
-  async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
+  async paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
 }
@@ -444,7 +444,7 @@ export interface TakeLoanMetadata {
   to?: string
 }
 
-export interface LoanPaybackMetadata {
+export interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string

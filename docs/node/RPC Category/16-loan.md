@@ -495,16 +495,16 @@ interface UTXO {
 }
 ```
 
-## loanPayback
+## paybackLoan
 
 Return loan in a desired amount.
 
-```ts title="client.loan.loanPayback()"
+```ts title="client.loan.paybackLoan()"
 interface loan {
-  loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
+  paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-interface LoanPaybackMetadata {
+interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string

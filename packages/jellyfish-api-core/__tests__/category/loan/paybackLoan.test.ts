@@ -188,7 +188,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  // set up fixture for loanPayback
+  // set up fixture for paybackLoan
   const aliceDUSDAddr = await alice.container.getNewAddress()
   await alice.token.dfi({ address: aliceDUSDAddr, amount: 600000 })
   await alice.generate(1)
@@ -252,7 +252,7 @@ async function setup (): Promise<void> {
   tslaLoanHeight = await bob.container.getBlockCount()
 }
 
-describe('loanPayback success', () => {
+describe('paybackLoan success', () => {
   beforeEach(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -263,7 +263,7 @@ describe('loanPayback success', () => {
     await tGroup.stop()
   })
 
-  it('should loanPayback', async () => {
+  it('should paybackLoan', async () => {
     await alice.rpc.account.sendTokensToAddress({}, { [bobloanAddr]: ['5@TSLA'] })
     await alice.generate(1)
     await tGroup.waitForSync()
@@ -287,7 +287,7 @@ describe('loanPayback success', () => {
     const bobLoanAccBefore = await bob.rpc.account.getAccount(bobloanAddr)
     expect(bobLoanAccBefore).toStrictEqual(['45.00000000@TSLA'])
 
-    await bob.rpc.loan.loanPayback({
+    await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '45@TSLA', // try pay over loan amount
       from: bobloanAddr
@@ -305,7 +305,7 @@ describe('loanPayback success', () => {
     expect(bobLoanAccAfter).toStrictEqual(['4.99995434@TSLA']) // 45 - 40.00004566
   })
 
-  it('should loanPayback partially', async () => {
+  it('should paybackLoan partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -329,7 +329,7 @@ describe('loanPayback success', () => {
       expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
     }
 
-    const txid = await bob.rpc.loan.loanPayback({
+    const txid = await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '13@TSLA',
       from: bobloanAddr
@@ -362,7 +362,7 @@ describe('loanPayback success', () => {
     expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000457)
   })
 
-  it('should loanPayback by anyone', async () => {
+  it('should paybackLoan by anyone', async () => {
     const loanAccBefore = await bob.container.call('getaccount', [aliceColAddr])
     expect(loanAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
@@ -374,7 +374,7 @@ describe('loanPayback success', () => {
     expect(vaultBefore.interestValue).toStrictEqual(0.00004566)
     expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.0000456 * 100
 
-    const txid = await alice.rpc.loan.loanPayback({
+    const txid = await alice.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '8@TSLA',
       from: aliceColAddr
@@ -393,7 +393,7 @@ describe('loanPayback success', () => {
     expect(vaultAfter.currentRatio).toStrictEqual(23437) // 15000 / 64.00016436 * 100
   })
 
-  it('should loanPayback more than one amount', async () => {
+  it('should paybackLoan more than one amount', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -408,7 +408,7 @@ describe('loanPayback success', () => {
     const loanTokenAccBefore = await bob.container.call('getaccount', [bobloanAddr])
     expect(loanTokenAccBefore).toStrictEqual(['40.00000000@TSLA', '15.00000000@AMZN'])
 
-    // first loanPayback
+    // first paybackLoan
     {
       const blockHeight = await bob.container.getBlockCount()
 
@@ -445,7 +445,7 @@ describe('loanPayback success', () => {
       expect(vaultBefore.loanValue).toStrictEqual(140.00012556) // (40.00004566 * 2) + (15.00009856 * 4)
       expect(vaultBefore.currentRatio).toStrictEqual(10714) // 15000 / 140.00012556 * 100
 
-      const txid = await bob.rpc.loan.loanPayback({
+      const txid = await bob.rpc.loan.paybackLoan({
         vaultId: bobVaultId,
         amounts: ['13@TSLA', '6@AMZN'],
         from: bobloanAddr
@@ -467,9 +467,9 @@ describe('loanPayback success', () => {
       expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001)
     }
 
-    // second loanPayback
+    // second paybackLoan
     {
-      const txid2 = await bob.rpc.loan.loanPayback({
+      const txid2 = await bob.rpc.loan.paybackLoan({
         vaultId: bobVaultId,
         amounts: ['13@TSLA', '6@AMZN'],
         from: bobloanAddr
@@ -506,7 +506,7 @@ describe('loanPayback success', () => {
     }
   })
 
-  it('should loanPayback with utxos', async () => {
+  it('should paybackLoan with utxos', async () => {
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.loanAmounts).toStrictEqual(['40.00002283@TSLA']) // 40 + totalInterest
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00002283@TSLA'])
@@ -516,7 +516,7 @@ describe('loanPayback success', () => {
 
     const utxo = await bob.container.fundAddress(bobloanAddr, 250)
 
-    const txid = await bob.rpc.loan.loanPayback({
+    const txid = await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '13@TSLA',
       from: bobloanAddr
@@ -537,7 +537,7 @@ describe('loanPayback success', () => {
   })
 })
 
-describe('loanPayback failed', () => {
+describe('paybackLoan failed', () => {
   beforeAll(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -548,8 +548,8 @@ describe('loanPayback failed', () => {
     await tGroup.stop()
   })
 
-  it('should not loanPayback on nonexistent vault', async () => {
-    const promise = bob.rpc.loan.loanPayback({
+  it('should not paybackLoan on nonexistent vault', async () => {
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: '0'.repeat(64),
       amounts: '30@TSLA',
       from: bobloanAddr
@@ -558,8 +558,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`Cannot find existing vault with id ${'0'.repeat(64)}`)
   })
 
-  it('should not loanPayback on nonexistent loan token', async () => {
-    const promise = bob.rpc.loan.loanPayback({
+  it('should not paybackLoan on nonexistent loan token', async () => {
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '1@BTC',
       from: bobloanAddr
@@ -569,8 +569,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('Loan token with id (1) does not exist!')
   })
 
-  it('should not loanPayback on invalid token', async () => {
-    const promise = bob.rpc.loan.loanPayback({
+  it('should not paybackLoan on invalid token', async () => {
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '1@INVALID',
       from: bobloanAddr
@@ -579,8 +579,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('Invalid Defi token: INVALID')
   })
 
-  it('should not loanPayback on incorrect auth', async () => {
-    const promise = alice.rpc.loan.loanPayback({
+  it('should not paybackLoan on incorrect auth', async () => {
+    const promise = alice.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '30@TSLA',
       from: bobloanAddr
@@ -589,8 +589,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`Address (${bobloanAddr}) is not owned by the wallet`)
   })
 
-  it('should not loanPayback as no loan on vault', async () => {
-    const promise = bob.rpc.loan.loanPayback({
+  it('should not paybackLoan as no loan on vault', async () => {
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId1,
       amounts: '30@TSLA',
       from: bobloanAddr
@@ -599,14 +599,14 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`There are no loans on this vault (${bobVaultId1})`)
   })
 
-  it('should not loanPayback while insufficient amount', async () => {
+  it('should not paybackLoan while insufficient amount', async () => {
     const vault = await bob.rpc.loan.getVault(bobVaultId)
     expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
 
     const bobLoanAcc = await bob.rpc.account.getAccount(bobloanAddr)
     expect(bobLoanAcc).toStrictEqual(['40.00000000@TSLA'])
 
-    const promise = bob.rpc.loan.loanPayback({
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '41@TSLA',
       from: bobloanAddr
@@ -616,8 +616,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('amount 0.00000000 is less than 0.00002283')
   })
 
-  it('should not loanPayback as no token in this vault', async () => {
-    const promise = bob.rpc.loan.loanPayback({
+  it('should not paybackLoan as no token in this vault', async () => {
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '30@AMZN',
       from: bobloanAddr
@@ -626,14 +626,14 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('There is no loan on token (AMZN) in this vault!')
   })
 
-  it('should not loanPayback on empty vault', async () => {
+  it('should not paybackLoan on empty vault', async () => {
     const emptyVaultId = await bob.rpc.loan.createVault({
       ownerAddress: bobVaultAddr,
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
 
-    const promise = bob.rpc.loan.loanPayback({
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: emptyVaultId,
       amounts: '30@AMZN',
       from: bobloanAddr
@@ -642,13 +642,13 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`Vault with id ${emptyVaultId} has no collaterals`)
   })
 
-  it('should not loanPayback on liquidation vault', async () => {
+  it('should not paybackLoan on liquidation vault', async () => {
     await tGroup.get(0).generate(6)
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inliquidation')
 
-    const promise = bob.rpc.loan.loanPayback({
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobLiqVaultId,
       amounts: '30@UBER',
       from: bobloanAddr
@@ -657,9 +657,9 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('Cannot payback loan on vault under liquidation')
   })
 
-  it('should not loanPayback with arbitrary utxo', async () => {
+  it('should not paybackLoan with arbitrary utxo', async () => {
     const utxo = await bob.container.fundAddress(bobVaultAddr, 250)
-    const promise = bob.rpc.loan.loanPayback({
+    const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '13@TSLA',
       from: bobloanAddr
