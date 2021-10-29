@@ -146,7 +146,7 @@ describe('Loan getVault', () => {
       loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       interestValue: new BigNumber(0.0000114),
       // lround ((collateral value / loan value) * 100)
-      currentRatio: Math.ceil(currentRatioValue)
+      currentRatio: Math.ceil(currentRatioValue) // 24999.995250000902 -> 25000
     })
   })
 
