@@ -304,7 +304,7 @@ describe('Loan listVaults with options and pagination', () => {
     // fetch the second page with including_start = true
     const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({ including_start: true, start: vaults[vaults.length - 1].vaultId })
     // should be 2 entries
-    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 1
+    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
 
     //  check if we retrived all 3 entries
     expect(vaults.concat(vaultsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([
