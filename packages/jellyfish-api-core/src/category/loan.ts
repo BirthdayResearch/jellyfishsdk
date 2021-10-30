@@ -306,7 +306,7 @@ export class Loan {
     return await this.client.call('loanpayback', [metadata, utxos], 'number')
   }
 
-  async listAuctionHistory (ownerAddress: string): Promise<any> {
+  async listAuctionHistory (ownerAddress?: string): Promise<any> {
     return await this.client.call('listauctionhistory', [ownerAddress], 'number')
   }
 }
