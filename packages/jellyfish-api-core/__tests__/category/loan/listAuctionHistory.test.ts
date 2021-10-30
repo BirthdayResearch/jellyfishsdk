@@ -201,7 +201,7 @@ describe('Loan listAuctionHistory', () => {
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '50@MSFT',
+      amounts: '300@MSFT',
       to: bobLoanAddr
     })
     await bob.generate(1)
@@ -299,7 +299,7 @@ describe('Loan listAuctionHistory', () => {
       }
 
       {
-        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 0, aliceColAddr, '10000@TSLA']) // Amount > (1000.00684924 * 1.05 = 1050.0071917)
+        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 2, aliceColAddr, '400@MSFT'])
         expect(typeof txid).toStrictEqual('string')
         expect(txid.length).toStrictEqual(64)
         await alice.generate(1)
