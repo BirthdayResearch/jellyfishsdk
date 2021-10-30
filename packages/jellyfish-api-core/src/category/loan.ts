@@ -305,6 +305,10 @@ export class Loan {
   async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('loanpayback', [metadata, utxos], 'number')
   }
+
+  async listAuctionHistory (ownerAddress: string): Promise<any> {
+    return await this.client.call('listauctionhistory', [ownerAddress], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
