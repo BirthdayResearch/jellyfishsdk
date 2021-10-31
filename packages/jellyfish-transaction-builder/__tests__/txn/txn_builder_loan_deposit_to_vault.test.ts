@@ -343,7 +343,7 @@ describe('loans.depositToVault', () => {
     await tGroup.get(0).generate(6)
 
     const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
-    expect(liqVault.state).toStrictEqual('inliquidation')
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.depositToVault({

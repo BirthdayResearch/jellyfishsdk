@@ -21,7 +21,7 @@ describe('Loan getLoanScheme', () => {
 
     const data = await testing.rpc.loan.getLoanScheme('scheme1')
     expect(data).toStrictEqual(
-      { id: 'scheme1', interestrate: new BigNumber(1.5), mincolratio: new BigNumber(100) }
+      { default: true, id: 'scheme1', interestrate: new BigNumber(1.5), mincolratio: new BigNumber(100) }
     )
   })
 
