@@ -240,7 +240,7 @@ export class Loan {
    * @param {ListVaultOptions} [options]
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
-   * @param {boolean} [options.state = 'Collateralized'] vault's state
+   * @param {VaultState} [options.state = VaultState.UNKNOWN] vault's state
    * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
    */
   async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {

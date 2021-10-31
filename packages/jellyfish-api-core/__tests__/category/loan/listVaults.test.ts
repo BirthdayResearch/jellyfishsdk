@@ -104,7 +104,7 @@ describe('Loan listVaults', () => {
     await testing.generate(1)
 
     // List vaults
-    // should be only vaultId1, vaultId2, vaultId3, vaultId4 coz isUnderLiquidation filter default value equals to false
+    // should return all vaults vaultId1, vaultId2, vaultId3, vaultId4
     const vaults = await testing.rpc.loan.listVaults()
     expect(vaults).toStrictEqual(expect.arrayContaining([
       {
@@ -312,15 +312,15 @@ describe('Loan listVaults with options and pagination', () => {
 
     // fetch the second page
     const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[vaults.length - 1].vaultId })
-    // should be 1 entries
+    // should be 2 entries
     expect(vaultsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
 
     // fetch the second page with including_start = true
     const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({ including_start: true, start: vaults[vaults.length - 1].vaultId })
-    // should be 2 entries
+    // should be 3 entries
     expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
 
-    //  check if we retrived all 3 entries
+    //  check if we retrived all 4 entries
     expect(vaults.concat(vaultsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
@@ -339,6 +339,12 @@ describe('Loan listVaults with options and pagination', () => {
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
         state: VaultState.ACTIVE
+      },
+      {
+        vaultId: vaultId4,
+        ownerAddress: ownerAddress4,
+        loanSchemeId: 'default',
+        state: VaultState.IN_LIQUIDATION
       }
     ]))
   })
@@ -389,9 +395,9 @@ describe('Loan listVaults with options and pagination', () => {
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(0)
   })
 
-  it('should listVaults with pagination and inLiquidation', async () => {
-    // List vaults with isUnderLiquidation = false
-    // only vaultId1, vaultId2, vaultId3 have isUnderLiquidation = false
+  it('should listVaults with pagination and state', async () => {
+    // List vaults with state: VaultState.ACTIVE
+    // only vaultId1, vaultId2, vaultId3 have state: VaultState.ACTIVE
     const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { state: VaultState.ACTIVE })
     expect(Object.keys(vaults).length).toStrictEqual(2)
 
