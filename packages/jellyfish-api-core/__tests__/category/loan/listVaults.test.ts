@@ -424,7 +424,7 @@ describe('Loan listVaults with options and pagination', () => {
     // back to active
     await testing.generate(6)
 
-    // before do mayliquidate vault, do liquidate vault first
+    // before do mayLiquidate vault, do liquidate vault first
     await testing.rpc.oracle.setOracleData(
       oracleId,
       ts,

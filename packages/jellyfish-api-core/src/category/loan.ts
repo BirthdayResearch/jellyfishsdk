@@ -398,9 +398,9 @@ export interface CreateVault {
 export enum VaultState {
   UNKNOWN = 'unknown',
   ACTIVE = 'active',
-  IN_LIQUIDATION = 'inliquidation',
+  IN_LIQUIDATION = 'inLiquidation',
   FROZEN = 'frozen',
-  MAY_LIQUIDATE = 'mayliquidate',
+  MAY_LIQUIDATE = 'mayLiquidate',
 }
 
 export interface VaultDetails {

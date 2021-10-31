@@ -361,10 +361,9 @@ interface loan {
 enum VaultState {
   UNKNOWN = 'unknown',
   ACTIVE = 'active',
-  IN_LIQUIDATION = 'inliquidation',
+  IN_LIQUIDATION = 'inLiquidation',
   FROZEN = 'frozen',
-  MAY_LIQUIDATE = 'mayliquidate',
-  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
+  MAY_LIQUIDATE = 'mayLiquidate',
 }
 
 interface VaultDetails {

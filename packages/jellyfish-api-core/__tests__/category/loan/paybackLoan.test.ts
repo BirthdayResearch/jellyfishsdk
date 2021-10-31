@@ -646,7 +646,7 @@ describe('paybackLoan failed', () => {
     await tGroup.get(0).generate(6)
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
-    expect(liqVault.state).toStrictEqual('inliquidation')
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobLiqVaultId,
