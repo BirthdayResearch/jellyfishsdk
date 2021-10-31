@@ -306,9 +306,28 @@ export class Loan {
     return await this.client.call('loanpayback', [metadata, utxos], 'number')
   }
 
-  async listAuctionHistory (ownerAddress?: string): Promise<any> {
-    return await this.client.call('listauctionhistory', [ownerAddress], 'number')
+  /**
+   * Return loan in a desired amount.
+   *
+   * @param {LoanPaybackMetadata} metadata
+   * @param {string} metadata.vaultId Vault id
+   * @param {string| string[]} metadata.amounts In "amount@symbol" format
+   * @param {string} metadata.from Address from transfer tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} txid
+   */
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<any> {
+    return await this.client.call('listauctionhistory', [owner], 'number')
   }
+}
+
+export interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
 }
 
 export interface CreateLoanScheme {
