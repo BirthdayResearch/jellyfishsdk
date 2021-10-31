@@ -226,7 +226,7 @@ export class Loan {
     return await this.client.call(
       'getvault',
       [vaultId],
-      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber', informativeRatio: 'bignumber' }
     )
   }
 
@@ -244,7 +244,11 @@ export class Loan {
    * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
    */
   async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
-    return await this.client.call('listvaults', [options, pagination], 'number')
+    return await this.client.call(
+      'listvaults',
+      [options, pagination],
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber', informativeRatio: 'bignumber' }
+    )
   }
 
   /**
@@ -417,8 +421,9 @@ export interface VaultDetails {
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
 export interface AuctionBatchDetails {

@@ -86,7 +86,7 @@ describe('loans.createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
   })
 
@@ -121,7 +121,7 @@ describe('loans.createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
   })
 
@@ -156,7 +156,7 @@ describe('loans.createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
 
     await testing.generate(1)
@@ -190,7 +190,7 @@ describe('loans.createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
 
     // Still it should be two different vaults
@@ -233,7 +233,7 @@ describe('loans.createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
   })
 

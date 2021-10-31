@@ -380,8 +380,9 @@ interface VaultDetails {
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
 interface AuctionBatchDetails {
@@ -414,8 +415,9 @@ interface VaultDetails {
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
 interface AuctionBatchDetails {

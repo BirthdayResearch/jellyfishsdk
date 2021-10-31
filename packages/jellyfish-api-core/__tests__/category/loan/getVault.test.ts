@@ -79,8 +79,9 @@ describe('Loan getVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      currentRatio: expect.any(Number)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 
@@ -106,8 +107,9 @@ describe('Loan getVault', () => {
       // (10000 DFI * DFIUSD Price * DFI collaterization factor 1) + (1BTC * BTCUSD Price * BTC collaterization factor 0.5)
       collateralValue: new BigNumber(10000 * 1 * 1).plus(new BigNumber(1 * 10000 * 0.5)),
       loanValue: new BigNumber(0),
-      interestValue: '',
-      currentRatio: -1
+      interestValue: new BigNumber(0),
+      collateralRatio: -1,
+      informativeRatio: new BigNumber(-1)
     })
   })
 
@@ -129,7 +131,7 @@ describe('Loan getVault', () => {
     const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
     const data = await testing.rpc.loan.getVault(vaultId)
-    const currentRatioValue: number = data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100).toNumber() as number
+    const informativeRatio: BigNumber = data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100) as BigNumber
 
     expect(data).toStrictEqual({
       vaultId: vaultId,
@@ -146,7 +148,8 @@ describe('Loan getVault', () => {
       loanValue: new BigNumber(30).plus(interestInfo[0].totalInterest).multipliedBy(2),
       interestValue: new BigNumber(0.0000114),
       // lround ((collateral value / loan value) * 100)
-      currentRatio: Math.ceil(currentRatioValue) // 24999.995250000902 -> 25000
+      collateralRatio: Math.ceil(informativeRatio.toNumber()), // 25000
+      informativeRatio: new BigNumber(informativeRatio.toFixed(5)) // 24999.995250000902 -> 24999.99525
     })
   })
 

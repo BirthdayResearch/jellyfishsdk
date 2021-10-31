@@ -56,7 +56,7 @@ describe('Loan createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
   })
 
@@ -83,7 +83,7 @@ describe('Loan createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
   })
 
@@ -131,7 +131,7 @@ describe('Loan createVault', () => {
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
       interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      collateralRatio: expect.any(BigNumber)
     })
   })
 

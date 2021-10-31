@@ -104,9 +104,9 @@ describe('Loan listVaults', () => {
     await testing.generate(1)
 
     // List vaults
-    // should be only vaultId1, vaultId2, vaultId3 coz isUnderLiquidation filter default value equals to false
+    // should be only vaultId1, vaultId2, vaultId3, vaultId4 coz isUnderLiquidation filter default value equals to false
     const vaults = await testing.rpc.loan.listVaults()
-    expect(vaults).toStrictEqual(expect.arrayContaining([
+    expect(vaults).toStrictEqual([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
@@ -124,8 +124,14 @@ describe('Loan listVaults', () => {
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
         state: VaultState.ACTIVE
+      },
+      {
+        vaultId: vaultId4,
+        ownerAddress: ownerAddress4,
+        loanSchemeId: 'default',
+        state: VaultState.ACTIVE
       }
-    ]))
+    ])
   })
 })
 
@@ -235,7 +241,7 @@ describe('Loan listVaults with options and pagination', () => {
   it('should listVaults with ListVaultOptions.ownerAddress', async () => {
     // List vaults
     const vaults = await testing.rpc.loan.listVaults({}, { ownerAddress: ownerAddress1 })
-    expect(vaults).toStrictEqual(expect.arrayContaining([
+    expect(vaults).toStrictEqual([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
@@ -248,7 +254,7 @@ describe('Loan listVaults with options and pagination', () => {
         loanSchemeId: 'scheme',
         state: VaultState.ACTIVE
       }
-    ]))
+    ])
   })
 
   it('should listVaults with ListVaultOptions.loanSchemeId', async () => {
@@ -267,7 +273,7 @@ describe('Loan listVaults with options and pagination', () => {
   it('should listVaults with ListVaultOptions.isUnderLiquidation', async () => {
     // List vaults
     const nonLiquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.ACTIVE })
-    expect(nonLiquidatedVaults).toStrictEqual(expect.arrayContaining([
+    expect(nonLiquidatedVaults).toStrictEqual([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
@@ -286,7 +292,7 @@ describe('Loan listVaults with options and pagination', () => {
         loanSchemeId: 'scheme',
         state: VaultState.ACTIVE
       }
-    ]))
+    ])
 
     const liquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
     expect(liquidatedVaults).toStrictEqual([
@@ -342,7 +348,7 @@ describe('Loan listVaults with options and pagination', () => {
     // note that ownerAddress3 = ownerAddress1
     const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { ownerAddress: ownerAddress1 })
     expect(Object.keys(vaults).length).toStrictEqual(2)
-    expect(vaults).toStrictEqual(expect.arrayContaining([
+    expect(vaults).toStrictEqual([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
@@ -355,7 +361,7 @@ describe('Loan listVaults with options and pagination', () => {
         loanSchemeId: 'scheme',
         state: VaultState.ACTIVE
       }
-    ]))
+    ])
 
     // fetch the second page
     const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId }, { ownerAddress: ownerAddress1 })
