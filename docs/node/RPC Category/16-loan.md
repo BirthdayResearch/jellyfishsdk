@@ -502,3 +502,31 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listAuctionHistory
+
+Returns information about auction history.
+
+```ts title="client.loan.listAuctionHistory()"
+interface loan {
+  listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryData[]>
+}
+
+interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+interface ListAuctionHistoryData {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
+}
+```

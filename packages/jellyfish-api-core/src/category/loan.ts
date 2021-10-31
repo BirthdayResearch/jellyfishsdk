@@ -307,27 +307,22 @@ export class Loan {
   }
 
   /**
-   * Return loan in a desired amount.
+   * Returns information about auction history.
    *
-   * @param {LoanPaybackMetadata} metadata
-   * @param {string} metadata.vaultId Vault id
-   * @param {string| string[]} metadata.amounts In "amount@symbol" format
-   * @param {string} metadata.from Address from transfer tokens
-   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-   * @param {string} utxos.txid Transaction Id
-   * @param {number} utxos.vout Output number
+   * @param {string} owner = 'mine'
+   * @param {ListAuctionHistoryPagination} pagination
+   * @param {number} [pagination.maxBlockHeight]
+   * @param {string} [pagination.vaultId]
+   * @param {number} [pagination.index]
+   * @param {number} [pagination.limit = 100]
    * @return {Promise<string>} txid
    */
-  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<any> {
-    return await this.client.call('listauctionhistory', [owner], 'number')
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryData[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, pagination }], 'number')
   }
-}
-
-export interface ListAuctionHistoryPagination {
-  maxBlockHeight?: number
-  vaultId?: string
-  index?: number
-  limit?: number
 }
 
 export interface CreateLoanScheme {
@@ -474,4 +469,22 @@ export interface ListVaultOptions {
 export interface CloseVault {
   vaultId: string
   to: string
+}
+
+export interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+export interface ListAuctionHistoryData {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
 }
