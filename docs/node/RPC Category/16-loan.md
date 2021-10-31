@@ -358,26 +358,67 @@ interface loan {
   getVault (vaultId: string): Promise<VaultDetails>
 }
 
+enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inliquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayliquidate',
+  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
+}
+
 interface VaultDetails {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
+  state: VaultState
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber,
-  currentRatio?: BigNumber
+  interestValue?: BigNumber | string // empty string if nothing
+  currentRatio?: number
 }
 
 interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+```
+
+## listVaults
+
+List all available vaults.
+
+```ts title="client.loan.listVaults()"
+interface loan {
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
+}
+
+interface ListVaultDetails {
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  isUnderLiquidation: boolean
+}
+
+
+interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  isUnderLiquidation?: boolean
+}
+
+interface VaultPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
 }
 ```
 
@@ -393,50 +434,6 @@ interface loan {
 interface CloseVault {
   vaultId: string
   to: string
-}
-```
-
-## listVaults
-
-List all available vaults.
-
-```ts title="client.loan.listVaults()"
-interface loan {
-  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
-}
-
-interface ListVaultOptions {
-  ownerAddress?: string
-  loanSchemeId?: string
-  isUnderLiquidation?: boolean
-}
-
-interface VaultPagination {
-  start?: string
-  including_start?: boolean
-  limit?: number
-}
-
-interface VaultDetails {
-  vaultId: string
-  loanSchemeId: string
-  ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
-  batches?: AuctionBatchDetails[]
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber,
-  currentRatio?: BigNumber
-}
-
-interface AuctionBatchDetails {
-  index: BigNumber
-  collaterals: string[]
-  loan: string
 }
 ```
 
@@ -491,7 +488,7 @@ interface loan {
   loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-export interface LoanPaybackMetadata {
+interface LoanPaybackMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
