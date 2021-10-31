@@ -194,14 +194,14 @@ describe('Loan listAuctionHistory', () => {
     const bobLoanAddr = await bob.generateAddress()
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '300@TSLA',
+      amounts: '3300@TSLA',
       to: bobLoanAddr
     })
     await bob.generate(1)
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '300@MSFT',
+      amounts: '3300@MSFT',
       to: bobLoanAddr
     })
     await bob.generate(1)
@@ -225,14 +225,6 @@ describe('Loan listAuctionHistory', () => {
       vaultId: bobVaultId2,
       from: bobColAddr2,
       amount: '1@BTC'
-    })
-    await bob.generate(1)
-
-    const bobLoanAddr2 = await bob.generateAddress()
-    await bob.rpc.loan.takeLoan({
-      vaultId: bobVaultId1,
-      amounts: '1000@TSLA',
-      to: bobLoanAddr2
     })
     await bob.generate(1)
 
@@ -270,7 +262,7 @@ describe('Loan listAuctionHistory', () => {
     // increase TSLA price
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
-        tokenAmount: '15@TSLA',
+        tokenAmount: '2.5@TSLA',
         currency: 'USD'
       }]
     })
@@ -299,7 +291,7 @@ describe('Loan listAuctionHistory', () => {
       }
 
       {
-        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 2, aliceColAddr, '400@MSFT'])
+        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 2, aliceColAddr, '4000@MSFT'])
         expect(typeof txid).toStrictEqual('string')
         expect(txid.length).toStrictEqual(64)
         await alice.generate(1)
@@ -312,42 +304,6 @@ describe('Loan listAuctionHistory', () => {
         const account = await alice.rpc.account.getAccount(aliceColAddr)
         console.log(account)
       }
-
-      // expect(data.state).toStrictEqual('inliquidation')
-      // expect(data.batches[0].loan).toStrictEqual('1000.00684924@TSLA')
-
-      // {
-      //   const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 0, aliceColAddr, '1051@TSLA']) // Amount > (1000.00684924 * 1.05 = 1050.0071917)
-      //   expect(typeof txid).toStrictEqual('string')
-      //   expect(txid.length).toStrictEqual(64)
-      //   await alice.generate(1)
-      //   await tGroup.waitForSync()
-      // }
-
-      // {
-      //   const txid = await bob.container.call('placeauctionbid', [bobVaultId1, 0, bobColAddr1, '1062@TSLA']) // Amount > (1051 * 1.01 = 1061.51
-      //   expect(typeof txid).toStrictEqual('string')
-      //   expect(txid.length).toStrictEqual(64)
-      //   await bob.generate(1)
-      // }
-
-    //   const auctionhistory1 = await bob.rpc.loan.listAuctionHistory()
-    //   const auctionhistory2 = await bob.rpc.loan.listAuctionHistory(bobColAddr1)
-    //   expect(auctionhistory1).toStrictEqual(auctionhistory2)
-    //   expect(auctionhistory1).toStrictEqual(
-    //     [
-    //       {
-    //         winner: bobColAddr1,
-    //         blockHeight: expect.any(Number),
-    //         blockHash: expect.any(String),
-    //         blockTime: expect.any(Number),
-    //         vaultId: bobVaultId1,
-    //         batchIndex: 0,
-    //         auctionBid: '1062.00000000@TSLA',
-    //         auctionWon: ['5000.00000000@DFI', '0.50000000@BTC']
-    //       }
-    //     ]
-    //   )
     })
   })
 })
