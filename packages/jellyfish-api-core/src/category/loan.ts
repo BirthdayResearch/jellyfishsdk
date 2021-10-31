@@ -408,10 +408,12 @@ export enum VaultState {
 }
 
 export interface VaultDetails {
+  // list and get both returns
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
+  // get only returns
   liquidationHeight?: number
   liquidationPenalty?: number
   batchCount?: number
