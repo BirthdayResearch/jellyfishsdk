@@ -8,13 +8,10 @@ describe('Loan listAuctionHistory', () => {
   const alice = tGroup.get(0)
   const bob = tGroup.get(1)
   let aliceColAddr: string
-
   let bobVaultId1: string
   let bobVaultId2: string
   let bobColAddr1: string
   let bobColAddr2: string
-  let bobVaultId1BidBlockCount: number
-  let bobVaultId2BidBlockCount: number
 
   async function setup (): Promise<void> {
     aliceColAddr = await alice.generateAddress()
@@ -142,13 +139,11 @@ describe('Loan listAuctionHistory', () => {
 
     await alice.rpc.account.sendTokensToAddress({}, { [bobColAddr2]: ['10000@TSLA'] })
     await alice.generate(1)
-
     await tGroup.waitForSync()
 
     // Bob's first vault
-    const bobVaultAddr1 = await bob.generateAddress()
     bobVaultId1 = await bob.rpc.loan.createVault({
-      ownerAddress: bobVaultAddr1,
+      ownerAddress: await bob.generateAddress(),
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
@@ -167,18 +162,16 @@ describe('Loan listAuctionHistory', () => {
     })
     await bob.generate(1)
 
-    const bobLoanAddr = await bob.generateAddress()
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
       amounts: '1000@TSLA',
-      to: bobLoanAddr
+      to: await bob.generateAddress()
     })
     await bob.generate(1)
 
     // Bob's second vault
-    const bobVaultAddr2 = await bob.generateAddress()
     bobVaultId2 = await bob.rpc.loan.createVault({
-      ownerAddress: bobVaultAddr2,
+      ownerAddress: await bob.generateAddress(),
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
@@ -205,37 +198,6 @@ describe('Loan listAuctionHistory', () => {
     })
     await bob.generate(1)
 
-    // create DFI-TSLA
-    await bob.poolpair.create({
-      tokenA: 'DFI',
-      tokenB: 'TSLA',
-      ownerAddress: aliceColAddr
-    })
-    await bob.generate(1)
-
-    // add DFI-TSLA
-    await bob.poolpair.add({
-      a: {
-        symbol: 'DFI',
-        amount: 500
-      },
-      b: {
-        symbol: 'TSLA',
-        amount: 1000
-      }
-    })
-    await bob.generate(1)
-
-    await bob.poolpair.swap({
-      from: bobColAddr1,
-      tokenFrom: 'DFI',
-      amountFrom: 600,
-      to: bobColAddr1,
-      tokenTo: 'TSLA'
-    })
-    await bob.generate(1)
-    await tGroup.waitForSync()
-
     // increase TSLA price
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
@@ -244,7 +206,6 @@ describe('Loan listAuctionHistory', () => {
       }]
     })
     await alice.generate(12)
-    await tGroup.waitForSync()
 
     // bobVaultId1
     {
@@ -257,11 +218,10 @@ describe('Loan listAuctionHistory', () => {
         expect(typeof txid).toStrictEqual('string')
         expect(txid.length).toStrictEqual(64)
         await alice.generate(1)
-        await tGroup.waitForSync()
       }
     }
 
-    bobVaultId1BidBlockCount = await alice.container.getBlockCount()
+    await tGroup.waitForSync()
 
     // bobVaultId2
     {
@@ -285,85 +245,157 @@ describe('Loan listAuctionHistory', () => {
       }
     }
 
-    bobVaultId2BidBlockCount = await bob.container.getBlockCount()
-
     await bob.container.generate(40)
+    await tGroup.waitForSync()
   }
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
     await setup()
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await tGroup.stop()
   })
 
   describe('listAuctionHistory', () => {
-    it('should listAuctionHistory with owner and maxBlockHeight', async () => {
-      {
-        const auctionhistory1 = await alice.rpc.loan.listAuctionHistory() // default to mine owner
-        const auctionhistory2 = await alice.rpc.loan.listAuctionHistory('mine')
-        const auctionhistory3 = await alice.rpc.loan.listAuctionHistory(aliceColAddr)
-        const auctionhistory4 = await alice.rpc.loan.listAuctionHistory(undefined, { maxBlockHeight: bobVaultId1BidBlockCount })
-        const auctionhistory5 = await alice.rpc.loan.listAuctionHistory(undefined, { vaultId: bobVaultId1 })
-        const auctionhistory6 = await alice.rpc.loan.listAuctionHistory(undefined, { index: 0 })
-        const auctionhistory7 = await alice.rpc.loan.listAuctionHistory(undefined, { limit: 1 })
+    describe('listAuctionHistory with owner', () => {
+      it('should listAuctionHistory with owner = mine', async () => {
+        {
+          const auctionhistory1 = await alice.rpc.loan.listAuctionHistory() // default to mine owner
+          const auctionhistory2 = await alice.rpc.loan.listAuctionHistory('mine')
+          expect(auctionhistory1).toStrictEqual(auctionhistory2)
+          expect(auctionhistory1).toStrictEqual(
+            [
+              {
+                winner: aliceColAddr,
+                blockHeight: expect.any(Number),
+                blockHash: expect.any(String),
+                blockTime: expect.any(Number),
+                vaultId: bobVaultId1,
+                batchIndex: 0,
+                auctionBid: '526.00000000@TSLA',
+                auctionWon: ['5000.00000000@DFI', '0.50000000@BTC']
+              }
+            ]
+          )
+        }
 
-        expect(auctionhistory1).toStrictEqual(auctionhistory2)
-        expect(auctionhistory1).toStrictEqual(auctionhistory3)
-        expect(auctionhistory1).toStrictEqual(auctionhistory4)
-        expect(auctionhistory1).toStrictEqual(auctionhistory5)
-        expect(auctionhistory1).toStrictEqual(auctionhistory6)
-        expect(auctionhistory1).toStrictEqual(auctionhistory7)
-        expect(auctionhistory1).toStrictEqual(
-          [
-            {
-              winner: aliceColAddr,
-              blockHeight: expect.any(Number),
-              blockHash: expect.any(String),
-              blockTime: expect.any(Number),
-              vaultId: bobVaultId1,
-              batchIndex: 0,
-              auctionBid: '526.00000000@TSLA',
-              auctionWon: ['5000.00000000@DFI', '0.50000000@BTC']
-            }
-          ]
-        )
-      }
+        {
+          const auctionhistory1 = await bob.rpc.loan.listAuctionHistory() // default to mine owner
+          const auctionhistory2 = await bob.rpc.loan.listAuctionHistory('mine')
+          expect(auctionhistory1).toStrictEqual(auctionhistory1)
+          expect(auctionhistory1).toStrictEqual(auctionhistory2)
+          expect(auctionhistory1).toStrictEqual(
+            [
+              {
+                winner: bobColAddr1,
+                blockHeight: expect.any(Number),
+                blockHash: expect.any(String),
+                blockTime: expect.any(Number),
+                vaultId: bobVaultId2,
+                batchIndex: 0,
+                auctionBid: '532.00000000@TSLA',
+                auctionWon: ['5000.00000000@DFI', '0.50000000@BTC']
+              }
+            ]
+          )
+        }
+      })
 
-      {
-        const auctionhistory1 = await bob.rpc.loan.listAuctionHistory() // default to mine owner
-        const auctionhistory2 = await bob.rpc.loan.listAuctionHistory('mine')
-        const auctionhistory3 = await bob.rpc.loan.listAuctionHistory(bobColAddr1)
-        const auctionhistory4 = await bob.rpc.loan.listAuctionHistory(undefined, { maxBlockHeight: bobVaultId2BidBlockCount })
-        const auctionhistory5 = await bob.rpc.loan.listAuctionHistory(undefined, { vaultId: bobVaultId2 })
-        const auctionhistory6 = await bob.rpc.loan.listAuctionHistory(undefined, { index: 1 })
-        const auctionhistory7 = await bob.rpc.loan.listAuctionHistory(undefined, { limit: 1 })
+      it('should listAuctionHistory with owner = all', async () => {
+        const data = await alice.rpc.loan.listAuctionHistory('all')
+        expect(data.length).toStrictEqual(2)
+      })
 
-        expect(auctionhistory1).toStrictEqual(auctionhistory1)
-        expect(auctionhistory1).toStrictEqual(auctionhistory2)
-        expect(auctionhistory1).toStrictEqual(auctionhistory3)
-        expect(auctionhistory1).toStrictEqual(auctionhistory4)
-        expect(auctionhistory1).toStrictEqual(auctionhistory5)
-        expect(auctionhistory1).toStrictEqual(auctionhistory6)
-        expect(auctionhistory1).toStrictEqual(auctionhistory7)
-        expect(auctionhistory1).toStrictEqual(
-          [
-            {
-              winner: bobColAddr1,
-              blockHeight: expect.any(Number),
-              blockHash: expect.any(String),
-              blockTime: expect.any(Number),
-              vaultId: bobVaultId2,
-              batchIndex: 0,
-              auctionBid: '532.00000000@TSLA',
-              auctionWon: ['5000.00000000@DFI', '0.50000000@BTC']
-            }
-          ]
-        )
-      }
+      it('should listAuctionHistory with owner = address', async () => {
+        {
+          const data = await alice.rpc.loan.listAuctionHistory(aliceColAddr)
+          expect(data[0].vaultId).toStrictEqual(bobVaultId1)
+        }
+
+        {
+          const data = await alice.rpc.loan.listAuctionHistory(bobColAddr1)
+          expect(data[0].vaultId).toStrictEqual(bobVaultId2)
+        }
+      })
+    })
+
+    describe('listAuctionHistory with pagination', () => {
+      it('should listAuctionHistory with maxBlockHeight', async () => {
+        {
+          const data = await alice.rpc.loan.listAuctionHistory('all', { maxBlockHeight: 173 })
+          expect(data).toStrictEqual([])
+        }
+
+        {
+          const data = await alice.rpc.loan.listAuctionHistory('all', { maxBlockHeight: 174 })
+          expect(data.length).toStrictEqual(2)
+        }
+      })
+
+      it('should listAuctionHistory with vaultId', async () => {
+        {
+          const data = await alice.rpc.loan.listAuctionHistory(undefined, { vaultId: bobVaultId1 })
+          expect(data[0].vaultId).toStrictEqual(bobVaultId1)
+        }
+
+        {
+          const data = await bob.rpc.loan.listAuctionHistory(undefined, { vaultId: bobVaultId2 })
+          expect(data[0].vaultId).toStrictEqual(bobVaultId2)
+        }
+      })
+
+      it('should not listAuctionHistory with vaultId that does not exists', async () => {
+        {
+          const promise = alice.rpc.loan.listAuctionHistory(undefined, { vaultId: 'x'.repeat(64) })
+          await expect(promise).rejects.toThrow(`RpcApiError: 'vaultId must be hexadecimal string (not '${'x'.repeat(64)}')', code: -8, method: listauctionhistory`)
+        }
+
+        {
+          const promise = bob.rpc.loan.listAuctionHistory(undefined, { vaultId: 'x'.repeat(64) })
+          await expect(promise).rejects.toThrow(`RpcApiError: 'vaultId must be hexadecimal string (not '${'x'.repeat(64)}')', code: -8, method: listauctionhistory`)
+        }
+
+        {
+          const promise = alice.rpc.loan.listAuctionHistory(undefined, { vaultId: 'x' })
+          await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 1, for \'x\')\', code: -8, method: listauctionhistory')
+        }
+
+        {
+          const promise = bob.rpc.loan.listAuctionHistory(undefined, { vaultId: 'x' })
+          await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 1, for \'x\')\', code: -8, method: listauctionhistory')
+        }
+      })
+
+      // it('should listAuctionHistory with batch index', async () => {
+      //   {
+      //     const data = await alice.rpc.loan.listAuctionHistory(undefined, { index: -1 })
+      //     expect(data[0].vaultId).toStrictEqual(bobVaultId1)
+      //   }
+      //
+      //   {
+      //     const data = await alice.rpc.loan.listAuctionHistory(undefined, { index: 1 })
+      //     expect(data).toStrictEqual([])
+      //   }
+      //
+      //   {
+      //     const data = await bob.rpc.loan.listAuctionHistory(undefined, { index: 0 })
+      //     expect(data[0].vaultId).toStrictEqual(bobVaultId2)
+      //   }
+      //
+      //   {
+      //     const data = await bob.rpc.loan.listAuctionHistory(undefined, { index: 1 })
+      //     expect(data).toStrictEqual([])
+      //   }
+      // })
+      //
+      // it('should listAuctionHistory with limit', async () => {
+      //   const data = await alice.rpc.loan.listAuctionHistory(bobColAddr1, { limit: -1 })
+      //   console.log(data)
+      //   expect(data[0].vaultId).toStrictEqual(bobVaultId1)
+      // })
     })
   })
 })

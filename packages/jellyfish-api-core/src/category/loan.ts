@@ -321,7 +321,7 @@ export class Loan {
     const defaultPagination = {
       limit: 100
     }
-    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, pagination }], 'number')
+    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
   }
 }
 
