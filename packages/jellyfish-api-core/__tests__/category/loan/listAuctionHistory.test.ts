@@ -262,7 +262,7 @@ describe('Loan listAuctionHistory', () => {
     // increase TSLA price
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
-        tokenAmount: '2.5@TSLA',
+        tokenAmount: '2.07@TSLA',
         currency: 'USD'
       }]
     })
