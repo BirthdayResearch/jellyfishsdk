@@ -351,6 +351,7 @@ export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+  default: boolean
 }
 
 export interface ListCollateralTokens {

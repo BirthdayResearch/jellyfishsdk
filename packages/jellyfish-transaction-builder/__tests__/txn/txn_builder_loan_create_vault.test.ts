@@ -74,7 +74,7 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'scheme',
@@ -85,8 +85,9 @@ describe('loans.createVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      collateralRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 
@@ -109,7 +110,7 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'default',
@@ -120,8 +121,9 @@ describe('loans.createVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      collateralRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 
@@ -144,7 +146,7 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'scheme2',
@@ -155,8 +157,9 @@ describe('loans.createVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      collateralRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
 
     await testing.generate(1)
@@ -178,7 +181,7 @@ describe('loans.createVault', () => {
     expect(prevouts2[0].value.toNumber()).toBeLessThan(10)
 
     const txid2 = calculateTxid(txn2)
-    const data2 = await testing.rpc.call('getvault', [txid2], 'bignumber')
+    const data2 = await testing.rpc.loan.getVault(txid2)
     expect(data2).toStrictEqual({
       vaultId: txid2,
       loanSchemeId: 'scheme2',
@@ -189,8 +192,9 @@ describe('loans.createVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      collateralRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
 
     // Still it should be two different vaults
@@ -221,7 +225,7 @@ describe('loans.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.call('getvault', [txid], 'bignumber')
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'scheme',
@@ -232,8 +236,9 @@ describe('loans.createVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      collateralRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 
