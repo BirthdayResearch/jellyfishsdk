@@ -304,6 +304,11 @@ describe('Loan listAuctionHistory', () => {
         const account = await alice.rpc.account.getAccount(aliceColAddr)
         console.log(account)
       }
+
+      {
+        const auctionhistory = await alice.container.call('listauctionhistory')
+        console.log(auctionhistory)
+      }
     })
   })
 })
