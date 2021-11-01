@@ -319,17 +319,9 @@ export class Loan {
    *
    * @return {Promise<AuctionDetail[]>}
    */
-  async listAuctions (): Promise<AuctionDetail[]> {
-    return await this.client.call('listauctions', [], 'bignumber')
+  async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
+    return await this.client.call('listauctions', [pagination], { batches: 'bignumber' })
   }
-}
-
-export interface AuctionDetail {
-  vaultId: string
-  batchCount: BigNumber
-  liquidationPenalty: BigNumber
-  liquidationHeight: BigNumber
-  batches: AuctionBatchDetails[]
 }
 
 export interface CreateLoanScheme {
@@ -490,4 +482,26 @@ export interface ListVaultOptions {
 export interface CloseVault {
   vaultId: string
   to: string
+}
+
+export interface AuctionPagination {
+  start?: AuctionPaginationStart
+  including_start?: boolean
+  limit?: number
+}
+
+export interface AuctionPaginationStart {
+  vaultId?: string
+  height?: number
+}
+
+export interface AuctionDetail {
+  vaultId: string
+  batchCount: BigNumber
+  liquidationPenalty: BigNumber
+  liquidationHeight: BigNumber
+  batches: AuctionBatchDetails[]
+  loanSchemeId: string
+  ownerAddress: string
+  state: string
 }

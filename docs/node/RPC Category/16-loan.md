@@ -537,6 +537,9 @@ interface AuctionDetail {
   liquidationPenalty: BigNumber
   liquidationHeight: BigNumber
   batches: AuctionBatchDetails[]
+  loanSchemeId: string
+  ownerAddress: string
+  state: string
 }
 
 interface AuctionBatchDetails {
