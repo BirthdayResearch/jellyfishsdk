@@ -35,7 +35,9 @@ export interface GovernanceUnmapped {
 
 export type GovernanceVar = GovernanceLpDailyReward | GovernanceLpSplits | GovernanceUnmapped
 
-export class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
+export abstract class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
+  abstract isWithHeight (): boolean
+
   composers (gv: GovernanceVar): BufferComposer[] {
     return [
       ComposableBuffer.varUIntUtf8BE(() => gv.key, v => gv.key = v),
@@ -50,7 +52,13 @@ export class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
               gv.value.push(new CLiqPoolSplit(buffer).toObject())
             }
           } else {
-            gv.value = buffer.readBuffer().toString('hex')
+            let remainingLength = buffer.remaining()
+            if (this.isWithHeight()) {
+              console.log('with height', remainingLength)
+              remainingLength -= 4 // 4 bytes reserved for SetGovernanceHeight's height data
+              console.log('remaining', buffer.toString('hex'), remainingLength)
+            }
+            gv.value = buffer.readBuffer(remainingLength).toString('hex')
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
@@ -66,6 +74,18 @@ export class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
         }
       }
     ]
+  }
+}
+
+export class CGovernanceVarWithoutHeight extends CGovernanceVar {
+  isWithHeight (): boolean {
+    return false
+  }
+}
+
+export class CGovernanceVarWithHeight extends CGovernanceVar {
+  isWithHeight (): boolean {
+    return true
   }
 }
 
@@ -87,13 +107,13 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
         fromBuffer: (buffer: SmartBuffer): void => {
           gvs.governanceVars = []
           while (buffer.remaining() > 0) {
-            const govVar = new CGovernanceVar(buffer)
+            const govVar = new CGovernanceVarWithoutHeight(buffer)
             gvs.governanceVars.push(govVar.toObject())
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
           gvs.governanceVars.forEach(gv =>
-            new CGovernanceVar(gv).toBuffer(buffer)
+            new CGovernanceVarWithoutHeight(gv).toBuffer(buffer)
           )
         }
       }
@@ -119,14 +139,16 @@ export class CSetGovernanceHeight extends ComposableBuffer<SetGovernanceHeight> 
       {
         fromBuffer: (buffer: SmartBuffer): void => {
           gvs.governanceVars = []
-          while (buffer.remaining() > 0) {
-            const govVar = new CGovernanceVar(buffer)
+          // entries count in GovVar array is unknown
+          // we have to hardcode the remaining length here to determine the end
+          while (buffer.remaining() > 4) {
+            const govVar = new CGovernanceVarWithHeight(buffer)
             gvs.governanceVars.push(govVar.toObject())
           }
         },
         toBuffer: (buffer: SmartBuffer): void => {
           gvs.governanceVars.forEach(gv =>
-            new CGovernanceVar(gv).toBuffer(buffer)
+            new CGovernanceVarWithHeight(gv).toBuffer(buffer)
           )
         }
       },

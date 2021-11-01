@@ -111,9 +111,9 @@ describe('single variable', () => {
    *  }
    * }])
    */
-  const header = '6a28446654786a' // OP_RETURN, PUSH_DATA(44665478, 6a)
-  const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000'
-  const setGovernance: SetGovernanceHeight = {
+  const header = '6a2c446654786a' // OP_RETURN, PUSH_DATA(44665478, 6a)
+  const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000ea000000'
+  const setGovernanceHeight: SetGovernanceHeight = {
     governanceVars: [
       {
         key: 'LP_SPLITS',
@@ -135,7 +135,7 @@ describe('single variable', () => {
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE(setGovernance)
+      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE_HEIGHT(setGovernanceHeight)
     ]
 
     const buffer = toBuffer(stack)
@@ -147,11 +147,11 @@ describe('single variable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
       const composable = new CSetGovernanceHeight(buffer)
 
-      expect(composable.toObject()).toStrictEqual(setGovernance)
+      expect(composable.toObject()).toStrictEqual(setGovernanceHeight)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CSetGovernanceHeight(setGovernance)
+      const composable = new CSetGovernanceHeight(setGovernanceHeight)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
@@ -177,9 +177,10 @@ describe('Unmapped Governance Variable handling', () => {
 
   const lpRewards = '134c505f4441494c595f4446495f524557415244c01c3d0900000000'
   const fooBaz = '03464f4f0123456789abcdef' // [0x03 FOO {raw hex}]
+  const height = '59010000'
 
   it('should compose from buffer to composable', () => {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(lpRewards + fooBaz, 'hex'))
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(lpRewards + fooBaz + height, 'hex'))
     const composable = new CSetGovernanceHeight(buffer)
 
     expect(composable.toObject()).toStrictEqual(setGovernanceHeight)
@@ -190,6 +191,6 @@ describe('Unmapped Governance Variable handling', () => {
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
-    expect(buffer.toBuffer().toString('hex')).toStrictEqual(lpRewards + fooBaz)
+    expect(buffer.toBuffer().toString('hex')).toStrictEqual(lpRewards + fooBaz + height)
   })
 })
