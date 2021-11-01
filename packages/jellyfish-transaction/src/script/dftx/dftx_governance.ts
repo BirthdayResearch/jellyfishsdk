@@ -101,6 +101,40 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
   }
 }
 
+export interface SetGovernanceHeight {
+  governanceVars: GovernanceVar[]
+  activationHeight: number
+}
+
+/**
+ * Composable CSetGovernanceHeight, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CSetGovernanceHeight extends ComposableBuffer<SetGovernanceHeight> {
+  static OP_CODE = 0x6a // 'j'
+  static OP_NAME = 'OP_DEFI_TX_SET_GOVERNANCE_HEIGHT'
+
+  composers (gvs: SetGovernanceHeight): BufferComposer[] {
+    return [
+      {
+        fromBuffer: (buffer: SmartBuffer): void => {
+          gvs.governanceVars = []
+          while (buffer.remaining() > 0) {
+            const govVar = new CGovernanceVar(buffer)
+            gvs.governanceVars.push(govVar.toObject())
+          }
+        },
+        toBuffer: (buffer: SmartBuffer): void => {
+          gvs.governanceVars.forEach(gv =>
+            new CGovernanceVar(gv).toBuffer(buffer)
+          )
+        }
+      },
+      ComposableBuffer.varUInt(() => gvs.activationHeight, v => gvs.activationHeight = v)
+    ]
+  }
+}
+
 export type ProposalType = 0x01 | 0x03 // 0x01 (CommunityFundRequest) | 0x03 (VoteOfConfidence)
 export type ProposalCycles = 0x01 | 0x02 | 0x03
 
