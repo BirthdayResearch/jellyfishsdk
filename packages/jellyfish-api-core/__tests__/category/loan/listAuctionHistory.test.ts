@@ -50,6 +50,26 @@ describe('Loan listAuctionHistory', () => {
       {
         token: 'MSFT',
         currency: 'USD'
+      },
+      {
+        token: 'A',
+        currency: 'USD'
+      },
+      {
+        token: 'B',
+        currency: 'USD'
+      },
+      {
+        token: 'C',
+        currency: 'USD'
+      },
+      {
+        token: 'D',
+        currency: 'USD'
+      },
+      {
+        token: 'E',
+        currency: 'USD'
       }
     ]
     const oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
@@ -79,6 +99,41 @@ describe('Loan listAuctionHistory', () => {
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
         tokenAmount: '2@MSFT',
+        currency: 'USD'
+      }]
+    })
+    await alice.generate(1)
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '2@A',
+        currency: 'USD'
+      }]
+    })
+    await alice.generate(1)
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '2@B',
+        currency: 'USD'
+      }]
+    })
+    await alice.generate(1)
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '2@C',
+        currency: 'USD'
+      }]
+    })
+    await alice.generate(1)
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '2@D',
+        currency: 'USD'
+      }]
+    })
+    await alice.generate(1)
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{
+        tokenAmount: '2@E',
         currency: 'USD'
       }]
     })
@@ -125,9 +180,88 @@ describe('Loan listAuctionHistory', () => {
     })
     await alice.generate(1)
 
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'A',
+      fixedIntervalPriceId: 'A/USD'
+    })
+    await alice.generate(1)
+
+    await alice.token.mint({
+      symbol: 'A',
+      amount: 40000
+    })
+    await alice.generate(1)
+
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'B',
+      fixedIntervalPriceId: 'B/USD'
+    })
+    await alice.generate(1)
+
+    await alice.token.mint({
+      symbol: 'B',
+      amount: 40000
+    })
+    await alice.generate(1)
+
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'C',
+      fixedIntervalPriceId: 'C/USD'
+    })
+    await alice.generate(1)
+
+    await alice.token.mint({
+      symbol: 'C',
+      amount: 40000
+    })
+    await alice.generate(1)
+
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'D',
+      fixedIntervalPriceId: 'D/USD'
+    })
+    await alice.generate(1)
+
+    await alice.token.mint({
+      symbol: 'D',
+      amount: 40000
+    })
+    await alice.generate(1)
+
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'E',
+      fixedIntervalPriceId: 'E/USD'
+    })
+    await alice.generate(1)
+
+    await alice.token.mint({
+      symbol: 'E',
+      amount: 40000
+    })
+    await alice.generate(1)
+
     await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@TSLA'] })
     await alice.generate(1)
 
+    await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@A'] })
+    await alice.generate(1)
+
+    await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@B'] })
+    await alice.generate(1)
+
+    await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@C'] })
+    await alice.generate(1)
+
+    await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@D'] })
+    await alice.generate(1)
+
+    await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@E'] })
+    await alice.generate(1)
     // loan scheme set up
     await alice.rpc.loan.createLoanScheme({
       minColRatio: 150,
@@ -194,14 +328,49 @@ describe('Loan listAuctionHistory', () => {
     const bobLoanAddr = await bob.generateAddress()
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '3300@TSLA',
+      amounts: '948@TSLA',
       to: bobLoanAddr
     })
     await bob.generate(1)
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '3300@MSFT',
+      amounts: '942@MSFT',
+      to: bobLoanAddr
+    })
+    await bob.generate(1)
+
+    await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId1,
+      amounts: '942@A',
+      to: bobLoanAddr
+    })
+    await bob.generate(1)
+
+    await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId1,
+      amounts: '942@B',
+      to: bobLoanAddr
+    })
+    await bob.generate(1)
+
+    await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId1,
+      amounts: '942@C',
+      to: bobLoanAddr
+    })
+    await bob.generate(1)
+
+    await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId1,
+      amounts: '942@D',
+      to: bobLoanAddr
+    })
+    await bob.generate(1)
+
+    await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId1,
+      amounts: '942@E',
       to: bobLoanAddr
     })
     await bob.generate(1)
