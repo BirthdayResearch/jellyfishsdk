@@ -233,14 +233,12 @@ List all fixed interval prices.
 interface oracle {
   listFixedIntervalPrices (
     pagination: FixedIntervalPricePagination = {
-      including_start: true
       limit: 100
     }): Promise<ListFixedIntervalPrice[]>
 }
 
 interface FixedIntervalPricePagination {
   start?: string
-  including_start?: boolean
   limit?: number
 }
 
