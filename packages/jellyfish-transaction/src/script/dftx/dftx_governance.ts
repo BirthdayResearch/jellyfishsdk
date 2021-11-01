@@ -54,9 +54,7 @@ export abstract class CGovernanceVar extends ComposableBuffer<GovernanceVar> {
           } else {
             let remainingLength = buffer.remaining()
             if (this.isWithHeight()) {
-              console.log('with height', remainingLength)
               remainingLength -= 4 // 4 bytes reserved for SetGovernanceHeight's height data
-              console.log('remaining', buffer.toString('hex'), remainingLength)
             }
             gv.value = buffer.readBuffer(remainingLength).toString('hex')
           }
