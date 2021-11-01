@@ -198,26 +198,26 @@ interface loan {
 }
 
 interface GetLoanInfoResult {
-  currentpriceblock: BigNumber
-  nextpriceblock: BigNumber
+  currentPriceBlock: BigNumber
+  nextPriceBlock: BigNumber
   defaults: LoanConfig
   totals: LoanSummary
 }
 
 export interface LoanConfig {
-  fixedintervalblocks: BigNumber
-  maxpricedeviationpct: BigNumber
-  minoraclesperprice: BigNumber
+  fixedIntervalBlocks: BigNumber
+  maxPriceDeviationPct: BigNumber
+  minOraclesPerPrice: BigNumber
   scheme: string
 }
 
 export interface LoanSummary {
-  collateraltokens: BigNumber
-  collateralvalueinusd: BigNumber
-  loantokens: BigNumber
-  loanvalueinusd: BigNumber
-  openauctions: BigNumber
-  openvaults: BigNumber
+  collateralTokens: BigNumber
+  collateralValue: BigNumber
+  loanTokens: BigNumber
+  loanValue: BigNumber
+  openAuctions: BigNumber
+  openVaults: BigNumber
   schemes: BigNumber
 }
 ```

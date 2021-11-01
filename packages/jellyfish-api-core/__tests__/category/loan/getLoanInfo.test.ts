@@ -4,21 +4,21 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { GetLoanInfoResult } from 'packages/jellyfish-api-core/src/category/loan'
 
 const startingData: GetLoanInfoResult = {
-  currentpriceblock: new BigNumber(104),
+  currentPriceBlock: new BigNumber(104),
   defaults: {
-    fixedintervalblocks: new BigNumber(6),
-    maxpricedeviationpct: new BigNumber(30),
-    minoraclesperprice: new BigNumber(1),
+    fixedIntervalBlocks: new BigNumber(6),
+    maxPriceDeviationPct: new BigNumber(30),
+    minOraclesPerPrice: new BigNumber(1),
     scheme: ''
   },
-  nextpriceblock: new BigNumber(110),
+  nextPriceBlock: new BigNumber(110),
   totals: {
-    collateraltokens: new BigNumber(0),
-    collateralvalueinusd: new BigNumber(0),
-    loantokens: new BigNumber(0),
-    loanvalueinusd: new BigNumber(0),
-    openauctions: new BigNumber(0),
-    openvaults: new BigNumber(0),
+    collateralTokens: new BigNumber(0),
+    collateralValue: new BigNumber(0),
+    loanTokens: new BigNumber(0),
+    loanValue: new BigNumber(0),
+    openAuctions: new BigNumber(0),
+    openVaults: new BigNumber(0),
     schemes: new BigNumber(0)
   }
 }
@@ -93,7 +93,7 @@ describe('Loan - getLoanInfo', () => {
         ...startingData,
         totals: {
           ...startingData.totals,
-          collateraltokens: new BigNumber(1)
+          collateralTokens: new BigNumber(1)
         }
       })
     }
@@ -112,7 +112,7 @@ describe('Loan - getLoanInfo', () => {
         ...startingData,
         totals: {
           ...startingData.totals,
-          collateraltokens: new BigNumber(2)
+          collateralTokens: new BigNumber(2)
         }
       })
     }
@@ -137,7 +137,7 @@ describe('Loan - getLoanInfo', () => {
         ...startingData,
         totals: {
           ...startingData.totals,
-          loantokens: new BigNumber(1)
+          loanTokens: new BigNumber(1)
         }
       })
     }
@@ -154,7 +154,7 @@ describe('Loan - getLoanInfo', () => {
         ...startingData,
         totals: {
           ...startingData.totals,
-          loantokens: new BigNumber(2)
+          loanTokens: new BigNumber(2)
         }
       })
     }
@@ -170,12 +170,12 @@ describe('Loan - getLoanInfo', () => {
     await testing.generate(6)
 
     {
-      // after 6 (fixedintervalblocks) blocks
+      // after 6 (fixedIntervalBlocks) blocks
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...startingData,
-        currentpriceblock: new BigNumber(110),
-        nextpriceblock: new BigNumber(116)
+        currentPriceBlock: new BigNumber(110),
+        nextPriceBlock: new BigNumber(116)
       })
     }
   })
@@ -261,7 +261,7 @@ describe('Loan - getLoanInfo', () => {
       totals: {
         ...startingData.totals,
         schemes: new BigNumber(1),
-        collateraltokens: new BigNumber(1)
+        collateralTokens: new BigNumber(1)
       }
     }
 
@@ -290,14 +290,14 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...extendedStartingData,
-        currentpriceblock: new BigNumber(110),
-        nextpriceblock: new BigNumber(116),
+        currentPriceBlock: new BigNumber(110),
+        nextPriceBlock: new BigNumber(116),
         totals: {
           ...startingData.totals,
-          collateraltokens: new BigNumber(1),
-          collateralvalueinusd: new BigNumber(10000),
+          collateralTokens: new BigNumber(1),
+          collateralValue: new BigNumber(10000),
           schemes: new BigNumber(1),
-          openvaults: new BigNumber(1)
+          openVaults: new BigNumber(1)
         }
       })
     }
@@ -312,14 +312,14 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...extendedStartingData,
-        currentpriceblock: new BigNumber(110),
-        nextpriceblock: new BigNumber(116),
+        currentPriceBlock: new BigNumber(110),
+        nextPriceBlock: new BigNumber(116),
         totals: {
           ...startingData.totals,
-          collateraltokens: new BigNumber(1),
-          collateralvalueinusd: new BigNumber(10000),
+          collateralTokens: new BigNumber(1),
+          collateralValue: new BigNumber(10000),
           schemes: new BigNumber(1),
-          openvaults: new BigNumber(1) // unchanged
+          openVaults: new BigNumber(1) // unchanged
         }
       })
     }
@@ -365,8 +365,8 @@ describe('Loan - getLoanInfo', () => {
 
     const extendedStartingData: GetLoanInfoResult = {
       ...startingData,
-      currentpriceblock: new BigNumber(110),
-      nextpriceblock: new BigNumber(116),
+      currentPriceBlock: new BigNumber(110),
+      nextPriceBlock: new BigNumber(116),
       defaults: {
         ...startingData.defaults,
         scheme: 'scheme1'
@@ -374,10 +374,10 @@ describe('Loan - getLoanInfo', () => {
       totals: {
         ...startingData.totals,
         schemes: new BigNumber(1),
-        collateraltokens: new BigNumber(1),
-        collateralvalueinusd: new BigNumber(10000),
-        openvaults: new BigNumber(1),
-        loantokens: new BigNumber(1)
+        collateralTokens: new BigNumber(1),
+        collateralValue: new BigNumber(10000),
+        openVaults: new BigNumber(1),
+        loanTokens: new BigNumber(1)
       }
     }
 
@@ -398,12 +398,12 @@ describe('Loan - getLoanInfo', () => {
         ...extendedStartingData,
         totals: {
           ...extendedStartingData.totals,
-          loanvalueinusd: expect.any(BigNumber)
+          loanValue: expect.any(BigNumber)
         }
       })
       // loan value will include some interest
-      expect(data.totals.loanvalueinusd.gt(10)).toBeTruthy() // 2 * 5
-      expect(data.totals.loanvalueinusd.lt(10.0001)).toBeTruthy()
+      expect(data.totals.loanValue.gt(10)).toBeTruthy() // 2 * 5
+      expect(data.totals.loanValue.lt(10.0001)).toBeTruthy()
     }
 
     await testing.rpc.loan.takeLoan({
@@ -418,12 +418,12 @@ describe('Loan - getLoanInfo', () => {
         ...extendedStartingData,
         totals: {
           ...extendedStartingData.totals,
-          loanvalueinusd: expect.any(BigNumber)
+          loanValue: expect.any(BigNumber)
         }
       })
       // loan value will include some interest
-      expect(data.totals.loanvalueinusd.gt(15)).toBeTruthy() // 3 * 5
-      expect(data.totals.loanvalueinusd.lt(15.0001)).toBeTruthy()
+      expect(data.totals.loanValue.gt(15)).toBeTruthy() // 3 * 5
+      expect(data.totals.loanValue.lt(15.0001)).toBeTruthy()
     }
   })
 
@@ -444,7 +444,7 @@ describe('Loan - getLoanInfo', () => {
         ...startingData,
         defaults: {
           ...startingData.defaults,
-          fixedintervalblocks: new BigNumber(6)
+          fixedIntervalBlocks: new BigNumber(6)
         }
       })
     }
@@ -455,11 +455,11 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...startingData,
-        currentpriceblock: new BigNumber(106),
-        nextpriceblock: new BigNumber(113),
+        currentPriceBlock: new BigNumber(106),
+        nextPriceBlock: new BigNumber(113),
         defaults: {
           ...startingData.defaults,
-          fixedintervalblocks: new BigNumber(7)
+          fixedIntervalBlocks: new BigNumber(7)
         }
       })
     }
@@ -511,8 +511,8 @@ describe('Loan - getLoanInfo', () => {
 
     const extendedStartingData: GetLoanInfoResult = {
       ...startingData,
-      currentpriceblock: new BigNumber(110),
-      nextpriceblock: new BigNumber(116),
+      currentPriceBlock: new BigNumber(110),
+      nextPriceBlock: new BigNumber(116),
       defaults: {
         ...startingData.defaults,
         scheme: 'scheme1'
@@ -520,11 +520,11 @@ describe('Loan - getLoanInfo', () => {
       totals: {
         ...startingData.totals,
         schemes: new BigNumber(1),
-        collateraltokens: new BigNumber(1),
-        collateralvalueinusd: new BigNumber(10000),
-        openvaults: new BigNumber(1),
-        loantokens: new BigNumber(1),
-        loanvalueinusd: expect.any(BigNumber)
+        collateralTokens: new BigNumber(1),
+        collateralValue: new BigNumber(10000),
+        openVaults: new BigNumber(1),
+        loanTokens: new BigNumber(1),
+        loanValue: expect.any(BigNumber)
       }
     }
 
@@ -547,14 +547,14 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...extendedStartingData,
-        currentpriceblock: expect.any(BigNumber),
-        nextpriceblock: expect.any(BigNumber),
+        currentPriceBlock: expect.any(BigNumber),
+        nextPriceBlock: expect.any(BigNumber),
         totals: {
           ...extendedStartingData.totals,
           // vault liquidated
-          openvaults: new BigNumber(0),
-          collateralvalueinusd: new BigNumber(0),
-          openauctions: new BigNumber(1)
+          openVaults: new BigNumber(0),
+          collateralValue: new BigNumber(0),
+          openAuctions: new BigNumber(1)
         }
       })
     }
