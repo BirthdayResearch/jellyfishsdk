@@ -400,7 +400,7 @@ describe('Loan listAuctionHistory', () => {
     // increase TSLA price
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
-        tokenAmount: '2.07@TSLA',
+        tokenAmount: '2.3@TSLA',
         currency: 'USD'
       }]
     })
@@ -429,7 +429,7 @@ describe('Loan listAuctionHistory', () => {
       }
 
       {
-        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 0, aliceColAddr, '4000@TSLA'])
+        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 6, aliceColAddr, '4000@E'])
         expect(typeof txid).toStrictEqual('string')
         expect(txid.length).toStrictEqual(64)
         await alice.generate(1)
