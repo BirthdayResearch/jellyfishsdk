@@ -7,7 +7,7 @@ import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import BigNumber from 'bignumber.js'
 
-it('should bi-directional buffer-object-buffer', () => {
+it.skip('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     '6a4b44665478650117a9148b5401d88a3d4e54fc701663dd99a5ab792af0a48700e40b5402000000022354657374696e67206e657720636f6d6d756e6974792066756e642070726f706f73616c'
   ]
