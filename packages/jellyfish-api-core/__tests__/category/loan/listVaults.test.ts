@@ -1,6 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
+import { VaultDetails, VaultState } from '../../../src/category/loan'
 
 describe('Loan listVaults', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -103,26 +104,32 @@ describe('Loan listVaults', () => {
     await testing.generate(1)
 
     // List vaults
-    // should be only vaultId1, vaultId2, vaultId3 coz isUnderLiquidation filter default value equals to false
+    // should return all vaults vaultId1, vaultId2, vaultId3, vaultId4
     const vaults = await testing.rpc.loan.listVaults()
     expect(vaults).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId2,
         ownerAddress: ownerAddress2,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
+      },
+      {
+        vaultId: vaultId4,
+        ownerAddress: ownerAddress4,
+        loanSchemeId: 'default',
+        state: VaultState.ACTIVE
       }
     ]))
   })
@@ -151,7 +158,8 @@ describe('Loan listVaults with options and pagination', () => {
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
-      { token: 'AAPL', currency: 'USD' }
+      { token: 'AAPL', currency: 'USD' },
+      { token: 'GOOGL', currency: 'USD' }
     ]
     oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await testing.generate(1)
@@ -159,6 +167,7 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '4@GOOGL', currency: 'USD' }] })
     await testing.generate(1)
 
     // collateral tokens
@@ -178,6 +187,12 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.rpc.loan.setLoanToken({
       symbol: 'AAPL',
       fixedIntervalPriceId: 'AAPL/USD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'GOOGL',
+      fixedIntervalPriceId: 'GOOGL/USD'
     })
     await testing.generate(1)
 
@@ -223,7 +238,7 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.container.stop()
   })
 
-  it('should listVaults with ListVaultOptions.ownerAddress', async () => {
+  it('should listVaults with ownerAddress', async () => {
     // List vaults
     const vaults = await testing.rpc.loan.listVaults({}, { ownerAddress: ownerAddress1 })
     expect(vaults).toStrictEqual(expect.arrayContaining([
@@ -231,18 +246,18 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       }
     ]))
   })
 
-  it('should listVaults with ListVaultOptions.loanSchemeId', async () => {
+  it('should listVaults with loanSchemeId', async () => {
     // List vaults
     const vaults = await testing.rpc.loan.listVaults({}, { loanSchemeId: 'scheme' })
     expect(vaults).toStrictEqual([
@@ -250,42 +265,42 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       }
     ])
   })
 
-  it('should listVaults with ListVaultOptions.isUnderLiquidation', async () => {
+  it('should listVaults with state inLiquidation', async () => {
     // List vaults
-    const nonLiquidatedVaults = await testing.rpc.loan.listVaults({}, { isUnderLiquidation: false })
+    const nonLiquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.ACTIVE })
     expect(nonLiquidatedVaults).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId2,
         ownerAddress: ownerAddress2,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       }
     ]))
 
-    const liquidatedVaults = await testing.rpc.loan.listVaults({}, { isUnderLiquidation: true })
+    const liquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
     expect(liquidatedVaults).toStrictEqual([
       {
         vaultId: vaultId4,
         ownerAddress: ownerAddress4,
         loanSchemeId: 'default',
-        isUnderLiquidation: true
+        state: VaultState.IN_LIQUIDATION
       }
     ])
   })
@@ -293,42 +308,48 @@ describe('Loan listVaults with options and pagination', () => {
   it('should listVaults with pagination', async () => {
     // List vaults
     const vaults = await testing.rpc.loan.listVaults({ limit: 2 })
-    expect(Object.keys(vaults).length).toStrictEqual(2)
+    expect(vaults.length).toStrictEqual(2)
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId })
-    // should be 1 entries
-    expect(Object.keys(vaultsSecondPage).length).toStrictEqual(1)
+    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[vaults.length - 1].vaultId })
+    // should be 2 entries
+    expect(vaultsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
 
     // fetch the second page with including_start = true
-    const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({ including_start: true, start: vaults[Object.keys(vaults).length - 1].vaultId })
-    // should be 2 entries
-    expect(Object.keys(vaultsSecondPageIncludingStart).length).toStrictEqual(2)
+    const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({ including_start: true, start: vaults[vaults.length - 1].vaultId })
+    // should be 3 entries
+    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
 
-    //  check if we retrived all 3 entries
+    //  check if we retrived all 4 entries
     expect(vaults.concat(vaultsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId2,
         ownerAddress: ownerAddress2,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
+      },
+      {
+        vaultId: vaultId4,
+        ownerAddress: ownerAddress4,
+        loanSchemeId: 'default',
+        state: VaultState.IN_LIQUIDATION
       }
     ]))
   })
 
-  it('should listVaults with pagination and ownerAddress filter', async () => {
+  it('should listVaults with pagination and ownerAddress', async () => {
     // List vaults with ownerAddress1
     // note that ownerAddress3 = ownerAddress1
     const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { ownerAddress: ownerAddress1 })
@@ -338,13 +359,13 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId1,
         ownerAddress: ownerAddress1,
         loanSchemeId: 'default',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       },
       {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       }
     ]))
 
@@ -354,7 +375,7 @@ describe('Loan listVaults with options and pagination', () => {
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(0)
   })
 
-  it('should listVaults with pagination and loanSchemeId filter', async () => {
+  it('should listVaults with pagination and loanSchemeId', async () => {
     // List vaults with loanSchemeId = 'scheme'
     // only vaultId3 has loanSchemeId = 'scheme'
     const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { loanSchemeId: 'scheme' })
@@ -364,7 +385,7 @@ describe('Loan listVaults with options and pagination', () => {
         vaultId: vaultId3,
         ownerAddress: ownerAddress3,
         loanSchemeId: 'scheme',
-        isUnderLiquidation: false
+        state: VaultState.ACTIVE
       }
     ])
 
@@ -374,15 +395,65 @@ describe('Loan listVaults with options and pagination', () => {
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(0)
   })
 
-  it('should listVaults with pagination and isUnderLiquidation filter', async () => {
-    // List vaults with isUnderLiquidation = false
-    // only vaultId1, vaultId2, vaultId3 have isUnderLiquidation = false
-    const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { isUnderLiquidation: false })
+  it('should listVaults with pagination and state', async () => {
+    // List vaults with state: VaultState.ACTIVE
+    // only vaultId1, vaultId2, vaultId3 have state: VaultState.ACTIVE
+    const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { state: VaultState.ACTIVE })
     expect(Object.keys(vaults).length).toStrictEqual(2)
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId }, { isUnderLiquidation: false })
+    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId }, { state: VaultState.ACTIVE })
     // should be one more entry
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(1)
+  })
+
+  it('should listVaults filtered by state', async () => {
+    const activeVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.ACTIVE })
+    expect(activeVaults.length).toBeGreaterThan(0)
+    expect(activeVaults.every(vault => vault.state === VaultState.ACTIVE))
+
+    const ts = Math.floor(new Date().getTime() / 1000)
+    const vaultId = await testing.rpc.loan.createVault({ ownerAddress: await testing.generateAddress(), loanSchemeId: 'scheme' })
+    await testing.generate(1)
+    await testing.rpc.loan.depositToVault({ vaultId: vaultId, from: collateralAddress, amount: '10000@DFI' })
+    await testing.generate(1)
+    await testing.rpc.loan.takeLoan({ vaultId: vaultId, amounts: '30@GOOGL' })
+    await testing.generate(1)
+    await testing.rpc.oracle.setOracleData(
+      oracleId,
+      ts,
+      { prices: [{ tokenAmount: '8@GOOGL', currency: 'USD' }] }
+    )
+    // do frozen vault
+    await testing.generate(6)
+
+    const googlPrice = await testing.container.call('getfixedintervalprice', ['GOOGL/USD'])
+    expect(googlPrice.isLive).toStrictEqual(false) // vault will be frozen while price.isLive: false
+
+    const fVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.FROZEN })
+    expect(fVaults.length).toBeGreaterThan(0)
+    expect(fVaults.every(vault => vault.state === VaultState.FROZEN))
+    // back to active
+    await testing.generate(6)
+
+    // before do mayLiquidate vault, do liquidate vault first
+    await testing.rpc.oracle.setOracleData(
+      oracleId,
+      ts,
+      { prices: [{ tokenAmount: '800@GOOGL', currency: 'USD' }] }
+    )
+    await testing.generate(12)
+
+    const liqVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
+    expect(liqVaults.length).toBeGreaterThan(0)
+    const liqVault = liqVaults.find(vault => vault.vaultId === vaultId) as VaultDetails
+    expect(liqVault?.state).toStrictEqual(VaultState.IN_LIQUIDATION)
+
+    // end the auction
+    await testing.generate(36)
+
+    const vaults = await testing.rpc.loan.listVaults()
+    const theLiqVault = vaults.find(vault => vault.vaultId === vaultId) as VaultDetails
+    expect(theLiqVault.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
   })
 })
