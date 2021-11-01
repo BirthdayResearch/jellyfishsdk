@@ -458,7 +458,7 @@ describe('loans.takeLoan', () => {
 
   it('should not takeLoan on liquidation vault', async () => {
     const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
-    expect(liqVault.state).toStrictEqual('inliquidation')
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     // fund if UTXO is not available for fees
     await fundForFeesIfUTXONotAvailable(10)
