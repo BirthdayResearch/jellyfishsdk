@@ -329,7 +329,7 @@ export class Loan {
    */
   async placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call(
-      'auctionbid',
+      'placeauctionbid',
       [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
       'number'
     )
