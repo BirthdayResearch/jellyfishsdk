@@ -86,6 +86,7 @@ interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+  default: boolean
 }
 ```
 
@@ -361,17 +362,18 @@ interface loan {
 enum VaultState {
   UNKNOWN = 'unknown',
   ACTIVE = 'active',
-  IN_LIQUIDATION = 'inliquidation',
+  IN_LIQUIDATION = 'inLiquidation',
   FROZEN = 'frozen',
-  MAY_LIQUIDATE = 'mayliquidate',
-  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
+  MAY_LIQUIDATE = 'mayLiquidate',
 }
 
 interface VaultDetails {
+  // list and get both returns
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
+  // get only returns
   liquidationHeight?: number
   liquidationPenalty?: number
   batchCount?: number
@@ -381,8 +383,9 @@ interface VaultDetails {
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
 interface AuctionBatchDetails {
@@ -401,18 +404,37 @@ interface loan {
   listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
 }
 
-interface ListVaultDetails {
+interface VaultDetails {
+  // list and get both returns
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
+  state: VaultState
+  // get only returns
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
 
 interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
-  isUnderLiquidation?: boolean
+  state?: VaultState
 }
 
 interface VaultPagination {
@@ -479,16 +501,16 @@ interface UTXO {
 }
 ```
 
-## loanPayback
+## paybackLoan
 
 Return loan in a desired amount.
 
-```ts title="client.loan.loanPayback()"
+```ts title="client.loan.paybackLoan()"
 interface loan {
-  loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
+  paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-interface LoanPaybackMetadata {
+interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string

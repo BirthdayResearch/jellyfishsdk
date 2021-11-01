@@ -226,7 +226,7 @@ export class Loan {
     return await this.client.call(
       'getvault',
       [vaultId],
-      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber' }
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber', informativeRatio: 'bignumber' }
     )
   }
 
@@ -240,11 +240,15 @@ export class Loan {
    * @param {ListVaultOptions} [options]
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
-   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
-   * @return {Promise<ListVaultDetails[]>} Array of objects including details of the vaults.
+   * @param {VaultState} [options.state = VaultState.UNKNOWN] vault's state
+   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
    */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]> {
-    return await this.client.call('listvaults', [options, pagination], 'number')
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
+    return await this.client.call(
+      'listvaults',
+      [options, pagination],
+      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber', informativeRatio: 'bignumber' }
+    )
   }
 
   /**
@@ -297,7 +301,7 @@ export class Loan {
   /**
    * Return loan in a desired amount.
    *
-   * @param {LoanPaybackMetadata} metadata
+   * @param {PaybackLoanMetadata} metadata
    * @param {string} metadata.vaultId Vault id
    * @param {string| string[]} metadata.amounts In "amount@symbol" format
    * @param {string} metadata.from Address from transfer tokens
@@ -306,8 +310,8 @@ export class Loan {
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} txid
    */
-  async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('loanpayback', [metadata, utxos], 'number')
+  async paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
 
   /**
@@ -364,6 +368,7 @@ export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+  default: boolean
 }
 
 export interface ListCollateralTokens {
@@ -415,17 +420,18 @@ export interface CreateVault {
 export enum VaultState {
   UNKNOWN = 'unknown',
   ACTIVE = 'active',
-  IN_LIQUIDATION = 'inliquidation',
+  IN_LIQUIDATION = 'inLiquidation',
   FROZEN = 'frozen',
-  MAY_LIQUIDATE = 'mayliquidate',
-  FROZEN_IN_LIQUIDATION = 'lockedinliquidation'
+  MAY_LIQUIDATE = 'mayLiquidate',
 }
 
 export interface VaultDetails {
+  // list and get both returns
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
+  // get only returns
   liquidationHeight?: number
   liquidationPenalty?: number
   batchCount?: number
@@ -435,21 +441,15 @@ export interface VaultDetails {
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber | string // empty string if nothing
-  currentRatio?: number
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
 export interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
-}
-
-export interface ListVaultDetails {
-  vaultId: string
-  loanSchemeId: string
-  ownerAddress: string
-  isUnderLiquidation: boolean
 }
 
 export interface UTXO {
@@ -469,7 +469,7 @@ export interface TakeLoanMetadata {
   to?: string
 }
 
-export interface LoanPaybackMetadata {
+export interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
@@ -484,7 +484,7 @@ export interface VaultPagination {
 export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
-  isUnderLiquidation?: boolean
+  state?: VaultState
 }
 
 export interface CloseVault {
