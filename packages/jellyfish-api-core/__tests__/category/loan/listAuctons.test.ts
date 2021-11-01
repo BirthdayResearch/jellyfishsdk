@@ -119,10 +119,10 @@ describe('Loan listAuctions', () => {
     // Liquidation
     {
       const vault1 = await testing.rpc.loan.getVault(vaultId1)
-      expect(vault1.state).toStrictEqual('inliquidation')
+      expect(vault1.state).toStrictEqual('inLiquidation')
 
       const vault2 = await testing.rpc.loan.getVault(vaultId2)
-      expect(vault2.state).toStrictEqual('inliquidation')
+      expect(vault2.state).toStrictEqual('inLiquidation')
     }
     // The collateral tokens of vault that are liquidated are sent to auction
     const data = await testing.rpc.loan.listAuctions()
@@ -172,7 +172,7 @@ describe('Loan listAuctions', () => {
         ],
         loanSchemeId: 'default',
         ownerAddress,
-        state: 'inliquidation',
+        state: 'inLiquidation',
         liquidationHeight: new BigNumber(162),
         liquidationPenalty: new BigNumber(5),
         vaultId: vaultId1
