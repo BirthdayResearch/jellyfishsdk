@@ -11,6 +11,7 @@ describe('Loan listAuctions', () => {
   let vaultId1: string
   let vaultId2: string
   let vaultId3: string
+  let vaultId4: string
 
   beforeAll(async () => {
     await testing.container.start()
@@ -19,7 +20,7 @@ describe('Loan listAuctions', () => {
     collateralAddress = await testing.generateAddress()
     await testing.token.dfi({
       address: collateralAddress,
-      amount: 80000
+      amount: 100000
     })
     await testing.token.create({
       symbol: 'BTC',
@@ -28,7 +29,7 @@ describe('Loan listAuctions', () => {
     await testing.generate(1)
     await testing.token.mint({
       symbol: 'BTC',
-      amount: 40000
+      amount: 5
     })
     await testing.generate(1)
 
@@ -97,18 +98,17 @@ describe('Loan listAuctions', () => {
     await testing.generate(1)
 
     // Vault 1
-    const ownerAddress = await testing.generateAddress()
-    vaultId1 = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
+    vaultId1 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
     await testing.generate(1)
 
-    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '20000@DFI'])
+    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '10000@DFI'])
     await testing.generate(1)
-    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '2@BTC'])
+    await testing.container.call('deposittovault', [vaultId1, collateralAddress, '0.5@BTC'])
     await testing.generate(1)
 
     await testing.container.call('takeloan', [{
       vaultId: vaultId1,
-      amounts: '19000@TSLA'
+      amounts: '7500@TSLA'
     }])
     await testing.generate(1)
 
@@ -116,14 +116,14 @@ describe('Loan listAuctions', () => {
     vaultId2 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
     await testing.generate(1)
 
-    await testing.container.call('deposittovault', [vaultId2, collateralAddress, '20000@DFI'])
+    await testing.container.call('deposittovault', [vaultId2, collateralAddress, '20000@0DFI'])
     await testing.generate(1)
-    await testing.container.call('deposittovault', [vaultId2, collateralAddress, '2@BTC'])
+    await testing.container.call('deposittovault', [vaultId2, collateralAddress, '1@BTC'])
     await testing.generate(1)
 
     await testing.container.call('takeloan', [{
       vaultId: vaultId2,
-      amounts: '20000@TSLA'
+      amounts: '15000@TSLA'
     }])
     await testing.generate(1)
 
@@ -131,14 +131,30 @@ describe('Loan listAuctions', () => {
     vaultId3 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
     await testing.generate(1)
 
-    await testing.container.call('deposittovault', [vaultId3, collateralAddress, '20000@DFI'])
+    await testing.container.call('deposittovault', [vaultId3, collateralAddress, '30000@DFI'])
     await testing.generate(1)
-    await testing.container.call('deposittovault', [vaultId3, collateralAddress, '2@BTC'])
+    await testing.container.call('deposittovault', [vaultId3, collateralAddress, '1.5@BTC'])
     await testing.generate(1)
 
     await testing.container.call('takeloan', [{
       vaultId: vaultId3,
-      amounts: '20000@TSLA'
+      amounts: '22500@TSLA'
+    }])
+    await testing.generate(1)
+
+    // Vault 4
+    const ownerAddress = await testing.generateAddress()
+    vaultId4 = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
+    await testing.generate(1)
+
+    await testing.container.call('deposittovault', [vaultId4, collateralAddress, '40000@DFI'])
+    await testing.generate(1)
+    await testing.container.call('deposittovault', [vaultId4, collateralAddress, '2@BTC'])
+    await testing.generate(1)
+
+    await testing.container.call('takeloan', [{
+      vaultId: vaultId4,
+      amounts: '30000@TSLA'
     }])
     await testing.generate(1)
 
@@ -154,6 +170,12 @@ describe('Loan listAuctions', () => {
 
       const vault2 = await testing.rpc.loan.getVault(vaultId2)
       expect(vault2.state).toStrictEqual('active')
+
+      const vault3 = await testing.rpc.loan.getVault(vaultId3)
+      expect(vault3.state).toStrictEqual('active')
+
+      const vault4 = await testing.rpc.loan.getVault(vaultId4)
+      expect(vault4.state).toStrictEqual('active')
     }
 
     // Going to liquidate the vault by a price hike of the loan token
@@ -178,10 +200,17 @@ describe('Loan listAuctions', () => {
 
         const vault2 = await testing.rpc.loan.getVault(vaultId2)
         expect(vault2.state).toStrictEqual('inLiquidation')
+
+        const vault3 = await testing.rpc.loan.getVault(vaultId3)
+        expect(vault3.state).toStrictEqual('inLiquidation')
+
+        const vault4 = await testing.rpc.loan.getVault(vaultId4)
+        expect(vault4.state).toStrictEqual('inLiquidation')
       }
+
       // The collateral tokens of vault that are liquidated are sent to auction
       const data = await testing.rpc.loan.listAuctions()
-      expect(data.length).toStrictEqual(3)
+      expect(data.length).toStrictEqual(4)
       const result = data.filter(d => d.vaultId === vaultId1)
       // Auction are divided into 4 batches,
       // the USD equivalent amount of every collateral tokens of non last batches are always 10,000
@@ -230,7 +259,7 @@ describe('Loan listAuctions', () => {
           state: 'inLiquidation',
           liquidationHeight: 162,
           liquidationPenalty: 5,
-          vaultId: vaultId1
+          vaultId: vaultId4
         }]
       )
     })
