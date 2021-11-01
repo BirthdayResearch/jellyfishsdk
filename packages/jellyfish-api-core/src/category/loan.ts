@@ -317,20 +317,20 @@ export class Loan {
   /**
    * Bid to vault in auction
    *
-   * @param {AuctionBid} auctionBid
-   * @param {string} auctionBid.vaultId Vault Id
-   * @param {index} auctionBid.index Auction index
-   * @param {from} auctionBid.from Address to get token
-   * @param {amount} auctionBid.amount in "amount@symbol" format
+   * @param {AuctionBid} placeAuctionBid
+   * @param {string} placeAuctionBid.vaultId Vault Id
+   * @param {index} placeAuctionBid.index Auction index
+   * @param {from} placeAuctionBid.from Address to get token
+   * @param {amount} placeAuctionBid.amount in "amount@symbol" format
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} The transaction id
    */
-  async auctionBid (auctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
+  async placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call(
       'auctionbid',
-      [auctionBid.vaultId, auctionBid.index, auctionBid.from, auctionBid.amount, utxos],
+      [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
       'number'
     )
   }

@@ -522,13 +522,13 @@ interface UTXO {
 }
 ```
 
-## auctionBid
+## placeAuctionBid
 
 To obtain the liquidated vault by offering a particular up for bid.
 
-```ts title="client.loan.auctionBid()"
+```ts title="client.loan.placeAuctionBid()"
 interface loan {
-  auctionBid (auctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+  placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
 }
 
 interface AuctionBid {
