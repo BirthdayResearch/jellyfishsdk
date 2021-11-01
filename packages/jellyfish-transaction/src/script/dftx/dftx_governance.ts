@@ -103,7 +103,7 @@ export class CSetGovernance extends ComposableBuffer<SetGovernance> {
 
 export interface SetGovernanceHeight {
   governanceVars: GovernanceVar[]
-  activationHeight: number
+  activationHeight: number // -------| 4 bytes unsigned
 }
 
 /**
@@ -130,7 +130,7 @@ export class CSetGovernanceHeight extends ComposableBuffer<SetGovernanceHeight> 
           )
         }
       },
-      ComposableBuffer.varUInt(() => gvs.activationHeight, v => gvs.activationHeight = v)
+      ComposableBuffer.uInt32(() => gvs.activationHeight, v => gvs.activationHeight = v)
     ]
   }
 }

@@ -1,6 +1,6 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
-  CSetGovernance, SetGovernance
+  CSetGovernanceHeight, SetGovernanceHeight
 } from '../../../../src/script/dftx/dftx_governance'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -10,12 +10,12 @@ import BigNumber from 'bignumber.js'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     // LP_SPLITS only
-    '6a284466547847094c505f53504c4954530202000000809698000000000004000000804a5d0500000000',
+    '6a2c446654786a094c505f53504c4954530202000000809698000000000004000000804a5d050000000078563412',
     // LP_DAILY_DFI_REWARD only
-    '6a214466547847134c505f4441494c595f4446495f52455741524400204aa9d1010000',
+    '6a25446654786a134c505f4441494c595f4446495f52455741524400204aa9d101000078563412',
     // LP_SPLITS and LP_DAILY_DFI_REWARD
-    '6a444466547847094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000134c505f4441494c595f4446495f524557415244c01c3d0900000000',
-    '6a444466547847094c505f53504c4954530202000000809698000000000004000000804a5d0500000000134c505f4441494c595f4446495f52455741524400204aa9d1010000'
+    '6a48446654786a094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000134c505f4441494c595f4446495f524557415244c01c3d090000000078563412',
+    '6a48446654786a094c505f53504c4954530202000000809698000000000004000000804a5d0500000000134c505f4441494c595f4446495f52455741524400204aa9d101000078563412'
   ]
 
   fixtures.forEach(hex => {
@@ -44,9 +44,9 @@ describe('multiple variable', () => {
    *  LP_DAILY_DFI_REWARD: 1.55
    * }])
    */
-  const header = '6a444466547847' // OP_RETURN, PUSH_DATA(44665478, 47)
-  const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000134c505f4441494c595f4446495f524557415244c01c3d0900000000'
-  const setGovernance: SetGovernance = {
+  const header = '6a48446654786a' // OP_RETURN, PUSH_DATA(44665478, 6a)
+  const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000134c505f4441494c595f4446495f524557415244c01c3d09000000006e000000'
+  const setGovernanceHeight: SetGovernanceHeight = {
     governanceVars: [
       {
         key: 'LP_SPLITS',
@@ -65,13 +65,14 @@ describe('multiple variable', () => {
         key: 'LP_DAILY_DFI_REWARD',
         value: new BigNumber(1.55)
       }
-    ]
+    ],
+    activationHeight: 110
   }
 
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE(setGovernance)
+      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE_HEIGHT(setGovernanceHeight)
     ]
 
     const buffer = toBuffer(stack)
@@ -81,13 +82,13 @@ describe('multiple variable', () => {
   describe('Composable', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-      const composable = new CSetGovernance(buffer)
+      const composable = new CSetGovernanceHeight(buffer)
 
-      expect(composable.toObject()).toStrictEqual(setGovernance)
+      expect(composable.toObject()).toStrictEqual(setGovernanceHeight)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CSetGovernance(setGovernance)
+      const composable = new CSetGovernanceHeight(setGovernanceHeight)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
@@ -110,9 +111,9 @@ describe('single variable', () => {
    *  }
    * }])
    */
-  const header = '6a284466547847' // OP_RETURN, PUSH_DATA(44665478, 47)
+  const header = '6a28446654786a' // OP_RETURN, PUSH_DATA(44665478, 6a)
   const data = '094c505f53504c495453020200000080c3c9010000000004000000801d2c0400000000'
-  const setGovernance: SetGovernance = {
+  const setGovernance: SetGovernanceHeight = {
     governanceVars: [
       {
         key: 'LP_SPLITS',
@@ -127,7 +128,8 @@ describe('single variable', () => {
           }
         ]
       }
-    ]
+    ],
+    activationHeight: 234
   }
 
   it('should craft dftx with OP_CODES._()', () => {
@@ -143,13 +145,13 @@ describe('single variable', () => {
   describe('Composable', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-      const composable = new CSetGovernance(buffer)
+      const composable = new CSetGovernanceHeight(buffer)
 
       expect(composable.toObject()).toStrictEqual(setGovernance)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CSetGovernance(setGovernance)
+      const composable = new CSetGovernanceHeight(setGovernance)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 
@@ -159,7 +161,7 @@ describe('single variable', () => {
 })
 
 describe('Unmapped Governance Variable handling', () => {
-  const setGovernance: SetGovernance = {
+  const setGovernanceHeight: SetGovernanceHeight = {
     governanceVars: [
       {
         key: 'LP_DAILY_DFI_REWARD',
@@ -169,7 +171,8 @@ describe('Unmapped Governance Variable handling', () => {
         key: 'FOO',
         value: '0123456789abcdef'
       }
-    ]
+    ],
+    activationHeight: 345
   }
 
   const lpRewards = '134c505f4441494c595f4446495f524557415244c01c3d0900000000'
@@ -177,13 +180,13 @@ describe('Unmapped Governance Variable handling', () => {
 
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(lpRewards + fooBaz, 'hex'))
-    const composable = new CSetGovernance(buffer)
+    const composable = new CSetGovernanceHeight(buffer)
 
-    expect(composable.toObject()).toStrictEqual(setGovernance)
+    expect(composable.toObject()).toStrictEqual(setGovernanceHeight)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CSetGovernance(setGovernance)
+    const composable = new CSetGovernanceHeight(setGovernanceHeight)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 

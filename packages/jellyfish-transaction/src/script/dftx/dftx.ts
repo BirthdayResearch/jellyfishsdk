@@ -64,6 +64,8 @@ import {
 import {
   CSetGovernance,
   SetGovernance,
+  CSetGovernanceHeight,
+  SetGovernanceHeight,
   CCreateCfp,
   CCreateVoc,
   CreateProposal,
@@ -206,6 +208,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ResignMasternode>(CResignMasternode.OP_NAME, d => new CResignMasternode(d))
       case CSetGovernance.OP_CODE:
         return compose<SetGovernance>(CSetGovernance.OP_NAME, d => new CSetGovernance(d))
+      case CSetGovernanceHeight.OP_CODE:
+        return compose<SetGovernanceHeight>(CSetGovernanceHeight.OP_NAME, d => new CSetGovernanceHeight(d))
       case CICXCreateOrder.OP_CODE:
         return compose<ICXCreateOrder>(CICXCreateOrder.OP_NAME, d => new CICXCreateOrder(d))
       case CICXMakeOffer.OP_CODE:
