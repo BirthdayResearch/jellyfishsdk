@@ -261,26 +261,26 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 }
 
-beforeEach(async () => {
-  await tGroup.start()
-  await alice.container.waitForWalletCoinbaseMaturity()
-
-  aProviders = await getProviders(alice.container)
-  aProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[0].owner.privKey))
-  aBuilder = new P2WPKHTransactionBuilder(aProviders.fee, aProviders.prevout, aProviders.elliptic, RegTest)
-
-  bProviders = await getProviders(bob.container)
-  bProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[1].owner.privKey))
-  bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
-
-  await setup()
-})
-
-afterEach(async () => {
-  await tGroup.stop()
-})
-
 describe('loanPayback success', () => {
+  beforeEach(async () => {
+    await tGroup.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+
+    aProviders = await getProviders(alice.container)
+    aProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[0].owner.privKey))
+    aBuilder = new P2WPKHTransactionBuilder(aProviders.fee, aProviders.prevout, aProviders.elliptic, RegTest)
+
+    bProviders = await getProviders(bob.container)
+    bProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[1].owner.privKey))
+    bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
+
+    await setup()
+  })
+
+  afterEach(async () => {
+    await tGroup.stop()
+  })
+
   it('should loanPayback', async () => {
     await alice.rpc.account.sendTokensToAddress({}, { [bobColAddr]: ['5@TSLA'] })
     await alice.generate(1)
@@ -300,7 +300,8 @@ describe('loanPayback success', () => {
     expect(vaultBefore.loanValue).toStrictEqual(80.00009132)
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00004566@TSLA'])
     expect(vaultBefore.interestValue).toStrictEqual(0.00009132)
-    expect(vaultBefore.currentRatio).toStrictEqual(18750)
+    expect(vaultBefore.collateralRatio).toStrictEqual(18750)
+    expect(vaultBefore.informativeRatio).toStrictEqual(18749.97859689)
 
     const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobColAccBefore).toStrictEqual(['45.00000000@TSLA'])
@@ -334,7 +335,8 @@ describe('loanPayback success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual([])
     expect(vaultAfter.interestValue).toStrictEqual('')
     expect(vaultAfter.loanValue).toStrictEqual(0)
-    expect(vaultAfter.currentRatio).toStrictEqual(-1)
+    expect(vaultAfter.collateralRatio).toStrictEqual(-1)
+    expect(vaultAfter.informativeRatio).toStrictEqual(-1)
 
     const bobColAccAfter = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobColAccAfter).toStrictEqual(['4.99990868@TSLA']) // 45 - 40.00004566
@@ -353,7 +355,8 @@ describe('loanPayback success', () => {
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00002283@TSLA'])
     expect(vaultBefore.loanValue).toStrictEqual(80.00004566) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(0.00004566)
-    expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.00004566 * 100
+    expect(vaultBefore.collateralRatio).toStrictEqual(18750) // 15000 / 80.00004566 * 100
+    expect(vaultBefore.informativeRatio).toStrictEqual(18749.98929844)
 
     {
       const interests = await bob.rpc.loan.getInterest('scheme')
@@ -396,7 +399,8 @@ describe('loanPayback success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00003082@TSLA'])
     expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.interestValue).toStrictEqual(0.00006164)
-    expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00007648 * 100
+    expect(vaultAfter.collateralRatio).toStrictEqual(27778) // 15000 / 54.00007648 * 100
+    expect(vaultAfter.informativeRatio).toStrictEqual(27777.73843626)
 
     const burnInfoAfter = await bob.container.call('getburninfo')
     expect(burnInfoAfter.paybackburn).toStrictEqual(0.0000137)
@@ -412,7 +416,8 @@ describe('loanPayback success', () => {
     expect(vaultBefore.interestAmounts).toStrictEqual(['0.00002283@TSLA'])
     expect(vaultBefore.loanValue).toStrictEqual(80.00004566) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(0.00004566)
-    expect(vaultBefore.currentRatio).toStrictEqual(18750) // 15000 / 80.0000456 * 100
+    expect(vaultBefore.collateralRatio).toStrictEqual(18750) // 15000 / 80.0000456 * 100
+    expect(vaultBefore.informativeRatio).toStrictEqual(18749.98929844)
 
     await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
     const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
@@ -445,7 +450,8 @@ describe('loanPayback success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00003082@TSLA'])
     expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.interestValue).toStrictEqual(0.00006164)
-    expect(vaultAfter.currentRatio).toStrictEqual(27778) // 15000 / 54.00019862 * 100
+    expect(vaultAfter.collateralRatio).toStrictEqual(27778) // 15000 / 54.00019862 * 100
+    expect(vaultAfter.informativeRatio).toStrictEqual(23437.46989749)
   })
 
   it('should loanPayback more than one amount', async () => {
@@ -498,7 +504,8 @@ describe('loanPayback success', () => {
       expect(vaultBefore.loanAmounts).toStrictEqual(['40.00004566@TSLA', '15.00000856@AMZN']) // eg: tslaTakeLoanAmt + tslaTotalInterest
       expect(vaultBefore.interestAmounts).toStrictEqual(['0.00004566@TSLA', '0.00000856@AMZN'])
       expect(vaultBefore.loanValue).toStrictEqual(140.00012556) // (40.00004566 * 2) + (15.00009856 * 4)
-      expect(vaultBefore.currentRatio).toStrictEqual(10714) // 15000 / 140.00012556 * 100
+      expect(vaultBefore.collateralRatio).toStrictEqual(10714) // 15000 / 140.00012556 * 100
+      expect(vaultBefore.informativeRatio).toStrictEqual(10714.27610511)
 
       await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
       const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
@@ -529,7 +536,8 @@ describe('loanPayback success', () => {
       expect(vaultAfter.interestAmounts).toStrictEqual(['0.00003082@TSLA', '0.00001028@AMZN'])
       expect(vaultAfter.loanValue).toStrictEqual(90.00038812)
       expect(vaultAfter.interestValue).toStrictEqual(0.00010276)
-      expect(vaultAfter.currentRatio).toStrictEqual(16667)
+      expect(vaultAfter.collateralRatio).toStrictEqual(16667)
+      expect(vaultAfter.informativeRatio).toStrictEqual(16666.63390006)
 
       const loanTokenAccAfter = await bob.container.call('getaccount', [bobColAddr])
       expect(loanTokenAccAfter).toStrictEqual(['27.00000000@TSLA', '9.00000000@AMZN'])
@@ -580,7 +588,8 @@ describe('loanPayback success', () => {
       expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000799@TSLA', '0.00000172@AMZN'])
       expect(vaultAfter.loanValue).toStrictEqual(40.00041098)
       expect(vaultAfter.interestValue).toStrictEqual(0.00002286)
-      expect(vaultAfter.currentRatio).toStrictEqual(37500)
+      expect(vaultAfter.collateralRatio).toStrictEqual(37500)
+      expect(vaultAfter.informativeRatio).toStrictEqual(37499.81268843)
 
       const loanTokenAccAfter = await bob.container.call('getaccount', [bobColAddr])
       expect(loanTokenAccAfter).toStrictEqual(['14.00000000@TSLA', '3.00000000@AMZN']) // (27 - 13), (9 - 6)
@@ -592,6 +601,25 @@ describe('loanPayback success', () => {
 })
 
 describe('loanPayback failed', () => {
+  beforeAll(async () => {
+    await tGroup.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+
+    aProviders = await getProviders(alice.container)
+    aProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[0].owner.privKey))
+    aBuilder = new P2WPKHTransactionBuilder(aProviders.fee, aProviders.prevout, aProviders.elliptic, RegTest)
+
+    bProviders = await getProviders(bob.container)
+    bProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[1].owner.privKey))
+    bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
+
+    await setup()
+  })
+
+  afterAll(async () => {
+    await tGroup.stop()
+  })
+
   it('should not loanPayback while insufficient amount', async () => {
     const vault = await bob.rpc.loan.getVault(bobVaultId)
     expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
@@ -699,7 +727,7 @@ describe('loanPayback failed', () => {
     await tGroup.get(0).generate(6)
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
-    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
