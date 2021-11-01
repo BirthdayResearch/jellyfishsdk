@@ -79,6 +79,9 @@ describe('Loan updateVault', () => {
       loanSchemeId: 'default'
     })
     await testing.generate(1)
+
+    const data = await testing.rpc.loan.getVault(createVaultId)
+    expect(data.loanSchemeId).toStrictEqual('default')
   })
 
   it('should updateVault', async () => {

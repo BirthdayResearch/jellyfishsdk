@@ -185,12 +185,12 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   async waitForPriceValid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
-    // @ts-expect-error
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
       if (!data.isLive) {
         await this.generate(1)
+        return false
       } else {
         return true
       }
@@ -198,12 +198,12 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
-    // @ts-expect-error
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
       if (data.isLive) {
         await this.generate(1)
+        return false
       } else {
         return true
       }
