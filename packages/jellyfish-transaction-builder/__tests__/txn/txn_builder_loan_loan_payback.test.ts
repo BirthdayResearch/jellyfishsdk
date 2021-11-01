@@ -451,7 +451,7 @@ describe('loanPayback success', () => {
     expect(vaultAfter.loanValue).toStrictEqual(54.00019862) // 27.00009931 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.interestValue).toStrictEqual(0.00006164)
     expect(vaultAfter.collateralRatio).toStrictEqual(27778) // 15000 / 54.00019862 * 100
-    expect(vaultAfter.informativeRatio).toStrictEqual(23437.46989749)
+    expect(vaultAfter.informativeRatio).toStrictEqual(27777.67560737)
   })
 
   it('should loanPayback more than one amount', async () => {
@@ -589,7 +589,7 @@ describe('loanPayback success', () => {
       expect(vaultAfter.loanValue).toStrictEqual(40.00041098)
       expect(vaultAfter.interestValue).toStrictEqual(0.00002286)
       expect(vaultAfter.collateralRatio).toStrictEqual(37500)
-      expect(vaultAfter.informativeRatio).toStrictEqual(37499.81268843)
+      expect(vaultAfter.informativeRatio).toStrictEqual(37499.6147102)
 
       const loanTokenAccAfter = await bob.container.call('getaccount', [bobColAddr])
       expect(loanTokenAccAfter).toStrictEqual(['14.00000000@TSLA', '3.00000000@AMZN']) // (27 - 13), (9 - 6)
