@@ -102,8 +102,9 @@ describe('Loan updateVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      interestValue: new BigNumber(0),
+      collateralRatio: new BigNumber(-1),
+      informativeRatio: new BigNumber(-1)
     })
   })
 
@@ -274,7 +275,7 @@ describe('Loan updateVault', () => {
 
     {
       const data = await testing.rpc.loan.getVault(vaultId)
-      expect(data.state).toStrictEqual('inliquidation')
+      expect(data.state).toStrictEqual('inLiquidation')
     }
 
     // Unable to update vault if the vault is under liquidation
@@ -320,8 +321,9 @@ describe('Loan updateVault', () => {
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      interestValue: new BigNumber(0),
+      collateralRatio: new BigNumber(-1),
+      informativeRatio: new BigNumber(-1)
     })
   })
 
