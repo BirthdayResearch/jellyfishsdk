@@ -4,7 +4,7 @@ import { ProposalStatus, ProposalType } from '../../../src/category/governance'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { GovernanceMasterNodeRegTestContainer } from './governance_container'
 
-describe.skip('Governance', () => {
+describe('Governance', () => {
   const container = new GovernanceMasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
