@@ -1,6 +1,6 @@
 # DeFi Jellyfish Contributing Guide
 
-You need `node v14`, and `npm v7` for this project, it's required to set
+You need `node v16`, and `npm v8` for this project, it's required to set
 up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
 
 ```shell
