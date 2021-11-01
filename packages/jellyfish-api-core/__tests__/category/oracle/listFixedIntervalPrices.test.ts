@@ -175,7 +175,7 @@ describe('Oracle', () => {
     expect(prices.length).toStrictEqual(1)
   })
 
-  it('should listFixedIntervalPrices with pagination start and including_start', async () => {
+  it('should listFixedIntervalPrices with pagination start', async () => {
     {
       const pagination: FixedIntervalPricePagination = {
         start: 'DFI/USD'
