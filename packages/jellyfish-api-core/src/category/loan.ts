@@ -217,7 +217,7 @@ export class Loan {
   }
 
   /**
-   * Update vault.
+   * Create update vault transaction.
    *
    * @param {string} vaultId
    * @param {UpdateVault} vault

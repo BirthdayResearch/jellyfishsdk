@@ -352,7 +352,7 @@ interface UTXO {
 
 ## updateVault
 
-Update vault.
+Create update vault transaction.
 
 ```ts title="client.loan.updateVault()"
 interface loan {
