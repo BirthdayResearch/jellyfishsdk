@@ -241,7 +241,7 @@ describe('loans.closeVault', () => {
 
   it('should not closeVault for liquidated vault', async () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
-    expect(liqVault.state).toStrictEqual('inliquidation')
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const script = await providers.elliptic.script()
     const txn = await builder.loans.closeVault({
