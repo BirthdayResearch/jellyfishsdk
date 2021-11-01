@@ -63,7 +63,7 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  it.skip('should listAnchorRewards', async () => {
+  it('should listAnchorRewards', async () => {
     // TODO(canonbrother): due to the sporadic flaky nature of anchor test, we have disabled it now so that it does not
     //  impact our CI workflow
     const anchor1 = await createAnchor()

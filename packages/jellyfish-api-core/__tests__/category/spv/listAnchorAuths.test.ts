@@ -51,7 +51,7 @@ describe('Spv', () => {
     await tGroup.waitForAnchorAuths(async () => await tGroup.anchor.generateAnchorAuths(2, initOffsetHour, 'listAnchorAuths'), 60)
   }
 
-  it.skip('should listAnchorAuths', async () => {
+  it('should listAnchorAuths', async () => {
     // TODO(canonbrother): due to the sporadic flaky nature of anchor test, we have disabled it now so that it does not
     //  impact our CI workflow
     for (let i = 0; i < 2; i += 1) {

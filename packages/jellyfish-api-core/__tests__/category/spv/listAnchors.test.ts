@@ -2,7 +2,7 @@ import { spv } from '@defichain/jellyfish-api-core'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
-describe.skip('Spv', () => {
+describe('Spv', () => {
   const tGroup = TestingGroup.create(3)
 
   beforeAll(async () => {

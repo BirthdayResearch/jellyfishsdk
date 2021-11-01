@@ -3,7 +3,7 @@ import { TestingGroup, Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 
-describe.skip('Spv', () => {
+describe('Spv', () => {
   const tGroup = TestingGroup.create(3)
 
   beforeAll(async () => {

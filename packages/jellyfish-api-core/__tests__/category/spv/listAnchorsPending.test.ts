@@ -66,7 +66,7 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  it.skip('should listAnchorsPending', async () => {
+  it('should listAnchorsPending', async () => {
     const anchors = await tGroup.get(0).rpc.spv.listAnchorsPending()
     expect(anchors.length).toStrictEqual(4)
     for (const anchor of anchors) {

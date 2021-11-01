@@ -65,7 +65,7 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  it.skip('should setLastHeight', async () => {
+  it('should setLastHeight', async () => {
     {
       const anchors = await tGroup.get(0).rpc.spv.listAnchors()
       expect(anchors.length).toStrictEqual(1)

@@ -61,7 +61,7 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  it.skip('should listAnchorRewardConfirms', async () => {
+  it('should listAnchorRewardConfirms', async () => {
     const anchor1 = await createAnchor()
     const anchor2 = await createAnchor()
 
