@@ -10,6 +10,7 @@ describe('Loan listAuctions', () => {
   let oracleId: string
   let vaultId1: string
   let vaultId2: string
+  let vaultId3: string
 
   beforeAll(async () => {
     await testing.container.start()
@@ -18,7 +19,7 @@ describe('Loan listAuctions', () => {
     collateralAddress = await testing.generateAddress()
     await testing.token.dfi({
       address: collateralAddress,
-      amount: 40000
+      amount: 80000
     })
     await testing.token.create({
       symbol: 'BTC',
@@ -27,7 +28,7 @@ describe('Loan listAuctions', () => {
     await testing.generate(1)
     await testing.token.mint({
       symbol: 'BTC',
-      amount: 20000
+      amount: 40000
     })
     await testing.generate(1)
 
@@ -126,6 +127,21 @@ describe('Loan listAuctions', () => {
     }])
     await testing.generate(1)
 
+    // Vault 3
+    vaultId3 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
+    await testing.generate(1)
+
+    await testing.container.call('deposittovault', [vaultId3, collateralAddress, '20000@DFI'])
+    await testing.generate(1)
+    await testing.container.call('deposittovault', [vaultId3, collateralAddress, '2@BTC'])
+    await testing.generate(1)
+
+    await testing.container.call('takeloan', [{
+      vaultId: vaultId3,
+      amounts: '20000@TSLA'
+    }])
+    await testing.generate(1)
+
     {
       // If there is no liquidation, return an empty array object
       const data = await testing.rpc.loan.listAuctions()
@@ -165,7 +181,7 @@ describe('Loan listAuctions', () => {
       }
       // The collateral tokens of vault that are liquidated are sent to auction
       const data = await testing.rpc.loan.listAuctions()
-      expect(data.length).toStrictEqual(2)
+      expect(data.length).toStrictEqual(3)
       const result = data.filter(d => d.vaultId === vaultId1)
       // Auction are divided into 4 batches,
       // the USD equivalent amount of every collateral tokens of non last batches are always 10,000
