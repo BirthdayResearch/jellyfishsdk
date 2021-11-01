@@ -104,11 +104,14 @@ export class ContainerGroup {
    * Stop container group and all containers associated with it
    */
   async stop (): Promise<void> {
+    const containerIds = this.containers.map(c => c.id)
     for (const container of this.containers) {
-      // await this.requireNetwork().disconnect({ Container: container.id })
+      await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
     await this.requireNetwork().remove()
-    // await this.docker.pruneContainers()
+    for (const id of containerIds) {
+      await this.docker.pruneContainers({ Container: id })
+    }
   }
 }
