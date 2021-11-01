@@ -228,37 +228,6 @@ describe('Loan listAuctionHistory', () => {
     })
     await bob.generate(1)
 
-    // create DFI-TSLA
-    await bob.poolpair.create({
-      tokenA: 'DFI',
-      tokenB: 'TSLA',
-      ownerAddress: aliceColAddr
-    })
-    await bob.generate(1)
-
-    // add DFI-TSLA
-    await bob.poolpair.add({
-      a: {
-        symbol: 'DFI',
-        amount: 500
-      },
-      b: {
-        symbol: 'TSLA',
-        amount: 1000
-      }
-    })
-    await bob.generate(1)
-
-    await bob.poolpair.swap({
-      from: bobColAddr1,
-      tokenFrom: 'DFI',
-      amountFrom: 600,
-      to: bobColAddr1,
-      tokenTo: 'TSLA'
-    })
-    await bob.generate(1)
-    await tGroup.waitForSync()
-
     // increase TSLA price
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
@@ -291,7 +260,7 @@ describe('Loan listAuctionHistory', () => {
       }
 
       {
-        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 2, aliceColAddr, '4000@MSFT'])
+        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 0, aliceColAddr, '4000@TSLA'])
         expect(typeof txid).toStrictEqual('string')
         expect(txid.length).toStrictEqual(64)
         await alice.generate(1)
