@@ -221,7 +221,7 @@ interface FixedIntervalPrice {
   activePrice: BigNumber
   nextPrice: BigNumber
   timestamp: number
-  isValid: true
+  isValid: boolean
 }
 ```
 
@@ -249,6 +249,6 @@ interface ListFixedIntervalPrice {
   activePrice: BigNumber
   nextPrice: BigNumber
   timestamp: number
-  isValid: true
+  isValid: boolean
 }
 ```

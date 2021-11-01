@@ -173,7 +173,7 @@ describe('loans.takeLoan', () => {
     await tGroup.waitForSync()
   }
 
-  it.only('should takeLoan', async () => {
+  it('should takeLoan', async () => {
     const vaultAddress = await providers.getAddress()
     const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
