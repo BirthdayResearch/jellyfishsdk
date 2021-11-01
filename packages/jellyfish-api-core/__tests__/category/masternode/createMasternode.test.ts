@@ -4,7 +4,7 @@ import { MasternodeState, MasternodeTimeLock } from '../../../src/category/maste
 import { AddressType } from '../../../src/category/wallet'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe.skip('Masternode', () => {
+describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
@@ -225,7 +225,7 @@ describe.skip('Masternode', () => {
   })
 })
 
-describe.skip('Multinodes masternodes', () => {
+describe('Multinodes masternodes', () => {
   const group = new ContainerGroup([
     new MasterNodeRegTestContainer(GenesisKeys[0]),
     new MasterNodeRegTestContainer(GenesisKeys[1])

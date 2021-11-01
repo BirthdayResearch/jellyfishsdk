@@ -172,7 +172,7 @@ describe('Oracle', () => {
 
   it('should listFixedIntervalPrices with limit', async () => {
     const prices = await testing.rpc.oracle.listFixedIntervalPrices({ limit: 1 })
-    expect(prices.length).toStrictEqual(1) // [0] is { activePriceBlock, nextPriceBlock } then priceInfo
+    expect(prices.length).toStrictEqual(1)
   })
 
   it('should listFixedIntervalPrices with pagination start and including_start', async () => {
