@@ -13,10 +13,10 @@ describe('compositeSwap', () => {
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
-    await container.start()
+    await testing.container.start()
     await container.waitForWalletCoinbaseMaturity()
     await testing.token.dfi({ amount: 30000 })
-    await container.generate(1)
+    await testing.generate(1)
 
     await testing.token.create({ symbol: 'CAT' })
     await container.generate(1)
@@ -82,7 +82,7 @@ describe('compositeSwap', () => {
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should compositeSwap', async () => {
@@ -152,7 +152,7 @@ describe('compositeSwap', () => {
     await container.generate(1)
 
     { // after swap
-      const fromBalances = await client.account.getAccount(fromAddress)
+      const fromBalances = await testing.rpc.account.getAccount(fromAddress)
       expect(fromBalances.length).toStrictEqual(1)
       expect(fromBalances[0]).toStrictEqual('33.30000000@CAT')
 
