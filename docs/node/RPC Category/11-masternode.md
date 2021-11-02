@@ -162,8 +162,7 @@ interface masternode {
 
 ## setGovHeight
 
-Set special governance variables with height specified.
-New governance variable value only effective after specific height.
+Set special governance variables with activation height specified
 
 ```ts title="client.masternode.setGovHeight()"
 interface masternode {

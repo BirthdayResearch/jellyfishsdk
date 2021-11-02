@@ -1,4 +1,3 @@
-
 import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
@@ -72,5 +71,12 @@ describe('Masternode', () => {
       expect(govVar[0].LP_SPLITS['3'].toString()).toStrictEqual('0.4')
       expect(govVar[0].LP_SPLITS['4'].toString()).toStrictEqual('0.6')
     }
+  })
+
+  it('should fail if set activation height is lower than current height', async () => {
+    const currentHeight = await client.blockchain.getBlockCount()
+    const activationHeight = currentHeight - 2
+    const promise = client.masternode.setGovWithHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
+    await expect(promise).rejects.toThrow('GovVar activation height must be higher than current block height')
   })
 })
