@@ -709,7 +709,7 @@ describe('paybackLoan failed', () => {
     await expect(promise).rejects.toThrow('Cannot payback loan on vault under liquidation')
   })
 
-  it('should not paybackLoan with arbitrary utxo', async () => {
+  it('should not paybackLoan with incorrect auth', async () => {
     await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
 
     const txn = await aBuilder.loans.paybackLoan({
