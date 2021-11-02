@@ -264,7 +264,8 @@ describe('loans.depositToVault', () => {
     expect(vaultAfter.collateralValue.minus(vaultBefore.collateralValue)).toStrictEqual(new BigNumber(dfiDeposit))
   })
 
-  it('should be failed as first deposit must be DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as first deposit must be DFI', async () => {
     const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
@@ -331,7 +332,8 @@ describe('loans.depositToVault', () => {
     await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
   })
 
-  it('should be failed as vault must contain min 50% of DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as vault must contain min 50% of DFI', async () => {
     const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'

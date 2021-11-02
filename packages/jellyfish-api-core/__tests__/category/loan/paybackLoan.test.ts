@@ -3,6 +3,7 @@ import { GenesisKeys } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { VaultActive } from '../../../src/category/loan'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
@@ -612,7 +613,7 @@ describe('paybackLoan failed', () => {
   })
 
   it('should not paybackLoan while insufficient amount', async () => {
-    const vault = await bob.rpc.loan.getVault(bobVaultId)
+    const vault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
     expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
 
     const bobLoanAcc = await bob.rpc.account.getAccount(bobloanAddr)
