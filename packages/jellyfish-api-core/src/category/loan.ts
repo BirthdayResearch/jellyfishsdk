@@ -221,9 +221,9 @@ export class Loan {
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
-   * @return {Promise<VaultDetails>}
+   * @return {Promise<VaultActive | VaultLiquidation>}
    */
-  async getVault (vaultId: string): Promise<VaultDetails> {
+  async getVault (vaultId: string): Promise<VaultActive | VaultLiquidation> {
     return await this.client.call(
       'getvault',
       [vaultId],
@@ -247,9 +247,9 @@ export class Loan {
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
    * @param {VaultState} [options.state = VaultState.UNKNOWN] vault's state
-   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
+   * @return {Promise<Vault[]>} Array of objects including details of the vaults.
    */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<Vault[]> {
     return await this.client.call(
       'listvaults',
       [options, pagination],
@@ -419,28 +419,32 @@ export enum VaultState {
   MAY_LIQUIDATE = 'mayLiquidate',
 }
 
-export interface VaultDetails {
-  // list and get both returns
+export interface Vault {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
-  // get only returns
-  liquidationHeight?: number
-  liquidationPenalty?: number
-  batchCount?: number
-  batches?: AuctionBatchDetails[]
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber
-  collateralRatio?: number
-  informativeRatio?: BigNumber
 }
 
-export interface AuctionBatchDetails {
+export interface VaultActive extends Vault {
+  collateralAmounts: string[]
+  loanAmounts: string[]
+  interestAmounts: string[]
+  collateralValue: BigNumber
+  loanValue: BigNumber
+  interestValue: BigNumber
+  collateralRatio: number
+  informativeRatio: BigNumber
+}
+
+export interface VaultLiquidation extends Vault {
+  liquidationHeight: number
+  liquidationPenalty: number
+  batchCount: number
+  batches: VaultLiquidationBatch[]
+}
+
+export interface VaultLiquidationBatch {
   index: BigNumber
   collaterals: string[]
   loan: string

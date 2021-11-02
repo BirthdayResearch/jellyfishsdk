@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { VaultDetails, VaultState } from '../../../src/category/loan'
+import { VaultState } from '../../../src/category/loan'
 
 describe('Loan listVaults', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -29,9 +29,15 @@ describe('Loan listVaults', () => {
     oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await testing.generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '1@DFI', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }]
+    })
     await testing.generate(1)
 
     // collateral tokens
@@ -100,7 +106,9 @@ describe('Loan listVaults', () => {
     await testing.generate(1)
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@AAPL', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '1000@AAPL', currency: 'USD' }]
+    })
     await testing.generate(1)
 
     // List vaults
@@ -147,7 +155,10 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
     collateralAddress = await testing.generateAddress()
-    await testing.token.dfi({ address: collateralAddress, amount: 40000 })
+    await testing.token.dfi({
+      address: collateralAddress,
+      amount: 40000
+    })
 
     // loan scheme
     await testing.container.call('createloanscheme', [100, 1, 'default'])
@@ -164,10 +175,18 @@ describe('Loan listVaults with options and pagination', () => {
     oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await testing.generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '4@GOOGL', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '1@DFI', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '2@AAPL', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '4@GOOGL', currency: 'USD' }]
+    })
     await testing.generate(1)
 
     // collateral tokens
@@ -230,7 +249,9 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.generate(1)
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp2 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp2, { prices: [{ tokenAmount: '1000@AAPL', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp2, {
+      prices: [{ tokenAmount: '1000@AAPL', currency: 'USD' }]
+    })
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
   })
 
@@ -311,12 +332,18 @@ describe('Loan listVaults with options and pagination', () => {
     expect(vaults.length).toStrictEqual(2)
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[vaults.length - 1].vaultId })
+    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+      including_start: false,
+      start: vaults[vaults.length - 1].vaultId
+    })
     // should be 2 entries
     expect(vaultsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
 
     // fetch the second page with including_start = true
-    const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({ including_start: true, start: vaults[vaults.length - 1].vaultId })
+    const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({
+      including_start: true,
+      start: vaults[vaults.length - 1].vaultId
+    })
     // should be 3 entries
     expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
 
@@ -370,7 +397,10 @@ describe('Loan listVaults with options and pagination', () => {
     ]))
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId }, { ownerAddress: ownerAddress1 })
+    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+      including_start: false,
+      start: vaults[Object.keys(vaults).length - 1].vaultId
+    }, { ownerAddress: ownerAddress1 })
     // should be no more entries
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(0)
   })
@@ -390,7 +420,10 @@ describe('Loan listVaults with options and pagination', () => {
     ])
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId }, { loanSchemeId: 'scheme' })
+    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+      including_start: false,
+      start: vaults[Object.keys(vaults).length - 1].vaultId
+    }, { loanSchemeId: 'scheme' })
     // should be no more entries
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(0)
   })
@@ -402,7 +435,10 @@ describe('Loan listVaults with options and pagination', () => {
     expect(Object.keys(vaults).length).toStrictEqual(2)
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({ including_start: false, start: vaults[Object.keys(vaults).length - 1].vaultId }, { state: VaultState.ACTIVE })
+    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+      including_start: false,
+      start: vaults[Object.keys(vaults).length - 1].vaultId
+    }, { state: VaultState.ACTIVE })
     // should be one more entry
     expect(Object.keys(vaultsSecondPage).length).toStrictEqual(1)
   })
@@ -413,16 +449,31 @@ describe('Loan listVaults with options and pagination', () => {
     expect(activeVaults.every(vault => vault.state === VaultState.ACTIVE))
 
     const ts = Math.floor(new Date().getTime() / 1000)
-    const vaultId = await testing.rpc.loan.createVault({ ownerAddress: await testing.generateAddress(), loanSchemeId: 'scheme' })
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'scheme'
+    })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultId,
+      from: collateralAddress,
+      amount: '10000@DFI'
+    })
     await testing.generate(1)
-    await testing.rpc.loan.takeLoan({ vaultId: vaultId, amounts: '30@GOOGL' })
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '30@GOOGL'
+    })
     await testing.generate(1)
     await testing.rpc.oracle.setOracleData(
       oracleId,
       ts,
-      { prices: [{ tokenAmount: '8@GOOGL', currency: 'USD' }] }
+      {
+        prices: [{
+          tokenAmount: '8@GOOGL',
+          currency: 'USD'
+        }]
+      }
     )
     // do frozen vault
     await testing.generate(6)
@@ -446,14 +497,14 @@ describe('Loan listVaults with options and pagination', () => {
 
     const liqVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
     expect(liqVaults.length).toBeGreaterThan(0)
-    const liqVault = liqVaults.find(vault => vault.vaultId === vaultId) as VaultDetails
+    const liqVault = liqVaults.find(vault => vault.vaultId === vaultId)!
     expect(liqVault?.state).toStrictEqual(VaultState.IN_LIQUIDATION)
 
     // end the auction
     await testing.generate(36)
 
     const vaults = await testing.rpc.loan.listVaults()
-    const theLiqVault = vaults.find(vault => vault.vaultId === vaultId) as VaultDetails
+    const theLiqVault = vaults.find(vault => vault.vaultId === vaultId)!
     expect(theLiqVault.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
   })
 })
