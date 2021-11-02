@@ -260,18 +260,7 @@ describe('Loan updateVault', () => {
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await alice.generate(1)
 
-    // Wait for the price becomes invalid again
     await alice.container.waitForPriceInvalid('DFI/USD')
-
-    {
-      // Unable to update to a new scheme as price is invalid and vault is going to be liquidated
-      const promise = alice.rpc.loan.updateVault(vaultId, {
-        ownerAddress: await alice.generateAddress(),
-        loanSchemeId: 'default'
-      })
-      await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: updatevault')
-    }
-
     await alice.container.waitForPriceValid('DFI/USD')
   })
 
