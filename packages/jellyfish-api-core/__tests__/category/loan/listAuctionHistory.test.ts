@@ -17,7 +17,7 @@ describe('Loan listAuctionHistory', () => {
     aliceColAddr = await alice.generateAddress()
     await alice.token.dfi({
       address: aliceColAddr,
-      amount: 30000
+      amount: 60000
     })
     await alice.generate(1)
 
@@ -77,7 +77,7 @@ describe('Loan listAuctionHistory', () => {
     const timestamp = Math.floor(new Date().getTime() / 1000)
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
-        tokenAmount: '1@DFI',
+        tokenAmount: '5@DFI',
         currency: 'USD'
       }]
     })
@@ -264,7 +264,7 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
     // loan scheme set up
     await alice.rpc.loan.createLoanScheme({
-      minColRatio: 150,
+      minColRatio: 100,
       interestRate: new BigNumber(3),
       id: 'scheme'
     })
@@ -274,7 +274,7 @@ describe('Loan listAuctionHistory', () => {
     bobColAddr1 = await bob.generateAddress()
     await bob.token.dfi({
       address: bobColAddr1,
-      amount: 20000
+      amount: 40000
     })
     await bob.generate(1)
 
@@ -314,7 +314,7 @@ describe('Loan listAuctionHistory', () => {
     await bob.rpc.loan.depositToVault({
       vaultId: bobVaultId1,
       from: bobColAddr1,
-      amount: '10000@DFI'
+      amount: '22000@DFI'
     })
     await bob.generate(1)
 
@@ -328,7 +328,7 @@ describe('Loan listAuctionHistory', () => {
     const bobLoanAddr = await bob.generateAddress()
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '948@TSLA',
+      amounts: '4500@TSLA',
       to: bobLoanAddr
     })
     await bob.generate(1)
@@ -370,7 +370,7 @@ describe('Loan listAuctionHistory', () => {
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId1,
-      amounts: '942@E',
+      amounts: '50000@E',
       to: bobLoanAddr
     })
     await bob.generate(1)
@@ -400,7 +400,7 @@ describe('Loan listAuctionHistory', () => {
     // increase TSLA price
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
-        tokenAmount: '2.3@TSLA',
+        tokenAmount: '2.8@TSLA',
         currency: 'USD'
       }]
     })
@@ -429,7 +429,7 @@ describe('Loan listAuctionHistory', () => {
       }
 
       {
-        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 6, aliceColAddr, '4000@E'])
+        const txid = await alice.container.call('placeauctionbid', [bobVaultId1, 16, aliceColAddr, '4455.00806505@E'])
         expect(typeof txid).toStrictEqual('string')
         expect(txid.length).toStrictEqual(64)
         await alice.generate(1)
