@@ -1,3 +1,4 @@
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
@@ -77,6 +78,7 @@ describe('Masternode', () => {
     const currentHeight = await client.blockchain.getBlockCount()
     const activationHeight = currentHeight - 2
     const promise = client.masternode.setGovHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
-    await expect(promise).rejects.toThrow('GovVar activation height must be higher than current block height')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('startHeight must be above the current block height')
   })
 })

@@ -149,10 +149,6 @@ export class Masternode {
    *
    */
   async setGovHeight (input: Record<string, any>, activationHeight: number): Promise<string> {
-    const currentHeight: number = await this.client.call('getblockcount', [], 'number')
-    if (activationHeight < currentHeight) {
-      throw new Error('GovVar activation height must be higher than current block height')
-    }
     return await this.client.call('setgovheight', [input, activationHeight], 'number')
   }
 
