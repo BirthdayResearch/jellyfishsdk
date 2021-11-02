@@ -280,11 +280,11 @@ export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
   static OP_CODE = 0x48 // 'H'
   static OP_NAME = 'OP_DEFI_TX_PAYBACK_LOAN'
 
-  composers (lp: PaybackLoan): BufferComposer[] {
+  composers (pl: PaybackLoan): BufferComposer[] {
     return [
-      ComposableBuffer.hexBEBufferLE(32, () => lp.vaultId, v => lp.vaultId = v),
-      ComposableBuffer.single<Script>(() => lp.from, v => lp.from = v, v => new CScript(v)),
-      ComposableBuffer.varUIntArray(() => lp.tokenAmounts, v => lp.tokenAmounts = v, v => new CTokenBalance(v))
+      ComposableBuffer.hexBEBufferLE(32, () => pl.vaultId, v => pl.vaultId = v),
+      ComposableBuffer.single<Script>(() => pl.from, v => pl.from = v, v => new CScript(v)),
+      ComposableBuffer.varUIntArray(() => pl.tokenAmounts, v => pl.tokenAmounts = v, v => new CTokenBalance(v))
     ]
   }
 }
