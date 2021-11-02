@@ -35,9 +35,9 @@ export class Loan {
    * @param {BigNumber} scheme.interestRate Interest rate
    * @param {string} scheme.id Unique identifier of the loan scheme, max 8 chars
    * @param {number} [scheme.activateAfterBlock] Block height at which new changes take effect
-   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
-   * @param {string} options.utxos.txid Transaction Id
-   * @param {number} options.utxos.vout Output number
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
    * @return {Promise<string>} Hex string of the transaction
    */
   async updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string> {
@@ -145,11 +145,12 @@ export class Loan {
    * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
    */
   async setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string> {
-    const defaultData = {
+    const payload = {
       mintable: true,
-      interest: 0
+      interest: 0,
+      ...loanToken
     }
-    return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
+    return await this.client.call('setloantoken', [payload, utxos], 'number')
   }
 
   /**
@@ -226,7 +227,12 @@ export class Loan {
     return await this.client.call(
       'getvault',
       [vaultId],
-      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber', informativeRatio: 'bignumber' }
+      {
+        collateralValue: 'bignumber',
+        loanValue: 'bignumber',
+        interestValue: 'bignumber',
+        informativeRatio: 'bignumber'
+      }
     )
   }
 
@@ -247,7 +253,12 @@ export class Loan {
     return await this.client.call(
       'listvaults',
       [options, pagination],
-      { collateralValue: 'bignumber', loanValue: 'bignumber', interestValue: 'bignumber', informativeRatio: 'bignumber' }
+      {
+        collateralValue: 'bignumber',
+        loanValue: 'bignumber',
+        interestValue: 'bignumber',
+        informativeRatio: 'bignumber'
+      }
     )
   }
 
