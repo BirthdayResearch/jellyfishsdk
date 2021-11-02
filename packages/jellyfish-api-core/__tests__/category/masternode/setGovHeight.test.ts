@@ -44,7 +44,7 @@ describe('Masternode', () => {
 
     const currentHeight = await client.blockchain.getBlockCount()
     const activationHeight = currentHeight + 3
-    await client.masternode.setGovWithHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
+    await client.masternode.setGovHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
     await container.generate(1)
 
     { // before new GovVar activated
@@ -76,7 +76,7 @@ describe('Masternode', () => {
   it('should fail if set activation height is lower than current height', async () => {
     const currentHeight = await client.blockchain.getBlockCount()
     const activationHeight = currentHeight - 2
-    const promise = client.masternode.setGovWithHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
+    const promise = client.masternode.setGovHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
     await expect(promise).rejects.toThrow('GovVar activation height must be higher than current block height')
   })
 })
