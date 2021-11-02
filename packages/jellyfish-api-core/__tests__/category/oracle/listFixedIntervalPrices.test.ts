@@ -21,7 +21,7 @@ describe('Oracle', () => {
 
   async function setup (): Promise<void> {
     // token setup
-    const aliceColAddr = await testing.container.getNewAddress()
+    const aliceColAddr = await testing.generateAddress()
     await testing.token.dfi({ address: aliceColAddr, amount: 100000 })
     await testing.generate(1)
     await testing.token.create({ symbol: 'BTC', collateralAddress: aliceColAddr })

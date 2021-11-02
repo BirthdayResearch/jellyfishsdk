@@ -21,7 +21,7 @@ describe('Oracle', () => {
 
   async function setup (): Promise<void> {
     // token setup
-    const aliceColAddr = await testing.container.getNewAddress()
+    const aliceColAddr = await testing.generateAddress()
     await testing.token.dfi({ address: aliceColAddr, amount: 100000 })
     await testing.generate(1)
     await testing.token.create({ symbol: 'BTC', collateralAddress: aliceColAddr })
@@ -153,9 +153,8 @@ describe('Oracle', () => {
     let nextPriceBlock: number
     let blockHeight: number
     {
-      // make sure to have a valid price of 10@UBER
       await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10@UBER', currency: 'USD' }] })
-      await testing.generate(13)
+      await testing.generate(13) // make sure to have a valid price of 10@UBER
       blockHeight = await testing.rpc.blockchain.getBlockCount()
       const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
 
