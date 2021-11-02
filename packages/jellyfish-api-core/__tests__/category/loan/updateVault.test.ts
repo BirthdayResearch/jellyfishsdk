@@ -2,6 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
+import { VaultState } from '../../../src/category/loan'
 
 describe('Loan updateVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -132,6 +133,49 @@ describe('Loan updateVault', () => {
     expect(data.loanSchemeId).toStrictEqual('scheme')
   })
 
+  it('should updateVault if the vault state is mayliquidate', async () => {
+    // Create another vault
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: collateralAddress,
+      loanSchemeId: 'default'
+    })
+    await testing.generate(1)
+
+    // Deposit to vault
+    await testing.rpc.loan.depositToVault({
+      vaultId, from: collateralAddress, amount: '100@DFI'
+    })
+    await testing.generate(1)
+
+    // Take loan
+    await testing.rpc.loan.takeLoan({
+      vaultId,
+      amounts: '50@TSLA'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
+    await testing.generate(1)
+
+    const data = await testing.rpc.loan.getVault(vaultId)
+    expect(data.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
+
+    const updateVaultId = await testing.rpc.loan.updateVault(vaultId, {
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'default'
+    })
+
+    expect(typeof updateVaultId).toStrictEqual('string')
+    expect(updateVaultId.length).toStrictEqual(64)
+    await testing.generate(1)
+
+    await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
+
+    // Update back the price
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await testing.generate(12)
+  })
+
   it('should not updateVault if vaultId is invalid', async () => {
     const promise = testing.rpc.loan.updateVault('b25ab8093b0fcb712b9acecdb6ec21ae9cb862a14766a9fb6523efb1d8d05d60', {
       ownerAddress: await testing.generateAddress(),
@@ -185,7 +229,7 @@ describe('Loan updateVault', () => {
 
     // Take loan
     await testing.rpc.loan.takeLoan({
-      vaultId: vaultId,
+      vaultId,
       amounts: '50@TSLA'
     })
     await testing.generate(1)
@@ -195,12 +239,18 @@ describe('Loan updateVault', () => {
     // Wait for the price become invalid
     await testing.container.waitForPriceInvalid('DFI/USD')
 
-    // Unable to update to new scheme as DFI price is invalid
-    const promise = testing.rpc.loan.updateVault(vaultId, {
-      ownerAddress: await testing.generateAddress(),
-      loanSchemeId: 'default'
-    })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
+    // Frozen = invalid price and active vault
+    const data = await testing.rpc.loan.getVault(vaultId)
+    expect(data.state).toStrictEqual(VaultState.FROZEN)
+
+    {
+      // Unable to update to the new scheme as vault state is frozen
+      const promise = testing.rpc.loan.updateVault(vaultId, {
+        ownerAddress: await testing.generateAddress(),
+        loanSchemeId: 'default'
+      })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
+    }
 
     await testing.container.waitForPriceValid('DFI/USD')
 
@@ -208,7 +258,18 @@ describe('Loan updateVault', () => {
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await testing.generate(1)
 
+    // Wait for the price becomes invalid again
     await testing.container.waitForPriceInvalid('DFI/USD')
+
+    {
+      // Unable to update to a new scheme as price is invalid and vault is going to be liquidated
+      const promise = testing.rpc.loan.updateVault(vaultId, {
+        ownerAddress: await testing.generateAddress(),
+        loanSchemeId: 'default'
+      })
+      await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: updatevault')
+    }
+
     await testing.container.waitForPriceValid('DFI/USD')
   })
 
@@ -228,7 +289,7 @@ describe('Loan updateVault', () => {
 
     // Take loan
     await testing.rpc.loan.takeLoan({
-      vaultId: vaultId,
+      vaultId,
       amounts: '34@TSLA'
     })
     await testing.generate(1)
@@ -262,7 +323,7 @@ describe('Loan updateVault', () => {
 
     // Take loan
     await testing.rpc.loan.takeLoan({
-      vaultId: vaultId,
+      vaultId,
       amounts: '50@TSLA'
     })
     await testing.generate(1)
@@ -274,7 +335,7 @@ describe('Loan updateVault', () => {
 
     // DFI price drops and trigger liquidation event
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
-    await testing.generate(10)
+    await testing.generate(12)
 
     {
       const data = await testing.rpc.loan.getVault(vaultId)
