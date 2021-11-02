@@ -257,8 +257,8 @@ async function setup (): Promise<void> {
     to: bobColAddr,
     amounts: '40@TSLA'
   })
-  tslaLoanHeight = await bob.container.getBlockCount()
   await bob.generate(1)
+  tslaLoanHeight = await bob.container.getBlockCount()
   await tGroup.waitForSync()
 }
 
@@ -291,7 +291,7 @@ describe('paybackLoan success', () => {
       const interests = await bob.rpc.loan.getInterest('scheme')
       const height = await bob.container.getBlockCount()
       const tslaInterestPerBlock = (netInterest * 40) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight)
+      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight + 1)
       expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
       expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
     }
@@ -363,7 +363,7 @@ describe('paybackLoan success', () => {
       const interests = await bob.rpc.loan.getInterest('scheme')
       const height = await bob.container.getBlockCount()
       const tslaInterestPerBlock = (netInterest * 40) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight)
+      const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight + 1)
       expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8))
       expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
     }
@@ -481,7 +481,7 @@ describe('paybackLoan success', () => {
 
       // tsla interest
       const tslaInterestPerBlock = (netInterest * tslaAmt) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaTotalInterest = ((blockHeight - tslaLoanHeight) * tslaInterestPerBlock)
+      const tslaTotalInterest = ((blockHeight - tslaLoanHeight + 1) * tslaInterestPerBlock)
 
       // amzn interest
       const amznInterestPerBlock = (netInterest * amznAmt) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
