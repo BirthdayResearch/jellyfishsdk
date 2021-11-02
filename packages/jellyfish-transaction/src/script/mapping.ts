@@ -76,8 +76,8 @@ import {
   DepositToVault,
   TakeLoan,
   CTakeLoan,
-  CLoanPayback,
-  LoanPayback
+  CPaybackLoan,
+  PaybackLoan
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -515,12 +515,12 @@ export const OP_CODES = {
       data: takeLoan
     })
   },
-  OP_DEFI_TX_LOAN_PAYBACK: (loanPayback: LoanPayback): OP_DEFI_TX => {
+  OP_DEFI_TX_PAYBACK_LOAN: (paybackLoan: PaybackLoan): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CLoanPayback.OP_CODE,
-      name: CLoanPayback.OP_NAME,
-      data: loanPayback
+      type: CPaybackLoan.OP_CODE,
+      name: CPaybackLoan.OP_NAME,
+      data: paybackLoan
     })
   },
   OP_0: new constants.OP_0(),

@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
-  CLoanPayback,
-  LoanPayback
+  CPaybackLoan,
+  PaybackLoan
 } from '../../../../src/script/dftx/dftx_loans'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-     * LoanPayback : {
+     * PaybackLoan : {
         vaultId: '3fe27f9a8e9dc4a6d6e3e26b107b41786e1cf34688f34d9e7e5a26c376be2351',
         from: 'bcrt1qe87raws06n4g5x78gn32nd9uhr8mcfmc7p6h3j',
         tokenAmounts: '45@TSLA'
@@ -19,7 +19,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a4944665478485123be76c3265a7e9e4df38846f31c6e78417b106be2e3d6a6c49d8e9a7fe23f160014c9fc3eba0fd4ea8a1bc744e2a9b4bcb8cfbc27780102000000008d380c01000000',
     /**
-     * LoanPayback : {
+     * PaybackLoan : {
         vaultId: 'f95268403485ab72bccd04800788cf61bfad9fb7069b894c6f741add5bd49991',
         from: 'bcrt1qwcrq4hpznhdwl830afs9u0zzj48cvpd4l7s26m',
         tokenAmounts: ['13@TSLA', '6@AMZN']
@@ -27,7 +27,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a4c5544665478489199d45bdd1a746f4c899b06b79fadbf61cf88078004cdbc72ab8534406852f916001476060adc229ddaef9e2fea605e3c42954f8605b50202000000006d7c4d00000000030000000046c32300000000',
     /**
-     * LoanPayback : {
+     * PaybackLoan : {
         vaultId: '867cb87cae3f339f43d33312f6e2bea410b57e54b2aad918d6e61a82eb61aeb5',
         from: 'bcrt1qrvag70s4x65kmz8506pnrfvd77a9wl5lum3ctd',
         tokenAmounts: '30@APPL'
@@ -46,12 +46,12 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a4c554466547848' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 85 = 0x55) CDfTx.SIGNATURE(0x44665478) CLoanPayback.OP_CODE(0x48)
-// LoanPayback.vaultId[LE](0x9199d45bdd1a746f4c899b06b79fadbf61cf88078004cdbc72ab8534406852f9)
-// LoanPayback.from(0x16001476060adc229ddaef9e2fea605e3c42954f8605b5)
-// LoanPayback.tokenAmounts(0x0202000000006d7c4d00000000030000000046c32300000000)
+const header = '6a4c554466547848' // OP_RETURN(0x6a) OP_PUSHDATA1(0x4c) (length 85 = 0x55) CDfTx.SIGNATURE(0x44665478) CPaybackLoan.OP_CODE(0x48)
+// PaybackLoan.vaultId[LE](0x9199d45bdd1a746f4c899b06b79fadbf61cf88078004cdbc72ab8534406852f9)
+// PaybackLoan.from(0x16001476060adc229ddaef9e2fea605e3c42954f8605b5)
+// PaybackLoan.tokenAmounts(0x0202000000006d7c4d00000000030000000046c32300000000)
 const data = '9199d45bdd1a746f4c899b06b79fadbf61cf88078004cdbc72ab8534406852f916001476060adc229ddaef9e2fea605e3c42954f8605b50202000000006d7c4d00000000030000000046c32300000000'
-const loanPayback: LoanPayback = {
+const paybackLoan: PaybackLoan = {
   vaultId: 'f95268403485ab72bccd04800788cf61bfad9fb7069b894c6f741add5bd49991',
   from: {
     stack: [
@@ -65,7 +65,7 @@ const loanPayback: LoanPayback = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_LOAN_PAYBACK(loanPayback)
+    OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(paybackLoan)
   ]
 
   const buffer = toBuffer(stack)
@@ -75,13 +75,13 @@ it('should craft dftx with OP_CODES._()', () => {
 describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CLoanPayback(buffer)
+    const composable = new CPaybackLoan(buffer)
 
-    expect(composable.toObject()).toStrictEqual(loanPayback)
+    expect(composable.toObject()).toStrictEqual(paybackLoan)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CLoanPayback(loanPayback)
+    const composable = new CPaybackLoan(paybackLoan)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 

@@ -199,7 +199,7 @@ async function setup (): Promise<void> {
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@UBER', currency: 'USD' }] })
   await alice.generate(1)
 
-  // set up fixture for loanPayback
+  // set up fixture for paybackLoan
   const aliceDUSDAddr = await alice.container.getNewAddress()
   await alice.token.dfi({ address: aliceDUSDAddr, amount: 600000 })
   await alice.generate(1)
@@ -262,7 +262,7 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 }
 
-describe('loanPayback success', () => {
+describe('paybackLoan success', () => {
   beforeEach(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -282,7 +282,7 @@ describe('loanPayback success', () => {
     await tGroup.stop()
   })
 
-  it('should loanPayback', async () => {
+  it('should paybackLoan', async () => {
     await alice.rpc.account.sendTokensToAddress({}, { [bobColAddr]: ['5@TSLA'] })
     await alice.generate(1)
     await tGroup.waitForSync()
@@ -310,7 +310,7 @@ describe('loanPayback success', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.loans.loanPayback({
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(45) }] // try pay over loan amount
@@ -343,7 +343,7 @@ describe('loanPayback success', () => {
     expect(bobColAccAfter).toStrictEqual(['4.99990868@TSLA']) // 45 - 40.00004566
   })
 
-  it('should loanPayback partially', async () => {
+  it('should paybackLoan partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -371,7 +371,7 @@ describe('loanPayback success', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.loans.loanPayback({
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(13) }]
@@ -407,7 +407,7 @@ describe('loanPayback success', () => {
     expect(burnInfoAfter.paybackburn).toStrictEqual(0.0000137)
   })
 
-  it('should loanPayback by anyone', async () => {
+  it('should paybackLoan by anyone', async () => {
     const loanAccBefore = await bob.container.call('getaccount', [aliceColAddr])
     expect(loanAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
@@ -423,7 +423,7 @@ describe('loanPayback success', () => {
     await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
     const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
 
-    const txn = await aBuilder.loans.loanPayback({
+    const txn = await aBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: aliceColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(13) }]
@@ -455,7 +455,7 @@ describe('loanPayback success', () => {
     expect(vaultAfter.informativeRatio).toStrictEqual(27777.67560737)
   })
 
-  it('should loanPayback more than one amount', async () => {
+  it('should paybackLoan more than one amount', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
 
@@ -470,7 +470,7 @@ describe('loanPayback success', () => {
     const loanTokenAccBefore = await bob.container.call('getaccount', [bobColAddr])
     expect(loanTokenAccBefore).toStrictEqual(['40.00000000@TSLA', '15.00000000@AMZN'])
 
-    // first loanPayback
+    // first paybackLoan
     {
       const blockHeight = await bob.container.getBlockCount()
 
@@ -511,7 +511,7 @@ describe('loanPayback success', () => {
       await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
       const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-      const txn = await bBuilder.loans.loanPayback({
+      const txn = await bBuilder.loans.paybackLoan({
         vaultId: bobVaultId,
         from: bobColScript,
         tokenAmounts: [{ token: 2, amount: new BigNumber(13) }, { token: 3, amount: new BigNumber(6) }]
@@ -547,11 +547,11 @@ describe('loanPayback success', () => {
       expect(burnInfoAfter.paybackburn).toStrictEqual(0.00002084)
     }
 
-    // second loanPayback
+    // second paybackLoan
     {
       const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-      const txn = await bBuilder.loans.loanPayback({
+      const txn = await bBuilder.loans.paybackLoan({
         vaultId: bobVaultId,
         from: bobColScript,
         tokenAmounts: [{ token: 2, amount: new BigNumber(13) }, { token: 3, amount: new BigNumber(6) }]
@@ -601,7 +601,7 @@ describe('loanPayback success', () => {
   })
 })
 
-describe('loanPayback failed', () => {
+describe('paybackLoan failed', () => {
   beforeAll(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -626,8 +626,8 @@ describe('loanPayback failed', () => {
     await tGroup.stop()
   })
 
-  it('should not loanPayback on nonexistent vault', async () => {
-    const txn = await bBuilder.loans.loanPayback({
+  it('should not paybackLoan on nonexistent vault', async () => {
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: '0'.repeat(64),
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
@@ -638,8 +638,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`Cannot find existing vault with id ${'0'.repeat(64)}`)
   })
 
-  it('should not loanPayback on nonexistent loan token', async () => {
-    const txn = await bBuilder.loans.loanPayback({
+  it('should not paybackLoan on nonexistent loan token', async () => {
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 1, amount: new BigNumber(1) }]
@@ -650,8 +650,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('Loan token with id (1) does not exist!')
   })
 
-  it('should not loanPayback as no loan on vault', async () => {
-    const txn = await bBuilder.loans.loanPayback({
+  it('should not paybackLoan as no loan on vault', async () => {
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobVaultId1,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
@@ -662,8 +662,8 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`There are no loans on this vault (${bobVaultId1})`)
   })
 
-  it('should not loanPayback as no token in this vault', async () => {
-    const txn = await bBuilder.loans.loanPayback({
+  it('should not paybackLoan as no token in this vault', async () => {
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 3, amount: new BigNumber(30) }]
@@ -674,14 +674,14 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('There is no loan on token (AMZN) in this vault!')
   })
 
-  it('should not loanPayback on empty vault', async () => {
+  it('should not paybackLoan on empty vault', async () => {
     const emptyVaultId = await bob.rpc.loan.createVault({
       ownerAddress: bobVaultAddr,
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
 
-    const txn = await bBuilder.loans.loanPayback({
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: emptyVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
@@ -692,13 +692,13 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow(`Vault with id ${emptyVaultId} has no collaterals`)
   })
 
-  it('should not loanPayback on liquidation vault', async () => {
+  it('should not paybackLoan on liquidation vault', async () => {
     await alice.generate(6)
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
-    const txn = await bBuilder.loans.loanPayback({
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobLiqVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
@@ -709,10 +709,10 @@ describe('loanPayback failed', () => {
     await expect(promise).rejects.toThrow('Cannot payback loan on vault under liquidation')
   })
 
-  it('should not loanPayback with arbitrary utxo', async () => {
+  it('should not paybackLoan with arbitrary utxo', async () => {
     await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
 
-    const txn = await aBuilder.loans.loanPayback({
+    const txn = await aBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(30) }]
@@ -725,7 +725,7 @@ describe('loanPayback failed', () => {
 })
 
 // move insufficient test case out to another scope for independent testing
-describe('loanPayback failed #2', () => {
+describe('paybackLoan failed #2', () => {
   beforeAll(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -745,7 +745,7 @@ describe('loanPayback failed #2', () => {
     await tGroup.stop()
   })
 
-  it('should not loanPayback while insufficient amount', async () => {
+  it('should not paybackLoan while insufficient amount', async () => {
     const vault = await bob.rpc.loan.getVault(bobVaultId)
     expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
 
@@ -757,7 +757,7 @@ describe('loanPayback failed #2', () => {
 
     const script = await bProviders.elliptic.script()
 
-    const txn = await bBuilder.loans.loanPayback({
+    const txn = await bBuilder.loans.paybackLoan({
       vaultId: bobVaultId,
       from: bobColScript,
       tokenAmounts: [{ token: 2, amount: new BigNumber(41) }]

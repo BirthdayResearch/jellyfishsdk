@@ -9,7 +9,7 @@ import {
   CreateVault,
   DepositToVault,
   TakeLoan,
-  LoanPayback
+  PaybackLoan
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { BigNumber } from '@defichain/jellyfish-json'
@@ -160,16 +160,16 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-   * LoanPayback to vault transaction.
+   * PaybackLoan to vault transaction.
    *
-   * @param {LoanPayback} loanPayback txn to create
+   * @param {PaybackLoan} paybackLoan txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
    * @returns {Promise<TransactionSegWit>}
    */
 
-  async loanPayback (loanPayback: LoanPayback, changeScript: Script): Promise<TransactionSegWit> {
+  async paybackLoan (paybackLoan: PaybackLoan, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
-      OP_CODES.OP_DEFI_TX_LOAN_PAYBACK(loanPayback),
+      OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(paybackLoan),
       changeScript
     )
   }
