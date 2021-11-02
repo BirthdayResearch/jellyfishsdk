@@ -86,6 +86,7 @@ interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+  default: boolean
 }
 ```
 
@@ -358,26 +359,88 @@ interface loan {
   getVault (vaultId: string): Promise<VaultDetails>
 }
 
+enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inLiquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayLiquidate',
+}
+
 interface VaultDetails {
+  // list and get both returns
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
+  state: VaultState
+  // get only returns
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
   batches?: AuctionBatchDetails[]
   collateralAmounts?: string[]
   loanAmounts?: string[]
   interestAmounts?: string[]
   collateralValue?: BigNumber
   loanValue?: BigNumber
-  interestValue?: BigNumber,
-  currentRatio?: BigNumber
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
 }
 
 interface AuctionBatchDetails {
   index: BigNumber
   collaterals: string[]
   loan: string
+}
+```
+
+## listVaults
+
+List all available vaults.
+
+```ts title="client.loan.listVaults()"
+interface loan {
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
+}
+
+interface VaultDetails {
+  // list and get both returns
+  vaultId: string
+  loanSchemeId: string
+  ownerAddress: string
+  state: VaultState
+  // get only returns
+  liquidationHeight?: number
+  liquidationPenalty?: number
+  batchCount?: number
+  batches?: AuctionBatchDetails[]
+  collateralAmounts?: string[]
+  loanAmounts?: string[]
+  interestAmounts?: string[]
+  collateralValue?: BigNumber
+  loanValue?: BigNumber
+  interestValue?: BigNumber
+  collateralRatio?: number
+  informativeRatio?: BigNumber
+}
+
+interface AuctionBatchDetails {
+  index: BigNumber
+  collaterals: string[]
+  loan: string
+}
+
+interface ListVaultOptions {
+  ownerAddress?: string
+  loanSchemeId?: string
+  state?: VaultState
+}
+
+interface VaultPagination {
+  start?: string
+  including_start?: boolean
+  limit?: number
 }
 ```
 
@@ -393,50 +456,6 @@ interface loan {
 interface CloseVault {
   vaultId: string
   to: string
-}
-```
-
-## listVaults
-
-List all available vaults.
-
-```ts title="client.loan.listVaults()"
-interface loan {
-  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]>
-}
-
-interface ListVaultOptions {
-  ownerAddress?: string
-  loanSchemeId?: string
-  isUnderLiquidation?: boolean
-}
-
-interface VaultPagination {
-  start?: string
-  including_start?: boolean
-  limit?: number
-}
-
-interface VaultDetails {
-  vaultId: string
-  loanSchemeId: string
-  ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
-  batches?: AuctionBatchDetails[]
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber,
-  currentRatio?: BigNumber
-}
-
-interface AuctionBatchDetails {
-  index: BigNumber
-  collaterals: string[]
-  loan: string
 }
 ```
 
@@ -482,16 +501,16 @@ interface UTXO {
 }
 ```
 
-## loanPayback
+## paybackLoan
 
 Return loan in a desired amount.
 
-```ts title="client.loan.loanPayback()"
+```ts title="client.loan.paybackLoan()"
 interface loan {
-  loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string>
+  paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string>
 }
 
-interface LoanPaybackMetadata {
+interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
@@ -503,13 +522,13 @@ interface UTXO {
 }
 ```
 
-## auctionBid
+## placeAuctionBid
 
 To obtain the liquidated vault by offering a particular up for bid.
 
-```ts title="client.loan.auctionBid()"
+```ts title="client.loan.placeAuctionBid()"
 interface loan {
-  auctionBid (auctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+  placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
 }
 
 interface AuctionBid {

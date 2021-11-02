@@ -168,7 +168,7 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.account.sendTokensToAddress({}, { [vaultWithPayBackLoanAddress]: ['5@TSLA'] })
     await tGroup.get(0).generate(1)
 
-    await tGroup.get(0).rpc.container.call('loanpayback', [{ vaultId: vaultWithPayBackLoanId, from: vaultWithPayBackLoanAddress, amounts: '2@TSLA' }])
+    await tGroup.get(0).rpc.container.call('paybackloan', [{ vaultId: vaultWithPayBackLoanId, from: vaultWithPayBackLoanAddress, amounts: '2@TSLA' }])
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
@@ -250,7 +250,7 @@ describe('Loan', () => {
 
   it('should not closeVault for liquidated vault', async () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
-    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
     await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: closevault')

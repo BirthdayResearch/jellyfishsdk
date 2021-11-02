@@ -10,6 +10,7 @@ const bob = tGroup.get(1)
 let aliceColAddr: string
 let bobVaultId: string
 let bobColAddr: string
+let bobVaultAddr: string
 
 async function setup (): Promise<void> {
   // token setup
@@ -81,7 +82,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  const bobVaultAddr = await bob.generateAddress()
+  bobVaultAddr = await bob.generateAddress()
   bobVaultId = await bob.rpc.loan.createVault({
     ownerAddress: bobVaultAddr,
     loanSchemeId: 'scheme'
@@ -140,15 +141,15 @@ async function setup (): Promise<void> {
 
   // check vault status before liquidated
   const vaultBefore = await bob.container.call('getvault', [bobVaultId])
-  expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
+  expect(vaultBefore.state).toStrictEqual('active')
   expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
   expect(vaultBefore.loanAmounts).toStrictEqual(['1000.00285385@TSLA'])
   expect(vaultBefore.interestAmounts).toStrictEqual(['0.00285385@TSLA'])
   expect(vaultBefore.collateralValue).toStrictEqual(20000)
   expect(vaultBefore.loanValue).toStrictEqual(2000.0057077)
   expect(vaultBefore.interestValue).toStrictEqual(0.0057077)
-  expect(vaultBefore.currentRatio).toStrictEqual('1000%')
-  expect(vaultBefore.invalidPrice).toStrictEqual(false)
+  expect(vaultBefore.collateralRatio).toStrictEqual(1000)
+  expect(vaultBefore.informativeRatio).toStrictEqual(999.99714615)
 
   // *6 => 1000.00342462@TSLA
   // *7 => 1000.00399539@TSLA
@@ -156,8 +157,15 @@ async function setup (): Promise<void> {
   {
     await alice.generate(4) // *9 => 1000.00513693@TSLA
     const vault = await bob.container.call('getvault', [bobVaultId])
-    expect(vault.isUnderLiquidation).toStrictEqual(false)
-    expect(vault.invalidPrice).toStrictEqual(true)
+    expect(vault.state).toStrictEqual('frozen')
+    expect(vault.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
+    expect(vault.loanAmounts).toStrictEqual(['1000.00513693@TSLA'])
+    expect(vault.interestAmounts).toStrictEqual(['0.00513693@TSLA'])
+    expect(vault.collateralValue).toStrictEqual(20000)
+    expect(vault.loanValue).toStrictEqual(2000.01027386)
+    expect(vault.interestValue).toStrictEqual(0.01027386)
+    expect(vault.collateralRatio).toStrictEqual(1000)
+    expect(vault.informativeRatio).toStrictEqual(999.99486309)
   }
 
   const auctionsBefore = await alice.container.call('listauctions')
@@ -172,12 +180,13 @@ async function setup (): Promise<void> {
 
   // vault is liquidated now
   const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-  expect(vaultAfter.isUnderLiquidation).toStrictEqual(true)
+  expect(vaultAfter.state).toStrictEqual('inLiquidation')
   expect(vaultAfter.collateralAmounts).toStrictEqual(undefined)
   expect(vaultAfter.loanAmounts).toStrictEqual(undefined)
   expect(vaultAfter.collateralValue).toStrictEqual(undefined)
   expect(vaultAfter.loanValue).toStrictEqual(undefined)
-  expect(vaultAfter.invalidPrice).toStrictEqual(false)
+  expect(vaultAfter.liquidationHeight).toStrictEqual(168)
+  expect(vaultAfter.liquidationPenalty).toStrictEqual(5)
   expect(vaultAfter.batches).toStrictEqual([
     { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' }, // refer to ln: 171, the last interest generated loanAmt divided by 2
     { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' }
@@ -195,18 +204,18 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 }
 
-beforeEach(async () => {
-  await tGroup.start()
-  await alice.container.waitForWalletCoinbaseMaturity()
-  await setup()
-})
+describe('placeAuctionBid success', () => {
+  beforeEach(async () => {
+    await tGroup.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+    await setup()
+  })
 
-afterEach(async () => {
-  await tGroup.stop()
-})
+  afterEach(async () => {
+    await tGroup.stop()
+  })
 
-describe('auctionBid success', () => {
-  it('should auctionBid', async () => {
+  it('should placeAuctionBid', async () => {
     const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
@@ -215,7 +224,7 @@ describe('auctionBid success', () => {
       : undefined
     const bobTSLAAmtBefore = bobTSLAAccBefore !== undefined ? Number(bobTSLAAccBefore.split('@')[0]) : 0
 
-    const txid = await bob.rpc.loan.auctionBid({
+    const txid = await bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -238,8 +247,8 @@ describe('auctionBid success', () => {
     const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
     expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
-    // test second round auctionBid
-    await alice.rpc.loan.auctionBid({
+    // test second round placeAuctionBid
+    await alice.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: aliceColAddr,
@@ -255,14 +264,17 @@ describe('auctionBid success', () => {
     expect(auctionsAfter).toStrictEqual([
       {
         vaultId: bobVaultId,
-        batchCount: 1,
-        liquidationHeight: 205,
+        state: 'inLiquidation',
+        loanSchemeId: 'scheme',
+        ownerAddress: bobVaultAddr,
         liquidationPenalty: 5,
+        liquidationHeight: 205,
+        batchCount: 1,
         batches: [
           {
             index: 0,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '509.99980024@TSLA' // 535 / 1.05, https://github.com/DeFiCh/pinkpaper/tree/main/loan#collateral-auction
+            loan: '500.00428078@TSLA' // 535 / 1.05, https://github.com/DeFiCh/pinkpaper/tree/main/loan#collateral-auction
           }
         ]
       }
@@ -294,7 +306,7 @@ describe('auctionBid success', () => {
     expect(auctionsAfter).toStrictEqual(auctionsAfter1)
   })
 
-  it('should auctionBid with utxos', async () => {
+  it('should placeAuctionBid with utxos', async () => {
     const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
     const bobTSLAAccBefore = bobColAccBefore.length > 0
       ? bobColAccBefore.find((amt: string) => amt.split('@')[1] === 'TSLA')
@@ -303,7 +315,7 @@ describe('auctionBid success', () => {
 
     const utxo = await alice.container.fundAddress(bobColAddr, 50)
 
-    const txid = await bob.rpc.loan.auctionBid({
+    const txid = await bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -325,13 +337,13 @@ describe('auctionBid success', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 
-  it('should auctionBid on all batches', async () => {
+  it('should placeAuctionBid on all batches', async () => {
     // test bob bids on first index
     {
       const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
       expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
-      const txid = await bob.rpc.loan.auctionBid({
+      const txid = await bob.rpc.loan.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: bobColAddr,
@@ -347,15 +359,21 @@ describe('auctionBid success', () => {
       const auctions = await bob.container.call('listauctions')
       expect(auctions[0]).toStrictEqual({
         vaultId: bobVaultId,
+        loanSchemeId: 'scheme',
+        ownerAddress: bobVaultAddr,
+        state: 'inLiquidation',
         liquidationHeight: 168,
-        batchCount: 2,
         liquidationPenalty: 5,
+        batchCount: 2,
         batches: [
           {
             index: 0,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
             loan: '500.00399539@TSLA',
-            highestBid: '526.00000000@TSLA'
+            highestBid: {
+              amount: '526.00000000@TSLA',
+              owner: bobColAddr
+            }
           },
           {
             index: 1,
@@ -371,7 +389,7 @@ describe('auctionBid success', () => {
       const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
       expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
-      const txid1 = await alice.rpc.loan.auctionBid({
+      const txid1 = await alice.rpc.loan.placeAuctionBid({
         vaultId: bobVaultId,
         index: 1,
         from: aliceColAddr,
@@ -390,17 +408,26 @@ describe('auctionBid success', () => {
         liquidationHeight: 168,
         batchCount: 2,
         liquidationPenalty: 5,
+        loanSchemeId: 'scheme',
+        ownerAddress: bobVaultAddr,
+        state: 'inLiquidation',
         batches: [{
           index: 0,
           collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
           loan: '500.00399539@TSLA',
-          highestBid: '526.00000000@TSLA'
+          highestBid: {
+            amount: '526.00000000@TSLA',
+            owner: bobColAddr
+          }
         },
         {
           index: 1,
           collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
           loan: '500.00399539@TSLA',
-          highestBid: '600.00000000@TSLA'
+          highestBid: {
+            amount: '600.00000000@TSLA',
+            owner: aliceColAddr
+          }
         }]
       })
     }
@@ -416,12 +443,45 @@ describe('auctionBid success', () => {
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
     expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
+
+    const vault = await alice.container.call('getvault', [bobVaultId])
+    expect(vault.state).toStrictEqual('active')
+    expect(vault.invalidPrice).toStrictEqual(false)
+    expect(vault.collateralAmounts).toStrictEqual([])
+    expect(vault.loanAmounts).toStrictEqual([])
+    expect(vault.interestAmounts).toStrictEqual([])
+    expect(vault.collateralValue).toStrictEqual(0)
+    expect(vault.loanValue).toStrictEqual(0)
+    expect(vault.interestValue).toStrictEqual(0)
+    expect(vault.collateralRatio).toStrictEqual(-1)
+    expect(vault.informativeRatio).toStrictEqual(-1)
   })
 })
 
-describe('auctionBid failed', () => {
+describe('placeAuctionBid failed', () => {
+  beforeAll(async () => {
+    await tGroup.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+    await setup()
+  })
+
+  afterAll(async () => {
+    await tGroup.stop()
+  })
+
+  it('should not placeAuctionBid as first bid should include liquidation penalty of 5%', async () => {
+    const promise = bob.rpc.loan.placeAuctionBid({
+      vaultId: bobVaultId,
+      index: 0,
+      from: bobColAddr,
+      amount: '500@TSLA' // (500 * 5%) + 500 = 525, should not less than 525
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('First bid should include liquidation penalty of 5%')
+  })
+
   it('next bid is required 1% higher', async () => {
-    await bob.rpc.loan.auctionBid({
+    await bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -430,7 +490,7 @@ describe('auctionBid failed', () => {
     await bob.container.generate(1)
     await tGroup.waitForSync()
 
-    const promise = bob.rpc.loan.auctionBid({
+    const promise = bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -441,10 +501,10 @@ describe('auctionBid failed', () => {
     await expect(promise).rejects.toThrow('Bid override should be at least 1% higher than current one')
   })
 
-  it('should not auctionBid with arbitrary utxos', async () => {
+  it('should not placeAuctionBid with arbitrary utxos', async () => {
     const utxo = await alice.container.fundAddress(await alice.generateAddress(), 10)
 
-    const promise = alice.rpc.loan.auctionBid({
+    const promise = alice.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -454,8 +514,8 @@ describe('auctionBid failed', () => {
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
   })
 
-  it('should not auctionBid on non-existent vault', async () => {
-    const promise = bob.rpc.loan.auctionBid({
+  it('should not placeAuctionBid on non-existent vault', async () => {
+    const promise = bob.rpc.loan.placeAuctionBid({
       vaultId: '0'.repeat(64),
       index: 0,
       from: bobColAddr,
@@ -465,8 +525,8 @@ describe('auctionBid failed', () => {
     await expect(promise).rejects.toThrow(`Vault <${'0'.repeat(64)}> not found`)
   })
 
-  it('should not auctionBid on non-existent batches index', async () => {
-    const promise = bob.rpc.loan.auctionBid({
+  it('should not placeAuctionBid on non-existent batches index', async () => {
+    const promise = bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 99,
       from: bobColAddr,
@@ -476,7 +536,7 @@ describe('auctionBid failed', () => {
     await expect(promise).rejects.toThrow(`No batch to vault/index ${bobVaultId}/99`)
   })
 
-  it('should not auctionBid as vault is not under liquidation', async () => {
+  it('should not placeAuctionBid as vault is not under liquidation', async () => {
     const addr = await alice.generateAddress()
     const bobVaultId = await alice.rpc.loan.createVault({
       ownerAddress: addr,
@@ -486,9 +546,9 @@ describe('auctionBid failed', () => {
     await tGroup.waitForSync()
 
     const vault = await alice.container.call('getvault', [bobVaultId])
-    expect(vault.isUnderLiquidation).toStrictEqual(false)
+    expect(vault.state).toStrictEqual('active')
 
-    const promise = bob.rpc.loan.auctionBid({
+    const promise = bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -498,8 +558,8 @@ describe('auctionBid failed', () => {
     await expect(promise).rejects.toThrow('Cannot bid to vault which is not under liquidation')
   })
 
-  it('should not auctionBid as bid token does not match auction one', async () => {
-    const promise = bob.rpc.loan.auctionBid({
+  it('should not placeAuctionBid as bid token does not match auction one', async () => {
+    const promise = bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -508,14 +568,27 @@ describe('auctionBid failed', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Bid token does not match auction one')
   })
+})
 
-  it('should not auctionBid as insufficient fund', async () => {
+// move insufficient fund test out of another scope for testing independent
+describe('placeAuctionBid failed #2', () => {
+  beforeEach(async () => {
+    await tGroup.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+    await setup()
+  })
+
+  afterEach(async () => {
+    await tGroup.stop()
+  })
+
+  it('should not placeAuctionBid as insufficient fund', async () => {
     const bobColAcc = await bob.rpc.account.getAccount(bobColAddr)
     const tslaAcc = bobColAcc.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const tslaAmt = Number(tslaAcc?.split('@')[0])
     expect(Number(tslaAmt)).toBeLessThan(30000)
 
-    const promise = bob.rpc.loan.auctionBid({
+    const promise = bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -523,16 +596,5 @@ describe('auctionBid failed', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`amount ${tslaAmt} is less than 30000.00000000`)
-  })
-
-  it('should not auctionBid as first bid should include liquidation penalty of 5%', async () => {
-    const promise = bob.rpc.loan.auctionBid({
-      vaultId: bobVaultId,
-      index: 0,
-      from: bobColAddr,
-      amount: '500@TSLA' // (500 * 5%) + 500 = 525, should not less than 525
-    })
-    await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('First bid should include liquidation penalty of 5%')
   })
 })
