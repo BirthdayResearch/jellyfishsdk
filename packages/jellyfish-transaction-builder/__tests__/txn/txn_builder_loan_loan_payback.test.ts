@@ -8,10 +8,12 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestGenesisKeys } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
+import { Script } from '@defichain/jellyfish-transaction'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(RegTestGenesisKeys[i]))
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
+let bobColScript: Script
 let bobColAddr: string
 let bobVaultId: string
 let bobVaultId1: string
@@ -196,7 +198,6 @@ async function setup (): Promise<void> {
   // liquidated: true
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@UBER', currency: 'USD' }] })
   await alice.generate(1)
-  await tGroup.waitForSync()
 
   // set up fixture for loanPayback
   const aliceDUSDAddr = await alice.container.getNewAddress()
@@ -616,36 +617,16 @@ describe('loanPayback failed', () => {
     await setup()
   })
 
+  beforeEach(async () => {
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+  })
+
   afterAll(async () => {
     await tGroup.stop()
   })
 
-  it('should not loanPayback while insufficient amount', async () => {
-    const vault = await bob.rpc.loan.getVault(bobVaultId)
-    expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
-
-    const bobLoanAcc = await bob.rpc.account.getAccount(bobColAddr)
-    expect(bobLoanAcc).toStrictEqual(['40.00000000@TSLA'])
-
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-    const script = await bProviders.elliptic.script()
-
-    const txn = await bBuilder.loans.loanPayback({
-      vaultId: bobVaultId,
-      from: bobColScript,
-      tokenAmounts: [{ token: 2, amount: new BigNumber(41) }]
-    }, script)
-
-    const promise = sendTransaction(bob.container, txn)
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('amount 0.00000000 is less than 0.00006849')
-  })
-
   it('should not loanPayback on nonexistent vault', async () => {
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
     const txn = await bBuilder.loans.loanPayback({
       vaultId: '0'.repeat(64),
       from: bobColScript,
@@ -658,9 +639,6 @@ describe('loanPayback failed', () => {
   })
 
   it('should not loanPayback on nonexistent loan token', async () => {
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
     const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId,
       from: bobColScript,
@@ -673,9 +651,6 @@ describe('loanPayback failed', () => {
   })
 
   it('should not loanPayback as no loan on vault', async () => {
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
     const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId1,
       from: bobColScript,
@@ -688,9 +663,6 @@ describe('loanPayback failed', () => {
   })
 
   it('should not loanPayback as no token in this vault', async () => {
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
     const txn = await bBuilder.loans.loanPayback({
       vaultId: bobVaultId,
       from: bobColScript,
@@ -709,9 +681,6 @@ describe('loanPayback failed', () => {
     })
     await bob.generate(1)
 
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
     const txn = await bBuilder.loans.loanPayback({
       vaultId: emptyVaultId,
       from: bobColScript,
@@ -724,13 +693,10 @@ describe('loanPayback failed', () => {
   })
 
   it('should not loanPayback on liquidation vault', async () => {
-    await tGroup.get(0).generate(6)
+    await alice.generate(6)
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
-
-    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
     const txn = await bBuilder.loans.loanPayback({
       vaultId: bobLiqVaultId,
@@ -745,7 +711,6 @@ describe('loanPayback failed', () => {
 
   it('should not loanPayback with arbitrary utxo', async () => {
     await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
-    const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
     const txn = await aBuilder.loans.loanPayback({
       vaultId: bobVaultId,
@@ -756,5 +721,50 @@ describe('loanPayback failed', () => {
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
+  })
+})
+
+// move insufficient test case out to another scope for independent testing
+describe('loanPayback failed #2', () => {
+  beforeAll(async () => {
+    await tGroup.start()
+    await alice.container.waitForWalletCoinbaseMaturity()
+
+    aProviders = await getProviders(alice.container)
+    aProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[0].owner.privKey))
+    aBuilder = new P2WPKHTransactionBuilder(aProviders.fee, aProviders.prevout, aProviders.elliptic, RegTest)
+
+    bProviders = await getProviders(bob.container)
+    bProviders.setEllipticPair(WIF.asEllipticPair(RegTestGenesisKeys[1].owner.privKey))
+    bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
+
+    await setup()
+  })
+
+  afterAll(async () => {
+    await tGroup.stop()
+  })
+
+  it('should not loanPayback while insufficient amount', async () => {
+    const vault = await bob.rpc.loan.getVault(bobVaultId)
+    expect(vault.loanAmounts).toStrictEqual(['40.00002283@TSLA'])
+
+    const bobLoanAcc = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobLoanAcc).toStrictEqual(['40.00000000@TSLA'])
+
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    const script = await bProviders.elliptic.script()
+
+    const txn = await bBuilder.loans.loanPayback({
+      vaultId: bobVaultId,
+      from: bobColScript,
+      tokenAmounts: [{ token: 2, amount: new BigNumber(41) }]
+    }, script)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('amount 0.00000000 is less than 0.00006849')
   })
 })

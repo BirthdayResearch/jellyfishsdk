@@ -386,6 +386,7 @@ describe('paybackLoan success', () => {
     })
     expect(typeof txid).toStrictEqual('string')
     await alice.generate(1)
+    await tGroup.waitForSync()
 
     const loanAccAfter = await bob.container.call('getaccount', [aliceColAddr])
     expect(loanAccAfter).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '9992.00000000@TSLA'])
