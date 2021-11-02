@@ -157,12 +157,30 @@ export class Masternode {
   }
 
   /**
-   * Get information about governance variable
+   * Pre Fort Canning: Get information about governance variable
    *
+   * @deprecated use {@link getGovWithHeight} for post Fort Canning hardfork
    * @param {string} name governance name
    * @return {Promise<Record<string, any>} governance information as json object
    */
   async getGov (name: string): Promise<Record<string, any>> {
+    return await this.client.call('getgov', [name], 'bignumber')
+  }
+
+  /**
+   * Post Fort Canning: Get information about governance variable
+   * To replace {@link getGov}
+   *
+   * @param {string} name governance name
+   * @return {Promise<Array<Record<string, any>>} governance information as json object
+   * @example
+   * {
+   *   "LP_SPLITS": { "3": BigNumber, "4": BigNumber },
+   *   "5000": { "3": BigNumber, "4": BigNumber }, // value after block height 5000
+   *   "8000": { "3": BigNumber, "4": BigNumber } // value after block height 8000
+   * }
+   */
+  async getGovWithHeight (name: string): Promise<Array<Record<string, any>>> {
     return await this.client.call('getgov', [name], 'bignumber')
   }
 
