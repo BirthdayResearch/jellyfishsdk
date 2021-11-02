@@ -133,11 +133,14 @@ export class Masternode {
    * Set special governance variables
    *
    * @param {Record<string, any>} input json object
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] The transaction id
+   * @param {string} [utxos.vout] The output number
    * @return {Promise<string>} hash
    *
    */
-  async setGov (input: Record<string, any>): Promise<string> {
-    return await this.client.call('setgov', [input], 'number')
+  async setGov (input: Record<string, any>, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setgov', [input, utxos], 'number')
   }
 
   /**
@@ -145,11 +148,14 @@ export class Masternode {
    *
    * @param {Record<string, any>} input json object
    * @param {number} activationHeight
+   * @param {UTXO[]} [utxos = []] Specific utxos to spend
+   * @param {string} [utxos.txid] The transaction id
+   * @param {string} [utxos.vout] The output number
    * @return {Promise<string>} hash
    *
    */
-  async setGovHeight (input: Record<string, any>, activationHeight: number): Promise<string> {
-    return await this.client.call('setgovheight', [input, activationHeight], 'number')
+  async setGovHeight (input: Record<string, any>, activationHeight: number, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('setgovheight', [input, activationHeight, utxos], 'number')
   }
 
   /**
