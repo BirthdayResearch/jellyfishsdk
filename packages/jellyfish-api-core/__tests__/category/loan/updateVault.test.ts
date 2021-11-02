@@ -245,14 +245,12 @@ describe('Loan updateVault', () => {
     const data = await alice.rpc.loan.getVault(vaultId)
     expect(data.state).toStrictEqual(VaultState.FROZEN)
 
-    {
-      // Unable to update to the new scheme as vault state is frozen
-      const promise = alice.rpc.loan.updateVault(vaultId, {
-        ownerAddress: await alice.generateAddress(),
-        loanSchemeId: 'default'
-      })
-      await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
-    }
+    // Unable to update to the new scheme as vault state is frozen
+    const promise = alice.rpc.loan.updateVault(vaultId, {
+      ownerAddress: await alice.generateAddress(),
+      loanSchemeId: 'default'
+    })
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateVaultTx execution failed:\nCannot update vault while any of the asset\'s price is invalid\', code: -32600, method: updatevault')
 
     await alice.container.waitForPriceValid('DFI/USD')
 
