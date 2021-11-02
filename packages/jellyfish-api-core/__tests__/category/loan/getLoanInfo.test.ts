@@ -427,19 +427,20 @@ describe('Loan - getLoanInfo', () => {
     }
   })
 
-  it('should return with updated loan related governance variables', async () => {
+  it('should return with updated loan related governance variables (delayed effect, currentpriceblock must not be affected)', async () => {
     { // before
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual(startingData)
     }
 
-    await testing.rpc.masternode.setGovWithHeight({
+    await testing.rpc.masternode.setGov({
       ORACLE_BLOCK_INTERVAL: 7
-    }, 111) // activate after next price block
+    })
     await testing.generate(1)
 
     { // after govvar set
       const data = await testing.rpc.loan.getLoanInfo()
+      console.log('after set:', data)
       expect(data).toStrictEqual({
         ...startingData,
         defaults: {
@@ -451,8 +452,9 @@ describe('Loan - getLoanInfo', () => {
 
     await testing.container.waitForBlockHeight(111)
 
-    { // after govvar activated
+    { // after govvar activated, activation height automatically selected by consensus
       const data = await testing.rpc.loan.getLoanInfo()
+      console.log('after wait:', data)
       expect(data).toStrictEqual({
         ...startingData,
         currentPriceBlock: new BigNumber(106),
