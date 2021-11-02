@@ -247,9 +247,10 @@ export class Loan {
    * @param {string} [options.ownerAddress] Address of the vault owner
    * @param {string} [options.loanSchemeId] Vault's loan scheme id
    * @param {VaultState} [options.state = VaultState.UNKNOWN] vault's state
-   * @return {Promise<Vault[]>} Array of objects including details of the vaults.
+   * @param {boolean} [options.verbose = false] true to return same information as getVault
+   * @return {Promise<Vault | VaultActive | VaultLiquidation[]>} Array of objects including details of the vaults.
    */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<Vault[]> {
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<Array<Vault | VaultActive | VaultLiquidation>> {
     return await this.client.call(
       'listvaults',
       [options, pagination],
@@ -483,6 +484,7 @@ export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
   state?: VaultState
+  verbose?: boolean
 }
 
 export interface CloseVault {

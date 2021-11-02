@@ -259,6 +259,56 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.container.stop()
   })
 
+  it('should listVaults verbose', async () => {
+    // List vaults
+    const vaults = await testing.rpc.loan.listVaults({}, { verbose: true })
+
+    const activeTemplate = {
+      collateralAmounts: expect.any(Array),
+      loanAmounts: expect.any(Array),
+      interestAmounts: expect.any(Array),
+      collateralValue: expect.any(BigNumber),
+      loanValue: expect.any(BigNumber),
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
+    }
+
+    expect(vaults).toStrictEqual(expect.arrayContaining([
+      {
+        vaultId: vaultId1,
+        ownerAddress: ownerAddress1,
+        loanSchemeId: 'default',
+        state: VaultState.ACTIVE,
+        ...activeTemplate
+      },
+      {
+        vaultId: vaultId2,
+        ownerAddress: ownerAddress2,
+        loanSchemeId: 'default',
+        state: VaultState.ACTIVE,
+        ...activeTemplate
+      },
+      {
+        vaultId: vaultId3,
+        ownerAddress: ownerAddress3,
+        loanSchemeId: 'scheme',
+        state: VaultState.ACTIVE,
+        ...activeTemplate
+      },
+      {
+        vaultId: vaultId4,
+        ownerAddress: ownerAddress4,
+        loanSchemeId: 'default',
+        state: VaultState.IN_LIQUIDATION,
+        liquidationHeight: expect.any(Number),
+        liquidationPenalty: expect.any(Number),
+        batchCount: expect.any(Number),
+        batches: expect.any(Array)
+      }
+    ]))
+  })
+
   it('should listVaults with ownerAddress', async () => {
     // List vaults
     const vaults = await testing.rpc.loan.listVaults({}, { ownerAddress: ownerAddress1 })
@@ -291,7 +341,7 @@ describe('Loan listVaults with options and pagination', () => {
     ])
   })
 
-  it('should listVaults with state inLiquidation', async () => {
+  it('should listVaults with Active|IN_LIQUIDATION', async () => {
     // List vaults
     const nonLiquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.ACTIVE })
     expect(nonLiquidatedVaults).toStrictEqual(expect.arrayContaining([
