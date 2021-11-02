@@ -72,4 +72,11 @@ describe('Masternode', () => {
       expect(govVar[0].LP_SPLITS['4'].toString()).toStrictEqual('0.6')
     }
   })
+
+  it('should fail if set activation height is lower than current height', async () => {
+    const currentHeight = await client.blockchain.getBlockCount()
+    const activationHeight = currentHeight - 2
+    const promise = client.masternode.setGovWithHeight({ LP_SPLITS: { 3: 0.4, 4: 0.6 } }, activationHeight)
+    await expect(promise).rejects.toThrow('GovVar activation height must be higher than current block height')
+  })
 })
