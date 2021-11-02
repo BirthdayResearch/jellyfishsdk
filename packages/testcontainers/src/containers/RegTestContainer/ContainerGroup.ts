@@ -105,7 +105,7 @@ export class ContainerGroup {
    */
   async stop (): Promise<void> {
     for (const container of this.containers) {
-      // await this.requireNetwork().disconnect({ Container: container.id })
+      await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
     await this.requireNetwork().remove()
