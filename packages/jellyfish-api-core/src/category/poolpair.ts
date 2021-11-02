@@ -149,10 +149,10 @@ export class PoolPair {
    * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
    * @param {string} metadata.from address of the owner of tokenFrom
    * @param {string} metadata.tokenFrom swap from token {symbol/id}
+   * @param {number} metadata.amountFrom amount from tokenA
    * @param {string} metadata.to address of the owner of tokenTo
    * @param {string} metadata.tokenTo swap to token {symbol/id}
    * @param {number} [metadata.maxPrice] acceptable max price
-   * @param {maxPrice} [metadata.maxPrice] acceptable max price
    * @return {Promise<string>} formatted as 'amount@token' swapped
    */
   async testPoolSwap (metadata: PoolSwapMetadata): Promise<string> {
