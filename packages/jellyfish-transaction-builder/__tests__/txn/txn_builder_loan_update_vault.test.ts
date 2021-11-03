@@ -1,4 +1,4 @@
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction } from '../test.utils'
@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
+import { P2WPKH } from '@defichain/jellyfish-address'
 
 enum VaultState {
   UNKNOWN = 'unknown',
@@ -19,7 +20,7 @@ enum VaultState {
 describe('loans.updateVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   const alice = tGroup.get(0)
-  //  const bob = tGroup.get(1)
+  const bob = tGroup.get(1)
 
   let vaultId: string
   let address: string
@@ -87,23 +88,10 @@ describe('loans.updateVault', () => {
       loanSchemeId: 'default'
     })
     await alice.generate(1)
-    await tGroup.waitForSync()
 
     // Fund 10 DFI UTXO to providers.getAddress() for fees after setup()
     await fundEllipticPair(alice.container, providers.ellipticPair, 10)
   })
-
-  // beforeEach(async () => {
-  //   // Always update the vault back to default scheme
-  //   await alice.rpc.loan.updateVault(vaultId, {
-  //     ownerAddress: address,
-  //     loanSchemeId: 'default'
-  //   })
-  //   await alice.generate(1)
-  //
-  //   const data = await alice.rpc.loan.getVault(vaultId)
-  //   expect(data.loanSchemeId).toStrictEqual('default')
-  // })
 
   // beforeEach(async () => {
   //   // Always update the vault back to default scheme
@@ -197,5 +185,112 @@ describe('loans.updateVault', () => {
     // Update back the price
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await alice.generate(12)
+  })
+
+  it('should not updateVault if any of the asset\'s price is invalid', async () => {
+    // Create another vault
+    const vaultId = await alice.rpc.loan.createVault({
+      ownerAddress: address,
+      loanSchemeId: 'default'
+    })
+    await alice.generate(1)
+
+    // Deposit to vault
+    await alice.rpc.loan.depositToVault({
+      vaultId, from: address, amount: '100@DFI'
+    })
+    await alice.generate(1)
+
+    // Take loan
+    await alice.rpc.loan.takeLoan({
+      vaultId,
+      amounts: '50@TSLA'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
+
+    // Wait for the price become invalid
+    await alice.container.waitForPriceInvalid('DFI/USD')
+
+    // Frozen = invalid price and active vault
+    const data = await alice.rpc.loan.getVault(vaultId)
+    expect(data.state).toStrictEqual(VaultState.FROZEN)
+
+    // Unable to update to the new scheme as vault state is frozen
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.updateVault({
+      vaultId,
+      ownerAddress: script,
+      schemeId: 'default'
+    }, script)
+
+    const promise = sendTransaction(alice.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: Cannot update vault while any of the asset\'s price is invalid (code 16)\', code: -26')
+
+    await alice.container.waitForPriceValid('DFI/USD')
+
+    // Update back the price
+    await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await alice.generate(1)
+
+    await alice.container.waitForPriceInvalid('DFI/USD')
+    await alice.container.waitForPriceValid('DFI/USD')
+  })
+
+  it('should not updateVault if new chosen scheme could trigger liquidation', async () => {
+    // Create another vault
+    const vaultId = await alice.rpc.loan.createVault({
+      ownerAddress: address,
+      loanSchemeId: 'default'
+    })
+    await alice.generate(1)
+
+    // Deposit to vault
+    await alice.rpc.loan.depositToVault({
+      vaultId, from: address, amount: '100@DFI'
+    })
+    await alice.generate(1)
+
+    // Take loan
+    await alice.rpc.loan.takeLoan({
+      vaultId,
+      amounts: '34@TSLA'
+    })
+    await alice.generate(1)
+
+    {
+      const data = await alice.rpc.loan.getVault(vaultId)
+      expect(data.state).toStrictEqual('active')
+    }
+
+    // Unable to update to new scheme as it could liquidate the vault
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.updateVault({
+      vaultId,
+      ownerAddress: script,
+      schemeId: 'scheme'
+    }, script)
+
+    const promise = sendTransaction(alice.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateVaultTx: Vault does not have enough collateralization ratio defined by loan scheme - 147 < 150 (code 16)\', code: -26')
+  })
+
+  it('should not updateVault as different auth address', async () => {
+    const script = await providers.elliptic.script()
+    const newAddress = await bob.generateAddress()
+    const fromScript = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH).getScript()
+
+    const txn = await builder.loans.updateVault({
+      vaultId,
+      ownerAddress: fromScript,
+      schemeId: 'scheme'
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DepositToVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
   })
 })
