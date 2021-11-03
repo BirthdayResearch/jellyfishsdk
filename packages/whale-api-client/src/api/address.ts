@@ -1,5 +1,6 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
+import { LoanVaultActive, LoanVaultLiquidated } from './loan'
 
 /**
  * DeFi whale endpoint for address related services.
@@ -39,6 +40,18 @@ export class Address {
    */
   async listToken (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressToken>> {
     return await this.client.requestList('GET', `address/${address}/tokens`, size, next)
+  }
+
+  /**
+   * List all vaults belonging to an address.
+   *
+   * @param {string} address bech32/legacy/b58 formatted address
+   * @param {number} size of vaults to query
+   * @param {string} next set of vaults
+   * @return {Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>>}
+   */
+  async listVault (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
+    return await this.client.requestList('GET', `address/${address}/vaults`, size, next)
   }
 
   /**

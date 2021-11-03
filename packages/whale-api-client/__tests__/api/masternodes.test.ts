@@ -78,7 +78,7 @@ describe('get', () => {
       id: masternode.id,
       sort: '00000000e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4',
       state: masternode.state,
-      mintedBlocks: masternode.mintedBlocks,
+      mintedBlocks: expect.any(Number),
       owner: { address: masternode.owner.address },
       operator: { address: masternode.operator.address },
       creation: { height: masternode.creation.height },
