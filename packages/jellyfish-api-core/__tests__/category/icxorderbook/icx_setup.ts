@@ -112,7 +112,7 @@ export class ICXSetup {
   }
 
   async addLiquidityToBTCDFIPool (amountInBTC: number, amountInDFI: number): Promise<void> {
-    const poolLiquidityMetadata: { [key: string]: string [] } = {}
+    const poolLiquidityMetadata: { [key: string]: string[] } = {}
     poolLiquidityMetadata[accountDFI] = [`${amountInBTC}@${symbolBTC}`, `${amountInDFI}@${symbolDFI}`]
 
     await this.container.call('addpoolliquidity', [poolLiquidityMetadata, accountDFI, []])
@@ -124,8 +124,9 @@ export class ICXSetup {
     await this.container.call('setgov', [{ ICX_TAKERFEE_PER_BTC: fee }])
     await this.container.generate(1)
     const result: any = await this.container.call('getgov', ['ICX_TAKERFEE_PER_BTC'])
-    expect(result.ICX_TAKERFEE_PER_BTC as number).toStrictEqual(fee)
-    ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as number
+    expect(result.length).toStrictEqual(1)
+    expect(result[0].ICX_TAKERFEE_PER_BTC as number).toStrictEqual(fee)
+    ICX_TAKERFEE_PER_BTC = result[0].ICX_TAKERFEE_PER_BTC as number
   }
 
   async closeAllOpenOffers (): Promise<void> {
@@ -142,7 +143,7 @@ export class ICXSetup {
   }
 
   // creates DFI sell order
-  async createDFISellOrder (chainTo: string, ownerAddress: string, receivePubkey: string, amountFrom: BigNumber, orderPrice: BigNumber): Promise<{order: ICXOrder, createOrderTxId: string}> {
+  async createDFISellOrder (chainTo: string, ownerAddress: string, receivePubkey: string, amountFrom: BigNumber, orderPrice: BigNumber): Promise<{ order: ICXOrder, createOrderTxId: string }> {
     // create order - maker
     const order: ICXOrder = {
       tokenFrom: idDFI,
@@ -168,7 +169,7 @@ export class ICXSetup {
   }
 
   // creates DFI buy offer
-  async createDFIBuyOffer (orderTx: string, amount: BigNumber, ownerAddress: string): Promise<{offer: ICXOffer, makeOfferTxId: string}> {
+  async createDFIBuyOffer (orderTx: string, amount: BigNumber, ownerAddress: string): Promise<{ offer: ICXOffer, makeOfferTxId: string }> {
     const accountBTCBeforeOffer: Record<string, BigNumber> = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // make Offer to partial amount 10 DFI - taker
     const offer: ICXOffer = {
@@ -198,7 +199,7 @@ export class ICXSetup {
   }
 
   // create and submits DFC HTLC for DFI buy offer
-  async createDFCHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, timeout: number): Promise<{DFCHTLC: HTLC, DFCHTLCTxId: string}> {
+  async createDFCHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, timeout: number): Promise<{ DFCHTLC: HTLC, DFCHTLCTxId: string }> {
     const accountDFIBeforeDFCHTLC: Record<string, BigNumber> = await this.client.call('getaccount', [accountDFI, {}, true], 'bignumber')
     // create DFCHTLC - maker
     const DFCHTLC: HTLC = {
@@ -230,7 +231,7 @@ export class ICXSetup {
   }
 
   // submits ExtHTLC for DFI buy offer
-  async submitExtHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, htlcScriptAddress: string, ownerPubkey: string, timeout: number): Promise<{ExtHTLC: ExtHTLC, ExtHTLCTxId: string}> {
+  async submitExtHTLCForDFIBuyOffer (makeOfferTxId: string, amount: BigNumber, hash: string, htlcScriptAddress: string, ownerPubkey: string, timeout: number): Promise<{ ExtHTLC: ExtHTLC, ExtHTLCTxId: string }> {
     const accountBTCBeforeEXTHTLC = await this.client.call('getaccount', [accountBTC, {}, true], 'bignumber')
     // submit EXT HTLC - taker
     const ExtHTLC: ExtHTLC = {
@@ -248,7 +249,7 @@ export class ICXSetup {
     const listHTLCOptions: ICXListHTLCOptions = {
       offerTx: makeOfferTxId
     }
-    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo| ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
+    const HTLCs: Record<string, ICXDFCHTLCInfo | ICXEXTHTLCInfo | ICXClaimDFCHTLCInfo> = await this.client.call('icx_listhtlcs', [listHTLCOptions], 'bignumber')
     expect(Object.keys(HTLCs).length).toStrictEqual(3) // extra entry for the warning text returned by the RPC atm.
     expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).type).toStrictEqual(ICXHTLCType.EXTERNAL)
     expect((HTLCs[ExtHTLCTxId] as ICXEXTHTLCInfo).status).toStrictEqual(ICXHTLCStatus.OPEN)
