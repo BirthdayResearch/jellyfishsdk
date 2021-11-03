@@ -393,7 +393,7 @@ interface VaultLiquidation extends Vault {
 }
 
 interface VaultLiquidationBatch {
-  index: BigNumber
+  index: number
   collaterals: string[]
   loan: string
 }
@@ -442,7 +442,7 @@ interface VaultLiquidation extends Vault {
 }
 
 interface VaultLiquidationBatch {
-  index: BigNumber
+  index: number
   collaterals: string[]
   loan: string
 }

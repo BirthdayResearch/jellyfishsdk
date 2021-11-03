@@ -446,7 +446,7 @@ export interface VaultLiquidation extends Vault {
 }
 
 export interface VaultLiquidationBatch {
-  index: BigNumber
+  index: number
   collaterals: string[]
   loan: string
 }
