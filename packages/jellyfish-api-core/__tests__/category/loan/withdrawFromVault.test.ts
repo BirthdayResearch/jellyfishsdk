@@ -3,12 +3,13 @@ import { GenesisKeys } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { VaultActive } from 'packages/jellyfish-api-core/src/category/loan'
 
 describe('Loan', () => {
   const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId1!: string // without loan taken
-  let vaultId2: string // with loan taken
-  let vaultId3: string // with loan taken, liquidated
+  let vaultId2: string // single collateral, with loan taken, test: loan:collateral ratio
+  let vaultId3: string // dual collateral, with loan taken, test: liquidated vault, DFI/total collateral ratio
   let collateralAddress!: string
   let vaultOwner!: string
   let oracleId!: string
@@ -152,32 +153,6 @@ describe('Loan', () => {
     await tGroup.waitForSync()
   }
 
-  async function waitForOraclePriceGraduallyChange (previous: number, expected: number): Promise<void> {
-    const MULTIPLIER = 1.29 // 30% change causing price invalid
-
-    if (expected === previous) {
-      return
-    }
-    const mode = expected > previous
-    let current = previous
-    while (mode ? current < expected : current > expected) {
-      let next = Number((mode ? current * MULTIPLIER : current / MULTIPLIER).toFixed(8))
-      if (mode ? next > expected : next < expected) {
-        next = expected
-      }
-      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-        prices: [{
-          tokenAmount: `${next}@TSLA`,
-          currency: 'USD'
-        }]
-      })
-      await tGroup.get(0).generate(1)
-      current = next
-    }
-    // wait for newest price to be accepted, total 12 blocks
-    await tGroup.get(0).generate(11)
-  }
-
   describe('success cases', () => {
     it('should withdrawFromVault', async () => {
       const anotherMn = tGroup.get(1)
@@ -187,7 +162,7 @@ describe('Loan', () => {
         const accountBalances = await anotherMn.rpc.account.getAccount(destinationAddress)
         expect(accountBalances.length).toStrictEqual(0)
 
-        const { collateralAmounts } = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+        const { collateralAmounts } = await tGroup.get(0).rpc.loan.getVault(vaultId1) as VaultActive
         expect(collateralAmounts?.length).toStrictEqual(2)
 
         {
@@ -219,7 +194,7 @@ describe('Loan', () => {
         expect(accountBalances.length).toStrictEqual(1)
         expect(accountBalances[0]).toStrictEqual('9.87600000@DFI')
 
-        const { collateralAmounts } = await anotherMn.rpc.loan.getVault(vaultId1)
+        const { collateralAmounts } = await anotherMn.rpc.loan.getVault(vaultId1) as VaultActive
         expect(collateralAmounts?.length).toStrictEqual(2)
 
         {
@@ -252,7 +227,7 @@ describe('Loan', () => {
         expect(accountBalances[0]).toStrictEqual('9.87600000@DFI')
         expect(accountBalances[1]).toStrictEqual('0.12300000@BTC')
 
-        const { collateralAmounts } = await anotherMn.rpc.loan.getVault(vaultId1)
+        const { collateralAmounts } = await anotherMn.rpc.loan.getVault(vaultId1) as VaultActive
         expect(collateralAmounts?.length).toStrictEqual(2)
 
         {
@@ -321,13 +296,36 @@ describe('Loan', () => {
 
     it('should not withdrawFromVault cause DFI less than 50% of total collateral value', async () => {
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
-        vaultId: vaultId1,
+        vaultId: vaultId3,
         to: await tGroup.get(0).generateAddress(),
-        amount: '6000.00000001@DFI' // $4000 of DFI vs $5000 of BTC (tested with 5001, do not work, there are extra margin)
+        amount: '6000@DFI' // $4000 of DFI vs $5000 of BTC (tested with 5001, do not work, there are extra margin)
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+    })
+
+    it('should not withdrawFromVault when DFI is already less than 50% of total collateral value', async () => {
+      {
+        // reduce DFI value to below 50%
+        await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.4999@DFI', currency: 'USD' }] })
+        await tGroup.get(0).generate(12)
+      }
+
+      const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
+        vaultId: vaultId3,
+        to: await tGroup.get(0).generateAddress(),
+        amount: '1@DFI' // $4000 of DFI vs $5000 of BTC (tested with 5001, do not work, there are extra margin)
+      })
+
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+
+      {
+        // revert DFI value
+        await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+        await tGroup.get(0).generate(12)
+      }
     })
 
     it('should not withdrawFromVault exceeded minCollateralRatio', async () => {
@@ -349,7 +347,8 @@ describe('Loan', () => {
     it('should not withdrawFromVault liquidated vault', async () => {
       // trigger liquidation
       // min collateral required = (10000 DFI * 1 USD/DFI + 1 BTC * 0.5 (col-factor) * 10000 USD/BTC) / 149.5% = 15000 / 1.495 = 10033.44... USD
-      await waitForOraclePriceGraduallyChange(2, 100.4)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '100.4@TSLA', currency: 'USD' }] })
+      await tGroup.get(0).generate(13)
 
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
@@ -361,7 +360,7 @@ describe('Loan', () => {
       await expect(promise).rejects.toThrow('Cannot withdraw from vault under liquidation')
 
       // stop liq, revert TSLA price to $2
-      await waitForOraclePriceGraduallyChange(100.4, 2)
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
       // wait/ensure auction period to ended, 6 hr * * 60 min * 2 (blocks per min)
       await tGroup.get(0).generate(6 * 6 * 2)
 
