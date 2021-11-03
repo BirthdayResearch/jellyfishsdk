@@ -29,8 +29,8 @@ describe('Spv', () => {
       { seed: htlc.seed }
     )
     expect(typeof claimedHtlc.txid).toStrictEqual('string')
-    // FIXME(@ivan-zynesis): cpp side has missing message decoding
-    // https://github.com/DeFiCh/ain/compare/fabbb70...v2.0.0#diff-4b0eb0000205b52956dfea0f65e859637e84cb1ad781ee2f584484cb7a5c81e0R195
+    // TODO(@ivan): check the rationale with cpp team for removing the message
+    // https://github.com/DeFiCh/ain/commit/72b43ec551ab8b8bb43f16a0509174aa3f160d1b#diff-b5145b0efde15064aed33f4ec60bcd42a8ed62fc6f4c0d92044061832709b151
     // expect(claimedHtlc.sendmessage).toStrictEqual('Success')
   })
 

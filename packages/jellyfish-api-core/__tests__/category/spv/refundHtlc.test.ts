@@ -26,7 +26,9 @@ describe('Spv', () => {
     const result = await client.spv.refundHtlc(htlc.address, destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.txid.length).toStrictEqual(64)
-    expect(result.sendmessage).toStrictEqual('Success')
+    // TODO(@ivan): check the rationale with cpp team for removing the message
+    // https://github.com/DeFiCh/ain/commit/72b43ec551ab8b8bb43f16a0509174aa3f160d1b#diff-b5145b0efde15064aed33f4ec60bcd42a8ed62fc6f4c0d92044061832709b151
+    // expect(result.sendmessage).toStrictEqual('Success')
 
     /**
      * Assert that the destination address received the refund
@@ -48,7 +50,9 @@ describe('Spv', () => {
     const result = await client.spv.refundHtlc(htlc.address, destinationAddress, { feeRate: new BigNumber('20000') }) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.txid.length).toStrictEqual(64)
-    expect(result.sendmessage).toStrictEqual('Success')
+    // TODO(@ivan): check the rationale with cpp team for removing the message
+    // https://github.com/DeFiCh/ain/commit/72b43ec551ab8b8bb43f16a0509174aa3f160d1b#diff-b5145b0efde15064aed33f4ec60bcd42a8ed62fc6f4c0d92044061832709b151
+    // expect(result.sendmessage).toStrictEqual('Success')
 
     /**
      * Assert that the destination address received the refund

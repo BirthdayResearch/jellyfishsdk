@@ -25,7 +25,9 @@ describe('Spv', () => {
 
     const result = await client.spv.sendToAddress(otherAddress, amount)
     expect(typeof result.txid).toStrictEqual('string')
-    expect(result.sendmessage).toStrictEqual('Success')
+    // TODO(@ivan): check the rationale with cpp team for removing the message
+    // https://github.com/DeFiCh/ain/commit/72b43ec551ab8b8bb43f16a0509174aa3f160d1b#diff-b5145b0efde15064aed33f4ec60bcd42a8ed62fc6f4c0d92044061832709b151
+    // expect(result.sendmessage).toStrictEqual('Success')
 
     const balance = new BigNumber(await container.call('spv_getbalance'))
     const expectedBalance = new BigNumber(1).minus(amount)
@@ -74,7 +76,9 @@ describe('Spv with custom feeRate', () => {
 
     const result = await client.spv.sendToAddress(otherAddress, amount, { feeRate })
     expect(typeof result.txid).toStrictEqual('string')
-    expect(result.sendmessage).toStrictEqual('Success')
+    // TODO(@ivan): check the rationale with cpp team for removing the message
+    // https://github.com/DeFiCh/ain/commit/72b43ec551ab8b8bb43f16a0509174aa3f160d1b#diff-b5145b0efde15064aed33f4ec60bcd42a8ed62fc6f4c0d92044061832709b151
+    // expect(result.sendmessage).toStrictEqual('Success')
 
     const balance = new BigNumber(await container.call('spv_getbalance'))
     const expectedBalance = new BigNumber(1).minus(amount)
