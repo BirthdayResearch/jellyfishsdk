@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { VaultState } from '../../../src/category/loan'
+import { VaultActive, VaultState } from '../../../src/category/loan'
 
 describe('Loan getVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -33,9 +33,15 @@ describe('Loan getVault', () => {
     oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await testing.generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '1@DFI', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }]
+    })
     await testing.generate(1)
 
     // collateral tokens
@@ -130,8 +136,8 @@ describe('Loan getVault', () => {
     // interest info.
     const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
-    const data = await testing.rpc.loan.getVault(vaultId)
-    const informativeRatio: BigNumber = data.collateralValue?.dividedBy(data.loanValue as BigNumber).multipliedBy(100) as BigNumber
+    const data = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    const informativeRatio: BigNumber = data.collateralValue.dividedBy(data.loanValue).multipliedBy(100)
 
     expect(data).toStrictEqual({
       vaultId: vaultId,
@@ -173,26 +179,31 @@ describe('Loan getVault', () => {
 
     // make vault enter under liquidation state by a price hike of the loan token
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }]
+    })
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
-    const autionDetails: [] = await testing.container.call('listauctions')
+    const auctionDetails: [] = await testing.container.call('listauctions')
 
     const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
+    console.log(vaultDataAfterPriceHike)
     expect(vaultDataAfterPriceHike).toStrictEqual({
       vaultId: vaultId,
-      liquidationHeight: 168,
-      liquidationPenalty: 5,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
       state: VaultState.IN_LIQUIDATION,
+      liquidationHeight: 168,
+      liquidationPenalty: 5,
       batchCount: 2,
-      batches: autionDetails.filter((auction: {vaultId: string}) => auction.vaultId === vaultId).map((auction: {batches: []}) => auction.batches)[0]
+      batches: auctionDetails.filter((auction: { vaultId: string }) => auction.vaultId === vaultId).map((auction: { batches: [] }) => auction.batches)[0]
     })
 
     // set the price oracle back to original price
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, {
+      prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }]
+    })
   })
 
   it('should not getVault if vault id is invalid', async () => {

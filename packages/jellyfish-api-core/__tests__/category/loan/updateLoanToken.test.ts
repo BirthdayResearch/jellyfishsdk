@@ -142,7 +142,7 @@ describe('Loan updateLoanToken', () => {
 
   it('should not updateLoanToken if symbol is an empty string', async () => {
     const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: '' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: updateloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: updateloantoken')
   })
 
   it('should not updateLoanToken if the symbol is used in other token', async () => {
@@ -164,7 +164,7 @@ describe('Loan updateLoanToken', () => {
     await testing.generate(1)
 
     const promise = testing.rpc.loan.updateLoanToken('Token4', { symbol: 'Token1' }) // Same as Token1's symbol
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntoken with key \'Token1\' already exists!\', code: -32600, method: updateloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateLoanTokenTx execution failed:\ntoken with key \'Token1\' already exists!\', code: -32600, method: updateloantoken')
   })
 
   it('should updateLoanToken with the given name', async () => {
@@ -236,7 +236,7 @@ describe('Loan updateLoanToken', () => {
 
   it('should not updateLoanToken if fixedIntervalPriceId does not belong to any oracle', async () => {
     const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2', fixedIntervalPriceId: 'X/USD' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\nPrice feed X/USD does not belong to any oracle\', code: -32600, method: updateloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateLoanTokenTx execution failed:\nPrice feed X/USD does not belong to any oracle\', code: -32600, method: updateloantoken')
   })
 
   it('should not updateLoanToken if fixedIntervalPriceId is not in correct format', async () => {
@@ -318,6 +318,6 @@ describe('Loan updateLoanToken', () => {
   it('should updateLoanToken with utxos not from foundation member', async () => {
     const utxo = await testing.container.fundAddress(await testing.generateAddress(), 10)
     const promise = testing.rpc.loan.updateLoanToken('Token1', { symbol: 'Token2' }, [utxo])
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanUpdateLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: updateloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test UpdateLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: updateloantoken')
   })
 })

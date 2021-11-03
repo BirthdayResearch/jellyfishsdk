@@ -7,8 +7,8 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
-// import { Script } from '@defichain/jellyfish-transaction'
 import { P2WPKH } from '@defichain/jellyfish-address'
+import { VaultActive } from '@defichain/jellyfish-api-core/src/category/loan'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
@@ -28,8 +28,6 @@ let aProviders: MockProviders
 let aBuilder: P2WPKHTransactionBuilder
 let bProviders: MockProviders
 let bBuilder: P2WPKHTransactionBuilder
-// const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
-// const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
 async function fundForFeesIfUTXONotAvailable (amount = 10): Promise<void> {
   const prevouts = await bProviders.prevout.all()
@@ -194,7 +192,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  bobVault = await bob.rpc.loan.getVault(bobVaultId)
+  bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
   expect(bobVault.loanSchemeId).toStrictEqual('scheme')
   expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
   expect(bobVault.state).toStrictEqual('active')
@@ -254,12 +252,12 @@ describe('loans.takeLoan success', () => {
 
     await bob.generate(1)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId)
+    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
     const interestAfter = await alice.rpc.loan.getInterest('scheme', 'TSLA')
 
     const vaultBeforeLoanTSLAAcc = bobVault.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultBeforeLoanTSLAAmount = vaultBeforeLoanTSLAAcc !== undefined ? Number(vaultBeforeLoanTSLAAcc?.split('@')[0]) : 0
-    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'TSLA')
+    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'TSLA')
     const vaultAfterLoanTSLAAmount = Number(vaultAfterLoanTSLAAcc?.split('@')[0])
 
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'TSLA')
@@ -273,7 +271,7 @@ describe('loans.takeLoan success', () => {
     // fund if UTXO is not available for fees
     await fundForFeesIfUTXONotAvailable(10)
 
-    const vaultBefore = await bob.rpc.loan.getVault(bobVaultId)
+    const vaultBefore = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
     const script = await bProviders.elliptic.script()
     const toAddress = await bob.generateAddress()
     const txn = await bBuilder.loans.takeLoan({
@@ -297,12 +295,12 @@ describe('loans.takeLoan success', () => {
 
     await bob.generate(1)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId)
+    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
     const interestAfter = await bob.rpc.loan.getInterest('scheme', 'CAT')
 
-    const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'CAT')
+    const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmounts.find((amt: string) => amt.split('@')[1] === 'CAT')
     const vaultBeforeLoanTSLAAmount = vaultBeforeLoanTSLAAcc !== undefined ? Number(vaultBeforeLoanTSLAAcc?.split('@')[0]) : 0
-    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'CAT')
+    const vaultAfterLoanTSLAAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'CAT')
     const vaultAfterLoanTSLAAmount = Number(vaultAfterLoanTSLAAcc?.split('@')[0])
 
     const interestAfterTSLA = interestAfter.find((interest: { 'token': string }) => interest.token === 'CAT')
@@ -339,7 +337,7 @@ describe('loans.takeLoan success', () => {
 
     await bob.generate(1)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId)
+    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
     const interestAfter = await bob.rpc.loan.getInterest('scheme')
 
     const vaultBeforeLoanAMZNAcc = bobVault.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'AMZN')
@@ -347,9 +345,9 @@ describe('loans.takeLoan success', () => {
     const vaultBeforeLoanUBERAcc = bobVault.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'UBER')
     const vaultBeforeLoanUBERAmount = vaultBeforeLoanUBERAcc !== undefined ? Number(vaultBeforeLoanUBERAcc?.split('@')[0]) : 0
 
-    const vaultAfterLoanAMZNAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'AMZN')
+    const vaultAfterLoanAMZNAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'AMZN')
     const vaultAfterLoanAMZNAmount = Number(vaultAfterLoanAMZNAcc?.split('@')[0])
-    const vaultAfterLoanUBERAcc = vaultAfter.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'UBER')
+    const vaultAfterLoanUBERAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'UBER')
     const vaultAfterLoanUBERAmount = Number(vaultAfterLoanUBERAcc?.split('@')[0])
 
     const interestAfterAMZN = interestAfter.find((interest: { 'token': string }) => interest.token === 'AMZN')
