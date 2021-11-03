@@ -55,7 +55,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a474466547866' // OP_RETURN(0x6a) (length 71 = 0x47) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x66)
+const header = '6a474466547866' // OP_RETURN(0x6a) OP_PUSHDATA1(0x47) (length 68 = 0x44) CDfTx.SIGNATURE(0x44665478) CSetLoanToken.OP_CODE(0x66)
 const data = '06546f6b656e3406546f6b656e3406546f6b656e3403555344017802964900000000133d7a00d1068bf596729f9ae883c1c8b0d186a1a1bf0685e5467ea7dcb67f20'
 // UpdateLoanToken.symbol[BE](06546f6b656e34)
 // UpdateLoanToken.name[BE](06546f6b656e34)

@@ -126,7 +126,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-   * Update vault transaction.
+   * Create update vault transaction.
    *
    * @param {UpdateVault} updateVault txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
