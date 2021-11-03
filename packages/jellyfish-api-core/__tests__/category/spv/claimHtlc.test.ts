@@ -29,9 +29,7 @@ describe('Spv', () => {
       { seed: htlc.seed }
     )
     expect(typeof claimedHtlc.txid).toStrictEqual('string')
-    // TODO(@ivan): check the rationale with cpp team for removing the message
-    // https://github.com/DeFiCh/ain/commit/72b43ec551ab8b8bb43f16a0509174aa3f160d1b#diff-b5145b0efde15064aed33f4ec60bcd42a8ed62fc6f4c0d92044061832709b151
-    // expect(claimedHtlc.sendmessage).toStrictEqual('Success')
+    expect(claimedHtlc.sendmessage).toStrictEqual('') // not empty when error found
   })
 
   it('should not claimHtlc when no unspent HTLC outputs found', async () => {
