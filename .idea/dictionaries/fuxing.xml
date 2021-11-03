@@ -32,12 +32,16 @@
       <w>checksig</w>
       <w>checksigverify</w>
       <w>clarkequayheight</w>
+      <w>closevault</w>
       <w>codeclimate</w>
       <w>codeseparator</w>
+      <w>collateralization</w>
+      <w>createloanscheme</w>
       <w>createmasternode</w>
       <w>createpoolpair</w>
       <w>createrawtransaction</w>
       <w>createtoken</w>
+      <w>createvault</w>
       <w>createwallet</w>
       <w>currentblocktx</w>
       <w>currentblockweight</w>
@@ -48,9 +52,11 @@
       <w>defich</w>
       <w>defichain</w>
       <w>defid</w>
+      <w>deposittovault</w>
       <w>descendantcount</w>
       <w>descendantfees</w>
       <w>descendantsize</w>
+      <w>destroyloanscheme</w>
       <w>devnet</w>
       <w>dftx</w>
       <w>dockerode</w>
@@ -74,6 +80,10 @@
       <w>getblockcount</w>
       <w>getblockhash</w>
       <w>getburninfo</w>
+      <w>getcollateraltoken</w>
+      <w>getinterest</w>
+      <w>getloanscheme</w>
+      <w>getloantoken</w>
       <w>getmintinginfo</w>
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
@@ -85,6 +95,7 @@
       <w>gettransaction</w>
       <w>gettxout</w>
       <w>getunconfirmedbalance</w>
+      <w>getvault</w>
       <w>getwalletinfo</w>
       <w>ghcr</w>
       <w>greaterthan</w>
@@ -99,6 +110,7 @@
       <w>importprivkey</w>
       <w>infima</w>
       <w>initialblockdownload</w>
+      <w>interestrate</w>
       <w>invalidopcode</w>
       <w>ischange</w>
       <w>iscompressed</w>
@@ -121,9 +133,13 @@
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
       <w>listburnhistory</w>
+      <w>listcollateraltokens</w>
+      <w>listloanschemes</w>
+      <w>listloantokens</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
       <w>listunspent</w>
+      <w>listvaults</w>
       <w>locktime</w>
       <w>logtimemicros</w>
       <w>lshift</w>
@@ -136,6 +152,7 @@
       <w>mediantime</w>
       <w>mempool</w>
       <w>merkleroot</w>
+      <w>mincolratio</w>
       <w>mintable</w>
       <w>mintedblocks</w>
       <w>minttokens</w>
@@ -152,6 +169,7 @@
       <w>numequal</w>
       <w>numequalverify</w>
       <w>numnotequal</w>
+      <w>paybackloan</w>
       <w>paytxfee</w>
       <w>pooledtx</w>
       <w>poolpair</w>
@@ -183,6 +201,9 @@
       <w>sendrawtransaction</w>
       <w>sendtoaddress</w>
       <w>sendtokenstoaddress</w>
+      <w>setcollateraltoken</w>
+      <w>setdefaultloanscheme</w>
+      <w>setloantoken</w>
       <w>setwalletflag</w>
       <w>sighash</w>
       <w>sighashtype</w>
@@ -195,6 +216,7 @@
       <w>spentby</w>
       <w>strippedsize</w>
       <w>surangap</w>
+      <w>takeloan</w>
       <w>testcontainers</w>
       <w>testmempoolaccept</w>
       <w>thedoublejay</w>
@@ -209,6 +231,8 @@
       <w>txns</w>
       <w>uacomment</w>
       <w>unpkg</w>
+      <w>updateloanscheme</w>
+      <w>updateloantoken</w>
       <w>utxo</w>
       <w>utxos</w>
       <w>utxostoaccount</w>

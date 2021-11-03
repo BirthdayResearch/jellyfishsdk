@@ -2,6 +2,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
+import { VaultState } from '../../../src/category/loan'
 
 describe('Loan createVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -43,20 +44,20 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
+    const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'scheme',
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 
@@ -71,20 +72,20 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
+    const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
       ownerAddress: ownerAddress,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 
@@ -120,20 +121,20 @@ describe('Loan createVault', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(txid)
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
-    const data = await testing.rpc.call('getvault', [vaultId], 'bignumber')
+    const data = await testing.rpc.loan.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'scheme',
       ownerAddress: GenesisKeys[0].owner.address,
-      isUnderLiquidation: false,
-      invalidPrice: false,
+      state: VaultState.ACTIVE,
       collateralAmounts: [],
       loanAmounts: [],
       interestAmounts: [],
       collateralValue: expect.any(BigNumber),
       loanValue: expect.any(BigNumber),
-      interestValue: '',
-      currentRatio: expect.any(BigNumber)
+      interestValue: expect.any(BigNumber),
+      collateralRatio: expect.any(Number),
+      informativeRatio: expect.any(BigNumber)
     })
   })
 

@@ -77,7 +77,9 @@ import {
   CWithdrawFromVault,
   WithdrawFromVault,
   TakeLoan,
-  CTakeLoan
+  CTakeLoan,
+  CPaybackLoan,
+  PaybackLoan
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -521,6 +523,14 @@ export const OP_CODES = {
       type: CTakeLoan.OP_CODE,
       name: CTakeLoan.OP_NAME,
       data: takeLoan
+    })
+  },
+  OP_DEFI_TX_PAYBACK_LOAN: (paybackLoan: PaybackLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPaybackLoan.OP_CODE,
+      name: CPaybackLoan.OP_NAME,
+      data: paybackLoan
     })
   },
   OP_0: new constants.OP_0(),

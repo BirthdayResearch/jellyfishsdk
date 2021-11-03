@@ -7,7 +7,7 @@
       <option name="SPACE_BEFORE_GENERATOR_MULT" value="true" />
       <option name="USE_DOUBLE_QUOTES" value="false" />
       <option name="FORCE_QUOTE_STYlE" value="true" />
-      <option name="OBJECT_LITERAL_WRAP" value="2" />
+      <option name="OBJECT_LITERAL_WRAP" value="4" />
       <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
       <option name="SPACES_WITHIN_IMPORTS" value="true" />
     </JSCodeStyleSettings>
@@ -17,7 +17,7 @@
       <option name="SPACE_BEFORE_GENERATOR_MULT" value="true" />
       <option name="USE_DOUBLE_QUOTES" value="false" />
       <option name="FORCE_QUOTE_STYlE" value="true" />
-      <option name="OBJECT_LITERAL_WRAP" value="2" />
+      <option name="OBJECT_LITERAL_WRAP" value="4" />
       <option name="SPACES_WITHIN_OBJECT_LITERAL_BRACES" value="true" />
       <option name="SPACES_WITHIN_IMPORTS" value="true" />
     </TypeScriptCodeStyleSettings>
