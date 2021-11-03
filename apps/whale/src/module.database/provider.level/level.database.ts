@@ -3,7 +3,7 @@ import level from 'level'
 import { LevelUp } from 'levelup'
 import lexicographic from 'lexicographic-integer-encoding'
 import { Inject } from '@nestjs/common'
-import { QueryOptions, Database, SortOrder } from '@src/module.database/database'
+import { Database, QueryOptions, SortOrder } from '@src/module.database/database'
 import { Model, ModelIndex, ModelKey, ModelMapping } from '@src/module.database/model'
 
 const lexint = lexicographic('hex')
@@ -111,6 +111,7 @@ export abstract class LevelUpDatabase extends Database {
 
   async put<M extends Model> (mapping: ModelMapping<M>, model: M): Promise<void> {
     // TODO(fuxingloh): check before deleting for better performance
+    // TODO(fuxingloh): block writing race condition
     await this.delete(mapping, model.id)
 
     const subRoot = this.subRoot(mapping)
