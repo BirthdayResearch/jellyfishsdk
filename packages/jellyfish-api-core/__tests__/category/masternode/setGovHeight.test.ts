@@ -80,7 +80,7 @@ describe('Masternode', () => {
     const utxo = await container.fundAddress(GenesisKeys[0].owner.address, 10)
 
     { // before utxo spent
-      const utxos = await container.call('listunspent')
+      const utxos = await client.wallet.listUnspent(1, 99999, { addresses: [GenesisKeys[0].owner.address] })
       const found = utxos.find((u: any) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(found).not.toStrictEqual(undefined)
     }
@@ -99,7 +99,7 @@ describe('Masternode', () => {
     expect(govVar[1][activationHeight]['4'].toString()).toStrictEqual('0.1')
 
     { // after utxo spent
-      const utxos = await container.call('listunspent')
+      const utxos = await client.wallet.listUnspent(1, 99999, { addresses: [GenesisKeys[0].owner.address] })
       const found = utxos.find((u: any) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(found).toStrictEqual(undefined)
     }
