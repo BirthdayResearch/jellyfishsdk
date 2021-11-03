@@ -49,6 +49,14 @@
       "rules": {
         "no-return-assign": "off"
       }
+    },
+    {
+      "files": [
+        "**/__tests__/**/*.test.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off"
+      }
     }
   ]
 }
