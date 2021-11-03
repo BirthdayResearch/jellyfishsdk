@@ -54,9 +54,10 @@ describe('set oracle data', () => {
     await sendTransaction(container, appointTxn)
 
     // Set Oracle Data
+    const timestamp = Math.floor(new Date().getTime() / 1000)
     const setDataTxn = await builder.oracles.setOracleData({
       oracleId: oracleId,
-      timestamp: new BigNumber('1621567932'),
+      timestamp: new BigNumber(timestamp),
       tokens: [
         {
           token: 'TEST',
@@ -91,7 +92,7 @@ describe('set oracle data', () => {
     expect(getOracleDataResult.tokenPrices[0].token).toStrictEqual('TEST')
     expect(getOracleDataResult.tokenPrices[0].currency).toStrictEqual('USD')
     expect(getOracleDataResult.tokenPrices[0].amount).toStrictEqual(1.0)
-    expect(getOracleDataResult.tokenPrices[0].timestamp).toStrictEqual(1621567932)
+    expect(getOracleDataResult.tokenPrices[0].timestamp).toStrictEqual(timestamp)
   })
 
   it('should update owner and then set oracle data', async () => {
@@ -136,7 +137,7 @@ describe('set oracle data', () => {
     // Set Oracle Data
     const setDataTxn = await newBuilder.oracles.setOracleData({
       oracleId: oracleId,
-      timestamp: new BigNumber('1621567932'),
+      timestamp: new BigNumber(Math.floor(new Date().getTime() / 1000)),
       tokens: [
         {
           token: 'TEST',
