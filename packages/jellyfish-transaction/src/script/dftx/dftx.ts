@@ -87,7 +87,13 @@ import {
   CCreateVault,
   CreateVault,
   CUpdateVault,
-  UpdateVault
+  UpdateVault,
+  DepositToVault,
+  CDepositToVault,
+  CTakeLoan,
+  TakeLoan,
+  CPaybackLoan,
+  PaybackLoan
 } from './dftx_loans'
 
 /**
@@ -240,6 +246,12 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       case CCreateVault.OP_CODE:
         return compose<CreateVault>(CCreateVault.OP_NAME, d => new CCreateVault(d))
+      case CDepositToVault.OP_CODE:
+        return compose<DepositToVault>(CDepositToVault.OP_NAME, d => new CDepositToVault(d))
+      case CTakeLoan.OP_CODE:
+        return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
+      case CPaybackLoan.OP_CODE:
+        return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
       case CUpdateVault.OP_CODE:
         return compose<UpdateVault>(CUpdateVault.OP_NAME, d => new CUpdateVault(d))
       default:

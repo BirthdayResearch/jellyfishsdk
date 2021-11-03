@@ -73,7 +73,13 @@ import {
   CCreateVault,
   CreateVault,
   CUpdateVault,
-  UpdateVault
+  UpdateVault,
+  CDepositToVault,
+  DepositToVault,
+  TakeLoan,
+  CTakeLoan,
+  CPaybackLoan,
+  PaybackLoan
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -493,6 +499,30 @@ export const OP_CODES = {
       type: CCreateVault.OP_CODE,
       name: CCreateVault.OP_NAME,
       data: createVault
+    })
+  },
+  OP_DEFI_TX_DEPOSIT_TO_VAULT: (depositToVault: DepositToVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CDepositToVault.OP_CODE,
+      name: CDepositToVault.OP_NAME,
+      data: depositToVault
+    })
+  },
+  OP_DEFI_TX_TAKE_LOAN: (takeLoan: TakeLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CTakeLoan.OP_CODE,
+      name: CTakeLoan.OP_NAME,
+      data: takeLoan
+    })
+  },
+  OP_DEFI_TX_PAYBACK_LOAN: (paybackLoan: PaybackLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPaybackLoan.OP_CODE,
+      name: CPaybackLoan.OP_NAME,
+      data: paybackLoan
     })
   },
   OP_DEFI_TX_UPDATE_VAULT: (updateVault: UpdateVault): OP_DEFI_TX => {

@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/testcontainers)](https://www.npmjs.com/package/@defichain/testcontainers/v/latest)
-
 # @defichain/testcontainers
 
 Similar to [testcontainers](https://www.testcontainers.org/) in the Java ecosystem, this package provides a lightweight,
@@ -19,6 +17,7 @@ With `@defichain/testcontainers`, it allows the JS developers to:
 Install as dev only as you don't need this in production. **Please don't use this in production!**
 
 ```shell
+npm i defichain
 npm i -D @defichain/testcontainers
 ```
 

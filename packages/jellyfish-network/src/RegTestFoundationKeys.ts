@@ -14,8 +14,9 @@ export interface MasterNodeKey {
  * https://github.com/DeFiCh/ain/blob/6dc990c45788d6806ea/test/functional/test_framework/test_node.py#L121-L132
  *
  * 2 first and 2 last of genesis MNs acts as foundation members
+ * @deprecated use RegTestFoundationKeys instead
  */
-export const GenesisKeys: MasterNodeKey[] = [
+export const RegTestGenesisKeys: MasterNodeKey[] = [
   {
     owner: {
       address: 'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU',
@@ -97,3 +98,5 @@ export const GenesisKeys: MasterNodeKey[] = [
     }
   }
 ]
+
+export const RegTestFoundationKeys = RegTestGenesisKeys

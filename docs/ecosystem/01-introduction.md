@@ -17,8 +17,6 @@ test.
 As with all modern JavaScript projects, jellyfish follows a monorepo structure with its concerns separated. All packages
 maintained in this repo are published with the same version tag and follows the `DeFiCh/ain` releases.
 
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish)](https://www.npmjs.com/package/@defichain/jellyfish/v/latest)
-
 Package                                            | Description
 ---------------------------------------------------|-------------
 `@defichain/jellyfish-address`                     | Provide address builder, parser, validator utility library for DeFi Blockchain.

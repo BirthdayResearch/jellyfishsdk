@@ -24,6 +24,15 @@
       2,
       "declaration"
     ],
+    "indent": "off",
+    "@typescript-eslint/indent": [
+      "error",
+      2,
+      {
+        "offsetTernaryExpressions": true,
+        "SwitchCase": 1
+      }
+    ],
     "import/no-default-export": "error"
   },
   "overrides": [
@@ -39,6 +48,14 @@
       ],
       "rules": {
         "no-return-assign": "off"
+      }
+    },
+    {
+      "files": [
+        "**/__tests__/**/*.test.ts"
+      ],
+      "rules": {
+        "@typescript-eslint/no-non-null-assertion": "off"
       }
     }
   ]

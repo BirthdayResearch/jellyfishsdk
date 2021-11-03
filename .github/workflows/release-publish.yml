@@ -2,7 +2,7 @@ name: Publish
 
 on:
   release:
-    types: [ published, prereleased ]
+    types: [ published ]
 
 jobs:
   npm:
@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: NPM Release Publishing
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
         with:
-          node-version: '15'
+          node-version: '16'
 
       - uses: actions/github-script@441359b1a30438de65712c2fbca0abe4816fa667
         id: version
@@ -29,18 +29,14 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-      - run: npm run version ${{ steps.version.outputs.result }}
+      - run: npm run version:set ${{ steps.version.outputs.result }}
 
-      - name: Publish Next
-        if: github.event.release.prerelease
+      - name: find and replace peerDependencies # because lerna doesn't update peers deps
+        # TODO(fuxingloh): add ocean/*/package.json when enabled
         run: |
-          npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          npm run publish:next
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+          find packages/*/package.json -type f -exec sed -i 's#    "defichain": "0.0.0"#    "defichain": "${{ steps.version.outputs.result }}"#g' {} \;
 
-      - name: Publish Latest
-        if: "!github.event.release.prerelease"
+      - name: Publish
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
           npm run publish:latest

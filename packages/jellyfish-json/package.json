@@ -13,19 +13,6 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "contributors": [
-    {
-      "name": "DeFiChain Foundation",
-      "email": "engineering@defichain.com",
-      "url": "https://defichain.com/"
-    },
-    {
-      "name": "DeFi Blockchain Contributors"
-    },
-    {
-      "name": "DeFi Jellyfish Contributors"
-    }
-  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -34,11 +21,12 @@
   "scripts": {
     "build": "tsc -b ./tsconfig.build.json"
   },
-  "peerDependencies": {
-    "bignumber.js": "^9.0.1"
-  },
   "dependencies": {
     "@types/lossless-json": "^1.0.1",
+    "bignumber.js": "^9.0.1",
     "lossless-json": "^1.0.5"
+  },
+  "peerDependencies": {
+    "defichain": "0.0.0"
   }
 }

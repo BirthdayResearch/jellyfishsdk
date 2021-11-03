@@ -15,10 +15,10 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
         with:
-          node-version: '15'
+          node-version: '16'
           cache: 'npm'
 
       - run: npm ci
@@ -28,10 +28,10 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
         with:
-          node-version: '15'
+          node-version: '16'
           cache: 'npm'
 
       - run: npm ci
@@ -45,10 +45,10 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
         with:
-          node-version: '15'
+          node-version: '16'
           cache: 'npm'
 
       - run: npm ci

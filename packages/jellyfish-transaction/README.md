@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-transaction)](https://www.npmjs.com/package/@defichain/jellyfish-transaction/v/latest)
-
 # @defichain/jellyfish-transaction
 
 Dead simple modern stateless raw transaction composer for the DeFi Blockchain.

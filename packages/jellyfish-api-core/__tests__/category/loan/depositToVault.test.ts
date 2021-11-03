@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Loan', () => {
+describe('Loan depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let vaultId1: string
@@ -57,29 +57,28 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
-      priceFeedId: 'DFI/USD'
-      // activateAfterBlock: 130  // <- hit socket hang up
+      fixedIntervalPriceId: 'DFI/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'BTC',
       factor: new BigNumber(0.5),
-      priceFeedId: 'BTC/USD'
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.setCollateralToken({
       token: 'CAT',
       factor: new BigNumber(0.1),
-      priceFeedId: 'CAT/USD'
+      fixedIntervalPriceId: 'CAT/USD'
     })
     await tGroup.get(0).generate(1)
 
     // loan token
     await tGroup.get(0).rpc.loan.setLoanToken({
       symbol: 'TSLA',
-      priceFeedId: 'TSLA/USD'
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await tGroup.get(0).generate(1)
 
@@ -133,7 +132,8 @@ describe('Loan', () => {
     await tGroup.waitForSync()
   }
 
-  it('should be failed as first deposit must be DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as first deposit must be DFI', async () => {
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
     })
@@ -171,10 +171,10 @@ describe('Loan', () => {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
       expect(vaultBefore.ownerAddress).toStrictEqual(vaultAddress)
-      expect(vaultBefore.isUnderLiquidation).toStrictEqual(false)
-      expect(vaultBefore.loanAmount).toStrictEqual([])
+      expect(vaultBefore.state).toStrictEqual('active')
+      expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
-      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
+      expect(vaultBefore.collateralRatio).toStrictEqual(-1) // empty loan
 
       const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
         ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
@@ -192,10 +192,10 @@ describe('Loan', () => {
       // check the changes after deposit
       expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
       expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
-      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
-      expect(vaultAfter.loanAmount).toStrictEqual(vaultBefore.loanAmount)
+      expect(vaultAfter.state).toStrictEqual(vaultBefore.state)
+      expect(vaultAfter.loanAmounts).toStrictEqual(vaultBefore.loanAmounts)
       expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
-      expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
+      expect(vaultAfter.collateralRatio).toStrictEqual(vaultBefore.collateralRatio)
 
       // assert collateralAmounts
       const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
@@ -301,7 +301,8 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
   })
 
-  it('should be failed as vault must contain min 50% of DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as vault must contain min 50% of DFI', async () => {
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '1000@DFI'
     })
@@ -310,15 +311,17 @@ describe('Loan', () => {
 
     // deposit * factor >= collateralValue / 2
     const promise = tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultId1, from: collateralAddress, amount: '0.11@BTC'
+      vaultId: vaultId1, from: collateralAddress, amount: '0.201@BTC' // Throw error if more than 0.2
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
   })
 
   it('should not deposit to liquidated vault', async () => {
+    await tGroup.get(0).generate(6)
+
     const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
-    expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '1000@DFI'

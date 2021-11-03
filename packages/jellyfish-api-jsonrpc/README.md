@@ -1,5 +1,3 @@
-[![npm](https://img.shields.io/npm/v/@defichain/jellyfish-api-jsonrpc)](https://www.npmjs.com/package/@defichain/jellyfish-api-jsonrpc/v/latest)
-
 # @defichain/jellyfish-api-jsonrpc
 
 `@defichain/jellyfish-api-jsonrpc` implements `@defichain/jellyfish-api-core`

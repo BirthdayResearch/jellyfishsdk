@@ -1,7 +1,7 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
-import { waitForCondition } from '../../wait_for_condition'
-import { MasterNodeRegTestContainer } from '../../chains/reg_test_container/masternode'
-import { RegTestContainer } from '../../chains/reg_test_container/index'
+import { waitForCondition } from '../../utils'
+import { MasterNodeRegTestContainer } from './Masternode'
+import { RegTestContainer } from './index'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode
@@ -32,7 +32,7 @@ export class ContainerGroup {
           Config: []
         }
       }, (err, data) => {
-        if (err instanceof Error) {
+        if (err instanceof Error || data === undefined) {
           return reject(err)
         }
         return resolve(data)
@@ -105,8 +105,13 @@ export class ContainerGroup {
    */
   async stop (): Promise<void> {
     for (const container of this.containers) {
+      await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
     await this.requireNetwork().remove()
+    // NOTE: for anyone have RPC timeout issue, esp newer version docker, v3.6.x / v4.x.x
+    // enable the following line to ensure docker network pruned correctly between tests
+    // global containers prune may cause multithreaded tests clashing each other
+    // await this.docker.pruneContainers()
   }
 }

@@ -1,7 +1,7 @@
-import { GenesisKeys, MasterNodeKey } from '../../testkeys'
-import { waitForCondition } from '../../wait_for_condition'
+import { MasterNodeKey, RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { waitForCondition } from '../../utils'
 import { DockerOptions } from 'dockerode'
-import { DeFiDContainer, StartOptions } from '../defid_container'
+import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
 import { RegTestContainer } from './index'
 
 /**
@@ -11,11 +11,11 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   private readonly masternodeKey: MasterNodeKey
 
   /**
-   * @param {string} [masternodeKey=GenesisKeys[0]] pair to use for minting
+   * @param {string} [masternodeKey=RegTestFoundationKeys[0]] pair to use for minting
    * @param {string} [image=DeFiDContainer.image] docker image name
    * @param {DockerOptions} [options]
    */
-  constructor (masternodeKey: MasterNodeKey = GenesisKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
+  constructor (masternodeKey: MasterNodeKey = RegTestFoundationKeys[0], image: string = DeFiDContainer.image, options?: DockerOptions) {
     super(image, options)
     this.masternodeKey = masternodeKey
   }
@@ -133,6 +133,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
+
   /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorTeams (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
@@ -151,6 +152,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
+
   /* istanbul ignore next, TODO(canonbrother) */
   async waitForAnchorAuths (nodesLength: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
@@ -207,7 +209,10 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     } = await this.call('getrawtransaction', [txid, true])
     for (const out of vout) {
       if (out.scriptPubKey.addresses.includes(address)) {
-        return { txid, vout: out.n }
+        return {
+          txid,
+          vout: out.n
+        }
       }
     }
 
@@ -228,6 +233,10 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     const address = await this.call('getnewaddress', ['', 'bech32'])
     const privKey = await this.call('dumpprivkey', [address])
     const getaddressinfo = await this.call('getaddressinfo', [address])
-    return { address, privKey, pubKey: getaddressinfo.pubkey }
+    return {
+      address,
+      privKey,
+      pubKey: getaddressinfo.pubkey
+    }
   }
 }

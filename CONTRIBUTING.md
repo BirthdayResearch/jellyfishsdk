@@ -1,6 +1,6 @@
 # DeFi Jellyfish Contributing Guide
 
-You need `node v14`, and `npm v7` for this project, it's required to set
+You need `node v16`, and `npm v8` for this project, it's required to set
 up [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
 
 ```shell
@@ -14,10 +14,9 @@ sub-packages, you don't need to build the project in every package when you upda
 
 Configurations required when introducing new package:
 
-1. root `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
-2. root `tsconfig.build.json` - `references` - add new created tsconfig.build.json here
-3. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is
-   configured `tsc -b ./tsconfig.build.json`
+1. root-package `tsconfig.json` - `compilerOptions.paths` - add to map absolute packages name back to the source code
+2. sub-package `package.json` - `scripts.build` - ensure each sub-package build script is configured
+   with `tsc -b ./tsconfig.build.json`
 
 ## Testing
 
@@ -93,8 +92,9 @@ TODO comments should usually include the author's github username in parentheses
 
 `"version": "0.0.0"` is used because publishing will be done automatically
 by [GitHub releases](https://github.com/DeFiCh/jellyfish/releases) with connected workflows. On
-release `types: [ published, prereleased ]`, GitHub Action will automatically build all packages in this repo and
-publish it into npm.
+release `types: [ published ]`, GitHub Action will automatically build all packages in this repo and publish it into
+npm. All packages in this mono-repo will require `"peerDependencies": "defichain"` this setup ensures all
+subsequent `@defichain/*` package uses the same version.
 
 For packages with accompanying docker images, they are published automatically to GitHub Container Registry
 (ghcr.io/defich). When a new [GitHub releases](https://github.com/DeFiCh/whale/releases) is triggered, GitHub Action
