@@ -146,6 +146,7 @@ async function setup (): Promise<void> {
   await bob.generate(1)
   await tGroup.waitForSync()
 
+  // deposit on active vault
   await alice.rpc.loan.depositToVault({
     vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
   })
@@ -478,7 +479,7 @@ describe('takeloan failed', () => {
       amounts: '1@TWTR'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
+    await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme') // the err msg seems not right
   })
 
   it('should not takeLoan on frozen vault', async () => {
