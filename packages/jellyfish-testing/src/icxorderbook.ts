@@ -46,7 +46,10 @@ export class TestingICX {
     await this.testing.rpc.masternode.setGov({ ICX_TAKERFEE_PER_BTC: fee })
     await this.testing.container.generate(1)
     const result = await this.testing.rpc.masternode.getGov('ICX_TAKERFEE_PER_BTC')
-    this.ICX_TAKERFEE_PER_BTC = result.ICX_TAKERFEE_PER_BTC as BigNumber
+    expect(result.length).toStrictEqual(1)
+    expect(Object.keys(result[0]).length).toStrictEqual(1)
+    expect(Object.keys(result[0])[0]).toStrictEqual('ICX_TAKERFEE_PER_BTC')
+    this.ICX_TAKERFEE_PER_BTC = result[0].ICX_TAKERFEE_PER_BTC as BigNumber
   }
 
   async closeAllOpenOffers (): Promise<void> {
@@ -68,7 +71,7 @@ export class TestingICX {
     receivePubkey,
     amountFrom,
     orderPrice
-  }: CreateDFISellOrderData): Promise<{order: icxorderbook.ICXOrder, createOrderTxId: string}> {
+  }: CreateDFISellOrderData): Promise<{ order: icxorderbook.ICXOrder, createOrderTxId: string }> {
     const order = {
       tokenFrom: this.idDFI,
       chainTo,
@@ -91,7 +94,7 @@ export class TestingICX {
     orderTx,
     amount = new BigNumber(10),
     ownerAddress = this.accountBTC
-  }: CreateDFIBuyOfferData): Promise<{offer: icxorderbook.ICXOffer, makeOfferTxId: string}> {
+  }: CreateDFIBuyOfferData): Promise<{ offer: icxorderbook.ICXOffer, makeOfferTxId: string }> {
     const offer = {
       orderTx,
       amount,
@@ -112,7 +115,7 @@ export class TestingICX {
     amount,
     hash,
     timeout = 1440
-  }: CreateDFCHTLCForDFIBuyOfferData): Promise<{DFCHTLC: icxorderbook.HTLC, DFCHTLCTxId: string}> {
+  }: CreateDFCHTLCForDFIBuyOfferData): Promise<{ DFCHTLC: icxorderbook.HTLC, DFCHTLCTxId: string }> {
     const DFCHTLC = {
       offerTx,
       amount,
@@ -135,7 +138,7 @@ export class TestingICX {
     htlcScriptAddress,
     ownerPubkey,
     timeout = 24
-  }: SubmitExtHTLCForDFIBuyOfferData): Promise<{ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string}> {
+  }: SubmitExtHTLCForDFIBuyOfferData): Promise<{ ExtHTLC: icxorderbook.ExtHTLC, ExtHTLCTxId: string }> {
     const ExtHTLC = {
       offerTx,
       amount,
