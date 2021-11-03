@@ -16,15 +16,23 @@ import {
   LoanSchemeResult,
   LoanTokenResult
 } from '@defichain/jellyfish-api-core/dist/category/loan'
-import { CollateralToken, LoanScheme, LoanToken } from '@whale-api-client/api/loan'
+import {
+  CollateralToken,
+  LoanScheme,
+  LoanToken,
+  LoanVaultActive,
+  LoanVaultLiquidated
+} from '@whale-api-client/api/loan'
 import { mapTokenData } from '@src/module.api/token.controller'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
+import { LoanVaultService } from '@src/module.api/loan.vault.service'
 
 @Controller('/loans')
 export class LoanController {
   constructor (
     private readonly client: JsonRpcClient,
-    private readonly deFiDCache: DeFiDCache
+    private readonly deFiDCache: DeFiDCache,
+    private readonly vaultService: LoanVaultService
   ) {
   }
 
@@ -157,6 +165,28 @@ export class LoanController {
       priceFeedId: detail.fixedIntervalPriceId,
       activateAfterBlock: detail.activateAfterBlock.toNumber()
     }
+  }
+
+  /**
+   * Paginate loan vaults.
+   *
+   * @param {PaginationQuery} query
+   * @return {Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>>}
+   */
+  @Get('/vaults')
+  async listVault (@Query() query: PaginationQuery): Promise<ApiPagedResponse<LoanVaultActive | LoanVaultLiquidated>> {
+    return await this.vaultService.list(query)
+  }
+
+  /**
+   * Get information about a vault with given vault id.
+   *
+   * @param {string} id
+   * @return {Promise<LoanVault>}
+   */
+  @Get('/vaults/:id')
+  async getVault (@Param('id') id: string): Promise<LoanVaultActive | LoanVaultLiquidated> {
+    return await this.vaultService.get(id)
   }
 }
 

@@ -11,6 +11,7 @@ import { ModelModule } from '@src/module.model/_module'
 import { DeFiDModule } from '@src/module.defid/_module'
 import { IndexerModule } from '@src/module.indexer/_module'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { LoanVaultService } from '@src/module.api/loan.vault.service'
 
 const container = new MasterNodeRegTestContainer()
 let controller: AddressController
@@ -39,6 +40,7 @@ beforeAll(async () => {
     controllers: [AddressController],
     providers: [
       DeFiDCache,
+      LoanVaultService,
       { provide: 'NETWORK', useValue: 'regtest' }
     ]
   }).compile()

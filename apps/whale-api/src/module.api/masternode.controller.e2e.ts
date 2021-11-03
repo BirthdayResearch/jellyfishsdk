@@ -74,6 +74,7 @@ describe('get', () => {
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
     await waitForIndexedHeight(app, height)
+    await new Promise((resolve) => setTimeout(resolve, 3000))
   })
 
   afterAll(async () => {

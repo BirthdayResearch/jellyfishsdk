@@ -23,6 +23,7 @@ import { StatsController } from '@src/module.api/stats.controller'
 import { FeeController } from '@src/module.api/fee.controller'
 import { RawtxController } from '@src/module.api/rawtx.controller'
 import { LoanController } from '@src/module.api/loan.controller'
+import { LoanVaultService } from '@src/module.api/loan.vault.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -60,7 +61,8 @@ import { LoanController } from '@src/module.api/loan.controller'
     DeFiDCache,
     SemaphoreCache,
     PoolPairService,
-    MasternodeService
+    MasternodeService,
+    LoanVaultService
   ]
 })
 export class ApiModule {

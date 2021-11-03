@@ -1,4 +1,10 @@
-import { createTestingApp, DelayedEunosPayaTestContainer, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import {
+  createTestingApp,
+  DelayedEunosPayaTestContainer,
+  invalidateFromHeight,
+  stopTestingApp,
+  waitForIndexedHeight
+} from '@src/e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeMapper } from '@src/module.model/masternode'
@@ -28,6 +34,7 @@ describe('genesis masternodes', () => {
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
     await waitForIndexedHeight(app, height)
+    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     const genesisNodeId = 'e86c027861cc0af423313f4152a44a83296a388eb51bf1a6dde9bd75bed55fb4'
     const masternodeRPCInfo: MasternodeInfo =
@@ -51,6 +58,7 @@ describe('genesis masternodes', () => {
     const height = await client.blockchain.getBlockCount()
     await container.generate(1)
     await waitForIndexedHeight(app, height)
+    await new Promise((resolve) => setTimeout(resolve, 3000))
 
     const masternodeStatsMapper = app.get(MasternodeStatsMapper)
     const masternodeStats = await masternodeStatsMapper.getLatest()
