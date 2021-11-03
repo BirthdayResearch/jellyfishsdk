@@ -79,6 +79,39 @@ describe('compositeSwap', () => {
       b: { symbol: 'PATHB', amount: 1 }
     })
     await container.generate(1)
+
+    // longer conversion path (3 swaps)
+    await testing.token.create({ symbol: 'ELF' })
+    await testing.token.create({ symbol: 'ORC' })
+    await testing.token.create({ symbol: 'UNDY' })
+    await testing.token.create({ symbol: 'HUMAN' })
+    await container.generate(1)
+
+    await testing.poolpair.create({ tokenA: 'ELF', tokenB: 'ORC' })
+    await testing.poolpair.create({ tokenA: 'ORC', tokenB: 'UNDY' })
+    await testing.poolpair.create({ tokenA: 'UNDY', tokenB: 'HUMAN' })
+    await container.generate(1)
+
+    await testing.token.mint({ symbol: 'ELF', amount: 160000 })
+    await testing.token.mint({ symbol: 'ORC', amount: 160000 })
+    await testing.token.mint({ symbol: 'UNDY', amount: 160000 })
+    await testing.token.mint({ symbol: 'HUMAN', amount: 160000 })
+    await container.generate(1)
+
+    // large pool volume to minimize slippage effect on swap
+    await testing.poolpair.add({
+      a: { symbol: 'ELF', amount: 55555 },
+      b: { symbol: 'ORC', amount: 66666 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'ORC', amount: 66666 },
+      b: { symbol: 'UNDY', amount: 77777 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'UNDY', amount: 77777 },
+      b: { symbol: 'HUMAN', amount: 88888 }
+    })
+    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -216,6 +249,48 @@ describe('compositeSwap', () => {
       const unspents = await container.call('listunspent')
       const unspent = unspents.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
       expect(unspent).toStrictEqual(undefined)
+    }
+  })
+
+  it('should compositeSwap for longer than 2 poolswaps path', async () => {
+    const [toAddress, fromAddress] = await testing.generateAddress(2)
+    await testing.token.send({ symbol: 'ELF', amount: 123, address: fromAddress })
+    await testing.generate(1)
+
+    { // before swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('123.00000000@ELF')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+    }
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'ELF',
+      amountFrom: 100,
+      to: toAddress,
+      tokenTo: 'HUMAN',
+      maxPrice: 1
+    }
+
+    const hex = await client.poolpair.compositeSwap(metadata)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+    await container.generate(1)
+
+    { // after swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('23.00000000@ELF')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(1)
+      const [amount, symbol] = toBalances[0].split('@')
+      expect(symbol).toStrictEqual('HUMAN')
+      expect(Number(amount)).toBeGreaterThan(159)
+      expect(Number(amount)).toBeLessThan(160)
     }
   })
 
