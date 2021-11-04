@@ -91,7 +91,7 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: token 2 does not exist! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: token 2 does not exist! (code 16)\', code: -26')
   })
 
   it('should not setCollateralToken if factor is greater than 1', async () => {
@@ -103,7 +103,7 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: setCollateralToken factor must be lower or equal than 1.00000000! (code 16)\', code: -26')
   })
 
   it('should not setCollateralToken if currencyPair does not belong to any oracle', async () => {
@@ -115,7 +115,7 @@ describe('loan.setCollateralToken()', () => {
       activateAfterBlock: 0
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
   })
 })
 
@@ -225,6 +225,6 @@ describe('loan.setCollateralToken() with activateAfterBlock below current height
       activateAfterBlock: 149
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetCollateralTokenTx: activateAfterBlock cannot be less than current height! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanCollateralTokenTx: activateAfterBlock cannot be less than current height! (code 16)\', code: -26')
   })
 })

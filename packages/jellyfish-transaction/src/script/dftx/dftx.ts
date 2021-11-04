@@ -64,11 +64,11 @@ import {
 import {
   CSetGovernance,
   SetGovernance,
-  // CCreateCfp,
+  CCreateCfp,
   CCreateVoc,
   CreateProposal,
   CVote,
-  Vote, CCreateCfp
+  Vote
 } from './dftx_governance'
 import {
   CCreateLoanScheme,
@@ -90,6 +90,8 @@ import {
   CDepositToVault,
   CTakeLoan,
   TakeLoan,
+  CPaybackLoan,
+  PaybackLoan,
   CloseVault,
   CCloseVault
 } from './dftx_loans'
@@ -248,6 +250,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<DepositToVault>(CDepositToVault.OP_NAME, d => new CDepositToVault(d))
       case CTakeLoan.OP_CODE:
         return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
+      case CPaybackLoan.OP_CODE:
+        return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
       case CCloseVault.OP_CODE:
         return compose<CloseVault>(CCloseVault.OP_NAME, d => new CCloseVault(d))
       default:

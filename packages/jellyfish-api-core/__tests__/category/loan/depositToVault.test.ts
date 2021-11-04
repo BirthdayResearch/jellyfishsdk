@@ -132,7 +132,8 @@ describe('Loan depositToVault', () => {
     await tGroup.waitForSync()
   }
 
-  it('should be failed as first deposit must be DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as first deposit must be DFI', async () => {
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
     })
@@ -300,7 +301,8 @@ describe('Loan depositToVault', () => {
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
   })
 
-  it('should be failed as vault must contain min 50% of DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as vault must contain min 50% of DFI', async () => {
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '1000@DFI'
     })

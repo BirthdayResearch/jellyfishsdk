@@ -103,7 +103,7 @@ describe('Loan setLoanToken', () => {
       symbol: '',
       fixedIntervalPriceId: 'Token2/USD'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\ntoken symbol should be non-empty and starts with a letter\', code: -32600, method: setloantoken')
   })
 
   it('should not setLoanToken if the symbol is used in other token', async () => {
@@ -127,7 +127,7 @@ describe('Loan setLoanToken', () => {
       symbol: 'Token3',
       fixedIntervalPriceId: 'Token3/USD'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntoken \'Token3\' already exists!\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\ntoken \'Token3\' already exists!\', code: -32600, method: setloantoken')
   })
 
   it('should not setLoanToken if fixedIntervalPriceId does not belong to any oracle', async () => {
@@ -135,7 +135,7 @@ describe('Loan setLoanToken', () => {
       symbol: 'Token4',
       fixedIntervalPriceId: 'Token4/USD'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\nno live oracles for specified request\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\nno live oracles for specified request\', code: -32600, method: setloantoken')
   })
 
   it('should not setLoanToken if fixedIntervalPriceId is not in correct format', async () => {
@@ -392,6 +392,6 @@ describe('Loan setLoanToken', () => {
       symbol: 'Token18',
       fixedIntervalPriceId: 'Token18/USD'
     }, [utxo])
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setloantoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setloantoken')
   })
 })
