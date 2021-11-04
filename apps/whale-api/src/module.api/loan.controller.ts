@@ -182,7 +182,7 @@ export class LoanController {
    * Get information about a vault with given vault id.
    *
    * @param {string} id
-   * @return {Promise<LoanVault>}
+   * @return {Promise<LoanVaultActive | LoanVaultLiquidated>}
    */
   @Get('/vaults/:id')
   async getVault (@Param('id') id: string): Promise<LoanVaultActive | LoanVaultLiquidated> {
