@@ -42,7 +42,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a3c4466547865' // OP_RETURN(0x6a) (length 3c = 0x60) CDfTx.SIGNATURE(0x44665478) CCloseVault.OP_CODE(0x65)
+const header = '6a3c4466547865' // OP_RETURN(0x6a) (length 60 = 0x3c) CDfTx.SIGNATURE(0x44665478) CCloseVault.OP_CODE(0x65)
 // CloseVault.vaultId[LE](0x5490de6280bcd61c0f26342cb3254b41354c24f28e01ce4f003f21ca6d156a18)
 // CloseVault.to(0x16001463f29965a35135ecdf4ec0b3fe5627a7166e3f9e)
 const data = '5490de6280bcd61c0f26342cb3254b41354c24f28e01ce4f003f21ca6d156a1816001463f29965a35135ecdf4ec0b3fe5627a7166e3f9e'

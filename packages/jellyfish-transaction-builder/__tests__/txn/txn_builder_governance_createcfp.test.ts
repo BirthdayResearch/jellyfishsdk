@@ -10,7 +10,7 @@ import { GovernanceMasterNodeRegTestContainer } from '../../../jellyfish-api-cor
 import { governance } from '@defichain/jellyfish-api-core'
 import { RegTest } from '@defichain/jellyfish-network'
 
-describe.skip('createCfp', () => {
+describe('createCfp', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())

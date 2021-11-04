@@ -18,7 +18,7 @@ class CustomOperatorGovernanceMasterNodeRegTestContainer extends GovernanceMaste
   }
 }
 
-describe.skip('vote', () => {
+describe('vote', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new CustomOperatorGovernanceMasterNodeRegTestContainer())
@@ -85,7 +85,7 @@ describe.skip('vote', () => {
   })
 })
 
-describe.skip('vote with masternode operator with legacy address', () => {
+describe('vote with masternode operator with legacy address', () => {
   let providers: MockProviders
   let builder: P2WPKHTransactionBuilder
   const testing = Testing.create(new GovernanceMasterNodeRegTestContainer())
