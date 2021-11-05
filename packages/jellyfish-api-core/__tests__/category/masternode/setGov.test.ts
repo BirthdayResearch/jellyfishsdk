@@ -57,6 +57,12 @@ describe('Masternode', () => {
     }
   })
 
+  it('should fail if GovVar key is not registered', async () => {
+    const promise = client.masternode.setGov({ INVALID: 'value' })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Variable INVALID not registered')
+  })
+
   it('should be failed to setGov LP_REWARD as manually set after Eunos hard fork is not allowed', async () => {
     const promise = client.masternode.setGov({ LP_DAILY_DFI_REWARD: 999.00293001 })
     await expect(promise).rejects.toThrow(RpcApiError)

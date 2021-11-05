@@ -105,6 +105,14 @@ describe('Masternode', () => {
     }
   })
 
+  it('should fail if GovVar key is not registered', async () => {
+    const currentHeight = await client.blockchain.getBlockCount()
+    const activationHeight = currentHeight + 2
+    const promise = client.masternode.setGovHeight({ INVALID: 'value' }, activationHeight)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Variable INVALID not registered')
+  })
+
   it('should fail if set activation height is lower than current height', async () => {
     const currentHeight = await client.blockchain.getBlockCount()
     const activationHeight = currentHeight - 2
