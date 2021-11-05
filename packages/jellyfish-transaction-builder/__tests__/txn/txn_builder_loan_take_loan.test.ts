@@ -9,6 +9,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { VaultActive } from '@defichain/jellyfish-api-core/src/category/loan'
+import { Script } from '@defichain/jellyfish-transaction'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
@@ -28,6 +29,7 @@ let aProviders: MockProviders
 let aBuilder: P2WPKHTransactionBuilder
 let bProviders: MockProviders
 let bBuilder: P2WPKHTransactionBuilder
+let script: Script
 
 async function fundForFeesIfUTXONotAvailable (amount = 10): Promise<void> {
   const prevouts = await bProviders.prevout.all()
@@ -57,7 +59,8 @@ async function setup (): Promise<void> {
     { token: 'AMZN', currency: 'USD' },
     { token: 'UBER', currency: 'USD' },
     { token: 'CAT', currency: 'USD' },
-    { token: 'XYZ', currency: 'USD' }
+    { token: 'XYZ', currency: 'USD' },
+    { token: 'GOOGL', currency: 'USD' }
   ]
   oracleId = await alice.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
   await alice.generate(1)
@@ -94,35 +97,35 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   // loan token
-  await tGroup.get(0).rpc.loan.setLoanToken({
+  await alice.rpc.loan.setLoanToken({
     symbol: 'TSLA',
     fixedIntervalPriceId: 'TSLA/USD'
   })
-  await tGroup.get(0).generate(1)
+  await alice.generate(1)
 
-  await tGroup.get(0).rpc.loan.setLoanToken({
+  await alice.rpc.loan.setLoanToken({
     symbol: 'AMZN',
     fixedIntervalPriceId: 'AMZN/USD'
   })
-  await tGroup.get(0).generate(1)
+  await alice.generate(1)
 
-  await tGroup.get(0).rpc.loan.setLoanToken({
+  await alice.rpc.loan.setLoanToken({
     symbol: 'UBER',
     fixedIntervalPriceId: 'UBER/USD'
   })
-  await tGroup.get(0).generate(1)
+  await alice.generate(1)
 
-  await tGroup.get(0).rpc.loan.setLoanToken({
+  await alice.rpc.loan.setLoanToken({
     symbol: 'CAT',
     fixedIntervalPriceId: 'CAT/USD'
   })
-  await tGroup.get(0).generate(1)
+  await alice.generate(1)
 
-  await tGroup.get(0).rpc.loan.setLoanToken({
+  await alice.rpc.loan.setLoanToken({
     symbol: 'XYZ',
     fixedIntervalPriceId: 'XYZ/USD'
   })
-  await tGroup.get(0).generate(1)
+  await alice.generate(1)
 
   // loan scheme set up
   await alice.rpc.loan.createLoanScheme({
@@ -140,21 +143,21 @@ async function setup (): Promise<void> {
   })
   await bob.generate(1)
 
-  liqVaultAddr = await bob.generateAddress()
+  liqVaultAddr = await bProviders.getAddress()
   liqVaultId = await bob.rpc.loan.createVault({
     ownerAddress: liqVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
-  mayLiqVaultAddr = await bob.generateAddress()
+  mayLiqVaultAddr = await bProviders.getAddress()
   mayLiqVaultId = await bob.rpc.loan.createVault({
     ownerAddress: mayLiqVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
-  frozenVaultAddr = await bob.generateAddress()
+  frozenVaultAddr = await bProviders.getAddress()
   frozenVaultId = await bob.rpc.loan.createVault({
     ownerAddress: frozenVaultAddr,
     loanSchemeId: 'scheme'
@@ -220,6 +223,9 @@ describe('loans.takeLoan success', () => {
     bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
 
     await setup()
+
+    await fundForFeesIfUTXONotAvailable(10)
+    script = await bProviders.elliptic.script()
   })
 
   afterEach(async () => {
@@ -227,10 +233,6 @@ describe('loans.takeLoan success', () => {
   })
 
   it('should takeLoan', async () => {
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-    const script = await bProviders.elliptic.script()
-
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
@@ -268,11 +270,7 @@ describe('loans.takeLoan success', () => {
   })
 
   it('should takeLoan to a given address', async () => {
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-
     const vaultBefore = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
-    const script = await bProviders.elliptic.script()
     const toAddress = await bob.generateAddress()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
@@ -312,10 +310,6 @@ describe('loans.takeLoan success', () => {
   })
 
   it('should takeLoan multiple tokens', async () => {
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-
-    const script = await bProviders.elliptic.script()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
@@ -374,7 +368,12 @@ describe('loans.takeLoan failed', () => {
     bProviders.setEllipticPair(WIF.asEllipticPair(GenesisKeys[1].owner.privKey))
     bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
 
+    script = await bProviders.elliptic.script()
     await setup()
+  })
+
+  beforeEach(async () => {
+    await fundForFeesIfUTXONotAvailable(10)
   })
 
   afterAll(async () => {
@@ -382,10 +381,6 @@ describe('loans.takeLoan failed', () => {
   })
 
   it('should not takeLoan on nonexistent vault', async () => {
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-
-    const script = await bProviders.elliptic.script()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: '0'.repeat(64),
       to: { stack: [] },
@@ -398,9 +393,6 @@ describe('loans.takeLoan failed', () => {
   })
 
   it('should not takeLoan on nonexistent loan token', async () => {
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-
     const script = await bProviders.elliptic.script()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
@@ -416,8 +408,6 @@ describe('loans.takeLoan failed', () => {
   it('should not takeLoan by other than the vault owner', async () => {
     // node1 tries to take a loan from node0's vault
     const aScript = await aProviders.elliptic.script()
-
-    // Fund 10 DFI UTXO to newProviders.getAddress() for fees
     await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
 
     const txn = await aBuilder.loans.takeLoan({
@@ -432,10 +422,6 @@ describe('loans.takeLoan failed', () => {
   })
 
   it('should not takeLoan while exceed vault collateralization ratio', async () => {
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-
-    const script = await bProviders.elliptic.script()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
@@ -452,10 +438,6 @@ describe('loans.takeLoan failed', () => {
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-
-    const script = await bProviders.elliptic.script()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
@@ -474,7 +456,7 @@ describe('loans.takeLoan failed', () => {
   it('should not takeLoan on inLiquidation vault', async () => {
     await bob.rpc.loan.takeLoan({
       vaultId: liqVaultId,
-      amounts: '2000@UBER'
+      amounts: '1000@UBER'
     })
     await bob.generate(1)
     await tGroup.waitForSync()
@@ -488,10 +470,6 @@ describe('loans.takeLoan failed', () => {
 
     const liqVault = await bob.rpc.loan.getVault(liqVaultId)
     expect(liqVault.state).toStrictEqual('inLiquidation')
-
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-    const script = await bProviders.elliptic.script()
 
     const txn = await bBuilder.loans.takeLoan({
       vaultId: liqVaultId,
@@ -522,10 +500,6 @@ describe('loans.takeLoan failed', () => {
     const mayLiqVault = await bob.rpc.loan.getVault(mayLiqVaultId)
     expect(mayLiqVault.state).toStrictEqual('mayLiquidate')
 
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-    const script = await bProviders.elliptic.script()
-
     const txn = await bBuilder.loans.takeLoan({
       vaultId: mayLiqVaultId,
       to: { stack: [] },
@@ -534,13 +508,13 @@ describe('loans.takeLoan failed', () => {
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('TakeLoanTx: Cannot take loan on vault under liquidation')
+    await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
   })
 
   it('should not takeLoan on frozen vault', async () => {
     await bob.rpc.loan.takeLoan({
       vaultId: frozenVaultId,
-      amounts: '200@AMZN'
+      amounts: '20@AMZN'
     })
     await bob.generate(1)
     await tGroup.waitForSync()
@@ -555,18 +529,44 @@ describe('loans.takeLoan failed', () => {
     const frozenVault = await bob.rpc.loan.getVault(frozenVaultId)
     expect(frozenVault.state).toStrictEqual('frozen')
 
-    // fund if UTXO is not available for fees
-    await fundForFeesIfUTXONotAvailable(10)
-    const script = await bProviders.elliptic.script()
-
     const txn = await bBuilder.loans.takeLoan({
       vaultId: frozenVaultId,
       to: { stack: [] },
-      tokenAmounts: [{ token: 5, amount: new BigNumber(1) }]
+      tokenAmounts: [{ token: 2, amount: new BigNumber(1) }]
     }, script)
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('Cannot take loan while any of the asset\'s price in the vault is not live')
+  })
+
+  it('should not takeLoan as no live fixed prices', async () => {
+    await alice.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '3@GOOGL', currency: 'USD' }
+        ]
+      }
+    )
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'GOOGL',
+      fixedIntervalPriceId: 'GOOGL/USD'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    const txn = await bBuilder.loans.takeLoan({
+      vaultId: bobVaultId,
+      to: { stack: [] },
+      tokenAmounts: [{ token: 7, amount: new BigNumber(40) }]
+    }, script)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('TakeLoanTx: No live fixed prices for GOOGL/USD')
   })
 })
