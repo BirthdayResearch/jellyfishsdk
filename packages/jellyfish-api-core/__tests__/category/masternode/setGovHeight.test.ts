@@ -88,7 +88,7 @@ describe('Masternode', () => {
     const currentHeight = await client.blockchain.getBlockCount()
     const activationHeight = currentHeight + 3
 
-    await client.masternode.setGovHeight({ LP_SPLITS: { 3: 0.9, 4: 0.1 } }, activationHeight)
+    await client.masternode.setGovHeight({ LP_SPLITS: { 3: 0.9, 4: 0.1 } }, activationHeight, [utxo])
     await container.generate(1)
 
     const govVar = await client.masternode.getGov('LP_SPLITS')
