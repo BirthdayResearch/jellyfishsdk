@@ -321,11 +321,11 @@ describe('loans.closeVault', () => {
 
   it('should not closeVault by anyone other than the vault owner', async () => {
     const script = await providers.elliptic.script()
-    const fromScript = P2WPKH.fromAddress(RegTest, await tGroup.get(1).generateAddress(), P2WPKH).getScript()
+    const toScript = P2WPKH.fromAddress(RegTest, await tGroup.get(1).generateAddress(), P2WPKH).getScript()
 
     const txn = await builder.loans.closeVault({
       vaultId: vaultToBeClosedId,
-      to: fromScript
+      to: toScript
     }, script)
 
     const promise = sendTransaction(tGroup.get(0).container, txn)
