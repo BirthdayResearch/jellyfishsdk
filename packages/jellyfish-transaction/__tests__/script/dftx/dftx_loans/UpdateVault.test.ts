@@ -10,7 +10,7 @@ import { OP_DEFI_TX } from '../../../../src/script/dftx'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-     * loan : {
+     * updateVault : {
      *   vaultId: 496c8375e38c42bd410f23a66feb92a5029f261165e7b244682f484658d8e076
      *   ownerAddress: 'bcrt1q2knun5hwc6pe2spywl330qssg5e6eqy6wwupau',
      *   schemeId: 'scheme1'
@@ -18,7 +18,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a44446654787676e0d85846482f6844b2e76511269f02a592eb6fa6230f41bd428ce375836c4916001455a7c9d2eec68395402477e31782104533ac809a07736368656d6531',
     /**
-     * loan : {
+     * updateVault : {
      *   vaultId: 93bfaa8ea52db3f1cfe937adb88bc5dc77d675f36ac709be87331835cf09e916
      *   ownerAddress: 'bcrt1q4hy0yz57jjqzetplkygxqdmy48rhmykvfrajge',
      *   schemeId: 'scheme2'
@@ -26,7 +26,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a44446654787616e909cf35183387be09c76af375d677dcc58bb8ad37e9cff1b32da58eaabf93160014adc8f20a9e94802cac3fb110603764a9c77d92cc07736368656d6532',
     /**
-     * loan : {
+     * updateVault : {
      *   vaultId: c076512f7c766963c8aa910106fde37bc728a0001720977cade74821235652f7
      *   ownerAddress: 'bcrt1qnl9jx9smrsjd948z44ft8ykm3lwsrj5x65czhy',
      *   schemeId: 'scheme3'
