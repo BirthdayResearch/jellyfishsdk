@@ -55,7 +55,8 @@
         "**/__tests__/**/*.test.ts"
       ],
       "rules": {
-        "@typescript-eslint/no-non-null-assertion": "off"
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "no-lone-blocks": "off"
       }
     }
   ]
