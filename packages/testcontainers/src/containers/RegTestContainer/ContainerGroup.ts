@@ -108,6 +108,7 @@ export class ContainerGroup {
       await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
+
     await this.requireNetwork().remove()
     // NOTE: for anyone have RPC timeout issue, esp newer version docker, v3.6.x / v4.x.x
     // enable the following line to ensure docker network pruned correctly between tests
