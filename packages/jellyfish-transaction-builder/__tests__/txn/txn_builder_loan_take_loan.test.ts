@@ -23,6 +23,8 @@ let mayLiqVaultId: string
 let mayLiqVaultAddr: string
 let frozenVaultId: string
 let frozenVaultAddr: string
+let emptyVaultId: string
+let emptyVaultAddr: string
 let oracleId: string
 let timestamp: number
 let aProviders: MockProviders
@@ -160,6 +162,13 @@ async function setup (): Promise<void> {
   frozenVaultAddr = await bProviders.getAddress()
   frozenVaultId = await bob.rpc.loan.createVault({
     ownerAddress: frozenVaultAddr,
+    loanSchemeId: 'scheme'
+  })
+  await bob.generate(1)
+
+  emptyVaultAddr = await bProviders.getAddress()
+  emptyVaultId = await bob.rpc.loan.createVault({
+    ownerAddress: emptyVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
@@ -612,5 +621,17 @@ describe('loans.takeLoan failed', () => {
       await alice.generate(12)
       await tGroup.waitForSync()
     }
+  })
+
+  it('should not takeLoan on empty vault', async () => {
+    const txn = await bBuilder.loans.takeLoan({
+      vaultId: emptyVaultId,
+      to: { stack: [] },
+      tokenAmounts: [{ token: 3, amount: new BigNumber(1) }]
+    }, script)
+
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow(`TakeLoanTx: Vault with id ${emptyVaultId} has no collaterals`)
   })
 })

@@ -17,6 +17,8 @@ let mayLiqVaultId: string
 let mayLiqVaultAddr: string
 let frozenVaultId: string
 let frozenVaultAddr: string
+let emptyVaultId: string
+let emptyVaultAddr: string
 let oracleId: string
 let timestamp: number
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
@@ -142,6 +144,13 @@ async function setup (): Promise<void> {
   frozenVaultAddr = await bob.generateAddress()
   frozenVaultId = await bob.rpc.loan.createVault({
     ownerAddress: frozenVaultAddr,
+    loanSchemeId: 'scheme'
+  })
+  await bob.generate(1)
+
+  emptyVaultAddr = await bob.generateAddress()
+  emptyVaultId = await bob.rpc.loan.createVault({
+    ownerAddress: emptyVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
@@ -575,6 +584,15 @@ describe('takeloan failed', () => {
       await alice.generate(12)
       await tGroup.waitForSync()
     }
+  })
+
+  it('should not takeLoan on empty vault', async () => {
+    const promise = bob.rpc.loan.takeLoan({
+      vaultId: emptyVaultId,
+      amounts: '1@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow(`Vault with id ${emptyVaultId} has no collaterals`)
   })
 })
 
