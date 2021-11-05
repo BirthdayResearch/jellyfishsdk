@@ -248,16 +248,22 @@ describe('Loan', () => {
     })
 
     it('should withdrawFromVault using specific utxo', async () => {
+      const destinationAddress = await tGroup.get(0).generateAddress()
       const utxo = await tGroup.get(0).container.fundAddress(vaultOwner, 10)
       const txid = await tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId1,
-        to: collateralAddress,
+        to: destinationAddress,
         amount: '2.34567@DFI'
       }, [utxo])
 
       const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txid, true])
       expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
       expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
+      await tGroup.get(0).generate(1)
+
+      const accountBalances = await tGroup.get(0).rpc.account.getAccount(destinationAddress)
+      expect(accountBalances.length).toStrictEqual(1)
+      expect(accountBalances[0]).toStrictEqual('2.34567000@DFI')
     })
   })
 
@@ -315,7 +321,7 @@ describe('Loan', () => {
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
         to: await tGroup.get(0).generateAddress(),
-        amount: '1@DFI' // $4000 of DFI vs $5000 of BTC (tested with 5001, do not work, there are extra margin)
+        amount: '1@DFI' // use small amount, no DFI can be withdrawn when below 50% of total
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
