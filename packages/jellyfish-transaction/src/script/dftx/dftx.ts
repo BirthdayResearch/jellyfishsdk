@@ -17,11 +17,13 @@ import {
   CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CCompositeSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
   PoolCreatePair,
   PoolRemoveLiquidity,
   PoolSwap,
+  CompositeSwap,
   PoolUpdatePair
 } from './dftx_pool'
 import {
@@ -93,7 +95,6 @@ import {
   CPaybackLoan,
   PaybackLoan
 } from './dftx_loans'
-import { CCompositeSwap, CompositeSwap } from '@defichain/jellyfish-transaction'
 
 /**
  * DeFi Transaction
