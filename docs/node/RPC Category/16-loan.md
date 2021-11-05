@@ -350,6 +350,26 @@ interface UTXO {
 }
 ```
 
+## updateVault
+
+Create update vault transaction.
+
+```ts title="client.loan.updateVault()"
+interface loan {
+  updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateVault {
+  ownerAddress?: string
+  loanSchemeId?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## getVault
 
 Returns information about vault.
@@ -393,7 +413,7 @@ interface VaultLiquidation extends Vault {
 }
 
 interface VaultLiquidationBatch {
-  index: BigNumber
+  index: number
   collaterals: string[]
   loan: string
 }
@@ -442,7 +462,7 @@ interface VaultLiquidation extends Vault {
 }
 
 interface VaultLiquidationBatch {
-  index: BigNumber
+  index: number
   collaterals: string[]
   loan: string
 }

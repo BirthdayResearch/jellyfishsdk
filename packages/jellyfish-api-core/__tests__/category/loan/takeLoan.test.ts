@@ -535,6 +535,47 @@ describe('takeloan failed', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('No live fixed prices for META/USD')
   })
+
+  it('should not takeLoan when DFI collateral value less than 50%', async () => {
+    {
+      // reduce DFI value to below 50% of total collateral
+      const now = Math.floor(new Date().getTime() / 1000)
+      await alice.rpc.oracle.setOracleData(
+        oracleId,
+        now, {
+          prices: [
+            { tokenAmount: '0.4@DFI', currency: 'USD' },
+            { tokenAmount: '10000@BTC', currency: 'USD' },
+            { tokenAmount: '2@TSLA', currency: 'USD' }
+          ]
+        })
+      await alice.generate(12)
+      await tGroup.waitForSync()
+    }
+
+    const promise = bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId,
+      amounts: '0.01@TSLA'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI when taking a loan')
+
+    {
+      // revert DFI value changes
+      const now = Math.floor(new Date().getTime() / 1000)
+      await alice.rpc.oracle.setOracleData(
+        oracleId,
+        now, {
+          prices: [
+            { tokenAmount: '1@DFI', currency: 'USD' },
+            { tokenAmount: '10000@BTC', currency: 'USD' },
+            { tokenAmount: '2@TSLA', currency: 'USD' }
+          ]
+        })
+      await alice.generate(12)
+      await tGroup.waitForSync()
+    }
+  })
 })
 
 describe('takeLoan -> liquidation', () => {
