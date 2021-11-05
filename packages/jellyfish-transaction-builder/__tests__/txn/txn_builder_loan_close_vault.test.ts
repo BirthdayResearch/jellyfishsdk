@@ -1,4 +1,4 @@
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
@@ -7,18 +7,15 @@ import BigNumber from 'bignumber.js'
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
+import { P2WPKH } from '@defichain/jellyfish-address'
 
 describe('loans.closeVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultWithCollateralId: string // Vault with collateral token deposited
-
-  let vaultWithoutCollateral2Id: string
-
   let vaultWithLoanTakenId: string // Vault with loan taken
   let vaultWithPayBackLoanId: string // Vault with loan taken paid back
   let vaultWithLiquidationId: string // Vault with liquidation event triggered
-
-  let vaultAddressWithoutCollateral2Id: string
+  let vaultToBeClosedId: string // Vault to be closed
 
   let oracleId: string
 
@@ -118,14 +115,6 @@ describe('loans.closeVault', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // vaultWithoutCollateral2Id
-    vaultAddressWithoutCollateral2Id = await providers.getAddress()
-    vaultWithoutCollateral2Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: vaultAddressWithoutCollateral2Id,
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
     // vaultWithLoanTakenId
     vaultWithLoanTakenId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await providers.getAddress(),
@@ -190,6 +179,12 @@ describe('loans.closeVault', () => {
     await tGroup.get(0).rpc.loan.takeLoan({
       vaultId: vaultWithLiquidationId,
       amounts: '100@TSLA'
+    })
+    await tGroup.get(0).generate(1)
+
+    vaultToBeClosedId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await tGroup.get(0).generateAddress(),
+      loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
@@ -332,8 +327,16 @@ describe('loans.closeVault', () => {
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
-    const address = await tGroup.get(1).generateAddress()
-    const promise = tGroup.get(1).rpc.loan.closeVault({ vaultId: vaultWithoutCollateral2Id, to: address })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${await providers.getAddress()}', code: -5, method: closevault`)
+    const script = await providers.elliptic.script()
+    const fromScript = P2WPKH.fromAddress(RegTest, await tGroup.get(1).generateAddress(), P2WPKH).getScript()
+
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultToBeClosedId,
+      to: fromScript
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
   })
 })

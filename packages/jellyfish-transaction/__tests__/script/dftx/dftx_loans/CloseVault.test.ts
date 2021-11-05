@@ -10,21 +10,21 @@ import { OP_DEFI_TX } from '../../../../src/script/dftx'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-     * loan : {
+     * closeVault : {
      *   vaultId: '186a156dca213f004fce018ef2244c35414b25b32c34260f1cd6bc8062de9054',
      *   to: 'bcrt1qv0efjedr2y67eh6wczelu4385utxu0u7jh66zz'
      * }
      */
     '6a3c44665478655490de6280bcd61c0f26342cb3254b41354c24f28e01ce4f003f21ca6d156a1816001463f29965a35135ecdf4ec0b3fe5627a7166e3f9e',
     /**
-     * loan : {
+     * closeVault : {
      *   vaultId: '3c1bedc582d73eed8d13b224bb30a99ec805f7393264d78f36051a852be3849f',
      *   to: 'bcrt1qlcdnraxm09plwenhlsc4axd6mn0pzma882j8qs'
      * }
      */
     '6a3c44665478659f84e32b851a05368fd7643239f705c89ea930bb24b2138ded3ed782c5ed1b3c160014fe1b31f4db7943f76677fc315e99badcde116fa7',
     /**
-     * loan : {
+     * closeVault : {
      *   vaultId: '80fb74936357c474fd64541f9bafdf9e11dcbe568bf1536295a267a75c884d5d',
      *   to: 'bcrt1qd8j34pqmea84gsxjzkhc06nq2a83v2n6t466jt'
      * }
