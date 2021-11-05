@@ -157,7 +157,7 @@ describe('Loan updateVault', () => {
     await alice.generate(1)
 
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
-    await alice.generate(1)
+    await alice.container.waitForNextPrice('DFI/USD', 0.9)
 
     const data = await alice.rpc.loan.getVault(vaultId)
     expect(data.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
@@ -171,11 +171,11 @@ describe('Loan updateVault', () => {
     expect(updateVaultId.length).toStrictEqual(64)
     await alice.generate(1)
 
-    await alice.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
+    await alice.container.waitForActivePrice('DFI/USD', 0.9)
 
     // Update back the price
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await alice.generate(12)
+    await alice.container.waitForActivePrice('DFI/USD', 1)
   })
 
   it('should not updateVault if vaultId is invalid', async () => {
