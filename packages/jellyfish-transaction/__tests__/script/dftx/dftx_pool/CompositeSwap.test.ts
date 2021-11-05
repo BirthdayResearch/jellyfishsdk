@@ -97,7 +97,7 @@ describe('Composable', () => {
     expect(composable2.toObject()).toStrictEqual(poolSwapTwoDecimalPrecision)
   })
 
-  it('should bi-directional with seven digits precision for 0.00000003', () => {
+  it('should bi-directional with eight decimal places precision for 0.00000003', () => {
     const poolSwapEightnDecimalPrecision = {
       swapInfo: {
         ...compositeSwap.swapInfo,
