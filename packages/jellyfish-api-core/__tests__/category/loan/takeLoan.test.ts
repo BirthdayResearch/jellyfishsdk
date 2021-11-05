@@ -264,7 +264,7 @@ describe('takeLoan success', () => {
       const tslaInterestPerBlock = (netInterest * 200) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
       expect(tslaInterestPerBlock.toFixed(8)).toStrictEqual('0.00011416')
       const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight + 1)
-      expect(tslaInterestTotal.toFixed(8)).toStrictEqual('0.00148401') // slightly diff: rpc(0.00148395) vs manual(0.00148401)
+      expect(tslaInterestTotal.toFixed(8)).toStrictEqual('0.00148402') // slightly diff: rpc(0.00148395) vs manual(0.00148402)
     }
 
     const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
