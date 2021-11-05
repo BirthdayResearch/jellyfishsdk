@@ -184,6 +184,13 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForAnchorRewardConfrims')
   }
 
+  /**
+   * Wait for price become valid
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
   async waitForPriceValid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
@@ -197,6 +204,13 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForPriceValid')
   }
 
+  /**
+   * Wait for price become invalid
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
   async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
@@ -210,6 +224,14 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForPriceInvalid')
   }
 
+  /**
+   * Wait for next price
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} nextPrice
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
   async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
