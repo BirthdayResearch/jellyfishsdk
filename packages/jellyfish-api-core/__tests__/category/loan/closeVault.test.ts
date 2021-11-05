@@ -233,6 +233,13 @@ describe('Loan', () => {
     }
   })
 
+  it('should closeVault if loan is paid back', async () => {
+    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: await tGroup.get(0).generateAddress() })
+    expect(typeof txId).toStrictEqual('string')
+    expect(txId.length).toStrictEqual(64)
+    await tGroup.get(0).generate(1)
+  })
+
   it('should not closeVault as vault does not exist', async () => {
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: '0'.repeat(64), to: await tGroup.get(0).generateAddress() })
     await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}> does not found', code: -5, method: closevault`)
@@ -298,13 +305,6 @@ describe('Loan', () => {
 
     await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
-  })
-
-  it('should closeVault if loan is paid back', async () => {
-    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: await tGroup.get(0).generateAddress() })
-    expect(typeof txId).toStrictEqual('string')
-    expect(txId.length).toStrictEqual(64)
-    await tGroup.get(0).generate(1)
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {

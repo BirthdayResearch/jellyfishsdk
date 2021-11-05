@@ -214,6 +214,21 @@ describe('loans.closeVault', () => {
     await tGroup.waitForSync()
   })
 
+  it('should closeVault if loan is paid back', async () => {
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithPayBackLoanId,
+      to: script
+    }, script)
+
+    await sendTransaction(tGroup.get(0).container, txn)
+    const txId = calculateTxid(txn)
+
+    expect(typeof txId).toStrictEqual('string')
+    expect(txId.length).toStrictEqual(64)
+    await tGroup.get(0).generate(1)
+  })
+
   it('should not closeVault as vault does not exist', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.closeVault({
@@ -309,21 +324,6 @@ describe('loans.closeVault', () => {
 
     await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
-  })
-
-  it('should closeVault if loan is paid back', async () => {
-    const script = await providers.elliptic.script()
-    const txn = await builder.loans.closeVault({
-      vaultId: vaultWithPayBackLoanId,
-      to: script
-    }, script)
-
-    await sendTransaction(tGroup.get(0).container, txn)
-    const txId = calculateTxid(txn)
-
-    expect(typeof txId).toStrictEqual('string')
-    expect(txId.length).toStrictEqual(64)
-    await tGroup.get(0).generate(1)
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
