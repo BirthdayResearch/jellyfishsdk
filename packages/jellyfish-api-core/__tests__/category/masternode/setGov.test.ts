@@ -19,7 +19,8 @@ describe('Masternode', () => {
 
   it('should setGov LP_SPLITS', async () => {
     const govBefore = await client.masternode.getGov('LP_SPLITS')
-    expect(Object.keys(govBefore.length)).toStrictEqual(1)
+    expect(govBefore.length).toStrictEqual(1)
+    expect(Object.keys(govBefore).length).toStrictEqual(1)
     expect(Object.keys(govBefore[0].LP_SPLITS).length).toStrictEqual(0)
 
     await createToken(container, 'CAT')
