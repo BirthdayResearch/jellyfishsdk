@@ -41,7 +41,8 @@ async function setup (): Promise<void> {
     { token: 'GOOGL', currency: 'USD' },
     { token: 'TWTR', currency: 'USD' },
     { token: 'AMZN', currency: 'USD' },
-    { token: 'UBER', currency: 'USD' }
+    { token: 'UBER', currency: 'USD' },
+    { token: 'META', currency: 'USD' }
   ]
   oracleId = await alice.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
   await alice.generate(1)
@@ -261,7 +262,7 @@ describe('takeLoan success', () => {
       // manually calculate interest to compare rpc getInterest above is working correctly
       const height = await bob.container.getBlockCount()
       const tslaInterestPerBlock = (netInterest * 200) / (365 * blocksPerDay) //  netInterest * loanAmt / 365 * blocksPerDay
-      expect(tslaInterestPerBlock.toFixed(8)).toStrictEqual('0.00011415')
+      expect(tslaInterestPerBlock.toFixed(8)).toStrictEqual('0.00011416')
       const tslaInterestTotal = tslaInterestPerBlock * (height - tslaLoanHeight + 1)
       expect(tslaInterestTotal.toFixed(8)).toStrictEqual('0.00148401') // slightly diff: rpc(0.00148395) vs manual(0.00148401)
     }
@@ -348,10 +349,10 @@ describe('takeLoan success', () => {
     expect(vaultAfter.collateralValue).toStrictEqual(new BigNumber(15000))
     expect(vaultAfter.loanAmounts).toStrictEqual(['90.00066768@TSLA', '10.00007410@GOOGL'])
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00066768@TSLA', '0.00007410@GOOGL'])
-    expect(vaultAfter.loanValue).toStrictEqual(new BigNumber(200.148356))
-    expect(vaultAfter.interestValue).toStrictEqual(new BigNumber(0.148356))
-    expect(vaultAfter.collateralRatio).toStrictEqual(7500)
-    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(7499.94436691)) // 15000 / 200.148356 * 100
+    expect(vaultAfter.loanValue).toStrictEqual(new BigNumber(220.00163176))
+    expect(vaultAfter.interestValue).toStrictEqual(new BigNumber(0.00163176))
+    expect(vaultAfter.collateralRatio).toStrictEqual(6818)
+    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(6818.13124748)) // 15000 / 220.00163176 * 100
 
     const bobLoanAcc = await bob.rpc.account.getAccount(bobLoanAddr)
     expect(bobLoanAcc).toStrictEqual(['90.00000000@TSLA', '10.00000000@GOOGL'])
@@ -483,6 +484,13 @@ describe('takeloan failed', () => {
   })
 
   it('should not takeLoan on frozen vault', async () => {
+    await bob.rpc.loan.takeLoan({
+      vaultId: frozenVaultId,
+      amounts: '20@AMZN'
+    })
+    await bob.generate(1)
+    await tGroup.waitForSync()
+
     await alice.rpc.oracle.setOracleData(
       oracleId,
       timestamp,
@@ -499,6 +507,33 @@ describe('takeloan failed', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Cannot take loan while any of the asset\'s price in the vault is not live')
+  })
+
+  it('should not takeLoan as no live fixed prices', async () => {
+    await alice.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '3@META', currency: 'USD' }
+        ]
+      }
+    )
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'META',
+      fixedIntervalPriceId: 'META/USD'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    const promise = bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId,
+      amounts: '40@META'
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('No live fixed prices for META/USD')
   })
 })
 
