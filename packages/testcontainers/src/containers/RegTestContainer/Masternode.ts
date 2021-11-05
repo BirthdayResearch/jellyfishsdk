@@ -184,6 +184,32 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForAnchorRewardConfrims')
   }
 
+  async waitForPriceValid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (!data.isLive) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForPriceValid')
+  }
+
+  async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (data.isLive) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForPriceInvalid')
+  }
+
   /**
    * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
