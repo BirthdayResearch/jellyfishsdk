@@ -225,6 +225,27 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
+   * Wait for active price
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} activePrice
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: number, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (data.activePrice !== activePrice) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForActivePrice')
+  }
+
+  /**
    * Wait for next price
    *
    * @param {string} fixedIntervalPriceId
