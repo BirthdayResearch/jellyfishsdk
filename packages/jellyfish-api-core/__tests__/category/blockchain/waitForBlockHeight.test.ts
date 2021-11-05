@@ -1,10 +1,11 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { TestingGroup } from '@defichain/jellyfish-testing'
 
-const container = new MasterNodeRegTestContainer()
-const client = new ContainerAdapterClient(container)
+describe('wait for block height 10', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
 
-describe('new block height 10', () => {
   beforeAll(async () => {
     await container.start()
   })
@@ -34,7 +35,27 @@ describe('new block height 10', () => {
   })
 })
 
-describe('new block height 2 but expire', () => {
+describe('wait for block height 10 on multiple nodes', () => {
+  const group = TestingGroup.create(2)
+
+  beforeAll(async () => {
+    await group.start()
+  })
+
+  afterAll(async () => {
+    await group.stop()
+  })
+
+  it('should wait for new block height of 10 on another node', async () => {
+    await group.get(0).container.generate(10)
+    await group.get(1).rpc.blockchain.waitForBlockHeight(10)
+  })
+})
+
+describe('wait for block height 2 but expire', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
   beforeAll(async () => {
     await container.start()
   })

@@ -1,10 +1,11 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { TestingGroup } from '@defichain/jellyfish-testing'
 
-const container = new MasterNodeRegTestContainer()
-const client = new ContainerAdapterClient(container)
+describe('wait for new block', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
 
-describe('new block', () => {
   beforeAll(async () => {
     await container.start()
   })
@@ -34,7 +35,35 @@ describe('new block', () => {
   })
 })
 
-describe('new block but expire', () => {
+describe('wait for new block on multiple nodes', () => {
+  const group = TestingGroup.create(2)
+
+  beforeAll(async () => {
+    await group.start()
+  })
+
+  afterAll(async () => {
+    await group.stop()
+  })
+
+  it('should wait for new block height of 10 on another node', async () => {
+    await group.get(0).generate(1)
+    await group.waitForSync()
+
+    // hold on to await to resolve later
+    const promise = group.get(1).rpc.blockchain.waitForNewBlock()
+    await group.get(0).generate(1)
+
+    const count = await group.get(1).rpc.blockchain.getBlockCount()
+    expect(count).toStrictEqual(2)
+    await promise
+  })
+})
+
+describe('wait for new block but expire', () => {
+  const container = new MasterNodeRegTestContainer()
+  const client = new ContainerAdapterClient(container)
+
   beforeAll(async () => {
     await container.start()
   })
