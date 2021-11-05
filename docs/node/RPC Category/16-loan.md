@@ -517,6 +517,27 @@ interface UTXO {
 }
 ```
 
+## withdrawFromVault
+
+Withdraw from vault.
+
+```ts title="client.loan.withdrawFromVault()"
+interface loan {
+  withdrawFromVault (withdrawVault: WithdrawVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface WithdrawVault {
+  vaultId: string
+  to: string
+  amount: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## takeLoan
 
 Take loan.
