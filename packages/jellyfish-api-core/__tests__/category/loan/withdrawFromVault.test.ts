@@ -81,7 +81,6 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
     vaultOwner = await tGroup.get(0).generateAddress()
 
-    /* eslint-disable no-lone-blocks */
     {
       // vault1: 2 types of collateral token, no loan taken
       vaultId1 = await tGroup.get(0).rpc.loan.createVault({
@@ -101,7 +100,6 @@ describe('Loan', () => {
       await tGroup.get(0).generate(1)
     }
 
-    /* eslint-disable no-lone-blocks */
     {
       // vault2: single collateral token, loan taken, ease ratio control
       vaultId2 = await tGroup.get(0).rpc.loan.createVault({
@@ -123,7 +121,6 @@ describe('Loan', () => {
       await tGroup.get(0).generate(1)
     }
 
-    /* eslint-disable no-lone-blocks */
     {
       // vault3: 2 types of collateral token, loan taken, to be liquidated
       vaultId3 = await tGroup.get(0).rpc.loan.createVault({
