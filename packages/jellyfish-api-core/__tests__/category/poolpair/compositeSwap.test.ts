@@ -3,8 +3,9 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 import { RpcApiError } from '../../../src'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
-import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys } from '@defichain/testcontainers'
 import { UTXO } from 'packages/jellyfish-api-core/src/category/wallet'
+import BigNumber from 'bignumber.js'
 
 describe('compositeSwap', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -12,10 +13,10 @@ describe('compositeSwap', () => {
   const client = new ContainerAdapterClient(container)
 
   beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
     await testing.token.dfi({ amount: 30000 })
-    await container.generate(1)
+    await testing.generate(1)
 
     await testing.token.create({ symbol: 'CAT' })
     await container.generate(1)
@@ -74,14 +75,47 @@ describe('compositeSwap', () => {
       b: { symbol: 'PATHB', amount: 1 }
     })
     await testing.poolpair.add({
-      a: { symbol: 'XYZ', amount: 5 },
+      a: { symbol: 'XYZ', amount: 50 },
       b: { symbol: 'PATHB', amount: 1 }
+    })
+    await container.generate(1)
+
+    // longer conversion path (3 swaps)
+    await testing.token.create({ symbol: 'ELF' })
+    await testing.token.create({ symbol: 'ORC' })
+    await testing.token.create({ symbol: 'UNDY' })
+    await testing.token.create({ symbol: 'HUMAN' })
+    await container.generate(1)
+
+    await testing.poolpair.create({ tokenA: 'ELF', tokenB: 'ORC' })
+    await testing.poolpair.create({ tokenA: 'ORC', tokenB: 'UNDY' })
+    await testing.poolpair.create({ tokenA: 'UNDY', tokenB: 'HUMAN' })
+    await container.generate(1)
+
+    await testing.token.mint({ symbol: 'ELF', amount: 160000 })
+    await testing.token.mint({ symbol: 'ORC', amount: 160000 })
+    await testing.token.mint({ symbol: 'UNDY', amount: 160000 })
+    await testing.token.mint({ symbol: 'HUMAN', amount: 160000 })
+    await container.generate(1)
+
+    // large pool volume to minimize slippage effect on swap
+    await testing.poolpair.add({
+      a: { symbol: 'ELF', amount: 55555 },
+      b: { symbol: 'ORC', amount: 66666 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'ORC', amount: 66666 },
+      b: { symbol: 'UNDY', amount: 77777 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'UNDY', amount: 77777 },
+      b: { symbol: 'HUMAN', amount: 88888 }
     })
     await container.generate(1)
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should compositeSwap', async () => {
@@ -151,7 +185,7 @@ describe('compositeSwap', () => {
     await container.generate(1)
 
     { // after swap
-      const fromBalances = await client.account.getAccount(fromAddress)
+      const fromBalances = await testing.rpc.account.getAccount(fromAddress)
       expect(fromBalances.length).toStrictEqual(1)
       expect(fromBalances[0]).toStrictEqual('33.30000000@CAT')
 
@@ -218,12 +252,54 @@ describe('compositeSwap', () => {
     }
   })
 
-  it('should not compositeSwap with utxo not belongs to account owner', async () => {
+  it('should compositeSwap for longer than 2 poolswaps path', async () => {
+    const [toAddress, fromAddress] = await testing.generateAddress(2)
+    await testing.token.send({ symbol: 'ELF', amount: 123, address: fromAddress })
+    await testing.generate(1)
+
+    { // before swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('123.00000000@ELF')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+    }
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'ELF',
+      amountFrom: 100,
+      to: toAddress,
+      tokenTo: 'HUMAN',
+      maxPrice: 1
+    }
+
+    const hex = await client.poolpair.compositeSwap(metadata)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+    await container.generate(1)
+
+    { // after swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('23.00000000@ELF')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(1)
+      const [amount, symbol] = toBalances[0].split('@')
+      expect(symbol).toStrictEqual('HUMAN')
+      expect(Number(amount)).toBeGreaterThan(159)
+      expect(Number(amount)).toBeLessThan(160)
+    }
+  })
+
+  it('should not compositeSwap with not mine utxo', async () => {
     const [toAddress, fromAddress] = await testing.generateAddress(2)
     await testing.token.send({ symbol: 'CAT', amount: 45.6, address: fromAddress })
     await testing.generate(1)
 
-    const randomAddress = await testing.generateAddress()
+    const randomAddress = await container.getNewAddress()
     const utxo = await container.fundAddress(randomAddress, 10)
 
     { // before swap
@@ -233,10 +309,6 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(0)
-
-      const unspents = await container.call('listunspent')
-      const unspent = unspents.find((u: UTXO) => u.txid === utxo.txid && u.vout === utxo.vout)
-      expect(unspent).not.toStrictEqual(undefined)
     }
 
     const metadata: poolpair.PoolSwapMetadata = {
@@ -249,8 +321,8 @@ describe('compositeSwap', () => {
     }
 
     const promise = client.poolpair.compositeSwap(metadata, [utxo])
-    await expect(promise).toThrowError(DeFiDRpcError)
-    await expect(promise).toThrowError('tx must have at least one input from account owner')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('tx must have at least one input from account owner')
   })
 
   it('Should compositeSwap with lower rate path', async () => {
@@ -284,7 +356,17 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(1)
-      expect(toBalances[0]).toStrictEqual('1.66666667@XYZ')
+      expect(toBalances[0]).toStrictEqual('16.66666667@XYZ')
+
+      // pool (ABC-PATHA)'s ABC unchanged
+      const pathA = Object.values(await client.poolpair.getPoolPair('ABC-PATHA'))
+      expect(pathA.length).toStrictEqual(1)
+      expect(pathA[0].reserveA).toStrictEqual(new BigNumber(3000))
+
+      // path B taken, pool (ABC-PATHB)'s ABC increased
+      const pathB = Object.values(await client.poolpair.getPoolPair('ABC-PATHB'))
+      expect(pathB.length).toStrictEqual(1)
+      expect(pathB[0].reserveA).toStrictEqual(new BigNumber(6000))
     }
   })
 

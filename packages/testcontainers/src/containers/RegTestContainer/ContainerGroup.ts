@@ -32,7 +32,7 @@ export class ContainerGroup {
           Config: []
         }
       }, (err, data) => {
-        if (err instanceof Error) {
+        if (err instanceof Error || data === undefined) {
           return reject(err)
         }
         return resolve(data)
@@ -109,6 +109,9 @@ export class ContainerGroup {
       await container.stop()
     }
     await this.requireNetwork().remove()
-    await this.docker.pruneContainers()
+    // NOTE: for anyone have RPC timeout issue, esp newer version docker, v3.6.x / v4.x.x
+    // enable the following line to ensure docker network pruned correctly between tests
+    // global containers prune may cause multithreaded tests clashing each other
+    // await this.docker.pruneContainers()
   }
 }

@@ -35,9 +35,9 @@ export class Loan {
    * @param {BigNumber} scheme.interestRate Interest rate
    * @param {string} scheme.id Unique identifier of the loan scheme, max 8 chars
    * @param {number} [scheme.activateAfterBlock] Block height at which new changes take effect
-   * @param {UTXO[]} [options.utxos = []] Specific UTXOs to spend
-   * @param {string} options.utxos.txid Transaction Id
-   * @param {number} options.utxos.vout Output number
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
    * @return {Promise<string>} Hex string of the transaction
    */
   async updateLoanScheme (scheme: UpdateLoanScheme, utxos: UTXO[] = []): Promise<string> {
@@ -145,11 +145,12 @@ export class Loan {
    * @return {Promise<string>} LoanTokenId, also the txn id for txn created to set loan token
    */
   async setLoanToken (loanToken: SetLoanToken, utxos: UTXO[] = []): Promise<string> {
-    const defaultData = {
+    const payload = {
       mintable: true,
-      interest: 0
+      interest: 0,
+      ...loanToken
     }
-    return await this.client.call('setloantoken', [{ ...defaultData, ...loanToken }, utxos], 'number')
+    return await this.client.call('setloantoken', [payload, utxos], 'number')
   }
 
   /**
@@ -217,13 +218,65 @@ export class Loan {
   }
 
   /**
+   * Create update vault transaction.
+   *
+   * @param {string} vaultId
+   * @param {UpdateVault} vault
+   * @param {string} [vault.ownerAddress] Any valid address
+   * @param {string} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatevault', [vaultId, vault, utxos], 'number')
+  }
+
+  /**
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
-   * @return {Promise<VaultDetails>}
+   * @return {Promise<VaultActive | VaultLiquidation>}
    */
-  async getVault (vaultId: string): Promise<VaultDetails> {
-    return await this.client.call('getvault', [vaultId], 'bignumber')
+  async getVault (vaultId: string): Promise<VaultActive | VaultLiquidation> {
+    return await this.client.call(
+      'getvault',
+      [vaultId],
+      {
+        collateralValue: 'bignumber',
+        loanValue: 'bignumber',
+        interestValue: 'bignumber',
+        informativeRatio: 'bignumber'
+      }
+    )
+  }
+
+  /**
+   * List all available vaults.
+   *
+   * @param {VaultPagination} [pagination]
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @param {ListVaultOptions} [options]
+   * @param {string} [options.ownerAddress] Address of the vault owner
+   * @param {string} [options.loanSchemeId] Vault's loan scheme id
+   * @param {VaultState} [options.state = VaultState.UNKNOWN] vault's state
+   * @param {boolean} [options.verbose = false] true to return same information as getVault
+   * @return {Promise<Vault | VaultActive | VaultLiquidation[]>} Array of objects including details of the vaults.
+   */
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<Array<Vault | VaultActive | VaultLiquidation>> {
+    return await this.client.call(
+      'listvaults',
+      [options, pagination],
+      {
+        collateralValue: 'bignumber',
+        loanValue: 'bignumber',
+        interestValue: 'bignumber',
+        informativeRatio: 'bignumber'
+      }
+    )
   }
 
   /**
@@ -239,23 +292,6 @@ export class Loan {
    */
   async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
-  }
-
-  /**
-   * List all available vaults.
-   *
-   * @param {VaultPagination} [pagination]
-   * @param {string} [pagination.start]
-   * @param {boolean} [pagination.including_start]
-   * @param {number} [pagination.limit=100]
-   * @param {ListVaultOptions} [options]
-   * @param {string} [options.ownerAddress] Address of the vault owner
-   * @param {string} [options.loanSchemeId] Vault's loan scheme id
-   * @param {boolean} [options.isUnderLiquidation = false] vaults under liquidation
-   * @return {Promise<VaultDetails[]>} Array of objects including details of the vaults.
-   */
-  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<VaultDetails[]> {
-    return await this.client.call('listvaults', [options, pagination], 'bignumber')
   }
 
   /**
@@ -293,7 +329,7 @@ export class Loan {
   /**
    * Return loan in a desired amount.
    *
-   * @param {LoanPaybackMetadata} metadata
+   * @param {PaybackLoanMetadata} metadata
    * @param {string} metadata.vaultId Vault id
    * @param {string| string[]} metadata.amounts In "amount@symbol" format
    * @param {string} metadata.from Address from transfer tokens
@@ -302,8 +338,8 @@ export class Loan {
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} txid
    */
-  async loanPayback (metadata: LoanPaybackMetadata, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('loanpayback', [metadata, utxos], 'number')
+  async paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
 }
 
@@ -343,6 +379,7 @@ export interface GetLoanSchemeResult {
   id: string
   interestrate: BigNumber
   mincolratio: BigNumber
+  default: boolean
 }
 
 export interface ListCollateralTokens {
@@ -391,24 +428,46 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
-export interface VaultDetails {
+export interface UpdateVault {
+  ownerAddress?: string
+  loanSchemeId?: string
+}
+
+export enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inLiquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayLiquidate',
+}
+
+export interface Vault {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
-  isUnderLiquidation: boolean
-  invalidPrice: boolean
-  batches?: AuctionBatchDetails[]
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber
-  currentRatio?: BigNumber
+  state: VaultState
 }
 
-export interface AuctionBatchDetails {
-  index: BigNumber
+export interface VaultActive extends Vault {
+  collateralAmounts: string[]
+  loanAmounts: string[]
+  interestAmounts: string[]
+  collateralValue: BigNumber
+  loanValue: BigNumber
+  interestValue: BigNumber
+  collateralRatio: number
+  informativeRatio: BigNumber
+}
+
+export interface VaultLiquidation extends Vault {
+  liquidationHeight: number
+  liquidationPenalty: number
+  batchCount: number
+  batches: VaultLiquidationBatch[]
+}
+
+export interface VaultLiquidationBatch {
+  index: number
   collaterals: string[]
   loan: string
 }
@@ -430,7 +489,7 @@ export interface TakeLoanMetadata {
   to?: string
 }
 
-export interface LoanPaybackMetadata {
+export interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
@@ -445,7 +504,8 @@ export interface VaultPagination {
 export interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
-  isUnderLiquidation?: boolean
+  state?: VaultState
+  verbose?: boolean
 }
 
 export interface CloseVault {

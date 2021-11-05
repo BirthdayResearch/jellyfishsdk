@@ -89,7 +89,9 @@ import {
   DepositToVault,
   CDepositToVault,
   CTakeLoan,
-  TakeLoan
+  TakeLoan,
+  CPaybackLoan,
+  PaybackLoan
 } from './dftx_loans'
 import { CCompositeSwap, CompositeSwap } from '@defichain/jellyfish-transaction'
 
@@ -249,6 +251,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<DepositToVault>(CDepositToVault.OP_NAME, d => new CDepositToVault(d))
       case CTakeLoan.OP_CODE:
         return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
+      case CPaybackLoan.OP_CODE:
+        return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
