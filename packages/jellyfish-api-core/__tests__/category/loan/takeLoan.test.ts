@@ -24,182 +24,6 @@ let timestamp: number
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 
-async function setup (): Promise<void> {
-  // token setup
-  const aliceAddr = await alice.container.getNewAddress()
-  await alice.token.dfi({ address: aliceAddr, amount: 40000 })
-  await alice.generate(1)
-  await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
-  await alice.generate(1)
-  await alice.token.mint({ symbol: 'BTC', amount: 40000 })
-  await alice.generate(1)
-
-  // oracle setup
-  const addr = await alice.generateAddress()
-  const priceFeeds = [
-    { token: 'DFI', currency: 'USD' },
-    { token: 'BTC', currency: 'USD' },
-    { token: 'TSLA', currency: 'USD' },
-    { token: 'GOOGL', currency: 'USD' },
-    { token: 'TWTR', currency: 'USD' },
-    { token: 'AMZN', currency: 'USD' },
-    { token: 'UBER', currency: 'USD' },
-    { token: 'META', currency: 'USD' }
-  ]
-  oracleId = await alice.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
-  await alice.generate(1)
-  timestamp = Math.floor(new Date().getTime() / 1000)
-  await alice.rpc.oracle.setOracleData(
-    oracleId,
-    timestamp,
-    {
-      prices: [
-        { tokenAmount: '1@DFI', currency: 'USD' },
-        { tokenAmount: '10000@BTC', currency: 'USD' },
-        { tokenAmount: '2@TSLA', currency: 'USD' },
-        { tokenAmount: '4@GOOGL', currency: 'USD' },
-        { tokenAmount: '2@UBER', currency: 'USD' },
-        { tokenAmount: '2@AMZN', currency: 'USD' },
-        { tokenAmount: '2@TWTR', currency: 'USD' }
-      ]
-    })
-  await alice.generate(1)
-
-  // collateral token
-  await alice.rpc.loan.setCollateralToken({
-    token: 'DFI',
-    factor: new BigNumber(1),
-    fixedIntervalPriceId: 'DFI/USD'
-  })
-  await alice.generate(1)
-
-  await alice.rpc.loan.setCollateralToken({
-    token: 'BTC',
-    factor: new BigNumber(0.5),
-    fixedIntervalPriceId: 'BTC/USD'
-  })
-  await alice.generate(1)
-
-  // loan token
-  await alice.rpc.loan.setLoanToken({
-    symbol: 'TSLA',
-    fixedIntervalPriceId: 'TSLA/USD'
-  })
-  await alice.generate(1)
-
-  await alice.rpc.loan.setLoanToken({
-    symbol: 'GOOGL',
-    fixedIntervalPriceId: 'GOOGL/USD'
-  })
-  await alice.generate(1)
-
-  await alice.rpc.loan.setLoanToken({
-    symbol: 'UBER',
-    fixedIntervalPriceId: 'UBER/USD'
-  })
-  await alice.generate(1)
-
-  await alice.rpc.loan.setLoanToken({
-    symbol: 'TWTR',
-    fixedIntervalPriceId: 'TWTR/USD'
-  })
-  await alice.generate(1)
-
-  await alice.rpc.loan.setLoanToken({
-    symbol: 'AMZN',
-    fixedIntervalPriceId: 'AMZN/USD'
-  })
-  await alice.generate(1)
-
-  // loan scheme set up
-  await alice.rpc.loan.createLoanScheme({
-    minColRatio: 200,
-    interestRate: new BigNumber(3),
-    id: 'scheme'
-  })
-  await alice.generate(1)
-  await tGroup.waitForSync()
-
-  bobVaultAddr = await bob.generateAddress()
-  bobVaultId = await bob.rpc.loan.createVault({
-    ownerAddress: bobVaultAddr,
-    loanSchemeId: 'scheme'
-  })
-  await bob.generate(1)
-
-  liqVaultAddr = await bob.generateAddress()
-  liqVaultId = await bob.rpc.loan.createVault({
-    ownerAddress: liqVaultAddr,
-    loanSchemeId: 'scheme'
-  })
-  await bob.generate(1)
-
-  mayLiqVaultAddr = await bob.generateAddress()
-  mayLiqVaultId = await bob.rpc.loan.createVault({
-    ownerAddress: mayLiqVaultAddr,
-    loanSchemeId: 'scheme'
-  })
-  await bob.generate(1)
-
-  frozenVaultAddr = await bob.generateAddress()
-  frozenVaultId = await bob.rpc.loan.createVault({
-    ownerAddress: frozenVaultAddr,
-    loanSchemeId: 'scheme'
-  })
-  await bob.generate(1)
-
-  emptyVaultAddr = await bob.generateAddress()
-  emptyVaultId = await bob.rpc.loan.createVault({
-    ownerAddress: emptyVaultAddr,
-    loanSchemeId: 'scheme'
-  })
-  await bob.generate(1)
-  await tGroup.waitForSync()
-
-  // deposit on active vault
-  await alice.rpc.loan.depositToVault({
-    vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
-  })
-  await alice.generate(1)
-
-  await alice.rpc.loan.depositToVault({
-    vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC'
-  })
-  await alice.generate(1)
-
-  // deposit on liqVault
-  await alice.rpc.loan.depositToVault({
-    vaultId: liqVaultId, from: aliceAddr, amount: '10000@DFI'
-  })
-  await alice.generate(1)
-
-  // deposit on mayLiqVault
-  await alice.rpc.loan.depositToVault({
-    vaultId: mayLiqVaultId, from: aliceAddr, amount: '10000@DFI'
-  })
-  await alice.generate(1)
-
-  // deposit on frozenVault
-  await alice.rpc.loan.depositToVault({
-    vaultId: frozenVaultId, from: aliceAddr, amount: '10000@DFI'
-  })
-  await alice.generate(1)
-  await tGroup.waitForSync()
-
-  bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
-  expect(bobVault.loanSchemeId).toStrictEqual('scheme')
-  expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
-  expect(bobVault.state).toStrictEqual('active')
-  expect(bobVault.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
-  expect(bobVault.collateralValue).toStrictEqual(new BigNumber(15000))
-  expect(bobVault.loanAmounts).toStrictEqual([])
-  expect(bobVault.loanValue).toStrictEqual(new BigNumber(0))
-  expect(bobVault.interestAmounts).toStrictEqual([])
-  expect(bobVault.interestValue).toStrictEqual(new BigNumber(0))
-  expect(bobVault.collateralRatio).toStrictEqual(-1) // empty loan
-  expect(bobVault.informativeRatio).toStrictEqual(new BigNumber(-1)) // empty loan
-}
-
 describe('takeLoan success', () => {
   beforeEach(async () => {
     await tGroup.start()
@@ -210,6 +34,111 @@ describe('takeLoan success', () => {
   afterEach(async () => {
     await tGroup.stop()
   })
+
+  async function setup (): Promise<void> {
+    // token setup
+    const aliceAddr = await alice.container.getNewAddress()
+    await alice.token.dfi({ address: aliceAddr, amount: 40000 })
+    await alice.generate(1)
+    await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
+    await alice.generate(1)
+    await alice.token.mint({ symbol: 'BTC', amount: 40000 })
+    await alice.generate(1)
+
+    // oracle setup
+    const addr = await alice.generateAddress()
+    const priceFeeds = [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'BTC', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'GOOGL', currency: 'USD' }
+    ]
+    oracleId = await alice.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+    await alice.generate(1)
+    timestamp = Math.floor(new Date().getTime() / 1000)
+    await alice.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '1@DFI', currency: 'USD' },
+          { tokenAmount: '10000@BTC', currency: 'USD' },
+          { tokenAmount: '2@TSLA', currency: 'USD' },
+          { tokenAmount: '4@GOOGL', currency: 'USD' }
+        ]
+      })
+    await alice.generate(1)
+
+    // collateral token
+    await alice.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setCollateralToken({
+      token: 'BTC',
+      factor: new BigNumber(0.5),
+      fixedIntervalPriceId: 'BTC/USD'
+    })
+    await alice.generate(1)
+
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'GOOGL',
+      fixedIntervalPriceId: 'GOOGL/USD'
+    })
+    await alice.generate(1)
+
+    // loan scheme set up
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 200,
+      interestRate: new BigNumber(3),
+      id: 'scheme'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    bobVaultAddr = await bob.generateAddress()
+    bobVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: bobVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+    await tGroup.waitForSync()
+
+    // deposit on active vault
+    await alice.rpc.loan.depositToVault({
+      vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    expect(bobVault.loanSchemeId).toStrictEqual('scheme')
+    expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
+    expect(bobVault.state).toStrictEqual('active')
+    expect(bobVault.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
+    expect(bobVault.collateralValue).toStrictEqual(new BigNumber(15000))
+    expect(bobVault.loanAmounts).toStrictEqual([])
+    expect(bobVault.loanValue).toStrictEqual(new BigNumber(0))
+    expect(bobVault.interestAmounts).toStrictEqual([])
+    expect(bobVault.interestValue).toStrictEqual(new BigNumber(0))
+    expect(bobVault.collateralRatio).toStrictEqual(-1) // empty loan
+    expect(bobVault.informativeRatio).toStrictEqual(new BigNumber(-1)) // empty loan
+  }
 
   it('should takeLoan', async () => {
     const txid = await bob.rpc.loan.takeLoan({
@@ -366,6 +295,35 @@ describe('takeLoan success', () => {
     const bobLoanAcc = await bob.rpc.account.getAccount(bobLoanAddr)
     expect(bobLoanAcc).toStrictEqual(['90.00000000@TSLA', '10.00000000@GOOGL'])
   })
+
+  it('test liquidation vault details while having more than one loan', async () => {
+    const bobLoanAddr = await bob.generateAddress()
+    const txid = await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId,
+      amounts: ['90@TSLA', '10@GOOGL'],
+      to: bobLoanAddr
+    })
+    expect(typeof txid).toStrictEqual('string')
+    await bob.generate(1)
+    await tGroup.waitForSync()
+
+    await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '400@TSLA', currency: 'USD' }] })
+    await alice.generate(12)
+    await tGroup.waitForSync()
+
+    const vault = await bob.rpc.loan.getVault(bobVaultId) as VaultLiquidation
+    expect(vault.loanSchemeId).toStrictEqual('scheme')
+    expect(vault.ownerAddress).toStrictEqual(bobVaultAddr)
+    expect(vault.state).toStrictEqual('inLiquidation')
+    expect(vault.liquidationHeight).toStrictEqual(expect.any(Number))
+    expect(vault.liquidationPenalty).toStrictEqual(5)
+    expect(vault.batchCount).toStrictEqual(3)
+    expect(vault.batches).toStrictEqual([
+      { index: 0, collaterals: ['6666.66656667@DFI', '0.66666666@BTC'], loan: '60.06704305@TSLA' },
+      { index: 1, collaterals: ['3322.23466667@DFI', '0.33222347@BTC'], loan: '29.93352191@TSLA' },
+      { index: 2, collaterals: ['11.09876666@DFI', '0.00110987@BTC'], loan: '10.00006270@GOOGL' }
+    ])
+  })
 })
 
 describe('takeloan failed', () => {
@@ -378,6 +336,182 @@ describe('takeloan failed', () => {
   afterAll(async () => {
     await tGroup.stop()
   })
+
+  async function setup (): Promise<void> {
+    // token setup
+    const aliceAddr = await alice.container.getNewAddress()
+    await alice.token.dfi({ address: aliceAddr, amount: 40000 })
+    await alice.generate(1)
+    await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
+    await alice.generate(1)
+    await alice.token.mint({ symbol: 'BTC', amount: 40000 })
+    await alice.generate(1)
+
+    // oracle setup
+    const addr = await alice.generateAddress()
+    const priceFeeds = [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'BTC', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'GOOGL', currency: 'USD' },
+      { token: 'TWTR', currency: 'USD' },
+      { token: 'AMZN', currency: 'USD' },
+      { token: 'UBER', currency: 'USD' },
+      { token: 'META', currency: 'USD' }
+    ]
+    oracleId = await alice.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+    await alice.generate(1)
+    timestamp = Math.floor(new Date().getTime() / 1000)
+    await alice.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '1@DFI', currency: 'USD' },
+          { tokenAmount: '10000@BTC', currency: 'USD' },
+          { tokenAmount: '2@TSLA', currency: 'USD' },
+          { tokenAmount: '4@GOOGL', currency: 'USD' },
+          { tokenAmount: '2@UBER', currency: 'USD' },
+          { tokenAmount: '2@AMZN', currency: 'USD' },
+          { tokenAmount: '2@TWTR', currency: 'USD' }
+        ]
+      })
+    await alice.generate(1)
+
+    // collateral token
+    await alice.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setCollateralToken({
+      token: 'BTC',
+      factor: new BigNumber(0.5),
+      fixedIntervalPriceId: 'BTC/USD'
+    })
+    await alice.generate(1)
+
+    // loan token
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'GOOGL',
+      fixedIntervalPriceId: 'GOOGL/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'UBER',
+      fixedIntervalPriceId: 'UBER/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'TWTR',
+      fixedIntervalPriceId: 'TWTR/USD'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'AMZN',
+      fixedIntervalPriceId: 'AMZN/USD'
+    })
+    await alice.generate(1)
+
+    // loan scheme set up
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 200,
+      interestRate: new BigNumber(3),
+      id: 'scheme'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    bobVaultAddr = await bob.generateAddress()
+    bobVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: bobVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+
+    liqVaultAddr = await bob.generateAddress()
+    liqVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: liqVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+
+    mayLiqVaultAddr = await bob.generateAddress()
+    mayLiqVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: mayLiqVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+
+    frozenVaultAddr = await bob.generateAddress()
+    frozenVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: frozenVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+
+    emptyVaultAddr = await bob.generateAddress()
+    emptyVaultId = await bob.rpc.loan.createVault({
+      ownerAddress: emptyVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await bob.generate(1)
+    await tGroup.waitForSync()
+
+    // deposit on active vault
+    await alice.rpc.loan.depositToVault({
+      vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC'
+    })
+    await alice.generate(1)
+
+    // deposit on liqVault
+    await alice.rpc.loan.depositToVault({
+      vaultId: liqVaultId, from: aliceAddr, amount: '10000@DFI'
+    })
+    await alice.generate(1)
+
+    // deposit on mayLiqVault
+    await alice.rpc.loan.depositToVault({
+      vaultId: mayLiqVaultId, from: aliceAddr, amount: '10000@DFI'
+    })
+    await alice.generate(1)
+
+    // deposit on frozenVault
+    await alice.rpc.loan.depositToVault({
+      vaultId: frozenVaultId, from: aliceAddr, amount: '10000@DFI'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    expect(bobVault.loanSchemeId).toStrictEqual('scheme')
+    expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
+    expect(bobVault.state).toStrictEqual('active')
+    expect(bobVault.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
+    expect(bobVault.collateralValue).toStrictEqual(new BigNumber(15000))
+    expect(bobVault.loanAmounts).toStrictEqual([])
+    expect(bobVault.loanValue).toStrictEqual(new BigNumber(0))
+    expect(bobVault.interestAmounts).toStrictEqual([])
+    expect(bobVault.interestValue).toStrictEqual(new BigNumber(0))
+    expect(bobVault.collateralRatio).toStrictEqual(-1) // empty loan
+    expect(bobVault.informativeRatio).toStrictEqual(new BigNumber(-1)) // empty loan
+  }
 
   it('should not takeLoan on nonexistent vault', async () => {
     const promise = bob.rpc.loan.takeLoan({
@@ -593,46 +727,5 @@ describe('takeloan failed', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Vault with id ${emptyVaultId} has no collaterals`)
-  })
-})
-
-describe('takeLoan -> liquidation', () => {
-  beforeAll(async () => {
-    await tGroup.start()
-    await alice.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  afterAll(async () => {
-    await tGroup.stop()
-  })
-
-  it('test liquidation vault details while having more than one loan', async () => {
-    const bobLoanAddr = await bob.generateAddress()
-    const txid = await bob.rpc.loan.takeLoan({
-      vaultId: bobVaultId,
-      amounts: ['90@TSLA', '10@GOOGL'],
-      to: bobLoanAddr
-    })
-    expect(typeof txid).toStrictEqual('string')
-    await bob.generate(1)
-    await tGroup.waitForSync()
-
-    await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '400@TSLA', currency: 'USD' }] })
-    await alice.generate(12)
-    await tGroup.waitForSync()
-
-    const vault = await bob.rpc.loan.getVault(bobVaultId) as VaultLiquidation
-    expect(vault.loanSchemeId).toStrictEqual('scheme')
-    expect(vault.ownerAddress).toStrictEqual(bobVaultAddr)
-    expect(vault.state).toStrictEqual('inLiquidation')
-    expect(vault.liquidationHeight).toStrictEqual(168)
-    expect(vault.liquidationPenalty).toStrictEqual(5)
-    expect(vault.batchCount).toStrictEqual(3)
-    expect(vault.batches).toStrictEqual([
-      { index: 0, collaterals: ['6666.66656667@DFI', '0.66666666@BTC'], loan: '60.06694022@TSLA' },
-      { index: 1, collaterals: ['3322.23466667@DFI', '0.33222347@BTC'], loan: '29.93347066@TSLA' },
-      { index: 2, collaterals: ['11.09876666@DFI', '0.00110987@BTC'], loan: '10.00004560@GOOGL' }
-    ])
   })
 })
