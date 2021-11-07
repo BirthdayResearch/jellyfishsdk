@@ -46,7 +46,7 @@ describe('wait for new block on multiple nodes', () => {
     await group.stop()
   })
 
-  it('should wait for new block height of 10 on another node', async () => {
+  it('should wait for new block on another node', async () => {
     await group.get(0).generate(1)
     await group.waitForSync()
 
@@ -54,9 +54,13 @@ describe('wait for new block on multiple nodes', () => {
     const promise = group.get(1).rpc.blockchain.waitForNewBlock()
     await group.get(0).generate(1)
 
+    expect(await promise).toStrictEqual({
+      height: 2,
+      hash: expect.stringMatching(/^[0-f]{64}$/)
+    })
+
     const count = await group.get(1).rpc.blockchain.getBlockCount()
     expect(count).toStrictEqual(2)
-    await promise
   })
 })
 
