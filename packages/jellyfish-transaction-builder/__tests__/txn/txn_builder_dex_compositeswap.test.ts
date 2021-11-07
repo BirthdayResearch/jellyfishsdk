@@ -93,7 +93,7 @@ describe('dex.compositeSwap()', () => {
 
     // Perform SWAP
     const txn = await builder.dex.compositeSwap({
-      swapInfo: {
+      poolSwap: {
         fromScript: script,
         fromTokenId: pairs.PIG.tokenId,
         fromAmount: new BigNumber('1'),
@@ -101,7 +101,10 @@ describe('dex.compositeSwap()', () => {
         toTokenId: pairs.DOG.tokenId,
         maxPrice: new BigNumber('18446744073709551615.99999999') // max number possible for 16 bytes bignumber
       },
-      poolIDs: [pairs.PIG.poolId, pairs.DOG.poolId]
+      pools: [
+        { id: pairs.PIG.poolId },
+        { id: pairs.DOG.poolId }
+      ]
     }, script)
 
     // Ensure the created txn is correct.
@@ -162,7 +165,7 @@ describe('dex.compositeSwap()', () => {
 
     // Perform SWAP
     const txn = await builder.dex.compositeSwap({
-      swapInfo: {
+      poolSwap: {
         fromScript: script,
         fromTokenId: pairs.CAT.tokenId,
         fromAmount: new BigNumber('1'),
@@ -171,7 +174,10 @@ describe('dex.compositeSwap()', () => {
         // CAT is 5x more valueable, anything beyond 0.2 (before consider slope) should be valid
         maxPrice: new BigNumber('0.5')
       },
-      poolIDs: [pairs.CAT.poolId, pairs.FISH.poolId]
+      pools: [
+        { id: pairs.CAT.poolId },
+        { id: pairs.FISH.poolId }
+      ]
     }, script)
 
     // Ensure the created txn is correct.
@@ -248,7 +254,7 @@ describe('dex.compositeSwap()', () => {
 
     // Perform SWAP
     const txn = await builder.dex.compositeSwap({
-      swapInfo: {
+      poolSwap: {
         fromScript: script,
         fromTokenId: pairs.PIG.tokenId,
         fromAmount: new BigNumber('1'),
@@ -256,7 +262,10 @@ describe('dex.compositeSwap()', () => {
         toTokenId: tslaId,
         maxPrice: new BigNumber('18446744073709551615.99999999') // max number possible for 16 bytes bignumber
       },
-      poolIDs: [pairs.PIG.poolId, tslaPoolId]
+      pools: [
+        { id: pairs.PIG.poolId },
+        { id: tslaPoolId }
+      ]
     }, script)
 
     const promise = sendTransaction(container, txn)
@@ -293,7 +302,7 @@ describe('dex.compositeSwap()', () => {
 
     // Perform SWAP
     const txn = await builder.dex.compositeSwap({
-      swapInfo: {
+      poolSwap: {
         fromScript: script,
         fromTokenId: pairs.PIG.tokenId,
         fromAmount: new BigNumber('1'),
@@ -301,7 +310,10 @@ describe('dex.compositeSwap()', () => {
         toTokenId: amznId,
         maxPrice: new BigNumber('18446744073709551615.99999999') // max number possible for 16 bytes bignumber
       },
-      poolIDs: [pairs.PIG.poolId, amznPoolId]
+      pools: [
+        { id: pairs.PIG.poolId },
+        { id: amznPoolId }
+      ]
     }, script)
 
     const promise = sendTransaction(container, txn)

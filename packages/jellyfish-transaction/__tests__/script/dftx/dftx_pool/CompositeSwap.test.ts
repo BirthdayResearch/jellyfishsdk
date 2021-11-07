@@ -26,7 +26,7 @@ const header = '6a4c524466547869' // OP_RETURN, (length = 0x52), PUSH_DATA(44665
 const data = '17a914c34ca9c54dc87e7e875b212ec6ba0704be3de587870000d6117e0300000017a914c34ca9c54dc87e7e875b212ec6ba0704be3de58787029a030000000000003088020200000000020204'
 
 const compositeSwap: CompositeSwap = {
-  swapInfo: {
+  poolSwap: {
     fromAmount: new BigNumber(150),
     fromScript: {
       stack: [
@@ -46,7 +46,10 @@ const compositeSwap: CompositeSwap = {
     },
     maxPrice: new BigNumber('922.33720368')
   },
-  poolIDs: [2, 4]
+  pools: [
+    { id: 2 },
+    { id: 4 }
+  ]
 }
 
 it('should craft dftx with OP_CODES._()', () => {
@@ -78,11 +81,11 @@ describe('Composable', () => {
 
   it('should bi-directional with two digits precision for 1.92', () => {
     const poolSwapTwoDecimalPrecision: CompositeSwap = {
-      swapInfo: {
-        ...compositeSwap.swapInfo,
+      poolSwap: {
+        ...compositeSwap.poolSwap,
         maxPrice: new BigNumber('1.92')
       },
-      poolIDs: compositeSwap.poolIDs
+      pools: compositeSwap.pools
     }
 
     const composable = new CCompositeSwap(poolSwapTwoDecimalPrecision)
@@ -99,11 +102,11 @@ describe('Composable', () => {
 
   it('should bi-directional with eight decimal places precision for 0.00000003', () => {
     const poolSwapEightnDecimalPrecision = {
-      swapInfo: {
-        ...compositeSwap.swapInfo,
+      poolSwap: {
+        ...compositeSwap.poolSwap,
         maxPrice: new BigNumber('0.00000003')
       },
-      poolIDs: compositeSwap.poolIDs
+      pools: compositeSwap.pools
     }
 
     const composable = new CCompositeSwap(poolSwapEightnDecimalPrecision)
