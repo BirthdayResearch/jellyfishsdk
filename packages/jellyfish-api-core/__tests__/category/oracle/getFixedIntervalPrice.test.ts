@@ -8,6 +8,10 @@ describe('Oracle', () => {
   const testing = Testing.create(container)
   let oracleId: string
   let timestamp: number
+  const priceFeeds = [
+    { token: 'DFI', currency: 'USD' },
+    { token: 'UBER', currency: 'USD' }
+  ]
 
   beforeAll(async () => {
     await testing.container.start()
@@ -27,10 +31,6 @@ describe('Oracle', () => {
 
     // oracle setup
     const addr = await testing.generateAddress()
-    const priceFeeds = [
-      { token: 'DFI', currency: 'USD' },
-      { token: 'UBER', currency: 'USD' }
-    ]
     oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await testing.generate(1)
 
@@ -132,6 +132,91 @@ describe('Oracle', () => {
         nextPriceBlock: expect.any(Number),
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('32'),
+        nextPrice: new BigNumber('12'),
+        timestamp: expect.any(Number),
+        isLive: false
+      })
+    }
+  })
+
+  it('should getFixedIntervalPrices with several oracles', async () => {
+    // another oracle setup
+    {
+      const addr = await testing.generateAddress()
+      const oracleId1 = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+      await testing.generate(1)
+
+      await testing.rpc.oracle.setOracleData(
+        oracleId1,
+        timestamp,
+        {
+          prices: [
+            { tokenAmount: '1@DFI', currency: 'USD' },
+            { tokenAmount: '9@UBER', currency: 'USD' }
+          ]
+        }
+      )
+      await testing.generate(1)
+
+      const oracle = await testing.rpc.oracle.getOracleData(oracleId)
+      expect(oracle.tokenPrices[1]).toStrictEqual({
+        token: 'UBER',
+        currency: 'USD',
+        amount: 8,
+        timestamp: expect.any(Number)
+      })
+
+      const oracle1 = await testing.rpc.oracle.getOracleData(oracleId1)
+      expect(oracle1.tokenPrices[1]).toStrictEqual({
+        token: 'UBER',
+        currency: 'USD',
+        amount: 9,
+        timestamp: expect.any(Number)
+      })
+    }
+
+    {
+      const prices = await testing.rpc.oracle.listPrices()
+      expect(prices[1]).toStrictEqual({
+        token: 'UBER',
+        currency: 'USD',
+        price: new BigNumber('8.5'),
+        ok: true
+      })
+    }
+
+    {
+      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
+      expect(price).toStrictEqual({
+        activePriceBlock: expect.any(Number),
+        nextPriceBlock: expect.any(Number),
+        fixedIntervalPriceId: 'UBER/USD',
+        activePrice: new BigNumber('8'),
+        nextPrice: new BigNumber('8.5'),
+        timestamp: expect.any(Number),
+        isLive: true
+      })
+    }
+
+    {
+      await testing.rpc.oracle.setOracleData(
+        oracleId,
+        timestamp,
+        {
+          prices: [
+            { tokenAmount: '1@DFI', currency: 'USD' },
+            { tokenAmount: '15@UBER', currency: 'USD' }
+          ]
+        }
+      )
+
+      await testing.container.waitForPriceInvalid('UBER/USD')
+      const price = await testing.rpc.oracle.getFixedIntervalPrice('UBER/USD')
+      expect(price).toStrictEqual({
+        activePriceBlock: expect.any(Number),
+        nextPriceBlock: expect.any(Number),
+        fixedIntervalPriceId: 'UBER/USD',
+        activePrice: new BigNumber('8.5'),
         nextPrice: new BigNumber('12'),
         timestamp: expect.any(Number),
         isLive: false
