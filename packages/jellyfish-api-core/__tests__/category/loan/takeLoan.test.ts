@@ -8,6 +8,7 @@ import { VaultActive, VaultLiquidation } from '../../../src/category/loan'
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
+let aliceAddr: string
 let bobVaultId: string
 let bobVaultAddr: string
 let bobVault: VaultActive
@@ -37,7 +38,7 @@ describe('takeLoan success', () => {
 
   async function setup (): Promise<void> {
     // token setup
-    const aliceAddr = await alice.container.getNewAddress()
+    aliceAddr = await alice.container.getNewAddress()
     await alice.token.dfi({ address: aliceAddr, amount: 40000 })
     await alice.generate(1)
     await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
@@ -323,6 +324,70 @@ describe('takeLoan success', () => {
       { index: 1, collaterals: ['3322.23466667@DFI', '0.33222347@BTC'], loan: '29.93352191@TSLA' },
       { index: 2, collaterals: ['11.09876666@DFI', '0.00110987@BTC'], loan: '10.00006270@GOOGL' }
     ])
+  })
+
+  it('test liquidated by interest', async () => {
+    await bob.rpc.loan.createLoanScheme({
+      minColRatio: 200,
+      interestRate: new BigNumber(50000),
+      id: 'scheme5'
+    })
+    await bob.generate(1)
+
+    const vaultId = await bob.rpc.loan.createVault({
+      ownerAddress: await bob.generateAddress(),
+      loanSchemeId: 'scheme5'
+    })
+    await bob.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: vaultId, from: aliceAddr, amount: '10000@DFI'
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    const txid = await bob.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: ['500@TSLA', '1000@GOOGL'],
+      to: await bob.generateAddress()
+    })
+    expect(typeof txid).toStrictEqual('string')
+    await bob.generate(1)
+
+    {
+      const vault = await bob.rpc.loan.getVault(vaultId) as VaultActive
+      expect(vault).toStrictEqual({
+        vaultId: vaultId,
+        loanSchemeId: 'scheme5',
+        ownerAddress: expect.any(String),
+        state: 'active',
+        collateralAmounts: ['10000.00000000@DFI'],
+        loanAmounts: ['504.75646879@TSLA', '1009.51293759@GOOGL'],
+        interestAmounts: ['4.75646879@TSLA', '9.51293759@GOOGL'],
+        collateralValue: new BigNumber(10000),
+        loanValue: new BigNumber(5047.56468794),
+        interestValue: new BigNumber(0.56468794),
+        informativeRatio: new BigNumber(198.11534112),
+        collateralRatio: 198
+      })
+    }
+    await bob.generate(1)
+    {
+      const vault = await bob.rpc.loan.getVault(vaultId) as VaultLiquidation
+      expect(vault).toStrictEqual({
+        vaultId: vaultId,
+        loanSchemeId: 'scheme5',
+        ownerAddress: expect.any(String),
+        state: 'inLiquidation',
+        liquidationHeight: expect.any(Number),
+        batchCount: 2,
+        liquidationPenalty: 5,
+        batches: [
+          { index: 0, collaterals: ['500@TSLA'], loan: '504.75646879@TSLA' },
+          { index: 1, collaterals: ['1000@GOOGL'], loan: '1009.51293759@GOOGL' }
+        ]
+      })
+    }
   })
 })
 
