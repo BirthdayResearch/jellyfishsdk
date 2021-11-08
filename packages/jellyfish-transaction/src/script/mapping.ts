@@ -76,10 +76,12 @@ import {
   CreateVault,
   CDepositToVault,
   DepositToVault,
-  TakeLoan,
   CTakeLoan,
+  TakeLoan,
   CPaybackLoan,
-  PaybackLoan
+  PaybackLoan,
+  CCloseVault,
+  CloseVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -531,6 +533,14 @@ export const OP_CODES = {
       type: CPaybackLoan.OP_CODE,
       name: CPaybackLoan.OP_NAME,
       data: paybackLoan
+    })
+  },
+  OP_DEFI_TX_CLOSE_VAULT: (closeVault: CloseVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCloseVault.OP_CODE,
+      name: CCloseVault.OP_NAME,
+      data: closeVault
     })
   },
   OP_0: new constants.OP_0(),

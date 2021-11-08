@@ -1,5 +1,5 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
-import { CTokenBalanceVarInt, TokenBalanceVarInt, CTokenBalance, TokenBalance } from './dftx_balance'
+import { CTokenBalance, CTokenBalanceVarInt, TokenBalance, TokenBalanceVarInt } from './dftx_balance'
 import BigNumber from 'bignumber.js'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
@@ -285,6 +285,30 @@ export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
       ComposableBuffer.hexBEBufferLE(32, () => pl.vaultId, v => pl.vaultId = v),
       ComposableBuffer.single<Script>(() => pl.from, v => pl.from = v, v => new CScript(v)),
       ComposableBuffer.varUIntArray(() => pl.tokenAmounts, v => pl.tokenAmounts = v, v => new CTokenBalance(v))
+    ]
+  }
+}
+
+/**
+ * CloseVault DeFi Transaction
+ */
+export interface CloseVault {
+  vaultId: string // ------------------| 32 bytes, Vault Id
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address
+}
+
+/**
+ * Composable CloseVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CCloseVault extends ComposableBuffer<CloseVault> {
+  static OP_CODE = 0x65 // 'e'
+  static OP_NAME = 'OP_DEFI_TX_CLOSE_VAULT'
+
+  composers (cv: CloseVault): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => cv.vaultId, v => cv.vaultId = v),
+      ComposableBuffer.single<Script>(() => cv.to, v => cv.to = v, v => new CScript(v))
     ]
   }
 }
