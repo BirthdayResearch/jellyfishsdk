@@ -19,8 +19,7 @@ describe('Masternode', () => {
 
   it('should setGov LP_SPLITS', async () => {
     const govBefore = await client.masternode.getGov('LP_SPLITS')
-    expect(Object.keys(govBefore.length)).toStrictEqual(1)
-    expect(Object.keys(govBefore[0].LP_SPLITS).length).toStrictEqual(0)
+    expect(Object.keys(govBefore.LP_SPLITS).length).toStrictEqual(0)
 
     await createToken(container, 'CAT')
     await createToken(container, 'DOG')
@@ -31,8 +30,8 @@ describe('Masternode', () => {
     await container.generate(1)
 
     const govAfter = await client.masternode.getGov('LP_SPLITS')
-    expect(govAfter[0].LP_SPLITS['3'].toString()).toStrictEqual('0.2')
-    expect(govAfter[0].LP_SPLITS['4'].toString()).toStrictEqual('0.8')
+    expect(govAfter.LP_SPLITS['3'].toString()).toStrictEqual('0.2')
+    expect(govAfter.LP_SPLITS['4'].toString()).toStrictEqual('0.8')
   })
 
   it('should be failed to setGov LP_REWARD as manually set after Eunos hard fork is not allowed', async () => {

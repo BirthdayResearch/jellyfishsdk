@@ -19,7 +19,7 @@ describe('Masternode', () => {
 
   it('should getGov LP_DAILY_DFI_REWARD', async () => {
     const gov = await client.masternode.getGov('LP_DAILY_DFI_REWARD')
-    expect(gov[0].LP_DAILY_DFI_REWARD instanceof BigNumber).toStrictEqual(true)
+    expect(gov.LP_DAILY_DFI_REWARD instanceof BigNumber).toStrictEqual(true)
   })
 
   it('should getGov LP_SPLITS', async () => {
@@ -33,8 +33,8 @@ describe('Masternode', () => {
     await container.generate(1)
 
     const gov = await client.masternode.getGov('LP_SPLITS')
-    expect(gov[0].LP_SPLITS['3'].toString()).toStrictEqual('0.2')
-    expect(gov[0].LP_SPLITS['4'].toString()).toStrictEqual('0.8')
+    expect(gov.LP_SPLITS['3'].toString()).toStrictEqual('0.2')
+    expect(gov.LP_SPLITS['4'].toString()).toStrictEqual('0.8')
   })
 
   it('should be failed as variable REWARD is not registered', async () => {
