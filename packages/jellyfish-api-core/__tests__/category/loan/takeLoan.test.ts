@@ -366,7 +366,7 @@ describe('takeLoan success', () => {
         interestAmounts: ['4.75646879@TSLA', '9.51293759@GOOGL'],
         collateralValue: new BigNumber(10000),
         loanValue: new BigNumber(5047.56468794),
-        interestValue: new BigNumber(0.56468794),
+        interestValue: new BigNumber(47.56468794),
         informativeRatio: new BigNumber(198.11534112),
         collateralRatio: 198
       })
