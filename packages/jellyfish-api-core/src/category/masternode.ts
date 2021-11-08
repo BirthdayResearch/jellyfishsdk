@@ -146,7 +146,7 @@ export class Masternode {
    * @param {string} name governance name
    * @return {Promise<Record<string, any>} governance information as json object
    */
-  async getGov (name: string): Promise<Array<Record<string, any>>> {
+  async getGov (name: string): Promise<Record<string, any>> {
     return await this.client.call('getgov', [name], 'bignumber')
   }
 
