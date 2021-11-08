@@ -383,8 +383,8 @@ describe('takeLoan success', () => {
         batchCount: 2,
         liquidationPenalty: 5,
         batches: [
-          { index: 0, collaterals: ['500@TSLA'], loan: '504.75646879@TSLA' },
-          { index: 1, collaterals: ['1000@GOOGL'], loan: '1009.51293759@GOOGL' }
+          { index: 0, collaterals: ['1999.99995000@DFI'], loan: '504.75646879@TSLA' },
+          { index: 1, collaterals: ['8000.00005000@DFI'], loan: '1009.51293759@GOOGL' }
         ]
       })
     }
