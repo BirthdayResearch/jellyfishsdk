@@ -252,7 +252,7 @@ describe('Loan', () => {
 
   it('should not closeVault for mayliquidate vault', async () => {
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2.1@TSLA', currency: 'USD' }] })
-    await tGroup.get(0).container.waitForNextPrice('TSLA/USD', 2.1)
+    await tGroup.get(0).container.waitForNextPrice('TSLA/USD', '2.1')
 
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
     expect(liqVault.state).toStrictEqual('mayLiquidate')
@@ -261,7 +261,7 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLiquidationId}> has loans', code: -32600, method: closevault`)
 
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
-    await tGroup.get(0).container.waitForActivePrice('TSLA/USD', 2)
+    await tGroup.get(0).container.waitForActivePrice('TSLA/USD', '2')
   })
 
   it('should not closeVault for frozen vault', async () => {

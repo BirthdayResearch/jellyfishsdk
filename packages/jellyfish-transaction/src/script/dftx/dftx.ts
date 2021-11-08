@@ -92,12 +92,12 @@ import {
   UpdateVault,
   DepositToVault,
   CDepositToVault,
+  CloseVault,
+  CCloseVault,
   CTakeLoan,
   TakeLoan,
   CPaybackLoan,
-  PaybackLoan,
-  CloseVault,
-  CCloseVault
+  PaybackLoan
 } from './dftx_loans'
 
 /**
@@ -256,12 +256,12 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<UpdateVault>(CUpdateVault.OP_NAME, d => new CUpdateVault(d))
       case CDepositToVault.OP_CODE:
         return compose<DepositToVault>(CDepositToVault.OP_NAME, d => new CDepositToVault(d))
+      case CCloseVault.OP_CODE:
+        return compose<CloseVault>(CCloseVault.OP_NAME, d => new CCloseVault(d))
       case CTakeLoan.OP_CODE:
         return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
       case CPaybackLoan.OP_CODE:
         return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
-      case CCloseVault.OP_CODE:
-        return compose<CloseVault>(CCloseVault.OP_NAME, d => new CCloseVault(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

@@ -188,7 +188,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for price become valid
    *
    * @param {string} fixedIntervalPriceId
-   * @param {number} [timeout=30000] in ms
+   * @param {number} [timeout=100000] in ms
    * @return {Promise<void>}
    */
   async waitForPriceValid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
@@ -208,7 +208,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for price become invalid
    *
    * @param {string} fixedIntervalPriceId
-   * @param {number} [timeout=30000] in ms
+   * @param {number} [timeout=100000] in ms
    * @return {Promise<void>}
    */
   async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
@@ -228,15 +228,15 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for active price
    *
    * @param {string} fixedIntervalPriceId
-   * @param {number} activePrice
-   * @param {number} [timeout=30000] in ms
+   * @param {string} activePrice
+   * @param {number} [timeout=100000] in ms
    * @return {Promise<void>}
    */
-  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: number, timeout = 100000): Promise<void> {
+  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: string, timeout = 100000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
-      if (data.activePrice !== activePrice) {
+      if (data.activePrice.toString() !== activePrice) {
         await this.generate(1)
         return false
       } else {
@@ -249,15 +249,15 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for next price
    *
    * @param {string} fixedIntervalPriceId
-   * @param {number} nextPrice
-   * @param {number} [timeout=30000] in ms
+   * @param {string} nextPrice
+   * @param {number} [timeout=100000] in ms
    * @return {Promise<void>}
    */
-  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: number, timeout = 100000): Promise<void> {
+  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: string, timeout = 100000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
-      if (data.nextPrice !== nextPrice) {
+      if (data.nextPrice.toString() !== nextPrice) {
         await this.generate(1)
         return false
       } else {

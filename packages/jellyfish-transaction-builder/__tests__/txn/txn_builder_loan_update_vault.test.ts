@@ -161,7 +161,7 @@ describe('loans updateVault', () => {
     await alice.generate(1)
 
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
-    await alice.container.waitForNextPrice('DFI/USD', 0.9)
+    await alice.container.waitForNextPrice('DFI/USD', '0.9')
 
     const data = await alice.rpc.loan.getVault(vaultId)
     expect(data.state).toStrictEqual('mayLiquidate')
@@ -173,11 +173,11 @@ describe('loans updateVault', () => {
       schemeId: 'default'
     }, script)
 
-    await alice.container.waitForActivePrice('DFI/USD', 0.9)
+    await alice.container.waitForActivePrice('DFI/USD', '0.9')
 
     // Update back the price
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await alice.container.waitForActivePrice('DFI/USD', 1)
+    await alice.container.waitForActivePrice('DFI/USD', '1')
   })
 
   it('should not updateVault if any of the asset\'s price is invalid', async () => {

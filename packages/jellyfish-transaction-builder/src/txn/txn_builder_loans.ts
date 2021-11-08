@@ -9,9 +9,9 @@ import {
   CreateVault,
   UpdateVault,
   DepositToVault,
+  CloseVault,
   TakeLoan,
-  PaybackLoan,
-  CloseVault
+  PaybackLoan
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { BigNumber } from '@defichain/jellyfish-json'
@@ -162,6 +162,21 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
+   * Close a vault.
+   *
+   * @param {CloseVault} closeVault txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+
+  async closeVault (closeVault: CloseVault, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_CLOSE_VAULT(closeVault),
+      changeScript
+    )
+  }
+
+  /**
    * Take loan transaction.
    *
    * @param {TakeLoan} takeLoan txn to create
@@ -187,21 +202,6 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async paybackLoan (paybackLoan: PaybackLoan, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(paybackLoan),
-      changeScript
-    )
-  }
-
-  /**
-   * Close a vault.
-   *
-   * @param {CloseVault} closeVault txn to create
-   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
-   * @returns {Promise<TransactionSegWit>}
-   */
-
-  async closeVault (closeVault: CloseVault, changeScript: Script): Promise<TransactionSegWit> {
-    return await super.createDeFiTx(
-      OP_CODES.OP_DEFI_TX_CLOSE_VAULT(closeVault),
       changeScript
     )
   }
