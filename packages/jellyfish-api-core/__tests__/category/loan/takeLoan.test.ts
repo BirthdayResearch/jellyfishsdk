@@ -558,6 +558,15 @@ describe('takeloan failed', () => {
     await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
   })
 
+  it('should not takeLoan while exceed vault collateralization ratio (multiple tokens)', async () => {
+    const promise = bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId,
+      amounts: ['1550@TSLA', '1200@GOOGL']
+    })
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
+  })
+
   it('should not takeLoan on mintable:false token', async () => {
     await bob.container.call('updateloantoken', ['TSLA', { mintable: false }])
     await bob.generate(1)
