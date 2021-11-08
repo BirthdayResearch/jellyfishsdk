@@ -3,83 +3,83 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { FixedIntervalPricePagination } from '../../../src/category/oracle'
 
+const container = new LoanMasterNodeRegTestContainer()
+const testing = Testing.create(container)
+let oracleId: string
+let timestamp: number
+const priceFeeds = [
+  { token: 'DFI', currency: 'USD' },
+  { token: 'TSLA', currency: 'USD' },
+  { token: 'UBER', currency: 'USD' },
+  { token: 'GOOGL', currency: 'USD' },
+  { token: 'AMZN', currency: 'USD' }
+]
+
+async function setup (): Promise<void> {
+// token setup
+  const aliceColAddr = await testing.generateAddress()
+  await testing.token.dfi({ address: aliceColAddr, amount: 100000 })
+  await testing.generate(1)
+
+  // oracle setup
+  const addr = await testing.generateAddress()
+  oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+  await testing.generate(1)
+
+  timestamp = Math.floor(new Date().getTime() / 1000)
+  await testing.rpc.oracle.setOracleData(
+    oracleId,
+    timestamp,
+    {
+      prices: [
+        { tokenAmount: '1@DFI', currency: 'USD' },
+        { tokenAmount: '2@TSLA', currency: 'USD' },
+        { tokenAmount: '8@UBER', currency: 'USD' },
+        { tokenAmount: '2@GOOGL', currency: 'USD' },
+        { tokenAmount: '8@AMZN', currency: 'USD' }
+      ]
+    }
+  )
+  await testing.generate(1)
+
+  // setCollateralToken DFI
+  await testing.rpc.loan.setCollateralToken({
+    token: 'DFI',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'DFI/USD'
+  })
+  await testing.generate(1)
+
+  // setLoanToken TSLA
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'TSLA',
+    fixedIntervalPriceId: 'TSLA/USD'
+  })
+  await testing.generate(1)
+
+  // setLoanToken UBER
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'UBER',
+    fixedIntervalPriceId: 'UBER/USD'
+  })
+  await testing.generate(1)
+
+  // setLoanToken GOOGL
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'GOOGL',
+    fixedIntervalPriceId: 'GOOGL/USD'
+  })
+  await testing.generate(1)
+
+  // setLoanToken AMZN
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'AMZN',
+    fixedIntervalPriceId: 'AMZN/USD'
+  })
+  await testing.generate(1)
+}
+
 describe('Oracle', () => {
-  const container = new LoanMasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-  let oracleId: string
-  let timestamp: number
-  const priceFeeds = [
-    { token: 'DFI', currency: 'USD' },
-    { token: 'TSLA', currency: 'USD' },
-    { token: 'UBER', currency: 'USD' },
-    { token: 'GOOGL', currency: 'USD' },
-    { token: 'AMZN', currency: 'USD' }
-  ]
-
-  async function setup (): Promise<void> {
-  // token setup
-    const aliceColAddr = await testing.generateAddress()
-    await testing.token.dfi({ address: aliceColAddr, amount: 100000 })
-    await testing.generate(1)
-
-    // oracle setup
-    const addr = await testing.generateAddress()
-    oracleId = await testing.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
-    await testing.generate(1)
-
-    timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(
-      oracleId,
-      timestamp,
-      {
-        prices: [
-          { tokenAmount: '1@DFI', currency: 'USD' },
-          { tokenAmount: '2@TSLA', currency: 'USD' },
-          { tokenAmount: '8@UBER', currency: 'USD' },
-          { tokenAmount: '2@GOOGL', currency: 'USD' },
-          { tokenAmount: '8@AMZN', currency: 'USD' }
-        ]
-      }
-    )
-    await testing.generate(1)
-
-    // setCollateralToken DFI
-    await testing.rpc.loan.setCollateralToken({
-      token: 'DFI',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'DFI/USD'
-    })
-    await testing.generate(1)
-
-    // setLoanToken TSLA
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
-
-    // setLoanToken UBER
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'UBER',
-      fixedIntervalPriceId: 'UBER/USD'
-    })
-    await testing.generate(1)
-
-    // setLoanToken GOOGL
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'GOOGL',
-      fixedIntervalPriceId: 'GOOGL/USD'
-    })
-    await testing.generate(1)
-
-    // setLoanToken AMZN
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'AMZN',
-      fixedIntervalPriceId: 'AMZN/USD'
-    })
-    await testing.generate(1)
-  }
-
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -96,31 +96,10 @@ describe('Oracle', () => {
       expect(prices).toStrictEqual([
         {
           priceFeedId: 'DFI/USD',
-          activePrice: new BigNumber('0'),
+          activePrice: new BigNumber('1'),
           nextPrice: new BigNumber('1'),
           timestamp: expect.any(Number),
-          isLive: false
-        },
-        {
-          priceFeedId: 'TSLA/USD',
-          activePrice: new BigNumber('0'),
-          nextPrice: new BigNumber('2'),
-          timestamp: expect.any(Number),
-          isLive: false
-        },
-        {
-          priceFeedId: 'UBER/USD',
-          activePrice: new BigNumber('0'),
-          nextPrice: new BigNumber('8'),
-          timestamp: expect.any(Number),
-          isLive: false
-        },
-        {
-          priceFeedId: 'GOOGL/USD',
-          activePrice: new BigNumber('0'),
-          nextPrice: new BigNumber('2'),
-          timestamp: expect.any(Number),
-          isLive: false
+          isLive: true
         },
         {
           priceFeedId: 'AMZN/USD',
@@ -128,15 +107,36 @@ describe('Oracle', () => {
           nextPrice: new BigNumber('8'),
           timestamp: expect.any(Number),
           isLive: false
+        },
+        {
+          priceFeedId: 'TSLA/USD',
+          activePrice: new BigNumber('2'),
+          nextPrice: new BigNumber('2'),
+          timestamp: expect.any(Number),
+          isLive: true
+        },
+        {
+          priceFeedId: 'UBER/USD',
+          activePrice: new BigNumber('8'),
+          nextPrice: new BigNumber('8'),
+          timestamp: expect.any(Number),
+          isLive: true
+        },
+        {
+          priceFeedId: 'GOOGL/USD',
+          activePrice: new BigNumber('2'),
+          nextPrice: new BigNumber('2'),
+          timestamp: expect.any(Number),
+          isLive: true
         }
       ])
     }
 
     {
-      await testing.container.waitForPriceValid('UBER/USD')
+      await testing.container.waitForPriceValid('AMZN/USD')
       const prices = await testing.rpc.oracle.listFixedIntervalPrices()
-      expect(prices[2]).toStrictEqual({
-        priceFeedId: 'UBER/USD',
+      expect(prices[1]).toStrictEqual({
+        priceFeedId: 'AMZN/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
         timestamp: expect.any(Number),
@@ -148,7 +148,7 @@ describe('Oracle', () => {
       await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '32@UBER', currency: 'USD' }] })
       await testing.container.waitForPriceInvalid('UBER/USD')
       const pricesBefore = await testing.rpc.oracle.listFixedIntervalPrices()
-      expect(pricesBefore[2]).toStrictEqual({
+      expect(pricesBefore[3]).toStrictEqual({
         priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('32'),
@@ -158,7 +158,7 @@ describe('Oracle', () => {
 
       await testing.container.waitForPriceValid('UBER/USD')
       const pricesAfter = await testing.rpc.oracle.listFixedIntervalPrices()
-      expect(pricesAfter[2]).toStrictEqual({
+      expect(pricesAfter[3]).toStrictEqual({
         priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('32'),
         nextPrice: new BigNumber('32'),
@@ -176,7 +176,7 @@ describe('Oracle', () => {
       await testing.container.waitForPriceInvalid('TSLA/USD')
 
       const prices = await testing.rpc.oracle.listFixedIntervalPrices()
-      expect(prices[1]).toStrictEqual({
+      expect(prices[2]).toStrictEqual({
         priceFeedId: 'TSLA/USD',
         activePrice: new BigNumber('2'),
         nextPrice: new BigNumber('12'), // ensure its the latest set price
@@ -184,6 +184,43 @@ describe('Oracle', () => {
         isLive: false
       })
     }
+  })
+
+  it('should listFixedIntervalPrices with limit', async () => {
+    const prices = await testing.rpc.oracle.listFixedIntervalPrices({ limit: 1 })
+    expect(prices.length).toStrictEqual(1)
+  })
+
+  it('should listFixedIntervalPrices with pagination start', async () => {
+    {
+      const pagination: FixedIntervalPricePagination = {
+        start: 'DFI/USD'
+      }
+
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices(pagination)
+      expect(prices[0].priceFeedId).toStrictEqual('DFI/USD')
+    }
+
+    {
+      const pagination: FixedIntervalPricePagination = {
+        start: 'UBER/USD'
+      }
+
+      const prices = await testing.rpc.oracle.listFixedIntervalPrices(pagination)
+      expect(prices[0].priceFeedId).toStrictEqual('UBER/USD')
+    }
+  })
+})
+
+describe('Multi Oracles', () => {
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+    await setup()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
   })
 
   it('should listFixedIntervalPrices with several oracles', async () => {
@@ -391,31 +428,6 @@ describe('Oracle', () => {
           isLive: false
         }
       ])
-    }
-  })
-
-  it('should listFixedIntervalPrices with limit', async () => {
-    const prices = await testing.rpc.oracle.listFixedIntervalPrices({ limit: 1 })
-    expect(prices.length).toStrictEqual(1)
-  })
-
-  it('should listFixedIntervalPrices with pagination start', async () => {
-    {
-      const pagination: FixedIntervalPricePagination = {
-        start: 'DFI/USD'
-      }
-
-      const prices = await testing.rpc.oracle.listFixedIntervalPrices(pagination)
-      expect(prices[0].priceFeedId).toStrictEqual('DFI/USD')
-    }
-
-    {
-      const pagination: FixedIntervalPricePagination = {
-        start: 'UBER/USD'
-      }
-
-      const prices = await testing.rpc.oracle.listFixedIntervalPrices(pagination)
-      expect(prices[0].priceFeedId).toStrictEqual('UBER/USD')
     }
   })
 })
