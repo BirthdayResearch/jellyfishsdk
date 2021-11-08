@@ -39,6 +39,37 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
 }
 
 /**
+ * CompositeSwap DeFi Transaction
+ */
+export interface CompositeSwap {
+  swapInfo: PoolSwap // ----------------| 1 x PoolSwap
+  poolIDs: number[] // ------------------| c = VarUInt{1-9 bytes}, + c x VarUInt{1-9 bytes}
+}
+
+/**
+ * Composable CompositeSwap, C stands for Composable.
+ * Extends from CPoolSwap as it contains same data structure but with different DfTx OP_CODE.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ * @throws Error if more than 8 decimals
+ */
+export class CCompositeSwap extends ComposableBuffer<CompositeSwap> {
+  static OP_CODE = 0x69 // 'i'
+  static OP_NAME = 'OP_DEFI_TX_COMPOSITE_SWAP'
+
+  composers (cs: CompositeSwap): BufferComposer[] {
+    return [
+      ComposableBuffer.single<PoolSwap>(() => cs.swapInfo, v => cs.swapInfo = v, v => new CPoolSwap(v)),
+      ComposableBuffer.varUIntArrayRaw<number>(
+        () => cs.poolIDs,
+        v => cs.poolIDs = v,
+        (d, b) => writeVarUInt(d, b),
+        b => readVarUInt(b)
+      )
+    ]
+  }
+}
+
+/**
  * PoolAddLiquidity DeFi Transaction
  */
 export interface PoolAddLiquidity {
