@@ -311,6 +311,22 @@ export class Loan {
   }
 
   /**
+   * Withdraw from vault
+   *
+   * @param {WithdrawVault} withdrawVault
+   * @param {string} withdrawVault.vaultId Vault id
+   * @param {string} withdrawVault.to Collateral address
+   * @param {string} withdrawVault.amount In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async withdrawFromVault (withdrawVault: WithdrawVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('withdrawfromvault', [withdrawVault.vaultId, withdrawVault.to, withdrawVault.amount, utxos], 'number')
+  }
+
+  /**
    * Take loan
    *
    * @param {TakeLoanMetadata} metadata
@@ -480,6 +496,12 @@ export interface UTXO {
 export interface DepositVault {
   vaultId: string
   from: string
+  amount: string // amount@symbol
+}
+
+export interface WithdrawVault {
+  vaultId: string
+  to: string
   amount: string // amount@symbol
 }
 

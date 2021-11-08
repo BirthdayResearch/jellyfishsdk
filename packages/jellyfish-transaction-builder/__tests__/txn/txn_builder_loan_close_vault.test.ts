@@ -1,27 +1,35 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys } from '@defichain/testcontainers'
+import { getProviders, MockProviders } from '../provider.mock'
+import { P2WPKHTransactionBuilder } from '../../src'
+import { calculateTxid, fundEllipticPair, sendTransaction } from '../test.utils'
+import { WIF } from '@defichain/jellyfish-crypto'
 import BigNumber from 'bignumber.js'
+import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
+import { RegTest } from '@defichain/jellyfish-network'
+import { P2WPKH } from '@defichain/jellyfish-address'
 
-describe('Loan', () => {
+describe('loans.closeVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultWithCollateralId: string // Vault with collateral token deposited
-
-  let vaultWithoutCollateral1Id: string // Vaults without collateral token deposited
-  let vaultWithoutCollateral2Id: string
-  let vaultWithoutCollateral3Id: string
-
   let vaultWithLoanTakenId: string // Vault with loan taken
   let vaultWithPayBackLoanId: string // Vault with loan taken paid back
   let vaultWithLiquidationId: string // Vault with liquidation event triggered
-
-  let vaultAddressWithoutCollateral2Id: string
+  let vaultToBeClosedId: string // Vault to be closed
 
   let oracleId: string
+
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
 
   beforeAll(async () => {
     await tGroup.start()
     await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
+
+    providers = await getProviders(tGroup.get(0).container)
+    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[0].owner.privKey))
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+
     await setup()
   })
 
@@ -29,9 +37,15 @@ describe('Loan', () => {
     await tGroup.stop()
   })
 
+  beforeEach(async () => {
+    // Fund 10 DFI UTXO
+    await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
+    await providers.setupMocks() // Required to move utxos
+  })
+
   async function setup (): Promise<void> {
     // token setup
-    const collateralAddress = await tGroup.get(0).container.getNewAddress()
+    const collateralAddress = await providers.getAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 40000 })
     await tGroup.get(0).token.create({ symbol: 'DUSD', collateralAddress })
     await tGroup.get(0).generate(1)
@@ -94,7 +108,7 @@ describe('Loan', () => {
     // Vaults setup
     // vaultWithCollateralId
     vaultWithCollateralId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
+      ownerAddress: await providers.getAddress(),
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
@@ -104,31 +118,9 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // vaultWithoutCollateral1Id
-    vaultWithoutCollateral1Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    // vaultWithoutCollateral2Id
-    vaultAddressWithoutCollateral2Id = await tGroup.get(0).generateAddress()
-    vaultWithoutCollateral2Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: vaultAddressWithoutCollateral2Id,
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    // vaultWithoutCollateral3Id
-    vaultWithoutCollateral3Id = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
-      loanSchemeId: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
     // vaultWithLoanTakenId
     vaultWithLoanTakenId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
+      ownerAddress: await providers.getAddress(),
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
@@ -145,7 +137,7 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     // vaultWithPayBackLoanId
-    const vaultWithPayBackLoanAddress = await tGroup.get(0).generateAddress()
+    const vaultWithPayBackLoanAddress = await providers.getAddress()
     vaultWithPayBackLoanId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultWithPayBackLoanAddress,
       loanSchemeId: 'scheme'
@@ -177,7 +169,7 @@ describe('Loan', () => {
 
     // vaultWithLiquidationId
     vaultWithLiquidationId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: await tGroup.get(0).generateAddress(),
+      ownerAddress: await providers.getAddress(),
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
@@ -192,62 +184,74 @@ describe('Loan', () => {
       amounts: '100@TSLA'
     })
     await tGroup.get(0).generate(1)
+
+    vaultToBeClosedId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: await tGroup.get(0).generateAddress(),
+      loanSchemeId: 'scheme'
+    })
+    await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
   }
 
   it('should closeVault', async () => {
-    {
-      const address = await tGroup.get(0).generateAddress()
-      const addressAccountBefore = await tGroup.get(0).rpc.account.getAccount(address)
-      expect(addressAccountBefore).toStrictEqual([]) // 0 DFI
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithCollateralId,
+      to: script
+    }, script)
 
-      const txId = await tGroup.get(0).rpc.loan.closeVault({
-        vaultId: vaultWithCollateralId,
-        to: address
-      })
-      await tGroup.get(0).generate(1)
+    // Ensure the created txn is correct
+    const outs = await sendTransaction(tGroup.get(0).container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-      const addressAccountAfter = await tGroup.get(0).rpc.account.getAccount(address)
-      expect(addressAccountAfter).toStrictEqual(['2.50000000@DFI']) // 2 + 0.5 DFI (Get back collateral tokens and fee)
+    // Ensure you don't send all your balance away
+    const prevouts = await providers.prevout.all()
+    expect(prevouts.length).toStrictEqual(1)
+    expect(prevouts[0].value.toNumber()).toBeLessThan(10)
+    expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
-      expect(typeof txId).toStrictEqual('string')
-      expect(txId.length).toStrictEqual(64)
-    }
-
-    {
-      const address = await tGroup.get(0).generateAddress()
-      const addressAccountBefore = await tGroup.get(0).rpc.account.getAccount(address)
-      expect(addressAccountBefore).toStrictEqual([]) // 0 DFI
-
-      const txId = await tGroup.get(0).rpc.loan.closeVault({
-        vaultId: vaultWithoutCollateral1Id,
-        to: address
-      })
-      await tGroup.get(0).generate(1)
-
-      const addressAccountAfter = await tGroup.get(0).rpc.account.getAccount(address)
-      expect(addressAccountAfter).toStrictEqual(['0.50000000@DFI']) // 0.5 DFI (Get back fee only)
-
-      expect(typeof txId).toStrictEqual('string')
-      expect(txId.length).toStrictEqual(64)
-    }
+    await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
   })
 
   it('should closeVault if loan is paid back', async () => {
-    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: await tGroup.get(0).generateAddress() })
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithPayBackLoanId,
+      to: script
+    }, script)
+
+    await sendTransaction(tGroup.get(0).container, txn)
+    const txId = calculateTxid(txn)
+
     expect(typeof txId).toStrictEqual('string')
     expect(txId.length).toStrictEqual(64)
     await tGroup.get(0).generate(1)
   })
 
   it('should not closeVault as vault does not exist', async () => {
-    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: '0'.repeat(64), to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}> does not found', code: -5, method: closevault`)
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: '0'.repeat(64),
+      to: script
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${'0'.repeat(64)}> not found (code 16)', code: -26`)
   })
 
   it('should not closeVault for vault with loan taken', async () => {
-    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLoanTakenId, to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLoanTakenId}> has loans', code: -32600, method: closevault`)
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithLoanTakenId,
+      to: script
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLoanTakenId}> has loans (code 16)', code: -26`)
   })
 
   it('should not closeVault for mayliquidate vault', async () => {
@@ -257,8 +261,14 @@ describe('Loan', () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
     expect(liqVault.state).toStrictEqual('mayLiquidate')
 
-    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLiquidationId}> has loans', code: -32600, method: closevault`)
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithLiquidationId,
+      to: script
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLiquidationId}> has loans (code 16)', code: -26`)
 
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).container.waitForActivePrice('TSLA/USD', 2)
@@ -271,8 +281,14 @@ describe('Loan', () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
     expect(liqVault.state).toStrictEqual('frozen')
 
-    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLiquidationId}> has loans', code: -32600, method: closevault`)
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithLiquidationId,
+      to: script
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(`DeFiDRpcError: 'CloseVaultTx: Vault <${vaultWithLiquidationId}> has loans (code 16)', code: -26`)
 
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
 
@@ -289,8 +305,14 @@ describe('Loan', () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
-    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: closevault')
+    const script = await providers.elliptic.script()
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultWithLiquidationId,
+      to: script
+    }, script)
+
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: Cannot close vault under liquidation (code 16)\', code: -26')
 
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
@@ -298,24 +320,16 @@ describe('Loan', () => {
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
-    const address = await tGroup.get(1).generateAddress()
-    const promise = tGroup.get(1).rpc.loan.closeVault({ vaultId: vaultWithoutCollateral2Id, to: address })
-    await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${vaultAddressWithoutCollateral2Id}', code: -5, method: closevault`)
-  })
+    const script = await providers.elliptic.script()
+    const toScript = P2WPKH.fromAddress(RegTest, await tGroup.get(1).generateAddress(), P2WPKH).getScript()
 
-  it('should closeVault with utxos', async () => {
-    const utxo = await tGroup.get(0).container.fundAddress(vaultAddressWithoutCollateral2Id, 10)
-    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithoutCollateral2Id, to: await tGroup.get(0).generateAddress() }, [utxo])
-    expect(typeof txId).toStrictEqual('string')
-    expect(txId.length).toStrictEqual(64)
-    const rawtx = await tGroup.get(0).container.call('getrawtransaction', [txId, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
-  })
+    const txn = await builder.loans.closeVault({
+      vaultId: vaultToBeClosedId,
+      to: toScript
+    }, script)
 
-  it('should not closeVault with arbitrary utxos', async () => {
-    const utxo = await tGroup.get(0).container.fundAddress(await tGroup.get(0).generateAddress(), 10)
-    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithoutCollateral3Id, to: await tGroup.get(0).generateAddress() }, [utxo])
-    await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
+    const promise = sendTransaction(tGroup.get(0).container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'CloseVaultTx: tx must have at least one input from token owner (code 16)\', code: -26')
   })
 })

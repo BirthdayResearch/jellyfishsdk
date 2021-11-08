@@ -14,7 +14,7 @@ describe('compositeSwap', () => {
 
   beforeAll(async () => {
     await testing.container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.waitForWalletCoinbaseMaturity()
     await testing.token.dfi({ amount: 30000 })
     await testing.generate(1)
 

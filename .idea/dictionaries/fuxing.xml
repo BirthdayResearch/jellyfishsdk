@@ -84,6 +84,7 @@
       <w>getinterest</w>
       <w>getloanscheme</w>
       <w>getloantoken</w>
+      <w>getmempoolinfo</w>
       <w>getmintinginfo</w>
       <w>getnetworkhashps</w>
       <w>getnewaddress</w>
@@ -245,6 +246,8 @@
       <w>vernotif</w>
       <w>vout</w>
       <w>vsize</w>
+      <w>waitforblockheight</w>
+      <w>waitfornewblock</w>
       <w>walletname</w>
       <w>walletversion</w>
       <w>wpkh</w>

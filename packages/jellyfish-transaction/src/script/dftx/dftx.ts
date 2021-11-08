@@ -17,11 +17,13 @@ import {
   CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CCompositeSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
   PoolCreatePair,
   PoolRemoveLiquidity,
   PoolSwap,
+  CompositeSwap,
   PoolUpdatePair
 } from './dftx_pool'
 import {
@@ -93,7 +95,9 @@ import {
   CTakeLoan,
   TakeLoan,
   CPaybackLoan,
-  PaybackLoan
+  PaybackLoan,
+  CloseVault,
+  CCloseVault
 } from './dftx_loans'
 
 /**
@@ -170,6 +174,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
     switch (dftx.type) {
       case CPoolSwap.OP_CODE:
         return compose<PoolSwap>(CPoolSwap.OP_NAME, d => new CPoolSwap(d))
+      case CCompositeSwap.OP_CODE:
+        return compose<CompositeSwap>(CCompositeSwap.OP_NAME, d => new CCompositeSwap(d))
       case CPoolAddLiquidity.OP_CODE:
         return compose<PoolAddLiquidity>(CPoolAddLiquidity.OP_NAME, d => new CPoolAddLiquidity(d))
       case CPoolRemoveLiquidity.OP_CODE:
@@ -254,6 +260,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
       case CPaybackLoan.OP_CODE:
         return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
+      case CCloseVault.OP_CODE:
+        return compose<CloseVault>(CCloseVault.OP_NAME, d => new CCloseVault(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }
