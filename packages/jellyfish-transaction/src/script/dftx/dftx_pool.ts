@@ -38,12 +38,28 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   }
 }
 
+export interface PoolId {
+  id: number // ------------------------| VarUInt{1-9 bytes}
+}
+
+/**
+ * Composable PoolId, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPoolId extends ComposableBuffer<PoolId> {
+  composers (pi: PoolId): BufferComposer[] {
+    return [
+      ComposableBuffer.varUInt(() => pi.id, v => pi.id = v)
+    ]
+  }
+}
+
 /**
  * CompositeSwap DeFi Transaction
  */
 export interface CompositeSwap {
-  swapInfo: PoolSwap // ----------------| 1 x PoolSwap
-  poolIDs: number[] // ------------------| c = VarUInt{1-9 bytes}, + c x VarUInt{1-9 bytes}
+  poolSwap: PoolSwap // ----------------| 1 x PoolSwap
+  pools: PoolId[] // -------------------| n = VarUInt{1-9 bytes}, + n bytes
 }
 
 /**
@@ -58,13 +74,8 @@ export class CCompositeSwap extends ComposableBuffer<CompositeSwap> {
 
   composers (cs: CompositeSwap): BufferComposer[] {
     return [
-      ComposableBuffer.single<PoolSwap>(() => cs.swapInfo, v => cs.swapInfo = v, v => new CPoolSwap(v)),
-      ComposableBuffer.varUIntArrayRaw<number>(
-        () => cs.poolIDs,
-        v => cs.poolIDs = v,
-        (d, b) => writeVarUInt(d, b),
-        b => readVarUInt(b)
-      )
+      ComposableBuffer.single<PoolSwap>(() => cs.poolSwap, v => cs.poolSwap = v, v => new CPoolSwap(v)),
+      ComposableBuffer.varUIntArray<PoolId>(() => cs.pools, v => cs.pools = v, v => new CPoolId(v))
     ]
   }
 }
