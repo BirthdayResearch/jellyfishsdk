@@ -14,6 +14,7 @@ import { Script } from '@defichain/jellyfish-transaction'
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
+let aliceAddr: string
 let bobVaultId: string
 let bobVaultAddr: string
 let bobVault: any
@@ -44,7 +45,7 @@ async function fundForFeesIfUTXONotAvailable (amount = 10): Promise<void> {
 
 async function setup (): Promise<void> {
   // token setup
-  const aliceAddr = await alice.container.getNewAddress()
+  aliceAddr = await alice.container.getNewAddress()
   await alice.token.dfi({ address: aliceAddr, amount: 70000 })
   await alice.generate(1)
   await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
@@ -437,6 +438,20 @@ describe('loans.takeLoan failed', () => {
       tokenAmounts: [{ token: 2, amount: new BigNumber(300000) }]
     }, script)
 
+    const promise = sendTransaction(bob.container, txn)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
+  })
+
+  it('should not takeLoan while exceed vault collateralization ratio (multiple tokens)', async () => {
+    const txn = await bBuilder.loans.takeLoan({
+      vaultId: bobVaultId,
+      to: { stack: [] },
+      tokenAmounts: [
+        { token: 2, amount: new BigNumber(1550) },
+        { token: 3, amount: new BigNumber(1200) }
+      ]
+    }, script)
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
     await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
