@@ -262,3 +262,53 @@ export class CTakeLoan extends ComposableBuffer<TakeLoan> {
     ]
   }
 }
+
+/**
+ * PaybackLoan DeFi Transaction
+ */
+export interface PaybackLoan {
+  vaultId: string // --------------------| 32 bytes, Vault Id
+  from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
+  tokenAmounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
+}
+
+/**
+ * Composable PaybackLoan, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
+  static OP_CODE = 0x48 // 'H'
+  static OP_NAME = 'OP_DEFI_TX_PAYBACK_LOAN'
+
+  composers (pl: PaybackLoan): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => pl.vaultId, v => pl.vaultId = v),
+      ComposableBuffer.single<Script>(() => pl.from, v => pl.from = v, v => new CScript(v)),
+      ComposableBuffer.varUIntArray(() => pl.tokenAmounts, v => pl.tokenAmounts = v, v => new CTokenBalance(v))
+    ]
+  }
+}
+
+/**
+ * CloseVault DeFi Transaction
+ */
+export interface CloseVault {
+  vaultId: string // ------------------| 32 bytes, Vault Id
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address
+}
+
+/**
+ * Composable CloseVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CCloseVault extends ComposableBuffer<CloseVault> {
+  static OP_CODE = 0x65 // 'e'
+  static OP_NAME = 'OP_DEFI_TX_CLOSE_VAULT'
+
+  composers (cv: CloseVault): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => cv.vaultId, v => cv.vaultId = v),
+      ComposableBuffer.single<Script>(() => cv.to, v => cv.to = v, v => new CScript(v))
+    ]
+  }
+}

@@ -185,6 +185,88 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
   }
 
   /**
+   * Wait for price become valid
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForPriceValid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (!data.isLive) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForPriceValid')
+  }
+
+  /**
+   * Wait for price become invalid
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (data.isLive) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForPriceInvalid')
+  }
+
+  /**
+   * Wait for active price
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} activePrice
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: number, timeout = 100000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (data.activePrice !== activePrice) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForActivePrice')
+  }
+
+  /**
+   * Wait for next price
+   *
+   * @param {string} fixedIntervalPriceId
+   * @param {number} nextPrice
+   * @param {number} [timeout=30000] in ms
+   * @return {Promise<void>}
+   */
+  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: number, timeout = 100000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
+      // eslint-disable-next-line
+      if (data.nextPrice !== nextPrice) {
+        await this.generate(1)
+        return false
+      } else {
+        return true
+      }
+    }, timeout, 100, 'waitForNextPrice')
+  }
+
+  /**
    * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
    * This allows for light wallet implementation testing.

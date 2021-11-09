@@ -19,11 +19,13 @@ import {
   CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CCompositeSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
   PoolCreatePair,
   PoolRemoveLiquidity,
   PoolSwap,
+  CompositeSwap,
   PoolUpdatePair
 } from './dftx/dftx_pool'
 import {
@@ -74,8 +76,12 @@ import {
   CreateVault,
   CDepositToVault,
   DepositToVault,
+  CTakeLoan,
   TakeLoan,
-  CTakeLoan
+  CPaybackLoan,
+  PaybackLoan,
+  CCloseVault,
+  CloseVault
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -191,6 +197,14 @@ export const OP_CODES = {
       type: CPoolSwap.OP_CODE,
       name: CPoolSwap.OP_NAME,
       data: poolSwap
+    })
+  },
+  OP_DEFI_TX_COMPOSITE_SWAP: (compositeSwap: CompositeSwap): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCompositeSwap.OP_CODE,
+      name: CCompositeSwap.OP_NAME,
+      data: compositeSwap
     })
   },
   OP_DEFI_TX_POOL_ADD_LIQUIDITY: (poolAddLiquidity: PoolAddLiquidity): OP_DEFI_TX => {
@@ -511,6 +525,22 @@ export const OP_CODES = {
       type: CTakeLoan.OP_CODE,
       name: CTakeLoan.OP_NAME,
       data: takeLoan
+    })
+  },
+  OP_DEFI_TX_PAYBACK_LOAN: (paybackLoan: PaybackLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPaybackLoan.OP_CODE,
+      name: CPaybackLoan.OP_NAME,
+      data: paybackLoan
+    })
+  },
+  OP_DEFI_TX_CLOSE_VAULT: (closeVault: CloseVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCloseVault.OP_CODE,
+      name: CCloseVault.OP_NAME,
+      data: closeVault
     })
   },
   OP_0: new constants.OP_0(),

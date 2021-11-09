@@ -38,6 +38,48 @@ export class CPoolSwap extends ComposableBuffer<PoolSwap> {
   }
 }
 
+export interface PoolId {
+  id: number // ------------------------| VarUInt{1-9 bytes}
+}
+
+/**
+ * Composable PoolId, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPoolId extends ComposableBuffer<PoolId> {
+  composers (pi: PoolId): BufferComposer[] {
+    return [
+      ComposableBuffer.varUInt(() => pi.id, v => pi.id = v)
+    ]
+  }
+}
+
+/**
+ * CompositeSwap DeFi Transaction
+ */
+export interface CompositeSwap {
+  poolSwap: PoolSwap // ----------------| 1 x PoolSwap
+  pools: PoolId[] // -------------------| n = VarUInt{1-9 bytes}, + n bytes
+}
+
+/**
+ * Composable CompositeSwap, C stands for Composable.
+ * Extends from CPoolSwap as it contains same data structure but with different DfTx OP_CODE.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ * @throws Error if more than 8 decimals
+ */
+export class CCompositeSwap extends ComposableBuffer<CompositeSwap> {
+  static OP_CODE = 0x69 // 'i'
+  static OP_NAME = 'OP_DEFI_TX_COMPOSITE_SWAP'
+
+  composers (cs: CompositeSwap): BufferComposer[] {
+    return [
+      ComposableBuffer.single<PoolSwap>(() => cs.poolSwap, v => cs.poolSwap = v, v => new CPoolSwap(v)),
+      ComposableBuffer.varUIntArray<PoolId>(() => cs.pools, v => cs.pools = v, v => new CPoolId(v))
+    ]
+  }
+}
+
 /**
  * PoolAddLiquidity DeFi Transaction
  */
