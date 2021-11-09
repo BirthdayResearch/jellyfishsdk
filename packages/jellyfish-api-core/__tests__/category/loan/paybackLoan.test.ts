@@ -19,26 +19,28 @@ let aliceColAddr: string
 
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
+const priceFeeds = [
+  { token: 'DFI', currency: 'USD' },
+  { token: 'BTC', currency: 'USD' },
+  { token: 'TSLA', currency: 'USD' },
+  { token: 'AMZN', currency: 'USD' },
+  { token: 'UBER', currency: 'USD' },
+  { token: 'DUSD', currency: 'USD' }
+]
 
 async function setup (): Promise<void> {
   // token setup
   aliceColAddr = await alice.container.getNewAddress()
-  await alice.token.dfi({ address: aliceColAddr, amount: 30000 })
+  await alice.token.dfi({ address: aliceColAddr, amount: 15000 })
   await alice.generate(1)
   await alice.token.create({ symbol: 'BTC', collateralAddress: aliceColAddr })
   await alice.generate(1)
-  await alice.token.mint({ symbol: 'BTC', amount: 30000 })
+  await alice.token.mint({ symbol: 'BTC', amount: 10000 })
   await alice.generate(1)
 
   // oracle setup
   const addr = await alice.generateAddress()
-  const priceFeeds = [
-    { token: 'DFI', currency: 'USD' },
-    { token: 'BTC', currency: 'USD' },
-    { token: 'TSLA', currency: 'USD' },
-    { token: 'AMZN', currency: 'USD' },
-    { token: 'UBER', currency: 'USD' }
-  ]
+
   const oracleId = await alice.rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
   await alice.generate(1)
 
@@ -52,7 +54,8 @@ async function setup (): Promise<void> {
         { tokenAmount: '10000@BTC', currency: 'USD' },
         { tokenAmount: '2@TSLA', currency: 'USD' },
         { tokenAmount: '4@AMZN', currency: 'USD' },
-        { tokenAmount: '4@UBER', currency: 'USD' }
+        { tokenAmount: '4@UBER', currency: 'USD' },
+        { tokenAmount: '1@DUSD', currency: 'USD' }
       ]
     }
   )
@@ -74,18 +77,18 @@ async function setup (): Promise<void> {
   })
   await alice.generate(1)
 
+  // setLoanToken DUSD
+  await alice.rpc.loan.setLoanToken({
+    symbol: 'DUSD',
+    fixedIntervalPriceId: 'DUSD/USD'
+  })
+  await alice.generate(1)
+
   // setLoanToken TSLA
   await alice.rpc.loan.setLoanToken({
     symbol: 'TSLA',
     fixedIntervalPriceId: 'TSLA/USD'
   })
-  await alice.generate(1)
-
-  // mint loan token TSLA
-  await alice.token.mint({ symbol: 'TSLA', amount: 30000 })
-  await alice.generate(1)
-
-  await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['30000@TSLA'] })
   await alice.generate(1)
 
   // setLoanToken AMZN
@@ -95,13 +98,6 @@ async function setup (): Promise<void> {
   })
   await alice.generate(1)
 
-  // mint loan token AMZN
-  await alice.token.mint({ symbol: 'AMZN', amount: 40000 })
-  await alice.generate(1)
-
-  await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['40000@AMZN'] })
-  await alice.generate(1)
-
   // setLoanToken UBER
   await alice.rpc.loan.setLoanToken({
     symbol: 'UBER',
@@ -109,15 +105,18 @@ async function setup (): Promise<void> {
   })
   await alice.generate(1)
 
-  // mint loan token UBER
-  await alice.token.mint({ symbol: 'UBER', amount: 40000 })
-  await alice.generate(1)
-
   // createLoanScheme 'scheme'
   await alice.rpc.loan.createLoanScheme({
-    minColRatio: 500,
+    minColRatio: 200,
     interestRate: new BigNumber(3),
     id: 'scheme'
+  })
+  await alice.generate(1)
+
+  await alice.rpc.loan.createLoanScheme({
+    minColRatio: 150,
+    interestRate: new BigNumber(3),
+    id: 'default'
   })
   await alice.generate(1)
   await tGroup.waitForSync()
@@ -128,6 +127,70 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   await alice.rpc.account.accountToAccount(aliceColAddr, { [bobColAddr]: '1@BTC' })
+  await alice.generate(1)
+  await tGroup.waitForSync()
+
+  // create vault for taking large loan tokens
+  const aliceVaultAddr = await alice.generateAddress()
+  const aliceVaultId = await alice.rpc.loan.createVault({
+    ownerAddress: aliceVaultAddr,
+    loanSchemeId: 'default'
+  })
+  await alice.generate(1)
+
+  await alice.rpc.loan.depositToVault({
+    vaultId: aliceVaultId, from: aliceColAddr, amount: '10000@DFI'
+  })
+  await alice.generate(1)
+
+  await alice.rpc.loan.takeLoan({
+    vaultId: aliceVaultId,
+    to: aliceColAddr,
+    amounts: ['300@TSLA', '400@AMZN', '400@UBER', '1000@DUSD']
+  })
+  await alice.generate(1)
+
+  // create TSLA-DUSD
+  await alice.poolpair.create({
+    tokenA: 'TSLA',
+    tokenB: 'DUSD',
+    ownerAddress: aliceColAddr
+  })
+  await alice.generate(1)
+
+  // add TSLA-DUSD
+  await alice.poolpair.add({
+    a: { symbol: 'TSLA', amount: 200 },
+    b: { symbol: 'DUSD', amount: 100 }
+  })
+  await alice.generate(1)
+
+  // create AMZN-DUSD
+  await alice.poolpair.create({
+    tokenA: 'AMZN',
+    tokenB: 'DUSD'
+  })
+  await alice.generate(1)
+
+  // add AMZN-DUSD
+  await alice.poolpair.add({
+    a: { symbol: 'AMZN', amount: 400 },
+    b: { symbol: 'DUSD', amount: 100 }
+  })
+  await alice.generate(1)
+
+  // create DUSD-DFI
+  await alice.poolpair.create({
+    tokenA: 'DUSD',
+    tokenB: 'DFI'
+  })
+  await alice.generate(1)
+
+  // add DUSD-DFI
+  await alice.poolpair.add({
+    a: { symbol: 'DUSD', amount: 250 },
+    b: { symbol: 'DFI', amount: 100 }
+  })
   await alice.generate(1)
   await tGroup.waitForSync()
 
@@ -185,60 +248,7 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   // liquidated: true
-  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100000@UBER', currency: 'USD' }] })
-  await alice.generate(1)
-  await tGroup.waitForSync()
-
-  // set up fixture for paybackLoan
-  const aliceDUSDAddr = await alice.container.getNewAddress()
-  await alice.token.dfi({ address: aliceDUSDAddr, amount: 600000 })
-  await alice.generate(1)
-  await alice.token.create({ symbol: 'DUSD', collateralAddress: aliceDUSDAddr })
-  await alice.generate(1)
-  await alice.token.mint({ symbol: 'DUSD', amount: 600000 })
-  await alice.generate(1)
-
-  // create TSLA-DUSD
-  await alice.poolpair.create({
-    tokenA: 'TSLA',
-    tokenB: 'DUSD',
-    ownerAddress: aliceColAddr
-  })
-  await alice.generate(1)
-
-  // add TSLA-DUSD
-  await alice.poolpair.add({
-    a: { symbol: 'TSLA', amount: 20000 },
-    b: { symbol: 'DUSD', amount: 10000 }
-  })
-  await alice.generate(1)
-
-  // create AMZN-DUSD
-  await alice.poolpair.create({
-    tokenA: 'AMZN',
-    tokenB: 'DUSD'
-  })
-  await alice.generate(1)
-
-  // add AMZN-DUSD
-  await alice.poolpair.add({
-    a: { symbol: 'AMZN', amount: 40000 },
-    b: { symbol: 'DUSD', amount: 10000 }
-  })
-  await alice.generate(1)
-
-  // create DUSD-DFI
-  await alice.poolpair.create({
-    tokenA: 'DUSD',
-    tokenB: 'DFI'
-  })
-  await alice.generate(1)
-
-  // add DUSD-DFI
-  await alice.poolpair.add({
-    a: { symbol: 'DUSD', amount: 25000 },
-    b: { symbol: 'DFI', amount: 10000 }
-  })
+  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100@UBER', currency: 'USD' }] })
   await alice.generate(1)
   await tGroup.waitForSync()
 
@@ -369,7 +379,9 @@ describe('paybackLoan success', () => {
 
   it('should paybackLoan by anyone', async () => {
     const loanAccBefore = await bob.container.call('getaccount', [aliceColAddr])
-    expect(loanAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
+    expect(loanAccBefore).toStrictEqual([
+      '4900.00000000@DFI', '9999.00000000@BTC', '550.00000000@DUSD', '100.00000000@TSLA', '400.00000000@UBER'
+    ])
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.collateralValue).toStrictEqual(15000) // DFI(10000) + BTC(1 * 10000 * 0.5)
@@ -390,7 +402,9 @@ describe('paybackLoan success', () => {
     await tGroup.waitForSync()
 
     const loanAccAfter = await bob.container.call('getaccount', [aliceColAddr])
-    expect(loanAccAfter).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '9992.00000000@TSLA'])
+    expect(loanAccAfter).toStrictEqual([
+      '4900.00000000@DFI', '9999.00000000@BTC', '550.00000000@DUSD', '92.00000000@TSLA', '400.00000000@UBER'
+    ])
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     expect(vaultAfter.loanAmounts).toStrictEqual(['32.00004110@TSLA']) // 40.00002283 - 8 + totalInterest
@@ -656,7 +670,7 @@ describe('paybackLoan failed', () => {
   })
 
   it('should not paybackLoan on liquidation vault', async () => {
-    await tGroup.get(0).generate(6)
+    await tGroup.get(0).generate(12)
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
