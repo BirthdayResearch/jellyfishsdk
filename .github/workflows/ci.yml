@@ -27,6 +27,11 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        instance: [ 0, 1, 2, 3, 4, 5]
+    env:
+      GH_INSTANCE_TOTAL: 6
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
@@ -36,6 +41,8 @@ jobs:
 
       - run: npm ci
       - run: npm run test:ci
+        env:
+          GH_INSTANCE_INDEX: ${{ matrix.instance }}
 
       - uses: codecov/codecov-action@f32b3a3741e1053eb607407145bc9619351dc93b
         with:
