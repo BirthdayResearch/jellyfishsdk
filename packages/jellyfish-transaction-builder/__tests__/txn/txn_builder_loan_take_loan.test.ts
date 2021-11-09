@@ -431,7 +431,7 @@ describe('loans.takeLoan failed', () => {
     await expect(promise).rejects.toThrow('tx must have at least one input from vault owner')
   })
 
-  it('should not takeLoan while exceed vault collateralization ratio', async () => {
+  it('should not takeLoan while exceeding vault collateralization ratio', async () => {
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
@@ -443,7 +443,7 @@ describe('loans.takeLoan failed', () => {
     await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
   })
 
-  it('should not takeLoan while exceed vault collateralization ratio (multiple tokens)', async () => {
+  it('should not takeLoan while exceeding vault collateralization ratio (multiple tokens)', async () => {
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
