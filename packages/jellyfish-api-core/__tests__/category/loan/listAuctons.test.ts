@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-// import { VaultState } from '../../../src/category/loan'
+import { AuctionDetail } from '../../../src/category/loan'
 
 describe('Loan listAuctions', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -194,126 +194,136 @@ describe('Loan listAuctions', () => {
     await testing.container.stop()
   })
 
-  it('should listAuctions', async () => {
-    {
-      const vault1 = await testing.rpc.loan.getVault(vaultId1)
-      expect(vault1.state).toStrictEqual('inLiquidation')
+  describe('listAuctions without pagination', () => {
+    it('should listAuctions', async () => {
+      {
+        const vault1 = await testing.rpc.loan.getVault(vaultId1)
+        expect(vault1.state).toStrictEqual('inLiquidation')
 
-      const vault2 = await testing.rpc.loan.getVault(vaultId2)
-      expect(vault2.state).toStrictEqual('inLiquidation')
+        const vault2 = await testing.rpc.loan.getVault(vaultId2)
+        expect(vault2.state).toStrictEqual('inLiquidation')
 
-      const vault3 = await testing.rpc.loan.getVault(vaultId3)
-      expect(vault3.state).toStrictEqual('inLiquidation')
+        const vault3 = await testing.rpc.loan.getVault(vaultId3)
+        expect(vault3.state).toStrictEqual('inLiquidation')
 
-      const vault4 = await testing.rpc.loan.getVault(vaultId4)
-      expect(vault4.state).toStrictEqual('inLiquidation')
-    }
+        const vault4 = await testing.rpc.loan.getVault(vaultId4)
+        expect(vault4.state).toStrictEqual('inLiquidation')
+      }
 
-    // The collateral tokens of vault that are liquidated are sent to auction
-    const data = await testing.rpc.loan.listAuctions()
-    expect(data.length).toStrictEqual(4)
-    const result = data.filter(d => d.vaultId === vaultId1)
-    // Auction are divided into 2 batches,
-    // the USD equivalent amount of every collateral tokens of non last batches are always 10,000
-    // For 1st batch,
-    // DFI qty (6666.6666) * DFI price (1) * DFI Col factor (1) + BTC qty (0.33333333) * BTC price (10000) * BTC Col factor (1)
-    expect(6666.6666 * 1 * 1 + 0.33333333 * 10000 * 1).toStrictEqual(9999.999899999999) // We can assume this is 10,000, there is minor discrepancy after the division.
-    expect(result).toStrictEqual(
-      [{
-        batchCount: 2,
-        batches: [
-          {
-            collaterals: [
-              '6666.66660000@DFI',
-              '0.33333333@BTC'
-            ],
-            index: new BigNumber(0),
-            loan: '5000.01897586@TSLA'
-          },
-          {
-            collaterals: [
-              '3333.33340000@DFI',
-              '0.16666667@BTC'
-            ],
-            index: new BigNumber(1),
-            loan: '2500.00956293@TSLA'
-          }
-        ],
-        loanSchemeId: 'default',
-        ownerAddress: ownerAddressVault1,
-        state: 'inLiquidation',
-        liquidationHeight: 168,
-        liquidationPenalty: 5,
-        vaultId: vaultId1
-      }]
-    )
+      // The collateral tokens of vault that are liquidated are sent to auction
+      const list = await testing.rpc.loan.listAuctions()
+      const vaultIds = list.map(d => d.vaultId)
+      expect(list.length).toStrictEqual(4)
+      expect(list[0].vaultId).toStrictEqual(vaultIds[0])
+      expect(list[1].vaultId).toStrictEqual(vaultIds[1])
+      expect(list[2].vaultId).toStrictEqual(vaultIds[2])
+      expect(list[3].vaultId).toStrictEqual(vaultIds[3])
+
+      const result = list.filter(d => d.vaultId === vaultId1)
+      // Auction are divided into 2 batches,
+      // the USD equivalent amount of every collateral tokens of non last batches are always 10,000
+      // For 1st batch,
+      // DFI qty (6666.6666) * DFI price (1) * DFI Col factor (1) + BTC qty (0.33333333) * BTC price (10000) * BTC Col factor (1)
+      expect(6666.6666 * 1 * 1 + 0.33333333 * 10000 * 1).toStrictEqual(9999.999899999999) // We can assume this is 10,000, there is minor discrepancy after the division.
+      expect(result).toStrictEqual(
+        [{
+          batchCount: 2,
+          batches: [
+            {
+              collaterals: [
+                '6666.66660000@DFI',
+                '0.33333333@BTC'
+              ],
+              index: new BigNumber(0),
+              loan: '5000.01897586@TSLA'
+            },
+            {
+              collaterals: [
+                '3333.33340000@DFI',
+                '0.16666667@BTC'
+              ],
+              index: new BigNumber(1),
+              loan: '2500.00956294@TSLA'
+            }
+          ],
+          loanSchemeId: 'default',
+          ownerAddress: ownerAddressVault1,
+          state: 'inLiquidation',
+          liquidationHeight: 168,
+          liquidationPenalty: 5,
+          vaultId: vaultId1
+        }]
+      )
+    })
   })
 
-  it('should listAuctions with pagination', async () => {
-    const list = await testing.rpc.loan.listAuctions()
-    const vaultIds = list.map(d => d.vaultId)
+  describe('listAuctions with pagination', () => {
+    let list: AuctionDetail[]
+    let vaultIds: string[]
 
-    expect(list.length).toStrictEqual(4)
-    expect(list[0].vaultId).toStrictEqual(vaultIds[0])
-    expect(list[1].vaultId).toStrictEqual(vaultIds[1])
-    expect(list[2].vaultId).toStrictEqual(vaultIds[2])
-    expect(list[3].vaultId).toStrictEqual(vaultIds[3])
+    beforeAll(async () => {
+      list = await testing.rpc.loan.listAuctions()
+      // Get all vaultIds
+      vaultIds = list.map(d => d.vaultId)
+    })
 
-    // List auctions with no of limit > size
-    const listWithLimit5 = await testing.rpc.loan.listAuctions({ limit: 5 })
-    expect(listWithLimit5.length).toStrictEqual(4)
-    expect(listWithLimit5).toStrictEqual(list)
+    it('should listAuctions with limit only', async () => {
+      // List auctions with limit = size
+      const listWithLimit4 = await testing.rpc.loan.listAuctions({ limit: 4 })
+      expect(listWithLimit4.length).toStrictEqual(4)
+      expect(listWithLimit4).toStrictEqual(list)
 
-    // Fetch the first page
-    {
+      // List auctions with limit > size
+      const listWithLimit5 = await testing.rpc.loan.listAuctions({ limit: 5 })
+      expect(listWithLimit5.length).toStrictEqual(4)
+      expect(listWithLimit5).toStrictEqual(list)
+
+      // List auctions with limit = 2
       const page = await testing.rpc.loan.listAuctions({ limit: 2 })
       expect(page.length).toStrictEqual(2)
       expect(page[0].vaultId).toStrictEqual(vaultIds[0])
       expect(page[1].vaultId).toStrictEqual(vaultIds[1])
-    }
+    })
 
-    // Fetch the second page
-    {
+    it('should listAuctions with height only', async () => {
       const page = await testing.rpc.loan.listAuctions(
-        { start: { vaultId: vaultIds[1], height: 168 }, including_start: false, limit: 2 }
+        { start: { height: 168 } }
       )
+      expect(page.length).toStrictEqual(4)
+      expect(page).toStrictEqual(list)
+    })
 
-      console.log(page)
+    describe('should listAuctions with vaultId and height', () => {
+      it('Should listAuctions', async () => {
+        {
+          const page = await testing.rpc.loan.listAuctions(
+            { start: { vaultId: vaultIds[1], height: 168 } }
+          )
+          // should be 2 entries
+          expect(page.length).toStrictEqual(2)
+          expect(page[0].vaultId).toStrictEqual(vaultIds[2])
+          expect(page[1].vaultId).toStrictEqual(vaultIds[3])
+        }
 
-      // should be 2 entries
-      expect(page.length).toStrictEqual(2) // total 4, started at index[2], listing 2
-      expect(page[2].vaultId).toStrictEqual(vaultIds[2])
-      expect(page[3].vaultId).toStrictEqual(vaultIds[3])
-    }
+        {
+          const page = await testing.rpc.loan.listAuctions(
+            { start: { vaultId: vaultIds[3], height: 168 }, limit: 2 }
+          )
 
-    // fetch the second page with including_start = true
-    {
-      const page = await testing.rpc.loan.listAuctions(
-        { start: { vaultId: vaultIds[2], height: 168 }, including_start: true, limit: 2 }
-      )
-      // should be 3 entries
-      expect(page.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
-      expect(page[1].vaultId).toStrictEqual(vaultIds[1])
-      expect(page[2].vaultId).toStrictEqual(vaultIds[2])
-      expect(page[3].vaultId).toStrictEqual(vaultIds[3])
-    }
+          // should be 0 entry
+          expect(page.length).toStrictEqual(0)
+        }
+      })
 
-    // fetch the third page
-    {
-      const page = await testing.rpc.loan.listAuctions(
-        { start: { vaultId: 'invalid', height: 168 }, including_start: true, limit: 2 }
-      )
-      // should be 0 entry
-      expect(page.length).toStrictEqual(0)
-    }
-
-    // fetch the third page with including_start = false
-    {
-      const page = await testing.rpc.loan.listAuctions(
-        { start: { vaultId: 'invalid', height: 168 }, including_start: true, limit: 2 }
-      )
-      // should be 0 entry
-      expect(page.length).toStrictEqual(0)
-    }
+      it('should listAuctions with including_start = true', async () => {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { vaultId: vaultIds[2], height: 168 }, including_start: true }
+        )
+        // should be 2 entries
+        expect(page.length).toStrictEqual(2)
+        expect(page[0].vaultId).toStrictEqual(vaultIds[2])
+        expect(page[1].vaultId).toStrictEqual(vaultIds[3])
+      })
+    })
   })
 })
