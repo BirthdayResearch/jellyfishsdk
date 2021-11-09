@@ -5,7 +5,6 @@ describe('masternode', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.generate(4)
   })
 
