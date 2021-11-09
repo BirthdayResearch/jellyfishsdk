@@ -26,6 +26,6 @@
     "smart-buffer": "^4.2.0"
   },
   "peerDependencies": {
-    "defichain": "0.0.0"
+    "defichain": "^0.0.0"
   }
 }

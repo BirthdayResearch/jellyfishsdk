@@ -27,6 +27,6 @@
     "lossless-json": "^1.0.5"
   },
   "peerDependencies": {
-    "defichain": "0.0.0"
+    "defichain": "^0.0.0"
   }
 }
