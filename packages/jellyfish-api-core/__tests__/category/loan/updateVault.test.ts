@@ -237,6 +237,7 @@ describe('Loan updateVault', () => {
     await alice.generate(1)
 
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
+    await alice.generate(1)
 
     // Wait for the price become invalid
     await alice.container.waitForPriceInvalid('DFI/USD')
