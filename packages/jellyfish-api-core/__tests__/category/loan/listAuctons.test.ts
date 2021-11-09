@@ -249,26 +249,50 @@ describe('Loan listAuctions', () => {
   })
 
   it('should listAuctions with pagination', async () => {
-    const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultId1 }, including_start: false, limit: 1 })
-    console.log(x)
-    console.log(vaultId1)
+    const data = await testing.rpc.loan.listAuctions()
+    const vaultIds = data.map(d => d.vaultId)
+    console.log(vaultIds)
 
-    // List auctions
-    const auctions = await testing.rpc.loan.listAuctions({ limit: 2 })
-    expect(auctions.length).toStrictEqual(2)
+    {
+      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[0] }, including_start: true, limit: 4 })
+      console.log(x)
+    }
 
-    // fetch the second page
-    const auctionsSecondPage = await testing.rpc.loan.listAuctions({ including_start: false, start: { vaultId: auctions[auctions.length - 1].vaultId } })
-    // should be 2 entries
-    expect(auctionsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
+    {
+      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[2] }, including_start: true, limit: 2 })
+      console.log(x)
+    }
 
-    // fetch the second page with including_start = true
-    const auctionsSecondPageIncludingStart = await testing.rpc.loan.listAuctions({ including_start: true, start: { vaultId: auctions[auctions.length - 1].vaultId } })
-    // should be 3 entries
-    expect(auctionsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
+    {
+      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[2] }, including_start: false, limit: 2 })
+      console.log(x)
+    }
 
-    //  check if we retrieved all 4 entries
-    expect(auctions.concat(auctionsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([]))
+    {
+      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[2] }, including_start: true, limit: 2 })
+      console.log(x)
+    }
+
+    // const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultId1 }, including_start: false, limit: 1 })
+    // console.log(x)
+    // console.log(vaultId1)
+    //
+    // // List auctions
+    // const auctions = await testing.rpc.loan.listAuctions({ limit: 2 })
+    // expect(auctions.length).toStrictEqual(2)
+    //
+    // // fetch the second page
+    // const auctionsSecondPage = await testing.rpc.loan.listAuctions({ including_start: false, start: { vaultId: auctions[auctions.length - 1].vaultId } })
+    // // should be 2 entries
+    // expect(auctionsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
+    //
+    // // fetch the second page with including_start = true
+    // const auctionsSecondPageIncludingStart = await testing.rpc.loan.listAuctions({ including_start: true, start: { vaultId: auctions[auctions.length - 1].vaultId } })
+    // // should be 3 entries
+    // expect(auctionsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
+    //
+    // //  check if we retrieved all 4 entries
+    // expect(auctions.concat(auctionsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([]))
   })
 
   // it('should listVaults with pagination and ownerAddress', async () => {

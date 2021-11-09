@@ -560,7 +560,7 @@ export interface AuctionDetail {
   batchCount: BigNumber
   liquidationPenalty: BigNumber
   liquidationHeight: BigNumber
-  batches: AuctionBatchDetails[]
+  batches: any
   loanSchemeId: string
   ownerAddress: string
   state: string
