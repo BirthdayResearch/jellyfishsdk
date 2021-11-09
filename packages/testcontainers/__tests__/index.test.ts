@@ -5,7 +5,6 @@ describe('main', () => {
 
   beforeEach(async () => {
     await container.start()
-    await container.waitForReady()
   })
 
   afterEach(async () => {
@@ -23,7 +22,6 @@ describe('test', () => {
 
   beforeEach(async () => {
     await container.start()
-    await container.waitForReady()
   })
 
   afterEach(async () => {
@@ -41,7 +39,6 @@ describe('regtest', () => {
 
   beforeEach(async () => {
     await container.start()
-    await container.waitForReady()
   })
 
   afterEach(async () => {
@@ -63,7 +60,6 @@ describe('regtest: override docker image', () => {
 
   it('should be able to getmininginfo and chain should be test', async () => {
     await container.start()
-    await container.waitForReady()
     const { chain } = await container.getMiningInfo()
     expect(chain).toStrictEqual('test')
   })

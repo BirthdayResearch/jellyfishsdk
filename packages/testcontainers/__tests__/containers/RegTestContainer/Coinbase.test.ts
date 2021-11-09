@@ -6,7 +6,6 @@ describe('coinbase maturity', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
   })
 
