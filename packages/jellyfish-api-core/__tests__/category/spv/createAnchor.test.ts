@@ -151,7 +151,7 @@ describe.skip('Spv', () => {
     expect(anchor.estimatedReward).toStrictEqual(new BigNumber(0))
     expect(anchor.cost).toStrictEqual(new BigNumber(3556))
     expect(anchor.sendResult).toStrictEqual(0)
-    expect(anchor.sendMessage).toStrictEqual('Success')
+    expect(anchor.sendMessage).toStrictEqual('') // not empty when error found
 
     // pending anchor list is updated
     {
