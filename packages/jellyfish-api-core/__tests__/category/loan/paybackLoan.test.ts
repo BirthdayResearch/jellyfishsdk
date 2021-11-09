@@ -562,6 +562,55 @@ describe('paybackLoan success', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
+
+  it('should paybackLoan with DUSD', async () => {
+    const dusdBobAddr = await bob.generateAddress()
+    await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId,
+      to: dusdBobAddr,
+      amounts: '19@DUSD'
+    })
+    await bob.generate(1)
+
+    const vaultBefore = await bob.container.call('getvault', [bobVaultId])
+    expect(vaultBefore).toStrictEqual({
+      vaultId: bobVaultId,
+      loanSchemeId: 'scheme',
+      ownerAddress: bobVaultAddr,
+      state: 'active',
+      collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
+      loanAmounts: ['19.00001084@DUSD', '40.00004566@TSLA'],
+      interestAmounts: ['0.00001084@DUSD', '0.00004566@TSLA'],
+      collateralValue: 15000,
+      loanValue: 99.00010216,
+      interestValue: 0.00010216,
+      informativeRatio: 15151.49951639,
+      collateralRatio: 15151
+    })
+
+    await bob.rpc.loan.paybackLoan({
+      vaultId: bobVaultId,
+      amounts: '19@DUSD',
+      from: dusdBobAddr
+    })
+    await bob.generate(1)
+
+    const vaultAfter = await bob.container.call('getvault', [bobVaultId])
+    expect(vaultAfter).toStrictEqual({
+      vaultId: bobVaultId,
+      loanSchemeId: 'scheme',
+      ownerAddress: bobVaultAddr,
+      state: 'active',
+      collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
+      loanAmounts: ['0.00001084@DUSD', '40.00006849@TSLA'],
+      interestAmounts: ['0.00000000@DUSD', '0.00006849@TSLA'],
+      collateralValue: 15000,
+      loanValue: 80.00014782,
+      interestValue: 0.00013698,
+      informativeRatio: 18749.96535475,
+      collateralRatio: 18750
+    })
+  })
 })
 
 describe('paybackLoan failed', () => {
