@@ -7,7 +7,10 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
-import { OracleIntervalSeconds, OraclePriceAggregatedIntervalMapper } from '@src/module.model/oracle.price.aggregated.interval'
+import {
+  OracleIntervalSeconds,
+  OraclePriceAggregatedIntervalMapper
+} from '@src/module.model/oracle.price.aggregated.interval'
 
 describe('invalidate appoint/remove/update oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -375,10 +378,8 @@ describe('interval set oracle data', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
 
-    // app = await createMockIndexerTestingApp(container)
     app = await createTestingApp(container)
     client = new JsonRpcClient(await container.getCachedRpcUrl())
   })
@@ -387,7 +388,7 @@ describe('interval set oracle data', () => {
     await stopTestingApp(container, app)
   })
 
-  it('should get interval', async () => {
+  it.skip('should get interval', async () => {
     const address = await container.getNewAddress()
     const oracleId = await client.oracle.appointOracle(address, [
       { token: 'S1', currency: 'USD' }
@@ -406,7 +407,7 @@ describe('interval set oracle data', () => {
           { tokenAmount: `${price}@S1`, currency: 'USD' }
         ]
       })
-      await client.call('setmocktime', [mockTime], 'number')
+      await client.misc.setMockTime(mockTime)
       await container.generate(1)
     }
 

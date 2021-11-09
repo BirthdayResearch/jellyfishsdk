@@ -110,9 +110,9 @@ describe('list', () => {
 
     expect(result.data[3]).toStrictEqual({
       id: '3',
-      symbol: 'DBTC-DET',
-      symbolKey: 'DBTC-DET',
-      displaySymbol: 'DBTC-DET',
+      symbol: 'DBTC-DETH',
+      symbolKey: 'DBTC-DETH',
+      displaySymbol: 'DBTC-DETH',
       name: 'DBTC-DETH',
       decimal: 8,
       limit: '0',
@@ -152,7 +152,7 @@ describe('list', () => {
     expect(next.page?.next).toStrictEqual('3')
 
     expect(next.data[0]).toStrictEqual(expect.objectContaining({ id: '2', symbol: 'DETH', symbolKey: 'DETH' }))
-    expect(next.data[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DET', symbolKey: 'DBTC-DET' }))
+    expect(next.data[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DETH', symbolKey: 'DBTC-DETH' }))
 
     const last = await controller.list({
       size: 1,
@@ -260,9 +260,9 @@ describe('get', () => {
     const data = await controller.get('3')
     expect(data).toStrictEqual({
       id: '3',
-      symbol: 'DBTC-DET',
-      symbolKey: 'DBTC-DET',
-      displaySymbol: 'DBTC-DET',
+      symbol: 'DBTC-DETH',
+      symbolKey: 'DBTC-DETH',
+      displaySymbol: 'DBTC-DETH',
       name: 'DBTC-DETH',
       decimal: 8,
       limit: '0',
