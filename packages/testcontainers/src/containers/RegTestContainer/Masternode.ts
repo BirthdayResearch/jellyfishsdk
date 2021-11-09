@@ -199,9 +199,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       if (!data.isLive) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForPriceValid')
   }
 
@@ -219,9 +218,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       if (data.isLive) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForPriceInvalid')
   }
 
@@ -240,9 +238,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       if (data.activePrice.toString() !== activePrice) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForActivePrice')
   }
 
@@ -261,9 +258,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       if (data.nextPrice.toString() !== nextPrice) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForNextPrice')
   }
 
