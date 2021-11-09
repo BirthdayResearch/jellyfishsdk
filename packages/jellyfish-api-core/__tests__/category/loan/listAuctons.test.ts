@@ -254,21 +254,25 @@ describe('Loan listAuctions', () => {
     console.log(vaultIds)
 
     {
+      // should list all
       const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[0] }, including_start: true, limit: 4 })
       console.log(x)
     }
 
     {
-      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[2] }, including_start: true, limit: 2 })
+      // should list 1 and 2
+      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[0] }, including_start: true, limit: 2 })
       console.log(x)
     }
 
     {
-      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[2] }, including_start: false, limit: 2 })
+      // should list 2 and 3
+      const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[1] }, including_start: true, limit: 2 })
       console.log(x)
     }
 
     {
+      // should list 3 and 4
       const x = await testing.rpc.loan.listAuctions({ start: { vaultId: vaultIds[2] }, including_start: true, limit: 2 })
       console.log(x)
     }
