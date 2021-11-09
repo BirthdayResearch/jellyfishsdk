@@ -446,7 +446,6 @@ describe('placeAuctionBid success', () => {
 
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
-    expect(vault.invalidPrice).toStrictEqual(false)
     expect(vault.collateralAmounts).toStrictEqual([])
     expect(vault.loanAmounts).toStrictEqual([])
     expect(vault.interestAmounts).toStrictEqual([])
