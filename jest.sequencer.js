@@ -8,11 +8,8 @@ class CustomSequencer extends Sequencer {
       const total = parseInt(process.env.GH_INSTANCE_TOTAL, 10)
       const index = parseInt(process.env.GH_INSTANCE_INDEX, 10)
 
-      tests = tests
-        .sort((a, b) => (a.path < b.path ? -1 : 1))
-        .filter((_, i) => i % total === index)
-
       return ShuffleSeed.shuffle(tests, 'deterministic')
+        .filter((_, i) => i % total === index)
     }
 
     return tests
