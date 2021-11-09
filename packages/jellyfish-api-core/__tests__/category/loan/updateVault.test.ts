@@ -157,6 +157,8 @@ describe('Loan updateVault', () => {
     await alice.generate(1)
 
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.9@DFI', currency: 'USD' }] })
+    await alice.generate(1)
+
     await alice.container.waitForNextPrice('DFI/USD', '0.9')
 
     const data = await alice.rpc.loan.getVault(vaultId)
@@ -169,10 +171,13 @@ describe('Loan updateVault', () => {
 
     expect(typeof updateVaultId).toStrictEqual('string')
     expect(updateVaultId.length).toStrictEqual(64)
+
     await alice.container.waitForActivePrice('DFI/USD', '0.9')
 
     // Update back the price
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await alice.generate(1)
+
     await alice.container.waitForActivePrice('DFI/USD', '1')
   })
 
@@ -235,6 +240,7 @@ describe('Loan updateVault', () => {
     await alice.generate(1)
 
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.1@DFI', currency: 'USD' }] })
+    await alice.generate(1)
 
     // Wait for the price become invalid
     await alice.container.waitForPriceInvalid('DFI/USD')
@@ -254,6 +260,8 @@ describe('Loan updateVault', () => {
 
     // Update back the price
     await alice.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await alice.generate(1)
+
     await alice.container.waitForPriceInvalid('DFI/USD')
     await alice.container.waitForPriceValid('DFI/USD')
   })
