@@ -76,7 +76,7 @@ describe('list', () => {
     expect(next.nextToken).toStrictEqual('3')
 
     expect(next[0]).toStrictEqual(expect.objectContaining({ id: '2', symbol: 'DETH', symbolKey: 'DETH' }))
-    expect(next[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DET', symbolKey: 'DBTC-DET' }))
+    expect(next[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DETH', symbolKey: 'DBTC-DETH' }))
 
     const last = await client.paginate(next)
 

@@ -238,18 +238,13 @@ describe('oracles', () => {
 })
 
 describe('pricefeed with interval', () => {
-  let container: MasterNodeRegTestContainer
-  let service: StubService
+  const container = new MasterNodeRegTestContainer()
+  const service = new StubService(container)
+  const apiClient = new StubWhaleApiClient(service)
   let client: JsonRpcClient
-  let apiClient: WhaleApiClient
 
   beforeAll(async () => {
-    container = new MasterNodeRegTestContainer()
-    service = new StubService(container)
-    apiClient = new StubWhaleApiClient(service)
-
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await service.start()
 
@@ -264,7 +259,7 @@ describe('pricefeed with interval', () => {
     }
   })
 
-  it('should get interval', async () => {
+  it.skip('should get interval', async () => {
     const address = await container.getNewAddress()
     const oracleId = await client.oracle.appointOracle(address, [
       { token: 'S1', currency: 'USD' }
