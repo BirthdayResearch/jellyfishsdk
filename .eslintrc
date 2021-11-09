@@ -33,7 +33,8 @@
         "SwitchCase": 1
       }
     ],
-    "import/no-default-export": "error"
+    "import/no-default-export": "error",
+    "no-else-return": "error"
   },
   "overrides": [
     {
