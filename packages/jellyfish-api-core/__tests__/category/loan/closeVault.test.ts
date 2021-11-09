@@ -99,7 +99,6 @@ describe('Loan', () => {
 
     await tGroup.get(0).poolpair.create({ tokenA: 'DUSD', tokenB: 'DFI' })
     await tGroup.get(0).generate(1)
-
     await tGroup.get(0).poolpair.add({
       a: { symbol: 'DUSD', amount: 25000 },
       b: { symbol: 'DFI', amount: 10000 }

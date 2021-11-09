@@ -46,24 +46,14 @@ describe('loans.closeVault', () => {
   async function setup (): Promise<void> {
     // token setup
     const collateralAddress = await providers.getAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 40000 })
-    await tGroup.get(0).token.create({ symbol: 'DUSD', collateralAddress })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'DUSD', amount: 600000 })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).poolpair.create({ tokenA: 'DUSD', tokenB: 'DFI' })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).poolpair.add({
-      a: { symbol: 'DUSD', amount: 25000 },
-      b: { symbol: 'DFI', amount: 10000 }
-    })
-    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 200000 })
 
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' }
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
     ]
     oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
@@ -84,6 +74,47 @@ describe('loans.closeVault', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DFI/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    // DUSD proper set up
+    await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(1),
+      id: 'default'
+    })
+    await tGroup.get(0).generate(1)
+
+    const aliceVaultAddr = await tGroup.get(0).generateAddress()
+    const aliceVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: aliceVaultAddr,
+      loanSchemeId: 'default'
+    })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: aliceVaultId, from: collateralAddress, amount: '90000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: aliceVaultId,
+      to: collateralAddress,
+      amounts: ['60000@DUSD']
+    })
+    await tGroup.get(0).generate(1)
+    // DUSD set up END
+
+    await tGroup.get(0).poolpair.create({ tokenA: 'DUSD', tokenB: 'DFI' })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).poolpair.add({
+      a: { symbol: 'DUSD', amount: 25000 },
+      b: { symbol: 'DFI', amount: 10000 }
     })
     await tGroup.get(0).generate(1)
 
