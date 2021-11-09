@@ -32,29 +32,20 @@ describe('Loan', () => {
   async function setup (): Promise<void> {
     // token setup
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 40000 })
-    await tGroup.get(0).token.create({ symbol: 'DUSD', collateralAddress })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'DUSD', amount: 600000 })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).poolpair.create({ tokenA: 'DUSD', tokenB: 'DFI' })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).poolpair.add({
-      a: { symbol: 'DUSD', amount: 25000 },
-      b: { symbol: 'DFI', amount: 10000 }
-    })
-    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 200000 })
 
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' }
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
     ]
     oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DUSD', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
 
     // loan scheme setup
@@ -70,6 +61,48 @@ describe('Loan', () => {
       token: 'DFI',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DFI/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    // DUSD proper set up
+    await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(1),
+      id: 'default'
+    })
+    await tGroup.get(0).generate(1)
+
+    const aliceVaultAddr = await tGroup.get(0).generateAddress()
+    const aliceVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: aliceVaultAddr,
+      loanSchemeId: 'default'
+    })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: aliceVaultId, from: collateralAddress, amount: '90000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: aliceVaultId,
+      to: collateralAddress,
+      amounts: ['60000@DUSD']
+    })
+    await tGroup.get(0).generate(1)
+    // DUSD set up END
+
+    await tGroup.get(0).poolpair.create({ tokenA: 'DUSD', tokenB: 'DFI' })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).poolpair.add({
+      a: { symbol: 'DUSD', amount: 25000 },
+      b: { symbol: 'DFI', amount: 10000 }
     })
     await tGroup.get(0).generate(1)
 
@@ -168,11 +201,6 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.container.call('paybackloan', [{ vaultId: vaultWithPayBackLoanId, from: vaultWithPayBackLoanAddress, amounts: '2@TSLA' }])
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultWithPayBackLoanId, from: collateralAddress, amount: '2@DFI'
-    })
     await tGroup.get(0).generate(1)
 
     // vaultWithLiquidationId
