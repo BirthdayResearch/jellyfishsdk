@@ -232,6 +232,10 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<Vote>(CVote.OP_NAME, d => new CVote(d))
       case CICXSubmitDFCHTLC.OP_CODE:
         return compose<ICXSubmitDFCHTLC>(CICXSubmitDFCHTLC.OP_NAME, d => new CICXSubmitDFCHTLC(d))
+      case CICXSubmitEXTHTLC.OP_CODE:
+        return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
+      case CICXClaimDFCHTLC.OP_CODE:
+        return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       case CCreateLoanScheme.OP_CODE:
         return compose<LoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
       case CUpdateLoanScheme.OP_CODE:
@@ -246,10 +250,6 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<SetLoanToken>(CSetLoanToken.OP_NAME, d => new CSetLoanToken(d))
       case CUpdateLoanToken.OP_CODE:
         return compose<UpdateLoanToken>(CUpdateLoanToken.OP_NAME, d => new CUpdateLoanToken(d))
-      case CICXSubmitEXTHTLC.OP_CODE:
-        return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
-      case CICXClaimDFCHTLC.OP_CODE:
-        return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
       case CCreateVault.OP_CODE:
         return compose<CreateVault>(CCreateVault.OP_NAME, d => new CCreateVault(d))
       case CUpdateVault.OP_CODE:
