@@ -1,4 +1,5 @@
 const Sequencer = require('@jest/test-sequencer').default
+const ShuffleSeed = require('shuffle-seed')
 
 class CustomSequencer extends Sequencer {
   sort (tests) {
@@ -6,9 +7,12 @@ class CustomSequencer extends Sequencer {
     if (process.env.GH_INSTANCE_TOTAL) {
       const total = parseInt(process.env.GH_INSTANCE_TOTAL, 10)
       const index = parseInt(process.env.GH_INSTANCE_INDEX, 10)
-      return tests
+
+      tests = tests
         .sort((a, b) => (a.path < b.path ? -1 : 1))
         .filter((_, i) => i % total === index)
+
+      return ShuffleSeed.shuffle(tests, 'deterministic')
     }
 
     return tests
