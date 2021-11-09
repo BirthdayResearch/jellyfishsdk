@@ -191,7 +191,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForPriceValid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
+  async waitForPriceValid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
@@ -211,7 +211,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
+  async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
@@ -232,7 +232,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: number, timeout = 100000): Promise<void> {
+  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
@@ -253,7 +253,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: number, timeout = 100000): Promise<void> {
+  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: number, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
