@@ -274,23 +274,11 @@ describe('placeAuctionBid success', () => {
           {
             index: 0,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '500.00428078@TSLA' // 535 / 1.05, https://github.com/DeFiCh/pinkpaper/tree/main/loan#collateral-auction
+            loan: '500.00428078@TSLA'
           }
         ]
       }
     ])
-    /**
-     * The pattern is tested by several last bid amount
-     *
-     * | last bid     | loan         | recovered    | last bid vs recovered |
-     * |--------------|--------------|--------------|-----------------------|
-     * | 525.00419516 | 500.00399539 | 500.00399539 | 1.05                  |
-     * | 530          | 500.00399539 | 504.9998002  | 1.049505366           |
-     * | 535          | 500.00399539 | 509.9998002  | 1.049020019           |
-     * | 550          | 500.00399539 | 524.9998002  | 1.047619446           |
-     * | 580          | 500.00399539 | 554.9998002  | 1.045045421           |
-     * | 600          | 500.00399539 | 574.9998002  | 1.043478623           |
-     */
 
     const bobColAccEndBid = await bob.rpc.account.getAccount(bobColAddr)
     // compare to bobColAccAfter ['8900.00000000@DFI', '20.45454546@TSLA']
