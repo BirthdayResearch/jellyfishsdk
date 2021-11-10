@@ -212,6 +212,32 @@ export class CCreateVault extends ComposableBuffer<CreateVault> {
 }
 
 /**
+ * UpdateVault DeFi Transaction
+ */
+export interface UpdateVault {
+  vaultId: string // -------------------------| 32 bytes hex string
+  ownerAddress: Script // --------------------| n = VarUInt{1-9 bytes}, + n bytes, Vault's owner address
+  schemeId: string // ------------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Vault's loan scheme id
+}
+
+/**
+ * Composable UpdateVault, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CUpdateVault extends ComposableBuffer<UpdateVault> {
+  static OP_CODE = 0x76 // 'v'
+  static OP_NAME = 'OP_DEFI_TX_UPDATE_VAULT'
+
+  composers (uv: UpdateVault): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => uv.vaultId, v => uv.vaultId = v),
+      ComposableBuffer.single<Script>(() => uv.ownerAddress, v => uv.ownerAddress = v, v => new CScript(v)),
+      ComposableBuffer.varUIntUtf8BE(() => uv.schemeId, v => uv.schemeId = v)
+    ]
+  }
+}
+
+/**
  * DepositToVault DeFi Transaction
  */
 export interface DepositToVault {
