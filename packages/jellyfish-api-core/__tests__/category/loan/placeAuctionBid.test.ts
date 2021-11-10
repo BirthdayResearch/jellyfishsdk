@@ -216,6 +216,9 @@ describe('placeAuctionBid success', () => {
   })
 
   it('should placeAuctionBid', async () => {
+    // const vault = await alice.container.call('getvault', [bobVaultId])
+    // console.log(vault)
+
     const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
@@ -304,6 +307,47 @@ describe('placeAuctionBid success', () => {
     await alice.generate(10)
     const auctionsAfter1 = await bob.container.call('listauctions')
     expect(auctionsAfter).toStrictEqual(auctionsAfter1)
+
+    await bob.generate(40)
+
+    // should not allow place bid
+    const txid1 = await alice.rpc.loan.placeAuctionBid({
+      vaultId: bobVaultId,
+      index: 0,
+      from: aliceColAddr,
+      amount: '5465@TSLA' // (526 * 1%) + 525 = 531.26
+    })
+    await alice.generate(1)
+    await tGroup.waitForSync()
+
+    expect(typeof txid1).toStrictEqual('string') // Something wrong. This should throw error.
+
+    {
+      const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
+      expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '4000.00000000@TSLA'])
+    }
+
+    await bob.generate(40)
+
+    const auctionHistory = await alice.rpc.loan.listAuctionHistory()
+    expect(auctionHistory.length).toStrictEqual(2)
+
+    // // should not allow place bid. AND AGAIN It can allow bidding
+    // const txid2 = await alice.rpc.loan.placeAuctionBid({
+    //   vaultId: bobVaultId,
+    //   index: 0,
+    //   from: aliceColAddr,
+    //   amount: '1000@TSLA' // (526 * 1%) + 525 = 531.26
+    // })
+    // await alice.generate(1)
+    // await tGroup.waitForSync()
+    //
+    // expect(typeof txid2).toStrictEqual('string') // Something wrong. This should throw error.
+    //
+    // {
+    //   const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
+    //   expect(aliceColAccEndBid).toStrictEqual(['40000.00000000@DFI', '30000.00000000@BTC', '1000.00000000@TSLA'])
+    // }
   })
 
   it('should placeAuctionBid with utxos', async () => {

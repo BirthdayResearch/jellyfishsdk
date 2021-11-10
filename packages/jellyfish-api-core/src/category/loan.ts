@@ -378,6 +378,31 @@ export class Loan {
       'number'
     )
   }
+
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryData[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
+  }
+}
+
+export interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+export interface ListAuctionHistoryData {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
 }
 
 export interface CreateLoanScheme {
