@@ -370,7 +370,10 @@ export class Loan {
    * @return {Promise<AuctionDetail[]>}
    */
   async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
-    return await this.client.call('listauctions', [pagination], { batches: 'bignumber' })
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], { batches: 'bignumber' })
   }
 }
 
