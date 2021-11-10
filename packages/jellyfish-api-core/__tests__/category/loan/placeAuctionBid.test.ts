@@ -264,6 +264,10 @@ describe('placeAuctionBid success', () => {
     await alice.generate(1)
     await tGroup.waitForSync()
 
+    // bob should be able to claim back his fund right after the higher bid
+    const bobColAccBid = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobColAccBid).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
+
     // end the auction and alice win the bid
     await bob.generate(36)
 
@@ -286,11 +290,6 @@ describe('placeAuctionBid success', () => {
         ]
       }
     ])
-
-    const bobColAccEndBid = await bob.rpc.account.getAccount(bobColAddr)
-    // compare to bobColAccAfter ['8900.00000000@DFI', '20.45454546@TSLA']
-    // bob claims back his funds
-    expect(bobColAccEndBid).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
     expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '9465.00000000@TSLA'])
