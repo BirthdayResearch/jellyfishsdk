@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight, invalidateFromHeight } from '@src/e2e.module'
+import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { createPoolPair, createToken, mintTokens } from '@defichain/testing'
 import { PoolPairMapper } from '@src/module.model/poolpair'
 import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
@@ -37,7 +37,7 @@ afterEach(async () => {
 })
 
 describe('update poolpair', () => {
-  it('should index poolpairs', async () => {
+  it.skip('should index poolpairs', async () => {
     await container.generate(1)
     const height = await container.call('getblockcount')
     await container.generate(1)
@@ -70,7 +70,7 @@ describe('update poolpair', () => {
 })
 
 describe('invalidate', () => {
-  it('should create, update poolpair and invalidate', async () => {
+  it.skip('should create, update poolpair and invalidate', async () => {
     await container.generate(1)
     const height = await container.call('getblockcount')
     await container.generate(1)
