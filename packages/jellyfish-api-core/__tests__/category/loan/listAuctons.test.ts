@@ -435,98 +435,122 @@ describe('Loan listAuctions', () => {
   })
 
   describe('listAuctions with pagination', () => {
-    let list: AuctionDetail[]
-    let vaultIds: string[]
+    let auction1: AuctionDetail
+    let auction2: AuctionDetail
+    let auction3: AuctionDetail
+    let auction4: AuctionDetail
+    let auction5: AuctionDetail
+    let auction6: AuctionDetail
 
     beforeAll(async () => {
-      list = await testing.rpc.loan.listAuctions()
-      vaultIds = list.map(v => v.vaultId)
+      [auction1, auction2, auction3, auction4, auction5, auction6] = await testing.rpc.loan.listAuctions()
     })
 
     it('should listAuctions with limit only', async () => {
       // List auctions with limit = size (When pass in limit only, including_start always = true)
-      const listWithLimit6 = await testing.rpc.loan.listAuctions({ limit: 6 })
-      expect(listWithLimit6.length).toStrictEqual(6)
-      expect(listWithLimit6[0].vaultId).toStrictEqual(vaultIds[0])
-      expect(listWithLimit6[1].vaultId).toStrictEqual(vaultIds[1])
-      expect(listWithLimit6[2].vaultId).toStrictEqual(vaultIds[2])
-      expect(listWithLimit6[3].vaultId).toStrictEqual(vaultIds[3])
-      expect(listWithLimit6[4].vaultId).toStrictEqual(vaultIds[4])
-      expect(listWithLimit6[5].vaultId).toStrictEqual(vaultIds[5])
-      expect(listWithLimit6).toStrictEqual(list)
+      const pageLimit6 = await testing.rpc.loan.listAuctions({ limit: 6 })
+      expect(pageLimit6.length).toStrictEqual(6)
+      expect(pageLimit6[0].vaultId).toStrictEqual(auction1.vaultId)
+      expect(pageLimit6[1].vaultId).toStrictEqual(auction2.vaultId)
+      expect(pageLimit6[2].vaultId).toStrictEqual(auction3.vaultId)
+      expect(pageLimit6[3].vaultId).toStrictEqual(auction4.vaultId)
+      expect(pageLimit6[4].vaultId).toStrictEqual(auction5.vaultId)
+      expect(pageLimit6[5].vaultId).toStrictEqual(auction6.vaultId)
 
       // List auctions with limit > size
-      const listWithLimit7 = await testing.rpc.loan.listAuctions({ limit: 7 })
-      expect(listWithLimit7.length).toStrictEqual(6)
-      expect(listWithLimit7).toStrictEqual(list)
+      const pageLimit7 = await testing.rpc.loan.listAuctions({ limit: 7 })
+      expect(pageLimit7.length).toStrictEqual(6)
+      expect(pageLimit7).toStrictEqual(pageLimit6)
     })
 
-    it('should listAuctions with height', async () => {
-      // List for liquidation height of first vault
-      // including_start = true
-      {
-        const page = await testing.rpc.loan.listAuctions(
-          { start: { height: 222 }, including_start: true }
-        )
-        expect(page.length).toStrictEqual(6)
-      }
-      // including_start = false
-      {
-        const page = await testing.rpc.loan.listAuctions( // default to including_start = false
-          { start: { height: 222 } }
-        )
-        expect(page.length).toStrictEqual(5) // 6 - 1 = 5
-      }
+    // it('should listAuctions with height', async () => {
+    //   // List for liquidation height of first vault
+    //   // including_start = true
+    //   {
+    //     const page = await testing.rpc.loan.listAuctions(
+    //       { start: { height: auction1.liquidationHeight }, including_start: true }
+    //     )
+    //     expect(page.length).toStrictEqual(6)
+    //     expect(page[0].vaultId).toStrictEqual(auction1.vaultId)
+    //     expect(page[1].vaultId).toStrictEqual(auction2.vaultId)
+    //     expect(page[2].vaultId).toStrictEqual(auction3.vaultId)
+    //     expect(page[3].vaultId).toStrictEqual(auction4.vaultId)
+    //     expect(page[4].vaultId).toStrictEqual(auction5.vaultId)
+    //     expect(page[5].vaultId).toStrictEqual(auction6.vaultId)
+    //   }
+    //   // including_start = false
+    //   {
+    //     const page = await testing.rpc.loan.listAuctions(
+    //       { start: { height: auction1.liquidationHeight }}
+    //     )
+    //     expect(page.length).toStrictEqual(5)
+    //     expect(page[0].vaultId).toStrictEqual(auction2.vaultId)
+    //     expect(page[1].vaultId).toStrictEqual(auction3.vaultId)
+    //     expect(page[2].vaultId).toStrictEqual(auction4.vaultId)
+    //     expect(page[3].vaultId).toStrictEqual(auction5.vaultId)
+    //     expect(page[4].vaultId).toStrictEqual(auction6.vaultId)
+    //   }
+    //
+    //   // List for liquidation height of sixth vault
+    //   // including_start = true
+    //   {
+    //     const page = await testing.rpc.loan.listAuctions(
+    //       { start: { height: auction6.liquidationHeight }, including_start: true }
+    //     )
+    //     expect(page.length).toStrictEqual(1)
+    //     expect(page[0].vaultId).toStrictEqual(auction6.vaultId)
+    //   }
+    //   // including_start = false
+    //   {
+    //     const page = await testing.rpc.loan.listAuctions(
+    //       { start: { height: auction6.liquidationHeight }}
+    //     )
+    //     expect(page.length).toStrictEqual(0)
+    //   }
+    // })
 
-      // List for liquidation height of sixth vault
-      // including_start = true
-      {
-        const page = await testing.rpc.loan.listAuctions(
-          { start: { height: 247 }, including_start: true }
-        )
-        expect(page.length).toStrictEqual(1)
-      }
-      // including_start = false
-      {
-        const page = await testing.rpc.loan.listAuctions( // default to including_start = false
-          { start: { height: 247 } }
-        )
-        expect(page.length).toStrictEqual(0) // 1 - 1 = 0
-      }
-    })
-
-    it('should listAuctions with vaultId', async () => {
-      // including_start = true
-      {
-        const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultId2 }, including_start: true }
-        )
-        expect(page.length).toStrictEqual(6) // Unable to filter by vaultId only, must have both height and vauldId as filtered
-      }
-      // including_start = false
-      {
-        const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultId2 } }
-        )
-        expect(page.length).toStrictEqual(5)
-      }
-    })
+    // it('should listAuctions with vaultId', async () => {
+    //   // including_start = true
+    //   {
+    //     const page = await testing.rpc.loan.listAuctions(
+    //       { start: { vaultId: auction1.vaultId }, including_start: true }
+    //     )
+    //     expect(page.length).toStrictEqual(6) // Unable to filter by vaultId only, must have both height and vauldId as filtered
+    //   }
+    //   // including_start = false
+    //   {
+    //     const page = await testing.rpc.loan.listAuctions(
+    //       { start: { vaultId: auction1.vaultId } }
+    //     )
+    //     expect(page.length).toStrictEqual(5)// Unable to filter by vaultId only, must have both height and vauldId as filtered
+    //   }
+    // })
 
     it('should listAuctions with vaultId and height', async () => {
       // List for liquidation height of first vault and vaultId of second vault
       // including_start = true
+      const [auction1, auction2, auction3, auction4, auction5, auction6] = await testing.rpc.loan.listAuctions({ limit: 6 })
       {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultId2, height: 222 }, including_start: true }
+          { start: { vaultId: auction2.vaultId, height: auction1.liquidationHeight }, including_start: true }
         )
-        expect(page.length).toStrictEqual(5) // vault 2,3,4,5,6
+        expect(page.length).toStrictEqual(5)
+        expect(page[0].vaultId).toStrictEqual(auction2.vaultId)
+        expect(page[1].vaultId).toStrictEqual(auction3.vaultId)
+        expect(page[2].vaultId).toStrictEqual(auction4.vaultId)
+        expect(page[3].vaultId).toStrictEqual(auction5.vaultId)
+        expect(page[4].vaultId).toStrictEqual(auction6.vaultId)
       }
       // including_start = false
       {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultId2, height: 222 } }
+          { start: { vaultId: auction2.vaultId, height: auction2.liquidationHeight } }
         )
-        expect(page.length).toStrictEqual(4) // vault 3,4,5,6
+        expect(page.length).toStrictEqual(4)
+        expect(page[0].vaultId).toStrictEqual(auction3.vaultId)
+        expect(page[1].vaultId).toStrictEqual(auction4.vaultId)
+        expect(page[2].vaultId).toStrictEqual(auction5.vaultId)
+        expect(page[3].vaultId).toStrictEqual(auction6.vaultId)
       }
     })
 
@@ -535,20 +559,27 @@ describe('Loan listAuctions', () => {
       // including_start = true
       {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultId2, height: 222 }, including_start: true, limit: 2 }
+          {
+            start: { vaultId: auction1.vaultId, height: auction1.liquidationHeight },
+            including_start: true,
+            limit: 2
+          }
         )
         expect(page.length).toStrictEqual(2)
-        expect(page[0].vaultId).toStrictEqual(vaultId2)
-        expect(page[1].vaultId).toStrictEqual(vaultId3)
+        expect(page[0].vaultId).toStrictEqual(auction1.vaultId)
+        expect(page[1].vaultId).toStrictEqual(auction2.vaultId)
       }
       // including_start = false
       {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultId2, height: 222 }, limit: 2 }
+          {
+            start: { vaultId: auction2.vaultId, height: auction2.liquidationHeight },
+            limit: 2
+          }
         )
         expect(page.length).toStrictEqual(2)
-        expect(page[0].vaultId).toStrictEqual(vaultIds[3])
-        expect(page[1].vaultId).toStrictEqual(vaultIds[4])
+        expect(page[0].vaultId).toStrictEqual(auction3.vaultId)
+        expect(page[1].vaultId).toStrictEqual(auction4.vaultId)
       }
     })
   })
