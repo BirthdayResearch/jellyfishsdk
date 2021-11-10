@@ -495,6 +495,23 @@ describe('Loan listAuctions', () => {
       }
     })
 
+    it('should listAuctions with vaultId', async () => {
+      // including_start = true
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { vaultId: vaultIds[2] }, including_start: true }
+        )
+        expect(page.length).toStrictEqual(6) // Unable to filter by vaultId only, must have both height and vauldId as filtered
+      }
+      // including_start = false
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { vaultId: vaultIds[2] } }
+        )
+        expect(page.length).toStrictEqual(5)
+      }
+    })
+
     it('should listAuctions with vaultId and height', async () => {
       // List for liquidation height of first vault and vaultId of second vault
       // including_start = true
@@ -514,20 +531,31 @@ describe('Loan listAuctions', () => {
     })
 
     it('should listAuctions with vaultId, height and limit', async () => {
+      console.log(vaultId1)
+      console.log(vaultId2)
+      console.log(vaultId3)
+      console.log(vaultId4)
+      console.log(vaultId5)
+      console.log(vaultId6)
+
       // List for liquidation height of first vault, vaultId of second vault and limit = 2
       // including_start = true
       {
         const page = await testing.rpc.loan.listAuctions(
           { start: { vaultId: vaultIds[2], height: 222 }, including_start: true, limit: 2 }
         )
-        expect(page.length).toStrictEqual(2) // vault 2,3
+        expect(page.length).toStrictEqual(2)
+        expect(page[0].vaultId).toStrictEqual(vaultId2)
+        expect(page[1].vaultId).toStrictEqual(vaultId3)
       }
       // including_start = false
       {
         const page = await testing.rpc.loan.listAuctions(
           { start: { vaultId: vaultIds[2], height: 222 }, limit: 2 }
         )
-        expect(page.length).toStrictEqual(2) // vault 3,4
+        expect(page.length).toStrictEqual(2)
+        expect(page[0].vaultId).toStrictEqual(vaultId3)
+        expect(page[1].vaultId).toStrictEqual(vaultId4)
       }
     })
   })
