@@ -56,7 +56,7 @@ describe('Loan setCollateralToken', () => {
 
   it('should not setCollateralToken if factor is greater than 1', async () => {
     const promise = testing.rpc.loan.setCollateralToken({ token: 'AAPL', factor: new BigNumber(1.01), fixedIntervalPriceId: 'AAPL/USD' })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nsetCollateralToken factor must be lower or equal than 1.00000000!\', code: -32600, method: setcollateraltoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nsetCollateralToken factor must be lower or equal than 1.00000000!\', code: -32600, method: setcollateraltoken')
   })
 
   it('should not setCollateralToken if factor is less than 0', async () => {
@@ -70,7 +70,7 @@ describe('Loan setCollateralToken', () => {
       factor: new BigNumber(0.5),
       fixedIntervalPriceId: 'MFST/USD'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nPrice feed MFST/USD does not belong to any oracle\', code: -32600, method: setcollateraltoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nPrice feed MFST/USD does not belong to any oracle\', code: -32600, method: setcollateraltoken')
   })
 
   it('should not setLoanToken if fixedIntervalPriceId is not in correct format', async () => {
@@ -132,7 +132,7 @@ describe('Loan setCollateralToken', () => {
       factor: new BigNumber(0.5),
       fixedIntervalPriceId: 'AAPL/USD'
     }, [utxo])
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setcollateraltoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\ntx not from foundation member!\', code: -32600, method: setcollateraltoken')
   })
 })
 
@@ -225,6 +225,6 @@ describe('Loan setCollateralToken with activateAfterBlock less than the current 
       fixedIntervalPriceId: 'AAPL/USD',
       activateAfterBlock: 109
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test LoanSetCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test SetLoanCollateralTokenTx execution failed:\nactivateAfterBlock cannot be less than current height!\', code: -32600, method: setcollateraltoken')
   })
 })

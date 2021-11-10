@@ -254,6 +254,74 @@ describe('ComposableBuffer.varUIntArray', () => {
   })
 })
 
+describe('ComposableBuffer.varUIntArrayRaw', () => {
+  describe('varUint', () => {
+    const data = Buffer.from([
+      0x03, // data length, 3 varUint to extract
+      0x67, // 1 byte,
+      0xfd, 0x01, 0x23, // 2 bytes,
+      0xfe, 0x45, 0x67, 0x89, 0xab // 4 bytes
+    ])
+    const numbers = [
+      103, // 0x67
+      8961, // 0x0123 = (2301)16
+      2877908805 // 0x456789ab = (ab896745)16
+    ]
+    let readFromBuffer: any[] | undefined
+
+    const composer = ComposableBuffer.varUIntArrayRaw<number>(
+      () => numbers,
+      v => readFromBuffer = v,
+      (d, b) => writeVarUInt(d, b),
+      b => readVarUInt(b)
+    )
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(data))
+      expect(readFromBuffer).toStrictEqual(numbers)
+    })
+
+    it('should toBuffer', () => {
+      const decoded = new SmartBuffer()
+      composer.toBuffer(decoded)
+      // 03 (length), 67, fd, 0123, fe, 456789ab
+      expect(decoded.toString('hex')).toStrictEqual('0367fd0123fe456789ab')
+    })
+  })
+
+  describe('custom usage: simple 1 byte boolean', () => {
+    const data = [true, true, false, true, false]
+    const buffer = Buffer.from('050101000100', 'hex')
+
+    let readFromBuffer: any[] | undefined
+
+    const composer = ComposableBuffer.varUIntArrayRaw<boolean>(
+      () => data,
+      v => readFromBuffer = v,
+      (d, b) => writeVarUInt(d ? 0x01 : 0x00, b),
+      b => readVarUInt(b) === 0x01
+    )
+
+    it('should fromBuffer', () => {
+      composer.fromBuffer(SmartBuffer.fromBuffer(buffer))
+      expect(readFromBuffer).toStrictEqual(data)
+    })
+
+    it('should toBuffer', () => {
+      const decoded = new SmartBuffer()
+      composer.toBuffer(decoded)
+      expect(decoded.toBuffer()).toStrictEqual(buffer)
+    })
+
+    it('should fail fromBuffer when data do not match given length', async () => {
+      async function decode (): Promise<void> {
+        composer.fromBuffer(SmartBuffer.fromBuffer(Buffer.from('0501010001', 'hex')))
+      }
+      await expect(decode).rejects.toThrowError('Attempted to read beyond the bounds of the managed data')
+    })
+  })
+})
+
 describe('ComposableBuffer.array', () => {
   interface Item {
     value: BigNumber // 8 bytes

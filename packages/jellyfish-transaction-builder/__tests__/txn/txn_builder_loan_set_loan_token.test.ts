@@ -145,7 +145,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('LoanSetLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('SetLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
   })
 
   it('should not setLoanToken if the symbol is used in other token', async () => {
@@ -179,7 +179,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
 
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: token \'Token3\' already exists! (code 16)\', code: -26')
   })
 
   it('should not setLoanToken if currencyPair does not belong to any oracle', async () => {
@@ -193,7 +193,7 @@ describe('loan.setLoanToken()', () => {
     }, script)
     const promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanSetLoanTokenTx: no live oracles for specified request (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'SetLoanTokenTx: no live oracles for specified request (code 16)\', code: -26')
   })
 
   it('should setLoanToken with the given name', async () => {
