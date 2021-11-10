@@ -379,11 +379,22 @@ describe('Loan listAuctions', () => {
       const vaultIds = list.map(v => v.vaultId)
       expect(list.length).toStrictEqual(6)
       expect(list[0].vaultId).toStrictEqual(vaultIds[0])
+      expect(list[0].liquidationHeight).toStrictEqual(222)
+
       expect(list[1].vaultId).toStrictEqual(vaultIds[1])
+      expect(list[1].liquidationHeight).toStrictEqual(223)
+
       expect(list[2].vaultId).toStrictEqual(vaultIds[2])
+      expect(list[2].liquidationHeight).toStrictEqual(234)
+
       expect(list[3].vaultId).toStrictEqual(vaultIds[3])
+      expect(list[3].liquidationHeight).toStrictEqual(235)
+
       expect(list[4].vaultId).toStrictEqual(vaultIds[4])
+      expect(list[4].liquidationHeight).toStrictEqual(246)
+
       expect(list[5].vaultId).toStrictEqual(vaultIds[5])
+      expect(list[5].liquidationHeight).toStrictEqual(247)
 
       const result = list.filter(d => d.vaultId === vaultId1)
       // Auction are divided into 2 batches,
@@ -432,8 +443,8 @@ describe('Loan listAuctions', () => {
       vaultIds = list.map(v => v.vaultId)
     })
 
-    it('should listAuctions with limit', async () => {
-      // List auctions with limit = size
+    it('should listAuctions with limit only', async () => {
+      // List auctions with limit = size (When pass in limit only, including_start always = true)
       const listWithLimit6 = await testing.rpc.loan.listAuctions({ limit: 6 })
       expect(listWithLimit6.length).toStrictEqual(6)
       expect(listWithLimit6[0].vaultId).toStrictEqual(vaultIds[0])
@@ -451,68 +462,73 @@ describe('Loan listAuctions', () => {
     })
 
     it('should listAuctions with height', async () => {
-      // List for liquidation height for vault1
+      // List for liquidation height of first vault
+      // including_start = true
       {
         const page = await testing.rpc.loan.listAuctions(
           { start: { height: 222 }, including_start: true }
         )
         expect(page.length).toStrictEqual(6)
       }
-
+      // including_start = false
       {
-        const page = await testing.rpc.loan.listAuctions(
+        const page = await testing.rpc.loan.listAuctions( // default to including_start = false
           { start: { height: 222 } }
         )
-        expect(page.length).toStrictEqual(5)
+        expect(page.length).toStrictEqual(5) // 6 - 1 = 5
       }
 
-      // List for liquidation height for vault6
+      // List for liquidation height of sixth vault
+      // including_start = true
       {
         const page = await testing.rpc.loan.listAuctions(
           { start: { height: 247 }, including_start: true }
         )
         expect(page.length).toStrictEqual(1)
       }
-
+      // including_start = false
       {
-        const page = await testing.rpc.loan.listAuctions(
+        const page = await testing.rpc.loan.listAuctions( // default to including_start = false
           { start: { height: 247 } }
         )
-        expect(page.length).toStrictEqual(0)
+        expect(page.length).toStrictEqual(0) // 1 - 1 = 0
       }
     })
 
-    describe('should listAuctions with vaultId and height', () => {
-      it('Should listAuctions', async () => {
-        {
-          const page = await testing.rpc.loan.listAuctions(
-            { start: { vaultId: vaultIds[1], height: 168 } }
-          )
-          // should be 2 entries
-          expect(page.length).toStrictEqual(2)
-          expect(page[0].vaultId).toStrictEqual(vaultIds[2])
-          expect(page[1].vaultId).toStrictEqual(vaultIds[3])
-        }
-
-        {
-          const page = await testing.rpc.loan.listAuctions(
-            { start: { vaultId: vaultIds[3], height: 168 }, limit: 2 }
-          )
-
-          // should be 0 entry
-          expect(page.length).toStrictEqual(0)
-        }
-      })
-
-      it('should listAuctions with including_start = true', async () => {
+    it('should listAuctions with vaultId and height', async () => {
+      // List for liquidation height of first vault and vaultId of second vault
+      // including_start = true
+      {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: vaultIds[2], height: 168 }, including_start: true }
+          { start: { vaultId: vaultIds[2], height: 222 }, including_start: true }
         )
-        // should be 2 entries
-        expect(page.length).toStrictEqual(2)
-        expect(page[0].vaultId).toStrictEqual(vaultIds[2])
-        expect(page[1].vaultId).toStrictEqual(vaultIds[3])
-      })
+        expect(page.length).toStrictEqual(5) // vault 2,3,4,5,6
+      }
+      // including_start = false
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { vaultId: vaultIds[2], height: 222 } }
+        )
+        expect(page.length).toStrictEqual(4) // vault 3,4,5,6
+      }
+    })
+
+    it('should listAuctions with vaultId, height and limit', async () => {
+      // List for liquidation height of first vault, vaultId of second vault and limit = 2
+      // including_start = true
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { vaultId: vaultIds[2], height: 222 }, including_start: true, limit: 2 }
+        )
+        expect(page.length).toStrictEqual(2) // vault 2,3
+      }
+      // including_start = false
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { vaultId: vaultIds[2], height: 222 }, limit: 2 }
+        )
+        expect(page.length).toStrictEqual(2) // vault 3,4
+      }
     })
   })
 })
