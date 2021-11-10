@@ -362,8 +362,9 @@ export class Loan {
    * List all available auctions.
    *
    * @param {AuctionPagination} pagination
-   * @param {string} pagination.vaultId Vault id
-   * @param {string| string[]} pagination.amounts In "amount@symbol" format
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
    * @return {Promise<AuctionDetail[]>}
    */
   async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
