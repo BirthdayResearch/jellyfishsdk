@@ -361,6 +361,9 @@ export class Loan {
   /**
    * List all available auctions.
    *
+   * @param {AuctionPagination} pagination
+   * @param {string} pagination.vaultId Vault id
+   * @param {string| string[]} pagination.amounts In "amount@symbol" format
    * @return {Promise<AuctionDetail[]>}
    */
   async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
@@ -491,12 +494,6 @@ export interface VaultLiquidation extends Vault {
   batches: VaultLiquidationBatch[]
 }
 
-export interface VaultLiquidationBatch {
-  index: number
-  collaterals: string[]
-  loan: string
-}
-
 export interface UTXO {
   txid: string
   vout: number
@@ -560,8 +557,14 @@ export interface AuctionDetail {
   batchCount: BigNumber
   liquidationPenalty: BigNumber
   liquidationHeight: BigNumber
-  batches: any
+  batches: VaultLiquidationBatch[]
   loanSchemeId: string
   ownerAddress: string
   state: string
+}
+
+export interface VaultLiquidationBatch {
+  index: number
+  collaterals: string[]
+  loan: string
 }

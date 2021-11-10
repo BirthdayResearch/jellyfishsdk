@@ -286,13 +286,24 @@ describe('Loan listAuctions', () => {
     })
 
     it('should listAuctions with height only', async () => {
-      const page = await testing.rpc.loan.listAuctions(
-        { start: { height: 168 } }
-      )
-      expect(page.length).toStrictEqual(3)
-      expect(page[0]).toStrictEqual(list[1])
-      expect(page[1]).toStrictEqual(list[2])
-      expect(page[2]).toStrictEqual(list[3])
+      // List for current height
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { height: 168 } }
+        )
+        expect(page.length).toStrictEqual(3)
+        expect(page[0]).toStrictEqual(list[1])
+        expect(page[1]).toStrictEqual(list[2])
+        expect(page[2]).toStrictEqual(list[3])
+      }
+
+      // List for next height
+      {
+        const page = await testing.rpc.loan.listAuctions(
+          { start: { height: 169 } }
+        )
+        expect(page.length).toStrictEqual(0)
+      }
     })
 
     describe('should listAuctions with vaultId and height', () => {

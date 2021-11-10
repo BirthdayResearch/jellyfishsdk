@@ -580,14 +580,24 @@ interface UTXO {
 }
 ```
 
-
 ## listAuctions
 
 List all available auctions.
 
 ```ts title="client.loan.listAuctions()"
 interface loan {
-  listAuctions (): Promise<AuctionDetail[]>
+  listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]>
+}
+
+interface AuctionPagination {
+  start?: AuctionPaginationStart
+  including_start?: boolean
+  limit?: number
+}
+
+interface AuctionPaginationStart {
+  vaultId?: string
+  height?: number
 }
 
 interface AuctionDetail {
@@ -595,14 +605,14 @@ interface AuctionDetail {
   batchCount: BigNumber
   liquidationPenalty: BigNumber
   liquidationHeight: BigNumber
-  batches: AuctionBatchDetails[]
+  batches: VaultLiquidationBatch[]
   loanSchemeId: string
   ownerAddress: string
   state: string
 }
 
-interface AuctionBatchDetails {
-  index: BigNumber
+interface VaultLiquidationBatch {
+  index: number
   collaterals: string[]
   loan: string
 }
