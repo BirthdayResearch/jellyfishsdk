@@ -169,6 +169,21 @@ export class Masternode {
   }
 
   /**
+   * List all governance variables together if any with activation height
+   *
+   * @example
+   * [
+   *   [ { govVarKey: value }, { <activation height number>: value } ],
+   *   [ { govVarKey2: value }, { <activation height number>: value } ]
+   * ]
+   *
+   * @returns {Promise<Array<Array<Record<string, any>>>>}
+   */
+  async listGovs (): Promise<Array<Array<Record<string, any>>>> {
+    return await this.client.call('listgovs', [], 'bignumber')
+  }
+
+  /**
    * Returns number of unique masternodes in the last specified number of blocks.
    *
    * @param {number} [blockCount=20160] The number of blocks to check for unique masternodes.

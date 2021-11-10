@@ -180,6 +180,16 @@ interface masternode {
 }
 ```
 
+## listGovs
+
+List all governance variables together if any with activation height
+
+```ts title="client.masternode.listGovs()"
+interface masternode {
+  listGovs (): Promise<Array<Array<Record<string, any>>>>
+}
+```
+
 ## getActiveMasternodeCount
 
 Returns number of unique masternodes in the last specified number of blocks.
