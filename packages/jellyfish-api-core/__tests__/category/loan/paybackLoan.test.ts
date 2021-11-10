@@ -563,7 +563,6 @@ describe('paybackLoan success', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 
-  // fixes on master-5772b6c
   it('should paybackLoan with DUSD', async () => {
     const dusdBobAddr = await bob.generateAddress()
     await bob.rpc.loan.takeLoan({
@@ -572,6 +571,15 @@ describe('paybackLoan success', () => {
       amounts: '19@DUSD'
     })
     await bob.generate(1)
+
+    const interestBefore = await bob.container.call('getinterest', ['scheme', 'DUSD'])
+    expect(interestBefore).toStrictEqual([
+      {
+        token: 'DUSD',
+        totalInterest: 0.00001084,
+        interestPerBlock: 0.00001084
+      }
+    ])
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore).toStrictEqual({
@@ -611,6 +619,23 @@ describe('paybackLoan success', () => {
       informativeRatio: 18749.96535475,
       collateralRatio: 18750
     })
+
+    // zero interest amount testing
+    const interestAfter = await bob.container.call('getinterest', ['scheme', 'DUSD'])
+    expect(interestAfter).toStrictEqual([
+      {
+        token: 'DUSD',
+        totalInterest: 0.00001084,
+        interestPerBlock: 0.00001084
+      }
+    ])
+
+    await bob.container.generate(10)
+
+    {
+      const vaultAfter = await bob.container.call('getvault', [bobVaultId])
+      console.log('vaultAfter: ', vaultAfter)
+    }
   })
 })
 
