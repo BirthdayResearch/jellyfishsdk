@@ -42,7 +42,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a244466547856' // OP_RETURN(0x6a) (length 37 = 0x25) CDfTx.SIGNATURE(0x44665478) CCreateVault.OP_CODE(0x56)
+const header = '6a244466547856' // OP_RETURN(0x6a) (length 36 = 0x24) CDfTx.SIGNATURE(0x44665478) CCreateVault.OP_CODE(0x56)
 // CreateVault.ownerAddress(0x1600147f3b2ccdb32982c3fa5380112dffad8a6792bba8) CreateVault.schemeId(0x07736368656d6531)
 const data = '1600147f3b2ccdb32982c3fa5380112dffad8a6792bba807736368656d6531'
 const createVault: CreateVault = {

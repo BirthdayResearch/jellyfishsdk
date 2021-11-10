@@ -341,3 +341,33 @@ interface blockchain {
   getBestBlockHash (): Promise<string>
 }
 ```
+
+## waitForNewBlock
+
+Wait for any new block
+
+```ts title="client.blockchain.waitForNewBlock()"
+interface blockchain {
+  waitForNewBlock (timeout: number = 30000): Promise<WaitBlockResult>
+}
+
+interface WaitBlockResult {
+  hash: string
+  height: number
+}
+```
+
+## waitForBlockHeight
+
+Waits for block height equal or higher than provided and returns the height and hash of the current tip.
+
+```ts title="client.blockchain.waitForBlockHeight()"
+interface blockchain {
+  waitForBlockHeight (height: number, timeout: number = 30000): Promise<waitForBlockHeight>
+}
+
+interface WaitBlockResult {
+  hash: string
+  height: number
+}
+```

@@ -33,7 +33,8 @@
         "SwitchCase": 1
       }
     ],
-    "import/no-default-export": "error"
+    "import/no-default-export": "error",
+    "no-else-return": "error"
   },
   "overrides": [
     {
@@ -55,7 +56,8 @@
         "**/__tests__/**/*.test.ts"
       ],
       "rules": {
-        "@typescript-eslint/no-non-null-assertion": "off"
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "no-lone-blocks": "off"
       }
     }
   ]
