@@ -214,7 +214,7 @@ describe('placeAuctionBid success', () => {
     await tGroup.stop()
   })
 
-  it.only('should placeAuctionBid', async () => {
+  it('should placeAuctionBid', async () => {
     // test end the auction without bid
     await bob.generate(36)
     {
