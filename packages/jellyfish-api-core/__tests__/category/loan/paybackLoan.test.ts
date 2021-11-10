@@ -563,6 +563,7 @@ describe('paybackLoan success', () => {
     expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
   })
 
+  // fixes on master-5772b6c
   it('should paybackLoan with DUSD', async () => {
     const dusdBobAddr = await bob.generateAddress()
     await bob.rpc.loan.takeLoan({

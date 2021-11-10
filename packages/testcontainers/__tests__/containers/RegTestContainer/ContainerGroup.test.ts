@@ -1,9 +1,10 @@
-import { ContainerGroup, GenesisKeys, MasterNodeRegTestContainer } from '../../../src'
+import { ContainerGroup, MasterNodeRegTestContainer } from '../../../src'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 const group = new ContainerGroup([
-  new MasterNodeRegTestContainer(GenesisKeys[0]),
-  new MasterNodeRegTestContainer(GenesisKeys[1]),
-  new MasterNodeRegTestContainer(GenesisKeys[2])
+  new MasterNodeRegTestContainer(RegTestFoundationKeys[0]),
+  new MasterNodeRegTestContainer(RegTestFoundationKeys[1]),
+  new MasterNodeRegTestContainer(RegTestFoundationKeys[2])
 ])
 
 beforeAll(async () => {

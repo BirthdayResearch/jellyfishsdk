@@ -100,9 +100,9 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * safeguard to prevent outputs that originate from the coinbase transaction from becoming
    * un-spendable (in the event the mined block moves out of the active chain due to a fork).
    *
-   * @param {number} [timeout=90000] in ms
+   * @param {number} [timeout=180000] in ms
    */
-  async waitForWalletCoinbaseMaturity (timeout = 90000): Promise<void> {
+  async waitForWalletCoinbaseMaturity (timeout = 180000): Promise<void> {
     return await this.waitForBlockHeight(100, timeout)
   }
 
@@ -110,12 +110,13 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for in wallet balance to be greater than an amount.
    * This allow test that require fund to wait for fund to be filled up before running the tests.
    * This method will trigger block generate to get to the required balance faster.
+   * Set `timeout` to higher accordingly when large balance required.
    *
    * @param {number} balance to wait for in wallet to be greater than or equal
-   * @param {number} [timeout=30000] in ms
+   * @param {number} [timeout=300000] in ms
    * @see waitForWalletCoinbaseMaturity
    */
-  async waitForWalletBalanceGTE (balance: number, timeout = 30000): Promise<void> {
+  async waitForWalletBalanceGTE (balance: number, timeout = 300000): Promise<void> {
     return await waitForCondition(async () => {
       const getbalance = await this.call('getbalance')
       if (getbalance >= balance) {
@@ -191,16 +192,15 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForPriceValid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
+  async waitForPriceValid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
       if (!data.isLive) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForPriceValid')
   }
 
@@ -211,16 +211,15 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 100000): Promise<void> {
+  async waitForPriceInvalid (fixedIntervalPriceId: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
       if (data.isLive) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForPriceInvalid')
   }
 
@@ -228,20 +227,19 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for active price
    *
    * @param {string} fixedIntervalPriceId
-   * @param {number} activePrice
+   * @param {string} activePrice
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: number, timeout = 100000): Promise<void> {
+  async waitForActivePrice (fixedIntervalPriceId: string, activePrice: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
-      if (data.activePrice !== activePrice) {
+      if (data.activePrice.toString() !== activePrice) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForActivePrice')
   }
 
@@ -249,20 +247,19 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for next price
    *
    * @param {string} fixedIntervalPriceId
-   * @param {number} nextPrice
+   * @param {string} nextPrice
    * @param {number} [timeout=30000] in ms
    * @return {Promise<void>}
    */
-  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: number, timeout = 100000): Promise<void> {
+  async waitForNextPrice (fixedIntervalPriceId: string, nextPrice: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
       // eslint-disable-next-line
-      if (data.nextPrice !== nextPrice) {
+      if (data.nextPrice.toString() !== nextPrice) {
         await this.generate(1)
         return false
-      } else {
-        return true
       }
+      return true
     }, timeout, 100, 'waitForNextPrice')
   }
 

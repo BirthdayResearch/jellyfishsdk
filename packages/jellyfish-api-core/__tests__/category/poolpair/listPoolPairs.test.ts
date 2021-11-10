@@ -74,7 +74,7 @@ describe('Poolpair', () => {
         assertions += 1
       }
 
-      if (poolpair.symbol === 'DFI-DUSD') {
+      if (poolpair.symbol === 'DFI-DUSDT') {
         expect(poolpair.name).toStrictEqual('Default Defi token-DUSDT')
         expect(poolpair.status).toStrictEqual(false)
         expect(poolpair.commission.toString()).toStrictEqual(new BigNumber(0).toString())
