@@ -109,7 +109,8 @@ describe('Oracle', () => {
     )
   })
 
-  it('should listLatestRawPrices for timestamps 4200 seconds before the current time', async () => {
+  // FIXME(@ivan-zynesis): set price as usual, mock system time to 4200s later and listLatestRawPrices
+  it.skip('should listLatestRawPrices for timestamps 4200 seconds before the current time', async () => {
     const oracleId = await container.call('appointoracle', [await container.getNewAddress(), [{
       token: 'AAPL',
       currency: 'EUR'

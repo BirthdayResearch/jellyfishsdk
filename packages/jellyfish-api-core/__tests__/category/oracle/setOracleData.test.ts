@@ -168,6 +168,6 @@ describe('Oracle', () => {
 
     const promise = client.oracle.setOracleData(oracleId, timestamp, { prices })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('RpcApiError: \'timestamp cannot be negative, zero or over 5 minutes in the future\', code: -8')
+    await expect(promise).rejects.toThrow(`Timestamp (${timestamp}) is out of price update window`)
   })
 })

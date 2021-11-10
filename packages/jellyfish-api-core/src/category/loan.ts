@@ -218,6 +218,22 @@ export class Loan {
   }
 
   /**
+   * Create update vault transaction.
+   *
+   * @param {string} vaultId
+   * @param {UpdateVault} vault
+   * @param {string} [vault.ownerAddress] Any valid address
+   * @param {string} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatevault', [vaultId, vault, utxos], 'number')
+  }
+
+  /**
    * Returns information about vault.
    *
    * @param {string} vaultId vault hex id
@@ -292,6 +308,22 @@ export class Loan {
    */
   async depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('deposittovault', [depositVault.vaultId, depositVault.from, depositVault.amount, utxos], 'number')
+  }
+
+  /**
+   * Withdraw from vault
+   *
+   * @param {WithdrawVault} withdrawVault
+   * @param {string} withdrawVault.vaultId Vault id
+   * @param {string} withdrawVault.to Collateral address
+   * @param {string} withdrawVault.amount In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async withdrawFromVault (withdrawVault: WithdrawVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('withdrawfromvault', [withdrawVault.vaultId, withdrawVault.to, withdrawVault.amount, utxos], 'number')
   }
 
   /**
@@ -412,6 +444,11 @@ export interface CreateVault {
   loanSchemeId?: string
 }
 
+export interface UpdateVault {
+  ownerAddress?: string
+  loanSchemeId?: string
+}
+
 export enum VaultState {
   UNKNOWN = 'unknown',
   ACTIVE = 'active',
@@ -446,7 +483,7 @@ export interface VaultLiquidation extends Vault {
 }
 
 export interface VaultLiquidationBatch {
-  index: BigNumber
+  index: number
   collaterals: string[]
   loan: string
 }
@@ -459,6 +496,12 @@ export interface UTXO {
 export interface DepositVault {
   vaultId: string
   from: string
+  amount: string // amount@symbol
+}
+
+export interface WithdrawVault {
+  vaultId: string
+  to: string
   amount: string // amount@symbol
 }
 

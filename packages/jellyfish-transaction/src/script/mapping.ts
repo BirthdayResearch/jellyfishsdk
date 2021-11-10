@@ -19,11 +19,13 @@ import {
   CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CCompositeSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
   PoolCreatePair,
   PoolRemoveLiquidity,
   PoolSwap,
+  CompositeSwap,
   PoolUpdatePair
 } from './dftx/dftx_pool'
 import {
@@ -72,8 +74,12 @@ import {
   UpdateLoanToken,
   CCreateVault,
   CreateVault,
+  CUpdateVault,
+  UpdateVault,
   CDepositToVault,
   DepositToVault,
+  CCloseVault,
+  CloseVault,
   TakeLoan,
   CTakeLoan,
   CPaybackLoan,
@@ -193,6 +199,14 @@ export const OP_CODES = {
       type: CPoolSwap.OP_CODE,
       name: CPoolSwap.OP_NAME,
       data: poolSwap
+    })
+  },
+  OP_DEFI_TX_COMPOSITE_SWAP: (compositeSwap: CompositeSwap): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCompositeSwap.OP_CODE,
+      name: CCompositeSwap.OP_NAME,
+      data: compositeSwap
     })
   },
   OP_DEFI_TX_POOL_ADD_LIQUIDITY: (poolAddLiquidity: PoolAddLiquidity): OP_DEFI_TX => {
@@ -419,6 +433,22 @@ export const OP_CODES = {
       data: icxSubmitDFCHTLC
     })
   },
+  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitEXTHTLC.OP_CODE,
+      name: CICXSubmitEXTHTLC.OP_NAME,
+      data: icxSubmitEXTHTLC
+    })
+  },
+  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXClaimDFCHTLC.OP_CODE,
+      name: CICXClaimDFCHTLC.OP_NAME,
+      data: icxClaimDFCHTLC
+    })
+  },
   OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -467,22 +497,6 @@ export const OP_CODES = {
       data: setLoanToken
     })
   },
-  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
-    return new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: CICXSubmitEXTHTLC.OP_CODE,
-      name: CICXSubmitEXTHTLC.OP_NAME,
-      data: icxSubmitEXTHTLC
-    })
-  },
-  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
-    return new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: CICXClaimDFCHTLC.OP_CODE,
-      name: CICXClaimDFCHTLC.OP_NAME,
-      data: icxClaimDFCHTLC
-    })
-  },
   OP_DEFI_TX_UPDATE_LOAN_TOKEN: (updateLoanToken: UpdateLoanToken): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -499,12 +513,28 @@ export const OP_CODES = {
       data: createVault
     })
   },
+  OP_DEFI_TX_UPDATE_VAULT: (updateVault: UpdateVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateVault.OP_CODE,
+      name: CUpdateVault.OP_NAME,
+      data: updateVault
+    })
+  },
   OP_DEFI_TX_DEPOSIT_TO_VAULT: (depositToVault: DepositToVault): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
       type: CDepositToVault.OP_CODE,
       name: CDepositToVault.OP_NAME,
       data: depositToVault
+    })
+  },
+  OP_DEFI_TX_CLOSE_VAULT: (closeVault: CloseVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCloseVault.OP_CODE,
+      name: CCloseVault.OP_NAME,
+      data: closeVault
     })
   },
   OP_DEFI_TX_TAKE_LOAN: (takeLoan: TakeLoan): OP_DEFI_TX => {

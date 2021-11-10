@@ -17,7 +17,6 @@ afterEach(async () => {
 it('should start and mint coins', async () => {
   const container = new PersistentMNRegTestContainer()
   await container.start()
-  await container.waitForReady()
   await container.generate(4)
 
   const info = await container.getMiningInfo()
@@ -27,12 +26,10 @@ it('should start and mint coins', async () => {
 it('should always use the same persistent container', async () => {
   let container = new PersistentMNRegTestContainer()
   await container.start()
-  await container.waitForReady()
   await container.generate(4)
 
   container = new PersistentMNRegTestContainer()
   await container.start()
-  await container.waitForReady()
 
   const { blocks } = await container.getMiningInfo()
   expect(blocks).toBeGreaterThan(3)

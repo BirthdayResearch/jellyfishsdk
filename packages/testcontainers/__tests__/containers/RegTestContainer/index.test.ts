@@ -5,7 +5,6 @@ describe('regtest', () => {
 
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
   })
 
   afterAll(async () => {
