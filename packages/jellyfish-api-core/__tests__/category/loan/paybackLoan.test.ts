@@ -621,20 +621,66 @@ describe('paybackLoan success', () => {
     })
 
     // zero interest amount testing
-    const interestAfter = await bob.container.call('getinterest', ['scheme', 'DUSD'])
-    expect(interestAfter).toStrictEqual([
-      {
-        token: 'DUSD',
-        totalInterest: 0.00001084,
-        interestPerBlock: 0.00001084
-      }
-    ])
-
-    await bob.container.generate(10)
-
     {
+      const interestZeroBefore = await bob.container.call('getinterest', ['scheme', 'DUSD'])
+      expect(interestZeroBefore).toStrictEqual([
+        {
+          token: 'DUSD',
+          totalInterest: 0.00000000,
+          interestPerBlock: 0.00000000
+        }
+      ])
+
+      await bob.container.generate(10)
+
+      const interestZeroAfter = await bob.container.call('getinterest', ['scheme', 'DUSD'])
+      expect(interestZeroAfter).toStrictEqual([
+        {
+          token: 'DUSD',
+          totalInterest: 0.00000000,
+          interestPerBlock: 0.00000000
+        }
+      ])
+
+      const vaultBefore = await bob.container.call('getvault', [bobVaultId])
+      expect(vaultBefore).toStrictEqual({
+        vaultId: bobVaultId,
+        loanSchemeId: 'scheme',
+        ownerAddress: bobVaultAddr,
+        state: 'active',
+        collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
+        loanAmounts: ['0.00001084@DUSD', '40.00029679@TSLA'],
+        interestAmounts: ['0.00000000@DUSD', '0.00029679@TSLA'], // zero interest on DUSD
+        collateralValue: 15000,
+        loanValue: 80.00060442,
+        interestValue: 0.00059358,
+        informativeRatio: 18749.85834013,
+        collateralRatio: 18750
+      })
+
+      // takeLoan again to expect interest incurs
+      await bob.rpc.loan.takeLoan({
+        vaultId: bobVaultId,
+        to: dusdBobAddr,
+        amounts: '1234@DUSD'
+      })
+      await bob.generate(1)
+
       const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-      console.log('vaultAfter: ', vaultAfter)
+      expect(vaultAfter).toStrictEqual({
+        vaultId: bobVaultId,
+        loanSchemeId: 'scheme',
+        ownerAddress: bobVaultAddr,
+        state: 'active',
+        collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
+        loanAmounts: ['1234.00071517@DUSD', '40.00031962@TSLA'],
+        interestAmounts: ['0.00070433@DUSD', '0.00031962@TSLA'],
+        collateralValue: 15000,
+        loanValue: 1314.00135441,
+        interestValue: 0.00134357,
+        informativeRatio: 1141.55133475,
+        collateralRatio: 1142
+      })
     }
   })
 })
