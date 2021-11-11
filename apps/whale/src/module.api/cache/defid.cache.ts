@@ -4,6 +4,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TokenInfo, TokenResult } from '@defichain/jellyfish-api-core/dist/category/token'
 import { CachePrefix, GlobalCache } from '@src/module.api/cache/global.cache'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { GetLoanSchemeResult } from '@defichain/jellyfish-api-core/dist/category/loan'
 
 @Injectable()
 export class DeFiDCache extends GlobalCache {
@@ -46,6 +47,14 @@ export class DeFiDCache extends GlobalCache {
 
   private async fetchTokenInfoBySymbol (symbol: string): Promise<TokenResult | undefined> {
     return await this.rpcClient.token.getToken(symbol)
+  }
+
+  async getLoanScheme (id: string): Promise<GetLoanSchemeResult | undefined> {
+    return await this.get<GetLoanSchemeResult>(CachePrefix.LOAN_SCHEME_INFO, id, this.fetchLoanSchemeInfo.bind(this))
+  }
+
+  private async fetchLoanSchemeInfo (id: string): Promise<GetLoanSchemeResult | undefined> {
+    return await this.rpcClient.loan.getLoanScheme(id)
   }
 
   async getPoolPairInfo (id: string): Promise<PoolPairInfo | undefined> {
