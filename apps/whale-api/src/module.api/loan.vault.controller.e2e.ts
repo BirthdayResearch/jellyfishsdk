@@ -78,7 +78,11 @@ describe('loan', () => {
     result.data.forEach(e =>
       expect(e).toStrictEqual({
         vaultId: expect.any(String),
-        loanSchemeId: 'default',
+        loanScheme: {
+          id: 'default',
+          interestRate: '1.5',
+          minColRatio: '150'
+        },
         ownerAddress: expect.any(String),
         state: expect.any(String),
         informativeRatio: '-1',
@@ -99,7 +103,11 @@ describe('get', () => {
     const data = await controller.getVault(vaultId1)
     expect(data).toStrictEqual({
       vaultId: vaultId1,
-      loanSchemeId: 'default',
+      loanScheme: {
+        id: 'default',
+        interestRate: '1.5',
+        minColRatio: '150'
+      },
       ownerAddress: address1,
       state: LoanVaultState.ACTIVE,
       informativeRatio: '-1',

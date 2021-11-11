@@ -8,6 +8,7 @@ import {
 } from '@defichain/jellyfish-api-core/dist/category/loan'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import {
+  LoanScheme,
   LoanVaultActive,
   LoanVaultLiquidated,
   LoanVaultLiquidationBatch,
@@ -65,7 +66,7 @@ export class LoanVaultService {
       const data = details as VaultLiquidation
       return {
         vaultId: data.vaultId,
-        loanSchemeId: data.loanSchemeId,
+        loanScheme: await this.mapLoanScheme(data.loanSchemeId),
         ownerAddress: data.ownerAddress,
         state: LoanVaultState.IN_LIQUIDATION,
         batchCount: data.batchCount,
@@ -78,7 +79,7 @@ export class LoanVaultService {
     const data = details as VaultActive
     return {
       vaultId: data.vaultId,
-      loanSchemeId: data.loanSchemeId,
+      loanScheme: await this.mapLoanScheme(data.loanSchemeId),
       ownerAddress: data.ownerAddress,
       state: mapLoanVaultState(data.state) as any,
 
@@ -131,6 +132,18 @@ export class LoanVaultService {
     })
 
     return await Promise.all(items)
+  }
+
+  private async mapLoanScheme (id: string): Promise<LoanScheme> {
+    const scheme = await this.deFiDCache.getLoanScheme(id)
+    if (scheme === undefined) {
+      throw new ConflictException('unable to find loan scheme')
+    }
+    return {
+      id: scheme.id,
+      minColRatio: scheme.mincolratio.toFixed(),
+      interestRate: scheme.interestrate.toFixed()
+    }
   }
 }
 
