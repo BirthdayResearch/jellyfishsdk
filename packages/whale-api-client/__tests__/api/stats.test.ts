@@ -49,6 +49,16 @@ describe('stats', () => {
       amountB: 431.51288,
       shareAddress: await getNewAddress(container)
     })
+    await createToken(container, 'USDC')
+    await createPoolPair(container, 'USDC', 'DFI')
+    await mintTokens(container, 'USDC')
+    await addPoolLiquidity(container, {
+      tokenA: 'USDC',
+      amountA: 1000,
+      tokenB: 'DFI',
+      amountB: 431.51288,
+      shareAddress: await getNewAddress(container)
+    })
     const height = await container.getBlockCount()
     await container.generate(1)
     await service.waitForIndexedHeight(height)
@@ -66,15 +76,32 @@ describe('stats', () => {
     const data = await client.stats.get()
 
     expect(data).toStrictEqual({
-      count: { blocks: 117, prices: 0, tokens: 7, masternodes: 8 },
-      burned: { address: 0, emission: 7014.88, fee: 3, total: 7017.88 },
-      tvl: { dex: 3853.9423279032194, total: 4039.3365615032194, masternodes: 185.3942336 },
-      price: { usdt: 2.31742792 },
+      count: {
+        blocks: 122,
+        prices: 0,
+        tokens: 9,
+        masternodes: 8
+      },
+      burned: {
+        address: 0,
+        emission: 7323.58,
+        fee: 4,
+        total: 7327.58
+      },
+      tvl: {
+        dex: 5853.942343505482,
+        masternodes: 185.39423435054823,
+        total: 6039.336577856031
+      },
+      price: {
+        usd: 2.317427929381853,
+        usdt: 2.317427929381853
+      },
       masternodes: {
         locked: [
           {
             count: 8,
-            tvl: 185.3942336,
+            tvl: 185.39423435054823,
             weeks: 0
           }
         ]
