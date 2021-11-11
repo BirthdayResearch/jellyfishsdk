@@ -3,6 +3,7 @@ import { GenesisKeys } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { VaultState } from '../../../src/category/loan'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
@@ -268,8 +269,10 @@ describe('placeAuctionBid success', () => {
     const bobColAccBid = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobColAccBid).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
-    // end the auction and alice win the bid
-    await bob.generate(36)
+    // let the auction end and the vault's state will be switched to mayLiquidate
+    await bob.container.waitForVaultState(bobVaultId, VaultState.MAY_LIQUIDATE)
+    // after convert from mayLiquidate, gen(1) will cause interest increase
+    await bob.container.waitForVaultState(bobVaultId, VaultState.IN_LIQUIDATION)
 
     const auctionsAfter = await bob.container.call('listauctions')
     expect(auctionsAfter).toStrictEqual([

@@ -210,6 +210,17 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForPriceInvalid')
   }
 
+  async waitForVaultState (vaultId: string, state: string, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const vault = await this.call('getvault', [vaultId])
+      if (vault.state !== state) {
+        await this.generate(1)
+        return false
+      }
+      return true
+    }, timeout, 100, 'waitForVaultState')
+  }
+
   /**
    * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
