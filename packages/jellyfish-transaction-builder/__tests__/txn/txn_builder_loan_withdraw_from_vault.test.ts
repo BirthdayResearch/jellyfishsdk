@@ -8,7 +8,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { DecodedAddress, fromAddress, fromScript } from '@defichain/jellyfish-address'
-import { VaultActive, VaultLiquidation, VaultState } from '@defichain/jellyfish-api-core/src/category/loan'
+import { VaultActive, VaultLiquidation } from '@defichain/jellyfish-api-core/src/category/loan'
 import { Script } from '@defichain/jellyfish-transaction/src/tx'
 
 describe('loans.withdrawFromVault', () => {
@@ -342,7 +342,7 @@ describe('loans.withdrawFromVault', () => {
       await tGroup.get(0).generate(12)
 
       const liqVault = await tGroup.get(0).rpc.loan.getVault(liquidatedVault) as VaultLiquidation
-      expect(liqVault.state).toStrictEqual(VaultState.IN_LIQUIDATION)
+      expect(liqVault.state).toStrictEqual('inLiquidation')
 
       // set oracle price above spent the utxos and change go into different address
       // causing no prevout at address derived directly from elliptic pair, fund for utxo again
