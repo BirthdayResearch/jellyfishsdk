@@ -268,7 +268,7 @@ export class CDepositToVault extends ComposableBuffer<DepositToVault> {
  */
 export interface WithdrawFromVault {
   vaultId: string // ------------------| 32 bytes, Vault Id
-  to: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes, Address to receive withdrawn collateral
+  to: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address to receive withdrawn collateral
   tokenAmount: TokenBalanceVarInt // --| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
 }
 
