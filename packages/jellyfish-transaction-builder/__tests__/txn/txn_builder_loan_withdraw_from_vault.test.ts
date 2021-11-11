@@ -8,8 +8,8 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { DecodedAddress, fromAddress, fromScript } from '@defichain/jellyfish-address'
-import { Script } from 'packages/jellyfish-transaction/src/tx'
-import { VaultActive, VaultLiquidation, VaultState } from 'packages/jellyfish-api-core/src/category/loan'
+import { VaultActive, VaultLiquidation, VaultState } from '@defichain/jellyfish-api-core/src/category/loan'
+import { Script } from '@defichain/jellyfish-transaction/src/tx'
 
 describe('loans.withdrawFromVault', () => {
   const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
