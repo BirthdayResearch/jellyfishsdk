@@ -9,6 +9,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { DecodedAddress, fromAddress, fromScript } from '@defichain/jellyfish-address'
 import { Script } from 'packages/jellyfish-transaction/src/tx'
+import { VaultActive, VaultLiquidation, VaultState } from 'packages/jellyfish-api-core/src/category/loan'
 
 describe('loans.withdrawFromVault', () => {
   const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
@@ -191,7 +192,7 @@ describe('loans.withdrawFromVault', () => {
   describe('success cases', () => {
     it('should withdrawFromVault', async () => {
       const withdrawAmount = 1234.56
-      const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+      const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId1) as VaultActive
       const destination = await tGroup.get(0).generateAddress()
       const decoded = fromAddress(destination, 'regtest')
       const script = decoded?.script as Script
@@ -212,9 +213,9 @@ describe('loans.withdrawFromVault', () => {
       await tGroup.waitForSync()
 
       // check collateral balance
-      const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+      const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId1) as VaultActive
       const withdrawnAmount = withdrawAmount * 1 * 1 // deposit 1234 DFI * priceFeed 1 USD * 1 factor
-      expect(vaultBefore.collateralValue?.minus(vaultAfter.collateralValue as BigNumber)).toStrictEqual(new BigNumber(withdrawnAmount))
+      expect(vaultBefore.collateralValue.minus(vaultAfter.collateralValue)).toStrictEqual(new BigNumber(withdrawnAmount))
 
       // check received token
       const account = await tGroup.get(0).rpc.account.getAccount(destination)
@@ -226,7 +227,7 @@ describe('loans.withdrawFromVault', () => {
 
     it('should be able to withdrawFromVault to any address (not mine)', async () => {
       const withdrawAmount = 555
-      const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+      const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId1) as VaultActive
 
       const destination = await tGroup.get(1).generateAddress() // another MN's address
       const decoded = fromAddress(destination, 'regtest')
@@ -248,9 +249,9 @@ describe('loans.withdrawFromVault', () => {
       await tGroup.waitForSync()
 
       // check collateral balance
-      const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId1)
+      const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId1) as VaultActive
       const withdrawnAmount = withdrawAmount * 1 * 1 // deposit 555 DFI * priceFeed 1 USD * 1 factor
-      expect(vaultBefore.collateralValue?.minus(vaultAfter.collateralValue as BigNumber)).toStrictEqual(new BigNumber(withdrawnAmount))
+      expect(vaultBefore.collateralValue?.minus(vaultAfter.collateralValue)).toStrictEqual(new BigNumber(withdrawnAmount))
 
       // check received token
       const account = await tGroup.get(0).rpc.account.getAccount(destination)
@@ -321,20 +322,15 @@ describe('loans.withdrawFromVault', () => {
       // causing no prevout at address derived directly from elliptic pair, fund for utxo again
       await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
 
-      const what = await tGroup.get(0).rpc.loan.getVault(dualCollateralVault)
-      console.log(what)
-
       const txn = await builder.loans.withdrawFromVault({
         vaultId: dualCollateralVault,
         to: script,
-        tokenAmount: { token: 0, amount: new BigNumber(6000) } // DFI (USD value) remaining will become less than 50%
+        // DFI (USD value) remaining will become less than 50%
+        // $4000 DFI vs $5000 BTC
+        tokenAmount: { token: 0, amount: new BigNumber(6000) }
       }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
-      // await promise
-      // await tGroup.get(0).generate(1)
-      // const withdrawn = await tGroup.get(0).rpc.loan.getVault(vaultId1)
-      // console.log('should not', withdrawn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
       await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
     })
@@ -345,8 +341,8 @@ describe('loans.withdrawFromVault', () => {
       await tGroup.get(0).rpc.oracle.setOracleData(oracleId, ts, { prices: [{ tokenAmount: '100000@TSLA', currency: 'USD' }] })
       await tGroup.get(0).generate(12)
 
-      const liqVault = await tGroup.get(0).rpc.loan.getVault(liquidatedVault)
-      expect(liqVault.isUnderLiquidation).toStrictEqual(true)
+      const liqVault = await tGroup.get(0).rpc.loan.getVault(liquidatedVault) as VaultLiquidation
+      expect(liqVault.state).toStrictEqual(VaultState.IN_LIQUIDATION)
 
       // set oracle price above spent the utxos and change go into different address
       // causing no prevout at address derived directly from elliptic pair, fund for utxo again
