@@ -46,12 +46,20 @@ export class PoolPairService {
    * Ideally should use vertex directed graph where we can always find total liquidity if it can be resolved.
    */
   async getTotalLiquidityUsd (info: PoolPairInfo): Promise<BigNumber | undefined> {
-    const USDT_PER_DFI = await this.getUSDT_PER_DFI()
+    const [a, b] = info.symbol.split('-')
+    if (['DUSD', 'USDT', 'USDC'].includes(a)) {
+      return info.reserveA.multipliedBy(2)
+    }
+
+    if (['DUSD', 'USDT', 'USDC'].includes(b)) {
+      return info.reserveB.multipliedBy(2)
+    }
+
+    const USDT_PER_DFI = await this.getUSD_PER_DFI()
     if (USDT_PER_DFI === undefined) {
       return
     }
 
-    const [a, b] = info.symbol.split('-')
     if (a === 'DFI') {
       return info.reserveA.multipliedBy(2).multipliedBy(USDT_PER_DFI)
     }
@@ -61,15 +69,33 @@ export class PoolPairService {
     }
   }
 
-  async getUSDT_PER_DFI (): Promise<BigNumber | undefined> {
-    return await this.cache.get<BigNumber>('USDT_PER_DFI', async () => {
-      const pair = await this.getPoolPair('DFI', 'USDT')
-      if (pair !== undefined) {
+  async getUSD_PER_DFI (): Promise<BigNumber | undefined> {
+    return await this.cache.get<BigNumber>('USD_PER_DFI', async () => {
+      const usdt = await this.getPoolPair('DFI', 'USDT')
+      const usdc = await this.getPoolPair('DFI', 'USDC')
+      let totalUSD = new BigNumber(0)
+      let totalDFI = new BigNumber(0)
+
+      function add (pair: PoolPairInfo): void {
         if (pair.idTokenA === '0') {
-          return new BigNumber(pair['reserveB/reserveA'])
+          totalUSD = totalUSD.plus(pair.reserveB)
+          totalDFI = totalDFI.plus(pair.reserveA)
         } else if (pair.idTokenB === '0') {
-          return new BigNumber(pair['reserveA/reserveB'])
+          totalUSD = totalUSD.plus(pair.reserveA)
+          totalDFI = totalDFI.plus(pair.reserveB)
         }
+      }
+
+      if (usdt !== undefined) {
+        add(usdt)
+      }
+
+      if (usdc !== undefined) {
+        add(usdc)
+      }
+
+      if (!totalUSD.isZero()) {
+        return totalUSD.div(totalDFI)
       }
     }, {
       ttl: 180
@@ -90,7 +116,7 @@ export class PoolPairService {
       return new BigNumber(0)
     }
 
-    const dfiPriceUsdt = await this.getUSDT_PER_DFI()
+    const dfiPriceUsdt = await this.getUSD_PER_DFI()
     if (dfiPriceUsdt === undefined) {
       return undefined
     }
@@ -116,7 +142,7 @@ export class PoolPairService {
       return new BigNumber(0)
     }
 
-    const dfiPriceUsdt = await this.getUSDT_PER_DFI()
+    const dfiPriceUsdt = await this.getUSD_PER_DFI()
     const dailyDfiReward = await this.getDailyDFIReward()
 
     if (dfiPriceUsdt === undefined || dailyDfiReward === undefined) {
