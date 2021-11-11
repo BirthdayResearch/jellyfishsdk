@@ -72,7 +72,11 @@ describe('list', () => {
     result.forEach(e =>
       expect(e).toStrictEqual({
         vaultId: expect.any(String),
-        loanSchemeId: 'default',
+        loanScheme: {
+          id: 'default',
+          interestRate: '2.5',
+          minColRatio: '100'
+        },
         ownerAddress: address,
         state: LoanVaultState.ACTIVE,
         informativeRatio: '-1',

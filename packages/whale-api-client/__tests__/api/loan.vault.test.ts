@@ -187,7 +187,11 @@ describe('list', () => {
     result.forEach(e =>
       expect(e).toStrictEqual(expect.objectContaining({
         vaultId: expect.any(String),
-        loanSchemeId: expect.any(String),
+        loanScheme: {
+          id: expect.any(String),
+          interestRate: expect.any(String),
+          minColRatio: expect.any(String)
+        },
         ownerAddress: expect.any(String),
         state: expect.any(String)
       }))
@@ -229,7 +233,11 @@ describe('get', () => {
     const vault = await client.loan.getVault(johnEmptyVaultId)
     expect(vault).toStrictEqual({
       vaultId: johnEmptyVaultId,
-      loanSchemeId: 'default',
+      loanScheme: {
+        id: 'default',
+        interestRate: '1',
+        minColRatio: '100'
+      },
       ownerAddress: expect.any(String),
       state: LoanVaultState.ACTIVE,
       informativeRatio: '-1',
@@ -247,7 +255,11 @@ describe('get', () => {
     const vault = await client.loan.getVault(bobDepositedVaultId)
     expect(vault).toStrictEqual({
       vaultId: bobDepositedVaultId,
-      loanSchemeId: 'default',
+      loanScheme: {
+        id: 'default',
+        interestRate: '1',
+        minColRatio: '100'
+      },
       ownerAddress: expect.any(String),
       state: LoanVaultState.ACTIVE,
       informativeRatio: '-1',
@@ -274,7 +286,11 @@ describe('get', () => {
     const vault = await client.loan.getVault(johnLoanedVaultId)
     expect(vault).toStrictEqual({
       vaultId: johnLoanedVaultId,
-      loanSchemeId: 'scheme',
+      loanScheme: {
+        id: 'scheme',
+        interestRate: '1',
+        minColRatio: '110'
+      },
       ownerAddress: expect.any(String),
       state: LoanVaultState.ACTIVE,
       collateralRatio: '16667',
@@ -319,7 +335,11 @@ describe('get', () => {
     const vault = await client.loan.getVault(adamLiquidatedVaultId)
     expect(vault).toStrictEqual({
       vaultId: adamLiquidatedVaultId,
-      loanSchemeId: 'default',
+      loanScheme: {
+        id: 'default',
+        interestRate: '1',
+        minColRatio: '100'
+      },
       ownerAddress: expect.any(String),
       state: LoanVaultState.IN_LIQUIDATION,
       batchCount: 1,

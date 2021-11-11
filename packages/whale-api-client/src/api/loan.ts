@@ -114,7 +114,7 @@ export interface LoanToken {
 
 export interface LoanVaultActive {
   vaultId: string
-  loanSchemeId: string
+  loanScheme: LoanScheme
   ownerAddress: string
   state: LoanVaultState.ACTIVE | LoanVaultState.FROZEN | LoanVaultState.MAY_LIQUIDATE | LoanVaultState.UNKNOWN
 
@@ -131,7 +131,7 @@ export interface LoanVaultActive {
 
 export interface LoanVaultLiquidated {
   vaultId: string
-  loanSchemeId: string
+  loanScheme: LoanScheme
   ownerAddress: string
   state: LoanVaultState.IN_LIQUIDATION
 
