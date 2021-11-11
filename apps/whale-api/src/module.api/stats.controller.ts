@@ -41,7 +41,8 @@ export class StatsController {
       emission: await this.cachedGet('emission', this.getEmission.bind(this), 1800),
       blockchain: {
         difficulty: block.difficulty
-      }
+      },
+      net: await this.cachedGet('net', this.getNet.bind(this), 1800)
     }
   }
 
@@ -131,6 +132,16 @@ export class StatsController {
     return await this.cache.get<BlockchainInfo>('BLOCK_INFO', async () => {
       return await this.rpcClient.blockchain.getBlockchainInfo()
     })
+  }
+
+  private async getNet (): Promise<StatsData['net']> {
+    const { version, subversion, protocolversion } = await this.rpcClient.net.getNetworkInfo()
+
+    return {
+      version: version,
+      subversion: subversion,
+      protocolversion: protocolversion
+    }
   }
 }
 
