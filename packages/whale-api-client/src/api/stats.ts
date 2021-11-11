@@ -52,4 +52,9 @@ export interface StatsData {
   blockchain: {
     difficulty: number
   }
+  net: {
+    version: number
+    subversion: string
+    protocolversion: number
+  }
 }

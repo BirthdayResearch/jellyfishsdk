@@ -89,6 +89,11 @@ describe('stats', () => {
       },
       blockchain: {
         difficulty: expect.any(Number)
+      },
+      net: {
+        protocolversion: expect.any(Number),
+        subversion: expect.any(String),
+        version: expect.any(Number)
       }
     })
   })
