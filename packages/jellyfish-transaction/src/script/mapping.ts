@@ -78,6 +78,8 @@ import {
   UpdateVault,
   CDepositToVault,
   DepositToVault,
+  CWithdrawFromVault,
+  WithdrawFromVault,
   CCloseVault,
   CloseVault,
   TakeLoan,
@@ -527,6 +529,14 @@ export const OP_CODES = {
       type: CDepositToVault.OP_CODE,
       name: CDepositToVault.OP_NAME,
       data: depositToVault
+    })
+  },
+  OP_DEFI_TX_WITHDRAW_FROM_VAULT: (WithdrawFromVault: WithdrawFromVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CWithdrawFromVault.OP_CODE,
+      name: CWithdrawFromVault.OP_NAME,
+      data: WithdrawFromVault
     })
   },
   OP_DEFI_TX_CLOSE_VAULT: (closeVault: CloseVault): OP_DEFI_TX => {
