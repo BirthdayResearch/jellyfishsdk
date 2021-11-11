@@ -602,9 +602,9 @@ interface AuctionPaginationStart {
 
 interface AuctionDetail {
   vaultId: string
-  batchCount: BigNumber
-  liquidationPenalty: BigNumber
-  liquidationHeight: BigNumber
+  batchCount: number
+  liquidationPenalty: number
+  liquidationHeight: number
   batches: VaultLiquidationBatch[]
   loanSchemeId: string
   ownerAddress: string
