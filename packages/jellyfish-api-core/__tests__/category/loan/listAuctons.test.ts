@@ -388,14 +388,14 @@ describe('Loan listAuctions', () => {
       // including_start = true
       {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: auction1.vaultId }, including_start: true }
+          { start: { vaultId: auction2.vaultId }, including_start: true }
         )
         expect(page.length).toStrictEqual(4) // Unable to filter by vaultId only. Need to filter both vaultId and height together.
       }
       // including_start = false
       {
         const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: auction1.vaultId } }
+          { start: { vaultId: auction2.vaultId } }
         )
         expect(page.length).toStrictEqual(3) // Unable to filter by vaultId only. Need to filter both vaultId and height together.
       }
