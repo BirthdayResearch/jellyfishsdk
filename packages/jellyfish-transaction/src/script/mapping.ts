@@ -86,8 +86,8 @@ import {
   CTakeLoan,
   CPaybackLoan,
   PaybackLoan,
-  CAuctionBid,
-  AuctionBid
+  CPlaceAuctionBid,
+  PlaceAuctionBid
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
@@ -565,12 +565,12 @@ export const OP_CODES = {
       data: paybackLoan
     })
   },
-  OP_DEFI_TX_AUCTION_BID: (auctionBid: AuctionBid): OP_DEFI_TX => {
+  OP_DEFI_TX_AUCTION_BID: (placeAuctionBid: PlaceAuctionBid): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CAuctionBid.OP_CODE,
-      name: CAuctionBid.OP_NAME,
-      data: auctionBid
+      type: CPlaceAuctionBid.OP_CODE,
+      name: CPlaceAuctionBid.OP_NAME,
+      data: placeAuctionBid
     })
   },
   OP_0: new constants.OP_0(),

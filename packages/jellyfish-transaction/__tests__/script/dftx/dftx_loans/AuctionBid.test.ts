@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
-  CAuctionBid,
-  AuctionBid
+  CPlaceAuctionBid,
+  PlaceAuctionBid
 } from '../../../../src/script/dftx/dftx_loans'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -11,7 +11,7 @@ import BigNumber from 'bignumber.js'
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
-      * AuctionBid : {
+      * PlaceAuctionBid : {
         vaultId: '89443201375514b9082916d6cfa019384860fb21c03e0f028630a726da237185',
         index: 0,
         from: 'bcrt1q3xw4dgexgeke7gxxfrd4qyvg5dfggfdazjurf3',
@@ -20,7 +20,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a494466547849857123da26a73086020f3ec021fb60483819a0cfd6162908b91455370132448900000000160014899d56a326466d9f20c648db501188a3528425bd02006d3e390c000000',
     /**
-      * AuctionBid : {
+      * PlaceAuctionBid : {
         vaultId: '070e603e6edd240a2b08bb0c068c2f958931b78808513c1111ebafd3ea5ddc7b',
         index: 1,
         from: 'bcrt1qjhquzpywxkm8wqe58990sv96l3t7q36shyy4w2',
@@ -29,7 +29,7 @@ it('should bi-directional buffer-object-buffer', () => {
      */
     '6a4944665478497bdc5dead3afeb11113c510888b73189952f8c060cbb082b0a24dd6e3e600e070100000016001495c1c1048e35b6770334394af830bafc57e047500200d20b570c000000',
     /**
-      * AuctionBid : {
+      * PlaceAuctionBid : {
         vaultId: '8b6120dd0fd6ef7219bf7c40f34567910e13df3b64a6b224adc4ec3be9060dba',
         index: 0,
         from: 'bcrt1qsq9hyh0et52u67ae25fjt992x0xma0qz68gxha',
@@ -49,13 +49,13 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-const header = '6a494466547849' // OP_RETURN(0x6a) (length 73 = 0x49) CDfTx.SIGNATURE(0x44665478) CAuctionBid.OP_CODE(0x49)
-// AuctionBid.vaultId[LE](0x8b6120dd0fd6ef7219bf7c40f34567910e13df3b64a6b224adc4ec3be9060dba)
-// AuctionBid.index[LE](0x00000000)
-// AuctionBid.from(0x800b725df95d15cd7bb955132594aa33cdbebc02)
-// AuctionBid.amount(0x020037d9740c000000)
+const header = '6a494466547849' // OP_RETURN(0x6a) (length 73 = 0x49) CDfTx.SIGNATURE(0x44665478) CPlaceAuctionBid.OP_CODE(0x49)
+// PlaceAuctionBid.vaultId[LE](0x8b6120dd0fd6ef7219bf7c40f34567910e13df3b64a6b224adc4ec3be9060dba)
+// PlaceAuctionBid.index[LE](0x00000000)
+// PlaceAuctionBid.from(0x800b725df95d15cd7bb955132594aa33cdbebc02)
+// PlaceAuctionBid.amount(0x020037d9740c000000)
 const data = 'ba0d06e93becc4ad24b2a6643bdf130e916745f3407cbf1972efd60fdd20618b00000000160014800b725df95d15cd7bb955132594aa33cdbebc02020037d9740c000000'
-const auctionBid: AuctionBid = {
+const placeAuctionBid: PlaceAuctionBid = {
   vaultId: '8b6120dd0fd6ef7219bf7c40f34567910e13df3b64a6b224adc4ec3be9060dba',
   index: '00000000',
   from: {
@@ -70,7 +70,7 @@ const auctionBid: AuctionBid = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_AUCTION_BID(auctionBid)
+    OP_CODES.OP_DEFI_TX_AUCTION_BID(placeAuctionBid)
   ]
 
   const buffer = toBuffer(stack)
@@ -80,14 +80,14 @@ it('should craft dftx with OP_CODES._()', () => {
 describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CAuctionBid(buffer)
+    const composable = new CPlaceAuctionBid(buffer)
     console.log('composable: ', composable)
 
-    expect(composable.toObject()).toStrictEqual(auctionBid)
+    expect(composable.toObject()).toStrictEqual(placeAuctionBid)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CAuctionBid(auctionBid)
+    const composable = new CPlaceAuctionBid(placeAuctionBid)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 

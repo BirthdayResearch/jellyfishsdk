@@ -100,8 +100,8 @@ import {
   TakeLoan,
   CPaybackLoan,
   PaybackLoan,
-  AuctionBid,
-  CAuctionBid
+  PlaceAuctionBid,
+  CPlaceAuctionBid
 } from './dftx_loans'
 
 /**
@@ -268,8 +268,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
       case CPaybackLoan.OP_CODE:
         return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
-      case CAuctionBid.OP_CODE:
-        return compose<AuctionBid>(CAuctionBid.OP_NAME, d => new CAuctionBid(d))
+      case CPlaceAuctionBid.OP_CODE:
+        return compose<PlaceAuctionBid>(CPlaceAuctionBid.OP_NAME, d => new CPlaceAuctionBid(d))
       default:
         return compose<DeFiOpUnmapped>(CDeFiOpUnmapped.OP_NAME, d => new CDeFiOpUnmapped(d))
     }

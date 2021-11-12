@@ -225,7 +225,7 @@ describe('placeAuctionBid success', () => {
       expect(auctions[0].liquidationHeight).toStrictEqual(205) // liquidationHeight updated
     }
 
-    // cont. test auctionBid
+    // cont. test placeAuctionBid
     const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
     expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 

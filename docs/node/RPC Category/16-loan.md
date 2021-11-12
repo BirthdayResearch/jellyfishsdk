@@ -586,10 +586,10 @@ Bid to vault in auction.
 
 ```ts title="client.loan.placeAuctionBid()"
 interface loan {
-  placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+  placeAuctionBid (placeAuctionBid: PlaceAuctionBid, utxos: UTXO[] = []): Promise<string>
 }
 
-interface AuctionBid {
+interface PlaceAuctionBid {
   vaultId: string
   index: number
   from: string
