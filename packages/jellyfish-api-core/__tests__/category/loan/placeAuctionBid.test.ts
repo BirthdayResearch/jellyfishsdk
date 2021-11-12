@@ -139,6 +139,7 @@ async function setup (): Promise<void> {
   // increase TSLA price
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
   await alice.generate(1) // interest * 5 => 1000.00285385@TSLA
+  await tGroup.waitForSync()
 
   // check vault status before liquidated
   const vaultBefore = await bob.container.call('getvault', [bobVaultId])
@@ -157,7 +158,7 @@ async function setup (): Promise<void> {
   // *8 => 1000.00456616@TSLA
   // *9 => 1000.00513693@TSLA
   {
-    await alice.generate(5) // *10 => 1000.0057077@TSLA
+    await bob.generate(5) // *10 => 1000.0057077@TSLA
     const vault = await bob.container.call('getvault', [bobVaultId])
     // commented this flaky state check as block height does not really complimentary with state but time
     // expect(vault.state).toStrictEqual('frozen')
@@ -171,14 +172,14 @@ async function setup (): Promise<void> {
     expect(vault.informativeRatio).toStrictEqual(999.99429233)
   }
 
-  const auctionsBefore = await alice.container.call('listauctions')
+  const auctionsBefore = await bob.container.call('listauctions')
   expect(auctionsBefore.length).toStrictEqual(0)
 
   // *11 => 1000.00627847@TSLA
   // *12 => 1000.00684924@TSLA
   // *13 => 1000.00742001@TSLA
   // *14 => 1000.00799078@TSLA
-  await alice.generate(6)
+  await bob.generate(6)
   await tGroup.waitForSync()
 
   // vault is liquidated now
