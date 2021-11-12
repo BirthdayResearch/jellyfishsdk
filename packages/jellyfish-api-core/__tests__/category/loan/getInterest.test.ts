@@ -90,6 +90,8 @@ describe('Loan getInterest', () => {
     await testing.generate(1)
     interestTSLABlockHeight = await testing.rpc.blockchain.getBlockCount() // interest should be calculated from the block where the takeloan tx gets included(inclusive).
 
+    await testing.generate(1)
+
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
       amounts: '50@UBER'

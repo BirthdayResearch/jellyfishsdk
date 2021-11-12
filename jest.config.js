@@ -1,6 +1,7 @@
 module.exports = {
   preset: 'ts-jest',
   testRegex: '((\\.|/)(e2e|test|spec))\\.[jt]sx?$',
+  testSequencer: require.resolve('./jest.sequencer'),
   moduleNameMapper: {
     '@defichain/jellyfish-(.*)': '<rootDir>/packages/jellyfish-$1/src',
     '@defichain/testcontainers': '<rootDir>/packages/testcontainers/src',

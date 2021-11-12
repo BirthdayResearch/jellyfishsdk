@@ -166,7 +166,7 @@ Set special governance variables with activation height specified
 
 ```ts title="client.masternode.setGovHeight()"
 interface masternode {
-  setGovHeight (input: Record<string, any>, activationHeight: number): Promise<string>
+  setGovHeight (input: Record<string, any>, activationHeight: number, utxos: UTXO[] = []): Promise<string>
 }
 ```
 
@@ -177,6 +177,16 @@ Get information about governance variable
 ```ts title="client.masternode.getGov()"
 interface masternode {
   getGov (name: string): Promise<Record<string, any>>
+}
+```
+
+## listGovs
+
+List all governance variables together if any with activation height
+
+```ts title="client.masternode.listGovs()"
+interface masternode {
+  listGovs (): Promise<Array<Array<Record<string, any>>>>
 }
 ```
 

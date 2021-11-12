@@ -384,13 +384,33 @@ interface UTXO {
 }
 ```
 
+## updateVault
+
+Create update vault transaction.
+
+```ts title="client.loan.updateVault()"
+interface loan {
+  updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface UpdateVault {
+  ownerAddress?: string
+  loanSchemeId?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## getVault
 
 Returns information about vault.
 
 ```ts title="client.loan.getVault()"
 interface loan {
-  getVault (vaultId: string): Promise<VaultDetails>
+  getVault (vaultId: string): Promise<VaultActive | VaultLiquidation>
 }
 
 enum VaultState {
@@ -401,29 +421,33 @@ enum VaultState {
   MAY_LIQUIDATE = 'mayLiquidate',
 }
 
-interface VaultDetails {
-  // list and get both returns
+interface Vault {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
-  // get only returns
-  liquidationHeight?: number
-  liquidationPenalty?: number
-  batchCount?: number
-  batches?: AuctionBatchDetails[]
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber
-  collateralRatio?: number
-  informativeRatio?: BigNumber
 }
 
-interface AuctionBatchDetails {
-  index: BigNumber
+interface VaultActive extends Vault {
+  collateralAmounts: string[]
+  loanAmounts: string[]
+  interestAmounts: string[]
+  collateralValue: BigNumber
+  loanValue: BigNumber
+  interestValue: BigNumber
+  collateralRatio: number
+  informativeRatio: BigNumber
+}
+
+interface VaultLiquidation extends Vault {
+  liquidationHeight: number
+  liquidationPenalty: number
+  batchCount: number
+  batches: VaultLiquidationBatch[]
+}
+
+interface VaultLiquidationBatch {
+  index: number
   collaterals: string[]
   loan: string
 }
@@ -435,32 +459,44 @@ List all available vaults.
 
 ```ts title="client.loan.listVaults()"
 interface loan {
-  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<ListVaultDetails[]>
+  listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<Array<Vault | VaultActive | VaultLiquidation>>
 }
 
-interface VaultDetails {
-  // list and get both returns
+enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inLiquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayLiquidate',
+}
+
+interface Vault {
   vaultId: string
   loanSchemeId: string
   ownerAddress: string
   state: VaultState
-  // get only returns
-  liquidationHeight?: number
-  liquidationPenalty?: number
-  batchCount?: number
-  batches?: AuctionBatchDetails[]
-  collateralAmounts?: string[]
-  loanAmounts?: string[]
-  interestAmounts?: string[]
-  collateralValue?: BigNumber
-  loanValue?: BigNumber
-  interestValue?: BigNumber
-  collateralRatio?: number
-  informativeRatio?: BigNumber
 }
 
-interface AuctionBatchDetails {
-  index: BigNumber
+interface VaultActive extends Vault {
+  collateralAmounts: string[]
+  loanAmounts: string[]
+  interestAmounts: string[]
+  collateralValue: BigNumber
+  loanValue: BigNumber
+  interestValue: BigNumber
+  collateralRatio: number
+  informativeRatio: BigNumber
+}
+
+interface VaultLiquidation extends Vault {
+  liquidationHeight: number
+  liquidationPenalty: number
+  batchCount: number
+  batches: VaultLiquidationBatch[]
+}
+
+interface VaultLiquidationBatch {
+  index: number
   collaterals: string[]
   loan: string
 }
@@ -469,6 +505,7 @@ interface ListVaultOptions {
   ownerAddress?: string
   loanSchemeId?: string
   state?: VaultState
+  verbose?: boolean
 }
 
 interface VaultPagination {
@@ -514,6 +551,27 @@ interface UTXO {
 }
 ```
 
+## withdrawFromVault
+
+Withdraw from vault.
+
+```ts title="client.loan.withdrawFromVault()"
+interface loan {
+  withdrawFromVault (withdrawVault: WithdrawVault, utxos: UTXO[] = []): Promise<string>
+}
+
+interface WithdrawVault {
+  vaultId: string
+  to: string
+  amount: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## takeLoan
 
 Take loan.
@@ -525,7 +583,7 @@ interface loan {
 
 interface TakeLoanMetadata {
   vaultId: string
-  amounts: string // amount@symbol
+  amounts: string | string[] // amount@symbol
   to?: string
 }
 
@@ -548,6 +606,28 @@ interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## placeAuctionBid
+
+Bid to vault in auction.
+
+```ts title="client.loan.placeAuctionBid()"
+interface loan {
+  placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+}
+
+interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
 }
 
 interface UTXO {

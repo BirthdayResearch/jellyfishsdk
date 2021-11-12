@@ -24,7 +24,8 @@ const pairs: Record<string, { tokenA: number, tokenB: number }> = {
   CAT: { tokenA: 0, tokenB: Number.NaN },
   DOG: { tokenA: 0, tokenB: Number.NaN },
   BIRD: { tokenA: 0, tokenB: Number.NaN },
-  FISH: { tokenA: 0, tokenB: Number.NaN }
+  FISH: { tokenA: 0, tokenB: Number.NaN },
+  GOAT: { tokenA: 0, tokenB: Number.NaN }
 }
 
 beforeAll(async () => {
@@ -39,7 +40,7 @@ beforeAll(async () => {
   // creating DFI-* pool pairs and funding liquidity
   for (const symbol of Object.keys(pairs)) {
     pairs[symbol].tokenB = await createToken(container, symbol)
-    await mintTokens(container, symbol, { mintAmount: 10000 })
+    await mintTokens(container, symbol, { mintAmount: 11000 })
     await createPoolPair(container, 'DFI', symbol)
   }
 
@@ -134,7 +135,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('2'),
       toScript: script,
       toTokenId: pairs.PIG.tokenB,
-      maxPrice: new BigNumber('5.0')
+      maxPrice: new BigNumber('9999') // extreme large, for precise price check, see next test
     }, script)
 
     const outs = await sendTransaction(container, txn)
@@ -160,75 +161,44 @@ describe('dex.poolswap()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 
-  it('should fail poolSwap due to maxPrice lower than reserveA/reserveB', async () => {
-    await providers.randomizeEllipticPair()
-    await container.waitForWalletBalanceGTE(1)
-    const addressLP = await container.getNewAddress()
-    await addPoolLiquidity(container, {
-      tokenA: 'DFI',
-      amountA: 100,
-      tokenB: 'CAT',
-      amountB: 20,
-      shareAddress: addressLP
-    })
-    await providers.setupMocks()
-    await utxosToAccount(container, 100, { address: await providers.getAddress() })
-    await sendTokensToAddress(container, await providers.getAddress(), 2, 'CAT')
-    await fundEllipticPair(container, providers.ellipticPair, 10)
-    const script = await providers.elliptic.script()
-
-    const txn = await builder.dex.poolSwap({
-      fromScript: script,
-      fromTokenId: pairs.CAT.tokenA,
-      fromAmount: new BigNumber('2'),
-      toScript: script,
-      toTokenId: pairs.CAT.tokenB,
-      maxPrice: new BigNumber('0.00000003')
-    }, script)
-
-    const promise = sendTransaction(container, txn)
-    await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('Price is higher than indicated')
-  })
-
-  it('should pass with 5.0', async () => {
+  it('should pass with 500', async () => {
     providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
     await addPoolLiquidity(container, {
       tokenA: 'DFI',
-      amountA: 100,
-      tokenB: 'BIRD',
-      amountB: 20,
+      amountA: 20,
+      tokenB: 'GOAT',
+      amountB: 10000,
       shareAddress: addressLP
     })
     await providers.setupMocks()
     await utxosToAccount(container, 100, { address: await providers.getAddress() })
-    await sendTokensToAddress(container, await providers.getAddress(), 2, 'BIRD')
+    await sendTokensToAddress(container, await providers.getAddress(), 2, 'GOAT')
     await fundEllipticPair(container, providers.ellipticPair, 10)
     const script = await providers.elliptic.script()
 
     const txn = await builder.dex.poolSwap({
       fromScript: script,
-      fromTokenId: pairs.BIRD.tokenA,
-      fromAmount: new BigNumber('2'),
+      fromTokenId: pairs.GOAT.tokenB,
+      fromAmount: new BigNumber('0.01'), // use small amount to reduce slippage effect
       toScript: script,
-      toTokenId: pairs.BIRD.tokenB,
-      maxPrice: new BigNumber('5.0')
+      toTokenId: pairs.GOAT.tokenA,
+      maxPrice: new BigNumber('500')
     }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).resolves.not.toThrow()
   })
 
-  it('should fail with 4.99999999', async () => {
+  it('should fail with 499.99999999', async () => {
     providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
     await addPoolLiquidity(container, {
       tokenA: 'DFI',
-      amountA: 100,
+      amountA: 20,
       tokenB: 'FISH',
-      amountB: 20,
+      amountB: 10000,
       shareAddress: addressLP
     })
     await providers.setupMocks()
@@ -239,12 +209,12 @@ describe('dex.poolswap()', () => {
 
     const txn = await builder.dex.poolSwap({
       fromScript: script,
-      fromTokenId: pairs.FISH.tokenA,
-      fromAmount: new BigNumber('2'),
+      fromTokenId: pairs.FISH.tokenB,
+      fromAmount: new BigNumber('0.01'), // use small amount to reduce slippage effect
       toScript: script,
-      toTokenId: pairs.FISH.tokenB,
-      // max accepted price should be 100 / 20 = 5.0
-      maxPrice: new BigNumber('4.99999999')
+      toTokenId: pairs.FISH.tokenA,
+      // min acceptable maxPrice should be 10000 / 20 = 500
+      maxPrice: new BigNumber('499.99999999')
     }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)

@@ -21,12 +21,13 @@ describe('Spv', () => {
     const htlc = await container.call('spv_createhtlc', [pubKeyA, pubKeyB, '10'])
 
     await container.call('spv_sendtoaddress', [htlc.address, 0.1]) // Funds HTLC address
+    await container.spv.increaseSpvHeight(10)
 
     const destinationAddress = await container.call('spv_getnewaddress')
     const result = await client.spv.refundHtlc(htlc.address, destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.txid.length).toStrictEqual(64)
-    expect(result.sendmessage).toStrictEqual('Success')
+    expect(result.sendmessage).toStrictEqual('') // not empty when error found
 
     /**
      * Assert that the destination address received the refund
@@ -43,12 +44,13 @@ describe('Spv', () => {
     const htlc = await container.call('spv_createhtlc', [pubKeyA, pubKeyB, '10'])
 
     await container.call('spv_sendtoaddress', [htlc.address, 0.1]) // Funds HTLC address
+    await container.spv.increaseSpvHeight()
 
     const destinationAddress = await container.call('spv_getnewaddress')
     const result = await client.spv.refundHtlc(htlc.address, destinationAddress, { feeRate: new BigNumber('20000') }) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
     expect(typeof result.txid).toStrictEqual('string')
     expect(result.txid.length).toStrictEqual(64)
-    expect(result.sendmessage).toStrictEqual('Success')
+    expect(result.sendmessage).toStrictEqual('') // not empty when error found
 
     /**
      * Assert that the destination address received the refund
@@ -66,19 +68,19 @@ describe('Spv', () => {
 
     const promise = client.spv.refundHtlc(htlc.address, await container.call('spv_getnewaddress'))
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'No unspent HTLC outputs found', code: -4, method: spv_refundhtlc")
+    await expect(promise).rejects.toThrow('No unspent HTLC outputs found')
   })
 
   it('should not refundHtlc with invalid HTLC address', async () => {
     const promise = client.spv.refundHtlc('XXXX', await container.call('spv_getnewaddress'))
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Invalid address', code: -5, method: spv_refundhtlc")
+    await expect(promise).rejects.toThrow('Invalid address')
   })
 
   it('should not refundHtlc with invalid destination address', async () => {
     const promise = client.spv.refundHtlc(await container.call('spv_getnewaddress'), 'XXXX')
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Invalid destination address', code: -5, method: spv_refundhtlc")
+    await expect(promise).rejects.toThrow('Failed to decode address')
   })
 
   it('should not refundHtlc with not enough funds to cover fee', async () => {
@@ -90,13 +92,13 @@ describe('Spv', () => {
 
     const promise = client.spv.refundHtlc(htlc.address, await container.call('spv_getnewaddress'))
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Not enough funds to cover fee', code: -1, method: spv_refundhtlc")
+    await expect(promise).rejects.toThrow('No unspent HTLC outputs found')
   })
 
   it('should not refundHtlc when redeem script not found in wallet', async () => {
     const randomAddress = '2Mu4edSkC5gKVwYayfDq2fTFwT6YD4mujSX'
     const promise = client.spv.refundHtlc(randomAddress, await container.call('spv_getnewaddress'))
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Redeem script not found in wallet', code: -4, method: spv_refundhtlc")
+    await expect(promise).rejects.toThrow('Redeem script not found in wallet')
   })
 })

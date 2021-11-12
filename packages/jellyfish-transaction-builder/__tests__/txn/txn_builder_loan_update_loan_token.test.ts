@@ -187,7 +187,7 @@ describe('loan.updateLoanToken()', () => {
       tokenTx: loanTokenId
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateLoanTokenTx: token symbol should be non-empty and starts with a letter (code 16)\', code: -26')
   })
 
   it('should not updateLoanToken if the symbol is used in other token', async () => {
@@ -223,7 +223,7 @@ describe('loan.updateLoanToken()', () => {
       tokenTx: loanTokenId
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: token with key \'Token1\' already exists! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateLoanTokenTx: token with key \'Token1\' already exists! (code 16)\', code: -26')
   })
 
   it('should updateLoanToken if name is more than 128 letters', async () => {
@@ -293,7 +293,7 @@ describe('loan.updateLoanToken()', () => {
       tokenTx: loanTokenId
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateLoanTokenTx: Price feed MFST/USD does not belong to any oracle (code 16)\', code: -26')
   })
 
   it('should not updateLoanToken if tokenTx does not exist', async () => {
@@ -307,6 +307,6 @@ describe('loan.updateLoanToken()', () => {
       tokenTx: 'd6e157b66957dda2297947e31ac2a1d0c92eae515f35bc1ebad9478d06efa3c0'
     }, script)
     const promise = sendTransaction(testing.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'LoanUpdateLoanTokenTx: Loan token (d6e157b66957dda2297947e31ac2a1d0c92eae515f35bc1ebad9478d06efa3c0) does not exist! (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'UpdateLoanTokenTx: Loan token (d6e157b66957dda2297947e31ac2a1d0c92eae515f35bc1ebad9478d06efa3c0) does not exist! (code 16)\', code: -26')
   })
 })
