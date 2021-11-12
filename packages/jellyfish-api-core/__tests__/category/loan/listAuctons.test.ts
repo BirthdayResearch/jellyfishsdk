@@ -422,27 +422,6 @@ describe('Loan listAuctions', () => {
         expect(page[0].vaultId).toStrictEqual(auction3.vaultId)
         expect(page[1].vaultId).toStrictEqual(auction4.vaultId)
       }
-
-      // List for liquidation height of first vault and vaultId of second vault
-      // including_start = true
-      {
-        const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: auction2.vaultId, height: auction1.liquidationHeight }, including_start: true }
-        )
-        expect(page.length).toStrictEqual(3)
-        expect(page[0].vaultId).toStrictEqual(auction2.vaultId)
-        expect(page[1].vaultId).toStrictEqual(auction3.vaultId)
-        expect(page[2].vaultId).toStrictEqual(auction4.vaultId)
-      }
-      // including_start = false
-      {
-        const page = await testing.rpc.loan.listAuctions(
-          { start: { vaultId: auction2.vaultId, height: auction1.liquidationHeight } }
-        )
-        expect(page.length).toStrictEqual(2)
-        expect(page[0].vaultId).toStrictEqual(auction3.vaultId)
-        expect(page[1].vaultId).toStrictEqual(auction4.vaultId)
-      }
     })
 
     it('should listAuctions with vaultId, height and limit', async () => {
