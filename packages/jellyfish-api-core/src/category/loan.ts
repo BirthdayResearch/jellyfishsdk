@@ -521,12 +521,6 @@ export interface VaultLiquidation extends Vault {
   batches: VaultLiquidationBatch[]
 }
 
-export interface VaultLiquidationBatch {
-  index: number
-  collaterals: string[]
-  loan: string
-}
-
 export interface UTXO {
   txid: string
   vout: number
@@ -572,4 +566,39 @@ export interface ListVaultOptions {
 export interface CloseVault {
   vaultId: string
   to: string
+}
+
+export interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
+}
+
+export interface AuctionPagination {
+  start?: AuctionPaginationStart
+  including_start?: boolean
+  limit?: number
+}
+
+export interface AuctionPaginationStart {
+  vaultId?: string
+  height?: number
+}
+
+export interface AuctionDetail {
+  vaultId: string
+  batchCount: number
+  liquidationPenalty: number
+  liquidationHeight: number
+  batches: VaultLiquidationBatch[]
+  loanSchemeId: string
+  ownerAddress: string
+  state: string
+}
+
+export interface VaultLiquidationBatch {
+  index: number
+  collaterals: string[]
+  loan: string
 }
