@@ -226,7 +226,7 @@ describe('Loan takeLoan', () => {
       const vaultAfter = await tGroup.get(0).container.call('getvault', [vaultId])
       expect(vaultAfter.loanSchemeId).toStrictEqual(vaultBefore.loanSchemeId)
       expect(vaultAfter.ownerAddress).toStrictEqual(vaultBefore.ownerAddress)
-      expect(vaultAfter.isUnderLiquidation).toStrictEqual(vaultBefore.isUnderLiquidation)
+      expect(vaultAfter.state).toStrictEqual(vaultBefore.state)
       expect(vaultAfter.collateralAmounts).toStrictEqual(vaultBefore.collateralAmounts)
       expect(vaultAfter.collateralValue).toStrictEqual(vaultBefore.collateralValue)
 
