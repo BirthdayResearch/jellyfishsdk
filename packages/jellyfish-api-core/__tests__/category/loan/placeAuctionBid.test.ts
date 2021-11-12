@@ -453,6 +453,74 @@ describe('placeAuctionBid success', () => {
     expect(vault.collateralRatio).toStrictEqual(-1)
     expect(vault.informativeRatio).toStrictEqual(-1)
   })
+
+  it('test super bid recover vault state to active against other bids on other batches', async () => {
+    const bobAccBefore = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
+
+    const aliceAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
+    expect(aliceAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
+
+    await bob.rpc.loan.placeAuctionBid({
+      vaultId: bobVaultId,
+      index: 0,
+      from: bobColAddr,
+      amount: '526@TSLA'
+    })
+    await bob.container.generate(1)
+    await tGroup.waitForSync()
+
+    // super bid by Alice on other index
+    await alice.rpc.loan.placeAuctionBid({
+      vaultId: bobVaultId,
+      index: 1,
+      from: aliceColAddr,
+      amount: '9999@TSLA'
+    })
+    await alice.container.generate(1)
+    await tGroup.waitForSync()
+
+    const auctions = await alice.container.call('listauctions')
+    expect(auctions).toStrictEqual([{
+      vaultId: bobVaultId,
+      loanSchemeId: 'scheme',
+      ownerAddress: bobVaultAddr,
+      state: 'inLiquidation',
+      liquidationHeight: expect.any(Number),
+      batchCount: 2,
+      liquidationPenalty: 5,
+      batches: [{
+        index: 0,
+        collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
+        loan: '500.00399539@TSLA',
+        highestBid: {
+          owner: bobColAddr,
+          amount: '526.00000000@TSLA'
+        }
+      }, {
+        index: 1,
+        collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
+        loan: '500.00399539@TSLA',
+        highestBid: {
+          owner: aliceColAddr,
+          amount: '9999.00000000@TSLA'
+        }
+      }]
+    }])
+    await alice.container.generate(36)
+
+    const vault = await alice.container.call('getvault', [bobVaultId])
+    expect(vault.state).toStrictEqual('active')
+
+    const auctionsEnd = await alice.container.call('listauctions')
+    expect(auctionsEnd).toStrictEqual([])
+
+    const bobAccAfter = await bob.rpc.account.getAccount(bobColAddr)
+    expect(bobAccAfter).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
+
+    const aliceAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
+    expect(aliceAccAfter).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '1.00000000@TSLA'])
+  })
 })
 
 describe('placeAuctionBid failed', () => {
