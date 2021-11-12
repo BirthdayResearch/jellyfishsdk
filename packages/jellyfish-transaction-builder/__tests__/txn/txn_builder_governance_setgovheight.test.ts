@@ -48,7 +48,7 @@ describe('setgovheight', () => {
   })
 
   it('should set governance with future activation height', async () => {
-    { // before setGov
+    { // before
       const govVar = await testing.rpc.masternode.getGov('LP_SPLITS')
       expect(Object.keys(govVar.LP_SPLITS).length).toStrictEqual(0)
     }
@@ -68,6 +68,7 @@ describe('setgovheight', () => {
     await sendTransaction(testing.container, set)
 
     const currentHeight = await testing.container.getBlockCount()
+    const activationHeight = currentHeight + 3
     const setWithHeight = await builder.governance.setGoveranceHeight({
       governanceVars: [
         {
@@ -78,17 +79,21 @@ describe('setgovheight', () => {
           ]
         }
       ],
-      activationHeight: currentHeight + 3
+      activationHeight
     }, script)
     await sendTransaction(testing.container, setWithHeight)
 
-    { // after setGov
-      const govVars = await testing.rpc.call('listgovs', [], 'bignumber')
-      console.log(govVars)
-      // expect(Object.keys(govVar).length).toStrictEqual(1)
-      // expect(Object.keys(govVar.LP_SPLITS).length).toStrictEqual(2)
-      // expect(govVar.LP_SPLITS['3'].toString()).toStrictEqual('0.7')
-      // expect(govVar.LP_SPLITS['4'].toString()).toStrictEqual('0.3')
+    { // after
+      const govVars: any[][] = await testing.rpc.call('listgovs', [], 'bignumber')
+      expect(govVars.length).toBeGreaterThan(0)
+      const liqSplits = govVars.find(gv => gv[0].LP_SPLITS !== undefined)
+      expect(liqSplits).not.toBeUndefined()
+      expect(liqSplits?.length).toStrictEqual(2)
+      const [current, next] = liqSplits as any[]
+      expect(current.LP_SPLITS['3'].toString()).toStrictEqual('0.7')
+      expect(current.LP_SPLITS['4'].toString()).toStrictEqual('0.3')
+      expect(next[activationHeight]['3'].toString()).toStrictEqual('0.8')
+      expect(next[activationHeight]['4'].toString()).toStrictEqual('0.2')
     }
   })
 })
