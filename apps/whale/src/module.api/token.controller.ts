@@ -75,6 +75,22 @@ export function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
     creation: { tx: tokenInfo.creationTx, height: tokenInfo.creationHeight.toNumber() },
     destruction: { tx: tokenInfo.destructionTx, height: tokenInfo.destructionHeight.toNumber() },
     collateralAddress: tokenInfo.collateralAddress !== '' ? tokenInfo.collateralAddress : undefined,
-    displaySymbol: tokenInfo.isDAT && tokenInfo.symbol !== 'DFI' && !tokenInfo.isLPS ? `d${tokenInfo.symbol}` : tokenInfo.symbol
+    displaySymbol: parseDisplaySymbol(tokenInfo)
   }
+}
+
+export function parseDisplaySymbol (tokenInfo: TokenInfo): string {
+  if (tokenInfo.isLPS) {
+    return tokenInfo.symbol
+  }
+
+  if (tokenInfo.isDAT) {
+    if (['DUSD', 'DFI'].includes(tokenInfo.symbol)) {
+      return tokenInfo.symbol
+    }
+
+    return `d${tokenInfo.symbol}`
+  }
+
+  return tokenInfo.symbol
 }

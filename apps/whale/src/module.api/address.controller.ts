@@ -15,6 +15,7 @@ import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 import { LoanVaultActive, LoanVaultLiquidated } from '@whale-api-client/api/loan'
 import { LoanVaultService } from '@src/module.api/loan.vault.service'
+import { parseDisplaySymbol } from '@src/module.api/token.controller'
 
 @Controller('/address/:address')
 export class AddressController {
@@ -131,6 +132,6 @@ function mapAddressToken (id: string, tokenInfo: TokenInfo, value: BigNumber): A
     name: tokenInfo.name,
     isDAT: tokenInfo.isDAT,
     isLPS: tokenInfo.isLPS,
-    displaySymbol: tokenInfo.isDAT && tokenInfo.symbol !== 'DFI' && !tokenInfo.isLPS ? `d${tokenInfo.symbol}` : tokenInfo.symbol
+    displaySymbol: parseDisplaySymbol(tokenInfo)
   }
 }
