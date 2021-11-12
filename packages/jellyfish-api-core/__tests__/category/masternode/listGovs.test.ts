@@ -40,7 +40,7 @@ describe('Masternode', () => {
     expect(liqSplits[0].LP_SPLITS['4'].toString()).toStrictEqual('0.8')
   })
 
-  it('should listGovs with extra data for `setGovHeight` before activated', async () => {
+  it('should listGovs with extra data for setGovHeight before activated', async () => {
     // reset value
     await client.masternode.setGov({ LP_SPLITS: { 3: 0.3, 4: 0.7 } })
     await container.generate(1)
