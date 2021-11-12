@@ -53,9 +53,8 @@ describe('Loan', () => {
     ]
     oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
 
     // loan scheme setup
@@ -184,7 +183,7 @@ describe('Loan', () => {
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: vaultWithLiquidationId, from: collateralAddress, amount: '10000@DFI'
+      vaultId: vaultWithLiquidationId, from: collateralAddress, amount: '300@DFI'
     })
     await tGroup.get(0).generate(1)
 
@@ -193,10 +192,6 @@ describe('Loan', () => {
       amounts: '100@TSLA'
     })
     await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '100@TSLA', currency: 'USD' }] })
-    await tGroup.get(0).generate(6)
-
     await tGroup.waitForSync()
   }
 
@@ -238,6 +233,13 @@ describe('Loan', () => {
     }
   })
 
+  it('should closeVault if loan is paid back', async () => {
+    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: await tGroup.get(0).generateAddress() })
+    expect(typeof txId).toStrictEqual('string')
+    expect(txId.length).toStrictEqual(64)
+    await tGroup.get(0).generate(1)
+  })
+
   it('should not closeVault as vault does not exist', async () => {
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: '0'.repeat(64), to: await tGroup.get(0).generateAddress() })
     await expect(promise).rejects.toThrow(`RpcApiError: 'Vault <${'0'.repeat(64)}> does not found', code: -5, method: closevault`)
@@ -248,19 +250,63 @@ describe('Loan', () => {
     await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLoanTakenId}> has loans', code: -32600, method: closevault`)
   })
 
+  it('should not closeVault for mayliquidate vault', async () => {
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2.1@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.waitForNextPrice('TSLA/USD', '2.1')
+
+    const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
+    expect(liqVault.state).toStrictEqual('mayLiquidate')
+
+    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLiquidationId}> has loans', code: -32600, method: closevault`)
+
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.waitForActivePrice('TSLA/USD', '2')
+  })
+
+  it('should not closeVault for frozen vault', async () => {
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '3@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
+
+    const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
+    expect(liqVault.state).toStrictEqual('frozen')
+
+    const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
+    await expect(promise).rejects.toThrow(`RpcApiError: 'Test CloseVaultTx execution failed:\nVault <${vaultWithLiquidationId}> has loans', code: -32600, method: closevault`)
+
+    await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
+
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
+    await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
+  })
+
   it('should not closeVault for liquidated vault', async () => {
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '3@TSLA', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
+    await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
+
     const liqVault = await tGroup.get(0).container.call('getvault', [vaultWithLiquidationId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const promise = tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithLiquidationId, to: await tGroup.get(0).generateAddress() })
     await expect(promise).rejects.toThrow('RpcApiError: \'Vault is under liquidation.\', code: -26, method: closevault')
-  })
 
-  it('should closeVault if loan is paid back', async () => {
-    const txId = await tGroup.get(0).rpc.loan.closeVault({ vaultId: vaultWithPayBackLoanId, to: await tGroup.get(0).generateAddress() })
-    expect(typeof txId).toStrictEqual('string')
-    expect(txId.length).toStrictEqual(64)
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
+
+    await tGroup.get(0).container.waitForPriceInvalid('TSLA/USD')
+    await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {

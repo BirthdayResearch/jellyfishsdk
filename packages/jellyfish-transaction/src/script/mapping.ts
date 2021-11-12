@@ -19,11 +19,13 @@ import {
   CPoolCreatePair,
   CPoolRemoveLiquidity,
   CPoolSwap,
+  CCompositeSwap,
   CPoolUpdatePair,
   PoolAddLiquidity,
   PoolCreatePair,
   PoolRemoveLiquidity,
   PoolSwap,
+  CompositeSwap,
   PoolUpdatePair
 } from './dftx/dftx_pool'
 import {
@@ -72,10 +74,18 @@ import {
   UpdateLoanToken,
   CCreateVault,
   CreateVault,
+  CUpdateVault,
+  UpdateVault,
   CDepositToVault,
   DepositToVault,
+  CWithdrawFromVault,
+  WithdrawFromVault,
+  CCloseVault,
+  CloseVault,
   TakeLoan,
   CTakeLoan,
+  CPaybackLoan,
+  PaybackLoan,
   CAuctionBid,
   AuctionBid
 } from './dftx/dftx_loans'
@@ -193,6 +203,14 @@ export const OP_CODES = {
       type: CPoolSwap.OP_CODE,
       name: CPoolSwap.OP_NAME,
       data: poolSwap
+    })
+  },
+  OP_DEFI_TX_COMPOSITE_SWAP: (compositeSwap: CompositeSwap): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCompositeSwap.OP_CODE,
+      name: CCompositeSwap.OP_NAME,
+      data: compositeSwap
     })
   },
   OP_DEFI_TX_POOL_ADD_LIQUIDITY: (poolAddLiquidity: PoolAddLiquidity): OP_DEFI_TX => {
@@ -419,6 +437,22 @@ export const OP_CODES = {
       data: icxSubmitDFCHTLC
     })
   },
+  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXSubmitEXTHTLC.OP_CODE,
+      name: CICXSubmitEXTHTLC.OP_NAME,
+      data: icxSubmitEXTHTLC
+    })
+  },
+  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CICXClaimDFCHTLC.OP_CODE,
+      name: CICXClaimDFCHTLC.OP_NAME,
+      data: icxClaimDFCHTLC
+    })
+  },
   OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -467,22 +501,6 @@ export const OP_CODES = {
       data: setLoanToken
     })
   },
-  OP_DEFI_TX_ICX_SUBMIT_EXT_HTLC: (icxSubmitEXTHTLC: ICXSubmitEXTHTLC): OP_DEFI_TX => {
-    return new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: CICXSubmitEXTHTLC.OP_CODE,
-      name: CICXSubmitEXTHTLC.OP_NAME,
-      data: icxSubmitEXTHTLC
-    })
-  },
-  OP_DEFI_TX_ICX_CLAIM_DFC_HTLC: (icxClaimDFCHTLC: ICXClaimDFCHTLC): OP_DEFI_TX => {
-    return new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: CICXClaimDFCHTLC.OP_CODE,
-      name: CICXClaimDFCHTLC.OP_NAME,
-      data: icxClaimDFCHTLC
-    })
-  },
   OP_DEFI_TX_UPDATE_LOAN_TOKEN: (updateLoanToken: UpdateLoanToken): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -499,6 +517,14 @@ export const OP_CODES = {
       data: createVault
     })
   },
+  OP_DEFI_TX_UPDATE_VAULT: (updateVault: UpdateVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CUpdateVault.OP_CODE,
+      name: CUpdateVault.OP_NAME,
+      data: updateVault
+    })
+  },
   OP_DEFI_TX_DEPOSIT_TO_VAULT: (depositToVault: DepositToVault): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
@@ -507,12 +533,20 @@ export const OP_CODES = {
       data: depositToVault
     })
   },
-  OP_DEFI_TX_AUCTION_BID: (auctionBid: AuctionBid): OP_DEFI_TX => {
+  OP_DEFI_TX_WITHDRAW_FROM_VAULT: (WithdrawFromVault: WithdrawFromVault): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CAuctionBid.OP_CODE,
-      name: CAuctionBid.OP_NAME,
-      data: auctionBid
+      type: CWithdrawFromVault.OP_CODE,
+      name: CWithdrawFromVault.OP_NAME,
+      data: WithdrawFromVault
+    })
+  },
+  OP_DEFI_TX_CLOSE_VAULT: (closeVault: CloseVault): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CCloseVault.OP_CODE,
+      name: CCloseVault.OP_NAME,
+      data: closeVault
     })
   },
   OP_DEFI_TX_TAKE_LOAN: (takeLoan: TakeLoan): OP_DEFI_TX => {
@@ -521,6 +555,22 @@ export const OP_CODES = {
       type: CTakeLoan.OP_CODE,
       name: CTakeLoan.OP_NAME,
       data: takeLoan
+    })
+  },
+  OP_DEFI_TX_PAYBACK_LOAN: (paybackLoan: PaybackLoan): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPaybackLoan.OP_CODE,
+      name: CPaybackLoan.OP_NAME,
+      data: paybackLoan
+    })
+  },
+  OP_DEFI_TX_AUCTION_BID: (auctionBid: AuctionBid): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CAuctionBid.OP_CODE,
+      name: CAuctionBid.OP_NAME,
+      data: auctionBid
     })
   },
   OP_0: new constants.OP_0(),
@@ -678,129 +728,4 @@ export const OP_CODES = {
 
   // invalid
   OP_INVALIDOPCODE: new invalid.OP_INVALIDOPCODE()
-}
-
-/**
- * Hex code mapping of all static OP_CODES
- */
-const HEX_MAPPING: {
-  [n: number]: StaticCode
-} = {
-  0x00: OP_CODES.OP_0,
-  0x4f: OP_CODES.OP_1NEGATE,
-  0x50: OP_CODES.OP_RESERVED,
-  0x51: OP_CODES.OP_1,
-  0x52: OP_CODES.OP_2,
-  0x53: OP_CODES.OP_3,
-  0x54: OP_CODES.OP_4,
-  0x55: OP_CODES.OP_5,
-  0x56: OP_CODES.OP_6,
-  0x57: OP_CODES.OP_7,
-  0x58: OP_CODES.OP_8,
-  0x59: OP_CODES.OP_9,
-  0x5a: OP_CODES.OP_10,
-  0x5b: OP_CODES.OP_11,
-  0x5c: OP_CODES.OP_12,
-  0x5d: OP_CODES.OP_13,
-  0x5e: OP_CODES.OP_14,
-  0x5f: OP_CODES.OP_15,
-  0x60: OP_CODES.OP_16,
-  // control
-  0x61: OP_CODES.OP_NOP,
-  0x62: OP_CODES.OP_VER,
-  0x63: OP_CODES.OP_IF,
-  0x64: OP_CODES.OP_NOTIF,
-  0x65: OP_CODES.OP_VERIF,
-  0x66: OP_CODES.OP_VERNOTIF,
-  0x67: OP_CODES.OP_ELSE,
-  0x68: OP_CODES.OP_ENDIF,
-  0x69: OP_CODES.OP_VERIFY,
-  0x6a: OP_CODES.OP_RETURN,
-  // stack
-  0x6b: OP_CODES.OP_TOALTSTACK,
-  0x6c: OP_CODES.OP_FROMALTSTACK,
-  0x6d: OP_CODES.OP_2DROP,
-  0x6e: OP_CODES.OP_2DUP,
-  0x6f: OP_CODES.OP_3DUP,
-  0x70: OP_CODES.OP_2OVER,
-  0x71: OP_CODES.OP_2ROT,
-  0x72: OP_CODES.OP_2SWAP,
-  0x73: OP_CODES.OP_IFDUP,
-  0x74: OP_CODES.OP_DEPTH,
-  0x75: OP_CODES.OP_DROP,
-  0x76: OP_CODES.OP_DUP,
-  0x77: OP_CODES.OP_NIP,
-  0x78: OP_CODES.OP_OVER,
-  0x79: OP_CODES.OP_PICK,
-  0x7a: OP_CODES.OP_ROLL,
-  0x7b: OP_CODES.OP_ROT,
-  0x7c: OP_CODES.OP_SWAP,
-  0x7d: OP_CODES.OP_TUCK,
-  // splice
-  0x7e: OP_CODES.OP_CAT,
-  0x7f: OP_CODES.OP_SUBSTR,
-  0x80: OP_CODES.OP_LEFT,
-  0x81: OP_CODES.OP_RIGHT,
-  0x82: OP_CODES.OP_SIZE,
-  // bitwise
-  0x83: OP_CODES.OP_INVERT,
-  0x84: OP_CODES.OP_AND,
-  0x85: OP_CODES.OP_OR,
-  0x86: OP_CODES.OP_XOR,
-  0x87: OP_CODES.OP_EQUAL,
-  0x88: OP_CODES.OP_EQUALVERIFY,
-  0x89: OP_CODES.OP_RESERVED1,
-  0x8a: OP_CODES.OP_RESERVED2,
-  // numeric
-  0x8b: OP_CODES.OP_1ADD,
-  0x8c: OP_CODES.OP_1SUB,
-  0x8d: OP_CODES.OP_2MUL,
-  0x8e: OP_CODES.OP_2DIV,
-  0x8f: OP_CODES.OP_NEGATE,
-  0x90: OP_CODES.OP_ABS,
-  0x91: OP_CODES.OP_NOT,
-  0x92: OP_CODES.OP_0NOTEQUAL,
-  0x93: OP_CODES.OP_ADD,
-  0x94: OP_CODES.OP_SUB,
-  0x95: OP_CODES.OP_MUL,
-  0x96: OP_CODES.OP_DIV,
-  0x97: OP_CODES.OP_MOD,
-  0x98: OP_CODES.OP_LSHIFT,
-  0x99: OP_CODES.OP_RSHIFT,
-  0x9a: OP_CODES.OP_BOOLAND,
-  0x9b: OP_CODES.OP_BOOLOR,
-  0x9c: OP_CODES.OP_NUMEQUAL,
-  0x9d: OP_CODES.OP_NUMEQUALVERIFY,
-  0x9e: OP_CODES.OP_NUMNOTEQUAL,
-  0x9f: OP_CODES.OP_LESSTHAN,
-  0xa0: OP_CODES.OP_GREATERTHAN,
-  0xa1: OP_CODES.OP_LESSTHANOREQUAL,
-  0xa2: OP_CODES.OP_GREATERTHANOREQUAL,
-  0xa3: OP_CODES.OP_MIN,
-  0xa4: OP_CODES.OP_MAX,
-  0xa5: OP_CODES.OP_WITHIN,
-  // crypto
-  0xa6: OP_CODES.OP_RIPEMD160,
-  0xa7: OP_CODES.OP_SHA1,
-  0xa8: OP_CODES.OP_SHA256,
-  0xa9: OP_CODES.OP_HASH160,
-  0xaa: OP_CODES.OP_HASH256,
-  0xab: OP_CODES.OP_CODESEPARATOR,
-  0xac: OP_CODES.OP_CHECKSIG,
-  0xad: OP_CODES.OP_CHECKSIGVERIFY,
-  0xae: OP_CODES.OP_CHECKMULTISIG,
-  0xaf: OP_CODES.OP_CHECKMULTISIGVERIFY,
-  // expansion
-  0xb0: OP_CODES.OP_NOP1,
-  0xb1: OP_CODES.OP_CHECKLOCKTIMEVERIFY,
-  0xb2: OP_CODES.OP_CHECKSEQUENCEVERIFY,
-  0xb3: OP_CODES.OP_NOP4,
-  0xb4: OP_CODES.OP_NOP5,
-  0xb5: OP_CODES.OP_NOP6,
-  0xb6: OP_CODES.OP_NOP7,
-  0xb7: OP_CODES.OP_NOP8,
-  0xb8: OP_CODES.OP_NOP9,
-  0xb9: OP_CODES.OP_NOP10,
-  // invalid
-  0xff: OP_CODES.OP_INVALIDOPCODE
 }

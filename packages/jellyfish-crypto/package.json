@@ -32,7 +32,7 @@
     "wif": "^2.0.6"
   },
   "peerDependencies": {
-    "defichain": "0.0.0"
+    "defichain": "^0.0.0"
   },
   "devDependencies": {
     "@types/bech32": "^1.1.2",

@@ -19,7 +19,6 @@ describe('container error handling', () => {
   it('should error rpc as DeFiDRpcError', async () => {
     container = new RegTestContainer()
     await container.start()
-    await container.waitForReady()
     return await expect(container.call('invalid'))
       .rejects.toThrowError(DeFiDRpcError)
   })
