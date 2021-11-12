@@ -92,6 +92,8 @@ import {
   UpdateVault,
   DepositToVault,
   CDepositToVault,
+  WithdrawFromVault,
+  CWithdrawFromVault,
   CloseVault,
   CCloseVault,
   CTakeLoan,
@@ -256,6 +258,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<UpdateVault>(CUpdateVault.OP_NAME, d => new CUpdateVault(d))
       case CDepositToVault.OP_CODE:
         return compose<DepositToVault>(CDepositToVault.OP_NAME, d => new CDepositToVault(d))
+      case CWithdrawFromVault.OP_CODE:
+        return compose<WithdrawFromVault>(CWithdrawFromVault.OP_NAME, d => new CWithdrawFromVault(d))
       case CCloseVault.OP_CODE:
         return compose<CloseVault>(CCloseVault.OP_NAME, d => new CCloseVault(d))
       case CTakeLoan.OP_CODE:

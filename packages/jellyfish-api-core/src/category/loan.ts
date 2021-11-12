@@ -359,6 +359,27 @@ export class Loan {
   }
 
   /**
+   * Bid to vault in auction
+   *
+   * @param {AuctionBid} placeAuctionBid
+   * @param {string} placeAuctionBid.vaultId Vault Id
+   * @param {index} placeAuctionBid.index Auction index
+   * @param {from} placeAuctionBid.from Address to get token
+   * @param {amount} placeAuctionBid.amount in "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} The transaction id
+   */
+  async placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call(
+      'placeauctionbid',
+      [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
+      'number'
+    )
+  }
+
+  /**
    * List all available auctions.
    *
    * @param {AuctionPagination} pagination
@@ -500,6 +521,12 @@ export interface VaultLiquidation extends Vault {
   batches: VaultLiquidationBatch[]
 }
 
+export interface VaultLiquidationBatch {
+  index: number
+  collaterals: string[]
+  loan: string
+}
+
 export interface UTXO {
   txid: string
   vout: number
@@ -545,32 +572,4 @@ export interface ListVaultOptions {
 export interface CloseVault {
   vaultId: string
   to: string
-}
-
-export interface AuctionPagination {
-  start?: AuctionPaginationStart
-  including_start?: boolean
-  limit?: number
-}
-
-export interface AuctionPaginationStart {
-  vaultId?: string
-  height?: number
-}
-
-export interface AuctionDetail {
-  vaultId: string
-  batchCount: number
-  liquidationPenalty: number
-  liquidationHeight: number
-  batches: VaultLiquidationBatch[]
-  loanSchemeId: string
-  ownerAddress: string
-  state: string
-}
-
-export interface VaultLiquidationBatch {
-  index: number
-  collaterals: string[]
-  loan: string
 }

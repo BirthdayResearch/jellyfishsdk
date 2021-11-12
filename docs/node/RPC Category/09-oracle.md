@@ -204,3 +204,49 @@ interface ListPricesData {
   ok: boolean | string
 }
 ```
+
+## getFixedIntervalPrice
+
+Get fixed interval price.
+
+```ts title="client.oracle.getFixedIntervalPrice()"
+interface oracle {
+  getFixedIntervalPrice (id: string): Promise<FixedIntervalPrice>
+}
+
+interface FixedIntervalPrice {
+  activePriceBlock: number
+  nextPriceBlock: number
+  fixedIntervalPriceId: string
+  activePrice: BigNumber
+  nextPrice: BigNumber
+  timestamp: number
+  isLive: boolean
+}
+```
+
+## listFixedIntervalPrices
+
+List all fixed interval prices.
+
+```ts title="client.oracle.listFixedIntervalPrices()"
+interface oracle {
+  listFixedIntervalPrices (
+    pagination: FixedIntervalPricePagination = {
+      limit: 100
+    }): Promise<ListFixedIntervalPrice[]>
+}
+
+interface FixedIntervalPricePagination {
+  start?: string
+  limit?: number
+}
+
+interface ListFixedIntervalPrice {
+  priceFeedId: string
+  activePrice: BigNumber
+  nextPrice: BigNumber
+  timestamp: number
+  isLive: boolean
+}
+```

@@ -580,6 +580,28 @@ interface UTXO {
 }
 ```
 
+## placeAuctionBid
+
+Bid to vault in auction.
+
+```ts title="client.loan.placeAuctionBid()"
+interface loan {
+  placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+}
+
+interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## listAuctions
 
 List all available auctions.
