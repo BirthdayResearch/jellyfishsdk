@@ -16,8 +16,8 @@ beforeAll(async () => {
   await container.waitForWalletCoinbaseMaturity()
   await service.start()
 
-  await container.waitForBlockHeight(101)
-  await service.waitForIndexedHeight(101)
+  await container.waitForBlockHeight(201)
+  await service.waitForIndexedHeight(201)
 })
 
 afterAll(async () => {
@@ -51,25 +51,29 @@ const ExpectedBlock = {
 
 describe('list', () => {
   it('should get paginated list of blocks', async () => {
-    const first = await client.blocks.list(35)
+    const first = await client.blocks.list(100)
 
-    expect(first.length).toStrictEqual(35)
+    expect(first.length).toStrictEqual(100)
     expect(first[0]).toStrictEqual(ExpectedBlock)
-    expect(first[0].height).toBeGreaterThanOrEqual(100 - 35)
-    expect(first[34].height).toBeGreaterThanOrEqual(first[0].height - 35)
+    expect(first[0].height).toBeGreaterThanOrEqual(200 - 100)
+    expect(first[34].height).toBeGreaterThanOrEqual(first[0].height - 100)
 
     const second = await client.paginate(first)
-    expect(second.length).toStrictEqual(35)
-    expect(second[0].height).toStrictEqual(first[34].height - 1)
+    expect(second.length).toStrictEqual(100)
+    expect(second[0].height).toStrictEqual(first[99].height - 1)
 
-    const last = await client.paginate(second)
+    const third = await client.paginate(second)
+    expect(third.length).toBeGreaterThanOrEqual(1)
+    expect(third[0].height).toStrictEqual(second[99].height - 1)
+
+    const last = await client.paginate(third)
     expect(last.hasNext).toStrictEqual(false)
   })
 
-  it('should get paginated list of 100 even if request page size is  more than 100', async () => {
-    const first = await client.blocks.list(150)
+  it('should get paginated list of 200 even if request page size is more than 200', async () => {
+    const first = await client.blocks.list(250)
 
-    expect(first.length).toStrictEqual(100)
+    expect(first.length).toStrictEqual(200)
     expect(first[0]).toStrictEqual(ExpectedBlock)
   })
 
