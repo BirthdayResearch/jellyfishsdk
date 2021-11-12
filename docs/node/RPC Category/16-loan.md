@@ -549,7 +549,7 @@ interface loan {
 
 interface TakeLoanMetadata {
   vaultId: string
-  amounts: string // amount@symbol
+  amounts: string | string[] // amount@symbol
   to?: string
 }
 
