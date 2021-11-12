@@ -294,7 +294,7 @@ describe('Loan listAuctions', () => {
                 '6666.66660000@DFI',
                 '0.33333333@BTC'
               ],
-              index: new BigNumber(0),
+              index: 0,
               loan: '5000.01992715@AAPL'
             },
             {
@@ -302,7 +302,7 @@ describe('Loan listAuctions', () => {
                 '3333.33340000@DFI',
                 '0.16666667@BTC'
               ],
-              index: new BigNumber(1),
+              index: 1,
               loan: '2500.01003858@AAPL'
             }
           ],

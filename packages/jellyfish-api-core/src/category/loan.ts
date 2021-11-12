@@ -373,7 +373,7 @@ export class Loan {
     const defaultPagination = {
       limit: 100
     }
-    return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], { batches: 'bignumber' })
+    return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], 'number')
   }
 }
 
