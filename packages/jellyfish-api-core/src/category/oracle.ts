@@ -129,6 +129,37 @@ export class Oracle {
   async listPrices (): Promise<ListPricesData[]> {
     return await this.client.call('listprices', [], 'bignumber')
   }
+
+  /**
+   * Get fixed interval price.
+   *
+   * @param {string} id Price feed id
+   * @return {Promsie<FixedIntervalPrice>}
+   */
+  async getFixedIntervalPrice (id: string): Promise<FixedIntervalPrice> {
+    return await this.client.call('getfixedintervalprice', [id], {
+      activePrice: 'bignumber',
+      nextPrice: 'bignumber'
+    })
+  }
+
+  /**
+   * List all fixed interval prices.
+   *
+   * @param {FixedIntervalPricePagination} pagination
+   * @param {string} [pagination.start]
+   * @param {string} [pagination.limit = 100] Maximum number of orders to return.
+   * @return {Promise<ListFixedIntervalPrice[]}
+   */
+  async listFixedIntervalPrices (
+    pagination: FixedIntervalPricePagination = {
+      limit: 100
+    }): Promise<ListFixedIntervalPrice[]> {
+    return await this.client.call('listfixedintervalprices', [pagination], {
+      activePrice: 'bignumber',
+      nextPrice: 'bignumber'
+    })
+  }
 }
 
 export interface AppointOracleOptions {
@@ -203,4 +234,27 @@ export interface ListPricesData {
    * @example true or display error msg if false
    */
   ok: boolean | string
+}
+
+export interface FixedIntervalPrice {
+  activePriceBlock: number
+  nextPriceBlock: number
+  fixedIntervalPriceId: string
+  activePrice: BigNumber
+  nextPrice: BigNumber
+  timestamp: number
+  isLive: boolean
+}
+
+export interface ListFixedIntervalPrice {
+  priceFeedId: string
+  activePrice: BigNumber
+  nextPrice: BigNumber
+  timestamp: number
+  isLive: boolean
+}
+
+export interface FixedIntervalPricePagination {
+  start?: string
+  limit?: number
 }
