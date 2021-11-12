@@ -357,6 +357,27 @@ export class Loan {
   async paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
+
+  /**
+   * Bid to vault in auction
+   *
+   * @param {AuctionBid} placeAuctionBid
+   * @param {string} placeAuctionBid.vaultId Vault Id
+   * @param {index} placeAuctionBid.index Auction index
+   * @param {from} placeAuctionBid.from Address to get token
+   * @param {amount} placeAuctionBid.amount in "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} The transaction id
+   */
+  async placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call(
+      'placeauctionbid',
+      [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
+      'number'
+    )
+  }
 }
 
 export interface CreateLoanScheme {
@@ -515,6 +536,13 @@ export interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
+}
+
+export interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
 }
 
 export interface VaultPagination {

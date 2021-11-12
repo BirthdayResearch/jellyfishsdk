@@ -549,7 +549,7 @@ interface loan {
 
 interface TakeLoanMetadata {
   vaultId: string
-  amounts: string // amount@symbol
+  amounts: string | string[] // amount@symbol
   to?: string
 }
 
@@ -572,6 +572,28 @@ interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## placeAuctionBid
+
+Bid to vault in auction.
+
+```ts title="client.loan.placeAuctionBid()"
+interface loan {
+  placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string>
+}
+
+interface AuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
 }
 
 interface UTXO {
