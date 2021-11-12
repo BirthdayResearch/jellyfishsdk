@@ -191,7 +191,7 @@ export class CCreateProposal extends ComposableBuffer<CreateProposal> {
 }
 
 export class CCreateCfp extends CCreateProposal {
-  static OP_CODE = 0x65 // 'e'
+  static OP_CODE = 0x50 // 'P'
   static OP_NAME = 'OP_DEFI_TX_CREATE_CFP'
 }
 

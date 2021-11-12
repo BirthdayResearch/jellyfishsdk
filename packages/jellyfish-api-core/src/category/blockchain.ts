@@ -192,6 +192,28 @@ export class Blockchain {
   async getMempoolInfo (): Promise<MempoolInfo> {
     return await this.client.call('getmempoolinfo', [], { mempoolminfee: 'bignumber', minrelaytxfee: 'bignumber' })
   }
+
+  /**
+   * Wait for any new block
+   *
+   * @param {number} [timeout=30000] in millis
+   * @return Promise<WaitBlockResult> the current block on timeout or exit
+   */
+  async waitForNewBlock (timeout: number = 30000): Promise<WaitBlockResult> {
+    return await this.client.call('waitfornewblock', [timeout], 'number')
+  }
+
+  /**
+   * Waits for block height equal or higher than provided and returns the height and hash of the current tip.
+   *
+   *
+   * @param {number} height
+   * @param {number} [timeout=30000] in millis
+   * @return Promise<WaitBlockResult> the current block on timeout or exit
+   */
+  async waitForBlockHeight (height: number, timeout: number = 30000): Promise<WaitBlockResult> {
+    return await this.client.call('waitforblockheight', [height, timeout], 'number')
+  }
 }
 
 /**
@@ -387,4 +409,9 @@ export interface MempoolInfo {
   maxmempool: number
   mempoolminfee: BigNumber
   minrelaytxfee: BigNumber
+}
+
+export interface WaitBlockResult {
+  hash: string
+  height: number
 }

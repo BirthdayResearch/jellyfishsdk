@@ -32,16 +32,14 @@ export class CBlock extends ComposableBuffer<Block> {
           v.readOffset = readOffset
           if (marker > 0x00) {
             return new CTransaction(v)
-          } else {
-            return new CTransactionSegWit(v)
           }
-        } else {
-          if ((v as TransactionSegWit).marker === 0x00) {
-            return new CTransactionSegWit(v as TransactionSegWit)
-          } else {
-            return new CTransaction(v)
-          }
+          return new CTransactionSegWit(v)
         }
+
+        if ((v as TransactionSegWit).marker === 0x00) {
+          return new CTransactionSegWit(v as TransactionSegWit)
+        }
+        return new CTransaction(v)
       })
     ]
   }
