@@ -19,6 +19,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
+import { parseDisplaySymbol } from '@src/module.api/token.controller'
 
 @Injectable()
 export class LoanVaultService {
@@ -156,7 +157,7 @@ function mapLoanVaultTokenAmount (id: string, tokenInfo: TokenInfo, amount: stri
     symbol: tokenInfo.symbol,
     symbolKey: tokenInfo.symbolKey,
     name: tokenInfo.name,
-    displaySymbol: tokenInfo.isDAT && tokenInfo.symbol !== 'DFI' && !tokenInfo.isLPS ? `d${tokenInfo.symbol}` : tokenInfo.symbol
+    displaySymbol: parseDisplaySymbol(tokenInfo)
   }
 }
 
