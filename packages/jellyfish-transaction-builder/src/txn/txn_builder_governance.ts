@@ -75,9 +75,9 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
   }
 
   /**
-   * Set governance variable.
+   * Set governance variable with activation height.
    *
-   * @param {SetGovernance} setGov txn to create
+   * @param {SetGovernanceHeight} setGovHeight txn to create
    * @param {Script} changeScript to send unspent to after deducting the fee
    * @returns {Promise<TransactionSegWit>}
    */

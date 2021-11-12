@@ -1,4 +1,4 @@
-import { GenesisKeys, MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
+import { DeFiDRpcError, GenesisKeys, MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
@@ -95,5 +95,53 @@ describe('setgovheight', () => {
       expect(next[activationHeight]['3'].toString()).toStrictEqual('0.8')
       expect(next[activationHeight]['4'].toString()).toStrictEqual('0.2')
     }
+  })
+})
+
+describe('setgovheight', () => {
+  let providers: MockProviders
+  let builder: P2WPKHTransactionBuilder
+  const nonFoundation = new MasterNodeRegTestContainer()
+  const testing = Testing.create(nonFoundation)
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    await createToken(testing.container, 'CAT')
+    await createToken(testing.container, 'DOG')
+    await createPoolPair(testing.container, 'CAT', 'DFI')
+    await createPoolPair(testing.container, 'DOG', 'DFI')
+
+    providers = await getProviders(testing.container)
+    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+
+    await testing.container.waitForWalletBalanceGTE(12)
+    await fundEllipticPair(testing.container, providers.ellipticPair, 50)
+    await providers.setupMocks()
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should fail without foundation auth', async () => {
+    const script = await providers.elliptic.script()
+    const setWithHeight = await builder.governance.setGoveranceHeight({
+      governanceVars: [
+        {
+          key: 'LP_SPLITS',
+          value: [
+            { tokenId: 3, value: new BigNumber(0.8) },
+            { tokenId: 4, value: new BigNumber(0.2) }
+          ]
+        }
+      ],
+      activationHeight: 1000
+    }, script)
+
+    const promise = sendTransaction(testing.container, setWithHeight)
+    await expect(promise).rejects.toThrow(DeFiDRpcError)
+    await expect(promise).rejects.toThrow('tx not from foundation member')
   })
 })
