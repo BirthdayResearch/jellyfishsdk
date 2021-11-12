@@ -184,6 +184,30 @@ interface UTXO {
 }
 ```
 
+## compositeSwap
+
+Creates a composite swap (swap between multiple poolpairs) transaction with given metadata.
+
+```ts title="client.poolpair.compositeSwap()"
+interface poolpair {
+  compositeSwap (metadata: PoolSwapMetadata, utxos: UTXO[] = []): Promise<string>
+}
+
+interface PoolSwapMetadata {
+  from: string
+  tokenFrom: string
+  amountFrom: number
+  to: string
+  tokenTo: string
+  maxPrice?: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## testPoolSwap
 
 Create a test pool swap transaction to check pool swap's return result

@@ -29,7 +29,7 @@ describe('Spv', () => {
       { seed: htlc.seed }
     )
     expect(typeof claimedHtlc.txid).toStrictEqual('string')
-    expect(claimedHtlc.sendmessage).toStrictEqual('Success')
+    expect(claimedHtlc.sendmessage).toStrictEqual('') // not empty when error found
   })
 
   it('should not claimHtlc when no unspent HTLC outputs found', async () => {
@@ -43,7 +43,7 @@ describe('Spv', () => {
       { seed: htlc.seed }
     )
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'No unspent HTLC outputs found', code: -4, method: spv_claimhtlc")
+    await expect(promise).rejects.toThrow('No unspent HTLC outputs found')
   })
 
   it('should not claimHtlc when provided seed is not in hex form', async () => {
@@ -114,7 +114,7 @@ describe('Spv', () => {
       { seed: htlc.seed }
     )
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Invalid destination address', code: -5, method: spv_claimhtlc")
+    await expect(promise).rejects.toThrow('Invalid destination address')
   })
 
   it('should not claimHtlc with not enough funds to cover fee', async () => {
@@ -130,6 +130,6 @@ describe('Spv', () => {
       { seed: htlc.seed }
     )
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow("RpcApiError: 'Not enough funds to cover fee', code: -1, method: spv_claimhtlc")
+    await expect(promise).rejects.toThrow('Not enough funds to cover fee')
   })
 })

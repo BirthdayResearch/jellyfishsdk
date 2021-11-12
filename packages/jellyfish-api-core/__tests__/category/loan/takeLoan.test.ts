@@ -10,6 +10,7 @@ describe('Loan takeLoan', () => {
   let vaultAddress: string
   let vaultId1: string
   let vaultAddress1: string
+  let oracleId: string
 
   async function setup (): Promise<void> {
     // token setup
@@ -29,7 +30,7 @@ describe('Loan takeLoan', () => {
       { token: 'BTC', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' }
     ]
-    const oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
+    oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
     const timestamp = Math.floor(new Date().getTime() / 1000)
@@ -175,6 +176,29 @@ describe('Loan takeLoan', () => {
       await tGroup.waitForSync()
     })
 
+    it('should not takeLoan when DFI collateral value less than 50%', async () => {
+      {
+        // reduce DFI value to below 50% of total collateral
+        const now = Math.floor(new Date().getTime() / 1000)
+        await tGroup.get(0).rpc.oracle.setOracleData(oracleId, now, { prices: [{ tokenAmount: '0.4@DFI', currency: 'USD' }, { tokenAmount: '10000@BTC', currency: 'USD' }, { tokenAmount: '2@TSLA', currency: 'USD' }] })
+        await tGroup.get(0).generate(12)
+      }
+
+      const promise = tGroup.get(0).rpc.loan.takeLoan({
+        vaultId: vaultId,
+        amounts: '0.01@TSLA'
+      })
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI when taking a loan')
+
+      {
+        // revert DFI value changes
+        const now = Math.floor(new Date().getTime() / 1000)
+        await tGroup.get(0).rpc.oracle.setOracleData(oracleId, now, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }, { tokenAmount: '10000@BTC', currency: 'USD' }, { tokenAmount: '2@TSLA', currency: 'USD' }] })
+        await tGroup.get(0).generate(12)
+      }
+    })
+
     it('should takeLoan', async () => {
       const vaultBefore = await tGroup.get(0).container.call('getvault', [vaultId])
       expect(vaultBefore.loanSchemeId).toStrictEqual('scheme')
@@ -184,7 +208,7 @@ describe('Loan takeLoan', () => {
       expect(vaultBefore.collateralValue).toStrictEqual(15000)
       expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
-      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
+      expect(vaultBefore.collateralRatio).toStrictEqual(-1) // empty loan
 
       const vaultBeforeTSLAAcc = vaultBefore.loanAmounts.length > 0
         ? vaultBefore.loanAmounts.find((amt: string) => amt.split('@')[1] === 'TSLA')
@@ -210,7 +234,7 @@ describe('Loan takeLoan', () => {
       const loanAmounts = new BigNumber(40).plus(interestInfo[0].totalInterest)
       expect(vaultAfter.loanAmounts).toStrictEqual([loanAmounts.toFixed(8) + '@TSLA']) // 40.00002283@TSLA
       expect(vaultAfter.loanValue).toStrictEqual(loanAmounts.multipliedBy(2).toNumber())
-      expect(vaultAfter.currentRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
+      expect(vaultAfter.collateralRatio).toStrictEqual(Math.round(vaultAfter.collateralValue / vaultAfter.loanValue * 100))
 
       const vaultAfterTSLAAcc = vaultAfter.loanAmounts.find((amt: string) => amt.split('@')[1] === 'TSLA')
       const vaultAfterTSLAAmt = Number(vaultAfterTSLAAcc.split('@')[0])

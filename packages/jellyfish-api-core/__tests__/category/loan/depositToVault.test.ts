@@ -132,7 +132,8 @@ describe('Loan depositToVault', () => {
     await tGroup.waitForSync()
   }
 
-  it('should be failed as first deposit must be DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as first deposit must be DFI', async () => {
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
     })
@@ -173,7 +174,7 @@ describe('Loan depositToVault', () => {
       expect(vaultBefore.state).toStrictEqual('active')
       expect(vaultBefore.loanAmounts).toStrictEqual([])
       expect(vaultBefore.loanValue).toStrictEqual(0)
-      expect(vaultBefore.currentRatio).toStrictEqual(-1) // empty loan
+      expect(vaultBefore.collateralRatio).toStrictEqual(-1) // empty loan
 
       const vaultBeforeDFIAcc = vaultBefore.collateralAmounts.length > 0
         ? vaultBefore.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
@@ -194,7 +195,7 @@ describe('Loan depositToVault', () => {
       expect(vaultAfter.state).toStrictEqual(vaultBefore.state)
       expect(vaultAfter.loanAmounts).toStrictEqual(vaultBefore.loanAmounts)
       expect(vaultAfter.loanValue).toStrictEqual(vaultBefore.loanValue)
-      expect(vaultAfter.currentRatio).toStrictEqual(vaultBefore.currentRatio)
+      expect(vaultAfter.collateralRatio).toStrictEqual(vaultBefore.collateralRatio)
 
       // assert collateralAmounts
       const vaultAfterDFIAcc = vaultAfter.collateralAmounts.find((amt: string) => amt.split('@')[1] === 'DFI')
@@ -300,7 +301,8 @@ describe('Loan depositToVault', () => {
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
   })
 
-  it('should be failed as vault must contain min 50% of DFI', async () => {
+  // TODO: Logic moved to take loan (need to test it on take loan side instead)
+  it.skip('should be failed as vault must contain min 50% of DFI', async () => {
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '1000@DFI'
     })
@@ -319,7 +321,7 @@ describe('Loan depositToVault', () => {
     await tGroup.get(0).generate(6)
 
     const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
-    expect(liqVault.state).toStrictEqual('inliquidation')
+    expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const promise = tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '1000@DFI'
