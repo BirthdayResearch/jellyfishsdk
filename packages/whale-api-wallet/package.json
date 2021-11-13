@@ -24,9 +24,11 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@defichain/jellyfish-transaction-builder": "^2.1.1",
-    "@defichain/jellyfish-wallet": "^2.1.1",
-    "@defichain/whale-api-client": "0.0.0",
-    "defichain": "^2.1.1"
+    "@defichain/jellyfish-transaction-builder": "^2.4.0",
+    "@defichain/jellyfish-wallet": "^2.4.0",
+    "@defichain/whale-api-client": "0.0.0"
+  },
+  "peerDependencies": {
+    "defichain": "^2.4.0"
   }
 }

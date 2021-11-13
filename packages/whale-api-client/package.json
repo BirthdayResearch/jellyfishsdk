@@ -25,10 +25,12 @@
     "version.ts": "node -p \"'export default \\'v' + require('./package.json').version.replace(/\\.\\d+$/, '') + '\\''\" > src/version.ts"
   },
   "dependencies": {
-    "@defichain/jellyfish-api-core": "^2.1.1",
+    "@defichain/jellyfish-api-core": "^2.4.0",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.1.2",
-    "defichain": "^2.1.1",
     "url-search-params-polyfill": "8.1.1"
+  },
+  "peerDependencies": {
+    "defichain": "^2.4.0"
   }
 }
