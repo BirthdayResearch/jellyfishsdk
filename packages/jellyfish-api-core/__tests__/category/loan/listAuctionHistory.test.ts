@@ -480,7 +480,7 @@ describe('Loan listAuctions', () => {
       [auctionHistory1, auctionHistory2, auctionHistory3, auctionHistory4] = await alice.rpc.loan.listAuctionHistory('all')
     })
 
-    it('should listAuctionHistory with maxBlockHeight', async () => {
+    it('should listAuctionHistory with maxBlockHeight only', async () => {
       // List for maxBlockHeight of first vault
       {
         const page = await alice.rpc.loan.listAuctionHistory('all',
@@ -503,7 +503,7 @@ describe('Loan listAuctions', () => {
       }
     })
 
-    it('should listAuctionHistory with vaultId', async () => {
+    it('should listAuctionHistory with vaultId only', async () => {
       {
         const page = await alice.rpc.loan.listAuctionHistory('all',
           { vaultId: auctionHistory2.vaultId }
@@ -512,7 +512,7 @@ describe('Loan listAuctions', () => {
       }
     })
 
-    it('should listAuctionHistory with index', async () => { // Unable to filter by vaultId only. Need to filter by both maxBlockHeight, vaultId and index together.
+    it('should listAuctionHistory with index only', async () => { // Unable to filter by vaultId only. Need to filter by both maxBlockHeight, vaultId and index together.
       {
         const page = await alice.rpc.loan.listAuctionHistory('all',
           { index: 0 }
