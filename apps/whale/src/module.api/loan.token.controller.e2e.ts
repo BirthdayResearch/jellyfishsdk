@@ -101,7 +101,8 @@ describe('list', () => {
         symbol: expect.any(String),
         symbolKey: expect.any(String),
         tradeable: true
-      }
+      },
+      activePrice: undefined
     })
 
     expect(result.data[1].tokenId.length).toStrictEqual(64)
@@ -170,7 +171,8 @@ describe('get', () => {
         symbol: 'AAPL',
         symbolKey: 'AAPL',
         tradeable: true
-      }
+      },
+      activePrice: undefined
     })
   })
 
