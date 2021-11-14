@@ -107,7 +107,7 @@ describe('list', () => {
     expect(result.data.length).toStrictEqual(4)
     expect(result.data[0]).toStrictEqual({
       tokenId: expect.any(String),
-      priceFeedId: expect.any(String),
+      fixedIntervalPriceId: expect.any(String),
       factor: expect.any(String),
       activateAfterBlock: expect.any(Number),
       token: {
@@ -133,7 +133,8 @@ describe('list', () => {
         symbol: expect.any(String),
         symbolKey: expect.any(String),
         tradeable: true
-      }
+      },
+      activePrice: undefined
     })
   })
 
@@ -174,7 +175,7 @@ describe('get', () => {
     expect(data).toStrictEqual(
       {
         tokenId: collateralTokenId1,
-        priceFeedId: 'AAPL/USD',
+        fixedIntervalPriceId: 'AAPL/USD',
         factor: '0.1',
         activateAfterBlock: 108,
         token: {
@@ -200,7 +201,8 @@ describe('get', () => {
           symbol: 'AAPL',
           symbolKey: expect.any(String),
           tradeable: true
-        }
+        },
+        activePrice: undefined
       }
     )
   })

@@ -26,13 +26,16 @@ import {
 import { mapTokenData } from '@src/module.api/token.controller'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { LoanVaultService } from '@src/module.api/loan.vault.service'
+import { OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
+import { ActivePrice } from '@whale-api-client/api/prices'
 
 @Controller('/loans')
 export class LoanController {
   constructor (
     private readonly client: JsonRpcClient,
     private readonly deFiDCache: DeFiDCache,
-    private readonly vaultService: LoanVaultService
+    private readonly vaultService: LoanVaultService,
+    private readonly priceActiveMapper: OraclePriceActiveMapper
   ) {
   }
 
@@ -122,11 +125,11 @@ export class LoanController {
     @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<LoanToken>> {
     const result = Object.entries(await this.client.loan.listLoanTokens())
-      .map(([, value]) => {
-        return mapLoanToken(value)
-      }).sort((a, b) => a.tokenId.localeCompare(b.tokenId))
+      .map(async ([, value]) => await this.mapLoanToken(value))
+    const items = (await Promise.all(result))
+      .sort((a, b) => a.tokenId.localeCompare(b.tokenId))
 
-    return createFakePagination(query, result, item => item.tokenId)
+    return createFakePagination(query, items, item => item.tokenId)
   }
 
   /**
@@ -139,31 +142,13 @@ export class LoanController {
   async getLoanToken (@Param('id') id: string): Promise<LoanToken> {
     try {
       const data = await this.client.loan.getLoanToken(id)
-      return mapLoanToken(data)
+      return await this.mapLoanToken(data)
     } catch (err) {
       if (err?.payload?.message === `Token ${id} does not exist!`) {
         throw new NotFoundException('Unable to find loan token')
       } else {
         throw new BadRequestException(err)
       }
-    }
-  }
-
-  async mapCollateralToken (detail: CollateralTokenDetail): Promise<CollateralToken> {
-    const result = await this.deFiDCache.getTokenInfoBySymbol(detail.token)
-    if (result === undefined) {
-      throw new ConflictException('unable to find token')
-    }
-
-    const id = Object.keys(result)[0]
-    const tokenInfo = result[id]
-
-    return {
-      tokenId: detail.tokenId,
-      token: mapTokenData(id, tokenInfo),
-      factor: detail.factor.toFixed(),
-      priceFeedId: detail.fixedIntervalPriceId,
-      activateAfterBlock: detail.activateAfterBlock.toNumber()
     }
   }
 
@@ -188,6 +173,44 @@ export class LoanController {
   async getVault (@Param('id') id: string): Promise<LoanVaultActive | LoanVaultLiquidated> {
     return await this.vaultService.get(id)
   }
+
+  async mapCollateralToken (detail: CollateralTokenDetail): Promise<CollateralToken> {
+    const result = await this.deFiDCache.getTokenInfoBySymbol(detail.token)
+    if (result === undefined) {
+      throw new ConflictException('unable to find token')
+    }
+
+    const id = Object.keys(result)[0]
+    const tokenInfo = result[id]
+
+    return {
+      tokenId: detail.tokenId,
+      token: mapTokenData(id, tokenInfo),
+      factor: detail.factor.toFixed(),
+      activateAfterBlock: detail.activateAfterBlock.toNumber(),
+      fixedIntervalPriceId: detail.fixedIntervalPriceId,
+      activePrice: await this.getActivePrice(detail.fixedIntervalPriceId)
+    }
+  }
+
+  async mapLoanToken (result: LoanTokenResult): Promise<LoanToken> {
+    const id = Object.keys(result.token)[0]
+    const tokenInfo = result.token[id]
+
+    return {
+      tokenId: tokenInfo.creationTx,
+      token: mapTokenData(id, tokenInfo),
+      interest: result.interest.toFixed(),
+      fixedIntervalPriceId: result.fixedIntervalPriceId,
+      activePrice: await this.getActivePrice(result.fixedIntervalPriceId)
+    }
+  }
+
+  async getActivePrice (fixedIntervalPriceId: string): Promise<ActivePrice | undefined> {
+    const [token, currency] = fixedIntervalPriceId.split('/')
+    const prices = await this.priceActiveMapper.query(`${token}-${currency}`, 1)
+    return prices[0]
+  }
 }
 
 function createFakePagination<T> (query: PaginationQuery, items: T[], mapId: (item: T) => string): ApiPagedResponse<T> {
@@ -211,16 +234,5 @@ function mapLoanScheme (result: LoanSchemeResult | GetLoanSchemeResult): LoanSch
     id: result.id,
     minColRatio: result.mincolratio.toFixed(),
     interestRate: result.interestrate.toFixed()
-  }
-}
-
-function mapLoanToken (result: LoanTokenResult): LoanToken {
-  const id = Object.keys(result.token)[0]
-  const tokenInfo = result.token[id]
-  return {
-    tokenId: tokenInfo.creationTx,
-    token: mapTokenData(id, tokenInfo),
-    interest: result.interest.toFixed(),
-    fixedIntervalPriceId: result.fixedIntervalPriceId
   }
 }
