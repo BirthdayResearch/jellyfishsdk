@@ -22,6 +22,7 @@ import { MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 import { TokenMapper } from '@src/module.model/token'
 import { PoolPairMapper } from '@src/module.model/poolpair'
 import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
+import { OraclePriceActiveMapper } from './oracle.price.active'
 
 @Global()
 @Module({
@@ -41,6 +42,7 @@ import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
+    OraclePriceActiveMapper,
     PriceTickerMapper,
     MasternodeMapper,
     MasternodeStatsMapper,
@@ -64,6 +66,7 @@ import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
+    OraclePriceActiveMapper,
     PriceTickerMapper,
     MasternodeMapper,
     MasternodeStatsMapper,
