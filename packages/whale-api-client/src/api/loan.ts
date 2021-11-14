@@ -165,4 +165,5 @@ export interface LoanVaultTokenAmount {
   displaySymbol: string
   symbolKey: string
   name: string
+  activePrice?: ActivePrice
 }
