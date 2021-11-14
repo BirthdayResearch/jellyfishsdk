@@ -42,8 +42,13 @@ export class Prices {
     return await this.client.requestData('GET', `prices/${key}`)
   }
 
+  async getFeedActive (token: string, currency: string, size: number = 30, next?: string): Promise<ApiPagedResponse<ActivePrice>> {
+    const key = `${token}-${currency}`
+    return await this.client.requestList('GET', `prices/${key}/feed/active`, size, next)
+  }
+
   /**
-   * Get a list of rice feed
+   * Get a list of price feed
    *
    * @param {string} token symbol for the PriceTicker
    * @param {string} currency fiat for the PriceTicker
@@ -146,6 +151,37 @@ export interface PriceOracle {
    * Optional as OraclePriceFeed might not be available e.g. newly initialized Oracle
    */
   feed?: OraclePriceFeed
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
+  }
+}
+
+export interface ActivePrice {
+  id: string
+  key: string
+  sort: string
+
+  active?: {
+    amount: string
+    weightage: number
+    oracles: {
+      active: number
+      total: number
+    }
+  }
+  next?: {
+    amount: string
+    weightage: number
+    oracles: {
+      active: number
+      total: number
+    }
+  }
+  isLive: boolean
 
   block: {
     hash: string
