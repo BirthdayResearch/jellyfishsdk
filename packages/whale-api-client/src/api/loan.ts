@@ -1,6 +1,7 @@
 import { WhaleApiClient } from '../whale.api.client'
 import { ApiPagedResponse } from '../whale.api.response'
 import { TokenData } from './tokens'
+import { ActivePrice } from './prices'
 
 export class Loan {
   constructor (private readonly client: WhaleApiClient) {
@@ -101,8 +102,9 @@ export interface CollateralToken {
   tokenId: string
   token: TokenData
   factor: string
-  priceFeedId: string
   activateAfterBlock: number
+  fixedIntervalPriceId: string
+  activePrice?: ActivePrice
 }
 
 export interface LoanToken {
@@ -110,6 +112,7 @@ export interface LoanToken {
   token: TokenData
   interest: string
   fixedIntervalPriceId: string
+  activePrice?: ActivePrice
 }
 
 export interface LoanVaultActive {

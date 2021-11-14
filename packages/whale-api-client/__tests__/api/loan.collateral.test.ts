@@ -1,101 +1,147 @@
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
-import { WhaleApiClient, WhaleApiException } from '../../src'
+import { WhaleApiException } from '../../src'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { LoanMasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
-let container: LoanMasterNodeRegTestContainer
-let service: StubService
-let client: WhaleApiClient
-
+const container = new MasterNodeRegTestContainer()
+const service = new StubService(container)
+const client = new StubWhaleApiClient(service)
 let collateralTokenId1: string
 
-beforeAll(async () => {
-  container = new LoanMasterNodeRegTestContainer()
-  service = new StubService(container)
-  client = new StubWhaleApiClient(service)
+/* eslint-disable no-lone-blocks */
 
+beforeAll(async () => {
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
   await service.start()
 
   const testing = Testing.create(container)
 
-  await testing.token.create({ symbol: 'AAPL' })
-  await testing.generate(1)
+  {
+    await testing.token.create({ symbol: 'AAPL' })
+    await testing.generate(1)
 
-  await testing.token.create({ symbol: 'TSLA' })
-  await testing.generate(1)
+    await testing.token.create({ symbol: 'TSLA' })
+    await testing.generate(1)
 
-  await testing.token.create({ symbol: 'MSFT' })
-  await testing.generate(1)
+    await testing.token.create({ symbol: 'MSFT' })
+    await testing.generate(1)
 
-  await testing.token.create({ symbol: 'FB' })
-  await testing.generate(1)
+    await testing.token.create({ symbol: 'FB' })
+    await testing.generate(1)
+  }
 
-  const oracleId = await testing.rpc.oracle.appointOracle(await container.getNewAddress(),
-    [
+  {
+    const oracleId = await testing.rpc.oracle.appointOracle(await container.getNewAddress(),
+      [
+        { token: 'AAPL', currency: 'USD' },
+        { token: 'TSLA', currency: 'USD' },
+        { token: 'MSFT', currency: 'USD' },
+        { token: 'FB', currency: 'USD' }
+      ], { weightage: 1 })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '1.5@AAPL',
+        currency: 'USD'
+      }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '2.5@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '3.5@MSFT',
+        currency: 'USD'
+      }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '4.5@FB',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(1)
+  }
+
+  {
+    const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
       { token: 'AAPL', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
       { token: 'MSFT', currency: 'USD' },
       { token: 'FB', currency: 'USD' }
     ], { weightage: 1 })
-  await testing.generate(1)
+    await testing.generate(1)
 
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-    prices: [{
-      tokenAmount: '1.5@AAPL',
-      currency: 'USD'
-    }]
-  })
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-    prices: [{
-      tokenAmount: '2.5@TSLA',
-      currency: 'USD'
-    }]
-  })
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-    prices: [{
-      tokenAmount: '3.5@MSFT',
-      currency: 'USD'
-    }]
-  })
-  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-    prices: [{
-      tokenAmount: '4.5@FB',
-      currency: 'USD'
-    }]
-  })
-  await testing.generate(1)
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '2@AAPL',
+        currency: 'USD'
+      }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '2@TSLA',
+        currency: 'USD'
+      }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '2@MSFT',
+        currency: 'USD'
+      }]
+    })
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [{
+        tokenAmount: '2@FB',
+        currency: 'USD'
+      }]
+    })
+    await testing.generate(1)
+  }
 
-  collateralTokenId1 = await testing.rpc.loan.setCollateralToken({
-    token: 'AAPL',
-    factor: new BigNumber(0.1),
-    fixedIntervalPriceId: 'AAPL/USD'
-  })
-  await testing.generate(1)
+  {
+    collateralTokenId1 = await testing.rpc.loan.setCollateralToken({
+      token: 'AAPL',
+      factor: new BigNumber(0.1),
+      fixedIntervalPriceId: 'AAPL/USD'
+    })
+    await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'TSLA',
-    factor: new BigNumber(0.2),
-    fixedIntervalPriceId: 'TSLA/USD'
-  })
-  await testing.generate(1)
+    await testing.rpc.loan.setCollateralToken({
+      token: 'TSLA',
+      factor: new BigNumber(0.2),
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'MSFT',
-    factor: new BigNumber(0.3),
-    fixedIntervalPriceId: 'MSFT/USD'
-  })
-  await testing.generate(1)
+    await testing.rpc.loan.setCollateralToken({
+      token: 'MSFT',
+      factor: new BigNumber(0.3),
+      fixedIntervalPriceId: 'MSFT/USD'
+    })
+    await testing.generate(1)
 
-  await testing.rpc.loan.setCollateralToken({
-    token: 'FB',
-    factor: new BigNumber(0.4),
-    fixedIntervalPriceId: 'FB/USD'
-  })
-  await testing.generate(1)
+    await testing.rpc.loan.setCollateralToken({
+      token: 'FB',
+      factor: new BigNumber(0.4),
+      fixedIntervalPriceId: 'FB/USD'
+    })
+    await testing.generate(1)
+  }
+
+  {
+    await testing.generate(12)
+    const height = await container.getBlockCount()
+    await container.generate(1)
+    await service.waitForIndexedHeight(height)
+  }
 })
 
 afterAll(async () => {
@@ -114,9 +160,6 @@ describe('list', () => {
     // Not deterministic ordering due to use of id
     expect(result[0]).toStrictEqual({
       tokenId: expect.any(String),
-      priceFeedId: expect.any(String),
-      factor: expect.any(String),
-      activateAfterBlock: expect.any(Number),
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -140,6 +183,37 @@ describe('list', () => {
         symbol: expect.any(String),
         symbolKey: expect.any(String),
         tradeable: true
+      },
+      factor: expect.any(String),
+      activateAfterBlock: expect.any(Number),
+      fixedIntervalPriceId: expect.any(String),
+      activePrice: {
+        active: {
+          amount: expect.any(String),
+          oracles: {
+            active: 2,
+            total: 2
+          },
+          weightage: 2
+        },
+        block: {
+          hash: expect.any(String),
+          height: expect.any(Number),
+          medianTime: expect.any(Number),
+          time: expect.any(Number)
+        },
+        id: expect.any(String),
+        isLive: true,
+        key: expect.any(String),
+        next: {
+          amount: expect.any(String),
+          oracles: {
+            active: 2,
+            total: 2
+          },
+          weightage: 2
+        },
+        sort: expect.any(String)
       }
     })
   })
@@ -171,8 +245,6 @@ describe('get', () => {
     expect(data).toStrictEqual({
       tokenId: collateralTokenId1,
       factor: '0.1',
-      priceFeedId: 'AAPL/USD',
-      activateAfterBlock: 108,
       token: {
         collateralAddress: expect.any(String),
         creation: {
@@ -196,6 +268,36 @@ describe('get', () => {
         symbol: 'AAPL',
         symbolKey: expect.any(String),
         tradeable: true
+      },
+      activateAfterBlock: 110,
+      fixedIntervalPriceId: 'AAPL/USD',
+      activePrice: {
+        active: {
+          amount: '1.75000000',
+          oracles: {
+            active: 2,
+            total: 2
+          },
+          weightage: 2
+        },
+        block: {
+          hash: expect.any(String),
+          height: expect.any(Number),
+          medianTime: expect.any(Number),
+          time: expect.any(Number)
+        },
+        id: expect.any(String),
+        isLive: true,
+        key: 'AAPL-USD',
+        next: {
+          amount: '1.75000000',
+          oracles: {
+            active: 2,
+            total: 2
+          },
+          weightage: 2
+        },
+        sort: expect.any(String)
       }
     })
   })
