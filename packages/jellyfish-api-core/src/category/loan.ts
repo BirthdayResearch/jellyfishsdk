@@ -390,7 +390,7 @@ export class Loan {
    * @param {number} [pagination.limit = 100]
    * @return {Promise<string>} txid
    */
-  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryData[]> {
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]> {
     const defaultPagination = {
       limit: 100
     }
@@ -588,7 +588,7 @@ export interface ListAuctionHistoryPagination {
   limit?: number
 }
 
-export interface ListAuctionHistoryData {
+export interface ListAuctionHistoryDetail {
   winner: string
   blockHeight: number
   blockHash: string
