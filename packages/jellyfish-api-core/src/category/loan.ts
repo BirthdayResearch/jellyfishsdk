@@ -382,13 +382,13 @@ export class Loan {
   /**
    * Returns information about auction history.
    *
-   * @param {string} owner = 'mine'
+   * @param {string} owner Either is an address or a reserved word (Mine / All)
    * @param {ListAuctionHistoryPagination} pagination
-   * @param {number} [pagination.maxBlockHeight]
-   * @param {string} [pagination.vaultId]
-   * @param {number} [pagination.index]
+   * @param {number} [pagination.maxBlockHeight] Maximum block height
+   * @param {string} [pagination.vaultId] Vault Id
+   * @param {number} [pagination.index] Auction index
    * @param {number} [pagination.limit = 100]
-   * @return {Promise<string>} txid
+   * @return {Promise<ListAuctionHistoryDetail>}
    */
   async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]> {
     const defaultPagination = {

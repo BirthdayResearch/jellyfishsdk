@@ -609,7 +609,7 @@ Returns information about auction history.
 
 ```ts title="client.loan.listAuctionHistory()"
 interface loan {
-  listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryData[]>
+  listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]>
 }
 
 interface ListAuctionHistoryPagination {
@@ -619,7 +619,7 @@ interface ListAuctionHistoryPagination {
   limit?: number
 }
 
-interface ListAuctionHistoryData {
+interface ListAuctionHistoryDetail {
   winner: string
   blockHeight: number
   blockHash: string
