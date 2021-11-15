@@ -358,7 +358,7 @@ describe('Loan listAuctionHistory', () => {
   describe('listAuctionHistory without pagination', () => {
     it('should listAuctionHistory with owner = mine', async () => {
       {
-        const auctionhistory1 = await alice.rpc.loan.listAuctionHistory() // default to mine owner
+        const auctionhistory1 = await alice.rpc.loan.listAuctionHistory() // default to mine
         const auctionhistory2 = await alice.rpc.loan.listAuctionHistory('mine')
         expect(auctionhistory1).toStrictEqual(auctionhistory2)
         expect(auctionhistory1.length).toStrictEqual(2)
@@ -394,7 +394,7 @@ describe('Loan listAuctionHistory', () => {
         }
       }
       {
-        const auctionhistory1 = await bob.rpc.loan.listAuctionHistory() // default to mine owner
+        const auctionhistory1 = await bob.rpc.loan.listAuctionHistory() // default to mine
         const auctionhistory2 = await bob.rpc.loan.listAuctionHistory('mine')
         expect(auctionhistory1).toStrictEqual(auctionhistory2)
         expect(auctionhistory1.length).toStrictEqual(2)
@@ -456,15 +456,27 @@ describe('Loan listAuctionHistory', () => {
 
         const data2 = data.find(d => d.vaultId === vaultId2)
         expect(data2).toBeDefined()
+
+        const data3 = data.find(d => d.vaultId === vaultId3)
+        expect(data3).toBeUndefined()
+
+        const data4 = data.find(d => d.vaultId === vaultId4)
+        expect(data4).toBeUndefined()
       }
 
       {
         const data = await alice.rpc.loan.listAuctionHistory(bobColAddr)
-        const data1 = data.find(d => d.vaultId === vaultId3)
-        expect(data1).toBeDefined()
+        const data1 = data.find(d => d.vaultId === vaultId1)
+        expect(data1).toBeUndefined()
 
-        const data2 = data.find(d => d.vaultId === vaultId4)
-        expect(data2).toBeDefined()
+        const data2 = data.find(d => d.vaultId === vaultId2)
+        expect(data2).toBeUndefined()
+
+        const data3 = data.find(d => d.vaultId === vaultId3)
+        expect(data3).toBeDefined()
+
+        const data4 = data.find(d => d.vaultId === vaultId4)
+        expect(data4).toBeDefined()
       }
     })
   })
@@ -480,7 +492,7 @@ describe('Loan listAuctionHistory', () => {
     })
 
     it('should listAuctionHistory with maxBlockHeight only', async () => {
-      // List for maxBlockHeight of first vault
+      // ListAuctionHistory for maxBlockHeight of first vault
       {
         const page = await alice.rpc.loan.listAuctionHistory('all',
           { maxBlockHeight: auctionHistory1.blockHeight }
@@ -492,7 +504,7 @@ describe('Loan listAuctionHistory', () => {
         expect(page[3].vaultId).toStrictEqual(auctionHistory4.vaultId)
       }
 
-      // List for maxBlockHeight of forth vault
+      // ListAuctionHistory for maxBlockHeight of forth vault
       {
         const page = await alice.rpc.loan.listAuctionHistory('all',
           { maxBlockHeight: auctionHistory4.blockHeight }

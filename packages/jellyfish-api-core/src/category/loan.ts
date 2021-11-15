@@ -382,7 +382,7 @@ export class Loan {
   /**
    * Returns information about auction history.
    *
-   * @param {string} owner Either is an address or a reserved word (Mine / All)
+   * @param {string} [owner] address or reserved word : mine / all (Default to mine)
    * @param {ListAuctionHistoryPagination} pagination
    * @param {number} [pagination.maxBlockHeight] Maximum block height
    * @param {string} [pagination.vaultId] Vault Id

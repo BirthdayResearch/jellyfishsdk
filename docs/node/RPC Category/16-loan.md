@@ -602,7 +602,6 @@ interface UTXO {
 }
 ```
 
-
 ## listAuctionHistory
 
 Returns information about auction history.
