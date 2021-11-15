@@ -290,7 +290,7 @@ describe('placeAuctionBid success', () => {
     expect(bobTSLAAmtBefore - bobTSLAAmtAfter).toStrictEqual(526) // 545.45454546 - 19.45454546 = 526
 
     const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
+    expect(aliceColAccBefore).toStrictEqual(['300000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
     // test second round placeAuctionBid
     {
@@ -347,7 +347,7 @@ describe('placeAuctionBid success', () => {
     expect(bobColAccEndBid).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '9465.00000000@TSLA'])
+    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '9465.00000000@TSLA'])
 
     // ensure interest is freeze in auction
     await alice.generate(10)
@@ -418,7 +418,7 @@ describe('placeAuctionBid success', () => {
     // test alice bids on second index
     {
       const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
-      expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
+      expect(aliceColAccBefore).toStrictEqual(['300000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
@@ -444,7 +444,7 @@ describe('placeAuctionBid success', () => {
       await tGroup.waitForSync()
 
       const aliceColAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
-      expect(aliceColAccAfter).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '9400.00000000@TSLA'])
+      expect(aliceColAccAfter).toStrictEqual(['300000.00000000@DFI', '29999.00000000@BTC', '9400.00000000@TSLA'])
 
       const auctions = await alice.container.call('listauctions')
       expect(auctions[0]).toStrictEqual({
@@ -486,7 +486,7 @@ describe('placeAuctionBid success', () => {
     expect(bobColAccEndBid).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccEndBid).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
+    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
 
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
@@ -505,7 +505,7 @@ describe('placeAuctionBid success', () => {
     expect(bobAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
     const aliceAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
+    expect(aliceAccBefore).toStrictEqual(['300000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
     {
       const txn = await bBuilder.loans.placeAuctionBid({
@@ -597,7 +597,7 @@ describe('placeAuctionBid success', () => {
     expect(bobAccAfter).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
 
     const aliceAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceAccAfter).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '1.00000000@TSLA'])
+    expect(aliceAccAfter).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '1.00000000@TSLA'])
   })
 
   it('test larger index of batch', async () => {
@@ -690,7 +690,7 @@ describe('placeAuctionBid success', () => {
 
     const txn = await aBuilder.loans.placeAuctionBid({
       vaultId: aliceVaultId,
-      index: '00000021',
+      index: '00000015', // index 21
       from: aliceColScript,
       tokenAmount: { token: 4, amount: new BigNumber(10000) }
     }, aliceColScript)
@@ -821,10 +821,10 @@ describe('placeAuctionBid failed', () => {
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
     const txn = await bBuilder.loans.placeAuctionBid({
-      vaultId: bobVaultId,
+      vaultId: aliceVaultId,
       index: '00000000',
       from: bobColScript,
-      tokenAmount: { token: 2, amount: new BigNumber(530) }
+      tokenAmount: { token: 2, amount: new BigNumber(545) }
     }, bobColScript)
 
     const promise = sendTransaction(bob.container, txn)
