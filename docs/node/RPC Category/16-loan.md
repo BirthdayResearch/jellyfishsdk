@@ -601,3 +601,41 @@ interface UTXO {
   vout: number
 }
 ```
+
+## listAuctions
+
+List all available auctions.
+
+```ts title="client.loan.listAuctions()"
+interface loan {
+  listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]>
+}
+
+interface AuctionPagination {
+  start?: AuctionPaginationStart
+  including_start?: boolean
+  limit?: number
+}
+
+interface AuctionPaginationStart {
+  vaultId?: string
+  height?: number
+}
+
+interface AuctionDetail {
+  vaultId: string
+  batchCount: number
+  liquidationPenalty: number
+  liquidationHeight: number
+  batches: VaultLiquidationBatch[]
+  loanSchemeId: string
+  ownerAddress: string
+  state: string
+}
+
+interface VaultLiquidationBatch {
+  index: number
+  collaterals: string[]
+  loan: string
+}
+```
