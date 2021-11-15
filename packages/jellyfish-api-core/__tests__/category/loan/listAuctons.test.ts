@@ -384,7 +384,7 @@ describe('Loan listAuctions', () => {
       }
     })
 
-    it('should listAuctions with vaultId', async () => {
+    it('should not filter listAuctions with vaultId only', async () => {
       // including_start = true
       {
         const page = await testing.rpc.loan.listAuctions(
