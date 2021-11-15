@@ -4,14 +4,14 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { GetLoanInfoResult } from 'packages/jellyfish-api-core/src/category/loan'
 
 const startingData: GetLoanInfoResult = {
-  currentPriceBlock: new BigNumber(104),
+  currentPriceBlock: new BigNumber(102),
   defaults: {
     fixedIntervalBlocks: new BigNumber(6),
     maxPriceDeviationPct: new BigNumber(30),
     minOraclesPerPrice: new BigNumber(1),
     scheme: ''
   },
-  nextPriceBlock: new BigNumber(110),
+  nextPriceBlock: new BigNumber(108),
   totals: {
     collateralTokens: new BigNumber(0),
     collateralValue: new BigNumber(0),
@@ -174,8 +174,8 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...startingData,
-        currentPriceBlock: new BigNumber(110),
-        nextPriceBlock: new BigNumber(116)
+        currentPriceBlock: new BigNumber(108),
+        nextPriceBlock: new BigNumber(114)
       })
     }
   })
@@ -290,8 +290,8 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...extendedStartingData,
-        currentPriceBlock: new BigNumber(110),
-        nextPriceBlock: new BigNumber(116),
+        currentPriceBlock: new BigNumber(108),
+        nextPriceBlock: new BigNumber(114),
         totals: {
           ...startingData.totals,
           collateralTokens: new BigNumber(1),
@@ -312,8 +312,8 @@ describe('Loan - getLoanInfo', () => {
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
         ...extendedStartingData,
-        currentPriceBlock: new BigNumber(110),
-        nextPriceBlock: new BigNumber(116),
+        currentPriceBlock: new BigNumber(108),
+        nextPriceBlock: new BigNumber(114),
         totals: {
           ...startingData.totals,
           collateralTokens: new BigNumber(1),
@@ -365,8 +365,8 @@ describe('Loan - getLoanInfo', () => {
 
     const extendedStartingData: GetLoanInfoResult = {
       ...startingData,
-      currentPriceBlock: new BigNumber(110),
-      nextPriceBlock: new BigNumber(116),
+      currentPriceBlock: new BigNumber(108),
+      nextPriceBlock: new BigNumber(114),
       defaults: {
         ...startingData.defaults,
         scheme: 'scheme1'
@@ -457,8 +457,8 @@ describe('Loan - getLoanInfo', () => {
       console.log('after wait:', data)
       expect(data).toStrictEqual({
         ...startingData,
-        currentPriceBlock: new BigNumber(106),
-        nextPriceBlock: new BigNumber(113),
+        currentPriceBlock: new BigNumber(112),
+        nextPriceBlock: new BigNumber(119),
         defaults: {
           ...startingData.defaults,
           fixedIntervalBlocks: new BigNumber(7)
@@ -513,8 +513,8 @@ describe('Loan - getLoanInfo', () => {
 
     const extendedStartingData: GetLoanInfoResult = {
       ...startingData,
-      currentPriceBlock: new BigNumber(110),
-      nextPriceBlock: new BigNumber(116),
+      currentPriceBlock: new BigNumber(108),
+      nextPriceBlock: new BigNumber(114),
       defaults: {
         ...startingData.defaults,
         scheme: 'scheme1'
