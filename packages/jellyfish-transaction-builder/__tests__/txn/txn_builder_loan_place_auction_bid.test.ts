@@ -8,14 +8,18 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestGenesisKeys } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { DeFiDRpcError } from '@defichain/testcontainers'
+import { Script } from '@defichain/jellyfish-transaction'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(RegTestGenesisKeys[i]))
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
 let aliceColAddr: string
+let aliceColScript: Script
 let bobVaultId: string
 let bobColAddr: string
 let bobVaultAddr: string
+let bobColScript: Script
+let oracleId: string
 
 let aProviders: MockProviders
 let aBuilder: P2WPKHTransactionBuilder
@@ -25,7 +29,7 @@ let bBuilder: P2WPKHTransactionBuilder
 async function setup (): Promise<void> {
   // token setup
   aliceColAddr = await aProviders.getAddress()
-  await alice.token.dfi({ address: aliceColAddr, amount: 30000 })
+  await alice.token.dfi({ address: aliceColAddr, amount: 300000 })
   await alice.generate(1)
   await alice.token.create({ symbol: 'BTC', collateralAddress: aliceColAddr })
   await alice.generate(1)
@@ -36,14 +40,16 @@ async function setup (): Promise<void> {
   const priceFeeds = [
     { token: 'DFI', currency: 'USD' },
     { token: 'BTC', currency: 'USD' },
-    { token: 'TSLA', currency: 'USD' }
+    { token: 'TSLA', currency: 'USD' },
+    { token: 'AMZN', currency: 'USD' }
   ]
-  const oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
+  oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
   await alice.generate(1)
   const timestamp = Math.floor(new Date().getTime() / 1000)
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
   await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@AMZN', currency: 'USD' }] })
   await alice.generate(1)
 
   // collateral token
@@ -76,7 +82,7 @@ async function setup (): Promise<void> {
 
   // loan scheme set up
   await alice.rpc.loan.createLoanScheme({
-    minColRatio: 500,
+    minColRatio: 200,
     interestRate: new BigNumber(3),
     id: 'scheme'
   })
@@ -228,6 +234,12 @@ describe('placeAuctionBid success', () => {
     bBuilder = new P2WPKHTransactionBuilder(bProviders.fee, bProviders.prevout, bProviders.elliptic, RegTest)
 
     await setup()
+
+    await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
+    bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
+
+    await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
+    aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
   })
 
   afterEach(async () => {
@@ -244,9 +256,6 @@ describe('placeAuctionBid success', () => {
     const bobTSLAAmtBefore = bobTSLAAccBefore !== undefined ? Number(bobTSLAAccBefore.split('@')[0]) : 0
 
     {
-      await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-      const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
       const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: '00000000',
@@ -285,9 +294,6 @@ describe('placeAuctionBid success', () => {
 
     // test second round placeAuctionBid
     {
-      await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
-      const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
-
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: '00000000',
@@ -355,9 +361,6 @@ describe('placeAuctionBid success', () => {
       const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
       expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
-      await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-      const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
       const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: '00000000',
@@ -416,9 +419,6 @@ describe('placeAuctionBid success', () => {
     {
       const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
       expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
-
-      await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
-      const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
 
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
@@ -508,9 +508,6 @@ describe('placeAuctionBid success', () => {
     expect(aliceAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
     {
-      await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
-      const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
-
       const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: '00000000',
@@ -536,9 +533,6 @@ describe('placeAuctionBid success', () => {
     }
 
     {
-      await fundEllipticPair(alice.container, aProviders.ellipticPair, 10)
-      const aliceColScript = P2WPKH.fromAddress(RegTest, aliceColAddr, P2WPKH).getScript()
-
       // super bid by Alice on other index
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
@@ -604,6 +598,117 @@ describe('placeAuctionBid success', () => {
 
     const aliceAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
     expect(aliceAccAfter).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '1.00000000@TSLA'])
+  })
+
+  it('test larger index of batch', async () => {
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(3),
+      id: 'default'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'AMZN',
+      fixedIntervalPriceId: 'AMZN/USD'
+    })
+    await alice.generate(12)
+
+    const aliceVaultAddr = await alice.generateAddress()
+    const aliceVaultId = await alice.rpc.loan.createVault({
+      ownerAddress: aliceVaultAddr,
+      loanSchemeId: 'default'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: aliceVaultId, from: aliceColAddr, amount: '230000@DFI'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: aliceVaultId,
+      amounts: '150000@AMZN',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    const aliceAccBefore = await alice.container.call('getaccount', [aliceColAddr])
+    expect(aliceAccBefore).toStrictEqual([
+      '70000.00000000@DFI',
+      '29999.00000000@BTC',
+      '10000.00000000@TSLA',
+      '150000.00000000@AMZN'
+    ])
+
+    await alice.rpc.oracle.setOracleData(
+      oracleId,
+      Math.floor(new Date().getTime() / 1000),
+      { prices: [{ tokenAmount: '15@AMZN', currency: 'USD' }] })
+    await alice.container.generate(13)
+
+    await alice.container.waitForVaultState(aliceVaultId, 'inLiquidation')
+
+    const aliceVault = await alice.container.call('getvault', [aliceVaultId])
+    expect(aliceVault).toStrictEqual({
+      vaultId: aliceVaultId,
+      loanSchemeId: 'default',
+      ownerAddress: aliceVaultAddr,
+      state: 'inLiquidation',
+      liquidationHeight: expect.any(Number),
+      batchCount: 24,
+      liquidationPenalty: 5,
+      batches: [
+        { index: 0, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 1, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 2, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 3, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 4, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 5, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 6, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 7, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 8, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 9, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 10, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 11, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 12, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 13, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 14, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 15, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 16, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 17, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 18, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 19, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 20, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 21, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 22, collaterals: ['9999.99980000@DFI'], loan: '6521.77250208@AMZN' },
+        { index: 23, collaterals: ['0.00460000@DFI'], loan: '0.00300003@AMZN' }
+      ]
+    })
+
+    await fundEllipticPair(alice.container, aProviders.ellipticPair, 100)
+
+    const txn = await aBuilder.loans.placeAuctionBid({
+      vaultId: aliceVaultId,
+      index: '00000021',
+      from: aliceColScript,
+      tokenAmount: { token: 4, amount: new BigNumber(10000) }
+    }, aliceColScript)
+
+    const outs = await sendTransaction(alice.container, txn)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await aProviders.getAddress())
+    await alice.generate(1)
+
+    const auctions = await alice.container.call('listauctions')
+    expect(auctions[0].batches[21]).toStrictEqual({
+      index: 21,
+      collaterals: ['9999.99980000@DFI'],
+      loan: '6521.77250208@AMZN',
+      highestBid: {
+        owner: 'bcrt1qkd5pflfxry9nyx4fskqf9yayzfeulc2709p7x8',
+        amount: '10000.00000000@AMZN'
+      }
+    })
   })
 })
 
@@ -702,14 +807,14 @@ describe('placeAuctionBid failed', () => {
 
   it('should not placeAuctionBid as vault is not under liquidation', async () => {
     const addr = await alice.generateAddress()
-    const bobVaultId = await alice.rpc.loan.createVault({
+    const aliceVaultId = await alice.rpc.loan.createVault({
       ownerAddress: addr,
       loanSchemeId: 'scheme'
     })
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    const vault = await alice.container.call('getvault', [bobVaultId])
+    const vault = await alice.container.call('getvault', [aliceVaultId])
     expect(vault.state).toStrictEqual('active')
 
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)

@@ -52,6 +52,32 @@ describe('Oracle', () => {
     )
   })
 
+  it('test setOracleData should not update DUSD price', async () => {
+    const priceFeeds = [{ token: 'DUSD', currency: 'USD' }]
+    const oracleId = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
+    await container.generate(1)
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await client.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DUSD', currency: 'USD' }] })
+    await container.generate(1)
+
+    await client.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await container.generate(13)
+
+    const price = await container.call('getfixedintervalprice', ['DUSD/USD'])
+    expect(price).toStrictEqual({
+      fixedIntervalPriceId: 'DUSD/USD',
+      activePrice: 1,
+      nextPrice: 1, // should remain 1
+      activePriceBlock: expect.any(Number),
+      nextPriceBlock: expect.any(Number),
+      timestamp: expect.any(Number),
+      isLive: true
+    })
+  })
+
   it('should not setOracleData if oracleId is invalid', async () => {
     const oracleId = 'e40775f8bb396cd3d94429843453e66e68b1c7625d99b0b4c505ab004506697b'
 
