@@ -16,74 +16,74 @@ const testing = Testing.create(container)
 let providers: MockProviders
 let builder: P2WPKHTransactionBuilder
 
-describe('loan.updateLoanToken()', () => {
-  let loanTokenId: string
+let loanTokenId: string
 
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
+beforeAll(async () => {
+  await testing.container.start()
+  await testing.container.waitForWalletCoinbaseMaturity()
 
-    providers = await getProviders(testing.container)
-    providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
-    builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
+  providers = await getProviders(testing.container)
+  providers.setEllipticPair(WIF.asEllipticPair(GenesisKeys[GenesisKeys.length - 1].owner.privKey))
+  builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
 
-    const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token1',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
+  const oracleId1 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    token: 'Token1',
+    currency: 'USD'
+  }], 1])
+  await testing.generate(1)
 
-    const timestamp1 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@Token1', currency: 'USD' }] })
-    await testing.generate(1)
+  const timestamp1 = Math.floor(new Date().getTime() / 1000)
+  await testing.rpc.oracle.setOracleData(oracleId1, timestamp1, { prices: [{ tokenAmount: '0.5@Token1', currency: 'USD' }] })
+  await testing.generate(1)
 
-    const oracleId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
-      token: 'Token2',
-      currency: 'USD'
-    }], 1])
-    await testing.generate(1)
+  const oracleId2 = await testing.container.call('appointoracle', [await testing.generateAddress(), [{
+    token: 'Token2',
+    currency: 'USD'
+  }], 1])
+  await testing.generate(1)
 
-    const timestamp2 = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@Token2', currency: 'USD' }] })
-    await testing.generate(1)
+  const timestamp2 = Math.floor(new Date().getTime() / 1000)
+  await testing.rpc.oracle.setOracleData(oracleId2, timestamp2, { prices: [{ tokenAmount: '0.5@Token2', currency: 'USD' }] })
+  await testing.generate(1)
 
-    loanTokenId = await testing.container.call('setloantoken', [{
-      symbol: 'Token1',
-      name: 'Token1',
-      fixedIntervalPriceId: 'Token1/USD',
-      mintable: true,
-      interest: new BigNumber(0.01)
-    }, []])
-    await testing.generate(1)
-  })
+  loanTokenId = await testing.container.call('setloantoken', [{
+    symbol: 'Token1',
+    name: 'Token1',
+    fixedIntervalPriceId: 'Token1/USD',
+    mintable: true,
+    interest: new BigNumber(0.01)
+  }, []])
+  await testing.generate(1)
+})
 
-  beforeEach(async () => {
-    await fundEllipticPair(testing.container, providers.ellipticPair, 10) // Fund 10 DFI UTXO
-    await providers.setupMocks() // Required to move utxos
-  })
+beforeEach(async () => {
+  await fundEllipticPair(testing.container, providers.ellipticPair, 10) // Fund 10 DFI UTXO
+  await providers.setupMocks() // Required to move utxos
+})
 
-  afterEach(async () => {
-    const data = await testing.container.call('listloantokens', [])
-    const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
-    if (result.length > 0) {
-      const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
-      if (token.symbol === 'Token2') { // If Token2, always update it back to Token1
-        await testing.rpc.loan.updateLoanToken('Token2', {
-          symbol: 'Token1',
-          name: 'Token1',
-          fixedIntervalPriceId: 'Token1/USD',
-          mintable: true,
-          interest: new BigNumber(0.01)
-        })
-      }
-      await testing.generate(1)
+afterEach(async () => {
+  const data = await testing.container.call('listloantokens', [])
+  const result = data.filter((d: LoanTokenResult) => d.fixedIntervalPriceId === 'Token2/USD')
+  if (result.length > 0) {
+    const token: TokenInfo = Object.values(result[0].token)[0] as TokenInfo
+    if (token.symbol === 'Token2') { // If Token2, always update it back to Token1
+      await testing.rpc.loan.updateLoanToken('Token2', {
+        symbol: 'Token1',
+        name: 'Token1',
+        fixedIntervalPriceId: 'Token1/USD',
+        mintable: true,
+        interest: new BigNumber(0.01)
+      })
     }
-  })
+    await testing.generate(1)
+  }
+})
 
-  afterAll(async () => {
-    await testing.container.stop()
-  })
+afterAll(async () => {
+  await testing.container.stop()
+})
 
+describe('loan.updateLoanToken()', () => {
   it('should updateLoanToken', async () => {
     const script = await providers.elliptic.script()
     const txn = await builder.loans.updateLoanToken({
