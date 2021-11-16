@@ -198,7 +198,7 @@ export interface PoolPairsResult {
 export interface PoolPairInfo {
   symbol: string
   name: string
-  status: string
+  status: boolean
   idTokenA: string
   idTokenB: string
   reserveA: BigNumber
