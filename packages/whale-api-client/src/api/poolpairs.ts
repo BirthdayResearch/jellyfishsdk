@@ -34,7 +34,7 @@ export interface PoolPairData {
   id: string
   symbol: string
   name: string
-  status: string
+  status: boolean
   tokenA: {
     id: string
     symbol: string
