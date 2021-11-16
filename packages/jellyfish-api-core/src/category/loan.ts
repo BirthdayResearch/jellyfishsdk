@@ -378,6 +378,24 @@ export class Loan {
       'number'
     )
   }
+
+  /**
+   * List all available auctions.
+   *
+   * @param {AuctionPagination} pagination
+   * @param {AuctionPaginationStart} [pagination.start]
+   * @param {string} [pagination.start.vaultId]
+   * @param {number} [pagination.start.height]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @return {Promise<AuctionDetail[]>}
+   */
+  async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -503,12 +521,6 @@ export interface VaultLiquidation extends Vault {
   batches: VaultLiquidationBatch[]
 }
 
-export interface VaultLiquidationBatch {
-  index: number
-  collaterals: string[]
-  loan: string
-}
-
 export interface UTXO {
   txid: string
   vout: number
@@ -538,13 +550,6 @@ export interface PaybackLoanMetadata {
   from: string
 }
 
-export interface PlaceAuctionBid {
-  vaultId: string
-  index: number
-  from: string
-  amount: string // amount@symbol
-}
-
 export interface VaultPagination {
   start?: string
   including_start?: boolean
@@ -561,4 +566,39 @@ export interface ListVaultOptions {
 export interface CloseVault {
   vaultId: string
   to: string
+}
+
+export interface PlaceAuctionBid {
+  vaultId: string
+  index: number
+  from: string
+  amount: string // amount@symbol
+}
+
+export interface AuctionPagination {
+  start?: AuctionPaginationStart
+  including_start?: boolean
+  limit?: number
+}
+
+export interface AuctionPaginationStart {
+  vaultId?: string
+  height?: number
+}
+
+export interface AuctionDetail {
+  vaultId: string
+  batchCount: number
+  liquidationPenalty: number
+  liquidationHeight: number
+  batches: VaultLiquidationBatch[]
+  loanSchemeId: string
+  ownerAddress: string
+  state: string
+}
+
+export interface VaultLiquidationBatch {
+  index: number
+  collaterals: string[]
+  loan: string
 }

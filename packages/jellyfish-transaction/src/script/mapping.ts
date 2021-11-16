@@ -90,7 +90,18 @@ import {
   PlaceAuctionBid
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
-import { CSetGovernance, SetGovernance, CCreateCfp, CCreateVoc, CreateCfp, CreateVoc, CVote, Vote } from './dftx/dftx_governance'
+import {
+  CSetGovernance,
+  SetGovernance,
+  CSetGovernanceHeight,
+  SetGovernanceHeight,
+  CCreateCfp,
+  CCreateVoc,
+  CreateCfp,
+  CreateVoc,
+  CVote,
+  Vote
+} from './dftx/dftx_governance'
 import {
   CICXCreateOrder,
   ICXCreateOrder,
@@ -371,6 +382,14 @@ export const OP_CODES = {
       type: CSetGovernance.OP_CODE,
       name: CSetGovernance.OP_NAME,
       data: setGovernance
+    })
+  },
+  OP_DEFI_TX_SET_GOVERNANCE_HEIGHT: (setGovernanceHeight: SetGovernanceHeight) => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CSetGovernanceHeight.OP_CODE,
+      name: CSetGovernanceHeight.OP_NAME,
+      data: setGovernanceHeight
     })
   },
   OP_DEFI_TX_ICX_CREATE_ORDER: (createOrder: ICXCreateOrder) => {

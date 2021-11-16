@@ -1,4 +1,4 @@
-import { CreateCfp, CreateVoc, OP_CODES, Script, TransactionSegWit, Vote } from '@defichain/jellyfish-transaction'
+import { CreateCfp, CreateVoc, OP_CODES, Script, TransactionSegWit, Vote, SetGovernance, SetGovernanceHeight } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
 import BigNumber from 'bignumber.js'
@@ -56,6 +56,34 @@ export class TxnBuilderGovernance extends P2WPKHTxnBuilder {
   async vote (vote: Vote, changeScript: Script): Promise<TransactionSegWit> {
     return await this.createDeFiTx(
       OP_CODES.OP_DEFI_TX_VOTE(vote),
+      changeScript
+    )
+  }
+
+  /**
+   * Set governance variable.
+   *
+   * @param {SetGovernance} setGov txn to create
+   * @param {Script} changeScript to send unspent to after deducting the fee
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async setGoverance (setGov: SetGovernance, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE(setGov),
+      changeScript
+    )
+  }
+
+  /**
+   * Set governance variable with activation height.
+   *
+   * @param {SetGovernanceHeight} setGovHeight txn to create
+   * @param {Script} changeScript to send unspent to after deducting the fee
+   * @returns {Promise<TransactionSegWit>}
+   */
+  async setGoveranceHeight (setGovHeight: SetGovernanceHeight, changeScript: Script): Promise<TransactionSegWit> {
+    return await this.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_SET_GOVERNANCE_HEIGHT(setGovHeight),
       changeScript
     )
   }
