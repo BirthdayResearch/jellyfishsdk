@@ -51,7 +51,7 @@ afterEach(async () => {
 describe('loan.createLoanScheme()', () => {
   it('should createLoanScheme', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 200,
       rate: new BigNumber(2.5),
       identifier: 'scheme',
@@ -82,7 +82,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if ratio is less than 100', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 99,
       rate: new BigNumber(2.5),
       identifier: 'scheme',
@@ -96,7 +96,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if rate is less than 0.01', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 200,
       rate: new BigNumber(0.0099),
       identifier: 'scheme',
@@ -110,7 +110,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if same ratio and rate were created before', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({ // Failed because its ratio and rate are same as default
+    const txn = await builder.loans.setLoanScheme({ // Failed because its ratio and rate are same as default
       ratio: 100,
       rate: new BigNumber(1.5),
       identifier: 'scheme',
@@ -124,7 +124,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if same identifier was created before', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 200,
       rate: new BigNumber(2.5),
       identifier: 'default',
@@ -138,7 +138,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if identifier is an empty string', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 200,
       rate: new BigNumber(2.5),
       identifier: '',
@@ -152,7 +152,7 @@ describe('loan.createLoanScheme()', () => {
 
   it('should not createLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.createLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 200,
       rate: new BigNumber(2.5),
       identifier: '123456789',

@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import {
-  CUpdateLoanScheme,
-  LoanScheme
+  CSetLoanScheme,
+  SetLoanScheme
 } from '../../../../src/script/dftx/dftx_loans'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -50,13 +50,13 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 describe('UpdateLoanScheme', () => {
-  const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CUpdateLoanScheme.OP_CODE(0x4c)
-  // UpdateLoanScheme.ratio[LE](c8000000)
-  // UpdateLoanScheme.rate[LE](80b2e60e00000000)
-  // UpdateLoanScheme.identifier[LE](06736368656d65)
-  // UpdateLoanScheme.update[LE](c800000000000000)
+  const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CSetLoanScheme.OP_CODE(0x4c)
+  // SetLoanScheme.ratio[LE](c8000000)
+  // SetLoanScheme.rate[LE](80b2e60e00000000)
+  // SetLoanScheme.identifier[LE](06736368656d65)
+  // SetLoanScheme.update[LE](c800000000000000)
   const data = 'c800000080b2e60e0000000006736368656d65c800000000000000'
-  const updateLoanScheme: LoanScheme = {
+  const setLoanScheme: SetLoanScheme = {
     ratio: 200,
     rate: new BigNumber(2.5),
     identifier: 'scheme',
@@ -66,7 +66,7 @@ describe('UpdateLoanScheme', () => {
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_UPDATE_LOAN_SCHEME(updateLoanScheme)
+      OP_CODES.OP_DEFI_TX_SET_LOAN_SCHEME(setLoanScheme)
     ]
 
     const buffer = toBuffer(stack)
@@ -76,13 +76,13 @@ describe('UpdateLoanScheme', () => {
   describe('Composable', () => {
     it('should compose from buffer to composable', () => {
       const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-      const composable = new CUpdateLoanScheme(buffer)
+      const composable = new CSetLoanScheme(buffer)
 
-      expect(composable.toObject()).toStrictEqual(updateLoanScheme)
+      expect(composable.toObject()).toStrictEqual(setLoanScheme)
     })
 
     it('should compose from composable to buffer', () => {
-      const composable = new CUpdateLoanScheme(updateLoanScheme)
+      const composable = new CSetLoanScheme(setLoanScheme)
       const buffer = new SmartBuffer()
       composable.toBuffer(buffer)
 

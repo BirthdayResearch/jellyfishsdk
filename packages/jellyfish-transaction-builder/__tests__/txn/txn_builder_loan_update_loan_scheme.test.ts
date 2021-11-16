@@ -54,7 +54,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should updateLoanScheme', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'scheme1',
@@ -89,7 +89,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should not updateLoanScheme if ratio is less than 100', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 99,
       rate: new BigNumber(3.5),
       identifier: 'scheme1',
@@ -103,7 +103,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should not updateLoanScheme if rate is less than 0.01', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(0.00999),
       identifier: 'scheme1',
@@ -117,7 +117,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should not updateLoanScheme if same ratio and rate were created before', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 100,
       rate: new BigNumber(1.5),
       identifier: 'scheme1',
@@ -131,7 +131,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should not updateLoanScheme if identifier does not exist', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'scheme2',
@@ -145,7 +145,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should not updateLoanScheme if identifier is an empty string', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: '',
@@ -159,7 +159,7 @@ describe('loan.updateLoanScheme()', () => {
 
   it('should not updateLoanScheme if identifier is more than 8 chars long', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'x'.repeat(9),
@@ -205,7 +205,7 @@ describe('loan.updateLoanScheme() with height', () => {
 
     // To update at block 160
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'scheme1',
@@ -282,7 +282,7 @@ describe('loan.updateLoanScheme() with update less than current height', () => {
 
     // Attempt to updateLoanScheme at block 149
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 300,
       rate: new BigNumber(3.5),
       identifier: 'scheme1',
@@ -330,7 +330,7 @@ describe('loan.updateLoanScheme() if a pending loan scheme exists with same rate
 
     // To update scheme at later block
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateLoanScheme({
+    const txn = await builder.loans.setLoanScheme({
       ratio: 100,
       rate: new BigNumber(1.5),
       identifier: 'scheme2',
