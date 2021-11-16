@@ -258,7 +258,7 @@ describe('placeAuctionBid success', () => {
     {
       const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
-        index: '00000000',
+        index: 0,
         from: bobColScript,
         tokenAmount: { token: 2, amount: new BigNumber(526) } //  min first bid includes penatly 5%
       }, bobColScript)
@@ -296,7 +296,7 @@ describe('placeAuctionBid success', () => {
     {
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
-        index: '00000000',
+        index: 0,
         from: aliceColScript,
         tokenAmount: { token: 2, amount: new BigNumber(535) }
       }, aliceColScript)
@@ -363,7 +363,7 @@ describe('placeAuctionBid success', () => {
 
       const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
-        index: '00000000',
+        index: 0,
         from: bobColScript,
         tokenAmount: { token: 2, amount: new BigNumber(526) } //  min first bid includes penatly 5%
       }, bobColScript)
@@ -422,7 +422,7 @@ describe('placeAuctionBid success', () => {
 
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
-        index: '00000001',
+        index: 1,
         from: aliceColScript,
         tokenAmount: { token: 2, amount: new BigNumber(600) }
       }, aliceColScript)
@@ -510,7 +510,7 @@ describe('placeAuctionBid success', () => {
     {
       const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
-        index: '00000000',
+        index: 0,
         from: bobColScript,
         tokenAmount: { token: 2, amount: new BigNumber(526) } //  min first bid includes penatly 5%
       }, bobColScript)
@@ -536,7 +536,7 @@ describe('placeAuctionBid success', () => {
       // super bid by Alice on other index
       const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
-        index: '00000001',
+        index: 1,
         from: aliceColScript,
         tokenAmount: { token: 2, amount: new BigNumber(9999) }
       }, aliceColScript)
@@ -690,7 +690,7 @@ describe('placeAuctionBid success', () => {
 
     const txn = await aBuilder.loans.placeAuctionBid({
       vaultId: aliceVaultId,
-      index: '00000015', // index 21
+      index: 21,
       from: aliceColScript,
       tokenAmount: { token: 4, amount: new BigNumber(10000) }
     }, aliceColScript)
@@ -738,7 +738,7 @@ describe('placeAuctionBid failed', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
-      index: '00000000',
+      index: 0,
       from: bobColScript,
       tokenAmount: { token: 2, amount: new BigNumber(500) }
     }, bobColScript)
@@ -763,7 +763,7 @@ describe('placeAuctionBid failed', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
-      index: '00000000',
+      index: 0,
       from: bobColScript,
       tokenAmount: { token: 2, amount: new BigNumber(530) } // requires 1% higher than previous bid
     }, bobColScript)
@@ -779,7 +779,7 @@ describe('placeAuctionBid failed', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: '0'.repeat(64),
-      index: '00000000',
+      index: 0,
       from: bobColScript,
       tokenAmount: { token: 2, amount: new BigNumber(530) }
     }, bobColScript)
@@ -795,14 +795,14 @@ describe('placeAuctionBid failed', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
-      index: '00000099',
+      index: 99,
       from: bobColScript,
       tokenAmount: { token: 2, amount: new BigNumber(530) }
     }, bobColScript)
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow(`No batch to vault/index ${bobVaultId}/153`)
+    await expect(promise).rejects.toThrow(`No batch to vault/index ${bobVaultId}/99`)
   })
 
   it('should not placeAuctionBid as vault is not under liquidation', async () => {
@@ -822,7 +822,7 @@ describe('placeAuctionBid failed', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: aliceVaultId,
-      index: '00000000',
+      index: 0,
       from: bobColScript,
       tokenAmount: { token: 2, amount: new BigNumber(545) }
     }, bobColScript)
@@ -838,7 +838,7 @@ describe('placeAuctionBid failed', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
-      index: '00000000',
+      index: 0,
       from: bobColScript,
       tokenAmount: { token: 3, amount: new BigNumber(530) }
     }, bobColScript)
@@ -881,7 +881,7 @@ describe('placeAuctionBid failed #2', () => {
 
     const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
-      index: '00000000',
+      index: 0,
       from: bobColScript,
       tokenAmount: { token: 2, amount: new BigNumber(30000) }
     }, bobColScript)

@@ -57,7 +57,7 @@ describe('Oracle', () => {
     const oracleId = await client.oracle.appointOracle(await container.getNewAddress(), priceFeeds, { weightage: 1 })
     await container.generate(1)
     const timestamp = Math.floor(new Date().getTime() / 1000)
-    await client.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DUSD', currency: 'USD' }] })
+    await client.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '12@DUSD', currency: 'USD' }] })
     await container.generate(1)
 
     await client.loan.setLoanToken({

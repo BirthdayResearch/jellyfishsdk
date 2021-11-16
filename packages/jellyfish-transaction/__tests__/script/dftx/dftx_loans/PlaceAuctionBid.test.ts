@@ -57,7 +57,7 @@ const header = '6a494466547849' // OP_RETURN(0x6a) (length 73 = 0x49) CDfTx.SIGN
 const data = 'ba0d06e93becc4ad24b2a6643bdf130e916745f3407cbf1972efd60fdd20618b00000000160014800b725df95d15cd7bb955132594aa33cdbebc02020037d9740c000000'
 const placeAuctionBid: PlaceAuctionBid = {
   vaultId: '8b6120dd0fd6ef7219bf7c40f34567910e13df3b64a6b224adc4ec3be9060dba',
-  index: '00000000',
+  index: 0,
   from: {
     stack: [
       OP_CODES.OP_0,
@@ -81,7 +81,6 @@ describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
     const composable = new CPlaceAuctionBid(buffer)
-    console.log('composable: ', composable)
 
     expect(composable.toObject()).toStrictEqual(placeAuctionBid)
   })

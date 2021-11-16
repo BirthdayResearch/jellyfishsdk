@@ -370,7 +370,7 @@ export class CCloseVault extends ComposableBuffer<CloseVault> {
  */
 export interface PlaceAuctionBid {
   vaultId: string // ------------------| 32 bytes, Vault Id
-  index: string // --------------------| 4 bytes, Auction batches index
+  index: number // --------------------| 4 bytes, Auction batches index
   from: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
   tokenAmount: TokenBalanceVarInt // --| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
 }
@@ -386,7 +386,7 @@ export class CPlaceAuctionBid extends ComposableBuffer<PlaceAuctionBid> {
   composers (ab: PlaceAuctionBid): BufferComposer[] {
     return [
       ComposableBuffer.hexBEBufferLE(32, () => ab.vaultId, v => ab.vaultId = v),
-      ComposableBuffer.hexBEBufferLE(4, () => ab.index, v => ab.index = v),
+      ComposableBuffer.uInt32(() => ab.index, v => ab.index = v),
       ComposableBuffer.single<Script>(() => ab.from, v => ab.from = v, v => new CScript(v)),
       ComposableBuffer.single<TokenBalanceVarInt>(() => ab.tokenAmount, v => ab.tokenAmount = v, v => new CTokenBalanceVarInt(v))
     ]
