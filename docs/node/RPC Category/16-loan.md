@@ -204,14 +204,14 @@ interface GetLoanInfoResult {
   totals: LoanSummary
 }
 
-export interface LoanConfig {
+interface LoanConfig {
   fixedIntervalBlocks: BigNumber
   maxPriceDeviationPct: BigNumber
   minOraclesPerPrice: BigNumber
   scheme: string
 }
 
-export interface LoanSummary {
+interface LoanSummary {
   collateralTokens: BigNumber
   collateralValue: BigNumber
   loanTokens: BigNumber

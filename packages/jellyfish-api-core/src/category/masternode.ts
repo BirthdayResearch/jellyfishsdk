@@ -159,22 +159,6 @@ export class Masternode {
   }
 
   /**
-   * Set special governance variables with activation height specified
-   *
-   * @param {Record<string, any>} input json object
-   * @param {number} activationHeight
-   * @return {Promise<string>} hash
-   *
-   */
-  async setGovWithHeight (input: Record<string, any>, activationHeight: number): Promise<string> {
-    const currentHeight: number = await this.client.call('getblockcount', [], 'number')
-    if (activationHeight < currentHeight) {
-      throw new Error('GovVar activation height must be higher than current block height')
-    }
-    return await this.client.call('setgovheight', [input, activationHeight], 'number')
-  }
-
-  /**
    * Get information about governance variable
    *
    * @param {string} name governance name

@@ -1,7 +1,7 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { GetLoanInfoResult } from 'packages/jellyfish-api-core/src/category/loan'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 const startingData: GetLoanInfoResult = {
   currentPriceBlock: new BigNumber(102),
@@ -28,12 +28,12 @@ function now (): number {
 }
 
 describe('Loan - getLoanInfo', () => {
-  let container: LoanMasterNodeRegTestContainer
+  let container: MasterNodeRegTestContainer
   let testing: Testing
-  let collateralOraclId!: string
+  let collateralOracleId!: string
 
   beforeEach(async () => {
-    container = new LoanMasterNodeRegTestContainer()
+    container = new MasterNodeRegTestContainer()
     testing = Testing.create(container)
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -41,7 +41,7 @@ describe('Loan - getLoanInfo', () => {
     await testing.token.create({ symbol: 'ETH' })
     await testing.generate(1)
 
-    collateralOraclId = await testing.rpc.oracle.appointOracle(
+    collateralOracleId = await testing.rpc.oracle.appointOracle(
       await testing.generateAddress(),
       [
         // collateral tokens, existed
@@ -56,7 +56,7 @@ describe('Loan - getLoanInfo', () => {
       { weightage: 1 }
     )
     await testing.generate(1)
-    await testing.rpc.oracle.setOracleData(collateralOraclId, now(), {
+    await testing.rpc.oracle.setOracleData(collateralOracleId, now(), {
       prices: [
         { tokenAmount: '1@DFI', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
@@ -535,7 +535,7 @@ describe('Loan - getLoanInfo', () => {
       expect(data).toStrictEqual(extendedStartingData)
     }
 
-    await testing.rpc.oracle.setOracleData(collateralOraclId, now(), {
+    await testing.rpc.oracle.setOracleData(collateralOracleId, now(), {
       prices: [
         { tokenAmount: '21@TSLA', currency: 'USD' }
       ]
