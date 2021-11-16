@@ -608,7 +608,15 @@ List all available auctions.
 
 ```ts title="client.loan.listAuctions()"
 interface loan {
-  listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]>
+  listAuctions (pagination: AuctionPagination = {}): Promise<VaultLiquidation[]>
+}
+
+enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inLiquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayLiquidate',
 }
 
 interface AuctionPagination {
@@ -622,15 +630,18 @@ interface AuctionPaginationStart {
   height?: number
 }
 
-interface AuctionDetail {
+interface Vault {
   vaultId: string
-  batchCount: number
-  liquidationPenalty: number
-  liquidationHeight: number
-  batches: VaultLiquidationBatch[]
   loanSchemeId: string
   ownerAddress: string
-  state: string
+  state: VaultState
+}
+
+interface VaultLiquidation extends Vault {
+  liquidationHeight: number
+  liquidationPenalty: number
+  batchCount: number
+  batches: VaultLiquidationBatch[]
 }
 
 interface VaultLiquidationBatch {
