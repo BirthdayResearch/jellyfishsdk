@@ -556,11 +556,11 @@ describe('Loan listAuctionHistory', () => {
       }
     })
 
-    it('should not listAuctionHistory with vaultId only', async () => { // Unable to filter by vaultId only. Need to filter by maxBlockHeight and vaultId together.
+    it('should not listAuctionHistory with vaultId only', async () => { // This test shows that we can not use vaultId only for the pagination start point as the DB composite index starts with maxBlockHeight. Need to pass maxBlockHeight and vaultId together.
       {
         // All
         const page = await alice.rpc.loan.listAuctionHistory('all',
-          { vaultId: auctionHistoryArr[0].vaultId }
+          { vaultId: auctionHistoryArr[2].vaultId }
         )
         expect(page.length).toStrictEqual(4)
       }
@@ -568,7 +568,7 @@ describe('Loan listAuctionHistory', () => {
       {
         // Mine for Alice
         const page = await alice.rpc.loan.listAuctionHistory('mine',
-          { vaultId: aliceAuctionHistoryArr[0].vaultId }
+          { vaultId: aliceAuctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(2)
       }
@@ -576,17 +576,17 @@ describe('Loan listAuctionHistory', () => {
       {
         // Address for Bob
         const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
-          { vaultId: bobAuctionHistoryArr[0].vaultId }
+          { vaultId: bobAuctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(2)
       }
     })
 
-    it('should not listAuctionHistory with index only', async () => { // Unable to filter by index only. Need to filter by maxBlockHeight and index together.
+    it('should not listAuctionHistory with index only', async () => { // This test shows that we can not use index only for the pagination start point as the DB composite index starts with maxBlockHeight.
       {
         // All
         const page = await alice.rpc.loan.listAuctionHistory('all',
-          { index: 0 }
+          { index: 1 }
         )
 
         expect(page.length).toStrictEqual(4)
@@ -595,7 +595,7 @@ describe('Loan listAuctionHistory', () => {
       {
         // Mine for Alice
         const page = await alice.rpc.loan.listAuctionHistory('mine',
-          { index: 0 }
+          { index: 5 }
         )
 
         expect(page.length).toStrictEqual(2)
@@ -604,7 +604,7 @@ describe('Loan listAuctionHistory', () => {
       {
         // Address for Bob
         const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
-          { index: 0 }
+          { index: 3 }
         )
 
         expect(page.length).toStrictEqual(2)
