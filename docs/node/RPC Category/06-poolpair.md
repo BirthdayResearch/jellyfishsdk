@@ -77,7 +77,7 @@ interface PoolPairsResult {
 interface PoolPairInfo {
   symbol: string
   name: string
-  status: string
+  status: boolean
   idTokenA: string
   idTokenB: string
   reserveA: BigNumber
@@ -161,7 +161,7 @@ interface PoolShareOptions {
 }
 ```
 
-## poolSwap 
+## poolSwap
 Creates a pool swap transaction with given metadata.
 
 ```ts title="client.poolpair.poolSwap()"
