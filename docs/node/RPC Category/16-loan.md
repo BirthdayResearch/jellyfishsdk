@@ -639,3 +639,30 @@ interface VaultLiquidationBatch {
   loan: string
 }
 ```
+## listAuctionHistory
+
+Returns information about auction history.
+
+```ts title="client.loan.listAuctionHistory()"
+interface loan {
+  listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]>
+}
+
+interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+interface ListAuctionHistoryDetail {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
+}
+```

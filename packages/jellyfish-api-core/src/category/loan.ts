@@ -396,6 +396,24 @@ export class Loan {
     }
     return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], 'number')
   }
+
+  /**
+   * Returns information about auction history.
+   *
+   * @param {string} [owner] address or reserved word : mine / all (Default to mine)
+   * @param {ListAuctionHistoryPagination} pagination
+   * @param {number} [pagination.maxBlockHeight] Maximum block height
+   * @param {string} [pagination.vaultId] Vault Id
+   * @param {number} [pagination.index] Auction index
+   * @param {number} [pagination.limit = 100]
+   * @return {Promise<ListAuctionHistoryDetail>}
+   */
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
@@ -601,4 +619,22 @@ export interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+}
+
+export interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+export interface ListAuctionHistoryDetail {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
 }
