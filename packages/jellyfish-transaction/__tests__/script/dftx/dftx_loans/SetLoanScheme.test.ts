@@ -8,6 +8,7 @@ import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'
 import BigNumber from 'bignumber.js'
 
+// For createLoanScheme and updateLoanScheme
 it('should bi-directional buffer-object-buffer', () => {
   const fixtures = [
     /**
@@ -49,7 +50,7 @@ it('should bi-directional buffer-object-buffer', () => {
   })
 })
 
-describe('UpdateLoanScheme', () => {
+describe('SetLoanScheme', () => {
   const header = '6a20446654784c' // OP_RETURN(0x6a) (length 32 = 0x20) CDfTx.SIGNATURE(0x44665478) CSetLoanScheme.OP_CODE(0x4c)
   // SetLoanScheme.ratio[LE](c8000000)
   // SetLoanScheme.rate[LE](80b2e60e00000000)
