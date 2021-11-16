@@ -440,7 +440,6 @@ describe('Loan - getLoanInfo', () => {
 
     { // after govvar set
       const data = await testing.rpc.loan.getLoanInfo()
-      console.log('after set:', data)
       expect(data).toStrictEqual({
         ...startingData,
         defaults: {
@@ -454,7 +453,6 @@ describe('Loan - getLoanInfo', () => {
 
     { // after govvar activated, activation height automatically selected by consensus
       const data = await testing.rpc.loan.getLoanInfo()
-      console.log('after wait:', data)
       expect(data).toStrictEqual({
         ...startingData,
         currentPriceBlock: new BigNumber(112),
