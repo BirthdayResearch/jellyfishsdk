@@ -8,7 +8,7 @@ import { CCurrencyPair, CurrencyPair } from './dftx_price'
 /**
  * CreateLoanScheme / UpdateLoanScheme DeFi Transaction
  */
-export interface LoanScheme {
+export interface SetLoanScheme {
   ratio: number // -----------------------| 4 bytes unsigned, Minimum collateralization ratio
   rate: BigNumber // ---------------------| 8 bytes unsigned, Interest rate
   identifier: string // ------------------| c = VarUInt{1-9 bytes}, + c bytes UTF encoded string, Unique identifier of the loan scheme
@@ -64,37 +64,19 @@ export interface UpdateLoanToken {
 }
 
 /**
- * Composable CreateLoanScheme, C stands for Composable.
+ * Composable CreateLoanScheme and UpdateLoanScheme, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
-export class CCreateLoanScheme extends ComposableBuffer<LoanScheme> {
+export class CSetLoanScheme extends ComposableBuffer<SetLoanScheme> {
   static OP_CODE = 0x4c // 'L'
-  static OP_NAME = 'OP_DEFI_TX_CREATE_LOAN_SCHEME'
+  static OP_NAME = 'OP_DEFI_TX_SET_LOAN_SCHEME'
 
-  composers (cls: LoanScheme): BufferComposer[] {
+  composers (sls: SetLoanScheme): BufferComposer[] {
     return [
-      ComposableBuffer.uInt32(() => cls.ratio, v => cls.ratio = v),
-      ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
-      ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
-    ]
-  }
-}
-
-/**
- * Composable UpdateLoanScheme, C stands for Composable.
- * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
- */
-export class CUpdateLoanScheme extends ComposableBuffer<LoanScheme> {
-  static OP_CODE = 0x4c // 'L'
-  static OP_NAME = 'OP_DEFI_TX_UPDATE_LOAN_SCHEME'
-
-  composers (cls: LoanScheme): BufferComposer[] {
-    return [
-      ComposableBuffer.uInt32(() => cls.ratio, v => cls.ratio = v),
-      ComposableBuffer.satoshiAsBigNumber(() => cls.rate, v => cls.rate = v),
-      ComposableBuffer.varUIntUtf8BE(() => cls.identifier, v => cls.identifier = v),
-      ComposableBuffer.bigNumberUInt64(() => cls.update, v => cls.update = v)
+      ComposableBuffer.uInt32(() => sls.ratio, v => sls.ratio = v),
+      ComposableBuffer.satoshiAsBigNumber(() => sls.rate, v => sls.rate = v),
+      ComposableBuffer.varUIntUtf8BE(() => sls.identifier, v => sls.identifier = v),
+      ComposableBuffer.bigNumberUInt64(() => sls.update, v => sls.update = v)
     ]
   }
 }
