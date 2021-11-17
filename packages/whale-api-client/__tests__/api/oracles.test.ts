@@ -139,6 +139,7 @@ describe('oracles', () => {
     expect(oracles.length).toStrictEqual(3)
     expect(oracles[0]).toStrictEqual({
       id: expect.stringMatching(/[0-f]{64}/),
+      ownerAddress: expect.any(String),
       weightage: expect.any(Number),
       priceFeeds: expect.any(Array),
       block: {
