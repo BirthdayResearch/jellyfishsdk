@@ -34,7 +34,7 @@ afterAll(async () => {
 })
 
 describe('create token', () => {
-  it.skip('should index tokens', async () => {
+  it('should index tokens', async () => {
     await container.generate(1)
     const height = await container.call('getblockcount')
     await container.generate(1)

@@ -37,7 +37,7 @@ afterEach(async () => {
 })
 
 describe('update poolpair', () => {
-  it.skip('should index poolpairs', async () => {
+  it('should index poolpairs', async () => {
     await container.generate(1)
     const height = await container.call('getblockcount')
     await container.generate(1)
@@ -70,7 +70,7 @@ describe('update poolpair', () => {
 })
 
 describe('invalidate', () => {
-  it.skip('should create, update poolpair and invalidate', async () => {
+  it('should create, update poolpair and invalidate', async () => {
     await container.generate(1)
     const height = await container.call('getblockcount')
     await container.generate(1)
