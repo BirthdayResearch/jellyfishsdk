@@ -388,9 +388,9 @@ export class Loan {
    * @param {number} [pagination.start.height]
    * @param {boolean} [pagination.including_start]
    * @param {number} [pagination.limit=100]
-   * @return {Promise<AuctionDetail[]>}
+   * @return {Promise<VaultLiquidation[]>}
    */
-  async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
+  async listAuctions (pagination: AuctionPagination = {}): Promise<VaultLiquidation[]> {
     const defaultPagination = {
       limit: 100
     }
@@ -602,17 +602,6 @@ export interface AuctionPagination {
 export interface AuctionPaginationStart {
   vaultId?: string
   height?: number
-}
-
-export interface AuctionDetail {
-  vaultId: string
-  batchCount: number
-  liquidationPenalty: number
-  liquidationHeight: number
-  batches: VaultLiquidationBatch[]
-  loanSchemeId: string
-  ownerAddress: string
-  state: string
 }
 
 export interface VaultLiquidationBatch {

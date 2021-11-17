@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { AuctionDetail } from '../../../src/category/loan'
+import { VaultLiquidation } from '../../../src/category/loan'
 
 describe('Loan listAuctions', () => {
   const container = new MasterNodeRegTestContainer()
@@ -318,10 +318,10 @@ describe('Loan listAuctions', () => {
   })
 
   describe('listAuctions with pagination', () => {
-    let auction1: AuctionDetail
-    let auction2: AuctionDetail
-    let auction3: AuctionDetail
-    let auction4: AuctionDetail
+    let auction1: VaultLiquidation
+    let auction2: VaultLiquidation
+    let auction3: VaultLiquidation
+    let auction4: VaultLiquidation
 
     beforeAll(async () => {
       [auction1, auction2, auction3, auction4] = await testing.rpc.loan.listAuctions()
