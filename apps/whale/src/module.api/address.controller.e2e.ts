@@ -440,7 +440,6 @@ describe('listTransactionsUnspent', () => {
 describe('listTokens', () => {
   beforeAll(async () => {
     await container.start()
-    await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
     await container.waitForWalletBalanceGTE(100)
 
