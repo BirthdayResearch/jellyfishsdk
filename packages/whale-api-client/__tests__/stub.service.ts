@@ -45,6 +45,7 @@ export class StubService {
       const block = await blockMapper.getHighest()
       await expect(block?.height).toBeGreaterThan(height)
     }, timeout)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
   }
 
   async waitForIndexedTimestamp (container: MasterNodeRegTestContainer, timestamp: number, timeout: number = 30000): Promise<void> {

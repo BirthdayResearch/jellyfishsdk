@@ -133,7 +133,6 @@ describe('oracles', () => {
     const height = await container.getBlockCount()
     await container.generate(1)
     await service.waitForIndexedHeight(height)
-    await new Promise((resolve) => setTimeout(resolve, 500))
   })
 
   it('should list', async () => {
@@ -289,7 +288,6 @@ describe('pricefeed with interval', () => {
       const height = await container.getBlockCount()
       await container.generate(1)
       await service.waitForIndexedHeight(height)
-      await new Promise((resolve) => setTimeout(resolve, 500))
     }
 
     const noInterval = await apiClient.prices.getFeed('S1', 'USD', 60)
@@ -366,7 +364,6 @@ describe('active price', () => {
       const height = await container.getBlockCount()
       await container.generate(1)
       await service.waitForIndexedHeight(height)
-      await new Promise((resolve) => setTimeout(resolve, 500))
     }
 
     const beforeActivePrice = await apiClient.prices.getFeedActive('S1', 'USD', 1)
@@ -407,7 +404,6 @@ describe('active price', () => {
       const height = await container.getBlockCount()
       await container.generate(1)
       await service.waitForIndexedHeight(height)
-      await new Promise((resolve) => setTimeout(resolve, 500))
     }
 
     const activePrice = await apiClient.prices.getFeedActive('S1', 'USD', 1)
@@ -445,7 +441,6 @@ describe('active price', () => {
       const height = await container.getBlockCount()
       await container.generate(1)
       await service.waitForIndexedHeight(height)
-      await new Promise((resolve) => setTimeout(resolve, 500))
     }
 
     const nextActivePrice = await apiClient.prices.getFeedActive('S1', 'USD', 1)
@@ -493,7 +488,6 @@ describe('active price', () => {
       const height = await container.getBlockCount()
       await container.generate(1)
       await service.waitForIndexedHeight(height)
-      await new Promise((resolve) => setTimeout(resolve, 500))
     }
 
     const beforeActivePrice = await apiClient.prices.getFeedActive('S1', 'USD', 1)
@@ -536,7 +530,6 @@ describe('active price', () => {
         const height = await container.getBlockCount()
         await container.generate(1)
         await service.waitForIndexedHeight(height)
-        await new Promise((resolve) => setTimeout(resolve, 500))
       }
 
       const fixedIntervalPrice = await testing.rpc.oracle.getFixedIntervalPrice('S1/USD')

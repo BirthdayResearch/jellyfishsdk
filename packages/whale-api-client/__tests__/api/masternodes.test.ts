@@ -19,7 +19,6 @@ beforeAll(async () => {
   const height: number = (await client.rpc.call('getblockcount', [], 'number'))
   await container.generate(1)
   await service.waitForIndexedHeight(height)
-  await new Promise((resolve) => setTimeout(resolve, 3000))
 })
 
 afterAll(async () => {
