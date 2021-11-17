@@ -414,6 +414,18 @@ export class Loan {
     }
     return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
   }
+
+  /**
+   * Returns the history of the specified vault.
+   *
+   * @return {Promise<any>}
+   */
+  async getVaultHistory (vaultId: string, pagination?: any): Promise<any> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('getvaulthistory', [vaultId, { ...defaultPagination, ...pagination }], 'number')
+  }
 }
 
 export interface CreateLoanScheme {
