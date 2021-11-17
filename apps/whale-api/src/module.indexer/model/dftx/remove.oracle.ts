@@ -36,6 +36,7 @@ export class RemoveOracleIndexer extends DfTxIndexer<RemoveOracle> {
 
       await this.oracleMapper.put({
         id: previous.oracleId,
+        ownerAddress: previous.ownerAddress,
         weightage: previous.weightage,
         priceFeeds: previous.priceFeeds,
         block: previous.block

@@ -46,6 +46,7 @@ export interface OracleHistory extends Model {
   id: string // ---------| oracleId-height-txid
   oracleId: string
   sort: string // -------| height-txid
+  ownerAddress: string
 
   weightage: number
   priceFeeds: Array<{

@@ -43,6 +43,7 @@ export class OracleMapper {
 
 export interface Oracle extends Model {
   id: string // ---------| oracleId
+  ownerAddress: string
 
   weightage: number
   priceFeeds: Array<{

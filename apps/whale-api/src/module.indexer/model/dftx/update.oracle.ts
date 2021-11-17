@@ -1,12 +1,14 @@
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
 import { CUpdateOracle, UpdateOracle } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '@src/module.indexer/model/_abstract'
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { OracleMapper } from '@src/module.model/oracle'
 import { OracleHistory, OracleHistoryMapper } from '@src/module.model/oracle.history'
 import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
 import { NotFoundIndexerError } from '@src/module.indexer/error'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { NetworkName } from '@defichain/jellyfish-network'
+import { fromScript } from '@defichain/jellyfish-address'
 
 @Injectable()
 export class UpdateOracleIndexer extends DfTxIndexer<UpdateOracle> {
@@ -15,7 +17,8 @@ export class UpdateOracleIndexer extends DfTxIndexer<UpdateOracle> {
   constructor (
     private readonly oracleMapper: OracleMapper,
     private readonly oracleHistoryMapper: OracleHistoryMapper,
-    private readonly oracleTokenCurrencyMapper: OracleTokenCurrencyMapper
+    private readonly oracleTokenCurrencyMapper: OracleTokenCurrencyMapper,
+    @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
   }
@@ -24,6 +27,7 @@ export class UpdateOracleIndexer extends DfTxIndexer<UpdateOracle> {
     for (const { txn, dftx: { data } } of txns) {
       await this.oracleMapper.put({
         id: data.oracleId,
+        ownerAddress: fromScript(data.script, this.network)?.address ?? '',
         weightage: data.weightage,
         priceFeeds: data.priceFeeds,
         block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
@@ -49,6 +53,7 @@ export class UpdateOracleIndexer extends DfTxIndexer<UpdateOracle> {
       await this.oracleHistoryMapper.put({
         id: `${data.oracleId}-${block.height}-${txn.txid}`,
         sort: HexEncoder.encodeHeight(block.height) + txn.txid,
+        ownerAddress: fromScript(data.script, this.network)?.address ?? '',
         oracleId: data.oracleId,
         weightage: data.weightage,
         priceFeeds: data.priceFeeds,
@@ -69,6 +74,7 @@ export class UpdateOracleIndexer extends DfTxIndexer<UpdateOracle> {
 
       await this.oracleMapper.put({
         id: previous.oracleId,
+        ownerAddress: previous.ownerAddress,
         weightage: previous.weightage,
         priceFeeds: previous.priceFeeds,
         block: previous.block
