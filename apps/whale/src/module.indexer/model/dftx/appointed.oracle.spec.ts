@@ -45,6 +45,7 @@ it('should get weightage and pricefeeds', async () => {
     {
       id: oracleId,
       weightage: 1,
+      ownerAddress: expect.any(String),
       priceFeeds: [{ token: 'AAPL', currency: 'EUR' }],
       block: {
         hash,
@@ -64,6 +65,7 @@ it('should get weightage and pricefeeds', async () => {
         id: `${oracleId}-${height}-${oracleId}`,
         sort: `${HexEncoder.encodeHeight(height)}${oracleId}`,
         oracleId,
+        ownerAddress: expect.any(String),
         weightage: 1,
         priceFeeds: [{ token: 'AAPL', currency: 'EUR' }],
         block: {

@@ -1,11 +1,13 @@
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
 import { AppointOracle, CAppointOracle } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '@src/module.indexer/model/_abstract'
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { OracleMapper } from '@src/module.model/oracle'
 import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
 import { OracleHistoryMapper } from '@src/module.model/oracle.history'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { NetworkName } from '@defichain/jellyfish-network'
+import { fromScript } from '@defichain/jellyfish-address'
 
 @Injectable()
 export class AppointOracleIndexer extends DfTxIndexer<AppointOracle> {
@@ -14,7 +16,8 @@ export class AppointOracleIndexer extends DfTxIndexer<AppointOracle> {
   constructor (
     private readonly oracleMapper: OracleMapper,
     private readonly oracleHistoryMapper: OracleHistoryMapper,
-    private readonly oracleTokenCurrencyMapper: OracleTokenCurrencyMapper
+    private readonly oracleTokenCurrencyMapper: OracleTokenCurrencyMapper,
+    @Inject('NETWORK') protected readonly network: NetworkName
   ) {
     super()
   }
@@ -25,6 +28,7 @@ export class AppointOracleIndexer extends DfTxIndexer<AppointOracle> {
 
       await this.oracleMapper.put({
         id: oracleId,
+        ownerAddress: fromScript(data.script, this.network)?.address ?? '',
         weightage: data.weightage,
         priceFeeds: data.priceFeeds,
         block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
@@ -33,6 +37,7 @@ export class AppointOracleIndexer extends DfTxIndexer<AppointOracle> {
       await this.oracleHistoryMapper.put({
         id: `${oracleId}-${block.height}-${txn.txid}`,
         sort: HexEncoder.encodeHeight(block.height) + txn.txid,
+        ownerAddress: fromScript(data.script, this.network)?.address ?? '',
         oracleId: oracleId,
         weightage: data.weightage,
         priceFeeds: data.priceFeeds,

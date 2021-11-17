@@ -61,6 +61,7 @@ it('should update weightage and pricefeeds', async () => {
       id: oracleId,
       weightage: 2,
       priceFeeds: [{ token: 'TSLA', currency: 'USD' }],
+      ownerAddress: expect.any(String),
       block: {
         hash: hash2,
         height: height2,
@@ -79,6 +80,7 @@ it('should update weightage and pricefeeds', async () => {
         id: `${oracleId}-${height2}-${txId}`,
         sort: `${HexEncoder.encodeHeight(height2)}${txId}`,
         oracleId,
+        ownerAddress: expect.any(String),
         weightage: 2,
         priceFeeds: [{ token: 'TSLA', currency: 'USD' }],
         block: {
@@ -92,6 +94,7 @@ it('should update weightage and pricefeeds', async () => {
         id: `${oracleId}-${height1}-${oracleId}`,
         sort: `${HexEncoder.encodeHeight(height1)}${oracleId}`,
         oracleId,
+        ownerAddress: expect.any(String),
         weightage: 1,
         priceFeeds: [{ token: 'AAPL', currency: 'EUR' }],
         block: {

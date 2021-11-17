@@ -57,6 +57,7 @@ it('should remove weightage and pricefeeds', async () => {
         id: `${oracleId}-${height1}-${oracleId}`,
         sort: `${HexEncoder.encodeHeight(height1)}${oracleId}`,
         oracleId,
+        ownerAddress: expect.any(String),
         weightage: 1,
         priceFeeds: [{ token: 'AAPL', currency: 'EUR' }],
         block: {
