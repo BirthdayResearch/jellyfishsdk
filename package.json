@@ -18,6 +18,7 @@
   "scripts": {
     "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
+    "website:build": "npm run build --workspace=website",
     "build": "lerna run --scope '@defichain/*' build",
     "version:set": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
