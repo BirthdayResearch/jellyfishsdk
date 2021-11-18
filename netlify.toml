@@ -1,7 +1,6 @@
 [build]
-base = "website/"
-publish = "build/"
-command = "npm run build"
+publish = "website/build/"
+command = "npm run website:build"
 
 [[headers]]
 for = "/img/*"
