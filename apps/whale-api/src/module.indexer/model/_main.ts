@@ -13,7 +13,6 @@ import { NotFoundIndexerError } from '@src/module.indexer/error'
 import { blockchain as defid } from '@defichain/jellyfish-api-core'
 import { MainDfTxIndexer } from '@src/module.indexer/model/dftx.indexer'
 import { BlockMintedIndexer } from '@src/module.indexer/model/block.minted'
-import { ActivePriceIndexer } from './active.price'
 
 /**
  * This is a deterministic log based indexer.
@@ -33,8 +32,7 @@ export class MainIndexer {
     private readonly transactionVin: TransactionVinIndexer,
     private readonly transactionVout: TransactionVoutIndexer,
     private readonly dftx: MainDfTxIndexer,
-    private readonly blockMinted: BlockMintedIndexer,
-    private readonly activePrice: ActivePriceIndexer
+    private readonly blockMinted: BlockMintedIndexer
   ) {
     this.indexers = [
       block,
@@ -45,8 +43,7 @@ export class MainIndexer {
       transactionVin,
       transactionVout,
       dftx,
-      blockMinted,
-      activePrice
+      blockMinted
     ]
   }
 
