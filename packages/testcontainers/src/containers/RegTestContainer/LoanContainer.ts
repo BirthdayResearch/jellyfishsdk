@@ -4,7 +4,7 @@ import { MasterNodeRegTestContainer } from './Masternode'
 
 export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor (masternodeKey: MasterNodeKey = RegTestFoundationKeys[0]) {
-    super(masternodeKey, 'defi/defichain:HEAD-c12e2c9')
+    super(masternodeKey, 'defi/defichain:HEAD-97ba5bf')
   }
 
   protected getCmd (opts: StartOptions): string[] {

@@ -420,11 +420,11 @@ export class Loan {
    *
    * @return {Promise<any>}
    */
-  async getVaultHistory (vaultId: string, pagination?: any): Promise<any> {
+  async listVaultHistory (vaultId: string, pagination?: any): Promise<any> {
     const defaultPagination = {
       limit: 100
     }
-    return await this.client.call('getvaulthistory', [vaultId, { ...defaultPagination, ...pagination }], 'number')
+    return await this.client.call('listvaulthistory', [vaultId, { ...defaultPagination, ...pagination }], 'number')
   }
 }
 
