@@ -154,6 +154,18 @@ export class Loan {
   }
 
   /**
+   * Quick access to multiple API with consolidated total collateral and loan value.
+   * @see {@link listCollateralTokens}
+   * @see {@link listLoanTokens}
+   * @see {@link listLoanSchemes}
+   *
+   * @returns {Promise<GetLoanInfoResult>}
+   */
+  async getLoanInfo (): Promise<GetLoanInfoResult> {
+    return await this.client.call('getloaninfo', [], 'bignumber')
+  }
+
+  /**
    * Updates an existing loan token.
    *
    * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
@@ -480,6 +492,30 @@ export interface LoanTokenResult {
   token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
+}
+
+export interface LoanConfig {
+  fixedIntervalBlocks: BigNumber
+  maxPriceDeviationPct: BigNumber
+  minOraclesPerPrice: BigNumber
+  scheme: string
+}
+
+export interface LoanSummary {
+  collateralTokens: BigNumber
+  collateralValue: BigNumber
+  loanTokens: BigNumber
+  loanValue: BigNumber
+  openAuctions: BigNumber
+  openVaults: BigNumber
+  schemes: BigNumber
+}
+
+export interface GetLoanInfoResult {
+  currentPriceBlock: BigNumber
+  nextPriceBlock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
 }
 
 export interface UpdateLoanToken {

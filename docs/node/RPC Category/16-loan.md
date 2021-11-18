@@ -188,6 +188,40 @@ interface CollateralTokenDetail {
 }
 ```
 
+## getLoanInfo
+
+Quick access to multiple API with consolidated total collateral and loan value.
+
+```ts title="client.loan.getLoanInfo()"
+interface loan {
+  getLoanInfo (): Promise<GetLoanInfoResult>
+}
+
+interface GetLoanInfoResult {
+  currentPriceBlock: BigNumber
+  nextPriceBlock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
+}
+
+interface LoanConfig {
+  fixedIntervalBlocks: BigNumber
+  maxPriceDeviationPct: BigNumber
+  minOraclesPerPrice: BigNumber
+  scheme: string
+}
+
+interface LoanSummary {
+  collateralTokens: BigNumber
+  collateralValue: BigNumber
+  loanTokens: BigNumber
+  loanValue: BigNumber
+  openAuctions: BigNumber
+  openVaults: BigNumber
+  schemes: BigNumber
+}
+```
+
 ## setLoanToken
 
 Creates (and submits to local node and network) a token for a price feed set in collateral token.
