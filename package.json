@@ -3,20 +3,14 @@
   "name": "defichain",
   "version": "0.0.0",
   "description": "A collection of TypeScript + JavaScript tools and libraries for DeFi Blockchain developers to build decentralized finance for Bitcoin",
-  "keywords": [
-    "DeFiChain",
-    "DeFi",
-    "Blockchain",
-    "API",
-    "Bitcoin"
-  ],
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
   "files": [],
   "workspaces": [
     "./",
-    "./packages/*"
+    "./packages/*",
+    "./website"
   ],
   "engines": {
     "node": ">=14.x"
@@ -37,7 +31,7 @@
     "eslint": "^7.32.0",
     "eslint-config-standard-jsx": "^10.0.0",
     "eslint-config-standard-with-typescript": "^21.0.1",
-    "husky": "^7.0.2",
+    "husky": "^7.0.4",
     "jest": "^27.3.1",
     "lerna": "^4.0.0",
     "lint-staged": "^12.0.3",
