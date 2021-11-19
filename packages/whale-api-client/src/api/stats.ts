@@ -27,6 +27,7 @@ export interface StatsData {
   tvl: {
     total: number
     dex: number
+    loan: number
     masternodes: number
   }
   burned: {
@@ -52,6 +53,19 @@ export interface StatsData {
     community: number
     anchor: number
     burned: number
+  }
+  loan: {
+    count: {
+      schemes: number
+      loanTokens: number
+      collateralTokens: number
+      openVaults: number
+      openAuctions: number
+    }
+    value: {
+      collateral: number
+      loan: number
+    }
   }
   blockchain: {
     difficulty: number
