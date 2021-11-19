@@ -11,7 +11,7 @@ it('should raise if error', () => {
     url: '/link/to/bad/request'
   }
 
-  const throwError = (): void => {
+  function throwError (): void {
     raiseIfError({
       data: undefined,
       error: error
@@ -31,7 +31,7 @@ it('should raise validation error', () => {
     url: '/link/to/validationerror/request'
   }
 
-  const throwError = (): void => {
+  function throwError (): void {
     raiseIfError({
       data: undefined,
       error: error
