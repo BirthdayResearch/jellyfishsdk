@@ -73,6 +73,7 @@ export class PoolPairService {
     return await this.cache.get<BigNumber>('USD_PER_DFI', async () => {
       const usdt = await this.getPoolPair('DFI', 'USDT')
       const usdc = await this.getPoolPair('DFI', 'USDC')
+      const dusd = await this.getPoolPair('DFI', 'DUSD')
       let totalUSD = new BigNumber(0)
       let totalDFI = new BigNumber(0)
 
@@ -92,6 +93,10 @@ export class PoolPairService {
 
       if (usdc !== undefined) {
         add(usdc)
+      }
+
+      if (dusd !== undefined) {
+        add(dusd)
       }
 
       if (!totalUSD.isZero()) {
