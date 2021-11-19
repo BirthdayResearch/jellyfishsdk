@@ -58,7 +58,7 @@ describe('provided module: memory', () => {
 
 describe('provided module: invalid', () => {
   it('should fail module instantiation as database provider is invalid', async () => {
-    const initModule = async (): Promise<void> => {
+    async function initModule (): Promise<void> {
       await Test.createTestingModule({
         imports: [DatabaseModule.forRoot('invalid')]
       }).compile()

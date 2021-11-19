@@ -2,7 +2,7 @@ import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { MasternodeData } from '@whale-api-client/api/masternodes'
-import { MasternodeMapper, Masternode } from '@src/module.model/masternode'
+import { Masternode, MasternodeMapper } from '@src/module.model/masternode'
 import { BlockMapper } from '@src/module.model/block'
 import { MasternodeService } from './masternode.service'
 
@@ -69,10 +69,12 @@ export class MasternodeController {
       creation: {
         height: info.creationHeight
       },
-      resign: info.resignTx === undefined ? undefined : {
-        tx: info.resignTx,
-        height: info.resignHeight
-      },
+      resign: info.resignTx === undefined
+        ? undefined
+        : {
+            tx: info.resignTx,
+            height: info.resignHeight
+          },
       timelock: info.timelock
     }
   }

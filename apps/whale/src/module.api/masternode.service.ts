@@ -70,12 +70,11 @@ export class MasternodeService {
         return MasternodeState.ENABLED
       }
       return MasternodeState.PRE_ENABLED
-    } else { // pre-resigned or resigned
-      const resignDelay = await this.getMnResignDelay(masternode.resignHeight)
-      if (height < masternode.resignHeight + resignDelay) {
-        return MasternodeState.PRE_RESIGNED
-      }
-      return MasternodeState.RESIGNED
+    } // pre-resigned or resigned
+    const resignDelay = await this.getMnResignDelay(masternode.resignHeight)
+    if (height < masternode.resignHeight + resignDelay) {
+      return MasternodeState.PRE_RESIGNED
     }
+    return MasternodeState.RESIGNED
   }
 }

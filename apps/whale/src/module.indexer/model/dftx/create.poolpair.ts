@@ -1,5 +1,5 @@
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
-import { PoolCreatePair, CPoolCreatePair } from '@defichain/jellyfish-transaction'
+import { CPoolCreatePair, PoolCreatePair } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '@src/module.indexer/model/_abstract'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { PoolPairMapper } from '@src/module.model/poolpair'
@@ -53,7 +53,8 @@ export class CreatePoolPairIndexer extends DfTxIndexer<PoolCreatePair> {
         pairSymbol = (tokenA?.symbol + '-' + tokenB?.symbol).trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH)
       } else {
         const symbolLength = block.height >= ConsensusParams[this.network].FortCanningHeight
-          ? MAX_TOKEN_SYMBOL_LENGTH_POST_FC : MAX_TOKEN_SYMBOL_LENGTH
+          ? MAX_TOKEN_SYMBOL_LENGTH_POST_FC
+          : MAX_TOKEN_SYMBOL_LENGTH
 
         pairSymbol = data.pairSymbol.trim().substr(0, symbolLength)
       }

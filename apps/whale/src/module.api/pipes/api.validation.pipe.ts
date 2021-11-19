@@ -32,17 +32,17 @@ export class ValidationApiException extends ApiException {
   }
 
   static mapProperty (error: ValidationError): ApiValidationProperty {
-    const mapConstraints = (): string[] | undefined => {
+    function mapConstraints (): string[] | undefined {
       if (error.constraints !== undefined) {
         return Object.values(error.constraints)
       }
       return undefined
     }
 
-    const mapProperties = (): ApiValidationProperty[] | undefined => {
+    function mapProperties (): ApiValidationProperty[] | undefined {
       if (error?.children !== undefined && error?.children.length > 0) {
         return error?.children.map(error => {
-          return this.mapProperty(error)
+          return ValidationApiException.mapProperty(error)
         })
       }
       return undefined

@@ -52,7 +52,11 @@ export class StatsController {
   }
 
   private async getCount (): Promise<StatsData['count']> {
-    const tokens = await this.rpcClient.token.listTokens({ including_start: true, start: 0, limit: 1000 }, false)
+    const tokens = await this.rpcClient.token.listTokens({
+      including_start: true,
+      start: 0,
+      limit: 1000
+    }, false)
     const prices = await this.priceTickerMapper.query(1000)
     const masternodes = await this.masternodeStatsMapper.getLatest()
 
@@ -66,7 +70,11 @@ export class StatsController {
 
   private async getTVL (): Promise<StatsData['tvl']> {
     let dex = new BigNumber(0)
-    const pairs = await this.rpcClient.poolpair.listPoolPairs({ including_start: true, start: 0, limit: 1000 }, true)
+    const pairs = await this.rpcClient.poolpair.listPoolPairs({
+      including_start: true,
+      start: 0,
+      limit: 1000
+    }, true)
     for (const pair of Object.values(pairs)) {
       const liq = await this.poolPairService.getTotalLiquidityUsd(pair)
       if (liq !== undefined) {
@@ -88,7 +96,11 @@ export class StatsController {
   }
 
   private async getBurned (): Promise<StatsData['burned']> {
-    const { emissionburn, amount, feeburn } = await this.rpcClient.account.getBurnInfo()
+    const {
+      emissionburn,
+      amount,
+      feeburn
+    } = await this.rpcClient.account.getBurnInfo()
     return {
       address: amount.toNumber(),
       emission: emissionburn.toNumber(),
@@ -138,7 +150,11 @@ export class StatsController {
   }
 
   private async getNet (): Promise<StatsData['net']> {
-    const { version, subversion, protocolversion } = await this.rpcClient.net.getNetworkInfo()
+    const {
+      version,
+      subversion,
+      protocolversion
+    } = await this.rpcClient.net.getNetworkInfo()
 
     return {
       version: version,

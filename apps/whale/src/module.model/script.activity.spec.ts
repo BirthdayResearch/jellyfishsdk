@@ -23,8 +23,16 @@ beforeEach(async () => {
     await mapper.put({
       id: HexEncoder.encodeHeight(height) + ScriptActivityMapper.typeAsHex(type) + txid + HexEncoder.encodeVoutIndex(n),
       hid: HexEncoder.asSHA256(hex),
-      block: { hash: '', height: height, time: 0, medianTime: 0 },
-      script: { hex: hex, type: '' },
+      block: {
+        hash: '',
+        height: height,
+        time: 0,
+        medianTime: 0
+      },
+      script: {
+        hex: hex,
+        type: ''
+      },
       txid: txid,
       type: type,
       typeHex: ScriptActivityMapper.typeAsHex(type),
@@ -35,7 +43,7 @@ beforeEach(async () => {
   const hex = '1600140e7c0ab18b305bc987a266dc06de26fcfab4b56a'
 
   function randomTxid (): string {
-    return (Math.random() * 9999999999999999).toString(16).padStart(64, '0')
+    return (Math.random() * Number.MAX_SAFE_INTEGER).toString(16).padStart(64, '0')
   }
 
   await put(hex, 0, 'vin', randomTxid(), 0)
