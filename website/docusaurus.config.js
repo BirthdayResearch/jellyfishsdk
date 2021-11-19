@@ -38,7 +38,13 @@ module.exports = {
         {
           to: 'node',
           activeBasePath: 'node',
-          label: 'Full Node APIs',
+          label: 'Full Node RPC',
+          position: 'left'
+        },
+        {
+          to: 'ocean',
+          activeBasePath: 'ocean',
+          label: 'Ocean REST API',
           position: 'left'
         },
         {
@@ -140,6 +146,16 @@ module.exports = {
         id: 'node',
         path: '../docs/node',
         routeBasePath: 'node',
+        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        sidebarCollapsed: false,
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'ocean',
+        path: '../docs/ocean',
+        routeBasePath: 'ocean',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },
