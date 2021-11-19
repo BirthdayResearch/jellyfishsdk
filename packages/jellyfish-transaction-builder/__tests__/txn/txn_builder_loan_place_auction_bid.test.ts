@@ -348,7 +348,7 @@ describe('placeAuctionBid success', () => {
     ])
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '9465.00000000@TSLA'])
+    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '29465.00000000@TSLA'])
 
     // ensure interest is freeze in auction
     await alice.generate(10)
@@ -481,7 +481,7 @@ describe('placeAuctionBid success', () => {
     expect(bobColAccEndBid).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
+    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '29400.00000000@TSLA'])
 
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
