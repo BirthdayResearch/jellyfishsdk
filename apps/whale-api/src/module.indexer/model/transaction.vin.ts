@@ -44,19 +44,23 @@ export class TransactionVinIndexer extends Indexer {
       id: this.mapId(txn, vin),
       txid: txn.txid,
       coinbase: vin.coinbase,
-      vout: vout !== undefined ? {
-        id: vout.id,
-        txid: vout.txid,
-        n: vout.n,
-        value: vout.value,
-        tokenId: vout.tokenId,
-        script: {
-          hex: vout.script.hex
-        }
-      } : undefined,
-      script: vin.scriptSig !== undefined ? {
-        hex: vin.scriptSig.hex
-      } : undefined,
+      vout: vout !== undefined
+        ? {
+            id: vout.id,
+            txid: vout.txid,
+            n: vout.n,
+            value: vout.value,
+            tokenId: vout.tokenId,
+            script: {
+              hex: vout.script.hex
+            }
+          }
+        : undefined,
+      script: vin.scriptSig !== undefined
+        ? {
+            hex: vin.scriptSig.hex
+          }
+        : undefined,
       txInWitness: vin.txinwitness,
       sequence: vin.sequence
     }

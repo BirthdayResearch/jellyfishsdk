@@ -83,16 +83,15 @@ export class TokenMapper {
       }
 
       return latestId.plus(1).toNumber()
-    } else {
-      const latest = await this.getLatestDST()
-      if (latest === undefined) {
-        // Default to DCT_ID_START if no existing DST
-        return DCT_ID_START
-      }
-
-      const latestId = new BigNumber(latest.id)
-      return latestId.plus(1).toNumber()
     }
+    const latest = await this.getLatestDST()
+    if (latest === undefined) {
+      // Default to DCT_ID_START if no existing DST
+      return DCT_ID_START
+    }
+
+    const latestId = new BigNumber(latest.id)
+    return latestId.plus(1).toNumber()
   }
 }
 

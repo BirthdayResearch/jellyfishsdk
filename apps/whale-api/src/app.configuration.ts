@@ -4,21 +4,23 @@
  * This configuration can be injected/replaced at runtime by overriding provider 'ConfigService' or
  * replacing the config module.
  */
-export const AppConfiguration = (): any => ({
-  isProd: process.env.NODE_ENV === 'production',
-  /**
-   * Allows you to override whale endpoint version.
-   */
-  version: process.env.WHALE_VERSION,
-  network: process.env.WHALE_NETWORK,
-  defid: {
-    url: process.env.WHALE_DEFID_URL
-  },
-  database: {
-    // Provider can only be set via environmental variable
-    provider: process.env.WHALE_DATABASE_PROVIDER,
-    level: {
-      location: process.env.WHALE_DATABASE_LEVEL_LOCATION
+export function AppConfiguration (): any {
+  return {
+    isProd: process.env.NODE_ENV === 'production',
+    /**
+     * Allows you to override whale endpoint version.
+     */
+    version: process.env.WHALE_VERSION,
+    network: process.env.WHALE_NETWORK,
+    defid: {
+      url: process.env.WHALE_DEFID_URL
+    },
+    database: {
+      // Provider can only be set via environmental variable
+      provider: process.env.WHALE_DATABASE_PROVIDER,
+      level: {
+        location: process.env.WHALE_DATABASE_LEVEL_LOCATION
+      }
     }
   }
-})
+}

@@ -16,10 +16,13 @@ beforeAll(async () => {
 
 it('should run twice with they same key, due to concurrency of 2', async () => {
   let counter = 0
-  const fetch = async (): Promise<string> => await new Promise((resolve) => {
-    counter += 1
-    setTimeout(() => resolve('1'), 1000)
-  })
+
+  async function fetch (): Promise<string> {
+    return await new Promise((resolve) => {
+      counter += 1
+      setTimeout(() => resolve('1'), 1000)
+    })
+  }
 
   await Promise.all([
     cache.get('collide-1', fetch),
@@ -33,10 +36,13 @@ it('should run twice with they same key, due to concurrency of 2', async () => {
 
 it('key should not collide', async () => {
   let counter = 0
-  const fetch = async (): Promise<string> => await new Promise((resolve) => {
-    counter += 1
-    setTimeout(() => resolve('1'), 1000)
-  })
+
+  async function fetch (): Promise<string> {
+    return await new Promise((resolve) => {
+      counter += 1
+      setTimeout(() => resolve('1'), 1000)
+    })
+  }
 
   await Promise.all([
     cache.get('not-collide-1', fetch),

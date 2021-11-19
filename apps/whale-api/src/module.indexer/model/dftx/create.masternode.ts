@@ -1,5 +1,5 @@
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
-import { CreateMasternode, CCreateMasternode } from '@defichain/jellyfish-transaction'
+import { CCreateMasternode, CreateMasternode } from '@defichain/jellyfish-transaction'
 import { RawBlock } from '@src/module.indexer/model/_abstract'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { MasternodeMapper } from '@src/module.model/masternode'
@@ -75,13 +75,12 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
     const existing = latest.find(x => x.weeks === lockStats.weeks)
     if (existing === undefined) {
       return [...latest, lockStats]
-    } else {
-      return latest.map(x => ({
-        ...x,
-        count: x.weeks === lockStats.weeks ? (x.count + lockStats.count) : x.count,
-        tvl: x.weeks === lockStats.weeks ? new BigNumber(x.tvl).plus(lockStats.tvl).toFixed(8) : x.tvl
-      }))
     }
+    return latest.map(x => ({
+      ...x,
+      count: x.weeks === lockStats.weeks ? (x.count + lockStats.count) : x.count,
+      tvl: x.weeks === lockStats.weeks ? new BigNumber(x.tvl).plus(lockStats.tvl).toFixed(8) : x.tvl
+    }))
   }
 
   async invalidate (block: RawBlock, txns: Array<DfTxTransaction<CreateMasternode>>): Promise<void> {

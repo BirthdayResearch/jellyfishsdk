@@ -72,9 +72,8 @@ export class DeFiDCache extends GlobalCache {
       /* istanbul ignore else */
       if (err?.payload?.message === 'Pool not found') {
         return undefined
-      } else {
-        throw err
       }
+      throw err
     }
   }
 }
