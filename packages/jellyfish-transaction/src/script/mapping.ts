@@ -59,9 +59,8 @@ import {
   UpdateOracle
 } from './dftx/dftx_oracles'
 import {
-  CCreateLoanScheme,
-  CUpdateLoanScheme,
-  LoanScheme,
+  CSetLoanScheme,
+  SetLoanScheme,
   CDestroyLoanScheme,
   DestroyLoanScheme,
   CSetDefaultLoanScheme,
@@ -472,20 +471,12 @@ export const OP_CODES = {
       data: icxClaimDFCHTLC
     })
   },
-  OP_DEFI_TX_CREATE_LOAN_SCHEME: (createLoanScheme: LoanScheme): OP_DEFI_TX => {
+  OP_DEFI_TX_SET_LOAN_SCHEME: (setLoanScheme: SetLoanScheme): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CCreateLoanScheme.OP_CODE,
-      name: CCreateLoanScheme.OP_NAME,
-      data: createLoanScheme
-    })
-  },
-  OP_DEFI_TX_UPDATE_LOAN_SCHEME: (updateLoanScheme: LoanScheme): OP_DEFI_TX => {
-    return new OP_DEFI_TX({
-      signature: CDfTx.SIGNATURE,
-      type: CUpdateLoanScheme.OP_CODE,
-      name: CUpdateLoanScheme.OP_NAME,
-      data: updateLoanScheme
+      type: CSetLoanScheme.OP_CODE,
+      name: CSetLoanScheme.OP_NAME,
+      data: setLoanScheme
     })
   },
   OP_DEFI_TX_DESTROY_LOAN_SCHEME: (destroyLoanScheme: DestroyLoanScheme): OP_DEFI_TX => {

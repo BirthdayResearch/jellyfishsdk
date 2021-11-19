@@ -119,7 +119,7 @@ export class JsonRpcClient extends ApiClient {
       body: body,
       cache: 'no-cache',
       headers: this.options.headers,
-      signal: controller.signal
+      signal: controller.signal as any
     })
   }
 }

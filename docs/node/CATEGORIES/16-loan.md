@@ -188,6 +188,40 @@ interface CollateralTokenDetail {
 }
 ```
 
+## getLoanInfo
+
+Quick access to multiple API with consolidated total collateral and loan value.
+
+```ts title="client.loan.getLoanInfo()"
+interface loan {
+  getLoanInfo (): Promise<GetLoanInfoResult>
+}
+
+interface GetLoanInfoResult {
+  currentPriceBlock: BigNumber
+  nextPriceBlock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
+}
+
+interface LoanConfig {
+  fixedIntervalBlocks: BigNumber
+  maxPriceDeviationPct: BigNumber
+  minOraclesPerPrice: BigNumber
+  scheme: string
+}
+
+interface LoanSummary {
+  collateralTokens: BigNumber
+  collateralValue: BigNumber
+  loanTokens: BigNumber
+  loanValue: BigNumber
+  openAuctions: BigNumber
+  openVaults: BigNumber
+  schemes: BigNumber
+}
+```
+
 ## setLoanToken
 
 Creates (and submits to local node and network) a token for a price feed set in collateral token.
@@ -608,7 +642,15 @@ List all available auctions.
 
 ```ts title="client.loan.listAuctions()"
 interface loan {
-  listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]>
+  listAuctions (pagination: AuctionPagination = {}): Promise<VaultLiquidation[]>
+}
+
+enum VaultState {
+  UNKNOWN = 'unknown',
+  ACTIVE = 'active',
+  IN_LIQUIDATION = 'inLiquidation',
+  FROZEN = 'frozen',
+  MAY_LIQUIDATE = 'mayLiquidate',
 }
 
 interface AuctionPagination {
@@ -622,20 +664,50 @@ interface AuctionPaginationStart {
   height?: number
 }
 
-interface AuctionDetail {
+interface Vault {
   vaultId: string
-  batchCount: number
-  liquidationPenalty: number
-  liquidationHeight: number
-  batches: VaultLiquidationBatch[]
   loanSchemeId: string
   ownerAddress: string
-  state: string
+  state: VaultState
+}
+
+interface VaultLiquidation extends Vault {
+  liquidationHeight: number
+  liquidationPenalty: number
+  batchCount: number
+  batches: VaultLiquidationBatch[]
 }
 
 interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+}
+```
+## listAuctionHistory
+
+Returns information about auction history.
+
+```ts title="client.loan.listAuctionHistory()"
+interface loan {
+  listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]>
+}
+
+interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+interface ListAuctionHistoryDetail {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
 }
 ```

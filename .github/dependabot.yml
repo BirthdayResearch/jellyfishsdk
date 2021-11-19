@@ -7,16 +7,9 @@ updates:
     labels:
       - "kind/dependencies"
     ignore:
-      - dependency-name: "@defichain/*"
-    versioning-strategy: 'increase'
-
-  - package-ecosystem: 'npm'
-    directory: '/website'
-    schedule:
-      interval: 'daily'
-    labels:
-      - "kind/dependencies"
-    ignore:
+      - dependency-name: "defich"
+      - dependency-name: "defichain"
+      - dependency-name: "@defich/*"
       - dependency-name: "@defichain/*"
     versioning-strategy: 'increase'
 

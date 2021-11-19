@@ -154,6 +154,18 @@ export class Loan {
   }
 
   /**
+   * Quick access to multiple API with consolidated total collateral and loan value.
+   * @see {@link listCollateralTokens}
+   * @see {@link listLoanTokens}
+   * @see {@link listLoanSchemes}
+   *
+   * @returns {Promise<GetLoanInfoResult>}
+   */
+  async getLoanInfo (): Promise<GetLoanInfoResult> {
+    return await this.client.call('getloaninfo', [], 'bignumber')
+  }
+
+  /**
    * Updates an existing loan token.
    *
    * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
@@ -388,13 +400,31 @@ export class Loan {
    * @param {number} [pagination.start.height]
    * @param {boolean} [pagination.including_start]
    * @param {number} [pagination.limit=100]
-   * @return {Promise<AuctionDetail[]>}
+   * @return {Promise<VaultLiquidation[]>}
    */
-  async listAuctions (pagination: AuctionPagination = {}): Promise<AuctionDetail[]> {
+  async listAuctions (pagination: AuctionPagination = {}): Promise<VaultLiquidation[]> {
     const defaultPagination = {
       limit: 100
     }
     return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], 'number')
+  }
+
+  /**
+   * Returns information about auction history.
+   *
+   * @param {string} [owner] address or reserved word : mine / all (Default to mine)
+   * @param {ListAuctionHistoryPagination} pagination
+   * @param {number} [pagination.maxBlockHeight] Maximum block height
+   * @param {string} [pagination.vaultId] Vault Id
+   * @param {number} [pagination.index] Auction index
+   * @param {number} [pagination.limit = 100]
+   * @return {Promise<ListAuctionHistoryDetail>}
+   */
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
   }
 }
 
@@ -462,6 +492,30 @@ export interface LoanTokenResult {
   token: token.TokenResult
   fixedIntervalPriceId: string
   interest: BigNumber
+}
+
+export interface LoanConfig {
+  fixedIntervalBlocks: BigNumber
+  maxPriceDeviationPct: BigNumber
+  minOraclesPerPrice: BigNumber
+  scheme: string
+}
+
+export interface LoanSummary {
+  collateralTokens: BigNumber
+  collateralValue: BigNumber
+  loanTokens: BigNumber
+  loanValue: BigNumber
+  openAuctions: BigNumber
+  openVaults: BigNumber
+  schemes: BigNumber
+}
+
+export interface GetLoanInfoResult {
+  currentPriceBlock: BigNumber
+  nextPriceBlock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
 }
 
 export interface UpdateLoanToken {
@@ -586,19 +640,26 @@ export interface AuctionPaginationStart {
   height?: number
 }
 
-export interface AuctionDetail {
-  vaultId: string
-  batchCount: number
-  liquidationPenalty: number
-  liquidationHeight: number
-  batches: VaultLiquidationBatch[]
-  loanSchemeId: string
-  ownerAddress: string
-  state: string
-}
-
 export interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+}
+
+export interface ListAuctionHistoryPagination {
+  maxBlockHeight?: number
+  vaultId?: string
+  index?: number
+  limit?: number
+}
+
+export interface ListAuctionHistoryDetail {
+  winner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  vaultId: string
+  batchIndex: number
+  auctionBid: string
+  auctionWon: string[]
 }

@@ -75,9 +75,8 @@ import {
   Vote
 } from './dftx_governance'
 import {
-  CCreateLoanScheme,
-  CUpdateLoanScheme,
-  LoanScheme,
+  CSetLoanScheme,
+  SetLoanScheme,
   CDestroyLoanScheme,
   DestroyLoanScheme,
   CSetDefaultLoanScheme,
@@ -244,10 +243,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<ICXSubmitEXTHTLC>(CICXSubmitEXTHTLC.OP_NAME, d => new CICXSubmitEXTHTLC(d))
       case CICXClaimDFCHTLC.OP_CODE:
         return compose<ICXClaimDFCHTLC>(CICXClaimDFCHTLC.OP_NAME, d => new CICXClaimDFCHTLC(d))
-      case CCreateLoanScheme.OP_CODE:
-        return compose<LoanScheme>(CCreateLoanScheme.OP_NAME, d => new CCreateLoanScheme(d))
-      case CUpdateLoanScheme.OP_CODE:
-        return compose<LoanScheme>(CUpdateLoanScheme.OP_NAME, d => new CUpdateLoanScheme(d))
+      case CSetLoanScheme.OP_CODE:
+        return compose<SetLoanScheme>(CSetLoanScheme.OP_NAME, d => new CSetLoanScheme(d))
       case CDestroyLoanScheme.OP_CODE:
         return compose<DestroyLoanScheme>(CDestroyLoanScheme.OP_NAME, d => new CDestroyLoanScheme(d))
       case CSetDefaultLoanScheme.OP_CODE:
