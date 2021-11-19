@@ -12,6 +12,13 @@ let aliceColAddr: string
 let bobVaultId: string
 let bobColAddr: string
 let bobVaultAddr: string
+let bobColAccBefore: string[]
+let aliceColAccBefore: string[]
+let oracleId: string
+
+function now (): number {
+  return Math.floor(new Date().getTime() / 1000)
+}
 
 async function setup (): Promise<void> {
   // token setup
@@ -27,14 +34,15 @@ async function setup (): Promise<void> {
   const priceFeeds = [
     { token: 'DFI', currency: 'USD' },
     { token: 'BTC', currency: 'USD' },
-    { token: 'TSLA', currency: 'USD' }
+    { token: 'TSLA', currency: 'USD' },
+    { token: 'AMZN', currency: 'USD' }
   ]
-  const oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
+  oracleId = await alice.rpc.oracle.appointOracle(await alice.generateAddress(), priceFeeds, { weightage: 1 })
   await alice.generate(1)
-  const timestamp = Math.floor(new Date().getTime() / 1000)
-  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
-  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '1@AMZN', currency: 'USD' }] })
   await alice.generate(1)
 
   // collateral token
@@ -137,7 +145,7 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   // increase TSLA price
-  await alice.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
+  await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
   await alice.generate(1) // interest * 5 => 1000.00285385@TSLA
   await tGroup.waitForSync()
 
@@ -204,6 +212,12 @@ async function setup (): Promise<void> {
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00399539@TSLA')
+
+  bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
+  expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
+
+  aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
+  expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 }
 
 describe('placeAuctionBid success', () => {
@@ -226,9 +240,6 @@ describe('placeAuctionBid success', () => {
     }
 
     // cont. test placeAuctionBid
-    const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
-    expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
-
     const bobTSLAAccBefore = bobColAccBefore.length > 0
       ? bobColAccBefore.find((amt: string) => amt.split('@')[1] === 'TSLA')
       : undefined
@@ -253,9 +264,6 @@ describe('placeAuctionBid success', () => {
     const bobTSLAAmtAfter = bobTSLAAccAfter !== undefined ? Number(bobTSLAAccAfter.split('@')[0]) : 0
 
     expect(bobTSLAAmtBefore - bobTSLAAmtAfter).toStrictEqual(526) // 545.45454546 - 19.45454546 = 526
-
-    const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 
     // test second round placeAuctionBid
     await alice.rpc.loan.placeAuctionBid({
@@ -385,9 +393,6 @@ describe('placeAuctionBid success', () => {
 
     // test alice bids on second index
     {
-      const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
-      expect(aliceColAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
-
       const txid1 = await alice.rpc.loan.placeAuctionBid({
         vaultId: bobVaultId,
         index: 1,
@@ -455,73 +460,9 @@ describe('placeAuctionBid success', () => {
     expect(vault.informativeRatio).toStrictEqual(-1)
   })
 
-  it('test super bid recover vault state to active against other bids on other batches', async () => {
-    const bobAccBefore = await bob.rpc.account.getAccount(bobColAddr)
-    expect(bobAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
-
-    const aliceAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceAccBefore).toStrictEqual(['30000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
-
-    await bob.rpc.loan.placeAuctionBid({
-      vaultId: bobVaultId,
-      index: 0,
-      from: bobColAddr,
-      amount: '526@TSLA'
-    })
-    await bob.container.generate(1)
-    await tGroup.waitForSync()
-
-    // super bid by Alice on other index
-    await alice.rpc.loan.placeAuctionBid({
-      vaultId: bobVaultId,
-      index: 1,
-      from: aliceColAddr,
-      amount: '9999@TSLA'
-    })
-    await alice.container.generate(1)
-    await tGroup.waitForSync()
-
-    const auctions = await alice.container.call('listauctions')
-    expect(auctions).toStrictEqual([{
-      vaultId: bobVaultId,
-      loanSchemeId: 'scheme',
-      ownerAddress: bobVaultAddr,
-      state: 'inLiquidation',
-      liquidationHeight: expect.any(Number),
-      batchCount: 2,
-      liquidationPenalty: 5,
-      batches: [{
-        index: 0,
-        collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-        loan: '500.00399539@TSLA',
-        highestBid: {
-          owner: bobColAddr,
-          amount: '526.00000000@TSLA'
-        }
-      }, {
-        index: 1,
-        collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-        loan: '500.00399539@TSLA',
-        highestBid: {
-          owner: aliceColAddr,
-          amount: '9999.00000000@TSLA'
-        }
-      }]
-    }])
-    await alice.container.generate(36)
-
-    const vault = await alice.container.call('getvault', [bobVaultId])
-    expect(vault.state).toStrictEqual('active')
-
-    const auctionsEnd = await alice.container.call('listauctions')
-    expect(auctionsEnd).toStrictEqual([])
-
-    const bobAccAfter = await bob.rpc.account.getAccount(bobColAddr)
-    expect(bobAccAfter).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
-
-    const aliceAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceAccAfter).toStrictEqual(['35000.00000000@DFI', '29999.50000000@BTC', '1.00000000@TSLA'])
-  })
+  // TODO(canonbrother): expected the extra will become assests (not collateral) of the vault according to pink paper
+  // will do once its implemented
+  it.skip('test super bid', async () => {})
 })
 
 describe('placeAuctionBid failed', () => {
