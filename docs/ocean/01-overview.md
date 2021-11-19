@@ -78,3 +78,52 @@ client.stats.get().then((data) => {
   console.log(data)
 })
 ```
+
+### Pagination
+
+```
+?next=token&size=30
+https://ocean.defichain.com/v0/mainnet/tokens?next=token&size=30
+```
+
+Most API with `LIST` operation can be paginated. 
+All paginate-able resource endpoint in Ocean REST API represent one sort indexes/projection.
+Pagination within Ocean REST API is done via "slice window", if there are more items in your query, you are given a 
+"next token" to get the next slice.
+
+#### Making the first request
+
+```http request
+GET https://ocean.defichain.com/v0/mainnet/tokens
+
+{
+  "data": [...],
+  "page": {
+    "next": "138"
+  }
+}
+```
+
+#### Using next token to get next request
+
+```http request
+GET https://ocean.defichain.com/v0/mainnet/tokens?next=138&size=100
+
+{
+  "data": [...]
+}
+```
+
+When "page" is empty or undefined, it indicates there is no more item to query.
+
+#### Pagination via JavaScript ([@defichain/whale-api-client](https://www.npmjs.com/package/@defichain/whale-api-client))
+
+```javascript
+const firstPage = await api.address.listTransaction('address', 30)
+
+// Automatically via api.paginate()
+const nextPage = await api.paginate(firstPage)
+
+// Manually via next token
+const nextPage = await api.address.listTransaction('address', 30, firstPage.nextToken)
+```
