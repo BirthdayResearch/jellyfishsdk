@@ -111,10 +111,12 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    */
 
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
+    const creationFee = this.network.name === 'regtest' ? new BigNumber('1') : new BigNumber('2')
+
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VAULT(createVault),
       changeScript,
-      new BigNumber(1) // creation fee
+      creationFee
     )
   }
 
