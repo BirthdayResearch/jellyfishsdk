@@ -3,7 +3,7 @@ import { GenesisKeys } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { VaultState } from '../../../src/category/loan'
+import { VaultActive, VaultLiquidation, VaultState } from '../../../src/category/loan'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
@@ -463,6 +463,86 @@ describe('placeAuctionBid success', () => {
   // TODO(canonbrother): expected the extra will become assests (not collateral) of the vault according to pink paper
   // will do once its implemented
   it.skip('test super bid', async () => {})
+
+  it('should make the vault active after completion of one auction batch', async () => {
+    // update price oracle
+    await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '100@DFI', currency: 'USD' }, { tokenAmount: '100@BTC', currency: 'USD' }, { tokenAmount: '100@TSLA', currency: 'USD' }, { tokenAmount: '1@AMZN', currency: 'USD' }] })
+    await alice.generate(12)
+
+    // Loan200 scheme set up
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 200,
+      interestRate: new BigNumber(1),
+      id: 'Loan200'
+    })
+    await alice.generate(1)
+
+    // create another vault
+    const aliceVaultAddr = await alice.generateAddress()
+    const aliceVaultId = await alice.rpc.loan.createVault({
+      ownerAddress: aliceVaultAddr,
+      loanSchemeId: 'Loan200'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: aliceVaultId, from: aliceColAddr, amount: '60@DFI'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: aliceVaultId, from: aliceColAddr, amount: '60@BTC'
+    })
+    await alice.generate(1)
+
+    const aliceLoanAddr = await bob.generateAddress()
+    await alice.rpc.loan.takeLoan({
+      vaultId: aliceVaultId,
+      amounts: '60@TSLA',
+      to: aliceLoanAddr
+    })
+    await alice.generate(1)
+
+    const aliceLoanAcc = await bob.container.call('getaccount', [aliceLoanAddr])
+    expect(aliceLoanAcc).toStrictEqual(['60.00000000@TSLA'])
+
+    // update the price again for 101@TSLA
+    await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '100@DFI', currency: 'USD' }, { tokenAmount: '100@BTC', currency: 'USD' }, { tokenAmount: '101@TSLA', currency: 'USD' }, { tokenAmount: '1@AMZN', currency: 'USD' }] })
+    await alice.generate(12)
+
+    // see the aliceVaultId inLiquidation
+    const vault = await alice.rpc.loan.getVault(aliceVaultId) as VaultLiquidation
+    expect(vault.state).toStrictEqual('inLiquidation')
+    expect(vault.batches).toStrictEqual([
+      { index: 0, collaterals: ['49.99999980@DFI', '49.99999980@BTC'], loan: '50.00011389@TSLA' },
+      { index: 1, collaterals: ['10.00000020@DFI', '10.00000020@BTC'], loan: '10.00002303@TSLA' }
+    ])
+
+    // place auction bid for the first batch
+    const txid1 = await alice.rpc.loan.placeAuctionBid({
+      vaultId: aliceVaultId,
+      index: 0,
+      from: aliceColAddr,
+      amount: '59.41@TSLA'
+    })
+    expect(typeof txid1).toStrictEqual('string')
+    await alice.container.generate(1)
+
+    // reduce the TSLA price to 99. by the time auction ends, vault will have enough col ratio to survive reliquidation.
+    await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '100@DFI', currency: 'USD' }, { tokenAmount: '100@BTC', currency: 'USD' }, { tokenAmount: '99@TSLA', currency: 'USD' }, { tokenAmount: '1@AMZN', currency: 'USD' }] })
+
+    // end the auction
+    await alice.container.generate(35)
+
+    // check the vault again
+    const vaultAfter = await alice.rpc.loan.getVault(aliceVaultId) as VaultActive
+    expect(vaultAfter.state).toStrictEqual('active')
+
+    // update the prices back
+    await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }, { tokenAmount: '10000@BTC', currency: 'USD' }, { tokenAmount: '2@TSLA', currency: 'USD' }, { tokenAmount: '1@AMZN', currency: 'USD' }] })
+    await alice.generate(12)
+    await tGroup.waitForSync()
+  })
 })
 
 describe('placeAuctionBid failed', () => {
