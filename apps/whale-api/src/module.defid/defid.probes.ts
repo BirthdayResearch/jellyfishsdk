@@ -45,8 +45,8 @@ export class DeFiDProbeIndicator extends ProbeIndicator {
       peers: peers
     }
 
-    if (info.blocks + 4 <= info.headers) {
-      return this.withDead('defid', 'defid blocks are more than 4 headers behind', details)
+    if (info.initialblockdownload) {
+      return this.withDead('defid', 'defid is in initial block download', details)
     }
 
     if (peers === 0) {
