@@ -174,6 +174,17 @@ export class LoanController {
     return await this.vaultService.get(id)
   }
 
+  /**
+   * Paginate loan auctions.
+   *
+   * @param {PaginationQuery} query
+   * @return {Promise<ApiPagedResponse<LoanVaultLiquidated>>}
+   */
+  @Get('/auctions')
+  async listAuction (@Query() query: PaginationQuery): Promise<ApiPagedResponse<LoanVaultLiquidated>> {
+    return await this.vaultService.listAuction(query)
+  }
+
   async mapCollateralToken (detail: CollateralTokenDetail): Promise<CollateralToken> {
     const result = await this.deFiDCache.getTokenInfoBySymbol(detail.token)
     if (result === undefined) {
