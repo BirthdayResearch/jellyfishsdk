@@ -52,11 +52,11 @@ describe('Loan listVaultHistory', () => {
   let priceActivationBlockHeight1: number
   let inLiquidationBlockHeight2: number
 
-  // let auctionBidTxId: string
-  // let autionBidBlockHeight: number
+  let auctionBidTxId: string
+  let auctionBidBlockHeight: number
 
-  // let priceActivationBlockHeight2: number
-  // let inLiquidationBlockHeight3: number
+  let priceActivationBlockHeight2: number
+  let inLiquidationBlockHeight3: number
 
   let vaultId2: string // Alice 2nd vault
   let vaultId3: string // Bob 1st vault
@@ -311,6 +311,7 @@ describe('Loan listVaultHistory', () => {
 
     await alice.container.call('paybackloan', [{ vaultId: vaultId2, from: aliceColAddr, amounts: '100@TSLA' }])
     await alice.generate(1)
+    await tGroup.waitForSync()
 
     // Vault 3
     // CreateVault, DepositToVault, [WithdrawFromVault], TakeLoan and AuctionBid
@@ -346,6 +347,7 @@ describe('Loan listVaultHistory', () => {
       amounts: '30000@FB'
     }])
     await bob.generate(1)
+    await tGroup.waitForSync()
 
     {
       // When there is no liquidation occurs
@@ -383,8 +385,6 @@ describe('Loan listVaultHistory', () => {
     })
     await alice.generate(1)
     await alice.container.waitForActivePrice('TSLA/USD', '2.2')
-    priceActivationBlockHeight1 = await alice.container.getBlockCount()
-    inLiquidationBlockHeight2 = await alice.container.getBlockCount() + 1
 
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
@@ -402,13 +402,21 @@ describe('Loan listVaultHistory', () => {
     })
     await alice.generate(1)
     await alice.container.waitForActivePrice('FB/USD', '2.2')
-    await alice.generate(1)
 
     // When there is liquidation
     const list = await alice.container.call('listauctions', [])
     list.forEach((l: { state: any }) =>
       expect(l.state).toStrictEqual('inLiquidation')
     )
+
+    // Check current block
+    {
+      const currentBlock: number = await alice.container.getBlockCount()
+      expect(currentBlock).toStrictEqual(inLiquidationBlockHeight1 + 36)
+    }
+    // After 36 blocks, the current auction ended and vault1 re-enter another auction
+    priceActivationBlockHeight1 = await inLiquidationBlockHeight1 + 36 // After reentering, the vault is active in the first block
+    inLiquidationBlockHeight2 = await inLiquidationBlockHeight1 + 37 // After reentering, the vault is inLiquidation in the second block
 
     await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['7875@AAPL'] })
     await alice.generate(1)
@@ -422,12 +430,11 @@ describe('Loan listVaultHistory', () => {
     await alice.rpc.account.sendTokensToAddress({}, { [bobColAddr]: ['33500@FB'] })
     await alice.generate(1)
 
-    {
-      const txid = await alice.container.call('placeauctionbid', [createVaultTxId, 0, aliceColAddr, '7875@AAPL'])
-      expect(typeof txid).toStrictEqual('string')
-      expect(txid.length).toStrictEqual(64)
-      await alice.generate(1)
-    }
+    auctionBidTxId = await alice.container.call('placeauctionbid', [createVaultTxId, 0, aliceColAddr, '7875@AAPL'])
+    expect(typeof auctionBidTxId).toStrictEqual('string')
+    expect(auctionBidTxId.length).toStrictEqual(64)
+    await alice.generate(1)
+    auctionBidBlockHeight = await alice.container.getBlockCount()
 
     {
       const txid = await alice.container.call('placeauctionbid', [vaultId2, 1, aliceColAddr, '15750@TSLA'])
@@ -495,14 +502,25 @@ describe('Loan listVaultHistory', () => {
       await bob.generate(1)
     }
 
-    await alice.container.generate(36) // 144 / 4 = 6 hours
-    await tGroup.waitForSync()
+    await bob.generate(23) // Generate 23 more blocks so vaultId can enter another auction again
+
+    // Check current block
+    {
+      const currentBlock: number = await alice.container.getBlockCount()
+      expect(currentBlock).toStrictEqual(inLiquidationBlockHeight2 + 36)
+    }
+    // After 36 blocks, the current auction ended and vault1 re-enter another auction
+    priceActivationBlockHeight2 = await inLiquidationBlockHeight2 + 36 // After reentering, the vault is active in the first block
+    inLiquidationBlockHeight3 = await inLiquidationBlockHeight2 + 37 // After reentering, the vault is inLiquidation in the second block
+
+    await bob.container.generate(36) // 144 / 4 = 6 hours
 
     await bob.rpc.loan.closeVault({
       vaultId: vaultId4,
       to: bobColAddr
     })
     await tGroup.get(0).generate(1)
+    await tGroup.waitForSync()
   })
 
   afterAll(async () => {
@@ -653,12 +671,12 @@ describe('Loan listVaultHistory', () => {
       expect(vaultHistory1[4].amounts).toStrictEqual(['7500.00000000@AAPL']) // TakeLoan 7500 AAPL
 
       // When the price is liquidated
-      expect(vaultHistory1[5].vaultSnapshot?.state).toStrictEqual('inLiquidation')
+      expect(vaultHistory1[5].vaultSnapshot.state).toStrictEqual('inLiquidation')
       expect(vaultHistory1[5].txid).toStrictEqual('') // No tx for liquidation
       expect(vaultHistory1[5].blockHeight).toStrictEqual(inLiquidationBlockHeight1)
       expect(vaultHistory1[5].collateralAmounts).toBeUndefined() // No collateralAmounts for liquidation
       expect(vaultHistory1[5].collateralValue).toBeUndefined() // No collateralValue for liquidation
-      expect(vaultHistory1[5].batches).toStrictEqual([
+      expect(vaultHistory1[5].vaultSnapshot.batches).toStrictEqual([
         {
           index: 0,
           collaterals: [
@@ -670,14 +688,14 @@ describe('Loan listVaultHistory', () => {
         {
           index: 1,
           collaterals: [
-            '3333.33340000@D',
+            '3333.33340000@DFI',
             '0.16666667@BTC'
           ],
           loan: '2500.01241682@AAPL'
         }
       ])
 
-      expect(vaultHistory1[6].vaultSnapshot?.state).toStrictEqual('active')
+      expect(vaultHistory1[6].vaultSnapshot.state).toStrictEqual('active')
       expect(vaultHistory1[6].txid).toStrictEqual('') // No tx for price activation
       expect(vaultHistory1[6].blockHeight).toStrictEqual(priceActivationBlockHeight1)
       expect(vaultHistory1[6].vaultSnapshot).toStrictEqual({
@@ -690,73 +708,64 @@ describe('Loan listVaultHistory', () => {
         collateralRatio: 0
       })
 
-      expect(vaultHistory1[7].vaultSnapshot?.state).toStrictEqual('inLiquidation')
+      expect(vaultHistory1[7].vaultSnapshot.state).toStrictEqual('inLiquidation')
       expect(vaultHistory1[7].txid).toStrictEqual('') // No tx for liquidation
       expect(vaultHistory1[7].blockHeight).toStrictEqual(inLiquidationBlockHeight2)
       expect(vaultHistory1[7].collateralAmounts).toBeUndefined() // No collateralAmounts for liquidation
       expect(vaultHistory1[7].collateralValue).toBeUndefined() // No collateralValue for liquidation
-      expect(vaultHistory1[7].batches).toStrictEqual([
+      expect(vaultHistory1[7].vaultSnapshot.batches).toStrictEqual([
         {
           index: 0,
           collaterals: [
             '6666.66660000@DFI',
             '0.33333333@BTC'
           ],
-          loan: '5000.02468362@AAPL'
+          loan: '5000.02563491@AAPL'
         },
         {
           index: 1,
           collaterals: [
-            '3333.33340000@D',
+            '3333.33340000@DFI',
             '0.16666667@BTC'
           ],
-          loan: '2500.01241682@AAPL'
+          loan: '2500.01289246@AAPL'
         }
       ])
 
       // Auction bid
       expect(vaultHistory1[8].type).toStrictEqual('AuctionBid')
       expect(vaultHistory1[8].address).toStrictEqual(aliceColAddr)
-      expect(vaultHistory1[8].type).toStrictEqual('DepositToVault')
       expect(vaultHistory1[8].txn).toStrictEqual(1)
-      expect(vaultHistory1[8].txid).toStrictEqual(depositVault2TxId)
-      expect(vaultHistory1[8].blockHeight).toStrictEqual(depositVault2BlockHeight)
-      expect(vaultHistory1[8].amounts).toStrictEqual(['-0.50000000@BTC']) // Deposit 0.5 BTC
+      expect(vaultHistory1[8].txid).toStrictEqual(auctionBidTxId)
+      expect(vaultHistory1[8].blockHeight).toStrictEqual(auctionBidBlockHeight)
+      expect(vaultHistory1[8].amounts).toStrictEqual(['-7875.00000000@AAPL'])
 
-      expect(vaultHistory1[9].vaultSnapshot?.state).toStrictEqual('active')
+      expect(vaultHistory1[9].vaultSnapshot.state).toStrictEqual('active')
       expect(vaultHistory1[9].txid).toStrictEqual('') // No tx for price activation
-      expect(vaultHistory1[9].blockHeight).toStrictEqual(priceActivationBlockHeight1)
+      expect(vaultHistory1[9].blockHeight).toStrictEqual(priceActivationBlockHeight2)
       expect(vaultHistory1[9].vaultSnapshot).toStrictEqual({
         state: 'active',
         collateralAmounts: [
-          '10000.00000000@DFI',
-          '0.50000000@BTC'
+          '3333.33340000@DFI',
+          '0.16666667@BTC'
         ],
-        collateralValue: 15000,
+        collateralValue: 5000.0001,
         collateralRatio: 0
       })
 
-      expect(vaultHistory1[10].vaultSnapshot?.state).toStrictEqual('inLiquidation')
+      expect(vaultHistory1[10].vaultSnapshot.state).toStrictEqual('inLiquidation')
       expect(vaultHistory1[10].txid).toStrictEqual('') // No tx for liquidation
-      expect(vaultHistory1[10].blockHeight).toStrictEqual(inLiquidationBlockHeight2)
+      expect(vaultHistory1[10].blockHeight).toStrictEqual(inLiquidationBlockHeight3)
       expect(vaultHistory1[10].collateralAmounts).toBeUndefined() // No collateralAmounts for liquidation
       expect(vaultHistory1[10].collateralValue).toBeUndefined() // No collateralValue for liquidation
-      expect(vaultHistory1[10].batches).toStrictEqual([
+      expect(vaultHistory1[10].vaultSnapshot.batches).toStrictEqual([
         {
           index: 0,
           collaterals: [
-            '6666.66660000@DFI',
-            '0.33333333@BTC'
-          ],
-          loan: '5000.02468362@AAPL'
-        },
-        {
-          index: 1,
-          collaterals: [
-            '3333.33340000@D',
+            '3333.33340000@DFI',
             '0.16666667@BTC'
           ],
-          loan: '2500.01241682@AAPL'
+          loan: '2500.01336810@AAPL'
         }
       ])
     })
