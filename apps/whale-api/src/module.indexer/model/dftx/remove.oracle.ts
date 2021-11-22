@@ -19,40 +19,38 @@ export class RemoveOracleIndexer extends DfTxIndexer<RemoveOracle> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<RemoveOracle>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const previous = await this.getPrevious(data.oracleId)
+  async indexTransaction (_: RawBlock, transaction: DfTxTransaction<RemoveOracle>): Promise<void> {
+    const data = transaction.dftx.data
+    const previous = await this.getPrevious(data.oracleId)
 
-      await this.oracleMapper.delete(data.oracleId)
-      for (const { token, currency } of previous.priceFeeds) {
-        await this.oracleTokenCurrencyMapper.delete(`${token}-${currency}-${data.oracleId}`)
-      }
+    await this.oracleMapper.delete(data.oracleId)
+    for (const { token, currency } of previous.priceFeeds) {
+      await this.oracleTokenCurrencyMapper.delete(`${token}-${currency}-${data.oracleId}`)
     }
   }
 
-  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<RemoveOracle>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const previous = await this.getPrevious(data.oracleId)
+  async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<RemoveOracle>): Promise<void> {
+    const data = transaction.dftx.data
+    const previous = await this.getPrevious(data.oracleId)
 
-      await this.oracleMapper.put({
-        id: previous.oracleId,
-        ownerAddress: previous.ownerAddress,
+    await this.oracleMapper.put({
+      id: previous.oracleId,
+      ownerAddress: previous.ownerAddress,
+      weightage: previous.weightage,
+      priceFeeds: previous.priceFeeds,
+      block: previous.block
+    })
+
+    for (const { token, currency } of previous.priceFeeds) {
+      await this.oracleTokenCurrencyMapper.put({
+        id: `${token}-${currency}-${previous.oracleId}`,
+        key: `${token}-${currency}`,
+        token: token,
+        currency: currency,
+        oracleId: previous.oracleId,
         weightage: previous.weightage,
-        priceFeeds: previous.priceFeeds,
         block: previous.block
       })
-
-      for (const { token, currency } of previous.priceFeeds) {
-        await this.oracleTokenCurrencyMapper.put({
-          id: `${token}-${currency}-${previous.oracleId}`,
-          key: `${token}-${currency}`,
-          token: token,
-          currency: currency,
-          oracleId: previous.oracleId,
-          weightage: previous.weightage,
-          block: previous.block
-        })
-      }
     }
   }
 

@@ -18,18 +18,18 @@ export class ResignMasternodeIndexer extends DfTxIndexer<ResignMasternode> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<ResignMasternode>>): Promise<void> {
-    for (const { txn, dftx: { data } } of txns) {
-      const mn = await this.masternodeMapper.get(data.nodeId)
-      if (mn !== undefined) {
-        await this.masternodeMapper.put({
-          ...mn,
-          resignHeight: block.height,
-          resignTx: txn.txid
-        })
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<ResignMasternode>): Promise<void> {
+    const txn = transaction.txn
+    const data = transaction.dftx.data
+    const mn = await this.masternodeMapper.get(data.nodeId)
+    if (mn !== undefined) {
+      await this.masternodeMapper.put({
+        ...mn,
+        resignHeight: block.height,
+        resignTx: txn.txid
+      })
 
-        await this.indexStats(block, mn)
-      }
+      await this.indexStats(block, mn)
     }
   }
 
@@ -59,15 +59,16 @@ export class ResignMasternodeIndexer extends DfTxIndexer<ResignMasternode> {
     }))
   }
 
-  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<ResignMasternode>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const mn = await this.masternodeMapper.get(data.nodeId)
-      if (mn !== undefined) {
-        delete mn.resignTx
-        await this.masternodeMapper.put({ ...mn, resignHeight: -1 })
-      }
+  async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<ResignMasternode>): Promise<void> {
+    const data = transaction.dftx.data
+    const mn = await this.masternodeMapper.get(data.nodeId)
+    if (mn !== undefined) {
+      delete mn.resignTx
+      await this.masternodeMapper.put({ ...mn, resignHeight: -1 })
     }
+  }
 
+  async invalidateBlockStart (block: RawBlock): Promise<void> {
     await this.masternodeStatsMapper.delete(block.height)
   }
 }

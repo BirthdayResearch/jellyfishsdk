@@ -17,29 +17,26 @@ export class SetLoanTokenIndexer extends DfTxIndexer<SetLoanToken> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<SetLoanToken>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const tokenId = await this.tokenMapper.getNextTokenID(true)
-      await this.tokenMapper.put({
-        id: `${tokenId}`,
-        sort: HexEncoder.encodeHeight(tokenId),
-        symbol: data.symbol.trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH),
-        name: data?.name?.trim().substr(0, MAX_TOKEN_NAME_LENGTH) ?? data.symbol.trim().substr(0, MAX_TOKEN_NAME_LENGTH),
-        isDAT: true,
-        isLPS: false,
-        limit: new BigNumber(0).toFixed(8),
-        mintable: false,
-        decimal: 8,
-        tradeable: true,
-        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
-      })
-    }
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<SetLoanToken>): Promise<void> {
+    const data = transaction.dftx.data
+    const tokenId = await this.tokenMapper.getNextTokenID(true)
+    await this.tokenMapper.put({
+      id: `${tokenId}`,
+      sort: HexEncoder.encodeHeight(tokenId),
+      symbol: data.symbol.trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH),
+      name: data?.name?.trim().substr(0, MAX_TOKEN_NAME_LENGTH) ?? data.symbol.trim().substr(0, MAX_TOKEN_NAME_LENGTH),
+      isDAT: true,
+      isLPS: false,
+      limit: new BigNumber(0).toFixed(8),
+      mintable: false,
+      decimal: 8,
+      tradeable: true,
+      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+    })
   }
 
-  async invalidate (_: RawBlock, txns: Array<DfTxTransaction<SetLoanToken>>): Promise<void> {
-    for (let i = 0; i < txns.length; i++) {
-      const tokenId = await this.tokenMapper.getNextTokenID(true)
-      await this.tokenMapper.delete(`${tokenId - 1}`)
-    }
+  async invalidateTransaction (_: RawBlock, txns: DfTxTransaction<SetLoanToken>): Promise<void> {
+    const tokenId = await this.tokenMapper.getNextTokenID(true)
+    await this.tokenMapper.delete(`${tokenId - 1}`)
   }
 }

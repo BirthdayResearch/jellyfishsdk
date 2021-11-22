@@ -54,20 +54,40 @@ export class MainDfTxIndexer extends Indexer {
   }
 
   async index (block: RawBlock): Promise<void> {
+    for (const indexer of this.indexers) {
+      await indexer.indexBlockStart(block)
+    }
+
     const transactions = this.getDfTxTransactions(block)
+    for (const transaction of transactions) {
+      const filtered = this.indexers.filter(value => transaction.dftx.type === value.OP_CODE)
+      for (const indexer of filtered) {
+        await indexer.indexTransaction(block, transaction)
+      }
+    }
 
     for (const indexer of this.indexers) {
-      const filtered = transactions.filter(value => value.dftx.type === indexer.OP_CODE)
-      await indexer.index(block, filtered)
+      await indexer.indexBlockEnd(block)
     }
   }
 
   async invalidate (block: RawBlock): Promise<void> {
-    const transactions = this.getDfTxTransactions(block)
+    // When invalidating reverse the order of block indexing
+    for (const indexer of this.indexers) {
+      await indexer.invalidateBlockEnd(block)
+    }
+
+    // Invalidate backwards
+    const transactions = this.getDfTxTransactions(block).reverse()
+    for (const transaction of transactions) {
+      const filtered = this.indexers.filter(value => transaction.dftx.type === value.OP_CODE).reverse()
+      for (const indexer of filtered) {
+        await indexer.invalidateTransaction(block, transaction)
+      }
+    }
 
     for (const indexer of this.indexers) {
-      const filtered = transactions.filter(value => value.dftx.type === indexer.OP_CODE)
-      await indexer.invalidate(block, filtered)
+      await indexer.invalidateBlockStart(block)
     }
   }
 

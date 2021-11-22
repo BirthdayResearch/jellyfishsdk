@@ -1,6 +1,6 @@
 import { NetworkName } from '@defichain/jellyfish-network'
 import { CSetLoanToken, SetLoanToken } from '@defichain/jellyfish-transaction'
-import { Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 import { RawBlock } from '@src/module.indexer/model/_abstract'
 import { OraclePriceActive, OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
 import { OraclePriceAggregated, OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
@@ -12,6 +12,7 @@ import { DfTxIndexer, DfTxTransaction } from './_abstract'
 @Injectable()
 export class ActivePriceIndexer extends DfTxIndexer<SetLoanToken> {
   OP_CODE: number = CSetLoanToken.OP_CODE
+  private readonly logger = new Logger(ActivePriceIndexer.name)
 
   BLOCK_INTERVAL: number
   DEVIATION_THRESHOLD: number = 0.3
@@ -27,16 +28,15 @@ export class ActivePriceIndexer extends DfTxIndexer<SetLoanToken> {
     this.BLOCK_INTERVAL = network === 'regtest' ? 6 : 120
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<SetLoanToken>>): Promise<void> {
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<SetLoanToken>): Promise<void> {
+    const data = transaction.dftx.data
+    await this.performActivePriceTick(block, `${data.currencyPair.token}-${data.currencyPair.currency}`)
+  }
+
+  async indexBlockEnd (block: RawBlock): Promise<void> {
     if (block.height % this.BLOCK_INTERVAL === 0) {
       await this.performActivePriceTickForAll(block)
       // return early since we updated all the price ticks already
-      return
-    }
-
-    // only update for specific setLoanToken tx (to match ain implementation)
-    for (const { dftx: { data } } of txns) {
-      await this.performActivePriceTick(block, `${data.currencyPair.token}-${data.currencyPair.currency}`)
     }
   }
 
@@ -122,14 +122,27 @@ export class ActivePriceIndexer extends DfTxIndexer<SetLoanToken> {
     return true
   }
 
-  async invalidate (block: RawBlock, _: Array<DfTxTransaction<SetLoanToken>>): Promise<void> {
+  async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<SetLoanToken>): Promise<void> {
+    const data = transaction.dftx.data
+    const tickerId = `${data.currencyPair.token}-${data.currencyPair.currency}`
+    await this.activePriceMapper.delete(`${tickerId}-${block.height}`)
+  }
+
+  async invalidateBlockEnd (block: RawBlock): Promise<void> {
     if (block.height % this.BLOCK_INTERVAL !== 0) {
       return
     }
 
     const tickers = await this.priceTickerMapper.query(Number.MAX_SAFE_INTEGER)
     for (const ticker of tickers) {
-      await this.activePriceMapper.delete(`${ticker.id}-${block.height}`)
+      try {
+        await this.activePriceMapper.delete(`${ticker.id}-${block.height}`)
+      } catch (e) {
+        // This is a minor edge case when a setLoanToken tx occurs
+        // on an interval block, not deleting is fine here as it was
+        // already deleted in invalidateTransaction
+        this.logger.warn(`Tried to delete ActivePrice entry ${ticker.id}`)
+      }
     }
   }
 }

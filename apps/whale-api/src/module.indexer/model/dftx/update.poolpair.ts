@@ -15,27 +15,25 @@ export class UpdatePoolPairIndexer extends DfTxIndexer<PoolUpdatePair> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<PoolUpdatePair>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const poolPair = await this.poolPairMapper.getLatest(`${data.poolId}`)
-      if (poolPair !== undefined) {
-        await this.poolPairMapper.put({
-          ...poolPair,
-          id: `${data.poolId}-${block.height}`,
-          block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
-          status: data.status, // Always override status
-          commission: data.commission.eq(-1) ? poolPair.commission : data.commission.toFixed(8)
-        })
-      }
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<PoolUpdatePair>): Promise<void> {
+    const data = transaction.dftx.data
+    const poolPair = await this.poolPairMapper.getLatest(`${data.poolId}`)
+    if (poolPair !== undefined) {
+      await this.poolPairMapper.put({
+        ...poolPair,
+        id: `${data.poolId}-${block.height}`,
+        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
+        status: data.status, // Always override status
+        commission: data.commission.eq(-1) ? poolPair.commission : data.commission.toFixed(8)
+      })
     }
   }
 
-  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<PoolUpdatePair>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const poolPair = await this.poolPairMapper.getLatest(`${data.poolId}`)
-      if (poolPair !== undefined) {
-        await this.poolPairMapper.delete(`${data.poolId}-${block.height}`)
-      }
+  async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<PoolUpdatePair>): Promise<void> {
+    const data = transaction.dftx.data
+    const poolPair = await this.poolPairMapper.getLatest(`${data.poolId}`)
+    if (poolPair !== undefined) {
+      await this.poolPairMapper.delete(`${data.poolId}-${block.height}`)
     }
   }
 }

@@ -22,51 +22,51 @@ export class AppointOracleIndexer extends DfTxIndexer<AppointOracle> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<AppointOracle>>): Promise<void> {
-    for (const { txn, dftx: { data } } of txns) {
-      const oracleId = txn.txid
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<AppointOracle>): Promise<void> {
+    const data = transaction.dftx.data
+    const txn = transaction.txn
+    const oracleId = txn.txid
 
-      await this.oracleMapper.put({
-        id: oracleId,
-        ownerAddress: fromScript(data.script, this.network)?.address ?? '',
-        weightage: data.weightage,
-        priceFeeds: data.priceFeeds,
-        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
-      })
+    await this.oracleMapper.put({
+      id: oracleId,
+      ownerAddress: fromScript(data.script, this.network)?.address ?? '',
+      weightage: data.weightage,
+      priceFeeds: data.priceFeeds,
+      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+    })
 
-      await this.oracleHistoryMapper.put({
-        id: `${oracleId}-${block.height}-${txn.txid}`,
-        sort: HexEncoder.encodeHeight(block.height) + txn.txid,
-        ownerAddress: fromScript(data.script, this.network)?.address ?? '',
+    await this.oracleHistoryMapper.put({
+      id: `${oracleId}-${block.height}-${txn.txid}`,
+      sort: HexEncoder.encodeHeight(block.height) + txn.txid,
+      ownerAddress: fromScript(data.script, this.network)?.address ?? '',
+      oracleId: oracleId,
+      weightage: data.weightage,
+      priceFeeds: data.priceFeeds,
+      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+    })
+
+    for (const { token, currency } of data.priceFeeds) {
+      await this.oracleTokenCurrencyMapper.put({
+        id: `${token}-${currency}-${oracleId}`,
+        key: `${token}-${currency}`,
         oracleId: oracleId,
+        token: token,
+        currency: currency,
         weightage: data.weightage,
-        priceFeeds: data.priceFeeds,
         block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
       })
-
-      for (const { token, currency } of data.priceFeeds) {
-        await this.oracleTokenCurrencyMapper.put({
-          id: `${token}-${currency}-${oracleId}`,
-          key: `${token}-${currency}`,
-          oracleId: oracleId,
-          token: token,
-          currency: currency,
-          weightage: data.weightage,
-          block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
-        })
-      }
     }
   }
 
-  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<AppointOracle>>): Promise<void> {
-    for (const { txn, dftx: { data } } of txns) {
-      const oracleId = txn.txid
+  async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<AppointOracle>): Promise<void> {
+    const data = transaction.dftx.data
+    const txn = transaction.txn
+    const oracleId = txn.txid
 
-      await this.oracleMapper.delete(oracleId)
-      await this.oracleHistoryMapper.delete(`${oracleId}-${block.height}-${txn.txid}`)
-      for (const { token, currency } of data.priceFeeds) {
-        await this.oracleTokenCurrencyMapper.delete(`${token}-${currency}-${oracleId}`)
-      }
+    await this.oracleMapper.delete(oracleId)
+    await this.oracleHistoryMapper.delete(`${oracleId}-${block.height}-${txn.txid}`)
+    for (const { token, currency } of data.priceFeeds) {
+      await this.oracleTokenCurrencyMapper.delete(`${token}-${currency}-${oracleId}`)
     }
   }
 }
