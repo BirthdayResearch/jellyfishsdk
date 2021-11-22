@@ -90,6 +90,17 @@ export class Loan {
   async getVault (id: string): Promise<LoanVaultActive | LoanVaultLiquidated> {
     return await this.client.requestData('GET', `loans/vaults/${id}`)
   }
+
+  /**
+   * Paginate query loan auctions.
+   *
+   * @param {number} size of auctions to query
+   * @param {string} next set of auctions
+   * @return {Promise<ApiPagedResponse<LoanVaultLiquidated>>}
+   */
+  async listAuction (size: number = 30, next?: string): Promise<ApiPagedResponse<LoanVaultLiquidated>> {
+    return await this.client.requestList('GET', 'loans/auctions', size, next)
+  }
 }
 
 export interface LoanScheme {
