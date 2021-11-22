@@ -16,29 +16,27 @@ export class CreateTokenIndexer extends DfTxIndexer<TokenCreate> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<TokenCreate>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const tokenId = await this.tokenMapper.getNextTokenID(data.isDAT)
-      await this.tokenMapper.put({
-        id: `${tokenId}`,
-        sort: HexEncoder.encodeHeight(tokenId),
-        symbol: data.symbol.trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH),
-        name: data.name.trim().substr(0, MAX_TOKEN_NAME_LENGTH),
-        isDAT: data.isDAT,
-        isLPS: false,
-        limit: data.limit.toFixed(8),
-        mintable: data.mintable,
-        decimal: data.decimal,
-        tradeable: data.tradeable,
-        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
-      })
-    }
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<TokenCreate>): Promise<void> {
+    const data = transaction.dftx.data
+    const tokenId = await this.tokenMapper.getNextTokenID(data.isDAT)
+    await this.tokenMapper.put({
+      id: `${tokenId}`,
+      sort: HexEncoder.encodeHeight(tokenId),
+      symbol: data.symbol.trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH),
+      name: data.name.trim().substr(0, MAX_TOKEN_NAME_LENGTH),
+      isDAT: data.isDAT,
+      isLPS: false,
+      limit: data.limit.toFixed(8),
+      mintable: data.mintable,
+      decimal: data.decimal,
+      tradeable: data.tradeable,
+      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+    })
   }
 
-  async invalidate (_: RawBlock, txns: Array<DfTxTransaction<TokenCreate>>): Promise<void> {
-    for (const { dftx: { data } } of txns) {
-      const tokenId = await this.tokenMapper.getNextTokenID(data.isDAT)
-      await this.tokenMapper.delete(`${tokenId - 1}`)
-    }
+  async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<TokenCreate>): Promise<void> {
+    const data = transaction.dftx.data
+    const tokenId = await this.tokenMapper.getNextTokenID(data.isDAT)
+    await this.tokenMapper.delete(`${tokenId - 1}`)
   }
 }

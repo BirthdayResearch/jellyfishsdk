@@ -22,35 +22,35 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<CreateMasternode>>): Promise<void> {
-    for (const { txn, dftx: { data } } of txns) {
-      const ownerAddress = txn.vout[1].scriptPubKey.addresses[0]
-      let operatorAddress = ownerAddress
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<CreateMasternode>): Promise<void> {
+    const txn = transaction.txn
+    const data = transaction.dftx.data
+    const ownerAddress = txn.vout[1].scriptPubKey.addresses[0]
+    let operatorAddress = ownerAddress
 
-      // This is actually the operatorPubKeyHash but jellyfish deserializes like so
-      if (data.operatorPubKeyHash !== undefined) {
-        if (data.operatorType === MasternodeKeyType.PKHashType) {
-          operatorAddress = P2PKH.to(this.network, data.operatorPubKeyHash).utf8String
-        } else { // WitV0KeyHashType
-          operatorAddress = P2WPKH.to(this.network, data.operatorPubKeyHash).utf8String
-        }
+    // This is actually the operatorPubKeyHash but jellyfish deserializes like so
+    if (data.operatorPubKeyHash !== undefined) {
+      if (data.operatorType === MasternodeKeyType.PKHashType) {
+        operatorAddress = P2PKH.to(this.network, data.operatorPubKeyHash).utf8String
+      } else { // WitV0KeyHashType
+        operatorAddress = P2WPKH.to(this.network, data.operatorPubKeyHash).utf8String
       }
-
-      await this.masternodeMapper.put({
-        id: txn.txid,
-        sort: HexEncoder.encodeHeight(block.height) + txn.txid,
-        ownerAddress,
-        operatorAddress,
-        creationHeight: block.height,
-        resignHeight: -1,
-        mintedBlocks: 0,
-        timelock: data.timelock ?? 0,
-        block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
-        collateral: txn.vout[1].value.toFixed(8)
-      })
-
-      await this.indexStats(block, data, txn.vout[1].value)
     }
+
+    await this.masternodeMapper.put({
+      id: txn.txid,
+      sort: HexEncoder.encodeHeight(block.height) + txn.txid,
+      ownerAddress,
+      operatorAddress,
+      creationHeight: block.height,
+      resignHeight: -1,
+      mintedBlocks: 0,
+      timelock: data.timelock ?? 0,
+      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time },
+      collateral: txn.vout[1].value.toFixed(8)
+    })
+
+    await this.indexStats(block, data, txn.vout[1].value)
   }
 
   async indexStats (block: RawBlock, data: CreateMasternode, collateral: BigNumber): Promise<void> {
@@ -83,12 +83,13 @@ export class CreateMasternodeIndexer extends DfTxIndexer<CreateMasternode> {
     }))
   }
 
-  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<CreateMasternode>>): Promise<void> {
-    for (const { txn } of txns) {
-      const masternodeId = txn.txid
-      await this.masternodeMapper.delete(masternodeId)
-    }
+  async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<CreateMasternode>): Promise<void> {
+    const txn = transaction.txn
+    const masternodeId = txn.txid
+    await this.masternodeMapper.delete(masternodeId)
+  }
 
+  async invalidateBlockStart (block: RawBlock): Promise<void> {
     await this.masternodeStatsMapper.delete(block.height)
   }
 }

@@ -22,8 +22,8 @@ export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {
     super()
   }
 
-  async index (block: RawBlock, txns: Array<DfTxTransaction<SetOracleData>>): Promise<void> {
-    const feeds = mapPriceFeeds(block, txns)
+  async indexTransaction (block: RawBlock, transaction: DfTxTransaction<SetOracleData>): Promise<void> {
+    const feeds = mapPriceFeeds(block, [transaction])
     const pairs = new Set<[string, string]>()
 
     for (const feed of feeds) {
@@ -95,8 +95,8 @@ export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {
     }
   }
 
-  async invalidate (block: RawBlock, txns: Array<DfTxTransaction<SetOracleData>>): Promise<void> {
-    const feeds = mapPriceFeeds(block, txns)
+  async invalidateTransaction (block: RawBlock, transaction: DfTxTransaction<SetOracleData>): Promise<void> {
+    const feeds = mapPriceFeeds(block, [transaction])
     const pairs = new Set<[string, string]>()
 
     for (const feed of feeds) {
