@@ -32,7 +32,32 @@ describe('Loan listVaultHistory', () => {
   const bob = tGroup.get(1)
   let aliceColAddr: string
   let bobColAddr: string
-  let vaultId1: string // Alice 1st vault
+
+  let createVaultTxId: string // Alice 1st vault
+  let createVaultBlockHeight: number
+
+  let updateVaultTxId: string
+  let updateVaultBlockHeight: number
+
+  let depositVault1TxId: number
+  let depositVault1BlockHeight: number
+
+  let depositVault2TxId: string
+  let depositVault2BlockHeight: number
+
+  let takeLoanTxId: string
+  let takeLoanBlockHeight: number
+
+  let inLiquidationBlockHeight1: number
+  let priceActivationBlockHeight1: number
+  let inLiquidationBlockHeight2: number
+
+  // let auctionBidTxId: string
+  // let autionBidBlockHeight: number
+
+  // let priceActivationBlockHeight2: number
+  // let inLiquidationBlockHeight3: number
+
   let vaultId2: string // Alice 2nd vault
   let vaultId3: string // Bob 1st vault
   let vaultId4: string // Bob 2nd vault
@@ -240,24 +265,30 @@ describe('Loan listVaultHistory', () => {
     // Vault 1
     // CreateVault, [UpdateVault], DepositToVault, TakeLoan and AuctionBid
     const vaultAddress1 = await alice.generateAddress()
-    vaultId1 = await alice.rpc.container.call('createvault', [await alice.generateAddress(), 'default'])
+    createVaultTxId = await alice.rpc.container.call('createvault', [await alice.generateAddress(), 'default'])
     await alice.generate(1)
+    createVaultBlockHeight = await alice.container.getBlockCount()
 
-    await alice.rpc.container.call('updatevault',
-      [vaultId1, { ownerAddress: vaultAddress1, loanSchemeId: 'scheme' }]
+    updateVaultTxId = await alice.rpc.container.call('updatevault',
+      [createVaultTxId, { ownerAddress: vaultAddress1, loanSchemeId: 'scheme' }]
     )
     await alice.generate(1)
+    updateVaultBlockHeight = await alice.container.getBlockCount()
 
-    await alice.container.call('deposittovault', [vaultId1, aliceColAddr, '10000@DFI'])
+    depositVault1TxId = await alice.container.call('deposittovault', [createVaultTxId, aliceColAddr, '10000@DFI'])
     await alice.generate(1)
-    await alice.container.call('deposittovault', [vaultId1, aliceColAddr, '0.5@BTC'])
-    await alice.generate(1)
+    depositVault1BlockHeight = await alice.container.getBlockCount()
 
-    await alice.container.call('takeloan', [{
-      vaultId: vaultId1,
+    depositVault2TxId = await alice.container.call('deposittovault', [createVaultTxId, aliceColAddr, '0.5@BTC'])
+    await alice.generate(1)
+    depositVault2BlockHeight = await alice.container.getBlockCount()
+
+    takeLoanTxId = await alice.container.call('takeloan', [{
+      vaultId: createVaultTxId,
       amounts: '7500@AAPL'
     }])
     await alice.generate(1)
+    takeLoanBlockHeight = await alice.container.getBlockCount()
 
     // Vault 2
     // CreateVault, DepositToVault, TakeLoan, [PayBackLoan] and AuctionBid
@@ -321,7 +352,7 @@ describe('Loan listVaultHistory', () => {
       const data = await alice.container.call('listauctions', [])
       expect(data).toStrictEqual([])
 
-      const vault1 = await alice.rpc.loan.getVault(vaultId1)
+      const vault1 = await alice.rpc.loan.getVault(createVaultTxId)
       expect(vault1.state).toStrictEqual('active')
 
       const vault2 = await alice.rpc.loan.getVault(vaultId2)
@@ -341,8 +372,9 @@ describe('Loan listVaultHistory', () => {
       }]
     })
     await alice.generate(1)
-
     await alice.container.waitForActivePrice('AAPL/USD', '2.2')
+    inLiquidationBlockHeight1 = await alice.container.getBlockCount()
+
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
         tokenAmount: '2.2@TSLA',
@@ -351,6 +383,9 @@ describe('Loan listVaultHistory', () => {
     })
     await alice.generate(1)
     await alice.container.waitForActivePrice('TSLA/USD', '2.2')
+    priceActivationBlockHeight1 = await alice.container.getBlockCount()
+    inLiquidationBlockHeight2 = await alice.container.getBlockCount() + 1
+
     await alice.rpc.oracle.setOracleData(oracleId, timestamp, {
       prices: [{
         tokenAmount: '2.2@MSFT',
@@ -388,7 +423,7 @@ describe('Loan listVaultHistory', () => {
     await alice.generate(1)
 
     {
-      const txid = await alice.container.call('placeauctionbid', [vaultId1, 0, aliceColAddr, '7875@AAPL'])
+      const txid = await alice.container.call('placeauctionbid', [createVaultTxId, 0, aliceColAddr, '7875@AAPL'])
       expect(typeof txid).toStrictEqual('string')
       expect(txid.length).toStrictEqual(64)
       await alice.generate(1)
@@ -475,9 +510,9 @@ describe('Loan listVaultHistory', () => {
   })
 
   function validateType (vaultResult: any): void {
-    vaultResult.forEach((e: any) => {
-      if (e.type === 'Vault' || e.type === 'UpdateVault') {
-        expect(e).toStrictEqual({
+    vaultResult.forEach((data: any) => {
+      if (data.type === 'Vault' || data.type === 'UpdateVault') {
+        expect(data).toStrictEqual({
           blockHeight: expect.any(Number),
           blockHash: expect.any(String),
           blockTime: expect.any(Number),
@@ -486,16 +521,22 @@ describe('Loan listVaultHistory', () => {
           loanScheme: expect.any(Object)
         })
 
+        expect(data.loanScheme).toStrictEqual({
+          id: expect.any(String),
+          rate: expect.any(Number),
+          ratio: expect.any(Number)
+        })
+
         return
       }
 
-      if (e.type === 'DepositToVault' ||
-        e.type === 'PaybackLoan' ||
-        e.type === 'TakeLoan' ||
-        e.type === 'WithdrawFromVault' ||
-        e.type === 'AuctionBid'
+      if (data.type === 'DepositToVault' ||
+        data.type === 'PaybackLoan' ||
+        data.type === 'TakeLoan' ||
+        data.type === 'WithdrawFromVault' ||
+        data.type === 'AuctionBid'
       ) {
-        expect(e).toStrictEqual({
+        expect(data).toStrictEqual({
           address: expect.any(String),
           blockHeight: expect.any(Number),
           blockHash: expect.any(String),
@@ -506,11 +547,15 @@ describe('Loan listVaultHistory', () => {
           amounts: expect.any(Array)
         })
 
+        data.amounts.forEach((amount: any) => {
+          expect(typeof amount).toBe('string')
+        })
+
         return
       }
 
-      if (e.type === '' || e.type === undefined) {
-        expect(e).toStrictEqual({
+      if (data.type === '' || data.type === undefined) {
+        expect(data).toStrictEqual({
           blockHeight: expect.any(Number),
           blockHash: expect.any(String),
           blockTime: expect.any(Number),
@@ -518,30 +563,38 @@ describe('Loan listVaultHistory', () => {
           vaultSnapshot: expect.any(Object)
         })
 
-        expect(e.vaultSnapshot).toStrictEqual({
-          batches: expect.any(Array),
-          state: expect.any(String),
-          collateralAmounts: expect.any(Array),
-          collateralValue: expect.any(Number),
-          collateralRatio: expect.any(Number)
-        })
-
-        e.vaultSnapshot.batches.forEach((e: any) => {
-          expect(e).toStrictEqual({
-            index: expect.any(Number),
-            collaterals: expect.any(Array),
-            loan: expect.any(String)
+        if (data.vaultSnapshot.state === 'inLiquidation') {
+          expect(data.vaultSnapshot).toStrictEqual({
+            state: expect.any(String),
+            collateralAmounts: expect.any(Array),
+            collateralValue: expect.any(Number),
+            collateralRatio: expect.any(Number),
+            batches: expect.any(Object)
           })
 
-          e.collaterals.forEach((f: any) => {
-            expect(typeof f).toBe('string')
-          })
-        })
+          data.vaultSnapshot.batches.forEach((batch: any) => {
+            expect(batch).toStrictEqual({
+              index: expect.any(Number),
+              collaterals: expect.any(Array),
+              loan: expect.any(String)
+            })
 
+            batch.collaterals.forEach((collateral: any) => {
+              expect(typeof collateral).toBe('string')
+            })
+          })
+        } else { // state = 'Active'
+          expect(data.vaultSnapshot).toStrictEqual({
+            state: expect.any(String),
+            collateralAmounts: expect.any(Array),
+            collateralValue: expect.any(Number),
+            collateralRatio: expect.any(Number)
+          })
+        }
         return
       }
 
-      throw new Error('Invalid type')
+      throw new Error('The Loan type is invalid')
     })
   }
 
@@ -552,7 +605,7 @@ describe('Loan listVaultHistory', () => {
     let vaultHistory4: any
 
     beforeAll(async () => {
-      vaultHistory1 = (await alice.rpc.loan.listVaultHistory(vaultId1)).reverse()
+      vaultHistory1 = (await alice.rpc.loan.listVaultHistory(createVaultTxId)).reverse()
       vaultHistory2 = (await alice.rpc.loan.listVaultHistory(vaultId2)).reverse()
       vaultHistory3 = (await alice.rpc.loan.listVaultHistory(vaultId3)).reverse()
       vaultHistory4 = (await alice.rpc.loan.listVaultHistory(vaultId4)).reverse()
@@ -561,44 +614,151 @@ describe('Loan listVaultHistory', () => {
       validateType(vaultHistory2)
       validateType(vaultHistory3)
       validateType(vaultHistory4)
-
-      console.log(JSON.stringify(vaultHistory1))
     })
 
     it('should listVaultHistory', async () => {
       // Create vault
       expect(vaultHistory1[0].type).toStrictEqual('Vault')
+      expect(vaultHistory1[0].txid).toStrictEqual(createVaultTxId)
+      expect(vaultHistory1[0].blockHeight).toStrictEqual(createVaultBlockHeight)
       expect(vaultHistory1[0].loanScheme).toStrictEqual({ id: 'default', rate: 100000000, ratio: 110 })
 
       // Update vault
       expect(vaultHistory1[1].type).toStrictEqual('UpdateVault')
+      expect(vaultHistory1[1].txid).toStrictEqual(updateVaultTxId)
+      expect(vaultHistory1[1].blockHeight).toStrictEqual(updateVaultBlockHeight)
       expect(vaultHistory1[1].loanScheme).toStrictEqual({ id: 'scheme', rate: 100000000, ratio: 100 })
 
       // 1st Deposit
-      expect(vaultHistory1[2].address).toStrictEqual(aliceColAddr)
       expect(vaultHistory1[2].type).toStrictEqual('DepositToVault')
+      expect(vaultHistory1[2].address).toStrictEqual(aliceColAddr)
       expect(vaultHistory1[2].txn).toStrictEqual(2)
-      expect(vaultHistory1[2].amounts).toStrictEqual(['-10000.00000000@DFI'])
+      expect(vaultHistory1[2].txid).toStrictEqual(depositVault1TxId)
+      expect(vaultHistory1[2].blockHeight).toStrictEqual(depositVault1BlockHeight)
+      expect(vaultHistory1[2].amounts).toStrictEqual(['-10000.00000000@DFI']) // Deposit 10000 DFI
 
       // 2nd Deposit
-      expect(vaultHistory1[3].address).toStrictEqual(aliceColAddr)
       expect(vaultHistory1[3].type).toStrictEqual('DepositToVault')
+      expect(vaultHistory1[3].address).toStrictEqual(aliceColAddr)
       expect(vaultHistory1[3].txn).toStrictEqual(1)
-      expect(vaultHistory1[3].amounts).toStrictEqual(['-0.50000000@BTC'])
+      expect(vaultHistory1[3].txid).toStrictEqual(depositVault2TxId)
+      expect(vaultHistory1[3].blockHeight).toStrictEqual(depositVault2BlockHeight)
+      expect(vaultHistory1[3].amounts).toStrictEqual(['-0.50000000@BTC']) // Deposit 0.5 BTC
 
       // Take loan
       expect(vaultHistory1[4].type).toStrictEqual('TakeLoan')
-      expect(vaultHistory1[4].amounts).toStrictEqual(['7500.00000000@AAPL'])
+      expect(vaultHistory1[4].txn).toStrictEqual(2)
+      expect(vaultHistory1[4].txid).toStrictEqual(takeLoanTxId)
+      expect(vaultHistory1[4].blockHeight).toStrictEqual(takeLoanBlockHeight)
+      expect(vaultHistory1[4].amounts).toStrictEqual(['7500.00000000@AAPL']) // TakeLoan 7500 AAPL
 
-      // When the price is liqudated
+      // When the price is liquidated
       expect(vaultHistory1[5].vaultSnapshot?.state).toStrictEqual('inLiquidation')
-      expect(vaultHistory1[6].vaultSnapshot?.state).toStrictEqual('active')
-      expect(vaultHistory1[7].vaultSnapshot?.state).toStrictEqual('inLiquidation')
+      expect(vaultHistory1[5].txid).toStrictEqual('') // No tx for liquidation
+      expect(vaultHistory1[5].blockHeight).toStrictEqual(inLiquidationBlockHeight1)
+      expect(vaultHistory1[5].collateralAmounts).toBeUndefined() // No collateralAmounts for liquidation
+      expect(vaultHistory1[5].collateralValue).toBeUndefined() // No collateralValue for liquidation
+      expect(vaultHistory1[5].batches).toStrictEqual([
+        {
+          index: 0,
+          collaterals: [
+            '6666.66660000@DFI',
+            '0.33333333@BTC'
+          ],
+          loan: '5000.02468362@AAPL'
+        },
+        {
+          index: 1,
+          collaterals: [
+            '3333.33340000@D',
+            '0.16666667@BTC'
+          ],
+          loan: '2500.01241682@AAPL'
+        }
+      ])
 
-      // Autobid
+      expect(vaultHistory1[6].vaultSnapshot?.state).toStrictEqual('active')
+      expect(vaultHistory1[6].txid).toStrictEqual('') // No tx for price activation
+      expect(vaultHistory1[6].blockHeight).toStrictEqual(priceActivationBlockHeight1)
+      expect(vaultHistory1[6].vaultSnapshot).toStrictEqual({
+        state: 'active',
+        collateralAmounts: [
+          '10000.00000000@DFI',
+          '0.50000000@BTC'
+        ],
+        collateralValue: 15000,
+        collateralRatio: 0
+      })
+
+      expect(vaultHistory1[7].vaultSnapshot?.state).toStrictEqual('inLiquidation')
+      expect(vaultHistory1[7].txid).toStrictEqual('') // No tx for liquidation
+      expect(vaultHistory1[7].blockHeight).toStrictEqual(inLiquidationBlockHeight2)
+      expect(vaultHistory1[7].collateralAmounts).toBeUndefined() // No collateralAmounts for liquidation
+      expect(vaultHistory1[7].collateralValue).toBeUndefined() // No collateralValue for liquidation
+      expect(vaultHistory1[7].batches).toStrictEqual([
+        {
+          index: 0,
+          collaterals: [
+            '6666.66660000@DFI',
+            '0.33333333@BTC'
+          ],
+          loan: '5000.02468362@AAPL'
+        },
+        {
+          index: 1,
+          collaterals: [
+            '3333.33340000@D',
+            '0.16666667@BTC'
+          ],
+          loan: '2500.01241682@AAPL'
+        }
+      ])
+
+      // Auction bid
       expect(vaultHistory1[8].type).toStrictEqual('AuctionBid')
+      expect(vaultHistory1[8].address).toStrictEqual(aliceColAddr)
+      expect(vaultHistory1[8].type).toStrictEqual('DepositToVault')
+      expect(vaultHistory1[8].txn).toStrictEqual(1)
+      expect(vaultHistory1[8].txid).toStrictEqual(depositVault2TxId)
+      expect(vaultHistory1[8].blockHeight).toStrictEqual(depositVault2BlockHeight)
+      expect(vaultHistory1[8].amounts).toStrictEqual(['-0.50000000@BTC']) // Deposit 0.5 BTC
+
       expect(vaultHistory1[9].vaultSnapshot?.state).toStrictEqual('active')
+      expect(vaultHistory1[9].txid).toStrictEqual('') // No tx for price activation
+      expect(vaultHistory1[9].blockHeight).toStrictEqual(priceActivationBlockHeight1)
+      expect(vaultHistory1[9].vaultSnapshot).toStrictEqual({
+        state: 'active',
+        collateralAmounts: [
+          '10000.00000000@DFI',
+          '0.50000000@BTC'
+        ],
+        collateralValue: 15000,
+        collateralRatio: 0
+      })
+
       expect(vaultHistory1[10].vaultSnapshot?.state).toStrictEqual('inLiquidation')
+      expect(vaultHistory1[10].txid).toStrictEqual('') // No tx for liquidation
+      expect(vaultHistory1[10].blockHeight).toStrictEqual(inLiquidationBlockHeight2)
+      expect(vaultHistory1[10].collateralAmounts).toBeUndefined() // No collateralAmounts for liquidation
+      expect(vaultHistory1[10].collateralValue).toBeUndefined() // No collateralValue for liquidation
+      expect(vaultHistory1[10].batches).toStrictEqual([
+        {
+          index: 0,
+          collaterals: [
+            '6666.66660000@DFI',
+            '0.33333333@BTC'
+          ],
+          loan: '5000.02468362@AAPL'
+        },
+        {
+          index: 1,
+          collaterals: [
+            '3333.33340000@D',
+            '0.16666667@BTC'
+          ],
+          loan: '2500.01241682@AAPL'
+        }
+      ])
     })
 
     // it('should listAuctionHistory with owner = mine', async () => {
