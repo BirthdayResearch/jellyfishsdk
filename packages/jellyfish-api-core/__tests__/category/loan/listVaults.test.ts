@@ -567,7 +567,7 @@ describe('Loan listVaults with options and pagination', () => {
       ts,
       { prices: [{ tokenAmount: '800@GOOGL', currency: 'USD' }] }
     )
-    await testing.generate(12)
+    await testing.container.waitForActivePrice('GOOGL/USD', '800')
 
     const liqVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
     expect(liqVaults.length).toBeGreaterThan(0)
