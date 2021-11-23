@@ -209,6 +209,12 @@ describe('Loan listVaults with options and pagination', () => {
     })
     await testing.generate(1)
 
+    await testing.token.mint({
+      symbol: 'AAPL',
+      amount: 10
+    })
+    await testing.generate(1)
+
     await testing.rpc.loan.setLoanToken({
       symbol: 'GOOGL',
       fixedIntervalPriceId: 'GOOGL/USD'
@@ -253,6 +259,14 @@ describe('Loan listVaults with options and pagination', () => {
       prices: [{ tokenAmount: '1000@AAPL', currency: 'USD' }]
     })
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
+
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['40@AAPL'] })
+    await testing.generate(1)
+
+    const txid = await testing.container.call('placeauctionbid', [vaultId4, 0, collateralAddress, '40@AAPL'])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+    await testing.generate(1)
   })
 
   afterAll(async () => {
@@ -304,7 +318,17 @@ describe('Loan listVaults with options and pagination', () => {
         liquidationHeight: expect.any(Number),
         liquidationPenalty: expect.any(Number),
         batchCount: expect.any(Number),
-        batches: expect.any(Array)
+        batches: [
+          {
+            collaterals: expect.any(Array),
+            highestBid: {
+              amount: expect.any(String),
+              owner: expect.any(String)
+            },
+            index: expect.any(Number),
+            loan: expect.any(String)
+          }
+        ]
       }
     ]))
   })

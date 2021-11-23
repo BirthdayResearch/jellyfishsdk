@@ -644,6 +644,12 @@ export interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+  highestBid?: HighestBid
+}
+
+export interface HighestBid {
+  amount: string // amount@symbol
+  owner: string
 }
 
 export interface ListAuctionHistoryPagination {

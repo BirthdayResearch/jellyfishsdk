@@ -8,12 +8,13 @@ describe('Loan listAuctions', () => {
   const testing = Testing.create(container)
 
   let vaultId1: string
+  let collateralAddress: string
 
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
 
-    const collateralAddress = await testing.generateAddress()
+    collateralAddress = await testing.generateAddress()
     await testing.token.dfi({
       address: collateralAddress,
       amount: 300000
@@ -142,7 +143,7 @@ describe('Loan listAuctions', () => {
     await testing.generate(1)
 
     // Vault 1
-    vaultId1 = await testing.rpc.container.call('createvault', [await testing.generateAddress(), 'default'])
+    vaultId1 = await testing.rpc.container.call('createvault', [collateralAddress, 'default'])
     await testing.generate(1)
 
     await testing.container.call('deposittovault', [vaultId1, collateralAddress, '10000@DFI'])
@@ -269,6 +270,14 @@ describe('Loan listAuctions', () => {
       const vault4 = await testing.rpc.loan.getVault(auction4.vaultId)
       expect(vault4.state).toStrictEqual('inLiquidation')
     }
+
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['252@AAPL'] })
+    await testing.generate(1)
+
+    const txid = await testing.container.call('placeauctionbid', [vaultId1, 0, collateralAddress, '5252@AAPL'])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+    await testing.generate(1)
   })
 
   afterAll(async () => {
@@ -295,7 +304,11 @@ describe('Loan listAuctions', () => {
                 '0.33333333@BTC'
               ],
               index: 0,
-              loan: '5000.01992715@AAPL'
+              loan: '5000.01992715@AAPL',
+              highestBid: {
+                amount: '5252.00000000@AAPL',
+                owner: collateralAddress
+              }
             },
             {
               collaterals: [

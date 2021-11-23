@@ -450,6 +450,12 @@ interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+  highestBid?: HighestBid
+}
+
+interface HighestBid {
+  amount: string // amount@symbol
+  owner: string
 }
 ```
 
@@ -499,6 +505,12 @@ interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+  highestBid?: HighestBid
+}
+
+interface HighestBid {
+  amount: string // amount@symbol
+  owner: string
 }
 
 interface ListVaultOptions {
@@ -682,6 +694,12 @@ interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+  highestBid?: HighestBid
+}
+
+interface HighestBid {
+  amount: string // amount@symbol
+  owner: string
 }
 ```
 ## listAuctionHistory
