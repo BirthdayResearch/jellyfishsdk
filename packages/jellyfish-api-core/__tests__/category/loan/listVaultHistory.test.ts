@@ -59,8 +59,16 @@ describe('Loan listVaultHistory', () => {
   let inLiquidationBlockHeight3: number
 
   let vaultId2: string // Alice 2nd vault
+  let paybackLoanTxId: string
+  let paybackLoanBlockHeight: number
+
   let vaultId3: string // Bob 1st vault
+  let withdrawFromVaultTxId: string
+  let withdrawFromVaultBlockHeight: number
+
   let vaultId4: string // Bob 2nd vault
+  let closeVaultTxId: string
+  let closeVaultBlockHeight: number
 
   beforeAll(async () => {
     await tGroup.start()
@@ -265,7 +273,7 @@ describe('Loan listVaultHistory', () => {
     // Vault 1
     // CreateVault, [UpdateVault], DepositToVault, TakeLoan and AuctionBid
     const vaultAddress1 = await alice.generateAddress()
-    createVaultTxId = await alice.rpc.container.call('createvault', [await alice.generateAddress(), 'default'])
+    createVaultTxId = await alice.rpc.container.call('createvault', [aliceColAddr, 'default'])
     await alice.generate(1)
     createVaultBlockHeight = await alice.container.getBlockCount()
 
@@ -292,7 +300,7 @@ describe('Loan listVaultHistory', () => {
 
     // Vault 2
     // CreateVault, DepositToVault, TakeLoan, [PayBackLoan] and AuctionBid
-    vaultId2 = await alice.rpc.container.call('createvault', [await alice.generateAddress(), 'scheme'])
+    vaultId2 = await alice.rpc.container.call('createvault', [aliceColAddr, 'scheme'])
     await alice.generate(1)
 
     await alice.container.call('deposittovault', [vaultId2, aliceColAddr, '20000@0DFI'])
@@ -309,13 +317,15 @@ describe('Loan listVaultHistory', () => {
     await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['100@TSLA'] })
     await alice.generate(1)
 
-    await alice.container.call('paybackloan', [{ vaultId: vaultId2, from: aliceColAddr, amounts: '100@TSLA' }])
+    paybackLoanTxId = await alice.container.call('paybackloan', [{ vaultId: vaultId2, from: aliceColAddr, amounts: '100@TSLA' }])
     await alice.generate(1)
+    paybackLoanBlockHeight = await alice.container.getBlockCount()
+
     await tGroup.waitForSync()
 
     // Vault 3
     // CreateVault, DepositToVault, [WithdrawFromVault], TakeLoan and AuctionBid
-    vaultId3 = await bob.rpc.container.call('createvault', [await bob.generateAddress(), 'scheme'])
+    vaultId3 = await bob.rpc.container.call('createvault', [bobColAddr, 'scheme'])
     await bob.generate(1)
 
     await bob.container.call('deposittovault', [vaultId3, bobColAddr, '40000@DFI'])
@@ -323,8 +333,9 @@ describe('Loan listVaultHistory', () => {
     await bob.container.call('deposittovault', [vaultId3, bobColAddr, '1.5@BTC'])
     await bob.generate(1)
 
-    await bob.container.call('withdrawfromvault', [vaultId3, bobColAddr, '10000@DFI'])
+    withdrawFromVaultTxId = await bob.container.call('withdrawfromvault', [vaultId3, bobColAddr, '10000@DFI'])
     await bob.generate(1)
+    withdrawFromVaultBlockHeight = await bob.container.getBlockCount()
 
     await bob.container.call('takeloan', [{
       vaultId: vaultId3,
@@ -334,7 +345,7 @@ describe('Loan listVaultHistory', () => {
 
     // Vault 4
     // CreateVault, DepositToVault, TakeLoan and AuctionBid, [CloseVault]
-    vaultId4 = await bob.rpc.container.call('createvault', [await bob.generateAddress(), 'scheme'])
+    vaultId4 = await bob.rpc.container.call('createvault', [bobColAddr, 'scheme'])
     await bob.generate(1)
 
     await bob.container.call('deposittovault', [vaultId4, bobColAddr, '40000@DFI'])
@@ -503,6 +514,7 @@ describe('Loan listVaultHistory', () => {
     }
 
     await bob.generate(23) // Generate 23 more blocks so vaultId can enter another auction again
+    await tGroup.waitForSync()
 
     // Check current block
     {
@@ -515,11 +527,13 @@ describe('Loan listVaultHistory', () => {
 
     await bob.container.generate(36) // 144 / 4 = 6 hours
 
-    await bob.rpc.loan.closeVault({
+    closeVaultTxId = await bob.rpc.loan.closeVault({
       vaultId: vaultId4,
       to: bobColAddr
     })
-    await tGroup.get(0).generate(1)
+    await bob.generate(1)
+    closeVaultBlockHeight = await alice.container.getBlockCount()
+
     await tGroup.waitForSync()
   })
 
@@ -552,7 +566,8 @@ describe('Loan listVaultHistory', () => {
         data.type === 'PaybackLoan' ||
         data.type === 'TakeLoan' ||
         data.type === 'WithdrawFromVault' ||
-        data.type === 'AuctionBid'
+        data.type === 'AuctionBid' ||
+        data.type === 'CloseVault'
       ) {
         expect(data).toStrictEqual({
           address: expect.any(String),
@@ -632,6 +647,10 @@ describe('Loan listVaultHistory', () => {
       validateType(vaultHistory2)
       validateType(vaultHistory3)
       validateType(vaultHistory4)
+
+      console.log(JSON.stringify(vaultHistory2))
+      console.log(JSON.stringify(vaultHistory3))
+      console.log(JSON.stringify(vaultHistory4))
     })
 
     it('should listVaultHistory', async () => {
@@ -650,7 +669,6 @@ describe('Loan listVaultHistory', () => {
       // 1st Deposit
       expect(vaultHistory1[2].type).toStrictEqual('DepositToVault')
       expect(vaultHistory1[2].address).toStrictEqual(aliceColAddr)
-      expect(vaultHistory1[2].txn).toStrictEqual(2)
       expect(vaultHistory1[2].txid).toStrictEqual(depositVault1TxId)
       expect(vaultHistory1[2].blockHeight).toStrictEqual(depositVault1BlockHeight)
       expect(vaultHistory1[2].amounts).toStrictEqual(['-10000.00000000@DFI']) // Deposit 10000 DFI
@@ -658,14 +676,12 @@ describe('Loan listVaultHistory', () => {
       // 2nd Deposit
       expect(vaultHistory1[3].type).toStrictEqual('DepositToVault')
       expect(vaultHistory1[3].address).toStrictEqual(aliceColAddr)
-      expect(vaultHistory1[3].txn).toStrictEqual(1)
       expect(vaultHistory1[3].txid).toStrictEqual(depositVault2TxId)
       expect(vaultHistory1[3].blockHeight).toStrictEqual(depositVault2BlockHeight)
       expect(vaultHistory1[3].amounts).toStrictEqual(['-0.50000000@BTC']) // Deposit 0.5 BTC
 
       // Take loan
       expect(vaultHistory1[4].type).toStrictEqual('TakeLoan')
-      expect(vaultHistory1[4].txn).toStrictEqual(2)
       expect(vaultHistory1[4].txid).toStrictEqual(takeLoanTxId)
       expect(vaultHistory1[4].blockHeight).toStrictEqual(takeLoanBlockHeight)
       expect(vaultHistory1[4].amounts).toStrictEqual(['7500.00000000@AAPL']) // TakeLoan 7500 AAPL
@@ -735,7 +751,6 @@ describe('Loan listVaultHistory', () => {
       // Auction bid
       expect(vaultHistory1[8].type).toStrictEqual('AuctionBid')
       expect(vaultHistory1[8].address).toStrictEqual(aliceColAddr)
-      expect(vaultHistory1[8].txn).toStrictEqual(1)
       expect(vaultHistory1[8].txid).toStrictEqual(auctionBidTxId)
       expect(vaultHistory1[8].blockHeight).toStrictEqual(auctionBidBlockHeight)
       expect(vaultHistory1[8].amounts).toStrictEqual(['-7875.00000000@AAPL'])
@@ -768,6 +783,29 @@ describe('Loan listVaultHistory', () => {
           loan: '2500.01336810@AAPL'
         }
       ])
+
+      // Vault 2
+      // PaybackLoan
+      expect(vaultHistory2[4].type).toStrictEqual('PaybackLoan')
+      expect(vaultHistory2[4].txid).toStrictEqual(paybackLoanTxId)
+      expect(vaultHistory2[4].blockHeight).toStrictEqual(paybackLoanBlockHeight)
+      expect(vaultHistory2[4].amounts).toStrictEqual(['0.00114156@DFI'])
+
+      // Vault 3
+      // WithdrawFromVault
+      expect(vaultHistory3[3].type).toStrictEqual('WithdrawFromVault')
+      expect(vaultHistory3[3].address).toStrictEqual(bobColAddr)
+      expect(vaultHistory3[3].txid).toStrictEqual(withdrawFromVaultTxId)
+      expect(vaultHistory3[3].blockHeight).toStrictEqual(withdrawFromVaultBlockHeight)
+      expect(vaultHistory3[3].amounts).toStrictEqual(['10000.00000000@DFI'])
+
+      // Vault 4
+      // CloseVault
+      expect(vaultHistory4[13].type).toStrictEqual('CloseVault')
+      expect(vaultHistory4[13].address).toStrictEqual(bobColAddr)
+      expect(vaultHistory4[13].txid).toStrictEqual(closeVaultTxId)
+      expect(vaultHistory4[13].blockHeight).toStrictEqual(closeVaultBlockHeight)
+      expect(vaultHistory4[13].amounts).toStrictEqual(['0.50000000@DFI'])
     })
 
     // it('should listAuctionHistory with owner = mine', async () => {
