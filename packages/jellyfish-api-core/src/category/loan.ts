@@ -417,10 +417,17 @@ export class Loan {
 
   /**
    * Returns the history of the specified vault.
+   * @param {string} [vaultId] Vault Id
+   * @param {ListVaultHistoryPagination} pagination
+   * @param {number} [pagination.maxBlockHeight] Maximum block height
+   * @param {number} [pagination.depth] Maximum Depth, from the genesis block is the default
+   * @param {string} [pagination.token] Token
+   * @param {string} [pagination.txtype] Tx type
+   * @param {number} [pagination.limit = 100]
    *
-   * @return {Promise<any>}
+   * @return {Promise<ListVaultHistory[]>}
    */
-  async listVaultHistory (vaultId: string, pagination?: any): Promise<any> {
+  async listVaultHistory (vaultId: string, pagination?: ListVaultHistoryPagination): Promise<ListVaultHistory[]> {
     const defaultPagination = {
       limit: 100
     }
@@ -638,4 +645,32 @@ export interface ListAuctionHistoryDetail {
   batchIndex: number
   auctionBid: string
   auctionWon: string[]
+}
+
+export interface ListVaultHistory {
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txid: string
+  address?: string
+  amounts?: string[] // amount@symbol
+  loanScheme?: CreateLoanScheme
+  vaultSnapshot?: VaultHistorySnapshot
+}
+
+export interface VaultHistorySnapshot {
+  state: 'inLiquidation' | 'active'
+  collateralAmounts: string[] // amount@symbol
+  collateralValue: number
+  collateralRatio: number
+  batches?: VaultLiquidationBatch[]
+}
+
+export interface ListVaultHistoryPagination {
+  maxBlockHeight?: number
+  depth?: number
+  token: string
+  txType: string
+  limit?: number
 }

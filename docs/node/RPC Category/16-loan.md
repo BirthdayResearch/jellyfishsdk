@@ -650,6 +650,7 @@ interface VaultLiquidationBatch {
   loan: string
 }
 ```
+
 ## listAuctionHistory
 
 Returns information about auction history.
@@ -675,5 +676,43 @@ interface ListAuctionHistoryDetail {
   batchIndex: number
   auctionBid: string
   auctionWon: string[]
+}
+```
+
+## listVaultHistory
+
+Returns the history of the specified vault.
+
+```ts title="client.loan.listVaultHistory()"
+interface loan {
+  listVaultHistory (vaultId: string, pagination?: ListVaultHistoryPagination): Promise<ListVaultHistory>
+}
+
+interface ListVaultHistory {
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txid: string
+  address?: string,
+  amounts?: string[], // amount@symbol
+  loanScheme?: CreateLoanScheme
+  vaultSnapshot?: VaultHistorySnapshot
+}
+
+interface VaultHistorySnapshot {
+  state: 'inLiquidation' | 'active'
+  collateralAmounts: string[], // amount@symbol
+  collateralValue: number,
+  collateralRatio: number,
+  batches?: VaultLiquidationBatch[]
+}
+
+interface ListVaultHistoryPagination {
+  maxBlockHeight?: number
+  depth?: number
+  token: string
+  txType: string
+  limit?: number
 }
 ```
