@@ -34,7 +34,7 @@ https://ocean.defichain.com/v0/mainnet
 
 All API access is over HTTPS, and accessed from https://ocean.defichain.com. All data is sent and received as JSON.
 Multiple versions of the API are deployed at any time (e.g. /v0.14), we highly encourage you use /v0 of Ocean REST API 
-at all times.
+at all times. Minor versioned endpoint are reserved for testing new deployments, they are removed when merged into /v0. 
 
 ```http request
 GET https://ocean.defichain.com/v0/mainnet/stats
