@@ -50,7 +50,7 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 const header = '6a494466547849' // OP_RETURN(0x6a) (length 73 = 0x49) CDfTx.SIGNATURE(0x44665478) CPlaceAuctionBid.OP_CODE(0x49)
-// PlaceAuctionBid.vaultId[LE](0x8b6120dd0fd6ef7219bf7c40f34567910e13df3b64a6b224adc4ec3be9060dba)
+// PlaceAuctionBid.vaultId[LE](0xba0d06e93becc4ad24b2a6643bdf130e916745f3407cbf1972efd60fdd20618b)
 // PlaceAuctionBid.index[LE](0x00000000)
 // PlaceAuctionBid.from(0x800b725df95d15cd7bb955132594aa33cdbebc02)
 // PlaceAuctionBid.amount(0x020037d9740c000000)

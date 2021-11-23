@@ -21,7 +21,6 @@ let bobVaultAddr: string
 let bobColScript: Script
 let oracleId: string
 let bobColAccBefore: string[]
-let aliceColAccBefore: string[]
 
 let aProviders: MockProviders
 let aBuilder: P2WPKHTransactionBuilder
@@ -223,7 +222,7 @@ async function setup (): Promise<void> {
   bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
   expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
 
-  aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
+  const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
   expect(aliceColAccBefore).toStrictEqual(['300000.00000000@DFI', '29999.00000000@BTC', '30000.00000000@TSLA'])
 }
 

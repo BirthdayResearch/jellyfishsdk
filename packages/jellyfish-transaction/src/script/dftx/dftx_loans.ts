@@ -365,12 +365,12 @@ export class CPlaceAuctionBid extends ComposableBuffer<PlaceAuctionBid> {
   static OP_CODE = 0x49 // 'I'
   static OP_NAME = 'OP_DEFI_TX_AUCTION_BID'
 
-  composers (ab: PlaceAuctionBid): BufferComposer[] {
+  composers (pab: PlaceAuctionBid): BufferComposer[] {
     return [
-      ComposableBuffer.hexBEBufferLE(32, () => ab.vaultId, v => ab.vaultId = v),
-      ComposableBuffer.uInt32(() => ab.index, v => ab.index = v),
-      ComposableBuffer.single<Script>(() => ab.from, v => ab.from = v, v => new CScript(v)),
-      ComposableBuffer.single<TokenBalanceVarInt>(() => ab.tokenAmount, v => ab.tokenAmount = v, v => new CTokenBalanceVarInt(v))
+      ComposableBuffer.hexBEBufferLE(32, () => pab.vaultId, v => pab.vaultId = v),
+      ComposableBuffer.uInt32(() => pab.index, v => pab.index = v),
+      ComposableBuffer.single<Script>(() => pab.from, v => pab.from = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => pab.tokenAmount, v => pab.tokenAmount = v, v => new CTokenBalanceVarInt(v))
     ]
   }
 }
