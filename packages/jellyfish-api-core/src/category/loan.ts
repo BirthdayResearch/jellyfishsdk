@@ -373,7 +373,7 @@ export class Loan {
   /**
    * Bid to vault in auction
    *
-   * @param {AuctionBid} placeAuctionBid
+   * @param {PlaceAuctionBid} placeAuctionBid
    * @param {string} placeAuctionBid.vaultId Vault Id
    * @param {index} placeAuctionBid.index Auction index
    * @param {from} placeAuctionBid.from Address to get token
@@ -383,7 +383,7 @@ export class Loan {
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} The transaction id
    */
-  async placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
+  async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call(
       'placeauctionbid',
       [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
@@ -622,7 +622,7 @@ export interface CloseVault {
   to: string
 }
 
-export interface AuctionBid {
+export interface PlaceAuctionBid {
   vaultId: string
   index: number
   from: string

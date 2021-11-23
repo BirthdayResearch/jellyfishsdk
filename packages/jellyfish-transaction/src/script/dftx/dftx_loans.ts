@@ -346,3 +346,31 @@ export class CCloseVault extends ComposableBuffer<CloseVault> {
     ]
   }
 }
+
+/**
+ * PlaceAuctionBid DeFi Transaction
+ */
+export interface PlaceAuctionBid {
+  vaultId: string // ------------------| 32 bytes, Vault Id
+  index: number // --------------------| 4 bytes, Auction batches index
+  from: Script // ---------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
+  tokenAmount: TokenBalanceVarInt // --| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Amount of collateral
+}
+
+/**
+ * Composable PlaceAuctionBid, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPlaceAuctionBid extends ComposableBuffer<PlaceAuctionBid> {
+  static OP_CODE = 0x49 // 'I'
+  static OP_NAME = 'OP_DEFI_TX_AUCTION_BID'
+
+  composers (pab: PlaceAuctionBid): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => pab.vaultId, v => pab.vaultId = v),
+      ComposableBuffer.uInt32(() => pab.index, v => pab.index = v),
+      ComposableBuffer.single<Script>(() => pab.from, v => pab.from = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => pab.tokenAmount, v => pab.tokenAmount = v, v => new CTokenBalanceVarInt(v))
+    ]
+  }
+}
