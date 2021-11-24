@@ -154,6 +154,18 @@ export class Loan {
   }
 
   /**
+   * Quick access to multiple API with consolidated total collateral and loan value.
+   * @see {@link listCollateralTokens}
+   * @see {@link listLoanTokens}
+   * @see {@link listLoanSchemes}
+   *
+   * @returns {Promise<GetLoanInfoResult>}
+   */
+  async getLoanInfo (): Promise<GetLoanInfoResult> {
+    return await this.client.call('getloaninfo', [], 'bignumber')
+  }
+
+  /**
    * Updates an existing loan token.
    *
    * @param {string} oldToken Previous tokens's symbol, id or creation tx (unique)
@@ -361,7 +373,7 @@ export class Loan {
   /**
    * Bid to vault in auction
    *
-   * @param {AuctionBid} placeAuctionBid
+   * @param {PlaceAuctionBid} placeAuctionBid
    * @param {string} placeAuctionBid.vaultId Vault Id
    * @param {index} placeAuctionBid.index Auction index
    * @param {from} placeAuctionBid.from Address to get token
@@ -371,7 +383,7 @@ export class Loan {
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} The transaction id
    */
-  async placeAuctionBid (placeAuctionBid: AuctionBid, utxos: UTXO[] = []): Promise<string> {
+  async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call(
       'placeauctionbid',
       [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
@@ -501,6 +513,30 @@ export interface LoanTokenResult {
   interest: BigNumber
 }
 
+export interface LoanConfig {
+  fixedIntervalBlocks: BigNumber
+  maxPriceDeviationPct: BigNumber
+  minOraclesPerPrice: BigNumber
+  scheme: string
+}
+
+export interface LoanSummary {
+  collateralTokens: BigNumber
+  collateralValue: BigNumber
+  loanTokens: BigNumber
+  loanValue: BigNumber
+  openAuctions: BigNumber
+  openVaults: BigNumber
+  schemes: BigNumber
+}
+
+export interface GetLoanInfoResult {
+  currentPriceBlock: BigNumber
+  nextPriceBlock: BigNumber
+  defaults: LoanConfig
+  totals: LoanSummary
+}
+
 export interface UpdateLoanToken {
   symbol?: string
   name?: string
@@ -605,7 +641,7 @@ export interface CloseVault {
   to: string
 }
 
-export interface AuctionBid {
+export interface PlaceAuctionBid {
   vaultId: string
   index: number
   from: string
@@ -627,6 +663,12 @@ export interface VaultLiquidationBatch {
   index: number
   collaterals: string[]
   loan: string
+  highestBid?: HighestBid
+}
+
+export interface HighestBid {
+  amount: string // amount@symbol
+  owner: string
 }
 
 export interface ListAuctionHistoryPagination {

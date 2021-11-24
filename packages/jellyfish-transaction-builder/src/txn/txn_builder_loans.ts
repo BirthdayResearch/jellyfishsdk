@@ -12,7 +12,8 @@ import {
   WithdrawFromVault,
   CloseVault,
   TakeLoan,
-  PaybackLoan
+  PaybackLoan,
+  PlaceAuctionBid
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { BigNumber } from '@defichain/jellyfish-json'
@@ -111,10 +112,12 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
    */
 
   async createVault (createVault: CreateVault, changeScript: Script): Promise<TransactionSegWit> {
+    const creationFee = this.network.name === 'regtest' ? new BigNumber('1') : new BigNumber('2')
+
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_CREATE_VAULT(createVault),
       changeScript,
-      new BigNumber(1) // creation fee
+      creationFee
     )
   }
 
@@ -203,6 +206,21 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async paybackLoan (paybackLoan: PaybackLoan, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(paybackLoan),
+      changeScript
+    )
+  }
+
+  /**
+   * placeAuctionBid transaction.
+   *
+   * @param {PlaceAuctionBid} placeAuctionBid txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+
+  async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_AUCTION_BID(placeAuctionBid),
       changeScript
     )
   }

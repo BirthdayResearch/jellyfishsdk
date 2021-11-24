@@ -1,0 +1,209 @@
+---
+id: address
+title: Address Ocean REST API
+sidebar_label: Address
+slug: /address
+---
+
+With the Address API, you can query address related resources such as UTXO balances, Token Balances, Vaults and 
+Transactions. 
+
+## Balance
+
+Get current UTXO balance of an address.
+
+#### Code Samples
+
+##### Shell
+
+```shell
+curl https://ocean.defichain.com/v0/mainnet/address/8defichainBurnAddressXXXXXXXdRQkSm/balance
+```
+
+##### JavaScript ([@defichain/whale-api-client](https://www.npmjs.com/package/@defichain/whale-api-client))
+
+```javascript
+await api.address.getBalance('8defichainBurnAddressXXXXXXXdRQkSm')
+```
+
+##### Response
+
+```json
+{
+  "data": "156001771.37400823"
+}
+```
+
+## Aggregation
+
+Get current aggregated stats of an address.
+
+#### Code Samples
+
+##### Shell
+
+```shell
+curl https://ocean.defichain.com/v0/mainnet/address/8defichainBurnAddressXXXXXXXdRQkSm/aggregation
+```
+
+##### JavaScript ([@defichain/whale-api-client](https://www.npmjs.com/package/@defichain/whale-api-client))
+
+```javascript
+await api.address.getAggregation('8defichainBurnAddressXXXXXXXdRQkSm')
+```
+
+##### Response
+
+```json
+{
+  "data": {
+    "id": "0014dd65e70680db7f28c22b9ef50a72b923e8991488a50f8b104022d92c42ebad7ee175",
+    "hid": "e70680db7f28c22b9ef50a72b923e8991488a50f8b104022d92c42ebad7ee175",
+    "block": {
+      "hash": "2569c94596faff8337a0f0c9acec58fa745031d904aa435d918a9a8fc71ec3c7",
+      "height": 1367397,
+      "time": 1636979762,
+      "medianTime": 1636979644
+    },
+    "script": {
+      "type": "pubkeyhash",
+      "hex": "76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac"
+    },
+    "statistic": {
+      "txCount": 70,
+      "txInCount": 70,
+      "txOutCount": 0
+    },
+    "amount": {
+      "txIn": "156001771.37400823",
+      "txOut": "0.00000000",
+      "unspent": "156001771.37400823"
+    }
+  }
+}
+```
+
+##### TypeScript Definitions
+
+```typescript
+export interface AddressAggregation {
+  id: string
+  hid: string
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
+  }
+
+  script: {
+    type: string
+    hex: string
+  }
+
+  statistic: {
+    txCount: number
+    txInCount: number
+    txOutCount: number
+  }
+
+  amount: {
+    txIn: string
+    txOut: string
+    unspent: string
+  }
+}
+```
+
+
+## Transaction Activity
+
+List all transaction activity belonging to an address, sorted by block recency. [See pagination](/ocean/#pagination)
+
+#### Code Samples
+
+##### Shell
+
+```shell
+curl https://ocean.defichain.com/v0/mainnet/address/8defichainBurnAddressXXXXXXXdRQkSm/transactions
+```
+
+##### JavaScript ([@defichain/whale-api-client](https://www.npmjs.com/package/@defichain/whale-api-client))
+
+```javascript
+await api.address.listTransaction('8defichainBurnAddressXXXXXXXdRQkSm', 30)
+```
+
+##### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "0014dd65017e92b28c1f980be11591d6274b400d29a49ba0d1dac3d3e58472e2907edf5a9300000000",
+      "hid": "e70680db7f28c22b9ef50a72b923e8991488a50f8b104022d92c42ebad7ee175",
+      "type": "vout",
+      "typeHex": "01",
+      "txid": "7e92b28c1f980be11591d6274b400d29a49ba0d1dac3d3e58472e2907edf5a93",
+      "block": {
+        "hash": "2569c94596faff8337a0f0c9acec58fa745031d904aa435d918a9a8fc71ec3c7",
+        "height": 1367397,
+        "time": 1636979762,
+        "medianTime": 1636979644
+      },
+      "script": {
+        "type": "pubkeyhash",
+        "hex": "76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac"
+      },
+      "vout": {
+        "txid": "7e92b28c1f980be11591d6274b400d29a49ba0d1dac3d3e58472e2907edf5a93",
+        "n": 0
+      },
+      "value": "50.00000000",
+      "tokenId": 0
+    }
+  ],
+  "page": {
+    "next": "0014d607019867a4e1b65f3ecb7bcc6ad19464fdf0b7757369debfd1236a5a923a5effb39200000001"
+  }
+}
+```
+
+##### TypeScript Definitions
+
+```typescript
+export interface AddressActivity {
+  id: string
+  hid: string
+
+  type: 'vin' | 'vout'
+  typeHex: '00' | '01'
+  txid: string
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
+  }
+
+  script: {
+    type: string
+    hex: string
+  }
+
+  vin?: {
+    txid: string
+    n: number
+  }
+
+  vout?: {
+    txid: string
+    n: number
+  }
+
+  value: string
+  tokenId?: number
+}
+```

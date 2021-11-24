@@ -211,16 +211,67 @@ describe('dex.compositeSwap()', () => {
 
   it('should fail if path specified is not possible to achieve desired composite swap', async () => {
     // create another pair not composite swap-able
-    await testing.token.create({ symbol: 'TSLA' })
-    await testing.token.create({ symbol: 'DUSD' })
+    const colAddr = await testing.generateAddress()
+    await testing.token.dfi({ amount: 30000, address: colAddr })
     await testing.generate(1)
+    const priceFeeds = [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
+    ]
+    const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), priceFeeds, { weightage: 1 })
+    await testing.generate(1)
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [
+        { tokenAmount: '1@DFI', currency: 'USD' },
+        { tokenAmount: '1@TSLA', currency: 'USD' },
+        { tokenAmount: '1@DUSD', currency: 'USD' }
+      ]
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(1),
+      id: 'default'
+    })
+    await testing.generate(1)
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'default'
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultId, from: colAddr, amount: '30000@DFI'
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      to: colAddr,
+      amounts: ['10000@TSLA', '10000@DUSD']
+    })
+    await testing.generate(1)
+
     const tsla = await container.call('gettoken', ['TSLA'])
     const tslaId = Number.parseInt(Object.keys(tsla)[0])
     const dusd = await container.call('gettoken', ['DUSD'])
     const dusdId = Number.parseInt(Object.keys(dusd)[0])
 
-    await testing.token.mint({ symbol: 'TSLA', amount: 10000 })
-    await testing.token.mint({ symbol: 'DUSD', amount: 10000 })
     await testing.poolpair.create({ tokenA: 'TSLA', tokenB: 'DUSD' })
     await testing.generate(1)
 

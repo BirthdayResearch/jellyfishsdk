@@ -84,7 +84,9 @@ import {
   TakeLoan,
   CTakeLoan,
   CPaybackLoan,
-  PaybackLoan
+  PaybackLoan,
+  CPlaceAuctionBid,
+  PlaceAuctionBid
 } from './dftx/dftx_loans'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import {
@@ -571,6 +573,14 @@ export const OP_CODES = {
       type: CPaybackLoan.OP_CODE,
       name: CPaybackLoan.OP_NAME,
       data: paybackLoan
+    })
+  },
+  OP_DEFI_TX_AUCTION_BID: (placeAuctionBid: PlaceAuctionBid): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPlaceAuctionBid.OP_CODE,
+      name: CPlaceAuctionBid.OP_NAME,
+      data: placeAuctionBid
     })
   },
   OP_0: new constants.OP_0(),

@@ -30,9 +30,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        instance: [ 0, 1, 2, 3, 4, 5]
+        instance: [ 0, 1, 2, 3, 4, 5, 6, 7]
     env:
-      GH_INSTANCE_TOTAL: 6
+      GH_INSTANCE_TOTAL: 8
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
       - uses: actions/setup-node@270253e841af726300e85d718a5f606959b2903c
