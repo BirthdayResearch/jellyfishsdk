@@ -737,7 +737,7 @@ Returns the history of the specified vault.
 
 ```ts title="client.loan.listVaultHistory()"
 interface loan {
-  listVaultHistory (vaultId: string, pagination?: ListVaultHistoryPagination): Promise<ListVaultHistory>
+  listVaultHistory (vaultId: string, pagination?: ListVaultHistoryPagination): Promise<ListVaultHistory[]>
 }
 
 interface ListVaultHistory {
