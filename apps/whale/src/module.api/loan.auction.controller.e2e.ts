@@ -132,6 +132,8 @@ beforeAll(async () => {
     fixedIntervalPriceId: 'AAPL/USD'
   })
   await testing.generate(1)
+  await testing.token.mint({ symbol: 'AAPL', amount: 10000 })
+  await testing.generate(1)
   await testing.rpc.loan.setLoanToken({
     symbol: 'TSLA',
     fixedIntervalPriceId: 'TSLA/USD'
@@ -276,6 +278,14 @@ beforeAll(async () => {
     const vault4 = await testing.rpc.loan.getVault(auction4.vaultId)
     expect(vault4.state).toStrictEqual('inLiquidation')
   }
+
+  await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['8000@AAPL'] })
+  await testing.generate(1)
+
+  const txid = await testing.container.call('placeauctionbid', [vaultId1, 0, collateralAddress, '8000@AAPL'])
+  expect(typeof txid).toStrictEqual('string')
+  expect(txid.length).toStrictEqual(64)
+  await testing.generate(1)
 })
 
 afterAll(async () => {
@@ -301,11 +311,10 @@ describe('list', () => {
 
     result.data.forEach((e) =>
       e.batches.forEach((f) => {
-        expect(f).toStrictEqual({
-          index: expect.any(Number),
-          collaterals: expect.any(Object),
-          loan: expect.any(Object)
-        })
+        expect(typeof f.index).toBe('number')
+        expect(typeof f.collaterals).toBe('object')
+        expect(typeof f.loan).toBe('object')
+        expect(typeof f.highestBid === 'object' || f.highestBid === undefined).toBe(true)
       })
     )
   })
