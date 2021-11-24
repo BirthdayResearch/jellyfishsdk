@@ -743,8 +743,8 @@ interface loan {
 interface ListVaultHistoryPagination {
   maxBlockHeight?: number
   depth?: number
-  token: string
-  txType: string
+  token?: string
+  txType?: string
   limit?: number
 }
 
