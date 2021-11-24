@@ -185,10 +185,15 @@ describe('Loan getVault', () => {
     await testing.generate(12) // Wait for 12 blocks which are equivalent to 2 hours (1 block = 10 minutes) in order to liquidate the vault
 
     // get auction details
-    const auctionDetails: [] = await testing.container.call('listauctions')
+    await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['40@TSLA'] })
+    await testing.generate(1)
+
+    const txid = await testing.container.call('placeauctionbid', [vaultId, 0, collateralAddress, '40@TSLA'])
+    expect(typeof txid).toStrictEqual('string')
+    expect(txid.length).toStrictEqual(64)
+    await testing.generate(1)
 
     const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
-    console.log(vaultDataAfterPriceHike)
     expect(vaultDataAfterPriceHike).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
@@ -197,7 +202,28 @@ describe('Loan getVault', () => {
       liquidationHeight: 168,
       liquidationPenalty: 5,
       batchCount: 2,
-      batches: auctionDetails.filter((auction: { vaultId: string }) => auction.vaultId === vaultId).map((auction: { batches: [] }) => auction.batches)[0]
+      batches: [
+        {
+          collaterals: [
+            '6666.66660000@DFI',
+            '0.66666666@BTC'
+          ],
+          index: 0,
+          loan: '20.00004539@TSLA',
+          highestBid: {
+            amount: '40.00000000@TSLA',
+            owner: collateralAddress
+          }
+        },
+        {
+          collaterals: [
+            '3333.33340000@DFI',
+            '0.33333334@BTC'
+          ],
+          index: 1,
+          loan: '10.00002301@TSLA'
+        }
+      ]
     })
 
     // set the price oracle back to original price
