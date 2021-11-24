@@ -9,7 +9,7 @@ const service = new StubService(container)
 const client = new StubWhaleApiClient(service)
 const testing = Testing.create(container)
 
-let vaultId1
+let vaultId1: string
 
 beforeAll(async () => {
   await container.start()
@@ -126,6 +126,11 @@ beforeAll(async () => {
   await testing.rpc.loan.setLoanToken({
     symbol: 'AAPL',
     fixedIntervalPriceId: 'AAPL/USD'
+  })
+  await testing.generate(1)
+  await testing.token.mint({
+    symbol: 'AAPL',
+    amount: 10000
   })
   await testing.generate(1)
   await testing.rpc.loan.setLoanToken({
@@ -272,6 +277,14 @@ beforeAll(async () => {
     const vault4 = await testing.rpc.loan.getVault(auction4.vaultId)
     expect(vault4.state).toStrictEqual('inLiquidation')
   }
+
+  await testing.rpc.account.sendTokensToAddress({}, { [collateralAddress]: ['8000@AAPL'] })
+  await testing.generate(1)
+
+  const txid = await testing.container.call('placeauctionbid', [vaultId1, 0, collateralAddress, '8000@AAPL'])
+  expect(typeof txid).toStrictEqual('string')
+  expect(txid.length).toStrictEqual(64)
+  await testing.generate(1)
 })
 
 afterAll(async () => {
@@ -286,8 +299,8 @@ describe('list', () => {
   it('should listAuction with size only', async () => {
     const result = await client.loan.listAuction(20)
     expect(result.length).toStrictEqual(4)
-    result.forEach((e) =>
-      expect(e).toStrictEqual({
+    result.forEach((vault) => {
+      expect(vault).toStrictEqual({
         batchCount: expect.any(Number),
         batches: expect.any(Object),
         loanScheme: expect.any(Object),
@@ -296,18 +309,44 @@ describe('list', () => {
         liquidationHeight: expect.any(Number),
         liquidationPenalty: expect.any(Number),
         vaultId: expect.any(String)
-      }
-      ))
-
-    result.forEach((e) =>
-      e.batches.forEach((f) => {
-        expect(f).toStrictEqual({
-          index: expect.any(Number),
-          collaterals: expect.any(Object),
-          loan: expect.any(Object)
-        })
       })
-    )
+
+      if (vaultId1 === vault.vaultId) {
+        expect(vault.batches).toStrictEqual([
+          {
+            collaterals: expect.any(Array),
+            highestBid: {
+              amount: {
+                activePrice: expect.any(Object),
+                amount: '8000.00000000',
+                displaySymbol: 'dAAPL',
+                id: expect.any(String),
+                name: expect.any(String),
+                symbol: 'AAPL',
+                symbolKey: 'AAPL'
+              },
+              owner: expect.any(String)
+            },
+            index: 0,
+            loan: expect.any(Object)
+          },
+          {
+            collaterals: expect.any(Array),
+            index: 1,
+            loan: expect.any(Object)
+          }
+        ])
+      }
+    })
+
+    result.forEach((e) => {
+      e.batches.forEach((f) => {
+        expect(typeof f.index).toBe('number')
+        expect(typeof f.collaterals).toBe('object')
+        expect(typeof f.loan).toBe('object')
+        expect(typeof f.highestBid === 'object' || f.highestBid === undefined).toBe(true)
+      })
+    })
   })
 
   it('should listAuction with size and pagination', async () => {
