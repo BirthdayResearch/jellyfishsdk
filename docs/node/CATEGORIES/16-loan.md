@@ -740,6 +740,14 @@ interface loan {
   listVaultHistory (vaultId: string, pagination?: ListVaultHistoryPagination): Promise<ListVaultHistory[]>
 }
 
+interface ListVaultHistoryPagination {
+  maxBlockHeight?: number
+  depth?: number
+  token: string
+  txType: string
+  limit?: number
+}
+
 interface ListVaultHistory {
   blockHeight: number
   blockHash: string
@@ -752,6 +760,12 @@ interface ListVaultHistory {
   vaultSnapshot?: VaultHistorySnapshot
 }
 
+interface CreateLoanScheme {
+  minColRatio: number
+  interestRate: BigNumber
+  id: string
+}
+
 interface VaultHistorySnapshot {
   state: 'inLiquidation' | 'active'
   collateralAmounts: string[], // amount@symbol
@@ -760,11 +774,10 @@ interface VaultHistorySnapshot {
   batches?: VaultLiquidationBatch[]
 }
 
-interface ListVaultHistoryPagination {
-  maxBlockHeight?: number
-  depth?: number
-  token: string
-  txType: string
-  limit?: number
+interface VaultLiquidationBatch {
+  index: number
+  collaterals: string[]
+  loan: string
+  highestBid?: HighestBid
 }
 ```
