@@ -2,6 +2,9 @@ import { MasterNodeKey, RegTestFoundationKeys } from '@defichain/jellyfish-netwo
 import { StartOptions } from '../DeFiDContainer'
 import { MasterNodeRegTestContainer } from './Masternode'
 
+/**
+ * @deprecated use MasterNodeRegTestContainer instead
+ */
 export class LoanMasterNodeRegTestContainer extends MasterNodeRegTestContainer {
   constructor (masternodeKey: MasterNodeKey = RegTestFoundationKeys[0]) {
     super(masternodeKey, 'defi/defichain:HEAD-b810eda')
