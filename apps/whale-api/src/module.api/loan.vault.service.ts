@@ -138,6 +138,28 @@ export class LoanVaultService {
     }
   }
 
+  private async mapLiquidationBatches (batches: VaultLiquidationBatch[]): Promise<LoanVaultLiquidationBatch[]> {
+    if (batches.length === 0) {
+      return []
+    }
+
+    const items = batches.map(async batch => {
+      return {
+        index: batch.index,
+        collaterals: await this.mapTokenAmounts(batch.collaterals),
+        loan: (await this.mapTokenAmounts([batch.loan]))[0],
+        highestBid: batch.highestBid !== undefined
+          ? {
+              owner: batch.highestBid.owner,
+              amount: (await this.mapTokenAmounts([batch.highestBid.amount]))[0]
+            }
+          : undefined
+      }
+    })
+
+    return await Promise.all(items)
+  }
+
   private async mapTokenAmounts (items?: string[]): Promise<LoanVaultTokenAmount[]> {
     if (items === undefined || items.length === 0) {
       return []
@@ -161,22 +183,6 @@ export class LoanVaultService {
 
     return (await Promise.all(mappedItems))
       .sort(a => Number.parseInt(a.id))
-  }
-
-  private async mapLiquidationBatches (batches: VaultLiquidationBatch[]): Promise<LoanVaultLiquidationBatch[]> {
-    if (batches.length === 0) {
-      return []
-    }
-
-    const items = batches.map(async batch => {
-      return {
-        index: batch.index as any, // fixed in https://github.com/DeFiCh/jellyfish/pull/805
-        collaterals: await this.mapTokenAmounts(batch.collaterals),
-        loan: (await this.mapTokenAmounts([batch.loan]))[0]
-      }
-    })
-
-    return await Promise.all(items)
   }
 
   private async mapLoanScheme (id: string): Promise<LoanScheme> {
