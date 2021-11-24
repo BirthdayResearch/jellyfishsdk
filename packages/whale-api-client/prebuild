@@ -1,0 +1,3 @@
+#!/bin/sh
+
+node -p "'export default \'v' + require('./package.json').version.replace(/\.\d+$/, '') + '\''" > src/version.ts

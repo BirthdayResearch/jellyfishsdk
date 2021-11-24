@@ -21,8 +21,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "npm run version.ts && tsc",
-    "version.ts": "node -p \"'export default \\'v' + require('./package.json').version.replace(/\\.\\d+$/, '') + '\\''\" > src/version.ts"
+    "build": "./prebuild && tsc"
   },
   "dependencies": {
     "@defichain/jellyfish-api-core": "^2.9.0",
