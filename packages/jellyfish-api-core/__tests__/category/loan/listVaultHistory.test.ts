@@ -716,63 +716,63 @@ describe('Loan listVaultHistory', () => {
         expect(vaultHistory.length).toStrictEqual(15)
       }
     })
-  })
 
-  it('should listVaultHistory with maxBlockHeight and limit', async () => {
-    // listVaultHistory for maxBlockHeight of updateVault and limit = 2
-    {
-      const vaultHistory = (await alice.rpc.loan.listVaultHistory(createVaultTxId,
-        { maxBlockHeight: updateVaultBlockHeight, limit: 2 })).reverse()
+    it('should listVaultHistory with maxBlockHeight and limit', async () => {
+      // listVaultHistory for maxBlockHeight of updateVault and limit = 2
+      {
+        const vaultHistory = (await alice.rpc.loan.listVaultHistory(createVaultTxId,
+          { maxBlockHeight: updateVaultBlockHeight, limit: 2 })).reverse()
 
-      // Create vault
-      expect(vaultHistory[0].type).toStrictEqual('Vault')
-      expect(vaultHistory[0].txid).toStrictEqual(createVaultTxId)
-      expect(vaultHistory[0].blockHeight).toStrictEqual(createVaultBlockHeight)
-      expect(vaultHistory[0].loanScheme).toStrictEqual({ id: 'default', rate: 100000000, ratio: 110 })
+        // Create vault
+        expect(vaultHistory[0].type).toStrictEqual('Vault')
+        expect(vaultHistory[0].txid).toStrictEqual(createVaultTxId)
+        expect(vaultHistory[0].blockHeight).toStrictEqual(createVaultBlockHeight)
+        expect(vaultHistory[0].loanScheme).toStrictEqual({ id: 'default', rate: 100000000, ratio: 110 })
 
-      // Update vault
-      expect(vaultHistory[1].type).toStrictEqual('UpdateVault')
-      expect(vaultHistory[1].txid).toStrictEqual(updateVaultTxId)
-      expect(vaultHistory[1].blockHeight).toStrictEqual(updateVaultBlockHeight)
-      expect(vaultHistory[1].loanScheme).toStrictEqual({ id: 'scheme', rate: 100000000, ratio: 100 })
-    }
-  })
-
-  it('should listVaultHistory with maxBlockHeight, depth, token, txtype and limit', async () => {
-    // listVaultHistory for maxBlockHeight, token, txtype of auctionBid2 with depth = 2 and limit = 2
-    {
-      const vaultHistory = (await alice.rpc.loan.listVaultHistory(createVaultTxId,
-        { maxBlockHeight: auctionBidBlockHeight2, depth: 2, token: 'AAPL', txtype: 'I', limit: 2 })).reverse()
-
-      if (vaultHistory[0].address === bobColAddr) {
-        // 10 - Auction bid
-        expect(vaultHistory[0].type).toStrictEqual('AuctionBid')
-        expect(vaultHistory[0].address).toStrictEqual(bobColAddr)
-        expect(vaultHistory[0].txid).toStrictEqual(auctionBidTxId2)
-        expect(vaultHistory[0].blockHeight).toStrictEqual(auctionBidBlockHeight2)
-        expect(vaultHistory[0].amounts).toStrictEqual(['-5050.00000000@AAPL'])
-
-        // 11 - Auction bid
-        expect(vaultHistory[1].type).toStrictEqual('AuctionBid')
-        expect(vaultHistory[1].address).toStrictEqual(aliceColAddr)
-        expect(vaultHistory[1].txid).toStrictEqual(auctionBidTxId2)
-        expect(vaultHistory[1].blockHeight).toStrictEqual(auctionBidBlockHeight2)
-        expect(vaultHistory[1].amounts).toStrictEqual(['5000.00000000@AAPL'])
-      } else {
-        // 10 - Auction bid
-        expect(vaultHistory[0].type).toStrictEqual('AuctionBid')
-        expect(vaultHistory[0].address).toStrictEqual(aliceColAddr)
-        expect(vaultHistory[0].txid).toStrictEqual(auctionBidTxId2)
-        expect(vaultHistory[0].blockHeight).toStrictEqual(auctionBidBlockHeight2)
-        expect(vaultHistory[0].amounts).toStrictEqual(['5000.00000000@AAPL'])
-
-        // 11 - Auction bid
-        expect(vaultHistory[1].type).toStrictEqual('AuctionBid')
-        expect(vaultHistory[1].address).toStrictEqual(bobColAddr)
-        expect(vaultHistory[1].txid).toStrictEqual(auctionBidTxId2)
-        expect(vaultHistory[1].blockHeight).toStrictEqual(auctionBidBlockHeight2)
-        expect(vaultHistory[1].amounts).toStrictEqual(['-5050.00000000@AAPL'])
+        // Update vault
+        expect(vaultHistory[1].type).toStrictEqual('UpdateVault')
+        expect(vaultHistory[1].txid).toStrictEqual(updateVaultTxId)
+        expect(vaultHistory[1].blockHeight).toStrictEqual(updateVaultBlockHeight)
+        expect(vaultHistory[1].loanScheme).toStrictEqual({ id: 'scheme', rate: 100000000, ratio: 100 })
       }
-    }
+    })
+
+    it('should listVaultHistory with maxBlockHeight, depth, token, txtype and limit', async () => {
+      // listVaultHistory for maxBlockHeight, token, txtype of auctionBid2 with depth = 2 and limit = 2
+      {
+        const vaultHistory = (await alice.rpc.loan.listVaultHistory(createVaultTxId,
+          { maxBlockHeight: auctionBidBlockHeight2, depth: 2, token: 'AAPL', txtype: 'I', limit: 2 })).reverse()
+
+        if (vaultHistory[0].address === bobColAddr) {
+          // 10 - Auction bid
+          expect(vaultHistory[0].type).toStrictEqual('AuctionBid')
+          expect(vaultHistory[0].address).toStrictEqual(bobColAddr)
+          expect(vaultHistory[0].txid).toStrictEqual(auctionBidTxId2)
+          expect(vaultHistory[0].blockHeight).toStrictEqual(auctionBidBlockHeight2)
+          expect(vaultHistory[0].amounts).toStrictEqual(['-5050.00000000@AAPL'])
+
+          // 11 - Auction bid
+          expect(vaultHistory[1].type).toStrictEqual('AuctionBid')
+          expect(vaultHistory[1].address).toStrictEqual(aliceColAddr)
+          expect(vaultHistory[1].txid).toStrictEqual(auctionBidTxId2)
+          expect(vaultHistory[1].blockHeight).toStrictEqual(auctionBidBlockHeight2)
+          expect(vaultHistory[1].amounts).toStrictEqual(['5000.00000000@AAPL'])
+        } else {
+          // 10 - Auction bid
+          expect(vaultHistory[0].type).toStrictEqual('AuctionBid')
+          expect(vaultHistory[0].address).toStrictEqual(aliceColAddr)
+          expect(vaultHistory[0].txid).toStrictEqual(auctionBidTxId2)
+          expect(vaultHistory[0].blockHeight).toStrictEqual(auctionBidBlockHeight2)
+          expect(vaultHistory[0].amounts).toStrictEqual(['5000.00000000@AAPL'])
+
+          // 11 - Auction bid
+          expect(vaultHistory[1].type).toStrictEqual('AuctionBid')
+          expect(vaultHistory[1].address).toStrictEqual(bobColAddr)
+          expect(vaultHistory[1].txid).toStrictEqual(auctionBidTxId2)
+          expect(vaultHistory[1].blockHeight).toStrictEqual(auctionBidBlockHeight2)
+          expect(vaultHistory[1].amounts).toStrictEqual(['-5050.00000000@AAPL'])
+        }
+      }
+    })
   })
 })
