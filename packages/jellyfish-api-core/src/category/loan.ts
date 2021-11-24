@@ -712,7 +712,7 @@ export interface VaultHistorySnapshot {
 export interface ListVaultHistoryPagination {
   maxBlockHeight?: number
   depth?: number
-  token: string
-  txType: string
+  token?: string
+  txtype?: string
   limit?: number
 }
