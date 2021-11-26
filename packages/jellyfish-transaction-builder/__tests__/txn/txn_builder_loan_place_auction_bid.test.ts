@@ -506,7 +506,7 @@ describe('placeAuctionBid success', () => {
       await tGroup.waitForSync()
 
       const aliceColAccAfter = await alice.rpc.account.getAccount(aliceColAddr)
-      expect(aliceColAccAfter).toStrictEqual(['300000.00000000@DFI', '29999.00000000@BTC', '29400.00000000@TSLA'])
+      expect(aliceColAccAfter).toStrictEqual(['29000.00000000@DFI', '29999.00000000@BTC', '9400.00000000@TSLA'])
 
       const auctions = await alice.container.call('listauctions')
       expect(auctions[0]).toStrictEqual({
@@ -548,14 +548,14 @@ describe('placeAuctionBid success', () => {
     expect(bobColAccEndBid).toStrictEqual(['13900.00000000@DFI', '0.50000000@BTC', '19.45454546@TSLA'])
 
     const aliceColAccEndBid = await alice.rpc.account.getAccount(aliceColAddr)
-    expect(aliceColAccEndBid).toStrictEqual(['305000.00000000@DFI', '29999.50000000@BTC', '29400.00000000@TSLA'])
+    expect(aliceColAccEndBid).toStrictEqual(['34000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
 
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
-    expect(vault.collateralAmounts).toStrictEqual([])
+    expect(vault.collateralAmounts).toStrictEqual(['55.25753134@DFI'])
     expect(vault.loanAmounts).toStrictEqual([])
     expect(vault.interestAmounts).toStrictEqual([])
-    expect(vault.collateralValue).toStrictEqual(0)
+    expect(vault.collateralValue).toStrictEqual(55.25753134)
     expect(vault.loanValue).toStrictEqual(0)
     expect(vault.interestValue).toStrictEqual(0)
     expect(vault.collateralRatio).toStrictEqual(-1)
