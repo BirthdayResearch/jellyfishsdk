@@ -289,7 +289,7 @@ describe('placeAuctionBid success', () => {
     await tGroup.stop()
   })
 
-  it.only('should placeAuctionBid', async () => {
+  it('should placeAuctionBid', async () => {
     { // first round first bid
       const bobTSLAAccBefore = bobColAccBefore.length > 0
         ? bobColAccBefore.find((amt: string) => amt.split('@')[1] === 'TSLA')
@@ -380,8 +380,6 @@ describe('placeAuctionBid success', () => {
         ]
       })
       await tGroup.waitForSync()
-      const aliceColAcc0 = await alice.rpc.account.getAccount(aliceColAddr)
-      console.log('aliceColAcc0: ', aliceColAcc0)
 
       // bob should be able to claim back his fund right after the higher bid
       const bobColAccBid = await bob.rpc.account.getAccount(bobColAddr)
@@ -440,8 +438,7 @@ describe('placeAuctionBid success', () => {
           }
         ]
       })
-      const accHistory = await alice.rpc.account.listAccountHistory(aliceColAddr)
-      console.log('accHistory: ', accHistory)
+
       const aliceColAcc = await alice.rpc.account.getAccount(aliceColAddr)
       expect(aliceColAcc).toStrictEqual(['34000.00000000@DFI', '29999.50000000@BTC', '9465.00000000@TSLA'])
 
@@ -451,19 +448,37 @@ describe('placeAuctionBid success', () => {
       expect(auctions).toStrictEqual(auctions10)
     }
 
-    await alice.rpc.loan.placeAuctionBid({
-      vaultId: bobVaultId,
-      index: 0,
-      from: aliceColAddr,
-      amount: '530@TSLA'
-    })
-    await alice.generate(40)
+    {
+      await alice.rpc.loan.placeAuctionBid({
+        vaultId: bobVaultId,
+        index: 0,
+        from: aliceColAddr,
+        amount: '530@TSLA'
+      })
+      await alice.generate(36)
 
-    const auctionsEnd = await bob.container.call('listauctions')
-    console.log('auctionsEnd: ', auctionsEnd)
+      const auctionsEnd = await bob.container.call('listauctions')
+      expect(auctionsEnd).toStrictEqual([])
 
-    const bobVault = await alice.container.call('getvault', [bobVaultId])
-    console.log('bobVault: ', bobVault)
+      const bobVault = await alice.container.call('getvault', [bobVaultId])
+      expect(bobVault).toStrictEqual({
+        vaultId: bobVaultId,
+        loanSchemeId: 'scheme',
+        ownerAddress: bobVaultAddr,
+        state: 'active',
+        collateralAmounts: ['8.76515120@DFI', '0.00044445@BTC'],
+        loanAmounts: ['0.44446156@TSLA'],
+        interestAmounts: ['0.00000275@TSLA'],
+        collateralValue: 13.2096512,
+        loanValue: 6.6669234,
+        interestValue: 0.00004125,
+        informativeRatio: 198.13713773,
+        collateralRatio: 198
+      })
+
+      const aliceColAcc = await alice.rpc.account.getAccount(aliceColAddr)
+      expect(aliceColAcc).toStrictEqual(['39004.44449290@DFI', '29999.99955555@BTC', '8935.00000000@TSLA'])
+    }
   })
 
   it('should placeAuctionBid with utxos', async () => {
@@ -602,15 +617,20 @@ describe('placeAuctionBid success', () => {
     expect(aliceColAccEndBid).toStrictEqual(['34000.00000000@DFI', '29999.50000000@BTC', '9400.00000000@TSLA'])
 
     const vault = await alice.container.call('getvault', [bobVaultId])
-    expect(vault.state).toStrictEqual('active')
-    expect(vault.collateralAmounts).toStrictEqual([])
-    expect(vault.loanAmounts).toStrictEqual([])
-    expect(vault.interestAmounts).toStrictEqual([])
-    expect(vault.collateralValue).toStrictEqual(0)
-    expect(vault.loanValue).toStrictEqual(0)
-    expect(vault.interestValue).toStrictEqual(0)
-    expect(vault.collateralRatio).toStrictEqual(-1)
-    expect(vault.informativeRatio).toStrictEqual(-1)
+    expect(vault).toStrictEqual({
+      vaultId: bobVaultId,
+      loanSchemeId: 'scheme',
+      ownerAddress: bobVaultAddr,
+      state: 'active',
+      collateralAmounts: ['55.25753134@DFI'],
+      loanAmounts: [],
+      interestAmounts: [],
+      collateralValue: 55.25753134,
+      loanValue: 0,
+      interestValue: 0,
+      informativeRatio: -1,
+      collateralRatio: -1
+    })
   })
 
   // TODO(canonbrother): expected the extra will become assests (not collateral) of the vault according to pink paper
@@ -685,8 +705,8 @@ describe('placeAuctionBid success', () => {
     const vault = await alice.rpc.loan.getVault(aliceVaultId) as VaultLiquidation
     expect(vault.state).toStrictEqual('inLiquidation')
     expect(vault.batches).toStrictEqual([
-      { index: 0, collaterals: ['49.99999980@DFI', '49.99999980@BTC'], loan: '50.00011389@TSLA' },
-      { index: 1, collaterals: ['10.00000020@DFI', '10.00000020@BTC'], loan: '10.00002303@TSLA' }
+      { index: 0, collaterals: ['49.99999980@DFI', '49.99999980@BTC'], loan: '50.00006635@TSLA' },
+      { index: 1, collaterals: ['10.00000020@DFI', '10.00000020@BTC'], loan: '10.00001352@TSLA' }
     ])
 
     // place auction bid for the first batch
