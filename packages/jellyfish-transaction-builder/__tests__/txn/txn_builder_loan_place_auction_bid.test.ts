@@ -266,7 +266,7 @@ async function setup (): Promise<void> {
   expect(vaultAfter.loanAmounts).toStrictEqual(undefined)
   expect(vaultAfter.collateralValue).toStrictEqual(undefined)
   expect(vaultAfter.loanValue).toStrictEqual(undefined)
-  expect(vaultAfter.liquidationHeight).toStrictEqual(174)
+  expect(vaultAfter.liquidationHeight).toStrictEqual(expect.any(Number))
   expect(vaultAfter.liquidationPenalty).toStrictEqual(5)
   expect(vaultAfter.batches).toStrictEqual([
     { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' },
@@ -277,7 +277,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter.length > 0).toStrictEqual(true)
   expect(auctionsAfter[0].vaultId).toStrictEqual(bobVaultId)
   expect(auctionsAfter[0].batchCount).toStrictEqual(2)
-  expect(auctionsAfter[0].liquidationHeight).toStrictEqual(174)
+  expect(auctionsAfter[0].liquidationHeight).toStrictEqual(expect.any(Number))
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00399539@TSLA')
