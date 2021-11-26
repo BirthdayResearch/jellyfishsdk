@@ -458,7 +458,7 @@ describe('placeAuctionBid success', () => {
         loanSchemeId: 'scheme',
         ownerAddress: bobVaultAddr,
         state: 'inLiquidation',
-        liquidationHeight: 168,
+        liquidationHeight: expect.any(Number),
         liquidationPenalty: 5,
         batchCount: 2,
         batches: [
@@ -511,7 +511,7 @@ describe('placeAuctionBid success', () => {
       const auctions = await alice.container.call('listauctions')
       expect(auctions[0]).toStrictEqual({
         vaultId: bobVaultId,
-        liquidationHeight: 168,
+        liquidationHeight: expect.any(Number),
         batchCount: 2,
         liquidationPenalty: 5,
         loanSchemeId: 'scheme',
