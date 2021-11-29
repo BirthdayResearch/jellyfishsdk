@@ -4,7 +4,14 @@ import { BadRequestApiException } from '@src/module.api/_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
-import { CCompositeSwap, CTransactionSegWit, OP_DEFI_TX } from '@defichain/jellyfish-transaction'
+import {
+  CCompositeSwap,
+  CompositeSwap,
+  CTransactionSegWit,
+  OP_CODES,
+  OP_DEFI_TX
+} from '@defichain/jellyfish-transaction'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 
 class RawTxDto {
   @IsNotEmpty()
@@ -28,7 +35,10 @@ export class RawtxController {
    */
   private readonly defaultMaxFeeRate: BigNumber = new BigNumber('0.005')
 
-  constructor (private readonly client: JsonRpcClient) {
+  constructor (
+    private readonly client: JsonRpcClient,
+    private readonly deFiDCache: DeFiDCache
+  ) {
   }
 
   /**
@@ -38,13 +48,7 @@ export class RawtxController {
    */
   @Post('/send')
   async send (@Body() tx: RawTxDto): Promise<string> {
-    const buffer = SmartBuffer.fromBuffer(Buffer.from(tx.hex, 'hex'))
-    const transaction = new CTransactionSegWit(buffer)
-    if (transaction.vout.length === 2 && transaction.vout[0].script.stack.length === 2 && transaction.vout[0].script.stack[0].type === 'OP_RETURN') {
-      if ((transaction.vout[0].script.stack[1] as OP_DEFI_TX).tx.type === CCompositeSwap.OP_CODE) {
-        throw new BadRequestApiException('Composite Swap Temporary Invalid')
-      }
-    }
+    await this.validate(tx.hex)
 
     const maxFeeRate = this.getMaxFeeRate(tx)
     try {
@@ -94,5 +98,44 @@ export class RawtxController {
       return new BigNumber(tx.maxFeeRate)
     }
     return this.defaultMaxFeeRate
+  }
+
+  async validate (hex: string): Promise<void> {
+    if (!hex.startsWith('040000000001')) {
+      return
+    }
+
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
+    const transaction = new CTransactionSegWit(buffer)
+
+    if (transaction.vout.length !== 2) {
+      return
+    }
+
+    if (transaction.vout[0].script.stack.length !== 2) {
+      return
+    }
+
+    if (transaction.vout[0].script.stack[0].type !== OP_CODES.OP_RETURN.type) {
+      return
+    }
+
+    if ((transaction.vout[0].script.stack[1] as OP_DEFI_TX).tx.type !== CCompositeSwap.OP_CODE) {
+      return
+    }
+
+    const dftx = (transaction.vout[0].script.stack[1] as OP_DEFI_TX).tx.data as CompositeSwap
+    if (dftx.pools.length === 0) {
+      return
+    }
+
+    const lastPoolId = dftx.pools[dftx.pools.length - 1].id
+    const toTokenId = `${dftx.poolSwap.toTokenId}`
+
+    const info = await this.deFiDCache.getPoolPairInfo(`${lastPoolId}`)
+    if (info?.idTokenA === toTokenId || info?.idTokenB === toTokenId) {
+      return
+    }
+    throw new BadRequestApiException('Invalid CompositeSwap')
   }
 }
