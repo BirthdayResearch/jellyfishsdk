@@ -3,6 +3,8 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BadRequestApiException } from '@src/module.api/_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
 import BigNumber from 'bignumber.js'
+import { SmartBuffer } from 'smart-buffer'
+import { CCompositeSwap, CTransactionSegWit, OP_DEFI_TX } from '@defichain/jellyfish-transaction'
 
 class RawTxDto {
   @IsNotEmpty()
@@ -36,6 +38,14 @@ export class RawtxController {
    */
   @Post('/send')
   async send (@Body() tx: RawTxDto): Promise<string> {
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(tx.hex, 'hex'))
+    const transaction = new CTransactionSegWit(buffer)
+    if (transaction.vout.length === 2 && transaction.vout[0].script.stack.length === 2 && transaction.vout[0].script.stack[0].type === 'OP_RETURN') {
+      if ((transaction.vout[0].script.stack[1] as OP_DEFI_TX).tx.type === CCompositeSwap.OP_CODE) {
+        throw new BadRequestApiException('Composite Swap Temporary Invalid')
+      }
+    }
+
     const maxFeeRate = this.getMaxFeeRate(tx)
     try {
       return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
