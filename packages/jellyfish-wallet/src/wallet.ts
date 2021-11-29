@@ -19,6 +19,10 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
    * For Masternode creation UTXO locking
    */
   static PURPOSE_LIGHT_MASTERNODE: number = 1
+  /**
+   * For light price oracle implementation
+   */
+  static PURPOSE_LIGHT_PRICE_ORACLE: number = 2
 
   /**
    * @param {WalletHdNodeProvider} nodeProvider
