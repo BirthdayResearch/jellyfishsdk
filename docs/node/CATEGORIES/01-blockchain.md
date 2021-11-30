@@ -371,3 +371,25 @@ interface WaitBlockResult {
   height: number
 }
 ```
+
+## invalidateBlock
+
+Permanently marks a block as invalid, as if it violated a consensus rule.
+
+```ts title="client.blockchain.invalidateBlock()"
+interface blockchain {
+  invalidateBlock(hash: string): Promise<void>
+}
+```
+
+## reconsiderBlock
+
+Removes invalidity status of a block, its ancestors and its descendants, reconsider them for activation.
+
+```ts title="client.blockchain.reconsiderBlock()"
+interface blockchain {
+  reconsiderBlock(hash: string): Promise<void>
+}
+```
+
+

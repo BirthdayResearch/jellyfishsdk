@@ -214,6 +214,28 @@ export class Blockchain {
   async waitForBlockHeight (height: number, timeout: number = 30000): Promise<WaitBlockResult> {
     return await this.client.call('waitforblockheight', [height, timeout], 'number')
   }
+
+  /**
+   * Permanently marks a block as invalid, as if it violated a consensus rule.
+   *
+   *
+   * @param {string} hash of the block to mark as invalid
+   * @return Promise<void>
+   */
+  async invalidateBlock (hash: string): Promise<void> {
+    return await this.client.call('invalidateblock', [hash], 'number')
+  }
+
+  /**
+   * Removes invalidity status of a block, its ancestors and its descendants, reconsider them for activation.
+   *
+   *
+   * @param {string} hash of the block to reconsider
+   * @return Promise<void>
+   */
+  async reconsiderBlock (hash: string): Promise<void> {
+    return await this.client.call('reconsiderblock', [hash], 'number')
+  }
 }
 
 /**
