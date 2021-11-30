@@ -141,7 +141,7 @@ Return blocks minted by masternode
 
 ```ts title="client.masternode.getMasternodeBlocks"
 interface masternode {
-  getMasternodeBlocks(identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<MasternodeBlockResult>> 
+  getMasternodeBlocks(identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<string>> 
 }
 
 interface MasternodeBlock {

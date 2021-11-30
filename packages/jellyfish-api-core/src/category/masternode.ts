@@ -124,9 +124,9 @@ export class Masternode {
    * @param {string} [identifier.ownerAuthAddress] Any valid address for keeping collateral amount.
    * @param {string} [identifier.operatorAuthAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {number} [depth] Maximum depth. By default, it will start from the genesis block.
-   * @return {Promise<MasternodeResult<MasternodeBlockResult>>}
+   * @return {Promise<MasternodeResult<string>>}
    */
-  async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<MasternodeBlockResult>> {
+  async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<string>> {
     return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
   }
 
@@ -249,8 +249,4 @@ export interface MasternodeInfo {
 
 export interface MasternodeResult<T> {
   [id: string]: T
-}
-
-export interface MasternodeBlockResult {
-  block: number
 }
