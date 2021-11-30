@@ -135,6 +135,22 @@ interface MasternodeResult<T> {
 }
 ```
 
+## getMasternodeBlocks
+
+Return blocks minted by masternode
+
+```ts title="client.masternode.getMasternodeBlocks"
+interface masternode {
+  getMasternodeBlocks(identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<MasternodeBlockResult>> 
+}
+
+interface MasternodeBlock {
+  id: string
+  ownerAuthAddress: string
+  operatorAuthAddress?: string
+}
+```
+
 ## resignMasternode 
 
 Creates a transaction resigning a masternode.

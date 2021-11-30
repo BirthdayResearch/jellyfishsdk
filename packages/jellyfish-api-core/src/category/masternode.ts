@@ -117,6 +117,32 @@ export class Masternode {
   }
 
   /**
+   * Creates a masternode creation transaction with given owner and operator addresses.
+   *
+   * @param {MasternodeBlock} identifier
+   * @param {string} [identifier.id] The masternode's id.
+   * @param {string} [identifier.ownerAuthAddress] Any valid address for keeping collateral amount.
+   * @param {string} [identifier.operatorAuthAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
+   * @param {number} [depth] Maximum depth. By default, it will start from the genesis block.
+   * @return {Promise<MasternodeResult<MasternodeBlockResult>>}
+   */
+  async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<MasternodeBlockResult>> {
+    return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
+  }
+
+  // async getMasternodeBlocks2(id: string, ownerAuthAddress: string, operatorAuthAddress?:string, depth?:number): Promise<MasternodeResult<MasternodeBlockResult>> {
+  //   let identifier: MasternodeBlock = {
+  //     id,
+  //     ownerAuthAddress
+  //   }
+
+  //   if(operatorAuthAddress) {
+  //     identifier.
+  //   }
+
+  // }
+
+  /**
    * Creates a transaction resigning a masternode.
    *
    * @param {string} masternodeId The masternode's id.
@@ -210,6 +236,12 @@ export interface MasternodePagination {
   limit?: number
 }
 
+export interface MasternodeBlock {
+  id: string
+  ownerAuthAddress: string
+  operatorAuthAddress?: string
+}
+
 export interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
@@ -229,4 +261,8 @@ export interface MasternodeInfo {
 
 export interface MasternodeResult<T> {
   [id: string]: T
+}
+
+export interface MasternodeBlockResult {
+  block: number
 }
