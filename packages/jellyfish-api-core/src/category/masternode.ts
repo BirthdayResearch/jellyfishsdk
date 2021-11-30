@@ -130,18 +130,6 @@ export class Masternode {
     return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
   }
 
-  // async getMasternodeBlocks2(id: string, ownerAuthAddress: string, operatorAuthAddress?:string, depth?:number): Promise<MasternodeResult<MasternodeBlockResult>> {
-  //   let identifier: MasternodeBlock = {
-  //     id,
-  //     ownerAuthAddress
-  //   }
-
-  //   if(operatorAuthAddress) {
-  //     identifier.
-  //   }
-
-  // }
-
   /**
    * Creates a transaction resigning a masternode.
    *
