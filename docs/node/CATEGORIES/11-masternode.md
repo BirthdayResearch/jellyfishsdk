@@ -145,9 +145,9 @@ interface masternode {
 }
 
 interface MasternodeBlock {
-  id: string
-  ownerAuthAddress: string
-  operatorAuthAddress?: string
+  id?: string
+  ownerAddress?: string
+  operatorAddress?: string
 }
 ```
 

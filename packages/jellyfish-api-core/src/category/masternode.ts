@@ -121,8 +121,8 @@ export class Masternode {
    *
    * @param {MasternodeBlock} identifier
    * @param {string} [identifier.id] The masternode's id.
-   * @param {string} [identifier.ownerAuthAddress] Any valid address for keeping collateral amount.
-   * @param {string} [identifier.operatorAuthAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
+   * @param {string} [identifier.ownerAddress] Any valid address for keeping collateral amount.
+   * @param {string} [identifier.operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
    * @param {number} [depth] Maximum depth. By default, it will start from the genesis block.
    * @return {Promise<MasternodeResult<string>>}
    */
@@ -225,9 +225,9 @@ export interface MasternodePagination {
 }
 
 export interface MasternodeBlock {
-  id: string
-  ownerAuthAddress: string
-  operatorAuthAddress?: string
+  id?: string
+  ownerAddress?: string
+  operatorAddress?: string
 }
 
 export interface MasternodeInfo {
