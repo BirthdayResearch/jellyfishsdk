@@ -120,10 +120,10 @@ export class Masternode {
    * Creates a masternode creation transaction with given owner and operator addresses.
    *
    * @param {MasternodeBlock} identifier
-   * @param {string} [identifier.id] The masternode's id.
-   * @param {string} [identifier.ownerAddress] Any valid address for keeping collateral amount.
-   * @param {string} [identifier.operatorAddress]  Masternode operator auth address (P2PKH only, unique). If empty, owner address will be used.
-   * @param {number} [depth] Maximum depth. By default, it will start from the genesis block.
+   * @param {string} [identifier.id] Masternode's id.
+   * @param {string} [identifier.ownerAddress] Masternode owner address.
+   * @param {string} [identifier.operatorAddress]  Masternode operator address.
+   * @param {number} [depth] Maximum depth, from the genesis block is the default.
    * @return {Promise<MasternodeResult<string>>}
    */
   async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<string>> {
