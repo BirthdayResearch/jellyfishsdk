@@ -7,6 +7,7 @@ import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PoolPairService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
+import { parseDATSymbol } from '@src/module.api/token.controller'
 
 @Controller('/poolpairs')
 export class PoolPairController {
@@ -68,18 +69,19 @@ function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNum
   return {
     id: id,
     symbol: info.symbol,
+    displaySymbol: `${parseDATSymbol(symbolA)}-${parseDATSymbol(symbolB)}`,
     name: info.name,
     status: info.status,
     tokenA: {
       symbol: symbolA,
-      displaySymbol: parseDisplaySymbol(symbolA),
+      displaySymbol: parseDATSymbol(symbolA),
       id: info.idTokenA,
       reserve: info.reserveA.toFixed(),
       blockCommission: info.blockCommissionA.toFixed()
     },
     tokenB: {
       symbol: symbolB,
-      displaySymbol: parseDisplaySymbol(symbolB),
+      displaySymbol: parseDATSymbol(symbolB),
       id: info.idTokenB,
       reserve: info.reserveB.toFixed(),
       blockCommission: info.blockCommissionB.toFixed()
@@ -103,11 +105,4 @@ function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNum
     },
     apr
   }
-}
-
-function parseDisplaySymbol (symbol: string): string {
-  if (['DFI', 'DUSD'].includes(symbol)) {
-    return symbol
-  }
-  return `d${symbol}`
 }
