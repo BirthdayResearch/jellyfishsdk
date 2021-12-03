@@ -102,6 +102,7 @@ describe('list', () => {
     expect(response[1]).toStrictEqual({
       id: '10',
       symbol: 'B-DFI',
+      displaySymbol: 'dB-DFI',
       name: 'B-Default Defi token',
       status: true,
       tokenA: {
@@ -179,6 +180,7 @@ describe('get', () => {
     expect(response).toStrictEqual({
       id: '9',
       symbol: 'A-DFI',
+      displaySymbol: 'dA-DFI',
       name: 'A-Default Defi token',
       status: true,
       tokenA: {
@@ -225,6 +227,7 @@ describe('get', () => {
       id: '20',
       symbol: 'USDC-H',
       name: 'USDC-H',
+      displaySymbol: 'dUSDC-dH',
       status: true,
       tokenA: {
         id: expect.any(String),

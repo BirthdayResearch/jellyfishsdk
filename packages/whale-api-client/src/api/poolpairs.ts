@@ -33,6 +33,7 @@ export class PoolPairs {
 export interface PoolPairData {
   id: string
   symbol: string
+  displaySymbol: string
   name: string
   status: boolean
   tokenA: {
