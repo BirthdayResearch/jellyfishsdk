@@ -72,8 +72,14 @@ export function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
     isLPS: tokenInfo.isLPS,
     finalized: tokenInfo.finalized,
     minted: tokenInfo.minted.toFixed(),
-    creation: { tx: tokenInfo.creationTx, height: tokenInfo.creationHeight.toNumber() },
-    destruction: { tx: tokenInfo.destructionTx, height: tokenInfo.destructionHeight.toNumber() },
+    creation: {
+      tx: tokenInfo.creationTx,
+      height: tokenInfo.creationHeight.toNumber()
+    },
+    destruction: {
+      tx: tokenInfo.destructionTx,
+      height: tokenInfo.destructionHeight.toNumber()
+    },
     collateralAddress: tokenInfo.collateralAddress !== '' ? tokenInfo.collateralAddress : undefined,
     displaySymbol: parseDisplaySymbol(tokenInfo)
   }
@@ -81,16 +87,22 @@ export function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
 
 export function parseDisplaySymbol (tokenInfo: TokenInfo): string {
   if (tokenInfo.isLPS) {
-    return tokenInfo.symbol
+    const [a, b] = tokenInfo.symbol.split('-')
+
+    return `${parseDATSymbol(a)}-${parseDATSymbol(b)}`
   }
 
   if (tokenInfo.isDAT) {
-    if (['DUSD', 'DFI'].includes(tokenInfo.symbol)) {
-      return tokenInfo.symbol
-    }
-
-    return `d${tokenInfo.symbol}`
+    return parseDATSymbol(tokenInfo.symbol)
   }
 
   return tokenInfo.symbol
+}
+
+export function parseDATSymbol (symbol: string): string {
+  if (['DUSD', 'DFI'].includes(symbol)) {
+    return symbol
+  }
+
+  return `d${symbol}`
 }
