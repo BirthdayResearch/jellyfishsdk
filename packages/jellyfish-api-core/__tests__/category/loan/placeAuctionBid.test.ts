@@ -633,10 +633,6 @@ describe('placeAuctionBid success', () => {
     })
   })
 
-  // TODO(canonbrother): expected the extra will become assests (not collateral) of the vault according to pink paper
-  // will do once its implemented
-  it.skip('test super bid', async () => {})
-
   it('should make the vault active after completion of one auction batch', async () => {
     // update price oracle
     await alice.rpc.oracle.setOracleData(

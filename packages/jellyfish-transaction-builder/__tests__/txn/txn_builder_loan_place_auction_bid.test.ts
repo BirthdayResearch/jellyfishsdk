@@ -561,10 +561,6 @@ describe('placeAuctionBid success', () => {
     expect(vault.collateralRatio).toStrictEqual(-1)
     expect(vault.informativeRatio).toStrictEqual(-1)
   })
-
-  // TODO(canonbrother): expected the extra will become assests (not collateral) of the vault according to pink paper
-  // will do once its implemented
-  it.skip('test super bid', async () => {})
 })
 
 describe('placeAuctionBid failed', () => {
