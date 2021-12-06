@@ -219,4 +219,13 @@ describe('oracles', () => {
       }
     })
   })
+
+  it('should get oracles by owner address', async () => {
+    const oracles = await apiClient.oracles.list()
+
+    for (const oracle of oracles) {
+      const toCompare = await apiClient.oracles.getOracleByAddress(oracle.ownerAddress)
+      expect(toCompare).toStrictEqual(oracle)
+    }
+  })
 })

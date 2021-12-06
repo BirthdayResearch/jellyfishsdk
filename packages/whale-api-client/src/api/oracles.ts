@@ -33,12 +33,23 @@ export class Oracles {
     const key = `${token}-${currency}`
     return await this.client.requestList('GET', `oracles/${oracleId}/${key}/feed`, size, next)
   }
+
+  /**
+   * Get oracle by address
+   *
+   * @param {string} address owner address for an Oracle
+   * @return {Promise<Oracle>}
+   */
+  async getOracleByAddress (address: string): Promise<Oracle> {
+    return await this.client.requestData<Oracle>('GET', `oracles/${address}`)
+  }
 }
 
 export interface Oracle {
   id: string
 
   weightage: number
+  ownerAddress: string
   priceFeeds: Array<{
     token: string
     currency: string
