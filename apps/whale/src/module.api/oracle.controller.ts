@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common'
+import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
 import { Oracle, OracleMapper } from '@src/module.model/oracle'
 import { OraclePriceFeed, OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
@@ -32,5 +32,19 @@ export class OracleController {
     return ApiPagedResponse.of(items, query.size, item => {
       return item.sort
     })
+  }
+
+  @Get('/:oracleAddress')
+  async getOracleByAddress (
+    @Param('oracleAddress') address: string
+  ): Promise<Oracle> {
+    const items = await this.oracleMapper.query(Number.MAX_SAFE_INTEGER)
+    for (const oracle of items) {
+      if (oracle.ownerAddress === address) {
+        return oracle
+      }
+    }
+
+    throw new NotFoundException(`Oracle not found for address ${address}`)
   }
 }
