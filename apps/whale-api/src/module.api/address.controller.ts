@@ -54,7 +54,7 @@ export class AddressController {
     const accounts = await this.rpcClient.account.getAccount(address, {
       start: query.next !== undefined ? Number(query.next) : undefined,
       including_start: query.next === undefined, // TODO(fuxingloh): open issue at DeFiCh/ain, rpc_accounts.cpp#388
-      limit: query.size < 200 ? 200 : query.size
+      limit: query.size
     }, { indexedAmounts: true })
 
     const ids = Object.keys(accounts)
