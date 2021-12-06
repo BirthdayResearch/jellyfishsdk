@@ -32,10 +32,10 @@ export class StatsController {
         blocks: block.height
       },
       burned: await this.cachedGet('burned', this.getBurned.bind(this), 1800),
-      tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 600),
-      price: await this.cachedGet('price', this.getPrice.bind(this), 300),
+      tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 300),
+      price: await this.cachedGet('price', this.getPrice.bind(this), 240),
       masternodes: await this.cachedGet('masternodes', this.getMasternodes.bind(this), 300),
-      loan: await this.cachedGet('loan', this.getLoan.bind(this), 1800),
+      loan: await this.cachedGet('loan', this.getLoan.bind(this), 300),
       emission: await this.cachedGet('emission', this.getEmission.bind(this), 1800),
       net: await this.cachedGet('net', this.getNet.bind(this), 1800),
       blockchain: {
