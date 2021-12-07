@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 
 describe('Loan', () => {
-  const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
+  const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultWithCollateralId: string // Vault with collateral token deposited
 
   let vaultWithoutCollateral1Id: string // Vaults without collateral token deposited
@@ -20,6 +20,7 @@ describe('Loan', () => {
   let oracleId: string
 
   beforeAll(async () => {
+    jest.setTimeout(580000)
     await tGroup.start()
     await tGroup.get(0).container.waitForWalletCoinbaseMaturity()
     await setup()
@@ -34,7 +35,10 @@ describe('Loan', () => {
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 200000 })
 
-    // oracle setup
+    const loanTokenMinterGroup = tGroup.get(2)
+    const loanTokenMinterAddr = await loanTokenMinterGroup.generateAddress()
+    await loanTokenMinterGroup.token.dfi({ address: loanTokenMinterAddr, amount: 2 })
+
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
@@ -43,24 +47,63 @@ describe('Loan', () => {
     ]
     oracleId = await tGroup.get(0).rpc.oracle.appointOracle(addr, priceFeeds, { weightage: 1 })
     await tGroup.get(0).generate(1)
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1000000@DFI', currency: 'USD' }] }) // inflate DFI so that we can mint enough TSLA, we will then reset the price later
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DUSD', currency: 'USD' }] })
     await tGroup.get(0).generate(1)
+
+    // create loan scheme to mint loan token
+    const mintTokenLoanScheme = 'minter'
+    await tGroup.get(0).rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+
+    await tGroup.get(0).rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+
+    await tGroup.get(0).rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: mintTokenLoanScheme
+    })
+
+    await tGroup.get(0).container.generate(1)
+
+    const mintTokenVaultAddr = await loanTokenMinterGroup.generateAddress()
+    const mintTokenVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: mintTokenVaultAddr,
+      loanSchemeId: mintTokenLoanScheme
+    })
+
+    await loanTokenMinterGroup.container.generate(20)
+
+    await loanTokenMinterGroup.rpc.loan.depositToVault({
+      vaultId: mintTokenVaultId,
+      from: loanTokenMinterAddr,
+      amount: '1@DFI'
+    })
+
+    await loanTokenMinterGroup.generate(1)
+
+    await loanTokenMinterGroup.rpc.loan.takeLoan({
+      vaultId: mintTokenVaultId,
+      amounts: '100000@TSLA',
+      to: loanTokenMinterAddr
+    })
+
+    await loanTokenMinterGroup.generate(1)
+
+    await tGroup.waitForSync()
 
     // loan scheme setup
     await tGroup.get(0).rpc.loan.createLoanScheme({
       minColRatio: 150,
       interestRate: new BigNumber(3),
       id: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    // collateral token setup
-    await tGroup.get(0).rpc.loan.setCollateralToken({
-      token: 'DFI',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'DFI/USD'
     })
     await tGroup.get(0).generate(1)
 
@@ -87,12 +130,14 @@ describe('Loan', () => {
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: aliceVaultId, from: collateralAddress, amount: '90000@DFI'
     })
-    await tGroup.get(0).generate(1)
+    // reset oracle dfi price
+    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await tGroup.get(0).container.generate(12)
 
     await tGroup.get(0).rpc.loan.takeLoan({
       vaultId: aliceVaultId,
       to: collateralAddress,
-      amounts: ['60000@DUSD']
+      amounts: '60000@DUSD'
     })
     await tGroup.get(0).generate(1)
     // DUSD set up END
@@ -105,15 +150,10 @@ describe('Loan', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // loan token setup
-    await tGroup.get(0).rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await tGroup.get(0).generate(1)
-
     // Mint TSLA
-    await tGroup.get(0).token.mint({ symbol: 'TSLA', amount: 30000 })
+    const tGroupRecepientAddr = await tGroup.get(0).generateAddress()
+    await loanTokenMinterGroup.rpc.account.accountToAccount(loanTokenMinterAddr, { [tGroupRecepientAddr]: '30000@TSLA' })
+    await loanTokenMinterGroup.generate(1)
     await tGroup.get(0).generate(1)
     await tGroup.get(0).poolpair.create({ tokenA: 'TSLA', tokenB: 'DUSD' })
     await tGroup.get(0).generate(1)
