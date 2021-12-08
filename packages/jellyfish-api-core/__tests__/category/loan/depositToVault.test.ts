@@ -55,10 +55,6 @@ describe('Loan depositToVault', () => {
       fixedIntervalPriceId: 'CAT/USD'
     })
     await tGroup.get(0).generate(1)
-    // await tGroup.get(0).token.create({ symbol: 'CAT', collateralAddress })
-    // await tGroup.get(0).generate(1)
-    // await tGroup.get(0).token.mint({ symbol: 'CAT', amount: 10000 })
-    // await tGroup.get(0).generate(1)
 
     // collateral token
     await tGroup.get(0).rpc.loan.setCollateralToken({
