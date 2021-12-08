@@ -21,13 +21,12 @@ describe('mint loan token', () => {
   async function setup (): Promise<void> {
     // loan token minter setup
     const loanTokenMinterGroup = tGroup.get(0)
-    await loanTokenMinterGroup.container.waitForWalletCoinbaseMaturity()
     const loanTokenMinterAddress = await loanTokenMinterGroup.generateAddress()
     // mint some dfi which will be used to pay collateral to mint loan tokens
-    await loanTokenMinterGroup.token.dfi({ address: loanTokenMinterAddress, amount: 1000 })
-    await loanTokenMinterGroup.container.generate(1)
-    const loanMinterBalance = await loanTokenMinterGroup.rpc.account.getTokenBalances()
-    console.log(loanMinterBalance)
+    // await loanTokenMinterGroup.token.dfi({ address: loanTokenMinterAddress, amount: 1000 })
+    // await loanTokenMinterGroup.container.generate(1)
+    // const loanMinterBalance = await loanTokenMinterGroup.rpc.account.getTokenBalances()
+    // console.log(loanMinterBalance)
 
     // create oracle
     const priceFeeds = [
@@ -79,9 +78,26 @@ describe('mint loan token', () => {
       ownerAddress: vaultAddress,
       loanSchemeId: loanSchemeId
     })
+    await loanTokenMinterGroup.container.generate(1)
 
+    const utxos = await loanTokenMinterGroup.container.call('listunspent')
+    const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
+    })
+
+    // const tokenBalanceResBefore = await loanTokenMinterGroup.rpc.account.getTokenBalances()
+    // console.log(tokenBalanceResBefore)
+
+    await loanTokenMinterGroup.rpc.account.utxosToAccount({ [loanTokenMinterAddress]: '200@DFI' }, inputs)
     // need alot of blocks to allow spending
     await loanTokenMinterGroup.generate(100)
+
+    const tokenBalanceResAfter = await loanTokenMinterGroup.rpc.wallet.getBalance()
+    console.log(tokenBalanceResAfter)
+
     // deposit collateral to vault
     await loanTokenMinterGroup.rpc.loan.depositToVault({
       vaultId: vaultId,
@@ -99,8 +115,6 @@ describe('mint loan token', () => {
       amounts: '1000@TSLA',
       to: loanTokenMinterAddress
     })
-
-    await loanTokenMinterGroup.generate(1)
 
     let loanMinterBalanceAfterLoan = await loanTokenMinterGroup.rpc.account.getTokenBalances()
     console.log(loanMinterBalanceAfterLoan)
