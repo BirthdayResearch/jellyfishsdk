@@ -4,9 +4,9 @@ import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontaine
 import { ListAuctionHistoryDetail } from '../../../src/category/loan'
 
 describe('Loan listAuctionHistory', () => {
-  const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
+  const tGroup = TestingGroup.create(3, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   const alice = tGroup.get(0)
-  const bob = tGroup.get(1)
+  const bob = tGroup.get(2)
   let aliceColAddr: string
   let bobColAddr: string
   let vaultId1: string // Alice 1st vault

@@ -46,21 +46,37 @@ describe('mint loan token', () => {
     const oracleData = await loanTokenMinterGroup.rpc.oracle.getOracleData(oracleId)
     console.log(oracleData)
     // set collateral token and loan token
+    //  const collateralAddress = await tGroup.get(0).container.getNewAddress()
+    // await tGroup.get(0).token.create({ symbol: 'TSLA', collateralAddress })
+    await loanTokenMinterGroup.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await tGroup.get(0).container.generate(1)
+
+    await loanTokenMinterGroup.rpc.loan.setCollateralToken({
+      token: 'TSLA',
+      factor: new BigNumber(0.5),
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+
     await loanTokenMinterGroup.rpc.loan.setCollateralToken({
       token: 'DFI',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DFI/USD'
     })
 
-    await loanTokenMinterGroup.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
+    await tGroup.get(0).container.generate(1)
+
+    const yy = await loanTokenMinterGroup.rpc.loan.listLoanTokens()
+    console.log(yy)
 
     await loanTokenMinterGroup.rpc.loan.setLoanToken({
       symbol: 'DUSD',
       fixedIntervalPriceId: 'DUSD/USD'
     })
+
+    await loanTokenMinterGroup.generate(1)
 
     // create a fake loan scheme just to mint TSLA
     const loanSchemeId = 'fakeLoan'
@@ -110,6 +126,9 @@ describe('mint loan token', () => {
     const loanMinterBalanceAfterDepositToVault = await loanTokenMinterGroup.rpc.account.getTokenBalances()
     console.log(loanMinterBalanceAfterDepositToVault)
 
+    // const zz = await loanTokenMinterGroup.rpc.loan.getLoanToken('TSLA')
+    // console.log(zz)
+
     await loanTokenMinterGroup.rpc.loan.takeLoan({
       vaultId: vaultId,
       amounts: '1000@TSLA',
@@ -120,7 +139,7 @@ describe('mint loan token', () => {
     console.log(loanMinterBalanceAfterLoan)
 
     await loanTokenMinterGroup.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await loanTokenMinterGroup.generate(1)
+    await loanTokenMinterGroup.generate(20)
     await loanTokenMinterGroup.rpc.loan.takeLoan({
       vaultId: vaultId,
       amounts: '1@DUSD',
@@ -148,5 +167,5 @@ describe('mint loan token', () => {
 
   it('test', async () => {
     console.log('testing 123')
-  })
+  }, 580000)
 })
