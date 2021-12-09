@@ -12,10 +12,11 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
     const cmd = super.getCmd(opts)
       .filter(cmd => cmd !== '-eunospayaheight=7')
       .filter(cmd => cmd !== '-fortcanningheight=8')
+      .filter(cmd => cmd !== '-fortcanningmuseumheight=9')
 
     return [
       ...cmd,
-      '-fortcanningheight=9'
+      '-fortcanningheight=20'
     ]
   }
 }
