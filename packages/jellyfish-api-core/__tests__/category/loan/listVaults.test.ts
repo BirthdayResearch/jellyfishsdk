@@ -242,33 +242,18 @@ describe('Loan listVaults with options and pagination', () => {
     await loanMinterProvider.container.generate(1)
     await tGroup.waitForSync()
 
-    const getVault = await loanMinterProvider.rpc.loan.getVault(loanTokenVaultId)
-    console.log(getVault)
-
     // deposit to vault to loan tokens
     await loanMinterProvider.rpc.loan.depositToVault({
       vaultId: loanTokenVaultId, from: loanTokenMinterAddress, amount: '100000000@DFI'
     })
     await loanMinterProvider.container.generate(1)
 
-    let bal = await testing.rpc.account.getTokenBalances()
-    console.log(bal)
     await testing.rpc.loan.takeLoan({
       vaultId: loanTokenVaultId,
       amounts: '10@AAPL',
       to: loanVaultOwner
     })
     await testing.generate(1)
-    bal = await testing.rpc.account.getTokenBalances()
-    console.log(bal)
-
-    // await testing.token.mint({
-    //   symbol: 'AAPL',
-    // })
-    // await testing.generate(1)
-    // bal = await testing.rpc.account.getTokenBalances()
-    // console.log(bal)
-    //   amount: 10
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'GOOGL',
