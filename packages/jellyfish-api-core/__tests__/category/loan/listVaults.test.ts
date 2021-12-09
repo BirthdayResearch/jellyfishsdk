@@ -1,7 +1,8 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { Testing } from '@defichain/jellyfish-testing'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 import { VaultState } from '../../../src/category/loan'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
 describe('Loan listVaults', () => {
   const container = new LoanMasterNodeRegTestContainer()
@@ -144,16 +145,19 @@ describe('Loan listVaults', () => {
 })
 
 describe('Loan listVaults with options and pagination', () => {
-  const container = new LoanMasterNodeRegTestContainer()
-  const testing = Testing.create(container)
+  const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
+  const testing = tGroup.get(0)
+  const loanMinterProvider = tGroup.get(1)
   let collateralAddress: string
   let oracleId: string
   let ownerAddress1: string, ownerAddress2: string, ownerAddress3: string, ownerAddress4: string
   let vaultId1: string, vaultId2: string, vaultId3: string, vaultId4: string
 
   beforeAll(async () => {
-    await testing.container.start()
+    await tGroup.start()
+    // await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
+    await loanMinterProvider.container.waitForWalletCoinbaseMaturity()
     collateralAddress = await testing.generateAddress()
     await testing.token.dfi({
       address: collateralAddress,
@@ -209,11 +213,62 @@ describe('Loan listVaults with options and pagination', () => {
     })
     await testing.generate(1)
 
-    await testing.token.mint({
-      symbol: 'AAPL',
-      amount: 10
+    // setup loan token vault for loaning of loan token
+    const loanTokenMinterSchemeId = 'minter'
+    await loanMinterProvider.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: loanTokenMinterSchemeId
+    })
+    await loanMinterProvider.generate(1)
+    await tGroup.waitForSync()
+    const loanTokenMinterAddress = await loanMinterProvider.generateAddress()
+    const loanVaultOwner = await testing.generateAddress()
+    const loanTokenVaultId = await testing.rpc.loan.createVault({
+      ownerAddress: loanVaultOwner,
+      loanSchemeId: loanTokenMinterSchemeId
+    })
+    await loanMinterProvider.generate(20) // need to check if i need that many blocks before it complains that my vault is not found
+    await tGroup.waitForSync()
+
+    const utxos = await loanMinterProvider.rpc.wallet.listUnspent()
+    const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
+    })
+    await loanMinterProvider.rpc.account.utxosToAccount({ [loanTokenMinterAddress]: '100000000@DFI' }, inputs)
+    await loanMinterProvider.container.generate(1)
+    await tGroup.waitForSync()
+
+    const getVault = await loanMinterProvider.rpc.loan.getVault(loanTokenVaultId)
+    console.log(getVault)
+
+    // deposit to vault to loan tokens
+    await loanMinterProvider.rpc.loan.depositToVault({
+      vaultId: loanTokenVaultId, from: loanTokenMinterAddress, amount: '100000000@DFI'
+    })
+    await loanMinterProvider.container.generate(1)
+
+    let bal = await testing.rpc.account.getTokenBalances()
+    console.log(bal)
+    await testing.rpc.loan.takeLoan({
+      vaultId: loanTokenVaultId,
+      amounts: '10@AAPL',
+      to: loanVaultOwner
     })
     await testing.generate(1)
+    bal = await testing.rpc.account.getTokenBalances()
+    console.log(bal)
+
+    // await testing.token.mint({
+    //   symbol: 'AAPL',
+    // })
+    // await testing.generate(1)
+    // bal = await testing.rpc.account.getTokenBalances()
+    // console.log(bal)
+    //   amount: 10
 
     await testing.rpc.loan.setLoanToken({
       symbol: 'GOOGL',
@@ -411,7 +466,7 @@ describe('Loan listVaults with options and pagination', () => {
       start: vaults[vaults.length - 1].vaultId
     })
     // should be 2 entries
-    expect(vaultsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
+    expect(vaultsSecondPage.length).toStrictEqual(3) // total 4, started at index[2], listing 2 + 1 extra due loantoken vault
 
     // fetch the second page with including_start = true
     const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({
@@ -419,9 +474,10 @@ describe('Loan listVaults with options and pagination', () => {
       start: vaults[vaults.length - 1].vaultId
     })
     // should be 3 entries
-    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
+    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(4) // total 5, including_start, started at index[1], listing 3 + one more for minting loan tokens
 
     //  check if we retrived all 4 entries
+    // need to add the mint token vault here
     expect(vaults.concat(vaultsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
@@ -513,8 +569,8 @@ describe('Loan listVaults with options and pagination', () => {
       including_start: false,
       start: vaults[Object.keys(vaults).length - 1].vaultId
     }, { state: VaultState.ACTIVE })
-    // should be one more entry
-    expect(Object.keys(vaultsSecondPage).length).toStrictEqual(1)
+    // should be one more entry + another one due to loanTokenVault
+    expect(Object.keys(vaultsSecondPage).length).toStrictEqual(2)
   })
 
   it('should listVaults filtered by state', async () => {
