@@ -44,7 +44,7 @@ describe('Masternode', () => {
     expect(Object.keys(masternodeBlock).length).toEqual(mintedBlockNumber)
   })
 
-  it.skip('should show only list of blocks for masternode according to the depth', async () => {
+  it('should show only list of blocks for masternode according to the depth', async () => {
     const address = await testing.container.getNewAddress('', 'legacy')
     const id = await testing.container.call('createmasternode', [address])
     await testing.container.generate(1)
