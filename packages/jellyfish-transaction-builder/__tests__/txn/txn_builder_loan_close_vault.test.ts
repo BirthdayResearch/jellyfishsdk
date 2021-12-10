@@ -125,8 +125,47 @@ describe('loans.closeVault', () => {
     })
     await tGroup.get(0).generate(1)
 
+    // transfer pre funded dfi to loanMinterAddr
+    const loanMinterAddr = await tGroup.get(0).generateAddress()
+    const utxos = await tGroup.get(0).rpc.wallet.listUnspent()
+    const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
+    })
+    await tGroup.get(0).rpc.account.utxosToAccount({ [loanMinterAddr]: '10000000@DFI' }, inputs)
+    await tGroup.get(0).generate(1)
+
+    // setup loan scheme and vault to loan TSLA
+    const loanTokenSchemeId = 'minter'
+    await tGroup.get(0).rpc.loan.createLoanScheme({
+      id: loanTokenSchemeId,
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01)
+    })
+    await tGroup.get(0).generate(1)
+    const loanTokenVaultAddr = await tGroup.get(0).generateAddress()
+    const loanVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: loanTokenVaultAddr,
+      loanSchemeId: loanTokenSchemeId
+    })
+    await tGroup.get(0).generate(1)
+
+    // deposit to loan vault
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: loanVaultId,
+      from: loanMinterAddr,
+      amount: '10000000@DFI'
+    })
+    await tGroup.get(0).generate(1)
+
     // Mint TSLA
-    await tGroup.get(0).token.mint({ symbol: 'TSLA', amount: 30000 })
+    await tGroup.get(0).rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '30000@TSLA',
+      to: loanMinterAddr
+    })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).poolpair.create({ tokenA: 'TSLA', tokenB: 'DUSD' })
     await tGroup.get(0).generate(1)
