@@ -88,10 +88,8 @@ afterAll(async () => {
 })
 
 it('should create add remove swap', async () => {
-  // await testing.token.create({ symbol: 'ABC' })
   await testing.token.dfi({ amount: 10 })
   await testing.generate(1)
-
   await testing.poolpair.create({ tokenA: 'ABC', tokenB: 'DFI' })
   await testing.rpc.loan.takeLoan({
     vaultId: loanVaultId,
