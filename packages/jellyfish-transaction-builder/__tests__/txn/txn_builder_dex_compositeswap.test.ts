@@ -183,7 +183,11 @@ describe('dex.compositeSwap()', () => {
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
 
-    await testing.token.mint({ symbol: 'PIG', amount: 10 })
+    await testing.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '10@PIG',
+      to: loanMinterAddr
+    })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
     await testing.generate(1)
@@ -255,7 +259,11 @@ describe('dex.compositeSwap()', () => {
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
 
-    await testing.token.mint({ symbol: 'CAT', amount: 10 })
+    await testing.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '10@CAT',
+      to: loanMinterAddr
+    })
     await testing.generate(1)
     await testing.token.send({ symbol: 'CAT', amount: 10, address })
     await testing.generate(1)
@@ -443,7 +451,11 @@ describe('dex.compositeSwap()', () => {
 
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
-    await testing.token.mint({ symbol: 'PIG', amount: 10 })
+    await testing.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '10@PIG',
+      to: loanMinterAddr
+    })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
     await testing.generate(1)
