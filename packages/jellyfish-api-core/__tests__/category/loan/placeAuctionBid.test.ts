@@ -30,6 +30,17 @@ async function setup (): Promise<void> {
   await alice.token.mint({ symbol: 'BTC', amount: 30000 })
   await alice.generate(1)
 
+  const loanTokenMinterAddress = await alice.generateAddress()
+  const utxos = await alice.container.call('listunspent')
+  const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+    return {
+      txid: utxo.txid,
+      vout: utxo.vout
+    }
+  })
+  await alice.rpc.account.utxosToAccount({ [loanTokenMinterAddress]: '10000000@DFI' }, inputs)
+  await alice.generate(1)
+
   // oracle setup
   const priceFeeds = [
     { token: 'DFI', currency: 'USD' },
@@ -82,10 +93,46 @@ async function setup (): Promise<void> {
   })
   await alice.generate(1)
 
-  await alice.token.mint({ symbol: 'TSLA', amount: 30000 })
+  // setup loan and vault to mint loan token
+  const loanTokenSchemeId = 'minter'
+  await alice.rpc.loan.createLoanScheme({
+    minColRatio: 100,
+    interestRate: new BigNumber(0.01),
+    id: loanTokenSchemeId
+  })
+
   await alice.generate(1)
 
-  await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@TSLA'] })
+  const loanTokenVaultAddr = await alice.generateAddress()
+  const loanTokenVault = await alice.rpc.loan.createVault(
+    {
+      ownerAddress: loanTokenVaultAddr,
+      loanSchemeId: loanTokenSchemeId
+    }
+  )
+
+  await alice.generate(5) // for oracle to set the price to live
+
+  // loan token deposit into vault and loan TSLA
+  await alice.rpc.loan.depositToVault(
+    {
+      vaultId: loanTokenVault,
+      from: loanTokenMinterAddress,
+      amount: '10000000@DFI'
+    }
+  )
+
+  await alice.generate(1)
+
+  // loan out TSLA by loanTokenMinter to distribute it to whoever needs it
+  await alice.rpc.loan.takeLoan({
+    vaultId: loanTokenVault,
+    amounts: '300000@TSLA',
+    to: loanTokenMinterAddress
+  })
+  await alice.generate(1)
+
+  await alice.rpc.account.accountToAccount(loanTokenMinterAddress, { [aliceColAddr]: '10000@TSLA' })
   await alice.generate(1)
 
   // DUSD loan token set up
@@ -105,7 +152,7 @@ async function setup (): Promise<void> {
   await alice.rpc.loan.depositToVault({
     vaultId: aliceDusdVaultId, from: aliceColAddr, amount: '5000@DFI'
   })
-  await alice.generate(1)
+  await alice.generate(5) // for oracle to set the price to live
 
   const aliceDusdAddr = await alice.generateAddress()
   await alice.rpc.loan.takeLoan({
@@ -255,7 +302,7 @@ async function setup (): Promise<void> {
   expect(vaultAfter.loanAmounts).toStrictEqual(undefined)
   expect(vaultAfter.collateralValue).toStrictEqual(undefined)
   expect(vaultAfter.loanValue).toStrictEqual(undefined)
-  expect(vaultAfter.liquidationHeight).toStrictEqual(174)
+  expect(vaultAfter.liquidationHeight).toStrictEqual(186)
   expect(vaultAfter.liquidationPenalty).toStrictEqual(5)
   expect(vaultAfter.batches).toStrictEqual([
     { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' }, // refer to ln: 171, the last interest generated loanAmt divided by 2
@@ -266,7 +313,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter.length > 0).toStrictEqual(true)
   expect(auctionsAfter[0].vaultId).toStrictEqual(bobVaultId)
   expect(auctionsAfter[0].batchCount).toStrictEqual(2)
-  expect(auctionsAfter[0].liquidationHeight).toStrictEqual(174)
+  expect(auctionsAfter[0].liquidationHeight).toStrictEqual(186)
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00399539@TSLA')
@@ -311,7 +358,7 @@ describe('placeAuctionBid success', () => {
         loanSchemeId: 'scheme',
         ownerAddress: bobVaultAddr,
         state: 'inLiquidation',
-        liquidationHeight: 174,
+        liquidationHeight: 186,
         batchCount: 2,
         liquidationPenalty: 5,
         batches: [
@@ -359,7 +406,7 @@ describe('placeAuctionBid success', () => {
         loanSchemeId: 'scheme',
         ownerAddress: bobVaultAddr,
         state: 'inLiquidation',
-        liquidationHeight: 174,
+        liquidationHeight: 186,
         batchCount: 2,
         liquidationPenalty: 5,
         batches: [
@@ -398,7 +445,7 @@ describe('placeAuctionBid success', () => {
           loanSchemeId: 'scheme',
           ownerAddress: bobVaultAddr,
           liquidationPenalty: 5,
-          liquidationHeight: 211,
+          liquidationHeight: 223,
           batchCount: 2,
           batches: [
             {
@@ -422,7 +469,7 @@ describe('placeAuctionBid success', () => {
         loanSchemeId: 'scheme',
         ownerAddress: bobVaultAddr,
         state: 'inLiquidation',
-        liquidationHeight: 211,
+        liquidationHeight: 223,
         batchCount: 2,
         liquidationPenalty: 5,
         batches: [
@@ -537,7 +584,7 @@ describe('placeAuctionBid success', () => {
         loanSchemeId: 'scheme',
         ownerAddress: bobVaultAddr,
         state: 'inLiquidation',
-        liquidationHeight: 174,
+        liquidationHeight: 186,
         liquidationPenalty: 5,
         batchCount: 2,
         batches: [
@@ -577,7 +624,7 @@ describe('placeAuctionBid success', () => {
       const auctions = await alice.container.call('listauctions')
       expect(auctions[0]).toStrictEqual({
         vaultId: bobVaultId,
-        liquidationHeight: 174,
+        liquidationHeight: 186,
         batchCount: 2,
         liquidationPenalty: 5,
         loanSchemeId: 'scheme',
