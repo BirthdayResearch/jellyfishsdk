@@ -40,8 +40,8 @@ export interface ApiError extends Record<string, any> {
 }
 
 export class ApiException extends HttpException {
-  protected constructor (spec: ApiError) {
-    super({ error: spec }, spec.code)
+  protected constructor (readonly apiError: ApiError) {
+    super({ error: apiError }, apiError.code)
   }
 
   /**

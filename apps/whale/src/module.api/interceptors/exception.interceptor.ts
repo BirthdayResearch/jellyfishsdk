@@ -35,17 +35,21 @@ export class ExceptionInterceptor implements NestInterceptor {
 
   map (err: Error): ApiException {
     if (err instanceof ApiException) {
+      this.logger.error(err.apiError)
       return err
     }
 
     if (err instanceof HttpException) {
+      this.logger.error(err.message, err.stack)
       return new NestJSApiException(err)
     }
 
     if (err instanceof JellyfishApiError) {
+      this.logger.error(err.message, err.stack)
       return new BadRequestApiException(err.message)
     }
 
+    this.logger.error(err)
     return new UnknownApiException()
   }
 }
