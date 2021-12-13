@@ -93,7 +93,46 @@ async function setup (): Promise<void> {
   })
   await alice.generate(1)
 
-  await alice.token.mint({ symbol: 'TSLA', amount: 30000 })
+  // transfer pre funded dfi to loanMinterAddr
+  const loanMinterAddr = await alice.generateAddress()
+  const utxos = await alice.rpc.wallet.listUnspent()
+  const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
+    return {
+      txid: utxo.txid,
+      vout: utxo.vout
+    }
+  })
+  await alice.rpc.account.utxosToAccount({ [loanMinterAddr]: '1000000@DFI' }, inputs)
+  await alice.generate(1)
+
+  // setup loan scheme and vault to loan TSLA
+  const loanTokenSchemeId = 'minter'
+  await alice.rpc.loan.createLoanScheme({
+    id: loanTokenSchemeId,
+    minColRatio: 100,
+    interestRate: new BigNumber(0.01)
+  })
+  await alice.generate(1)
+  const loanTokenVaultAddr = await alice.generateAddress()
+  const loanVaultId = await alice.rpc.loan.createVault({
+    ownerAddress: loanTokenVaultAddr,
+    loanSchemeId: loanTokenSchemeId
+  })
+  await alice.generate(1)
+
+  // deposit to loan vault
+  await alice.rpc.loan.depositToVault({
+    vaultId: loanVaultId,
+    from: loanMinterAddr,
+    amount: '1000000@DFI'
+  })
+  await alice.generate(1)
+
+  await alice.rpc.loan.takeLoan({
+    vaultId: loanVaultId,
+    to: loanMinterAddr,
+    amounts: ['30000@TSLA']
+  })
   await alice.generate(1)
 
   await alice.rpc.account.sendTokensToAddress({}, { [aliceColAddr]: ['10000@TSLA'] })
@@ -104,7 +143,7 @@ async function setup (): Promise<void> {
     symbol: 'DUSD',
     fixedIntervalPriceId: 'DUSD/USD'
   })
-  await alice.generate(1)
+  await alice.generate(5)
 
   const aliceDusdVaultAddr = await alice.generateAddress()
   const aliceDusdVaultId = await alice.rpc.loan.createVault({
@@ -255,8 +294,6 @@ async function setup (): Promise<void> {
 
   // *11 => 1000.00627847@TSLA
   // *12 => 1000.00684924@TSLA
-  // *13 => 1000.00742001@TSLA
-  // *14 => 1000.00799078@TSLA
   await bob.container.waitForVaultState(bobVaultId, 'inLiquidation')
 
   // vault is liquidated now
@@ -269,8 +306,8 @@ async function setup (): Promise<void> {
   expect(vaultAfter.liquidationHeight).toStrictEqual(expect.any(Number))
   expect(vaultAfter.liquidationPenalty).toStrictEqual(5)
   expect(vaultAfter.batches).toStrictEqual([
-    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' },
-    { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00399539@TSLA' }
+    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00342462@TSLA' },
+    { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00342462@TSLA' }
   ])
 
   const auctionsAfter = await bob.container.call('listauctions')
@@ -280,7 +317,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter[0].liquidationHeight).toStrictEqual(expect.any(Number))
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
-  expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00399539@TSLA')
+  expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00342462@TSLA')
 
   bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
   expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
@@ -402,13 +439,13 @@ describe('placeAuctionBid success', () => {
         batches: [
           {
             index: 0,
-            collaterals: ['5004.44449290@DFI', '0.49955555@BTC'],
-            loan: '499.55982197@TSLA'
+            collaterals: ['5004.44478554@DFI', '0.49955552@BTC'],
+            loan: '499.55922671@TSLA'
           },
           {
             index: 1,
-            collaterals: ['4.45245858@DFI', '0.00044445@BTC'],
-            loan: '0.44445881@TSLA'
+            collaterals: ['4.45270951@DFI', '0.00044448@BTC'],
+            loan: '0.44448330@TSLA'
           }
         ]
       }
@@ -465,7 +502,7 @@ describe('placeAuctionBid success', () => {
           {
             index: 0,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '500.00399539@TSLA',
+            loan: '500.00342462@TSLA',
             highestBid: {
               amount: '526.00000000@TSLA',
               owner: bobColAddr
@@ -474,7 +511,7 @@ describe('placeAuctionBid success', () => {
           {
             index: 1,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '500.00399539@TSLA'
+            loan: '500.00342462@TSLA'
           }
         ]
       })
@@ -520,7 +557,7 @@ describe('placeAuctionBid success', () => {
         batches: [{
           index: 0,
           collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-          loan: '500.00399539@TSLA',
+          loan: '500.00342462@TSLA',
           highestBid: {
             amount: '526.00000000@TSLA',
             owner: bobColAddr
@@ -529,7 +566,7 @@ describe('placeAuctionBid success', () => {
         {
           index: 1,
           collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-          loan: '500.00399539@TSLA',
+          loan: '500.00342462@TSLA',
           highestBid: {
             amount: '600.00000000@TSLA',
             owner: aliceColAddr
@@ -552,10 +589,10 @@ describe('placeAuctionBid success', () => {
 
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
-    expect(vault.collateralAmounts).toStrictEqual(['55.25753134@DFI'])
+    expect(vault.collateralAmounts).toStrictEqual(['55.25856840@DFI'])
     expect(vault.loanAmounts).toStrictEqual([])
     expect(vault.interestAmounts).toStrictEqual([])
-    expect(vault.collateralValue).toStrictEqual(55.25753134)
+    expect(vault.collateralValue).toStrictEqual(55.25856840)
     expect(vault.loanValue).toStrictEqual(0)
     expect(vault.interestValue).toStrictEqual(0)
     expect(vault.collateralRatio).toStrictEqual(-1)
