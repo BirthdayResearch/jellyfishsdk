@@ -1,3 +1,4 @@
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import {
   BadRequestException,
   ConflictException,
@@ -5,7 +6,9 @@ import {
   Get,
   NotFoundException,
   Param,
-  Query
+  Query,
+  ParseIntPipe,
+  Inject
 } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
@@ -27,14 +30,21 @@ import { mapTokenData } from '@src/module.api/token.controller'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { LoanVaultService } from '@src/module.api/loan.vault.service'
 import { OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
+import { VaultAuctionHistoryMapper, VaultAuctionBatchHistory } from '@src/module.model/vault.auction.batch.history'
 import { ActivePrice } from '@whale-api-client/api/prices'
+import { NetworkName } from '@defichain/jellyfish-network'
+import { HexEncoder } from '@src/module.model/_hex.encoder'
 
 @Controller('/loans')
 export class LoanController {
+  liqBlockExpiry = this.network === 'regtest' ? 36 : 720
+
   constructor (
+    @Inject('NETWORK') protected readonly network: NetworkName,
     private readonly client: JsonRpcClient,
     private readonly deFiDCache: DeFiDCache,
     private readonly vaultService: LoanVaultService,
+    private readonly vaultAuctionHistoryMapper: VaultAuctionHistoryMapper,
     private readonly priceActiveMapper: OraclePriceActiveMapper
   ) {
   }
@@ -68,7 +78,7 @@ export class LoanController {
       const data = await this.client.loan.getLoanScheme(id)
       return mapLoanScheme(data)
     } catch (err) {
-      if (err?.payload?.message === `Cannot find existing loan scheme with id ${id}`) {
+      if (err instanceof RpcApiError && err?.payload?.message === `Cannot find existing loan scheme with id ${id}`) {
         throw new NotFoundException('Unable to find scheme')
       } else {
         throw new BadRequestException(err)
@@ -106,7 +116,7 @@ export class LoanController {
       const data = await this.client.loan.getCollateralToken(id)
       return await this.mapCollateralToken(data)
     } catch (err) {
-      if (err?.payload?.message === `Token ${id} does not exist!`) {
+      if (err instanceof RpcApiError && err?.payload?.message === `Token ${id} does not exist!`) {
         throw new NotFoundException('Unable to find collateral token')
       } else {
         throw new BadRequestException(err)
@@ -144,7 +154,7 @@ export class LoanController {
       const data = await this.client.loan.getLoanToken(id)
       return await this.mapLoanToken(data)
     } catch (err) {
-      if (err?.payload?.message === `Token ${id} does not exist!`) {
+      if (err instanceof RpcApiError && err?.payload?.message === `Token ${id} does not exist!`) {
         throw new NotFoundException('Unable to find loan token')
       } else {
         throw new BadRequestException(err)
@@ -172,6 +182,31 @@ export class LoanController {
   @Get('/vaults/:id')
   async getVault (@Param('id') id: string): Promise<LoanVaultActive | LoanVaultLiquidated> {
     return await this.vaultService.get(id)
+  }
+
+  /**
+   * List vault auction history.
+   *
+   * @param {string} id vaultId
+   * @param {number} height liquidation height
+   * @param {number} batchIndex batch index
+   * @param {PaginationQuery} query
+   * @return {Promise<ApiPagedResponse<VaultAuctionBatchHistory>>}
+   */
+  @Get('/vaults/:id/auctions/:height/batches/:batchIndex/history')
+  async listVaultAuctionHistory (
+    @Param('id') id: string,
+      @Param('height', ParseIntPipe) height: number, // liquidationHeight
+      @Param('batchIndex', ParseIntPipe) batchIndex: number, // batch index
+      @Query() query: PaginationQuery
+  ): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
+    const lt = query.next ?? `${HexEncoder.encodeHeight(height)}-${'f'.repeat(64)}`
+    const gt = `${HexEncoder.encodeHeight(height - this.liqBlockExpiry)}-${'0'.repeat(64)}`
+    const list = await this.vaultAuctionHistoryMapper.query(`${id}-${batchIndex}`, query.size, lt, gt)
+
+    return ApiPagedResponse.of(list, query.size, item => {
+      return item.sort
+    })
   }
 
   /**

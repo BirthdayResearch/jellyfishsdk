@@ -13,6 +13,7 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { ConfigService } from '@nestjs/config'
 import { SetLoanTokenIndexer } from './set.loan.token'
 import { ActivePriceIndexer } from './active.price'
+import { PlaceAuctionBidIndexer } from './place.auction.bid'
 
 const indexers = [
   AppointOracleIndexer,
@@ -26,7 +27,8 @@ const indexers = [
   CreatePoolPairIndexer,
   UpdatePoolPairIndexer,
   SetLoanTokenIndexer,
-  ActivePriceIndexer
+  ActivePriceIndexer,
+  PlaceAuctionBidIndexer
 ]
 
 @Module({
