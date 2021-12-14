@@ -92,7 +92,7 @@ describe('Loan', () => {
       loanSchemeId: mintTokenLoanScheme
     })
 
-    await loanTokenMinterProvider.container.generate(8)
+    await loanTokenMinterProvider.container.generate(10)
 
     await loanTokenMinterProvider.rpc.loan.depositToVault({
       vaultId: mintTokenVaultId,
