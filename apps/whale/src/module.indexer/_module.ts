@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Logger, Module } from '@nestjs/common'
 import { RPCBlockProvider } from '@src/module.indexer/rpc.block.provider'
 import { MainIndexer } from '@src/module.indexer/model/_main'
 import { BlockIndexer } from '@src/module.indexer/model/block'
@@ -44,4 +44,18 @@ import { NetworkName } from '@defichain/jellyfish-network'
   ]
 })
 export class IndexerModule {
+  private readonly logger = new Logger(IndexerModule.name)
+
+  constructor (private readonly provider: RPCBlockProvider) {
+  }
+
+  async onApplicationBootstrap (): Promise<void> {
+    await this.provider.start()
+    this.logger.log('Started IndexerModule')
+  }
+
+  async beforeApplicationShutdown (): Promise<void> {
+    await this.provider.stop()
+    this.logger.log('Stopped IndexerModule gracefully')
+  }
 }

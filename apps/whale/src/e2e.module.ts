@@ -40,7 +40,7 @@ export async function createTestingApp (container: MasterNodeRegTestContainer): 
 export async function stopTestingApp (container: MasterNodeRegTestContainer, app: NestFastifyApplication): Promise<void> {
   try {
     const indexer = app.get(RPCBlockProvider)
-    indexer.close()
+    await indexer.stop()
     await app.close()
   } finally {
     await new Promise((resolve) => {
