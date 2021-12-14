@@ -23,6 +23,7 @@ import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { parseDisplaySymbol } from '@src/module.api/token.controller'
 import { ActivePrice } from '@whale-api-client/api/prices'
 import { OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class LoanVaultService {
@@ -62,7 +63,11 @@ export class LoanVaultService {
       const vault = await this.client.loan.getVault(id)
       return await this.mapLoanVault(vault)
     } catch (err) {
-      if (err?.payload?.message === `Vault <${id}> not found` || err?.payload?.message === 'vaultId must be of length 64 (not 3, for \'999\')'
+      if (
+        err instanceof RpcApiError && (
+          err?.payload?.message === `Vault <${id}> not found` ||
+          err?.payload?.message === 'vaultId must be of length 64 (not 3, for \'999\')'
+        )
       ) {
         throw new NotFoundException('Unable to find vault')
       } else {

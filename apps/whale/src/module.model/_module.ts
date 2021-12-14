@@ -23,6 +23,7 @@ import { TokenMapper } from '@src/module.model/token'
 import { PoolPairMapper } from '@src/module.model/poolpair'
 import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
 import { OraclePriceActiveMapper } from './oracle.price.active'
+import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
 
 @Global()
 @Module({
@@ -48,7 +49,8 @@ import { OraclePriceActiveMapper } from './oracle.price.active'
     MasternodeStatsMapper,
     TokenMapper,
     PoolPairMapper,
-    PoolPairTokenMapper
+    PoolPairTokenMapper,
+    VaultAuctionHistoryMapper
   ],
   exports: [
     ModelProbeIndicator,
@@ -72,7 +74,8 @@ import { OraclePriceActiveMapper } from './oracle.price.active'
     MasternodeStatsMapper,
     TokenMapper,
     PoolPairMapper,
-    PoolPairTokenMapper
+    PoolPairTokenMapper,
+    VaultAuctionHistoryMapper
   ]
 })
 export class ModelModule {
