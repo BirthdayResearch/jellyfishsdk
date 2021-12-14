@@ -304,7 +304,7 @@ describe('Loan listAuctions', () => {
                 '0.33333333@BTC'
               ],
               index: 0,
-              loan: '5000.01992715@AAPL',
+              loan: '5000.01992729@AAPL',
               highestBid: {
                 amount: '5252.00000000@AAPL',
                 owner: collateralAddress
@@ -316,7 +316,7 @@ describe('Loan listAuctions', () => {
                 '0.16666667@BTC'
               ],
               index: 1,
-              loan: '2500.01003858@AAPL'
+              loan: '2500.01003866@AAPL'
             }
           ],
           loanSchemeId: result?.loanSchemeId,
