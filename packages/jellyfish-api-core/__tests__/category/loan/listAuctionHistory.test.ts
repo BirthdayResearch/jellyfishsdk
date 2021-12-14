@@ -4,9 +4,9 @@ import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontaine
 import { ListAuctionHistoryDetail } from '../../../src/category/loan'
 
 describe('Loan listAuctionHistory', () => {
-  const tGroup = TestingGroup.create(3, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
+  const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   const alice = tGroup.get(0)
-  const bob = tGroup.get(2)
+  const bob = tGroup.get(1)
   let aliceColAddr: string
   let bobColAddr: string
   let vaultId1: string // Alice 1st vault
@@ -20,10 +20,15 @@ describe('Loan listAuctionHistory', () => {
     aliceColAddr = await alice.generateAddress()
     bobColAddr = await bob.generateAddress()
 
-    await alice.token.dfi({
-      address: aliceColAddr,
-      amount: 35000
+    const utxosAlice = await alice.rpc.wallet.listUnspent()
+    const inputsAlice = utxosAlice.map((utxo: {txid: string, vout: number}) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
     })
+
+    await alice.rpc.account.utxosToAccount({ [aliceColAddr]: '10000000@DFI' }, inputsAlice)
     await alice.generate(1)
 
     await alice.token.create({
@@ -42,11 +47,16 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    await bob.token.dfi({
-      address: bobColAddr,
-      amount: 75000
+    const utxosBob = await bob.rpc.wallet.listUnspent()
+    const inputsBob = utxosBob.map((utxo: {txid: string, vout: number}) => {
+      return {
+        txid: utxo.txid,
+        vout: utxo.vout
+      }
     })
-    await bob.generate(1)
+
+    await bob.rpc.account.utxosToAccount({ [bobColAddr]: '75000@DFI' }, inputsBob)
+    await bob.container.generate(1)
     await tGroup.waitForSync()
 
     // Loan scheme
@@ -147,20 +157,10 @@ describe('Loan listAuctionHistory', () => {
       fixedIntervalPriceId: 'AAPL/USD'
     })
     await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'AAPL',
-      amount: 50000
-    })
-    await alice.generate(1)
 
     await alice.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'TSLA',
-      amount: 50000
     })
     await alice.generate(1)
 
@@ -169,20 +169,62 @@ describe('Loan listAuctionHistory', () => {
       fixedIntervalPriceId: 'MSFT/USD'
     })
     await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'MSFT',
-      amount: 50000
-    })
-    await alice.generate(1)
 
     await alice.rpc.loan.setLoanToken({
       symbol: 'FB',
       fixedIntervalPriceId: 'FB/USD'
     })
     await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'FB',
-      amount: 50000
+
+    // set loan token minting scheme and vault
+    const loanTokenSchemeId = 'minter'
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: loanTokenSchemeId
+    })
+    await alice.generate(1)
+
+    const mintTokenVaultAddr = await alice.generateAddress()
+    const loanVaultId = await alice.rpc.loan.createVault({
+      ownerAddress: mintTokenVaultAddr,
+      loanSchemeId: loanTokenSchemeId
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: loanVaultId,
+      from: aliceColAddr,
+      amount: '1000000@DFI'
+    })
+
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@AAPL',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@TSLA',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@MSFT',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@FB',
+      to: aliceColAddr
     })
     await alice.generate(1)
 
