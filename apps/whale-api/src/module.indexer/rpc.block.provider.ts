@@ -6,10 +6,12 @@ import { Block, BlockMapper } from '@src/module.model/block'
 import { IndexStatusMapper, Status } from '@src/module.indexer/status'
 import { TokenMapper } from '@src/module.model/token'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { waitForCondition } from '@defichain/testcontainers/dist/utils'
 
 @Injectable()
 export class RPCBlockProvider {
   private readonly logger = new Logger(RPCBlockProvider.name)
+  private running = false
   private indexing = false
 
   constructor (
@@ -28,12 +30,21 @@ export class RPCBlockProvider {
    */
   @Interval(1000)
   async cycle (): Promise<void> {
+    if (!this.running) {
+      return
+    }
+
     if (this.indexing) {
       return
     }
 
     this.indexing = true // start indexing
     while (this.indexing) {
+      if (!this.running) {
+        this.indexing = false
+        return
+      }
+
       try {
         await this.cleanup()
         this.indexing = await this.synchronize()
@@ -44,8 +55,15 @@ export class RPCBlockProvider {
     }
   }
 
-  close (): void {
-    this.indexing = false
+  async start (): Promise<void> {
+    this.running = true
+  }
+
+  async stop (): Promise<void> {
+    this.running = false
+    await waitForCondition(async () => {
+      return !this.indexing
+    }, 30000, 1000)
   }
 
   /**
