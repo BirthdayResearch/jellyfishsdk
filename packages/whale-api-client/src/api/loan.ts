@@ -92,6 +92,20 @@ export class Loan {
   }
 
   /**
+   * List vault auction history.
+   *
+   * @param {string} id vaultId
+   * @param {number} height liquidation height
+   * @param {number} batchIndex batch index
+   * @param {number} size of auction batch index history
+   * @param {string} next set of auction batch index history
+   * @return {Promise<ApiPagedResponse<VaultAuctionBatchHistory>>}
+   */
+  async listVaultAuctionHistory (id: string, height: number, batchIndex: number, size: number = 30, next?: string): Promise<ApiPagedResponse<VaultAuctionBatchHistory>> {
+    return await this.client.requestList('GET', `loans/vaults/${id}/auctions/${height}/batches/${batchIndex}/history`, size, next)
+  }
+
+  /**
    * Paginate query loan auctions.
    *
    * @param {number} size of auctions to query
@@ -183,4 +197,23 @@ export interface LoanVaultTokenAmount {
 export interface HighestBid {
   owner: string
   amount: LoanVaultTokenAmount
+}
+
+export interface VaultAuctionBatchHistory {
+  id: string
+  key: string
+  sort: string
+
+  vaultId: string
+  index: number
+  from: string
+  amount: string
+  tokenId: number
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
+  }
 }
