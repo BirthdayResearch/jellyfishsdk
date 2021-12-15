@@ -3,7 +3,7 @@ module.exports = {
   testRegex: '((\\.|/)(e2e|test|spec))\\.[jt]sx?$',
   testSequencer: require.resolve('./jest.sequencer'),
   moduleNameMapper: {
-    '@defichain/.*': '<rootDir>/packages/$1/src'
+    '@defichain/(.*)': '<rootDir>/packages/$1/src'
   },
   verbose: true,
   clearMocks: true,
