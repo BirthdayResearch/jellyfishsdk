@@ -1,29 +1,27 @@
 # Define individuals that are responsible for code in this repository.
 # More details are here: https://help.github.com/articles/about-codeowners/
 
-/.github/                                       @fuxingloh @monstrobishi
-/.husky/                                        @fuxingloh @monstrobishi
-
-/examples/                                      @fuxingloh
+/.github/                                       @fuxingloh
+/.husky/                                        @fuxingloh
 
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap @Jouzo
+/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap
 
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
 
-/packages/jellyfish-block/                      @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+/packages/jellyfish-block/                      @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
 
-/packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+/packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
 
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
 
-/packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap @Jouzo
+/packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap
 
-/packages/jellyfish-transaction/                @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
-/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @Jouzo @jingyi2811
+/packages/jellyfish-transaction/                @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
+/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
 
 /packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi @surangap
