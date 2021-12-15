@@ -2,22 +2,27 @@ version: v1
 
 labels:
   - label: kind/feature
+    sync: true
     matcher:
       title: "^feat\\(.+\\): .+"
 
   - label: kind/fix
+    sync: true
     matcher:
       title: "^fix\\(.+\\): .+"
 
   - label: kind/chore
+    sync: true
     matcher:
       title: "^chore\\(.+\\): .+"
 
   - label: kind/refactor
+    sync: true
     matcher:
       title: "^refactor\\(.+\\): .+"
 
   - label: kind/docs
+    sync: true
     matcher:
       title: "^docs\\(.+\\): .+"
 
