@@ -9,16 +9,16 @@
   "files": [],
   "workspaces": [
     "./",
-    "./packages/*",
-    "./website"
+    "./apps/*",
+    "./packages/*"
   ],
   "engines": {
     "node": ">=14.x"
   },
   "scripts": {
-    "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
+    "clean": "rm -rf ./packages/**/dist && rm -rf ./apps/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
-    "website:build": "npm run build --workspace=website",
+    "website:build": "npm run build --workspace=apps/website",
     "build": "lerna run --scope '@defichain/*' build",
     "version:set": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
     "publish:latest": "lerna exec -- npm publish --tag latest --access public",
@@ -37,6 +37,7 @@
     "lerna": "^4.0.0",
     "lint-staged": "^12.1.2",
     "shuffle-seed": "^1.1.6",
+    "nock": "^13.1.3",
     "ts-jest": "^27.1.1",
     "typescript": "4.2.4",
     "wait-for-expect": "^3.0.2"
