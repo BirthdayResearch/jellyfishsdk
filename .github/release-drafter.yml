@@ -1,13 +1,13 @@
 name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
-  - title: '🚀 Features'
+  - title: 'Features'
     labels:
       - 'kind/feature'
-  - title: '🐛 Bug Fixes'
+  - title: 'Fixes'
     labels:
       - 'kind/fix'
-  - title: 'Maintenance'
+  - title: 'Chore & Maintenance'
     labels:
       - 'kind/refactor'
       - 'kind/chore'
@@ -24,6 +24,4 @@ version-resolver:
   default: patch
 prerelease: false
 template: |
-  ## What’s Changed
-
   $CHANGES
