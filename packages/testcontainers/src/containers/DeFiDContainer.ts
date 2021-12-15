@@ -155,7 +155,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * For convenience sake, HTTP post to the RPC URL for the current node.
+   * For convenience’s sake, HTTP POST to the RPC URL for the current node.
    * Not error checked, returns the raw JSON as string.
    */
   async post (body: string): Promise<string> {
@@ -168,7 +168,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Convenience method to getmininginfo, typing mapping is non exhaustive
+   * Convenience method to getmininginfo, typing mapping is non-exhaustive
    */
   async getMiningInfo (): Promise<{ blocks: number, chain: string }> {
     return await this.call('getmininginfo', [])
@@ -182,7 +182,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Convenience method to getbestblockhash, typing mapping is non exhaustive
+   * Convenience method to getbestblockhash, typing mapping is non-exhaustive
    */
   async getBestBlockHash (): Promise<string> {
     return await this.call('getbestblockhash', [])
@@ -201,18 +201,18 @@ export abstract class DeFiDContainer extends DockerContainer {
    * Wait for rpc to be ready
    * @param {number} [timeout=20000] in millis
    */
-  private async waitForRpc (timeout = 20000): Promise<void> {
+  private async waitForRpc (timeout = 40000): Promise<void> {
     await waitForCondition(async () => {
       this.cachedRpcUrl = undefined
       await this.getMiningInfo()
       return true
-    }, timeout, 200, 'waitForRpc')
+    }, timeout, 500, 'waitForRpc')
   }
 
   /**
    * @deprecated as container.start() will automatically wait for ready now, you don't need to call this anymore
    */
-  async waitForReady (timeout = 20000): Promise<void> {
+  async waitForReady (timeout = 40000): Promise<void> {
     return await this.waitForRpc(timeout)
   }
 
