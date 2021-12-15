@@ -2,7 +2,7 @@ name: Governance
 
 on:
   pull_request:
-    types: [ synchronize, opened ]
+    types: [ opened, edited, synchronize, ready_for_review ]
 
 jobs:
   labeler:

@@ -51,7 +51,7 @@ checks:
     url: "https://github.com/DeFiCh/jellyfish/blob/main/.github/labeler.yml"
     description:
       success: Ready for review & merge.
-      failure: Missing semantic title or label for merge.
+      failure: "Missing semantic title or label for merge [kind(directory): title]"
     labels:
       any:
         - kind/feature
