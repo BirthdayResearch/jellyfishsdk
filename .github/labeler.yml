@@ -26,6 +26,11 @@ labels:
     matcher:
       title: "^docs\\(.+\\): .+"
 
+  - label: kind/dependencies
+    sync: true
+    matcher:
+      title: "^deps(\\(.+\\))?: .+"
+
   - label: area/workflow
     sync: true
     matcher:
