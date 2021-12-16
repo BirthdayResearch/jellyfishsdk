@@ -21,7 +21,7 @@
     "test": "jest --maxWorkers=100%",
     "ci:test": "jest --ci --coverage --forceExit --maxWorkers=4",
     "all:clean": "rm -rf ./packages/**/dist && rm -rf ./apps/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
-    "all:build": "npm run build --workspaces --if-present",
+    "all:build": "lerna run build",
     "all:version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
     "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public"
   },
