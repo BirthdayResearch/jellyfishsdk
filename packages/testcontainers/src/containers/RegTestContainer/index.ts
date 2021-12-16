@@ -32,7 +32,8 @@ export class RegTestContainer extends DeFiDContainer {
       '-dakotacrescentheight=5',
       '-eunosheight=6',
       '-eunospayaheight=7',
-      '-fortcanningheight=8'
+      '-fortcanningheight=8',
+      '-greatworldheight=9'
     ]
   }
 

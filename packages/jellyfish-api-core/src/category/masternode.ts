@@ -51,6 +51,18 @@ export class Masternode {
   }
 
   /**
+   *
+   * @param {string} masternodeId
+   * @param {UpdateMasternodeOptions} options
+   * @param inputs
+   * @return {Promise<string>}
+   */
+  async updateMasternode (masternodeId: string, options: UpdateMasternodeOptions, inputs: UTXO[] = []): Promise<string> {
+    const params = [masternodeId, options, inputs]
+    return await this.client.call('updatemasternode', params, 'number')
+  }
+
+  /**
    * Returns information about multiple masternodes.
    *
    * @param {MasternodePagination} pagination
@@ -202,6 +214,12 @@ export interface UTXO {
 export interface CreateMasternodeOptions {
   utxos: UTXO[]
   timelock?: MasternodeTimeLock
+}
+
+export interface UpdateMasternodeOptions {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress?: string
 }
 
 export interface MasternodePagination {
