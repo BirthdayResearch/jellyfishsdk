@@ -16,16 +16,14 @@
     "node": ">=14.x"
   },
   "scripts": {
-    "clean": "rm -rf ./packages/**/dist && rm -rf ./apps/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
-    "website:build": "npm run build --workspace=apps/website",
-    "build": "lerna run --scope '@defichain/*' build",
-    "version:set": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
-    "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",
-    "test:ci": "jest --ci --coverage --forceExit --maxWorkers=4",
-    "all": "npm run clean && npm run build && npm run lint && npm run test"
+    "ci:test": "jest --ci --coverage --forceExit --maxWorkers=4",
+    "all:clean": "rm -rf ./packages/**/dist && rm -rf ./apps/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
+    "all:build": "npm run build --workspaces --if-present",
+    "all:version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
+    "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",

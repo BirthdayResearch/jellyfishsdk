@@ -28,8 +28,8 @@ jobs:
           result-encoding: string
 
       - run: npm ci
-      - run: npm run build
-      - run: npm run version:set ${{ steps.version.outputs.result }}
+      - run: npm run all:build
+      - run: npm run all:version ${{ steps.version.outputs.result }}
 
       # Because lerna doesn't update peers deps, although using it "wrongly" this behavior ensure all jellyfish deps are aligned.
       - name: find and replace peerDependencies
@@ -39,6 +39,6 @@ jobs:
       - name: Publish
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
-          npm run publish:latest
+          npm run all:publish
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
