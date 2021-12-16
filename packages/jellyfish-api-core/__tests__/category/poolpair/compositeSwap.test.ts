@@ -16,7 +16,7 @@ describe('compositeSwap', () => {
   const testing = Testing.create(container)
   const client = new ContainerAdapterClient(container)
   let loanVaultId: string
-  let loanMinterAddr: string
+  let loanTokenProviderAddr: string
 
   beforeAll(async () => {
     await testing.container.start()
@@ -67,20 +67,12 @@ describe('compositeSwap', () => {
     await testing.rpc.oracle.setOracleData(oracleId, now(), oraclePriceData)
 
     // set up loan vaults for loan tokens
-    loanMinterAddr = await testing.generateAddress()
-    const utxos = await testing.rpc.wallet.listUnspent()
-    const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    await testing.rpc.account.utxosToAccount({ [loanMinterAddr]: '10000000@DFI' }, inputs)
+    loanTokenProviderAddr = await testing.generateAddress()
+    await testing.token.dfi({ address: loanTokenProviderAddr, amount: '10000000' })
     await testing.generate(1)
 
     // create loan and vault for minting of loan tokens
-    const loanTokenSchemeId = 'minter'
+    const loanTokenSchemeId = 'borrow'
     await testing.rpc.loan.createLoanScheme({
       minColRatio: 100,
       interestRate: new BigNumber(0.01),
@@ -164,7 +156,7 @@ describe('compositeSwap', () => {
     // take loan for each loan tokens that we need
     await testing.rpc.loan.depositToVault({
       vaultId: loanVaultId,
-      from: loanMinterAddr,
+      from: loanTokenProviderAddr,
       amount: '10000000@DFI'
     })
 
@@ -173,7 +165,7 @@ describe('compositeSwap', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '30000@CAT',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await container.generate(1)
@@ -191,7 +183,7 @@ describe('compositeSwap', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '30000@DOG',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await container.generate(1)
     await testing.poolpair.add({
@@ -209,25 +201,25 @@ describe('compositeSwap', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10000@ABC',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10000@PATHA',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10000@PATHB',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10000@XYZ',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await container.generate(1)
 
@@ -261,25 +253,25 @@ describe('compositeSwap', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '160000@ELF',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '160000@ORC',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '160000@UNDY',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
 
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '160000@HUMAN',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await container.generate(1)
 
@@ -591,7 +583,7 @@ describe('compositeSwap', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '100@TSLA',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await container.generate(1)
 
@@ -636,7 +628,7 @@ describe('compositeSwap', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '100@EMPTY',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await container.generate(1)
 

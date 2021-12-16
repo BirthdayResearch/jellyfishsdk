@@ -26,7 +26,7 @@ beforeAll(async () => {
   await client.masternode.createMasternode(await container.getNewAddress('', 'legacy'))
   await container.generate(1)
 
-  // create loan to loan gold token
+  // create loan to get gold token
   const priceFeeds = [{
     token: 'DFI',
     currency: 'USD'
@@ -50,7 +50,7 @@ beforeAll(async () => {
   })
   await container.generate(1)
 
-  const loanTokenSchemeId = 'minter'
+  const loanTokenSchemeId = 'borrow'
   await client.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(0.01),
@@ -59,9 +59,9 @@ beforeAll(async () => {
 
   await container.generate(1)
 
-  const mintTokenVaultAddr = await container.getNewAddress()
+  const loanTokenVaultAddr = await container.getNewAddress()
   const loanVaultId = await client.loan.createVault({
-    ownerAddress: mintTokenVaultAddr,
+    ownerAddress: loanTokenVaultAddr,
     loanSchemeId: loanTokenSchemeId
   })
 

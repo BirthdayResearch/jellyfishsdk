@@ -30,15 +30,8 @@ async function setup (): Promise<void> {
   await alice.token.mint({ symbol: 'BTC', amount: 30000 })
   await alice.generate(1)
 
-  const loanTokenMinterAddress = await alice.generateAddress()
-  const utxos = await alice.container.call('listunspent')
-  const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-    return {
-      txid: utxo.txid,
-      vout: utxo.vout
-    }
-  })
-  await alice.rpc.account.utxosToAccount({ [loanTokenMinterAddress]: '10000000@DFI' }, inputs)
+  const loanTokenProviderAddress = await alice.generateAddress()
+  await alice.token.dfi({ address: loanTokenProviderAddress, amount: '10000000' })
   await alice.generate(1)
 
   // oracle setup
@@ -94,7 +87,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   // setup loan and vault to mint loan token
-  const loanTokenSchemeId = 'minter'
+  const loanTokenSchemeId = 'borrow'
   await alice.rpc.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(0.01),
@@ -117,7 +110,7 @@ async function setup (): Promise<void> {
   await alice.rpc.loan.depositToVault(
     {
       vaultId: loanTokenVault,
-      from: loanTokenMinterAddress,
+      from: loanTokenProviderAddress,
       amount: '10000000@DFI'
     }
   )
@@ -128,11 +121,11 @@ async function setup (): Promise<void> {
   await alice.rpc.loan.takeLoan({
     vaultId: loanTokenVault,
     amounts: '300000@TSLA',
-    to: loanTokenMinterAddress
+    to: loanTokenProviderAddress
   })
   await alice.generate(1)
 
-  await alice.rpc.account.accountToAccount(loanTokenMinterAddress, { [aliceColAddr]: '10000@TSLA' })
+  await alice.rpc.account.accountToAccount(loanTokenProviderAddress, { [aliceColAddr]: '10000@TSLA' })
   await alice.generate(1)
 
   // DUSD loan token set up

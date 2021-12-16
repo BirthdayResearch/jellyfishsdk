@@ -20,15 +20,7 @@ describe('Loan listAuctionHistory', () => {
     aliceColAddr = await alice.generateAddress()
     bobColAddr = await bob.generateAddress()
 
-    const utxosAlice = await alice.rpc.wallet.listUnspent()
-    const inputsAlice = utxosAlice.map((utxo: {txid: string, vout: number}) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    await alice.rpc.account.utxosToAccount({ [aliceColAddr]: '10000000@DFI' }, inputsAlice)
+    await alice.token.dfi({ address: aliceColAddr, amount: '10000000' })
     await alice.generate(1)
 
     await alice.token.create({
@@ -47,15 +39,7 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    const utxosBob = await bob.rpc.wallet.listUnspent()
-    const inputsBob = utxosBob.map((utxo: {txid: string, vout: number}) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-
-    await bob.rpc.account.utxosToAccount({ [bobColAddr]: '75000@DFI' }, inputsBob)
+    await bob.token.dfi({ address: bobColAddr, amount: '75000' })
     await bob.container.generate(1)
     await tGroup.waitForSync()
 
@@ -177,7 +161,7 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
 
     // set loan token minting scheme and vault
-    const loanTokenSchemeId = 'minter'
+    const loanTokenSchemeId = 'borrow'
     await alice.rpc.loan.createLoanScheme({
       minColRatio: 100,
       interestRate: new BigNumber(0.01),
@@ -185,9 +169,9 @@ describe('Loan listAuctionHistory', () => {
     })
     await alice.generate(1)
 
-    const mintTokenVaultAddr = await alice.generateAddress()
+    const loanTokenVaultAddr = await alice.generateAddress()
     const loanVaultId = await alice.rpc.loan.createVault({
-      ownerAddress: mintTokenVaultAddr,
+      ownerAddress: loanTokenVaultAddr,
       loanSchemeId: loanTokenSchemeId
     })
     await alice.generate(1)

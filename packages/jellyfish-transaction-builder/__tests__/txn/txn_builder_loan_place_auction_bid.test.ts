@@ -94,19 +94,12 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   // transfer pre funded dfi to loanMinterAddr
-  const loanMinterAddr = await alice.generateAddress()
-  const utxos = await alice.rpc.wallet.listUnspent()
-  const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-    return {
-      txid: utxo.txid,
-      vout: utxo.vout
-    }
-  })
-  await alice.rpc.account.utxosToAccount({ [loanMinterAddr]: '1000000@DFI' }, inputs)
+  const loanTokenProviderAddr = await alice.generateAddress()
+  await alice.token.dfi({ address: loanTokenProviderAddr, amount: '1000000' })
   await alice.generate(1)
 
   // setup loan scheme and vault to loan TSLA
-  const loanTokenSchemeId = 'minter'
+  const loanTokenSchemeId = 'borrow'
   await alice.rpc.loan.createLoanScheme({
     id: loanTokenSchemeId,
     minColRatio: 100,
@@ -123,14 +116,14 @@ async function setup (): Promise<void> {
   // deposit to loan vault
   await alice.rpc.loan.depositToVault({
     vaultId: loanVaultId,
-    from: loanMinterAddr,
+    from: loanTokenProviderAddr,
     amount: '1000000@DFI'
   })
   await alice.generate(1)
 
   await alice.rpc.loan.takeLoan({
     vaultId: loanVaultId,
-    to: loanMinterAddr,
+    to: loanTokenProviderAddr,
     amounts: ['30000@TSLA']
   })
   await alice.generate(1)

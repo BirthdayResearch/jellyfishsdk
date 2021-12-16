@@ -3,7 +3,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 
 const testing = Testing.create(new MasterNodeRegTestContainer())
-let loanMinterAddr: string
+let loanProviderAddr: string
 let loanVaultId: string
 
 function now (): number {
@@ -11,17 +11,8 @@ function now (): number {
 }
 
 async function setup (): Promise<void> {
-  loanMinterAddr = await testing.generateAddress()
-
-  const utxos = await testing.rpc.wallet.listUnspent()
-  const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-    return {
-      txid: utxo.txid,
-      vout: utxo.vout
-    }
-  })
-
-  await testing.rpc.account.utxosToAccount({ [loanMinterAddr]: '10000000@DFI' }, inputs)
+  loanProviderAddr = await testing.generateAddress()
+  await testing.token.dfi({ address: loanProviderAddr, amount: '10000000' })
   await testing.generate(1)
 
   const priceFeeds = [
@@ -53,7 +44,7 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   // setup loan scheme and vault
-  const loanTokenSchemeId = 'minter'
+  const loanTokenSchemeId = 'borrow'
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(0.01),
@@ -71,7 +62,7 @@ async function setup (): Promise<void> {
   // deposit dfi as collateral
   await testing.rpc.loan.depositToVault({
     vaultId: loanVaultId,
-    from: loanMinterAddr,
+    from: loanProviderAddr,
     amount: '10000000@DFI'
   })
   await testing.generate(1)
@@ -94,7 +85,7 @@ it('should create add remove swap', async () => {
   await testing.rpc.loan.takeLoan({
     vaultId: loanVaultId,
     amounts: '100@ABC',
-    to: loanMinterAddr
+    to: loanProviderAddr
   })
   await testing.generate(1)
 

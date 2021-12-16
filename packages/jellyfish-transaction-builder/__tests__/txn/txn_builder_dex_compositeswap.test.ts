@@ -28,7 +28,7 @@ const pairs: Record<string, Pair> = {
   BIRD: { tokenId: Number.NaN, poolId: Number.NaN },
   FISH: { tokenId: Number.NaN, poolId: Number.NaN }
 }
-let loanMinterAddr: string
+let loanTokenProviderAddr: string
 let loanVaultId: string
 let oracleId: string
 
@@ -37,15 +37,7 @@ function now (): number {
 }
 
 async function setup (symbols: string[]): Promise<void> {
-  loanMinterAddr = await testing.generateAddress()
-
-  const utxos = await testing.rpc.wallet.listUnspent()
-  const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-    return {
-      txid: utxo.txid,
-      vout: utxo.vout
-    }
-  })
+  loanTokenProviderAddr = await testing.generateAddress()
 
   // create array of pricefeeds for symbols to append later
   const priceFeedSymbols = symbols.map(symbol => {
@@ -63,7 +55,7 @@ async function setup (symbols: string[]): Promise<void> {
     }
   })
 
-  await testing.rpc.account.utxosToAccount({ [loanMinterAddr]: '10000000@DFI' }, inputs)
+  await testing.token.dfi({ address: loanTokenProviderAddr, amount: '10000000' })
   await testing.generate(1)
 
   let priceFeeds = [
@@ -102,7 +94,7 @@ async function setup (symbols: string[]): Promise<void> {
   }
 
   // setup loan scheme and vault
-  const loanTokenSchemeId = 'minter'
+  const loanTokenSchemeId = 'borrow'
   await testing.rpc.loan.createLoanScheme({
     minColRatio: 100,
     interestRate: new BigNumber(0.01),
@@ -120,7 +112,7 @@ async function setup (symbols: string[]): Promise<void> {
   // deposit dfi as collateral
   await testing.rpc.loan.depositToVault({
     vaultId: loanVaultId,
-    from: loanMinterAddr,
+    from: loanTokenProviderAddr,
     amount: '10000000@DFI'
   })
   await testing.generate(1)
@@ -145,7 +137,7 @@ beforeAll(async () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: `10000@${symbol}`,
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await testing.poolpair.create({ tokenA: symbol, tokenB: 'DFI' })
     await testing.generate(1)
@@ -186,7 +178,7 @@ describe('dex.compositeSwap()', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10@PIG',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
@@ -262,7 +254,7 @@ describe('dex.compositeSwap()', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10@CAT',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await testing.generate(1)
     await testing.token.send({ symbol: 'CAT', amount: 10, address })
@@ -406,7 +398,7 @@ describe('dex.compositeSwap()', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10@PIG',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
@@ -458,7 +450,7 @@ describe('dex.compositeSwap()', () => {
     await testing.rpc.loan.takeLoan({
       vaultId: loanVaultId,
       amounts: '10@PIG',
-      to: loanMinterAddr
+      to: loanTokenProviderAddr
     })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })

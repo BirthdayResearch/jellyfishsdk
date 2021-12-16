@@ -42,7 +42,7 @@ describe('Loan depositToVault', () => {
 
     // token setup
     collateralAddress = await tGroup.get(0).container.getNewAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 30000 })
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 100030000 })
     await tGroup.get(0).generate(1)
     await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
     await tGroup.get(0).generate(1)
@@ -93,11 +93,11 @@ describe('Loan depositToVault', () => {
       id: 'scheme'
     })
 
-    const loanTokenMinterSchemeId = 'minter'
+    const loanTokenSchemeId = 'borrow'
     await tGroup.get(0).rpc.loan.createLoanScheme({
       minColRatio: 100,
       interestRate: new BigNumber(0.01),
-      id: loanTokenMinterSchemeId
+      id: loanTokenSchemeId
     })
     await tGroup.get(0).generate(1)
 
@@ -121,45 +121,29 @@ describe('Loan depositToVault', () => {
     })
 
     // set up loan token vault
-    const loanTokenMinterAddress = await tGroup.get(0).generateAddress()
+    const loanTokenProviderAddress = await tGroup.get(0).generateAddress()
     const loanTokenVaultId = await tGroup.get(0).rpc.loan.createVault({
-      ownerAddress: loanTokenMinterAddress,
-      loanSchemeId: loanTokenMinterSchemeId
+      ownerAddress: loanTokenProviderAddress,
+      loanSchemeId: loanTokenSchemeId
     })
-
     await tGroup.get(0).generate(1)
-
-    // prefund loanTokenVaultOwner with alot of DFI
-    const utxos = await tGroup.get(0).rpc.wallet.listUnspent()
-    const inputs = utxos.map((utxo: { txid: string, vout: number }) => {
-      return {
-        txid: utxo.txid,
-        vout: utxo.vout
-      }
-    })
-    await tGroup.get(0).rpc.account.utxosToAccount({ [loanTokenMinterAddress]: '100000000@DFI' }, inputs)
-    await tGroup.get(0).container.generate(1)
 
     // deposit to vault to loan CAT
     await tGroup.get(0).rpc.loan.depositToVault({
-      vaultId: loanTokenVaultId, from: loanTokenMinterAddress, amount: '100000000@DFI'
+      vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000000@DFI'
     })
     await tGroup.get(0).container.generate(1)
 
     await tGroup.get(0).rpc.loan.takeLoan({
       vaultId: loanTokenVaultId,
       amounts: '10000@CAT',
-      to: loanTokenMinterAddress
+      to: collateralAddress
     })
     await tGroup.get(0).container.generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
     })
-    await tGroup.get(0).generate(1)
-
-    // transferring CAT to collateralAddress
-    await tGroup.get(0).rpc.account.accountToAccount(loanTokenMinterAddress, { [collateralAddress]: '10000@CAT' })
     await tGroup.get(0).generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
