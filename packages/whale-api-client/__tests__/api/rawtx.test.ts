@@ -41,7 +41,8 @@ describe('test', () => {
   it('should accept valid txn with given maxFeeRate', async () => {
     const hex = await createSignedTxnHex(container, 10, 9.995)
     await client.rawtx.test({
-      hex: hex, maxFeeRate: 0.05
+      hex: hex,
+      maxFeeRate: 0.05
     })
   })
 
@@ -66,7 +67,8 @@ describe('test', () => {
     expect.assertions(2)
     try {
       await client.rawtx.test({
-        hex: hex, maxFeeRate: 1
+        hex: hex,
+        maxFeeRate: 1
       })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
@@ -82,7 +84,7 @@ describe('test', () => {
 })
 
 describe('send', () => {
-  it('should send valid txn', async () => {
+  it('should send valid txn 0.0001 DFI as fees', async () => {
     const hex = await createSignedTxnHex(container, 10, 9.9999)
     const txid = await client.rawtx.send({
       hex: hex
@@ -94,10 +96,23 @@ describe('send', () => {
     expect(out.value).toStrictEqual(9.9999)
   })
 
+  it('should send valid txn 0.01 DFI as fees', async () => {
+    const hex = await createSignedTxnHex(container, 10, 9.99)
+    const txid = await client.rawtx.send({
+      hex: hex
+    })
+    expect(txid.length).toStrictEqual(64)
+
+    await container.generate(1)
+    const out = await container.call('gettxout', [txid, 0])
+    expect(out.value).toStrictEqual(9.99)
+  })
+
   it('should send valid txn with given maxFeeRate', async () => {
     const hex = await createSignedTxnHex(container, 10, 9.995)
     const txid = await client.rawtx.send({
-      hex: hex, maxFeeRate: 0.05
+      hex: hex,
+      maxFeeRate: 0.05
     })
     expect(txid.length).toStrictEqual(64)
 
@@ -130,7 +145,8 @@ describe('send', () => {
     expect.assertions(2)
     try {
       await client.rawtx.send({
-        hex: hex, maxFeeRate: 1
+        hex: hex,
+        maxFeeRate: 1
       })
     } catch (err) {
       expect(err).toBeInstanceOf(WhaleApiException)
@@ -140,6 +156,23 @@ describe('send', () => {
         at: expect.any(Number),
         url: '/v0.0/regtest/rawtx/send',
         message: 'Absurdly high fee'
+      })
+    }
+  })
+
+  it('should fail due to high fees using default values', async () => {
+    const hex = await createSignedTxnHex(container, 10, 9.95)
+    expect.assertions(2)
+    try {
+      await client.rawtx.send({ hex: hex })
+    } catch (err) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Absurdly high fee',
+        url: '/v0.0/regtest/rawtx/send'
       })
     }
   })
@@ -189,7 +222,8 @@ describe('send', () => {
     expect.assertions(3)
     try {
       await client.rawtx.send({
-        hex: '00', maxFeeRate: -1.5
+        hex: '00',
+        maxFeeRate: -1.5
       })
       expect('must fail').toBeUndefined()
     } catch (err) {
@@ -209,8 +243,9 @@ describe('send', () => {
     expect.assertions(3)
     try {
       await client.rawtx.send({
+        hex: '00',
         // @ts-expect-error
-        hex: '00', maxFeeRate: 'abc'
+        maxFeeRate: 'abc'
       })
       expect('must fail').toBeUndefined()
     } catch (err) {
