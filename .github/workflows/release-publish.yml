@@ -31,8 +31,8 @@ jobs:
       - run: npm run build
       - run: npm run version:set ${{ steps.version.outputs.result }}
 
-      - name: find and replace peerDependencies # because lerna doesn't update peers deps
-        # TODO(fuxingloh): add ocean/*/package.json when enabled
+      # Because lerna doesn't update peers deps, although using it "wrongly" this behavior ensure all jellyfish deps are aligned.
+      - name: find and replace peerDependencies
         run: |
           find packages/*/package.json -type f -exec sed -i 's#    "defichain": "^0.0.0"#    "defichain": "^${{ steps.version.outputs.result }}"#g' {} \;
 

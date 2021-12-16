@@ -35,34 +35,31 @@ issue:
 
     - prefix: area
       list:
-        - core
         - workflow
-        - website
+        - apps
+        - docs
         - examples
-        - jellyfish-address
-        - jellyfish-api-core
-        - jellyfish-api-jsonrpc
-        - jellyfish-block
-        - jellyfish-buffer
-        - jellyfish-crypto
-        - jellyfish-json
-        - jellyfish-network
-        - jellyfish-testing
-        - jellyfish-transaction
-        - jellyfish-transaction-builder
-        - jellyfish-transaction-signature
-        - jellyfish-wallet
-        - jellyfish-wallet-classic
-        - jellyfish-wallet-encrypted
-        - jellyfish-wallet-mnemonic
-        - testcontainers
-        - testing
+        - modules
+        - packages
       multiple: true
       needs:
         comment: |
           @$AUTHOR: There are no 'area' labels on this issue. Adding an appropriate label will greatly expedite the process for us. You can add as many area as you see fit. **If you are unsure what to do you can ignore this!**
 
           You can add area labels by leaving a `/area` comment.
+      author_association:
+        author: true
+        collaborator: true
+        member: true
+        owner: true
+
+    - prefix: sig
+      list:
+        - blockchain
+        - ecosystem
+        - wallet
+        - product
+      multiple: true
       author_association:
         author: true
         collaborator: true
@@ -116,65 +113,6 @@ issue:
 
     - cmd: /assign
       type: assign
-      author_association:
-        collaborator: true
-        member: true
-        owner: true
-
-pull_request:
-  labels:
-    - prefix: kind
-      multiple: false
-      list:
-        - feature
-        - fix
-        - chore
-        - docs
-        - refactor
-        - dependencies
-      needs:
-        comment: |
-          @$AUTHOR: There are no 'kind' label on this PR. You need a 'kind' label to generate the release automatically.
-
-          * `/kind feature`
-          * `/kind fix`
-          * `/kind chore`
-          * `/kind docs`
-          * `/kind refactor`
-          * `/kind dependencies`
-        status:
-          context: "Governance / Kind Label"
-          description:
-            success: Ready for review & merge.
-            failure: Missing 'kind' label for release generation.
-      author_association:
-        author: true
-        collaborator: true
-        member: true
-        owner: true
-
-    - prefix: priority
-      multiple: false
-      list: [ "urgent-now", "important-soon" ]
-      author_association:
-        collaborator: true
-        member: true
-        owner: true
-
-  chat_ops:
-    - cmd: /close
-      type: close
-      author_association:
-        author: true
-        collaborator: true
-        member: true
-        owner: true
-
-    - cmd: /cc
-      type: none
-
-    - cmd: /request
-      type: review
       author_association:
         collaborator: true
         member: true

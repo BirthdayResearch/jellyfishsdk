@@ -1,102 +1,66 @@
 version: v1
 
 labels:
+  - label: kind/feature
+    sync: true
+    matcher:
+      title: "^feat\\(.+\\): .+"
+
+  - label: kind/fix
+    sync: true
+    matcher:
+      title: "^fix\\(.+\\): .+"
+
+  - label: kind/chore
+    sync: true
+    matcher:
+      title: "^chore\\(.+\\): .+"
+
+  - label: kind/refactor
+    sync: true
+    matcher:
+      title: "^refactor\\(.+\\): .+"
+
+  - label: kind/docs
+    sync: true
+    matcher:
+      title: "^docs\\(.+\\): .+"
+
   - label: area/workflow
     sync: true
     matcher:
       files: ".github/**"
 
-  - label: area/website
+  - label: area/apps
     sync: true
     matcher:
-      files: "website/**"
+      files: "apps/**"
 
   - label: area/examples
     sync: true
     matcher:
       files: "examples/**"
 
-  - label: area/jellyfish-address
+  - label: area/modules
     sync: true
     matcher:
-      files: "packages/jellyfish-address/**"
+      files: "modules/**"
 
-  - label: area/jellyfish-api-core
+  - label: area/packages
     sync: true
     matcher:
-      files: "packages/jellyfish-api-core/**"
+      files: "packages/**"
 
-  - label: area/jellyfish-api-jsonrpc
-    sync: true
-    matcher:
-      files: "packages/jellyfish-api-jsonrpc/**"
-
-  - label: area/jellyfish-block
-    sync: true
-    matcher:
-      files: "packages/jellyfish-block/**"
-
-  - label: area/jellyfish-buffer
-    sync: true
-    matcher:
-      files: "packages/jellyfish-buffer/**"
-
-  - label: area/jellyfish-crypto
-    sync: true
-    matcher:
-      files: "packages/jellyfish-crypto/**"
-
-  - label: area/jellyfish-json
-    sync: true
-    matcher:
-      files: "packages/jellyfish-json/**"
-
-  - label: area/jellyfish-network
-    sync: true
-    matcher:
-      files: "packages/jellyfish-network/**"
-
-  - label: area/jellyfish-testing
-    sync: true
-    matcher:
-      files: "packages/jellyfish-testing/**"
-
-  - label: area/jellyfish-transaction
-    sync: true
-    matcher:
-      files: "packages/jellyfish-transaction/**"
-
-  - label: area/jellyfish-transaction-builder
-    sync: true
-    matcher:
-      files: "packages/jellyfish-transaction-builder/**"
-
-  - label: area/jellyfish-transaction-signature
-    sync: true
-    matcher:
-      files: "packages/jellyfish-transaction-signature/**"
-
-  - label: area/jellyfish-wallet-encrypted
-    sync: true
-    matcher:
-      files: "packages/jellyfish-wallet-encrypted/**"
-
-  - label: area/jellyfish-wallet-classic
-    sync: true
-    matcher:
-      files: "packages/jellyfish-wallet-classic/**"
-
-  - label: area/jellyfish-wallet-mnemonic
-    sync: true
-    matcher:
-      files: "packages/jellyfish-wallet-mnemonic/**"
-
-  - label: area/testcontainers
-    sync: true
-    matcher:
-      files: "packages/testcontainers/**"
-
-  - label: area/testing
-    sync: true
-    matcher:
-      files: "packages/testing/**"
+checks:
+  - context: "Semantic Pull Request"
+    url: "https://github.com/DeFiCh/jellyfish/blob/main/.github/labeler.yml"
+    description:
+      success: Ready for review & merge.
+      failure: "Missing semantic title or label for merge [kind(directory): title]"
+    labels:
+      any:
+        - kind/feature
+        - kind/fix
+        - kind/chore
+        - kind/refactor
+        - kind/docs
