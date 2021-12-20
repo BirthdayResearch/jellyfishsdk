@@ -3,15 +3,10 @@
     "lib": [
       "es2020"
     ],
-    "target": "esnext",
+    "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "incremental": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "resolveJsonModule": true
+    "esModuleInterop": true
   }
 }
