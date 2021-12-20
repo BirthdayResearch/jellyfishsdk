@@ -24,7 +24,7 @@
     "build": "./prebuild && tsc"
   },
   "dependencies": {
-    "@defichain/jellyfish-api-core": "^2.10.4",
+    "@defichain/jellyfish-api-core": "^2.10.5",
     "abort-controller": "^3.0.0",
     "cross-fetch": "^3.1.2",
     "url-search-params-polyfill": "8.1.1"
