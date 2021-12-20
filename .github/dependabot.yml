@@ -4,6 +4,8 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
+    labels:
+      - "kind/dependencies"
     ignore:
       - dependency-name: "defich"
       - dependency-name: "defichain"
