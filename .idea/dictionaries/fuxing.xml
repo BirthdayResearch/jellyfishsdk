@@ -68,12 +68,14 @@
       <w>equalverify</w>
       <w>eunospayaheight</w>
       <w>feeburn</w>
+      <w>fiveyeartimelock</w>
       <w>fortcanningheight</w>
       <w>fromaltstack</w>
       <w>fullstackninja</w>
       <w>fuxingloh</w>
       <w>generatetoaddress</w>
       <w>getaccount</w>
+      <w>getactivemasternodecount</w>
       <w>getaddressinfo</w>
       <w>getbalance</w>
       <w>getblock</w>
@@ -82,9 +84,11 @@
       <w>getblockhash</w>
       <w>getburninfo</w>
       <w>getcollateraltoken</w>
+      <w>getgov</w>
       <w>getinterest</w>
       <w>getloanscheme</w>
       <w>getloantoken</w>
+      <w>getmasternode</w>
       <w>getmempoolinfo</w>
       <w>getmintinginfo</w>
       <w>getnetworkhashps</w>
@@ -136,8 +140,10 @@
       <w>listaddressgroupings</w>
       <w>listburnhistory</w>
       <w>listcollateraltokens</w>
+      <w>listgovs</w>
       <w>listloanschemes</w>
       <w>listloantokens</w>
+      <w>listmasternodes</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
       <w>listunspent</w>
@@ -190,6 +196,7 @@
       <w>rawtx</w>
       <w>regtest</w>
       <w>removepoolliquidity</w>
+      <w>resignmasternode</w>
       <w>rewardaddress</w>
       <w>ripemd</w>
       <w>rpcallowip</w>
@@ -206,6 +213,8 @@
       <w>sendtokenstoaddress</w>
       <w>setcollateraltoken</w>
       <w>setdefaultloanscheme</w>
+      <w>setgov</w>
+      <w>setgovheight</w>
       <w>setloantoken</w>
       <w>setwalletflag</w>
       <w>sighash</w>
@@ -220,6 +229,7 @@
       <w>strippedsize</w>
       <w>surangap</w>
       <w>takeloan</w>
+      <w>tenyeartimelock</w>
       <w>testcontainers</w>
       <w>testmempoolaccept</w>
       <w>thedoublejay</w>
