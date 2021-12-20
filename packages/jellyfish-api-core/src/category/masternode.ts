@@ -42,11 +42,12 @@ export class Masternode {
     operatorAddress?: string,
     options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string> {
-    operatorAddress = operatorAddress ?? ownerAddress
-    const params = [ownerAddress, operatorAddress, options.utxos]
-    if (options.timelock !== undefined) {
-      params.push(options.timelock)
-    }
+    const params = [
+      ownerAddress,
+      operatorAddress ?? ownerAddress,
+      options.utxos,
+      ...(options.timelock !== undefined ? [options.timelock] : [])
+    ]
     return await this.client.call('createmasternode', params, 'number')
   }
 
@@ -94,7 +95,7 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
-   * @return {Promise<MasternodeResult<T>>}
+   * @return {Promise<MasternodeResult>}
    */
   async listMasternodes<T> (
     pagination: MasternodePagination = {
