@@ -69,3 +69,4 @@ checks:
         - kind/chore
         - kind/refactor
         - kind/docs
+        - kind/dependencies
