@@ -4,14 +4,15 @@ updates:
     directory: '/'
     schedule:
       interval: 'daily'
-    labels:
-      - "kind/dependencies"
     ignore:
       - dependency-name: "defich"
       - dependency-name: "defichain"
       - dependency-name: "@defich/*"
       - dependency-name: "@defichain/*"
     versioning-strategy: 'increase'
+    commit-message:
+      include: scope
+      prefix: deps
 
   - package-ecosystem: "github-actions"
     directory: "/"
