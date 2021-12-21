@@ -606,5 +606,5 @@ describe('Loan listVaults with options and pagination', () => {
     const vaults = await testing.rpc.loan.listVaults()
     const theLiqVault = vaults.find(vault => vault.vaultId === vaultId)!
     expect(theLiqVault.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
-  })
+  }, 480000)
 })
