@@ -48,12 +48,9 @@ describe('Loan depositToVault', () => {
     await tGroup.get(0).generate(1)
     await tGroup.get(0).token.mint({ symbol: 'BTC', amount: 20000 })
     await tGroup.get(0).generate(1)
-
-    // set loan token here to also create it at the same time so that we can set it as collateral later
-    await tGroup.get(0).rpc.loan.setLoanToken({
-      symbol: 'CAT',
-      fixedIntervalPriceId: 'CAT/USD'
-    })
+    await tGroup.get(0).token.create({ symbol: 'CAT', collateralAddress })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.mint({ symbol: 'CAT', amount: 10000 })
     await tGroup.get(0).generate(1)
 
     // collateral token
@@ -131,13 +128,6 @@ describe('Loan depositToVault', () => {
     // deposit to vault to loan CAT
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000000@DFI'
-    })
-    await tGroup.get(0).container.generate(1)
-
-    await tGroup.get(0).rpc.loan.takeLoan({
-      vaultId: loanTokenVaultId,
-      amounts: '10000@CAT',
-      to: collateralAddress
     })
     await tGroup.get(0).container.generate(1)
 
