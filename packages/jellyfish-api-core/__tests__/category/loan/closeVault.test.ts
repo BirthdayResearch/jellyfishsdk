@@ -83,7 +83,8 @@ describe('Loan', () => {
       loanSchemeId: loanTokenSchemeId
     })
 
-    await loanTokenProvider.container.generate(10)
+    await loanTokenProvider.container.generate(15)
+    await tGroup.waitForSync()
 
     await loanTokenProvider.rpc.loan.depositToVault({
       vaultId: mintTokenVaultId,
