@@ -28,95 +28,6 @@ const pairs: Record<string, Pair> = {
   BIRD: { tokenId: Number.NaN, poolId: Number.NaN },
   FISH: { tokenId: Number.NaN, poolId: Number.NaN }
 }
-let loanTokenProviderAddr: string
-let loanVaultId: string
-let oracleId: string
-
-function now (): number {
-  return Math.floor(new Date().getTime() / 1000)
-}
-
-async function setup (symbols: string[]): Promise<void> {
-  loanTokenProviderAddr = await testing.generateAddress()
-
-  // create array of pricefeeds for symbols to append later
-  const priceFeedSymbols = symbols.map(symbol => {
-    return {
-      token: symbol,
-      currency: 'USD'
-    }
-  })
-
-  // create an array of price data for symbols to append later
-  const priceDataSymbols = symbols.map(symbol => {
-    return {
-      tokenAmount: `0.01@${symbol}`,
-      currency: 'USD'
-    }
-  })
-
-  await testing.token.dfi({ address: loanTokenProviderAddr, amount: '10000000' })
-  await testing.generate(1)
-
-  let priceFeeds = [
-    { token: 'DFI', currency: 'USD' }
-  ]
-  priceFeeds = priceFeeds.concat(priceFeedSymbols)
-
-  let prices = [{ tokenAmount: '1@DFI', currency: 'USD' }]
-  prices = prices.concat(priceDataSymbols)
-
-  const oraclePriceData = {
-    prices
-  }
-
-  const oracleAddr = await testing.generateAddress()
-  oracleId = await testing.rpc.oracle.appointOracle(oracleAddr, priceFeeds, { weightage: 1 })
-  await testing.generate(1)
-  await testing.rpc.oracle.setOracleData(oracleId, now(), oraclePriceData)
-  await testing.generate(5)
-
-  await testing.rpc.loan.setCollateralToken({
-    token: 'DFI',
-    factor: new BigNumber(1),
-    fixedIntervalPriceId: 'DFI/USD'
-  })
-  await testing.generate(1)
-
-  // setup loan tokens
-  for (const symbol of symbols) {
-    await testing.rpc.loan.setLoanToken({
-      symbol,
-      fixedIntervalPriceId: `${symbol}/USD`
-    })
-
-    await testing.generate(1)
-  }
-
-  // setup loan scheme and vault
-  const loanTokenSchemeId = 'borrow'
-  await testing.rpc.loan.createLoanScheme({
-    minColRatio: 100,
-    interestRate: new BigNumber(0.01),
-    id: loanTokenSchemeId
-  })
-  await testing.generate(1)
-  const loanTokenVaultAddr = await testing.generateAddress()
-  loanVaultId = await testing.rpc.loan.createVault({
-    ownerAddress: loanTokenVaultAddr,
-    loanSchemeId: loanTokenSchemeId
-  })
-
-  await testing.generate(4) // extra block for oracle price to be set to live
-
-  // deposit dfi as collateral
-  await testing.rpc.loan.depositToVault({
-    vaultId: loanVaultId,
-    from: loanTokenProviderAddr,
-    amount: '10000000@DFI'
-  })
-  await testing.generate(1)
-}
 
 beforeAll(async () => {
   await container.start()
@@ -127,18 +38,15 @@ beforeAll(async () => {
   builder = new P2WPKHTransactionBuilder(providers.fee, providers.prevout, providers.elliptic, RegTest)
   testing = Testing.create(container)
 
-  await setup(Object.keys(pairs))
   // creating DFI-* pool pairs and funding liquidity
   for (const symbol of Object.keys(pairs)) {
+    await testing.token.create({ symbol })
+    await testing.generate(1)
+
     const token = await container.call('gettoken', [symbol])
     pairs[symbol].tokenId = Number.parseInt(Object.keys(token)[0])
 
-    // take loan
-    await testing.rpc.loan.takeLoan({
-      vaultId: loanVaultId,
-      amounts: `10000@${symbol}`,
-      to: loanTokenProviderAddr
-    })
+    await testing.token.mint({ symbol, amount: 10000 })
     await testing.poolpair.create({ tokenA: symbol, tokenB: 'DFI' })
     await testing.generate(1)
 
@@ -175,11 +83,7 @@ describe('dex.compositeSwap()', () => {
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
 
-    await testing.rpc.loan.takeLoan({
-      vaultId: loanVaultId,
-      amounts: '10@PIG',
-      to: loanTokenProviderAddr
-    })
+    await testing.token.mint({ symbol: 'PIG', amount: 10 })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
     await testing.generate(1)
@@ -251,11 +155,7 @@ describe('dex.compositeSwap()', () => {
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
 
-    await testing.rpc.loan.takeLoan({
-      vaultId: loanVaultId,
-      amounts: '10@CAT',
-      to: loanTokenProviderAddr
-    })
+    await testing.token.mint({ symbol: 'CAT', amount: 10 })
     await testing.generate(1)
     await testing.token.send({ symbol: 'CAT', amount: 10, address })
     await testing.generate(1)
@@ -395,11 +295,7 @@ describe('dex.compositeSwap()', () => {
 
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
-    await testing.rpc.loan.takeLoan({
-      vaultId: loanVaultId,
-      amounts: '10@PIG',
-      to: loanTokenProviderAddr
-    })
+    await testing.token.mint({ symbol: 'PIG', amount: 10 })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
     await testing.generate(1)
@@ -447,11 +343,7 @@ describe('dex.compositeSwap()', () => {
 
     const address = await providers.getAddress()
     const script = fromAddress(address, 'regtest')?.script as Script
-    await testing.rpc.loan.takeLoan({
-      vaultId: loanVaultId,
-      amounts: '10@PIG',
-      to: loanTokenProviderAddr
-    })
+    await testing.token.mint({ symbol: 'PIG', amount: 10 })
     await testing.generate(1)
     await testing.token.send({ symbol: 'PIG', amount: 10, address })
     await testing.generate(1)
