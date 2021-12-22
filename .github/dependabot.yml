@@ -14,7 +14,7 @@ updates:
     versioning-strategy: 'increase'
     commit-message:
       include: scope
-      prefix: deps
+      prefix: bump
 
   - package-ecosystem: "github-actions"
     directory: "/"

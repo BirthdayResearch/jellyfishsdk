@@ -29,7 +29,7 @@ labels:
   - label: kind/dependencies
     sync: true
     matcher:
-      title: "^deps(\\(.+\\))?: .+"
+      title: "^bump(\\(.+\\))?: .+"
 
   - label: area/workflow
     sync: true
