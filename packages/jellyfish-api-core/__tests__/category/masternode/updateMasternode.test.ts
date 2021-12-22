@@ -3,6 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { UpdateMasternodeOptions } from 'packages/jellyfish-api-core/src/category/masternode'
 
 describe('Masternode', () => {
+//   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -237,25 +238,7 @@ describe('Masternode', () => {
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, {})).rejects.toThrow('No update arguments provided')
   })
 
-  it('should fail when owner address is empty or invalid P2PKH or P2WPKH address', async () => {
-    const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
-
-    const updateOption: UpdateMasternodeOptions = {
-      ownerAddress: '',
-      operatorAddress: await testing.container.getNewAddress(),
-      rewardAddress: await testing.container.getNewAddress()
-    }
-    await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOption)).rejects.toThrow('ownerAddress () does not refer to a P2PKH or P2WPKH address')
-  })
-
-  it('should fail if either operator address or reward address are invalid P2PKH or P2WPKH address', async () => {
+  it('should fail if either owner address, operator address or reward address are invalid P2PKH or P2WPKH address', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
     const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
     await testing.container.generate(1)
@@ -267,10 +250,14 @@ describe('Masternode', () => {
 
     const invalidAddress = 'invalidAddress'
     const updateOption: UpdateMasternodeOptions = {
-      ownerAddress: await testing.container.getNewAddress(),
-      operatorAddress: invalidAddress,
+      ownerAddress: invalidAddress,
+      operatorAddress: await testing.container.getNewAddress(),
       rewardAddress: await testing.container.getNewAddress()
     }
+    await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOption)).rejects.toThrow(`ownerAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
+
+    updateOption.ownerAddress = await testing.container.getNewAddress()
+    updateOption.operatorAddress = invalidAddress
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOption)).rejects.toThrow(`operatorAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
 
     updateOption.operatorAddress = await testing.container.getNewAddress()
@@ -278,7 +265,7 @@ describe('Masternode', () => {
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOption)).rejects.toThrow(`rewardAddress (${invalidAddress}) does not refer to a P2PKH or P2WPKH address`)
   })
 
-  it('should fail when masternode status is not ENABLED', async () => {
+  it('should fail to update when masternode status is not ENABLED', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
     const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
     await testing.container.generate(1)
@@ -307,7 +294,7 @@ describe('Masternode', () => {
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOptionTransferring)).rejects.toThrow(`Masternode ${masternodeId} is not in 'ENABLED' state`)
   })
 
-  it('should not update masternode with UTXO when UTXO does not belong to new owner address', async () => {
+  it('should fail to update masternode with UTXO when UTXO does not belong to new owner address', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
     const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
     await testing.container.generate(1)
@@ -331,14 +318,42 @@ describe('Masternode', () => {
     await testing.container.generate(1)
   })
 
-  // it('should fail if owner address already belongs to a masternode', async () => {
-  //   const oldAddress = await testing.container.getNewAddress('', 'legacy')
-  //   const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-  //   await testing.container.generate(1)
+  it('should fail if owner address or operator address already belongs to a masternode', async () => {
+    const oldAddress = await testing.container.getNewAddress('', 'legacy')
+    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
+    await testing.container.generate(1)
 
-  //   await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-  //   await testing.container.restart()
+    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
+    await testing.container.restart()
 
-  //   await testing.container.generate(20)
-  // })
+    await testing.container.generate(20)
+
+    // create a second masternode with another address. this address will be used to try to update the first masternode
+    const duplicateAddress = await testing.container.getNewAddress('', 'legacy')
+    const masterNodeIdDuplicateAddrId = await testing.rpc.masternode.createMasternode(duplicateAddress)
+    await testing.container.generate(1)
+
+    await testing.container.setDeFiConf([`masternode_operator=${duplicateAddress}`])
+    await testing.container.restart()
+
+    await testing.container.generate(20)
+
+    const masterNodeInfo = await testing.rpc.masternode.getMasternode(masternodeId)
+    expect(masterNodeInfo[masternodeId].state).toEqual('ENABLED')
+
+    const duplicateAddressNodeInfo = await testing.rpc.masternode.getMasternode(masterNodeIdDuplicateAddrId)
+    expect(duplicateAddressNodeInfo[masterNodeIdDuplicateAddrId].state).toEqual('ENABLED')
+
+    // update for duplicate owneraddress
+    const duplicateOwnerUpdateOption: UpdateMasternodeOptions = {
+      ownerAddress: duplicateAddress
+    }
+    await expect(testing.rpc.masternode.updateMasternode(masternodeId, duplicateOwnerUpdateOption)).rejects.toThrow('RpcApiError: \'Test UpdateMasternodeTx execution failed:\nMasternode with that owner address already exists\', code: -32600, method: updatemasternode')
+
+    // update for duplicate operator address
+    const duplicateOperatorUpdateOption: UpdateMasternodeOptions = {
+      operatorAddress: duplicateAddress
+    }
+    await expect(testing.rpc.masternode.updateMasternode(masternodeId, duplicateOperatorUpdateOption)).rejects.toThrow('RpcApiError: \'Test UpdateMasternodeTx execution failed:\nMasternode with that operator address already exists\', code: -32600, method: updatemasternode')
+  })
 })
