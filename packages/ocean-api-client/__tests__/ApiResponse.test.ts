@@ -15,7 +15,7 @@ describe('ApiPagedResponse', () => {
     expect(pagination.nextToken).toStrictEqual(undefined)
   })
 
-  it('should behavior as an array', () => {
+  it('should behave as an array', () => {
     const response: ApiResponse<number[]> = {
       data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     }
