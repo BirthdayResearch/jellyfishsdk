@@ -3,7 +3,6 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { UpdateMasternodeOptions } from 'packages/jellyfish-api-core/src/category/masternode'
 
 describe('Masternode', () => {
-//   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
