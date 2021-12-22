@@ -41,6 +41,30 @@ enum MasternodeTimeLock {
   TEN_YEAR = 'TENYEARTIMELOCK'
 }
 ```
+## updateMasterNode
+
+Update the owner address, operator address or reward address of a masternode
+
+```ts title="client.masternode.updateMasternode()"
+interface masternode {
+  updateMasterNode (
+    masternodeId: string,
+    options: UpdateMasternodeOptions,
+    inputs: UTXO[] = []
+  ): Promise<string>
+}
+
+interface UpdateMasternodeOptions {
+  ownerAddress?: string
+  operatorAddress?: string
+  rewardAddress?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
 
 ## listMasternodes
 

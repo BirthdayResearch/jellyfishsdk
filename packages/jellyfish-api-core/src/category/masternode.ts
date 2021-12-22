@@ -51,10 +51,16 @@ export class Masternode {
   }
 
   /**
+   * Update masternode
    *
-   * @param {string} masternodeId
+   * @param {string} masternodeId The masternode's id.
    * @param {UpdateMasternodeOptions} options
-   * @param inputs
+   * @param {string} [options.ownerAddress] The new masternode owner address, requires masternode collateral fee (P2PKH or P2WPKH)
+   * @param {string} [options.operatorAddress] The new masternode operator address (P2PKH or P2WPKH)
+   * @param {string} [options.rewardAddress] Masternode`s new reward address, empty \"\" to remove old reward address.
+   * @param {UTXO[]} [inputs = []]
+   * @param {string} [inputs.txid] The transaction id
+   * @param {string} [inputs.vout] The output number
    * @return {Promise<string>}
    */
   async updateMasternode (masternodeId: string, options: UpdateMasternodeOptions, inputs: UTXO[] = []): Promise<string> {

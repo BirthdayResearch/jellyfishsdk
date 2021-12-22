@@ -70,7 +70,7 @@ describe('Masternode', () => {
         ownerAuthAddress: oldAddress,
         operatorAuthAddress: newAddressOperator,
         rewardAddress: newRewardAddress,
-        creationHeight: 102,
+        creationHeight: expect.any(Number),
         resignHeight: -1,
         resignTx: '0000000000000000000000000000000000000000000000000000000000000000',
         collateralTx: hash,
@@ -82,7 +82,7 @@ describe('Masternode', () => {
       }
     })
 
-    await testing.container.generate(40)
+    await testing.container.waitForMasternodeState(masternodeId, 'PRE_ENABLED')
     const masterNodeInfoPreEnabled = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(masterNodeInfoPreEnabled).toStrictEqual({
       [masternodeId]: {
@@ -101,14 +101,14 @@ describe('Masternode', () => {
       }
     })
 
-    await testing.container.generate(20)
+    await testing.container.waitForMasternodeState(masternodeId, 'ENABLED')
     const masterNodeInfoEnabled = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(masterNodeInfoEnabled).toStrictEqual({
       [masternodeId]: {
         ownerAuthAddress: newAddress,
         operatorAuthAddress: newAddressOperator,
         rewardAddress: newRewardAddress,
-        creationHeight: 102,
+        creationHeight: expect.any(Number),
         resignHeight: -1,
         resignTx: '0000000000000000000000000000000000000000000000000000000000000000',
         collateralTx: hash,
@@ -132,7 +132,7 @@ describe('Masternode', () => {
         ownerAuthAddress: oldAddress,
         operatorAuthAddress: oldAddress,
         rewardAddress: '',
-        creationHeight: 184,
+        creationHeight: expect.any(Number),
         resignHeight: -1,
         resignTx: '0000000000000000000000000000000000000000000000000000000000000000',
         collateralTx: '0000000000000000000000000000000000000000000000000000000000000000',
@@ -162,7 +162,7 @@ describe('Masternode', () => {
         ownerAuthAddress: oldAddress,
         operatorAuthAddress: oldAddress,
         rewardAddress: '',
-        creationHeight: 184,
+        creationHeight: expect.any(Number),
         resignHeight: -1,
         resignTx: '0000000000000000000000000000000000000000000000000000000000000000',
         collateralTx: hash,
@@ -174,14 +174,14 @@ describe('Masternode', () => {
       }
     })
 
-    await testing.container.generate(40)
+    await testing.container.waitForMasternodeState(masternodeId, 'PRE_ENABLED')
     const masterNodeInfoPreEnabled = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(masterNodeInfoPreEnabled).toStrictEqual({
       [masternodeId]: {
         ownerAuthAddress: newOwnerAddress,
         operatorAuthAddress: oldAddress,
         rewardAddress: '',
-        creationHeight: 184,
+        creationHeight: expect.any(Number),
         resignHeight: -1,
         resignTx: '0000000000000000000000000000000000000000000000000000000000000000',
         collateralTx: hash,
@@ -193,14 +193,14 @@ describe('Masternode', () => {
       }
     })
 
-    await testing.container.generate(20)
+    await testing.container.waitForMasternodeState(masternodeId, 'ENABLED')
     const masterNodeInfoEnabled = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(masterNodeInfoEnabled).toStrictEqual({
       [masternodeId]: {
         ownerAuthAddress: newOwnerAddress,
         operatorAuthAddress: oldAddress,
         rewardAddress: '',
-        creationHeight: 184,
+        creationHeight: expect.any(Number),
         resignHeight: -1,
         resignTx: '0000000000000000000000000000000000000000000000000000000000000000',
         collateralTx: hash,
@@ -212,6 +212,30 @@ describe('Masternode', () => {
         targetMultipliers: [1, 1]
       }
     })
+  })
+
+  it('should be able to remove reward address', async () => {
+    const ownerAddress = await testing.container.getNewAddress('', 'legacy')
+    const masternodeId = await createMasternode(testing, ownerAddress)
+
+    const rewardAddress = await testing.container.getNewAddress('', 'legacy')
+    const updateOption: UpdateMasternodeOptions = {
+      rewardAddress: rewardAddress
+    }
+    await testing.rpc.masternode.updateMasternode(masternodeId, updateOption)
+    await testing.container.generate(1)
+    await testing.container.waitForMasternodeState(masternodeId, 'ENABLED')
+
+    const masterNodeInfo: any = await testing.rpc.masternode.getMasternode(masternodeId)
+    expect(masterNodeInfo[masternodeId].rewardAddress).toEqual(rewardAddress)
+
+    updateOption.rewardAddress = ''
+    await testing.rpc.masternode.updateMasternode(masternodeId, updateOption)
+    await testing.container.generate(1)
+    await testing.container.waitForMasternodeState(masternodeId, 'ENABLED')
+
+    const noRewardAddrMasterodeInfo: any = await testing.rpc.masternode.getMasternode(masternodeId)
+    expect(noRewardAddrMasterodeInfo[masternodeId].rewardAddress).toEqual('')
   })
 
   it('should fail if masternodeid is not valid', async () => {
@@ -270,6 +294,12 @@ describe('Masternode', () => {
       ownerAddress: newAddressTransferring
     }
 
+    await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOptionTransferring)).rejects.toThrow(`Masternode ${masternodeId} is not in 'ENABLED' state`)
+
+    await testing.container.waitForMasternodeState(masternodeId, 'PRE_ENABLED')
+
+    const masterNodeInfoPreEnabled = await testing.rpc.masternode.getMasternode(masternodeId)
+    expect(masterNodeInfoPreEnabled[masternodeId].state).toEqual('PRE_ENABLED')
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOptionTransferring)).rejects.toThrow(`Masternode ${masternodeId} is not in 'ENABLED' state`)
   })
 

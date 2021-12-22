@@ -274,6 +274,18 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForNextPrice')
   }
 
+  async waitForMasternodeState (masternodeId: string, state: string, timeout = 30000): Promise<void> {
+    return await waitForCondition(async () => {
+      const data: any = await this.call('getmasternode', [masternodeId])
+      if (data[masternodeId].state === state) {
+        return true
+      }
+
+      await this.generate(1)
+      return false
+    }, timeout, 100, 'waitforMasternodeState')
+  }
+
   /**
    * Fund an address with an amount and wait for 1 confirmation.
    * Funded address don't have to be tracked within the node wallet.
