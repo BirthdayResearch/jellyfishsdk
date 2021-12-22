@@ -15,15 +15,20 @@ describe('Masternode', () => {
     await testing.container.stop()
   })
 
-  it('should update masternode', async () => {
-    const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
+  async function createMasternode (testing: Testing, ownerAddress: string): Promise<string> {
+    const masternodeId = await testing.rpc.masternode.createMasternode(ownerAddress)
     await testing.container.generate(1)
 
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
+    await testing.container.setDeFiConf([`masternode_operator=${ownerAddress}`])
     await testing.container.restart()
 
     await testing.container.generate(20)
+    return masternodeId
+  }
+
+  it('should update masternode', async () => {
+    const oldAddress = await testing.container.getNewAddress('', 'legacy')
+    const masternodeId = await createMasternode(testing, oldAddress)
 
     const oldMasterNodeInfo = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(oldMasterNodeInfo).toStrictEqual({
@@ -119,13 +124,7 @@ describe('Masternode', () => {
 
   it('should update masternode with UTXO', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masternodeId = await createMasternode(testing, oldAddress)
 
     const oldMasterNodeInfo = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(oldMasterNodeInfo).toStrictEqual({
@@ -154,7 +153,6 @@ describe('Masternode', () => {
       ownerAddress: newOwnerAddress
     }
 
-    // const hash = await testing.rpc.masternode.updateMasternode(masternodeId, updateOption)
     const hash = await testing.rpc.masternode.updateMasternode(masternodeId, updateOption, utxos)
     await testing.container.generate(1)
 
@@ -226,26 +224,14 @@ describe('Masternode', () => {
 
   it('should fail if update option is empty', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masternodeId = await createMasternode(testing, oldAddress)
 
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, {})).rejects.toThrow('No update arguments provided')
   })
 
   it('should fail if either owner address, operator address or reward address are invalid P2PKH or P2WPKH address', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masternodeId = await createMasternode(testing, oldAddress)
 
     const invalidAddress = 'invalidAddress'
     const updateOption: UpdateMasternodeOptions = {
@@ -266,13 +252,7 @@ describe('Masternode', () => {
 
   it('should fail to update when masternode status is not ENABLED', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masternodeId = await createMasternode(testing, oldAddress)
 
     const newAddress = await testing.container.getNewAddress('', 'legacy')
     const updateOption: UpdateMasternodeOptions = {
@@ -295,13 +275,7 @@ describe('Masternode', () => {
 
   it('should fail to update masternode with UTXO when UTXO does not belong to new owner address', async () => {
     const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masternodeId = await createMasternode(testing, oldAddress)
 
     const newOwnerAddress = await testing.generateAddress()
     const unauthOwnerAddress = await testing.generateAddress()
@@ -312,30 +286,17 @@ describe('Masternode', () => {
       ownerAddress: unauthOwnerAddress
     }
 
-    // const hash = await testing.rpc.masternode.updateMasternode(masternodeId, updateOption)
     await expect(testing.rpc.masternode.updateMasternode(masternodeId, updateOption, utxos)).rejects.toThrow('Missing auth input for new masternode owner')
     await testing.container.generate(1)
   })
 
   it('should fail if owner address or operator address already belongs to a masternode', async () => {
-    const oldAddress = await testing.container.getNewAddress('', 'legacy')
-    const masternodeId = await testing.rpc.masternode.createMasternode(oldAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${oldAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masternodeOwnerAddress = await testing.container.getNewAddress('', 'legacy')
+    const masternodeId = await createMasternode(testing, masternodeOwnerAddress)
 
     // create a second masternode with another address. this address will be used to try to update the first masternode
     const duplicateAddress = await testing.container.getNewAddress('', 'legacy')
-    const masterNodeIdDuplicateAddrId = await testing.rpc.masternode.createMasternode(duplicateAddress)
-    await testing.container.generate(1)
-
-    await testing.container.setDeFiConf([`masternode_operator=${duplicateAddress}`])
-    await testing.container.restart()
-
-    await testing.container.generate(20)
+    const masterNodeIdDuplicateAddrId = await createMasternode(testing, duplicateAddress)
 
     const masterNodeInfo = await testing.rpc.masternode.getMasternode(masternodeId)
     expect(masterNodeInfo[masternodeId].state).toEqual('ENABLED')
