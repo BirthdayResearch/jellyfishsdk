@@ -10,6 +10,18 @@ export class Address {
   }
 
   /**
+   * List account history
+   *
+   * @param {string} address to list account history
+   * @param {string} size of account history
+   * @param {string} next set of account history
+   * @return {Promise<ApiPagedResponse<AddressHistory>>}
+   */
+  async listAccountHistory (address: string, size: number = 30, next?: string): Promise<ApiPagedResponse<AddressHistory>> {
+    return await this.client.requestList('GET', `address/${address}/history`, size, next)
+  }
+
+  /**
    * Get current balance of an address
    *
    * @param {string} address bech32/legacy/b58 formatted address
@@ -178,5 +190,18 @@ export interface AddressUnspent {
     n: number
     value: string
     tokenId?: number
+  }
+}
+
+export interface AddressHistory {
+  owner: string
+  txid: string
+  txn: number
+  type: string
+  amounts: string[]
+  block: {
+    height: number
+    hash: string
+    time: number
   }
 }
