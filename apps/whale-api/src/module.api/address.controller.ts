@@ -51,7 +51,11 @@ export class AddressController {
       const [txid, txType, maxBlockHeight] = next.split('-')
 
       const loop = async (maxBlockHeight: number, limit: number): Promise<AccountHistory[]> => {
-        const list = await this.rpcClient.account.listAccountHistory(address, { limit: limit, maxBlockHeight: maxBlockHeight })
+        const list = await this.rpcClient.account.listAccountHistory(address, {
+          limit: limit,
+          maxBlockHeight: maxBlockHeight,
+          no_rewards: true
+        })
         if (list.length === 0) {
           return []
         }
@@ -71,7 +75,10 @@ export class AddressController {
       }
       list = await loop(Number(maxBlockHeight), limit)
     } else {
-      list = await this.rpcClient.account.listAccountHistory(address, { limit: limit })
+      list = await this.rpcClient.account.listAccountHistory(address, {
+        limit: limit,
+        no_rewards: true
+      })
     }
 
     const history = mapAddressHistory(list)

@@ -16,6 +16,7 @@ let colAddr: string
 let usdcAddr: string
 let poolAddr: string
 let emptyAddr: string
+let dfiUsdc
 
 describe('listAccountHistory', () => {
   beforeAll(async () => {
@@ -48,6 +49,16 @@ describe('listAccountHistory', () => {
       ownerAddress: poolAddr
     })
     await testing.generate(1)
+
+    const poolPairsKeys = Object.keys(await testing.rpc.poolpair.listPoolPairs())
+    expect(poolPairsKeys.length).toStrictEqual(1)
+    dfiUsdc = poolPairsKeys[0]
+
+    // set LP_SPLIT, make LM gain rewards, MANDATORY
+    // ensure `no_rewards` flag turned on
+    // ensure do not get response without txid
+    await testing.container.call('setgov', [{ LP_SPLITS: { [dfiUsdc]: 1.0 } }])
+    await container.generate(1)
 
     await testing.rpc.poolpair.addPoolLiquidity({
       [colAddr]: '5000@DFI',
@@ -92,9 +103,11 @@ describe('listAccountHistory', () => {
     app = await createTestingApp(container)
     controller = app.get(AddressController)
 
-    const height = await testing.container.getBlockCount()
     await testing.generate(1)
-    await waitForIndexedHeight(app, height - 1)
+
+    // to test rewards listing (only needed if `no_rewards` flag disabled)
+    // const height = await testing.container.getBlockCount()
+    // await testing.container.waitForBlockHeight(Math.max(500, height))
   })
 
   afterAll(async () => {
@@ -110,6 +123,36 @@ describe('listAccountHistory', () => {
   it('should list empty account history', async () => {
     const history = await controller.listAccountHistory(emptyAddr, { size: 30 })
     expect(history.data.length).toStrictEqual(0)
+  })
+
+  it('should list account history without rewards', async () => {
+    const history = await controller.listAccountHistory(poolAddr, { size: 30 })
+    expect(history.data.length).toStrictEqual(4)
+    expect(history.data.every(history => !(['Rewards', 'Commission'].includes(history.type))))
+  })
+
+  // skip test, API currently no included rewards (missing txid/txn will crash query with `next`)
+  // rewards listing requires extra implementation for pagination
+  it.skip('should list account history include rewards', async () => {
+    // benchmarking `listaccounthistory` with `no_rewards` false
+    // generate couple hundred blocks to check RPC resource impact
+
+    let page = 0
+    let next: string | undefined
+
+    while (page >= 0) {
+      console.log('benchmarking, page: ', page)
+      console.time('listrewards')
+      const history = await controller.listAccountHistory(poolAddr, { size: 30, next })
+      console.timeEnd('listrewards')
+
+      if (history.page?.next === undefined) {
+        page = -1
+      } else {
+        page += 1
+        next = history.page.next
+      }
+    }
   })
 
   it('should listAccountHistory', async () => {
