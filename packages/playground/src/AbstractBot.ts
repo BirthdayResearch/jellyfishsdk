@@ -1,8 +1,5 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
-
-export interface BotLogger {
-  info: (action: string, message: string) => void
-}
+import { BotLogger } from './BotLogger'
 
 /**
  * Abstract Playground with bootstrap and cycle ability.
@@ -18,16 +15,13 @@ export abstract class AbstractBot {
    * Bootstrap the bot at the start
    */
   async bootstrap (): Promise<void> {
-
   }
 
   /**
-   * PlaygroundBot is configured to cycle every block generation.
-   * Configured at upstream implementation, currently default to 3 second.
+   * Configured and ran on upstream.
    *
-   * @param {number} counter that increment per block increment
+   * @param {number} nextBlockCount
    */
-  async cycle (counter: number): Promise<void> {
-
+  async cycle (nextBlockCount: number): Promise<void> {
   }
 }

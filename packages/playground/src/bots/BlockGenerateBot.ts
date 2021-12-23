@@ -13,10 +13,8 @@ export class BlockGenerateBot extends AbstractBot {
   /**
    * Generate a block every cycle into a random node address from the foundation keys list
    */
-  async cycle (): Promise<void> {
+  async cycle (nextBlockCount: number): Promise<void> {
     await this.apiClient.call('generatetoaddress', [1, BlockGenerateBot.randomNodeAddress(), 1], 'number')
-
-    const count = await this.apiClient.blockchain.getBlockCount()
-    this.logger.info('BlockGenerate', `height: ${count}`)
+    this.logger.info('BlockGenerate', `height: ${nextBlockCount}`)
   }
 }
