@@ -80,7 +80,7 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * Wait for block height by minting towards the target
    *
    * @param {number} height to wait for
-   * @param {number} [timeout=90000] in ms
+   * @param {number} [timeout=590000] in ms
    */
   async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
     return await waitForCondition(async () => {
@@ -101,9 +101,24 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
    * un-spendable (in the event the mined block moves out of the active chain due to a fork).
    *
    * @param {number} [timeout=180000] in ms
+   * @param {boolean} [mockTime=true] to generate blocks faster
    */
-  async waitForWalletCoinbaseMaturity (timeout = 180000): Promise<void> {
-    return await this.waitForBlockHeight(100, timeout)
+  async waitForWalletCoinbaseMaturity (timeout: number = 180000, mockTime: boolean = true): Promise<void> {
+    if (!mockTime) {
+      return await this.waitForBlockHeight(100, timeout)
+    }
+
+    let fakeTime: number = 1579045065
+    await this.call('setmocktime', [fakeTime])
+
+    const intervalId = setInterval(() => {
+      void this.call('setmocktime', [fakeTime++])
+    }, 200)
+
+    await this.waitForBlockHeight(100, timeout)
+
+    clearInterval(intervalId)
+    await this.call('setmocktime', [0])
   }
 
   /**
