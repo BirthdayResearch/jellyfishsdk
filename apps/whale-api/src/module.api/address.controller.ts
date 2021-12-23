@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
-import { ConflictException, Controller, Get, Inject, Param, Query } from '@nestjs/common'
+import { ConflictException, Controller, ForbiddenException, Get, Inject, Param, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { AddressToken } from '@whale-api-client/api/address'
+import { AddressToken, AddressHistory } from '@whale-api-client/api/address'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { ScriptActivity, ScriptActivityMapper } from '@src/module.model/script.activity'
 import { ScriptAggregation, ScriptAggregationMapper } from '@src/module.model/script.aggregation'
@@ -16,6 +16,7 @@ import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 import { LoanVaultActive, LoanVaultLiquidated } from '@whale-api-client/api/loan'
 import { LoanVaultService } from '@src/module.api/loan.vault.service'
 import { parseDisplaySymbol } from '@src/module.api/token.controller'
+import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
 
 @Controller('/address/:address')
 export class AddressController {
@@ -28,6 +29,56 @@ export class AddressController {
     protected readonly vaultService: LoanVaultService,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
+  }
+
+  /**
+   * @param {string} address to list participate account history
+   * @param {PaginationQuery} query
+   */
+  @Get('/history')
+  async listAccountHistory (
+    @Param('address') address: string,
+      @Query() query: PaginationQuery): Promise<ApiPagedResponse<AddressHistory>> {
+    if (address === 'mine') {
+      throw new ForbiddenException('mine is not allowed')
+    }
+
+    const limit = query.size > 200 ? 200 : query.size
+    const next = query.next ?? undefined
+    let list: AccountHistory[]
+
+    if (next !== undefined) {
+      const [txid, txType, maxBlockHeight] = next.split('-')
+
+      const loop = async (maxBlockHeight: number, limit: number): Promise<AccountHistory[]> => {
+        const list = await this.rpcClient.account.listAccountHistory(address, { limit: limit, maxBlockHeight: maxBlockHeight })
+        if (list.length === 0) {
+          return []
+        }
+        const foundIndex = list.findIndex(each => each.txid === txid && each.type === txType)
+        if (foundIndex === -1) {
+          // if not found, extend the size till grab the 'next'
+          return await loop(Number(maxBlockHeight), limit * 2)
+        }
+        const start = foundIndex + 1 // plus 1 to exclude the prev txid
+        const size = start + query.size
+        const sliced = list.slice(start, size)
+        if (sliced.length !== query.size) {
+          // need a bigger volume to achieve the size
+          return await loop(Number(maxBlockHeight), limit * 2)
+        }
+        return sliced
+      }
+      list = await loop(Number(maxBlockHeight), limit)
+    } else {
+      list = await this.rpcClient.account.listAccountHistory(address, { limit: limit })
+    }
+
+    const history = mapAddressHistory(list)
+
+    return ApiPagedResponse.of(history, query.size, item => {
+      return `${item.txid}-${item.type}-${item.block.height}`
+    })
   }
 
   @Get('/balance')
@@ -134,4 +185,21 @@ function mapAddressToken (id: string, tokenInfo: TokenInfo, value: BigNumber): A
     isLPS: tokenInfo.isLPS,
     displaySymbol: parseDisplaySymbol(tokenInfo)
   }
+}
+
+function mapAddressHistory (list: AccountHistory[]): AddressHistory[] {
+  return list.map(each => {
+    return {
+      owner: each.owner,
+      txid: each.txid,
+      txn: each.txn,
+      type: each.type,
+      amounts: each.amounts,
+      block: {
+        height: each.blockHeight,
+        hash: each.blockHash,
+        time: each.blockTime
+      }
+    }
+  })
 }

@@ -5,10 +5,165 @@ import { createTestingApp, stopTestingApp, waitForAddressTxCount, waitForIndexed
 import { createSignedTxnHex, createToken, mintTokens, sendTokensToAddress } from '@defichain/testing'
 import { WIF } from '@defichain/jellyfish-crypto'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { Testing } from '@defichain/jellyfish-testing'
+import { ForbiddenException } from '@nestjs/common'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
 let controller: AddressController
+const testing = Testing.create(container)
+let colAddr: string
+let usdcAddr: string
+let poolAddr: string
+let emptyAddr: string
+
+describe('listAccountHistory', () => {
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForReady()
+    await container.waitForWalletCoinbaseMaturity()
+
+    colAddr = await testing.generateAddress()
+    usdcAddr = await testing.generateAddress()
+    poolAddr = await testing.generateAddress()
+    emptyAddr = await testing.generateAddress()
+
+    await testing.token.dfi({ address: colAddr, amount: 20000 })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'USDC', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.mint({ symbol: 'USDC', amount: 10000 })
+    await testing.generate(1)
+
+    await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.createPoolPair({
+      tokenA: 'DFI',
+      tokenB: 'USDC',
+      commission: 0,
+      status: true,
+      ownerAddress: poolAddr
+    })
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.addPoolLiquidity({
+      [colAddr]: '5000@DFI',
+      [usdcAddr]: '5000@USDC'
+    }, poolAddr)
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.poolSwap({
+      from: colAddr,
+      tokenFrom: 'DFI',
+      amountFrom: 555,
+      to: usdcAddr,
+      tokenTo: 'USDC'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
+    await testing.generate(1)
+
+    // for testing same block pagination
+    await testing.token.create({ symbol: 'APE', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'CAT', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'DOG', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'ELF', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'FOX', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'RAT', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'BEE', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'COW', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'OWL', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'ELK', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'PIG', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'KOI', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'FLY', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    app = await createTestingApp(container)
+    controller = app.get(AddressController)
+
+    const height = await testing.container.getBlockCount()
+    await testing.generate(1)
+    await waitForIndexedHeight(app, height - 1)
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should not listAccountHistory with mine filter', async () => {
+    const promise = controller.listAccountHistory('mine', { size: 30 })
+    await expect(promise).rejects.toThrow(ForbiddenException)
+    await expect(promise).rejects.toThrow('mine is not allowed')
+  })
+
+  it('should list empty account history', async () => {
+    const history = await controller.listAccountHistory(emptyAddr, { size: 30 })
+    expect(history.data.length).toStrictEqual(0)
+  })
+
+  it('should listAccountHistory', async () => {
+    const history = await controller.listAccountHistory(colAddr, { size: 30 })
+    expect(history.data.length).toStrictEqual(30)
+    for (let i = 0; i < history.data.length; i += 1) {
+      const accountHistory = history.data[i]
+      expect(typeof accountHistory.owner).toStrictEqual('string')
+      expect(typeof accountHistory.block.height).toStrictEqual('number')
+      expect(typeof accountHistory.block.hash).toStrictEqual('string')
+      expect(typeof accountHistory.block.time).toStrictEqual('number')
+      expect(typeof accountHistory.type).toStrictEqual('string')
+      expect(typeof accountHistory.txn).toStrictEqual('number')
+      expect(typeof accountHistory.txid).toStrictEqual('string')
+      expect(accountHistory.amounts.length).toBeGreaterThan(0)
+      expect(typeof accountHistory.amounts[0]).toStrictEqual('string')
+    }
+  })
+
+  it('should listAccountHistory with size', async () => {
+    const history = await controller.listAccountHistory(colAddr, { size: 10 })
+    expect(history.data.length).toStrictEqual(10)
+  })
+
+  it('test listAccountHistory pagination', async () => {
+    const full = await controller.listAccountHistory(colAddr, { size: 12 })
+
+    const first = await controller.listAccountHistory(colAddr, { size: 3 })
+    expect(first.data[0]).toStrictEqual(full.data[0])
+    expect(first.data[1]).toStrictEqual(full.data[1])
+    expect(first.data[2]).toStrictEqual(full.data[2])
+
+    const firstLast = first.data[first.data.length - 1]
+    const secondToken = `${firstLast.txid}-${firstLast.type}-${firstLast.block.height}`
+    const second = await controller.listAccountHistory(colAddr, { size: 3, next: secondToken })
+    expect(second.data[0]).toStrictEqual(full.data[3])
+    expect(second.data[1]).toStrictEqual(full.data[4])
+    expect(second.data[2]).toStrictEqual(full.data[5])
+
+    const secondLast = second.data[second.data.length - 1]
+    const thirdToken = `${secondLast.txid}-${secondLast.type}-${secondLast.block.height}`
+    const third = await controller.listAccountHistory(colAddr, { size: 3, next: thirdToken })
+    expect(third.data[0]).toStrictEqual(full.data[6])
+    expect(third.data[1]).toStrictEqual(full.data[7])
+    expect(third.data[2]).toStrictEqual(full.data[8])
+
+    const thirdLast = third.data[third.data.length - 1]
+    const forthToken = `${thirdLast.txid}-${thirdLast.type}-${thirdLast.block.height}`
+    const forth = await controller.listAccountHistory(colAddr, { size: 3, next: forthToken })
+    expect(forth.data[0]).toStrictEqual(full.data[9])
+    expect(forth.data[1]).toStrictEqual(full.data[10])
+    expect(forth.data[2]).toStrictEqual(full.data[11])
+  })
+})
 
 describe('getBalance', () => {
   beforeAll(async () => {
