@@ -112,7 +112,8 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     await this.call('setmocktime', [fakeTime])
 
     const intervalId = setInterval(() => {
-      void this.call('setmocktime', [fakeTime++])
+      fakeTime += 3
+      void this.call('setmocktime', [fakeTime])
     }, 200)
 
     await this.waitForBlockHeight(100, timeout)
