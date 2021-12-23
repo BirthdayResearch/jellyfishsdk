@@ -26,6 +26,7 @@ let aProviders: MockProviders
 let aBuilder: P2WPKHTransactionBuilder
 let bProviders: MockProviders
 let bBuilder: P2WPKHTransactionBuilder
+let tslaBatch: number
 
 function now (): number {
   return Math.floor(new Date().getTime() / 1000)
@@ -211,12 +212,15 @@ async function setup (): Promise<void> {
   await bob.generate(1)
 
   const bobLoanAddr = await bob.generateAddress()
+  const tslaLoanAmount = 1000
   await bob.rpc.loan.takeLoan({
     vaultId: bobVaultId,
-    amounts: '1000@TSLA',
+    amounts: `${tslaLoanAmount}@TSLA`,
     to: bobLoanAddr
   })
   await bob.generate(1)
+
+  const blockBeforeInfo = await bob.rpc.blockchain.getBlockchainInfo()
 
   const bobLoanAcc = await bob.container.call('getaccount', [bobLoanAddr])
   expect(bobLoanAcc).toStrictEqual(['1000.00000000@TSLA'])
@@ -288,6 +292,10 @@ async function setup (): Promise<void> {
   // *11 => 1000.00627847@TSLA
   // *12 => 1000.00684924@TSLA
   await bob.container.waitForVaultState(bobVaultId, 'inLiquidation')
+  const blockAfterInfo = await bob.rpc.blockchain.getBlockchainInfo()
+  const totalInterest = 0.00057077 * (blockAfterInfo.blocks - blockBeforeInfo.blocks)
+  const totalTslaLoanAmountWInterst = tslaLoanAmount + totalInterest
+  tslaBatch = Math.floor(totalTslaLoanAmountWInterst / 2 * 1e8) / 1e8
 
   // vault is liquidated now
   const vaultAfter = await bob.container.call('getvault', [bobVaultId])
@@ -299,8 +307,8 @@ async function setup (): Promise<void> {
   expect(vaultAfter.liquidationHeight).toStrictEqual(expect.any(Number))
   expect(vaultAfter.liquidationPenalty).toStrictEqual(5)
   expect(vaultAfter.batches).toStrictEqual([
-    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00342462@TSLA' },
-    { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: '500.00342462@TSLA' }
+    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: `${tslaBatch}@TSLA` },
+    { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: `${tslaBatch}@TSLA` }
   ])
 
   const auctionsAfter = await bob.container.call('listauctions')
@@ -310,7 +318,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter[0].liquidationHeight).toStrictEqual(expect.any(Number))
   expect(auctionsAfter[0].liquidationPenalty).toStrictEqual(5)
   expect(auctionsAfter[0].batches[0].collaterals).toStrictEqual(['5000.00000000@DFI', '0.50000000@BTC'])
-  expect(auctionsAfter[0].batches[0].loan).toStrictEqual('500.00342462@TSLA')
+  expect(auctionsAfter[0].batches[0].loan).toStrictEqual(`${tslaBatch}@TSLA`)
 
   bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
   expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454546@TSLA'])
@@ -495,7 +503,7 @@ describe('placeAuctionBid success', () => {
           {
             index: 0,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '500.00342462@TSLA',
+            loan: `${tslaBatch}@TSLA`,
             highestBid: {
               amount: '526.00000000@TSLA',
               owner: bobColAddr
@@ -504,7 +512,7 @@ describe('placeAuctionBid success', () => {
           {
             index: 1,
             collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-            loan: '500.00342462@TSLA'
+            loan: `${tslaBatch}@TSLA`
           }
         ]
       })
@@ -550,7 +558,7 @@ describe('placeAuctionBid success', () => {
         batches: [{
           index: 0,
           collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-          loan: '500.00342462@TSLA',
+          loan: `${tslaBatch}@TSLA`,
           highestBid: {
             amount: '526.00000000@TSLA',
             owner: bobColAddr
@@ -559,7 +567,7 @@ describe('placeAuctionBid success', () => {
         {
           index: 1,
           collaterals: ['5000.00000000@DFI', '0.50000000@BTC'],
-          loan: '500.00342462@TSLA',
+          loan: `${tslaBatch}@TSLA`,
           highestBid: {
             amount: '600.00000000@TSLA',
             owner: aliceColAddr
