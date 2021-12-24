@@ -106,9 +106,9 @@ describe('Spv', () => {
     }], rewardAddress)
   }
 
-  // it('test', async () => {
-  //   console.log('test')
-  // })
+  it('test', async () => {
+    console.log('test')
+  })
 
   // it('should listAnchors', async () => {
   //   const anchors = await tGroup.get(0).rpc.spv.listAnchors()
@@ -152,7 +152,8 @@ describe('Spv', () => {
   //   expect(anchors.every(anchor => anchor.confirmations <= 3)).toStrictEqual(true)
   // })
 
-  // it('should listAnchors with startBTCHeight', async () => {
-
-  // })
+  it('should listAnchors with startBTCHeight', async () => {
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ startBTCHeight: 2, limit: 1 })
+    console.log(anchors)
+  })
 })
