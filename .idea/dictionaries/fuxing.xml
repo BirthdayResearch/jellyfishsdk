@@ -216,6 +216,7 @@
       <w>setgov</w>
       <w>setgovheight</w>
       <w>setloantoken</w>
+      <w>setmocktime</w>
       <w>setwalletflag</w>
       <w>sighash</w>
       <w>sighashtype</w>
