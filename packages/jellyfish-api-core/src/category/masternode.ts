@@ -193,6 +193,14 @@ export class Masternode {
   async getActiveMasternodeCount (blockCount: number = 20160): Promise<number> {
     return await this.client.call('getactivemasternodecount', [blockCount], 'number')
   }
+
+  /**
+   * Returns array of anchors if any
+   * @return {} Array of anchors
+   */
+  async listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> {
+    return await this.client.call('listanchors', [], 'number')
+  }
 }
 
 export interface UTXO {
@@ -226,6 +234,16 @@ export interface MasternodeInfo {
   targetMultiplier?: number
   targetMultipliers?: number[]
   timelock?: number
+}
+
+export interface MasternodeAnchor {
+  anchorHeight: number
+  anchorHash: string
+  rewardAddress: string
+  dfiRewardhash: string
+  btcAnchorHeight: number
+  btcAnchorHash: string
+  confirmSignHash: string
 }
 
 export interface MasternodeResult<T> {
