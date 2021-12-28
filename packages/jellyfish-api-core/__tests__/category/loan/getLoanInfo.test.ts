@@ -233,8 +233,7 @@ describe('Loan - getLoanInfo', () => {
     }
   })
 
-  // combine tests for 2 fields, only collateral deposited vault counted, empty vault is not
-  it('should count total open vaults and total collateral deposited', async () => {
+  it('should count total open vaults (deposited and empty) and total collateral deposited', async () => {
     // extra preps
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
@@ -319,7 +318,7 @@ describe('Loan - getLoanInfo', () => {
           collateralTokens: new BigNumber(1),
           collateralValue: new BigNumber(10000),
           schemes: new BigNumber(1),
-          openVaults: new BigNumber(1) // unchanged
+          openVaults: new BigNumber(2) // unchanged
         }
       })
     }
@@ -552,7 +551,7 @@ describe('Loan - getLoanInfo', () => {
         totals: {
           ...extendedStartingData.totals,
           // vault liquidated
-          openVaults: new BigNumber(0),
+          openVaults: new BigNumber(1),
           collateralValue: new BigNumber(0),
           openAuctions: new BigNumber(1)
         }
