@@ -14,7 +14,9 @@ describe('Masternode', () => {
   })
 
   it('should be empty when block is not 15', async () => {
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 14; i++) {
+      await tGroup.get(0).generate(1)
+      await tGroup.waitForSync()
       const blockNumber = await tGroup.get(0).rpc.blockchain.getBlockCount()
       expect(blockNumber).toBeLessThan(15)
 
