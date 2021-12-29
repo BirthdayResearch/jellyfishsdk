@@ -199,3 +199,26 @@ interface masternode {
   getActiveMasternodeCount (blockCount: number = 20160): Promise<number>
 }
 ```
+
+## listAnchors
+Return array of anchors if any
+
+```ts title="client.masternode.getActiveMasternodeCount"
+interface masternode {
+  listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> 
+}
+
+interface MasternodeAnchor {
+  anchorHeight: number
+  anchorHash: string
+  rewardAddress: string
+  dfiRewardHash: string
+  btcAnchorHeight: number
+  btcAnchorHash: string
+  confirmSignHash: string
+}
+
+interface MasternodeResult<T> {
+  [id: string]: T
+}
+```

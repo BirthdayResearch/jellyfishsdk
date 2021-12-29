@@ -240,7 +240,7 @@ export interface MasternodeAnchor {
   anchorHeight: number
   anchorHash: string
   rewardAddress: string
-  dfiRewardhash: string
+  dfiRewardHash: string
   btcAnchorHeight: number
   btcAnchorHash: string
   confirmSignHash: string
