@@ -58,10 +58,6 @@ export class Testing {
     const rpc = new TestingJsonRpcClient(container)
     return new Testing(container, rpc)
   }
-
-  async add (container: MasterNodeRegTestContainer, name: string): Promise<void> {
-    await this.container.addNode(await container.getIp(name))
-  }
 }
 
 export class TestingGroup {
@@ -109,6 +105,10 @@ export class TestingGroup {
 
   async stop (): Promise<void> {
     return await this.group.stop()
+  }
+
+  async link (): Promise<void> {
+    return await this.group.link()
   }
 
   async exec (runner: (testing: Testing) => Promise<void>): Promise<void> {

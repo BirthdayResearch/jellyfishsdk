@@ -64,7 +64,7 @@ describe('container group restart', () => {
 
       await alice.container.setDeFiConf([`masternode_operator=${mnAddr}`])
       await alice.container.restart()
-      await alice.add(bob.container, tGroup.group.getName())
+      await tGroup.link()
       await tGroup.waitForSync()
 
       await alice.generate(20)
@@ -83,7 +83,7 @@ describe('container group restart', () => {
 
       await bob.container.setDeFiConf([`masternode_operator=${mnAddr}`])
       await bob.container.restart()
-      await bob.add(alice.container, tGroup.group.getName())
+      await tGroup.link()
 
       await bob.generate(20)
       await tGroup.waitForSync()

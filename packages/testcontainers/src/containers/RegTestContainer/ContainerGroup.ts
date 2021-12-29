@@ -23,10 +23,6 @@ export class ContainerGroup {
     return this.containers[index] as MasterNodeRegTestContainer
   }
 
-  getName (): string {
-    return this.name
-  }
-
   async start (): Promise<void> {
     this.network = await new Promise((resolve, reject) => {
       return this.docker.createNetwork({
@@ -47,6 +43,14 @@ export class ContainerGroup {
     for (const container of this.containers.splice(0)) {
       await container.start()
       await this.add(container)
+    }
+  }
+
+  async link (): Promise<void> {
+    for (const container of this.containers) {
+      for (const each of this.containers) {
+        await each.addNode(await container.getIp(this.name))
+      }
     }
   }
 
