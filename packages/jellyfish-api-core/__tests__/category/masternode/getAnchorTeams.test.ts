@@ -41,9 +41,6 @@ describe('Masternode', () => {
 
     await tGroup.add(newTestContainer)
     await tGroup.waitForSync()
-    const tG0BestBlockhash = await tGroup.get(0).rpc.blockchain.getBestBlockHash()
-    const tG1BestBlockhash = await tGroup.get(1).rpc.blockchain.getBestBlockHash()
-    expect(tG0BestBlockhash).toEqual(tG1BestBlockhash)
 
     await tGroup.get(1).generate(15)
     await tGroup.waitForSync()
