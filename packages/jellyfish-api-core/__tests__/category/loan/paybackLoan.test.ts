@@ -728,7 +728,7 @@ describe('paybackLoan failed', () => {
   })
 
   it('should not paybackLoan on liquidation vault', async () => {
-    await tGroup.get(0).generate(12)
+    await bob.container.waitForVaultState(bobLiqVaultId, 'inLiquidation')
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
