@@ -23,6 +23,10 @@ export class ContainerGroup {
     return this.containers[index] as MasterNodeRegTestContainer
   }
 
+  getName (): string {
+    return this.name
+  }
+
   async start (): Promise<void> {
     this.network = await new Promise((resolve, reject) => {
       return this.docker.createNetwork({
