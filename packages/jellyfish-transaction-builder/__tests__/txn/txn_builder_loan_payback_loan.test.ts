@@ -709,7 +709,7 @@ describe('paybackLoan failed', () => {
   })
 
   it('should not paybackLoan on liquidation vault', async () => {
-    await alice.generate(6)
+    await bob.container.waitForVaultState(bobLiqVaultId, 'inLiquidation')
 
     const liqVault = await bob.container.call('getvault', [bobLiqVaultId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
