@@ -22,3 +22,6 @@ updates:
       interval: "daily"
     labels:
       - "kind/dependencies"
+    commit-message:
+      include: scope
+      prefix: bump
