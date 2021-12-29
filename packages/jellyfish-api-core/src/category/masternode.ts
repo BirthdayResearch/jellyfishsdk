@@ -185,6 +185,16 @@ export class Masternode {
   }
 
   /**
+   * Returns the auth and confirm anchor masternode teams at current or specified height
+   *
+   * @param {number} blockHeight The height of block which contain tx
+   * @returns {Promise<AnchorTeamResult>}
+   */
+  async getAnchorTeams (blockHeight?: number): Promise<AnchorTeamResult> {
+    return await this.client.call('getanchorteams', [blockHeight], 'number')
+  }
+
+  /**
    * Returns number of unique masternodes in the last specified number of blocks.
    *
    * @param {number} [blockCount=20160] The number of blocks to check for unique masternodes.
@@ -226,6 +236,11 @@ export interface MasternodeInfo {
   targetMultiplier?: number
   targetMultipliers?: number[]
   timelock?: number
+}
+
+export interface AnchorTeamResult {
+  auth: string[]
+  confirm: string[]
 }
 
 export interface MasternodeResult<T> {
