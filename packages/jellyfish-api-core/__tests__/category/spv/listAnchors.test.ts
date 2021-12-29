@@ -162,4 +162,12 @@ describe('Spv', () => {
     expect(anchors.length).toStrictEqual(3)
     expect(anchors.every(anchor => anchor.btcBlockHeight >= 2)).toStrictEqual(true)
   })
+
+  it('should listAnchors with limit and startBTCHeight', async () => {
+    const startBTCHeight = 2
+    const limit = 1
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ startBTCHeight, limit })
+    expect(anchors.length).toStrictEqual(limit)
+    expect(anchors.every(anchor => anchor.btcBlockHeight >= 2)).toStrictEqual(true)
+  })
 })
