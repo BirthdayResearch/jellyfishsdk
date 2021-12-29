@@ -34,7 +34,7 @@ describe('Masternode', () => {
     expect(anchorTeams.confirm).toStrictEqual([RegTestFoundationKeys[0].operator.address])
   })
 
-  it('should getAnchorTeams corectly when a new anchor team has been added', async () => {
+  it('should getAnchorTeams correctly when a new anchor team has been added', async () => {
     // add another Test container
     const newTestContainer = new MasterNodeRegTestContainer(RegTestFoundationKeys[1])
     await newTestContainer.start()
