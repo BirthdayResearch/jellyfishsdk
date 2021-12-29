@@ -195,8 +195,8 @@ export class Masternode {
   }
 
   /**
-   * Returns array of anchors if any
-   * @return {} Array of anchors
+   * Returns an array of anchors if any
+   * @return Promise<MasternodeResult<MasternodeAnchor>>
    */
   async listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> {
     return await this.client.call('listanchors', [], 'number')
