@@ -46,6 +46,14 @@ export class ContainerGroup {
     }
   }
 
+  async link (): Promise<void> {
+    for (const container of this.containers) {
+      for (const each of this.containers) {
+        await each.addNode(await container.getIp(this.name))
+      }
+    }
+  }
+
   /**
    * Require network, else error exceptionally.
    * Not a clean design, but it keep the complexity of this implementation low.
