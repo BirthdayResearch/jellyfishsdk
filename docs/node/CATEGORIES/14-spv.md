@@ -283,7 +283,7 @@ List anchors.
 ```ts title=client.spv.listAnchors()"
 interface spv {
   listAnchors (
-    options: ListAnchorsOptions = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1 }
+    options: ListAnchorsOptions = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1, startBTCHeight: -1, limit: -1 }
   ): Promise<ListAnchorsResult[]>
 }
 
@@ -292,6 +292,8 @@ interface ListAnchorsOptions {
   maxBtcHeight?: number
   minConfs?: number
   maxConfs?: number
+  startBTCHeight?: number
+  limit?: number
 }
 
 interface ListAnchorsResult {

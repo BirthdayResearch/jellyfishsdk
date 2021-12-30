@@ -2,7 +2,7 @@ import { spv } from '@defichain/jellyfish-api-core'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys } from '@defichain/testcontainers'
 
-describe.skip('Spv', () => {
+describe('Spv', () => {
   const tGroup = TestingGroup.create(3)
 
   beforeAll(async () => {
@@ -146,5 +146,28 @@ describe.skip('Spv', () => {
     const anchors = await tGroup.get(0).rpc.spv.listAnchors({ maxConfs: 3 })
     expect(anchors.length).toStrictEqual(1)
     expect(anchors.every(anchor => anchor.confirmations <= 3)).toStrictEqual(true)
+  })
+
+  it('should listAnchors with limit and list from the latest anchor', async () => {
+    const limit = 1
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ limit })
+    expect(anchors.length).toStrictEqual(1)
+
+    const latestAnchorBlock = 4
+    expect(anchors[0].btcBlockHeight).toStrictEqual(latestAnchorBlock)
+  })
+
+  it('should listAnchors with startBTCHeight', async () => {
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ startBTCHeight: 2 })
+    expect(anchors.length).toStrictEqual(3)
+    expect(anchors.every(anchor => anchor.btcBlockHeight >= 2)).toStrictEqual(true)
+  })
+
+  it('should listAnchors with limit and startBTCHeight', async () => {
+    const startBTCHeight = 2
+    const limit = 1
+    const anchors = await tGroup.get(0).rpc.spv.listAnchors({ startBTCHeight, limit })
+    expect(anchors.length).toStrictEqual(limit)
+    expect(anchors.every(anchor => anchor.btcBlockHeight >= 2)).toStrictEqual(true)
   })
 })
