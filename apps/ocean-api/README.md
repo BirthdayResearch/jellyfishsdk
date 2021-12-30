@@ -14,7 +14,12 @@ By including Ocean API development with jellyfish, it creates a better synergy o
 across concerns. Singular versioning, source of truth, documentation of entirety of defichain
 via [jellyfish.defichain.com](https://jellyfish.defichain.com).
 
-## Packages
+## `/apps/ocean-api`
+
+The server for ocean-api, build with @nestjs it uses aspect-oriented programming methodology to allow the modular design
+of `ocean-api`. Featuring 2 main directories `/controllers` and `/modules`.
+
+## Related Packages
 
 ### `/packages/ocean-api-client`
 
@@ -25,7 +30,13 @@ allows the project to move iteratively together. With them packaged together wit
 can be released together. This allows us to be the consumer of our own client implementation. Testing each server
 endpoint directly with `ocean-api-client`, dogfooding at the maximum.
 
-### `/apps/ocean-api`
+### `/packages/playground`
 
-The server for ocean-api, build with @nestjs it uses aspect-oriented programming methodology to allow the modular design
-of `ocean-api-server`. Featuring 2 main directories `/controllers` and `/modules`.
+> This package is not published, for internal use within `@defichain-apps/ocean-api` only.
+
+`@defichain/playground` is a specialized testing blockchain isolated from MainNet for testing DeFi applications. Assets
+are not real, they can be minted by anyone. Blocks are configured to generate every 3 seconds, the chain can reset
+anytime.
+
+A bot-like design centers the playground as a mechanism that allows bootstrapping with an interval cycle. This allows
+the developer to mock any behaviors they want with a simulated testing blockchain.
