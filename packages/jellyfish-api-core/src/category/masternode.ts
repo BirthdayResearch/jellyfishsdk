@@ -118,6 +118,20 @@ export class Masternode {
   }
 
   /**
+   * Creates a masternode creation transaction with given owner and operator addresses.
+   *
+   * @param {MasternodeBlock} identifier
+   * @param {string} [identifier.id] Masternode's id.
+   * @param {string} [identifier.ownerAddress] Masternode owner address.
+   * @param {string} [identifier.operatorAddress]  Masternode operator address.
+   * @param {number} [depth] Maximum depth, from the genesis block is the default.
+   * @return {Promise<MasternodeResult<string>>}
+   */
+  async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<string>> {
+    return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
+  }
+
+  /**
    * Creates a transaction resigning a masternode.
    *
    * @param {string} masternodeId The masternode's id.
@@ -219,6 +233,12 @@ export interface MasternodePagination {
   start?: string
   including_start?: boolean
   limit?: number
+}
+
+export interface MasternodeBlock {
+  id?: string
+  ownerAddress?: string
+  operatorAddress?: string
 }
 
 export interface MasternodeInfo {
