@@ -190,6 +190,21 @@ interface masternode {
 }
 ```
 
+## getAnchorTeams
+
+Returns the auth and confirm anchor masternode teams at current or specified height
+
+```ts title="client.masternode.getAnchorTeams"
+interface masternode {
+  getAnchorTeams (blockHeight?: number): Promise<AnchorTeamResult> 
+}
+
+interface AnchorTeamResult {
+  auth: string[]
+  confirm: string[]
+}
+```
+
 ## getActiveMasternodeCount
 
 Returns number of unique masternodes in the last specified number of blocks.
