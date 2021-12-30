@@ -110,8 +110,8 @@ export class JsonRpcClient extends ApiClient {
       const response = await request
       clearTimeout(id)
       return response
-    } catch (err) {
-      if ((err).type === 'aborted') {
+    } catch (err: any) {
+      if (err.type === 'aborted') {
         throw new ClientApiError(`request aborted due to set timeout of ${timeout}ms`)
       }
 
