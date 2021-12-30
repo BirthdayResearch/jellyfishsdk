@@ -118,6 +118,20 @@ export class Masternode {
   }
 
   /**
+   * Creates a masternode creation transaction with given owner and operator addresses.
+   *
+   * @param {MasternodeBlock} identifier
+   * @param {string} [identifier.id] Masternode's id.
+   * @param {string} [identifier.ownerAddress] Masternode owner address.
+   * @param {string} [identifier.operatorAddress]  Masternode operator address.
+   * @param {number} [depth] Maximum depth, from the genesis block is the default.
+   * @return {Promise<MasternodeResult<string>>}
+   */
+  async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<string>> {
+    return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
+  }
+
+  /**
    * Creates a transaction resigning a masternode.
    *
    * @param {string} masternodeId The masternode's id.
@@ -185,6 +199,16 @@ export class Masternode {
   }
 
   /**
+   * Returns the auth and confirm anchor masternode teams at current or specified height
+   *
+   * @param {number} blockHeight The height of block which contain tx
+   * @returns {Promise<AnchorTeamResult>}
+   */
+  async getAnchorTeams (blockHeight?: number): Promise<AnchorTeamResult> {
+    return await this.client.call('getanchorteams', [blockHeight], 'number')
+  }
+
+  /**
    * Returns number of unique masternodes in the last specified number of blocks.
    *
    * @param {number} [blockCount=20160] The number of blocks to check for unique masternodes.
@@ -219,6 +243,12 @@ export interface MasternodePagination {
   limit?: number
 }
 
+export interface MasternodeBlock {
+  id?: string
+  ownerAddress?: string
+  operatorAddress?: string
+}
+
 export interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
@@ -244,6 +274,11 @@ export interface MasternodeAnchor {
   btcAnchorHeight: number
   btcAnchorHash: string
   confirmSignHash: string
+}
+
+export interface AnchorTeamResult {
+  auth: string[]
+  confirm: string[]
 }
 
 export interface MasternodeResult<T> {

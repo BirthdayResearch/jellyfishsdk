@@ -192,15 +192,17 @@ export class Spv {
    * @param {number} [options.maxBtcHeight=-1]
    * @param {number} [options.minConfs=-1]
    * @param {number} [options.maxConfs=-1]
+   * @param {number} [options.startBTCHeight=-1]
+   * @param {number} [options.limit]
    * @return {Promise<ListAnchorsResult[]>}
    */
   async listAnchors (
     options: ListAnchorsOptions = {}
   ): Promise<ListAnchorsResult[]> {
-    const opts = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1, ...options }
+    const opts = { minBtcHeight: -1, maxBtcHeight: -1, minConfs: -1, maxConfs: -1, startBTCHeight: -1, limit: -1, ...options }
     return await this.client.call(
       'spv_listanchors',
-      [opts.minBtcHeight, opts.maxBtcHeight, opts.minConfs, opts.maxConfs],
+      [opts.minBtcHeight, opts.maxBtcHeight, opts.minConfs, opts.maxConfs, opts.startBTCHeight, opts.limit],
       'number'
     )
   }
@@ -387,6 +389,10 @@ export interface ListAnchorsOptions {
   minConfs?: number
   /** max confirmations */
   maxConfs?: number
+  /** start BTC height */
+  startBTCHeight?: number
+  /** limit */
+  limit?: number
 }
 
 export interface ListAnchorsResult {
