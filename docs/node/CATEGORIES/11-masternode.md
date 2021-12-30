@@ -232,9 +232,9 @@ interface masternode {
 ```
 
 ## listAnchors
-Return array of anchors if any
+Returns an array of anchors if any
 
-```ts title="client.masternode.getActiveMasternodeCount"
+```ts title="client.masternode.listAnchors"
 interface masternode {
   listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> 
 }
