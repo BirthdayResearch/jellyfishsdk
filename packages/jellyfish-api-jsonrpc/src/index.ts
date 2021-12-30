@@ -79,12 +79,18 @@ export class JsonRpcClient extends ApiClient {
   }
 
   private static parse (method: string, text: string, precision: Precision | PrecisionPath): any {
-    const { result, error } = JellyfishJSON.parse(text, {
+    const {
+      result,
+      error
+    } = JellyfishJSON.parse(text, {
       result: precision
     })
 
     if (error != null) {
-      throw new RpcApiError({ ...error, method: method })
+      throw new RpcApiError({
+        ...error,
+        method: method
+      })
     }
 
     return result
@@ -105,7 +111,7 @@ export class JsonRpcClient extends ApiClient {
       clearTimeout(id)
       return response
     } catch (err) {
-      if (err.type === 'aborted') {
+      if ((err).type === 'aborted') {
         throw new ClientApiError(`request aborted due to set timeout of ${timeout}ms`)
       }
 

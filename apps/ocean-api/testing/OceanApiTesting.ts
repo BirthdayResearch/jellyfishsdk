@@ -7,7 +7,7 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 /**
- * Universal OceanApi Testing framework.
+ * OceanApi Testing framework.
  */
 export class OceanApiTesting {
   constructor (

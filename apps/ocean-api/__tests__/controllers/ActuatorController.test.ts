@@ -21,13 +21,13 @@ describe('no peers', () => {
     expect(res.json()).toStrictEqual({
       data: {
         details: {
-          ain: {
+          blockchain: {
             status: 'up'
           }
         },
         error: {},
         info: {
-          ain: {
+          blockchain: {
             status: 'up'
           }
         },
@@ -46,7 +46,7 @@ describe('no peers', () => {
     expect(res.json()).toStrictEqual({
       data: {
         details: {
-          ain: {
+          blockchain: {
             blocks: expect.any(Number),
             headers: expect.any(Number),
             initialBlockDownload: expect.any(Boolean),
@@ -55,7 +55,7 @@ describe('no peers', () => {
           }
         },
         error: {
-          ain: {
+          blockchain: {
             blocks: expect.any(Number),
             headers: expect.any(Number),
             initialBlockDownload: expect.any(Boolean),
@@ -99,13 +99,13 @@ describe('with peers', () => {
     expect(res.json()).toStrictEqual({
       data: {
         details: {
-          ain: {
+          blockchain: {
             status: 'up'
           }
         },
         error: {},
         info: {
-          ain: {
+          blockchain: {
             status: 'up'
           }
         },
@@ -124,7 +124,7 @@ describe('with peers', () => {
     expect(res.json()).toStrictEqual({
       data: {
         details: {
-          ain: {
+          blockchain: {
             blocks: expect.any(Number),
             headers: expect.any(Number),
             initialBlockDownload: false,
@@ -135,7 +135,7 @@ describe('with peers', () => {
         },
         error: {},
         info: {
-          ain: {
+          blockchain: {
             blocks: expect.any(Number),
             headers: expect.any(Number),
             initialBlockDownload: false,

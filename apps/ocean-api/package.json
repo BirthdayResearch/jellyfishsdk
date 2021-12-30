@@ -12,7 +12,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b ./tsconfig.json"
+    "build": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
     "@defichain/ocean-api-client": "0.0.0",

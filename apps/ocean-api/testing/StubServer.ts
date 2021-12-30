@@ -26,7 +26,7 @@ export class StubServer extends RootServer {
         RootModule,
         ConfigModule.forFeature(() => {
           return {
-            FULL_NODE_URL: url,
+            BLOCKCHAIN_CPP_URL: url,
             PLAYGROUND_ENABLE: this.playgroundEnable
           }
         })

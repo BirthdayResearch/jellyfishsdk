@@ -138,7 +138,7 @@ export class OceanApiClient {
       clearTimeout(id)
       return response
     } catch (err) {
-      if (err.type === 'aborted') {
+      if ((err).type === 'aborted') {
         /* eslint-disable @typescript-eslint/no-non-null-assertion */
         throw new TimeoutException(timeout!)
       }
