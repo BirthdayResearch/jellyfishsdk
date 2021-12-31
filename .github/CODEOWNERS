@@ -1,39 +1,45 @@
 # Define individuals that are responsible for code in this repository.
 # More details are here: https://help.github.com/articles/about-codeowners/
 
-/.github/                                       @fuxingloh
-/.husky/                                        @fuxingloh
+# SIG: Blockchain
+/docs/node/                                     @fuxingloh @surangap @canonbrother @ivan-zynesis @jingyi2811 @chee-chyuan
 
-/packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
-
-/packages/jellyfish-api-core/                   @fuxingloh @canonbrother @jingyi2811 @ivan-zynesis @surangap
-
-/packages/jellyfish-api-jsonrpc/                @fuxingloh @thedoublejay
-
-/packages/jellyfish-block/                      @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
-
-/packages/jellyfish-buffer/                     @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
-
-/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
+/packages/jellyfish-api-core/                   @fuxingloh @surangap @canonbrother @ivan-zynesis @jingyi2811 @chee-chyuan
+/packages/jellyfish-api-jsonrpc/                @fuxingloh @surangap
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
-/packages/jellyfish-network/                    @fuxingloh @ivan-zynesis
+/packages/jellyfish-network/                    @fuxingloh @surangap @ivan-zynesis @canonbrother
+/packages/jellyfish-block/                      @fuxingloh @surangap @ivan-zynesis @canonbrother
+/packages/jellyfish-buffer/                     @fuxingloh @surangap @ivan-zynesis @canonbrother @jingyi2811
+/packages/jellyfish-transaction/                @fuxingloh @surangap @ivan-zynesis @canonbrother @jingyi2811 @chee-chyuan
+/packages/jellyfish-transaction-builder/        @fuxingloh @surangap @ivan-zynesis @canonbrother @jingyi2811 @chee-chyuan
+
+# SIG: Ecosystem
+/docs/ecosystem/                                @fuxingloh @canonbrother @ivan-zynesis
+/docs/ocean/                                    @fuxingloh @canonbrother @ivan-zynesis
+/docs/testing/                                  @fuxingloh @canonbrother @ivan-zynesis
+
+/apps/ocean-api/                                @fuxingloh
+/apps/website/                                  @fuxingloh
 
 /packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap
+/packages/ocean-api-client/                     @fuxingloh
+/packages/playground/                           @fuxingloh @canonbrother
+/packages/testcontainers/                       @fuxingloh @canonbrother @surangap
+/packages/testing/                              @fuxingloh @canonbrother @surangap
 
-/packages/jellyfish-transaction/                @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
-/packages/jellyfish-transaction-builder/        @fuxingloh @ivan-zynesis @canonbrother @monstrobishi @surangap @jingyi2811
+# SIG: Wallet
+/packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
+/packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
-
-/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi @surangap
+/packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
-/packages/jellyfish-wallet-ledger/              @fuxingloh @surangap @ivan-zynesis
 
-/packages/testcontainers/                       @fuxingloh @canonbrother @surangap
-/packages/testing/                              @fuxingloh @canonbrother
-
-lerna.json                                      @fuxingloh @canonbrother
+# Chore
+/.github/                                       @fuxingloh
+/.husky/                                        @fuxingloh
+lerna.json                                      @fuxingloh @canonbrother @ivan-zynesis
 tsconfig.json                                   @fuxingloh @canonbrother @ivan-zynesis
 tsconfig.base.json                              @fuxingloh @canonbrother @ivan-zynesis
 tsconfig.build.json                             @fuxingloh @canonbrother @ivan-zynesis
@@ -43,7 +49,6 @@ package-lock.json                               @fuxingloh
 .codeclimate.yml                                @fuxingloh
 .eslintrc                                       @fuxingloh
 netlify.toml                                    @fuxingloh
-
 CONTRIBUTING.md                                 @fuxingloh
 README.md                                       @fuxingloh
 LICENSE                                         @fuxingloh
