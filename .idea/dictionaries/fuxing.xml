@@ -148,6 +148,7 @@
       <w>listpoolshares</w>
       <w>listunspent</w>
       <w>listvaults</w>
+      <w>liveness</w>
       <w>locktime</w>
       <w>logtimemicros</w>
       <w>lshift</w>

@@ -6,6 +6,11 @@
       "@defichain/*": [
         "packages/*/src"
       ]
-    }
+    },
+    "target": "esnext",
+    "experimentalDecorators": true,
+    "incremental": true,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true
   }
 }
