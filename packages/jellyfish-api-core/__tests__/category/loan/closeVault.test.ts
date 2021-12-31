@@ -35,6 +35,7 @@ describe('Loan', () => {
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
     await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 200000 })
 
+    await tGroup.waitForSync()
     const loanTokenProvider = tGroup.get(1)
     await loanTokenProvider.container.waitForWalletCoinbaseMaturity()
 
@@ -78,7 +79,7 @@ describe('Loan', () => {
     await tGroup.get(0).container.generate(1)
 
     const mintTokenVaultAddr = await loanTokenProvider.generateAddress()
-    const mintTokenVaultId = await tGroup.get(0).rpc.loan.createVault({
+    const mintTokenVaultId = await loanTokenProvider.rpc.loan.createVault({
       ownerAddress: mintTokenVaultAddr,
       loanSchemeId: loanTokenSchemeId
     })
