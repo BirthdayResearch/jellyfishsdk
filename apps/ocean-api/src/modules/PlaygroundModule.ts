@@ -15,10 +15,15 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
     {
       provide: 'PLAYGROUND_RUNNER',
       useFactory: (configService: ConfigService, apiClient: ApiClient): PlaygroundRunner | undefined => {
-        if (configService.get<boolean>('PLAYGROUND_ENABLE') === true) {
-          return new PlaygroundRunner(apiClient)
+        if (configService.get<boolean>('PLAYGROUND_ENABLE') === false) {
+          return undefined
         }
-        return undefined
+
+        if (configService.get<string>('API_NETWORK') !== 'regtest') {
+          throw new Error('PLAYGROUND_ENABLE:true is only allowed on API_NETWORK:regtest')
+        }
+
+        return new PlaygroundRunner(apiClient)
       },
       inject: [ConfigService, ApiClient]
     }

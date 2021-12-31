@@ -27,7 +27,7 @@ function ENV_VALIDATION_SCHEMA (): any {
     NODE_ENV: Joi.string().valid('production', 'test').default('test'),
     PORT: Joi.number().default(3000),
     API_VERSION: Joi.string().regex(/^v[0-9]+(\.[0-9]+)?$/).default('v1'),
-    API_NETWORK: Joi.string().valid('regtest', 'testnet', 'mainnet', 'playground').default('regtest'),
+    API_NETWORK: Joi.string().valid('regtest', 'testnet', 'mainnet').default('regtest'),
     PLAYGROUND_ENABLE: Joi.boolean()
   })
 }
