@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@types/lossless-json": "^1.0.1",
-    "bignumber.js": "^9.0.1",
+    "bignumber.js": "^9.0.2",
     "lossless-json": "^1.0.5"
   },
   "peerDependencies": {

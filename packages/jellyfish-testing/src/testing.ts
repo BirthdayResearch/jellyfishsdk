@@ -99,12 +99,22 @@ export class TestingGroup {
     return this.testings.length
   }
 
+  async add (container: MasterNodeRegTestContainer): Promise<void> {
+    await this.group.add(container)
+    const testing = Testing.create(container)
+    this.testings.push(testing)
+  }
+
   async start (): Promise<void> {
     return await this.group.start()
   }
 
   async stop (): Promise<void> {
     return await this.group.stop()
+  }
+
+  async link (): Promise<void> {
+    return await this.group.link()
   }
 
   async exec (runner: (testing: Testing) => Promise<void>): Promise<void> {

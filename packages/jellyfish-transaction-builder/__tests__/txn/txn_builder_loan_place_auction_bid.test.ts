@@ -252,48 +252,42 @@ async function setup (): Promise<void> {
 
   // increase TSLA price
   await alice.rpc.oracle.setOracleData(oracleId, now(), { prices: [{ tokenAmount: '15@TSLA', currency: 'USD' }] })
-  await alice.generate(1) // interest * 5 => 1000.00285385@TSLA
+  await alice.generate(1)
   await tGroup.waitForSync()
 
   // check vault status before liquidated
   const vaultBefore = await bob.container.call('getvault', [bobVaultId])
   expect(vaultBefore.state).toStrictEqual('active')
   expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
-  expect(vaultBefore.loanAmounts).toStrictEqual(['1000.00285385@TSLA'])
-  expect(vaultBefore.interestAmounts).toStrictEqual(['0.00285385@TSLA'])
+  expect(vaultBefore.loanAmounts).toStrictEqual(['1000.00285390@TSLA'])
+  expect(vaultBefore.interestAmounts).toStrictEqual(['0.00285390@TSLA'])
   expect(vaultBefore.collateralValue).toStrictEqual(20000)
-  expect(vaultBefore.loanValue).toStrictEqual(2000.0057077)
-  expect(vaultBefore.interestValue).toStrictEqual(0.0057077)
+  expect(vaultBefore.loanValue).toStrictEqual(2000.0057078)
+  expect(vaultBefore.interestValue).toStrictEqual(0.0057078)
   expect(vaultBefore.collateralRatio).toStrictEqual(1000)
-  expect(vaultBefore.informativeRatio).toStrictEqual(999.99714615)
+  expect(vaultBefore.informativeRatio).toStrictEqual(999.9971461)
 
-  // *6 => 1000.00342462@TSLA
-  // *7 => 1000.00399539@TSLA
-  // *8 => 1000.00456616@TSLA
-  // *9 => 1000.00513693@TSLA
   {
-    await bob.generate(5) // *10 => 1000.0057077@TSLA
+    await bob.generate(5)
     const vault = await bob.container.call('getvault', [bobVaultId])
     // commented this flaky state check as block height does not really complimentary with state but time
     // expect(vault.state).toStrictEqual('frozen')
     expect(vault.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
-    expect(vault.loanAmounts).toStrictEqual(['1000.00570770@TSLA'])
-    expect(vault.interestAmounts).toStrictEqual(['0.00570770@TSLA'])
+    expect(vault.loanAmounts).toStrictEqual(['1000.00570780@TSLA'])
+    expect(vault.interestAmounts).toStrictEqual(['0.00570780@TSLA'])
     expect(vault.collateralValue).toStrictEqual(20000)
-    expect(vault.loanValue).toStrictEqual(2000.0114154)
-    expect(vault.interestValue).toStrictEqual(0.0114154)
+    expect(vault.loanValue).toStrictEqual(2000.0114156)
+    expect(vault.interestValue).toStrictEqual(0.0114156)
     expect(vault.collateralRatio).toStrictEqual(1000)
-    expect(vault.informativeRatio).toStrictEqual(999.99429233)
+    expect(vault.informativeRatio).toStrictEqual(999.99429223)
   }
 
   const auctionsBefore = await bob.container.call('listauctions')
   expect(auctionsBefore.length).toStrictEqual(0)
 
-  // *11 => 1000.00627847@TSLA
-  // *12 => 1000.00684924@TSLA
   await bob.container.waitForVaultState(bobVaultId, 'inLiquidation')
   const blockAfterInfo = await bob.rpc.blockchain.getBlockchainInfo()
-  const totalInterest = 0.00057077 * (blockAfterInfo.blocks - blockBeforeInfo.blocks)
+  const totalInterest = 0.00057078 * (blockAfterInfo.blocks - blockBeforeInfo.blocks)
   const totalTslaLoanAmountWInterst = tslaLoanAmount + totalInterest
   tslaBatch = Math.floor(totalTslaLoanAmountWInterst / 2 * 1e8) / 1e8
 
@@ -440,8 +434,8 @@ describe('placeAuctionBid success', () => {
         batches: [
           {
             index: 0,
-            collaterals: ['5004.44478554@DFI', '0.49955552@BTC'],
-            loan: '499.55922671@TSLA'
+            collaterals: ['5004.44478549@DFI', '0.49955552@BTC'],
+            loan: '499.55922678@TSLA'
           },
           {
             index: 1,
@@ -590,10 +584,10 @@ describe('placeAuctionBid success', () => {
 
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
-    expect(vault.collateralAmounts).toStrictEqual(['55.25856840@DFI'])
+    expect(vault.collateralAmounts).toStrictEqual(['55.25856830@DFI'])
     expect(vault.loanAmounts).toStrictEqual([])
     expect(vault.interestAmounts).toStrictEqual([])
-    expect(vault.collateralValue).toStrictEqual(55.25856840)
+    expect(vault.collateralValue).toStrictEqual(55.2585683)
     expect(vault.loanValue).toStrictEqual(0)
     expect(vault.interestValue).toStrictEqual(0)
     expect(vault.collateralRatio).toStrictEqual(-1)

@@ -9,23 +9,21 @@
   "files": [],
   "workspaces": [
     "./",
-    "./packages/*",
-    "./website"
+    "./apps/*",
+    "./packages/*"
   ],
   "engines": {
     "node": ">=14.x"
   },
   "scripts": {
-    "clean": "rm -rf ./packages/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "prepare": "husky install",
-    "website:build": "npm run build --workspace=website",
-    "build": "lerna run --scope '@defichain/*' build",
-    "version:set": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
-    "publish:latest": "lerna exec -- npm publish --tag latest --access public",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",
-    "test:ci": "jest --ci --coverage --forceExit --maxWorkers=4",
-    "all": "npm run clean && npm run build && npm run lint && npm run test"
+    "ci:test": "jest --ci --coverage --forceExit --maxWorkers=4",
+    "all:clean": "rm -rf ./packages/**/dist && rm -rf ./apps/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
+    "all:build": "lerna run build",
+    "all:version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
+    "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
@@ -33,11 +31,12 @@
     "eslint-config-standard-jsx": "^10.0.0",
     "eslint-config-standard-with-typescript": "^21.0.1",
     "husky": "^7.0.4",
-    "jest": "^27.3.1",
+    "jest": "^27.4.5",
     "lerna": "^4.0.0",
-    "lint-staged": "^12.1.2",
+    "lint-staged": "^12.1.4",
     "shuffle-seed": "^1.1.6",
-    "ts-jest": "^27.1.1",
+    "nock": "^13.1.3",
+    "ts-jest": "^27.1.2",
     "typescript": "4.2.4",
     "wait-for-expect": "^3.0.2"
   },

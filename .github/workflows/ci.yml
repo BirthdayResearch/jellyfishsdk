@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-      - uses: actions/setup-node@04c56d2f954f1e4c69436aa54cfef261a018f458
+      - uses: actions/setup-node@1f8c6b94b26d0feae1e387ca63ccbdc44d27b561
         with:
           node-version: '16'
           cache: 'npm'
 
       - run: npm ci
-      - run: npm run build
+      - run: npm run all:build
 
   test:
     name: Test
@@ -30,18 +30,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        instance: [ 0, 1, 2, 3, 4, 5, 6, 7]
+        instance: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     env:
-      GH_INSTANCE_TOTAL: 8
+      GH_INSTANCE_TOTAL: 10
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-      - uses: actions/setup-node@04c56d2f954f1e4c69436aa54cfef261a018f458
+      - uses: actions/setup-node@1f8c6b94b26d0feae1e387ca63ccbdc44d27b561
         with:
           node-version: '16'
           cache: 'npm'
 
       - run: npm ci
-      - run: npm run test:ci
+      - run: npm run ci:test
         env:
           GH_INSTANCE_INDEX: ${{ matrix.instance }}
 
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-      - uses: actions/setup-node@04c56d2f954f1e4c69436aa54cfef261a018f458
+      - uses: actions/setup-node@1f8c6b94b26d0feae1e387ca63ccbdc44d27b561
         with:
           node-version: '16'
           cache: 'npm'

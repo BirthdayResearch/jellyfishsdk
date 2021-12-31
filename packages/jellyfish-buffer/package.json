@@ -22,7 +22,7 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
-    "bignumber.js": "^9.0.1",
+    "bignumber.js": "^9.0.2",
     "smart-buffer": "^4.2.0"
   },
   "peerDependencies": {

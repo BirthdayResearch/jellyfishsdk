@@ -137,12 +137,12 @@ describe('Loan getInterest', () => {
     // calculate interest per block for TSLA
     const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
-    const interestPerBlock = new BigNumber(netInterest).multipliedBy(1000).dividedBy(365 * blocksPerDay) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
-    expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, 1))
+    const interestPerBlock = new BigNumber(netInterest * 1000 / (365.0 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
+    expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8)) // NOTE(sp): AIN use std::ceil(InterestPerBlockFloat()) after FCM hardfork, when storing the per block interest rate in DB
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight) // interestPerBlock is ceiled before multiplying with the height.
     expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8))
   })
 

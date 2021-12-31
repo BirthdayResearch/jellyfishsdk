@@ -3,9 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "@defichain/jellyfish-*": ["packages/jellyfish-*/src"],
-      "@defichain/testcontainers": ["packages/testcontainers/src"],
-      "@defichain/testing": ["packages/testing/src"],
+      "@defichain/*": [
+        "packages/*/src"
+      ]
     }
   }
 }

@@ -12,6 +12,9 @@ updates:
       - dependency-name: "@defich/*"
       - dependency-name: "@defichain/*"
     versioning-strategy: 'increase'
+    commit-message:
+      include: scope
+      prefix: bump
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -19,3 +22,6 @@ updates:
       interval: "daily"
     labels:
       - "kind/dependencies"
+    commit-message:
+      include: scope
+      prefix: bump

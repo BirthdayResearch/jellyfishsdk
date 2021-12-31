@@ -66,7 +66,11 @@ describe('coinbase maturity', () => {
   })
 
   it('should be able to get new address and priv/pub key for testing', async () => {
-    const { address, privKey, pubKey } = await container.newAddressKeys()
+    const {
+      address,
+      privKey,
+      pubKey
+    } = await container.newAddressKeys()
     await container.waitForWalletBalanceGTE(10)
     const { txid } = await container.fundAddress(address, 1)
 
@@ -82,5 +86,21 @@ describe('coinbase maturity', () => {
       ])
       expect(unspent[0].txid).toStrictEqual(txid)
     })
+  })
+})
+
+describe('coinbase maturity faster by time travel', () => {
+  const container = new MasterNodeRegTestContainer()
+
+  beforeAll(async () => {
+    await container.start()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should speed up coinbase maturity', async () => {
+    await container.waitForWalletCoinbaseMaturity()
   })
 })

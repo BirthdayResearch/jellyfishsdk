@@ -49,51 +49,29 @@
   name: kind/dependencies
   description: Pull requests that update a dependency file
 
+# Special Interest Group
+- color: 8d5253
+  name: sig/blockchain
+- color: 8d5253
+  name: sig/ecosystem
+- color: 8d5253
+  name: sig/wallet
+- color: 8d5253
+  name: sig/product
+
 # Area
-- color: fbca04
-  name: area/core
 - color: fbca04
   name: area/workflow
 - color: fbca04
-  name: area/website
+  name: area/apps
+- color: fbca04
+  name: area/docs
 - color: fbca04
   name: area/examples
 - color: fbca04
-  name: area/jellyfish-address
+  name: area/modules
 - color: fbca04
-  name: area/jellyfish-api-core
-- color: fbca04
-  name: area/jellyfish-api-jsonrpc
-- color: fbca04
-  name: area/jellyfish-block
-- color: fbca04
-  name: area/jellyfish-buffer
-- color: fbca04
-  name: area/jellyfish-crypto
-- color: fbca04
-  name: area/jellyfish-json
-- color: fbca04
-  name: area/jellyfish-network
-- color: fbca04
-  name: area/jellyfish-testing
-- color: fbca04
-  name: area/jellyfish-transaction
-- color: fbca04
-  name: area/jellyfish-transaction-builder
-- color: fbca04
-  name: area/jellyfish-transaction-signature
-- color: fbca04
-  name: area/jellyfish-wallet
-- color: fbca04
-  name: area/jellyfish-wallet-classic
-- color: fbca04
-  name: area/jellyfish-wallet-encrypted
-- color: fbca04
-  name: area/jellyfish-wallet-mnemonic
-- color: fbca04
-  name: area/testcontainers
-- color: fbca04
-  name: area/testing
+  name: area/packages
 
 # Priority
 - color: d93f0b

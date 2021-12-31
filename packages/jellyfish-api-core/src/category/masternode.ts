@@ -42,11 +42,12 @@ export class Masternode {
     operatorAddress?: string,
     options: CreateMasternodeOptions = { utxos: [] }
   ): Promise<string> {
-    operatorAddress = operatorAddress ?? ownerAddress
-    const params = [ownerAddress, operatorAddress, options.utxos]
-    if (options.timelock !== undefined) {
-      params.push(options.timelock)
-    }
+    const params = [
+      ownerAddress,
+      operatorAddress ?? ownerAddress,
+      options.utxos,
+      ...(options.timelock !== undefined ? [options.timelock] : [])
+    ]
     return await this.client.call('createmasternode', params, 'number')
   }
 
@@ -94,7 +95,7 @@ export class Masternode {
    * @param {boolean} [pagination.including_start = true] Include starting position.
    * @param {string} [pagination.limit = 100] Maximum number of orders to return.
    * @param {boolean} [verbose = true] Flag for verbose list. Only ids are returned when false.
-   * @return {Promise<MasternodeResult<T>>}
+   * @return {Promise<MasternodeResult>}
    */
   async listMasternodes<T> (
     pagination: MasternodePagination = {
@@ -114,6 +115,20 @@ export class Masternode {
    */
   async getMasternode (masternodeId: string): Promise<MasternodeResult<MasternodeInfo>> {
     return await this.client.call('getmasternode', [masternodeId], 'number')
+  }
+
+  /**
+   * Creates a masternode creation transaction with given owner and operator addresses.
+   *
+   * @param {MasternodeBlock} identifier
+   * @param {string} [identifier.id] Masternode's id.
+   * @param {string} [identifier.ownerAddress] Masternode owner address.
+   * @param {string} [identifier.operatorAddress]  Masternode operator address.
+   * @param {number} [depth] Maximum depth, from the genesis block is the default.
+   * @return {Promise<MasternodeResult<string>>}
+   */
+  async getMasternodeBlocks (identifier: MasternodeBlock, depth?: number): Promise<MasternodeResult<string>> {
+    return await this.client.call('getmasternodeblocks', [identifier, depth], 'number')
   }
 
   /**
@@ -184,6 +199,16 @@ export class Masternode {
   }
 
   /**
+   * Returns the auth and confirm anchor masternode teams at current or specified height
+   *
+   * @param {number} blockHeight The height of block which contain tx
+   * @returns {Promise<AnchorTeamResult>}
+   */
+  async getAnchorTeams (blockHeight?: number): Promise<AnchorTeamResult> {
+    return await this.client.call('getanchorteams', [blockHeight], 'number')
+  }
+
+  /**
    * Returns number of unique masternodes in the last specified number of blocks.
    *
    * @param {number} [blockCount=20160] The number of blocks to check for unique masternodes.
@@ -191,6 +216,14 @@ export class Masternode {
    */
   async getActiveMasternodeCount (blockCount: number = 20160): Promise<number> {
     return await this.client.call('getactivemasternodecount', [blockCount], 'number')
+  }
+
+  /**
+   * Returns an array of anchors if any
+   * @return Promise<MasternodeResult<MasternodeAnchor>>
+   */
+  async listAnchors (): Promise<MasternodeResult<MasternodeAnchor>> {
+    return await this.client.call('listanchors', [], 'number')
   }
 }
 
@@ -210,6 +243,12 @@ export interface MasternodePagination {
   limit?: number
 }
 
+export interface MasternodeBlock {
+  id?: string
+  ownerAddress?: string
+  operatorAddress?: string
+}
+
 export interface MasternodeInfo {
   ownerAuthAddress: string
   operatorAuthAddress: string
@@ -225,6 +264,21 @@ export interface MasternodeInfo {
   targetMultiplier?: number
   targetMultipliers?: number[]
   timelock?: number
+}
+
+export interface MasternodeAnchor {
+  anchorHeight: number
+  anchorHash: string
+  rewardAddress: string
+  dfiRewardHash: string
+  btcAnchorHeight: number
+  btcAnchorHash: string
+  confirmSignHash: string
+}
+
+export interface AnchorTeamResult {
+  auth: string[]
+  confirm: string[]
 }
 
 export interface MasternodeResult<T> {

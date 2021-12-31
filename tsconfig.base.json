@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": [
+      "es2020"
+    ],
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",

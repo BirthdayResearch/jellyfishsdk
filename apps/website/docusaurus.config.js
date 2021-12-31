@@ -128,7 +128,7 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          path: '../docs/ecosystem',
+          path: '../../docs/ecosystem',
           routeBasePath: 'ecosystem',
           editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
           sidebarCollapsed: false,
@@ -144,7 +144,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'node',
-        path: '../docs/node',
+        path: '../../docs/node',
         routeBasePath: 'node',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
@@ -154,7 +154,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'ocean',
-        path: '../docs/ocean',
+        path: '../../docs/ocean',
         routeBasePath: 'ocean',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
@@ -164,7 +164,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'testing',
-        path: '../docs/testing',
+        path: '../../docs/testing',
         routeBasePath: 'testing',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
