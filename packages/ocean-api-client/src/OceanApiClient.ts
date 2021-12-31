@@ -2,6 +2,7 @@ import 'url-search-params-polyfill'
 import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
 import { ApiException, ApiMethod, ApiPagedResponse, ApiResponse, ClientException, TimeoutException } from './'
+import { RawTx } from './apis/RawTx'
 
 /**
  * OceanApiClient configurable options
@@ -31,8 +32,7 @@ export interface OceanApiClientOptions {
  * OceanApiClient
  */
 export class OceanApiClient {
-  // TODO(fuxingloh):
-  //  public readonly fee = new Fee(this)
+  public readonly rawtx = new RawTx(this)
 
   constructor (
     protected readonly options: OceanApiClientOptions
@@ -94,7 +94,7 @@ export class OceanApiClient {
    * @param {'POST|'GET'} method to request
    * @param {string} path to request
    * @param {any} [object] JSON to send in request
-   * @return {T} data object in the JSON response body
+   * @return data object in the JSON response body
    */
   async requestData<T> (method: ApiMethod, path: string, object?: any): Promise<T> {
     const response = await this.requestAsApiResponse<T>(method, path, object)

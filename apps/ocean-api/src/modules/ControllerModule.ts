@@ -6,6 +6,7 @@ import { ResponseInterceptor } from '../controllers/filters/ResponseInterceptor'
 import { ErrorFilter } from '../controllers/filters/ErrorFilter'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
+import { RawTxController } from '../controllers/RawTxController'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -15,7 +16,8 @@ import { NetworkName } from '@defichain/jellyfish-network'
     CacheModule.register()
   ],
   controllers: [
-    ActuatorController
+    ActuatorController,
+    RawTxController
   ],
   providers: [
     {
