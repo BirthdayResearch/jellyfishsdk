@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config'
 import { ControllerModule } from './ControllerModule'
 import { BlockchainCppModule } from './BlockchainCppModule'
 import { ActuatorModule } from './ActuatorModule'
+import { PlaygroundModule } from './PlaygroundModule'
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { ActuatorModule } from './ActuatorModule'
     }),
     ActuatorModule,
     BlockchainCppModule,
-    ControllerModule
+    ControllerModule,
+    PlaygroundModule
   ]
 })
 export class RootModule {
