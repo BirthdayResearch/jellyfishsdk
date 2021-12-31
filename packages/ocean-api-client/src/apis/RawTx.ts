@@ -1,4 +1,4 @@
-import { OceanApiClient } from '@defichain/ocean-api-client'
+import { OceanApiClient } from '../'
 
 export class RawTx {
   constructor (private readonly api: OceanApiClient) {
