@@ -14,6 +14,9 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
+    "typeorm": "^0.2.41",
+    "reflect-metadata": "^0.1.10",
+    "sqlite3": "^5.0.2"
   },
   "peerDependencies": {
     "defichain": "^0.0.0"
