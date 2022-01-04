@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 
 describe('Loan', () => {
-  const tGroup = TestingGroup.create(3, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
+  const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultWithCollateralId: string // Vault with collateral token deposited
 
   let vaultWithoutCollateral1Id: string // Vaults without collateral token deposited
@@ -33,16 +33,9 @@ describe('Loan', () => {
   async function setup (): Promise<void> {
     // token setup
     const collateralAddress = await tGroup.get(0).container.getNewAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 200000 })
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 10200000 })
 
     await tGroup.waitForSync()
-    const loanTokenProvider = tGroup.get(1)
-    await loanTokenProvider.container.waitForWalletCoinbaseMaturity()
-
-    const loanTokenProviderAddr = await loanTokenProvider.generateAddress()
-    await loanTokenProvider.token.dfi({ address: loanTokenProviderAddr, amount: 10000000 })
-    // need alot of blocks to allow spending
-    await loanTokenProvider.generate(1)
 
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
@@ -78,30 +71,30 @@ describe('Loan', () => {
 
     await tGroup.get(0).container.generate(1)
 
-    const mintTokenVaultAddr = await loanTokenProvider.generateAddress()
-    const mintTokenVaultId = await loanTokenProvider.rpc.loan.createVault({
+    const mintTokenVaultAddr = await tGroup.get(0).generateAddress()
+    const mintTokenVaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: mintTokenVaultAddr,
       loanSchemeId: loanTokenSchemeId
     })
 
-    await loanTokenProvider.container.generate(15)
+    await tGroup.get(0).container.generate(15)
     await tGroup.waitForSync()
 
-    await loanTokenProvider.rpc.loan.depositToVault({
+    await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: mintTokenVaultId,
-      from: loanTokenProviderAddr,
+      from: collateralAddress,
       amount: '1000000@DFI'
     })
 
-    await loanTokenProvider.generate(1)
+    await tGroup.get(0).generate(1)
 
-    await loanTokenProvider.rpc.loan.takeLoan({
+    await tGroup.get(0).rpc.loan.takeLoan({
       vaultId: mintTokenVaultId,
       amounts: '100000@TSLA',
-      to: loanTokenProviderAddr
+      to: collateralAddress
     })
 
-    await loanTokenProvider.generate(1)
+    await tGroup.get(0).generate(1)
 
     await tGroup.waitForSync()
 
@@ -157,8 +150,8 @@ describe('Loan', () => {
 
     // Mint TSLA
     const tGroupRecepientAddr = await tGroup.get(0).generateAddress()
-    await loanTokenProvider.rpc.account.accountToAccount(loanTokenProviderAddr, { [tGroupRecepientAddr]: '30000@TSLA' })
-    await loanTokenProvider.generate(1)
+    await tGroup.get(0).rpc.account.accountToAccount(collateralAddress, { [tGroupRecepientAddr]: '30000@TSLA' })
+    await tGroup.get(0).generate(1)
     await tGroup.get(0).generate(1)
     await tGroup.get(0).poolpair.create({ tokenA: 'TSLA', tokenB: 'DUSD' })
     await tGroup.get(0).generate(1)
@@ -382,8 +375,8 @@ describe('Loan', () => {
   })
 
   it('should not closeVault by anyone other than the vault owner', async () => {
-    const address = await tGroup.get(2).generateAddress()
-    const promise = tGroup.get(2).rpc.loan.closeVault({ vaultId: vaultWithoutCollateral2Id, to: address })
+    const address = await tGroup.get(1).generateAddress()
+    const promise = tGroup.get(1).rpc.loan.closeVault({ vaultId: vaultWithoutCollateral2Id, to: address })
     await expect(promise).rejects.toThrow(`RpcApiError: 'Incorrect authorization for ${vaultAddressWithoutCollateral2Id}', code: -5, method: closevault`)
   })
 
