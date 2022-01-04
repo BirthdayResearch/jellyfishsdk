@@ -1,6 +1,7 @@
 import * as Joi from 'joi'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
+import { GraphQLModule } from '@nestjs/graphql'
 import { ControllerModule } from './ControllerModule'
 import { BlockchainCppModule } from './BlockchainCppModule'
 import { ActuatorModule } from './ActuatorModule'
@@ -16,7 +17,10 @@ import { PlaygroundModule } from './PlaygroundModule'
     ActuatorModule,
     BlockchainCppModule,
     ControllerModule,
-    PlaygroundModule
+    PlaygroundModule,
+    GraphQLModule.forRoot({
+      autoSchemaFile: true
+    })
   ]
 })
 export class RootModule {
