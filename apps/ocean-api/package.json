@@ -20,7 +20,7 @@
     "@defichain/jellyfish-api-jsonrpc": "0.0.0",
     "@defichain/playground": "0.0.0",
     "@nestjs/common": "^8.2.4",
-    "@nestjs/config": "^1.1.5",
+    "@nestjs/config": "^1.1.6",
     "@nestjs/core": "^8.2.4",
     "@nestjs/platform-fastify": "^8.2.4",
     "@nestjs/schedule": "^1.0.2",
