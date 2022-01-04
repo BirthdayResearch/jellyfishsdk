@@ -222,14 +222,14 @@ describe('Loan listVaults with options and pagination', () => {
       ownerAddress: loanVaultOwner,
       loanSchemeId: loanTokenSchemeId
     })
-    await testing.generate(20)
+    await testing.generate(1)
 
-    await testing.token.dfi({ address: collateralAddress, amount: '100000000' })
+    await testing.token.dfi({ address: collateralAddress, amount: '100000' })
     await testing.container.generate(1)
 
     // deposit to vault to loan tokens
     await testing.rpc.loan.depositToVault({
-      vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000000@DFI'
+      vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000@DFI'
     })
     await testing.container.generate(1)
 
