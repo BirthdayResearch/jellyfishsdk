@@ -13,7 +13,7 @@ describe('regtest', () => {
     await apiTesting.stop()
   })
 
-  it('block count should not increment', async () => {
+  it('should not increment block count', async () => {
     const initial = await apiTesting.rpc.blockchain.getBlockCount()
 
     await new Promise((resolve) => {
@@ -37,7 +37,7 @@ describe('playground', () => {
     await apiTesting.stop()
   })
 
-  it('block count should increment', async () => {
+  it('should increment block count', async () => {
     const initial = await apiTesting.rpc.blockchain.getBlockCount()
 
     await waitForExpect(async () => {
