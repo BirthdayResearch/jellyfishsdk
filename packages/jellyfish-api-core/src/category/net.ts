@@ -41,8 +41,8 @@ export class Net {
 export interface PeerInfo {
   id: number
   addr: string
-  addrbind: string
-  addrlocal: string
+  addrbind?: string
+  addrlocal?: string
   services: string
   relaytxes: boolean
   lastsend: number
@@ -51,23 +51,27 @@ export interface PeerInfo {
   bytesrecv: number
   conntime: number
   timeoffset: number
-  pingtime: number
-  minping: number
-  pingwait: number
+  pingtime?: number
+  minping?: number
+  pingwait?: number
   version: number
   subver: string
   inbound: boolean
   addnode: boolean
   startingheight: number
-  banscore: number
-  synced_headers: number
-  synced_blocks: number
+  banscore?: number
+  synced_headers?: number
+  synced_blocks?: number
   inflight: number[]
   whitelisted: boolean
   permissions: string[]
   minfeefilter: number
-  bytessent_per_msg: Record<string, number>
-  bytesrecv_per_msg: Record<string, number>
+  bytessent_per_msg: {
+    [msg: string]: number
+  }
+  bytesrecv_per_msg: {
+    [msg: string]: number
+  }
 }
 
 export interface NetworkInfo {
