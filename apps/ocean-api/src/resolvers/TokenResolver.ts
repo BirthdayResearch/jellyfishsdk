@@ -5,7 +5,7 @@ import { TokenInfo } from 'packages/jellyfish-api-core/src/category/token'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 import { PaginationQuery } from '../_core/api.query'
 
-@Resolver(of => TokenModel)
+@Resolver(() => TokenModel)
 export class TokenResolver {
   constructor (private readonly client: ApiClient) {
   }
