@@ -3,6 +3,8 @@ import { Elliptic } from '@defichain/jellyfish-crypto'
 import { ApiException } from '@defichain/ocean-api-client'
 
 const apiTesting = OceanApiTesting.create()
+const privA = Elliptic.fromPrivKey(Buffer.from('619c335025c7f4012e556c2a58b2506e30b8511b53ade95ea316fd8c3286feb9', 'hex'))
+const privB = Elliptic.fromPrivKey(Buffer.from('557c4bdff86e59015987c1c7f3328a1fb4c2177b5e834f09c8cd10fae51af93b', 'hex'))
 
 describe('feeEstimate', () => {
   beforeEach(async () => {
@@ -43,10 +45,7 @@ describe('feeEstimate', () => {
   })
 })
 
-describe.only('test', () => {
-  const privA = Elliptic.fromPrivKey(Buffer.from('619c335025c7f4012e556c2a58b2506e30b8511b53ade95ea316fd8c3286feb9', 'hex'))
-  const privB = Elliptic.fromPrivKey(Buffer.from('557c4bdff86e59015987c1c7f3328a1fb4c2177b5e834f09c8cd10fae51af93b', 'hex'))
-
+describe('test', () => {
   beforeAll(async () => {
     await apiTesting.start()
     await apiTesting.testing.container.waitForWalletCoinbaseMaturity()
@@ -113,6 +112,125 @@ describe.only('test', () => {
         at: expect.any(Number),
         message: '400 - BadRequest  : Transaction is not allowed to be inserted',
         url: '/v1/regtest/rawtx/test'
+      })
+    }
+  })
+})
+
+describe('send', () => {
+  beforeAll(async () => {
+    await apiTesting.start()
+    await apiTesting.testing.container.waitForWalletCoinbaseMaturity()
+  })
+
+  afterAll(async () => {
+    await apiTesting.stop()
+  })
+
+  it('should send valid txn 0.0001 DFI as fees', async () => {
+    const { hex: { signed } } = await apiTesting.testing.rawtx.fund({
+      a: { amount: 10, ellipticPair: privA },
+      b: { amount: 9.9999, ellipticPair: privB }
+    })
+    const txid = await apiTesting.client.rawtx.send({
+      hex: signed
+    })
+    expect(txid.length).toStrictEqual(64)
+
+    await apiTesting.testing.generate(1)
+    const out = await apiTesting.testing.container.call('gettxout', [txid, 0])
+    expect(out.value).toStrictEqual(9.9999)
+  })
+
+  it('should send valid txn 0.01 DFI as fees', async () => {
+    const { hex: { signed } } = await apiTesting.testing.rawtx.fund({
+      a: { amount: 10, ellipticPair: privA },
+      b: { amount: 9.99, ellipticPair: privB }
+    })
+    const txid = await apiTesting.client.rawtx.send({
+      hex: signed
+    })
+    expect(txid.length).toStrictEqual(64)
+
+    await apiTesting.testing.generate(1)
+    const out = await apiTesting.testing.container.call('gettxout', [txid, 0])
+    expect(out.value).toStrictEqual(9.99)
+  })
+
+  it('should send valid txn with given maxFeeRate', async () => {
+    const { hex: { signed } } = await apiTesting.testing.rawtx.fund({
+      a: { amount: 10, ellipticPair: privA },
+      b: { amount: 9.995, ellipticPair: privB }
+    })
+    const txid = await apiTesting.client.rawtx.send({
+      hex: signed,
+      maxFeeRate: 0.05
+    })
+    expect(txid.length).toStrictEqual(64)
+
+    await apiTesting.testing.generate(1)
+    const out = await apiTesting.testing.container.call('gettxout', [txid, 0])
+    expect(out.value).toStrictEqual(9.995)
+  })
+
+  it('should fail due to invalid txn', async () => {
+    expect.assertions(2)
+    try {
+      await apiTesting.client.rawtx.send({
+        hex: '0400000100881133bb11aa00cc'
+      })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        url: '/v1/regtest/rawtx/send',
+        message: '400 - BadRequest  : Transaction decode failed'
+      })
+    }
+  })
+
+  it('should fail due to high fees', async () => {
+    const { hex: { signed } } = await apiTesting.testing.rawtx.fund({
+      a: { amount: 10, ellipticPair: privA },
+      b: { amount: 9, ellipticPair: privB }
+    })
+
+    expect.assertions(2)
+    try {
+      await apiTesting.client.rawtx.send({
+        hex: signed,
+        maxFeeRate: 1
+      })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        url: '/v1/regtest/rawtx/send',
+        message: '400 - BadRequest  : Absurdly high fee'
+      })
+    }
+  })
+
+  it('should fail due to high fees using default values', async () => {
+    const { hex: { signed } } = await apiTesting.testing.rawtx.fund({
+      a: { amount: 10, ellipticPair: privA },
+      b: { amount: 9.95, ellipticPair: privB }
+    })
+    expect.assertions(2)
+    try {
+      await apiTesting.client.rawtx.send({ hex: signed })
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(ApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: '400 - BadRequest  : Absurdly high fee',
+        url: '/v1/regtest/rawtx/send'
       })
     }
   })

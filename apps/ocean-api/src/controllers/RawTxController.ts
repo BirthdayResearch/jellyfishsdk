@@ -3,6 +3,15 @@ import { ApiClient, mining } from '@defichain/jellyfish-api-core'
 import BigNumber from 'bignumber.js'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
 import { BadRequestApiException } from '@defichain/ocean-api-client'
+import { SmartBuffer } from 'smart-buffer'
+import {
+  CCompositeSwap,
+  CompositeSwap,
+  CTransactionSegWit,
+  OP_CODES,
+  OP_DEFI_TX
+} from '@defichain/jellyfish-transaction'
+
 class RawTxDto {
   @IsNotEmpty()
   @IsHexadecimal()
@@ -50,26 +59,26 @@ export class RawTxController {
    * @return {Promise<string>} hash of the transaction
    * @throws {BadRequestApiException} if tx fail mempool acceptance
    */
-  // @Post('/send')
-  // async send (@Body() tx: RawTxDto): Promise<string> {
-  //   await this.validate(tx.hex)
+  @Post('/send')
+  async send (@Body() tx: RawTxDto): Promise<string> {
+    await this.validate(tx.hex)
 
-  //   const maxFeeRate = this.getMaxFeeRate(tx)
-  //   try {
-  //     return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
-  //   } catch (err: any) {
-  //     // TODO(fuxingloh): more meaningful error
-  //     if (err?.payload?.message === 'TX decode failed') {
-  //       throw new BadRequestApiException('Transaction decode failed')
-  //     }
-  //     if (err?.payload?.message.indexOf('absurdly-high-fee') !== -1) {
-  //       // message: 'absurdly-high-fee, 100000000 > 11100000 (code 256)'
-  //       throw new BadRequestApiException('Absurdly high fee')
-  //     }
+    const maxFeeRate = this.getMaxFeeRate(tx)
+    try {
+      return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
+    } catch (err: any) {
+      // TODO(fuxingloh): more meaningful error
+      if (err?.payload?.message === 'TX decode failed') {
+        throw new BadRequestApiException('Transaction decode failed')
+      }
+      if (err?.payload?.message.indexOf('absurdly-high-fee') !== -1) {
+        // message: 'absurdly-high-fee, 100000000 > 11100000 (code 256)'
+        throw new BadRequestApiException('Absurdly high fee')
+      }
 
-  //     throw new BadRequestApiException(err?.payload?.message)
-  //   }
-  // }
+      throw new BadRequestApiException(err?.payload?.message)
+    }
+  }
 
   /**
    * @param {RawTxDto} tx to test whether allow acceptance into mempool.
@@ -105,42 +114,59 @@ export class RawTxController {
     return this.defaultMaxFeeRate
   }
 
-  // async validate (hex: string): Promise<void> {
-  //   if (!hex.startsWith('040000000001')) {
-  //     return
-  //   }
+  async validate (hex: string): Promise<void> {
+    if (!hex.startsWith('040000000001')) {
+      return
+    }
 
-  //   const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
-  //   const transaction = new CTransactionSegWit(buffer)
+    const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
+    const transaction = new CTransactionSegWit(buffer)
 
-  //   if (transaction.vout.length !== 2) {
-  //     return
-  //   }
+    if (transaction.vout.length !== 2) {
+      return
+    }
 
-  //   if (transaction.vout[0].script.stack.length !== 2) {
-  //     return
-  //   }
+    if (transaction.vout[0].script.stack.length !== 2) {
+      return
+    }
 
-  //   if (transaction.vout[0].script.stack[0].type !== OP_CODES.OP_RETURN.type) {
-  //     return
-  //   }
+    if (transaction.vout[0].script.stack[0].type !== OP_CODES.OP_RETURN.type) {
+      return
+    }
 
-  //   if ((transaction.vout[0].script.stack[1]).tx.type !== CCompositeSwap.OP_CODE) {
-  //     return
-  //   }
+    if ((transaction.vout[0].script.stack[1] as OP_DEFI_TX).tx.type !== CCompositeSwap.OP_CODE) {
+      return
+    }
 
-  //   const dftx = (transaction.vout[0].script.stack[1]).tx.data
-  //   if (dftx.pools.length === 0) {
-  //     return
-  //   }
+    const dftx = (transaction.vout[0].script.stack[1] as OP_DEFI_TX).tx.data as CompositeSwap
+    if (dftx.pools.length === 0) {
+      return
+    }
 
-  //   const lastPoolId = dftx.pools[dftx.pools.length - 1].id
-  //   const toTokenId = `${dftx.poolSwap.toTokenId}`
+    const lastPoolId = dftx.pools[dftx.pools.length - 1].id
+    const toTokenId = `${dftx.poolSwap.toTokenId}`
 
-  //   const info = await this.deFiDCache.getPoolPairInfo(`${lastPoolId}`)
-  //   if (info?.idTokenA === toTokenId || info?.idTokenB === toTokenId) {
-  //     return
-  //   }
-  //   throw new BadRequestApiException('Invalid CompositeSwap')
-  // }
+    // TODO(canonbrother)
+    // const info = await this.deFiDCache.getPoolPairInfo(`${lastPoolId}`)
+    // if (info?.idTokenA === toTokenId || info?.idTokenB === toTokenId) {
+    //   return
+    // }
+    // throw new BadRequestApiException('Invalid CompositeSwap')
+
+    try {
+      const result = await this.client.poolpair.getPoolPair(`${lastPoolId}`)
+      if (result[lastPoolId] === undefined) {
+        return undefined
+      }
+      if (result[lastPoolId].idTokenA === toTokenId || result[lastPoolId].idTokenB === toTokenId) {
+        return
+      }
+      throw new BadRequestApiException('Invalid CompositeSwap')
+    } catch (err: any) {
+      if (err?.payload?.message === 'Pool not found') {
+        return undefined
+      }
+      throw err
+    }
+  }
 }
