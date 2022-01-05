@@ -12,7 +12,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b tsconfig.build.json"
+    "build": "tsc -b tsconfig.build.json",
+    "start": "nest start"
   },
   "dependencies": {
     "@defichain/ocean-api-client": "0.0.0",
