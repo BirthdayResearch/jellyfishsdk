@@ -23,7 +23,7 @@ function createNetworkTests (name: string, container: RegTestContainer | MasterN
 
       expect(peers.length).toBeGreaterThan(0)
 
-      for (const peer of await client.net.getPeerInfo()) {
+      for (const peer of peers) {
         expect(typeof peer.id).toStrictEqual('number')
 
         expectValidAddress(peer.addr)
