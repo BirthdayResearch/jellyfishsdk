@@ -444,7 +444,7 @@ describe('Loan listVaults with options and pagination', () => {
       start: vaults[vaults.length - 1].vaultId
     })
     // should be 3 entries
-    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(4) // total 5, including_start, started at index[1], listing 3 + one more for minting loan tokens
+    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(4) // total 5, including_start, started at index[1], listing 3 + one more for borrowing loan tokens
 
     //  check if we retrived all 4 entries
     // need to add the mint token vault here
