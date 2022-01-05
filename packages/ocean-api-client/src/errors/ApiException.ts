@@ -28,7 +28,7 @@ export interface ApiError<T = any> {
   at: number
   message?: string
   url?: string
-  payload: T
+  payload?: T
 }
 
 /**
