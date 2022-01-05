@@ -5,6 +5,7 @@ export class GlobalValidationPipe extends ValidationPipe {
   constructor () {
     super({
       transform: true,
+      forbidUnknownValues: true,
       exceptionFactory: (errors: ValidationError[]) => {
         return new ApiValidationException({
           code: HttpStatus.UNPROCESSABLE_ENTITY,
