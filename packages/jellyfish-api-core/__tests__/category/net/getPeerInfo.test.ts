@@ -1,8 +1,9 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
+import { PeerInfo } from 'packages/jellyfish-api-core/src/category/net'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
 createNetworkTests('Network without masternode', new RegTestContainer())
-createNetworkTests('Network with masternode', new MasterNodeRegTestContainer())
+createNetworkTests('Network on masternode', new MasterNodeRegTestContainer())
 
 function createNetworkTests (name: string, container: RegTestContainer | MasterNodeRegTestContainer): void {
   describe(name, () => {
@@ -17,11 +18,11 @@ function createNetworkTests (name: string, container: RegTestContainer | MasterN
       await container.stop()
     })
 
-    it('should return a list of peers', async () => {
-      await expect(client.net.getPeerInfo()).resolves.toHaveLength(2)
-    })
+    it('should getPeerInfo', async () => {
+      const peers: PeerInfo[] = await client.net.getPeerInfo()
 
-    it('should return valid schema', async () => {
+      expect(peers.length).toBeGreaterThan(0)
+
       for (const peer of await client.net.getPeerInfo()) {
         expect(typeof peer.id).toStrictEqual('number')
 
