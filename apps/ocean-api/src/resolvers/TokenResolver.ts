@@ -3,6 +3,8 @@ import { Resolver, Args, Query } from '@nestjs/graphql'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { TokenInfo } from 'packages/jellyfish-api-core/src/category/token'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { ApiPagedResponse } from '../_core/api.paged.response'
+import { PaginationQuery } from '../_core/api.query'
 
 @Resolver(of => TokenModel)
 export class TokenResolver {
@@ -22,6 +24,24 @@ export class TokenResolver {
         throw new BadRequestException(err)
       }
     }
+  }
+
+  @Query(returns => [TokenModel])
+  async list (@Args('pagination') query: PaginationQuery): Promise<ApiPagedResponse<TokenModel>> {
+    const data = await this.client.token.listTokens({
+      start: query.next !== undefined ? Number(query.next) : 0,
+      including_start: query.next === undefined,
+      limit: query.size
+    }, true)
+
+    const tokens: TokenModel[] = Object.entries(data)
+      .map(([id, value]): TokenModel => {
+        return mapTokenData(id, value)
+      }).sort(a => Number.parseInt(a.id))
+
+    return ApiPagedResponse.of(tokens, query.size, item => {
+      return item.id
+    })
   }
 }
 
