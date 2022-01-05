@@ -46,32 +46,6 @@ export class RawTxController {
   }
 
   /**
-   * @param {RawTxDto} tx to submit to the network.
-   * @return {Promise<string>} hash of the transaction
-   * @throws {BadRequestApiException} if tx fail mempool acceptance
-   */
-  // @Post('/send')
-  // async send (@Body() tx: RawTxDto): Promise<string> {
-  //   await this.validate(tx.hex)
-
-  //   const maxFeeRate = this.getMaxFeeRate(tx)
-  //   try {
-  //     return await this.client.rawtx.sendRawTransaction(tx.hex, maxFeeRate)
-  //   } catch (err: any) {
-  //     // TODO(fuxingloh): more meaningful error
-  //     if (err?.payload?.message === 'TX decode failed') {
-  //       throw new BadRequestApiException('Transaction decode failed')
-  //     }
-  //     if (err?.payload?.message.indexOf('absurdly-high-fee') !== -1) {
-  //       // message: 'absurdly-high-fee, 100000000 > 11100000 (code 256)'
-  //       throw new BadRequestApiException('Absurdly high fee')
-  //     }
-
-  //     throw new BadRequestApiException(err?.payload?.message)
-  //   }
-  // }
-
-  /**
    * @param {RawTxDto} tx to test whether allow acceptance into mempool.
    * @return {Promise<void>}
    * @throws {BadRequestApiException} if tx fail mempool acceptance
@@ -104,43 +78,4 @@ export class RawTxController {
     }
     return this.defaultMaxFeeRate
   }
-
-  // async validate (hex: string): Promise<void> {
-  //   if (!hex.startsWith('040000000001')) {
-  //     return
-  //   }
-
-  //   const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
-  //   const transaction = new CTransactionSegWit(buffer)
-
-  //   if (transaction.vout.length !== 2) {
-  //     return
-  //   }
-
-  //   if (transaction.vout[0].script.stack.length !== 2) {
-  //     return
-  //   }
-
-  //   if (transaction.vout[0].script.stack[0].type !== OP_CODES.OP_RETURN.type) {
-  //     return
-  //   }
-
-  //   if ((transaction.vout[0].script.stack[1]).tx.type !== CCompositeSwap.OP_CODE) {
-  //     return
-  //   }
-
-  //   const dftx = (transaction.vout[0].script.stack[1]).tx.data
-  //   if (dftx.pools.length === 0) {
-  //     return
-  //   }
-
-  //   const lastPoolId = dftx.pools[dftx.pools.length - 1].id
-  //   const toTokenId = `${dftx.poolSwap.toTokenId}`
-
-  //   const info = await this.deFiDCache.getPoolPairInfo(`${lastPoolId}`)
-  //   if (info?.idTokenA === toTokenId || info?.idTokenB === toTokenId) {
-  //     return
-  //   }
-  //   throw new BadRequestApiException('Invalid CompositeSwap')
-  // }
 }
