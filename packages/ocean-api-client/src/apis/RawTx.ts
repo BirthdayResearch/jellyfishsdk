@@ -18,6 +18,17 @@ export class RawTx {
   }
 
   /**
+   * Send a raw transaction
+   *
+   * @param {RawTxReq} rawTx to submit to the network.
+   * @throws WhaleApiException if failed mempool acceptance
+   * @returns {Promise<string>} txid
+   */
+  async send (rawTx: RawTxReq): Promise<string> {
+    return await this.api.requestData('POST', 'rawtx/send', rawTx)
+  }
+
+  /**
    * Send a raw transaction to test the mempool acceptance
    *
    * @param {RawTxReq} rawTx to test mempool acceptance
