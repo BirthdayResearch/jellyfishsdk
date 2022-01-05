@@ -3,6 +3,8 @@ import { Elliptic } from '@defichain/jellyfish-crypto'
 import { ApiException } from '@defichain/ocean-api-client'
 
 const apiTesting = OceanApiTesting.create()
+const privA = Elliptic.fromPrivKey(Buffer.from('619c335025c7f4012e556c2a58b2506e30b8511b53ade95ea316fd8c3286feb9', 'hex'))
+const privB = Elliptic.fromPrivKey(Buffer.from('557c4bdff86e59015987c1c7f3328a1fb4c2177b5e834f09c8cd10fae51af93b', 'hex'))
 
 describe('feeEstimate', () => {
   beforeEach(async () => {
@@ -44,9 +46,6 @@ describe('feeEstimate', () => {
 })
 
 describe('test', () => {
-  const privA = Elliptic.fromPrivKey(Buffer.from('619c335025c7f4012e556c2a58b2506e30b8511b53ade95ea316fd8c3286feb9', 'hex'))
-  const privB = Elliptic.fromPrivKey(Buffer.from('557c4bdff86e59015987c1c7f3328a1fb4c2177b5e834f09c8cd10fae51af93b', 'hex'))
-
   beforeAll(async () => {
     await apiTesting.start()
     await apiTesting.testing.container.waitForWalletCoinbaseMaturity()
