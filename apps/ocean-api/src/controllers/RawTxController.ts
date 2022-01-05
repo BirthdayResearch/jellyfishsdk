@@ -91,12 +91,10 @@ export class RawTxController {
     const maxFeeRate = this.getMaxFeeRate(tx)
     try {
       const result = await this.client.rawtx.testMempoolAccept(tx.hex, maxFeeRate)
-      console.log('result: ', result)
       if (!result.allowed) {
         throw new BadRequestApiException('Transaction is not allowed to be inserted')
       }
     } catch (err: any) {
-      console.log('err.message: ', err.message)
       if (err.message.indexOf('Transaction is not allowed to be inserted') !== -1) {
         throw new BadRequestApiException('Transaction is not allowed to be inserted')
       }
