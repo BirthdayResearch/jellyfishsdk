@@ -4,12 +4,12 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 import { TokenInfo } from 'packages/jellyfish-api-core/src/category/token'
 import { BadRequestException, NotFoundException } from '@nestjs/common'
 
-@Resolver(() => TokenModel)
+@Resolver(of => TokenModel)
 export class TokenResolver {
   constructor (private readonly client: ApiClient) {
   }
 
-  @Query(() => TokenModel)
+  @Query(returns => TokenModel)
   async get (@Args('id') id: string): Promise<TokenModel> {
     try {
       const data = await this.client.token.getToken(id)
