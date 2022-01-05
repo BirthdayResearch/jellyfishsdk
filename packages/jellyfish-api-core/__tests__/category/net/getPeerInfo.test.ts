@@ -11,7 +11,7 @@ function createNetworkTests (name: string, container: RegTestContainer | MasterN
 
     beforeAll(async () => {
       await container.start()
-      await container.addNode('127.0.0.1')
+      await container.addNode(await container.getIp('bridge'))
     })
 
     afterAll(async () => {
