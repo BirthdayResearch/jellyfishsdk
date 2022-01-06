@@ -34,6 +34,96 @@ await api.address.getBalance('8defichainBurnAddressXXXXXXXdRQkSm')
 }
 ```
 
+## Token
+
+Get current tokens of an address.
+
+#### Code Samples
+
+##### Shell
+
+```shell
+curl https://ocean.defichain.com/v0/mainnet/address/8defichainBurnAddressXXXXXXXdRQkSm/tokens
+```
+
+##### Response
+
+```json
+{
+	"data": [
+		{
+			"id": "0",
+			"amount": "124704.88335104",
+			"symbol": "DFI",
+			"symbolKey": "DFI",
+			"name": "Default Defi token",
+			"isDAT": true,
+			"isLPS": false,
+			"displaySymbol": "DFI"
+		},
+		{
+			"id": "1",
+      ...
+    }
+  ]
+}
+```
+
+## Vault
+
+Get current vaults of an address.
+
+#### Code Samples
+
+##### Shell
+
+```shell
+curl https://ocean.defichain.com/v0/mainnet/address/8defichainBurnAddressXXXXXXXdRQkSm/vaults
+```
+
+##### Response
+
+```json
+{
+	"data": []
+}
+```
+
+## Transaction
+
+Get transactions of an address.
+
+#### Code Samples
+
+##### Shell
+
+```shell
+curl https://ocean.defichain.com/v0/mainnet/address/8defichainBurnAddressXXXXXXXdRQkSm/transactions
+```
+
+##### Response
+
+```json
+{
+	"data": [
+		{
+			"id": "00163bd10101db41727f2092148d328b946a3ca0c4eb8faf82d393488ab65466eb81c2697600000000",
+			"hid": "e70680db7f28c22b9ef50a72b923e8991488a50f8b104022d92c42ebad7ee175",
+			"type": "vout",
+			"typeHex": "01",
+			"txid": "01db41727f2092148d328b946a3ca0c4eb8faf82d393488ab65466eb81c26976",
+			"block": {
+				"hash": "fc9f25940ddd5e6e0dc7f857d69b2d2b4dedb97c102c5546ce2a22eb05139015",
+				"height": 1457105,
+				"time": 1639723795,
+				"medianTime": 1639723552
+			},
+			"script": {
+        ...
+	]
+}
+```
+
 ## Aggregation
 
 Get current aggregated stats of an address.
