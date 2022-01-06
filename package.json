@@ -46,5 +46,8 @@
     "*.{ts,js}": [
       "eslint --fix"
     ]
+  },
+  "dependencies": {
+    "typeorm": "^0.2.41"
   }
 }

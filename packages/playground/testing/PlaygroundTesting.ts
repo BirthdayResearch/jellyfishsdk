@@ -2,6 +2,7 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { BotLogger, Playground } from '@defichain/playground'
 import { ApiClient } from '@defichain/jellyfish-api-core'
+import { Sqlite } from '../src/Sqlite'
 
 /**
  * Universal Playground Testing framework for internal package use.
@@ -17,7 +18,8 @@ export class PlaygroundTesting {
   constructor (
     private readonly testingGroup: TestingGroup,
     private readonly logger: PlaygroundTestingLogger = new PlaygroundTestingLogger(),
-    private readonly playground: Playground = new Playground(testingGroup.get(0).rpc, logger)
+    private readonly playground: Playground = new Playground(testingGroup.get(0).rpc, logger),
+    private readonly db: Sqlite = new Sqlite()
   ) {
   }
 
@@ -47,6 +49,7 @@ export class PlaygroundTesting {
    */
   async start (): Promise<void> {
     await this.group.start()
+    await this.db.start()
   }
 
   /**
