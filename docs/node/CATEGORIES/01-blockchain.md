@@ -371,3 +371,13 @@ interface WaitBlockResult {
   height: number
 }
 ```
+
+## verifyChain
+
+Verifies blockchain database.
+
+```ts title="client.blockchain.verifyChain()"
+interface blockchain {
+  verifyChain (checkLevel?: 0 | 1 | 2 | 3 | 4, nBlocks?: number): Promise<boolean>
+}
+```

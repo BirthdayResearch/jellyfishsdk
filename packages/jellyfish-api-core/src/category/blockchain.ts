@@ -214,6 +214,18 @@ export class Blockchain {
   async waitForBlockHeight (height: number, timeout: number = 30000): Promise<WaitBlockResult> {
     return await this.client.call('waitforblockheight', [height, timeout], 'number')
   }
+
+  /**
+   * Verifies blockchain database.
+   *
+   * @param {number} checkLevel How thorough the block verification is. Range=0-4
+   * @param {number} nBlocks The number of blocks to check. 0=all
+
+   * @returns verification status
+   */
+  async verifyChain (checkLevel?: 0 | 1 | 2 | 3 | 4, nBlocks?: number): Promise<boolean> {
+    return await this.client.call('verifychain', [checkLevel, nBlocks], 'number')
+  }
 }
 
 /**
