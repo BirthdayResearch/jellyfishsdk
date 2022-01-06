@@ -530,18 +530,11 @@ describe('paybackLoan success', () => {
       expect(vaultAfter.collateralRatio).toStrictEqual(37500)
       expect(vaultAfter.informativeRatio).toStrictEqual(37499.52900591)
 
-      expect(vaultAfter.loanAmounts).toStrictEqual(['14.00006907@TSLA', '3.00001542@AMZN'])
-      expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000798@TSLA', '0.00000171@AMZN'])
-      expect(vaultAfter.loanValue).toStrictEqual(40.00019982)
-      expect(vaultAfter.interestValue).toStrictEqual(0.0000228)
-      expect(vaultAfter.collateralRatio).toStrictEqual(37500)
-      expect(vaultAfter.informativeRatio).toStrictEqual(37499.81266968)
-
       const loanTokenAccAfter = await bob.container.call('getaccount', [bobloanAddr])
       expect(loanTokenAccAfter).toStrictEqual(['14.00000000@TSLA', '3.00000000@AMZN']) // (27 - 13), (9 - 6)
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001361)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(0.0000236)
     }
   })
 
@@ -565,12 +558,12 @@ describe('paybackLoan success', () => {
     await bob.generate(1)
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmounts).toStrictEqual(['27.00006109@TSLA']) // 40.00002283 - 13 + totalInterest
-    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001541@TSLA'])
-    expect(vaultAfter.loanValue).toStrictEqual(54.00012218) // 27.00006109 * 2 (::1 TSLA = 2 USD)
-    expect(vaultAfter.interestValue).toStrictEqual(0.00003082)
+    expect(vaultAfter.loanAmounts).toStrictEqual(['27.00010675@TSLA']) // 40.00002283 - 13 + totalInterest
+    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00006108@TSLA'])
+    expect(vaultAfter.loanValue).toStrictEqual(54.0002135) // 27.00006109 * 2 (::1 TSLA = 2 USD)
+    expect(vaultAfter.interestValue).toStrictEqual(0.00012216)
     expect(vaultAfter.collateralRatio).toStrictEqual(27778) // 15000 / 54.00012218 * 100
-    expect(vaultAfter.informativeRatio).toStrictEqual(27777.71492812)
+    expect(vaultAfter.informativeRatio).toStrictEqual(27777.6679531)
 
     const rawtx = await bob.container.call('getrawtransaction', [txid, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
@@ -602,12 +595,12 @@ describe('paybackLoan success', () => {
       ownerAddress: bobVaultAddr,
       state: 'active',
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
-      loanAmounts: ['19.00001085@DUSD', '40.00004568@TSLA'],
-      interestAmounts: ['0.00001085@DUSD', '0.00004568@TSLA'],
+      loanAmounts: ['19.00001085@DUSD', '40.00004567@TSLA'],
+      interestAmounts: ['0.00001085@DUSD', '0.00004567@TSLA'],
       collateralValue: 15000,
-      loanValue: 99.00010221,
-      interestValue: 0.00010221,
-      informativeRatio: 15151.49950873,
+      loanValue: 99.00010219,
+      interestValue: 0.00010219,
+      informativeRatio: 15151.4995118,
       collateralRatio: 15151
     })
 
@@ -625,12 +618,12 @@ describe('paybackLoan success', () => {
       ownerAddress: bobVaultAddr,
       state: 'active',
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
-      loanAmounts: ['1.00001142@DUSD', '40.00006852@TSLA'],
-      interestAmounts: ['0.00000057@DUSD', '0.00006852@TSLA'],
+      loanAmounts: ['1.00002227@DUSD', '40.00006850@TSLA'],
+      interestAmounts: ['0.00001142@DUSD', '0.00006850@TSLA'],
       collateralValue: 15000,
-      loanValue: 81.00014846,
-      interestValue: 0.00013761,
-      informativeRatio: 18518.4845771,
+      loanValue: 81.00015927,
+      interestValue: 0.00014842,
+      informativeRatio: 18518.48210569,
       collateralRatio: 18518
     })
   })
@@ -768,6 +761,9 @@ describe('paybackLoan failed', () => {
   })
 
   it('should fail paybackLoan if resulted in zero interest loan', async () => {
+    const interest = await bob.rpc.loan.getInterest('scheme')
+    console.log(interest)
+
     const promise = bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '40@TSLA',
