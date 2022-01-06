@@ -1,9 +1,8 @@
-import Dockerode, { Container, DockerOptions, Network } from 'dockerode'
+import Dockerode, { Container, DockerOptions } from 'dockerode'
 
 export abstract class DockerContainer {
   protected readonly docker: Dockerode
   protected container?: Container
-  protected dNetwork?: Network
 
   protected constructor (
     protected readonly image: string,
