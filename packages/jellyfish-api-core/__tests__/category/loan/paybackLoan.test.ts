@@ -343,6 +343,8 @@ describe('paybackLoan success', () => {
       expect(interestsBefore[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL))
     }
 
+    console.log(JSON.stringify(await bob.rpc.loan.getVault(bobVaultId)))
+
     const txid = await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
       amounts: '13@TSLA',
@@ -352,15 +354,19 @@ describe('paybackLoan success', () => {
     await bob.generate(1)
     tslaLoanHeight = await bob.container.getBlockCount()
 
+    console.log(JSON.stringify(await bob.rpc.loan.getVault(bobVaultId)))
+
     // assert interest by 27
     const interests = await bob.rpc.loan.getInterest('scheme')
+    console.log(JSON.stringify(interestsBefore))
+    console.log(JSON.stringify(interests))
     {
       const height = await bob.container.getBlockCount()
-      const tslaInterestPerBlock = new BigNumber(netInterest * 27 / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
-      const tslaInterestTotalAfterLoanPayback = tslaInterestPerBlock.multipliedBy(height + 1 - tslaLoanHeight)
+      const tslaInterestPerBlock = new BigNumber(netInterest * 27 / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay -> 0.00001542
+      const tslaInterestTotalAfterLoanPayback = tslaInterestPerBlock.multipliedBy(height + 1 - tslaLoanHeight) // 0.00001542
       const tslaInterestTotal = tslaInterestTotalAfterLoanPayback.plus(interestsBefore[0].totalInterest)
-      expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)) // NOTE(sp): not sure why the rpc returns 0.00001541, while ceil(0.000015411) = 0.00001542
-      expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
+      expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
+      expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8)) // here it is 0.00003825 ~= 0.00002284 + 0.00001542
     }
 
     const loanAccAfter = await bob.container.call('getaccount', [bobloanAddr])
