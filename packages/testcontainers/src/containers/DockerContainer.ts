@@ -1,8 +1,9 @@
-import Dockerode, { Container, DockerOptions } from 'dockerode'
+import Dockerode, { Container, DockerOptions, Network } from 'dockerode'
 
 export abstract class DockerContainer {
   protected readonly docker: Dockerode
   protected container?: Container
+  protected dNetwork?: Network
 
   protected constructor (
     protected readonly image: string,
@@ -19,6 +20,34 @@ export abstract class DockerContainer {
     const { NetworkSettings: networkSettings } = await this.inspect()
     const { Networks: networks } = networkSettings
     return networks[name].IPAddress
+  }
+
+  async listNetworks (): Promise<Dockerode.NetworkInspectInfo[]> {
+    return await this.docker.listNetworks()
+  }
+
+  async getNetwork (id: string): Promise<Dockerode.Network> {
+    return this.docker.getNetwork(id)
+  }
+
+  async createNetwork (name: string): Promise<void> {
+    await this.docker.createNetwork({
+      Name: name,
+      IPAM: {
+        Driver: 'default',
+        Config: []
+      }
+    })
+  }
+
+  async connectNetwork (id: string): Promise<void> {
+    const network = await this.getNetwork(id)
+    await network.connect({ Container: this.id })
+  }
+
+  async removeNetwork (id: string): Promise<void> {
+    const network = await this.getNetwork(id)
+    await network.remove(id)
   }
 
   /**

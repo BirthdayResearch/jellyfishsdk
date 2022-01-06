@@ -1,21 +1,35 @@
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { PeerInfo } from 'packages/jellyfish-api-core/src/category/net'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import Dockerode from 'dockerode'
 
-createNetworkTests('Network without masternode', new RegTestContainer())
-createNetworkTests('Network on masternode', new MasterNodeRegTestContainer())
+createNetworkTests('Network without masternode', [new RegTestContainer(), new RegTestContainer()])
+createNetworkTests('Network on masternode', [new MasterNodeRegTestContainer(), new MasterNodeRegTestContainer()])
 
-function createNetworkTests (name: string, container: RegTestContainer | MasterNodeRegTestContainer): void {
+function createNetworkTests (name: string, container: RegTestContainer[] | MasterNodeRegTestContainer[]): void {
   describe(name, () => {
-    const client = new ContainerAdapterClient(container)
+    const client = new ContainerAdapterClient(container[0])
+    let createdNetwork: Dockerode.NetworkInspectInfo
 
     beforeAll(async () => {
-      await container.start()
-      await container.addNode(await container.getIp('bridge'))
+      await container[0].start()
+      await container[0].createNetwork('test')
+      const networks = await container[0].listNetworks()
+      createdNetwork = networks.find(n => n.Name === 'test') as Dockerode.NetworkInspectInfo
+      await container[0].connectNetwork(createdNetwork.Id)
+
+      await container[1].start()
+      await container[1].connectNetwork(createdNetwork.Id)
+
+      // addnode
+      await container[0].addNode(await container[1].getIp('test'))
     })
 
     afterAll(async () => {
-      await container.stop()
+      await container[0].stop()
+      await container[1].stop()
+
+      await container[0].removeNetwork(createdNetwork.Id)
     })
 
     it('should getPeerInfo', async () => {
