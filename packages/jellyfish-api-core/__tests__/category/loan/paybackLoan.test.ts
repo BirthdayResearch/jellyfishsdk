@@ -343,8 +343,6 @@ describe('paybackLoan success', () => {
       expect(interestsBefore[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL))
     }
 
-    console.log(JSON.stringify(await bob.rpc.loan.getVault(bobVaultId)))
-
     const payBackTslaAmount = 13
     const txid = await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
@@ -355,15 +353,10 @@ describe('paybackLoan success', () => {
     await bob.generate(1)
     tslaLoanHeight = await bob.container.getBlockCount()
 
-    console.log(JSON.stringify(await bob.rpc.loan.getVault(bobVaultId)))
-
     // assert interest by 27
     const interests = await bob.rpc.loan.getInterest('scheme')
 
     const tslaInterestsPerBlockAfter = tslaInterestsPerBlockBefore.minus(new BigNumber(netInterest * payBackTslaAmount / (365 * blocksPerDay)).decimalPlaces(8))
-    console.log(JSON.stringify(tslaInterestsPerBlockBefore))
-    console.log(tslaInterestsPerBlockAfter)
-    console.log(JSON.stringify(interests))
     {
       const height = await bob.container.getBlockCount()
       // const tslaInterestPerBlock = new BigNumber(netInterest * 27 / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay -> 0.00001542
@@ -821,9 +814,6 @@ describe('paybackLoan failed', () => {
 
   // this test on longer applies after FortCanningHill
   // it('should fail paybackLoan if resulted in zero interest loan', async () => {
-  //   const interest = await bob.rpc.loan.getInterest('scheme')
-  //   console.log(interest)
-
   //   const promise = bob.rpc.loan.paybackLoan({
   //     vaultId: bobVaultId,
   //     amounts: '40@TSLA',
