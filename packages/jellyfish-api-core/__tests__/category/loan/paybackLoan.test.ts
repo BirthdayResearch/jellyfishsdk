@@ -597,6 +597,9 @@ describe('paybackLoan success', () => {
 
     const utxo = await bob.container.fundAddress(bobloanAddr, 250) // one extra block has been generate here and so the interest has been increased here
 
+    const heightAfterFundAddress = await bob.container.getBlockCount()
+    const totalTslaInterestAfterFundAddress = tslaInterestTotalBefore.plus(tslaInterestPerBlockBefore.multipliedBy(new BigNumber(heightAfterFundAddress - height)))
+
     const tslaPaybackAmount = 13
     const txid = await bob.rpc.loan.paybackLoan({
       vaultId: bobVaultId,
@@ -608,22 +611,24 @@ describe('paybackLoan success', () => {
 
     // check the interests after payback
     // total interest payable is paid back upfront even at partial payback. Becuase of that, actual loanDecreasedAfterPayback = (tslaPaybackAmount - total interest)
-    const loanDecreasedAfterPayback = new BigNumber(tslaPaybackAmount).minus(tslaInterestTotalBefore)
+    const loanDecreasedAfterPayback = new BigNumber(tslaPaybackAmount).minus(totalTslaInterestAfterFundAddress)
+
     const tslaInterestPerBlockAfter = tslaInterestPerBlockBefore.minus(loanDecreasedAfterPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
     const tslaInterestTotalAfter = tslaInterestPerBlockAfter.multipliedBy(1).dp(8, BigNumber.ROUND_CEIL) // total interest is always ceild to CAmount precision in AIN
-    // const tslaLoanAmountAfter = new BigNumber(40).minus(loanDecreasedAfterPayback).plus(tslaInterestTotalAfter) // tslaLoanAmountBefore - loanDecreasedAfter + tslaInterestTotalAfter
-    // const tslaLoanValueAfter = tslaLoanAmountAfter.multipliedBy(new BigNumber(2)) // loanAmount * 2 (1 TSLA = 2 USD)
+    const tslaLoanAmountAfter = new BigNumber(40).minus(loanDecreasedAfterPayback).plus(tslaInterestTotalAfter)// tslaLoanAmountBefore - loanDecreasedAfter + tslaInterestTotalAfter
+
+    const tslaLoanValueAfter = tslaLoanAmountAfter.dp(8, BigNumber.ROUND_FLOOR).multipliedBy(new BigNumber(2)) // loanAmount * 2 (1 TSLA = 2 USD)
     const tslaInterestValueAfter = tslaInterestTotalAfter.multipliedBy(new BigNumber(2))
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     // NOTE(sp): vaultAfter.loanAmounts == 27.00006109@TSLA, but it should be 27.00003826@TSLA as per the calculations. note that 27.00003826 + 0.00002284 = 27.00006110
     // further debugging required.
-    // expect(vaultAfter.loanAmounts).toStrictEqual([`${tslaLoanAmountAfter.toFixed(8, BigNumber.ROUND_FLOOR)}@TSLA`])
-    expect(vaultAfter.interestAmounts).toStrictEqual([`${tslaInterestTotalAfter.toFixed(8)}@TSLA`])
-    // expect(vaultAfter.loanValue).toStrictEqual(tslaLoanValueAfter.toNumber())
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${tslaLoanAmountAfter.toFixed(8, BigNumber.ROUND_FLOOR)}@TSLA`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${tslaInterestTotalAfter.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
+    expect(vaultAfter.loanValue).toStrictEqual(tslaLoanValueAfter.toNumber())
     expect(vaultAfter.interestValue).toStrictEqual(tslaInterestValueAfter.toNumber())
-    // expect(vaultAfter.collateralRatio).toStrictEqual(27778) // (15000 / tslaLoanValueAfter) * 100
-    // expect(vaultAfter.informativeRatio).toStrictEqual(27777.71492812)
+    expect(vaultAfter.collateralRatio).toStrictEqual(27778) // (15000 / tslaLoanValueAfter) * 100
+    expect(vaultAfter.informativeRatio).toStrictEqual(27777.71492812)
 
     const rawtx = await bob.container.call('getrawtransaction', [txid, true])
     expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
