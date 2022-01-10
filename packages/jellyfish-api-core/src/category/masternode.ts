@@ -206,7 +206,7 @@ export class Masternode {
    * @return {Promise<boolean>} indicate that custom transaction was affected on chain
    */
   async isAppliedCustomTransaction (transactionId: string, blockHeight: number): Promise<boolean> {
-    return await this.client.call('isappliedcustomtx', [transactionId, blockHeight], 'bignumber')
+    return await this.client.call('isappliedcustomtx', [transactionId, blockHeight], 'number')
   }
 
   /**
