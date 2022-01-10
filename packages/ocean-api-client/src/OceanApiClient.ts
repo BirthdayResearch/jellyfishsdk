@@ -3,6 +3,8 @@ import AbortController from 'abort-controller'
 import fetch from 'cross-fetch'
 import { ApiException, ApiMethod, ApiPagedResponse, ApiResponse, ClientException, TimeoutException } from './'
 import { RawTx } from './apis/RawTx'
+import { Token } from './apis/Token'
+import { request, RequestDocument } from 'graphql-request'
 
 /**
  * OceanApiClient configurable options
@@ -33,6 +35,7 @@ export interface OceanApiClientOptions {
  */
 export class OceanApiClient {
   public readonly rawtx = new RawTx(this)
+  public readonly token = new Token(this)
 
   constructor (
     protected readonly options: OceanApiClientOptions
@@ -113,6 +116,23 @@ export class OceanApiClient {
     const response: ApiResponse<T> = JSON.parse(raw.body)
     ApiException.raiseIfError(response)
     return response
+  }
+
+  /**
+   * @param {string} query GraphQL query
+   * @param {any} params params for GraphQL query
+   * @return data object in the JSON response body
+   */
+  async requestGraphQL<T> (query: String, params: any): Promise<T> {
+    const {
+      url: urlString,
+      version,
+      network
+    } = this.options
+
+    const url = `${urlString as string}/${version as string}/${network as string}`
+    const response = await request(url, query as RequestDocument, params)
+    return response.data
   }
 
   /**

@@ -6,6 +6,7 @@ import { ControllerModule } from './ControllerModule'
 import { BlockchainCppModule } from './BlockchainCppModule'
 import { ActuatorModule } from './ActuatorModule'
 import { PlaygroundModule } from './PlaygroundModule'
+import { TokenResolver } from '../resolvers/TokenResolver'
 
 @Module({
   imports: [
@@ -19,9 +20,11 @@ import { PlaygroundModule } from './PlaygroundModule'
     ControllerModule,
     PlaygroundModule,
     GraphQLModule.forRoot({
-      autoSchemaFile: true
+      autoSchemaFile: true,
+      cors: false
     })
-  ]
+  ],
+  providers: [TokenResolver]
 })
 export class RootModule {
 }

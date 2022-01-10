@@ -56,14 +56,10 @@ export function mapTokenData (id: string, tokenInfo: TokenInfo): TokenModel {
     isLPS: tokenInfo.isLPS,
     finalized: tokenInfo.finalized,
     minted: tokenInfo.minted.toFixed(),
-    creation: {
-      tx: tokenInfo.creationTx,
-      height: tokenInfo.creationHeight.toNumber()
-    },
-    destruction: {
-      tx: tokenInfo.destructionTx,
-      height: tokenInfo.destructionHeight.toNumber()
-    },
+    creationTx: tokenInfo.creationTx,
+    creationHeight: tokenInfo.creationHeight.toNumber(),
+    destructionTx: tokenInfo.destructionTx,
+    destructionHeight: tokenInfo.destructionHeight.toNumber(),
     collateralAddress: tokenInfo.collateralAddress !== '' ? tokenInfo.collateralAddress : undefined,
     displaySymbol: parseDisplaySymbol(tokenInfo)
   }

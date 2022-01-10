@@ -1,6 +1,6 @@
 import { ObjectType, Field } from '@nestjs/graphql'
 
-@ObjectType()
+@ObjectType('Token')
 export class TokenModel {
   @Field()
   id!: string
@@ -42,16 +42,16 @@ export class TokenModel {
   minted!: string // BigNumber
 
   @Field()
-  creation!: {
-    tx: string
-    height: number
-  }
+  creationTx!: string
 
   @Field()
-  destruction!: {
-    tx: string
-    height: number
-  }
+  creationHeight!: number
+
+  @Field()
+  destructionTx!: string
+
+  @Field()
+  destructionHeight!: number
 
   @Field()
   collateralAddress?: string
