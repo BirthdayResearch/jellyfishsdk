@@ -1,23 +1,22 @@
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ContainerAdapterClient } from '../../container_adapter_client'
 
 describe('Masternode', () => {
-  const container = new MasterNodeRegTestContainer()
-  const testing = Testing.create(container)
-  const client = new ContainerAdapterClient(container)
+  const testing = Testing.create(new MasterNodeRegTestContainer())
+  const container = testing.container
+  const client = testing.rpc
 
   beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
   })
 
   afterAll(async () => {
-    await testing.container.stop()
+    await container.stop()
   })
 
   it('should be passed while using valid id and height', async () => {
-    const goldAddress = await testing.container.getNewAddress('', 'legacy')
+    const goldAddress = await container.getNewAddress('', 'legacy')
     const goldMetadata = {
       symbol: 'GOLD',
       name: 'shiny gold',
@@ -27,10 +26,10 @@ describe('Masternode', () => {
       collateralAddress: goldAddress
     }
     const goldTokenId = await client.token.createToken(goldMetadata)
-    await testing.container.generate(1)
+    await container.generate(1)
     const goldHeight = await client.blockchain.getBlockCount()
 
-    const silverAddress = await testing.container.getNewAddress('', 'legacy')
+    const silverAddress = await container.getNewAddress('', 'legacy')
     const silverMetadata = {
       symbol: 'SILVER',
       name: 'just silver',
@@ -40,10 +39,10 @@ describe('Masternode', () => {
       collateralAddress: silverAddress
     }
     const silverTokenId = await client.token.createToken(silverMetadata)
-    await testing.container.generate(1)
+    await container.generate(1)
     const silverHeight = await client.blockchain.getBlockCount()
 
-    const copperAddress = await testing.container.getNewAddress('', 'legacy')
+    const copperAddress = await container.getNewAddress('', 'legacy')
     const copperMetadata = {
       symbol: 'COPPER',
       name: 'just copper',
@@ -53,7 +52,7 @@ describe('Masternode', () => {
       collateralAddress: copperAddress
     }
     const copperTokenId = await client.token.createToken(copperMetadata)
-    await testing.container.generate(1)
+    await container.generate(1)
     const copperHeight = await client.blockchain.getBlockCount()
 
     const goldResult = await client.masternode.isAppliedCustomTransaction(goldTokenId, goldHeight)
@@ -67,7 +66,7 @@ describe('Masternode', () => {
   })
 
   it('should be failed while using invalid height', async () => {
-    const brassAddress = await testing.container.getNewAddress('', 'legacy')
+    const brassAddress = await container.getNewAddress('', 'legacy')
     const brassMetadata = {
       symbol: 'BRASS',
       name: 'shiny brass',
@@ -77,7 +76,7 @@ describe('Masternode', () => {
       collateralAddress: brassAddress
     }
     const brassTokenId = await client.token.createToken(brassMetadata)
-    await testing.container.generate(1)
+    await container.generate(1)
     const brassHeight = await client.blockchain.getBlockCount()
 
     const brassResult = await client.masternode.isAppliedCustomTransaction(brassTokenId, brassHeight + 1)
