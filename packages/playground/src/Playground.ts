@@ -3,6 +3,7 @@ import { BotLogger } from './BotLogger'
 import { AbstractBot } from './AbstractBot'
 import { BlockGenerateBot } from './bots/BlockGenerateBot'
 import { FoundationBot } from './bots/FoundationBot'
+import { GenesisCoinbaseBot } from './bots/GenesisCoinbaseBot'
 
 /**
  * Playground Root Bot with all subsequent bot configured to run at boostrap and at each cycle.
@@ -13,7 +14,8 @@ export class Playground {
 
   constructor (private readonly apiClient: ApiClient, logger: BotLogger) {
     this.bots = [
-      new FoundationBot(apiClient, logger)
+      new FoundationBot(apiClient, logger),
+      new GenesisCoinbaseBot(apiClient, logger)
     ]
     this.generate = new BlockGenerateBot(apiClient, logger)
   }
