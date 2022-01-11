@@ -27,6 +27,16 @@ export class Net {
   async getNetworkInfo (): Promise<NetworkInfo> {
     return await this.client.call('getnetworkinfo', [], 'number')
   }
+
+  /**
+   * Disable/enable all p2p network activity.
+   *
+   * @param state true to enable networking, false to disable
+   * @return {Promise<boolean>} current network state
+   */
+  async setNetworkActive (state: boolean): Promise<boolean> {
+    return await this.client.call('setnetworkactive', [state], 'number')
+  }
 }
 
 export interface NetworkInfo {
