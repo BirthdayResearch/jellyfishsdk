@@ -15,21 +15,21 @@ export class PlaygroundTesting {
   public counter: number = 0
 
   constructor (
-    private readonly testingGroup: TestingGroup,
+    private readonly testingGroup: TestingGroup<MasterNodeRegTestContainer>,
     private readonly logger: PlaygroundTestingLogger = new PlaygroundTestingLogger(),
     private readonly playground: Playground = new Playground(testingGroup.get(0).rpc, logger)
   ) {
   }
 
-  static create (testingGroup: TestingGroup = TestingGroup.create(1)): PlaygroundTesting {
+  static create (testingGroup: TestingGroup<MasterNodeRegTestContainer> = TestingGroup.create(1)): PlaygroundTesting {
     return new PlaygroundTesting(testingGroup)
   }
 
-  get group (): TestingGroup {
+  get group (): TestingGroup<MasterNodeRegTestContainer> {
     return this.testingGroup
   }
 
-  get testing (): Testing {
+  get testing (): Testing<MasterNodeRegTestContainer> {
     return this.testingGroup.get(0)
   }
 
