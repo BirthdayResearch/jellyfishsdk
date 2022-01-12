@@ -11,7 +11,7 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export type TestingContainer = MasterNodeRegTestContainer | RegTestContainer
-export type TestingGroupInit = (index: number) => MasterNodeRegTestContainer | RegTestContainer
+export type TestingGroupInit<Container> = (index: number) => Container
 
 export class Testing<Container extends TestingContainer> {
   public readonly fixture = new TestingFixture<Container>(this)
@@ -30,9 +30,7 @@ export class Testing<Container extends TestingContainer> {
   }
 
   async generate (n: number): Promise<void> {
-    if (this.container instanceof MasterNodeRegTestContainer) {
-      await this.container.generate(n)
-    }
+    await this.container.generate(n)
   }
 
   async address (key: number | string): Promise<string> {
@@ -65,12 +63,12 @@ export class Testing<Container extends TestingContainer> {
   }
 }
 
-export class TestingGroup {
-  public readonly anchor = new TestingGroupAnchor(this)
+export class TestingGroup<Container extends TestingContainer> {
+  public readonly anchor = new TestingGroupAnchor<Container>(this)
 
   private constructor (
     public readonly group: ContainerGroup,
-    public readonly testings: Array<Testing<TestingContainer>>
+    public readonly testings: Array<Testing<Container>>
   ) {
   }
 
@@ -78,27 +76,27 @@ export class TestingGroup {
    * @param {number} n of testing container to create
    * @param {(index: number) => MasterNodeRegTestContainer} [init=MasterNodeRegTestContainer]
    */
-  static create (
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (
     n: number,
-    init: TestingGroupInit = (index: number): MasterNodeRegTestContainer => {
-      return new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
+    init: TestingGroupInit<Container> = (index: number): Container => {
+      return new MasterNodeRegTestContainer(RegTestFoundationKeys[index]) as Container
     }
-  ): TestingGroup {
-    const containers: TestingContainer[] = []
-    const testings: Array<Testing<TestingContainer>> = []
+  ): TestingGroup<Container> {
+    const containers: Container[] = []
+    const testings: Array<Testing<Container>> = []
     for (let i = 0; i < n; i += 1) {
       const container = init(i)
       containers.push(container)
 
-      const testing = Testing.create(container)
+      const testing = Testing.create<Container>(container)
       testings.push(testing)
     }
 
     const group = new ContainerGroup(containers)
-    return new TestingGroup(group, testings)
+    return new TestingGroup<Container>(group, testings)
   }
 
-  get (index: number): Testing<TestingContainer> {
+  get (index: number): Testing<Container> {
     return this.testings[index]
   }
 
@@ -106,7 +104,7 @@ export class TestingGroup {
     return this.testings.length
   }
 
-  async add (container: TestingContainer): Promise<void> {
+  async add (container: Container): Promise<void> {
     await this.group.add(container)
     const testing = Testing.create(container)
     this.testings.push(testing)
@@ -124,7 +122,7 @@ export class TestingGroup {
     return await this.group.link()
   }
 
-  async exec (runner: (testing: Testing<TestingContainer>) => Promise<void>): Promise<void> {
+  async exec (runner: (testing: Testing<Container>) => Promise<void>): Promise<void> {
     for (let i = 0; i < this.testings.length; i += 1) {
       await runner(this.testings[i])
     }
