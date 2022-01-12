@@ -1,3 +1,5 @@
+import { BlockHeaderModel, TokenModel } from '@defichain/jellyfish-database'
+import 'reflect-metadata'
 import { PlaygroundTesting } from '../../testing/PlaygroundTesting'
 
 const playgroundTesting = PlaygroundTesting.create()
@@ -19,4 +21,13 @@ it('should block generate when cycle', async () => {
 
   const next = await playgroundTesting.rpc.blockchain.getBlockCount()
   expect(next).toStrictEqual(1)
+
+  await playgroundTesting.database.insert(BlockHeaderModel, {
+    id: 'hash',
+    time: 0,
+    height: 1,
+    medianTime: 2
+  })
+
+  console.log(await playgroundTesting.database.list(BlockHeaderModel))
 })

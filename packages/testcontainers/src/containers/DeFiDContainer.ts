@@ -84,7 +84,8 @@ export abstract class DeFiDContainer extends DockerContainer {
       }
     })
     await this.container.start()
-    await this.waitForRpc(startOptions.timeout)
+    // await this.waitForRpc(startOptions.timeout)
+    await this.waitForRpc(100000)
   }
 
   /**

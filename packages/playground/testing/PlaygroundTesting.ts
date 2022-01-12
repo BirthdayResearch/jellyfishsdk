@@ -3,6 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { BotLogger, Playground } from '@defichain/playground'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { Sqlite } from '../src/Sqlite'
+import { TokenModel, BlockHeaderModel } from '@defichain/jellyfish-database'
 
 /**
  * Universal Playground Testing framework for internal package use.
@@ -43,13 +44,17 @@ export class PlaygroundTesting {
     return this.testing.rpc
   }
 
+  get database (): Sqlite {
+    return this.db
+  }
+
   /**
    * @see TestingGroup
    * @see Testing
    */
   async start (): Promise<void> {
     await this.group.start()
-    await this.db.start()
+    await this.db.start(BlockHeaderModel, TokenModel)
   }
 
   /**
@@ -58,6 +63,7 @@ export class PlaygroundTesting {
    */
   async stop (): Promise<void> {
     await this.group.stop()
+    await this.database.stop()
   }
 
   async bootstrap (): Promise<void> {
