@@ -2,3 +2,9 @@
 . "$(dirname "$0")/_/husky.sh"
 
 npx --no-install lint-staged
+
+# no only
+if grep -rF --include="*.spec.ts" --include="*.e2e.ts" --include="*.test.ts" .only packages apps
+then return 1
+else return 0
+fi
