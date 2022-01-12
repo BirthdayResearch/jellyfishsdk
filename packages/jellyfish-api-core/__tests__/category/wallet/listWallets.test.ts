@@ -1,3 +1,4 @@
+import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { ContainerAdapterClient } from '../../container_adapter_client'
 
@@ -20,12 +21,11 @@ describe('Wallet without masternode', () => {
 })
 
 describe('Wallet with masternode', () => {
-  const container = new MasterNodeRegTestContainer()
-  const client = new ContainerAdapterClient(container)
+  const { container, rpc: { wallet } } = Testing.create(new MasterNodeRegTestContainer())
 
   beforeAll(async () => {
     await container.start()
-    await client.wallet.createWallet('test')
+    await wallet.createWallet('test')
   })
 
   afterAll(async () => {
@@ -33,6 +33,6 @@ describe('Wallet with masternode', () => {
   })
 
   it('should listWallets', async () => {
-    await expect(client.wallet.listWallets()).resolves.toEqual(['', 'test'])
+    await expect(wallet.listWallets()).resolves.toEqual(['', 'test'])
   })
 })
