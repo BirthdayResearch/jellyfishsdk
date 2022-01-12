@@ -4,7 +4,8 @@
   },
   "extends": [
     "standard-with-typescript",
-    "standard-jsx"
+    "standard-jsx",
+    "plugin:jest/recommended"
   ],
   "ignorePatterns": [
     "dist",
@@ -34,7 +35,9 @@
       }
     ],
     "import/no-default-export": "error",
-    "no-else-return": "error"
+    "no-else-return": "error",
+    "jest/no-disabled-tests": "error",
+    "jest/prefer-strict-equal": "error"
   },
   "overrides": [
     {
