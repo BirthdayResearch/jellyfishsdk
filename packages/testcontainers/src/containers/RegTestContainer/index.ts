@@ -37,11 +37,27 @@ export class RegTestContainer extends DeFiDContainer {
     ]
   }
 
+  async waitForBlockHeight (height: number, timeout = 590000): Promise<void> {
+    throw new Error('RegTestContainer Violation: waitForBlockHeight is not implemented for non master node containers')
+  }
+
+  async waitForWalletBalanceGTE (balance: number, timeout = 300000): Promise<void> {
+    throw new Error('RegTestContainer Violation: waitForWalletBalanceGTE is not implemented for non master node containers')
+  }
+
   async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {
     return await this.call('getnewaddress', [label, addressType])
   }
 
   async getRpcPort (): Promise<string> {
     return await this.getPort('19554/tcp')
+  }
+
+  async generate (nblocks: number, address?: string, maxTries: number = 1000000): Promise<void> {
+    throw new Error('RegTestContainer Violation: generate is not implemented for non master node containers')
+  }
+
+  async fundAddress (address: string, amount: number): Promise<{ txid: string, vout: number }> {
+    throw new Error('RegTestContainer Violation: fundAddress is not implemented for non master node containers')
   }
 }

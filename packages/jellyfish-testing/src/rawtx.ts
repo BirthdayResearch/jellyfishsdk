@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js'
-import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Bech32, Elliptic, EllipticPair, HRP, WIF } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
+import { TestingContainer } from './testing'
 
-export class TestingRawTx {
+export class TestingRawTx<Container extends TestingContainer> {
   constructor (
-    private readonly container: MasterNodeRegTestContainer,
+    private readonly container: Container,
     private readonly rpc: JsonRpcClient
   ) {
   }
