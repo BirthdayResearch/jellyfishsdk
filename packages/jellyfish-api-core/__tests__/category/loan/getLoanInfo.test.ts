@@ -29,7 +29,7 @@ function now (): number {
 
 describe('Loan - getLoanInfo', () => {
   let container: MasterNodeRegTestContainer
-  let testing: Testing<MasterNodeRegTestContainer>
+  let testing: Testing
   let collateralOracleId!: string
 
   beforeEach(async () => {

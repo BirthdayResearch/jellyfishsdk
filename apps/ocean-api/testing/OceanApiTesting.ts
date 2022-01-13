@@ -11,21 +11,21 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
  */
 export class OceanApiTesting {
   constructor (
-    private readonly testingGroup: TestingGroup<MasterNodeRegTestContainer>,
+    private readonly testingGroup: TestingGroup,
     private readonly stubServer: StubServer = new StubServer(testingGroup.get(0).container),
     private readonly stubApiClient: StubClient = new StubClient((stubServer))
   ) {
   }
 
-  static create (testingGroup: TestingGroup<MasterNodeRegTestContainer> = TestingGroup.create(1)): OceanApiTesting {
+  static create (testingGroup: TestingGroup = TestingGroup.create(1)): OceanApiTesting {
     return new OceanApiTesting(testingGroup)
   }
 
-  get group (): TestingGroup<MasterNodeRegTestContainer> {
+  get group (): TestingGroup {
     return this.testingGroup
   }
 
-  get testing (): Testing<MasterNodeRegTestContainer> {
+  get testing (): Testing {
     return this.testingGroup.get(0)
   }
 
