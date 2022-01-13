@@ -36,6 +36,10 @@ export class PoolPairController {
 
     const items: PoolPairData[] = []
     for (const [id, info] of Object.entries(result)) {
+      if (info.symbol === 'BURN-DFI') {
+        continue
+      }
+
       const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
       const apr = await this.poolPairService.getAPR(id, info)
       items.push(mapPoolPair(id, info, totalLiquidityUsd, apr))
