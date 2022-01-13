@@ -1,5 +1,6 @@
 import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Masternode', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
@@ -24,7 +25,7 @@ describe('Masternode', () => {
       collateralAddress: goldAddress
     }
     const goldTokenId = await testing.rpc.token.createToken(goldMetadata)
-    await testing.container.generate(1)
+    await testing.generate(1)
     const goldHeight = await testing.rpc.blockchain.getBlockCount()
 
     const silverAddress = await testing.container.getNewAddress('', 'legacy')
@@ -37,7 +38,7 @@ describe('Masternode', () => {
       collateralAddress: silverAddress
     }
     const silverTokenId = await testing.rpc.token.createToken(silverMetadata)
-    await testing.container.generate(1)
+    await testing.generate(1)
     const silverHeight = await testing.rpc.blockchain.getBlockCount()
 
     const copperAddress = await testing.container.getNewAddress('', 'legacy')
@@ -50,7 +51,7 @@ describe('Masternode', () => {
       collateralAddress: copperAddress
     }
     const copperTokenId = await testing.rpc.token.createToken(copperMetadata)
-    await testing.container.generate(1)
+    await testing.generate(1)
     const copperHeight = await testing.rpc.blockchain.getBlockCount()
 
     const goldResult = await testing.rpc.masternode.isAppliedCustomTransaction(goldTokenId, goldHeight)
@@ -74,7 +75,7 @@ describe('Masternode', () => {
       collateralAddress: brassAddress
     }
     const brassTokenId = await testing.rpc.token.createToken(brassMetadata)
-    await testing.container.generate(1)
+    await testing.generate(1)
     const brassHeight = await testing.rpc.blockchain.getBlockCount()
 
     const brassResult = await testing.rpc.masternode.isAppliedCustomTransaction(brassTokenId, brassHeight + 1)
@@ -88,19 +89,13 @@ describe('Masternode', () => {
     expect(result).toStrictEqual(false)
 
     // Hex hash id with 63 chars
-    try {
-      await testing.rpc.masternode.isAppliedCustomTransaction('2bb09ffe9f9b292f13d23bafa1225ef26d0b9906da7af194c5738b63839b235', blockHeight)
-      throw new Error('It should not reach here')
-    } catch (error: any) {
-      expect(error.message).toContain('must be of length 64')
-    }
+    let promise = testing.rpc.masternode.isAppliedCustomTransaction('2bb09ffe9f9b292f13d23bafa1225ef26d0b9906da7af194c5738b63839b235', blockHeight)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('txid must be of length 64')
 
     // Invalid hash id with a non hex char
-    try {
-      await testing.rpc.masternode.isAppliedCustomTransaction('b2bb09ffe9f9b292f13d23bafa1225ef26d0b9906da7af194c5738b63839b23z', blockHeight)
-      throw new Error('It should not reach here')
-    } catch (error: any) {
-      expect(error.message).toContain('must be hexadecimal string')
-    }
+    promise = testing.rpc.masternode.isAppliedCustomTransaction('b2bb09ffe9f9b292f13d23bafa1225ef26d0b9906da7af194c5738b63839b23z', blockHeight)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('txid must be hexadecimal string')
   })
 })
