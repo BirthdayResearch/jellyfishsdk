@@ -71,6 +71,20 @@ export class TestingLight {
     const rpc = new TestingJsonRpcClient(container)
     return new TestingLight(master, container, rpc)
   }
+
+  async start (): Promise<void> {
+    await Promise.all([
+      this.master.container.start(),
+      this.container.start()
+    ])
+  }
+
+  async stop (): Promise<void> {
+    await Promise.all([
+      this.master.container.stop(),
+      this.container.stop()
+    ])
+  }
 }
 
 /**
