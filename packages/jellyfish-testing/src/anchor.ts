@@ -1,8 +1,8 @@
-import { TestingGroup, TestingContainer } from './testing'
+import { TestingGroup } from './testinggroup'
 
-export class TestingGroupAnchor<Container extends TestingContainer> {
+export class TestingGroupAnchor {
   constructor (
-    private readonly testingGroup: TestingGroup<Container>
+    private readonly testingGroup: TestingGroup
   ) {
   }
 

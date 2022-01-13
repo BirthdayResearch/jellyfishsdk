@@ -1,9 +1,8 @@
 import { Testing } from './index'
 import BigNumber from 'bignumber.js'
 import { icxorderbook } from '@defichain/jellyfish-api-core'
-import { TestingContainer } from './testing'
 
-export class TestingICX<Container extends TestingContainer> {
+export class TestingICX {
   public symbolDFI: string
   public symbolBTC: string
   public accountDFI: string
@@ -14,7 +13,7 @@ export class TestingICX<Container extends TestingContainer> {
   public DEX_DFI_PER_BTC_RATE: BigNumber
 
   constructor (
-    private readonly testing: Testing<Container>
+    private readonly testing: Testing
   ) {
     this.accountDFI = ''
     this.accountBTC = ''

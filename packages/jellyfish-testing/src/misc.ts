@@ -1,9 +1,9 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { TestingContainer } from './testing'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 
-export class TestingMisc<Container extends TestingContainer> {
+export class TestingMisc {
   constructor (
-    private readonly container: Container,
+    private readonly container: MasterNodeRegTestContainer,
     private readonly rpc: JsonRpcClient
   ) {
   }

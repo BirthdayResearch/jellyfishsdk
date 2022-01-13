@@ -5,27 +5,23 @@ import { TestingPoolPair } from './poolpair'
 import { TestingRawTx } from './rawtx'
 import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
-import { TestingGroupAnchor } from './anchor'
-import { ContainerGroup, MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-export type TestingContainer = MasterNodeRegTestContainer | RegTestContainer
-export type TestingGroupInit<Container> = (index: number) => Container
-
-export class Testing<Container extends TestingContainer> {
-  public readonly fixture = new TestingFixture<Container>(this)
-  public readonly token = new TestingToken<Container>(this.container, this.rpc)
-  public readonly poolpair = new TestingPoolPair<Container>(this.container, this.rpc)
-  public readonly rawtx = new TestingRawTx<Container>(this.container, this.rpc)
-  public readonly icxorderbook = new TestingICX<Container>(this)
-  public readonly misc = new TestingMisc<Container>(this.container, this.rpc)
+export class Testing {
+  public readonly fixture = new TestingFixture(this)
+  public readonly token = new TestingToken(this.container, this.rpc)
+  public readonly poolpair = new TestingPoolPair(this.container, this.rpc)
+  public readonly rawtx = new TestingRawTx(this.container, this.rpc)
+  public readonly icxorderbook = new TestingICX(this)
+  public readonly misc = new TestingMisc(this.container, this.rpc)
 
   private readonly addresses: Record<string, string> = {}
 
   private constructor (
-    public readonly container: Container,
-    public readonly rpc: TestingJsonRpcClient<Container>
+    public readonly container: MasterNodeRegTestContainer,
+    public readonly rpc: TestingJsonRpcClient
   ) {
   }
 
@@ -57,92 +53,31 @@ export class Testing<Container extends TestingContainer> {
     return addresses
   }
 
-  static create<Container extends MasterNodeRegTestContainer | RegTestContainer> (container: Container): Testing<Container> {
+  static create (container: MasterNodeRegTestContainer): Testing {
     const rpc = new TestingJsonRpcClient(container)
-    return new Testing<Container>(container, rpc)
+    return new Testing(container, rpc)
   }
 }
 
-export class TestingGroup<Container extends TestingContainer> {
-  public readonly anchor = new TestingGroupAnchor<Container>(this)
-
+export class TestingLight {
   private constructor (
-    public readonly group: ContainerGroup,
-    public readonly testings: Array<Testing<Container>>
+    public readonly master: Testing,
+    public readonly container: RegTestContainer,
+    public readonly rpc: TestingJsonRpcClient
   ) {
   }
 
-  /**
-   * @param {number} n of testing container to create
-   * @param {(index: number) => MasterNodeRegTestContainer} [init=MasterNodeRegTestContainer]
-   */
-  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (
-    n: number,
-    init: TestingGroupInit<Container> = (index: number): Container => {
-      return new MasterNodeRegTestContainer(RegTestFoundationKeys[index]) as Container
-    }
-  ): TestingGroup<Container> {
-    const containers: Container[] = []
-    const testings: Array<Testing<Container>> = []
-    for (let i = 0; i < n; i += 1) {
-      const container = init(i)
-      containers.push(container)
-
-      const testing = Testing.create<Container>(container)
-      testings.push(testing)
-    }
-
-    const group = new ContainerGroup(containers)
-    return new TestingGroup<Container>(group, testings)
-  }
-
-  get (index: number): Testing<Container> {
-    return this.testings[index]
-  }
-
-  length (): number {
-    return this.testings.length
-  }
-
-  async add (container: Container): Promise<void> {
-    await this.group.add(container)
-    const testing = Testing.create(container)
-    this.testings.push(testing)
-  }
-
-  async start (): Promise<void> {
-    return await this.group.start()
-  }
-
-  async stop (): Promise<void> {
-    return await this.group.stop()
-  }
-
-  async link (): Promise<void> {
-    return await this.group.link()
-  }
-
-  async exec (runner: (testing: Testing<Container>) => Promise<void>): Promise<void> {
-    for (let i = 0; i < this.testings.length; i += 1) {
-      await runner(this.testings[i])
-    }
-  }
-
-  async waitForSync (): Promise<void> {
-    return await this.group.waitForSync()
-  }
-
-  /* istanbul ignore next, TODO(canonbrother) */
-  async waitForMempoolSync (txid: string, timeout = 15000): Promise<void> {
-    return await this.group.waitForMempoolSync(txid, timeout)
+  static create (container: RegTestContainer, master: Testing = Testing.create(new MasterNodeRegTestContainer(RegTestFoundationKeys[0]))): TestingLight {
+    const rpc = new TestingJsonRpcClient(container)
+    return new TestingLight(master, container, rpc)
   }
 }
 
 /**
  * JsonRpcClient with dynamic url resolved from MasterNodeRegTestContainer.
  */
-class TestingJsonRpcClient<Container extends MasterNodeRegTestContainer | RegTestContainer> extends JsonRpcClient {
-  constructor (public readonly container: Container) {
+class TestingJsonRpcClient extends JsonRpcClient {
+  constructor (public readonly container: MasterNodeRegTestContainer | RegTestContainer) {
     super('resolved in fetch')
   }
 

@@ -1,13 +1,12 @@
 import { Testing } from './index'
 import { poolpair } from '@defichain/jellyfish-api-core'
-import { TestingContainer } from './testing'
 
 /**
  * TestingFixture setup complex fixtures for jellyfish testing.
  */
-export class TestingFixture<Container extends TestingContainer> {
+export class TestingFixture {
   constructor (
-    private readonly testing: Testing<Container>
+    private readonly testing: Testing
   ) {
   }
 
