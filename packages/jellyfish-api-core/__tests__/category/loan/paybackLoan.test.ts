@@ -528,8 +528,8 @@ describe('paybackLoan success', () => {
         from: bobloanAddr
       })
 
-      const tslaLoanDecreasedAfterSecondPayback = new BigNumber(tslaPaybackAmount).minus(tslaInterestPerBlockAfterFirstPayback).decimalPlaces(8, BigNumber.ROUND_CEIL)
-      const amznLoanDecreasedAfterSecondPayback = new BigNumber(amznPaybackAmount).minus(amznInterestPerBlockAfterFirstPayback).decimalPlaces(8, BigNumber.ROUND_CEIL)
+      const tslaLoanDecreasedAfterSecondPayback = new BigNumber(tslaPaybackAmount).minus(tslaInterestPerBlockAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
+      const amznLoanDecreasedAfterSecondPayback = new BigNumber(amznPaybackAmount).minus(amznInterestPerBlockAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
       tslaInterestPerBlockAfterSecondPayback = tslaInterestPerBlockAfterFirstPayback.minus(new BigNumber(netInterest).multipliedBy(tslaLoanDecreasedAfterSecondPayback).dividedBy(new BigNumber(365 * blocksPerDay)))
       amznInterestPerBlockAfterSecondPayback = amznInterestPerBlockAfterFirstPayback.minus(new BigNumber(netInterest).multipliedBy(amznLoanDecreasedAfterSecondPayback).dividedBy(new BigNumber(365 * blocksPerDay)))
 
