@@ -226,17 +226,17 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   const currentHeight = await bob.rpc.blockchain.getBlockCount()
-  const tslaTotalInterest = tslaInterestPerBlock.multipliedBy(currentHeight - tslaTakeLoanBlockHeight).decimalPlaces(8, BigNumber.ROUND_CEIL)
-  const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaTotalInterest)
-  const tslaLoanValueBefore = tslaLoanAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2) // tsla price before = 2
-  const tslaTotalInterestValue = tslaTotalInterest.multipliedBy(2) // tsla price before = 2
+  const tslaTotalInterest = tslaInterestPerBlock.multipliedBy(currentHeight - tslaTakeLoanBlockHeight)
+  const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaTotalInterest).decimalPlaces(8, BigNumber.ROUND_CEIL)
+  const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2) // tsla price before = 2
+  const tslaTotalInterestValue = tslaTotalInterest.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2) // tsla price before = 2
 
   // check vault status before liquidated
   const vaultBefore = await bob.container.call('getvault', [bobVaultId])
   expect(vaultBefore.state).toStrictEqual('active')
   expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
   expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
-  expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaTotalInterest.toFixed(8)}@TSLA`])
+  expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaTotalInterest.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
   expect(vaultBefore.collateralValue).toStrictEqual(20000)
   expect(vaultBefore.loanValue).toStrictEqual(tslaLoanValueBefore.toNumber())
   expect(vaultBefore.interestValue).toStrictEqual(tslaTotalInterestValue.toNumber())
@@ -246,15 +246,16 @@ async function setup (): Promise<void> {
   {
     await bob.generate(5)
     const vault = await bob.container.call('getvault', [bobVaultId])
-    const tslaLoanAmountFrozen = tslaLoanAmountBefore.plus(tslaInterestPerBlock.multipliedBy(5))
-    const tslaTotalInterestFrozen = tslaTotalInterest.plus(tslaInterestPerBlock.multipliedBy(5)).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    const tslaLoanValueFrozen = tslaLoanAmountFrozen.decimalPlaces(8, BigNumber.ROUND_FLOOR).multipliedBy(2) // tsla price before = 2
-    const tslaTotalInterestValueFrozen = tslaTotalInterestFrozen.multipliedBy(2) // tsla price before = 2
+    // const tslaLoanAmountFrozen = tslaLoanAmountBefore.plus(tslaInterestPerBlock.multipliedBy(5))
+    const tslaTotalInterestFrozen = tslaTotalInterest.plus(tslaInterestPerBlock.multipliedBy(5))
+    const tslaLoanAmountFrozen = new BigNumber(tslaLoanAmount).plus(tslaTotalInterestFrozen).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaLoanValueFrozen = tslaLoanAmountFrozen.multipliedBy(2) // tsla price before = 2
+    const tslaTotalInterestValueFrozen = tslaTotalInterestFrozen.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2) // tsla price before = 2
     // commented this flaky state check as block height does not really complimentary with state but time
     // expect(vault.state).toStrictEqual('frozen')
     expect(vault.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
-    expect(vault.loanAmounts).toStrictEqual([`${tslaLoanAmountFrozen.toFixed(8, BigNumber.ROUND_FLOOR)}@TSLA`])
-    expect(vault.interestAmounts).toStrictEqual([`${tslaTotalInterestFrozen.toFixed(8)}@TSLA`])
+    expect(vault.loanAmounts).toStrictEqual([`${tslaLoanAmountFrozen.toFixed(8)}@TSLA`])
+    expect(vault.interestAmounts).toStrictEqual([`${tslaTotalInterestFrozen.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
     expect(vault.loanValue).toStrictEqual(tslaLoanValueFrozen.toNumber())
     expect(vault.interestValue).toStrictEqual(tslaTotalInterestValueFrozen.toNumber())
     expect(vault.collateralValue).toStrictEqual(20000)
