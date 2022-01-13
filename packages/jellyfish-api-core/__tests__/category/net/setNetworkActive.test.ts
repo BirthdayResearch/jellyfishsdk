@@ -4,31 +4,29 @@ import { ContainerAdapterClient } from '../../container_adapter_client'
 
 describe('Network on masternode', () => {
   const testing = Testing.create(new MasterNodeRegTestContainer())
-  const container = testing.container
-  const client = testing.rpc
 
   beforeAll(async () => {
-    await container.start()
+    await testing.container.start()
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should pass toggle network', async () => {
-    let info = await client.net.getNetworkInfo()
+    let info = await testing.rpc.net.getNetworkInfo()
     expect(info.networkactive).toStrictEqual(true)
 
-    let state: boolean = await client.net.setNetworkActive(false)
+    let state: boolean = await testing.rpc.net.setNetworkActive(false)
     expect(state).toStrictEqual(false)
 
-    info = await client.net.getNetworkInfo()
+    info = await testing.rpc.net.getNetworkInfo()
     expect(info.networkactive).toStrictEqual(false)
 
-    state = await client.net.setNetworkActive(true)
+    state = await testing.rpc.net.setNetworkActive(true)
     expect(state).toStrictEqual(true)
 
-    info = await client.net.getNetworkInfo()
+    info = await testing.rpc.net.getNetworkInfo()
     expect(info.networkactive).toStrictEqual(true)
   })
 })
