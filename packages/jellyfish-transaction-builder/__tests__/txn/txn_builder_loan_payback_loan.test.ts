@@ -302,19 +302,18 @@ describe('paybackLoan success', () => {
     const interests = await bob.rpc.loan.getInterest('scheme')
     const height = await bob.container.getBlockCount()
     const tslaInterestPerBlock = new BigNumber((netInterest * 40) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
-    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(height - tslaLoanHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(height - tslaLoanHeight + 1)
     expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
-    expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
+    expect(interests[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL))
 
-    const tslaLoanAmountBefore = new BigNumber(40).plus(tslaInterestTotal)
-    const tslaLoanAmountBeforeRounded = tslaLoanAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const tslaLoanValueBefore = tslaLoanAmountBeforeRounded.multipliedBy(2)
+    const tslaLoanAmountBefore = new BigNumber(40).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2)
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBeforeRounded.toFixed(8)}@TSLA`])
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
     expect(vaultBefore.loanValue).toStrictEqual(tslaLoanValueBefore.toNumber())
-    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8)}@TSLA`])
-    expect(vaultBefore.interestValue).toStrictEqual(tslaInterestTotal.multipliedBy(2).toNumber())
+    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
+    expect(vaultBefore.interestValue).toStrictEqual(tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2).toNumber())
     expect(vaultBefore.collateralRatio).toStrictEqual(18750)
     expect(vaultBefore.informativeRatio).toStrictEqual(18749.97859221)
 
@@ -371,18 +370,18 @@ describe('paybackLoan success', () => {
     const interestsBeforePayback = await bob.rpc.loan.getInterest('scheme')
 
     const height = await bob.container.getBlockCount()
-    const tslaInterestTotal = tslaInterestsPerBlockBefore.multipliedBy(height - tslaLoanHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaInterestTotal = tslaInterestsPerBlockBefore.multipliedBy(height - tslaLoanHeight + 1)
     expect(interestsBeforePayback[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestsPerBlockBefore.toFixed(8, BigNumber.ROUND_CEIL))
-    expect(interestsBeforePayback[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
+    expect(interestsBeforePayback[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL))
 
-    const tslaLoanAmountBefore = new BigNumber(40).plus(tslaInterestTotal)
-    const tslaLoanValueBefore = tslaLoanAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
-    const tslaInterestValueBefore = tslaInterestTotal.multipliedBy(2)
+    const tslaLoanAmountBefore = new BigNumber(40).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2)
+    const tslaInterestValueBefore = tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.collateralValue).toStrictEqual(15000) // DFI(10000) + BTC(1 * 10000 * 0.5)
     expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`]) // 40 + totalInterest
-    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8)}@TSLA`])
+    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
     expect(vaultBefore.loanValue).toStrictEqual(tslaLoanValueBefore.toNumber()) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(tslaInterestValueBefore.toNumber())
     expect(vaultBefore.collateralRatio).toStrictEqual(18750)
@@ -412,17 +411,17 @@ describe('paybackLoan success', () => {
     const bobColAccAfter = await bob.container.call('getaccount', [bobColAddr])
     expect(bobColAccAfter).toStrictEqual(['27.00000000@TSLA']) // 40 - 13 = 27
 
-    const loanDecreasedAfterPayback = new BigNumber(13).minus(interestsBeforePayback[0].totalInterest)
+    const loanDecreasedAfterPayback = new BigNumber(13).minus(tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const tslaInterestsPerBlockAfter = tslaInterestsPerBlockBefore.minus(loanDecreasedAfterPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
 
-    const interestAmountAfter = tslaInterestsPerBlockAfter.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const loanAmountAfter = tslaLoanAmountBefore.minus(13).plus(tslaInterestsPerBlockAfter.multipliedBy(2)) // 2 blocks have been generated after payback loan
-    const loanValueAfter = loanAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
-    const interestValueAfter = interestAmountAfter.multipliedBy(2)
+    const interestAmountAfter = tslaInterestsPerBlockAfter.multipliedBy(2)
+    const loanAmountAfter = tslaLoanAmountBefore.minus(13).plus(tslaInterestsPerBlockAfter.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)) // 2 blocks have been generated after payback loan
+    const loanValueAfter = loanAmountAfter.multipliedBy(2)
+    const interestValueAfter = interestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
     expect(vaultAfter.loanAmounts).toStrictEqual([`${loanAmountAfter.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
-    expect(vaultAfter.interestAmounts).toStrictEqual([`${interestAmountAfter.toFixed(8)}@TSLA`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${interestAmountAfter.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
     expect(vaultAfter.loanValue).toStrictEqual(loanValueAfter.toNumber())
     expect(vaultAfter.interestValue).toStrictEqual(interestValueAfter.toNumber())
     expect(vaultAfter.collateralRatio).toStrictEqual(27778) // 15000 / 54.00009934 * 100
@@ -445,18 +444,18 @@ describe('paybackLoan success', () => {
     const interestsBeforePayback = await bob.rpc.loan.getInterest('scheme')
 
     const height = await bob.container.getBlockCount()
-    const tslaInterestTotal = tslaInterestsPerBlockBefore.multipliedBy(height - tslaLoanHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaInterestTotal = tslaInterestsPerBlockBefore.multipliedBy(height - tslaLoanHeight + 1)
     expect(interestsBeforePayback[0].interestPerBlock.toFixed(8)).toStrictEqual(tslaInterestsPerBlockBefore.toFixed(8, BigNumber.ROUND_CEIL))
-    expect(interestsBeforePayback[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8))
+    expect(interestsBeforePayback[0].totalInterest.toFixed(8)).toStrictEqual(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL))
 
-    const tslaLoanAmountBefore = new BigNumber(40).plus(tslaInterestTotal)
-    const tslaLoanValueBefore = tslaLoanAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
-    const tslaInterestValueBefore = tslaInterestTotal.multipliedBy(2)
+    const tslaLoanAmountBefore = new BigNumber(40).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2)
+    const tslaInterestValueBefore = tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore.collateralValue).toStrictEqual(15000) // DFI(10000) + BTC(1 * 10000 * 0.5)
-    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`]) // 40 + totalInterest
-    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8)}@TSLA`])
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`]) // 40 + totalInterest
+    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
     expect(vaultBefore.loanValue).toStrictEqual(tslaLoanValueBefore.toNumber()) // loanAmount * 2 (::1 TSLA = 2 USD)
     expect(vaultBefore.interestValue).toStrictEqual(tslaInterestValueBefore.toNumber())
     expect(vaultBefore.collateralRatio).toStrictEqual(18750) // 15000 / 80.00004568 * 100
@@ -487,17 +486,17 @@ describe('paybackLoan success', () => {
       '4900.00000000@DFI', '9999.00000000@BTC', '87.00000000@TSLA', '400.00000000@UBER', '550.00000000@DUSD'
     ])
 
-    const loanDecreasedAfterPayback = new BigNumber(13).minus(interestsBeforePayback[0].totalInterest)
+    const loanDecreasedAfterPayback = new BigNumber(13).minus(tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const tslaInterestsPerBlockAfter = tslaInterestsPerBlockBefore.minus(loanDecreasedAfterPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
 
-    const interestAmountAfter = tslaInterestsPerBlockAfter.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const loanAmountAfter = tslaLoanAmountBefore.minus(13).plus(tslaInterestsPerBlockAfter.multipliedBy(2)) // 2 blocks have been generated after payback loan
-    const loanValueAfter = loanAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
-    const interestValueAfter = interestAmountAfter.multipliedBy(2)
+    const interestAmountAfter = tslaInterestsPerBlockAfter.multipliedBy(2)
+    const loanAmountAfter = tslaLoanAmountBefore.minus(13).plus(tslaInterestsPerBlockAfter.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)) // 2 blocks have been generated after payback loan
+    const loanValueAfter = loanAmountAfter.multipliedBy(2)
+    const interestValueAfter = interestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmounts).toStrictEqual([`${loanAmountAfter.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
-    expect(vaultAfter.interestAmounts).toStrictEqual([`${interestAmountAfter.toFixed(8)}@TSLA`])
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${loanAmountAfter.toFixed(8)}@TSLA`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${interestAmountAfter.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
     expect(vaultAfter.loanValue).toStrictEqual(loanValueAfter.toNumber())
     expect(vaultAfter.interestValue).toStrictEqual(interestValueAfter.toNumber())
     expect(vaultAfter.collateralRatio).toStrictEqual(27778) // 15000 / 54.00019868 * 100
@@ -532,11 +531,11 @@ describe('paybackLoan success', () => {
 
     // tsla interest
     const tslaInterestPerBlockBefore = new BigNumber(netInterest * tslaAmt / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
-    const tslaTotalInterestBefore = tslaInterestPerBlockBefore.multipliedBy(blockHeightBefore - tslaLoanHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaTotalInterestBefore = tslaInterestPerBlockBefore.multipliedBy(blockHeightBefore - tslaLoanHeight + 1)
 
     // amzn interest
     const amznInterestPerBlockBefore = new BigNumber(netInterest * amznAmt / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
-    const amznTotalInterestBefore = amznInterestPerBlockBefore.multipliedBy(blockHeightBefore - amznLoanHeight).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const amznTotalInterestBefore = amznInterestPerBlockBefore.multipliedBy(blockHeightBefore - amznLoanHeight)
 
     const interestsBefore = await bob.rpc.loan.getInterest('scheme')
 
@@ -545,30 +544,28 @@ describe('paybackLoan success', () => {
 
     const tslaInterest = interestsBefore.find(i => i.token === 'TSLA')
     const tslaTotalInt = tslaInterest?.totalInterest.toFixed(8)
-    expect(tslaTotalInt).toStrictEqual(tslaTotalInterestBefore.toFixed(8))
+    expect(tslaTotalInt).toStrictEqual(tslaTotalInterestBefore.toFixed(8, BigNumber.ROUND_CEIL))
     const tslaInterestPerBlk = tslaInterest?.interestPerBlock.toFixed(8)
     expect(tslaInterestPerBlk).toStrictEqual(tslaInterestPerBlockBefore.toFixed(8, BigNumber.ROUND_CEIL))
-    const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaTotalInterestBefore)
-    const tslaLoanAmountBeforeRounded = tslaLoanAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const tslaLoanValueBefore = tslaLoanAmountBeforeRounded.multipliedBy(2)
-    const tslaInterestValueBefore = tslaTotalInterestBefore.multipliedBy(2)
+    const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaTotalInterestBefore).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2)
+    const tslaInterestValueBefore = tslaTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
     const amzInterest = interestsBefore.find(i => i.token === 'AMZN')
     const amzTotalInt = amzInterest?.totalInterest.toFixed(8)
-    expect(amzTotalInt).toStrictEqual(amznTotalInterestBefore.toFixed(8))
+    expect(amzTotalInt).toStrictEqual(amznTotalInterestBefore.toFixed(8, BigNumber.ROUND_CEIL))
     const amzInterestPerBlk = amzInterest?.interestPerBlock.toFixed(8)
     expect(amzInterestPerBlk).toStrictEqual(amznInterestPerBlockBefore.toFixed(8, BigNumber.ROUND_CEIL))
-    const amznLoanAmountBefore = new BigNumber(amznLoanAmount).plus(amznTotalInterestBefore)
-    const amznLoanAmountBeforeRounded = amznLoanAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const amznLoanValueBefore = amznLoanAmountBeforeRounded.multipliedBy(4)
-    const amznInterestValueBefore = amznTotalInterestBefore.multipliedBy(4)
+    const amznLoanAmountBefore = new BigNumber(amznLoanAmount).plus(amznTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const amznLoanValueBefore = amznLoanAmountBefore.multipliedBy(4)
+    const amznInterestValueBefore = amznTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(4)
 
     const totalLoanValueBefore = tslaLoanValueBefore.plus(amznLoanValueBefore)
     const totalInterestValueBefore = tslaInterestValueBefore.plus(amznInterestValueBefore)
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBeforeRounded.toFixed(8)}@TSLA`, `${amznLoanAmountBeforeRounded.toFixed(8)}@AMZN`]) // eg: tslaTakeLoanAmt + tslaTotalInterest
-    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaTotalInterestBefore.toFixed(8)}@TSLA`, `${amznTotalInterestBefore.toFixed(8)}@AMZN`])
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`, `${amznLoanAmountBefore.toFixed(8)}@AMZN`]) // eg: tslaTakeLoanAmt + tslaTotalInterest
+    expect(vaultBefore.interestAmounts).toStrictEqual([`${tslaTotalInterestBefore.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`, `${amznTotalInterestBefore.toFixed(8, BigNumber.ROUND_CEIL)}@AMZN`])
     expect(vaultBefore.loanValue).toStrictEqual(totalLoanValueBefore.toNumber()) // (40.00004568 * 2) + (15.00000857 * 4)
     expect(vaultBefore.interestValue).toStrictEqual(totalInterestValueBefore.toNumber())
     expect(vaultBefore.collateralRatio).toStrictEqual(10714) // 15000 / 140.00012564 * 100
@@ -598,28 +595,26 @@ describe('paybackLoan success', () => {
 
     await bob.generate(1)
 
-    const tslaLoanDecreasedAfterFirstPayback = new BigNumber(tslaPaybackAmount).minus(tslaTotalInterestBefore)
+    const tslaLoanDecreasedAfterFirstPayback = new BigNumber(tslaPaybackAmount).minus(tslaTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const tslaInterestPerBlockFirstPayback = tslaInterestPerBlockBefore.minus(tslaLoanDecreasedAfterFirstPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
-    const tslaInterestAmountAfterFirstPayback = tslaInterestPerBlockFirstPayback.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const tslaLoanAmountAfterFirstPayback = tslaLoanAmountBeforeRounded.minus(new BigNumber(tslaPaybackAmount)).plus(tslaInterestAmountAfterFirstPayback)
-    const tslaLoanAmountAfterFirstPaybackRounded = tslaLoanAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const tslaLoanValueAfterFirstPayback = tslaLoanAmountAfterFirstPaybackRounded.multipliedBy(2)
-    const tslaInterestValueAfterFirstPayback = tslaInterestAmountAfterFirstPayback.multipliedBy(2)
+    const tslaInterestAmountAfterFirstPayback = tslaInterestPerBlockFirstPayback.multipliedBy(2)
+    const tslaLoanAmountAfterFirstPayback = new BigNumber(tslaLoanAmount).minus(tslaLoanDecreasedAfterFirstPayback).plus(tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const tslaLoanValueAfterFirstPayback = tslaLoanAmountAfterFirstPayback.multipliedBy(2)
+    const tslaInterestValueAfterFirstPayback = tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
-    const amznLoanDecreasedAfterFirstPayback = new BigNumber(amznPaybackAmount).minus(amznTotalInterestBefore)
+    const amznLoanDecreasedAfterFirstPayback = new BigNumber(amznPaybackAmount).minus(amznTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const amznInterestPerBlockFirstPayback = amznInterestPerBlockBefore.minus(amznLoanDecreasedAfterFirstPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
-    const amznInterestAmountAfterFirstPayback = amznInterestPerBlockFirstPayback.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const amznLoanAmountAfterFirstPayback = amznLoanAmountBefore.minus(new BigNumber(amznPaybackAmount)).plus(amznInterestAmountAfterFirstPayback)
-    const amznLoanAmountAfterFirstPaybackRounded = amznLoanAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const amznLoanValueAfterFirstPayback = amznLoanAmountAfterFirstPaybackRounded.multipliedBy(4)
-    const amznInterestValueAfterFirstPayback = amznInterestAmountAfterFirstPayback.multipliedBy(4)
+    const amznInterestAmountAfterFirstPayback = amznInterestPerBlockFirstPayback.multipliedBy(2)
+    const amznLoanAmountAfterFirstPayback = new BigNumber(amznLoanAmount).minus(amznLoanDecreasedAfterFirstPayback).plus(amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const amznLoanValueAfterFirstPayback = amznLoanAmountAfterFirstPayback.multipliedBy(4)
+    const amznInterestValueAfterFirstPayback = amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(4)
 
     const totalLoanValueAfterFirstPayback = tslaLoanValueAfterFirstPayback.plus(amznLoanValueAfterFirstPayback)
     const totalInterestValueAfterFirstPayback = tslaInterestValueAfterFirstPayback.plus(amznInterestValueAfterFirstPayback)
 
     const vaultAfterFirstPayback = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual([`${tslaLoanAmountAfterFirstPaybackRounded.toFixed(8)}@TSLA`, `${amznLoanAmountAfterFirstPaybackRounded.toFixed(8)}@AMZN`])
-    expect(vaultAfterFirstPayback.interestAmounts).toStrictEqual([`${tslaInterestAmountAfterFirstPayback.toFixed(8)}@TSLA`, `${amznInterestAmountAfterFirstPayback.toFixed(8)}@AMZN`])
+    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual([`${tslaLoanAmountAfterFirstPayback.toFixed(8)}@TSLA`, `${amznLoanAmountAfterFirstPayback.toFixed(8)}@AMZN`])
+    expect(vaultAfterFirstPayback.interestAmounts).toStrictEqual([`${tslaInterestAmountAfterFirstPayback.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`, `${amznInterestAmountAfterFirstPayback.toFixed(8, BigNumber.ROUND_CEIL)}@AMZN`])
     expect(vaultAfterFirstPayback.loanValue).toStrictEqual(totalLoanValueAfterFirstPayback.toNumber())
     expect(vaultAfterFirstPayback.interestValue).toStrictEqual(totalInterestValueAfterFirstPayback.toNumber())
     expect(vaultAfterFirstPayback.collateralRatio).toStrictEqual(16667)
@@ -655,10 +650,10 @@ describe('paybackLoan success', () => {
 
     const interestsAfterSecondPayback = await bob.rpc.loan.getInterest('scheme')
 
-    const tslaLoanDecreasedAfterSecondPayback = new BigNumber(tslaPaybackAmount).minus(tslaInterestAmountAfterFirstPayback)
+    const tslaLoanDecreasedAfterSecondPayback = new BigNumber(tslaPaybackAmount).minus(tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const tslaInterestPerBlockAfterSecondPayback = tslaInterestPerBlockFirstPayback.minus(tslaLoanDecreasedAfterSecondPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
 
-    const amznLoanDecreasedAfterSecondPayback = new BigNumber(amznPaybackAmount).minus(amznInterestAmountAfterFirstPayback)
+    const amznLoanDecreasedAfterSecondPayback = new BigNumber(amznPaybackAmount).minus(amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const amznInterestPerBlockAfterSecondPayback = amznInterestPerBlockFirstPayback.minus(amznLoanDecreasedAfterSecondPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
 
     const tslaInterestAfter = interestsAfterSecondPayback.find(i => i.token === 'TSLA')
@@ -675,11 +670,11 @@ describe('paybackLoan success', () => {
     expect(amzInterestPerBlkAfter).toStrictEqual(`${amznInterestPerBlockAfterSecondPayback.toFixed(8, BigNumber.ROUND_CEIL)}`)
     const amznInterestAmountAfterSecondPayback = amznInterestPerBlockAfterSecondPayback.multipliedBy(1).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
-    const tslaLoanAmountAfterSecondPayback = tslaLoanAmountAfterFirstPaybackRounded.minus(new BigNumber(tslaPaybackAmount)).plus(tslaInterestAmountAfterSecondPayback) // no need to round as the number is dp is aldy correct
+    const tslaLoanAmountAfterSecondPayback = tslaLoanAmountAfterFirstPayback.minus(new BigNumber(tslaPaybackAmount)).plus(tslaInterestAmountAfterSecondPayback.decimalPlaces(8, BigNumber.ROUND_CEIL)) // no need to round as the number is dp is aldy correct
     const tslaLoanValueAfterSecondPayback = tslaLoanAmountAfterSecondPayback.multipliedBy(2)
     const tslaInterestValueAfterSecondPayback = tslaInterestAmountAfterSecondPayback.multipliedBy(2)
 
-    const amznLoanAmountAfterSecondPayback = amznLoanAmountAfterFirstPaybackRounded.minus(new BigNumber(amznPaybackAmount)).plus(amznInterestAmountAfterSecondPayback)
+    const amznLoanAmountAfterSecondPayback = amznLoanAmountAfterFirstPayback.minus(new BigNumber(amznPaybackAmount)).plus(amznInterestAmountAfterSecondPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const amznLoanValueAfterSecondPayback = amznLoanAmountAfterSecondPayback.multipliedBy(4)
     const amznInterestValueAfterSecondPayback = amznInterestAmountAfterSecondPayback.multipliedBy(4)
 
@@ -687,8 +682,8 @@ describe('paybackLoan success', () => {
     const totalInterstValueAfterSecondPayback = tslaInterestValueAfterSecondPayback.plus(amznInterestValueAfterSecondPayback)
 
     const vaultAfter = await bob.container.call('getvault', [bobVaultId])
-    expect(vaultAfter.loanAmounts).toStrictEqual([`${tslaLoanAmountAfterSecondPayback.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`, `${amznLoanAmountAfterSecondPayback.toFixed(8, BigNumber.ROUND_CEIL)}@AMZN`])
-    expect(vaultAfter.interestAmounts).toStrictEqual([`${tslaInterestAmountAfterSecondPayback.toFixed(8)}@TSLA`, `${amznInterestAmountAfterSecondPayback.toFixed(8)}@AMZN`])
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`, `${amznLoanAmountAfterSecondPayback.toFixed(8)}@AMZN`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${tslaInterestAmountAfterSecondPayback.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`, `${amznInterestAmountAfterSecondPayback.toFixed(8, BigNumber.ROUND_CEIL)}@AMZN`])
     expect(vaultAfter.loanValue).toStrictEqual(totalLoanValueAfterSecondPayback.toNumber())
     expect(vaultAfter.interestValue).toStrictEqual(totalInterstValueAfterSecondPayback.toNumber())
     expect(vaultAfter.collateralRatio).toStrictEqual(37500)
