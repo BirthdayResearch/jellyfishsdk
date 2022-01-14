@@ -16,6 +16,7 @@ let bobLiqVaultId: string
 let bobloanAddr: string
 let tslaLoanHeight: number
 let aliceColAddr: string
+let vaultBobAfterFirstTakeLoan: VaultActive
 
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
@@ -261,6 +262,8 @@ async function setup (): Promise<void> {
   await bob.generate(1)
   await tGroup.waitForSync()
   tslaLoanHeight = await bob.container.getBlockCount()
+
+  vaultBobAfterFirstTakeLoan = await bob.container.call('getvault', [bobVaultId])
 }
 
 describe('paybackLoan success', () => {
@@ -274,7 +277,7 @@ describe('paybackLoan success', () => {
     await tGroup.stop()
   })
 
-  it('should paybackLoan', async () => {
+  it('should paybackLoan1', async () => {
     await alice.rpc.account.sendTokensToAddress({}, { [bobloanAddr]: ['5@TSLA'] })
     await alice.generate(1)
     await tGroup.waitForSync()
@@ -316,6 +319,27 @@ describe('paybackLoan success', () => {
 
     const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
     expect(bobLoanAccAfter).toStrictEqual(['4.99995433@TSLA'])
+
+    // generate another 10 blocks and confirm that vaults does not generate interests once paid back fully
+    {
+      await bob.generate(10)
+      const vaultWayAfterPayback = await bob.container.call('getvault', [bobVaultId])
+      expect(vaultWayAfterPayback).toStrictEqual(vaultAfter)
+    }
+
+    // take a loan again
+    {
+      await bob.rpc.loan.takeLoan({
+        vaultId: bobVaultId,
+        to: bobloanAddr,
+        amounts: '40@TSLA'
+      })
+      await bob.generate(1)
+
+      // check again
+      const vaultAfterSecondLoan = await bob.container.call('getvault', [bobVaultId])
+      expect(vaultAfterSecondLoan).toStrictEqual(vaultBobAfterFirstTakeLoan)
+    }
   })
 
   it('should paybackLoan partially', async () => {
