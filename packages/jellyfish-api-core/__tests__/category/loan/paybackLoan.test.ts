@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
-import { TestingGroup } from '@defichain/jellyfish-testing'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { VaultActive } from '../../../src/category/loan'
 
@@ -761,5 +761,194 @@ describe('paybackLoan failed', () => {
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Cannot payback this amount of loan for TSLA, either payback full amount or less than this amount!')
+  })
+})
+
+describe('paybackloan for dusd using dfi', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
+  const dusdLoanAmount = 5000
+  const tslaLoanAmount = 10
+  const loanSchemeId = 'scheme'
+  let vaultId: string
+  let tslaVaultId: string
+  let vaultOwnerAddress: string
+  let dusdInterestAmountBefore: BigNumber
+  let dusdInterestPerBlock: BigNumber
+  let tslaTakeLoanBlockHeight: number
+
+  async function setupForDUSDLoan (): Promise<void> {
+    vaultOwnerAddress = await testing.generateAddress()
+    await testing.token.dfi({ amount: 1000000, address: vaultOwnerAddress })
+    await testing.generate(1)
+
+    // setup oracle
+    const oracleAddress = await testing.generateAddress()
+    const priceFeeds = [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
+    ]
+
+    const oracleId = await testing.rpc.oracle.appointOracle(oracleAddress, priceFeeds, { weightage: 1 })
+    await testing.generate(1)
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
+    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DUSD', currency: 'USD' }] })
+    await testing.generate(1)
+
+    // setup collateral token
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+    await testing.generate(1)
+
+    // setup loan token
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+
+    // setup loan scheme
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(3),
+      id: loanSchemeId
+    })
+    await testing.generate(1)
+
+    // create vault
+    vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: vaultOwnerAddress,
+      loanSchemeId: loanSchemeId
+    })
+
+    await testing.generate(1)
+    await testing.container.waitForPriceValid('DFI/USD')
+
+    // deposite collateral
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultId,
+      from: vaultOwnerAddress,
+      amount: '100000@DFI'
+    })
+    await testing.generate(1)
+
+    // take DUSD as loan
+    const dusdTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: `${dusdLoanAmount}@DUSD`,
+      to: vaultOwnerAddress
+    })
+    await testing.generate(1)
+
+    dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(currentBlockHeight - dusdTakeLoanBlockHeight))
+    const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`])
+  }
+
+  async function setupForTslaLoan (): Promise<void> {
+    tslaVaultId = await testing.rpc.loan.createVault({
+      ownerAddress: vaultOwnerAddress,
+      loanSchemeId: loanSchemeId
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.depositToVault({
+      vaultId: tslaVaultId,
+      from: vaultOwnerAddress,
+      amount: '100000@DFI'
+    })
+    await testing.generate(1)
+
+    tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.rpc.loan.takeLoan({
+      vaultId: tslaVaultId,
+      amounts: `${tslaLoanAmount}@TSLA`
+    })
+    await testing.generate(1)
+  }
+
+  beforeEach(async () => {
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+    await setupForDUSDLoan()
+  })
+
+  afterEach(async () => {
+    await container.stop()
+  })
+
+  it('should be able to payback DUSD loan using DFI', async () => {
+    const dfiPaybackAmount = 100
+    const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: `${dfiPaybackAmount}@DFI`,
+      from: vaultOwnerAddress
+    })
+
+    await testing.generate(1)
+
+    // price of dfi to dusd depends on the oracle, in this case 1 DFI = 1 DUSD
+    const currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    const dusdLoanDecreased = new BigNumber(dfiPaybackAmount).minus(dusdInterestAmountBefore)
+    const dusdInterestPerBlockAfter = dusdInterestPerBlock.minus(dusdLoanDecreased.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(currentBlockHeight - paybackLoanBlockHeight)
+    const dusdLoanAmountAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanDecreased).plus(dusdInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    const temp = dusdLoanAmountAfter.minus(new BigNumber(0.00000001))
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${temp.toFixed(8)}@DUSD`])
+    // to enable this test after the latest COIN precision branch has been merged
+    // expect(vaultAfter.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
+  })
+
+  it('should not be able to payback TSLA loan using DFI', async () => {
+    await setupForTslaLoan()
+
+    const currentHeight = await testing.rpc.blockchain.getBlockCount()
+    const tslaInterestPerBlock = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaInterestAmount = tslaInterestPerBlock.multipliedBy(new BigNumber(currentHeight - tslaTakeLoanBlockHeight))
+    const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmount.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultBefore = await testing.rpc.loan.getVault(tslaVaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
+
+    const payBackPromise = testing.rpc.loan.paybackLoan({
+      vaultId: tslaVaultId,
+      amounts: '10000@DFI',
+      from: vaultOwnerAddress
+    })
+
+    await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nThere is no loan on token (DUSD) in this vault!\', code: -32600, method: paybackloan')
+  })
+
+  it('should not be able to payback DUSD loan using other tokens', async () => {
+    await setupForTslaLoan()
+
+    // payback with tsla
+    const paybackWithTslaPromise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '1@TSLA',
+      from: vaultOwnerAddress
+    })
+
+    await expect(paybackWithTslaPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nThere is no loan on token (TSLA) in this vault!\', code: -32600, method: paybackloan')
   })
 })
