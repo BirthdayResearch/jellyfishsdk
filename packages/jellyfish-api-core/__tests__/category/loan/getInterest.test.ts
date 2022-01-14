@@ -138,7 +138,7 @@ describe('Loan getInterest', () => {
     const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
     const interestPerBlock = new BigNumber(netInterest * 1000 / (365.0 * blocksPerDay)) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
-    // NOTE(sp): with AIN/#991, after FCH, all interest figures and calculations done and stored in 128 bit format internally, but it is ceiled to 64 bit(i.e CAmount precision) when responding to external request.
+    // NOTE(surangap): with AIN/#991, after FCH, all interest figures and calculations are done and stored in 128 bit format internally, but it is ceiled to 64 bit(i.e CAmount precision) when responding to an external request.
     expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
