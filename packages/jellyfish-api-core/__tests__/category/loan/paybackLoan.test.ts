@@ -414,7 +414,7 @@ describe('paybackLoan success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00001827@TSLA'])
     expect(vaultAfter.loanValue).toStrictEqual(64.00008222) // 32.0000411 * 2 (::1 TSLA = 2 USD)
     expect(vaultAfter.interestValue).toStrictEqual(0.00003654)
-    expect(vaultAfter.collateralRatio).toStrictEqual(23437) // 15000 / (32.00006394 * 2) * 100
+    expect(vaultAfter.collateralRatio).toStrictEqual(23437) // 15000 / (64.00008222) * 100
     expect(vaultAfter.informativeRatio).toStrictEqual(23437.46989017)
   })
 
