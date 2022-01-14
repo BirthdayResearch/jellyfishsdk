@@ -942,7 +942,7 @@ describe('paybackloan for dusd using dfi', () => {
   it('should not be able to payback DUSD loan using other tokens', async () => {
     await setupForTslaLoan()
 
-    // payback with tsla
+    // payback dusd loan with tsla
     const paybackWithTslaPromise = testing.rpc.loan.paybackLoan({
       vaultId: vaultId,
       amounts: '1@TSLA',
