@@ -7,6 +7,7 @@ import { WIF } from '@defichain/jellyfish-crypto'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
+import BigNumber from 'bignumber.js'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -636,6 +637,75 @@ describe('listTransactionsUnspent', () => {
 })
 
 describe('listTokens', () => {
+  async function setupLoanToken (): Promise<void> {
+    const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'LOAN', currency: 'USD' }
+    ], { weightage: 1 })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [
+        { tokenAmount: '2@DFI', currency: 'USD' },
+        { tokenAmount: '2@LOAN', currency: 'USD' }
+      ]
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'LOAN',
+      name: 'LOAN',
+      fixedIntervalPriceId: 'LOAN/USD',
+      mintable: true,
+      interest: new BigNumber(0.02)
+    })
+    await testing.generate(1)
+
+    await testing.token.dfi({
+      address: await testing.address('DFI'),
+      amount: 100
+    })
+
+    await testing.rpc.loan.createLoanScheme({
+      id: 'scheme',
+      minColRatio: 110,
+      interestRate: new BigNumber(1)
+    })
+    await testing.generate(1)
+
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.address('VAULT'),
+      loanSchemeId: 'scheme'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+      prices: [
+        { tokenAmount: '2@DFI', currency: 'USD' },
+        { tokenAmount: '2@LOAN', currency: 'USD' }
+      ]
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultId,
+      from: await testing.address('DFI'),
+      amount: '100@DFI'
+    })
+    await testing.generate(1)
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: '10@LOAN',
+      to: address
+    })
+    await testing.generate(1)
+  }
+
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
@@ -653,6 +723,8 @@ describe('listTokens', () => {
       await sendTokensToAddress(container, address, 10, token)
     }
     await container.generate(1)
+
+    await setupLoanToken()
   })
 
   afterAll(async () => {
@@ -667,7 +739,7 @@ describe('listTokens', () => {
       size: 30
     })
 
-    expect(response.data.length).toStrictEqual(6)
+    expect(response.data.length).toStrictEqual(7)
     expect(response.page).toBeUndefined()
 
     expect(response.data[5]).toStrictEqual({
@@ -678,7 +750,20 @@ describe('listTokens', () => {
       symbolKey: 'F',
       name: 'F',
       isDAT: true,
-      isLPS: false
+      isLPS: false,
+      isLoanToken: false
+    })
+
+    expect(response.data[6]).toStrictEqual({
+      id: '7',
+      amount: '10.00000000',
+      symbol: 'LOAN',
+      displaySymbol: 'dLOAN',
+      symbolKey: 'LOAN',
+      name: 'LOAN',
+      isDAT: true,
+      isLPS: false,
+      isLoanToken: true
     })
   })
 
@@ -696,12 +781,13 @@ describe('listTokens', () => {
       next: first.page?.next
     })
 
-    expect(next.data.length).toStrictEqual(4)
+    expect(next.data.length).toStrictEqual(5)
     expect(next.page?.next).toBeUndefined()
     expect(next.data[0].symbol).toStrictEqual('C')
     expect(next.data[1].symbol).toStrictEqual('D')
     expect(next.data[2].symbol).toStrictEqual('E')
     expect(next.data[3].symbol).toStrictEqual('F')
+    expect(next.data[4].symbol).toStrictEqual('LOAN')
   })
 
   it('should listTokens with undefined next pagination', async () => {

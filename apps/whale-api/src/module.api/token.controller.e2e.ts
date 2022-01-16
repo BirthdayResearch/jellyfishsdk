@@ -45,6 +45,7 @@ describe('list', () => {
       tradeable: true,
       isDAT: true,
       isLPS: false,
+      isLoanToken: false,
       finalized: true,
       minted: '0',
       creation: {
@@ -70,6 +71,7 @@ describe('list', () => {
       tradeable: true,
       isDAT: true,
       isLPS: false,
+      isLoanToken: false,
       finalized: false,
       minted: '0',
       creation: {
@@ -95,6 +97,7 @@ describe('list', () => {
       tradeable: true,
       isDAT: true,
       isLPS: false,
+      isLoanToken: false,
       finalized: false,
       minted: '0',
       creation: {
@@ -120,6 +123,7 @@ describe('list', () => {
       tradeable: true,
       isDAT: true,
       isLPS: true,
+      isLoanToken: false,
       finalized: true,
       minted: '0',
       creation: {
@@ -186,6 +190,7 @@ describe('get', () => {
       tradeable: true,
       isDAT: true,
       isLPS: false,
+      isLoanToken: false,
       finalized: true,
       minted: '0',
       creation: {
@@ -214,6 +219,7 @@ describe('get', () => {
       tradeable: true,
       isDAT: true,
       isLPS: true,
+      isLoanToken: false,
       finalized: true,
       minted: '0',
       creation: {

@@ -70,6 +70,7 @@ export function mapTokenData (id: string, tokenInfo: TokenInfo): TokenData {
     tradeable: tokenInfo.tradeable,
     isDAT: tokenInfo.isDAT,
     isLPS: tokenInfo.isLPS,
+    isLoanToken: tokenInfo.isLoanToken,
     finalized: tokenInfo.finalized,
     minted: tokenInfo.minted.toFixed(),
     creation: {
