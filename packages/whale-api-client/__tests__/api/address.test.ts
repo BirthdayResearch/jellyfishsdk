@@ -4,6 +4,8 @@ import { StubService } from '../stub.service'
 import { WhaleApiClient } from '../../src'
 import { createSignedTxnHex, createToken, mintTokens, utxosToAccount } from '@defichain/testing'
 import { WIF } from '@defichain/jellyfish-crypto'
+import { Testing } from '@defichain/jellyfish-testing'
+import BigNumber from 'bignumber.js'
 
 let container: MasterNodeRegTestContainer
 let service: StubService
@@ -36,6 +38,75 @@ beforeAll(async () => {
   }
 
   await container.generate(1)
+
+  // setup a loan token
+  const testing = Testing.create(container)
+  const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
+    { token: 'DFI', currency: 'USD' },
+    { token: 'LOAN', currency: 'USD' }
+  ], { weightage: 1 })
+  await testing.generate(1)
+
+  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+    prices: [
+      { tokenAmount: '2@DFI', currency: 'USD' },
+      { tokenAmount: '2@LOAN', currency: 'USD' }
+    ]
+  })
+  await testing.generate(1)
+
+  await testing.rpc.loan.setCollateralToken({
+    token: 'DFI',
+    factor: new BigNumber(1),
+    fixedIntervalPriceId: 'DFI/USD'
+  })
+  await testing.rpc.loan.setLoanToken({
+    symbol: 'LOAN',
+    name: 'LOAN',
+    fixedIntervalPriceId: 'LOAN/USD',
+    mintable: true,
+    interest: new BigNumber(0.02)
+  })
+  await testing.generate(1)
+
+  await testing.token.dfi({
+    address: await testing.address('DFI'),
+    amount: 100
+  })
+
+  await testing.rpc.loan.createLoanScheme({
+    id: 'scheme',
+    minColRatio: 110,
+    interestRate: new BigNumber(1)
+  })
+  await testing.generate(1)
+
+  const vaultId = await testing.rpc.loan.createVault({
+    ownerAddress: await testing.address('VAULT'),
+    loanSchemeId: 'scheme'
+  })
+  await testing.generate(1)
+
+  await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
+    prices: [
+      { tokenAmount: '2@DFI', currency: 'USD' },
+      { tokenAmount: '2@LOAN', currency: 'USD' }
+    ]
+  })
+  await testing.generate(1)
+
+  await testing.rpc.loan.depositToVault({
+    vaultId: vaultId,
+    from: await testing.address('DFI'),
+    amount: '100@DFI'
+  })
+  await testing.generate(1)
+  await testing.rpc.loan.takeLoan({
+    vaultId: vaultId,
+    amounts: '10@LOAN',
+    to: address
+  })
+  await testing.generate(1)
 })
 
 afterAll(async () => {
@@ -127,11 +198,12 @@ it('should getAggregation', async () => {
 describe('tokens', () => {
   it('should listToken', async () => {
     const response = await client.address.listToken(address)
-    expect(response.length).toStrictEqual(5)
+    expect(response.length).toStrictEqual(6)
     expect(response.hasNext).toStrictEqual(false)
 
-    expect(response[0]).toStrictEqual(expect.objectContaining({ id: '0', amount: '15.50000000', symbol: 'DFI' }))
-    expect(response[4]).toStrictEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D' }))
+    expect(response[0]).toStrictEqual(expect.objectContaining({ id: '0', amount: '15.50000000', symbol: 'DFI', isLoanToken: false }))
+    expect(response[4]).toStrictEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D', isLoanToken: false }))
+    expect(response[5]).toStrictEqual(expect.objectContaining({ id: '5', amount: '10.00000000', symbol: 'LOAN', isLoanToken: true }))
   })
 
   it('should paginate listToken', async () => {
@@ -152,11 +224,16 @@ describe('tokens', () => {
     expect(next[1]).toStrictEqual(expect.objectContaining({ id: '3', amount: '10.00000000', symbol: 'C' }))
 
     const last = await client.paginate(next)
-    expect(last.length).toStrictEqual(1)
-    expect(last.hasNext).toStrictEqual(false)
-    expect(last.nextToken).toBeUndefined()
+    expect(last.length).toStrictEqual(2)
+    expect(last.hasNext).toStrictEqual(true)
+    expect(last.nextToken).toStrictEqual('5')
 
-    expect(last[0]).toStrictEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D' }))
+    expect(last[0]).toStrictEqual(expect.objectContaining({ id: '4', amount: '10.00000000', symbol: 'D', isLoanToken: false }))
+    expect(last[1]).toStrictEqual(expect.objectContaining({ id: '5', amount: '10.00000000', symbol: 'LOAN', isLoanToken: true }))
+
+    const emptyLast = await client.paginate(last)
+    expect(emptyLast.length).toStrictEqual(0)
+    expect(emptyLast.hasNext).toStrictEqual(false)
   })
 })
 

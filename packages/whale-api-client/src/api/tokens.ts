@@ -42,6 +42,7 @@ export interface TokenData {
   tradeable: boolean
   isDAT: boolean
   isLPS: boolean
+  isLoanToken: boolean
   finalized: boolean
   minted: string // BigNumber
   creation: {
