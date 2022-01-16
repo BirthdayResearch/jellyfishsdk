@@ -380,12 +380,12 @@ describe('loan - stats', () => {
           collateralTokens: 1,
           loanTokens: 3,
           openAuctions: 1,
-          openVaults: 2,
+          openVaults: 4,
           schemes: 2
         },
         value: {
           collateral: 20000,
-          loan: 60.0001824
+          loan: 60.00018272
         }
       },
       blockchain: {

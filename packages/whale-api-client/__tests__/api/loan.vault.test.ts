@@ -335,9 +335,9 @@ describe('get', () => {
       state: LoanVaultState.ACTIVE,
       collateralRatio: '16667',
       collateralValue: '10000',
-      informativeRatio: '16666.61600015',
-      loanValue: '60.0001824',
-      interestValue: '0.0001824',
+      informativeRatio: '16666.61591126',
+      loanValue: '60.00018272',
+      interestValue: '0.00018272',
       collateralAmounts: [
         {
           amount: '10000.00000000',
@@ -359,7 +359,7 @@ describe('get', () => {
       ],
       loanAmounts: [
         {
-          amount: '30.00009120',
+          amount: '30.00009136',
           displaySymbol: 'dTSLA',
           id: '1',
           name: '',
@@ -378,7 +378,7 @@ describe('get', () => {
       ],
       interestAmounts: [
         {
-          amount: '0.00009120',
+          amount: '0.00009136',
           displaySymbol: 'dTSLA',
           id: '1',
           name: '',
@@ -460,7 +460,7 @@ describe('get', () => {
     expect.assertions(4)
     try {
       await client.loan.getVault('0530ab29a9f09416a014a4219f186f1d5d530e9a270a9f941275b3972b43ebb7')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
         code: 404,
@@ -473,7 +473,7 @@ describe('get', () => {
 
     try {
       await client.loan.getVault('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
         code: 404,
@@ -489,7 +489,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await client.loan.getVault('$*@')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(WhaleApiException)
       expect(err.error).toStrictEqual({
         at: expect.any(Number),

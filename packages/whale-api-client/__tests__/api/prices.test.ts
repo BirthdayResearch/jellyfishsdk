@@ -294,7 +294,7 @@ describe('pricefeed with interval', () => {
     expect(noInterval.length).toStrictEqual(60)
 
     const interval5Minutes = await apiClient.prices.getFeedWithInterval('S1', 'USD', PriceFeedTimeInterval.FIVE_MINUTES, 60)
-    expect(interval5Minutes.length).toStrictEqual(10)
+    expect(interval5Minutes.length).toStrictEqual(11)
     expect(interval5Minutes.map(x => x.aggregated.amount)).toStrictEqual(
       [
         '58.50000000',
@@ -306,12 +306,13 @@ describe('pricefeed with interval', () => {
         '23.50000000',
         '17.50000000',
         '11.50000000',
-        '4.50000000'
+        '5.00000000',
+        '1.00000000'
       ]
     )
 
     const interval10Minutes = await apiClient.prices.getFeedWithInterval('S1', 'USD', PriceFeedTimeInterval.TEN_MINUTES, 60)
-    expect(interval10Minutes.length).toStrictEqual(6)
+    expect(interval10Minutes.length).toStrictEqual(7)
     expect(interval10Minutes.map(x => x.aggregated.amount)).toStrictEqual(
       [
         '59.00000000',
@@ -319,7 +320,8 @@ describe('pricefeed with interval', () => {
         '41.00000000',
         '30.00000000',
         '19.00000000',
-        '7.00000000'
+        '7.50000000',
+        '1.00000000'
       ]
     )
   })
