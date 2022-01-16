@@ -114,7 +114,7 @@ beforeEach(async () => {
   await tGroup.waitForSync()
 
   // vaultId[2]
-  await placeAuctionBid(alice, vaultId, 2, colAddr, '2625.00499422@TSLA')
+  await placeAuctionBid(alice, vaultId, 2, colAddr, '2625.01499422@TSLA')
   await tGroup.waitForSync()
 })
 
@@ -217,7 +217,7 @@ it('should index placeAuctionBid', async () => {
           vaultId: vaultId,
           index: 2,
           from: expect.any(String),
-          amount: '2625.00499422',
+          amount: '2625.01499422',
           tokenId: 3,
           block: expect.any(Object)
         }

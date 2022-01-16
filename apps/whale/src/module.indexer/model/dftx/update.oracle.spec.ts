@@ -13,7 +13,6 @@ let client: JsonRpcClient
 
 beforeAll(async () => {
   await container.start()
-  await container.generate(20)
   await container.waitForWalletCoinbaseMaturity()
 
   app = await createTestingApp(container)

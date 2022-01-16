@@ -419,7 +419,7 @@ describe('interval set oracle data', () => {
     expect(noInterval.length).toStrictEqual(60)
 
     const interval5Minutes = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.FIVE_MINUTES}`, Number.MAX_SAFE_INTEGER)
-    expect(interval5Minutes.length).toStrictEqual(10)
+    expect(interval5Minutes.length).toStrictEqual(11)
     expect(interval5Minutes.map(x => x.aggregated.amount)).toStrictEqual(
       [
         '58.50000000',
@@ -431,12 +431,13 @@ describe('interval set oracle data', () => {
         '23.50000000',
         '17.50000000',
         '11.50000000',
-        '4.50000000'
+        '5.00000000',
+        '1.00000000'
       ]
     )
 
     const interval10Minutes = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.TEN_MINUTES}`, Number.MAX_SAFE_INTEGER)
-    expect(interval10Minutes.length).toStrictEqual(6)
+    expect(interval10Minutes.length).toStrictEqual(7)
     expect(interval10Minutes.map(x => x.aggregated.amount)).toStrictEqual(
       [
         '59.00000000',
@@ -444,7 +445,8 @@ describe('interval set oracle data', () => {
         '41.00000000',
         '30.00000000',
         '19.00000000',
-        '7.00000000'
+        '7.50000000',
+        '1.00000000'
       ]
     )
   })
