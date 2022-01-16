@@ -123,7 +123,7 @@ beforeAll(async () => {
   await tGroup.waitForSync()
 
   // vaultId[2]
-  await placeAuctionBid(alice, vaultId, 2, colAddr, '2625.00499422@TSLA')
+  await placeAuctionBid(alice, vaultId, 2, colAddr, '2625.01499422@TSLA')
   await tGroup.waitForSync()
 
   // do another batch
