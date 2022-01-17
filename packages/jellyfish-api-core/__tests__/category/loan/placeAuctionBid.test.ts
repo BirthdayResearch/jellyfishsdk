@@ -302,12 +302,10 @@ async function setup (): Promise<void> {
 
   const blockAfter = await bob.rpc.blockchain.getBlockchainInfo()
   const numOfBlocks = blockAfter.blocks - blockBefore.blocks
-  // const interestPerBlock = 0.00057078
   const totalInterest = tslaInterestPerBlock.multipliedBy(new BigNumber(numOfBlocks))
   const totalLoanToPayBack = new BigNumber(tslaLoanAmount).plus(totalInterest.decimalPlaces(8, BigNumber.ROUND_CEIL))
   batchAmount = totalLoanToPayBack.dividedBy(2)
   batchAmount = batchAmount.decimalPlaces(8, BigNumber.ROUND_FLOOR)
-  // batchAmount = Math.floor(batchAmount * 1e8) / 1e8
 
   // vault is liquidated now
   const vaultAfter = await bob.container.call('getvault', [bobVaultId])
