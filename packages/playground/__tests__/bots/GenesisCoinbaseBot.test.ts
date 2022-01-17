@@ -15,4 +15,7 @@ afterAll(async () => {
 it('', async () => {
   const tokens = await playgroundTesting.rpc.token.listTokens()
   console.log('tokens: ', tokens)
+
+  const schemes = await playgroundTesting.rpc.loan.listLoanSchemes()
+  console.log('schemes: ', schemes)
 })
