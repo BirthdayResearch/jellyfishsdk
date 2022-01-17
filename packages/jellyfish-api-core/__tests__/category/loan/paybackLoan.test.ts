@@ -377,7 +377,7 @@ describe('paybackLoan success', () => {
     expect(vaultAfter.informativeRatio).toStrictEqual(27777.73841569)
 
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000457)
+    expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000456)
   })
 
   it('should paybackLoan by anyone', async () => {
@@ -517,7 +517,7 @@ describe('paybackLoan success', () => {
       expect(loanTokenAccAfter).toStrictEqual(['27.00000000@TSLA', '9.00000000@AMZN'])
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000998)
     }
 
     // second paybackLoan
