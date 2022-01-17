@@ -339,6 +339,7 @@ describe('takeLoan success', () => {
       loanSchemeId: 'scheme5'
     })
     await bob.generate(1)
+    await tGroup.waitForSync()
 
     await alice.rpc.loan.depositToVault({
       vaultId: vaultId, from: aliceAddr, amount: '10000@DFI'
