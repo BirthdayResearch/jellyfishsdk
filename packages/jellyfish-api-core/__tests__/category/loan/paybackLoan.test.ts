@@ -571,7 +571,7 @@ describe('paybackLoan success', () => {
       expect(loanTokenAccAfter).toStrictEqual(['14.00000000@TSLA', '3.00000000@AMZN']) // (27 - 13), (9 - 6)
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001361)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001356)
     }
   })
 
