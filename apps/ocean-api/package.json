@@ -1,5 +1,5 @@
 {
-  "private": false,
+  "private": true,
   "name": "@defichain-apps/ocean-api",
   "version": "0.0.0",
   "description": "DeFiChain Jellyfish Ecosystem",
