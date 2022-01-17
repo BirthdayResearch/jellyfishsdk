@@ -20,10 +20,7 @@ describe('Loan listAuctionHistory', () => {
     aliceColAddr = await alice.generateAddress()
     bobColAddr = await bob.generateAddress()
 
-    await alice.token.dfi({
-      address: aliceColAddr,
-      amount: 35000
-    })
+    await alice.token.dfi({ address: aliceColAddr, amount: '10000000' })
     await alice.generate(1)
 
     await alice.token.create({
@@ -42,11 +39,8 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    await bob.token.dfi({
-      address: bobColAddr,
-      amount: 75000
-    })
-    await bob.generate(1)
+    await bob.token.dfi({ address: bobColAddr, amount: '75000' })
+    await bob.container.generate(1)
     await tGroup.waitForSync()
 
     // Loan scheme
@@ -147,20 +141,10 @@ describe('Loan listAuctionHistory', () => {
       fixedIntervalPriceId: 'AAPL/USD'
     })
     await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'AAPL',
-      amount: 50000
-    })
-    await alice.generate(1)
 
     await alice.rpc.loan.setLoanToken({
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'TSLA',
-      amount: 50000
     })
     await alice.generate(1)
 
@@ -169,20 +153,62 @@ describe('Loan listAuctionHistory', () => {
       fixedIntervalPriceId: 'MSFT/USD'
     })
     await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'MSFT',
-      amount: 50000
-    })
-    await alice.generate(1)
 
     await alice.rpc.loan.setLoanToken({
       symbol: 'FB',
       fixedIntervalPriceId: 'FB/USD'
     })
     await alice.generate(1)
-    await alice.token.mint({
-      symbol: 'FB',
-      amount: 50000
+
+    // set loan token minting scheme and vault
+    const loanTokenSchemeId = 'borrow'
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: loanTokenSchemeId
+    })
+    await alice.generate(1)
+
+    const loanTokenVaultAddr = await alice.generateAddress()
+    const loanVaultId = await alice.rpc.loan.createVault({
+      ownerAddress: loanTokenVaultAddr,
+      loanSchemeId: loanTokenSchemeId
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: loanVaultId,
+      from: aliceColAddr,
+      amount: '1000000@DFI'
+    })
+
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@AAPL',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@TSLA',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@MSFT',
+      to: aliceColAddr
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: loanVaultId,
+      amounts: '50000@FB',
+      to: aliceColAddr
     })
     await alice.generate(1)
 

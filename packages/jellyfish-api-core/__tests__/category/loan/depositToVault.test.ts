@@ -23,19 +23,6 @@ describe('Loan depositToVault', () => {
   })
 
   async function setup (): Promise<void> {
-    // token setup
-    collateralAddress = await tGroup.get(0).container.getNewAddress()
-    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 30000 })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'BTC', amount: 20000 })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.create({ symbol: 'CAT', collateralAddress })
-    await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'CAT', amount: 10000 })
-    await tGroup.get(0).generate(1)
-
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
@@ -51,6 +38,19 @@ describe('Loan depositToVault', () => {
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@BTC', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '10000@CAT', currency: 'USD' }] })
+    await tGroup.get(0).generate(1)
+
+    // token setup
+    collateralAddress = await tGroup.get(0).container.getNewAddress()
+    await tGroup.get(0).token.dfi({ address: collateralAddress, amount: 100030000 })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.create({ symbol: 'BTC', collateralAddress })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.mint({ symbol: 'BTC', amount: 20000 })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.create({ symbol: 'CAT', collateralAddress })
+    await tGroup.get(0).generate(1)
+    await tGroup.get(0).token.mint({ symbol: 'CAT', amount: 10000 })
     await tGroup.get(0).generate(1)
 
     // collateral token
@@ -80,6 +80,7 @@ describe('Loan depositToVault', () => {
       symbol: 'TSLA',
       fixedIntervalPriceId: 'TSLA/USD'
     })
+
     await tGroup.get(0).generate(1)
 
     // loan scheme set up
@@ -87,6 +88,13 @@ describe('Loan depositToVault', () => {
       minColRatio: 150,
       interestRate: new BigNumber(3),
       id: 'scheme'
+    })
+
+    const loanTokenSchemeId = 'borrow'
+    await tGroup.get(0).rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: loanTokenSchemeId
     })
     await tGroup.get(0).generate(1)
 
@@ -108,7 +116,20 @@ describe('Loan depositToVault', () => {
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
+
+    // set up loan token vault
+    const loanTokenProviderAddress = await tGroup.get(0).generateAddress()
+    const loanTokenVaultId = await tGroup.get(0).rpc.loan.createVault({
+      ownerAddress: loanTokenProviderAddress,
+      loanSchemeId: loanTokenSchemeId
+    })
     await tGroup.get(0).generate(1)
+
+    // deposit to vault to loan CAT
+    await tGroup.get(0).rpc.loan.depositToVault({
+      vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000000@DFI'
+    })
+    await tGroup.get(0).container.generate(1)
 
     await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
