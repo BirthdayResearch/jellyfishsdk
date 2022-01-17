@@ -46,7 +46,7 @@ it('should create add remove swap', async () => {
 
   const account = await testing.rpc.account.getAccount(await testing.address('my'))
   expect(account).toStrictEqual(expect.objectContaining([
-    '0.73021717@DFI',
+    '0.73021716@DFI',
     '5.32455532@ABC',
     '13.81137830@ABC-DFI'
   ]))
