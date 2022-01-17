@@ -1,6 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createToken, createPoolPair, addPoolLiquidity, mintTokens, utxosToAccount, removePoolLiquidity, poolSwap, listPoolPairs } from '../src'
 import waitForExpect from 'wait-for-expect'
+import { BigNumber } from '@defichain/jellyfish-api-core'
 
 const container = new MasterNodeRegTestContainer()
 
@@ -114,9 +115,13 @@ describe('poolSwap', () => {
     }
     await poolSwap(container, metadata)
 
+    const antSwapAmount = new BigNumber(200).minus(new BigNumber(10 * 200).dividedBy(new BigNumber(10 + 4))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const antReserveAfter = new BigNumber(200).minus(antSwapAmount)
+    const dfiReserveAfter = new BigNumber(10 + 4)
+
     const poolPairAfter = await container.call('getpoolpair', ['DFI-ANT'])
     const dataAfter: any = Object.values(poolPairAfter)[0]
-    expect(dataAfter.reserveA).toStrictEqual(14)
-    expect(dataAfter.reserveB).toStrictEqual(142.85714285)
+    expect(dataAfter.reserveA.toFixed(8)).toStrictEqual(dfiReserveAfter.toFixed(8))
+    expect(dataAfter.reserveB.toFixed(8)).toStrictEqual(antReserveAfter.toFixed(8))
   })
 })
