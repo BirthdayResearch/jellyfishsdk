@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "node build.js"
+  },
+  "dependencies": {
+    "@defichain/jellyfish-wallet-classic": "latest",
+    "@defichain/whale-api-client": "latest",
+    "@defichain/whale-api-wallet": "latest"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "latest"
+  }
+}

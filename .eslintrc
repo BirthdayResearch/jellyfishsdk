@@ -9,7 +9,8 @@
   "ignorePatterns": [
     "dist",
     "*.json",
-    "website"
+    "website",
+    "examples"
   ],
   "rules": {
     "curly": [
