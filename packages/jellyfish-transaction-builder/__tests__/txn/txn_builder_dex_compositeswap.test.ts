@@ -91,6 +91,13 @@ describe('dex.compositeSwap()', () => {
     // Fund 10 DFI UTXO, allow provider able to collect 1
     await fundEllipticPair(container, providers.ellipticPair, 10)
 
+    // simulate compositeSwap
+    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const dogSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+
+    const pigReserveAfter = new BigNumber(10 + 1)
+    const dogReserveAfter = new BigNumber(50).minus(dogSwapAmount)
+
     // Perform SWAP
     const txn = await builder.dex.compositeSwap({
       poolSwap: {
@@ -118,16 +125,16 @@ describe('dex.compositeSwap()', () => {
     const account = await jsonRpc.account.getAccount(address)
     expect(account.length).toStrictEqual(2)
     expect(account).toContain('9.00000000@PIG')
-    expect(account).toContain('4.16666668@DOG')
+    expect(account).toContain(`${dogSwapAmount.toFixed(8)}@DOG`)
 
     // reflected on DEXes
     const pigPair = Object.values(await jsonRpc.poolpair.getPoolPair('PIG-DFI', true))
     expect(pigPair.length).toStrictEqual(1)
-    expect(pigPair[0].reserveA).toStrictEqual(new BigNumber(11))
+    expect(pigPair[0].reserveA).toStrictEqual(pigReserveAfter)
 
     const dogPair = Object.values(await jsonRpc.poolpair.getPoolPair('DOG-DFI', true))
     expect(dogPair.length).toStrictEqual(1)
-    expect(dogPair[0].reserveA).toStrictEqual(new BigNumber(45.83333332))
+    expect(dogPair[0].reserveA).toStrictEqual(dogReserveAfter)
 
     // Ensure you don't send all your balance away during poolswap
     const prevouts = await providers.prevout.all()
@@ -164,6 +171,13 @@ describe('dex.compositeSwap()', () => {
     await fundEllipticPair(container, providers.ellipticPair, 10)
 
     // Perform SWAP
+    // simulate compositeSwap
+    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const fishSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+
+    const catReserveAfter = new BigNumber(10 + 1)
+    const fishReserveAfter = new BigNumber(50).minus(fishSwapAmount)
+
     const txn = await builder.dex.compositeSwap({
       poolSwap: {
         fromScript: script,
@@ -191,16 +205,16 @@ describe('dex.compositeSwap()', () => {
     const account = await jsonRpc.account.getAccount(address)
     expect(account.length).toStrictEqual(2)
     expect(account).toContain('9.00000000@CAT')
-    expect(account).toContain('4.16666668@FISH')
+    expect(account).toContain(`${fishSwapAmount.toFixed(8)}@FISH`)
 
     // reflected on DEXes
     const catPair = Object.values(await jsonRpc.poolpair.getPoolPair('CAT-DFI', true))
     expect(catPair.length).toStrictEqual(1)
-    expect(catPair[0].reserveA).toStrictEqual(new BigNumber(11))
+    expect(catPair[0].reserveA).toStrictEqual(catReserveAfter)
 
     const fishPair = Object.values(await jsonRpc.poolpair.getPoolPair('FISH-DFI', true))
     expect(fishPair.length).toStrictEqual(1)
-    expect(fishPair[0].reserveA).toStrictEqual(new BigNumber(45.83333332))
+    expect(fishPair[0].reserveA).toStrictEqual(fishReserveAfter)
 
     // Ensure you don't send all your balance away during poolswap
     const prevouts = await providers.prevout.all()
