@@ -20,12 +20,57 @@ export class Net {
   }
 
   /**
+   * Returns data about each connected network node as a json array of objects.
+   *
+   * @return {Promise<PeerInfo[]>}
+   */
+  async getPeerInfo (): Promise<PeerInfo[]> {
+    return await this.client.call('getpeerinfo', [], 'number')
+  }
+
+  /**
    * Returns an object containing various state info regarding P2P networking.
    *
    * @return {Promise<NetworkInfo>}
    */
   async getNetworkInfo (): Promise<NetworkInfo> {
     return await this.client.call('getnetworkinfo', [], 'number')
+  }
+}
+
+export interface PeerInfo {
+  id: number
+  addr: string
+  addrbind?: string
+  addrlocal?: string
+  services: string
+  relaytxes: boolean
+  lastsend: number
+  lastrecv: number
+  bytessent: number
+  bytesrecv: number
+  conntime: number
+  timeoffset: number
+  pingtime?: number
+  minping?: number
+  pingwait?: number
+  version: number
+  subver: string
+  inbound: boolean
+  addnode: boolean
+  startingheight: number
+  banscore?: number
+  synced_headers?: number
+  synced_blocks?: number
+  inflight: number[]
+  whitelisted: boolean
+  permissions: string[]
+  minfeefilter: number
+  bytessent_per_msg: {
+    [msg: string]: number
+  }
+  bytesrecv_per_msg: {
+    [msg: string]: number
   }
 }
 
