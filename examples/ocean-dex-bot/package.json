@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm run build:ncc && npm run build:zip",
+    "build:ncc": "ncc build ./src/main.ts --source-map -o ./dist/main",
+    "build:zip": "zip -r -j ./dist/main.zip ./dist/main/*"
+  },
+  "dependencies": {
+    "@defichain/jellyfish-wallet-classic": "latest",
+    "@defichain/whale-api-client": "latest",
+    "@defichain/whale-api-wallet": "latest"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "latest"
+  }
+}
