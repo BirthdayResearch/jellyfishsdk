@@ -27,6 +27,7 @@ let aBuilder: P2WPKHTransactionBuilder
 let bProviders: MockProviders
 let bBuilder: P2WPKHTransactionBuilder
 let tslaBatch: BigNumber
+let tslaSwapAmount: number
 
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
@@ -252,6 +253,17 @@ async function setup (): Promise<void> {
     to: bobColAddr,
     tokenTo: 'TSLA'
   })
+
+  // AMM formula
+  // constant k = reserveTo * reserveFrom
+  // constant k must be preserved before and after the swap
+
+  // swapToAmount = Floor(reserveTo - (reserveTo * reserveFrom)/(reserveFrom + swapFromAmount))
+  // swapToAmount = Floor(1000 - (1000*500/(500 + 600)))
+  // swapToAmount = Floor(545.454545455)
+  // swapToAmount = 545.45454545 (8dp)
+  tslaSwapAmount = Math.floor((1000 - (1000 * 500 / (500 + 600))) * 1e8) / 1e8
+
   await bob.generate(1)
   await tGroup.waitForSync()
 
@@ -332,7 +344,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual(`${tslaBatch.toFixed(8)}@TSLA`)
 
   bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
-  expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454545@TSLA'])
+  expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', `${tslaSwapAmount}@TSLA`])
 
   const aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
   expect(aliceColAccBefore).toStrictEqual(['29000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
@@ -433,7 +445,7 @@ describe('placeAuctionBid success', () => {
     const bobColAccEndBid = await bob.rpc.account.getAccount(bobColAddr)
     // compare to bobColAccAfter ['8900.00000000@DFI', '19.45454545@TSLA']
     // bob claims back his funds after alice bidded higher amount
-    expect(bobColAccEndBid).toStrictEqual(['8900.00000000@DFI', '545.45454545@TSLA'])
+    expect(bobColAccEndBid).toStrictEqual(['8900.00000000@DFI', `${tslaSwapAmount}@TSLA`])
 
     // end the auction and alice win the bid
     await bob.generate(36)

@@ -18,6 +18,7 @@ let oracleId: string
 const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
 const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
 let batchAmount: BigNumber
+let tslaSwapAmount: number
 
 function now (): number {
   return Math.floor(new Date().getTime() / 1000)
@@ -248,6 +249,8 @@ async function setup (): Promise<void> {
     to: bobColAddr,
     tokenTo: 'TSLA'
   })
+
+  tslaSwapAmount = Math.floor((1000 - (1000 * 500 / (500 + 600))) * 1e8) / 1e8
   await bob.generate(1)
   await tGroup.waitForSync()
 
@@ -331,7 +334,7 @@ async function setup (): Promise<void> {
   expect(auctionsAfter[0].batches[0].loan).toStrictEqual(`${batchAmount.toFixed(8)}@TSLA`)
 
   bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
-  expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454545@TSLA'])
+  expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', `${tslaSwapAmount}@TSLA`])
 
   aliceColAccBefore = await alice.rpc.account.getAccount(aliceColAddr)
   expect(aliceColAccBefore).toStrictEqual(['29000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
@@ -442,7 +445,7 @@ describe('placeAuctionBid success', () => {
 
       // bob should be able to claim back his fund right after the higher bid
       const bobColAccBid = await bob.rpc.account.getAccount(bobColAddr)
-      expect(bobColAccBid).toStrictEqual(['8900.00000000@DFI', '545.45454545@TSLA'])
+      expect(bobColAccBid).toStrictEqual(['8900.00000000@DFI', `${tslaSwapAmount}@TSLA`])
 
       // let the auction end and the vault's state will be switched to mayLiquidate
       await bob.container.waitForVaultState(bobVaultId, VaultState.MAY_LIQUIDATE)
@@ -575,7 +578,7 @@ describe('placeAuctionBid success', () => {
     // test bob bids on first index
     {
       const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
-      expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', '545.45454545@TSLA'])
+      expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', `${tslaSwapAmount}@TSLA`])
 
       const txid = await bob.rpc.loan.placeAuctionBid({
         vaultId: bobVaultId,
