@@ -174,7 +174,7 @@ describe('dex.poolswap()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 
-  it('should pass with 500', async () => {
+  it('should pass with 500.25012506', async () => {
     providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
@@ -191,19 +191,22 @@ describe('dex.poolswap()', () => {
     await fundEllipticPair(container, providers.ellipticPair, 10)
     const script = await providers.elliptic.script()
 
+    // price = fromAmount/resultantSwapAmount = 500.25012506
+    // max price has to be greater or equal to price
+
     const txn = await builder.dex.poolSwap({
       fromScript: script,
       fromTokenId: pairs.GOAT.tokenB,
       fromAmount: new BigNumber('0.01'), // use small amount to reduce slippage effect
       toScript: script,
       toTokenId: pairs.GOAT.tokenA,
-      maxPrice: new BigNumber('500')
+      maxPrice: new BigNumber('500.25012506')
     }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).resolves.not.toThrow()
   })
 
-  it('should fail with 499.99999999', async () => {
+  it('should fail with 500.25012505', async () => {
     providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
@@ -226,8 +229,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('0.01'), // use small amount to reduce slippage effect
       toScript: script,
       toTokenId: pairs.FISH.tokenA,
-      // min acceptable maxPrice should be 10000 / 20 = 500
-      maxPrice: new BigNumber('499.99999999')
+      maxPrice: new BigNumber('500.25012505')
     }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
