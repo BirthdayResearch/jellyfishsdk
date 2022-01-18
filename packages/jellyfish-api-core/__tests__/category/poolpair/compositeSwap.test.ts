@@ -155,7 +155,7 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(1)
-      expect(toBalances[0]).toStrictEqual(`${dogSwapAmount.toFixed(8)}@DOG`) // (123 * 28000 / 25000 = ~137.7) ~136.4 as result include slope
+      expect(toBalances[0]).toStrictEqual(`${dogSwapAmount.toFixed(8)}@DOG`)
     }
   })
 
