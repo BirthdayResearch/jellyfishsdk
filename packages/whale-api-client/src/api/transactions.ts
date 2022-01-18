@@ -45,6 +45,7 @@ export class Transactions {
  */
 export interface Transaction {
   id: string
+  order: number
   block: {
     hash: string
     height: number
