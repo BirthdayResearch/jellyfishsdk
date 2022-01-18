@@ -215,12 +215,12 @@ async function setup (): Promise<void> {
   await bob.generate(1)
 
   const bobLoanAddr = await bob.generateAddress()
-  const tslaTakeLoanHeight = await bob.rpc.blockchain.getBlockCount()
   await bob.rpc.loan.takeLoan({
     vaultId: bobVaultId,
     amounts: `${tslaLoanAmount}@TSLA`,
     to: bobLoanAddr
   })
+  const tslaTakeLoanHeight = await bob.rpc.blockchain.getBlockCount()
   await bob.generate(1)
   const blockBefore = await bob.rpc.blockchain.getBlockchainInfo()
 
@@ -259,15 +259,15 @@ async function setup (): Promise<void> {
   await alice.generate(1)
   await tGroup.waitForSync()
 
+  // check vault status before liquidated
+  const vaultBefore = await bob.container.call('getvault', [bobVaultId])
+
   const tslaInterestPerBlock = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay))
   const currentHeight = await bob.rpc.blockchain.getBlockCount()
   const tslaTotalInterest = tslaInterestPerBlock.multipliedBy(currentHeight - tslaTakeLoanHeight)
   const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaTotalInterest.decimalPlaces(8, BigNumber.ROUND_CEIL))
   const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2) // tsla price before = 2
   const tslaTotalInterestValue = tslaTotalInterest.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2) // tsla price before = 2
-
-  // check vault status before liquidated
-  const vaultBefore = await bob.container.call('getvault', [bobVaultId])
 
   expect(vaultBefore.state).toStrictEqual('active')
   expect(vaultBefore.collateralAmounts).toStrictEqual(['10000.00000000@DFI', '1.00000000@BTC'])
@@ -320,7 +320,7 @@ async function setup (): Promise<void> {
   expect(vaultAfter.liquidationHeight).toStrictEqual(180)
   expect(vaultAfter.liquidationPenalty).toStrictEqual(5)
   expect(vaultAfter.batches).toStrictEqual([
-    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: `${batchAmount.toFixed(8)}@TSLA` }, // refer to ln: 171, the last interest generated loanAmt divided by 2
+    { index: 0, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: `${batchAmount.toFixed(8)}@TSLA` },
     { index: 1, collaterals: ['5000.00000000@DFI', '0.50000000@BTC'], loan: `${batchAmount.toFixed(8)}@TSLA` }
   ])
 

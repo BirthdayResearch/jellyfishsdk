@@ -818,15 +818,4 @@ describe('paybackLoan failed', () => {
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
   })
-
-  // this test on longer applies after FortCanningHill
-  // it('should fail paybackLoan if resulted in zero interest loan', async () => {
-  //   const promise = bob.rpc.loan.paybackLoan({
-  //     vaultId: bobVaultId,
-  //     amounts: '40@TSLA',
-  //     from: bobloanAddr
-  //   })
-  //   await expect(promise).rejects.toThrow(RpcApiError)
-  //   await expect(promise).rejects.toThrow('Cannot payback this amount of loan for TSLA, either payback full amount or less than this amount!')
-  // })
 })

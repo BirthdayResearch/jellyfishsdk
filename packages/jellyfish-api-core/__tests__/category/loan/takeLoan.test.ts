@@ -216,7 +216,7 @@ describe('takeLoan success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
     expect(vaultAfter.interestValue).toStrictEqual(new BigNumber(interestValueAfter.toFixed(8)))
     expect(vaultAfter.collateralRatio).toStrictEqual(3750)
-    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(3749.97217483)) // 15000 / 400.00029679 * 100
+    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(3749.97217483)) // 15000 / (tslaLoanAmountAfter * 2) * 100
 
     const bobLoanAcc = await bob.rpc.account.getAccount(bobLoanAddr)
     expect(bobLoanAcc).toStrictEqual(['200.00000000@TSLA'])
