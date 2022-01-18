@@ -316,6 +316,13 @@ describe('paybackLoan success', () => {
 
     const bobLoanAccAfter = await bob.rpc.account.getAccount(bobloanAddr)
     expect(bobLoanAccAfter).toStrictEqual(['4.99995433@TSLA'])
+
+    // generate another 10 blocks and confirm that vaults does not accumulate interests once paid back fully
+    {
+      await bob.generate(10)
+      const vaultWayAfterPayback = await bob.container.call('getvault', [bobVaultId])
+      expect(vaultWayAfterPayback).toStrictEqual(vaultAfter)
+    }
   })
 
   it('should paybackLoan partially', async () => {
