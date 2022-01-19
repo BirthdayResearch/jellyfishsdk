@@ -13,9 +13,19 @@ afterAll(async () => {
 })
 
 it('', async () => {
-  const tokens = await playgroundTesting.rpc.token.listTokens()
-  console.log('tokens: ', tokens)
+  // const schemes = await playgroundTesting.rpc.loan.listLoanSchemes()
+  // console.log('schemes: ', schemes)
 
-  const schemes = await playgroundTesting.rpc.loan.listLoanSchemes()
-  console.log('schemes: ', schemes)
+  // const oracles = await playgroundTesting.rpc.oracle.listOracles()
+  // console.log('oracles: ', oracles)
+
+  const tokens = await playgroundTesting.rpc.token.listTokens()
+  // console.log('tokens: ', tokens)
+  console.log('tokens: ', Object.keys(tokens).length)
+
+  // const dex = await playgroundTesting.rpc.poolpair.listPoolPairs()
+  // console.log('dex: ', dex)
+
+  // const mns = await playgroundTesting.rpc.masternode.listMasternodes()
+  // console.log('mns: ', mns)
 })

@@ -150,7 +150,7 @@ export abstract class P2WPKHTxnBuilder {
 
     try {
       return await TransactionSigner.sign(transaction, inputs)
-    } catch (err) {
+    } catch (err: any) {
       throw new TxnBuilderError(TxnBuilderErrorType.SIGN_TRANSACTION_ERROR, err.message)
     }
   }
