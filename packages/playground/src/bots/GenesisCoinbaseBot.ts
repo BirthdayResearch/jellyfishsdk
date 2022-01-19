@@ -7,7 +7,6 @@ import { AppointOracle, OP_CODES, Script, CTransactionSegWit, TransactionSegWit,
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { OraclePriceFeed } from '@defichain/jellyfish-api-core/src/category/oracle'
 import { SmartBuffer } from 'smart-buffer'
-import { P2WPKH } from '@defichain/jellyfish-address'
 
 enum PriceDirection {
   UP_ABSOLUTE, // Always going up (absolute value)
@@ -50,11 +49,6 @@ interface SimulatedOracleFeed {
   amount: BigNumber
   change: BigNumber
   direction: PriceDirection
-}
-
-interface MasternodeSetup {
-  address: string
-  privKey: string
 }
 
 export class CoinbaseFeeRateProvider implements FeeRateProvider {
@@ -265,8 +259,7 @@ export class GenesisCoinbaseBot extends AbstractBot {
     await this.apiClient.call('generatetoaddress', [1, this.OWNER_ADDR, 1], 'number')
   }
 
-  async fund (amount: number, method?: string): Promise<void> {
-    // TODO(canonbrother): craft tx
+  async fund (amount: number): Promise<void> {
     await this.apiClient.wallet.sendToAddress(this.OWNER_ADDR, amount)
     await this.generateToAddress()
 
@@ -275,19 +268,7 @@ export class GenesisCoinbaseBot extends AbstractBot {
       1, 9999999, { addresses: [Bech32.fromPubKey(pubKey, 'bcrt')] }
     )
     if (unspent.length === 0) {
-      await this.fund(amount, 'dex')
-    }
-  }
-
-  /**
-   * @param {number} balance to wait for wallet to reach
-   */
-  protected async waitForBalance (balance: number): Promise<void> {
-    let current = await this.apiClient.wallet.getBalance()
-    while (current.lt(balance)) {
-      this.logger.info('waitForBalance', `current balance: ${current.toFixed(8)}, generate to balance: ${balance}`)
-      await this.generateToAddress()
-      current = await this.apiClient.wallet.getBalance()
+      await this.fund(amount)
     }
   }
 
@@ -811,45 +792,9 @@ export class GenesisCoinbaseBot extends AbstractBot {
     ]
 
     for (const each of list) {
-      await this.fund(1, 'dex')
+      await this.fund(1)
       const tx = await this.builder.dex.createPoolPair(each, script)
       await this.sendTransaction(tx)
-    }
-
-    await this.generateToAddress()
-  }
-
-  async setupMasterNodes (): Promise<void> {
-    const list: MasternodeSetup[] = [
-      {
-        address: 'bcrt1qda8rxjyepjcj6dx82sxce3srvv4h2qcz5pjzp0',
-        privKey: 'cPEKM7uMPJxbCpsjLfWuuwkQFP99DgEbBdmUX5xTppe2ibABuWWf'
-      },
-      {
-        address: 'bcrt1qg0ppznzvc6wkp263ldwsss3w4fmx0jkg98snff',
-        privKey: 'cPVwHKcMmE3YrJfdna8t33kiJfEg2oFjJSvHJimshj84xThqV9zi'
-      }
-    ]
-
-    await this.waitForBalance(20001)
-
-    const script = await this.providers.elliptic.script()
-
-    for (const each of list) {
-      // craft tx
-      await this.apiClient.wallet.importPrivKey(each.privKey)
-
-      await this.fund(3 + 0.00000755)
-
-      const addressDest: P2WPKH = P2WPKH.fromAddress(RegTest, each.address, P2WPKH)
-      const addressDestKeyHash = addressDest.pubKeyHash
-
-      const tx = await this.builder.masternode.create({
-        operatorType: 0x04,
-        operatorPubKeyHash: addressDestKeyHash
-      }, script)
-      const txid = await this.sendTransaction(tx)
-      console.log('txid: ', txid)
     }
 
     await this.generateToAddress()
@@ -864,7 +809,6 @@ export class GenesisCoinbaseBot extends AbstractBot {
     await this.setupCollateralTokens()
     await this.setupLoanTokens()
     await this.setupDex()
-    // await this.setupMasterNodes()
   }
 
   async sendTransaction (transaction: TransactionSegWit): Promise<string> {
