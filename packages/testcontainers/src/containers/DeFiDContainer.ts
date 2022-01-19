@@ -16,6 +16,12 @@ export interface StartOptions {
   user?: string
   password?: string
   timeout?: number
+  hardForks?: HardForkOptions[]
+}
+
+export interface HardForkOptions {
+  name: string
+  blockHeight: number
 }
 
 /**

@@ -6,7 +6,7 @@ import { TestingRawTx } from './rawtx'
 import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
 import { TestingGroupAnchor } from './anchor'
-import { ContainerGroup, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
@@ -105,8 +105,8 @@ export class TestingGroup {
     this.testings.push(testing)
   }
 
-  async start (): Promise<void> {
-    return await this.group.start()
+  async start (opts?: StartOptions): Promise<void> {
+    return await this.group.start(opts)
   }
 
   async stop (): Promise<void> {

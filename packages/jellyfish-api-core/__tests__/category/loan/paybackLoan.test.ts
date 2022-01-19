@@ -1,7 +1,7 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, HardForkOptions, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
-import { TestingGroup } from '@defichain/jellyfish-testing'
+import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { VaultActive } from '../../../src/category/loan'
 
@@ -824,5 +824,280 @@ describe('paybackLoan failed', () => {
     }, [utxo])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
+  })
+})
+
+describe('paybackLoan before FortCanningHeight', () => {
+  let tGroupFCH: TestingGroup
+  let loanTokenMinter: Testing
+  let testing: Testing
+  let colAddr: string
+  let vaultId: string
+  const tslaLoanAmount = 10
+
+  async function setupPreFCHContainer (): Promise<void> {
+    tGroupFCH = TestingGroup.create(2, i => new MasterNodeRegTestContainer(undefined, 'defi/defichain:2.3.2'))
+    const hardForks: HardForkOptions[] = [{ name: 'fortcanninghillheight', blockHeight: -1 }]
+    await tGroupFCH.start({ hardForks })
+    loanTokenMinter = tGroupFCH.get(0)
+    testing = tGroupFCH.get(1)
+    await tGroupFCH.start()
+    await loanTokenMinter.container.waitForWalletCoinbaseMaturity()
+    await tGroupFCH.waitForSync()
+  }
+
+  async function setupPostFCHContainer (): Promise<void> {
+    tGroupFCH = TestingGroup.create(2)
+    const hardForks: HardForkOptions[] = [{ name: 'fortcanninghillheight', blockHeight: 10 }]
+    await tGroupFCH.start({ hardForks })
+    loanTokenMinter = tGroupFCH.get(0)
+    testing = tGroupFCH.get(1)
+    await loanTokenMinter.container.waitForWalletCoinbaseMaturity()
+    await tGroupFCH.waitForSync()
+  }
+
+  async function setupVault (): Promise<void> {
+    const loanTokenColAddr = await loanTokenMinter.generateAddress()
+    colAddr = await testing.generateAddress()
+
+    await loanTokenMinter.token.dfi({ address: loanTokenColAddr, amount: 10000000 })
+    await loanTokenMinter.generate(1)
+    await tGroupFCH.waitForSync()
+    await testing.token.dfi({ address: colAddr, amount: 10000000 })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    const oracleAddress = await loanTokenMinter.generateAddress()
+    const priceFeeds = [
+      { token: 'DFI', currency: 'USD' },
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
+    ]
+    const prices = {
+      prices: [
+        { tokenAmount: '1@DFI', currency: 'USD' },
+        { tokenAmount: '1@DUSD', currency: 'USD' },
+        { tokenAmount: '2@TSLA', currency: 'USD' }
+      ]
+    }
+    const oracleId = await loanTokenMinter.rpc.oracle.appointOracle(oracleAddress, priceFeeds, { weightage: 1 })
+    await loanTokenMinter.generate(1)
+    await loanTokenMinter.rpc.oracle.setOracleData(oracleId, timestamp, prices)
+    await loanTokenMinter.generate(1)
+
+    // set up collateral and loan token
+    await loanTokenMinter.rpc.loan.setCollateralToken(
+      {
+        token: 'DFI',
+        factor: new BigNumber(1),
+        fixedIntervalPriceId: 'DFI/USD'
+      }
+    )
+    await loanTokenMinter.generate(1)
+
+    await loanTokenMinter.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await loanTokenMinter.generate(1)
+
+    await loanTokenMinter.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await loanTokenMinter.generate(1)
+
+    // create loan scheme
+    const schemeId = 'scheme'
+    await loanTokenMinter.rpc.loan.createLoanScheme(
+      {
+        minColRatio: 150,
+        interestRate: new BigNumber(3),
+        id: schemeId
+      })
+    await loanTokenMinter.generate(1)
+
+    // create loan token vault
+    const loanTokenVaultAddr = await loanTokenMinter.generateAddress()
+    const loanTokenVaultId = await loanTokenMinter.rpc.loan.createVault({
+      ownerAddress: loanTokenVaultAddr,
+      loanSchemeId: schemeId
+    })
+    await loanTokenMinter.generate(1)
+
+    // add dfi as collateral
+    await loanTokenMinter.rpc.loan.depositToVault({
+      vaultId: loanTokenVaultId, from: loanTokenColAddr, amount: '1000000@DFI'
+    })
+    await loanTokenMinter.generate(1)
+
+    // take TSLA as loan
+    await loanTokenMinter.rpc.loan.takeLoan({
+      vaultId: loanTokenVaultId,
+      to: loanTokenColAddr,
+      amounts: '10000@TSLA'
+    })
+    await loanTokenMinter.generate(1)
+
+    // take dusd as loan and create pool TSLA-DUSD
+    await loanTokenMinter.rpc.loan.takeLoan({
+      vaultId: loanTokenVaultId,
+      to: loanTokenColAddr,
+      amounts: '10000@DUSD'
+    })
+    await loanTokenMinter.generate(1)
+
+    // create TSLA-DUSD
+    await loanTokenMinter.poolpair.create({
+      tokenA: 'TSLA',
+      tokenB: 'DUSD',
+      ownerAddress: aliceColAddr
+    })
+    await loanTokenMinter.generate(1)
+
+    // add TSLA-DUSD
+    await loanTokenMinter.poolpair.add({
+      a: { symbol: 'TSLA', amount: 200 },
+      b: { symbol: 'DUSD', amount: 100 }
+    })
+    await loanTokenMinter.generate(1)
+
+    // create DUSD-DFI
+    await loanTokenMinter.poolpair.create({
+      tokenA: 'DUSD',
+      tokenB: 'DFI'
+    })
+    await loanTokenMinter.generate(1)
+
+    // add DUSD-DFI
+    await loanTokenMinter.poolpair.add({
+      a: { symbol: 'DUSD', amount: 250 },
+      b: { symbol: 'DFI', amount: 100 }
+    })
+
+    await loanTokenMinter.generate(1)
+    await tGroupFCH.waitForSync()
+
+    // transfer TSLA to other account
+    await loanTokenMinter.rpc.account.accountToAccount(loanTokenColAddr, { [colAddr]: '1000@TSLA' })
+    await loanTokenMinter.generate(1)
+    await tGroupFCH.waitForSync()
+
+    // create vault and take TSLA as loan
+    vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: colAddr,
+      loanSchemeId: schemeId
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultId, from: colAddr, amount: '1000000@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      to: colAddr,
+      amounts: `${tslaLoanAmount}@TSLA`
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+  }
+
+  afterEach(async () => {
+    await tGroupFCH.stop()
+  })
+
+  it('should fail with cannot payback loan amount when interest per block becomes negative pre Fort Canning Hill hardfork', async () => {
+    await setupPreFCHContainer()
+    await setupVault()
+
+    // payback loan
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    const promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nCannot payback this amount of loan for TSLA, either payback full amount or less than this amount!\', code: -32600, method: paybackloan')
+  })
+
+  it('should be able to payback loan post Fort Canning Hill hardfork', async () => {
+    await setupPostFCHContainer()
+    await setupVault()
+
+    // payback loan
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    const promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+
+    await expect(promise).resolves.not.toThrow()
   })
 })

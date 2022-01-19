@@ -17,7 +17,7 @@ export class RegTestContainer extends DeFiDContainer {
   }
 
   protected getCmd (opts: StartOptions): string[] {
-    return [...super.getCmd(opts),
+    const cmds = [...super.getCmd(opts),
       '-regtest=1',
       '-jellyfish_regtest=1',
       '-txnotokens=0',
@@ -36,6 +36,25 @@ export class RegTestContainer extends DeFiDContainer {
       '-fortcanningmuseumheight=9',
       '-fortcanninghillheight=10'
     ]
+
+    if (opts.hardForks != null && opts.hardForks.length > 0) {
+      opts.hardForks.forEach((hardFork) => {
+        const index = cmds.findIndex(cmd => {
+          const pattern = `-${hardFork.name}=`
+          const result = cmd.match(pattern)
+          return result
+        })
+
+        if (index != null) {
+          if (hardFork.blockHeight < 0) {
+            cmds.splice(index, 1)
+          } else {
+            cmds[index] = `-${hardFork.name}=${hardFork.blockHeight}`
+          }
+        }
+      })
+    }
+    return cmds
   }
 
   async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {
