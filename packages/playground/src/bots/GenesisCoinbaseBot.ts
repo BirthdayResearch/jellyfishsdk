@@ -176,13 +176,13 @@ export class GenesisCoinbaseBot extends AbstractBot {
   }
 
   async cycle (n: number): Promise<void> {
+    await this.setupOracleData()
   }
 
   async setup (): Promise<void> {
     await this.setupTokens()
     await this.setupLoanSchemes()
     await this.setupOracles()
-    // await new Promise(resolve => setInterval(() => resolve(this.setupOracleData()), 6000))
     await this.setupOracleData()
     await this.setupCollateralTokens()
     await this.setupLoanTokens()
