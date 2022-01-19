@@ -94,7 +94,7 @@ describe('dex.poolswap()', () => {
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
     // calculate swap
-    const dogSwapAmount = new BigNumber(tokenInitialLiquidity).minus(new BigNumber(tokenInitialLiquidity * tokenInitialLiquidity).dividedBy(new BigNumber(tokenInitialLiquidity + 10))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const dogSwapAmount = new BigNumber(tokenInitialLiquidity).minus(new BigNumber(tokenInitialLiquidity * tokenInitialLiquidity).dividedBy(new BigNumber(tokenInitialLiquidity + 10))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
     const reserveAAfter = new BigNumber(tokenInitialLiquidity).plus(10)
     const reserveBAfter = new BigNumber(tokenInitialLiquidity).minus(dogSwapAmount)
 
@@ -152,7 +152,7 @@ describe('dex.poolswap()', () => {
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
-    const pigSwapAmount = new BigNumber(20).minus(new BigNumber(100 * 20).dividedBy(new BigNumber(100 + 2))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const pigSwapAmount = new BigNumber(20).minus(new BigNumber(100 * 20).dividedBy(new BigNumber(100 + 2))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
     const reserveBAfter = new BigNumber(20).minus(pigSwapAmount)
     const reserveAAfter = new BigNumber(100 + 2)
     const accountPigBalanceAfter = pigSwapAmount.plus(2)

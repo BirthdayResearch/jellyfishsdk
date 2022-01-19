@@ -115,7 +115,7 @@ describe('poolSwap', () => {
     }
     await poolSwap(container, metadata)
 
-    const antSwapAmount = new BigNumber(200).minus(new BigNumber(10 * 200).dividedBy(new BigNumber(10 + 4))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const antSwapAmount = new BigNumber(200).minus(new BigNumber(10 * 200).dividedBy(new BigNumber(10 + 4))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
     const antReserveAfter = new BigNumber(200).minus(antSwapAmount)
     const dfiReserveAfter = new BigNumber(10 + 4)
 

@@ -132,8 +132,8 @@ describe('compositeSwap', () => {
       expect(toBalances.length).toStrictEqual(0)
     }
 
-    const intermediateDFIAmount = new BigNumber(10000).minus(new BigNumber(25000 * 10000).dividedBy(25000 + 123)).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    const dogSwapAmount = new BigNumber(28000).minus(new BigNumber(28000 * 10000).dividedBy(new BigNumber(10000).plus(intermediateDFIAmount))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const intermediateDFIAmount = new BigNumber(10000).minus(new BigNumber(25000 * 10000).dividedBy(25000 + 123)).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const dogSwapAmount = new BigNumber(28000).minus(new BigNumber(28000 * 10000).dividedBy(new BigNumber(10000).plus(intermediateDFIAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
     const metadata: poolpair.PoolSwapMetadata = {
       from: fromAddress,

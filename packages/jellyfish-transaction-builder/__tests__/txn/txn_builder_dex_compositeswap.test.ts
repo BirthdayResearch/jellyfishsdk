@@ -92,8 +92,8 @@ describe('dex.compositeSwap()', () => {
     await fundEllipticPair(container, providers.ellipticPair, 10)
 
     // simulate compositeSwap
-    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    const dogSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const dogSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
     const pigReserveAfter = new BigNumber(10 + 1)
     const dogReserveAfter = new BigNumber(50).minus(dogSwapAmount)
@@ -172,8 +172,8 @@ describe('dex.compositeSwap()', () => {
 
     // Perform SWAP
     // simulate compositeSwap
-    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    const fishSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const fishSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
     const catReserveAfter = new BigNumber(10 + 1)
     const fishReserveAfter = new BigNumber(50).minus(fishSwapAmount)

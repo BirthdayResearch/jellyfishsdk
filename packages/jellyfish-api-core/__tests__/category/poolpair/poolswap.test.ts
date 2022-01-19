@@ -51,7 +51,7 @@ describe('poolSwap', () => {
 
     await container.generate(1)
 
-    const swapAmount = new BigNumber(1000).minus(new BigNumber(1000 * 500).dividedBy(poolPairBefore.reserveB.plus(555))).decimalPlaces(8, BigNumber.ROUND_FLOOR) // swap result is floored even before minusing the reserve
+    const swapAmount = new BigNumber(1000).minus(new BigNumber(1000 * 500).dividedBy(poolPairBefore.reserveB.plus(555))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL) // swap result is floored even before minusing the reserve
     const reserveBAfter = poolPairBefore.reserveB.plus(555)
     const reserveAAfter = new BigNumber(1000).minus(swapAmount)
 
