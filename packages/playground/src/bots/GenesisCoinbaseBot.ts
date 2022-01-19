@@ -1,12 +1,12 @@
-import { AbstractBot } from '../AbstractBot'
-import { RegTestFoundationKeys, RegTest } from '@defichain/jellyfish-network'
-import { EllipticPairProvider, P2WPKHTransactionBuilder, FeeRateProvider, Prevout, PrevoutProvider } from '@defichain/jellyfish-transaction-builder'
 import BigNumber from 'bignumber.js'
-import { Bech32, Elliptic, EllipticPair, HASH160, WIF } from '@defichain/jellyfish-crypto'
-import { AppointOracle, OP_CODES, Script, CTransactionSegWit, TransactionSegWit, PoolCreatePair, SetLoanToken, SetCollateralToken } from '@defichain/jellyfish-transaction'
-import { ApiClient } from '@defichain/jellyfish-api-core'
-import { OraclePriceFeed } from '@defichain/jellyfish-api-core/src/category/oracle'
 import { SmartBuffer } from 'smart-buffer'
+import { AbstractBot } from '../AbstractBot'
+import { CoinbaseProviders } from '../providers'
+import { Bech32 } from '@defichain/jellyfish-crypto'
+import { RegTestFoundationKeys, RegTest } from '@defichain/jellyfish-network'
+import { P2WPKHTransactionBuilder } from '@defichain/jellyfish-transaction-builder'
+import { AppointOracle, CTransactionSegWit, TransactionSegWit, PoolCreatePair, SetLoanToken, SetCollateralToken } from '@defichain/jellyfish-transaction'
+import { OraclePriceFeed } from '@defichain/jellyfish-api-core/src/category/oracle'
 
 enum PriceDirection {
   UP_ABSOLUTE, // Always going up (absolute value)
@@ -49,114 +49,6 @@ interface SimulatedOracleFeed {
   amount: BigNumber
   change: BigNumber
   direction: PriceDirection
-}
-
-export class CoinbaseFeeRateProvider implements FeeRateProvider {
-  constructor (
-    public readonly apiClient: ApiClient
-  ) {
-  }
-
-  async estimate (): Promise<BigNumber> {
-    const result = await this.apiClient.mining.estimateSmartFee(1)
-    if (result.feerate === undefined || (result.errors !== undefined && result.errors.length > 0)) {
-      return new BigNumber('0.00005000')
-    }
-    return new BigNumber(result.feerate)
-  }
-}
-
-export class CoinbasePrevoutProvider implements PrevoutProvider {
-  constructor (
-    public readonly apiClient: ApiClient,
-    public ellipticPair: EllipticPair
-  ) {
-  }
-
-  async collect (minBalance: BigNumber): Promise<Prevout[]> {
-    const pubKey = await this.ellipticPair.publicKey()
-    const address = Bech32.fromPubKey(pubKey, 'bcrt')
-
-    const unspent: any[] = await this.apiClient.wallet.listUnspent(
-      1, 9999999, { addresses: [address] }
-    )
-
-    return unspent.map((utxo: any): Prevout => {
-      return CoinbasePrevoutProvider.mapPrevout(utxo, pubKey)
-    })
-  }
-
-  async all (): Promise<Prevout[]> {
-    const pubKey = await this.ellipticPair.publicKey()
-    const unspent: any[] = await this.apiClient.wallet.listUnspent(
-      1, 9999999, {
-        addresses: [Bech32.fromPubKey(pubKey, 'bcrt')]
-      })
-
-    return unspent.map((utxo: any): Prevout => {
-      return CoinbasePrevoutProvider.mapPrevout(utxo, pubKey)
-    })
-  }
-
-  static mapPrevout (utxo: any, pubKey: Buffer): Prevout {
-    return {
-      txid: utxo.txid,
-      vout: utxo.vout,
-      value: new BigNumber(utxo.amount),
-      script: {
-        stack: [
-          OP_CODES.OP_0,
-          OP_CODES.OP_PUSHDATA(HASH160(pubKey), 'little')
-        ]
-      },
-      tokenId: utxo.tokenId
-    }
-  }
-}
-
-export class CoinbaseEllipticPairProvider implements EllipticPairProvider {
-  constructor (
-    public ellipticPair: EllipticPair
-  ) {
-  }
-
-  async script (): Promise<Script> {
-    return {
-      stack: [
-        OP_CODES.OP_0,
-        OP_CODES.OP_PUSHDATA(HASH160(await this.ellipticPair.publicKey()), 'little')
-      ]
-    }
-  }
-
-  get (prevout: Prevout): EllipticPair {
-    return this.ellipticPair
-  }
-}
-
-export class CoinbaseProviders {
-  PRIV_KEY = RegTestFoundationKeys[RegTestFoundationKeys.length - 1].owner.privKey
-  fee: CoinbaseFeeRateProvider
-  prevout: CoinbasePrevoutProvider
-  elliptic: CoinbaseEllipticPairProvider
-  ellipticPair: EllipticPair = Elliptic.fromPrivKey(WIF.decode(this.PRIV_KEY).privateKey)
-
-  constructor (readonly apiClient: ApiClient) {
-    this.fee = new CoinbaseFeeRateProvider(apiClient)
-    this.elliptic = new CoinbaseEllipticPairProvider(this.ellipticPair)
-    this.prevout = new CoinbasePrevoutProvider(apiClient, this.ellipticPair)
-  }
-
-  setEllipticPair (ellipticPair: EllipticPair): void {
-    this.ellipticPair = ellipticPair
-    this.elliptic.ellipticPair = this.ellipticPair
-    this.prevout.ellipticPair = this.ellipticPair
-  }
-
-  async getAddress (): Promise<string> {
-    const pubKey = await this.ellipticPair.publicKey()
-    return Bech32.fromPubKey(pubKey, 'bcrt', 0x00)
-  }
 }
 
 export class GenesisCoinbaseBot extends AbstractBot {
@@ -270,6 +162,31 @@ export class GenesisCoinbaseBot extends AbstractBot {
     if (unspent.length === 0) {
       await this.fund(amount)
     }
+  }
+
+  async sendTransaction (transaction: TransactionSegWit): Promise<string> {
+    const buffer = new SmartBuffer()
+    new CTransactionSegWit(transaction).toBuffer(buffer)
+    const hex = buffer.toBuffer().toString('hex')
+    return await this.apiClient.rawtx.sendRawTransaction(hex)
+  }
+
+  async bootstrap (): Promise<void> {
+    await this.setup()
+  }
+
+  async cycle (n: number): Promise<void> {
+  }
+
+  async setup (): Promise<void> {
+    await this.setupTokens()
+    await this.setupLoanSchemes()
+    await this.setupOracles()
+    // await new Promise(resolve => setInterval(() => resolve(this.setupOracleData()), 6000))
+    await this.setupOracleData()
+    await this.setupCollateralTokens()
+    await this.setupLoanTokens()
+    await this.setupDex()
   }
 
   async setupTokens (): Promise<void> {
@@ -798,30 +715,5 @@ export class GenesisCoinbaseBot extends AbstractBot {
     }
 
     await this.generateToAddress()
-  }
-
-  async setup (): Promise<void> {
-    await this.setupTokens()
-    await this.setupLoanSchemes()
-    await this.setupOracles()
-    // await new Promise(resolve => setInterval(() => resolve(this.setupOracleData()), 6000))
-    await this.setupOracleData()
-    await this.setupCollateralTokens()
-    await this.setupLoanTokens()
-    await this.setupDex()
-  }
-
-  async sendTransaction (transaction: TransactionSegWit): Promise<string> {
-    const buffer = new SmartBuffer()
-    new CTransactionSegWit(transaction).toBuffer(buffer)
-    const hex = buffer.toBuffer().toString('hex')
-    return await this.apiClient.rawtx.sendRawTransaction(hex)
-  }
-
-  async bootstrap (): Promise<void> {
-    await this.setup()
-  }
-
-  async cycle (n: number): Promise<void> {
   }
 }
