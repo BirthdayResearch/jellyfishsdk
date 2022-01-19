@@ -643,14 +643,21 @@ describe('paybackLoan success', () => {
       to: dusdBobAddr,
       amounts: '19@DUSD'
     })
+
+    BigNumber.config({ DECIMAL_PLACES: 40 })
+
+    const dusdInterestPerBlock = new BigNumber(netInterest * 19).dividedBy(new BigNumber(365 * blocksPerDay))
+    const dusdInterestPerBlockFloored = dusdInterestPerBlock.decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const immatureInterest = dusdInterestPerBlock.minus(dusdInterestPerBlockFloored).multipliedBy(new BigNumber(1e8))
     await bob.generate(1)
 
     const interestBefore = await bob.container.call('getinterest', ['scheme', 'DUSD'])
     expect(interestBefore).toStrictEqual([
       {
         token: 'DUSD',
-        totalInterest: 0.00001085,
-        interestPerBlock: 0.00001085
+        immatureInterest: immatureInterest.decimalPlaces(16, BigNumber.ROUND_FLOOR).toNumber(),
+        totalInterest: dusdInterestPerBlock.multipliedBy(1).decimalPlaces(8, BigNumber.ROUND_CEIL).toNumber(),
+        interestPerBlock: dusdInterestPerBlock.decimalPlaces(8, BigNumber.ROUND_CEIL).toNumber()
       }
     ])
 
