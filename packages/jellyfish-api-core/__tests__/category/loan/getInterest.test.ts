@@ -135,10 +135,15 @@ describe('Loan getInterest', () => {
     expect(interests[2].token).toStrictEqual('AMZN')
 
     // calculate interest per block for TSLA
-    const netInterest = (3 + 0) / 100 // (scheme.rate + loanToken.interest) / 100
-    const blocksPerDay = (60 * 60 * 24) / (10 * 60) // 144 in regtest
-    const interestPerBlock = new BigNumber(netInterest * 1000 / (365.0 * blocksPerDay)) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
+    const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
+    const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
+    const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
+    const interestPerBlock = netInterest.multipliedBy(1000).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
+    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
+    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).multipliedBy(1e8).decimalPlaces(16, BN.ROUND_FLOOR)
+    // const interestPerBlock = new BigNumber(netInterest * 1000 / (365.0 * blocksPerDay)) //  netInterest * loan token amount(1000) / 365 * blocksPerDay
     // NOTE(surangap): with AIN/#991, after FCH, all interest figures and calculations are done and stored in 128 bit format internally, but it is ceiled to 64 bit(i.e CAmount precision) when responding to an external request.
+    expect(interests[0].immatureInterest.toString()).toStrictEqual(immatureInterest.toString())
     expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
