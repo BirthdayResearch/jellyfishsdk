@@ -2,7 +2,7 @@ import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../utils'
 import { MasterNodeRegTestContainer } from './Masternode'
 import { RegTestContainer } from './index'
-import { StartOptions } from '@defichain/testcontainers'
+import { StartOptions } from '../DeFiDContainer'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode
