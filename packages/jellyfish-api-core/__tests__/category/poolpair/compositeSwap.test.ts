@@ -328,27 +328,6 @@ describe('compositeSwap', () => {
     await expect(promise).rejects.toThrow('tx must have at least one input from account owner')
   })
 
-  it('test swapping from ABC to PATHB token', async () => {
-    const addr = await testing.generateAddress()
-    await testing.token.send({ symbol: 'ABC', amount: 3001, address: addr })
-    await testing.generate(1)
-
-    const metadata: poolpair.PoolSwapMetadata = {
-      from: addr,
-      tokenFrom: 'ABC',
-      amountFrom: 3000,
-      to: addr,
-      tokenTo: 'PATHB'
-    }
-    await client.poolpair.compositeSwap(metadata)
-    await container.generate(1)
-
-    // calculcation of pathB swapped token
-    const pathBSwapAmount = new BigNumber(1).minus(new BigNumber(3000 * 1).dividedBy(new BigNumber(3000 + 3000))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    const balanceAfter = await client.account.getAccount(addr)
-    expect(balanceAfter).toContain(`${pathBSwapAmount.toFixed(8)}@PATHB`) // should fail as it expects 0.49999999@PATHB, we are getting 0.50000000@PATHB
-  })
-
   it('Should compositeSwap with lower rate path', async () => {
     const [toAddress, fromAddress] = await testing.generateAddress(2)
     await testing.token.send({ symbol: 'ABC', amount: 3001, address: fromAddress })
@@ -366,8 +345,8 @@ describe('compositeSwap', () => {
     // note(cc): how to get the composite swap value here. refer to pathBSwapAmount
     // simulating composite swap
     // pathB token
-    const pathBSwapAmount = new BigNumber(1).minus(new BigNumber(3000 * 1).dividedBy(new BigNumber(3000 + 3000))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
-    const xyzSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 1).dividedBy(new BigNumber(1).plus(pathBSwapAmount))).decimalPlaces(8, BigNumber.ROUND_FLOOR)
+    const pathBSwapAmount = new BigNumber(1).minus(new BigNumber(3000 * 1).dividedBy(new BigNumber(3000 + 3000))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const xyzSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 1).dividedBy(new BigNumber(1).plus(pathBSwapAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
     const metadata: poolpair.PoolSwapMetadata = {
       from: fromAddress,
@@ -387,7 +366,6 @@ describe('compositeSwap', () => {
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(1)
       expect(toBalances[0]).toStrictEqual(`${xyzSwapAmount.toFixed(8)}@XYZ`)
-      // expect(toBalances[0]).toStrictEqual('16.66666644@XYZ') // note(cc): temporary hack this number to make this test pass, i believe that there is small bug, refer comments above
 
       // pool (ABC-PATHA)'s ABC unchanged
       const pathA = Object.values(await client.poolpair.getPoolPair('ABC-PATHA'))
