@@ -412,7 +412,7 @@ describe('paybackLoan success', () => {
     expect(bobColAccAfter).toStrictEqual(['27.00000000@TSLA']) // 40 - 13 = 27
 
     const loanDecreasedAfterPayback = new BigNumber(13).minus(tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const tslaInterestsPerBlockAfter = tslaInterestsPerBlockBefore.minus(loanDecreasedAfterPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const tslaInterestsPerBlockAfter = new BigNumber(40).minus(loanDecreasedAfterPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
 
     const interestAmountAfter = tslaInterestsPerBlockAfter.multipliedBy(2)
     const loanAmountAfter = tslaLoanAmountBefore.minus(13).plus(tslaInterestsPerBlockAfter.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)) // 2 blocks have been generated after payback loan
@@ -487,7 +487,7 @@ describe('paybackLoan success', () => {
     ])
 
     const loanDecreasedAfterPayback = new BigNumber(13).minus(tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const tslaInterestsPerBlockAfter = tslaInterestsPerBlockBefore.minus(loanDecreasedAfterPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const tslaInterestsPerBlockAfter = new BigNumber(40).minus(loanDecreasedAfterPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
 
     const interestAmountAfter = tslaInterestsPerBlockAfter.multipliedBy(2)
     const loanAmountAfter = tslaLoanAmountBefore.minus(13).plus(tslaInterestsPerBlockAfter.multipliedBy(2).decimalPlaces(8, BigNumber.ROUND_CEIL)) // 2 blocks have been generated after payback loan
@@ -596,16 +596,18 @@ describe('paybackLoan success', () => {
     await bob.generate(1)
 
     const tslaLoanDecreasedAfterFirstPayback = new BigNumber(tslaPaybackAmount).minus(tslaTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const tslaInterestPerBlockFirstPayback = tslaInterestPerBlockBefore.minus(tslaLoanDecreasedAfterFirstPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const tslaInterestPerBlockFirstPayback = new BigNumber(tslaAmt).minus(tslaLoanDecreasedAfterFirstPayback).multipliedBy(new BigNumber(netInterest)).dividedBy(new BigNumber(365 * blocksPerDay))
     const tslaInterestAmountAfterFirstPayback = tslaInterestPerBlockFirstPayback.multipliedBy(2)
-    const tslaLoanAmountAfterFirstPayback = new BigNumber(tslaLoanAmount).minus(tslaLoanDecreasedAfterFirstPayback).plus(tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const tslaLoanRemaining = new BigNumber(tslaLoanAmount).minus(tslaLoanDecreasedAfterFirstPayback)
+    const tslaLoanAmountAfterFirstPayback = tslaLoanRemaining.plus(tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const tslaLoanValueAfterFirstPayback = tslaLoanAmountAfterFirstPayback.multipliedBy(2)
     const tslaInterestValueAfterFirstPayback = tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
     const amznLoanDecreasedAfterFirstPayback = new BigNumber(amznPaybackAmount).minus(amznTotalInterestBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const amznInterestPerBlockFirstPayback = amznInterestPerBlockBefore.minus(amznLoanDecreasedAfterFirstPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const amznInterestPerBlockFirstPayback = new BigNumber(amznAmt).minus(amznLoanDecreasedAfterFirstPayback).multipliedBy(new BigNumber(netInterest)).dividedBy(new BigNumber(365 * blocksPerDay))
     const amznInterestAmountAfterFirstPayback = amznInterestPerBlockFirstPayback.multipliedBy(2)
-    const amznLoanAmountAfterFirstPayback = new BigNumber(amznLoanAmount).minus(amznLoanDecreasedAfterFirstPayback).plus(amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const amznLoanRemaining = new BigNumber(amznLoanAmount).minus(amznLoanDecreasedAfterFirstPayback)
+    const amznLoanAmountAfterFirstPayback = amznLoanRemaining.plus(amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const amznLoanValueAfterFirstPayback = amznLoanAmountAfterFirstPayback.multipliedBy(4)
     const amznInterestValueAfterFirstPayback = amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(4)
 
@@ -651,10 +653,10 @@ describe('paybackLoan success', () => {
     const interestsAfterSecondPayback = await bob.rpc.loan.getInterest('scheme')
 
     const tslaLoanDecreasedAfterSecondPayback = new BigNumber(tslaPaybackAmount).minus(tslaInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const tslaInterestPerBlockAfterSecondPayback = tslaInterestPerBlockFirstPayback.minus(tslaLoanDecreasedAfterSecondPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const tslaInterestPerBlockAfterSecondPayback = tslaLoanRemaining.minus(tslaLoanDecreasedAfterSecondPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
 
     const amznLoanDecreasedAfterSecondPayback = new BigNumber(amznPaybackAmount).minus(amznInterestAmountAfterFirstPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const amznInterestPerBlockAfterSecondPayback = amznInterestPerBlockFirstPayback.minus(amznLoanDecreasedAfterSecondPayback.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
+    const amznInterestPerBlockAfterSecondPayback = amznLoanRemaining.minus(amznLoanDecreasedAfterSecondPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
 
     const tslaInterestAfter = interestsAfterSecondPayback.find(i => i.token === 'TSLA')
     const tslaTotalInterestAfter = tslaInterestAfter?.totalInterest.toFixed(8)
