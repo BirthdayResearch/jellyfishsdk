@@ -648,14 +648,14 @@ describe('paybackLoan success', () => {
 
     const dusdInterestPerBlock = new BN(netInterest * 19).dividedBy(new BN(365 * blocksPerDay))
     const dusdInterestPerBlockFloored = dusdInterestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = dusdInterestPerBlock.minus(dusdInterestPerBlockFloored).multipliedBy(new BN(1e8))
+    const immatureInterest = dusdInterestPerBlock.minus(dusdInterestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
     await bob.generate(1)
 
     const interestBefore = await bob.container.call('getinterest', ['scheme', 'DUSD'])
     expect(interestBefore).toStrictEqual([
       {
         token: 'DUSD',
-        immatureInterest: immatureInterest.decimalPlaces(16, BN.ROUND_FLOOR).toNumber(),
+        immatureInterest: immatureInterest.toNumber(),
         totalInterest: dusdInterestPerBlock.multipliedBy(1).decimalPlaces(8, BN.ROUND_CEIL).toNumber(),
         interestPerBlock: dusdInterestPerBlock.decimalPlaces(8, BN.ROUND_CEIL).toNumber()
       }

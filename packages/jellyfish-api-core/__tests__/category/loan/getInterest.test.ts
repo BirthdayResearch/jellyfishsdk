@@ -140,7 +140,7 @@ describe('Loan getInterest', () => {
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
     const interestPerBlock = netInterest.multipliedBy(1000).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
     const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).multipliedBy(1e8).decimalPlaces(16, BN.ROUND_FLOOR)
+    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
     expect(interests[0].immatureInterest.toString()).toStrictEqual(immatureInterest.toString())
     expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
