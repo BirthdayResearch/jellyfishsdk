@@ -21,6 +21,34 @@ export abstract class DockerContainer {
     return networks[name].IPAddress
   }
 
+  async listNetworks (): Promise<Dockerode.NetworkInspectInfo[]> {
+    return await this.docker.listNetworks()
+  }
+
+  async getNetwork (id: string): Promise<Dockerode.Network> {
+    return this.docker.getNetwork(id)
+  }
+
+  async createNetwork (name: string): Promise<void> {
+    await this.docker.createNetwork({
+      Name: name,
+      IPAM: {
+        Driver: 'default',
+        Config: []
+      }
+    })
+  }
+
+  async connectNetwork (id: string): Promise<void> {
+    const network = await this.getNetwork(id)
+    await network.connect({ Container: this.id })
+  }
+
+  async removeNetwork (id: string): Promise<void> {
+    const network = await this.getNetwork(id)
+    await network.remove(id)
+  }
+
   /**
    * Try pull docker image if it doesn't already exist.
    */
