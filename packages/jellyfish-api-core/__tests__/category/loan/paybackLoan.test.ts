@@ -845,12 +845,12 @@ describe('paybackloan for dusd using dfi', () => {
     await testing.generate(1)
 
     // take DUSD as loan
-    const dusdTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
       amounts: `${dusdLoanAmount}@DUSD`,
       to: vaultOwnerAddress
     })
+    const dusdTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.generate(1)
 
     dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
@@ -885,13 +885,13 @@ describe('paybackloan for dusd using dfi', () => {
   }
 
   beforeEach(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
     await setupForDUSDLoan()
   })
 
   afterEach(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should be able to payback DUSD loan using DFI', async () => {
