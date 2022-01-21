@@ -846,9 +846,9 @@ describe('paybackLoan before FortCanningHeight', () => {
   let vaultId: string
   const tslaLoanAmount = 10
 
-  async function setupPreFCHContainer (): Promise<void> {
+  async function setupPreFCHContainer (fchBlockHeight: number): Promise<void> {
     tGroupFCH = TestingGroup.create(2)
-    const hardForks: HardForkOptions[] = [{ name: 'fortcanninghillheight', blockHeight: 1000000 }]
+    const hardForks: HardForkOptions[] = [{ name: 'fortcanninghillheight', blockHeight: fchBlockHeight }]
     await tGroupFCH.start({ hardForks })
     loanTokenMinter = tGroupFCH.get(0)
     testing = tGroupFCH.get(1)
@@ -1020,8 +1020,9 @@ describe('paybackLoan before FortCanningHeight', () => {
     await tGroupFCH.stop()
   })
 
-  it('should fail with cannot payback loan amount when interest per block becomes negative pre Fort Canning Hill hardfork', async () => {
-    await setupPreFCHContainer()
+  it('should fail with cannot payback loan amount when interest per block becomes negative pre Fort Canning Hill hardfork and able to payback post FCH after block 150', async () => {
+    const fchBlockHeight = 150
+    await setupPreFCHContainer(fchBlockHeight)
     await setupVault()
 
     // payback loan
@@ -1063,6 +1064,80 @@ describe('paybackLoan before FortCanningHeight', () => {
       from: colAddr
     })
 
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nCannot payback this amount of loan for TSLA, either payback full amount or less than this amount!\', code: -32600, method: paybackloan')
+
+    await testing.container.waitForBlockHeight(fchBlockHeight)
+    const blockInfo = await testing.rpc.blockchain.getBlockchainInfo()
+    expect(blockInfo.softforks.fortcanninghill.active).toBeTruthy()
+
+    // payback loan
+    const successfulPaybackPromise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await expect(successfulPaybackPromise).resolves.not.toThrow()
+  })
+
+  it('should fail pre FCH even after block 150', async () => {
+    const fchBlockHeight = 10000
+    await setupPreFCHContainer(fchBlockHeight)
+    await setupVault()
+
+    // payback loan
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+    await testing.generate(1)
+    await tGroupFCH.waitForSync()
+
+    const blockHeight = await testing.rpc.blockchain.getBlockCount()
+    console.log(blockHeight)
+
+    let promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nCannot payback this amount of loan for TSLA, either payback full amount or less than this amount!\', code: -32600, method: paybackloan')
+
+    await testing.container.waitForBlockHeight(150)
+    const blockInfo = await testing.rpc.blockchain.getBlockchainInfo()
+    expect(blockInfo.softforks.fortcanninghill.active).not.toBeTruthy()
+
+    // payback loan
+    promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '2@TSLA',
+      from: colAddr
+    })
     await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nCannot payback this amount of loan for TSLA, either payback full amount or less than this amount!\', code: -32600, method: paybackloan')
   })
 
