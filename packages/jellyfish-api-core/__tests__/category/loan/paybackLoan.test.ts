@@ -374,7 +374,7 @@ describe('paybackLoan success', () => {
     expect(vaultAfter.informativeRatio).toStrictEqual(27777.73842598)
 
     const burnInfoAfter = await bob.container.call('getburninfo')
-    expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000457)
+    expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000456)
   })
 
   it('should paybackLoan by anyone', async () => {
@@ -488,7 +488,7 @@ describe('paybackLoan success', () => {
       expect(loanTokenAccAfter).toStrictEqual(['27.00000000@TSLA', '9.00000000@AMZN'])
 
       const burnInfoAfter = await bob.container.call('getburninfo')
-      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00001)
+      expect(burnInfoAfter.paybackburn).toStrictEqual(0.00000998)
     }
 
     // second paybackLoan
@@ -891,48 +891,29 @@ describe('paybackloan for dusd using dfi', () => {
     await testing.container.stop()
   })
 
-  it('should not payback DUSD loan using DFI when attribute is not enabled in setGov', async () => {
-    let attribute = await testing.rpc.masternode.getGov(attributeKey)
-    // eslint-disable-next-line no-prototype-builtins
-    let isEnabledDfiPayback = (Boolean(attribute[attributeKey].hasOwnProperty(key))) && attribute[attributeKey][key] === 'true'
-    expect(isEnabledDfiPayback).not.toBeTruthy()
-
-    const dfiPaybackAmount = 100
-    let promise = testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      amounts: `${dfiPaybackAmount}@DFI`,
-      from: vaultOwnerAddress
-    })
-
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of DUSD loans with DFI not currently active\', code: -32600, method: paybackloan')
-
-    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
-    await testing.container.generate(1)
-    attribute = await testing.rpc.masternode.getGov(attributeKey)
-    // eslint-disable-next-line no-prototype-builtins
-    isEnabledDfiPayback = (Boolean(attribute[attributeKey].hasOwnProperty(key))) && attribute[attributeKey][key] === 'true'
-    expect(isEnabledDfiPayback).not.toBeTruthy()
-
-    promise = testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      amounts: `${dfiPaybackAmount}@DFI`,
-      from: vaultOwnerAddress
-    })
-
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of DUSD loans with DFI not currently active\', code: -32600, method: paybackloan')
-  })
-
-  it('should be able to payback DUSD loan using DFI after enabled in setGov and repay correctly after penalty rate has changed', async () => {
+  it('should be able to payback DUSD loan using DFI after enabled in setGov and repay correctly after penalty rate has changed, TSLA loan unaffected', async () => {
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
     await testing.generate(1)
 
-    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    // take loan for tsla to ensure it is unaffected
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: `${tslaLoanAmount}@TSLA`
+    })
+    const tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.generate(1)
+
     const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL) // need to remove .decimalPlaces(8, BigNumber.ROUND_CEIL) after HIPC
     const dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(blockHeightBefore - dusdTakeLoanBlockHeight))
     const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
+    const tslaInterestPerBlock = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay))
+    const tslaInterestAmountBefore = tslaInterestPerBlock.multipliedBy(new BigNumber(blockHeightBefore - tslaTakeLoanBlockHeight))
+    const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
     const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`])
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`, `${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
 
     const dfiPaybackAmount = 100
     let paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
@@ -955,8 +936,10 @@ describe('paybackloan for dusd using dfi', () => {
     const dusdLoanRemainingAfterFirstPayback = new BigNumber(dusdLoanAmount).minus(dusdLoanDecreased)
     const dusdLoanAmountAfter = dusdLoanRemainingAfterFirstPayback.plus(dusdInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
+    const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight).decimalPlaces(8, BigNumber.ROUND_CEIL))
+
     const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
+    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`, `${tslaLoanAmountAfter.toFixed(8)}@TSLA`])
 
     // change penalty rate to 10% and payback
     const penaltyRateKey = `v0/token/${dusdId}/payback_dfi_fee_pct`
@@ -981,11 +964,13 @@ describe('paybackloan for dusd using dfi', () => {
     const dusdInterestAmountAfterSecondPayback = dusdInterestPerBlockAfterSecondPayback.multipliedBy(currentBlockHeight - paybackLoanBlockHeight)
     const dusdLoanAmountAfterSecondPayback = dusdLoanRemainingAfterFirstPayback.minus(dusdLoanDecreasedAfterSecondPayback).plus(dusdInterestAmountAfterSecondPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
+    const tslaLoanAmountAfterSecondPayback = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight).decimalPlaces(8, BigNumber.ROUND_CEIL))
+
     const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
     const tmp = dusdLoanAmountAfterSecondPayback.minus(0.00000001)
-    expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${tmp.toFixed(8)}@DUSD`])
+    expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${tmp.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
     // to re-enable after merging with HPIC
-    // expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`])
+    // expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
   })
 
   it('should be able to payback DUSD loan using DFI with excess DFI', async () => {
@@ -1018,6 +1003,37 @@ describe('paybackloan for dusd using dfi', () => {
     const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfter.loanAmounts).toStrictEqual([])
     expect(vaultAfter.interestAmounts).toStrictEqual([])
+  })
+
+  it('should not payback DUSD loan using DFI when attribute is not enabled in setGov', async () => {
+    let attribute = await testing.rpc.masternode.getGov(attributeKey)
+    // eslint-disable-next-line no-prototype-builtins
+    let isEnabledDfiPayback = (Boolean(attribute[attributeKey].hasOwnProperty(key))) && attribute[attributeKey][key] === 'true'
+    expect(isEnabledDfiPayback).not.toBeTruthy()
+
+    const dfiPaybackAmount = 100
+    let promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: `${dfiPaybackAmount}@DFI`,
+      from: vaultOwnerAddress
+    })
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of DUSD loans with DFI not currently active\', code: -32600, method: paybackloan')
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
+    await testing.container.generate(1)
+    attribute = await testing.rpc.masternode.getGov(attributeKey)
+    // eslint-disable-next-line no-prototype-builtins
+    isEnabledDfiPayback = (Boolean(attribute[attributeKey].hasOwnProperty(key))) && attribute[attributeKey][key] === 'true'
+    expect(isEnabledDfiPayback).not.toBeTruthy()
+
+    promise = testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: `${dfiPaybackAmount}@DFI`,
+      from: vaultOwnerAddress
+    })
+
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of DUSD loans with DFI not currently active\', code: -32600, method: paybackloan')
   })
 
   it('should not be able to payback TSLA loan using DFI', async () => {
