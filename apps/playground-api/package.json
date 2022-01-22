@@ -15,14 +15,11 @@
     "build": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
-    "@defichain/jellyfish-address": "^2.13.0",
-    "@defichain/jellyfish-api-core": "^2.13.0",
-    "@defichain/jellyfish-api-jsonrpc": "^2.13.0",
-    "@defichain/jellyfish-crypto": "^2.13.0",
-    "@defichain/jellyfish-testing": "^2.13.0",
-    "@defichain/jellyfish-transaction": "^2.13.0",
-    "@defichain/jellyfish-transaction-builder": "^2.13.0",
-    "@defichain/testcontainers": "^2.13.0",
+    "@defichain/playground-api-client": "0.0.0",
+    "@defichain/jellyfish-api-core": "0.0.0",
+    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
+    "@defichain/jellyfish-testing": "0.0.0",
+    "@defichain/testcontainers": "0.0.0",
     "@nestjs/common": "^8.2.4",
     "@nestjs/config": "^1.1.5",
     "@nestjs/core": "^8.2.4",
@@ -30,22 +27,14 @@
     "@nestjs/schedule": "^1.0.2",
     "@nestjs/terminus": "^8.0.3",
     "bignumber.js": "^9.0.2",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.13.2",
-    "defichain": "^2.13.0",
-    "joi": "^17.5.0",
-    "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
     "rxjs": "^7.5.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.1.6",
     "@nestjs/schematics": "^8.0.5",
-    "@nestjs/testing": "^8.2.4",
-    "@types/cron": "^1.7.3",
-    "@types/dockerode": "^3.2.7",
-    "@types/jest": "^27.4.0",
-    "@types/lossless-json": "^1.0.1",
-    "@types/node": "^14.14.36"
+    "@nestjs/testing": "^8.2.4"
+  },
+  "peerDependencies": {
+    "defichain": "^0.0.0"
   }
 }
