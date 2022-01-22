@@ -1,4 +1,4 @@
-import { TimeoutException } from '@defichain/ocean-api-client'
+import { TimeoutException } from '@defichain/playground-api-client'
 
 it('TimeoutException should format message with timeout message', () => {
   const exception = new TimeoutException(3000)

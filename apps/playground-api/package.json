@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@defichain/playground-api-client": "0.0.0",
+    "@defichain/jellyfish-address": "0.0.0",
     "@defichain/jellyfish-api-core": "0.0.0",
     "@defichain/jellyfish-api-jsonrpc": "0.0.0",
     "@defichain/jellyfish-testing": "0.0.0",

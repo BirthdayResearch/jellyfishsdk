@@ -7,7 +7,7 @@ import {
   Logger,
   ServiceUnavailableException
 } from '@nestjs/common'
-import { ApiError, ApiErrorType, ApiException } from '@defichain/ocean-api-client'
+import { ApiError, ApiErrorType, ApiException } from '@defichain/playground-api-client'
 
 @Catch()
 export class ErrorFilter implements ExceptionFilter {

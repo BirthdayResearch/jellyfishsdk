@@ -3,7 +3,7 @@ import { StubServer } from './StubServer'
 
 /**
  * Client stubs are simulations of a real client, which are used for functional testing.
- * StubClient simulate a real PlaygroundApiClient connected to an Ocean API.
+ * StubClient simulate a real PlaygroundApiClient connected to an Playground API.
  */
 export class StubClient extends PlaygroundApiClient {
   constructor (readonly service: StubServer) {

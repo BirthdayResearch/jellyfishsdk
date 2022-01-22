@@ -1,5 +1,5 @@
 import { HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common'
-import { ApiErrorType, ApiValidationException, ApiValidationProperty } from '@defichain/ocean-api-client'
+import { ApiErrorType, ApiValidationException, ApiValidationProperty } from '@defichain/playground-api-client'
 
 export class GlobalValidationPipe extends ValidationPipe {
   constructor () {
