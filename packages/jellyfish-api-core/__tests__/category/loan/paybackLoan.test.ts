@@ -1,5 +1,5 @@
 import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys, HardForkOptions } from '@defichain/testcontainers'
+import { GenesisKeys, StartFlags } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
@@ -848,8 +848,8 @@ describe('paybackLoan before FortCanningHeight', () => {
 
   async function setupFCHContainer (fchBlockHeight: number): Promise<void> {
     tGroupFCH = TestingGroup.create(2)
-    const hardForks: HardForkOptions[] = [{ name: 'fortcanninghillheight', blockHeight: fchBlockHeight }]
-    await tGroupFCH.start({ hardForks })
+    const startFlags: StartFlags[] = [{ name: 'fortcanninghillheight', value: fchBlockHeight }]
+    await tGroupFCH.start({ startFlags: startFlags })
     loanTokenMinter = tGroupFCH.get(0)
     testing = tGroupFCH.get(1)
     await loanTokenMinter.container.waitForWalletCoinbaseMaturity()

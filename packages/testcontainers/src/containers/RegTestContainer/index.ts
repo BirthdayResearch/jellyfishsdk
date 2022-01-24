@@ -37,21 +37,9 @@ export class RegTestContainer extends DeFiDContainer {
       '-fortcanninghillheight=10'
     ]
 
-    if (opts.hardForks != null && opts.hardForks.length > 0) {
-      opts.hardForks.forEach((hardFork) => {
-        const index = cmds.findIndex(cmd => {
-          const pattern = `-${hardFork.name}=`
-          const result = cmd.match(pattern)
-          return result
-        })
-
-        if (index != null) {
-          if (hardFork.blockHeight < 0) {
-            cmds.splice(index, 1)
-          } else {
-            cmds[index] = `-${hardFork.name}=${hardFork.blockHeight}`
-          }
-        }
+    if (opts.startFlags != null && opts.startFlags.length > 0) {
+      opts.startFlags.forEach((flag) => {
+        cmds.push(`-${flag.name}=${flag.value}`)
       })
     }
     return cmds

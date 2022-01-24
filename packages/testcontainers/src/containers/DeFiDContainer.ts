@@ -16,12 +16,12 @@ export interface StartOptions {
   user?: string
   password?: string
   timeout?: number
-  hardForks?: HardForkOptions[]
+  startFlags?: StartFlags[]
 }
 
-export interface HardForkOptions {
+export interface StartFlags {
   name: string
-  blockHeight: number
+  value: number
 }
 
 /**
