@@ -870,11 +870,11 @@ describe('paybackloan for dusd using dfi', () => {
     })
     await testing.generate(1)
 
-    tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
       vaultId: tslaVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
     })
+    tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.generate(1)
   }
 
