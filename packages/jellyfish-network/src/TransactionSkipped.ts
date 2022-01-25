@@ -1,6 +1,6 @@
 import { Network } from './Network'
 
-const MainNetSkippedTxId = new Set([
+const MainNetSkippedTxIds = new Set([
   'ffcafd71820269ffe9cbecc12619154a3c5b272f1437d4e0242ff73d2bf09e4e',
   '4218d310d9a67b5e9a93d2a9ecf17bd70bda7a3670191efbc755b05c5fb8a6a4',
   'e189126e56b85e66144c93b7c2d91baaa2680aed62fed09d3ea954a995d0a8d1',
@@ -346,7 +346,7 @@ const MainNetSkippedTxId = new Set([
   '7a1001461506e3b5a4de3c3de74a1a838ab6b6d1530042ff9bd802e6bda90e91'
 ])
 
-const TestNetSkippedTxId = new Set([
+const TestNetSkippedTxIds = new Set([
   '6c8eaa51142b069305e07aea0ee247a467f1fc7d1378428005b8034e069e8cda',
   '9dbd8e2f2f331e0d314968baedaf49065e45fbd0316c95e8e1e02548437a76f4',
   '4f5f620484e5359eafb9fe799b568a59ca75202bfe6aa1546c54820c99889437',
@@ -364,10 +364,10 @@ const TestNetSkippedTxId = new Set([
 
 export function isSkippedTxId (txId: string, network: Network['name'] = 'mainnet'): boolean {
   if (network === 'mainnet') {
-    return MainNetSkippedTxId.has(txId)
+    return MainNetSkippedTxIds.has(txId)
   }
   if (network === 'testnet') {
-    return TestNetSkippedTxId.has(txId)
+    return TestNetSkippedTxIds.has(txId)
   }
   return false
 }
