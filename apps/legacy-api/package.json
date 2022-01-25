@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "@defichain-apps/legacy-api",
+  "version": "0.0.0",
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^8.2.5",
+    "@nestjs/core": "^8.2.5",
+    "@nestjs/config": "^1.1.6"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^8.2.0",
+    "@nestjs/schematics": "^8.0.5",
+    "@nestjs/testing": "^8.2.5",
+    "@nestjs/platform-fastify": "^8.2.6"
+  }
+}
