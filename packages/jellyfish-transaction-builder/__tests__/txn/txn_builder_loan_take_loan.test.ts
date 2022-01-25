@@ -594,7 +594,7 @@ describe('loans.takeLoan failed', () => {
     await expect(promise).rejects.toThrow('TakeLoanTx: No live fixed prices for GOOGL/USD')
   })
 
-  it('should not takeLoan when DFI collateral value less than 50% of loan value', async () => {
+  it('should not takeLoan when DFI collateral value less than 50% of the minimum required collateral', async () => {
     {
       const now = Math.floor(new Date().getTime() / 1000)
       await alice.rpc.oracle.setOracleData(
