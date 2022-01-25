@@ -222,9 +222,9 @@ async function setup (): Promise<void> {
     amounts: `${tslaLoanAmount}@TSLA`,
     to: bobLoanAddr
   })
+  await bob.generate(1)
   const tslaInterestPerBlock = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay))
   const tslaTakeLoanBlockHeight = await bob.rpc.blockchain.getBlockCount()
-  await bob.generate(1)
 
   const blockBeforeInfo = await bob.rpc.blockchain.getBlockchainInfo()
 
@@ -276,7 +276,7 @@ async function setup (): Promise<void> {
   const vaultBefore = await bob.container.call('getvault', [bobVaultId])
 
   const currentHeight = await bob.rpc.blockchain.getBlockCount()
-  const tslaTotalInterest = tslaInterestPerBlock.multipliedBy(currentHeight - tslaTakeLoanBlockHeight)
+  const tslaTotalInterest = tslaInterestPerBlock.multipliedBy(currentHeight - tslaTakeLoanBlockHeight + 1)
   const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaTotalInterest.decimalPlaces(8, BigNumber.ROUND_CEIL))
   const tslaLoanValueBefore = tslaLoanAmountBefore.multipliedBy(2) // tsla price before = 2
   const tslaTotalInterestValue = tslaTotalInterest.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2) // tsla price before = 2
