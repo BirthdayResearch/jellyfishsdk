@@ -904,7 +904,7 @@ describe('paybackloan for dusd using dfi', () => {
     await testing.generate(1)
 
     const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
-    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL) // need to remove .decimalPlaces(8, BigNumber.ROUND_CEIL) after HIPC
+    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
     const dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(blockHeightBefore - dusdTakeLoanBlockHeight))
     const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
@@ -967,17 +967,17 @@ describe('paybackloan for dusd using dfi', () => {
     const tslaLoanAmountAfterSecondPayback = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight).decimalPlaces(8, BigNumber.ROUND_CEIL))
 
     const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    const tmp = dusdLoanAmountAfterSecondPayback.minus(0.00000001)
-    expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${tmp.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
+    // const tmp = dusdLoanAmountAfterSecondPayback.minus(0.00000001)
+    // expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${tmp.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
     // to re-enable after merging with HPIC
-    // expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
+    expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
   })
 
   it('should be able to payback DUSD loan using DFI with excess DFI', async () => {
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
     await testing.generate(1)
 
-    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
     const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     const dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(paybackLoanBlockHeight - dusdTakeLoanBlockHeight))
     const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
@@ -998,7 +998,7 @@ describe('paybackloan for dusd using dfi', () => {
     await testing.generate(1)
     const balanceDFIAfter = new BigNumber(900000).minus(dfiNeededToPayOffDusd)
     const accountAfter = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
-    expect(accountAfter).toContain(`${balanceDFIAfter.toFixed()}@DFI`)
+    expect(accountAfter).toContain(`${balanceDFIAfter.toFixed(8)}@DFI`)
 
     const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfter.loanAmounts).toStrictEqual([])
