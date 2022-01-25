@@ -435,7 +435,7 @@ describe('loans.takeLoan failed', () => {
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
-      tokenAmounts: [{ token: 2, amount: new BigNumber(300000) }]
+      tokenAmounts: [{ token: 2, amount: new BigNumber(5000) }]
     }, script)
 
     const promise = sendTransaction(bob.container, txn)
