@@ -967,9 +967,6 @@ describe('paybackloan for dusd using dfi', () => {
     const tslaLoanAmountAfterSecondPayback = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight).decimalPlaces(8, BigNumber.ROUND_CEIL))
 
     const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    // const tmp = dusdLoanAmountAfterSecondPayback.minus(0.00000001)
-    // expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${tmp.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
-    // to re-enable after merging with HPIC
     expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
   })
 
