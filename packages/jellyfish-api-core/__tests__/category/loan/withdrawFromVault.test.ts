@@ -302,10 +302,6 @@ describe('Loan', () => {
       // collateral = 10,000 dfi , 10,000*0.5 (col factor) usd + 0.1btc, 5,000usd
       // after withdraw:
       // 10,000-7000 < (4000+interest)*1.5/2, 3000 < (3000 + interest)
-
-      const vault = await tGroup.get(0).rpc.loan.getVault(vaultId3)
-      console.log(JSON.stringify(vault))
-
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
         to: await tGroup.get(0).generateAddress(),
@@ -367,9 +363,6 @@ describe('Loan', () => {
       // tsla price to liquidate = 10000/2000  = 5
       await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '5.5@TSLA', currency: 'USD' }] })
       await tGroup.get(0).generate(13)
-
-      const vault = await tGroup.get(0).rpc.loan.getVault(vaultId3)
-      console.log(JSON.stringify(vault))
 
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
