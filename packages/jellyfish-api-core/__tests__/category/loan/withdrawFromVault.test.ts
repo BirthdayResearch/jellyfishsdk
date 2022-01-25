@@ -299,9 +299,12 @@ describe('Loan', () => {
 
     it('should not withdrawFromVault cause DFI less than 50% of total collateral value', async () => {
       // loan amount = 2000Tsla, 4,000 usd
-      // collateral = 10,000 dfi , 10,000usd + 0.1btc, 10,000usd
+      // collateral = 10,000 dfi , 10,000*0.5 (col factor) usd + 0.1btc, 5,000usd
       // after withdraw:
       // 10,000-7000 < (4000+interest)*1.5/2, 3000 < (3000 + interest)
+
+      const vault = await tGroup.get(0).rpc.loan.getVault(vaultId3)
+      console.log(JSON.stringify(vault))
 
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
@@ -315,7 +318,7 @@ describe('Loan', () => {
 
     it('should not withdrawFromVault when DFI is already less than 50% of total collateral value', async () => {
       // loan value = 4000 usd + interest
-      // current collateral value = 10,000usd (dfi) + 10,000usd(btc)
+      // current collateral value = 10,000usd (dfi) + 10,000usd(btc) * 0.5
       // new dfi price 0.3
       // dfi collateral value = 3000usd
       // 3000 < (4000+interest) * 1.5/2 , 3000 < (3000 + interest)
@@ -360,10 +363,13 @@ describe('Loan', () => {
     it('should not withdrawFromVault liquidated vault', async () => {
       // trigger liquidation
       // current loan value = 4000usd
-      // max loan available to borrow  = 20,000/1.5 = 13333.333
-      // tsla price to liquidate = 13333.33/2000  = 6.65
-      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '6.65@TSLA', currency: 'USD' }] })
+      // max loan available to borrow  = (10,000 + 10,000 *0.5 (col factor))/1.5 = 10000
+      // tsla price to liquidate = 10000/2000  = 5
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '5.5@TSLA', currency: 'USD' }] })
       await tGroup.get(0).generate(13)
+
+      const vault = await tGroup.get(0).rpc.loan.getVault(vaultId3)
+      console.log(JSON.stringify(vault))
 
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
