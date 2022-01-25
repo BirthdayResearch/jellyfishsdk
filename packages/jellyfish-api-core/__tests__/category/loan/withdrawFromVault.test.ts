@@ -142,7 +142,7 @@ describe('Loan', () => {
       await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }] })
       await tGroup.get(0).rpc.loan.takeLoan({
         vaultId: vaultId3,
-        amounts: '100@TSLA'
+        amounts: '2000@TSLA'
       })
       await tGroup.get(0).generate(1)
     }
@@ -298,20 +298,30 @@ describe('Loan', () => {
     })
 
     it('should not withdrawFromVault cause DFI less than 50% of total collateral value', async () => {
+      // loan amount = 2000Tsla, 4,000 usd
+      // collateral = 10,000 dfi , 10,000usd + 0.1btc, 10,000usd
+      // after withdraw:
+      // 10,000-7000 < (4000+interest)*1.5/2, 3000 < (3000 + interest)
+
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
         vaultId: vaultId3,
         to: await tGroup.get(0).generateAddress(),
-        amount: '6000@DFI' // $4000 of DFI vs $5000 of BTC (tested with 5001, do not work, there are extra margin)
+        amount: '7000@DFI'
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+      await expect(promise).rejects.toThrow('At least 50% of the collateral must be in DFI')
     })
 
     it('should not withdrawFromVault when DFI is already less than 50% of total collateral value', async () => {
+      // loan value = 4000 usd + interest
+      // current collateral value = 10,000usd (dfi) + 10,000usd(btc)
+      // new dfi price 0.3
+      // dfi collateral value = 3000usd
+      // 3000 < (4000+interest) * 1.5/2 , 3000 < (3000 + interest)
       {
         // reduce DFI value to below 50%
-        await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.4999@DFI', currency: 'USD' }] })
+        await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '0.3@DFI', currency: 'USD' }] })
         await tGroup.get(0).generate(12)
       }
 
@@ -322,7 +332,7 @@ describe('Loan', () => {
       })
 
       await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+      await expect(promise).rejects.toThrow('At least 50% of the collateral must be in DFI')
 
       {
         // revert DFI value
@@ -349,8 +359,10 @@ describe('Loan', () => {
 
     it('should not withdrawFromVault liquidated vault', async () => {
       // trigger liquidation
-      // min collateral required = (10000 DFI * 1 USD/DFI + 1 BTC * 0.5 (col-factor) * 10000 USD/BTC) / 149.5% = 15000 / 1.495 = 10033.44... USD
-      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '100.4@TSLA', currency: 'USD' }] })
+      // current loan value = 4000usd
+      // max loan available to borrow  = 20,000/1.5 = 13333.333
+      // tsla price to liquidate = 13333.33/2000  = 6.65
+      await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '6.65@TSLA', currency: 'USD' }] })
       await tGroup.get(0).generate(13)
 
       const promise = tGroup.get(0).rpc.loan.withdrawFromVault({
