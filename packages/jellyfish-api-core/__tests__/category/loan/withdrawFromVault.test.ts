@@ -297,7 +297,7 @@ describe('Loan', () => {
       await expect(promise).rejects.toThrow(`Collateral for vault <${vaultId1}> not found`)
     })
 
-    it('should not withdrawFromVault cause DFI less than 50% of total collateral value', async () => {
+    it('should not withdrawFromVault cause DFI collateral value less than 50% of total loan value', async () => {
       // loan amount = 2000Tsla, 4,000 usd
       // collateral = 10,000 dfi , 10,000*0.5 (col factor) usd + 0.1btc, 5,000usd
       // after withdraw:
@@ -312,7 +312,7 @@ describe('Loan', () => {
       await expect(promise).rejects.toThrow('At least 50% of the collateral must be in DFI')
     })
 
-    it('should not withdrawFromVault when DFI is already less than 50% of total collateral value', async () => {
+    it('should not withdrawFromVault when DFI collateral value is already less than 50% of total loan value', async () => {
       // loan value = 4000 usd + interest
       // current collateral value = 10,000usd (dfi) + 10,000usd(btc) * 0.5
       // new dfi price 0.3

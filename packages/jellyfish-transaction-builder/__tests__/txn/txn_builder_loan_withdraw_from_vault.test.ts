@@ -313,7 +313,7 @@ describe('loans.withdrawFromVault', () => {
       await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
     })
 
-    it('should failed as vault must contain min 50% of DFI', async () => {
+    it('should failed as DFI collateral value must contain min 50% of total loan value', async () => {
       const destination = await tGroup.get(0).generateAddress()
       const decoded = fromAddress(destination, 'regtest')
       const script = decoded?.script as Script

@@ -754,9 +754,9 @@ describe('takeloan failed', () => {
     await expect(promise).rejects.toThrow('No live fixed prices for META/USD')
   })
 
-  it('should not takeLoan when DFI collateral value less than 50%', async () => {
+  it('should not takeLoan when DFI collateral value less than 50% of loan value', async () => {
     {
-      // reduce DFI value to below 50% of total collateral
+      // increase BTC value to make DFI to below 50% of total value
       const now = Math.floor(new Date().getTime() / 1000)
       await alice.rpc.oracle.setOracleData(
         oracleId,
