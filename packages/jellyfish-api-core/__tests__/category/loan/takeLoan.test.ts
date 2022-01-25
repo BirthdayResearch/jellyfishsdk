@@ -618,7 +618,7 @@ describe('takeloan failed', () => {
   it('should not takeLoan while exceed vault collateralization ratio', async () => {
     const promise = bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
-      amounts: '300000@TSLA'
+      amounts: '5000@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Vault does not have enough collateralization ratio defined by loan scheme')
@@ -762,8 +762,8 @@ describe('takeloan failed', () => {
         oracleId,
         now, {
           prices: [
-            { tokenAmount: '0.4@DFI', currency: 'USD' },
-            { tokenAmount: '10000@BTC', currency: 'USD' },
+            { tokenAmount: '0.1@DFI', currency: 'USD' },
+            { tokenAmount: '50000@BTC', currency: 'USD' },
             { tokenAmount: '2@TSLA', currency: 'USD' }
           ]
         })
@@ -771,12 +771,15 @@ describe('takeloan failed', () => {
       await tGroup.waitForSync()
     }
 
+    // loan amount = 2000usd
+    // dfi amount = 1000 usd
+    // 1000 < (2000 *1.5)/2
     const promise = bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
-      amounts: '0.01@TSLA'
+      amounts: '1000@TSLA'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
-    await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI when taking a loan')
+    await expect(promise).rejects.toThrow('At least 50% of the collateral must be in DFI when taking a loan.')
 
     {
       // revert DFI value changes
