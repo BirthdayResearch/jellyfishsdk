@@ -362,6 +362,13 @@ const TestNetSkippedTxIds = new Set([
   'e30ad732c4ec80946a9aef649e3eef521bf408f29539c0ff254b67272cc908ea'
 ])
 
+/**
+ * https://github.com/DeFiCh/ain/blob/14ab934e9f87b21d8b40d427249b068291602523/src/masternodes/skipped_txs.cpp
+ * https://github.com/DeFiCh/ain/pull/476
+ *
+ * @param {string} txId to check its skipped
+ * @param {Network['name']='mainnet'} network to check against
+ */
 export function isSkippedTxId (txId: string, network: Network['name'] = 'mainnet'): boolean {
   if (network === 'mainnet') {
     return MainNetSkippedTxIds.has(txId)
