@@ -18,6 +18,6 @@ it('should be skipped on TestNet', async () => {
   expect(isSkippedTxId('b22fca714f70f68e45bef2babc5d7f0a1c81fd892ddfd347edb43cc80fc31db2', 'testnet')).toStrictEqual(true)
 })
 
-it('should not be be skipped on TestNet as txID is on MainNet', async () => {
+it('should not be skipped on TestNet as txID is on MainNet', async () => {
   expect(isSkippedTxId('1fcd0987e064964e8796c3e297d6b8d6477ccca8dd37175bf3d0935161baf2b6', 'testnet')).toStrictEqual(false)
 })
