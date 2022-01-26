@@ -13,7 +13,7 @@ afterAll(async () => {
 
 it('should be able call rpc getblockcount', async () => {
   const res: any = await apiTesting.client.rpc.call('getblockcount', [], 'number')
-  expect(res.value).toBeGreaterThanOrEqual(100)
+  expect(Number(res.value)).toBeGreaterThanOrEqual(100)
 })
 
 it('should be blacklisted', async () => {
