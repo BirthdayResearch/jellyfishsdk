@@ -271,7 +271,7 @@ describe('paybackLoan success', () => {
   })
 
   afterEach(async () => {
-    await tGroup.stop()
+    // await tGroup.stop()
   })
 
   it('should paybackLoan', async () => {
@@ -610,8 +610,14 @@ describe('paybackLoan success', () => {
     })
     await alice.generate(1)
 
+    // check alice1SatloanAddr account
+    expect(await alice.rpc.account.getAccount(alice1SatloanAddr)).toStrictEqual(['0.00000001@TSLA'])
+
     const vaultBefore = await alice.rpc.loan.getVault(alice1SatVaultId) as VaultActive
-    console.log(JSON.stringify(vaultBefore))
+    expect(vaultBefore.loanAmounts).toStrictEqual(['0.00000002@TSLA']) // 0.00000001 + 0.00000001(interest)
+    expect(vaultBefore.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
+    expect(vaultBefore.collateralRatio).toStrictEqual(-1)
+    expect(vaultBefore.informativeRatio).toStrictEqual(new BigNumber(-1))
 
     // payback 1 sat
     await alice.rpc.loan.paybackLoan({
@@ -622,7 +628,13 @@ describe('paybackLoan success', () => {
     await alice.generate(1)
 
     const vaultAfter = await alice.rpc.loan.getVault(alice1SatVaultId) as VaultActive
-    console.log(JSON.stringify(vaultAfter))
+    expect(vaultAfter.loanAmounts).toStrictEqual(['0.00000002@TSLA']) // 0.00000001(loan amount remains) + 0.00000001(interest)
+    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
+    expect(vaultAfter.collateralRatio).toStrictEqual(-1)
+    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(-1))
+
+    // check if alice1SatloanAddr is subbed by 0.00000001@TSLA
+    expect(await alice.rpc.account.getAccount(alice1SatloanAddr)).toStrictEqual([])
   })
 
   it('should paybackLoan with utxos', async () => {
