@@ -586,6 +586,45 @@ describe('paybackLoan success', () => {
     }
   })
 
+  it('should be able to take 1 satoshi loan and payback 1 staoshi', async () => {
+    // create a new vault
+    const alice1SatVaultAddr = await alice.generateAddress()
+    const alice1SatloanAddr = await alice.generateAddress()
+    const alice1SatVaultId = await alice.rpc.loan.createVault({
+      ownerAddress: alice1SatVaultAddr,
+      loanSchemeId: 'scheme'
+    })
+    await alice.generate(1)
+
+    // depositToVault DFI 100
+    await alice.rpc.loan.depositToVault({
+      vaultId: alice1SatVaultId, from: aliceColAddr, amount: '100@DFI'
+    })
+    await alice.generate(1)
+
+    // take 1 sat loan
+    await alice.rpc.loan.takeLoan({
+      vaultId: alice1SatVaultId,
+      to: alice1SatloanAddr,
+      amounts: ['0.00000001@TSLA']
+    })
+    await alice.generate(1)
+
+    const vaultBefore = await alice.rpc.loan.getVault(alice1SatVaultId) as VaultActive
+    console.log(JSON.stringify(vaultBefore))
+
+    // payback 1 sat
+    await alice.rpc.loan.paybackLoan({
+      vaultId: alice1SatVaultId,
+      amounts: '0.00000001@TSLA',
+      from: alice1SatloanAddr
+    })
+    await alice.generate(1)
+
+    const vaultAfter = await alice.rpc.loan.getVault(alice1SatVaultId) as VaultActive
+    console.log(JSON.stringify(vaultAfter))
+  })
+
   it('should paybackLoan with utxos', async () => {
     const tslaInterestPerBlockBefore = new BigNumber(netInterest * 40 / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
     const height = await bob.container.getBlockCount()
