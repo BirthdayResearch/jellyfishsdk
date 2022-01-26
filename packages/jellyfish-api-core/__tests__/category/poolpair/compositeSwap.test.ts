@@ -159,6 +159,47 @@ describe('compositeSwap', () => {
     }
   })
 
+  it('should compositeSwap 1 sat', async () => {
+    const [toAddress, fromAddress] = await testing.generateAddress(2)
+    await testing.token.send({ symbol: 'CAT', amount: 456, address: fromAddress })
+    await testing.generate(1)
+
+    { // before swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('456.00000000@CAT')
+
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+    }
+
+    // const intermediateDFIAmount = new BigNumber(10000).minus(new BigNumber(25000 * 10000).dividedBy(25000 + 0.00000001)).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    // const dogSwapAmount = new BigNumber(28000).minus(new BigNumber(28000 * 10000).dividedBy(new BigNumber(10000).plus(intermediateDFIAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: fromAddress,
+      tokenFrom: 'CAT',
+      amountFrom: 0.00000001,
+      to: toAddress,
+      tokenTo: 'DOG'
+    }
+
+    const hex = await client.poolpair.compositeSwap(metadata)
+    expect(typeof hex).toStrictEqual('string')
+    expect(hex.length).toStrictEqual(64)
+    await container.generate(1)
+
+    // { // after swap
+    //   const fromBalances = await client.account.getAccount(fromAddress)
+    //   expect(fromBalances.length).toStrictEqual(1)
+    //   expect(fromBalances[0]).toStrictEqual('333.00000000@CAT')
+
+    //   const toBalances = await client.account.getAccount(toAddress)
+    //   expect(toBalances.length).toStrictEqual(1)
+    //   expect(toBalances[0]).toStrictEqual(`${dogSwapAmount.toFixed(8)}@DOG`)
+    // }
+  })
+
   it('should compositeSwap with max price', async () => {
     const [toAddress, fromAddress] = await testing.generateAddress(2)
     await testing.token.send({ symbol: 'CAT', amount: 45.6, address: fromAddress })
