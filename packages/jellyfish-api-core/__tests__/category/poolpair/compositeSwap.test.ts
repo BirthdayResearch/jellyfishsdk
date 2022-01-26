@@ -173,9 +173,6 @@ describe('compositeSwap', () => {
       expect(toBalances.length).toStrictEqual(0)
     }
 
-    // const intermediateDFIAmount = new BigNumber(10000).minus(new BigNumber(25000 * 10000).dividedBy(25000 + 0.00000001)).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    // const dogSwapAmount = new BigNumber(28000).minus(new BigNumber(28000 * 10000).dividedBy(new BigNumber(10000).plus(intermediateDFIAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-
     const metadata: poolpair.PoolSwapMetadata = {
       from: fromAddress,
       tokenFrom: 'CAT',
@@ -189,15 +186,14 @@ describe('compositeSwap', () => {
     expect(hex.length).toStrictEqual(64)
     await container.generate(1)
 
-    // { // after swap
-    //   const fromBalances = await client.account.getAccount(fromAddress)
-    //   expect(fromBalances.length).toStrictEqual(1)
-    //   expect(fromBalances[0]).toStrictEqual('333.00000000@CAT')
+    { // after swap
+      const fromBalances = await client.account.getAccount(fromAddress)
+      expect(fromBalances.length).toStrictEqual(1)
+      expect(fromBalances[0]).toStrictEqual('455.99999999@CAT')
 
-    //   const toBalances = await client.account.getAccount(toAddress)
-    //   expect(toBalances.length).toStrictEqual(1)
-    //   expect(toBalances[0]).toStrictEqual(`${dogSwapAmount.toFixed(8)}@DOG`)
-    // }
+      const toBalances = await client.account.getAccount(toAddress)
+      expect(toBalances.length).toStrictEqual(0)
+    }
   })
 
   it('should compositeSwap with max price', async () => {
