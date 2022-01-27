@@ -355,7 +355,7 @@ describe('paybackLoan success', () => {
     await alice.rpc.loan.paybackLoan({
       vaultId: vaultId,
       amounts: '0.00000001@TSLA', // try pay over loan amount
-      from: aliceLoanAddr
+      from: aliceColAddr
     })
     await alice.container.generate(1)
 
@@ -363,19 +363,15 @@ describe('paybackLoan success', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
     expect(vaultAfter.loanAmounts).toStrictEqual(['0.00000002@TSLA'])
 
-    // unable to payback loan
     await alice.rpc.loan.paybackLoan({
       vaultId: vaultId,
-      amounts: '0.00000001@TSLA', // try pay over loan amount
-      from: aliceLoanAddr
+      amounts: '0.00000002@TSLA',
+      from: aliceColAddr
     })
     await alice.container.generate(1)
 
-    const vaultAfter2 = await alice.rpc.loan.getVault(vaultId)
-    console.log(JSON.stringify(vaultAfter2))
-
-    const accBal = await alice.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
-    console.log(accBal)
+    const vaultAfterFullPayback = await alice.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultAfterFullPayback.loanAmounts).toHaveLength(0)
   })
 
   it('should paybackLoan partially', async () => {
