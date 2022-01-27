@@ -617,7 +617,7 @@ describe('loans.takeLoan failed', () => {
     }, script)
 
     const promise = sendTransaction(bob.container, txn)
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'WithdrawFromVaultTx: At least 50% of the minimum required collateral must be in DFI (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'TakeLoanTx: At least 50% of the minimum required collateral must be in DFI (code 16)\', code: -26')
 
     {
       // revert DFI value changes
