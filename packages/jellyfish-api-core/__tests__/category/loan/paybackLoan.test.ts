@@ -990,6 +990,76 @@ describe('paybackloan for dusd using dfi', () => {
     expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
   })
 
+  it('should be able to payback 1 DUSD', async () => {
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
+    await testing.generate(1)
+
+    const vaultOneSatOwnerAddress = await testing.generateAddress()
+    const vaultIdOneSat = await testing.rpc.loan.createVault({
+      ownerAddress: vaultOneSatOwnerAddress,
+      loanSchemeId: loanSchemeId
+    })
+    await testing.generate(1)
+
+    const burnInfoBefore = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoBefore.paybackburn).toBeUndefined()
+    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
+
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultIdOneSat,
+      from: vaultOwnerAddress,
+      amount: '100000@DFI'
+    })
+    await testing.generate(1)
+
+    const accBefore = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accBefore).toContain('800000.00000000@DFI')
+
+    const oneSat = 0.00000001
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultIdOneSat,
+      to: vaultOwnerAddress,
+      amounts: `${oneSat}@DUSD`
+    })
+    await testing.generate(1)
+
+    const vaultBefore = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultIdOneSat,
+      amounts: `${oneSat}@DFI`,
+      from: vaultOwnerAddress
+    })
+    await testing.generate(1)
+    const accAfterFirstPayback = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accAfterFirstPayback).toContain('799999.99999999@DFI')
+
+    const burnInfoFirstPayback = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoFirstPayback.paybackburn).toStrictEqual(new BigNumber(oneSat))
+    expect(burnInfoFirstPayback.dfipaybackfee).toBeUndefined()
+
+    const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
+    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
+
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultIdOneSat,
+      amounts: '0.00000005@DFI',
+      from: vaultOwnerAddress
+    })
+    await testing.generate(1)
+
+    const accAfterSecondPayback = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accAfterSecondPayback).toContain('799999.99999996@DFI')
+
+    const burnInfoAfterSecondPayback = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual(new BigNumber(oneSat * 4))
+    expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual(['0.00000002@DUSD'])
+
+    const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
+    expect(vaultAfterSecondPayback.loanAmounts).toHaveLength(0)
+  })
+
   it('should be able to payback DUSD loan using DFI with excess DFI', async () => {
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
     await testing.generate(1)
