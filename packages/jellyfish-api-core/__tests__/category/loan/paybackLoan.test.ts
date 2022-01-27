@@ -990,7 +990,7 @@ describe('paybackloan for dusd using dfi', () => {
     expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
   })
 
-  it('should be able to payback 1 DUSD', async () => {
+  it('should be able to payback 1 sat of DUSD', async () => {
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
     await testing.generate(1)
 
