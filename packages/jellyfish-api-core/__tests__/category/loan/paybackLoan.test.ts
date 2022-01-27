@@ -326,6 +326,10 @@ describe('paybackLoan success', () => {
   })
 
   it('should paybackLoan when loan amount is only 1 sat', async () => {
+    const burntInfoBefore = await alice.rpc.account.getBurnInfo()
+    expect(burntInfoBefore.amount).toStrictEqual(new BigNumber(0))
+    expect(burntInfoBefore.tokens).toHaveLength(0)
+
     // create new vault
     const vaultOwnerAddress = await alice.generateAddress()
     const vaultId = await alice.rpc.loan.createVault({
@@ -372,6 +376,9 @@ describe('paybackLoan success', () => {
 
     const vaultAfterFullPayback = await alice.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfterFullPayback.loanAmounts).toHaveLength(0)
+    const burntInfoAfter = await alice.rpc.account.getBurnInfo()
+    expect(burntInfoAfter.amount).toStrictEqual(new BigNumber(0))
+    expect(burntInfoAfter.tokens).toHaveLength(0)
   })
 
   it('should paybackLoan partially', async () => {
