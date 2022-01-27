@@ -325,6 +325,65 @@ describe('paybackLoan success', () => {
     }
   })
 
+  it('should paybackLoan when loan amount is only 1 sat', async () => {
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 150,
+      interestRate: new BigNumber(1),
+      id: 'scheme2'
+    })
+    await alice.generate(1)
+    // create new vault
+    const vaultOwnerAddress = await alice.generateAddress()
+    const vaultId = await alice.rpc.loan.createVault({
+      ownerAddress: vaultOwnerAddress,
+      loanSchemeId: 'scheme'
+    })
+    await alice.container.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: vaultId, from: aliceColAddr, amount: '100@DFI'
+    })
+    await alice.container.generate(1)
+
+    const aliceLoanAddr = await alice.generateAddress()
+    await alice.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: ['0.00000001@TSLA'],
+      to: aliceLoanAddr
+    })
+    await alice.container.generate(1)
+
+    const vault = await alice.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vault.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
+    expect(vault.interestAmounts).toStrictEqual(['0.00000002@TSLA'])
+
+    // payback loan
+    await alice.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '0.00000001@TSLA', // try pay over loan amount
+      from: aliceLoanAddr
+    })
+    await alice.container.generate(1)
+
+    const vaultAfter = await alice.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
+    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000002@TSLA'])
+
+    // unable to payback loan
+    await alice.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      amounts: '0.00000001@TSLA', // try pay over loan amount
+      from: aliceLoanAddr
+    })
+    await alice.container.generate(1)
+
+    const vaultAfter2 = await alice.rpc.loan.getVault(vaultId)
+    console.log(JSON.stringify(vaultAfter2))
+
+    const accBal = await alice.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    console.log(accBal)
+  })
+
   it('should paybackLoan partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
     expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
