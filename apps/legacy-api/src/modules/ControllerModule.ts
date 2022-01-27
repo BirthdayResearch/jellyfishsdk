@@ -1,6 +1,7 @@
 import { CacheModule, Module } from '@nestjs/common'
 import { TokenController } from '../controllers/TokenController'
 import { PoolPairController } from '../controllers/PoolPairController'
+import { MiscController } from '../controllers/MiscController'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -11,7 +12,8 @@ import { PoolPairController } from '../controllers/PoolPairController'
   ],
   controllers: [
     TokenController,
-    PoolPairController
+    PoolPairController,
+    MiscController
   ]
 })
 export class ControllerModule {
