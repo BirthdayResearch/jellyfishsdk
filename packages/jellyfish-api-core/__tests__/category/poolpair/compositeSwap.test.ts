@@ -130,6 +130,9 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(0)
+
+      const burnInfoBefore = await testing.container.call('getburninfo')
+      expect(burnInfoBefore.dexfeetokens).toBeUndefined()
     }
 
     const metadata: poolpair.PoolSwapMetadata = {
@@ -159,6 +162,9 @@ describe('compositeSwap', () => {
       expect(fromBalances[0]).toStrictEqual('455.99999999@CAT')
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(0)
+
+      const burnInfoAfter = await testing.container.call('getburninfo')
+      expect(burnInfoAfter.dexfeetokens).toBeUndefined()
     }
   })
 
@@ -174,6 +180,9 @@ describe('compositeSwap', () => {
 
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(0)
+
+      const burnInfoBefore = await testing.container.call('getburninfo')
+      expect(burnInfoBefore.dexfeetokens).toBeUndefined()
     }
 
     const intermediateDFIAmount = new BigNumber(10000).minus(new BigNumber(25000 * 10000).dividedBy(25000 + 123)).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
@@ -200,6 +209,9 @@ describe('compositeSwap', () => {
       const toBalances = await client.account.getAccount(toAddress)
       expect(toBalances.length).toStrictEqual(1)
       expect(toBalances[0]).toStrictEqual(`${dogSwapAmount.toFixed(8)}@DOG`)
+
+      const burnInfoAfter = await testing.container.call('getburninfo')
+      expect(burnInfoAfter.dexfeetokens).toBeUndefined()
     }
   })
 
