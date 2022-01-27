@@ -778,7 +778,8 @@ describe('takeloan failed', () => {
       vaultId: bobVaultId,
       amounts: '1000@TSLA'
     })
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test TakeLoanTx execution failed:\nAt least 50% of the minimum required collateral must be in DFI\', code: -32600, method: takeloan')
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
 
     {
       // revert DFI value changes

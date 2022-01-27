@@ -132,10 +132,6 @@ describe('compositeSwap', () => {
       expect(toBalances.length).toStrictEqual(0)
     }
 
-    const intermediateDFIAmount = new BigNumber(10000).minus(new BigNumber(25000 * 10000).dividedBy(25000 + 0.00000001)).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    let dogSwapAmount = new BigNumber(28000).minus(new BigNumber(28000 * 10000).dividedBy(new BigNumber(10000).plus(intermediateDFIAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    dogSwapAmount = dogSwapAmount.toNumber() < 0 ? new BigNumber(0) : dogSwapAmount
-
     const metadata: poolpair.PoolSwapMetadata = {
       from: fromAddress,
       tokenFrom: 'CAT',
@@ -151,19 +147,18 @@ describe('compositeSwap', () => {
 
     { // after swap
       const catPool = await testing.rpc.poolpair.getPoolPair('CAT-DFI')
-      expect(catPool[0].reserveA).toStrictEqual(28000)
-      expect(catPool[0].reserveB).toStrictEqual(10000)
+      expect(catPool[2].reserveA).toStrictEqual(new BigNumber(25000 + 0.00000001))
+      expect(catPool[2].reserveB).toStrictEqual(new BigNumber(10000))
 
       const dogPool = await testing.rpc.poolpair.getPoolPair('DOG-DFI')
-      expect(dogPool[0].reserveA).toStrictEqual(25000 + 0.00000001)
-      expect(dogPool[0].reserveB).toStrictEqual(10000)
+      expect(dogPool[4].reserveA).toStrictEqual(new BigNumber(28000))
+      expect(dogPool[4].reserveB).toStrictEqual(new BigNumber(10000))
 
       const fromBalances = await client.account.getAccount(fromAddress)
       expect(fromBalances.length).toStrictEqual(1)
       expect(fromBalances[0]).toStrictEqual('455.99999999@CAT')
       const toBalances = await client.account.getAccount(toAddress)
-      expect(toBalances.length).toStrictEqual(1)
-      expect(toBalances[0]).toStrictEqual(`${dogSwapAmount.toFixed(8)}@DOG`)
+      expect(toBalances.length).toStrictEqual(0)
     }
   })
 

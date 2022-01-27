@@ -331,7 +331,8 @@ describe('loans.withdrawFromVault', () => {
       }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
-      await expect(promise).rejects.toThrow('DeFiDRpcError: \'WithdrawFromVaultTx: At least 50% of the minimum required collateral must be in DFI (code 16)\', code: -26')
+      await expect(promise).rejects.toThrow(DeFiDRpcError)
+      await expect(promise).rejects.toThrow('WithdrawFromVaultTx: At least 50% of the minimum required collateral must be in DFI (code 16)')
     })
 
     it('should not withdraw from liquidated vault', async () => {
