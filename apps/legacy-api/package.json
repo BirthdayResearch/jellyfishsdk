@@ -5,18 +5,20 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b tsconfig.build.json"
+    "build": "tsc -b tsconfig.build.json",
+    "start:dev": "nest start --watch "
   },
   "dependencies": {
     "@nestjs/common": "^8.2.5",
     "@nestjs/core": "^8.2.5",
-    "@nestjs/config": "^1.1.6"
+    "@nestjs/config": "^1.1.6",
+    "@defichain/whale-api-client": "^0.18.9"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.0",

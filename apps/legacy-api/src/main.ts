@@ -11,22 +11,12 @@ export class RootServer {
     return await NestFactory.create<NestFastifyApplication>(RootModule, adapter)
   }
 
-  async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
-    const version = config.get<string>('API_VERSION') as string
-    const network = config.get<string>('API_NETWORK') as string
-
+  async configure (app: NestFastifyApplication): Promise<void> {
     app.enableCors({
       origin: '*',
-      methods: ['GET', 'POST'],
+      methods: ['GET'],
       allowedHeaders: ['Content-Type'],
       maxAge: 60 * 24 * 7
-    })
-
-    app.setGlobalPrefix(`${version}/${network}`, {
-      exclude: [
-        '/_actuator/probes/liveness',
-        '/_actuator/probes/readiness'
-      ]
     })
   }
 
@@ -39,7 +29,7 @@ export class RootServer {
     this.app = await this.create()
     const config = this.app.get(ConfigService)
 
-    await this.configure(this.app, config)
+    await this.configure(this.app)
     await this.init(this.app, config)
   }
 
