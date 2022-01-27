@@ -326,12 +326,6 @@ describe('paybackLoan success', () => {
   })
 
   it('should paybackLoan when loan amount is only 1 sat', async () => {
-    await alice.rpc.loan.createLoanScheme({
-      minColRatio: 150,
-      interestRate: new BigNumber(1),
-      id: 'scheme2'
-    })
-    await alice.generate(1)
     // create new vault
     const vaultOwnerAddress = await alice.generateAddress()
     const vaultId = await alice.rpc.loan.createVault({
@@ -355,7 +349,7 @@ describe('paybackLoan success', () => {
 
     const vault = await alice.rpc.loan.getVault(vaultId) as VaultActive
     expect(vault.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
-    expect(vault.interestAmounts).toStrictEqual(['0.00000002@TSLA'])
+    expect(vault.loanAmounts).toStrictEqual(['0.00000002@TSLA'])
 
     // payback loan
     await alice.rpc.loan.paybackLoan({
@@ -367,7 +361,7 @@ describe('paybackLoan success', () => {
 
     const vaultAfter = await alice.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000001@TSLA'])
-    expect(vaultAfter.interestAmounts).toStrictEqual(['0.00000002@TSLA'])
+    expect(vaultAfter.loanAmounts).toStrictEqual(['0.00000002@TSLA'])
 
     // unable to payback loan
     await alice.rpc.loan.paybackLoan({
