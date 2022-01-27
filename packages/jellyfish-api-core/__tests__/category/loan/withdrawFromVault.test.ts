@@ -308,8 +308,7 @@ describe('Loan', () => {
         amount: '7000@DFI'
       })
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('At least 50% of the collateral must be in DFI')
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nAt least 50% of the minimum required collateral must be in DFI\', code: -32600, method: withdrawfromvault')
     })
 
     it('should not withdrawFromVault when DFI collateral value is already less than 50% of the minimum required collateral', async () => {
@@ -330,9 +329,7 @@ describe('Loan', () => {
         amount: '1@DFI' // use small amount, no DFI can be withdrawn when below 50% of total
       })
 
-      await expect(promise).rejects.toThrow(RpcApiError)
-      await expect(promise).rejects.toThrow('At least 50% of the collateral must be in DFI')
-
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test WithdrawFromVaultTx execution failed:\nAt least 50% of the minimum required collateral must be in DFI\', code: -32600, method: withdrawfromvault')
       {
         // revert DFI value
         await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
