@@ -8,8 +8,7 @@ import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
 export class MiscController {
   @Get('getblockcount')
   async getToken (
-    @Query('network') network: string = 'mainnet',
-    @Query('id') tokenId: string
+    @Query('network') network: string = 'mainnet'
   ): Promise<{ [key: string]: Number }> {
     const api = new WhaleApiClient({
       version: 'v0',
