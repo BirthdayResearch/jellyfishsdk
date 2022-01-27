@@ -206,4 +206,20 @@ describe('poolSwap', () => {
     }
     await expect(client.poolpair.poolSwap(metadata)).rejects.toThrow('TokenFrom was not found')
   })
+
+  it('should not swap tokens when input value is 0', async () => {
+    const [addressReceiver, dfiAddress] = await testing.generateAddress(2)
+    await testing.token.dfi({ amount: 700, address: dfiAddress })
+    await testing.generate(1)
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: dfiAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 0,
+      to: addressReceiver,
+      tokenTo: 'CAT'
+    }
+
+    const promise = client.poolpair.poolSwap(metadata)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nInput amount should be positive\', code: -32600, method: poolswap')
+  })
 })
