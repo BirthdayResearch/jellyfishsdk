@@ -383,7 +383,7 @@ describe('paybackLoan success', () => {
 
   it('should paybackLoan partially', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
-    expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
+    expect(burnInfoBefore.paybackburn).toStrictEqual(0)
 
     const loanAccBefore = await bob.container.call('getaccount', [bobloanAddr])
     expect(loanAccBefore).toStrictEqual(['40.00000000@TSLA'])
@@ -483,7 +483,7 @@ describe('paybackLoan success', () => {
 
   it('should paybackLoan more than one amount', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
-    expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
+    expect(burnInfoBefore.paybackburn).toStrictEqual(0)
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
@@ -703,23 +703,17 @@ describe('paybackLoan success', () => {
       to: dusdBobAddr,
       amounts: '19@DUSD'
     })
-
-    const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
-
-    const dusdInterestPerBlock = new BN(netInterest * 19).dividedBy(new BN(365 * blocksPerDay))
-    const dusdInterestPerBlockFloored = dusdInterestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = dusdInterestPerBlock.minus(dusdInterestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
     await bob.generate(1)
 
-    const interestBefore = await bob.container.call('getinterest', ['scheme', 'DUSD'])
-    expect(interestBefore).toStrictEqual([
-      {
-        token: 'DUSD',
-        immatureInterest: immatureInterest.toNumber(),
-        totalInterest: dusdInterestPerBlock.multipliedBy(1).decimalPlaces(8, BN.ROUND_CEIL).toNumber(),
-        interestPerBlock: dusdInterestPerBlock.decimalPlaces(8, BN.ROUND_CEIL).toNumber()
-      }
-    ])
+    const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
+    const dusdInterestPerBlock = new BN(netInterest * 19).dividedBy(new BN(365 * blocksPerDay))
+
+    const interestBefore = await bob.rpc.loan.getInterest('scheme', 'DUSD')
+    expect(interestBefore.length).toStrictEqual(1)
+    expect(interestBefore[0].token.toString()).toStrictEqual('DUSD')
+    expect(interestBefore[0].realizedInterestPerBlock.toString()).toStrictEqual(dusdInterestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
+    expect(interestBefore[0].interestPerBlock.toFixed(8)).toStrictEqual(dusdInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
+    expect(interestBefore[0].totalInterest.toFixed(8)).toStrictEqual(dusdInterestPerBlock.multipliedBy(1).toFixed(8, BigNumber.ROUND_CEIL))
 
     const vaultBefore = await bob.container.call('getvault', [bobVaultId])
     expect(vaultBefore).toStrictEqual({
