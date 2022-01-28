@@ -139,9 +139,7 @@ describe('Loan getInterest', () => {
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
     const interestPerBlock = netInterest.multipliedBy(1000).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interests[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interests[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interests[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
@@ -273,7 +271,7 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     await testing.container.stop()
   })
 
-  it('should getInterest sub satoshi only interestPerBlock', async () => {
+  it('should getInterest sub satoshi only realizedInterestPerBlock', async () => {
     const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
@@ -283,7 +281,6 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsBefore = await testing.rpc.loan.getInterest('scheme')
     expect(interestsBefore).toStrictEqual([])
     const loanAmount = expectedInterestPerBlock.multipliedBy(blocksPerDay.multipliedBy(new BN(365.0))).dividedBy(netInterest)// (interestPerBlock * blocksPerDay.multipliedBy(new BN(365.0)) / netInterest)
-    console.log(JSON.stringify(loanAmount))
 
     // take loan
     await testing.rpc.loan.takeLoan({
@@ -296,22 +293,19 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsAfter = await testing.rpc.loan.getInterest('scheme')
     expect(interestsAfter.length).toStrictEqual(1)
     expect(interestsAfter[0].token).toStrictEqual('TSLA')
-    console.log(JSON.stringify(interestsAfter))
 
     // calculate interest per block for TSLA
     const interestPerBlock = netInterest.multipliedBy(loanAmount).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interestsAfter[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight) // interestPerBlock is ceiled before multiplying with the height.
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
     expect(interestsAfter[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8, BigNumber.ROUND_CEIL))
   })
 
-  it('should getInterest 1 satoshi only interestPerBlock', async () => {
+  it('should getInterest 1 satoshi only realizedInterestPerBlock', async () => {
     const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
@@ -321,7 +315,6 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsBefore = await testing.rpc.loan.getInterest('scheme')
     expect(interestsBefore).toStrictEqual([])
     const loanAmount = expectedInterestPerBlock.multipliedBy(blocksPerDay.multipliedBy(new BN(365.0))).dividedBy(netInterest)// (interestPerBlock * blocksPerDay.multipliedBy(new BN(365.0)) / netInterest)
-    console.log(JSON.stringify(loanAmount))
 
     // take loan
     await testing.rpc.loan.takeLoan({
@@ -334,13 +327,10 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsAfter = await testing.rpc.loan.getInterest('scheme')
     expect(interestsAfter.length).toStrictEqual(1)
     expect(interestsAfter[0].token).toStrictEqual('TSLA')
-    console.log(JSON.stringify(interestsAfter))
 
     // calculate interest per block for TSLA
     const interestPerBlock = netInterest.multipliedBy(loanAmount).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interestsAfter[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
@@ -349,7 +339,7 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     expect(interestsAfter[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8, BigNumber.ROUND_CEIL))
   })
 
-  it('should getInterest satoshi and sub stoshi only interestPerBlock', async () => {
+  it('should getInterest satoshi and sub stoshi only realizedInterestPerBlock', async () => {
     const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
@@ -359,7 +349,6 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsBefore = await testing.rpc.loan.getInterest('scheme')
     expect(interestsBefore).toStrictEqual([])
     const loanAmount = expectedInterestPerBlock.multipliedBy(blocksPerDay.multipliedBy(new BN(365.0))).dividedBy(netInterest)// (interestPerBlock * blocksPerDay.multipliedBy(new BN(365.0)) / netInterest)
-    console.log(JSON.stringify(loanAmount))
 
     // take loan
     await testing.rpc.loan.takeLoan({
@@ -372,22 +361,19 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsAfter = await testing.rpc.loan.getInterest('scheme')
     expect(interestsAfter.length).toStrictEqual(1)
     expect(interestsAfter[0].token).toStrictEqual('TSLA')
-    console.log(JSON.stringify(interestsAfter))
 
     // calculate interest per block for TSLA
     const interestPerBlock = netInterest.multipliedBy(loanAmount).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interestsAfter[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight) // interestPerBlock is ceiled before multiplying with the height.
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
     expect(interestsAfter[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8, BigNumber.ROUND_CEIL))
   })
 
-  it('should getInterest COIN only interestPerBlock', async () => {
+  it('should getInterest COIN only realizedInterestPerBlock', async () => {
     const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
@@ -397,7 +383,6 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsBefore = await testing.rpc.loan.getInterest('scheme')
     expect(interestsBefore).toStrictEqual([])
     const loanAmount = expectedInterestPerBlock.multipliedBy(blocksPerDay.multipliedBy(new BN(365.0))).dividedBy(netInterest)// (interestPerBlock * blocksPerDay.multipliedBy(new BN(365.0)) / netInterest)
-    console.log(JSON.stringify(loanAmount))
 
     // take loan
     await testing.rpc.loan.takeLoan({
@@ -410,22 +395,19 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsAfter = await testing.rpc.loan.getInterest('scheme')
     expect(interestsAfter.length).toStrictEqual(1)
     expect(interestsAfter[0].token).toStrictEqual('TSLA')
-    console.log(JSON.stringify(interestsAfter))
 
     // calculate interest per block for TSLA
     const interestPerBlock = netInterest.multipliedBy(loanAmount).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interestsAfter[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight) // interestPerBlock is ceiled before multiplying with the height.
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
     expect(interestsAfter[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8, BigNumber.ROUND_CEIL))
   })
 
-  it('should getInterest COIN and stoshi only interestPerBlock', async () => {
+  it('should getInterest COIN and stoshi only realizedInterestPerBlock', async () => {
     const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
@@ -435,7 +417,6 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsBefore = await testing.rpc.loan.getInterest('scheme')
     expect(interestsBefore).toStrictEqual([])
     const loanAmount = expectedInterestPerBlock.multipliedBy(blocksPerDay.multipliedBy(new BN(365.0))).dividedBy(netInterest)// (interestPerBlock * blocksPerDay.multipliedBy(new BN(365.0)) / netInterest)
-    console.log(JSON.stringify(loanAmount))
 
     // take loan
     await testing.rpc.loan.takeLoan({
@@ -448,22 +429,19 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsAfter = await testing.rpc.loan.getInterest('scheme')
     expect(interestsAfter.length).toStrictEqual(1)
     expect(interestsAfter[0].token).toStrictEqual('TSLA')
-    console.log(JSON.stringify(interestsAfter))
 
     // calculate interest per block for TSLA
     const interestPerBlock = netInterest.multipliedBy(loanAmount).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interestsAfter[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight) // interestPerBlock is ceiled before multiplying with the height.
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
     expect(interestsAfter[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8, BigNumber.ROUND_CEIL))
   })
 
-  it('should getInterest COIN, stoshi and sub stoshi interestPerBlock', async () => {
+  it('should getInterest COIN, stoshi and sub stoshi realizedInterestPerBlock', async () => {
     const BN = BigNumber.clone({ DECIMAL_PLACES: 40 })
     const netInterest = new BN((3 + 0) / 100) // (scheme.rate + loanToken.interest) / 100
     const blocksPerDay = new BN((60 * 60 * 24) / (10 * 60)) // 144 in regtest
@@ -473,7 +451,6 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsBefore = await testing.rpc.loan.getInterest('scheme')
     expect(interestsBefore).toStrictEqual([])
     const loanAmount = expectedInterestPerBlock.multipliedBy(blocksPerDay.multipliedBy(new BN(365.0))).dividedBy(netInterest)// (interestPerBlock * blocksPerDay.multipliedBy(new BN(365.0)) / netInterest)
-    console.log(JSON.stringify(loanAmount))
 
     // take loan
     await testing.rpc.loan.takeLoan({
@@ -486,18 +463,15 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     const interestsAfter = await testing.rpc.loan.getInterest('scheme')
     expect(interestsAfter.length).toStrictEqual(1)
     expect(interestsAfter[0].token).toStrictEqual('TSLA')
-    console.log(JSON.stringify(interestsAfter))
 
     // calculate interest per block for TSLA
     const interestPerBlock = netInterest.multipliedBy(loanAmount).dividedBy(blocksPerDay.multipliedBy(new BN(365.0)))
-    const interestPerBlockFloored = interestPerBlock.decimalPlaces(8, BN.ROUND_FLOOR)
-    const immatureInterest = interestPerBlock.minus(interestPerBlockFloored).decimalPlaces(24, BN.ROUND_FLOOR)
-    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(immatureInterest.toString())
+    expect(interestsAfter[0].realizedInterestPerBlock.toString()).toStrictEqual(interestPerBlock.dp(24, BN.ROUND_FLOOR).toString())
     expect(interestsAfter[0].interestPerBlock.toFixed(8)).toStrictEqual(interestPerBlock.toFixed(8, BigNumber.ROUND_CEIL))
 
     // calculate total interest
     const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight) // interestPerBlock is ceiled before multiplying with the height.
+    const totalInterest = interestPerBlock.multipliedBy(blockHeight + 1 - interestTSLABlockHeight)
     expect(interestsAfter[0].totalInterest.toFixed(8)).toStrictEqual(totalInterest.toFixed(8, BigNumber.ROUND_CEIL))
   })
 })
