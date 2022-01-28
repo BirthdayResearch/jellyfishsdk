@@ -934,7 +934,8 @@ describe('paybackloan for dusd using dfi', () => {
     // the default penalty rate is 1%
     const defaultPenaltyRate = 0.01
     let currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
-    const dusdPaybackAmount = new BigNumber(dfiPaybackAmount).multipliedBy(1 - defaultPenaltyRate) // dfi amount * (dfi price * penalty rate is %)
+    const dfiUSDPrice = new BigNumber(1).multipliedBy(1 - defaultPenaltyRate) // (DFIUSD oracle price * (1 - penalty rate is %))
+    const dusdPaybackAmount = new BigNumber(dfiPaybackAmount).multipliedBy(dfiUSDPrice)
     const dusdLoanDecreased = dusdPaybackAmount.minus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
     const dusdInterestPerBlockAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanDecreased).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
     let dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(currentBlockHeight - paybackLoanBlockHeight)
