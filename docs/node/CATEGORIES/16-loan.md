@@ -279,7 +279,7 @@ interface loan {
 
 interface Interest {
   token: string
-  immatureInterest: BigNumber
+  realizedInterestPerBlock: BigNumber
   totalInterest: BigNumber
   interestPerBlock: BigNumber
 }
