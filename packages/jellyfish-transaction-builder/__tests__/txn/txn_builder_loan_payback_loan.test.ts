@@ -505,7 +505,7 @@ describe('paybackLoan success', () => {
 
   it('should paybackLoan more than one amount', async () => {
     const burnInfoBefore = await bob.container.call('getburninfo')
-    expect(burnInfoBefore.paybackburn).toStrictEqual(undefined)
+    expect(burnInfoBefore.paybackburn).toStrictEqual(0)
 
     await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
