@@ -792,18 +792,19 @@ describe('paybackLoan for dusd using dfi', () => {
   const dusdLoanAmount = 5000
   const tslaLoanAmount = 10
   const loanSchemeId = 'scheme'
+  const attributeKey = 'ATTRIBUTES'
 
   let testingProvider: MockProviders
   let testingBuilder: P2WPKHTransactionBuilder
   let vaultId: string
   let tslaVaultId: string
   let vaultOwnerAddress: string
-  let dusdInterestAmountBefore: BigNumber
-  let dusdInterestPerBlock: BigNumber
   let tslaTakeLoanBlockHeight: number
+  let dusdTakeLoanBlockHeight: number
+  let key: string
+  let dusdId: string
 
   async function setupForDUSDLoan (): Promise<void> {
-    // vaultOwnerAddress = await testing.generateAddress()
     await testing.token.dfi({ amount: 1000000, address: vaultOwnerAddress })
     await testing.generate(1)
 
@@ -869,21 +870,13 @@ describe('paybackLoan for dusd using dfi', () => {
     await testing.generate(1)
 
     // take DUSD as loan
-    const dusdTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
       amounts: `${dusdLoanAmount}@DUSD`,
       to: vaultOwnerAddress
     })
     await testing.generate(1)
-
-    dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
-    const currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
-    dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(currentBlockHeight - dusdTakeLoanBlockHeight))
-    const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
-
-    const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`])
+    dusdTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
   }
 
   async function setupForTslaLoan (): Promise<void> {
@@ -917,20 +910,50 @@ describe('paybackLoan for dusd using dfi', () => {
     vaultOwnerAddress = await testingProvider.getAddress()
 
     await setupForDUSDLoan()
+    const dusdInfo = await testing.rpc.token.getToken('DUSD')
+    dusdId = Object.keys(dusdInfo)[0]
+    key = `v0/token/${dusdId}/payback_dfi`
   })
 
   afterEach(async () => {
     await testing.container.stop()
   })
 
-  it('paybackloan for dusd using dfi', async () => {
+  it('should be able to payback DUSD loan using DFI after enabled in setGov and repay correctly after penalty rate has changed, TSLA loan unaffected', async () => {
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
+    await testing.generate(1)
+
+    // take loan for tsla to ensure it is unaffected
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      amounts: `${tslaLoanAmount}@TSLA`
+    })
+    await testing.generate(1)
+    const tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+
+    const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
+    const dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(blockHeightBefore - dusdTakeLoanBlockHeight + 1))
+    const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const tslaInterestPerBlock = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay))
+    const tslaInterestAmountBefore = tslaInterestPerBlock.multipliedBy(new BigNumber(blockHeightBefore - tslaTakeLoanBlockHeight + 1))
+    const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`, `${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
+
     const dfiPaybackAmount = 100
-    const colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
-    const script = await testingProvider.elliptic.script()
+    const burnInfoBefore = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoBefore.paybackburn).toBeUndefined()
+    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
+    expect(burnInfoBefore.dfipaybacktokens).toBeUndefined()
 
-    const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    let paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
 
-    const txn = await testingBuilder.loans.paybackLoan({
+    let colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    let script = await testingProvider.elliptic.script()
+    let txn = await testingBuilder.loans.paybackLoan({
       vaultId: vaultId,
       from: colScript,
       tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }]
@@ -939,20 +962,241 @@ describe('paybackLoan for dusd using dfi', () => {
     await testing.generate(1)
 
     // price of dfi to dusd depends on the oracle, in this case 1 DFI = 1 DUSD
-    const currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
-    const dusdLoanDecreased = new BigNumber(dfiPaybackAmount).minus(dusdInterestAmountBefore)
-    const dusdInterestPerBlockAfter = dusdInterestPerBlock.minus(dusdLoanDecreased.multipliedBy(netInterest).dividedBy(365 * blocksPerDay))
-    const dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(currentBlockHeight - paybackLoanBlockHeight)
-    const dusdLoanAmountAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanDecreased).plus(dusdInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    // the default penalty rate is 1%
+    const defaultPenaltyRate = 0.01
+    let currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    const dusdPaybackAmount = new BigNumber(dfiPaybackAmount).multipliedBy(1 - defaultPenaltyRate) // dfi amount * (dfi price * penalty rate is %)
+    const dusdLoanDecreased = dusdPaybackAmount.minus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const dusdInterestPerBlockAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanDecreased).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
+    let dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(currentBlockHeight - paybackLoanBlockHeight)
+    const dusdLoanRemainingAfterFirstPayback = new BigNumber(dusdLoanAmount).minus(dusdLoanDecreased)
+    const dusdLoanAmountAfter = dusdLoanRemainingAfterFirstPayback.plus(dusdInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    let totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(defaultPenaltyRate)
+    let totalDusdPaybackAmount = dusdPaybackAmount
+
+    const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const burnInfoAfterFirstPayback = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoAfterFirstPayback.paybackburn).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty))
+    expect(burnInfoAfterFirstPayback.dfipaybackfee).toStrictEqual(totalDfiPenalty)
+    expect(burnInfoAfterFirstPayback.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
+
+    const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`, `${tslaLoanAmountAfter.toFixed(8)}@TSLA`])
+
+    // change penalty rate to 10% and payback
+    const penaltyRateKey = `v0/token/${dusdId}/payback_dfi_fee_pct`
+    const newPenaltyRate = 0.1
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [penaltyRateKey]: newPenaltyRate.toString() } })
+    await testing.generate(1)
+
+    dusdInterestAmountAfter = dusdInterestAmountAfter.plus(dusdInterestPerBlockAfter) // add interest for one more block
+
+    paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+
+    colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    script = await testingProvider.elliptic.script()
+    txn = await testingBuilder.loans.paybackLoan({
+      vaultId: vaultId,
+      from: colScript,
+      tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }]
+    }, script)
+    await sendTransaction(testing.container, txn)
+    await testing.generate(1)
+    await testing.generate(1)
+
+    currentBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    const dusdPaybackAmountAfter = new BigNumber(dfiPaybackAmount).multipliedBy(1 - newPenaltyRate)
+    const dusdLoanDecreasedAfterSecondPayback = dusdPaybackAmountAfter.minus(dusdInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const dusdInterestPerBlockAfterSecondPayback = dusdLoanRemainingAfterFirstPayback.minus(dusdLoanDecreasedAfterSecondPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
+    const dusdInterestAmountAfterSecondPayback = dusdInterestPerBlockAfterSecondPayback.multipliedBy(currentBlockHeight - paybackLoanBlockHeight)
+    const dusdLoanAmountAfterSecondPayback = dusdLoanRemainingAfterFirstPayback.minus(dusdLoanDecreasedAfterSecondPayback).plus(dusdInterestAmountAfterSecondPayback.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const tslaLoanAmountAfterSecondPayback = new BigNumber(tslaLoanAmount).plus(tslaInterestPerBlock.multipliedBy(currentBlockHeight - tslaTakeLoanBlockHeight + 1).decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    totalDfiPenalty = totalDfiPenalty.plus(new BigNumber(dfiPaybackAmount).multipliedBy(newPenaltyRate))
+    totalDusdPaybackAmount = totalDusdPaybackAmount.plus(dusdPaybackAmountAfter)
+
+    const burnInfoAfterSecondPayback = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty))
+    expect(burnInfoAfterSecondPayback.dfipaybackfee).toStrictEqual(totalDfiPenalty)
+    expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
+
+    const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
+  })
+
+  it('should be able to payback 1 sat of DUSD', async () => {
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
+    await testing.generate(1)
+
+    const accountToUtxosPayload: BalanceTransferPayload = {}
+    accountToUtxosPayload[vaultOwnerAddress] = '10@DFI'
+
+    await testing.rpc.account.accountToUtxos(vaultOwnerAddress, accountToUtxosPayload)
+    await testing.generate(1)
+
+    const vaultOneSatOwnerAddress = await testing.generateAddress()
+    const vaultIdOneSat = await testing.rpc.loan.createVault({
+      ownerAddress: vaultOneSatOwnerAddress,
+      loanSchemeId: loanSchemeId
+    })
+    await testing.generate(1)
+
+    const burnInfoBefore = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoBefore.paybackburn).toBeUndefined()
+    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
+
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultIdOneSat,
+      from: vaultOwnerAddress,
+      amount: '100000@DFI'
+    })
+    await testing.generate(1)
+
+    const accBefore = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accBefore).toContain('799990.00000000@DFI')
+
+    const oneSat = 0.00000001
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultIdOneSat,
+      to: vaultOwnerAddress,
+      amounts: `${oneSat}@DUSD`
+    })
+    await testing.generate(1)
+
+    const vaultBefore = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
+
+    let colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    let script = await testingProvider.elliptic.script()
+    let txn = await testingBuilder.loans.paybackLoan({
+      vaultId: vaultIdOneSat,
+      from: colScript,
+      tokenAmounts: [{ token: 0, amount: new BigNumber(oneSat) }]
+    }, script)
+    await sendTransaction(testing.container, txn)
+    await testing.generate(1)
+
+    const accAfterFirstPayback = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accAfterFirstPayback).toContain('799989.99999999@DFI')
+
+    const burnInfoFirstPayback = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoFirstPayback.paybackburn).toStrictEqual(new BigNumber(oneSat))
+    expect(burnInfoFirstPayback.dfipaybackfee).toBeUndefined()
+
+    const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
+    expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
+
+    colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    script = await testingProvider.elliptic.script()
+    txn = await testingBuilder.loans.paybackLoan({
+      vaultId: vaultIdOneSat,
+      from: colScript,
+      tokenAmounts: [{ token: 0, amount: new BigNumber(0.00000005) }]
+    }, script)
+    await sendTransaction(testing.container, txn)
+    await testing.generate(1)
+
+    const accAfterSecondPayback = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accAfterSecondPayback).toContain('799989.99999996@DFI')
+
+    const burnInfoAfterSecondPayback = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual(new BigNumber(oneSat * 4))
+    expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual(['0.00000002@DUSD'])
+
+    const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
+    expect(vaultAfterSecondPayback.loanAmounts).toHaveLength(0)
+  })
+
+  it('should be able to payback DUSD loan using DFI with excess DFI', async () => {
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
+    await testing.generate(1)
+
+    const burnInfoBefore = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoBefore.paybackburn).toBeUndefined()
+    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
+    expect(burnInfoBefore.dfipaybacktokens).toBeUndefined()
+
+    const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
+    const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestAmountBefore = dusdInterestPerBlock.multipliedBy(new BigNumber(paybackLoanBlockHeight - dusdTakeLoanBlockHeight + 1))
+    const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    // calculate how much dfi is required to pay off all dusd at a penalty rate of 1%
+    // dfi_needed = loan_amount/(1-(price*penalty_rate))
+    const dfiPaybackAmount = dusdLoanAmount + 1000
+    const defaultPenaltyRate = 0.01
+    const dfiEffectPriceAfterPenaltyRate = 1 * (1 - defaultPenaltyRate)
+    const dfiNeededToPayOffDusd = dusdLoanAmountBefore.dividedBy(dfiEffectPriceAfterPenaltyRate).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
+    const colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    const script = await testingProvider.elliptic.script()
+    const txn = await testingBuilder.loans.paybackLoan({
+      vaultId: vaultId,
+      from: colScript,
+      tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }]
+    }, script)
+    await sendTransaction(testing.container, txn)
+    await testing.generate(1)
+
+    const balanceDFIAfter = new BigNumber(900000).minus(dfiNeededToPayOffDusd)
+    const accountAfter = await testing.rpc.account.getTokenBalances(undefined, undefined, { symbolLookup: true })
+    expect(accountAfter).toContain(`${balanceDFIAfter.toFixed(8)}@DFI`)
+
+    const totalDfiPenalty = dfiNeededToPayOffDusd.multipliedBy(defaultPenaltyRate)
+    const totalDusdPaybackAmount = dusdLoanAmountBefore
+    const burnInfoAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoAfter.paybackburn.toFixed(8)).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty).toFixed(8))
+    expect(burnInfoAfter.dfipaybackfee.toFixed(8)).toStrictEqual(totalDfiPenalty.toFixed(8, BigNumber.ROUND_FLOOR))
+    expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
     const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    const temp = dusdLoanAmountAfter.minus(new BigNumber(0.00000001))
-    expect(vaultAfter.loanAmounts).toStrictEqual([`${temp.toFixed(8)}@DUSD`])
-    // to enable this test after the latest COIN precision branch has been merged
-    // expect(vaultAfter.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
+    expect(vaultAfter.loanAmounts).toStrictEqual([])
+    expect(vaultAfter.interestAmounts).toStrictEqual([])
+  })
+
+  it('should not payback DUSD loan using DFI when attribute is not enabled in setGov', async () => {
+    let attribute = await testing.rpc.masternode.getGov(attributeKey)
+    // eslint-disable-next-line no-prototype-builtins
+    let isEnabledDfiPayback = (Boolean(attribute[attributeKey].hasOwnProperty(key))) && attribute[attributeKey][key] === 'true'
+    expect(isEnabledDfiPayback).not.toBeTruthy()
+
+    let dfiPaybackAmount = 100
+    let colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    let script = await testingProvider.elliptic.script()
+    let txn = await testingBuilder.loans.paybackLoan({
+      vaultId: vaultId,
+      from: colScript,
+      tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }]
+    }, script)
+    let promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of DUSD loans with DFI not currently active (code 16)\', code: -26')
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
+    await testing.container.generate(1)
+    attribute = await testing.rpc.masternode.getGov(attributeKey)
+    // eslint-disable-next-line no-prototype-builtins
+    isEnabledDfiPayback = (Boolean(attribute[attributeKey].hasOwnProperty(key))) && attribute[attributeKey][key] === 'true'
+    expect(isEnabledDfiPayback).not.toBeTruthy()
+
+    dfiPaybackAmount = 100
+    colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    script = await testingProvider.elliptic.script()
+    txn = await testingBuilder.loans.paybackLoan({
+      vaultId: vaultId,
+      from: colScript,
+      tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }]
+    }, script)
+    promise = sendTransaction(testing.container, txn)
+
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of DUSD loans with DFI not currently active (code 16)\', code: -26')
   })
 
   it('should not be able to payback TSLA loan using DFI', async () => {
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
+    await testing.generate(1)
     await setupForTslaLoan()
 
     const currentHeight = await testing.rpc.blockchain.getBlockCount()
