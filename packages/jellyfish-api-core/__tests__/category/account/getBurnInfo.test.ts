@@ -39,6 +39,11 @@ it('should getBurnInfo', async () => {
     amount: new BigNumber('10'),
     tokens: ['50.00000000@GOLD'],
     feeburn: new BigNumber('2'),
-    emissionburn: new BigNumber('6274')
+    auctionburn: new BigNumber(0),
+    emissionburn: new BigNumber('6274'),
+    paybackburn: new BigNumber(0),
+    dexfeetokens: [],
+    dfipaybackfee: new BigNumber(0),
+    dfipaybacktokens: []
   })
 })
