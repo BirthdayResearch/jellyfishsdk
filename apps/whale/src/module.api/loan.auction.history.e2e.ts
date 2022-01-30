@@ -65,7 +65,7 @@ beforeAll(async () => {
   await setLoanToken(alice, 'MSFT')
 
   const mVaultId = await createVault(alice, 'default')
-  await depositToVault(alice, mVaultId, colAddr, '200000@DFI')
+  await depositToVault(alice, mVaultId, colAddr, '200001@DFI')
   await depositToVault(alice, mVaultId, colAddr, '20@BTC')
   await takeLoan(alice, mVaultId, ['60000@TSLA', '60000@AAPL', '60000@MSFT'])
 
@@ -75,7 +75,7 @@ beforeAll(async () => {
   await tGroup.waitForSync()
 
   vaultId = await createVault(alice, 'default')
-  await depositToVault(alice, vaultId, colAddr, '10000@DFI')
+  await depositToVault(alice, vaultId, colAddr, '10001@DFI')
   await depositToVault(alice, vaultId, colAddr, '1@BTC')
   await takeLoan(alice, vaultId, '7500@AAPL')
   await takeLoan(alice, vaultId, '2500@TSLA')
@@ -130,7 +130,7 @@ beforeAll(async () => {
   await alice.generate(40)
   await tGroup.waitForSync()
 
-  await depositToVault(alice, vaultId, colAddr, '10000@DFI')
+  await depositToVault(alice, vaultId, colAddr, '10001@DFI')
   await depositToVault(alice, vaultId, colAddr, '1@BTC')
   await takeLoan(alice, vaultId, '10000@MSFT')
 
