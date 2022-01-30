@@ -91,8 +91,10 @@ describe('Poolpair', () => {
       // if set maxPrice lower than 2.5 will hit error
       maxPrice: 2.5
     })
+
+    const swappedAmount = new BigNumber(500).minus(new BigNumber(500 * 200).dividedBy(200 + 666)).multipliedBy(1e8).minus(1).dividedBy(1e8).decimalPlaces(8, BigNumber.ROUND_CEIL)
     expect(typeof receive).toStrictEqual('string')
-    expect(receive).toStrictEqual('384.61537432@0') // calculation refers to 'should testpoolswap' above
+    expect(receive).toStrictEqual(`${swappedAmount.toString()}@0`) // calculation refers to 'should testpoolswap' above
   })
 
   it('should be failed as maxPrice is set lower than reserveB/reserveA', async () => {

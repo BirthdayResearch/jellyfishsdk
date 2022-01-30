@@ -435,7 +435,7 @@ describe('loans.takeLoan failed', () => {
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
-      tokenAmounts: [{ token: 2, amount: new BigNumber(300000) }]
+      tokenAmounts: [{ token: 2, amount: new BigNumber(5000) }]
     }, script)
 
     const promise = sendTransaction(bob.container, txn)
@@ -594,16 +594,15 @@ describe('loans.takeLoan failed', () => {
     await expect(promise).rejects.toThrow('TakeLoanTx: No live fixed prices for GOOGL/USD')
   })
 
-  it('should not takeLoan when DFI collateral value less than 50%', async () => {
+  it('should not takeLoan when DFI collateral value less than 50% of the minimum required collateral', async () => {
     {
-      // reduce DFI value to below 50% of total collateral
       const now = Math.floor(new Date().getTime() / 1000)
       await alice.rpc.oracle.setOracleData(
         oracleId,
         now, {
           prices: [
-            { tokenAmount: '0.4@DFI', currency: 'USD' },
-            { tokenAmount: '10000@BTC', currency: 'USD' },
+            { tokenAmount: '0.1@DFI', currency: 'USD' },
+            { tokenAmount: '50000@BTC', currency: 'USD' },
             { tokenAmount: '2@TSLA', currency: 'USD' }
           ]
         })
@@ -614,12 +613,12 @@ describe('loans.takeLoan failed', () => {
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
       to: { stack: [] },
-      tokenAmounts: [{ token: 2, amount: new BigNumber(0.01) }]
+      tokenAmounts: [{ token: 2, amount: new BigNumber(1000) }]
     }, script)
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI when taking a loan')
+    await expect(promise).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
 
     {
       // revert DFI value changes
