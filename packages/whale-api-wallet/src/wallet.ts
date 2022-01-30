@@ -13,7 +13,7 @@ export class WhaleWalletAccount extends WalletAccount {
     public readonly client: WhaleApiClient,
     walletEllipticPair: WalletEllipticPair,
     network: Network,
-    prevoutSize: number = 50
+    prevoutSize: number = 200
   ) {
     super(walletEllipticPair, network)
     this.feeRateProvider = new WhaleFeeRateProvider(client)
