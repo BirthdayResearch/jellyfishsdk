@@ -102,6 +102,7 @@ describe('Masternode', () => {
     expect(masternodeAnchors[0].dfiRewardHash).toStrictEqual(anchorRewards[0].RewardTxHash)
 
     // list anchor from other masternode
+    await tGroup.waitForSync()
     const masternode1Anchors = await tGroup.get(1).rpc.masternode.listAnchors()
     const masternode2Anchors = await tGroup.get(2).rpc.masternode.listAnchors()
     expect(masternode1Anchors).toStrictEqual(masternodeAnchors)

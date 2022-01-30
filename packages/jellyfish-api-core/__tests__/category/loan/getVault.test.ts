@@ -146,7 +146,7 @@ describe('Loan getVault', () => {
       state: VaultState.ACTIVE,
       collateralAmounts: ['10000.00000000@DFI', '1.00000000@BTC'],
       // 30 TSLA + total interest
-      loanAmounts: [new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8) + '@TSLA'], // 30.00000570@TSLA
+      loanAmounts: [new BigNumber(30).plus(interestInfo[0].totalInterest).toFixed(8) + '@TSLA'], // 30.00000571@TSLA
       interestAmounts: ['0.00000571@TSLA'],
       // (10000 DFI * DFIUSD Price * DFI collaterization factor 1) + (1BTC * BTCUSD Price * BTC collaterization factor 0.5)
       collateralValue: new BigNumber(10000 * 1 * 1).plus(new BigNumber(1 * 10000 * 0.5)),
@@ -209,7 +209,7 @@ describe('Loan getVault', () => {
             '0.66666666@BTC'
           ],
           index: 0,
-          loan: '20.00004547@TSLA',
+          loan: '20.00004546@TSLA',
           highestBid: {
             amount: '40.00000000@TSLA',
             owner: collateralAddress
@@ -221,7 +221,7 @@ describe('Loan getVault', () => {
             '0.33333334@BTC'
           ],
           index: 1,
-          loan: '10.00002305@TSLA'
+          loan: '10.00002304@TSLA'
         }
       ]
     })
