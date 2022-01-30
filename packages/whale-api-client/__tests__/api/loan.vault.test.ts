@@ -335,9 +335,9 @@ describe('get', () => {
       state: LoanVaultState.ACTIVE,
       collateralRatio: '16667',
       collateralValue: '10000',
-      informativeRatio: '16666.61591126',
-      loanValue: '60.00018272',
-      interestValue: '0.00018272',
+      informativeRatio: '16666.61592793',
+      loanValue: '60.00018266',
+      interestValue: '0.00018266',
       collateralAmounts: [
         {
           amount: '10000.00000000',
@@ -359,7 +359,7 @@ describe('get', () => {
       ],
       loanAmounts: [
         {
-          amount: '30.00009136',
+          amount: '30.00009133',
           displaySymbol: 'dTSLA',
           id: '1',
           name: '',
@@ -378,7 +378,7 @@ describe('get', () => {
       ],
       interestAmounts: [
         {
-          amount: '0.00009136',
+          amount: '0.00009133',
           displaySymbol: 'dTSLA',
           id: '1',
           name: '',

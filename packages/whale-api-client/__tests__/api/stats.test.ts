@@ -385,7 +385,7 @@ describe('loan - stats', () => {
         },
         value: {
           collateral: 20000,
-          loan: 60.00018272
+          loan: 60.00018266
         }
       },
       blockchain: {
