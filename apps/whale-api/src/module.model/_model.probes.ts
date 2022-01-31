@@ -55,7 +55,7 @@ export class ModelProbeIndicator extends ProbeIndicator {
       return this.withDead('model', 'synced blocks are undefined', details)
     }
 
-    if (index + 10 <= defid) {
+    if (index + 4 <= defid) {
       return this.withDead('model', 'synced blocks are more than 10 blocks behind', details)
     }
 
