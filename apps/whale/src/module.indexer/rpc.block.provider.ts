@@ -7,6 +7,7 @@ import { IndexStatusMapper, Status } from '@src/module.indexer/status'
 import { TokenMapper } from '@src/module.model/token'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { waitForCondition } from '@defichain/testcontainers/dist/utils'
+import { blockchain as defid } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class RPCBlockProvider {
@@ -78,24 +79,31 @@ export class RPCBlockProvider {
       return await this.indexGenesis()
     }
 
-    if (await this.isBestChain(indexed)) {
-      const highest = await this.client.blockchain.getBlockCount()
-      const nextHeight = indexed.height + 1
-      if (nextHeight > highest) {
-        return false // won't attempt to index ahead
+    let nextHash: string
+    try {
+      nextHash = await this.client.blockchain.getBlockHash(indexed.height + 1)
+    } catch (err) {
+      if (err.payload.message === 'Block height out of range') {
+        return false
       }
+      throw err
+    }
 
-      const nextHash = await this.client.blockchain.getBlockHash(nextHeight)
-      await this.index(nextHash, nextHeight)
+    const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
+    if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
+      await this.index(nextBlock)
     } else {
       await this.invalidate(indexed.hash, indexed.height)
     }
     return true
   }
 
-  private async isBestChain (indexed: Block): Promise<boolean> {
-    const hash = await this.client.blockchain.getBlockHash(indexed.height)
-    return hash === indexed.hash
+  /**
+   * @param {Block} indexed previous block
+   * @param {defid.Block<Transaction>} nextBlock to check previous block hash
+   */
+  private static async isBestChain (indexed: Block, nextBlock: defid.Block<defid.Transaction>): Promise<boolean> {
+    return nextBlock.previousblockhash === indexed.hash
   }
 
   public async indexGenesis (): Promise<boolean> {
@@ -146,16 +154,15 @@ export class RPCBlockProvider {
     await this.invalidate(status.hash, status.height)
   }
 
-  private async index (hash: string, height: number): Promise<void> {
-    this.logger.log(`Index - hash: ${hash} - height: ${height}`)
-    const block = await this.client.blockchain.getBlock(hash, 2)
-    await this.statusMapper.put(hash, height, Status.INDEXING)
+  private async index (block: defid.Block<defid.Transaction>): Promise<void> {
+    this.logger.log(`Index - hash: ${block.hash} - height: ${block.height}`)
+    await this.statusMapper.put(block.hash, block.height, Status.INDEXING)
 
     try {
       await this.indexer.index(block)
-      await this.statusMapper.put(hash, height, Status.INDEXED)
+      await this.statusMapper.put(block.hash, block.height, Status.INDEXED)
     } catch (err) {
-      await this.statusMapper.put(hash, height, Status.ERROR)
+      await this.statusMapper.put(block.hash, block.height, Status.ERROR)
       throw err
     }
   }
