@@ -25,4 +25,17 @@ describe('BlockHash', () => {
     const genesisHash = await client.blockchain.getBlockHash(0)
     expect(genesisHash).toStrictEqual('d744db74fb70ed42767ae028a129365fb4d7de54ba1b6575fb047490554f8a7b')
   })
+
+  it('should getBlockHash but not found', async () => {
+    expect.assertions(1)
+    try {
+      await client.blockchain.getBlockHash(10000)
+    } catch (err: any) {
+      expect(err.payload).toStrictEqual({
+        code: -8,
+        message: 'Block height out of range',
+        method: 'getblockhash'
+      })
+    }
+  })
 })
