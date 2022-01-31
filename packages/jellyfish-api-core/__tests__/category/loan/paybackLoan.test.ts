@@ -1318,9 +1318,9 @@ describe('paybackloan for dusd using dfi', () => {
 
     const dfiPaybackAmount = 100
     const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toBeUndefined()
-    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
-    expect(burnInfoBefore.dfipaybacktokens).toBeUndefined()
+    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
 
     let paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.paybackLoan({
@@ -1404,8 +1404,8 @@ describe('paybackloan for dusd using dfi', () => {
     await testing.generate(1)
 
     const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toBeUndefined()
-    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
+    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
 
     await testing.rpc.loan.depositToVault({
       vaultId: vaultIdOneSat,
@@ -1439,7 +1439,7 @@ describe('paybackloan for dusd using dfi', () => {
 
     const burnInfoFirstPayback = await testing.rpc.account.getBurnInfo()
     expect(burnInfoFirstPayback.paybackburn).toStrictEqual(new BigNumber(oneSat))
-    expect(burnInfoFirstPayback.dfipaybackfee).toBeUndefined()
+    expect(burnInfoFirstPayback.dfipaybackfee).toStrictEqual(new BigNumber(0))
 
     const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
     expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
@@ -1467,9 +1467,9 @@ describe('paybackloan for dusd using dfi', () => {
     await testing.generate(1)
 
     const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toBeUndefined()
-    expect(burnInfoBefore.dfipaybackfee).toBeUndefined()
-    expect(burnInfoBefore.dfipaybacktokens).toBeUndefined()
+    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
 
     const dusdInterestPerBlock = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
     const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
