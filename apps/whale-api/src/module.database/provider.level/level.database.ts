@@ -148,6 +148,9 @@ export abstract class LevelUpDatabase extends Database {
  */
 export class LevelDatabase extends LevelUpDatabase {
   constructor (@Inject('LEVEL_UP_LOCATION') location: string) {
-    super(level(location))
+    super(level(location, {
+      maxOpenFiles: 2000,
+      maxFileSize: 8 * 1024 * 1024
+    }))
   }
 }
