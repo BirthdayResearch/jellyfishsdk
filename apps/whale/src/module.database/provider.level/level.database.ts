@@ -110,14 +110,24 @@ export abstract class LevelUpDatabase extends Database {
   }
 
   async put<M extends Model> (mapping: ModelMapping<M>, model: M): Promise<void> {
-    // TODO(fuxingloh): check before deleting for better performance
-    // TODO(fuxingloh): block writing race condition
-    await this.delete(mapping, model.id)
+    const indexes = Object.values(mapping.index)
+    const persisted = await this.get(mapping, model.id) as M
+
+    if (persisted !== undefined) {
+      // Check before deleting for better performance, only delete secondary indexes that won't be present anymore
+      for (const index of indexes) {
+        if (isIndexModified(index, persisted, model)) {
+          const subIndex = this.subIndex(index, index.partition.key(persisted))
+          const key = index.sort !== undefined ? index.sort.key(persisted) : index.partition.key(persisted)
+          await subIndex.del(key)
+        }
+      }
+    }
 
     const subRoot = this.subRoot(mapping)
     await subRoot.put(model.id, model)
 
-    for (const index of Object.values(mapping.index)) {
+    for (const index of indexes) {
       const subIndex = this.subIndex(index, index.partition.key(model))
       const key = index.sort !== undefined ? index.sort.key(model) : index.partition.key(model)
       await subIndex.put(key, model)
@@ -139,6 +149,34 @@ export abstract class LevelUpDatabase extends Database {
     const subRoot = this.subRoot(mapping)
     await subRoot.del(model.id)
   }
+}
+
+/**
+ * Given the current persisted and soon to be overridden data, is the index we are writing to modified?
+ *
+ * If it's modified, we need to delete the previously indexed data. (delete and put)
+ * If it's not modified, we can just replace it via a simple put. (put)
+ *
+ * @param {ModelIndex<M>} index to write data into
+ * @param {M} persisted currently persisted
+ * @param {M} override to be overridden with
+ */
+function isIndexModified<M extends Model> (index: ModelIndex<M>, persisted: M, override: M): boolean {
+  const persistedPartitionKey = index.partition.key(persisted)
+  const overridePartitionKey = index.partition.key(override)
+
+  if (persistedPartitionKey !== overridePartitionKey) {
+    return true
+  }
+
+  if (index.sort === undefined) {
+    return false
+  }
+
+  const persistedSortKey = index.sort.key(persisted)
+  const overrideSortKey = index.sort.key(override)
+
+  return persistedSortKey !== overrideSortKey
 }
 
 /**
