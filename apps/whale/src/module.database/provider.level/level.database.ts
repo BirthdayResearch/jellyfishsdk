@@ -186,9 +186,6 @@ function isIndexModified<M extends Model> (index: ModelIndex<M>, persisted: M, o
  */
 export class LevelDatabase extends LevelUpDatabase {
   constructor (@Inject('LEVEL_UP_LOCATION') location: string) {
-    super(level(location, {
-      maxOpenFiles: 2000,
-      maxFileSize: 8 * 1024 * 1024
-    }))
+    super(level(location))
   }
 }
