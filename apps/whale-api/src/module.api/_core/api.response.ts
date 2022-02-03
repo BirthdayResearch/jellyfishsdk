@@ -9,3 +9,12 @@ export interface ApiResponse {
   page?: ApiPage
   error?: ApiError
 }
+
+/* eslint-disable @typescript-eslint/no-extraneous-class */
+/**
+ * Raw Abstract ApiResponse class to bypass ResponseInterceptor.
+ * Used by ApiPagedResponse to structure paged response structure.
+ */
+export abstract class ApiRawResponse implements ApiResponse {
+
+}
