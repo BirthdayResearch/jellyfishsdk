@@ -1477,6 +1477,7 @@ describe('paybackloan for dusd using dfi', () => {
     const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
     // calculate how much dfi is required to pay off all dusd at a penalty rate of 1%
+    // price of dfi to dusd depends on the oracle, in this case 1 DFI = 1 DUSD
     // dfi_needed = loan_amount/(1-(price*penalty_rate))
     const dfiPaybackAmount = dusdLoanAmount + 1000
     const defaultPenaltyRate = 0.01
