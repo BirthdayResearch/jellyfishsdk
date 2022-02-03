@@ -7,10 +7,7 @@ import { PriceTicker, PriceTickerMapper } from '@src/module.model/price.ticker'
 import { PriceOracle } from '@whale-api-client/api/prices'
 import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OraclePriceActive, OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
-import {
-  OraclePriceAggregatedInterval,
-  OraclePriceAggregatedIntervalMapper
-} from '@src/module.model/oracle.price.aggregated.interval'
+import { ApiError } from '@src/module.api/_core/api.error'
 
 @Controller('/prices')
 export class PriceController {
@@ -19,8 +16,7 @@ export class PriceController {
     protected readonly oracleTokenCurrencyMapper: OracleTokenCurrencyMapper,
     protected readonly priceTickerMapper: PriceTickerMapper,
     protected readonly priceFeedMapper: OraclePriceFeedMapper,
-    protected readonly oraclePriceActiveMapper: OraclePriceActiveMapper,
-    protected readonly oraclePriceAggregatedIntervalMapper: OraclePriceAggregatedIntervalMapper
+    protected readonly oraclePriceActiveMapper: OraclePriceActiveMapper
   ) {
   }
 
@@ -68,12 +64,8 @@ export class PriceController {
     @Param('key') key: string,
       @Param('interval', ParseIntPipe) interval: number,
       @Query() query: PaginationQuery
-  ): Promise<ApiPagedResponse<OraclePriceAggregatedInterval>> {
-    const priceKey = `${key}-${interval}`
-    const items = await this.oraclePriceAggregatedIntervalMapper.query(priceKey, query.size, query.next)
-    return ApiPagedResponse.of(items, query.size, item => {
-      return item.sort
-    })
+  ): Promise<ApiPagedResponse<any>> {
+    return new DeprecatedIntervalApiPagedResponse()
   }
 
   @Get('/:key/oracles')
@@ -92,5 +84,20 @@ export class PriceController {
     return ApiPagedResponse.of(items, query.size, item => {
       return item.oracleId
     })
+  }
+}
+
+class DeprecatedIntervalApiPagedResponse<T> extends ApiPagedResponse<T> {
+  error?: ApiError
+
+  constructor () {
+    super([])
+    this.error = {
+      at: Date.now(),
+      code: 410,
+      type: 'Gone',
+      message: 'Oracle feed interval data has been deprecated with immediate effect. See https://github.com/DeFiCh/whale/pull/749 for more information.',
+      url: '/:key/feed/interval/:interval'
+    }
   }
 }

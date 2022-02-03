@@ -10,9 +10,6 @@ import { TransactionVinMapper } from '@src/module.model/transaction.vin'
 import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
 import { OracleHistoryMapper } from '@src/module.model/oracle.history'
 import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
-import {
-  OraclePriceAggregatedIntervalMapper
-} from '@src/module.model/oracle.price.aggregated.interval'
 import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
 import { OracleMapper } from '@src/module.model/oracle'
@@ -36,7 +33,6 @@ import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
     TransactionVoutMapper,
     OracleHistoryMapper,
     OraclePriceAggregatedMapper,
-    OraclePriceAggregatedIntervalMapper,
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
@@ -58,7 +54,6 @@ import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
     TransactionVoutMapper,
     OracleHistoryMapper,
     OraclePriceAggregatedMapper,
-    OraclePriceAggregatedIntervalMapper,
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
