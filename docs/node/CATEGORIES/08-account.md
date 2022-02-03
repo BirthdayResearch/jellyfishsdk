@@ -409,5 +409,17 @@ export interface BurnInfo {
    * Amount collected via emission burn
    */
   emissionburn: BigNumber
+  /**
+   * Value of burn after payback
+   */
+  paybackburn: BigNumber
+  /**
+   * Amount of DFI collected from penalty resulting from paying DUSD using DFI
+   */
+  dfipaybackfee: BigNumber
+  /**
+   * Amount of tokens that are paid back
+   */
+  dfipaybacktokens: string[]
 }
 ```
