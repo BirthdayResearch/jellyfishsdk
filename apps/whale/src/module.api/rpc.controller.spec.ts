@@ -9,7 +9,6 @@ let controller: RpcController
 
 beforeAll(async () => {
   await container.start()
-  await container.waitForReady()
   client = new JsonRpcClient(await container.getCachedRpcUrl())
 })
 
@@ -20,13 +19,23 @@ afterAll(async () => {
 beforeEach(async () => {
   const app: TestingModule = await Test.createTestingModule({
     controllers: [RpcController],
-    providers: [{ provide: JsonRpcClient, useValue: client }]
+    providers: [{
+      provide: JsonRpcClient,
+      useValue: client
+    }]
   }).compile()
 
   controller = app.get<RpcController>(RpcController)
 })
 
-it('should getblockchaininfo', async () => {
+it('should getblockchaininfo via deprecated endpoint', async () => {
   const result = await controller.call('getblockchaininfo', undefined)
   expect(result.chain).toStrictEqual('regtest')
+})
+
+it('should getblockchaininfo via JSON RPC 1.0', async () => {
+  const result = await controller.post({
+    method: 'getblockchaininfo'
+  })
+  expect(result.result.chain).toStrictEqual('regtest')
 })

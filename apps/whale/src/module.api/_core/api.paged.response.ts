@@ -1,4 +1,4 @@
-import { ApiResponse } from '@src/module.api/_core/api.response'
+import { ApiRawResponse } from './api.response'
 
 /**
  * ApiPage for pagination ApiPagedResponse pagination
@@ -62,11 +62,12 @@ export interface ApiPage {
  * Answer: Blocks sorted by height in descending order, that's your sorted list and your slice window.
  *       : <- Latest | [100] [99] [98] [97] [...] | Oldest ->
  */
-export class ApiPagedResponse<T> implements ApiResponse {
+export class ApiPagedResponse<T> extends ApiRawResponse {
   data: T[]
   page?: ApiPage
 
   protected constructor (data: T[], next?: string) {
+    super()
     this.data = data
     this.page = next !== undefined ? { next } : undefined
   }
