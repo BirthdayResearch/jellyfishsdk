@@ -7,10 +7,6 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
-import {
-  OracleIntervalSeconds,
-  OraclePriceAggregatedIntervalMapper
-} from '@src/module.model/oracle.price.aggregated.interval'
 
 describe('invalidate appoint/remove/update oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -368,86 +364,5 @@ describe('invalidate set oracle data', () => {
       const as2 = await app.get(OraclePriceAggregatedMapper).query('S2-USD2', Number.MAX_SAFE_INTEGER)
       expect(as2.length).toStrictEqual(1)
     }
-  })
-})
-
-describe('interval set oracle data', () => {
-  const container = new MasterNodeRegTestContainer()
-  let app: NestFastifyApplication
-  let client: JsonRpcClient
-
-  beforeAll(async () => {
-    await container.start()
-    await container.waitForWalletCoinbaseMaturity()
-
-    app = await createTestingApp(container)
-    client = new JsonRpcClient(await container.getCachedRpcUrl())
-  })
-
-  afterAll(async () => {
-    await stopTestingApp(container, app)
-  })
-
-  it('should get interval', async () => {
-    const address = await container.getNewAddress()
-    const oracleId = await client.oracle.appointOracle(address, [
-      { token: 'S1', currency: 'USD' }
-    ], {
-      weightage: 1
-    })
-    await container.generate(1)
-
-    const oneMinute = 60
-    const timeNow = Math.floor(new Date().getTime() / 1000)
-    for (let i = 0; i < 60; i++) {
-      const mockTime = timeNow + i * oneMinute
-      const price = (i + 1).toFixed(2)
-      await client.oracle.setOracleData(oracleId, timeNow + 5 * 60 - 1, {
-        prices: [
-          { tokenAmount: `${price}@S1`, currency: 'USD' }
-        ]
-      })
-      await client.misc.setMockTime(mockTime)
-      await container.generate(1)
-    }
-
-    const height = await container.getBlockCount()
-    await container.generate(1)
-    await waitForIndexedHeight(app, height)
-
-    const noInterval = await app.get(OraclePriceAggregatedMapper).query('S1-USD', Number.MAX_SAFE_INTEGER)
-    expect(noInterval.length).toStrictEqual(60)
-
-    const interval5Minutes = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.FIVE_MINUTES}`, Number.MAX_SAFE_INTEGER)
-    expect(interval5Minutes.length).toStrictEqual(11)
-    expect(interval5Minutes.map(x => x.aggregated.amount)).toStrictEqual(
-      [
-        '58.50000000',
-        '53.50000000',
-        '47.50000000',
-        '41.50000000',
-        '35.50000000',
-        '29.50000000',
-        '23.50000000',
-        '17.50000000',
-        '11.50000000',
-        '5.00000000',
-        '1.00000000'
-      ]
-    )
-
-    const interval10Minutes = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.TEN_MINUTES}`, Number.MAX_SAFE_INTEGER)
-    expect(interval10Minutes.length).toStrictEqual(7)
-    expect(interval10Minutes.map(x => x.aggregated.amount)).toStrictEqual(
-      [
-        '59.00000000',
-        '52.00000000',
-        '41.00000000',
-        '30.00000000',
-        '19.00000000',
-        '7.50000000',
-        '1.00000000'
-      ]
-    )
   })
 })

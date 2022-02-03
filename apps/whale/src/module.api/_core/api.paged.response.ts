@@ -66,7 +66,7 @@ export class ApiPagedResponse<T> implements ApiResponse {
   data: T[]
   page?: ApiPage
 
-  private constructor (data: T[], next?: string) {
+  protected constructor (data: T[], next?: string) {
     this.data = data
     this.page = next !== undefined ? { next } : undefined
   }
