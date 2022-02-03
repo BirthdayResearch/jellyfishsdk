@@ -1,16 +1,10 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "include": [
     "./src/**/*"
   ],
   "compilerOptions": {
-    "baseUrl": "../../",
-    "target": "esnext",
-    "experimentalDecorators": true,
-    "incremental": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
     "outDir": "./dist",
     "removeComments": true
-  },
+  }
 }
