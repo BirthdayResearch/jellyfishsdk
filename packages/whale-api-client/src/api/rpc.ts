@@ -3,6 +3,9 @@ import { WhaleApiClient } from '../whale.api.client'
 import { WhaleApiResponse } from '../whale.api.response'
 import { raiseIfError } from '../errors'
 
+/**
+ * @deprecated since 0.22.x, please use WhaleRpcClient directly
+ */
 export class Rpc {
   constructor (private readonly client: WhaleApiClient) {
   }

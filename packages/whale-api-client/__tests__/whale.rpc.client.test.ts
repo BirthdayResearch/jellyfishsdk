@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { WhaleRpcClient } from '../src'
 import { StubService } from './stub.service'
-import { StubWhaleApiClient } from './stub.client'
+import { StubWhaleRpcClient } from './stub.client'
 
 let container: MasterNodeRegTestContainer
 let service: StubService
@@ -10,10 +10,9 @@ let client: WhaleRpcClient
 beforeAll(async () => {
   container = new MasterNodeRegTestContainer()
   service = new StubService(container)
-  client = new WhaleRpcClient(new StubWhaleApiClient(service))
+  client = new StubWhaleRpcClient(service)
 
   await container.start()
-  await container.waitForReady()
   await service.start()
 })
 
@@ -28,7 +27,13 @@ afterAll(async () => {
 it('should not be able to access wallet', async () => {
   return await expect(async () => {
     await client.wallet.getBalance()
-  }).rejects.toThrow('WhaleRpcClient: wallet.getBalance not enabled in WhaleApiClient')
+  }).rejects.toThrow('ClientApiError: 422 - Unprocessable Entity')
+})
+
+it('should not be able to access accounts', async () => {
+  return await expect(async () => {
+    await client.account.listAccountHistory()
+  }).rejects.toThrow('ClientApiError: 422 - Unprocessable Entity')
 })
 
 describe('whitelisted rpc methods', () => {

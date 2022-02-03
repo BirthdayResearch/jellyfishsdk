@@ -1,38 +1,25 @@
-import { ApiClient, Precision, PrecisionPath } from '@defichain/jellyfish-api-core'
-import { WhaleApiClient } from './whale.api.client'
-import { Wallet } from '@defichain/jellyfish-api-core/dist/category/wallet'
-import { Net } from '@defichain/jellyfish-api-core/dist/category/net'
+import { ClientOptions, JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 /**
- * A JSON-RPC client implemented with WhaleApiClient.call specification.
+ * A JSON-RPC client implemented to interface with Whale RpcController.
+ *
  * Not all methods are whitelisted.
  */
-export class WhaleRpcClient extends ApiClient {
-  wallet = NotEnabledProxy<Wallet>('wallet')
-  net = NotEnabledProxy<Net>('net')
-
-  constructor (protected readonly whaleApiClient: WhaleApiClient) {
-    super()
-  }
-
+export class WhaleRpcClient extends JsonRpcClient {
   /**
-   * Implements jellyfish-api-core ApiClient by routing to WhaleApiClient.call
+   * MainNet Stable: https://ocean.defichain.com/v0/mainnet/rpc
+   * MainNet Edge:   https://ocean.defichain.com/v0.x/mainnet/rpc
    *
-   * @param {string} method the RPC method
-   * @param {any[]} params to send upstream
-   * @param {Precision | PrecisionPath} precision for JSON parsing
-   * @throws WhaleApiException instanceof for upstream errors
-   * @throws WhaleClientException instanceof for local issues
+   * @param {string} url
+   * @param {ClientOptions} [options]
    */
-  async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
-    return await this.whaleApiClient.rpc.call(method, params, precision)
+  constructor (url: string = 'https://ocean.defichain.com/v0/mainnet/rpc', options?: ClientOptions) {
+    super(url, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        'Content-Type': 'application/json'
+      }
+    })
   }
-}
-
-function NotEnabledProxy<T> (category: string): T {
-  return new Proxy({}, {
-    get (target, prop) {
-      throw new Error(`WhaleRpcClient: ${category}.${prop as string} not enabled in WhaleApiClient`)
-    }
-  }) as T
 }
