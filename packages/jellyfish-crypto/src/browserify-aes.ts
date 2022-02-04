@@ -3,7 +3,6 @@
  * For ./aes256 package to work without crypto.
  * @warning this is bare minimum, not fully typed as native crypto package.
  */
-
 declare module 'browserify-aes' {
   interface Cipher {
     update: (data: Buffer) => Buffer

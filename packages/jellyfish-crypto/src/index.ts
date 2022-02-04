@@ -1,5 +1,5 @@
-import './browserify-aes.d.ts'
-import './bip66.d.ts'
+import './bip66'
+import './browserify-aes'
 
 export * from './aes256'
 export * from './bech32'
