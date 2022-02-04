@@ -11,7 +11,8 @@
     "start:dev": "nest start --watch"
   },
   "dependencies": {
-    "@defichain/whale-api-client": "^0.22.0",
+    "@defichain/whale-api-client": "^0.22.2",
+    "@defichain/jellyfish-address": "0.0.0",
     "@nestjs/common": "^8.2.6",
     "@nestjs/config": "^1.1.6",
     "@nestjs/core": "^8.2.6",
