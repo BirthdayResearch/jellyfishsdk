@@ -1,3 +1,6 @@
+import './browserify-aes'
+import './bip66'
+
 export * from './aes256'
 export * from './bech32'
 export * from './bs58'
