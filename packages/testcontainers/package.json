@@ -30,6 +30,6 @@
     "defichain": "^0.0.0"
   },
   "devDependencies": {
-    "@types/dockerode": "^3.3.1"
+    "@types/dockerode": "^3.3.2"
   }
 }
