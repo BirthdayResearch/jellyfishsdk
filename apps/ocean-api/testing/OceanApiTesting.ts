@@ -1,7 +1,7 @@
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { OceanApiClient } from '@defichain/ocean-api-client'
-import { StubServer } from './StubServer'
-import { StubClient } from './StubClient'
+import { OceanStubServer } from './OceanStubServer'
+import { OceanStubClient } from './OceanStubClient'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
@@ -12,8 +12,8 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 export class OceanApiTesting {
   constructor (
     private readonly testingGroup: TestingGroup,
-    private readonly stubServer: StubServer = new StubServer(testingGroup.get(0).container),
-    private readonly stubApiClient: StubClient = new StubClient((stubServer))
+    private readonly stubServer: OceanStubServer = new OceanStubServer(testingGroup.get(0).container),
+    private readonly stubApiClient: OceanStubClient = new OceanStubClient((stubServer))
   ) {
   }
 
@@ -61,7 +61,7 @@ export class OceanApiTesting {
    *
    * @see TestingGroup
    * @see Testing
-   * @see StubServer
+   * @see OceanStubServer
    */
   async start (): Promise<void> {
     await this.group.start()
@@ -73,7 +73,7 @@ export class OceanApiTesting {
    *
    * @see TestingGroup
    * @see Testing
-   * @see StubServer
+   * @see OceanStubServer
    */
   async stop (): Promise<void> {
     try {
