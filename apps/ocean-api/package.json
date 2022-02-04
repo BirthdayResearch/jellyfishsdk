@@ -7,10 +7,6 @@
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json"
   },
@@ -28,7 +24,7 @@
     "cache-manager": "^3.6.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
-    "joi": "^17.5.0"
+    "joi": "^17.6.0"
   },
   "devDependencies": {
     "@defichain/ocean-api-client": "0.0.0",
