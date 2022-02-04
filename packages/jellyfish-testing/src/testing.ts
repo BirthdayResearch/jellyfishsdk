@@ -6,24 +6,31 @@ import { TestingRawTx } from './rawtx'
 import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
 import { TestingGroupAnchor } from './anchor'
-import { ContainerGroup, MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
+import { ContainerGroup, DeFiDContainer, MasterNodeRegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class Testing {
+  public readonly container: MasterNodeRegTestContainer
   public readonly fixture = new TestingFixture(this)
-  public readonly token = new TestingToken(this.container, this.rpc)
-  public readonly poolpair = new TestingPoolPair(this.container, this.rpc)
-  public readonly rawtx = new TestingRawTx(this.container, this.rpc)
-  public readonly icxorderbook = new TestingICX(this)
-  public readonly misc = new TestingMisc(this.container, this.rpc)
+  public readonly token: TestingToken
+  public readonly poolpair: TestingPoolPair
+  public readonly rawtx: TestingRawTx
+  public readonly icxorderbook: TestingICX
+  public readonly misc: TestingMisc
 
   private readonly addresses: Record<string, string> = {}
 
   private constructor (
-    public readonly container: MasterNodeRegTestContainer,
+    public readonly con: DeFiDContainer,
     public readonly rpc: TestingJsonRpcClient
   ) {
+    this.container = con as MasterNodeRegTestContainer
+    this.token = new TestingToken(this.container, this.rpc)
+    this.poolpair = new TestingPoolPair(this.container, this.rpc)
+    this.rawtx = new TestingRawTx(this.container, this.rpc)
+    this.icxorderbook = new TestingICX(this)
+    this.misc = new TestingMisc(this.container, this.rpc)
   }
 
   async generate (n: number): Promise<void> {
@@ -55,6 +62,10 @@ export class Testing {
   }
 
   static create (container: MasterNodeRegTestContainer): Testing {
+    return this.createBase(container)
+  }
+
+  static createBase (container = new DeFiDContainer('regtest')): Testing {
     const rpc = new TestingJsonRpcClient(container)
     return new Testing(container, rpc)
   }
@@ -63,7 +74,7 @@ export class Testing {
 export class TestingGroup {
   public readonly anchor = new TestingGroupAnchor(this)
 
-  private constructor (
+  constructor (
     public readonly group: ContainerGroup,
     public readonly testings: Testing[]
   ) {
@@ -75,12 +86,17 @@ export class TestingGroup {
    */
   static create (
     n: number,
-    init = (index: number) => new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
+    init?: (index: number) => DeFiDContainer
   ): TestingGroup {
     const containers: MasterNodeRegTestContainer[] = []
     const testings: Testing[] = []
+
+    if (init === undefined) {
+      init = (index: number) => new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
+    }
+
     for (let i = 0; i < n; i += 1) {
-      const container = init(i)
+      const container = init(i) as MasterNodeRegTestContainer
       containers.push(container)
 
       const testing = Testing.create(container)
@@ -102,6 +118,11 @@ export class TestingGroup {
   async add (container: MasterNodeRegTestContainer): Promise<void> {
     await this.group.add(container)
     const testing = Testing.create(container)
+    this.testings.push(testing)
+  }
+
+  async addTesting (testing: Testing): Promise<void> {
+    await this.group.add(testing.container)
     this.testings.push(testing)
   }
 
@@ -137,7 +158,7 @@ export class TestingGroup {
  * JsonRpcClient with dynamic url resolved from MasterNodeRegTestContainer.
  */
 class TestingJsonRpcClient extends JsonRpcClient {
-  constructor (public readonly container: MasterNodeRegTestContainer) {
+  constructor (public readonly container: DeFiDContainer) {
     super('resolved in fetch')
   }
 
