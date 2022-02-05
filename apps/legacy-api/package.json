@@ -7,8 +7,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -b tsconfig.build.json",
-    "start:dev": "nest start --watch"
+    "build": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
     "@defichain/whale-api-client": "^0.22.2",
