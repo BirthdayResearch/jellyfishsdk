@@ -8,7 +8,7 @@ import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 export class TokenController {
   @Get('gettoken')
   async getToken (
-    @Query('network') network: string = 'mainnet',
+    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
     @Query('id') tokenId: string
   ): Promise<{ [key: string]: LegacyTokenData }> {
     const api = new WhaleApiClient({
@@ -25,7 +25,7 @@ export class TokenController {
 
   @Get('listtokens')
   async listTokens (
-    @Query('network') network: string = 'mainnet',
+    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
     @Query('id') tokenId: string
   ): Promise<{ [key: string]: LegacyTokenData }> {
     const api = new WhaleApiClient({

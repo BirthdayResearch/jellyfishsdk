@@ -8,7 +8,7 @@ import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 export class PoolPairController {
   @Get('getpoolpair')
   async getToken (
-    @Query('network') network: string = 'mainnet',
+    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
     @Query('id') poolPairId: string
   ): Promise<LegacyPoolPairData> {
     const api = new WhaleApiClient({
@@ -22,7 +22,7 @@ export class PoolPairController {
 
   @Get('listpoolpairs')
   async listPoolPairs (
-    @Query('network') network: string = 'mainnet'
+    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet'
   ): Promise<{ [key: string]: LegacyPoolPairData }> {
     const api = new WhaleApiClient({
       version: 'v0',
