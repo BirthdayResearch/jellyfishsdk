@@ -2,8 +2,6 @@ import { Controller, Get, Query } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 
-// For current Stats api endpoints: https://github.com/cakedefi/defi-stats-api/blob/ef46b74cc929003eb72fc39942049efc8681bf66/src/config/v1/v1.controller.ts
-
 @Controller('v1')
 export class TokenController {
   @Get('gettoken')
