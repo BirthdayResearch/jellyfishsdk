@@ -4,10 +4,10 @@ import BigNumber from 'bignumber.js'
 
 export interface CoinbaseSubsidyOptions {
   eunosHeight: number
-  genesisBlockSubsidy: number
-  preEunosBlockSubsidy: 20000000000
-  eunosBaseBlockSubsidy: 40504000000
-  eunosFoundationBurn: number
+  genesisBlockSubsidy: string
+  preEunosBlockSubsidy: '20000000000'
+  eunosBaseBlockSubsidy: '40504000000'
+  eunosFoundationBurn: string
   emissionReduction: 1658
   emissionReductionInterval: 32690
 }
@@ -17,10 +17,10 @@ export const MainNetCoinbaseSubsidyOptions: CoinbaseSubsidyOptions = {
   /**
    * https://defiscan.live/blocks/279b1a87aedc7b9471d4ad4e5f12967ab6259926cd097ade188dfcf22ebfe72a
    */
-  genesisBlockSubsidy: 59100003000000000,
-  preEunosBlockSubsidy: 20000000000,
-  eunosBaseBlockSubsidy: 40504000000,
-  eunosFoundationBurn: 27370000000,
+  genesisBlockSubsidy: '59100003000000000',
+  preEunosBlockSubsidy: '20000000000',
+  eunosBaseBlockSubsidy: '40504000000',
+  eunosFoundationBurn: '27370000000000000',
   emissionReduction: 1658,
   emissionReductionInterval: 32690
 }
@@ -30,10 +30,10 @@ export const TestNetCoinbaseSubsidyOptions: CoinbaseSubsidyOptions = {
   /**
    * https://defiscan.live/blocks/034ac8c88a1a9b846750768c1ad6f295bc4d0dc4b9b418aee5c0ebd609be8f90?network=TestNet
    */
-  genesisBlockSubsidy: 30400004000000000,
-  preEunosBlockSubsidy: 20000000000,
-  eunosBaseBlockSubsidy: 40504000000,
-  eunosFoundationBurn: 0,
+  genesisBlockSubsidy: '30400004000000000',
+  preEunosBlockSubsidy: '20000000000',
+  eunosBaseBlockSubsidy: '40504000000',
+  eunosFoundationBurn: '0',
   emissionReduction: 1658,
   emissionReductionInterval: 32690
 }
@@ -117,10 +117,10 @@ export class BlockSubsidy {
   }
 
   private computeReductionSupplyMilestones (reductionBlockSubsidies: BigNumber[]): BigNumber[] {
-    const baseSupply = new BigNumber(this.options.genesisBlockSubsidy).plus(
-      new BigNumber(this.options.preEunosBlockSubsidy).times(this.options.eunosHeight - 1)
-    )
-    // minus eunosFoundationBurn
+    const preEunosTotalSupply = new BigNumber(this.options.preEunosBlockSubsidy).times(this.options.eunosHeight - 1)
+    const baseSupply = new BigNumber(this.options.genesisBlockSubsidy)
+      .plus(preEunosTotalSupply)
+      .minus(this.options.eunosFoundationBurn)
 
     const supplyMilestones: BigNumber[] = [
       baseSupply
