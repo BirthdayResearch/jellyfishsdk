@@ -39,7 +39,10 @@ export const TestNetCoinbaseSubsidyOptions: CoinbaseSubsidyOptions = {
 }
 
 /**
- * All calculation are in satoshi
+ * All calculation are in satoshi.
+ *
+ * This class cache all 1252 reductions block subsidies and milestones allowing instantaneous computation.
+ * With very little memory footprint, 1252 x 2 BigNumber classes for both getSupply and getBlockSubsidy.
  */
 export class BlockSubsidy {
   private readonly reductionBlockSubsidies: BigNumber[] = this.computeBlockReductionSubsidies()
@@ -48,6 +51,10 @@ export class BlockSubsidy {
   constructor (private readonly options: CoinbaseSubsidyOptions = MainNetCoinbaseSubsidyOptions) {
   }
 
+  /**
+   * @param {number} height
+   * @return BigNumber supply in satoshi up to given height
+   */
   getSupply (height: number): BigNumber {
     validateHeight(height)
 
@@ -58,6 +65,10 @@ export class BlockSubsidy {
     return this.getPostEunosSupply(height)
   }
 
+  /**
+   * @param {number} height
+   * @return BigNumber total block subsidy in satoshi at the given height
+   */
   getBlockSubsidy (height: number): BigNumber {
     validateHeight(height)
 
@@ -77,6 +88,9 @@ export class BlockSubsidy {
     return new BigNumber(0)
   }
 
+  /**
+   * Calculate pre-eunos supply
+   */
   private getPreEunosSupply (height: number): BigNumber {
     let supply = new BigNumber(this.options.genesisBlockSubsidy)
     supply = supply.plus(
@@ -85,6 +99,9 @@ export class BlockSubsidy {
     return supply
   }
 
+  /**
+   * Calculate post-eunos supply
+   */
   private getPostEunosSupply (height: number): BigNumber {
     const postEunosDiff = height - (this.options.eunosHeight - 1)
     const reductionCount = Math.floor(postEunosDiff / this.options.emissionReductionInterval)
