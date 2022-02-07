@@ -1,7 +1,5 @@
 import BigNumber from 'bignumber.js'
 
-// 273,130,999.89
-
 export interface CoinbaseSubsidyOptions {
   eunosHeight: number
   genesisBlockSubsidy: string
@@ -20,7 +18,7 @@ export const MainNetCoinbaseSubsidyOptions: CoinbaseSubsidyOptions = {
   genesisBlockSubsidy: '59100003000000000',
   preEunosBlockSubsidy: '20000000000',
   eunosBaseBlockSubsidy: '40504000000',
-  eunosFoundationBurn: '27370000000000000',
+  eunosFoundationBurn: '27300000000000000',
   emissionReduction: 1658,
   emissionReductionInterval: 32690
 }
@@ -52,6 +50,10 @@ export class BlockSubsidy {
   }
 
   /**
+   * DFI supply calculation up to a given height are done with the best effort.
+   * This does not take DFI burning into account.
+   * Fee burning, burn address, round-down burning, loan burning, etc. are all excluded.
+   *
    * @param {number} height
    * @return BigNumber supply in satoshi up to given height
    */
