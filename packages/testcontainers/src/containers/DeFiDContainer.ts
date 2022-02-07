@@ -27,7 +27,7 @@ export interface StartFlags {
 /**
  * DeFiChain defid node managed in docker
  */
-export abstract class DeFiDContainer extends DockerContainer {
+export class DeFiDContainer extends DockerContainer {
   /* eslint-disable @typescript-eslint/no-non-null-assertion, no-void */
   public static readonly PREFIX = 'defichain-testcontainers-'
 
@@ -51,7 +51,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    * @param {string} image docker image name
    * @param {DockerOptions} options
    */
-  protected constructor (
+  constructor (
     protected readonly network: Network,
     protected readonly image: string = DeFiDContainer.image,
     options?: DockerOptions
@@ -118,7 +118,9 @@ export abstract class DeFiDContainer extends DockerContainer {
   /**
    * Get host machine port used for defid rpc
    */
-  public abstract getRpcPort (): Promise<string>
+  async getRpcPort (): Promise<string> {
+    return await this.getPort('8554/tcp')
+  }
 
   /**
    * Get host machine url used for defid rpc calls with auth
