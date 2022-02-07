@@ -18,7 +18,14 @@ export const MainNetCoinbaseSubsidyOptions: CoinbaseSubsidyOptions = {
   genesisBlockSubsidy: '59100003000000000',
   preEunosBlockSubsidy: '20000000000',
   eunosBaseBlockSubsidy: '40504000000',
-  eunosFoundationBurn: '27300000000000000',
+  /**
+   * Eunos Foundation Burn at Block Height: 894000
+   *
+   * Balances at 893999 right before it got wiped.
+   * dJEbxbfufyPF14SC93yxiquECEfq4YSd9L: 265,713,999.89000000@DFI
+   * 8UAhRuUFCyFUHEPD7qvtj8Zy2HxF5HH5nb:   2,878,893.18829048@DFI
+   */
+  eunosFoundationBurn: '26859289307829046', // 265713999.89000000 + 2,878,893.18829048
   emissionReduction: 1658,
   emissionReductionInterval: 32690
 }
