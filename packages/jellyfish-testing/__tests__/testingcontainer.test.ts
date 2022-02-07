@@ -1,5 +1,5 @@
 import { Testing } from '@defichain/jellyfish-testing'
-import { MainNetContainer, RegTestContainer, TestNetContainer } from '@defichain/testcontainers'
+import { MainNetContainer, RegTestContainer, StartFlags, TestNetContainer } from '@defichain/testcontainers'
 import { TestingWrapper } from '../src/testingwrapper'
 
 const testingWrapper = new TestingWrapper()
@@ -52,7 +52,15 @@ describe('create a single test container using testwrapper', () => {
     expect(chain).toStrictEqual('test')
   })
 
-  // test override using startoption
+  it('should be able to override start option', async () => {
+    testing = testingWrapper.create()
+    const startFlags: StartFlags[] = [{ name: 'fortcanninghillheight', value: 11 }]
+    await testing.container.start({ startFlags })
+
+    const { softforks } = await testing.rpc.blockchain.getBlockchainInfo()
+    // eslint-disable-next-line @typescript-eslint/dot-notation
+    expect(softforks['fortcanninghill'].height).toStrictEqual(11)
+  })
 })
 
 describe('create multiple test container using testwrapper', () => {
@@ -106,5 +114,26 @@ describe('create multiple test container using testwrapper', () => {
 
     await tGroup.stop()
   })
-  // create individual container of masternode and regtest and create a group from it
+
+  it('should be able to create individual container of masternode and regtest and create a group from it', async () => {
+    const masternodeTesting = testingWrapper.create()
+    await masternodeTesting.container.start()
+    const nonmasternodeTesting = testingWrapper.create(1, (index) => new RegTestContainer()) as Testing
+    await nonmasternodeTesting.container.start()
+
+    const tGroup = testingWrapper.group()
+    await tGroup.start()
+
+    await tGroup.addTesting(masternodeTesting)
+    await tGroup.addTesting(nonmasternodeTesting)
+
+    await masternodeTesting.container.generate(1)
+    await tGroup.waitForSync()
+
+    const masternodeBestHash = await masternodeTesting.rpc.blockchain.getBestBlockHash()
+    const nonMasternodeBestHash = await nonmasternodeTesting.rpc.blockchain.getBestBlockHash()
+    expect(masternodeBestHash).toStrictEqual(nonMasternodeBestHash)
+
+    await tGroup.stop()
+  })
 })
