@@ -341,60 +341,60 @@ describe('MainNet.getSupply', () => {
 
   it('should get supply for height=894000', () => {
     const supply = blockSubsidy.getSupply(894000)
-    //              Genesis = 59100003000000000 - Foundation Burn
+    //              Genesis = 59100003000000000 - Foundation Burn (273m)
     // 893999 * 20000000000 = 17879980000000000
     //      1 * 40504000000 = 40504000000
-    expect(supply).toStrictEqual(new BigNumber('76980023504000000'))
+    expect(supply).toStrictEqual(new BigNumber('49680023504000000'))
   })
 
   it('should get supply for height=926689', () => {
     const supply = blockSubsidy.getSupply(926689)
-    //              Genesis = 59100003000000000 - Foundation Burn
+    //              Genesis = 59100003000000000 - Foundation Burn (273m)
     // 893999 * 20000000000 = 17879980000000000
     //  32690 * 40504000000 =  1324075760000000
-    expect(supply).toStrictEqual(new BigNumber('78304058760000000'))
+    expect(supply).toStrictEqual(new BigNumber('51004058760000000'))
   })
 
   it('should get supply for height=926690', () => {
     const supply = blockSubsidy.getSupply(926690)
-    //              Genesis = 59100003000000000 - Foundation Burn
+    //              Genesis = 59100003000000000 - Foundation Burn (273m)
     // 893999 * 20000000000 = 17879980000000000
     //  32690 * 40504000000 =  1324075760000000
     //      1 * 39832443680 =       39832443680
-    expect(supply).toStrictEqual(new BigNumber('78304098592443680'))
+    expect(supply).toStrictEqual(new BigNumber('51004098592443680'))
   })
 
   it('should get supply for height=959379', () => {
     const supply = blockSubsidy.getSupply(959379)
-    //              Genesis = 59100003000000000 - Foundation Burn
+    //              Genesis = 59100003000000000 - Foundation Burn (273m)
     // 893999 * 20000000000 = 17879980000000000
     //  32690 * 40504000000 =  1324075760000000
     //  32690 * 39832443680 =  1302122583899200
-    expect(supply).toStrictEqual(new BigNumber('79606181343899200'))
+    expect(supply).toStrictEqual(new BigNumber('52306181343899200'))
   })
 
   it('should get supply for height=959380', () => {
     const supply = blockSubsidy.getSupply(959380)
-    //              Genesis = 59100003000000000 - Foundation Burn
+    //              Genesis = 59100003000000000 - Foundation Burn (273m)
     // 893999 * 20000000000 = 17879980000000000
     //  32690 * 40504000000 =  1324075760000000
     //  32690 * 39832443680 =  1302122583899200
     //      1 * 39172021764 =       39172021764
-    expect(supply).toStrictEqual(new BigNumber('79606220515920964'))
+    expect(supply).toStrictEqual(new BigNumber('52306220515920964'))
   })
 
   it('should get supply for height=41821879', () => {
     const supply = blockSubsidy.getSupply(41821879)
-    expect(supply).toStrictEqual(new BigNumber('156839800772831600'))
+    expect(supply).toStrictEqual(new BigNumber('129539800772831600'))
   })
 
   it('should get supply for height=41821880', () => {
     const supply = blockSubsidy.getSupply(41821880)
-    expect(supply).toStrictEqual(new BigNumber('156839800772831600'))
+    expect(supply).toStrictEqual(new BigNumber('129539800772831600'))
   })
 
   it('should get supply for height=1000000000', () => {
     const supply = blockSubsidy.getSupply(1000000000)
-    expect(supply).toStrictEqual(new BigNumber('156839800772831600'))
+    expect(supply).toStrictEqual(new BigNumber('129539800772831600'))
   })
 })
