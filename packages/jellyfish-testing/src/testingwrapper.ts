@@ -19,10 +19,14 @@ export class TestingWrapper {
     return TestingGroup.create(n, init)
   }
 
-  group (): TestingGroup {
+  group (testings: Testing[]): TestingGroup {
     const containers: MasterNodeRegTestContainer[] = []
+
+    testings.forEach(testing => {
+      containers.push(testing.container)
+    })
+
     const group = new ContainerGroup(containers)
-    const testings: Testing[] = []
     return new TestingGroup(group, testings)
   }
 }

@@ -121,11 +121,8 @@ describe('create multiple test container using testwrapper', () => {
     const nonmasternodeTesting = testingWrapper.create(1, (index) => new RegTestContainer()) as Testing
     await nonmasternodeTesting.container.start()
 
-    const tGroup = testingWrapper.group()
+    const tGroup = testingWrapper.group([masternodeTesting, nonmasternodeTesting])
     await tGroup.start()
-
-    await tGroup.addTesting(masternodeTesting)
-    await tGroup.addTesting(nonmasternodeTesting)
 
     await masternodeTesting.container.generate(1)
     await tGroup.waitForSync()
