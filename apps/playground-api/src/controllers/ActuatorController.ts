@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { HealthCheck, HealthCheckResult, HealthCheckService } from '@nestjs/terminus'
-import { ActuatorProbes } from '../modules/ActuatorModule'
+import { ActuatorProbes } from '@defichain-apps/ocean-api/src/modules/ActuatorModule'
 
 @Controller('/_actuator')
 export class ActuatorController {

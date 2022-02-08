@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { AppConfiguration } from '../AppConfiguration'
-import { ActuatorModule } from './ActuatorModule'
-import { BlockchainCppModule } from './BlockchainCppModule'
 import { ControllerModule } from './ControllerModule'
-import { PlaygroundModule } from './PlaygroundModule'
+import { BlockchainCppModule } from '@defichain-apps/ocean-api/src/modules/BlockchainCppModule'
+import { ActuatorModule } from '@defichain-apps/ocean-api/src/modules/ActuatorModule'
 
 @Module({
   imports: [
@@ -15,8 +14,7 @@ import { PlaygroundModule } from './PlaygroundModule'
     }),
     ActuatorModule,
     BlockchainCppModule,
-    ControllerModule,
-    PlaygroundModule
+    ControllerModule
   ]
 })
 export class RootModule {
