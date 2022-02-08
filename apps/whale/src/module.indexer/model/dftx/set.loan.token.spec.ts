@@ -2,8 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { Testing } from '@defichain/jellyfish-testing'
-import { PoolPairMapper } from '@src/module.model/poolpair'
-import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
+import { PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
+import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -60,23 +60,25 @@ describe('set loan token', () => {
     await waitForIndexedHeight(app, height)
 
     const poolPairTokenMapper = app.get(PoolPairTokenMapper)
-    const poolPairMapper = app.get(PoolPairMapper)
+    const poolPairHistoryMapper = app.get(PoolPairHistoryMapper)
     const result = await poolPairTokenMapper.list(30)
     expect(result.length).toStrictEqual(6)
 
     const poolPairs = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolpairId}`)
+      return await poolPairHistoryMapper.getLatest(`${x.poolPairId}`)
     }))
 
     expect(poolPairs[0]).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.00000000',
-      id: '13-116',
-      pairSymbol: 'F-DFI',
-      poolPairId: '13',
       status: true,
+      name: 'USDT-Default Defi token',
+      pairSymbol: 'USDT-DFI',
+      poolPairId: '8',
       tokenA: {
-        id: 7,
-        symbol: 'F'
+        id: 2,
+        symbol: 'USDT'
       },
       tokenB: {
         id: 0,

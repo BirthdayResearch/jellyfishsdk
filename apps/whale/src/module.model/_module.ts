@@ -17,8 +17,8 @@ import { PriceTickerMapper } from '@src/module.model/price.ticker'
 import { MasternodeMapper } from '@src/module.model/masternode'
 import { MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 import { TokenMapper } from '@src/module.model/token'
-import { PoolPairMapper } from '@src/module.model/poolpair'
-import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
+import { PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
+import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
 import { OraclePriceActiveMapper } from './oracle.price.active'
 import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
 
@@ -44,7 +44,7 @@ import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
     MasternodeMapper,
     MasternodeStatsMapper,
     TokenMapper,
-    PoolPairMapper,
+    PoolPairHistoryMapper,
     PoolPairTokenMapper,
     VaultAuctionHistoryMapper
   ],
@@ -68,7 +68,7 @@ import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
     MasternodeMapper,
     MasternodeStatsMapper,
     TokenMapper,
-    PoolPairMapper,
+    PoolPairHistoryMapper,
     PoolPairTokenMapper,
     VaultAuctionHistoryMapper
   ]

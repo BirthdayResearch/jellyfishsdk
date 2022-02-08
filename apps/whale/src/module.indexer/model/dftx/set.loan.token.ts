@@ -4,7 +4,6 @@ import { RawBlock } from '@src/module.indexer/model/_abstract'
 import { Injectable, Logger } from '@nestjs/common'
 import { HexEncoder } from '@src/module.model/_hex.encoder'
 import { MAX_TOKEN_NAME_LENGTH, MAX_TOKEN_SYMBOL_LENGTH, TokenMapper } from '@src/module.model/token'
-import BigNumber from 'bignumber.js'
 
 @Injectable()
 export class SetLoanTokenIndexer extends DfTxIndexer<SetLoanToken> {
@@ -18,25 +17,36 @@ export class SetLoanTokenIndexer extends DfTxIndexer<SetLoanToken> {
   }
 
   async indexTransaction (block: RawBlock, transaction: DfTxTransaction<SetLoanToken>): Promise<void> {
+    const txid = transaction.txn.txid
     const data = transaction.dftx.data
     const tokenId = await this.tokenMapper.getNextTokenID(true)
+
+    const symbol = data.symbol.trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH)
+    const name = data?.name?.trim().substr(0, MAX_TOKEN_NAME_LENGTH) ?? data.symbol.trim().substr(0, MAX_TOKEN_NAME_LENGTH)
+
     await this.tokenMapper.put({
-      id: `${tokenId}`,
+      id: txid,
+      tokenId: tokenId,
       sort: HexEncoder.encodeHeight(tokenId),
-      symbol: data.symbol.trim().substr(0, MAX_TOKEN_SYMBOL_LENGTH),
-      name: data?.name?.trim().substr(0, MAX_TOKEN_NAME_LENGTH) ?? data.symbol.trim().substr(0, MAX_TOKEN_NAME_LENGTH),
+      symbol: symbol,
+      name: name,
       isDAT: true,
       isLPS: false,
-      limit: new BigNumber(0).toFixed(8),
+      limit: '0.00000000',
       mintable: false,
       decimal: 8,
       tradeable: true,
-      block: { hash: block.hash, height: block.height, medianTime: block.mediantime, time: block.time }
+      block: {
+        hash: block.hash,
+        height: block.height,
+        medianTime: block.mediantime,
+        time: block.time
+      }
     })
   }
 
-  async invalidateTransaction (_: RawBlock, txns: DfTxTransaction<SetLoanToken>): Promise<void> {
-    const tokenId = await this.tokenMapper.getNextTokenID(true)
-    await this.tokenMapper.delete(`${tokenId - 1}`)
+  async invalidateTransaction (_: RawBlock, transaction: DfTxTransaction<SetLoanToken>): Promise<void> {
+    const txid = transaction.txn.txid
+    await this.tokenMapper.delete(txid)
   }
 }

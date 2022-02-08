@@ -2,8 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { createPoolPair, createToken } from '@defichain/testing'
-import { PoolPairMapper } from '@src/module.model/poolpair'
-import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
+import { PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
+import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -40,23 +40,25 @@ describe('create poolpair', () => {
     await waitForIndexedHeight(app, height)
 
     const poolPairTokenMapper = app.get(PoolPairTokenMapper)
-    const poolPairMapper = app.get(PoolPairMapper)
+    const poolPairMapper = app.get(PoolPairHistoryMapper)
     const result = await poolPairTokenMapper.list(30)
     expect(result.length).toStrictEqual(6)
 
     const poolPairs = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolpairId}`)
+      return await poolPairMapper.getLatest(`${x.poolPairId}`)
     }))
 
-    expect(poolPairs[1]).toStrictEqual({
+    expect(poolPairs[0]).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.00000000',
-      id: '11-112',
-      pairSymbol: 'E-DFI',
-      poolPairId: '11',
+      name: 'USDT-Default Defi token',
+      pairSymbol: 'USDT-DFI',
+      poolPairId: '7',
       status: true,
       tokenA: {
-        id: 5,
-        symbol: 'E'
+        id: 1,
+        symbol: 'USDT'
       },
       tokenB: {
         id: 0,
@@ -65,15 +67,17 @@ describe('create poolpair', () => {
       block: expect.any(Object)
     })
 
-    expect(poolPairs[0]).toStrictEqual({
+    expect(poolPairs[1]).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.00000000',
-      id: '12-113',
-      pairSymbol: 'F-DFI',
-      poolPairId: '12',
+      name: 'B-Default Defi token',
+      pairSymbol: 'B-DFI',
+      poolPairId: '8',
       status: true,
       tokenA: {
-        id: 6,
-        symbol: 'F'
+        id: 2,
+        symbol: 'B'
       },
       tokenB: {
         id: 0,
@@ -97,11 +101,13 @@ describe('invalidate', () => {
     await waitForIndexedHeight(app, height)
     await container.generate(2)
 
-    const poolPairMapper = app.get(PoolPairMapper)
-    const poolPair = await poolPairMapper.getLatest('14')
+    const poolPairHistoryMapper = app.get(PoolPairHistoryMapper)
+    const poolPair = await poolPairHistoryMapper.getLatest('14')
     expect(poolPair).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.00000000',
-      id: '14-116',
+      name: 'G-Default Defi token',
       pairSymbol: 'G-DFI',
       poolPairId: '14',
       status: true,
@@ -120,7 +126,7 @@ describe('invalidate', () => {
     await container.generate(2)
     await waitForIndexedHeight(app, height)
 
-    const poolPairInvalidated = await poolPairMapper.getLatest('14')
+    const poolPairInvalidated = await poolPairHistoryMapper.getLatest('14')
     expect(poolPairInvalidated).toStrictEqual(undefined)
   })
 })

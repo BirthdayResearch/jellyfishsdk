@@ -26,29 +26,6 @@ export class TokenMapper {
   public constructor (protected readonly database: Database) {
   }
 
-  async getLatestDAT (): Promise<Token | undefined> {
-    const latest = await this.database.query(TokenMapping.index.sort, {
-      limit: 1,
-      order: SortOrder.DESC,
-      lt: HexEncoder.encodeHeight(DCT_ID_START)
-    })
-
-    return latest[0]
-  }
-
-  async getLatestDST (): Promise<Token | undefined> {
-    const latest = await this.database.query(TokenMapping.index.sort, {
-      limit: 1,
-      order: SortOrder.DESC
-    })
-
-    if (latest.length === 0 || new BigNumber(latest[0].id).lt(DCT_ID_START)) {
-      return undefined
-    }
-
-    return latest[0]
-  }
-
   async query (limit: number, lt?: string): Promise<Token[]> {
     return await this.database.query(TokenMapping.index.sort, {
       limit: limit,
@@ -57,8 +34,20 @@ export class TokenMapper {
     })
   }
 
-  async get (id: string): Promise<Token | undefined> {
-    return await this.database.get(TokenMapping, id)
+  async queryAsc (limit: number, lt?: string): Promise<Token[]> {
+    return await this.database.query(TokenMapping.index.sort, {
+      limit: limit,
+      order: SortOrder.ASC,
+      lt: lt
+    })
+  }
+
+  async getByTxId (txId: string): Promise<Token | undefined> {
+    return await this.database.get(TokenMapping, txId)
+  }
+
+  async getByTokenId (tokenId: number): Promise<Token | undefined> {
+    return await this.database.get(TokenMapping.index.sort, HexEncoder.encodeHeight(tokenId))
   }
 
   async put (token: Token): Promise<void> {
@@ -76,7 +65,7 @@ export class TokenMapper {
         throw new Error('Latest DAT by ID not found')
       }
 
-      const latestId = new BigNumber(latest.id)
+      const latestId = new BigNumber(latest.tokenId)
       if (!latestId.lt(DCT_ID_START - 1)) {
         const latestDST = await this.getLatestDST()
         return latestDST !== undefined ? latestId.plus(1).toNumber() : DCT_ID_START
@@ -84,20 +73,45 @@ export class TokenMapper {
 
       return latestId.plus(1).toNumber()
     }
+
     const latest = await this.getLatestDST()
     if (latest === undefined) {
       // Default to DCT_ID_START if no existing DST
       return DCT_ID_START
     }
 
-    const latestId = new BigNumber(latest.id)
+    const latestId = new BigNumber(latest.tokenId)
     return latestId.plus(1).toNumber()
+  }
+
+  private async getLatestDAT (): Promise<Token | undefined> {
+    const latest = await this.database.query(TokenMapping.index.sort, {
+      limit: 1,
+      order: SortOrder.DESC,
+      lt: HexEncoder.encodeHeight(DCT_ID_START)
+    })
+
+    return latest[0]
+  }
+
+  private async getLatestDST (): Promise<Token | undefined> {
+    const latest = await this.database.query(TokenMapping.index.sort, {
+      limit: 1,
+      order: SortOrder.DESC
+    })
+
+    if (latest.length === 0 || new BigNumber(latest[0].tokenId).lt(DCT_ID_START)) {
+      return undefined
+    }
+
+    return latest[0]
   }
 }
 
 export interface Token extends Model {
-  id: string // ---------| tokenId (decimal encoded integer as string)
+  id: string // ---------| txid
   sort: string // -------| tokenId (hex encoded)
+  tokenId: number
 
   symbol: string
   name: string

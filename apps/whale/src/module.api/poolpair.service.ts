@@ -219,11 +219,11 @@ export class PoolPairService {
 
     const yearlyUSD = customUSD.plus(pctUSD).plus(loanUSD)
     // 1 == 100%, 0.1 = 10%
-    const apr = yearlyUSD.div(totalLiquidityUSD).toNumber()
+    const reward = yearlyUSD.div(totalLiquidityUSD)
 
     return {
-      reward: apr,
-      total: apr
+      reward: reward.toNumber(),
+      total: reward.toNumber()
     }
   }
 }
