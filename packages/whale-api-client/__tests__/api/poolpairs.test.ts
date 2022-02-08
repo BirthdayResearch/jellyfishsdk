@@ -4,15 +4,18 @@ import { StubService } from '../stub.service'
 import { ApiPagedResponse, WhaleApiClient, WhaleApiException } from '../../src'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { PoolPairData } from '../../src/api/poolpairs'
+import { Testing } from '@defichain/jellyfish-testing'
 
 let container: MasterNodeRegTestContainer
 let service: StubService
 let client: WhaleApiClient
+let testing: Testing
 
-beforeAll(async () => {
+beforeEach(async () => {
   container = new MasterNodeRegTestContainer()
   service = new StubService(container)
   client = new StubWhaleApiClient(service)
+  testing = Testing.create(container)
 
   await container.start()
   await container.waitForWalletCoinbaseMaturity()
@@ -21,7 +24,7 @@ beforeAll(async () => {
   await setup()
 })
 
-afterAll(async () => {
+afterEach(async () => {
   try {
     await service.stop()
   } finally {
@@ -34,8 +37,12 @@ async function setup (): Promise<void> {
 
   for (const token of tokens) {
     await container.waitForWalletBalanceGTE(110)
-    await createToken(container, token)
-    await mintTokens(container, token)
+    await createToken(container, token, {
+      collateralAddress: await testing.address('swap')
+    })
+    await mintTokens(container, token, {
+      mintAmount: 10000
+    })
   }
   await createPoolPair(container, 'A', 'DFI')
   await createPoolPair(container, 'B', 'DFI')
@@ -90,13 +97,30 @@ async function setup (): Promise<void> {
     amountB: 31.51288,
     shareAddress: await getNewAddress(container)
   })
+
+  await createToken(container, 'DUSD')
+  await createToken(container, 'TEST', {
+    collateralAddress: await testing.address('swap')
+  })
+  await createPoolPair(container, 'TEST', 'DUSD', {
+    commission: 0.002
+  })
+  await mintTokens(container, 'DUSD')
+  await mintTokens(container, 'TEST')
+  await addPoolLiquidity(container, {
+    tokenA: 'TEST',
+    amountA: 20,
+    tokenB: 'DUSD',
+    amountB: 100,
+    shareAddress: await getNewAddress(container)
+  })
 }
 
-describe('list', () => {
+describe('poolpair info', () => {
   it('should list', async () => {
     const response: ApiPagedResponse<PoolPairData> = await client.poolpairs.list(30)
 
-    expect(response.length).toStrictEqual(10)
+    expect(response.length).toStrictEqual(11)
     expect(response.hasNext).toStrictEqual(false)
 
     expect(response[1]).toStrictEqual({
@@ -164,16 +188,14 @@ describe('list', () => {
     expect(next[3].symbol).toStrictEqual('H-DFI')
 
     const last = await client.paginate(next)
-    expect(last.length).toStrictEqual(2)
+    expect(last.length).toStrictEqual(3)
     expect(last.hasNext).toStrictEqual(false)
     expect(last.nextToken).toBeUndefined()
 
     expect(last[0].symbol).toStrictEqual('USDT-DFI')
     expect(last[1].symbol).toStrictEqual('USDC-H')
   })
-})
 
-describe('get', () => {
   it('should get 9', async () => {
     const response: PoolPairData = await client.poolpairs.get('9')
 
