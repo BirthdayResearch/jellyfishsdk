@@ -11,6 +11,7 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class Testing {
+  public readonly container!: MasterNodeRegTestContainer
   public readonly fixture = new TestingFixture(this)
   public readonly token!: TestingToken
   public readonly poolpair!: TestingPoolPair
@@ -21,15 +22,15 @@ export class Testing {
   private readonly addresses: Record<string, string> = {}
 
   private constructor (
-    public readonly container: DeFiDContainer,
+    public readonly con: DeFiDContainer,
     public readonly rpc: TestingJsonRpcClient
   ) {
-    if (container instanceof MasterNodeRegTestContainer) {
-      const con = this.container as MasterNodeRegTestContainer
-      this.token = new TestingToken(con, this.rpc)
-      this.poolpair = new TestingPoolPair(con, this.rpc)
-      this.rawtx = new TestingRawTx(con, this.rpc)
-      this.misc = new TestingMisc(con, this.rpc)
+    if (con instanceof MasterNodeRegTestContainer) {
+      this.container = this.con as MasterNodeRegTestContainer
+      this.token = new TestingToken(this.container, this.rpc)
+      this.poolpair = new TestingPoolPair(this.container, this.rpc)
+      this.rawtx = new TestingRawTx(this.container, this.rpc)
+      this.misc = new TestingMisc(this.container, this.rpc)
     }
   }
 
