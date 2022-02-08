@@ -1,7 +1,6 @@
 import { JellyfishJSON, Precision, PrecisionPath } from '@defichain/jellyfish-api-core'
 import { PlaygroundApiClient } from '../.'
-import { ApiResponse } from '../ApiResponse'
-import { raiseIfError } from '../errors'
+import { ApiException, ApiResponse } from '@defichain/ocean-api-client'
 
 export class Rpc {
   constructor (private readonly client: PlaygroundApiClient) {
@@ -18,7 +17,7 @@ export class Rpc {
     const body = JellyfishJSON.stringify({ params: params })
     const responseRaw = await this.client.requestAsString('POST', `rpc/${method}`, body)
     const response: ApiResponse<T> = JellyfishJSON.parse(responseRaw.body, precision)
-    raiseIfError(response)
+    ApiException.raiseIfError(response)
     return response.data
   }
 }
