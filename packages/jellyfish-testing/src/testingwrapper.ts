@@ -2,16 +2,18 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { ContainerGroup, DeFiDContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing, TestingGroup } from '.'
 
+type InitDeFiContainerFn = (index: number) => DeFiDContainer
+function defaultInitDeFiContainer (index: number): DeFiDContainer {
+  return new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
+}
 export class TestingWrapper {
   create (): Testing
+  create (n: 1): Testing
   create (n: number): TestingGroup
-  create (n: number, init: (index: number) => DeFiDContainer): Testing | TestingGroup
+  create (n: 1, init: InitDeFiContainerFn): Testing
+  create (n: number, init: InitDeFiContainerFn): Testing | TestingGroup
 
-  create (n?: number, init?: (index: number) => DeFiDContainer): Testing | TestingGroup {
-    if (init === undefined) {
-      init = (index: number) => new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
-    }
-
+  create (n?: number, init: InitDeFiContainerFn = defaultInitDeFiContainer): Testing | TestingGroup {
     if (n === undefined || n <= 1) {
       return Testing.createBase(init(0))
     }

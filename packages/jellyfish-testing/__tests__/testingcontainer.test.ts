@@ -23,7 +23,7 @@ describe('create a single test container using testwrapper', () => {
   })
 
   it('should be able to create regtest non masternode container', async () => {
-    testing = testingWrapper.create(1, index => new RegTestContainer()) as Testing
+    testing = testingWrapper.create(1, () => new RegTestContainer())
     await testing.container.start()
 
     // call rpc
@@ -37,7 +37,7 @@ describe('create a single test container using testwrapper', () => {
   })
 
   it('should be able to create mainnet container', async () => {
-    testing = testingWrapper.create(1, index => new MainNetContainer()) as Testing
+    testing = testingWrapper.create(1, () => new MainNetContainer())
     await testing.container.start()
     // call rpc
     const { chain } = await testing.container.getMiningInfo()
@@ -45,7 +45,7 @@ describe('create a single test container using testwrapper', () => {
   })
 
   it('should be able to create testnet container', async () => {
-    testing = testingWrapper.create(1, index => new TestNetContainer()) as Testing
+    testing = testingWrapper.create(1, () => new TestNetContainer())
     await testing.container.start()
     // call rpc
     const { chain } = await testing.container.getMiningInfo()
@@ -101,7 +101,7 @@ describe('create multiple test container using testwrapper', () => {
     expect(blockHashAlice).toStrictEqual(blockHashBob)
 
     // create a non masternode RegTestTesting
-    const nonMasternodeTesting = testingWrapper.create(1, index => new RegTestContainer()) as Testing
+    const nonMasternodeTesting = testingWrapper.create(1, () => new RegTestContainer())
     await nonMasternodeTesting.container.start()
 
     // add to group
@@ -118,7 +118,7 @@ describe('create multiple test container using testwrapper', () => {
   it('should be able to create individual container of masternode and regtest and create a group from it', async () => {
     const masternodeTesting = testingWrapper.create()
     await masternodeTesting.container.start()
-    const nonmasternodeTesting = testingWrapper.create(1, (index) => new RegTestContainer()) as Testing
+    const nonmasternodeTesting = testingWrapper.create(1, () => new RegTestContainer())
     await nonmasternodeTesting.container.start()
 
     const tGroup = testingWrapper.group([masternodeTesting, nonmasternodeTesting])
