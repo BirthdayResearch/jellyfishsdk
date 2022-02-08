@@ -1,12 +1,12 @@
 import { ApiMethod, PlaygroundApiClient, ResponseAsString } from '@defichain/playground-api-client'
-import { StubServer } from './StubServer'
+import { PlaygroundStubServer } from './PlaygroundStubServer'
 
 /**
  * Client stubs are simulations of a real client, which are used for functional testing.
  * StubClient simulate a real PlaygroundApiClient connected to an Playground API.
  */
-export class StubClient extends PlaygroundApiClient {
-  constructor (readonly service: StubServer) {
+export class PlaygroundStubClient extends PlaygroundApiClient {
+  constructor (readonly service: PlaygroundStubServer) {
     super({ url: 'not required for stub service' })
   }
 

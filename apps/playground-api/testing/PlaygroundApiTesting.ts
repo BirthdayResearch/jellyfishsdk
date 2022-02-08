@@ -1,7 +1,7 @@
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { PlaygroundApiClient } from '@defichain/playground-api-client'
-import { StubServer } from './StubServer'
-import { StubClient } from './StubClient'
+import { PlaygroundStubServer } from './PlaygroundStubServer'
+import { PlaygroundStubClient } from './PlaygroundStubClient'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
@@ -12,8 +12,8 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 export class PlaygroundApiTesting {
   constructor (
     private readonly testingGroup: TestingGroup,
-    private readonly stubServer: StubServer = new StubServer(testingGroup.get(0).container),
-    private readonly stubApiClient: StubClient = new StubClient((stubServer))
+    private readonly stubServer: PlaygroundStubServer = new PlaygroundStubServer(testingGroup.get(0).container),
+    private readonly stubApiClient: PlaygroundStubClient = new PlaygroundStubClient((stubServer))
   ) {
   }
 
@@ -53,7 +53,7 @@ export class PlaygroundApiTesting {
    *
    * @see TestingGroup
    * @see Testing
-   * @see StubServer
+   * @see PlaygroundStubServer
    */
   async start (): Promise<void> {
     await this.group.start()
@@ -65,7 +65,7 @@ export class PlaygroundApiTesting {
    *
    * @see TestingGroup
    * @see Testing
-   * @see StubServer
+   * @see PlaygroundStubServer
    */
   async stop (): Promise<void> {
     try {

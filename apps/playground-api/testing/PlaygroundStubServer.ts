@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config'
  * Service stubs are simulations of a real service, which are used for functional testing.
  * Configures a TestingModule that is configured to connect to a provided @defichain/testcontainers.
  */
-export class StubServer extends RootServer {
+export class PlaygroundStubServer extends RootServer {
   constructor (private readonly container: MasterNodeRegTestContainer) {
     super()
   }
