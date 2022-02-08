@@ -10,27 +10,28 @@ import { ContainerGroup, DeFiDContainer, MasterNodeRegTestContainer, StartOption
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
-export class Testing {
-  public readonly container: MasterNodeRegTestContainer
-  public readonly fixture = new TestingFixture(this)
-  public readonly token!: TestingToken
-  public readonly poolpair!: TestingPoolPair
-  public readonly rawtx!: TestingRawTx
-  public readonly icxorderbook = new TestingICX(this)
-  public readonly misc!: TestingMisc
+export class Testing<Container extends DeFiDContainer = DeFiDContainer> {
+  public readonly fixture: TestingFixture
+  public readonly icxorderbook: TestingICX
+
+  public readonly token!: Container extends MasterNodeRegTestContainer ? TestingToken : undefined
+  public readonly poolpair!: Container extends MasterNodeRegTestContainer ? TestingPoolPair : undefined
+  public readonly rawtx!: Container extends MasterNodeRegTestContainer ? TestingRawTx : undefined
+  public readonly misc!: Container extends MasterNodeRegTestContainer ? TestingMisc : undefined
 
   private readonly addresses: Record<string, string> = {}
 
   private constructor (
-    public readonly con: DeFiDContainer,
+    public readonly container: Container,
     public readonly rpc: TestingJsonRpcClient
   ) {
-    this.container = this.con as MasterNodeRegTestContainer
-    if (con instanceof MasterNodeRegTestContainer) {
-      this.token = new TestingToken(this.container, this.rpc)
-      this.poolpair = new TestingPoolPair(this.container, this.rpc)
-      this.rawtx = new TestingRawTx(this.container, this.rpc)
-      this.misc = new TestingMisc(this.container, this.rpc)
+    this.fixture = new TestingFixture(this)
+    this.icxorderbook = new TestingICX(this)
+    if (container instanceof MasterNodeRegTestContainer) {
+      this.token = new TestingToken(container, this.rpc) as any
+      this.poolpair = new TestingPoolPair(container, this.rpc) as any
+      this.rawtx = new TestingRawTx(container, this.rpc) as any
+      this.misc = new TestingMisc(container, this.rpc) as any
     }
   }
 
@@ -62,11 +63,11 @@ export class Testing {
     return addresses
   }
 
-  static create (container: MasterNodeRegTestContainer): Testing {
+  static create<Container extends DeFiDContainer> (container: Container): Testing<Container> {
     return this.createBase(container)
   }
 
-  static createBase (container = new DeFiDContainer('regtest')): Testing {
+  static createBase<Container extends DeFiDContainer> (container: Container = new DeFiDContainer('regtest') as Container): Testing<Container> {
     const rpc = new TestingJsonRpcClient(container)
     return new Testing(container, rpc)
   }
