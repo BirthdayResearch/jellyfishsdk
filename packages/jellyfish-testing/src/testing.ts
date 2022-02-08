@@ -11,26 +11,26 @@ import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class Testing {
-  public readonly container: MasterNodeRegTestContainer
   public readonly fixture = new TestingFixture(this)
-  public readonly token: TestingToken
-  public readonly poolpair: TestingPoolPair
-  public readonly rawtx: TestingRawTx
-  public readonly icxorderbook: TestingICX
-  public readonly misc: TestingMisc
+  public readonly token!: TestingToken
+  public readonly poolpair!: TestingPoolPair
+  public readonly rawtx!: TestingRawTx
+  public readonly icxorderbook = new TestingICX(this)
+  public readonly misc!: TestingMisc
 
   private readonly addresses: Record<string, string> = {}
 
   private constructor (
-    public readonly con: DeFiDContainer,
+    public readonly container: DeFiDContainer,
     public readonly rpc: TestingJsonRpcClient
   ) {
-    this.container = con as MasterNodeRegTestContainer
-    this.token = new TestingToken(this.container, this.rpc)
-    this.poolpair = new TestingPoolPair(this.container, this.rpc)
-    this.rawtx = new TestingRawTx(this.container, this.rpc)
-    this.icxorderbook = new TestingICX(this)
-    this.misc = new TestingMisc(this.container, this.rpc)
+    if (container instanceof MasterNodeRegTestContainer) {
+      const con = this.container as MasterNodeRegTestContainer
+      this.token = new TestingToken(con, this.rpc)
+      this.poolpair = new TestingPoolPair(con, this.rpc)
+      this.rawtx = new TestingRawTx(con, this.rpc)
+      this.misc = new TestingMisc(con, this.rpc)
+    }
   }
 
   async generate (n: number): Promise<void> {

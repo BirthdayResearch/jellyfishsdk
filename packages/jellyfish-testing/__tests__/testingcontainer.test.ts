@@ -61,6 +61,15 @@ describe('create a single test container using testwrapper', () => {
     // eslint-disable-next-line @typescript-eslint/dot-notation
     expect(softforks['fortcanninghill'].height).toStrictEqual(11)
   })
+
+  it('should create 1 testing instance even if 0 is passed in as a param', async () => {
+    testing = testingWrapper.create(0, () => new RegTestContainer())
+    await testing.container.start()
+
+    // call rpc
+    const blockHeight = await testing.rpc.blockchain.getBlockCount()
+    expect(blockHeight).toStrictEqual(0)
+  })
 })
 
 describe('create multiple test container using testwrapper', () => {

@@ -122,6 +122,12 @@ export class DeFiDContainer extends DockerContainer {
     return await this.getPort('8554/tcp')
   }
 
+  async generate (n: number): Promise<void> {}
+
+  async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {
+    return await this.call('getnewaddress', [label, addressType])
+  }
+
   /**
    * Get host machine url used for defid rpc calls with auth
    * TODO(fuxingloh): not a great design when network config changed, the url and ports get refresh

@@ -1,15 +1,14 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../utils'
 import { MasterNodeRegTestContainer } from './Masternode'
-import { RegTestContainer } from './index'
-import { StartOptions } from '../DeFiDContainer'
+import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode
   protected network?: Network
 
   public constructor (
-    protected readonly containers: RegTestContainer[] = [],
+    protected readonly containers: DeFiDContainer[] = [],
     protected readonly name = `testcontainers-${Math.floor(Math.random() * 10000000)}`,
     options?: DockerOptions
   ) {
@@ -69,7 +68,7 @@ export class ContainerGroup {
   /**
    * @param {DeFiDContainer} container to add into container group with addnode
    */
-  async add (container: RegTestContainer): Promise<void> {
+  async add (container: DeFiDContainer): Promise<void> {
     await this.requireNetwork().connect({ Container: container.id })
 
     for (const each of this.containers) {

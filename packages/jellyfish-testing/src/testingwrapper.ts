@@ -8,10 +8,10 @@ function defaultInitDeFiContainer (index: number): DeFiDContainer {
 }
 export class TestingWrapper {
   create (): Testing
-  create (n: 1): Testing
+  create (n: 0 | 1): Testing
   create (n: number): TestingGroup
-  create (n: 1, init: InitDeFiContainerFn): Testing
-  create (n: number, init: InitDeFiContainerFn): Testing | TestingGroup
+  create (n: 0 | 1, init: InitDeFiContainerFn): Testing
+  create (n: number, init: InitDeFiContainerFn): TestingGroup
 
   create (n?: number, init: InitDeFiContainerFn = defaultInitDeFiContainer): Testing | TestingGroup {
     if (n === undefined || n <= 1) {
@@ -22,7 +22,7 @@ export class TestingWrapper {
   }
 
   group (testings: Testing[]): TestingGroup {
-    const containers: MasterNodeRegTestContainer[] = []
+    const containers: DeFiDContainer[] = []
 
     testings.forEach(testing => {
       containers.push(testing.container)
