@@ -115,12 +115,13 @@ export class RPCBlockProvider {
 
     // Seed DFI token
     await this.tokenMapper.put({
-      id: '0',
+      id: '0000000000000000000000000000000000000000000000000000000000000000',
+      tokenId: 0,
       sort: HexEncoder.encodeHeight(0),
       symbol: 'DFI',
-      name: 'DefiChain Token',
+      name: 'Default Defi token',
       decimal: 8,
-      limit: '0.0',
+      limit: '0.00000000',
       isDAT: true,
       isLPS: false,
       tradeable: true,

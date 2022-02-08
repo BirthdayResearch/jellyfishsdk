@@ -2,8 +2,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { createPoolPair, createToken, mintTokens } from '@defichain/testing'
-import { PoolPairMapper } from '@src/module.model/poolpair'
-import { PoolPairTokenMapper } from '@src/module.model/poolpair.token'
+import { PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
+import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -28,7 +28,7 @@ beforeEach(async () => {
 
   await container.generate(1)
 
-  await container.call('updatepoolpair', [{ pool: 11, status: false, commission: 0.5 }])
+  await container.call('updatepoolpair', [{ pool: 8, status: false, commission: 0.5 }])
   await container.generate(1)
 })
 
@@ -44,21 +44,23 @@ describe('update poolpair', () => {
     await waitForIndexedHeight(app, height)
 
     const poolPairTokenMapper = app.get(PoolPairTokenMapper)
-    const poolPairMapper = app.get(PoolPairMapper)
+    const poolPairHistoryMapper = app.get(PoolPairHistoryMapper)
     const result = await poolPairTokenMapper.list(30)
     const poolPairs = await Promise.all(result.map(async x => {
-      return await poolPairMapper.getLatest(`${x.poolpairId}`)
+      return await poolPairHistoryMapper.getLatest(`${x.poolPairId}`)
     }))
 
     expect(poolPairs[1]).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.50000000',
-      id: '11-127',
-      pairSymbol: 'E-DFI',
-      poolPairId: '11',
+      name: 'B-Default Defi token',
+      pairSymbol: 'B-DFI',
+      poolPairId: '8',
       status: false,
       tokenA: {
-        id: 5,
-        symbol: 'E'
+        id: 2,
+        symbol: 'B'
       },
       tokenB: {
         id: 0,
@@ -76,24 +78,26 @@ describe('invalidate', () => {
     await container.generate(1)
     await waitForIndexedHeight(app, height)
 
-    await container.call('updatepoolpair', [{ pool: 11, status: true, commission: 0.75 }])
+    await container.call('updatepoolpair', [{ pool: 8, status: true, commission: 0.75 }])
     await container.generate(1)
     const heightUpdated = await container.call('getblockcount')
 
     await container.generate(1)
     await waitForIndexedHeight(app, heightUpdated)
 
-    const poolPairMapper = app.get(PoolPairMapper)
-    const poolPair = await poolPairMapper.getLatest('11')
+    const poolPairHistoryMapper = app.get(PoolPairHistoryMapper)
+    const poolPair = await poolPairHistoryMapper.getLatest('8')
     expect(poolPair).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.75000000',
-      id: '11-130',
-      pairSymbol: 'E-DFI',
-      poolPairId: '11',
+      name: 'B-Default Defi token',
+      pairSymbol: 'B-DFI',
+      poolPairId: '8',
       status: true,
       tokenA: {
-        id: 5,
-        symbol: 'E'
+        id: 2,
+        symbol: 'B'
       },
       tokenB: {
         id: 0,
@@ -102,20 +106,22 @@ describe('invalidate', () => {
       block: expect.any(Object)
     })
 
-    await invalidateFromHeight(app, container, heightUpdated - 1)
+    await invalidateFromHeight(app, container, heightUpdated)
     await container.generate(2)
     await waitForIndexedHeight(app, heightUpdated)
 
-    const poolPairInvalidated = await poolPairMapper.getLatest('11')
+    const poolPairInvalidated = await poolPairHistoryMapper.getLatest('8')
     expect(poolPairInvalidated).toStrictEqual({
+      id: expect.stringMatching(/[0-f]{64}/),
+      sort: expect.stringMatching(/[0-f]{16}/),
       commission: '0.50000000',
-      id: '11-127',
-      pairSymbol: 'E-DFI',
-      poolPairId: '11',
+      name: 'B-Default Defi token',
+      pairSymbol: 'B-DFI',
+      poolPairId: '8',
       status: false,
       tokenA: {
-        id: 5,
-        symbol: 'E'
+        id: 2,
+        symbol: 'B'
       },
       tokenB: {
         id: 0,

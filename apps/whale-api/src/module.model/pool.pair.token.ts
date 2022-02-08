@@ -3,13 +3,13 @@ import { Injectable } from '@nestjs/common'
 import { Database, SortOrder } from '@src/module.database/database'
 
 const PoolPairTokenMapping: ModelMapping<PoolPairToken> = {
-  type: 'poolpair_token',
+  type: 'pool_pair_token',
   index: {
-    sort: {
-      name: 'poolpair_token_key_sort',
+    token_key: {
+      name: 'pool_pair_token_key_sort',
       partition: {
         type: 'string',
-        key: (b: PoolPairToken) => b.key
+        key: (b: PoolPairToken) => b.sort
       }
     }
   }
@@ -20,20 +20,20 @@ export class PoolPairTokenMapper {
   public constructor (protected readonly database: Database) {
   }
 
-  async query (key: string, limit: number, lt?: string): Promise<PoolPairToken[]> {
-    return await this.database.query(PoolPairTokenMapping.index.sort, {
-      partitionKey: key,
-      limit: limit,
-      order: SortOrder.DESC,
-      lt: lt
-    })
+  async getPair (tokenA: number, tokenB: number): Promise<PoolPairToken | undefined> {
+    const result = await this.database.get(PoolPairTokenMapping, `${tokenA}-${tokenB}`)
+    if (result !== undefined) {
+      return result
+    }
+
+    return await this.database.get(PoolPairTokenMapping, `${tokenB}-${tokenA}`)
   }
 
-  async list (limit: number, lt?: string): Promise<PoolPairToken[]> {
-    return await this.database.query(PoolPairTokenMapping.index.sort, {
+  async list (limit: number, gt?: string): Promise<PoolPairToken[]> {
+    return await this.database.query(PoolPairTokenMapping.index.token_key, {
       limit: limit,
-      order: SortOrder.DESC,
-      lt: lt
+      order: SortOrder.ASC,
+      gt: gt
     })
   }
 
@@ -47,9 +47,9 @@ export class PoolPairTokenMapper {
 }
 
 export interface PoolPairToken extends Model {
-  id: string // ---------| tokenA-tokenB-poolPairId
-  key: string // --------| tokenA-tokenB
-  poolpairId: number
+  id: string // ---------| tokenA-tokenB
+  sort: string // -------| poolPairId (hex encoded)
+  poolPairId: number
 
   block: {
     hash: string

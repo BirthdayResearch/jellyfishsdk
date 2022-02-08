@@ -45,7 +45,8 @@ describe('create token', () => {
     expect(result.length).toStrictEqual(3)
 
     expect(result[0]).toStrictEqual({
-      id: '128',
+      id: expect.stringMatching(/[0-f]{64}/),
+      tokenId: 128,
       symbol: 'MT',
       name: 'MYTOKEN',
       decimal: 8,
@@ -59,7 +60,8 @@ describe('create token', () => {
     })
 
     expect(result[1]).toStrictEqual({
-      id: '1',
+      id: expect.stringMatching(/[0-f]{64}/),
+      tokenId: 1,
       symbol: 'DBTC',
       name: 'DBTC',
       decimal: 8,
