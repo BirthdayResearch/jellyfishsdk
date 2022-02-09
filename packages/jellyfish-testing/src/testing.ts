@@ -89,7 +89,7 @@ export class TestingGroup {
     n: number,
     init?: (index: number) => DeFiDContainer
   ): TestingGroup {
-    const containers: MasterNodeRegTestContainer[] = []
+    const containers: DeFiDContainer[] = []
     const testings: Testing[] = []
 
     if (init === undefined) {
@@ -97,10 +97,10 @@ export class TestingGroup {
     }
 
     for (let i = 0; i < n; i += 1) {
-      const container = init(i) as MasterNodeRegTestContainer
+      const container = init(i)
       containers.push(container)
 
-      const testing = Testing.create(container)
+      const testing = Testing.createBase(container)
       testings.push(testing)
     }
 
