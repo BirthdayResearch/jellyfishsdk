@@ -28,6 +28,18 @@ export class PoolPairs {
   async get (id: string): Promise<PoolPairData> {
     return await this.client.requestData('GET', `poolpairs/${id}`)
   }
+
+  /**
+   * List pool swaps
+   *
+   * @param {string} id poolpair id
+   * @param {number} size of PoolSwap to query
+   * @param {string} next set of PoolSwap
+   * @return {Promise<ApiPagedResponse<PoolSwap>>}
+   */
+  async listPoolSwaps (id: string, size: number = 30, next?: string): Promise<ApiPagedResponse<PoolSwap>> {
+    return await this.client.requestList('GET', `poolpairs/${id}/swaps`, size, next)
+  }
 }
 
 export interface PoolPairData {
@@ -70,5 +82,23 @@ export interface PoolPairData {
   apr?: {
     total: number // fractional number
     reward: number // fractional number
+  }
+}
+
+export interface PoolSwap {
+  id: string
+  sort: string
+  txid: string
+  txno: number
+
+  poolPairId: string
+  fromAmount: string
+  fromTokenId: number
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
   }
 }
