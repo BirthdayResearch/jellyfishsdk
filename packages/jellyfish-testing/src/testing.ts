@@ -12,11 +12,11 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export class Testing {
   public readonly container: MasterNodeRegTestContainer
-  public readonly fixture = new TestingFixture(this)
+  public readonly fixture!: TestingFixture
   public readonly token!: TestingToken
   public readonly poolpair!: TestingPoolPair
   public readonly rawtx!: TestingRawTx
-  public readonly icxorderbook = new TestingICX(this)
+  public readonly icxorderbook!: TestingICX
   public readonly misc!: TestingMisc
 
   private readonly addresses: Record<string, string> = {}
@@ -27,9 +27,11 @@ export class Testing {
   ) {
     this.container = this.con as MasterNodeRegTestContainer
     if (con instanceof MasterNodeRegTestContainer) {
+      this.fixture = new TestingFixture(this)
       this.token = new TestingToken(this.container, this.rpc)
       this.poolpair = new TestingPoolPair(this.container, this.rpc)
       this.rawtx = new TestingRawTx(this.container, this.rpc)
+      this.icxorderbook = new TestingICX(this)
       this.misc = new TestingMisc(this.container, this.rpc)
     }
   }
