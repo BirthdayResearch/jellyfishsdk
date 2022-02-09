@@ -12,8 +12,10 @@ import { Injectable, Logger } from '@nestjs/common'
 import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
 import { CreatePoolPairIndexer } from './dftx/create.pool.pair'
 import { CreateTokenIndexer } from './dftx/create.token'
+import { PoolSwapIndexer } from './dftx/pool.swap'
 import { SetLoanTokenIndexer } from './dftx/set.loan.token'
 import { UpdatePoolPairIndexer } from './dftx/update.pool.pair'
+import { CompositeSwapIndexer } from './dftx/composite.swap'
 import { ActivePriceIndexer } from './dftx/active.price'
 import { PlaceAuctionBidIndexer } from './dftx/place.auction.bid'
 
@@ -32,6 +34,8 @@ export class MainDfTxIndexer extends Indexer {
     createToken: CreateTokenIndexer,
     createPoolPair: CreatePoolPairIndexer,
     updatePoolPair: UpdatePoolPairIndexer,
+    poolSwapIndexer: PoolSwapIndexer,
+    compositeSwapIndexer: CompositeSwapIndexer,
     setLoanToken: SetLoanTokenIndexer,
     activePriceIndexer: ActivePriceIndexer,
     placeAuctionBidIndexer: PlaceAuctionBidIndexer
@@ -47,6 +51,8 @@ export class MainDfTxIndexer extends Indexer {
       createToken,
       createPoolPair,
       updatePoolPair,
+      poolSwapIndexer,
+      compositeSwapIndexer,
       setLoanToken,
       activePriceIndexer,
       placeAuctionBidIndexer
