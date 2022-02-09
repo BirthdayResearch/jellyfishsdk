@@ -2,19 +2,21 @@ import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { PoolPairData } from '@whale-api-client/api/poolpairs'
+import { PoolPairData, PoolSwap } from '@whale-api-client/api/poolpairs'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PoolPairService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { parseDATSymbol } from '@src/module.api/token.controller'
+import { PoolSwapMapper } from '@src/module.model/pool.swap'
 
 @Controller('/poolpairs')
 export class PoolPairController {
   constructor (
     protected readonly rpcClient: JsonRpcClient,
     protected readonly deFiDCache: DeFiDCache,
-    private readonly poolPairService: PoolPairService
+    private readonly poolPairService: PoolPairService,
+    private readonly poolSwapMapper: PoolSwapMapper
   ) {
   }
 
@@ -64,6 +66,24 @@ export class PoolPairController {
     const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
     const apr = await this.poolPairService.getAPR(id, info)
     return mapPoolPair(String(id), info, totalLiquidityUsd, apr)
+  }
+
+  /**
+   * @param {string} id poolpair id
+   * @param {PaginationQuery} query
+   * @param {number} query.size
+   * @param {string} [query.next]
+   * @return {Promise<ApiPagedResponse<PoolPairData>>}
+   */
+  @Get('/:id/swaps')
+  async listPoolSwaps (
+    @Param('id', ParseIntPipe) id: string,
+      @Query() query: PaginationQuery
+  ): Promise<ApiPagedResponse<PoolSwap>> {
+    const result = await this.poolSwapMapper.query(id, query.size, query.next)
+    return ApiPagedResponse.of(result, query.size, item => {
+      return item.sort
+    })
   }
 }
 
