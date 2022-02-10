@@ -1,9 +1,10 @@
 import BigNumber from 'bignumber.js'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { Testing } from '@defichain/jellyfish-testing'
 
 const container = new MasterNodeRegTestContainer()
+const testing = Testing.create(container)
 const client = new ContainerAdapterClient(container)
 const burnAddress = 'mfburnZSAM7Gs1hpDeNaMotJXSGA7edosG'
 
@@ -16,11 +17,20 @@ beforeAll(async () => {
   await container.generate(1)
 
   // burn gold token
-  const fundedAddress = await container.getNewAddress()
-  await createToken(container, 'GOLD', { collateralAddress: fundedAddress })
-  await client.token.mintTokens('100@GOLD')
+  await testing.token.create({ symbol: 'GOLD' })
   await container.generate(1)
-  await client.account.sendTokensToAddress({}, { [burnAddress]: ['50@GOLD'] })
+
+  await testing.token.mint({
+    amount: 100,
+    symbol: 'GOLD'
+  })
+  await container.generate(1)
+
+  await testing.token.send({
+    address: burnAddress,
+    amount: 50,
+    symbol: 'GOLD'
+  })
 
   // send utxo to burn address
   await client.wallet.sendToAddress(burnAddress, 10)
