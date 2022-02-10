@@ -1,3 +1,5 @@
+export * from './BlockRewardDistribution'
+export * from './BlockSubsidy'
 export * from './Network'
 export * from './RegTestFoundationKeys'
 export * from './TransactionSkipped'
