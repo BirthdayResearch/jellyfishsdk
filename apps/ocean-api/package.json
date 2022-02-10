@@ -29,7 +29,7 @@
   "devDependencies": {
     "@defichain/ocean-api-client": "0.0.0",
     "@nestjs/cli": "^8.2.0",
-    "@nestjs/schematics": "^8.0.5",
+    "@nestjs/schematics": "^8.0.6",
     "@nestjs/testing": "^8.2.6",
     "@types/cache-manager": "^3.4.2",
     "@types/cron": "^1.7.3"
