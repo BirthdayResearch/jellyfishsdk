@@ -20,6 +20,7 @@
       <w>bestblock</w>
       <w>bestblockhash</w>
       <w>blockhash</w>
+      <w>blockreward</w>
       <w>blocktime</w>
       <w>booland</w>
       <w>boolor</w>
@@ -53,12 +54,14 @@
       <w>defich</w>
       <w>defichain</w>
       <w>defid</w>
+      <w>defiscan</w>
       <w>deposittovault</w>
       <w>descendantcount</w>
       <w>descendantfees</w>
       <w>descendantsize</w>
       <w>destroyloanscheme</w>
       <w>devnet</w>
+      <w>dfip</w>
       <w>dftx</w>
       <w>dockerode</w>
       <w>dogfooding</w>
@@ -66,6 +69,7 @@
       <w>dumpprivkey</w>
       <w>emissionburn</w>
       <w>equalverify</w>
+      <w>eunos</w>
       <w>eunospayaheight</w>
       <w>feeburn</w>
       <w>fiveyeartimelock</w>
