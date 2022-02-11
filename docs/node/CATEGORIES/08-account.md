@@ -235,6 +235,31 @@ interface AccountHistoryOptions {
 }
 ```
 
+## getAccountHistory
+
+Returns information about single account history
+
+```ts title="client.account.getAccountHistory()"
+interface account {
+  getAccountHistory (
+    owner: string,
+    blockHeight: number,
+    txn:number
+  ): Promise<AccountHistory>
+}
+
+interface AccountHistory {
+  owner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txn: number
+  txid: string
+  amounts: string[]
+}
+```
+
 ## historyCount 
 
 Returns count of account history
