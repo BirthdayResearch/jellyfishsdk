@@ -13,7 +13,7 @@
     "@defichain/whale-api-client": "^0.22.2",
     "@nestjs/common": "^8.2.6",
     "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.6",
+    "@nestjs/core": "^8.3.0",
     "@nestjs/platform-fastify": "^8.2.6"
   },
   "devDependencies": {
