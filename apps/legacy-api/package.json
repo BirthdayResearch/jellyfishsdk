@@ -17,7 +17,7 @@
     "@nestjs/platform-fastify": "^8.2.6"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.0",
+    "@nestjs/cli": "^8.2.1",
     "@nestjs/schematics": "^8.0.5",
     "@nestjs/testing": "^8.2.6"
   }
