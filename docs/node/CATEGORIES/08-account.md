@@ -414,6 +414,10 @@ interface BurnInfo {
    */
   paybackburn: BigNumber
   /**
+   * Amount collected via auction burn
+   */
+  auctionburn: BigNumber
+  /**
    * Formatted as AMOUNT@SYMBOL
    */
   dexfeetokens: string[]
