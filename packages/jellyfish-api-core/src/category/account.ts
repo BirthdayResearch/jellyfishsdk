@@ -505,6 +505,10 @@ export interface BurnInfo {
    */
   emissionburn: BigNumber
   /**
+   * Amount collected via auction burn
+   */
+  auctionburn: BigNumber
+  /**
    * Value of burn after payback
    */
   paybackburn: BigNumber
