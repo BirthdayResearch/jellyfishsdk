@@ -1,19 +1,17 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { WhaleApiClient } from '@defichain/whale-api-client'
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
+import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 
 @Controller('v1')
 export class TokenController {
+  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {}
+
   @Get('gettoken')
   async getToken (
     @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
     @Query('id') tokenId: string
   ): Promise<{ [key: string]: LegacyTokenData }> {
-    const api = new WhaleApiClient({
-      version: 'v0',
-      network: network,
-      url: 'https://ocean.defichain.com'
-    })
+    const api = this.whaleApiClientProvider.getClient(network)
 
     const data = await api.tokens.get(tokenId)
     return {
@@ -26,11 +24,7 @@ export class TokenController {
     @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
     @Query('id') tokenId: string
   ): Promise<{ [key: string]: LegacyTokenData }> {
-    const api = new WhaleApiClient({
-      version: 'v0',
-      network: network,
-      url: 'https://ocean.defichain.com'
-    })
+    const api = this.whaleApiClientProvider.getClient(network)
 
     const data: TokenData[] = await api.tokens.list(200)
 
