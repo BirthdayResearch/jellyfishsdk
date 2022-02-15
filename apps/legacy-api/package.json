@@ -10,15 +10,15 @@
     "build": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
-    "@defichain/whale-api-client": "^0.22.2",
-    "@nestjs/common": "^8.2.6",
-    "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.6",
-    "@nestjs/platform-fastify": "^8.2.6"
+    "@defichain/whale-api-client": "^0.23.2",
+    "@nestjs/common": "^8.3.0",
+    "@nestjs/config": "^1.2.0",
+    "@nestjs/core": "^8.3.0",
+    "@nestjs/platform-fastify": "^8.3.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.0",
-    "@nestjs/schematics": "^8.0.5",
-    "@nestjs/testing": "^8.2.6"
+    "@nestjs/cli": "^8.2.1",
+    "@nestjs/schematics": "^8.0.6",
+    "@nestjs/testing": "^8.3.0"
   }
 }
