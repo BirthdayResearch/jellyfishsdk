@@ -61,3 +61,16 @@ jobs:
 
       - run: npm ci
       - run: npx --no-install eslint .
+
+  sanity:
+    needs: [ build, lint ]
+    name: Docker Sanity Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
+
+      - name: Setup docker containers
+        run: docker-compose -f .github/workflows/ci/docker-compose.yml up -d
+
+      - name: Wait for
+        run: .github/workflows/ci/wait-for http://localhost:3000/_actuator/probes/liveness -t 6
