@@ -134,6 +134,29 @@ describe('with mainnet container', () => {
   })
 })
 
+it('should convert burn address', () => {
+  const address = '8defichainBurnAddressXXXXXXXdRQkSm'
+
+  const script: Script = {
+    stack: [
+      OP_CODES.OP_DUP,
+      OP_CODES.OP_HASH160,
+      OP_CODES.OP_PUSHDATA_HEX_LE('f7874e8821097615ec345f74c7e5bcf61b12e2ee'),
+      OP_CODES.OP_EQUALVERIFY,
+      OP_CODES.OP_CHECKSIG
+    ]
+  }
+
+  const expected: DecodedAddress = {
+    type: AddressType.P2PKH,
+    address: address,
+    script: script,
+    network: 'mainnet'
+  }
+
+  expect(fromAddress(address, 'mainnet')).toStrictEqual(expected)
+})
+
 it('should convert from Script/Address', () => {
   const script: Script = {
     stack: [

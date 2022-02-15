@@ -155,7 +155,7 @@ describe('loans.withdrawFromVault', () => {
 
       await tGroup.get(0).rpc.loan.takeLoan({
         vaultId: dualCollateralVault,
-        amounts: '100@TSLA'
+        amounts: '2000@TSLA'
       })
       await tGroup.get(0).generate(1)
     }
@@ -313,7 +313,7 @@ describe('loans.withdrawFromVault', () => {
       await expect(promise).rejects.toThrow('tx must have at least one input from token owner')
     })
 
-    it('should failed as vault must contain min 50% of DFI', async () => {
+    it('should failed as DFI collateral value must contain min 50% of the minimum required collateral', async () => {
       const destination = await tGroup.get(0).generateAddress()
       const decoded = fromAddress(destination, 'regtest')
       const script = decoded?.script as Script
@@ -322,17 +322,17 @@ describe('loans.withdrawFromVault', () => {
       // causing no prevout at address derived directly from elliptic pair, fund for utxo again
       await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
 
+      // loan value 4000usd + interest
+      // 10,000 - 7000 < (4000+interest) * 1.5 /2
       const txn = await builder.loans.withdrawFromVault({
         vaultId: dualCollateralVault,
         to: script,
-        // DFI (USD value) remaining will become less than 50%
-        // $4000 DFI vs $5000 BTC
-        tokenAmount: { token: 0, amount: new BigNumber(6000) }
+        tokenAmount: { token: 0, amount: new BigNumber(7000) }
       }, vaultOwnerScript)
 
       const promise = sendTransaction(tGroup.get(0).container, txn)
       await expect(promise).rejects.toThrow(DeFiDRpcError)
-      await expect(promise).rejects.toThrow('At least 50% of the vault must be in DFI')
+      await expect(promise).rejects.toThrow('WithdrawFromVaultTx: At least 50% of the minimum required collateral must be in DFI (code 16)')
     })
 
     it('should not withdraw from liquidated vault', async () => {

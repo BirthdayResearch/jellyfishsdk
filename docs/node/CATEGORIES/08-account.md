@@ -391,16 +391,16 @@ interface account {
   getBurnInfo (): Promise<BurnInfo>
 }
 
-export interface BurnInfo {
+interface BurnInfo {
   address: string
   /**
    * Amount send to burn address
    */
   amount: BigNumber
   /**
-   * Token amount send to burn address
+   * Token amount send to burn address; formatted as AMOUNT@SYMBOL
    */
-  tokens: Array<{ name: string, amount: BigNumber }>
+  tokens: string[]
   /**
    * Amount collected via fee burn
    */
@@ -409,5 +409,25 @@ export interface BurnInfo {
    * Amount collected via emission burn
    */
   emissionburn: BigNumber
+  /**
+   * Value of burn after payback
+   */
+  paybackburn: BigNumber
+  /**
+   * Amount collected via auction burn
+   */
+  auctionburn: BigNumber
+  /**
+   * Formatted as AMOUNT@SYMBOL
+   */
+  dexfeetokens: string[]
+  /**
+   * Amount of DFI collected from penalty resulting from paying DUSD using DFI
+   */
+  dfipaybackfee: BigNumber
+  /**
+   * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
+   */
+  dfipaybacktokens: string[]
 }
 ```

@@ -51,10 +51,11 @@ describe('poolSwap', () => {
 
     await container.generate(1)
 
-    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
-    const reserveBAfter = new BigNumber(poolPairBefore.reserveB).plus(555) // 1055
-    const reserveAAfter = new BigNumber(poolPairBefore.totalLiquidity).pow(2).div(reserveBAfter) // 473.93364928032265610654
+    const swapAmount = new BigNumber(1000).minus(new BigNumber(1000 * 500).dividedBy(poolPairBefore.reserveB.plus(555))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL) // swap result is floored even before minusing the reserve
+    const reserveBAfter = poolPairBefore.reserveB.plus(555)
+    const reserveAAfter = new BigNumber(1000).minus(swapAmount)
 
+    const poolPairAfter = await testing.poolpair.get('CAT-DFI')
     expect(new BigNumber(poolPairAfter.reserveB)).toStrictEqual(reserveBAfter)
     expect(poolPairAfter.reserveA.toFixed(8)).toStrictEqual(reserveAAfter.toFixed(8))
 
@@ -204,5 +205,21 @@ describe('poolSwap', () => {
       to: address
     }
     await expect(client.poolpair.poolSwap(metadata)).rejects.toThrow('TokenFrom was not found')
+  })
+
+  it('should not swap tokens when input value is 0', async () => {
+    const [addressReceiver, dfiAddress] = await testing.generateAddress(2)
+    await testing.token.dfi({ amount: 700, address: dfiAddress })
+    await testing.generate(1)
+    const metadata: poolpair.PoolSwapMetadata = {
+      from: dfiAddress,
+      tokenFrom: 'DFI',
+      amountFrom: 0,
+      to: addressReceiver,
+      tokenTo: 'CAT'
+    }
+
+    const promise = client.poolpair.poolSwap(metadata)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PoolSwapTx execution failed:\nInput amount should be positive\', code: -32600, method: poolswap')
   })
 })

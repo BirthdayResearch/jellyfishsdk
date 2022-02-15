@@ -17,7 +17,7 @@ export class RegTestContainer extends DeFiDContainer {
   }
 
   protected getCmd (opts: StartOptions): string[] {
-    return [...super.getCmd(opts),
+    const cmds = [...super.getCmd(opts),
       '-regtest=1',
       '-jellyfish_regtest=1',
       '-txnotokens=0',
@@ -33,8 +33,16 @@ export class RegTestContainer extends DeFiDContainer {
       '-eunosheight=6',
       '-eunospayaheight=7',
       '-fortcanningheight=8',
-      '-fortcanningmuseumheight=9'
+      '-fortcanningmuseumheight=9',
+      '-fortcanninghillheight=10'
     ]
+
+    if (opts.startFlags != null && opts.startFlags.length > 0) {
+      opts.startFlags.forEach((flag) => {
+        cmds.push(`-${flag.name}=${flag.value}`)
+      })
+    }
+    return cmds
   }
 
   async getNewAddress (label: string = '', addressType: 'legacy' | 'p2sh-segwit' | 'bech32' | string = 'bech32'): Promise<string> {

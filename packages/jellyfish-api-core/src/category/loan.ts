@@ -528,6 +528,7 @@ export interface UpdateLoanToken {
 
 export interface Interest {
   token: string
+  realizedInterestPerBlock: BigNumber
   totalInterest: BigNumber
   interestPerBlock: BigNumber
 }
