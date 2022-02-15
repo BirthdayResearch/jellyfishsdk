@@ -1,7 +1,16 @@
 {
   "extends": "../../tsconfig.json",
-  "include": [
-    "./src/**/*"
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "packages/**/__tests__",
+    "packages/**/src/error",
+    "packages/**/src/**.ts",
+    "**/*.e2e.ts",
+    "**/e2e.*.ts",
+    "**/*.spec.ts",
+    "**/*.spec/"
   ],
   "compilerOptions": {
     "outDir": "./dist",
