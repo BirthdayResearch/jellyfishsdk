@@ -14,6 +14,8 @@ export class ErrorFilter implements ExceptionFilter {
   private readonly logger = new Logger(ErrorFilter.name)
 
   catch (err: Error, host: ArgumentsHost): any {
+    console.log('catch local: ', err)
+
     this.logger.error(err)
 
     const ctx = host.switchToHttp()
@@ -21,6 +23,7 @@ export class ErrorFilter implements ExceptionFilter {
     const ctxResponse = ctx.getResponse()
 
     const res = mapResponse(err, url)
+    console.log('res local: ', res)
     ctxResponse.status(res.error.code).send(res)
   }
 }
@@ -41,9 +44,7 @@ function mapResponse (err: Error, url: string): { error: ApiError, data?: any } 
 }
 
 function mapError (err: Error, url: string): ApiError {
-  console.log('err: ', err)
-  console.log('err instanceof ApiException: ', err instanceof ApiException)
-
+  console.log('err instanceof ApiException local: ', err instanceof ApiException)
   if (err instanceof ApiException) {
     return {
       code: err.code,
@@ -55,7 +56,7 @@ function mapError (err: Error, url: string): ApiError {
     }
   }
 
-  console.log('err instanceof HttpException : ', err instanceof HttpException)
+  console.log('err instanceof HttpException local: ', err instanceof HttpException)
   if (err instanceof HttpException) {
     return {
       code: mapErrorCode(err),

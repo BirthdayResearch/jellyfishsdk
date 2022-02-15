@@ -15,7 +15,6 @@ export class PlaygroundController {
 
   @Get('/info')
   async info (): Promise<Info> {
-    console.log('info')
     const info = await this.client.blockchain.getBlockchainInfo()
     return {
       block: {

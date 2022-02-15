@@ -6,7 +6,7 @@
  */
 // eslint-disable-next-line
 export const AppConfiguration = (): any => ({
-  BLOCKCHAIN_CPP_URL: {
+  defid: {
     url: process.env.PLAYGROUND_DEFID_URL
   },
   playground: {

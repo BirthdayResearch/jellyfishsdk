@@ -1,26 +1,25 @@
 import { CacheModule, Module } from '@nestjs/common'
-// import { ActuatorController } from '../controllers/ActuatorController'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { RpcController } from '../controllers/RpcController'
-import { WalletController } from '../controllers/WalletController'
-import { PlaygroundController } from '../controllers/PlaygroundController'
+// import { ActuatorController } from '../controllers/ActuatorController'
+// import { RpcController } from '../controllers/RpcController'
+// import { WalletController } from '../controllers/WalletController'
+// import { PlaygroundController } from '../controllers/PlaygroundController'
+import { TestController } from '../controllers/TestController'
 import { GlobalValidationPipe } from '@defichain-apps/ocean-api/src/controllers/filters/GlobalValidationPipe'
 import { ResponseInterceptor } from '@defichain-apps/ocean-api/src/controllers/filters/ResponseInterceptor'
 import { ErrorFilter } from '@defichain-apps/ocean-api/src/controllers/filters/ErrorFilter'
 // import { ErrorFilter } from '../controllers/filters/ErrorFilter'
 
-/**
- * Exposed ApiModule for public interfacing
- */
 @Module({
   imports: [
     CacheModule.register()
   ],
   controllers: [
     // ActuatorController,
-    PlaygroundController,
-    RpcController,
-    WalletController
+    // PlaygroundController,
+    // RpcController,
+    // WalletController
+    TestController
   ],
   providers: [
     {
