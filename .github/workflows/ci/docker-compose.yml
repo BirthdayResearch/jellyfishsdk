@@ -35,13 +35,6 @@ services:
   defi-jellyfish:
     image: defi/jellyfish
     build: ../../..
-  defi-legacy:
-    image: defi/legacy-api
-    build: ../../../apps/legacy-api
-    ports:
-      - "3000:3000"
-    depends_on:
-      - defi-blockchain
   defi-ocean:
     image: defi/ocean-api
     build: ../../../apps/ocean-api
