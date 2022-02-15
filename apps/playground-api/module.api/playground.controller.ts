@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { Info } from '@defichain/playground-api-client/src/apis/Playground'
+import { Info } from '@defichain/playground-api-client/src/api/playground'
 
 @Controller('/v0/playground')
 export class PlaygroundController {

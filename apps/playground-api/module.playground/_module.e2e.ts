@@ -55,13 +55,13 @@ it('should have loan collateral tokens', async () => {
   expect(results.length).toBe(11)
 })
 
-// it('should have gov set', async () => {
-//   const dusdInfo = await testing.client.token.getToken('DUSD')
-//   const dusdId = Object.keys(dusdInfo)[0]
-//   const gov = await testing.client.masternode.getGov('ATTRIBUTES')
-//   expect(gov).toStrictEqual({
-//     ATTRIBUTES: {
-//       [`v0/token/${dusdId}/payback_dfi`]: 'true'
-//     }
-//   })
-// })
+it('should have gov set', async () => {
+  const dusdInfo = await testing.client.token.getToken('DUSD')
+  const dusdId = Object.keys(dusdInfo)[0]
+  const gov = await testing.client.masternode.getGov('ATTRIBUTES')
+  expect(gov).toStrictEqual({
+    ATTRIBUTES: {
+      [`v0/token/${dusdId}/payback_dfi`]: 'true'
+    }
+  })
+})

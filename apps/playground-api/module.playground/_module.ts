@@ -63,8 +63,8 @@ export class PlaygroundModule implements OnApplicationBootstrap {
       loanScheme,
       loanToken,
       loanCollateral,
-      dex
-      // gov
+      dex,
+      gov
     ]
   }
 
