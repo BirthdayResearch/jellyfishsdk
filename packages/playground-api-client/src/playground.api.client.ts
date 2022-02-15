@@ -140,7 +140,7 @@ export class PlaygroundApiClient {
       const response = await _fetch(method, url, controller, body)
       clearTimeout(id)
       return response
-    } catch (err) {
+    } catch (err: any) {
       if (err.type === 'aborted') {
         /* eslint-disable @typescript-eslint/no-non-null-assertion */
         throw new PlaygroundClientTimeoutException(timeout!)
@@ -157,7 +157,7 @@ async function _fetch (method: Method, url: string, controller: AbortController,
     headers: method !== 'GET' ? { 'Content-Type': 'application/json' } : {},
     body: body,
     cache: 'no-cache',
-    signal: controller.signal
+    signal: controller.signal as AbortSignal
   })
 
   return {

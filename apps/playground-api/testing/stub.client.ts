@@ -1,4 +1,4 @@
-import { Method, ResponseAsString, PlaygroundApiClient } from '../src'
+import { Method, ResponseAsString, PlaygroundApiClient } from '@defichain/playground-api-client/src'
 import { StubService } from './stub.service'
 
 /**
