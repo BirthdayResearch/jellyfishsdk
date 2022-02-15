@@ -16,25 +16,39 @@
   },
   "dependencies": {
     "@defichain/playground-api-client": "0.0.0",
-    "@defichain/jellyfish-address": "0.0.0",
-    "@defichain/jellyfish-api-core": "0.0.0",
-    "@defichain/jellyfish-api-jsonrpc": "0.0.0",
-    "@defichain/jellyfish-testing": "0.0.0",
-    "@defichain/testcontainers": "0.0.0",
-    "@nestjs/common": "^8.2.5",
+    "@defichain/jellyfish-address": "^2.18.3",
+    "@defichain/jellyfish-api-core": "^2.18.3",
+    "@defichain/jellyfish-api-jsonrpc": "^2.18.3",
+    "@defichain/jellyfish-crypto": "^2.18.3",
+    "@defichain/jellyfish-testing": "^2.18.3",
+    "@defichain/jellyfish-transaction": "^2.18.3",
+    "@defichain/jellyfish-transaction-builder": "^2.18.3",
+    "@defichain/testcontainers": "^2.18.3",
+    "@nestjs/common": "^8.2.6",
     "@nestjs/config": "^1.1.6",
-    "@nestjs/core": "^8.2.5",
-    "@nestjs/platform-fastify": "^8.2.4",
+    "@nestjs/core": "^8.2.6",
+    "@nestjs/platform-fastify": "^8.2.6",
     "@nestjs/schedule": "^1.0.2",
     "@nestjs/terminus": "^8.0.4",
-    "bignumber.js": "^9.0.2"
+    "bignumber.js": "^9.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.13.2",
+    "defichain": "^2.18.3",
+    "reflect-metadata": "^0.1.13",
+    "rimraf": "^3.0.2",
+    "rxjs": "^7.5.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.0",
     "@nestjs/schematics": "^8.0.5",
-    "@nestjs/testing": "^8.2.5"
-  },
-  "peerDependencies": {
-    "rxjs": "^7.5.1"
+    "@nestjs/testing": "^8.2.6",
+    "@types/cron": "^1.7.3",
+    "@types/dockerode": "^3.3.3",
+    "@types/jest": "^27.4.0",
+    "@types/lossless-json": "^1.0.1",
+    "@types/node": "^14.14.36",
+    "ts-loader": "^9.2.6",
+    "ts-node": "^10.5.0",
+    "tsconfig-paths": "^3.12.0"
   }
 }
