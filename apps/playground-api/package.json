@@ -7,10 +7,6 @@
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsc -b tsconfig.build.json"
   },
