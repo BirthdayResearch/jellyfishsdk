@@ -1,0 +1,19 @@
+
+{
+  "collection": "@nestjs/schematics",
+  "monorepo": true,
+  "compilerOptions": {
+    "webpack": false
+  },
+  "projects": {
+    "ocean-api": {
+      "type": "application",
+      "root": "apps/ocean-api",
+      "entryFile": "index",
+      "sourceRoot": "apps/ocean-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ocean-api/tsconfig.app.json"
+      }
+    }
+  }
+}

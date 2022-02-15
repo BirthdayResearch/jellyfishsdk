@@ -23,7 +23,12 @@
     "all:clean": "rm -rf ./packages/**/dist && rm -rf ./apps/**/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "all:build": "lerna run build",
     "all:version": "lerna version $1 --yes --no-push --no-git-tag-version --exact",
-    "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public"
+    "all:publish": "lerna exec --no-private -- npm publish --tag latest --access public",
+    "apps:ocean": "nest start ocean-api"
+  },
+  "dependencies": {
+    "@nestjs/common": "^8.2.6",
+    "@nestjs/core": "^8.2.6"
   },
   "devDependencies": {
     "@types/jest": "^27.4.0",
@@ -34,8 +39,8 @@
     "jest": "^27.5.1",
     "lerna": "^4.0.0",
     "lint-staged": "^12.3.3",
-    "shuffle-seed": "^1.1.6",
     "nock": "^13.2.4",
+    "shuffle-seed": "^1.1.6",
     "ts-jest": "^27.1.3",
     "typescript": "4.2.4",
     "wait-for-expect": "^3.0.2"

@@ -22,6 +22,9 @@ package-lock.json
 !/package-lock.json
 yarn.lock
 
+#config
+.env
+
 # dist & pack
 dist
 *.tgz
