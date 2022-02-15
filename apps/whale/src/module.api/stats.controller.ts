@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { StatsData } from '@whale-api-client/api/stats'
+import { StatsData, SupplyData } from '@whale-api-client/api/stats'
 import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '@src/module.model/block'
@@ -9,6 +9,7 @@ import { PriceTickerMapper } from '@src/module.model/price.ticker'
 import { MasternodeStats, MasternodeStatsMapper } from '@src/module.model/masternode.stats'
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/blockchain'
 import { getBlockSubsidy } from '@src/module.api/subsidy'
+import { BlockSubsidy } from '@defichain/jellyfish-network'
 
 @Controller('/stats')
 export class StatsController {
@@ -18,7 +19,8 @@ export class StatsController {
     protected readonly masternodeStatsMapper: MasternodeStatsMapper,
     protected readonly poolPairService: PoolPairService,
     protected readonly rpcClient: JsonRpcClient,
-    protected readonly cache: SemaphoreCache
+    protected readonly cache: SemaphoreCache,
+    protected readonly blockSubsidy: BlockSubsidy
   ) {
   }
 
@@ -41,6 +43,22 @@ export class StatsController {
       blockchain: {
         difficulty: block.difficulty
       }
+    }
+  }
+
+  @Get('/supply')
+  async getSupply (): Promise<SupplyData> {
+    const height = requireValue(await this.blockMapper.getHighest(), 'block').height
+
+    const total = this.blockSubsidy.getSupply(height).div(100000000)
+    const burned = await this.getBurnedTotal()
+    const circulating = total.minus(burned)
+
+    return {
+      max: 1200000000,
+      total: total.toNumber(),
+      burned: burned.toNumber(),
+      circulating: circulating.toNumber()
     }
   }
 
@@ -97,17 +115,35 @@ export class StatsController {
   }
 
   private async getBurned (): Promise<StatsData['burned']> {
-    const {
-      emissionburn,
-      amount,
-      feeburn
-    } = await this.rpcClient.account.getBurnInfo()
+    const burnInfo = await this.rpcClient.account.getBurnInfo()
+
+    const utxo = burnInfo.amount
+    const account = findTokenBalance(burnInfo.tokens, 'DFI')
+    const address = utxo.plus(account)
+
     return {
-      address: amount.toNumber(),
-      emission: emissionburn.toNumber(),
-      fee: feeburn.toNumber(),
-      total: amount.plus(emissionburn).plus(feeburn).toNumber()
+      address: address.toNumber(),
+      fee: burnInfo.feeburn.toNumber(),
+      auction: burnInfo.auctionburn.toNumber(),
+      payback: burnInfo.paybackburn.toNumber(),
+      emission: burnInfo.emissionburn.toNumber(),
+      total: address
+        .plus(burnInfo.feeburn)
+        .plus(burnInfo.auctionburn)
+        .plus(burnInfo.paybackburn)
+        .plus(burnInfo.emissionburn)
+        .toNumber()
     }
+  }
+
+  private async getBurnedTotal (): Promise<BigNumber> {
+    // 8defichainBurnAddressXXXXXXXdRQkSm, using the hex representation as it's applicable in all network
+    const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
+
+    const burnInfo = await this.rpcClient.account.getBurnInfo()
+    const utxo = burnInfo.amount
+    const tokens = await this.rpcClient.account.getAccount(address)
+    return utxo.plus(findTokenBalance(tokens, 'DFI'))
   }
 
   private async getPrice (): Promise<StatsData['price']> {
@@ -199,6 +235,16 @@ export function getEmission (eunosHeight: number, height: number): StatsData['em
     burned: burned.toNumber(),
     total: total.toNumber()
   }
+}
+
+function findTokenBalance (tokens: string[], symbol: string): BigNumber {
+  for (const token of tokens) {
+    const [amount, s] = token.split('@')
+    if (s === symbol) {
+      return new BigNumber(amount)
+    }
+  }
+  return new BigNumber(0)
 }
 
 function requireValue<T> (value: T | undefined, name: string): T {
