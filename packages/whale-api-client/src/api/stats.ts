@@ -12,6 +12,15 @@ export class Stats {
   async get (): Promise<StatsData> {
     return await this.client.requestData('GET', 'stats')
   }
+
+  /**
+   * Get supply of DeFi Blockchain
+   *
+   * @return {Promise<BlockRewardDistribution}
+   */
+  async getSupply (): Promise<SupplyData> {
+    return await this.client.requestData('GET', 'stats/supply')
+  }
 }
 
 /**
@@ -32,9 +41,11 @@ export interface StatsData {
   }
   burned: {
     total: number
-    fee: number
-    emission: number
     address: number
+    fee: number
+    auction: number
+    payback: number
+    emission: number
   }
   price: {
     usd: number
@@ -75,4 +86,28 @@ export interface StatsData {
     subversion: string
     protocolversion: number
   }
+}
+
+export interface SupplyData {
+  /**
+   * The maximum supply of DFI that is allowed to exist at anytime.
+   * 1,200,000,000 as written in the white paper. Circulating amount will never be higher than this amount.
+   */
+  max: number
+
+  /**
+   * The total amount of DFI minted.
+   */
+  total: number
+
+  /**
+   * The total amount of all DFI that are burned.
+   */
+  burned: number
+
+  /**
+   * The amount of DFI that are publicly available and circulating in the market.
+   * Total - Burned = Circulating
+   */
+  circulating: number
 }

@@ -1,4 +1,4 @@
-import { LoanMasterNodeRegTestContainer, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 import { WhaleApiClient } from '../../src'
@@ -86,8 +86,10 @@ describe('stats', () => {
       },
       burned: {
         address: 0,
+        auction: 0,
         emission: 7323.58,
         fee: 4,
+        payback: 0,
         total: 7327.58
       },
       tvl: {
@@ -140,10 +142,20 @@ describe('stats', () => {
       }
     })
   })
+
+  it('should get stat supply', async () => {
+    const data = await client.stats.getSupply()
+    expect(data).toStrictEqual({
+      max: 1200000000,
+      total: expect.any(Number),
+      burned: expect.any(Number),
+      circulating: expect.any(Number)
+    })
+  })
 })
 
 describe('loan - stats', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const service = new StubService(container)
   const client = new StubWhaleApiClient(service)
   const testing = Testing.create(container)
@@ -396,6 +408,16 @@ describe('loan - stats', () => {
         subversion: expect.any(String),
         version: expect.any(Number)
       }
+    })
+  })
+
+  it('should get stat supply', async () => {
+    const data = await client.stats.getSupply()
+    expect(data).toStrictEqual({
+      max: 1200000000,
+      total: expect.any(Number),
+      burned: expect.any(Number),
+      circulating: expect.any(Number)
     })
   })
 })
