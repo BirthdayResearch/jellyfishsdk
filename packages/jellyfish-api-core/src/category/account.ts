@@ -303,9 +303,9 @@ export class Account {
   /**
    * Returns information about single account history
    *
-   * @param {string} [owner] Single account ID (CScript or address)
-   * @param {number} [blockHeight] Height to iterate from genesis block
-   * @param {number} [txn] Order in block
+   * @param {string} owner Single account ID (CScript or address)
+   * @param {number} blockHeight Height to iterate from genesis block
+   * @param {number} txn Order in block
    * @return {Promise<AccountHistory>}
    */
   async getAccountHistory (
