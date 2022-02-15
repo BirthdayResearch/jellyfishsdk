@@ -12,7 +12,7 @@
       "entryFile": "index",
       "sourceRoot": "apps/ocean-api/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/ocean-api/tsconfig.app.json"
+        "tsConfigPath": "apps/ocean-api/tsconfig.build.json"
       }
     }
   }
