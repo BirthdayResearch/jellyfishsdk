@@ -21,7 +21,7 @@ describe('NetworkParamValidation', () => {
     const unprotectedRoutes = []
     const routes = apiTesting.getAllRoutes()
     for (const { url } of routes) {
-      if (url === '*') {
+      if (url === '*' || url.startsWith('/_')) {
         continue
       }
 
