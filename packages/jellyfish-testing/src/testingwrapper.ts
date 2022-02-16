@@ -6,7 +6,7 @@ type InitDeFiContainerFn = (index: number) => DeFiDContainer
 function defaultInitDeFiContainer (index: number): DeFiDContainer {
   return new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
 }
-export class TestingWrapper {
+export const TestingWrapper = new (class TestingWrapperFactory {
   create (): Testing
   create (n: 0 | 1): Testing
   create (n: number): TestingGroup
@@ -31,4 +31,4 @@ export class TestingWrapper {
     const group = new ContainerGroup(containers)
     return new TestingGroup(group, testings)
   }
-}
+})()
