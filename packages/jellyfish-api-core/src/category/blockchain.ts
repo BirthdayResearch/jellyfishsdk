@@ -218,8 +218,9 @@ export class Blockchain {
   /**
    * Get statistics about the total number and rate of transactions in the chain.
    *
-   * @param {number} nBlocks - size of the window in number of blocks
-   * @param {string} blockHash - the hash of the block that ends the window
+   * @param {number} [nBlocks] size of the window in number of blocks. Defaults to 1 month (~86,400) blocks.
+   * @param {string} [blockHash] the hash of the block that ends the window. Defaults to the chain tip.
+   * @return {Promise<ChainTxStats>}
    */
   async getChainTxStats (nBlocks?: number, blockHash?: string): Promise<ChainTxStats> {
     return await this.client.call('getchaintxstats', [nBlocks, blockHash], 'number')
