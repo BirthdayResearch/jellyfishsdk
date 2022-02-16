@@ -199,6 +199,57 @@ describe('Account', () => {
       expect(accountHistories.length).toStrictEqual(1)
     })
   })
+
+  it('should listAccountHistory mine with options txn', async () => {
+    const options = {
+      txn: 2
+    }
+    const accountHistories = await client.account.listAccountHistory('mine', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    for (let i = 0; i < accountHistories.length; ++i) {
+      const accountHistory = accountHistories[i]
+      expect(accountHistory.txn).toStrictEqual(options.txn)
+    }
+  })
+
+  it('should listAccountHistory all with options txn', async () => {
+    const options = {
+      txn: 1
+    }
+    const accountHistories = await client.account.listAccountHistory('all', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    for (let i = 0; i < accountHistories.length; i += 1) {
+      const accountHistory = accountHistories[i]
+      expect(accountHistory.txn).toStrictEqual(options.txn)
+    }
+  })
+
+  it('should listAccountHistory all with options type and txn', async () => {
+    const options = {
+      txn: 2,
+      txtype: DfTxType.MINT_TOKEN
+    }
+    const accountHistories = await client.account.listAccountHistory('all', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    for (let i = 0; i < accountHistories.length; i += 1) {
+      const accountHistory = accountHistories[i]
+      expect(accountHistory.txn).toStrictEqual(options.txn)
+      expect(accountHistory.type).toStrictEqual('MintToken')
+    }
+  })
+
+  it('should listAccountHistory all with options limit and txn', async () => {
+    const options = {
+      limit: 2,
+      txn: 2
+    }
+    const accountHistories = await client.account.listAccountHistory('all', options)
+    expect(accountHistories.length).toStrictEqual(options.limit)
+    for (let i = 0; i < accountHistories.length; i += 1) {
+      const accountHistory = accountHistories[i]
+      expect(accountHistory.txn).toStrictEqual(options.txn)
+    }
+  })
 })
 
 describe('listAccountHistory', () => {
