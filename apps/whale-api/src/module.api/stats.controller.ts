@@ -50,13 +50,14 @@ export class StatsController {
   async getSupply (): Promise<SupplyData> {
     const height = requireValue(await this.blockMapper.getHighest(), 'block').height
 
+    const max = 1200000000
     const total = this.blockSubsidy.getSupply(height).div(100000000)
     const burned = await this.getBurnedTotal()
     const circulating = total.minus(burned)
 
     return {
-      max: 1200000000,
-      total: total.toNumber(),
+      max: max,
+      total: total.gt(max) ? max : total.toNumber(), // as emission burn is taken into the 1.2b calculation post eunos
       burned: burned.toNumber(),
       circulating: circulating.toNumber()
     }
@@ -139,11 +140,13 @@ export class StatsController {
   private async getBurnedTotal (): Promise<BigNumber> {
     // 8defichainBurnAddressXXXXXXXdRQkSm, using the hex representation as it's applicable in all network
     const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
-
-    const burnInfo = await this.rpcClient.account.getBurnInfo()
-    const utxo = burnInfo.amount
     const tokens = await this.rpcClient.account.getAccount(address)
-    return utxo.plus(findTokenBalance(tokens, 'DFI'))
+    const burnInfo = await this.rpcClient.account.getBurnInfo()
+
+    const utxo = burnInfo.amount
+    const account = findTokenBalance(tokens, 'DFI')
+    const emission = burnInfo.emissionburn
+    return utxo.plus(account).plus(emission)
   }
 
   private async getPrice (): Promise<StatsData['price']> {
