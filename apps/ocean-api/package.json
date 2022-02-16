@@ -8,7 +8,6 @@
   "license": "MIT",
   "main": "dist/index.js",
   "scripts": {
-    "start": "docker-compose -f ../../.github/workflows/ci/docker-compose.yml up --build",
     "build": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
