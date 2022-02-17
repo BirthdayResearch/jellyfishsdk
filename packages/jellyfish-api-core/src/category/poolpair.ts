@@ -147,16 +147,23 @@ export class PoolPair {
    * Create a test pool swap transaction to check pool swap's return result
    *
    * @param {PoolSwapMetadata} metadata a provided information to create test pool swap transaction
+   * @param {'auto' | 'direct'} [path='direct'] one of auto/direct.
+   *     Note: the default will be switched to auto in the upcoming versions.
+   *     - auto: automatically use composite swap or direct swap as needed.
+   *     - direct: uses direct path only or fails.
+   * @param {boolean} [verbose=false] returns estimated composite path when true,
+   *     otherwise returns a string formatted as 'amount@token' swapped.
    * @param {string} metadata.from address of the owner of tokenFrom
    * @param {string} metadata.tokenFrom swap from token {symbol/id}
    * @param {number} metadata.amountFrom amount from tokenA
    * @param {string} metadata.to address of the owner of tokenTo
    * @param {string} metadata.tokenTo swap to token {symbol/id}
    * @param {number} [metadata.maxPrice] acceptable max price
-   * @return {Promise<string>} formatted as 'amount@token' swapped
+   * @return {Promise<string | EstimatedCompositePath>} formatted as 'amount@token' swapped or
+   *     the estimated composite path.
    */
-  async testPoolSwap (metadata: PoolSwapMetadata): Promise<string> {
-    return await this.client.call('testpoolswap', [metadata], 'bignumber')
+  async testPoolSwap<T extends string | EstimatedCompositePath>(metadata: PoolSwapMetadata, path: 'auto' | 'direct' = 'direct', verbose: boolean = false): Promise<T> {
+    return await this.client.call('testpoolswap', [metadata, path, verbose], 'bignumber')
   }
 
   /**
@@ -254,4 +261,10 @@ export interface PoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
+}
+
+export interface EstimatedCompositePath {
+  amount: string
+  path: 'auto' | 'direct'
+  pools: string[]
 }

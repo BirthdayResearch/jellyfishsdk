@@ -214,7 +214,11 @@ Create a test pool swap transaction to check pool swap's return result
 
 ```ts title="client.poolpair.testPoolSwap()"
 interface poolpair {
-  testPoolSwap (metadata: PoolSwapMetadata): Promise<string>
+  testPoolSwap (
+    metadata: PoolSwapMetadata, 
+    path: 'auto' | 'direct' = 'direct', 
+    verbose: boolean = false
+  ): Promise<string | EstimatedCompositePath>
 }
 
 interface PoolSwapMetadata {
@@ -224,6 +228,12 @@ interface PoolSwapMetadata {
   to: string
   tokenTo: string
   maxPrice?: number
+}
+
+interface EstimatedCompositePath {
+  amount: string,
+  path: 'auto' | 'direct',
+  pools: string[]
 }
 ```
 
