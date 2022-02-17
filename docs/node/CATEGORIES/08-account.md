@@ -232,6 +232,7 @@ interface AccountHistoryOptions {
   token?: string
   txtype?: DfTxType
   limit?: number
+  txn?: number
 }
 ```
 
