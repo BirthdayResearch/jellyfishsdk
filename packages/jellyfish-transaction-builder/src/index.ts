@@ -1,4 +1,5 @@
 import { P2WPKHTxnBuilder } from './txn/txn_builder'
+import { TxnBuilderToken } from './txn/txn_builder_token'
 import { TxnBuilderDex } from './txn/txn_builder_dex'
 import { TxnBuilderUtxo } from './txn/txn_builder_utxo'
 import { TxnBuilderAccount } from './txn/txn_builder_account'
@@ -12,6 +13,7 @@ import { TxnBuilderLoans } from './txn/txn_builder_loans'
 export * from './provider'
 export * from './txn/txn_fee'
 export * from './txn/txn_builder'
+export * from './txn/txn_builder_token'
 export * from './txn/txn_builder_dex'
 export * from './txn/txn_builder_utxo'
 export * from './txn/txn_builder_account'
@@ -26,6 +28,7 @@ export * from './txn/txn_builder_masternode'
  * Currently only support sending from P2PKH operations.
  */
 export class P2WPKHTransactionBuilder extends P2WPKHTxnBuilder {
+  public readonly token = new TxnBuilderToken(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
   public readonly dex = new TxnBuilderDex(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
   public readonly utxo = new TxnBuilderUtxo(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
   public readonly account = new TxnBuilderAccount(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
