@@ -1,6 +1,6 @@
 import { AbstractBot } from '../../AbstractBot'
 import { RegTestFoundationKeys, RegTest } from '@defichain/jellyfish-network'
-import { CoinbaseProviders } from './providers'
+import { CoinbaseProviders } from './__providers'
 import { P2WPKHTransactionBuilder } from '@defichain/jellyfish-transaction-builder'
 import { CTransactionSegWit, TransactionSegWit } from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
