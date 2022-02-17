@@ -17,9 +17,11 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN npm ci
-RUN npm run all:build
 
-RUN ln apps/legacy-api/dist/apps/legacy-api/src legacy-api
-RUN ln apps/ocean-api/dist/apps/ocean-api/src ocean-api
+RUN npm run build --workspace=apps/legacy-api
+RUN ln -s apps/legacy-api/dist/apps/legacy-api/src legacy-api
 
-ENTRYPOINT node
+RUN npm run build --workspace=apps/ocean-api
+RUN ln -s apps/ocean-api/dist/apps/ocean-api/src ocean-api
+
+ENTRYPOINT ["node"]
