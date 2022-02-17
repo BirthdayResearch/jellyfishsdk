@@ -6,17 +6,20 @@ RUN apk --no-cache add curl
 WORKDIR /app
 
 COPY LICENSE ./
-COPY package.json ./
-COPY package-lock.json ./
 
+COPY lerna.json ./
 COPY tsconfig.base.json ./
 COPY tsconfig.build.json ./
 COPY tsconfig.json ./
+
+COPY package.json ./
+COPY package-lock.json ./
 
 COPY packages ./packages
 COPY apps ./apps
 
 RUN npm ci
+RUN npx lerna run build --ignore @defichain-apps/website
 
 RUN npm run build --workspace=apps/legacy-api
 RUN ln -s apps/legacy-api/dist/apps/legacy-api/src legacy-api

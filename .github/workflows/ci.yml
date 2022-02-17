@@ -63,7 +63,6 @@ jobs:
       - run: npx --no-install eslint .
 
   docker-buildx:
-    needs: [ build, lint ]
     name: Docker Buildx
     runs-on: ubuntu-latest
     strategy:
