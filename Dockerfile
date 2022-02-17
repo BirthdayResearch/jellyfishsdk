@@ -21,10 +21,8 @@ COPY apps ./apps
 RUN npm ci
 RUN npx lerna run build --ignore @defichain-apps/website
 
-RUN npm run build --workspace=apps/legacy-api
-RUN ln -s apps/legacy-api/dist/apps/legacy-api/src legacy-api
+ARG APP
+ENV APP ${APP}
+RUN ln -s apps/${APP}/dist/apps/${APP}/src ${APP}
 
-RUN npm run build --workspace=apps/ocean-api
-RUN ln -s apps/ocean-api/dist/apps/ocean-api/src ocean-api
-
-ENTRYPOINT ["node"]
+CMD "node" ${APP}

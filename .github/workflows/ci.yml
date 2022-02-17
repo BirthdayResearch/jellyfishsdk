@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        instance: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        instance: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
     env:
       GH_INSTANCE_TOTAL: 10
     steps:
@@ -68,6 +68,7 @@ jobs:
     strategy:
       matrix:
         platform: [ linux/amd64, linux/arm64 ]
+        app: [ legacy-api, ocean-api ]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480
@@ -79,5 +80,6 @@ jobs:
         uses: docker/build-push-action@7f9d37fa544684fb73bfe4835ed7214c255ce02b
         with:
           push: false
+          build-args: APP=${{ matrix.app }}
           platforms: ${{ matrix.platform }}
-          tags: ghcr.io/defich/jellyfish:latest
+          tags: ghcr.io/defich/${{ matrix.app }}:latest
