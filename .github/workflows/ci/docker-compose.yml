@@ -32,16 +32,13 @@ services:
       -fortcanningheight=8
       -fortcanningmuseumheight=9
       -fortcanninghillheight=10
-  defi-jellyfish:
-    image: defi/jellyfish
-    build: ../../..
   defi-ocean:
     image: defi/ocean-api
-    build: ../../../apps/ocean-api
+    build: ../../..
+    command: 'node apps/ocean-api/dist/apps/ocean-api/src/index'
     ports:
       - "3000:3000"
     depends_on:
       - defi-blockchain
-      - defi-jellyfish
     environment:
       - BLOCKCHAIN_CPP_URL=http://ocean-rpcuser:ocean-rpcpassword@defi-blockchain:19554
