@@ -18,6 +18,7 @@ import { UpdatePoolPairIndexer } from './dftx/update.pool.pair'
 import { CompositeSwapIndexer } from './dftx/composite.swap'
 import { ActivePriceIndexer } from './dftx/active.price'
 import { PlaceAuctionBidIndexer } from './dftx/place.auction.bid'
+import { PoolSwapAggregatedIndexer } from './dftx/pool.swap.aggregated'
 
 @Injectable()
 export class MainDfTxIndexer extends Indexer {
@@ -36,6 +37,7 @@ export class MainDfTxIndexer extends Indexer {
     updatePoolPair: UpdatePoolPairIndexer,
     poolSwapIndexer: PoolSwapIndexer,
     compositeSwapIndexer: CompositeSwapIndexer,
+    poolSwapIntervalIndexer: PoolSwapAggregatedIndexer,
     setLoanToken: SetLoanTokenIndexer,
     activePriceIndexer: ActivePriceIndexer,
     placeAuctionBidIndexer: PlaceAuctionBidIndexer
@@ -53,6 +55,7 @@ export class MainDfTxIndexer extends Indexer {
       updatePoolPair,
       poolSwapIndexer,
       compositeSwapIndexer,
+      poolSwapIntervalIndexer,
       setLoanToken,
       activePriceIndexer,
       placeAuctionBidIndexer

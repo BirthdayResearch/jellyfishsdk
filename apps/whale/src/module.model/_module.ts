@@ -21,6 +21,7 @@ import { PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
 import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
 import { OraclePriceActiveMapper } from './oracle.price.active'
 import { VaultAuctionHistoryMapper } from './vault.auction.batch.history'
+import { PoolSwapAggregatedMapper } from './pool.swap.aggregated'
 import { PoolSwapMapper } from './pool.swap'
 
 @Global()
@@ -48,6 +49,7 @@ import { PoolSwapMapper } from './pool.swap'
     PoolPairHistoryMapper,
     PoolPairTokenMapper,
     PoolSwapMapper,
+    PoolSwapAggregatedMapper,
     VaultAuctionHistoryMapper
   ],
   exports: [
@@ -73,6 +75,7 @@ import { PoolSwapMapper } from './pool.swap'
     PoolPairHistoryMapper,
     PoolPairTokenMapper,
     PoolSwapMapper,
+    PoolSwapAggregatedMapper,
     VaultAuctionHistoryMapper
   ]
 })

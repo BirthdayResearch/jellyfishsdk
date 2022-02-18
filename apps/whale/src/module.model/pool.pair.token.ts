@@ -37,6 +37,13 @@ export class PoolPairTokenMapper {
     })
   }
 
+  async listAllDesc (): Promise<PoolPairToken[]> {
+    return await this.database.query(PoolPairTokenMapping.index.token_key, {
+      limit: Number.MAX_SAFE_INTEGER,
+      order: SortOrder.DESC
+    })
+  }
+
   async put (pool: PoolPairToken): Promise<void> {
     return await this.database.put(PoolPairTokenMapping, pool)
   }
