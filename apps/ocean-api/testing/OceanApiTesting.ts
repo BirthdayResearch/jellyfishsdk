@@ -65,6 +65,7 @@ export class OceanApiTesting {
    */
   async start (): Promise<void> {
     await this.group.start()
+    await this.group.get(0).container.waitForWalletCoinbaseMaturity()
     await this.stubServer.start()
   }
 
