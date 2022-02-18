@@ -16,7 +16,8 @@ describe('Wallet without masternode', () => {
   })
 
   it('should listWallets', async () => {
-    await expect(client.wallet.listWallets()).resolves.toEqual(['', 'test'])
+    const wallets = await client.wallet.listWallets()
+    expect(wallets).toStrictEqual(['', 'test'])
   })
 })
 
