@@ -1,19 +1,17 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { WhaleApiClient } from '@defichain/whale-api-client'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 
 @Controller('v1')
 export class PoolPairController {
+  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {}
+
   @Get('getpoolpair')
   async getToken (
     @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
     @Query('id') poolPairId: string
   ): Promise<LegacyPoolPairData> {
-    const api = new WhaleApiClient({
-      version: 'v0',
-      network: network,
-      url: 'https://ocean.defichain.com'
-    })
+    const api = this.whaleApiClientProvider.getClient(network)
 
     return reformatPoolPairData(await api.poolpairs.get(poolPairId))
   }
@@ -22,11 +20,7 @@ export class PoolPairController {
   async listPoolPairs (
     @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet'
   ): Promise<{ [key: string]: LegacyPoolPairData }> {
-    const api = new WhaleApiClient({
-      version: 'v0',
-      network: network,
-      url: 'https://ocean.defichain.com'
-    })
+    const api = this.whaleApiClientProvider.getClient(network)
 
     const data: PoolPairData[] = await api.poolpairs.list(200)
 
