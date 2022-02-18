@@ -1,0 +1,44 @@
+# for POC purpose and illustrate requisites, should use test container via dockerode for test case
+version: '3.1'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: defichainrichlist
+
+  defi-blockchain:
+    image: defi/defichain:2.6.0
+    ports:
+      - "19554:19554"
+    command: >
+      defid
+      -printtoconsole
+      -rpcallowip=0.0.0.0/0
+      -rpcbind=0.0.0.0
+      -rpcuser=api-test
+      -rpcpassword=api-test
+      -rpcworkqueue=512
+      -masternode_operator=mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy
+      -regtest=1
+      -jellyfish_regtest=1
+      -txnotokens=0
+      -logtimemicros
+      -txindex=1
+      -acindex=1
+      -amkheight=0
+      -bayfrontheight=1
+      -bayfrontgardensheight=2
+      -clarkequayheight=3
+      -dakotaheight=4
+      -dakotacrescentheight=5
+      -eunosheight=6
+      -eunospayaheight=7
+      -fortcanningheight=8
+      -fortcanningmuseumheight=9
+      -fortcanninghillheight=10
