@@ -5,7 +5,7 @@ import { ControllerModule } from './ControllerModule'
 import { BlockchainCppModule } from './BlockchainCppModule'
 import { ActuatorModule } from './ActuatorModule'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { QueueItem, QueueModule } from 'apps/ocean-api/src/modules/QueueModule'
+import { QueueItem, QueueModule } from '../../src/modules/QueueModule'
 
 @Module({
   imports: [
