@@ -89,7 +89,6 @@ export abstract class GenesisCoinbaseBot<Each> extends AbstractBot {
       1, 9999999, { addresses: [GenesisCoinbaseBot.address] }
     )
     if (unspent.length === 0) {
-      console.log('fund')
       await this.fund(amount)
     }
   }
