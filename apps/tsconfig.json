@@ -8,6 +8,14 @@
   ],
   "compilerOptions": {
     "outDir": "./dist",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "paths": {
+      "@defichain-app-lib/*": [
+        "libs/*/src"
+      ],
+      "@defichain/*": [
+        "../packages/*/src"
+      ]
+    }
   }
 }
