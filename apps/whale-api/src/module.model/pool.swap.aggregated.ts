@@ -24,7 +24,7 @@ export class PoolSwapAggregatedMapper {
   public constructor (protected readonly database: Database) {
   }
 
-  async query (key: string, limit: number, lt?: string, gt?: string): Promise<PoolSwapAggregated[]> {
+  async query (key: string, limit: number, lt?: number, gt?: number): Promise<PoolSwapAggregated[]> {
     return await this.database.query(PoolSwapAggregatedMapping.index.key_sort, {
       partitionKey: key,
       limit: limit,
