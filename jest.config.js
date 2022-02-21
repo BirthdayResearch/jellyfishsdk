@@ -5,8 +5,8 @@ module.exports = {
   moduleNameMapper: {
     '@defichain/(?!whale-api-client)(.*)': '<rootDir>/packages/$1/src',
 
-    // nest-apps
-    '@defichain-app-lib/actuator(.*)': '<rootDir>/apps/libs/actuator/src/$1'
+    // apps
+    '@defichain-app-lib/(.*)': '<rootDir>/apps/libs/$1/src'
   },
   verbose: true,
   clearMocks: true,
