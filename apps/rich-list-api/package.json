@@ -21,7 +21,7 @@
     "@nestjs/typeorm": "^8.0.3",
     "joi": "^17.6.0",
     "pg": "^8.7.3",
-    "typeorm": "^0.2.42"
+    "typeorm": "^0.2.43"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.2.0",
