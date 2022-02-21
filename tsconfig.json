@@ -3,6 +3,12 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "@defichain-app-lib/actuator": [
+        "apps/libs/actuator/src"
+      ],
+      "@defichain-app-lib/actuator/*": [
+        "apps/libs/actuator/src/*"
+      ],
       "@defichain/*": [
         "packages/*/src"
       ]

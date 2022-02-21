@@ -9,7 +9,8 @@
   "files": [],
   "workspaces": [
     "./",
-    "./apps/*",
+    "./apps",
+    "./apps/website",
     "./packages/*"
   ],
   "engines": {

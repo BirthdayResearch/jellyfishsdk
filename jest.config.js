@@ -3,7 +3,10 @@ module.exports = {
   testRegex: '((\\.|/)(e2e|test|spec))\\.[jt]sx?$',
   testSequencer: require.resolve('./jest.sequencer'),
   moduleNameMapper: {
-    '@defichain/(?!whale-api-client)(.*)': '<rootDir>/packages/$1/src'
+    '@defichain/(?!whale-api-client)(.*)': '<rootDir>/packages/$1/src',
+
+    // nest-apps
+    '@defichain-app-lib/actuator(.*)': '<rootDir>/apps/libs/actuator/src/$1'
   },
   verbose: true,
   clearMocks: true,
