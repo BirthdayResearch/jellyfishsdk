@@ -9,8 +9,6 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { IndexerError } from '@src/module.indexer/error'
 import BigNumber from 'bignumber.js'
 
-const ONE = new BigNumber(1.0)
-
 @Injectable()
 export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
   OP_CODE: number = CCompositeSwap.OP_CODE
@@ -29,12 +27,12 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     const poolSwap = data.poolSwap
     const poolIds = await this.getPoolIdsForTokens(data)
 
-    let fromAmount: BigNumber = poolSwap.fromAmount
+    const fromAmount: BigNumber = poolSwap.fromAmount
 
     for (const pool of poolIds) {
       const poolPair = await this.getPoolPair(pool.id)
       await this.poolSwapIndexer.indexSwap(block, transaction, poolPair.poolPairId, poolSwap.fromTokenId, fromAmount)
-      fromAmount = ONE.minus(poolPair.commission).times(fromAmount)
+      // fromAmount = ONE.minus(poolPair.commission).times(fromAmount)
     }
   }
 
@@ -43,12 +41,12 @@ export class CompositeSwapIndexer extends DfTxIndexer<CompositeSwap> {
     const poolSwap = data.poolSwap
     const poolIds = await this.getPoolIdsForTokens(data)
 
-    let fromAmount: BigNumber = poolSwap.fromAmount
+    const fromAmount: BigNumber = poolSwap.fromAmount
 
     for (const pool of poolIds) {
       const poolPair = await this.getPoolPair(pool.id)
       await this.poolSwapIndexer.invalidateSwap(transaction, poolPair.poolPairId, poolSwap.fromTokenId, fromAmount)
-      fromAmount = ONE.minus(poolPair.commission).times(fromAmount)
+      // fromAmount = ONE.minus(poolPair.commission).times(fromAmount)
     }
   }
 
