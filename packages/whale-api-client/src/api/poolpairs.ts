@@ -40,6 +40,19 @@ export class PoolPairs {
   async listPoolSwaps (id: string, size: number = 30, next?: string): Promise<ApiPagedResponse<PoolSwap>> {
     return await this.client.requestList('GET', `poolpairs/${id}/swaps`, size, next)
   }
+
+  /**
+   * List pool swap aggregates
+   *
+   * @param {string} id poolpair id
+   * @param {PoolSwapAggregatedInterval} interval interval
+   * @param {number} size of PoolSwap to query
+   * @param {string} next set of PoolSwap
+   * @return {Promise<ApiPagedResponse<PoolSwapAggregated>>}
+   */
+  async listPoolSwapAggregates (id: string, interval: PoolSwapAggregatedInterval, size: number = 30, next?: string): Promise<ApiPagedResponse<PoolSwapAggregated>> {
+    return await this.client.requestList('GET', `poolpairs/${id}/swaps/aggregate/${interval as number}`, size, next)
+  }
 }
 
 export interface PoolPairData {
@@ -106,4 +119,23 @@ export interface PoolSwap {
     time: number
     medianTime: number
   }
+}
+
+export interface PoolSwapAggregated {
+  id: string
+  key: string
+  bucket: number
+
+  aggregated: {
+    amounts: Record<string, string>
+  }
+
+  block: {
+    medianTime: number
+  }
+}
+
+export enum PoolSwapAggregatedInterval {
+  ONE_HOUR = 60 * 60,
+  ONE_DAY = ONE_HOUR * 24
 }
