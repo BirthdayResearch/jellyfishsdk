@@ -51,6 +51,7 @@ export class CreatePoolPairIndexer extends DfTxIndexer<PoolCreatePair> {
 
     const pairSymbol = this.getPairSymbol(tokenA, tokenB, block, transaction)
 
+    // due to hard fork upgrades on PoolPair Data this is not representative of actual DfTx
     await this.poolPairHistoryMapper.put({
       id: txid,
       sort: HexEncoder.encodeHeight(block.height) + HexEncoder.encodeHeight(transaction.txnNo),
