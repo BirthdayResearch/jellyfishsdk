@@ -110,7 +110,8 @@ describe('list', () => {
       },
       apr: {
         reward: 2229.42,
-        total: 2229.42
+        total: 2229.42,
+        commission: 0
       },
       commission: '0',
       totalLiquidity: {
@@ -128,6 +129,10 @@ describe('list', () => {
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
+      },
+      volume: {
+        d30: 0,
+        h24: 0
       }
     })
   })
@@ -191,7 +196,8 @@ describe('get', () => {
       },
       apr: {
         reward: 0,
-        total: 0
+        total: 0,
+        commission: 0
       },
       commission: '0',
       totalLiquidity: {
@@ -209,6 +215,10 @@ describe('get', () => {
       creation: {
         tx: expect.any(String),
         height: expect.any(Number)
+      },
+      volume: {
+        d30: 0,
+        h24: 0
       }
     })
   })
