@@ -82,6 +82,11 @@ export interface PoolPairData {
   apr?: {
     total: number // fractional number
     reward: number // fractional number
+    commission: number // fractional number
+  }
+  volume?: {
+    d30: number // 30d volume in usd
+    h24: number // 24h volume in usd
   }
 }
 
