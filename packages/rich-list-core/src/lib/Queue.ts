@@ -12,7 +12,7 @@ export interface QueueClient<T> {
 /**
  * For unit test use.
  */
-export class StubbedQueueService<T> implements Queue<T> {
+export class InMemoryQueueService<T> implements Queue<T> {
   private DATA: T[] = []
 
   async push (message: T): Promise<string> {
@@ -39,7 +39,7 @@ export class StubbedQueueClient<T> implements QueueClient<T> {
   }
 
   async createQueueIfNotExist (name: string, mode: Mode): Promise<Queue<T>> {
-    this.DATA[name] = new StubbedQueueService()
+    this.DATA[name] = new InMemoryQueueService()
     return this.DATA[name]
   }
 }

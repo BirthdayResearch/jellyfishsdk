@@ -7,7 +7,7 @@ export interface PersistentStorage<K, V> {
 /**
  * For unit test use.
  */
-export abstract class StubbedStorageService<K, V> implements PersistentStorage<K, V> {
+export abstract class InMemoryStorageService<K, V> implements PersistentStorage<K, V> {
   private readonly DATA: { [key: string]: V } = {}
 
   abstract serializeKey (k: K): string
