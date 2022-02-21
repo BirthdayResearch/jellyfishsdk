@@ -301,6 +301,22 @@ export class Account {
   }
 
   /**
+   * Returns information about single account history
+   *
+   * @param {string} owner Single account ID (CScript or address)
+   * @param {number} blockHeight Block height to search in
+   * @param {number} txn Order in block
+   * @return {Promise<AccountHistory>}
+   */
+  async getAccountHistory (
+    owner: string,
+    blockHeight: number,
+    txn: number
+  ): Promise<AccountHistory> {
+    return await this.client.call('getaccounthistory', [owner, blockHeight, txn], 'number')
+  }
+
+  /**
    * Returns count of account history
    *
    * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
