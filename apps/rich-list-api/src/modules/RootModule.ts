@@ -5,6 +5,7 @@ import { ControllerModule } from './ControllerModule'
 import { BlockchainCppModule } from './BlockchainCppModule'
 import { ActuatorModule } from './ActuatorModule'
 import { TypeOrmModule } from '@nestjs/typeorm'
+import { QueueItem, QueueModule } from '../../src/modules/QueueModule'
 
 @Module({
   imports: [
@@ -23,12 +24,13 @@ import { TypeOrmModule } from '@nestjs/typeorm'
         password: configService.get<string>('POSTGRES_PASS'),
         database: configService.get<string>('POSTGRES_DB'),
         migrations: [/* TODO(@ivan-zynesis): create table if not exists */],
-        entities: [/* TODO */],
-        synchronize: false
+        // FIXME(@ivan-zynesis): remove sync after entities loading can be done via migration
+        entities: [QueueItem],
+        synchronize: true
       }),
       inject: [ConfigService]
     }),
-    // QueueModule,
+    QueueModule,
     BlockchainCppModule,
     ControllerModule
   ]
@@ -42,7 +44,6 @@ function ENV_VALIDATION_SCHEMA (): any {
     PORT: Joi.number().default(3000),
     API_VERSION: Joi.string().regex(/^v[0-9]+(\.[0-9]+)?$/).default('v1'),
     API_NETWORK: Joi.string().valid('regtest', 'testnet', 'mainnet').default('regtest'),
-    PLAYGROUND_ENABLE: Joi.boolean(),
 
     POSTGRES_HOST: Joi.string().ip(),
     POSTGRES_PORT: Joi.number().default(5432),
