@@ -29,14 +29,14 @@ export class PoolSwapAggregatedIndexer extends DfTxIndexer<PoolSwap> {
   async indexBlockStart (block: RawBlock): Promise<void> {
     const poolPairs = await this.poolPairTokenMapper.listAllDesc()
 
-    for (const poolPair of poolPairs) {
-      for (const interval of AggregatedIntervals) {
+    for (const interval of AggregatedIntervals) {
+      for (const poolPair of poolPairs) {
         const previous = await this.aggregatedMapper.query(`${poolPair.poolPairId}-${interval as number}`, 1)
         const bucket = getBucket(block, interval)
 
         if (previous.length === 1 && previous[0].bucket >= bucket) {
           // Going from a desc-ing order, we can just check if the most recent PoolSwap Aggregation Bucket is added.
-          continue
+          break
         }
 
         await this.createNewBucket(block, poolPair.poolPairId, interval)
