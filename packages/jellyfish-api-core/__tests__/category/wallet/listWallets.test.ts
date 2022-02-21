@@ -22,19 +22,20 @@ describe('Wallet without masternode', () => {
 })
 
 describe('Wallet with masternode', () => {
-  const { container, rpc: { wallet } } = Testing.create(new MasterNodeRegTestContainer())
+  const master = new MasterNodeRegTestContainer()
+  const testing = Testing.create(master)
 
   beforeAll(async () => {
-    await container.start()
-    await wallet.createWallet('test')
+    await testing.container.start()
+    await testing.rpc.wallet.createWallet('test')
   })
 
   afterAll(async () => {
-    await container.stop()
+    await testing.container.stop()
   })
 
   it('should listWallets', async () => {
-    const wallets = await wallet.listWallets()
+    const wallets = await testing.rpc.wallet.listWallets()
     expect(wallets).toEqual(['', 'test'])
   })
 })
