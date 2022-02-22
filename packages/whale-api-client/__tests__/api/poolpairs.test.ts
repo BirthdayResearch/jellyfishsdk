@@ -554,7 +554,7 @@ describe('poolswap 24h', () => {
       },
       volume: {
         d30: 11.028806333434215,
-        h24: 11.028806333434215
+        h24: 10.146501826759481
       }
     })
   })
@@ -601,7 +601,7 @@ describe('poolswap aggregated', () => {
           amounts: { 2: '9.50000000' }
         },
         block: expect.any(Object),
-        bucket: 1645660800,
+        bucket: expect.any(Number),
         id: expect.any(String),
         key:
         '10-86400'
@@ -613,7 +613,7 @@ describe('poolswap aggregated', () => {
           }
         },
         block: expect.any(Object),
-        bucket: 1645574400,
+        bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-86400'
       },
@@ -622,37 +622,36 @@ describe('poolswap aggregated', () => {
           amounts: {}
         },
         block: expect.any(Object),
-        bucket: 1645401600,
+        bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-86400'
       }
 
     ])
 
-    const hourAggregated: ApiPagedResponse<PoolSwapAggregated> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 10)
+    const hourAggregated: ApiPagedResponse<PoolSwapAggregated> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)
     expect([...hourAggregated]).toStrictEqual([
       {
-        aggregated: { amounts: { 2: '9.50000000' } },
+        aggregated: { amounts: { 2: '1.10000000' } },
         block: expect.any(Object),
-        bucket: 1645660800,
+        bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-3600'
       },
       {
-        aggregated: { amounts: { 2: '29.00000000' } },
+        aggregated: { amounts: { 2: '1.20000000' } },
         block: expect.any(Object),
-        bucket: 1645574400,
+        bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-3600'
       },
       {
-        aggregated: { amounts: {} },
+        aggregated: { amounts: { 2: '1.20000000' } },
         block: expect.any(Object),
-        bucket: 1645444800,
+        bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-3600'
       }
-
     ])
   })
 })
