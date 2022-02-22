@@ -387,7 +387,7 @@ export interface AccountResult<T, U> {
 
 export interface AccountOwner {
   asm: string
-  hex?: string
+  hex: string
   reqSigs: BigNumber
   type: string
   addresses: string[]
