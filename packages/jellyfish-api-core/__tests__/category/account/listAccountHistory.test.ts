@@ -200,7 +200,22 @@ describe('Account', () => {
     })
   })
 
-  it('should listAccountHistory mine with options txn', async () => {
+  it('should listAccountHistory with options block height and txn', async () => {
+    const options = {
+      maxBlockHeight: 102,
+      txn: 2
+    }
+    const accountHistories = await client.account.listAccountHistory('mine', options)
+    expect(accountHistories.length).toBeGreaterThan(0)
+    for (let i = 0; i < accountHistories.length; ++i) {
+      const accountHistory = accountHistories[i]
+      expect(accountHistory.blockHeight).toStrictEqual(options.maxBlockHeight)
+      expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
+    }
+  })
+
+  // If you don't set blockHeight, it will consider the latest block
+  it('should listAccountHistory with options txn', async () => {
     const options = {
       txn: 2
     }
@@ -208,24 +223,28 @@ describe('Account', () => {
     expect(accountHistories.length).toBeGreaterThan(0)
     for (let i = 0; i < accountHistories.length; ++i) {
       const accountHistory = accountHistories[i]
-      expect(accountHistory.txn).toStrictEqual(options.txn)
+      expect(accountHistory.blockHeight).toStrictEqual(103)
+      expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
     }
   })
 
-  it('should listAccountHistory all with options txn', async () => {
+  it('should listAccountHistory with owner all options block height and txn', async () => {
     const options = {
+      maxBlockHeight: 102,
       txn: 1
     }
     const accountHistories = await client.account.listAccountHistory('all', options)
     expect(accountHistories.length).toBeGreaterThan(0)
     for (let i = 0; i < accountHistories.length; i += 1) {
       const accountHistory = accountHistories[i]
-      expect(accountHistory.txn).toStrictEqual(options.txn)
+      expect(accountHistory.blockHeight).toStrictEqual(options.maxBlockHeight)
+      expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
     }
   })
 
-  it('should listAccountHistory all with options type and txn', async () => {
+  it('should listAccountHistory with owener all options block height, type and txn', async () => {
     const options = {
+      maxBlockHeight: 103,
       txn: 2,
       txtype: DfTxType.MINT_TOKEN
     }
@@ -233,21 +252,25 @@ describe('Account', () => {
     expect(accountHistories.length).toBeGreaterThan(0)
     for (let i = 0; i < accountHistories.length; i += 1) {
       const accountHistory = accountHistories[i]
-      expect(accountHistory.txn).toStrictEqual(options.txn)
+      expect(accountHistory.blockHeight).toStrictEqual(options.maxBlockHeight)
+      expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
       expect(accountHistory.type).toStrictEqual('MintToken')
     }
   })
 
-  it('should listAccountHistory all with options limit and txn', async () => {
+  it('should listAccountHistory with owner all options block height, limit and txn', async () => {
     const options = {
-      limit: 2,
-      txn: 2
+      maxBlockHeight: 103,
+      limit: 3,
+      txn: 1
     }
     const accountHistories = await client.account.listAccountHistory('all', options)
-    expect(accountHistories.length).toStrictEqual(options.limit)
+    expect(accountHistories.length).toBeLessThanOrEqual(options.limit)
     for (let i = 0; i < accountHistories.length; i += 1) {
       const accountHistory = accountHistories[i]
-      expect(accountHistory.txn).toStrictEqual(options.txn)
+      expect(accountHistory.blockHeight).toStrictEqual(options.maxBlockHeight)
+      console.log(`test1 ${accountHistory.blockHeight}, ${accountHistory.txn}`)
+      expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
     }
   })
 })
