@@ -3,14 +3,13 @@ import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
 import { toOPCodes } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
-import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawtx'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/accountToUtxos'
 import { UtxoAddressParser } from './utxo'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
-  readonly utxo: UtxoAddressParser
+  private readonly utxo: UtxoAddressParser
 
   constructor (
     private readonly apiClient: ApiClient,
@@ -23,7 +22,7 @@ export class AddressParser {
     this.utxo = new UtxoAddressParser(apiClient)
   }
 
-  async parse (txn: RawTransaction): Promise<string[]> {
+  async parse (txn: defid.Transaction): Promise<string[]> {
     const result: string[] = []
 
     for (const vin of txn.vin) {
@@ -57,15 +56,5 @@ export class AddressParser {
       throw new Error(`Vout is not DfTx: ${vout.scriptPubKey.hex}`)
     }
     return (stack[1] as OP_DEFI_TX).tx
-  }
-
-  static checkCategory (txn: RawTransaction): 'dftx' | 'utxo' {
-    // TBC: perhaps should be more precise, check only txn.vout[0]
-    for (const vout of txn.vout) {
-      if (vout.scriptPubKey.asm.startsWith('OP_RETURN 44665478')) {
-        return 'dftx'
-      }
-    }
-    return 'utxo'
   }
 }

@@ -1,4 +1,4 @@
-import { ApiClient, BigNumber } from '@defichain/jellyfish-api-core'
+import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
 import { QueueClient } from './lib/Queue'
 import { PersistentStorage } from './lib/PersistentStorage'
 import { AddressParser } from './controller/AddressParser'
@@ -6,6 +6,7 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { RichListItem } from '@defichain/rich-list-api-client'
 import { AccountAmount } from 'packages/jellyfish-api-core/src/category/account'
 import { ActiveAddressAccountAmount } from './controller/AddressParser/ActiveAddressAccountAmount'
+import { PersistentLinkedList } from './lib/PersistentLinkedList'
 
 export class RichListCore {
   CATCHING_UP = false
@@ -16,7 +17,8 @@ export class RichListCore {
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
     private readonly existingRichList: PersistentStorage<number, RichListItem[]>,
-    private readonly queueClient: QueueClient<string>
+    private readonly queueClient: QueueClient<string>,
+    private readonly crawledBlocks: PersistentLinkedList<BlockDroppedOutAddresses>
   ) {
     this.addressParser = new AddressParser(apiClient, network)
   }
@@ -25,17 +27,66 @@ export class RichListCore {
     this.RICH_LIST_LENGTH = length
   }
 
-  bootstrap (): void {
+  resume (): void {
+    if (this.CATCHING_UP) {
+      return
+    }
     this.CATCHING_UP = true
-
-    /**
-     * TODO:
-     * 1. start/resume crawling block
-     * 2. push active addresses into queue
-     * 3. store crawled block hash
-     * 4. hit chain tip, CATHING_UP = false
-     */
+    void this._catchUp()
   }
+
+  async _catchUp (): Promise<void> {
+    const nextBlockHeight = await this.crawledBlocks.size()
+    const nextBlock = await this._getBlock(nextBlockHeight)
+
+    if (nextBlock === undefined) {
+      this.CATCHING_UP = false
+      return
+    }
+
+    const lastHashed = await this.crawledBlocks.getLast()
+    if (lastHashed !== undefined && lastHashed.hash !== nextBlock.previousblockhash) {
+      // TODO(@ivan-zynesis): invalidate()
+    } else {
+      const queue = await this.queueClient.createQueueIfNotExist(this._queueName(), 'LIFO')
+
+      const addresses: string[] = []
+      for (const tx of nextBlock.tx) {
+        const addresses = await this.addressParser.parse(tx)
+        for (const a of addresses) {
+          addresses.push(a)
+          await queue.push(a)
+        }
+      }
+      await this.crawledBlocks.append({
+        hash: nextBlock.hash,
+        richListDroppedOut: addresses
+      })
+    }
+
+    return await this._catchUp()
+  }
+
+  private async _getBlock (height: number): Promise<defid.Block<defid.Transaction> | undefined> {
+    try {
+      const bh = await this.apiClient.blockchain.getBlockHash(height)
+      return await this.apiClient.blockchain.getBlock(bh, 2)
+    } catch (err: any) {
+      if (err.payload.message === 'Block height out of range') {
+        return undefined
+      }
+      throw err
+    }
+  }
+
+  // private async _invalidate () {
+  //   /**
+  //    * TODO:
+  //    * 1. remove highest block data
+  //    * 2. get back dropped address
+  //    * 3. sort rich list again
+  //    */
+  // }
 
   async get (token: string): Promise<RichListItem[]> {
     if (Number.isNaN(token)) {
@@ -120,4 +171,9 @@ export class RichListCore {
   private _queueName (): string {
     return 'RichListCore_ACTIVE_ADDRESSES'
   }
+}
+
+export interface BlockDroppedOutAddresses {
+  hash: string
+  richListDroppedOut: string[]
 }
