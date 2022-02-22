@@ -145,7 +145,6 @@ describe('Account', () => {
       expect(typeof account.owner === 'object').toStrictEqual(true)
       expect(typeof account.owner.asm).toStrictEqual('string')
       expect(typeof account.owner.hex).toStrictEqual('string')
-
       expect(account.owner.reqSigs instanceof BigNumber).toStrictEqual(true)
       expect(typeof account.owner.type).toStrictEqual('string')
       expect(account.owner.addresses.length).toBeGreaterThan(0)
