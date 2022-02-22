@@ -117,7 +117,10 @@ describe('Account', () => {
     const accountHistories = await testing.rpc.account.listAccountHistory(hex)
     console.log('accountHistories: ', accountHistories)
 
-    const referenceHistory = accountHistories[0]
+    let referenceHistory = accountHistories[0]
+    for (let i = 1; (referenceHistory.type === 'sent' || referenceHistory.type === 'receive' || referenceHistory.txn === undefined) && i < accountHistories.length; i++) {
+      referenceHistory = accountHistories[i]
+    }
 
     const history = await testing.rpc.account.getAccountHistory(hex, referenceHistory.blockHeight, referenceHistory.txn)
     console.log('history: ', history)
