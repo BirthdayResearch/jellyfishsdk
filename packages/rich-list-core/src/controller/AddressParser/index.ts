@@ -6,7 +6,6 @@ import { DfTxAddressParser } from './dftx/_abstract'
 import { RawTransaction } from '@defichain/jellyfish-api-core/dist/category/rawtx'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/accountToUtxos'
-import { ActiveAddress } from './ActiveAddress'
 import { UtxoAddressParser } from './utxo'
 
 export class AddressParser {
@@ -24,8 +23,8 @@ export class AddressParser {
     this.utxo = new UtxoAddressParser(apiClient)
   }
 
-  async parse (txn: RawTransaction): Promise<ActiveAddress[]> {
-    const result: ActiveAddress[] = []
+  async parse (txn: RawTransaction): Promise<string[]> {
+    const result: string[] = []
 
     for (const vin of txn.vin) {
       result.push(...(await this.utxo.extractFromVin(vin)))
