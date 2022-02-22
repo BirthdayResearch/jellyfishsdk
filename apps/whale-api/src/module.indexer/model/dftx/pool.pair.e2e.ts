@@ -388,7 +388,7 @@ describe('poolswap 30d', () => {
       {
         id: expect.any(String),
         key: '2-86400',
-        bucket: 1645660800,
+        bucket: expect.any(Number),
         aggregated: {
           amounts: {
             1: '23.90000000'
@@ -399,7 +399,7 @@ describe('poolswap 30d', () => {
       {
         id: expect.any(String),
         key: '2-86400',
-        bucket: 1645574400,
+        bucket: expect.any(Number),
         aggregated: {
           amounts: {
             1: '29.00000000'
