@@ -1,6 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
+import { NetworkValidationPipe } from '../pipes/NetworkValidationPipe'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 @Controller('v1')
 export class PoolPairController {
@@ -8,7 +10,7 @@ export class PoolPairController {
 
   @Get('getpoolpair')
   async getToken (
-    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet',
+    @Query('network', NetworkValidationPipe) network: NetworkName = 'mainnet',
     @Query('id') poolPairId: string
   ): Promise<LegacyPoolPairData> {
     const api = this.whaleApiClientProvider.getClient(network)
@@ -18,7 +20,7 @@ export class PoolPairController {
 
   @Get('listpoolpairs')
   async listPoolPairs (
-    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet'
+    @Query('network', NetworkValidationPipe) network: NetworkName = 'mainnet'
   ): Promise<{ [key: string]: LegacyPoolPairData }> {
     const api = this.whaleApiClientProvider.getClient(network)
 
