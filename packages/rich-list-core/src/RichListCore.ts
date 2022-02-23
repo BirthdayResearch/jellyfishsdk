@@ -4,7 +4,7 @@ import { PersistentStorage } from './lib/PersistentStorage'
 import { AddressParser } from './controller/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { RichListItem } from '@defichain/rich-list-api-client'
-import { AccountAmount } from 'packages/jellyfish-api-core/src/category/account'
+import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
 import { ActiveAddressAccountAmount } from './controller/AddressParser/ActiveAddressAccountAmount'
 import { PersistentLinkedList } from './lib/PersistentLinkedList'
 
