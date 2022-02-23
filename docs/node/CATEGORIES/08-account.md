@@ -43,6 +43,7 @@ interface AccountResult<T, U> {
 
 interface AccountOwner {
   asm: string
+  hex: string
   reqSigs: BigNumber
   type: string
   addresses: string[]
