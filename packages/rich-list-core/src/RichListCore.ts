@@ -1,6 +1,6 @@
 import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
 import { QueueClient, Queue } from './lib/Queue'
-import { PersistentStorage } from './lib/PersistentStorage'
+import { SingleIndexDb } from './lib/SingleIndexDb'
 import { AddressParser } from './controller/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { RichListItem } from '@defichain/rich-list-api-client'
@@ -18,7 +18,7 @@ export class RichListCore {
   constructor (
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
-    private readonly existingRichList: PersistentStorage<number, RichListItem[]>,
+    private readonly existingRichList: SingleIndexDb<RichListItem>,
     private readonly queueClient: QueueClient<string>,
     private readonly crawledBlocks: PersistentLinkedList<string>,
     private readonly droppedFromRichList: PersistentLinkedList<string[]>
@@ -101,7 +101,11 @@ export class RichListCore {
       throw new Error('Invalid token id')
     }
 
-    return await this.existingRichList.get(Number(tokenId)) ?? []
+    return (await this.existingRichList.list({
+      partition: `${tokenId}`,
+      limit: this.richListLength,
+      order: 'DESC'
+    })).map(s => s.data)
   }
 
   /**
@@ -115,26 +119,24 @@ export class RichListCore {
     let updatedBalances = await this._getActiveAddressBalances(tokens, queuedAddressLimit)
 
     while (Object.keys(updatedBalances).length > 0) {
-      for (const tokenId of tokens) {
-        const updated = await this._computeRichList(tokenId, updatedBalances)
-        await this.existingRichList.put(tokenId, updated)
+      for (const address of Object.keys(updatedBalances)) {
+        const accountAmount = updatedBalances[address]
+        for (const tokenId of tokens) {
+          const balance = accountAmount[tokenId].toNumber()
+          await this.existingRichList.put({
+            partition: `${tokenId}`,
+            sort: balance,
+            id: `${address}-${tokenId}`,
+            data: {
+              address: address,
+              amount: balance
+            }
+          })
+        }
       }
 
       updatedBalances = await this._getActiveAddressBalances(tokens, queuedAddressLimit)
     }
-  }
-
-  private async _computeRichList (tokenId: number, activeAddressBalances: ActiveAddressAccountAmount): Promise<RichListItem[]> {
-    const latestBalances: RichListItem[] = Object.keys(activeAddressBalances).map(address => ({
-      address: address,
-      amount: activeAddressBalances[address][tokenId].toNumber()
-    }))
-    const existing = (await this.existingRichList.get(tokenId)) ?? []
-    return existing
-      .filter(rl => !latestBalances.map(rl => rl.address).includes(rl.address))
-      .concat(latestBalances)
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, this.richListLength)
   }
 
   private async _getActiveAddressBalances (tokens: number[], queuedAddressLimit: number): Promise<ActiveAddressAccountAmount> {
@@ -163,10 +165,6 @@ export class RichListCore {
   private async _listTokenIds (): Promise<number[]> {
     const tokens = await this.apiClient.token.listTokens()
     return Object.keys(tokens).map(id => Number(id))
-  }
-
-  private _queueName (): string {
-    return 'RichListCore_ACTIVE_ADDRESSES'
   }
 
   private async _addressQueue (): Promise<Queue<string>> {

@@ -1,2 +1,2 @@
-export * from './PersistentStorage'
+export * from './SingleIndexDb'
 export * from './Queue'
