@@ -4,7 +4,7 @@ describe('RichListApiClient - get', () => {
     /**
      * TODO:
      * 1. setup server env
-     * 2. set RICH_LIST_LENGTH to maybe 5
+     * 2. set richListLength to maybe 5
      * 3. transact randomly among 10-20x addresses
      * 4. assert rich list
      * 5. repeat (3) to update rich list and (4)

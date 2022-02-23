@@ -8,9 +8,11 @@ import { AccountAmount } from 'packages/jellyfish-api-core/src/category/account'
 import { ActiveAddressAccountAmount } from './controller/AddressParser/ActiveAddressAccountAmount'
 import { PersistentLinkedList } from './lib/PersistentLinkedList'
 
+const DEFAULT_RICH_LIST_LENGTH = 1000
+
 export class RichListCore {
-  CATCHING_UP = false
-  RICH_LIST_LENGTH = 1000
+  isCatchingUp = false
+  richListLength = DEFAULT_RICH_LIST_LENGTH
   readonly addressParser: AddressParser
 
   constructor (
@@ -24,14 +26,14 @@ export class RichListCore {
   }
 
   setRichListLength (length: number): void {
-    this.RICH_LIST_LENGTH = length
+    this.richListLength = length
   }
 
   resume (): void {
-    if (this.CATCHING_UP) {
+    if (this.isCatchingUp) {
       return
     }
-    this.CATCHING_UP = true
+    this.isCatchingUp = true
     void this._catchUp()
   }
 
@@ -40,7 +42,7 @@ export class RichListCore {
     const nextBlock = await this._getBlock(nextBlockHeight)
 
     if (nextBlock === undefined) {
-      this.CATCHING_UP = false
+      this.isCatchingUp = false
       return
     }
 
@@ -137,7 +139,7 @@ export class RichListCore {
       .filter(rl => !latestBalances.map(rl => rl.address).includes(rl.address))
       .concat(latestBalances)
       .sort((a, b) => b.amount - a.amount)
-      .slice(0, this.RICH_LIST_LENGTH)
+      .slice(0, this.richListLength)
   }
 
   private async _getActiveAddressBalances (tokens: number[], queuedAddressLimit: number): Promise<ActiveAddressAccountAmount> {
