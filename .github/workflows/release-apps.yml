@@ -43,7 +43,7 @@ jobs:
               if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/) === false) {
                 throw new Error('Cannot resolve version for release, not semver.')
               }
-              return `ghcr.io/deifch/${app}:latest,ghcr.io/kodemon/${app}:${semver}`
+              return `ghcr.io/deifch/${app}:latest,ghcr.io/deifch/${app}:${semver}`
             }
             if (context.eventName === 'push' && context.ref === 'refs/heads/main') {
               return `ghcr.io/deifch/${app}:main-${context.sha.substr(0, 12)}`
