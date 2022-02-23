@@ -10,7 +10,7 @@
   "workspaces": [
     "./",
     "./apps",
-    "./apps/website",
+    "./website",
     "./packages/*"
   ],
   "engines": {

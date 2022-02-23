@@ -43,6 +43,7 @@ interface AccountResult<T, U> {
 
 interface AccountOwner {
   asm: string
+  hex: string
   reqSigs: BigNumber
   type: string
   addresses: string[]
@@ -232,6 +233,31 @@ interface AccountHistoryOptions {
   token?: string
   txtype?: DfTxType
   limit?: number
+}
+```
+
+## getAccountHistory
+
+Returns information about single account history
+
+```ts title="client.account.getAccountHistory()"
+interface account {
+  getAccountHistory (
+    owner: string,
+    blockHeight: number,
+    txn:number
+  ): Promise<AccountHistory>
+}
+
+interface AccountHistory {
+  owner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txn: number
+  txid: string
+  amounts: string[]
 }
 ```
 

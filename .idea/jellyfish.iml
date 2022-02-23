@@ -5,8 +5,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.parcel-cache" />
       <excludeFolder url="file://$MODULE_DIR$/coverage" />
-      <excludeFolder url="file://$MODULE_DIR$/apps/website/build" />
-      <excludeFolder url="file://$MODULE_DIR$/apps/website/.docusaurus" />
+      <excludeFolder url="file://$MODULE_DIR$/website/build" />
+      <excludeFolder url="file://$MODULE_DIR$/website/.docusaurus" />
       <excludePattern pattern="*tsconfig.build.tsbuildinfo*" />
       <excludePattern pattern="*dist*" />
       <excludePattern pattern="*coverage*" />

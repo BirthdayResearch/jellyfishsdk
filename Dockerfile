@@ -19,7 +19,7 @@ COPY packages ./packages
 COPY apps ./apps
 
 RUN npm ci
-RUN npx lerna run build --ignore @defichain-apps/website
+RUN npx lerna run build
 
 ARG APP
 ENV APP ${APP}

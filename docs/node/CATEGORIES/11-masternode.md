@@ -206,6 +206,16 @@ interface masternode {
 }
 ```
 
+## isAppliedCustomTransaction
+
+Checks that custom transaction was affected on chain
+
+```ts title="client.masternode.isAppliedCustomTransaction()"
+interface masternode {
+  isAppliedCustomTransaction (transactionId: string, blockHeight: number): Promise<boolean>
+}
+```
+
 ## getAnchorTeams
 
 Returns the auth and confirm anchor masternode teams at current or specified height
