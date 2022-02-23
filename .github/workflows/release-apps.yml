@@ -1,0 +1,62 @@
+name: Release Apps
+
+on:
+  release:
+    types: [ published ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Release Apps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: [ legacy-api, ocean-api ]
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@6af3c118c8376c675363897acf1757f7a9be6583
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve Tags
+        uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e
+        id: tags
+        env:
+          APP: ${{ matrix.app }}
+        with:
+          script: |
+            const app = process.env.APP
+            if (context.eventName === 'release') {
+              if (context.payload.release?.tag_name === undefined) {
+                throw new Error('Cannot resolve version for release, missing tag_name in context.')
+              }
+              const semver = context.payload.release.tag_name.replace('v', '')
+              if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/) === false) {
+                throw new Error('Cannot resolve version for release, not semver.')
+              }
+              return `ghcr.io/deifch/${app}:latest,ghcr.io/kodemon/${app}:${semver}`
+            }
+            if (context.eventName === 'push' && context.ref === 'refs/heads/main') {
+              return `ghcr.io/deifch/${app}:main-${context.sha.substr(0, 12)}`
+            }
+            throw new Error('Cannot build apps, invalid workflow event')
+          result-encoding: string
+      
+      - name: Build & Publish
+        uses: docker/build-push-action@7f9d37fa544684fb73bfe4835ed7214c255ce02b
+        with:
+          push: true
+          build-args: APP=${{ matrix.app }}
+          platforms: |
+            linux/amd64
+            linux/arm64
+          tags: ${{ steps.tags.outputs.result }}
