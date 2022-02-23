@@ -1,5 +1,5 @@
 {
-  "private": false,
+  "private": true,
   "name": "@defichain/rich-list-core",
   "version": "0.0.0",
   "description": "A modulular library to compute DeFiChain rich list with persistence storage provider injected.",
