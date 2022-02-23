@@ -122,14 +122,7 @@ export class RichListCore {
     }
   }
 
-  async _calculateNext (tokens: number[], updatedBalances: ActiveAddressAccountAmount): Promise<void> {
-    for (const tokenId of tokens) {
-      const updated = await this._computeRichList(tokenId, updatedBalances)
-      await this.existingRichList.put(tokenId, updated)
-    }
-  }
-
-  async _computeRichList (tokenId: number, activeAddressBalances: ActiveAddressAccountAmount): Promise<RichListItem[]> {
+  private async _computeRichList (tokenId: number, activeAddressBalances: ActiveAddressAccountAmount): Promise<RichListItem[]> {
     const latestBalances: RichListItem[] = Object.keys(activeAddressBalances).map(address => ({
       address: address,
       amount: activeAddressBalances[address][tokenId].toNumber()
