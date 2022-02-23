@@ -38,7 +38,7 @@ export class RichListCore {
     void this._catchUp()
   }
 
-  async _catchUp (): Promise<void> {
+  private async _catchUp (): Promise<void> {
     const nextBlockHeight = await this.crawledBlocks.size()
     const nextBlock = await this._getBlock(nextBlockHeight)
 
