@@ -97,7 +97,7 @@ export class RichListCore {
       throw new Error('Invalid token id')
     }
 
-    if (!(await this._listTokens()).includes(Number(token))) {
+    if (!(await this._listTokenIds()).includes(Number(token))) {
       throw new Error('Invalid token id')
     }
 
@@ -111,7 +111,7 @@ export class RichListCore {
    * @param queuedAddressLimit [5000]
    */
   async calculateNext (queuedAddressLimit = 5000): Promise<void> {
-    const tokens = await this._listTokens()
+    const tokens = await this._listTokenIds()
     let updatedBalances = await this._getActiveAddressBalances(tokens, queuedAddressLimit)
 
     while (Object.keys(updatedBalances).length > 0) {
@@ -160,7 +160,7 @@ export class RichListCore {
     return result
   }
 
-  private async _listTokens (): Promise<number[]> {
+  private async _listTokenIds (): Promise<number[]> {
     const tokens = await this.apiClient.token.listTokens()
     return Object.keys(tokens).map(id => Number(id))
   }
