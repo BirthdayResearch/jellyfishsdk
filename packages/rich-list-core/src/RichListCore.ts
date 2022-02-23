@@ -92,16 +92,16 @@ export class RichListCore {
   //    */
   // }
 
-  async get (token: string): Promise<RichListItem[]> {
-    if (Number.isNaN(token)) {
+  async get (tokenId: string): Promise<RichListItem[]> {
+    if (Number.isNaN(tokenId)) {
       throw new Error('Invalid token id')
     }
 
-    if (!(await this._listTokenIds()).includes(Number(token))) {
+    if (!(await this._listTokenIds()).includes(Number(tokenId))) {
       throw new Error('Invalid token id')
     }
 
-    return await this.existingRichList.get(Number(token)) ?? []
+    return await this.existingRichList.get(Number(tokenId)) ?? []
   }
 
   /**
