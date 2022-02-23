@@ -174,6 +174,7 @@ export interface LoanVaultLiquidationBatch {
   collaterals: LoanVaultTokenAmount[]
   loan: LoanVaultTokenAmount
   highestBid?: HighestBid
+  froms: string[]
 }
 
 export enum LoanVaultState {

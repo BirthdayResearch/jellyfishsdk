@@ -315,6 +315,7 @@ describe('list', () => {
         expect(vault.batches).toStrictEqual([
           {
             collaterals: expect.any(Array),
+            froms: [],
             highestBid: {
               amount: {
                 activePrice: expect.any(Object),
@@ -332,6 +333,7 @@ describe('list', () => {
           },
           {
             collaterals: expect.any(Array),
+            froms: [],
             index: 1,
             loan: expect.any(Object)
           }

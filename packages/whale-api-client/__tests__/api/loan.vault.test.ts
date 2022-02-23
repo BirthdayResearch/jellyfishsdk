@@ -415,6 +415,7 @@ describe('get', () => {
       batches: [
         {
           index: 0,
+          froms: [],
           collaterals: [
             {
               amount: '10000.00000000',
