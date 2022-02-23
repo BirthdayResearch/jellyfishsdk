@@ -54,8 +54,8 @@ export class RichListCore {
 
       const addresses: string[] = []
       for (const tx of nextBlock.tx) {
-        const addresses = await this.addressParser.parse(tx)
-        for (const a of addresses) {
+        const _addresses = await this.addressParser.parse(tx)
+        for (const a of _addresses) {
           addresses.push(a)
           await queue.push(a)
         }
