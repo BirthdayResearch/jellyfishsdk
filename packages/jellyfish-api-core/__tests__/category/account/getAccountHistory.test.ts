@@ -117,22 +117,27 @@ describe('Account', () => {
     const accountHistories = await testing.rpc.account.listAccountHistory(hex)
     console.log('accountHistories: ', accountHistories)
 
-    let referenceHistory = accountHistories[0]
-    for (let i = 1; (referenceHistory.type === 'sent' || referenceHistory.type === 'receive' || referenceHistory.txn === undefined) && i < accountHistories.length; i++) {
-      referenceHistory = accountHistories[i]
+    for (let i = 0; i < accountHistories.length; i++) {
+      const referenceHistory = accountHistories[i]
+      if (
+        referenceHistory.type === 'sent' || referenceHistory.type === 'receive' || referenceHistory.type === 'blockReward' || // skip types from wallet
+        // || referenceHistory.type === 'Rewards' || referenceHistory.type === 'Commission' || referenceHistory.type === 'Unknown' // skip types from pool rewards
+        referenceHistory.txn === undefined
+      ) {
+        continue
+      }
+      const history = await testing.rpc.account.getAccountHistory(hex, referenceHistory.blockHeight, referenceHistory.txn)
+      console.log('history: ', history)
+      expect(history.owner).toStrictEqual(referenceHistory.owner)
+      expect(history.blockHeight).toStrictEqual(referenceHistory.blockHeight)
+      expect(history.txn).toStrictEqual(referenceHistory.txn)
+      expect(history.txid).toStrictEqual(referenceHistory.txid)
+      expect(history.type).toStrictEqual(referenceHistory.type)
+      expect(history.blockHash).toStrictEqual(referenceHistory.blockHash)
+      expect(history.blockTime).toStrictEqual(referenceHistory.blockTime)
+      expect(history.amounts).toStrictEqual(referenceHistory.amounts)
+      expect(addresses.includes(history.owner)).toStrictEqual(true)
     }
-
-    const history = await testing.rpc.account.getAccountHistory(hex, referenceHistory.blockHeight, referenceHistory.txn)
-    console.log('history: ', history)
-    expect(history.owner).toStrictEqual(referenceHistory.owner)
-    expect(history.blockHeight).toStrictEqual(referenceHistory.blockHeight)
-    expect(history.txn).toStrictEqual(referenceHistory.txn)
-    expect(history.txid).toStrictEqual(referenceHistory.txid)
-    expect(history.type).toStrictEqual(referenceHistory.type)
-    expect(history.blockHash).toStrictEqual(referenceHistory.blockHash)
-    expect(history.blockTime).toStrictEqual(referenceHistory.blockTime)
-    expect(history.amounts).toStrictEqual(referenceHistory.amounts)
-    expect(addresses.includes(history.owner)).toStrictEqual(true)
   })
 
   it('should getAccountHistory with owner address', async () => {
