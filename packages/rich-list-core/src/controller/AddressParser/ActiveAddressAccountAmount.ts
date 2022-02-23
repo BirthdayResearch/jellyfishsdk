@@ -1,4 +1,4 @@
-import { AccountAmount } from 'packages/jellyfish-api-core/src/category/account'
+import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
 
 export interface ActiveAddressAccountAmount {
   [key: string]: AccountAmount
