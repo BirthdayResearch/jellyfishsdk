@@ -1,4 +1,4 @@
-`/apps/website/*` contains the documentation for jellyfish; built using [Docusaurus 2](https://v2.docusaurus.io/), a
+`/website/*` contains the documentation for jellyfish; built using [Docusaurus 2](https://v2.docusaurus.io/), a
 modern static website generator.
 
 ## Writing documentations
@@ -13,5 +13,5 @@ having to restart the server.
 
 ```console
 npm i
-npm run start --workspace=apps/website
+npm run start --workspace=website
 ```
