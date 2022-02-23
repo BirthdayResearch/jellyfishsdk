@@ -41,6 +41,7 @@ export class AddressParser {
           if (parser.OP_CODE === dftx.type) {
             result.push(...(await parser.extract(dftx.data)))
           }
+          // with assumption, not implemented DfTx parser do not affect token balance
         }
       }
     }
@@ -48,8 +49,6 @@ export class AddressParser {
     return result
   }
 
-  // TBC: one txn can only have ONE DfTx
-  // we need absolute certainty to make assumption vins/vouts are servicing this DfTx (process entire txn as a blob)
   private parseDfTx (vout: defid.Vout): DfTx<any> {
     const stack: OPCode[] = toOPCodes(SmartBuffer.fromBuffer(Buffer.from(vout.scriptPubKey.hex, 'hex')))
     if (stack[1].type !== 'OP_DEFI_TX') {
