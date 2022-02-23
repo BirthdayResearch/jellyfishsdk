@@ -3,7 +3,6 @@ import {
   AuctionPagination,
   VaultActive,
   VaultLiquidation,
-  VaultLiquidationBatch,
   VaultPagination,
   VaultState
 } from '@defichain/jellyfish-api-core/dist/category/loan'
@@ -16,7 +15,7 @@ import {
   LoanVaultState,
   LoanVaultTokenAmount
 } from '@whale-api-client/api/loan'
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
@@ -24,12 +23,20 @@ import { parseDisplaySymbol } from '@src/module.api/token.controller'
 import { ActivePrice } from '@whale-api-client/api/prices'
 import { OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
+import { fromScriptHex } from '@defichain/jellyfish-address'
+import { VaultAuctionHistoryMapper } from '@src/module.model/vault.auction.batch.history'
+import { NetworkName } from '@defichain/jellyfish-network'
+import { HexEncoder } from '@src/module.model/_hex.encoder'
 
 @Injectable()
 export class LoanVaultService {
+  NUM_AUCTION_EXP_BLOCKS: number = this.network === 'regtest' ? 36 : 720
+
   constructor (
+    @Inject('NETWORK') private readonly network: NetworkName,
     private readonly client: JsonRpcClient,
     private readonly deFiDCache: DeFiDCache,
+    private readonly vaultAuctionHistoryMapper: VaultAuctionHistoryMapper,
     private readonly activePriceMapper: OraclePriceActiveMapper
   ) {
   }
@@ -129,8 +136,7 @@ export class LoanVaultService {
     }
   }
 
-  private async mapLoanAuction (details: VaultLiquidation): Promise<LoanVaultLiquidated> {
-    const data = details
+  private async mapLoanAuction (data: VaultLiquidation): Promise<LoanVaultLiquidated> {
     return {
       vaultId: data.vaultId,
       loanScheme: await this.mapLoanScheme(data.loanSchemeId),
@@ -139,20 +145,28 @@ export class LoanVaultService {
       batchCount: data.batchCount,
       liquidationHeight: data.liquidationHeight,
       liquidationPenalty: data.liquidationPenalty,
-      batches: await this.mapLiquidationBatches(data.batches)
+      batches: await this.mapLiquidationBatches(data)
     }
   }
 
-  private async mapLiquidationBatches (batches: VaultLiquidationBatch[]): Promise<LoanVaultLiquidationBatch[]> {
-    if (batches.length === 0) {
+  private async mapLiquidationBatches (data: VaultLiquidation): Promise<LoanVaultLiquidationBatch[]> {
+    if (data.batches.length === 0) {
       return []
     }
 
-    const items = batches.map(async batch => {
+    const end = data.liquidationHeight
+    const start = end - this.NUM_AUCTION_EXP_BLOCKS
+
+    const items = data.batches.map(async batch => {
+      const lt = `${HexEncoder.encodeHeight(end)}-${'f'.repeat(64)}`
+      const gt = `${HexEncoder.encodeHeight(start)}-${'0'.repeat(64)}`
+      const bids = await this.vaultAuctionHistoryMapper.query(`${data.vaultId}-${batch.index}`, Number.MAX_SAFE_INTEGER, lt, gt)
+
       return {
         index: batch.index,
         collaterals: await this.mapTokenAmounts(batch.collaterals),
         loan: (await this.mapTokenAmounts([batch.loan]))[0],
+        froms: bids.map(b => fromScriptHex(b.from, this.network)?.address as string),
         highestBid: batch.highestBid !== undefined
           ? {
               owner: batch.highestBid.owner,
