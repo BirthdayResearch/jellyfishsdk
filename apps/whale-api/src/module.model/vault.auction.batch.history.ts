@@ -47,8 +47,8 @@ export class VaultAuctionHistoryMapper {
     return await this.database.get(VaultAuctionHistoryMapping, id)
   }
 
-  async put (VaultAuctionBatchHistory: VaultAuctionBatchHistory): Promise<void> {
-    return await this.database.put(VaultAuctionHistoryMapping, VaultAuctionBatchHistory)
+  async put (vaultAuctionBatchHistory: VaultAuctionBatchHistory): Promise<void> {
+    return await this.database.put(VaultAuctionHistoryMapping, vaultAuctionBatchHistory)
   }
 
   async delete (id: string): Promise<void> {
