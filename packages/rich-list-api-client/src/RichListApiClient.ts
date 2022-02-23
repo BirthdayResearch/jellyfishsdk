@@ -13,16 +13,13 @@ export class RichListApiClient extends OceanApiClient {
   constructor (
     protected readonly options: RichListApiClientOptions
   ) {
-    const opts = options = {
+    super({
       url: 'https://rich-list.defichain.com', // TBD
       timeout: 60000,
       version: 'v0',
       network: 'mainnet',
       ...options
-    }
-
-    super(opts)
-    this.options = opts
+    })
     this.options.url = this.options.url?.replace(/\/$/, '')
   }
 
