@@ -1,6 +1,5 @@
-import { OP_DEFI_TX, OPCode, DfTx } from '@defichain/jellyfish-transaction'
+import { OP_DEFI_TX, OPCode, DfTx, toOPCodes } from '@defichain/jellyfish-transaction'
 import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
-import { toOPCodes } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
@@ -39,7 +38,7 @@ export class AddressParser {
         for (let i = 0; i < this.dftxs.length; i++) {
           const parser = this.dftxs[i]
           if (parser.OP_CODE === dftx.type) {
-            result.push(...(await parser.extract(dftx.data)))
+            result.push(...(await parser.extract(dftx)))
           }
           // with assumption, not implemented DfTx parser do not affect token balance
         }
