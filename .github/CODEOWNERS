@@ -19,7 +19,8 @@
 /docs/testing/                                  @fuxingloh @canonbrother @ivan-zynesis
 
 /apps/ocean-api/                                @fuxingloh
-/apps/website/                                  @fuxingloh
+
+/website/                                       @fuxingloh
 
 /packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap
 /packages/ocean-api-client/                     @fuxingloh

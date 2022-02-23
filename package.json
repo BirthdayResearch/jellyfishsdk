@@ -10,7 +10,8 @@
   "workspaces": [
     "./",
     "./apps/*",
-    "./packages/*"
+    "./packages/*",
+    "./website"
   ],
   "engines": {
     "node": ">=14.x"

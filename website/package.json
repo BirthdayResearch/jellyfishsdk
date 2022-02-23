@@ -1,5 +1,5 @@
 {
-  "name": "@defichain-apps/website",
+  "name": "@defichain/website",
   "version": "0.0.0",
   "private": true,
   "scripts": {
