@@ -14,6 +14,8 @@ jobs:
       matrix:
         app: [ legacy-api, ocean-api ]
     steps:
+      - uses: actions/checkout@v2
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480
 
@@ -33,22 +35,7 @@ jobs:
         env:
           APP: ${{ matrix.app }}
         with:
-          script: |
-            const app = process.env.APP
-            if (context.eventName === 'release') {
-              if (context.payload.release?.tag_name === undefined) {
-                throw new Error('Cannot resolve version for release, missing tag_name in context.')
-              }
-              const semver = context.payload.release.tag_name.replace('v', '')
-              if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/) === false) {
-                throw new Error('Cannot resolve version for release, not semver.')
-              }
-              return `ghcr.io/deifch/${app}:latest,ghcr.io/deifch/${app}:${semver}`
-            }
-            if (context.eventName === 'push' && context.ref === 'refs/heads/main') {
-              return `ghcr.io/deifch/${app}:main-${context.sha.substr(0, 12)}`
-            }
-            throw new Error('Cannot build apps, invalid workflow event')
+          script: return require('./.github/scripts/release-tags.js')({ context })
           result-encoding: string
       
       - name: Build & Publish
