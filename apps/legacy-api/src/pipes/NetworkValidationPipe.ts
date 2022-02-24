@@ -4,7 +4,8 @@ import {
   Injectable,
   PipeTransform
 } from '@nestjs/common'
-import { SupportedNetwork } from '../common/networks'
+
+export type SupportedNetwork = 'mainnet' | 'testnet'
 
 @Injectable()
 export class NetworkValidationPipe implements PipeTransform {

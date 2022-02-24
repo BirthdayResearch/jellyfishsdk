@@ -1,6 +1,6 @@
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Injectable } from '@nestjs/common'
-import { SupportedNetwork } from '../common/networks'
+import { SupportedNetwork } from '../pipes/NetworkValidationPipe'
 
 @Injectable()
 export class WhaleApiClientProvider {
