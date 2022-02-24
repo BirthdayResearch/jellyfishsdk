@@ -48,7 +48,9 @@ export class LegacyStubServer extends RootServer {
   }
 }
 
-// See https://www.fastify.io/docs/latest/Reference/Hooks/#onroute
+/**
+ * @see https://www.fastify.io/docs/latest/Reference/Hooks/#onroute
+ */
 export interface RegisteredRoute {
   method: string
   url: string // the complete URL of the route, it will include the prefix if any
