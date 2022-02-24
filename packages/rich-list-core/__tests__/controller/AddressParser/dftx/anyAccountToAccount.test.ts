@@ -22,8 +22,8 @@ describe('AnyAccountToAccountParser', () => {
     rec1 = await container.getNewAddress()
     rec2 = await container.getNewAddress()
 
-    // Address is funded at this point.
-    // convert 5 DFI UTXO -> DFI Token
+    // Sender1 address is funded at this point.
+    // Send DFI UTXO -> DFI Token to sender1 and sender2
     await apiClient.account.utxosToAccount({
       [sender1]: '8@DFI',
       [sender2]: '12@DFI'
