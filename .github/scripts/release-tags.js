@@ -57,9 +57,15 @@ function getReleaseTag(app, context) {
 }
 
 function getStagingTag(app, context) {
-  return `ghcr.io/defich/${app}:main-${context.sha.substr(0, 12)}`
+  const sha = getShortSha(context)
+  return `ghcr.io/defich/${app}:main-${sha}`
 }
 
 function getDevTag(app, context) {
-  return `ghcr.io/defich/${app}:pr-${context.sha.substr(0, 12)}`
+  const sha = getShortSha(context)
+  return `ghcr.io/defich/${app}:pr-${sha}`
+}
+
+function getShortSha(context, length = 12) {
+  return context.sha.substr(0, length)
 }
