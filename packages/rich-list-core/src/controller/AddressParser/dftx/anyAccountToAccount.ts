@@ -6,7 +6,11 @@ export class AnyAccountToAccountParser extends DfTxAddressParser<AnyAccountToAcc
   OP_CODE: number = CAnyAccountToAccount.OP_CODE
 
   extract (anyAccountToAccount: DfTx<AnyAccountToAccount>): string[] {
-    const addresses = anyAccountToAccount.data.from.map((from) => fromScript(from.script, this.network)?.address as string)
-    return addresses
+    const fromAddresses = anyAccountToAccount.data.from
+      .map((fromScriptBal) => fromScript(fromScriptBal.script, this.network)?.address as string)
+    const toAddresses = anyAccountToAccount.data.to
+      .map((toScriptBal) => fromScript(toScriptBal.script, this.network)?.address as string)
+
+    return [...fromAddresses, ...toAddresses]
   }
 }
