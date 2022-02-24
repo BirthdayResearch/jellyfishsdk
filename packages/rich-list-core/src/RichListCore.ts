@@ -1,12 +1,11 @@
 import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
 import { QueueClient, Queue } from './lib/Queue'
-import { SingleIndexDb } from './lib/SingleIndexDb'
+import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
 import { AddressParser } from './controller/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { RichListItem } from '@defichain/rich-list-api-client'
 import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
 import { ActiveAddressAccountAmount } from './controller/AddressParser/ActiveAddressAccountAmount'
-import { PersistentLinkedList } from './lib/PersistentLinkedList'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
 
@@ -19,9 +18,9 @@ export class RichListCore {
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
     private readonly existingRichList: SingleIndexDb<RichListItem>,
-    private readonly queueClient: QueueClient<string>,
-    private readonly crawledBlocks: PersistentLinkedList<string>,
-    private readonly droppedFromRichList: PersistentLinkedList<string[]>
+    private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
+    private readonly droppedFromRichList: SingleIndexDb<string>,
+    private readonly queueClient: QueueClient<string>
   ) {
     this.addressParser = new AddressParser(apiClient, network)
   }
@@ -39,7 +38,8 @@ export class RichListCore {
   }
 
   private async _catchUp (): Promise<void> {
-    const nextBlockHeight = await this.crawledBlocks.size()
+    const lastBlock = await this._getCrawledTip()
+    const nextBlockHeight = lastBlock?.data.height ?? 0
     const nextBlock = await this._getBlock(nextBlockHeight)
 
     if (nextBlock === undefined) {
@@ -47,16 +47,20 @@ export class RichListCore {
       return
     }
 
-    const lastHashed = await this.crawledBlocks.getLast()
-    if (lastHashed !== undefined && lastHashed !== nextBlock.previousblockhash) {
-      // TODO(@ivan-zynesis): invalidate()
+    if (lastBlock !== undefined && lastBlock.data.hash !== nextBlock.previousblockhash) {
+      await this._invalidate(lastBlock)
     } else {
       const queue = await this._addressQueue()
       const _addresses = await this._getAddresses(nextBlock)
       for (const a of _addresses) {
         await queue.push(a)
       }
-      await this.crawledBlocks.append(nextBlock.hash)
+      await this.crawledBlockHashes.put({
+        partition: 'NONE',
+        id: nextBlock.hash,
+        sort: nextBlock.height,
+        data: nextBlock
+      })
     }
 
     return await this._catchUp()
@@ -83,14 +87,25 @@ export class RichListCore {
     }
   }
 
-  // private async _invalidate () {
-  //   /**
-  //    * TODO:
-  //    * 1. remove highest block data
-  //    * 2. get back dropped address
-  //    * 3. sort rich list again
-  //    */
-  // }
+  private async _invalidate (block: Schema<CrawledBlock>): Promise<void> {
+    const tokenIds = await this._listTokenIds()
+    // delete for this block height
+    await this.crawledBlockHashes.delete(block.id)
+    for (const tokenId of tokenIds) {
+      await this._invalidateDroppedOutRichList(`${tokenId}`, block.data.height)
+    }
+
+    // find dropped out addresses to check their balance again
+    if (block.data.height !== 0) {
+      for (const tokenId of tokenIds) {
+        const addresses = await this._getDroppedOutRichList(`${tokenId}`, block.data.height - 1)
+        const queue = await this._addressQueue()
+        for (const a of addresses) {
+          await queue.push(a.data)
+        }
+      }
+    }
+  }
 
   async get (tokenId: string): Promise<RichListItem[]> {
     if (Number.isNaN(tokenId)) {
@@ -162,6 +177,32 @@ export class RichListCore {
     return result
   }
 
+  private async _getCrawledTip (): Promise<Schema<CrawledBlock> | undefined> {
+    const [lastBlock] = await this.crawledBlockHashes.list({
+      partition: 'NONE',
+      order: 'DESC',
+      limit: 1
+    })
+    return lastBlock
+  }
+
+  private async _invalidateDroppedOutRichList (tokenId: string, height: number): Promise<void> {
+    const lastBlockRichList = await this._getDroppedOutRichList(tokenId, height)
+    await Promise.all(
+      lastBlockRichList.map(async rl => await this.droppedFromRichList.delete(rl.id))
+    )
+  }
+
+  private async _getDroppedOutRichList (tokenId: string, height: number): Promise<Array<Schema<string>>> {
+    return await this.droppedFromRichList.list({
+      limit: Number.MAX_SAFE_INTEGER,
+      partition: tokenId,
+      order: 'DESC',
+      gt: height - 1,
+      lt: height + 1
+    })
+  }
+
   private async _listTokenIds (): Promise<number[]> {
     const tokens = await this.apiClient.token.listTokens()
     return Object.keys(tokens).map(id => Number(id))
@@ -170,4 +211,9 @@ export class RichListCore {
   private async _addressQueue (): Promise<Queue<string>> {
     return await this.queueClient.createQueueIfNotExist('RichListCore_ACTIVE_ADDRESSES', 'LIFO')
   }
+}
+
+export interface CrawledBlock {
+  height: number
+  hash: string
 }
