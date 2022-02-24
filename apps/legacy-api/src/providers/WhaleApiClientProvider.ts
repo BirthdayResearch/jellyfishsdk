@@ -1,16 +1,16 @@
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Injectable } from '@nestjs/common'
-import { NetworkName } from '@defichain/jellyfish-network'
+import { SupportedNetwork } from '../common/networks'
 
 @Injectable()
 export class WhaleApiClientProvider {
-  private readonly clientCacheByNetwork: Map<NetworkName, WhaleApiClient> = new Map()
+  private readonly clientCacheByNetwork: Map<SupportedNetwork, WhaleApiClient> = new Map()
 
   /**
    * Lazily initialises WhaleApiClients and caches them by network for performance.
    * @param network - the network to connect to
    */
-  getClient (network: NetworkName): WhaleApiClient {
+  getClient (network: SupportedNetwork): WhaleApiClient {
     const client = this.clientCacheByNetwork.get(network)
     if (client !== undefined) {
       return client
@@ -18,7 +18,7 @@ export class WhaleApiClientProvider {
     return this.createAndCacheClient(network)
   }
 
-  private createAndCacheClient (network: NetworkName): WhaleApiClient {
+  private createAndCacheClient (network: SupportedNetwork): WhaleApiClient {
     const client = new WhaleApiClient({
       version: 'v0',
       network: network,

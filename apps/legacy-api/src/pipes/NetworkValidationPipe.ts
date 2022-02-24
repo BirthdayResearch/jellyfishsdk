@@ -4,15 +4,14 @@ import {
   Injectable,
   PipeTransform
 } from '@nestjs/common'
-import { NetworkName } from '@defichain/jellyfish-network'
+import { SupportedNetwork } from '../common/networks'
 
 @Injectable()
 export class NetworkValidationPipe implements PipeTransform {
-  private static readonly VALID_NETWORKS: Set<undefined | NetworkName> = new Set([
+  private static readonly VALID_NETWORKS: Set<undefined | SupportedNetwork> = new Set([
     undefined, // defaults to 'mainnet'
     'mainnet',
-    'testnet',
-    'regtest'
+    'testnet'
   ])
 
   transform (value: any, metadata: ArgumentMetadata): any {

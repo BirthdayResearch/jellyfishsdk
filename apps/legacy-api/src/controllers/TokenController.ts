@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common'
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe } from '../pipes/NetworkValidationPipe'
-import { NetworkName } from '@defichain/jellyfish-network'
+import { SupportedNetwork } from '../common/networks'
 
 @Controller('v1')
 export class TokenController {
@@ -10,7 +10,7 @@ export class TokenController {
 
   @Get('gettoken')
   async getToken (
-    @Query('network', NetworkValidationPipe) network: NetworkName = 'mainnet',
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
     @Query('id') tokenId: string
   ): Promise<{ [key: string]: LegacyTokenData }> {
     const api = this.whaleApiClientProvider.getClient(network)
@@ -23,7 +23,7 @@ export class TokenController {
 
   @Get('listtokens')
   async listTokens (
-    @Query('network', NetworkValidationPipe) network: NetworkName = 'mainnet',
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
     @Query('id') tokenId: string
   ): Promise<{ [key: string]: LegacyTokenData }> {
     const api = this.whaleApiClientProvider.getClient(network)
