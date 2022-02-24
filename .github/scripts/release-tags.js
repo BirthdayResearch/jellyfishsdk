@@ -30,6 +30,9 @@ module.exports = ({ context }) => {
   if (isStaging(context) === true) {
     return getStagingTag(app, context)
   }
+  if (isDev(context) === true) {
+    return getDevTag(app, context)
+  }
   throw new Error('Release Violation: Could not determine the required release tags.')
 }
 
@@ -39,6 +42,10 @@ function isRelease(context) {
 
 function isStaging(context) {
   return context.eventName === 'push' && context.ref === 'refs/heads/main'
+}
+
+function isDev(context) {
+  return context.eventName === 'pull_request_target' && context.ref === 'refs/heads/main'
 }
 
 function getReleaseTag(app, context) {
@@ -51,4 +58,8 @@ function getReleaseTag(app, context) {
 
 function getStagingTag(app, context) {
   return `ghcr.io/defich/${app}:main-${context.sha.substr(0, 12)}`
+}
+
+function getDevTag(app, context) {
+  return `ghcr.io/defich/${app}:pr-${context.sha.substr(0, 12)}`
 }

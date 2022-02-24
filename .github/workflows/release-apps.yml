@@ -5,6 +5,9 @@ on:
     types: [ published ]
   push:
     branches: [ main ]
+  pull_request_target:
+    types: [ opened, edited, synchronize, reopened ]
+    branches: [ main ]
 
 jobs:
   build:
