@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Release Apps
+    name: Release App
     runs-on: ubuntu-latest
     strategy:
       matrix:
