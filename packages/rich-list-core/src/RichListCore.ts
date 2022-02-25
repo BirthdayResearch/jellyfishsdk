@@ -1,4 +1,5 @@
 import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
+import { WhaleApiClient } from '@defichain/whale-api-client'
 import { QueueClient, Queue } from './lib/Queue'
 import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
 import { AddressParser } from './controller/AddressParser'
@@ -17,6 +18,7 @@ export class RichListCore {
   constructor (
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
+    private readonly whaleApiClient: WhaleApiClient,
     private readonly existingRichList: SingleIndexDb<RichListItem>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
@@ -172,6 +174,8 @@ export class RichListCore {
         true
       ) as any as AccountAmount
       balances[a] = this._appendZeroBalances(nonZeroBalances, tokens)
+      // TBD: should be combine utxo and DFI rich list
+      // balances[a]['-1'] = await this.whaleApiClient.address.getBalance(a)
     }
     return balances
   }
