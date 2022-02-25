@@ -1,5 +1,5 @@
-import { Controller, Get, NotFoundException, Query } from '@nestjs/common'
-import { SupportedNetwork } from '../../pipes/NetworkValidationPipe'
+import { Controller, Get, Query } from '@nestjs/common'
+import { NetworkValidationPipe, SupportedNetwork } from '../../pipes/NetworkValidationPipe'
 import { LegacyStats, MainnetLegacyStatsProvider, TestnetLegacyStatsProvider } from './LegacyStatsProvider'
 
 @Controller('v1')
@@ -11,7 +11,7 @@ export class StatsController {
 
   @Get('stats')
   async stats (
-    @Query('network') network: SupportedNetwork | string = 'mainnet'
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
   ): Promise<LegacyStats> {
     switch (network) {
       case 'mainnet':
@@ -19,7 +19,5 @@ export class StatsController {
       case 'testnet':
         return await this.testnetStatsProvider.getStats()
     }
-
-    throw new NotFoundException('Unsupported network')
   }
 }
