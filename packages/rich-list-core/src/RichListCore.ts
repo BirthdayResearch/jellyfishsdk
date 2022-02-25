@@ -20,7 +20,7 @@ export class RichListCore {
     private readonly existingRichList: SingleIndexDb<RichListItem>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
-    private readonly queueClient: QueueClient<string>
+    readonly queueClient: QueueClient<string>
   ) {
     this.addressParser = new AddressParser(apiClient, network)
   }
@@ -29,7 +29,14 @@ export class RichListCore {
     this.richListLength = length
   }
 
-  resume (): void {
+  /**
+   * Expected to be called on application bootstarapped.
+   * Start sync-ing up rich list up to tip and stop.
+   * Application layer should also consume this on interval basis to allow rich list updates again
+   *
+   * @returns {void}
+   */
+  start (): void {
     if (this.isCatchingUp) {
       return
     }
@@ -39,7 +46,7 @@ export class RichListCore {
 
   private async _catchUp (): Promise<void> {
     const lastBlock = await this._getCrawledTip()
-    const nextBlockHeight = lastBlock?.data.height ?? 0
+    const nextBlockHeight = lastBlock === undefined ? 0 : lastBlock.data.height + 1
     const nextBlock = await this._getBlock(nextBlockHeight)
 
     if (nextBlock === undefined) {

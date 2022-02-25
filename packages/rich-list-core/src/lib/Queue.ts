@@ -39,7 +39,9 @@ export class StubbedQueueClient<T> implements QueueClient<T> {
   }
 
   async createQueueIfNotExist (name: string, mode: Mode): Promise<Queue<T>> {
-    this.DATA[name] = new InMemoryQueueService()
+    if (this.DATA[name] === undefined) {
+      this.DATA[name] = new InMemoryQueueService()
+    }
     return this.DATA[name]
   }
 }

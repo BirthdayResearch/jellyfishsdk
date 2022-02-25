@@ -27,6 +27,10 @@ export class InMemoryDatabase<T> implements SingleIndexDb<T> {
   private data: { [key: string]: Array<Schema<T>> } = {}
 
   async put (data: Schema<T>): Promise<void> {
+    if (this.data[data.partition] === undefined) {
+      this.data[data.partition] = []
+    }
+
     this.data[data.partition].push(data)
     this.data[data.partition] = this.data[data.partition].sort((a, b) => a.sort - b.sort)
   }
@@ -49,6 +53,10 @@ export class InMemoryDatabase<T> implements SingleIndexDb<T> {
 
   async list (options: FindOptions): Promise<Array<Schema<T>>> {
     const partition = this.data[options.partition]
+    if (partition === undefined) {
+      return []
+    }
+
     let result = options.order === 'ASC' ? partition : partition.reverse()
 
     if (options.gt !== undefined) {
