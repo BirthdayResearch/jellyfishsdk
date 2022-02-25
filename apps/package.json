@@ -11,10 +11,7 @@
     "start:legacy-api": "nest start legacy-api",
     "start:ocean-api": "nest start ocean-api",
     "start:rich-list-api": "nest start rich-list-api",
-    "clean": "rm -rf dist",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@defichain/jellyfish-api-core": "^0.0.0",
