@@ -28,10 +28,10 @@ module.exports = ({ context }) => {
     return getReleaseTag(app, context)
   }
   if (isStaging(context) === true) {
-    return getStagingTag(app, context)
+    return getHashedTag(app, context, 'main')
   }
   if (isDev(context) === true) {
-    return getDevTag(app, context)
+    return getHashedTag(app, context, 'pr')
   }
   throw new Error('Release Violation: Could not determine the required release tags.')
 }
@@ -56,14 +56,9 @@ function getReleaseTag(app, context) {
   return `ghcr.io/defich/${app}:latest,ghcr.io/defich/${app}:${semver}`
 }
 
-function getStagingTag(app, context) {
+function getHashedTag(app, context, prefix = 'sha') {
   const sha = getShortSha(context)
-  return `ghcr.io/defich/${app}:main-${sha}`
-}
-
-function getDevTag(app, context) {
-  const sha = getShortSha(context)
-  return `ghcr.io/defich/${app}:pr-${sha}`
+  return `ghcr.io/defich/${app}:${prefix}-${sha}`
 }
 
 function getShortSha(context, length = 12) {
