@@ -7,7 +7,6 @@ export class UtxoAddressParser {
    * @WARNING return empty for any `nulldata` typed scriptPubKey
    */
   async extractFromVout (vout: defid.Vout): Promise<string[]> {
-    console.log('found addresses', vout.scriptPubKey.addresses)
     return vout.scriptPubKey.addresses ?? []
   }
 

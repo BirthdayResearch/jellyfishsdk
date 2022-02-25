@@ -24,7 +24,7 @@ export interface SingleIndexDb<T> {
  * For unit test use.
  */
 export class InMemoryDatabase<T> implements SingleIndexDb<T> {
-  private data: { [key: string]: Array<Schema<T>> } = {}
+  private data: Record<string, Array<Schema<T>>> = {}
 
   async put (data: Schema<T>): Promise<void> {
     if (this.data[data.partition] === undefined) {

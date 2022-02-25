@@ -28,7 +28,21 @@ describe('RichListCore', () => {
 
       const queue = await richListCore.queueClient.createQueueIfNotExist('RichListCore_ACTIVE_ADDRESSES', 'LIFO')
       const queuedItem = await queue.receive(Number.MAX_SAFE_INTEGER)
-      console.log(queuedItem)
+
+      // reproducible results, mn always derive new addresses following same HD paths in sequence
+      expect(queuedItem).toStrictEqual([
+        'mps7BdmwEF2vQ9DREDyNPibqsuSRZ8LuwQ',
+        'mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU',
+        'msER9bmJjyEemRpQoS8YYVL21VyZZrSgQ7',
+        'myF3aHuxtEuqqTw44EurtVs6mjyc1QnGUS',
+        'mwyaBGGE7ka58F7aavH5hjMVdJENP9ZEVz',
+        'mgsE1SqrcfUhvuYuRjqy6rQCKmcCVKNhMu',
+        'mud4VMfbBqXNpbt8ur33KHKx8pk3npSq8c',
+        'bcrt1qyrfrpadwgw7p5eh3e9h3jmu4kwlz4prx73cqny',
+        'bcrt1qyeuu9rvq8a67j86pzvh5897afdmdjpyankp4mu',
+        'mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy',
+        '2NCWAKfEehP3qibkLKYQjXaWMK23k4EDMVS'
+      ])
     })
   })
 })

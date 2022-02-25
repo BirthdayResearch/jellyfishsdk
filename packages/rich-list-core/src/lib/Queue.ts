@@ -12,15 +12,19 @@ export interface QueueClient<T> {
 /**
  * For unit test use.
  */
-export class InMemoryQueueService<T> implements Queue<T> {
-  private DATA: T[] = []
+export class InMemoryQueueService implements Queue<string> {
+  private DATA: string[] = []
 
-  async push (message: T): Promise<string> {
+  async push (message: string): Promise<string> {
+    const toBeDedup = this.DATA.findIndex(d => d === message)
+    if (toBeDedup !== -1) {
+      this.DATA.splice(toBeDedup, 1)
+    }
     this.DATA.push(message)
     return `${this.DATA.length - 1}`
   }
 
-  async receive (maxMessage: number): Promise<T[]> {
+  async receive (maxMessage: number): Promise<string[]> {
     const startIndex = Math.min(this.DATA.length - maxMessage, 0)
     const consumed = this.DATA.slice(startIndex)
     this.DATA = this.DATA.slice(0, startIndex)
@@ -31,14 +35,14 @@ export class InMemoryQueueService<T> implements Queue<T> {
 /**
  * For unit test use.
  */
-export class StubbedQueueClient<T> implements QueueClient<T> {
-  private readonly DATA: { [key: string]: Queue<T> } = {}
+export class StubbedQueueClient implements QueueClient<string> {
+  private readonly DATA: { [key: string]: InMemoryQueueService } = {}
 
-  getQueue (name: string): Queue<T> | undefined {
+  getQueue (name: string): InMemoryQueueService | undefined {
     return this.DATA[name]
   }
 
-  async createQueueIfNotExist (name: string, mode: Mode): Promise<Queue<T>> {
+  async createQueueIfNotExist (name: string, mode: Mode): Promise<InMemoryQueueService> {
     if (this.DATA[name] === undefined) {
       this.DATA[name] = new InMemoryQueueService()
     }
