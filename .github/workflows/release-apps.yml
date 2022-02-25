@@ -17,7 +17,7 @@ jobs:
       matrix:
         app: [ legacy-api, ocean-api ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@230611dbd0eb52da1e1f4f7bc8bb0c3a339fc8b7
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@27d0a4f181a40b142cce983c5393082c365d1480
