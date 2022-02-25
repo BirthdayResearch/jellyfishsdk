@@ -3,7 +3,6 @@
   "packages": [
     "./",
     "apps",
-    "apps/website",
     "packages/*"
   ]
 }
