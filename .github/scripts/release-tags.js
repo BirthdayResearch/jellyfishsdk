@@ -45,7 +45,7 @@ function isStaging(context) {
 }
 
 function isDev(context) {
-  return context.eventName === 'pull_request_target' && context.ref === 'refs/heads/main'
+  return context.eventName === 'pull_request'
 }
 
 function getReleaseTag(app, context) {

@@ -5,8 +5,7 @@ on:
     types: [ published ]
   push:
     branches: [ main ]
-  pull_request_target:
-    types: [ opened, edited, synchronize, reopened ]
+  pull_request:
     branches: [ main ]
 
 jobs:
@@ -60,7 +59,7 @@ jobs:
     steps:
       - name: Report Build
         uses: marocchino/sticky-pull-request-comment@39c5b5dc7717447d0cba270cd115037d32d28443
-        if: github.event_name == 'pull_request_target'
+        if: github.event_name == 'pull_request'
         with:
           header: apps-preview
           message: |
@@ -68,4 +67,4 @@ jobs:
             
             Built with commit ${{ github.sha }}
             
-            https://${{ needs.build.outputs.tags }}
+            ${{ needs.build.outputs.tags }}
