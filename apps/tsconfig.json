@@ -10,7 +10,7 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@defichain-app-lib/*": [
+      "@defichain-apps/libs/*": [
         "libs/*/src"
       ],
       "@defichain/*": [

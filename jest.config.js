@@ -6,7 +6,7 @@ module.exports = {
     '@defichain/(?!whale-api-client)(.*)': '<rootDir>/packages/$1/src',
 
     // apps
-    '@defichain-app-lib/(.*)': '<rootDir>/apps/libs/$1/src'
+    '@defichain-apps/libs/(.*)': '<rootDir>/apps/libs/$1/src'
   },
   verbose: true,
   clearMocks: true,

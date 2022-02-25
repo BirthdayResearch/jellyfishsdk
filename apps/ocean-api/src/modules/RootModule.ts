@@ -2,7 +2,7 @@ import * as Joi from 'joi'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ControllerModule } from './ControllerModule'
-import { ActuatorModule, BlockchainCppModule } from '@defichain-app-lib/actuator'
+import { ActuatorModule, BlockchainCppModule } from '@defichain-apps/libs/actuator'
 import { PlaygroundModule } from './PlaygroundModule'
 
 @Module({
