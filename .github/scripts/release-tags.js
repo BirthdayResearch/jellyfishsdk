@@ -22,16 +22,16 @@
  * @see https://github.com/actions/github-script
  */
 
-module.exports = ({ context }) => {
+ module.exports = ({ context }) => {
   const app = process.env.APP
   if (isRelease(context) === true) {
     return getReleaseTag(app, context)
   }
   if (isStaging(context) === true) {
-    return getHashedTag(app, context, 'main')
+    return getMainTag(app, context)
   }
   if (isDev(context) === true) {
-    return getHashedTag(app, context, 'pr')
+    return getPullRequestTag(app, context)
   }
   throw new Error('Release Violation: Could not determine the required release tags.')
 }
@@ -56,11 +56,10 @@ function getReleaseTag(app, context) {
   return `ghcr.io/defich/${app}:latest,ghcr.io/defich/${app}:${semver}`
 }
 
-function getHashedTag(app, context, prefix = 'sha') {
-  const sha = getShortSha(context)
-  return `ghcr.io/defich/${app}:${prefix}-${sha}`
+function getMainTag(app, { sha }) {
+  return `ghcr.io/defich/${app}:main,ghcr.io/defich/${app}:${sha}`
 }
 
-function getShortSha(context, length = 12) {
-  return context.sha.substr(0, length)
+function getPullRequestTag(app, { payload: { number }, sha }) {
+  return `ghcr.io/defich/${app}:pr-${number},ghcr.io/defich/${app}:${sha}`
 }
