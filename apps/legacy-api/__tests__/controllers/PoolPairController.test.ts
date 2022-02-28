@@ -1,6 +1,8 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 
+const ONLY_DECIMAL_NUMBER_REGEX = /^[0-9]+(\.[0-9]+)?$/
+
 const apiTesting = LegacyApiTesting.create()
 
 beforeAll(async () => {
@@ -75,6 +77,40 @@ it('/v1/listpoolpairs', async () => {
       totalLiquidityLpToken: expect.any(String),
       tokenASymbol: expect.any(String),
       tokenBSymbol: expect.any(String)
+    })
+  }
+})
+
+it('/v1/listswaps', async () => {
+  const res = await apiTesting.app.inject({
+    method: 'GET',
+    url: '/v1/listswaps'
+  })
+
+  // {
+  //   ETH_DFI: {
+  //     base_id: '1',
+  //     base_name: 'ETH',
+  //     ...
+  //   },
+  //   ...
+  // }
+  for (const [key, poolpair] of Object.entries(res.json())) {
+    // Verify all keys follow snake case
+    expect(key).toMatch(/^\w+_\w+$/)
+
+    // Verify each swap object's fields
+    expect(poolpair).toStrictEqual({
+      base_id: expect.any(String),
+      base_name: expect.any(String),
+      base_symbol: expect.any(String),
+      base_volume: expect.any(Number),
+      isFrozen: expect.any(Number),
+      last_price: expect.stringMatching(ONLY_DECIMAL_NUMBER_REGEX),
+      quote_id: expect.stringMatching(/\d+/),
+      quote_name: expect.any(String),
+      quote_symbol: expect.any(String),
+      quote_volume: expect.any(Number)
     })
   }
 })
