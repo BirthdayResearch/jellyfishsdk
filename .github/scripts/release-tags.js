@@ -22,7 +22,7 @@
  * @see https://github.com/actions/github-script
  */
 
- module.exports = ({ context }) => {
+module.exports = ({ context }) => {
   const app = process.env.APP
   if (isRelease(context) === true) {
     return getReleaseTag(app, context)

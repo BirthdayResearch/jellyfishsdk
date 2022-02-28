@@ -6,20 +6,19 @@
  * 
  */
 
- const apps = process.env.APPS.split(",")
+const apps = process.env.APPS.split(",")
 
- module.exports = ({ context }) => {
-   const links = getContainerLinks(context)
-   return `
-   Build preview for jellyfish apps is ready!
-             
-   Built with commit ${ context.sha }
+module.exports = ({ context }) => {
+  const links = getContainerLinks(context)
+  return `
+  Build preview for jellyfish apps is ready!
+            
+  Built with commit ${ context.sha }
+
+  ${links.join("\n")}
+  `
+}
  
-   ${links.join("\n")}
-   `
- }
- 
- function getContainerLinks({ payload: { number } }) {
-   return apps.map(app => `https://ghcr.io/defich/${app}:pr-${number}`)
- }
- 
+function getContainerLinks({ payload: { number } }) {
+  return apps.map(app => `https://ghcr.io/defich/${app}:pr-${number}`)
+}
