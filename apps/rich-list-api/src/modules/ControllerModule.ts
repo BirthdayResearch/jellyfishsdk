@@ -1,5 +1,5 @@
 import { CacheModule, Module } from '@nestjs/common'
-import { ActuatorController } from '../controllers/ActuatorController'
+import { ActuatorController } from '@defichain-apps/libs/actuator'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { GlobalValidationPipe } from '../controllers/filters/GlobalValidationPipe'
 import { ResponseInterceptor } from '../controllers/filters/ResponseInterceptor'

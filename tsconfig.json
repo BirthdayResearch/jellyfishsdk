@@ -3,6 +3,9 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
+      "@defichain-apps/libs/*": [
+        "apps/libs/*/src"
+      ],
       "@defichain/*": [
         "packages/*/src"
       ]
