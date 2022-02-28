@@ -19,7 +19,7 @@ export class RichListCore {
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
     private readonly whaleApiClient: WhaleApiClient,
-    private readonly existingRichList: SingleIndexDb<RichListItem>,
+    private readonly addressBalances: SingleIndexDb<RichListItem>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
@@ -125,7 +125,7 @@ export class RichListCore {
       throw new Error('Invalid token id')
     }
 
-    return (await this.existingRichList.list({
+    return (await this.addressBalances.list({
       partition: `${tokenId}`,
       limit: this.richListLength,
       order: 'DESC'
@@ -147,9 +147,10 @@ export class RichListCore {
         const accountAmount = updatedBalances[address]
         for (const tokenId of tokens) {
           const balance = accountAmount[tokenId].toNumber()
-          await this.existingRichList.put({
+          const satoshi = accountAmount[tokenId].times('1e8').toNumber()
+          await this.addressBalances.put({
             partition: `${tokenId}`,
-            sort: balance,
+            sort: satoshi,
             id: `${address}-${tokenId}`,
             data: {
               address: address,
@@ -167,7 +168,7 @@ export class RichListCore {
     const queue = await this._addressQueue()
     const addresses = await queue.receive(queuedAddressLimit)
 
-    const balances: { [key: string]: AccountAmount } = {}
+    const balances: Record<string, AccountAmount> = {}
     for (const a of addresses) {
       const nonZeroBalances = await this.apiClient.account.getTokenBalances(
         { limit: Number.MAX_SAFE_INTEGER },
@@ -175,7 +176,7 @@ export class RichListCore {
       ) as any as AccountAmount
       balances[a] = this._appendZeroBalances(nonZeroBalances, tokens)
       // TBD: should be combine utxo and DFI rich list
-      // balances[a]['-1'] = await this.whaleApiClient.address.getBalance(a)
+      balances[a]['-1'] = new BigNumber(await this.whaleApiClient.address.getBalance(a))
     }
     return balances
   }
@@ -216,7 +217,7 @@ export class RichListCore {
 
   private async _listTokenIds (): Promise<number[]> {
     const tokens = await this.apiClient.token.listTokens()
-    return Object.keys(tokens).map(id => Number(id))
+    return Object.keys(tokens).map(id => Number(id)).concat([-1])
   }
 
   private async _addressQueue (): Promise<Queue<string>> {
