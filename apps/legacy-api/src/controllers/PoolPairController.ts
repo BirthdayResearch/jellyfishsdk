@@ -1,12 +1,15 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PoolPairData, PoolSwap } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
+import { ApiPagedResponse } from '@defichain/whale-api-client'
+import { getVolumeH24InTokens } from '../../../libs/utils/tokenomics'
 
 @Controller('v1')
 export class PoolPairController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {}
+  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  }
 
   @Get('getpoolpair')
   async getToken (
@@ -64,6 +67,64 @@ export class PoolPairController {
       }
     }
     return result
+  }
+
+  @Get('getsubgraphswaps')
+  async getSubgraphSwaps (
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
+    @Query('limit') limit: number = 100
+  ): Promise<LegacySubgraphSwapsResponse> {
+    const api = this.whaleApiClientProvider.getClient(network)
+
+    limit = Math.min(100, limit)
+
+    // Get a few poolswaps from each poolpair, limiting the number of objects to return
+    const swaps: LegacySubgraphSwap[] = []
+
+    const poolPairs: ApiPagedResponse<PoolPairData> = await api.poolpairs.list(200)
+
+    for (const poolPair of poolPairs) {
+      if (swaps.length >= limit) {
+        break
+      }
+
+      const poolSwaps: ApiPagedResponse<PoolSwap> = await api.poolpairs.listPoolSwaps(
+        poolPair.id,
+        Math.round(Math.max(1, limit / poolPairs.length)) // at least 1 from each poolpair
+      )
+
+      for (const poolSwap of poolSwaps) {
+        const {
+          volumeH24InTokenA,
+          volumeH24InTokenB
+        } = getVolumeH24InTokens(poolPair)
+
+        if (swaps.length >= limit) {
+          break
+        }
+
+        swaps.push({
+          id: poolSwap.txid,
+          pair: {
+            fromToken: {
+              decimals: 8,
+              symbol: poolPair.tokenA.symbol,
+              tradeVolume: volumeH24InTokenA.toFixed(8)
+            },
+            toToken: {
+              decimals: 8,
+              symbol: poolPair.tokenB.symbol,
+              tradeVolume: volumeH24InTokenB.toFixed(8)
+            }
+          },
+          timestamp: poolSwap.block.medianTime.toFixed(),
+          fromAmount: poolSwap.fromAmount,
+          toAmount: 'TODO' // TODO(eli-lim): compute from price ratio?
+        })
+      }
+    }
+
+    return { data: { swaps } }
   }
 
   getVolumes (poolPair: PoolPairData): [BigNumber, BigNumber] {
@@ -178,4 +239,27 @@ interface LegacySwapData {
   base_volume: number
   quote_volume: number
   isFrozen: 0 | 1
+}
+
+interface LegacySubgraphSwapsResponse {
+  data: {
+    swaps: LegacySubgraphSwap[]
+  }
+}
+
+interface LegacySubgraphSwap {
+  id: string
+  timestamp: string
+  fromAmount: string
+  toAmount: string
+  pair: {
+    fromToken: Token
+    toToken: Token
+  }
+}
+
+interface Token {
+  decimals: number
+  symbol: string
+  tradeVolume: string
 }
