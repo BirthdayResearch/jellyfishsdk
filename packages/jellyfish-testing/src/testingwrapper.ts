@@ -1,24 +1,23 @@
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { ContainerGroup, MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
-import { Testing, TestingGroup, NonMNTesting } from '.'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { Testing, TestingGroup, TestingContainer } from '.'
 
-type InitMNRegContainerFn = (index: number) => MasterNodeRegTestContainer
-function defaultInitMNRegContainer (index: number): MasterNodeRegTestContainer {
-  return new MasterNodeRegTestContainer(RegTestFoundationKeys[index])
-}
+export type InitDeFiContainerFn<Container> = (index: number) => Container
 
-type InitNonMNRegContainerFn = (index: number) => RegTestContainer
-function defaultInitNonMNRegContainer (index: number): RegTestContainer {
-  return new RegTestContainer()
-}
-export const TestingWrapper = new (class TestingWrapperFactory {
-  create (): Testing
-  create (n: 0 | 1): Testing
-  create (n: number): TestingGroup
-  create (n: 0 | 1, init: InitMNRegContainerFn): Testing
-  create (n: number, init: InitMNRegContainerFn): TestingGroup
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class TestingWrapper {
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (): Testing<Container>
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (n: 0 | 1): Testing<Container>
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (n: number): TestingGroup<Container>
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (n: 0 | 1, init: InitDeFiContainerFn<Container>): Testing<Container>
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (n: number, init: InitDeFiContainerFn<Container>): TestingGroup<Container>
 
-  create (n?: number, init: InitMNRegContainerFn = defaultInitMNRegContainer): Testing | TestingGroup {
+  static create<Container extends TestingContainer = MasterNodeRegTestContainer> (
+    n?: number,
+    init: InitDeFiContainerFn<Container> = (index: number): Container => {
+      return new MasterNodeRegTestContainer(RegTestFoundationKeys[index]) as Container
+    }
+  ): Testing<Container> | TestingGroup<Container> {
     if (n === undefined || n <= 1) {
       return Testing.create(init(0))
     }
@@ -26,32 +25,14 @@ export const TestingWrapper = new (class TestingWrapperFactory {
     return TestingGroup.create(n, init)
   }
 
-  createNonMN (): NonMNTesting
-  createNonMN (n: 0 | 1): NonMNTesting
-  createNonMN (n: number): TestingGroup
-  createNonMN (n: 0 | 1, init: InitNonMNRegContainerFn): NonMNTesting
-  createNonMN (n: number, init: InitNonMNRegContainerFn): TestingGroup
+  // static group (testings: Testing<TestingContainer>[]): TestingGroup<TestingContainer> {
+  //   const containers: TestingContainer[] = []
 
-  createNonMN (n?: number, init: InitNonMNRegContainerFn = defaultInitNonMNRegContainer): NonMNTesting | TestingGroup {
-    if (n === undefined || n <= 1) {
-      return NonMNTesting.create(init(0))
-    }
+  //   testings.forEach(testing => {
+  //     containers.push(testing.container)
+  //   })
 
-    return TestingGroup.create(n, init)
-  }
-
-  group (testings: Testing[], nonMNTestings: NonMNTesting[]): TestingGroup {
-    const containers: RegTestContainer[] = []
-
-    testings.forEach(testing => {
-      containers.push(testing.container)
-    })
-
-    nonMNTestings.forEach(nonMNTesting => {
-      containers.push(nonMNTesting.container)
-    })
-
-    const group = new ContainerGroup(containers)
-    return TestingGroup.createFrom(group, testings, nonMNTestings)
-  }
-})()
+  //   const group = new ContainerGroup(containers)
+  //   return TestingGroup.createFrom(group, testings)
+  // }
+}

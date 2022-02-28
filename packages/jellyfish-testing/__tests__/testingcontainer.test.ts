@@ -1,16 +1,18 @@
-import { NonMNTesting, Testing } from '@defichain/jellyfish-testing'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
+import { Testing, TestingContainer } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer, RegTestContainer, StartFlags } from '@defichain/testcontainers'
 import { TestingWrapper } from '../src/testingwrapper'
 
 describe('create a single test container using testwrapper', () => {
-  let testing: Testing | NonMNTesting
+  let testingRef: Testing<TestingContainer>
 
   afterEach(async () => {
-    await testing.container.stop()
+    await testingRef.container.stop()
   })
 
   it('should be able to create and call single regtest masternode container', async () => {
-    testing = TestingWrapper.create()
+    const testing = TestingWrapper.create()
+    testingRef = testing
     await testing.container.start()
 
     // call rpc
@@ -22,7 +24,8 @@ describe('create a single test container using testwrapper', () => {
   })
 
   it('should be able to create regtest non masternode container', async () => {
-    testing = TestingWrapper.createNonMN()
+    const testing = TestingWrapper.create(1, () => new RegTestContainer())
+    testingRef = testing
     await testing.container.start()
 
     // call rpc
@@ -36,7 +39,8 @@ describe('create a single test container using testwrapper', () => {
   })
 
   it('should be able to override start option', async () => {
-    testing = TestingWrapper.create()
+    const testing = TestingWrapper.create()
+    testingRef = testing
     const startFlags: StartFlags[] = [{ name: 'fortcanninghillheight', value: 11 }]
     await testing.container.start({ startFlags })
 
@@ -45,17 +49,9 @@ describe('create a single test container using testwrapper', () => {
     expect(softforks['fortcanninghill'].height).toStrictEqual(11)
   })
 
-  it('should create 1 testing instance even if 0 is passed in as a param to TestingWrapper.createNonMN()', async () => {
-    testing = TestingWrapper.createNonMN(0, () => new RegTestContainer())
-    await testing.container.start()
-
-    // call rpc
-    const blockHeight = await testing.rpc.blockchain.getBlockCount()
-    expect(blockHeight).toStrictEqual(0)
-  })
-
   it('should create 1 testing instance even if 0 is passed in as a param to TestingWrapper.create()', async () => {
-    testing = TestingWrapper.create(0, () => new MasterNodeRegTestContainer())
+    const testing = TestingWrapper.create(0, () => new MasterNodeRegTestContainer(RegTestFoundationKeys[0]))
+    testingRef = testing
     await testing.container.start()
 
     // call rpc
@@ -102,11 +98,12 @@ describe('create multiple test container using TestingWrapper', () => {
     expect(blockHashAlice).toStrictEqual(blockHashBob)
 
     // create a non masternode RegTestTesting
-    const nonMasternodeTesting = TestingWrapper.createNonMN()
+    const nonMasternodeTesting = TestingWrapper.create(1, () => new RegTestContainer())
     await nonMasternodeTesting.container.start()
 
     // add to group
-    await tGroup.addNonMNTesting(nonMasternodeTesting)
+    await tGroup.addOther(nonMasternodeTesting.container)
+
     await tGroup.waitForSync()
     blockHeight = await nonMasternodeTesting.rpc.blockchain.getBlockCount()
     expect(blockHeight).toStrictEqual(20)
@@ -117,14 +114,14 @@ describe('create multiple test container using TestingWrapper', () => {
   })
 
   it('should create a non masternode group and add a masternode container and then generate and sync', async () => {
-    const tGroup = TestingWrapper.createNonMN(2)
+    const tGroup = TestingWrapper.create(2, () => new RegTestContainer())
     await tGroup.start()
 
-    const alice = tGroup.getNonMN(0)
+    const alice = tGroup.get(0)
     let blockHeight = await alice.rpc.blockchain.getBlockCount()
     expect(blockHeight).toStrictEqual(0)
 
-    const bob = tGroup.getNonMN(1)
+    const bob = tGroup.get(1)
     blockHeight = await bob.rpc.blockchain.getBlockCount()
     expect(blockHeight).toStrictEqual(0)
 
@@ -133,11 +130,10 @@ describe('create multiple test container using TestingWrapper', () => {
     await mnTesting.container.start()
 
     // add to group
-    await tGroup.addTesting(mnTesting)
+    await tGroup.addOther(mnTesting.container)
     await tGroup.waitForSync()
 
-    // Retrive MN container from tGroup
-    const mnMike = tGroup.get(0)
+    const mnMike = mnTesting
 
     blockHeight = await mnMike.rpc.blockchain.getBlockCount()
     expect(blockHeight).toStrictEqual(0)
@@ -158,20 +154,20 @@ describe('create multiple test container using TestingWrapper', () => {
     await tGroup.stop()
   })
 
-  it('should be able to create a TestingGroup from separate masternode and non masternode containers', async () => {
+  it.skip('should be able to create a TestingGroup from separate masternode and non masternode containers', async () => {
     const masternodeTesting = TestingWrapper.create()
     await masternodeTesting.container.start()
-    const nonmasternodeTesting = TestingWrapper.createNonMN()
+    const nonmasternodeTesting = TestingWrapper.create(1, () => new RegTestContainer())
     await nonmasternodeTesting.container.start()
 
-    const tGroup = TestingWrapper.group([masternodeTesting], [nonmasternodeTesting])
+    const tGroup = TestingWrapper.group([masternodeTesting, nonmasternodeTesting])
     await tGroup.start()
 
     // access containers from tGroup
     const mnTestingAlice = tGroup.get(0)
-    const NonMNTestingBob = tGroup.getNonMN(0)
+    const NonMNTestingBob = tGroup.get(1)
 
-    await mnTestingAlice.container.generate(1)
+    await mnTestingAlice.generate(1)
     await tGroup.waitForSync()
 
     const masternodeBestHash = await mnTestingAlice.rpc.blockchain.getBestBlockHash()
