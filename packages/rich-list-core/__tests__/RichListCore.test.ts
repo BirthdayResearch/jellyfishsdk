@@ -37,7 +37,7 @@ describe('RichListCore', () => {
     await container.stop()
   })
 
-  describe('startOrResume - should start crawl blocks and push active addresses', () => {
+  describe('startOrResume() - should start crawl blocks and push active addresses', () => {
     it('should extract all addresses from transactions and push into queue', async () => {
       richListCore.start()
       await waitForCatchingUp(richListCore)
@@ -48,7 +48,7 @@ describe('RichListCore', () => {
     })
   })
 
-  describe('calculateNext', () => {
+  describe('calculateNext() + get()', () => {
     it('should process queued up addresses and update rich list', async () => {
       richListCore.start()
       await waitForCatchingUp(richListCore)
@@ -57,6 +57,10 @@ describe('RichListCore', () => {
       expect(beforeProcess.length).toStrictEqual(0)
 
       await richListCore.calculateNext()
+
+      const queue = await richListCore.queueClient.createQueueIfNotExist('RichListCore_ACTIVE_ADDRESSES', 'LIFO')
+      const anythingRemainedInQ = await queue.receive(Number.MAX_SAFE_INTEGER)
+      expect(anythingRemainedInQ.length).toStrictEqual(0)
 
       const richList = await richListCore.get('-1')
       expect(richList.length).toStrictEqual(EXPECTED_RICH_LIST_ADDRESSES.length)
