@@ -1,3 +1,6 @@
 export * from './ActuatorModule'
 export * from './ActuatorController'
 export * from './BlockchainCppModule'
+export * from './filters/ErrorFilter'
+export * from './filters/GlobalValidationPipe'
+export * from './filters/ResponseInterceptor'

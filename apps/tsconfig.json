@@ -3,6 +3,7 @@
   "include": [
     "./legacy-api/src",
     "./ocean-api/src",
+    "./playground-api/src",
     "./rich-list-api/src",
     "./libs/*/src"
   ],

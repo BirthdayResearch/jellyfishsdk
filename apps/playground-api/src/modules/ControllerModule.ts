@@ -1,9 +1,9 @@
 import { CacheModule, Module } from '@nestjs/common'
-import { ActuatorController, GlobalValidationPipe, ResponseInterceptor, ErrorFilter } from '@defichain-apps/libs/actuator'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
-import { ConfigService } from '@nestjs/config'
-import { NetworkName } from '@defichain/jellyfish-network'
-import { RawTxController } from '../controllers/RawTxController'
+import { RpcController } from '../controllers/RpcController'
+import { WalletController } from '../controllers/WalletController'
+import { PlaygroundController } from '../controllers/PlaygroundController'
+import { ActuatorController, GlobalValidationPipe, ResponseInterceptor, ErrorFilter } from '@defichain-apps/libs/actuator'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -14,7 +14,9 @@ import { RawTxController } from '../controllers/RawTxController'
   ],
   controllers: [
     ActuatorController,
-    RawTxController
+    PlaygroundController,
+    RpcController,
+    WalletController
   ],
   providers: [
     {
@@ -28,13 +30,6 @@ import { RawTxController } from '../controllers/RawTxController'
     {
       provide: APP_FILTER,
       useClass: ErrorFilter
-    },
-    {
-      provide: 'NETWORK_NAME',
-      useFactory: (configService: ConfigService): NetworkName => {
-        return configService.get<string>('network') as NetworkName
-      },
-      inject: [ConfigService]
     }
   ]
 })

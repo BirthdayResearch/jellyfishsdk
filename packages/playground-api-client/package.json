@@ -1,0 +1,24 @@
+{
+  "private": false,
+  "name": "@defichain/playground-api-client",
+  "version": "0.0.0",
+  "description": "DeFiChain Jellyfish Ecosystem",
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b ./tsconfig.build.json"
+  },
+  "dependencies": {
+    "@defichain/jellyfish-api-core": "0.0.0",
+    "@defichain/ocean-api-client": "0.0.0"
+  },
+  "peerDependencies": {
+    "defichain": "^0.0.0"
+  }
+}
