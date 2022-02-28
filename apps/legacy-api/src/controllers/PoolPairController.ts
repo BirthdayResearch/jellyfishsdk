@@ -2,11 +2,13 @@ import { Controller, Get, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
+import { getUsdVolumesInTokens, usdPerToken } from '../../../libs/utils/tokenomics'
 import BigNumber from 'bignumber.js'
 
 @Controller('v1')
 export class PoolPairController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {}
+  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  }
 
   @Get('getpoolpair')
   async getToken (
@@ -98,6 +100,35 @@ export class PoolPairController {
     return new BigNumber(tokenReserve).times(2)
       .div(new BigNumber(totalLiquidityInUsd))
   }
+
+  @Get('listyieldfarming')
+  async listYieldFarming (
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
+  ): Promise<LegacyListYieldFarmingData> {
+    const api = this.whaleApiClientProvider.getClient(network)
+
+    const [stats, poolPairs] = await Promise.all([
+      api.stats.get(),
+      api.poolpairs.list(200)
+    ])
+
+    return {
+      pools: poolPairs.map(mapPoolPairsToLegacyYieldFarmingPool),
+      provider: 'Defichain',
+      provider_logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
+      provider_URL: 'https://defichain.com',
+      tvl: stats.tvl.total,
+      links: [
+        { title: 'Twitter', link: 'https://twitter.com/defichain' },
+        { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
+        { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
+        { title: 'Telegram', link: 'https://t.me/defiblockchain' },
+        { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
+        { title: 'Facebook', link: 'https://www.facebook.com/defichain.foundation' },
+        { title: 'GitHub', link: 'https://github.com/DeFiCh/ain' }
+      ]
+    }
+  }
 }
 
 interface LegacyPoolPairData {
@@ -178,4 +209,84 @@ interface LegacySwapData {
   base_volume: number
   quote_volume: number
   isFrozen: 0 | 1
+}
+
+function mapPoolPairsToLegacyYieldFarmingPool (poolPair: PoolPairData): LegacyListYieldFarmingPool {
+  const {
+    volumeH24InTokenB: volumeA,
+    volumeD30InTokenA: volumeA30,
+    volumeH24InTokenA: volumeB,
+    volumeD30InTokenB: volumeB30
+  } = getUsdVolumesInTokens(poolPair)
+
+  const apr = poolPair.apr?.total ?? 0
+
+  return {
+    // Identity
+    pair: poolPair.symbol,
+    name: poolPair.name,
+    poolPairId: poolPair.id,
+    pairLink: 'https://defiscan.live/tokens/' + poolPair.id,
+    logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
+
+    // Tokenomics
+    apr: apr,
+    apy: apr,
+    commission: Number(poolPair.commission),
+    idTokenA: poolPair.tokenA.id,
+    idTokenB: poolPair.tokenB.id,
+    tokenASymbol: poolPair.tokenA.symbol,
+    tokenBSymbol: poolPair.tokenB.symbol,
+    reserveA: Number(poolPair.tokenA.reserve),
+    reserveB: Number(poolPair.tokenB.reserve),
+    priceA: Number(
+      usdPerToken(poolPair.tokenA.reserve, poolPair.totalLiquidity.usd ?? 1)
+    ),
+    priceB: Number(
+      usdPerToken(poolPair.tokenB.reserve, poolPair.totalLiquidity.usd ?? 1)
+    ),
+    volumeA: Number(volumeA),
+    volumeA30: Number(volumeA30),
+    volumeB: Number(volumeB),
+    volumeB30: Number(volumeB30),
+    totalStaked: Number(poolPair.totalLiquidity.usd),
+    poolRewards: ['DFI']
+  }
+}
+
+interface LegacyListYieldFarmingData {
+  pools: LegacyListYieldFarmingPool[]
+  provider: string
+  provider_logo: string
+  provider_URL: string
+  tvl: number
+  links: Array<{
+    title: string
+    link: string
+  }>
+}
+
+interface LegacyListYieldFarmingPool {
+  apr: number
+  commission: number
+  name: string
+  pair: string
+  logo: string
+  poolRewards: string[]
+  pairLink: string
+  apy: number
+  idTokenA: string
+  idTokenB: string
+  totalStaked: number
+  poolPairId: string
+  reserveA: number
+  reserveB: number
+  volumeA: number
+  volumeB: number
+  tokenASymbol: string
+  tokenBSymbol: string
+  priceA: number
+  priceB: number
+  volumeA30: number
+  volumeB30: number
 }

@@ -69,7 +69,7 @@ export function getVolumeD30InTokens (
 
 /**
  * Derive from totalLiquidity in USD and token's reserve
- * 1 BTC in USD = totalLiquidity.usd / 2(token.reserve)
+ * 1 token in USD = totalLiquidity.usd / 2(token.reserve)
  */
 export function usdPerToken (
   tokenReserve: string | number,
