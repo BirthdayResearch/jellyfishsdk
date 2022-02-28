@@ -35,7 +35,7 @@ export interface AccountToUtxos {
 }
 
 /**
- * Composable UtxosToAccount, C stands for Composable.
+ * Composable AccountToUtxos, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CAccountToUtxos extends ComposableBuffer<AccountToUtxos> {
@@ -60,7 +60,7 @@ export interface AccountToAccount {
 }
 
 /**
- * Composable UtxosToAccount, C stands for Composable.
+ * Composable AccountToAccount, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CAccountToAccount extends ComposableBuffer<AccountToAccount> {
@@ -76,7 +76,7 @@ export class CAccountToAccount extends ComposableBuffer<AccountToAccount> {
 }
 
 /**
- * AccountToAccount DeFi Transaction
+ * AnyAccountToAccount DeFi Transaction
  */
 export interface AnyAccountToAccount {
   from: ScriptBalances[] // ------------| n = VarUInt{1-9 bytes}, + n bytes
@@ -84,7 +84,7 @@ export interface AnyAccountToAccount {
 }
 
 /**
- * Composable UtxosToAccount, C stands for Composable.
+ * Composable AnyAccountToAccount, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
 export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> {

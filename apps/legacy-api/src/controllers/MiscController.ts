@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
+import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 
 @Controller('v1')
 export class MiscController {
@@ -8,7 +9,7 @@ export class MiscController {
 
   @Get('getblockcount')
   async getToken (
-    @Query('network') network: 'mainnet' | 'testnet' | 'regtest' = 'mainnet'
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
   ): Promise<{ [key: string]: Number }> {
     const api = this.whaleApiClientProvider.getClient(network)
 

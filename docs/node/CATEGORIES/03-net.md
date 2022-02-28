@@ -108,3 +108,13 @@ interface LocalAddress {
   score: number
 }
 ```
+
+## setNetworkActive
+
+Disable/enable all p2p network activity.
+
+```ts title="client.net.setNetworkActive()"
+interface net {
+  setNetworkActive (state: boolean): Promise<boolean>
+}
+```

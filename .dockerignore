@@ -1,0 +1,11 @@
+.idea
+.husky
+.github
+docs
+examples
+
+node_modules
+
+__tests__
+dist
+tsconfig.build.tsbuildinfo

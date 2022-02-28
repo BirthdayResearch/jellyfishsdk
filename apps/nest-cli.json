@@ -1,0 +1,36 @@
+{
+  "collection": "@nestjs/schematics",
+  "monorepo": true,
+  "compilerOptions": {
+    "tsConfigPath": "tsconfig.json"
+  },
+  "projects": {
+    "legacy-api": {
+      "type": "application",
+      "root": "legacy-api",
+      "entryFile": "apps/legacy-api/src/index",
+      "sourceRoot": "legacy-api/src"
+    },
+    "ocean-api": {
+      "type": "application",
+      "root": "ocean-api",
+      "entryFile": "apps/ocean-api/src/index",
+      "sourceRoot": "ocean-api/src"
+    },
+    "rich-list-api": {
+      "type": "application",
+      "root": "rich-list-api",
+      "entryFile": "apps/rich-list-api/src/index",
+      "sourceRoot": "rich-list-api/src"
+    },
+    "actuator": {
+      "type": "library",
+      "root": "libs/actuator",
+      "entryFile": "index",
+      "sourceRoot": "libs/actuator/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/actuator/tsconfig.lib.json"
+      }
+    }
+  }
+}

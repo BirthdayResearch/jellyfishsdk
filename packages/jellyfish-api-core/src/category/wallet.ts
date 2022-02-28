@@ -314,6 +314,16 @@ export class Wallet {
   async getTransaction (txid: string, includeWatchOnly: boolean = true): Promise<InWalletTransaction> {
     return await this.client.call('gettransaction', [txid, includeWatchOnly], { amount: 'bignumber' })
   }
+
+  /**
+   * Returns a list of currently loaded wallets.
+   * For full information on the wallet, use 'getwalletinfo'
+   *
+   * @return {Promise<string[]>}
+   */
+  async listWallets (): Promise<string[]> {
+    return await this.client.call('listwallets', [], 'number')
+  }
 }
 
 export interface UTXO {
