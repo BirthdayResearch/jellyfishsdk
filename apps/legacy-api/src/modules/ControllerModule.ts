@@ -3,6 +3,8 @@ import { TokenController } from '../controllers/TokenController'
 import { PoolPairController } from '../controllers/PoolPairController'
 import { MiscController } from '../controllers/MiscController'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
+import { StatsController } from '../controllers/stats/StatsController'
+import { MainnetLegacyStatsProvider, TestnetLegacyStatsProvider } from '../controllers/stats/LegacyStatsProvider'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -14,10 +16,13 @@ import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
   controllers: [
     TokenController,
     PoolPairController,
-    MiscController
+    MiscController,
+    StatsController
   ],
   providers: [
-    WhaleApiClientProvider
+    WhaleApiClientProvider,
+    MainnetLegacyStatsProvider,
+    TestnetLegacyStatsProvider
   ]
 })
 export class ControllerModule {
