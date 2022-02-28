@@ -6,14 +6,14 @@ import { TestingRawTx } from './rawtx'
 import { TestingICX } from './icxorderbook'
 import { TestingMisc } from './misc'
 import { TestingGroupAnchor } from './anchor'
-import { ContainerGroup, MasterNodeRegTestContainer, RegTestContainer } from '@defichain/testcontainers'
+import { ContainerGroup, MasterNodeRegTestContainer, RegTestContainer, StartOptions } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export type TestingContainer = MasterNodeRegTestContainer | RegTestContainer
 export type TestingGroupInit<Container> = (index: number) => Container
 
-export class Testing<Container extends TestingContainer> {
+export class Testing<Container extends TestingContainer = MasterNodeRegTestContainer> {
   readonly fixture: TestingFixture
   readonly icxorderbook: TestingICX
   readonly token: TestingToken
@@ -69,7 +69,7 @@ export class Testing<Container extends TestingContainer> {
   }
 }
 
-export class TestingGroup<Container extends TestingContainer> {
+export class TestingGroup<Container extends TestingContainer = MasterNodeRegTestContainer> {
   readonly anchor: TestingGroupAnchor
 
   private constructor (
@@ -128,8 +128,8 @@ export class TestingGroup<Container extends TestingContainer> {
     await this.group.add(container)
   }
 
-  async start (): Promise<void> {
-    return await this.group.start()
+  async start (opts?: StartOptions): Promise<void> {
+    return await this.group.start(opts)
   }
 
   async stop (): Promise<void> {
