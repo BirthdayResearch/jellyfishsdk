@@ -11,13 +11,14 @@ export class StatsController {
 
   @Get('stats')
   async stats (
-    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
+    @Query('q') jsonPath?: string
   ): Promise<LegacyStats> {
     switch (network) {
       case 'mainnet':
-        return await this.mainnetStatsProvider.getStats()
+        return await this.mainnetStatsProvider.getStats(jsonPath)
       case 'testnet':
-        return await this.testnetStatsProvider.getStats()
+        return await this.testnetStatsProvider.getStats(jsonPath)
     }
   }
 }

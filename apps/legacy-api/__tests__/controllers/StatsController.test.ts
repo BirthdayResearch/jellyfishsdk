@@ -95,6 +95,40 @@ describe('StatsController', () => {
     // Additional checks
     expect(actual.rewards.minter).toStrictEqual(actual.rewards.masternode)
   })
+
+  it('/v1/stats?q=rewards - returns nested object', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/stats?q=rewards'
+    })
+
+    expect(res.json()).toStrictEqual({
+      anchorPercent: expect.any(Number),
+      liquidityPoolPercent: expect.any(Number),
+      communityPercent: expect.any(Number),
+      anchorReward: expect.any(Number),
+      liquidityPool: expect.any(Number),
+      total: expect.any(Number),
+      minter: expect.any(Number),
+      masternode: expect.any(Number),
+      community: expect.any(Number),
+      anchor: expect.any(Number),
+      liquidity: expect.any(Number),
+      swap: expect.any(Number),
+      futures: expect.any(Number),
+      options: expect.any(Number),
+      unallocated: expect.any(Number)
+    })
+  })
+
+  it('/v1/stats?q=tokens.supply.total - returns text (leaf)', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/stats?q=tokens.supply.total'
+    })
+
+    expect(Number(res.body)).toStrictEqual(expect.any(Number))
+  })
 })
 
 describe('MainnetLegacyStatsProvider', () => {
