@@ -35,7 +35,7 @@ export class InMemoryQueueService implements Queue<string> {
 /**
  * For unit test use.
  */
-export class StubbedQueueClient implements QueueClient<string> {
+export class InMemoryQueueClient implements QueueClient<string> {
   private readonly DATA: { [key: string]: InMemoryQueueService } = {}
 
   getQueue (name: string): InMemoryQueueService | undefined {

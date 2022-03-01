@@ -1,7 +1,7 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { RichListItem } from '@defichain/rich-list-api-client'
 import { waitForCondition } from '@defichain/testcontainers'
-import { InMemoryDatabase, StubbedQueueClient } from '../src/lib'
+import { InMemoryDatabase, InMemoryQueueClient } from '../src/lib'
 import { CrawledBlock, RichListCore } from '../src/RichListCore'
 import { StubbedWhaleApiClient } from './StubbedWhaleClient'
 
@@ -13,7 +13,7 @@ export function RichListCoreTest (apiClient: JsonRpcClient): RichListCore {
     new InMemoryDatabase<RichListItem>(),
     new InMemoryDatabase<CrawledBlock>(),
     new InMemoryDatabase<string>(),
-    new StubbedQueueClient()
+    new InMemoryQueueClient()
   )
 }
 
