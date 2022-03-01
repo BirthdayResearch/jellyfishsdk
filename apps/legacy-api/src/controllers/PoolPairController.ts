@@ -1,10 +1,12 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { PoolPairData, PoolSwap } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { ApiPagedResponse } from '@defichain/whale-api-client'
-import { getVolumeH24InTokens } from '../../../libs/utils/tokenomics'
+import { Transaction, TransactionVout } from '@defichain/whale-api-client/dist/api/transactions'
+import { CCompositeSwap, CPoolSwap, DfTx, OP_DEFI_TX, toOPCodes } from '@defichain/jellyfish-transaction'
+import { SmartBuffer } from 'smart-buffer'
+import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 
 @Controller('v1')
 export class PoolPairController {
@@ -72,59 +74,65 @@ export class PoolPairController {
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
-    @Query('limit') limit: number = 100
+    @Query('limit') limit: number = 100,
+    @Query('next') next?: string,
   ): Promise<LegacySubgraphSwapsResponse> {
-    const api = this.whaleApiClientProvider.getClient(network)
-
     limit = Math.min(100, limit)
+    return await this.getSwapsHistory(network, limit, next) // next encoded as json string
+  }
 
-    // Get a few poolswaps from each poolpair, limiting the number of objects to return
+  async getSwapsHistory (network: SupportedNetwork, limit: number, nextString?: string): Promise<LegacySubgraphSwapsResponse> {
+    const api = this.whaleApiClientProvider.getClient(network)
+    let next: NextToken = JSON.parse(nextString ?? '{}')
+
     const swaps: LegacySubgraphSwap[] = []
 
-    const poolPairs: ApiPagedResponse<PoolPairData> = await api.poolpairs.list(200)
+    while (swaps.length <= limit) {
+      const blocks = await api.blocks.list(100, next?.height)
+      for (const block of blocks) {
+        const transactions = await api.blocks.getTransactions(block.hash, 100, next?.order)
+        for (const transaction of transactions) {
+          const vouts = await api.transactions.getVouts(transaction.txid, 1)
+          const dftx = findDfTx(vouts)
+          if (dftx === undefined) {
+            continue
+          }
 
-    for (const poolPair of poolPairs) {
-      if (swaps.length >= limit) {
-        break
+          const swap = findSwap(dftx, transaction, block)
+          if (swap === undefined) {
+            continue
+          }
+
+          swaps.push(swap)
+
+          next = {
+            height: block.height.toString(),
+            order: transaction.order.toString()
+          }
+
+          if (swaps.length === limit) {
+            return {
+              data: swaps,
+              page: {
+                next: JSON.stringify(next)
+              }
+            }
+          }
+        }
       }
 
-      const poolSwaps: ApiPagedResponse<PoolSwap> = await api.poolpairs.listPoolSwaps(
-        poolPair.id,
-        Math.round(Math.max(1, limit / poolPairs.length)) // at least 1 from each poolpair
-      )
-
-      for (const poolSwap of poolSwaps) {
-        const {
-          volumeH24InTokenA,
-          volumeH24InTokenB
-        } = getVolumeH24InTokens(poolPair)
-
-        if (swaps.length >= limit) {
-          break
-        }
-
-        swaps.push({
-          id: poolSwap.txid,
-          pair: {
-            fromToken: {
-              decimals: 8,
-              symbol: poolPair.tokenA.symbol,
-              tradeVolume: volumeH24InTokenA.toFixed(8)
-            },
-            toToken: {
-              decimals: 8,
-              symbol: poolPair.tokenB.symbol,
-              tradeVolume: volumeH24InTokenB.toFixed(8)
-            }
-          },
-          timestamp: poolSwap.block.medianTime.toFixed(),
-          fromAmount: poolSwap.fromAmount,
-          toAmount: 'TODO' // TODO(eli-lim): compute from price ratio?
-        })
+      if (swaps.length === 0) {
+        // After 100 loops, if no data - exit immediately
+        break
       }
     }
 
-    return { data: { swaps } }
+    return {
+      data: swaps,
+      page: {
+        next: JSON.stringify(next)
+      }
+    }
   }
 
   getVolumes (poolPair: PoolPairData): [BigNumber, BigNumber] {
@@ -242,24 +250,60 @@ interface LegacySwapData {
 }
 
 interface LegacySubgraphSwapsResponse {
-  data: {
-    swaps: LegacySubgraphSwap[]
+  data: LegacySubgraphSwap[],
+  page?: {
+    next: string
   }
+}
+
+interface NextToken {
+  height?: string
+  order?: string
 }
 
 interface LegacySubgraphSwap {
   id: string
   timestamp: string
-  fromAmount: string
-  toAmount: string
-  pair: {
-    fromToken: Token
-    toToken: Token
-  }
+  from: LegacySubgraphSwapFromTo
+  to: LegacySubgraphSwapFromTo
 }
 
-interface Token {
-  decimals: number
+interface LegacySubgraphSwapFromTo {
+  amount: string
   symbol: string
-  tradeVolume: string
+}
+
+function findDfTx (vouts: TransactionVout[]): DfTx<any> | undefined {
+  const hex = vouts[0].script.hex
+  const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
+  const stack = toOPCodes(buffer)
+  if (stack.length !== 2 || stack[1].type !== 'OP_DEFI_TX') {
+    return undefined
+  }
+  return (stack[1] as OP_DEFI_TX).tx
+}
+
+function findSwap (dftx: DfTx<any>, transaction: Transaction, block: Block): LegacySubgraphSwap | undefined {
+  if (dftx !== undefined) {
+    switch (dftx.name) {
+      case CPoolSwap.OP_NAME:
+      // Get History
+      case CCompositeSwap.OP_NAME:
+      default:
+    }
+  }
+
+  return {
+    id: transaction.txid,
+    timestamp: block.medianTime.toString(),
+    // TODO(?): From/To get from Account History - v3.0.0
+    from: {
+      amount: '',
+      symbol: ''
+    },
+    to: {
+      amount: '',
+      symbol: ''
+    }
+  }
 }

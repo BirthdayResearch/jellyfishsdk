@@ -101,6 +101,7 @@
       <w>getrawmempool</w>
       <w>getrawtransaction</w>
       <w>getreceivedbyaddress</w>
+      <w>getsubgraphswaps</w>
       <w>gettoken</w>
       <w>gettransaction</w>
       <w>gettxout</w>
@@ -150,6 +151,7 @@
       <w>listmasternodes</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
+      <w>listswaps</w>
       <w>listunspent</w>
       <w>listvaults</w>
       <w>liveness</w>
@@ -265,6 +267,7 @@
       <w>verifymessage</w>
       <w>vernotif</w>
       <w>vout</w>
+      <w>vouts</w>
       <w>vsize</w>
       <w>waitforblockheight</w>
       <w>waitfornewblock</w>
