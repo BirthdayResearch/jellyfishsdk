@@ -19,7 +19,7 @@ export class RichListCore {
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
     private readonly whaleApiClient: WhaleApiClient,
-    private readonly addressBalances: SingleIndexDb<RichListItem>,
+    readonly addressBalances: SingleIndexDb<RichListItem>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
@@ -64,6 +64,7 @@ export class RichListCore {
       for (const a of _addresses) {
         await queue.push(a)
       }
+
       await this.crawledBlockHashes.put({
         partition: 'NONE',
         id: nextBlock.hash,
@@ -89,7 +90,7 @@ export class RichListCore {
       const bh = await this.apiClient.blockchain.getBlockHash(height)
       return await this.apiClient.blockchain.getBlock(bh, 2)
     } catch (err: any) {
-      if (err.payload.message === 'Block height out of range') {
+      if (err?.payload?.message === 'Block height out of range') {
         return undefined
       }
       throw err
@@ -147,7 +148,7 @@ export class RichListCore {
         const accountAmount = updatedBalances[address]
         for (const tokenId of tokens) {
           const balance = accountAmount[tokenId].toNumber()
-          const satoshi = accountAmount[tokenId].times('1e8').toNumber()
+          const satoshi = accountAmount[tokenId].times('1e8').dividedToIntegerBy(1).toNumber()
           await this.addressBalances.put({
             partition: `${tokenId}`,
             sort: satoshi,
