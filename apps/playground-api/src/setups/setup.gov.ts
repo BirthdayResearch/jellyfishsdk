@@ -1,4 +1,4 @@
-import { PlaygroundSetup } from '../setup/setup'
+import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()

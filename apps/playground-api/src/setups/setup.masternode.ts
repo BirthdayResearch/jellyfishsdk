@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { PlaygroundSetup } from '../setup/setup'
+import { PlaygroundSetup } from '../setups/setup'
 
 interface MasternodeSetup {
   address: string

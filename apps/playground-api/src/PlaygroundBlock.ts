@@ -1,7 +1,7 @@
 import { Interval } from '@nestjs/schedule'
 import { Injectable, Logger } from '@nestjs/common'
 import { ApiClient } from '@defichain/jellyfish-api-core'
-import { PlaygroundSetup } from './setup/setup'
+import { PlaygroundSetup } from './setups/setup'
 
 @Injectable()
 export class PlaygroundBlock {

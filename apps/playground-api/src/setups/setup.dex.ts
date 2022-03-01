@@ -1,4 +1,4 @@
-import { PlaygroundSetup } from '../setup/setup'
+import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 import { AddPoolLiquiditySource, CreatePoolPairMetadata } from '@defichain/jellyfish-api-core/src/category/poolpair'
 import { BalanceTransferPayload } from '@defichain/jellyfish-api-core/src/category/account'
