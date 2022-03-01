@@ -114,3 +114,42 @@ it('/v1/listswaps', async () => {
     })
   }
 })
+
+it('/v1/listyieldfarming', async () => {
+  const res = await apiTesting.app.inject({
+    method: 'GET',
+    url: '/v1/listyieldfarming'
+  })
+  const response = res.json()
+
+  // Verify 'pools' shape
+  for (const pool of response.pools.values()) {
+    expect(pool).toStrictEqual({
+      apr: expect.any(Number),
+      name: expect.any(String),
+      pair: expect.any(String),
+      logo: expect.any(String),
+      poolRewards: expect.any(Array),
+      pairLink: expect.any(String),
+      totalStaked: expect.any(Number)
+    })
+  }
+
+  expect(response).toStrictEqual({
+    pools: expect.any(Array),
+    provider: 'Defichain',
+    tvl: expect.any(Number),
+    provider_logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
+    provider_URL: 'https://defichain.com',
+    links: [
+      { title: 'Twitter', link: 'https://twitter.com/defichain' },
+      { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
+      { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
+      { title: 'Telegram', link: 'https://t.me/defiblockchain' },
+      { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
+      { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
+      { title: 'GitHub', link: 'https://github.com/DeFiCh' },
+      { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
+    ]
+  })
+})

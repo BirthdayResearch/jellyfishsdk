@@ -6,7 +6,8 @@ import BigNumber from 'bignumber.js'
 
 @Controller('v1')
 export class PoolPairController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {}
+  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  }
 
   @Get('getpoolpair')
   async getToken (
@@ -98,6 +99,36 @@ export class PoolPairController {
     return new BigNumber(tokenReserve).times(2)
       .div(new BigNumber(totalLiquidityInUsd))
   }
+
+  @Get('listyieldfarming')
+  async listYieldFarming (
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
+  ): Promise<LegacyListYieldFarmingData> {
+    const api = this.whaleApiClientProvider.getClient(network)
+
+    const [stats, poolPairs] = await Promise.all([
+      api.stats.get(),
+      api.poolpairs.list(200)
+    ])
+
+    return {
+      pools: poolPairs.map(mapPoolPairsToLegacyYieldFarmingPool),
+      provider: 'Defichain',
+      provider_logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
+      provider_URL: 'https://defichain.com',
+      tvl: stats.tvl.total,
+      links: [
+        { title: 'Twitter', link: 'https://twitter.com/defichain' },
+        { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
+        { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
+        { title: 'Telegram', link: 'https://t.me/defiblockchain' },
+        { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
+        { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
+        { title: 'GitHub', link: 'https://github.com/DeFiCh' },
+        { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
+      ]
+    }
+  }
 }
 
 interface LegacyPoolPairData {
@@ -178,4 +209,41 @@ interface LegacySwapData {
   base_volume: number
   quote_volume: number
   isFrozen: 0 | 1
+}
+
+function mapPoolPairsToLegacyYieldFarmingPool (poolPair: PoolPairData): LegacyListYieldFarmingPool {
+  return {
+    // Identity
+    pair: poolPair.symbol,
+    name: poolPair.name,
+    pairLink: 'https://defiscan.live/tokens/' + poolPair.id,
+    logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
+
+    // Tokenomics
+    apr: poolPair.apr?.total ?? 0,
+    totalStaked: Number(poolPair.totalLiquidity.usd ?? 0),
+    poolRewards: ['DFI']
+  }
+}
+
+interface LegacyListYieldFarmingData {
+  pools: LegacyListYieldFarmingPool[]
+  provider: string
+  provider_logo: string
+  provider_URL: string
+  tvl: number
+  links: Array<{
+    title: string
+    link: string
+  }>
+}
+
+interface LegacyListYieldFarmingPool {
+  name: string
+  pair: string
+  pairLink: string
+  logo: string
+  poolRewards: string[]
+  apr: number
+  totalStaked: number
 }
