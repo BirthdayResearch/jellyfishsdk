@@ -46,33 +46,33 @@ describe('sendUtxo', () => {
   })
 })
 
-// describe('sendToken', () => {
-//   it('should keep sending 10@DFI to address x30 times', async () => {
-//     const addresses = await apiTesting.testing.generateAddress(30)
-//     await Promise.all(addresses.map(async address => {
-//       const txid = await apiTesting.client.wallet.sendToken('0', '10', address)
-//       expect(txid.length).toStrictEqual(64)
+describe('sendToken', () => {
+  it('should keep sending 10@DFI to address x30 times', async () => {
+    const addresses = await apiTesting.testing.generateAddress(30)
+    await Promise.all(addresses.map(async address => {
+      const txid = await apiTesting.client.wallet.sendToken('0', '10', address)
+      expect(txid.length).toStrictEqual(64)
 
-//       const balances = await apiTesting.rpc.account.getAccount(address)
-//       expect(balances).toStrictEqual(['10.00000000@DFI'])
-//     }))
-//   })
+      const balances = await apiTesting.rpc.account.getAccount(address)
+      expect(balances).toStrictEqual(['10.00000000@DFI'])
+    }))
+  })
 
-//   it('should send token 1 to address and wait for confirmation', async () => {
-//     const address = 'bcrt1qur2tmednr6e52u9du972nqvua60egwqkf98ps8'
-//     const txid = await apiTesting.client.wallet.sendToken('1', '1.2343134', address)
-//     expect(txid.length).toStrictEqual(64)
+  it('should send token 1 to address and wait for confirmation', async () => {
+    const address = 'bcrt1qur2tmednr6e52u9du972nqvua60egwqkf98ps8'
+    const txid = await apiTesting.client.wallet.sendToken('1', '1.2343134', address)
+    expect(txid.length).toStrictEqual(64)
 
-//     const balances = await apiTesting.container.call('getaccount', [address])
-//     expect(balances).toStrictEqual(['1.23431340@BTC'])
-//   })
+    const balances = await apiTesting.container.call('getaccount', [address])
+    expect(balances).toStrictEqual(['1.23431340@BTC'])
+  })
 
-//   it('should send token 2 to address and wait for confirmation', async () => {
-//     const address = 'bcrt1qhu2pkzfx4gc8r5nry89ma9xvvt6rz0r4xe5yyw'
-//     const txid = await apiTesting.client.wallet.sendToken('2', '1.500', address)
-//     expect(txid.length).toStrictEqual(64)
+  it('should send token 2 to address and wait for confirmation', async () => {
+    const address = 'bcrt1qhu2pkzfx4gc8r5nry89ma9xvvt6rz0r4xe5yyw'
+    const txid = await apiTesting.client.wallet.sendToken('2', '1.500', address)
+    expect(txid.length).toStrictEqual(64)
 
-//     const balances = await apiTesting.container.call('getaccount', [address])
-//     expect(balances).toStrictEqual(['1.50000000@ETH'])
-//   })
-// })
+    const balances = await apiTesting.container.call('getaccount', [address])
+    expect(balances).toStrictEqual(['1.50000000@ETH'])
+  })
+})
