@@ -46,6 +46,7 @@ const TESTNET_COMMUNITY_ADDR: string = '7Q2nZCcKnxiRiHSNQtLB27RA5efxm2cE7w'
 export class MainnetLegacyStatsProvider {
   protected api: WhaleApiClient
   protected chain: 'main' | 'test' = 'main'
+  protected blockSubsidy = new BlockSubsidy(MainNetCoinbaseSubsidyOptions)
 
   constructor (private readonly clientProvider: WhaleApiClientProvider) {
     this.api = clientProvider.getClient('mainnet')
@@ -152,8 +153,7 @@ export class MainnetLegacyStatsProvider {
   }
 
   calculateBlockSubsidy (blockHeight: number): number {
-    const blockSubsidy = new BlockSubsidy(MainNetCoinbaseSubsidyOptions)
-    return blockSubsidy.getBlockSubsidy(blockHeight).div(ONE_DFI_IN_SATOSHI).toNumber()
+    return this.blockSubsidy.getBlockSubsidy(blockHeight).div(ONE_DFI_IN_SATOSHI).toNumber()
   }
 
   async getCommunityBalance (): Promise<number> {
@@ -180,11 +180,7 @@ export class TestnetLegacyStatsProvider extends MainnetLegacyStatsProvider {
     super(clientProvider)
     this.api = clientProvider.getClient('testnet')
     this.chain = 'test'
-  }
-
-  calculateBlockSubsidy (blockHeight: number): number {
-    const blockSubsidy = new BlockSubsidy(TestNetCoinbaseSubsidyOptions)
-    return blockSubsidy.getBlockSubsidy(blockHeight).div(ONE_DFI_IN_SATOSHI).toNumber()
+    this.blockSubsidy = new BlockSubsidy(TestNetCoinbaseSubsidyOptions)
   }
 
   async getCommunityBalance (): Promise<number> {
