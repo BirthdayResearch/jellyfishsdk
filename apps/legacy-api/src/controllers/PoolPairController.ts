@@ -4,7 +4,14 @@ import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
 import { Transaction, TransactionVout } from '@defichain/whale-api-client/dist/api/transactions'
-import { CCompositeSwap, CPoolSwap, DfTx, OP_DEFI_TX, toOPCodes } from '@defichain/jellyfish-transaction'
+import {
+  CCompositeSwap,
+  CompositeSwap,
+  CPoolSwap,
+  OP_DEFI_TX,
+  PoolSwap,
+  toOPCodes
+} from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
 import { Block } from '@defichain/whale-api-client/dist/api/blocks'
 
@@ -75,30 +82,27 @@ export class PoolPairController {
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
     @Query('limit') limit: number = 100,
-    @Query('next') next?: string,
+    @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
     limit = Math.min(100, limit)
+    const next: NextToken = JSON.parse(nextString ?? '{}')
     return await this.getSwapsHistory(network, limit, next) // next encoded as json string
   }
 
-  async getSwapsHistory (network: SupportedNetwork, limit: number, nextString?: string): Promise<LegacySubgraphSwapsResponse> {
+  async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<LegacySubgraphSwapsResponse> {
     const api = this.whaleApiClientProvider.getClient(network)
-    let next: NextToken = JSON.parse(nextString ?? '{}')
-
     const swaps: LegacySubgraphSwap[] = []
 
     while (swaps.length <= limit) {
-      const blocks = await api.blocks.list(100, next?.height)
-      for (const block of blocks) {
-        const transactions = await api.blocks.getTransactions(block.hash, 100, next?.order)
-        for (const transaction of transactions) {
+      for (const block of await api.blocks.list(100, next?.height)) {
+        for (const transaction of await api.blocks.getTransactions(block.hash, 100, next?.order)) {
           const vouts = await api.transactions.getVouts(transaction.txid, 1)
-          const dftx = findDfTx(vouts)
+          const dftx = findPoolSwapDfTx(vouts)
           if (dftx === undefined) {
             continue
           }
 
-          const swap = findSwap(dftx, transaction, block)
+          const swap = this.findSwap(dftx, transaction, block)
           if (swap === undefined) {
             continue
           }
@@ -166,6 +170,26 @@ export class PoolPairController {
   usdToTokenConversionRate (tokenReserve: string | number, totalLiquidityInUsd: string | number): BigNumber {
     return new BigNumber(tokenReserve).times(2)
       .div(new BigNumber(totalLiquidityInUsd))
+  }
+
+  findSwap (poolSwap: PoolSwap, transaction: Transaction, block: Block): LegacySubgraphSwap | undefined {
+    // this.whaleApiClientProvider.getClient()
+
+    return {
+      id: transaction.txid,
+      timestamp: block.medianTime.toString(),
+      from: {
+        // TODO(?): Method 1: Get Symbol from AccountHistory?
+        // TODO(?): Method 2: Get Symbol from poolSwap.fromTokenId Cache
+        amount: poolSwap.fromAmount.toFixed(8),
+        symbol: ''
+      },
+      to: {
+        // TODO(?): Get Symbol from AccountHistory by checking destination access
+        amount: '',
+        symbol: ''
+      }
+    }
   }
 }
 
@@ -250,7 +274,7 @@ interface LegacySwapData {
 }
 
 interface LegacySubgraphSwapsResponse {
-  data: LegacySubgraphSwap[],
+  data: LegacySubgraphSwap[]
   page?: {
     next: string
   }
@@ -273,37 +297,27 @@ interface LegacySubgraphSwapFromTo {
   symbol: string
 }
 
-function findDfTx (vouts: TransactionVout[]): DfTx<any> | undefined {
+function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
   const hex = vouts[0].script.hex
   const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
   const stack = toOPCodes(buffer)
   if (stack.length !== 2 || stack[1].type !== 'OP_DEFI_TX') {
     return undefined
   }
-  return (stack[1] as OP_DEFI_TX).tx
-}
 
-function findSwap (dftx: DfTx<any>, transaction: Transaction, block: Block): LegacySubgraphSwap | undefined {
-  if (dftx !== undefined) {
-    switch (dftx.name) {
-      case CPoolSwap.OP_NAME:
-      // Get History
-      case CCompositeSwap.OP_NAME:
-      default:
-    }
+  const dftx = (stack[1] as OP_DEFI_TX).tx
+  if (dftx === undefined) {
+    return undefined
   }
 
-  return {
-    id: transaction.txid,
-    timestamp: block.medianTime.toString(),
-    // TODO(?): From/To get from Account History - v3.0.0
-    from: {
-      amount: '',
-      symbol: ''
-    },
-    to: {
-      amount: '',
-      symbol: ''
-    }
+  switch (dftx.name) {
+    case CPoolSwap.OP_NAME:
+      return (dftx.data as PoolSwap)
+
+    case CCompositeSwap.OP_NAME:
+      return (dftx.data as CompositeSwap).poolSwap
+
+    default:
+      return undefined
   }
 }
