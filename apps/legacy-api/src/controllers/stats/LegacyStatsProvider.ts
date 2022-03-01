@@ -10,6 +10,7 @@ import { WhaleApiClientProvider } from '../../providers/WhaleApiClientProvider'
 import BigNumber from 'bignumber.js'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
+import { get } from 'lodash'
 
 // region - Needs to be kept in sync with defi-stats-api-master
 const REWARDS_TOTAL = 200
@@ -52,7 +53,7 @@ export class MainnetLegacyStatsProvider {
     this.api = clientProvider.getClient('mainnet')
   }
 
-  async getStats (): Promise<LegacyStats> {
+  async getStats (jsonPath?: string): Promise<LegacyStats> {
     const stats: StatsData = await this.api.stats.get()
 
     // Fire async requests at the same time and await results
@@ -70,7 +71,7 @@ export class MainnetLegacyStatsProvider {
       this.api.stats.getSupply()
     ])
 
-    return {
+    const result = {
       chain: this.chain,
       blockHeight: bestBlock.height,
       bestBlockHash: bestBlock.hash, // get the tip
@@ -94,6 +95,12 @@ export class MainnetLegacyStatsProvider {
       listCommunities: listCommunities,
       timeStamp: Date.now()
     }
+
+    if (jsonPath !== undefined && jsonPath !== null) {
+      return get(result, jsonPath)
+    }
+
+    return result
   }
 
   /**
