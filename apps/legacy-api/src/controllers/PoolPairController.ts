@@ -2,6 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
+import BigNumber from 'bignumber.js'
 
 @Controller('v1')
 export class PoolPairController {
@@ -30,6 +31,72 @@ export class PoolPairController {
       results[token.id] = reformatPoolPairData(token)
     })
     return results
+  }
+
+  @Get('listswaps')
+  async listSwaps (
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
+  ): Promise<LegacyListSwapsResponse> {
+    const api = this.whaleApiClientProvider.getClient(network)
+
+    const result: LegacyListSwapsResponse = {}
+    const poolPairs = await api.poolpairs.list(200)
+    for (const poolPair of poolPairs) {
+      const {
+        tokenA: base,
+        tokenB: quote
+      } = poolPair
+
+      const [baseVolume, quoteVolume] = this.getVolumes(poolPair)
+
+      const pairKey = base.symbol + '_' + quote.symbol
+      result[pairKey] = {
+        base_id: base.id,
+        base_name: base.symbol,
+        base_symbol: base.symbol,
+        quote_id: quote.id,
+        quote_name: quote.symbol,
+        quote_symbol: quote.symbol,
+        last_price: poolPair.priceRatio.ab,
+        base_volume: baseVolume.toNumber(),
+        quote_volume: quoteVolume.toNumber(),
+        isFrozen: (poolPair.status) ? 0 : 1
+      }
+    }
+    return result
+  }
+
+  getVolumes (poolPair: PoolPairData): [BigNumber, BigNumber] {
+    const poolPairVolumeInUsd = new BigNumber(poolPair.volume?.h24 ?? 0)
+
+    // vol in token = vol in usd * (usd per 1 token)
+    const volumeInBase = poolPairVolumeInUsd.times(
+      this.usdToTokenConversionRate(
+        poolPair.tokenA.reserve,
+        poolPair.totalLiquidity.usd ?? 1
+      )
+    )
+    const volumeInQuote = poolPairVolumeInUsd.times(
+      this.usdToTokenConversionRate(
+        poolPair.tokenB.reserve,
+        poolPair.totalLiquidity.usd ?? 1
+      )
+    )
+    // console.log(`${poolPairVolumeInUsd} USD = ${volumeInBase} ${poolPair.tokenA.symbol}`)
+    // console.log(`${poolPairVolumeInUsd} USD = ${volumeInQuote} ${poolPair.tokenB.symbol}`)
+    return [volumeInBase, volumeInQuote]
+  }
+
+  /**
+   * Derive from totalLiquidity in USD and token's reserve
+   * BTC in USD = totalLiquidity in USD / (BTC.reserve * 2)
+   * USD in BTC = (BTC.reserve * 2) / totalLiquidity in USD
+   * @param tokenReserve
+   * @param totalLiquidityInUsd
+   */
+  usdToTokenConversionRate (tokenReserve: string | number, totalLiquidityInUsd: string | number): BigNumber {
+    return new BigNumber(tokenReserve).times(2)
+      .div(new BigNumber(totalLiquidityInUsd))
   }
 }
 
@@ -89,4 +156,26 @@ function reformatPoolPairData (data: PoolPairData): LegacyPoolPairData {
     tokenASymbol: data.tokenA.symbol,
     tokenBSymbol: data.tokenB.symbol
   }
+}
+
+/**
+ * Follows the specification of CMC for the /ticker endpoint, but also includes additional fields
+ * @see https://support.coinmarketcap.com/hc/en-us/articles/360043659351-Listings-Criteria
+ * @see https://docs.google.com/document/d/1S4urpzUnO2t7DmS_1dc4EL4tgnnbTObPYXvDeBnukCg/edit#bookmark=kix.9r12wiruqkw4
+ */
+interface LegacyListSwapsResponse {
+  [key: string]: LegacySwapData
+}
+
+interface LegacySwapData {
+  base_id: string
+  base_name: string
+  base_symbol: string
+  quote_id: string
+  quote_name: string
+  quote_symbol: string
+  last_price: string
+  base_volume: number
+  quote_volume: number
+  isFrozen: 0 | 1
 }
