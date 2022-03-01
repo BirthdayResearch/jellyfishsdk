@@ -2,7 +2,6 @@ import { Controller, Get, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
-import { getUsdVolumesInTokens, usdPerToken } from '../../../libs/utils/tokenomics'
 import BigNumber from 'bignumber.js'
 
 @Controller('v1')
@@ -212,44 +211,16 @@ interface LegacySwapData {
 }
 
 function mapPoolPairsToLegacyYieldFarmingPool (poolPair: PoolPairData): LegacyListYieldFarmingPool {
-  const {
-    volumeH24InTokenB: volumeA,
-    volumeD30InTokenA: volumeA30,
-    volumeH24InTokenA: volumeB,
-    volumeD30InTokenB: volumeB30
-  } = getUsdVolumesInTokens(poolPair)
-
-  const apr = poolPair.apr?.total ?? 0
-
   return {
     // Identity
     pair: poolPair.symbol,
     name: poolPair.name,
-    poolPairId: poolPair.id,
     pairLink: 'https://defiscan.live/tokens/' + poolPair.id,
     logo: 'https://defichain.com/downloads/symbol-defi-blockchain.svg',
 
     // Tokenomics
-    apr: apr,
-    apy: apr,
-    commission: Number(poolPair.commission),
-    idTokenA: poolPair.tokenA.id,
-    idTokenB: poolPair.tokenB.id,
-    tokenASymbol: poolPair.tokenA.symbol,
-    tokenBSymbol: poolPair.tokenB.symbol,
-    reserveA: Number(poolPair.tokenA.reserve),
-    reserveB: Number(poolPair.tokenB.reserve),
-    priceA: Number(
-      usdPerToken(poolPair.tokenA.reserve, poolPair.totalLiquidity.usd ?? 1)
-    ),
-    priceB: Number(
-      usdPerToken(poolPair.tokenB.reserve, poolPair.totalLiquidity.usd ?? 1)
-    ),
-    volumeA: Number(volumeA),
-    volumeA30: Number(volumeA30),
-    volumeB: Number(volumeB),
-    volumeB30: Number(volumeB30),
-    totalStaked: Number(poolPair.totalLiquidity.usd),
+    apr: poolPair.apr?.total ?? 0,
+    totalStaked: Number(poolPair.totalLiquidity.usd ?? 0),
     poolRewards: ['DFI']
   }
 }
@@ -267,26 +238,11 @@ interface LegacyListYieldFarmingData {
 }
 
 interface LegacyListYieldFarmingPool {
-  apr: number
-  commission: number
   name: string
   pair: string
+  pairLink: string
   logo: string
   poolRewards: string[]
-  pairLink: string
-  apy: number
-  idTokenA: string
-  idTokenB: string
+  apr: number
   totalStaked: number
-  poolPairId: string
-  reserveA: number
-  reserveB: number
-  volumeA: number
-  volumeB: number
-  tokenASymbol: string
-  tokenBSymbol: string
-  priceA: number
-  priceB: number
-  volumeA30: number
-  volumeB30: number
 }

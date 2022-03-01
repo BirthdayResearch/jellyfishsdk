@@ -126,27 +126,12 @@ it('/v1/listyieldfarming', async () => {
   for (const pool of response.pools.values()) {
     expect(pool).toStrictEqual({
       apr: expect.any(Number),
-      commission: expect.any(Number),
       name: expect.any(String),
       pair: expect.any(String),
       logo: expect.any(String),
       poolRewards: expect.any(Array),
       pairLink: expect.any(String),
-      apy: expect.any(Number),
-      idTokenA: expect.any(String),
-      idTokenB: expect.any(String),
-      totalStaked: expect.any(Number),
-      poolPairId: expect.any(String),
-      reserveA: expect.any(Number),
-      reserveB: expect.any(Number),
-      volumeA: expect.any(Number),
-      volumeB: expect.any(Number),
-      tokenASymbol: expect.any(String),
-      tokenBSymbol: expect.any(String),
-      priceA: expect.any(Number),
-      priceB: expect.any(Number),
-      volumeA30: expect.any(Number),
-      volumeB30: expect.any(Number)
+      totalStaked: expect.any(Number)
     })
   }
 
