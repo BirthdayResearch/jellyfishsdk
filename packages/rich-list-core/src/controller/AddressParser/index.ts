@@ -7,6 +7,7 @@ import { AccountToUtxosParser } from './dftx/accountToUtxos'
 import { UtxoAddressParser } from './utxo'
 import { PoolAddLiquidityParser } from './dftx/poolAddLiquidity'
 import { PoolRemoveLiquidityParser } from './dftx/poolRemoveLiquidity'
+import { PoolSwapParser } from './dftx/poolSwap'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
@@ -19,7 +20,8 @@ export class AddressParser {
     this.dftxs = [
       new AccountToUtxosParser(network),
       new PoolAddLiquidityParser(network),
-      new PoolRemoveLiquidityParser(network)
+      new PoolRemoveLiquidityParser(network),
+      new PoolSwapParser(network)
       // TODO(@ivan-zynesis): add ALL
     ]
     this.utxo = new UtxoAddressParser(apiClient)

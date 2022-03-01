@@ -14,7 +14,6 @@ describe('PoolAddLiquidityParser', () => {
   beforeAll(async () => {
     await container.start()
     await container.waitForWalletCoinbaseMaturity()
-    await container.waitForWalletBalanceGTE(200)
     apiClient = new JsonRpcClient(await container.getCachedRpcUrl())
     sender = await container.getNewAddress()
     shareAddress = await container.getNewAddress()
