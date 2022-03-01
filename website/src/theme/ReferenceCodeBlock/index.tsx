@@ -1,6 +1,6 @@
 import { URL } from "url";
-import React, { useReducer } from "react";
-import CodeBlock from "@theme-original/CodeBlock";
+import React, { Dispatch, useReducer } from "react";
+import OriginalCodeBlock from "@theme-original/CodeBlock";
 
 import type {
   ReferenceCodeBlockProps,
@@ -14,21 +14,12 @@ const initialFetchResultState = {
   loading: null,
 };
 
-const noteStyle: React.CSSProperties = {
-  fontSize: ".9em",
-  fontWeight: 600,
-  color: "#0E75DD",
-  textAlign: "center",
-  paddingBottom: "13px",
-  textDecoration: "underline",
-};
-
 /**
  * parses GitHub reference
  * @param {string} ref url to github file
  */
 export function parseReference(ref: string): GitHubReference {
-  const fullUrl = ref.slice(ref.indexOf("https"), -1);
+  const fullUrl = ref.slice(ref.indexOf("https"));
   const [url, loc] = fullUrl.split("#");
 
   /**
@@ -46,7 +37,6 @@ export function parseReference(ref: string): GitHubReference {
   const [fromLine, toLine] = loc
     ? loc.split("-").map((lineNr) => parseInt(lineNr.slice(1), 10) - 1)
     : [0, Infinity];
-
   return {
     url: `https://raw.githubusercontent.com/${org}/${repo}/${branch}/${pathSeg.join(
       "/"
@@ -57,26 +47,18 @@ export function parseReference(ref: string): GitHubReference {
   };
 }
 
-async function fetchCode(
-  { url, fromLine, toLine }: GitHubReference,
-  fetchResultStateDispatcher: React.Dispatch<DispatchMessage>
-) {
-  let res: Response;
-
-  try {
-    res = await fetch(url);
-  } catch (err) {
-    return fetchResultStateDispatcher({ type: "error", value: err });
-  }
+async function getCode(ghRef: GitHubReference) {
+  const { url, fromLine, toLine } = ghRef;
+  let res = await fetch(url);
 
   if (res.status !== 200) {
     const error = await res.text();
-    return fetchResultStateDispatcher({ type: "error", value: error });
+    throw new Error(error);
   }
-
   const body = (await res.text())
     .split("\n")
     .slice(fromLine, (toLine || fromLine) + 1);
+
   const preceedingSpace = body.reduce((prev: number, line: string) => {
     if (line.length === 0) {
       return prev;
@@ -89,11 +71,42 @@ async function fetchCode(
 
     return 0;
   }, Infinity);
+  return body.map((line) => line.slice(preceedingSpace)).join("\n");
+}
 
-  return fetchResultStateDispatcher({
-    type: "loaded",
-    value: body.map((line) => line.slice(preceedingSpace)).join("\n"),
+async function resolveImports(
+  body: string,
+  dispatch: Dispatch<DispatchMessage>
+) {
+  const regexPattern = /i\(\'(.+)\'\)/g;
+  const matches = body.matchAll(regexPattern);
+
+  const importUrlsPromises = await Array.from(matches, async (match) => {
+    if (match.length >= 2) {
+      const ref = parseReference(match[1]);
+      const code = await getCode(ref);
+      return { [match[0]]: code };
+    }
+    return { [match[0]]: "" };
   });
+
+  try {
+    let result = body;
+    const importedCode = await Promise.all(importUrlsPromises);
+    importedCode.forEach(
+      async (ele) =>
+        (result = result.replace(
+          Object.keys(ele)[0],
+          ele[Object.keys(ele)[0]]
+        ))
+    );
+    return dispatch({
+      type: "loaded",
+      value: result,
+    });
+  } catch (err: any) {
+    return dispatch({ type: "error", value: err });
+  }
 }
 
 export function codeReducer(prevState: any, { type, value }: DispatchMessage) {
@@ -121,9 +134,8 @@ function ReferenceCode(props: ReferenceCodeBlockProps) {
     initialFetchResultState
   );
 
-  const codeSnippetDetails = parseReference(props.children as string);
   if (fetchResultState.loading !== false) {
-    fetchCode(codeSnippetDetails, fetchResultStateDispatcher);
+    resolveImports(props.children as string, fetchResultStateDispatcher);
   }
 
   const titleMatch = props.metastring?.match(/title="(?<title>.*)"/);
@@ -132,20 +144,12 @@ function ReferenceCode(props: ReferenceCodeBlockProps) {
     ...props,
     metastring: titleMatch?.groups?.title
       ? ` title="${titleMatch?.groups?.title}"`
-      : ` title="${codeSnippetDetails.title}"`,
+      : "",
     children: initialFetchResultState.code,
   };
 
-  return (
-    <div>
-      <CodeBlock {...customProps}>{fetchResultState.code}</CodeBlock>
-      <div style={noteStyle}>
-        <a href={props.children as string} target="_blank">
-          See full example on GitHub
-        </a>
-      </div>
-    </div>
-  );
+
+  return <OriginalCodeBlock {...customProps}>{fetchResultState.code}</OriginalCodeBlock>;
 }
 
 export default ReferenceCode;
