@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ControllerModule } from './ControllerModule'
+import { WhaleApiModule } from './WhaleApiModule'
+import { ActuatorModule } from '@defichain-apps/libs/actuator'
 
 @Module({
   imports: [
@@ -8,9 +10,10 @@ import { ControllerModule } from './ControllerModule'
       isGlobal: true,
       cache: true
     }),
+    ActuatorModule,
+    WhaleApiModule,
     ControllerModule
   ]
 })
-
 export class RootModule {
 }

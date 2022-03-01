@@ -5,6 +5,7 @@ import { MiscController } from '../controllers/MiscController'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { StatsController } from '../controllers/stats/StatsController'
 import { MainnetLegacyStatsProvider, TestnetLegacyStatsProvider } from '../controllers/stats/LegacyStatsProvider'
+import { ActuatorController } from '@defichain-apps/libs/actuator'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -17,7 +18,8 @@ import { MainnetLegacyStatsProvider, TestnetLegacyStatsProvider } from '../contr
     TokenController,
     PoolPairController,
     MiscController,
-    StatsController
+    StatsController,
+    ActuatorController
   ],
   providers: [
     WhaleApiClientProvider,
