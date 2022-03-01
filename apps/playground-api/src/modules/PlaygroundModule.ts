@@ -6,7 +6,7 @@ import { PlaygroundProbeIndicator } from '../PlaygroundIndicator'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { PlaygroundBlock } from '../PlaygroundBlock'
 import { PlaygroundSetup } from '../setups/setup'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { SetupMasternode } from '../setups/setup.masternode'
 import { SetupUtxo } from '../setups/setup.utxo'
 import { OracleBot } from '../bots/OracleBot'
@@ -90,7 +90,7 @@ export class PlaygroundModule implements OnApplicationBootstrap {
       return
     }
 
-    for (const genesisKey of GenesisKeys) {
+    for (const genesisKey of RegTestFoundationKeys) {
       await this.client.wallet.importPrivKey(genesisKey.owner.privKey, undefined, true)
       await this.client.wallet.importPrivKey(genesisKey.operator.privKey, undefined, true)
     }
