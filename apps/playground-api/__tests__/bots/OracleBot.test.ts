@@ -1,7 +1,7 @@
 import { PlaygroundApiTesting } from '../../testing/PlaygroundApiTesting'
 import waitForExpect from 'wait-for-expect'
 import { OracleBot } from '../../src/bots/OracleBot'
-import { OracleData } from 'packages/jellyfish-api-core/src/category/oracle'
+import { OracleData } from '@defichain/jellyfish-api-core/src/category/oracle'
 
 const testing = PlaygroundApiTesting.create()
 
