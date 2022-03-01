@@ -123,8 +123,9 @@ export class PoolPairController {
         { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
         { title: 'Telegram', link: 'https://t.me/defiblockchain' },
         { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
-        { title: 'Facebook', link: 'https://www.facebook.com/defichain.foundation' },
-        { title: 'GitHub', link: 'https://github.com/DeFiCh/ain' }
+        { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
+        { title: 'GitHub', link: 'https://github.com/DeFiCh' },
+        { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
       ]
     }
   }
