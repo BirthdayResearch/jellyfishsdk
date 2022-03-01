@@ -1,22 +1,3 @@
 {
-  "extends": "../tsconfig.json",
-  "include": [
-    "./legacy-api/src",
-    "./ocean-api/src",
-    "./playground-api/src",
-    "./rich-list-api/src",
-    "./libs/*/src"
-  ],
-  "compilerOptions": {
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "paths": {
-      "@defichain-apps/libs/*": [
-        "libs/*/src"
-      ],
-      "@defichain/*": [
-        "../packages/*/src"
-      ]
-    }
-  }
+  "extends": "../tsconfig.json"
 }
