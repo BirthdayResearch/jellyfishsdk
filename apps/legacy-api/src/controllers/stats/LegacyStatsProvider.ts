@@ -53,7 +53,7 @@ export class MainnetLegacyStatsProvider {
     this.api = clientProvider.getClient('mainnet')
   }
 
-  async getStats (jsonPath?: string): Promise<LegacyStats> {
+  async getStats (jsonPath?: string): Promise<LegacyStats | any> {
     const stats: StatsData = await this.api.stats.get()
 
     // Fire async requests at the same time and await results
