@@ -207,13 +207,12 @@ describe('Account', () => {
     }
     const accountHistories = await client.account.listAccountHistory('mine', options)
     expect(accountHistories.length).toBeGreaterThan(0)
-    for (let i = 0; i < accountHistories.length; i += 1) {
-      const accountHistory = accountHistories[i]
+    accountHistories.forEach(accountHistory => {
       expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
       if (accountHistory.blockHeight === options.maxBlockHeight) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
-    }
+    })
   })
 
   // If you don't set maxBlockHeight, it will consider the last block height
@@ -223,13 +222,12 @@ describe('Account', () => {
     }
     const accountHistories = await client.account.listAccountHistory('mine', options)
     expect(accountHistories.length).toBeGreaterThan(0)
-    for (let i = 0; i < accountHistories.length; i += 1) {
-      const accountHistory = accountHistories[i]
+    accountHistories.forEach(accountHistory => {
       expect(accountHistory.blockHeight).toBeLessThanOrEqual(103)
       if (accountHistory.blockHeight === 103) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
-    }
+    })
   })
 
   it('should listAccountHistory with owner all options block height and txn', async () => {
@@ -239,13 +237,12 @@ describe('Account', () => {
     }
     const accountHistories = await client.account.listAccountHistory('all', options)
     expect(accountHistories.length).toBeGreaterThan(0)
-    for (let i = 0; i < accountHistories.length; i += 1) {
-      const accountHistory = accountHistories[i]
+    accountHistories.forEach(accountHistory => {
       expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
       if (accountHistory.blockHeight === options.maxBlockHeight) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
-    }
+    })
   })
 
   it('should listAccountHistory with owner all options block height, type and txn', async () => {
@@ -256,16 +253,13 @@ describe('Account', () => {
     }
     const accountHistories = await client.account.listAccountHistory('all', options)
     expect(accountHistories.length).toBeGreaterThan(0)
-    for (let i = 0; i < accountHistories.length; i += 1) {
-      const accountHistory = accountHistories[i]
+    accountHistories.forEach(accountHistory => {
       expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
       if (accountHistory.blockHeight === options.maxBlockHeight) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
-      } else {
-        expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
       }
       expect(accountHistory.type).toStrictEqual('MintToken')
-    }
+    })
   })
 
   it('should listAccountHistory with owner CScript options block height and txn 1', async () => {
@@ -280,14 +274,13 @@ describe('Account', () => {
     }
     const accountHistories = await client.account.listAccountHistory(hex, options)
     expect(accountHistories.length).toBeGreaterThan(0)
-    for (let i = 0; i < accountHistories.length; i += 1) {
-      const accountHistory = accountHistories[i]
+    accountHistories.forEach(accountHistory => {
       expect(addresses.includes(accountHistory.owner)).toStrictEqual(true)
       expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
       if (accountHistory.blockHeight === options.maxBlockHeight) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
       }
-    }
+    })
   })
 
   it('should listAccountHistory with owner CScript options block height and txn 0', async () => {
@@ -302,16 +295,13 @@ describe('Account', () => {
     }
     const accountHistories = await client.account.listAccountHistory(hex, options)
     expect(accountHistories.length).toBeGreaterThan(0)
-    for (let i = 0; i < accountHistories.length; i += 1) {
-      const accountHistory = accountHistories[i]
+    accountHistories.forEach(accountHistory => {
       expect(addresses.includes(accountHistory.owner)).toStrictEqual(true)
       expect(accountHistory.blockHeight).toBeLessThanOrEqual(options.maxBlockHeight)
       if (accountHistory.blockHeight === options.maxBlockHeight) {
         expect(accountHistory.txn).toBeLessThanOrEqual(options.txn)
-      } else {
-        expect(accountHistory.txn).toBeGreaterThanOrEqual(options.txn)
       }
-    }
+    })
   })
 })
 
