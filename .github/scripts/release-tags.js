@@ -22,16 +22,17 @@
  * @see https://github.com/actions/github-script
  */
 
-module.exports = ({ context }) => {
+ module.exports = ({ context }) => {
   const app = process.env.APP
+  const [domain] = context.payload.repository.full_name.split('/')
   if (isRelease(context) === true) {
-    return getReleaseTag(app, context)
+    return getReleaseTag(domain, app, context)
   }
   if (isStaging(context) === true) {
-    return getMainTag(app, context)
+    return getMainTag(domain, app, context)
   }
   if (isDev(context) === true) {
-    return getPullRequestTag(app, context)
+    return getPullRequestTag(domain, app, context)
   }
   throw new Error('Release Violation: Could not determine the required release tags.')
 }
@@ -48,18 +49,18 @@ function isDev(context) {
   return context.eventName === 'pull_request'
 }
 
-function getReleaseTag(app, context) {
+function getReleaseTag(domain, app, context) {
   const semver = context.payload.release.tag_name.replace('v', '')
   if (semver.match(/^[0-9]+\.[0-9]+\.[0-9]+$/) === false) {
     throw new Error(`Release Violation: Provided version '${semver}' is not valid semver.`)
   }
-  return `ghcr.io/defich/${app}:latest,ghcr.io/defich/${app}:${semver}`
+  return `ghcr.io/${domain}/${app}:latest,ghcr.io/${domain}/${app}:${semver}`
 }
 
-function getMainTag(app, { sha }) {
-  return `ghcr.io/defich/${app}:main,ghcr.io/defich/${app}:${sha}`
+function getMainTag(domain, app, { sha }) {
+  return `ghcr.io/${domain}/${app}:main,ghcr.io/${domain}/${app}:${sha}`
 }
 
-function getPullRequestTag(app, { payload: { number }, sha }) {
-  return `ghcr.io/defich/${app}:pr-${number},ghcr.io/defich/${app}:${sha}`
+function getPullRequestTag(domain, app, { payload: { number }, sha }) {
+  return `ghcr.io/${domain}/${app}:pr-${number},ghcr.io/${domain}/${app}:${sha}`
 }
