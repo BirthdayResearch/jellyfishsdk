@@ -1,7 +1,7 @@
 import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 import { AppointOracleOptions, OraclePriceFeed } from '@defichain/jellyfish-api-core/src/category/oracle'
-import { OracleBot } from '../bots/oracle.bot'
+import { OracleBot } from '../bots/OracleBot'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 

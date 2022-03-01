@@ -9,12 +9,12 @@ import { PlaygroundSetup } from '../setups/setup'
 import { GenesisKeys } from '@defichain/testcontainers'
 import { SetupMasternode } from '../setups/setup.masternode'
 import { SetupUtxo } from '../setups/setup.utxo'
-import { OracleBot } from '../bots/oracle.bot'
+import { OracleBot } from '../bots/OracleBot'
 import { SetupLoanScheme } from '../setups/setup.loan.scheme'
 import { SetupLoanToken } from '../setups/setup.loan.token'
 import { SetupLoanCollateral } from '../setups/setup.loan.collateral'
 import { SetupGov } from '../setups/setup.gov'
-import { VaultBot } from '../bots/vault.bot'
+import { VaultBot } from '../bots/VaultBot'
 import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
@@ -72,12 +72,12 @@ export class PlaygroundModule implements OnApplicationBootstrap {
   }
 
   async onApplicationBootstrap (): Promise<void> {
-    // await this.waitForDeFiD()
+    await this.waitForDeFiD()
     await this.importPrivKey()
 
-    // for (const setup of this.setups) {
-    //   await setup.setup()
-    // }
+    for (const setup of this.setups) {
+      await setup.setup()
+    }
 
     this.logger.log('setup completed')
     this.indicator.ready = true
