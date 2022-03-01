@@ -24,7 +24,7 @@
 
  module.exports = ({ context }) => {
   const app = process.env.APP
-  const [domain] = context.payload.repository.full_name.split('/')
+  const domain = getDomain(context)
   if (isRelease(context) === true) {
     return getReleaseTag(domain, app, context)
   }
@@ -47,6 +47,11 @@ function isStaging(context) {
 
 function isDev(context) {
   return context.eventName === 'pull_request'
+}
+
+function getDomain(context) {
+  const [domain] = context.payload.repository.full_name.split('/')
+  return domain.toLowerCase()
 }
 
 function getReleaseTag(domain, app, context) {
