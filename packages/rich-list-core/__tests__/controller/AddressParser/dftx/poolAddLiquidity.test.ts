@@ -3,7 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParser } from '../../../../src/controller/AddressParser'
 
-describe('AccountToAccountParser', () => {
+describe('PoolAddLiquidityParser', () => {
   const container = new MasterNodeRegTestContainer()
   let apiClient!: JsonRpcClient
 
@@ -60,7 +60,7 @@ describe('AccountToAccountParser', () => {
     await container.stop()
   })
 
-  it('should extract all addresses involved in pooladdLiquidity tx', async () => {
+  it('should extract all addresses involved in poolAddLiquidity tx', async () => {
     const parser = new AddressParser(apiClient, 'regtest')
     const addresses = await parser.parse(rawTx)
 
