@@ -4,13 +4,31 @@ import { poolpair } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParser } from '../../../../src/controller/AddressParser'
 
-describe('PoolSwapParser', () => {
+describe('CompositeSwapParser', () => {
   const container = new MasterNodeRegTestContainer()
   let apiClient!: JsonRpcClient
 
   let sender!: string
   let receiver!: string
   let rawTx!: RawTransaction
+
+  async function createAndMintToken (
+    client: JsonRpcClient,
+    name: string,
+    amount: number
+  ): Promise<void> {
+    await client.token.createToken({
+      symbol: name,
+      name,
+      mintable: true,
+      isDAT: true,
+      tradeable: true,
+      collateralAddress: sender
+    })
+    await container.generate(1)
+    await client.token.mintTokens(`${amount}@${name}`)
+    await container.generate(1)
+  }
 
   beforeAll(async () => {
     await container.start()
@@ -22,46 +40,51 @@ describe('PoolSwapParser', () => {
 
     // Address is funded at this point.
     // convert 100 DFI UTXO -> DFI Token
-    await apiClient.account.utxosToAccount({ [sender]: '200@DFI' })
+    await apiClient.account.utxosToAccount({ [sender]: '1000@DFI' })
     await container.generate(1)
 
     // Mint wrapped tokens
-    await apiClient.token.createToken({
-      symbol: 'DDAI',
-      name: 'DDAI',
-      mintable: true,
-      isDAT: true,
-      tradeable: true,
-      collateralAddress: sender
-    })
-    await container.generate(1)
-    await apiClient.token.mintTokens('400@DDAI')
-    await container.generate(1)
+    await createAndMintToken(apiClient, 'DDAI', 1000)
+    await createAndMintToken(apiClient, 'DBYE', 1000)
 
-    // create poolpair and add liquidity
-    const poolAddress = await container.getNewAddress()
+    // create poolpairs and add liquidity
+    const poolAddress1 = await container.getNewAddress()
     await apiClient.poolpair.createPoolPair({
-      tokenA: 'DFI',
-      tokenB: 'DDAI',
+      tokenA: 'DDAI',
+      tokenB: 'DFI',
       commission: 0,
       status: true,
-      ownerAddress: poolAddress
+      ownerAddress: poolAddress1
     })
     await container.generate(1)
-
     await apiClient.poolpair.addPoolLiquidity({
       [sender]: ['100@DFI', '200@DDAI']
     }, shareAddress)
     await container.generate(1)
 
+    const poolAddress2 = await container.getNewAddress()
+    await apiClient.poolpair.createPoolPair({
+      tokenA: 'DBYE',
+      tokenB: 'DFI',
+      commission: 0,
+      status: true,
+      ownerAddress: poolAddress2
+    })
+    await container.generate(1)
+    await apiClient.poolpair.addPoolLiquidity({
+      [sender]: ['100@DFI', '50@DBYE']
+    }, shareAddress)
+    await container.generate(1)
+
     const metadata: poolpair.PoolSwapMetadata = {
       from: sender,
-      tokenFrom: 'DFI',
-      amountFrom: 50,
+      tokenFrom: 'DDAI',
+      amountFrom: 200,
       to: receiver,
-      tokenTo: 'DDAI'
+      tokenTo: 'DBYE'
     }
-    const txn = await apiClient.poolpair.poolSwap(metadata)
+    const txn = await apiClient.poolpair.compositeSwap(metadata)
+    await container.generate(1)
 
     // test subject
     rawTx = await apiClient.rawtx.getRawTransaction(txn, true)
@@ -71,7 +94,7 @@ describe('PoolSwapParser', () => {
     await container.stop()
   })
 
-  it('should extract all addresses involved in poolswap tx', async () => {
+  it('should extract all addresses involved in compositeSwap tx', async () => {
     const parser = new AddressParser(apiClient, 'regtest')
     const addresses = await parser.parse(rawTx)
 
