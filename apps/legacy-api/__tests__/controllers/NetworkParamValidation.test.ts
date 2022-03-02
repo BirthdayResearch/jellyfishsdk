@@ -18,9 +18,10 @@ describe('NetworkParamValidation', () => {
       url: '/v1'
     }).catch()
 
+    const unprotectedRoutes = []
     const routes = apiTesting.getAllRoutes()
     for (const { url } of routes) {
-      if (url === '*') {
+      if (url === '*' || url.startsWith('/_')) {
         continue
       }
 
@@ -29,10 +30,13 @@ describe('NetworkParamValidation', () => {
         url: url + '?network=abc' // Query with some invalid network
       })
 
-      expect(result.json()).toStrictEqual({
-        message: 'Not Found',
-        statusCode: 404
-      })
+      const { message, statusCode } = result.json()
+      if (message !== 'Not Found' || statusCode !== 404) {
+        unprotectedRoutes.push(url)
+      }
     }
+
+    // All routes should use NetworkValidationPipe
+    expect(unprotectedRoutes).toStrictEqual([])
   })
 })

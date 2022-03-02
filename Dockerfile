@@ -23,6 +23,6 @@ RUN npx lerna run build
 
 ARG APP
 ENV APP ${APP}
-RUN ln -s apps/${APP}/dist/apps/${APP}/src ${APP}
+RUN ln -s apps/dist/apps/${APP}/src ${APP}
 
 CMD "node" ${APP}
