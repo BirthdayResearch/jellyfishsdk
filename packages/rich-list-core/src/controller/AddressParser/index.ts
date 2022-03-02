@@ -7,6 +7,7 @@ import { AccountToUtxosParser } from './dftx/accountToUtxos'
 import { UtxoAddressParser } from './utxo'
 import { AccountToAccountParser } from './dftx/accountToAccount'
 import { AnyAccountToAccountParser } from './dftx/anyAccountToAccount'
+import { UtxosToAccountParser } from './dftx/utxosToAccount'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
@@ -17,6 +18,7 @@ export class AddressParser {
     private readonly network: NetworkName
   ) {
     this.dftxs = [
+      new UtxosToAccountParser(network),
       new AccountToUtxosParser(network),
       new AccountToAccountParser(network),
       new AnyAccountToAccountParser(network)
