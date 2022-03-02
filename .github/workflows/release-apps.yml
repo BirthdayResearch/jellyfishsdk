@@ -16,6 +16,7 @@ jobs:
     strategy:
       matrix:
         app: [ legacy-api, ocean-api ]
+        platform: [ linux/amd64, linux/arm64 ]
     steps:
       - uses: actions/checkout@230611dbd0eb52da1e1f4f7bc8bb0c3a339fc8b7
 
@@ -46,9 +47,7 @@ jobs:
         with:
           push: true
           build-args: APP=${{ matrix.app }}
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: ${{ matrix.platform }}
           tags: ${{ steps.tags.outputs.result }}
 
   report:
