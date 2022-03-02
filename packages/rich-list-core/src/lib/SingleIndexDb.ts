@@ -27,12 +27,19 @@ export class InMemoryDatabase<T> implements SingleIndexDb<T> {
   private data: Record<string, Array<Schema<T>>> = {}
 
   async put (data: Schema<T>): Promise<void> {
-    if (this.data[data.partition] === undefined) {
+    let partition = this.data[data.partition]
+    if (partition === undefined) {
       this.data[data.partition] = []
+      partition = this.data[data.partition]
     }
 
-    this.data[data.partition].push(data)
-    this.data[data.partition] = this.data[data.partition].sort((a, b) => a.sort - b.sort)
+    const existed = partition.findIndex(d => d.id === data.id)
+    if (existed !== -1) {
+      partition.splice(existed, 1)
+    }
+
+    partition.push(data)
+    partition.sort((a, b) => a.sort - b.sort)
   }
 
   async delete (id: string): Promise<void> {
@@ -57,7 +64,10 @@ export class InMemoryDatabase<T> implements SingleIndexDb<T> {
       return []
     }
 
-    let result = options.order === 'ASC' ? partition : partition.reverse()
+    let result = [...partition]
+    if (options.order === 'DESC') {
+      result.reverse()
+    }
 
     if (options.gt !== undefined) {
       result = result.filter(d => d.sort > (options.gt as number))
