@@ -83,8 +83,6 @@ export class ApiException<P = any> extends Error {
       return
     }
 
-    console.log('error: ', error)
-
     if (typeof error === 'object') {
       if (error.code === 422 && error.type === ApiErrorType.ValidationError) {
         throw new ApiValidationException(error)
