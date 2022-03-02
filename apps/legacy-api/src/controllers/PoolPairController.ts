@@ -3,6 +3,18 @@ import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
+import { Transaction, TransactionVout } from '@defichain/whale-api-client/dist/api/transactions'
+import {
+  CCompositeSwap,
+  CompositeSwap,
+  CPoolSwap,
+  OP_DEFI_TX,
+  PoolSwap,
+  toOPCodes
+} from '@defichain/jellyfish-transaction'
+import { SmartBuffer } from 'smart-buffer'
+import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
+import { fromScript } from '@defichain/jellyfish-address'
 
 @Controller('v1')
 export class PoolPairController {
@@ -67,6 +79,72 @@ export class PoolPairController {
     return result
   }
 
+  @Get('getsubgraphswaps')
+  async getSubgraphSwaps (
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
+    @Query('limit') limit: number = 30,
+    @Query('next') nextString?: string
+  ): Promise<LegacySubgraphSwapsResponse> {
+    limit = Math.min(30, limit)
+    // TODO(eli-lim): next string cursor should be = JSON string encoded base64-url-safe
+    const next: NextToken = JSON.parse(nextString ?? '{}')
+    return await this.getSwapsHistory(network, limit, next)
+    // TODO(eli-lim): next encoded as json string
+  }
+
+  async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<LegacySubgraphSwapsResponse> {
+    const api = this.whaleApiClientProvider.getClient(network)
+    const swaps: LegacySubgraphSwap[] = []
+
+    while (swaps.length <= limit) {
+      // injected height for this operation
+      for (const block of await api.blocks.list(200, next?.height ?? '892800')) {
+        for (const transaction of await api.blocks.getTransactions(block.hash, 100, next?.order)) {
+          const vouts = await api.transactions.getVouts(transaction.txid, 1)
+          const dftx = findPoolSwapDfTx(vouts)
+          if (dftx === undefined) {
+            continue
+          }
+
+          const swap = await this.findSwap(network, dftx, transaction)
+          if (swap === undefined) {
+            continue
+          }
+
+          swaps.push(swap)
+
+          next = {
+            height: block.height.toString(),
+            order: transaction.order.toString()
+          }
+
+          if (swaps.length === limit) {
+            return {
+              data: swaps,
+              page: {
+                next: JSON.stringify(next)
+              }
+            }
+          }
+        }
+      }
+
+      console.log(swaps.length)
+
+      if (swaps.length === 0) {
+        // TODO(eli-lim): exit early if no data? max 1000 loops?
+        break
+      }
+    }
+
+    return {
+      data: swaps,
+      page: {
+        next: JSON.stringify(next)
+      }
+    }
+  }
+
   getVolumes (poolPair: PoolPairData): [BigNumber, BigNumber] {
     const poolPairVolumeInUsd = new BigNumber(poolPair.volume?.h24 ?? 0)
 
@@ -98,6 +176,34 @@ export class PoolPairController {
   usdToTokenConversionRate (tokenReserve: string | number, totalLiquidityInUsd: string | number): BigNumber {
     return new BigNumber(tokenReserve).times(2)
       .div(new BigNumber(totalLiquidityInUsd))
+  }
+
+  async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
+    const api = this.whaleApiClientProvider.getClient(network)
+    const fromAddress = fromScript(poolSwap.fromScript, network)?.address
+    const toAddress = fromScript(poolSwap.toScript, network)?.address
+
+    const fromHistory: AccountHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [fromAddress, transaction.block.height, transaction.order], 'number')
+    let toHistory: AccountHistory
+    if (toAddress === fromAddress) {
+      toHistory = fromHistory
+    } else {
+      toHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [toAddress, transaction.block.height, transaction.order], 'number')
+    }
+
+    const from = findAmountSymbol(fromHistory, true)
+    const to = findAmountSymbol(toHistory, false)
+
+    if (from === undefined || to === undefined) {
+      return undefined
+    }
+
+    return {
+      id: transaction.txid,
+      timestamp: transaction.block.medianTime.toString(),
+      from: from,
+      to: to
+    }
   }
 
   @Get('listyieldfarming')
@@ -246,4 +352,76 @@ interface LegacyListYieldFarmingPool {
   poolRewards: string[]
   apr: number
   totalStaked: number
+}
+
+interface LegacySubgraphSwapsResponse {
+  data: LegacySubgraphSwap[]
+  page?: {
+    next: string
+  }
+}
+
+interface NextToken {
+  height?: string
+  order?: string
+}
+
+interface LegacySubgraphSwap {
+  id: string
+  timestamp: string
+  from: LegacySubgraphSwapFromTo
+  to: LegacySubgraphSwapFromTo
+}
+
+interface LegacySubgraphSwapFromTo {
+  amount: string
+  symbol: string
+}
+
+function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
+  const hex = vouts[0].script.hex
+  const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
+  const stack = toOPCodes(buffer)
+  if (stack.length !== 2 || stack[1].type !== 'OP_DEFI_TX') {
+    return undefined
+  }
+
+  const dftx = (stack[1] as OP_DEFI_TX).tx
+  if (dftx === undefined) {
+    return undefined
+  }
+
+  switch (dftx.name) {
+    case CPoolSwap.OP_NAME:
+      return (dftx.data as PoolSwap)
+
+    case CCompositeSwap.OP_NAME:
+      return (dftx.data as CompositeSwap).poolSwap
+
+    default:
+      return undefined
+  }
+}
+
+function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
+  for (const amount of history.amounts) {
+    const [value, symbol] = amount.split('@')
+    const isNegative = value.startsWith('-')
+
+    if (isNegative && outgoing) {
+      return {
+        amount: new BigNumber(value).absoluteValue().toFixed(8),
+        symbol: symbol
+      }
+    }
+
+    if (!isNegative && !outgoing) {
+      return {
+        amount: new BigNumber(value).absoluteValue().toFixed(8),
+        symbol: symbol
+      }
+    }
+  }
+
+  return undefined
 }

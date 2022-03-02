@@ -153,3 +153,67 @@ it('/v1/listyieldfarming', async () => {
     ]
   })
 })
+
+describe('getsubgraphswaps', () => {
+  it('/v1/getsubgraphswaps', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      // TODO(eli-lim): temporary deployed TestNet for testing, to switch to mainnet
+      url: '/v1/getsubgraphswaps?network=testnet'
+    })
+
+    const response = res.json()
+
+    console.log(response)
+
+    expect(response.data.swaps.length).toStrictEqual(100)
+
+    for (const swap of response.data.swaps) {
+      expect(swap).toStrictEqual({
+        id: expect.stringMatching(/[a-zA-Z0-9]{64}/),
+        pair: {
+          fromToken: {
+            decimals: 8,
+            symbol: expect.any(String),
+            tradeVolume: expect.stringMatching(/^[0-9]+(\.[0-9]{8})?$/)
+          },
+          toToken: {
+            decimals: 8,
+            symbol: expect.any(String),
+            tradeVolume: expect.stringMatching(/^[0-9]+(\.[0-9]{8})?$/)
+          }
+        },
+        timestamp: expect.stringMatching(/\d+/),
+        fromAmount: expect.stringMatching(ONLY_DECIMAL_NUMBER_REGEX),
+        toAmount: 'TODO' // TODO(eli-lim)
+      })
+    }
+  })
+
+  it('/v1/getsubgraphswaps?limit=3', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/getsubgraphswaps?limit=3'
+    })
+    const response = res.json()
+    expect(response.data.swaps.length).toStrictEqual(3)
+  })
+
+  it('/v1/getsubgraphswaps?limit=-1', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/getsubgraphswaps?limit=-1'
+    })
+    const response = res.json()
+    expect(response.data.swaps.length).toStrictEqual(0)
+  })
+
+  it('/v1/getsubgraphswaps?limit=101', async () => {
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/getsubgraphswaps?limit=101'
+    })
+    const response = res.json()
+    expect(response.data.swaps.length).toStrictEqual(100)
+  })
+})

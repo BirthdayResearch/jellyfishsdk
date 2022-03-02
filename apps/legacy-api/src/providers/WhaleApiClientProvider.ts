@@ -20,7 +20,7 @@ export class WhaleApiClientProvider {
 
   private createAndCacheClient (network: SupportedNetwork): WhaleApiClient {
     const client = new WhaleApiClient({
-      version: 'v0',
+      version: 'v0.26', // TODO(eli-lim): modified to use staging deployment
       network: network,
       url: 'https://ocean.defichain.com'
     })
