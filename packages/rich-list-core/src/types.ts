@@ -3,3 +3,8 @@ import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/accoun
 export interface ActiveAddressAccountAmount {
   [key: string]: AccountAmount
 }
+
+export interface RichListItem {
+  address: string
+  amount: number
+}
