@@ -19,7 +19,7 @@ describe('oracle bot', () => {
     const oracleId = setupOracle.oracleIds[0]
 
     await waitForExpect(async () => {
-      const oracleData: OracleData = await testing.client.rpc.call('getoracledata', [oracleId], 'number')
+      const oracleData: OracleData = await testing.container.call('getoracledata', [oracleId])
 
       const CU10 = oracleData.tokenPrices.find(x => x.token === 'CU10')
       expect(CU10?.amount).toBeDefined()
