@@ -1,5 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common'
-import { ActuatorController, GlobalValidationPipe, ResponseInterceptor, ErrorFilter } from '@defichain-apps/libs/actuator'
+import { ActuatorController } from '@defichain-apps/libs/actuator'
+import { GlobalValidationPipe, ResponseInterceptor, ErrorFilter } from '@defichain-apps/libs/filters'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
 import { NetworkName } from '@defichain/jellyfish-network'
