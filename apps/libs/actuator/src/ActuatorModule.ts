@@ -1,8 +1,6 @@
 import { HealthCheckError, HealthIndicator, HealthIndicatorResult, TerminusModule } from '@nestjs/terminus'
 import { Global, Module } from '@nestjs/common'
 
-export { HealthIndicatorResult, HealthCheckError }
-
 /**
  * ActuatorProbes is a collection of Probes used by the ActuatorController,
  * you can add probes to this collection during application boostrap via onApplicationBootstrap lifecycle hook.

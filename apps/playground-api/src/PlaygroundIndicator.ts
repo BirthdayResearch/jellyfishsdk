@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { ProbeIndicator, HealthIndicatorResult } from '@defichain-apps/libs/actuator'
+import { HealthIndicatorResult } from '@nestjs/terminus'
+import { ProbeIndicator } from '@defichain-apps/libs/actuator'
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { ConfigService } from '@nestjs/config'
 
