@@ -13,7 +13,8 @@ import {
   toOPCodes
 } from '@defichain/jellyfish-transaction'
 import { SmartBuffer } from 'smart-buffer'
-import { Block } from '@defichain/whale-api-client/dist/api/blocks'
+import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
+import { fromScript } from '@defichain/jellyfish-address'
 
 @Controller('v1')
 export class PoolPairController {
@@ -81,12 +82,14 @@ export class PoolPairController {
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
-    @Query('limit') limit: number = 100,
+    @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(100, limit)
+    limit = Math.min(30, limit)
+    // TODO(eli-lim): next string cursor should be = JSON string encoded base64-url-safe
     const next: NextToken = JSON.parse(nextString ?? '{}')
-    return await this.getSwapsHistory(network, limit, next) // next encoded as json string
+    return await this.getSwapsHistory(network, limit, next)
+    // TODO(eli-lim): next encoded as json string
   }
 
   async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<LegacySubgraphSwapsResponse> {
@@ -94,7 +97,8 @@ export class PoolPairController {
     const swaps: LegacySubgraphSwap[] = []
 
     while (swaps.length <= limit) {
-      for (const block of await api.blocks.list(100, next?.height)) {
+      // injected height for this operation
+      for (const block of await api.blocks.list(200, next?.height ?? '892800')) {
         for (const transaction of await api.blocks.getTransactions(block.hash, 100, next?.order)) {
           const vouts = await api.transactions.getVouts(transaction.txid, 1)
           const dftx = findPoolSwapDfTx(vouts)
@@ -102,7 +106,7 @@ export class PoolPairController {
             continue
           }
 
-          const swap = this.findSwap(dftx, transaction, block)
+          const swap = await this.findSwap(network, dftx, transaction)
           if (swap === undefined) {
             continue
           }
@@ -125,8 +129,10 @@ export class PoolPairController {
         }
       }
 
+      console.log(swaps.length)
+
       if (swaps.length === 0) {
-        // After 100 loops, if no data - exit immediately
+        // TODO(eli-lim): exit early if no data? max 1000 loops?
         break
       }
     }
@@ -172,23 +178,31 @@ export class PoolPairController {
       .div(new BigNumber(totalLiquidityInUsd))
   }
 
-  findSwap (poolSwap: PoolSwap, transaction: Transaction, block: Block): LegacySubgraphSwap | undefined {
-    // this.whaleApiClientProvider.getClient()
+  async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
+    const api = this.whaleApiClientProvider.getClient(network)
+    const fromAddress = fromScript(poolSwap.fromScript, network)?.address
+    const toAddress = fromScript(poolSwap.toScript, network)?.address
+
+    const fromHistory: AccountHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [fromAddress, transaction.block.height, transaction.order], 'number')
+    let toHistory: AccountHistory
+    if (toAddress === fromAddress) {
+      toHistory = fromHistory
+    } else {
+      toHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [toAddress, transaction.block.height, transaction.order], 'number')
+    }
+
+    const from = findAmountSymbol(fromHistory, true)
+    const to = findAmountSymbol(toHistory, false)
+
+    if (from === undefined || to === undefined) {
+      return undefined
+    }
 
     return {
       id: transaction.txid,
-      timestamp: block.medianTime.toString(),
-      from: {
-        // TODO(?): Method 1: Get Symbol from AccountHistory?
-        // TODO(?): Method 2: Get Symbol from poolSwap.fromTokenId Cache
-        amount: poolSwap.fromAmount.toFixed(8),
-        symbol: ''
-      },
-      to: {
-        // TODO(?): Get Symbol from AccountHistory by checking destination access
-        amount: '',
-        symbol: ''
-      }
+      timestamp: transaction.block.medianTime.toString(),
+      from: from,
+      to: to
     }
   }
 }
@@ -320,4 +334,27 @@ function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
     default:
       return undefined
   }
+}
+
+function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
+  for (const amount of history.amounts) {
+    const [value, symbol] = amount.split('@')
+    const isNegative = value.startsWith('-')
+
+    if (isNegative && outgoing) {
+      return {
+        amount: new BigNumber(value).absoluteValue().toFixed(8),
+        symbol: symbol
+      }
+    }
+
+    if (!isNegative && !outgoing) {
+      return {
+        amount: new BigNumber(value).absoluteValue().toFixed(8),
+        symbol: symbol
+      }
+    }
+  }
+
+  return undefined
 }

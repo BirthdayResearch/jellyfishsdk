@@ -119,10 +119,13 @@ describe('getsubgraphswaps', () => {
   it('/v1/getsubgraphswaps', async () => {
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/v1/getsubgraphswaps'
+      // TODO(eli-lim): temporary deployed TestNet for testing, to switch to mainnet
+      url: '/v1/getsubgraphswaps?network=testnet'
     })
 
     const response = res.json()
+
+    console.log(response)
 
     expect(response.data.swaps.length).toStrictEqual(100)
 
