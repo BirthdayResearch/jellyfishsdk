@@ -41,7 +41,6 @@ export class PlaygroundStubServer extends RootServer {
 class TestConfigService extends ConfigService {
   constructor (rpcUrl: string) {
     super({
-      BLOCKCHAIN_CPP_URL: rpcUrl,
       defid: {
         url: rpcUrl,
         liveness: {

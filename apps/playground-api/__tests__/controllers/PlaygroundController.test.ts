@@ -13,5 +13,5 @@ afterAll(async () => {
 
 it('should be able to get playground info', async () => {
   const res = await apiTesting.client.playground.info()
-  expect(res.block.count).toStrictEqual(101)
+  expect(res.block.count).toBeGreaterThanOrEqual(101)
 })

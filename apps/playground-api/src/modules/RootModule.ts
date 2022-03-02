@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { AppConfiguration } from '../AppConfiguration'
-import { ActuatorModule, BlockchainCppModule } from '@defichain-apps/libs/actuator'
+import { ActuatorModule } from '@defichain-apps/libs/actuator'
+import { BlockchainCppModule } from './BlockchainCppModule'
 import { ControllerModule } from './ControllerModule'
 import { PlaygroundModule } from './PlaygroundModule'
 
