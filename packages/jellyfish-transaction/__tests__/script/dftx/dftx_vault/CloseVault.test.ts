@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import {
   CCloseVault,
   CloseVault
-} from '../../../../src/script/dftx/dftx_loans'
+} from '../../../../src/script/dftx/dftx_vault'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
 import { OP_DEFI_TX } from '../../../../src/script/dftx'

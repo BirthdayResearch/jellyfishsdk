@@ -71,6 +71,12 @@ import {
   SetLoanToken,
   CUpdateLoanToken,
   UpdateLoanToken,
+  TakeLoan,
+  CTakeLoan,
+  CPaybackLoan,
+  PaybackLoan
+} from './dftx/dftx_loans'
+import {
   CCreateVault,
   CreateVault,
   CUpdateVault,
@@ -81,13 +87,9 @@ import {
   WithdrawFromVault,
   CCloseVault,
   CloseVault,
-  TakeLoan,
-  CTakeLoan,
-  CPaybackLoan,
-  PaybackLoan,
   CPlaceAuctionBid,
   PlaceAuctionBid
-} from './dftx/dftx_loans'
+} from './dftx/dftx_vault'
 import { CAutoAuthPrep } from './dftx/dftx_misc'
 import {
   CSetGovernance,
