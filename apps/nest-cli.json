@@ -31,6 +31,24 @@
       "compilerOptions": {
         "tsConfigPath": "libs/actuator/tsconfig.lib.json"
       }
+    },
+    "blockchaincpp": {
+      "type": "library",
+      "root": "libs/blockchaincpp",
+      "entryFile": "index",
+      "sourceRoot": "libs/blockchaincpp/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/blockchaincpp/tsconfig.lib.json"
+      }
+    },
+    "filters": {
+      "type": "library",
+      "root": "libs/filters",
+      "entryFile": "index",
+      "sourceRoot": "libs/filters/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/filters/tsconfig.lib.json"
+      }
     }
   }
 }
