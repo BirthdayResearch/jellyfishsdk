@@ -7,7 +7,7 @@ import { PoolPairData } from '@whale-api-client/api/poolpairs'
 import { getBlockSubsidy } from '@src/module.api/subsidy'
 import { BlockMapper } from '@src/module.model/block'
 import { TokenMapper } from '@src/module.model/token'
-import { PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
+import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
 import { PoolSwapAggregatedInterval } from '@src/module.indexer/model/dftx/pool.swap.aggregated'
 
 @Injectable()
@@ -190,6 +190,16 @@ export class PoolPairService {
     }, {
       ttl: 900 // 15 minutes
     })
+  }
+
+  public async getAggregatedInUSD ({ aggregated: { amounts } }: PoolSwapAggregated): Promise<number> {
+    let value = 0
+
+    for (const tokenId in amounts) {
+      const tokenPrice = await this.getTokenUSDValue(parseInt(tokenId)) ?? new BigNumber(0)
+      value += tokenPrice.toNumber() * Number.parseFloat(amounts[tokenId])
+    }
+    return value
   }
 
   private async getLoanTokenSplits (): Promise<Record<string, number> | undefined> {

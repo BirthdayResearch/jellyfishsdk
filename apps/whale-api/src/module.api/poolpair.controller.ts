@@ -108,7 +108,18 @@ export class PoolPairController {
       @Query() query: PaginationQuery
   ): Promise<ApiPagedResponse<PoolSwapAggregated>> {
     const lt = query.next === undefined ? undefined : parseInt(query.next)
-    const result = await this.poolSwapAggregatedMapper.query(`${id}-${interval}`, query.size, lt)
+    const aggregates = await this.poolSwapAggregatedMapper.query(`${id}-${interval}`, query.size, lt)
+    const mapped: Array<Promise<PoolSwapAggregated>> = aggregates.map(async value => {
+      return {
+        ...value,
+        aggregated: {
+          amounts: value.aggregated.amounts,
+          usd: await this.poolPairService.getAggregatedInUSD(value)
+        }
+      }
+    })
+
+    const result = await Promise.all(mapped)
     return ApiPagedResponse.of(result, query.size, item => {
       return `${item.bucket}`
     })
