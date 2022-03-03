@@ -86,16 +86,17 @@ export class PoolPairController {
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
     limit = Math.min(30, limit)
-    // TODO(eli-lim): next string cursor should be = JSON string encoded base64-url-safe
-    const next: NextToken = JSON.parse(nextString ?? '{}')
+    const next: NextToken = (nextString !== undefined)
+      ? JSON.parse(Buffer.from(nextString, 'base64url').toString())
+      : {}
     return await this.getSwapsHistory(network, limit, next)
-    // TODO(eli-lim): next encoded as json string
   }
 
   async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<LegacySubgraphSwapsResponse> {
     const api = this.whaleApiClientProvider.getClient(network)
     const swaps: LegacySubgraphSwap[] = []
 
+    let iterations = 0
     while (swaps.length <= limit) {
       // injected height for this operation
       for (const block of await api.blocks.list(200, next?.height ?? '892800')) {
@@ -120,7 +121,9 @@ export class PoolPairController {
 
           if (swaps.length === limit) {
             return {
-              data: swaps,
+              data: {
+                swaps
+              },
               page: {
                 next: JSON.stringify(next)
               }
@@ -129,16 +132,16 @@ export class PoolPairController {
         }
       }
 
-      console.log(swaps.length)
-
-      if (swaps.length === 0) {
-        // TODO(eli-lim): exit early if no data? max 1000 loops?
+      iterations++
+      if (swaps.length === 0 && iterations >= 1000) {
         break
       }
     }
 
     return {
-      data: swaps,
+      data: {
+        swaps
+      },
       page: {
         next: JSON.stringify(next)
       }
@@ -355,7 +358,9 @@ interface LegacyListYieldFarmingPool {
 }
 
 interface LegacySubgraphSwapsResponse {
-  data: LegacySubgraphSwap[]
+  data: {
+    swaps: LegacySubgraphSwap[]
+  }
   page?: {
     next: string
   }
