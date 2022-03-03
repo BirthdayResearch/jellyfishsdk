@@ -16,4 +16,4 @@ export * from './tx_segwit'
 /**
  * Need to refactor this interface, it's not consistent
  */
-export { toOPCodes, toBuffer as fromOPCodes } from './script/_buffer'
+export { toBuffer, toOPCodes, toBuffer as fromOPCodes } from './script/_buffer'

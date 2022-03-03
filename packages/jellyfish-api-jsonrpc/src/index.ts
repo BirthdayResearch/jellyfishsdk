@@ -3,6 +3,8 @@ import fetch from 'cross-fetch'
 import AbortController from 'abort-controller'
 import { PrecisionPath } from '@defichain/jellyfish-json'
 
+type Response = ReturnType<typeof fetch>
+
 /**
  * ClientOptions for JsonRpc
  */
@@ -100,7 +102,7 @@ export class JsonRpcClient extends ApiClient {
   /**
    * Fetch with timeout defined in 'this.options.timeout'
    */
-  private async fetchTimeout (body: string): Promise<Response> {
+  private async fetchTimeout (body: string): Response {
     const timeout: number = this.options.timeout ?? 60000
     const controller = new AbortController()
     const id = setTimeout(() => controller.abort(), timeout)
@@ -120,7 +122,7 @@ export class JsonRpcClient extends ApiClient {
     }
   }
 
-  protected async fetch (body: string, controller: AbortController): Promise<Response> {
+  protected async fetch (body: string, controller: AbortController): Response {
     return await fetch(this.url, {
       method: 'POST',
       body: body,

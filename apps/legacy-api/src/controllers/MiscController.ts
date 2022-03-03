@@ -1,5 +1,5 @@
 import { Controller, Get, NotFoundException, Query } from '@nestjs/common'
-import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
+import { StatsData } from '@defichain/whale-api-client'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import { ValidateAddressResult } from '@defichain/jellyfish-api-core/src/category/wallet'

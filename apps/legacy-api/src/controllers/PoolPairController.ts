@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PoolPairData } from '@defichain/whale-api-client'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'

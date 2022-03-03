@@ -8,8 +8,7 @@ import {
 } from '@defichain/jellyfish-network'
 import { WhaleApiClientProvider } from '../../providers/WhaleApiClientProvider'
 import BigNumber from 'bignumber.js'
-import { WhaleApiClient } from '@defichain/whale-api-client'
-import { StatsData } from '@defichain/whale-api-client/dist/api/stats'
+import { WhaleApiClient, StatsData } from '@defichain/whale-api-client'
 import { get } from 'lodash'
 
 // region - Needs to be kept in sync with defi-stats-api-master

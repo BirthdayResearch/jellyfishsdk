@@ -29,6 +29,12 @@
       "entryFile": "apps/rich-list-api/src/index",
       "sourceRoot": "rich-list-api/src"
     },
+    "whale-api": {
+      "type": "application",
+      "root": "whale-api",
+      "entryFile": "apps/whale-api/src/index",
+      "sourceRoot": "rich-list-api/src"
+    },
     "actuator": {
       "type": "library",
       "root": "libs/actuator",
