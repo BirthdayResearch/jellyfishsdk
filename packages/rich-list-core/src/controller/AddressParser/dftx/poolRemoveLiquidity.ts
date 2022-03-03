@@ -5,8 +5,8 @@ import { DfTxAddressParser } from './_abstract'
 export class PoolRemoveLiquidityParser extends DfTxAddressParser<PoolRemoveLiquidity> {
   OP_CODE: number = CPoolRemoveLiquidity.OP_CODE
 
-  extract (dfTx: DfTx<PoolRemoveLiquidity>): string[] {
-    const shareAddress = fromScript(dfTx.data.script, this.network)?.address as string
+  extract (poolRemoveLiquidity: DfTx<PoolRemoveLiquidity>): string[] {
+    const shareAddress = fromScript(poolRemoveLiquidity.data.script, this.network)?.address as string
 
     return [shareAddress]
   }

@@ -5,9 +5,9 @@ import { DfTxAddressParser } from './_abstract'
 export class PoolSwapParser extends DfTxAddressParser<PoolSwap> {
   OP_CODE: number = CPoolSwap.OP_CODE
 
-  extract (dfTx: DfTx<PoolSwap>): string[] {
-    const fromAddress = fromScript(dfTx.data.fromScript, this.network)?.address as string
-    const toAddress = fromScript(dfTx.data.toScript, this.network)?.address as string
+  extract (poolSwap: DfTx<PoolSwap>): string[] {
+    const fromAddress = fromScript(poolSwap.data.fromScript, this.network)?.address as string
+    const toAddress = fromScript(poolSwap.data.toScript, this.network)?.address as string
 
     return [fromAddress, toAddress]
   }
