@@ -2,7 +2,8 @@ import { Global, Module } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
 import { ApiClient } from '@defichain/jellyfish-api-core'
-import { ActuatorProbes, BlockchainCppProbeIndicator } from '@defichain-apps/libs/actuator'
+import { ActuatorProbes } from '@defichain-apps/libs/actuator'
+import { BlockchainCppProbeIndicator } from '@defichain-apps/libs/blockchaincpp'
 
 /**
  * Ain Module configures and export JsonRpcClient connected to a DeFiD.
