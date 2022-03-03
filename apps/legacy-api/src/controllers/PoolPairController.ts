@@ -85,7 +85,7 @@ export class PoolPairController {
     @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(30, limit)
+    limit = Math.min(100, limit)
     const next: NextToken = (nextString !== undefined)
       ? JSON.parse(Buffer.from(nextString, 'base64url').toString())
       : {}
