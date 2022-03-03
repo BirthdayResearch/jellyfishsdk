@@ -11,7 +11,7 @@ export class PlaygroundProbeIndicator extends ProbeIndicator {
 
   constructor (private readonly client: ApiClient, private readonly configService: ConfigService) {
     super()
-    this.maxBlockCount = configService.get<number>('playground.maxBlockCount', 20 * 60 * 24)
+    this.maxBlockCount = configService.get<number>('PLAYGROUND_MAX_BLOCK_COUNT', 20 * 60 * 24)
   }
 
   async liveness (): Promise<HealthIndicatorResult> {
