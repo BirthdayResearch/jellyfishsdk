@@ -163,16 +163,16 @@ export class PoolPair {
    * Remove pool liquidity transaction
    *
    * @param {string} address defi address containing the liquidity tokens
-   * @param {string} amount 'liquidityAmount@liquidity' pool symbol, e.g. BTC-DFI
+   * @param {string} poolAccount pool liquidity account of owner, e.g. 123@BTC-DFI
    * @param {PoolLiquidityOptions} [options]
    * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
    * @param {number} [options.utxos.vout]
    * @return {Promise<string>}
    */
-  async removePoolLiquidity (address: string, amount: string, options: PoolLiquidityOptions = {}): Promise<string> {
+  async removePoolLiquidity (address: string, poolAccount: string, options: PoolLiquidityOptions = {}): Promise<string> {
     const { utxos } = options
-    return await this.client.call('removepoolliquidity', [address, amount, utxos], 'bignumber')
+    return await this.client.call('removepoolliquidity', [address, poolAccount, utxos], 'bignumber')
   }
 }
 
