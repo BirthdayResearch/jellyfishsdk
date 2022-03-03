@@ -48,6 +48,12 @@ module.exports = {
           position: 'left'
         },
         {
+          to: 'legacy',
+          activeBasePath: 'legacy',
+          label: 'Legacy API',
+          position: 'left'
+        },
+        {
           to: 'testing/testcontainers',
           activeBasePath: 'testing',
           label: 'Testing',
@@ -166,6 +172,16 @@ module.exports = {
         id: 'testing',
         path: '../docs/testing',
         routeBasePath: 'testing',
+        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        sidebarCollapsed: false,
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'legacy',
+        path: '../docs/legacy',
+        routeBasePath: 'legacy',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },

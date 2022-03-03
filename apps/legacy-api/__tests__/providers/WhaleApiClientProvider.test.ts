@@ -25,21 +25,12 @@ describe('WhaleApiClientProvider', () => {
       expect(first === second) // points to the same object
         .toStrictEqual(true)
     }
-    {
-      const first = whaleApiClientProvider.getClient('regtest')
-      const second = whaleApiClientProvider.getClient('regtest')
-      expect(first === second) // points to the same object
-        .toStrictEqual(true)
-    }
   })
 
   it('should return different clients for different networks', () => {
     const mainnet = whaleApiClientProvider.getClient('mainnet')
     const testnet = whaleApiClientProvider.getClient('testnet')
-    const regtest = whaleApiClientProvider.getClient('regtest')
 
     expect(mainnet).not.toStrictEqual(testnet)
-    expect(mainnet).not.toStrictEqual(regtest)
-    expect(testnet).not.toStrictEqual(regtest)
   })
 })

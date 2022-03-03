@@ -2,10 +2,10 @@ import * as Joi from 'joi'
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ControllerModule } from './ControllerModule'
-import { BlockchainCppModule } from './BlockchainCppModule'
-import { ActuatorModule } from './ActuatorModule'
+import { ActuatorModule } from '@defichain-apps/libs/actuator'
+import { BlockchainCppModule } from '@defichain-apps/libs/blockchaincpp'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { QueueItem, QueueModule } from '../../src/modules/QueueModule'
+import { QueueItem, QueueModule } from './QueueModule'
 
 @Module({
   imports: [

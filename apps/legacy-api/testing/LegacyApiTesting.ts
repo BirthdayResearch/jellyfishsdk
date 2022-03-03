@@ -1,4 +1,4 @@
-import { LegacyStubServer } from './LegacyStubServer'
+import { LegacyStubServer, RegisteredRoute } from './LegacyStubServer'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
 
@@ -50,5 +50,9 @@ export class LegacyApiTesting {
     } catch (err) {
       console.error(err)
     }
+  }
+
+  getAllRoutes (): RegisteredRoute[] {
+    return this.stubServer.getAllRoutes()
   }
 }
