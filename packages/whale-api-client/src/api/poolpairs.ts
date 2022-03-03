@@ -128,6 +128,10 @@ export interface PoolSwapAggregated {
 
   aggregated: {
     amounts: Record<string, string>
+    /**
+     * aggregated value in USD at current dex prices
+     */
+    usd: number
   }
 
   block: {

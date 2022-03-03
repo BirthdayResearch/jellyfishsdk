@@ -598,19 +598,8 @@ describe('poolswap aggregated', () => {
     expect([...dayAggregated]).toStrictEqual([
       {
         aggregated: {
-          amounts: { 2: '9.50000000' }
-        },
-        block: expect.any(Object),
-        bucket: expect.any(Number),
-        id: expect.any(String),
-        key:
-        '10-86400'
-      },
-      {
-        aggregated: {
-          amounts: {
-            2: '29.00000000'
-          }
+          amounts: { 2: '9.50000000' },
+          usd: 42.16329700024263
         },
         block: expect.any(Object),
         bucket: expect.any(Number),
@@ -619,7 +608,20 @@ describe('poolswap aggregated', () => {
       },
       {
         aggregated: {
-          amounts: {}
+          amounts: {
+            2: '29.00000000'
+          },
+          usd: 128.7090118954775
+        },
+        block: expect.any(Object),
+        bucket: expect.any(Number),
+        id: expect.any(String),
+        key: '10-86400'
+      },
+      {
+        aggregated: {
+          amounts: {},
+          usd: 0
         },
         block: expect.any(Object),
         bucket: expect.any(Number),
@@ -632,21 +634,30 @@ describe('poolswap aggregated', () => {
     const hourAggregated: ApiPagedResponse<PoolSwapAggregated> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)
     expect([...hourAggregated]).toStrictEqual([
       {
-        aggregated: { amounts: { 2: '1.10000000' } },
+        aggregated: {
+          amounts: { 2: '1.10000000' },
+          usd: 4.8820659684491465
+        },
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-3600'
       },
       {
-        aggregated: { amounts: { 2: '1.20000000' } },
+        aggregated: {
+          amounts: { 2: '1.20000000' },
+          usd: 5.325890147399068
+        },
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
         key: '10-3600'
       },
       {
-        aggregated: { amounts: { 2: '1.20000000' } },
+        aggregated: {
+          amounts: { 2: '1.20000000' },
+          usd: 5.325890147399068
+        },
         block: expect.any(Object),
         bucket: expect.any(Number),
         id: expect.any(String),
