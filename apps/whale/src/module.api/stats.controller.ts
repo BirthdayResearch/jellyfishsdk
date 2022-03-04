@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common'
+import { BadGatewayException, Controller, Get } from '@nestjs/common'
 import { StatsData, SupplyData } from '@whale-api-client/api/stats'
 import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -53,6 +53,9 @@ export class StatsController {
     const max = 1200000000
     const total = this.blockSubsidy.getSupply(height).div(100000000)
     const burned = await this.getBurnedTotal()
+    if (burned === undefined) {
+      throw new BadGatewayException('rpc gateway error')
+    }
     const circulating = total.minus(burned)
 
     return {
@@ -137,16 +140,18 @@ export class StatsController {
     }
   }
 
-  private async getBurnedTotal (): Promise<BigNumber> {
-    // 8defichainBurnAddressXXXXXXXdRQkSm, using the hex representation as it's applicable in all network
-    const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
-    const tokens = await this.rpcClient.account.getAccount(address)
-    const burnInfo = await this.rpcClient.account.getBurnInfo()
+  private async getBurnedTotal (): Promise<BigNumber | undefined> {
+    return await this.cache.get<BigNumber>('stats.getBurnedTotal', async () => {
+      // 8defichainBurnAddressXXXXXXXdRQkSm, using the hex representation as it's applicable in all network
+      const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
+      const tokens = await this.rpcClient.account.getAccount(address)
+      const burnInfo = await this.rpcClient.account.getBurnInfo()
 
-    const utxo = burnInfo.amount
-    const account = findTokenBalance(tokens, 'DFI')
-    const emission = burnInfo.emissionburn
-    return utxo.plus(account).plus(emission)
+      const utxo = burnInfo.amount
+      const account = findTokenBalance(tokens, 'DFI')
+      const emission = burnInfo.emissionburn
+      return utxo.plus(account).plus(emission)
+    })
   }
 
   private async getPrice (): Promise<StatsData['price']> {
