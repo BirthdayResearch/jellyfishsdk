@@ -40,19 +40,19 @@ export class PoolPairController {
 
     const items: PoolPairData[] = []
     for (const [id, info] of Object.entries(result)) {
-      if (info.symbol === 'BURN-DFI') {
-        continue
-      }
-
       const totalLiquidityUsd = await this.poolPairService.getTotalLiquidityUsd(info)
       const apr = await this.poolPairService.getAPR(id, info)
       const volume = await this.poolPairService.getUSDVolume(id)
       items.push(mapPoolPair(id, info, totalLiquidityUsd, apr, volume))
     }
 
-    return ApiPagedResponse.of(items, query.size, item => {
+    const response = ApiPagedResponse.of(items, query.size, item => {
       return item.id
     })
+    response.data = response.data.filter(value => {
+      return value.symbol !== 'BURN-DFI'
+    })
+    return response
   }
 
   /**
