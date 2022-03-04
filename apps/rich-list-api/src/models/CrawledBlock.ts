@@ -16,7 +16,7 @@ export class CrawledBlockModel implements CrawledBlock {
 }
 
 @Injectable()
-export class CrawledBlockDbService implements SingleIndexDb<CrawledBlock> {
+export class CrawledBlockRepo implements SingleIndexDb<CrawledBlock> {
   constructor (
     @InjectRepository(CrawledBlockModel)
     private readonly repo: Repository<CrawledBlockModel>

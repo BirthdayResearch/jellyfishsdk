@@ -1,8 +1,8 @@
 import { Module, Global } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AddressBalanceModel, AddressBalanceDbService } from '../models/AddressBalance'
-import { CrawledBlockDbService, CrawledBlockModel } from '../models/CrawledBlock'
-import { RichListDroppedOutModel, RichListDroppedOutService } from '../models/RichListDroppedOut'
+import { AddressBalanceModel, AddressBalanceRepo } from '../models/AddressBalance'
+import { CrawledBlockRepo, CrawledBlockModel } from '../models/CrawledBlock'
+import { RichListDroppedOutModel, RichListDroppedOutRepo } from '../models/RichListDroppedOut'
 
 @Global()
 @Module({
@@ -14,15 +14,15 @@ import { RichListDroppedOutModel, RichListDroppedOutService } from '../models/Ri
     ])
   ],
   providers: [
-    CrawledBlockDbService,
-    AddressBalanceDbService,
-    RichListDroppedOutService
+    CrawledBlockRepo,
+    AddressBalanceRepo,
+    RichListDroppedOutRepo
   ],
   exports: [
     TypeOrmModule,
-    CrawledBlockDbService,
-    AddressBalanceDbService,
-    RichListDroppedOutService
+    CrawledBlockRepo,
+    AddressBalanceRepo,
+    RichListDroppedOutRepo
   ]
 })
 export class RichListDatabaseModule {

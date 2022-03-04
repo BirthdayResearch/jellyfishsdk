@@ -20,7 +20,7 @@ export class AddressBalanceModel implements AddressBalance {
 }
 
 @Injectable()
-export class AddressBalanceDbService implements SingleIndexDb<AddressBalance> {
+export class AddressBalanceRepo implements SingleIndexDb<AddressBalance> {
   constructor (
     @InjectRepository(AddressBalanceModel)
     private readonly repo: Repository<AddressBalanceModel>

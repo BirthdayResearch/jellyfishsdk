@@ -5,9 +5,9 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 import { RichListCore } from '@defichain/rich-list-core'
 import { NetworkName } from '@defichain/jellyfish-network/src/Network'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { CrawledBlockDbService } from '../models/CrawledBlock'
-import { AddressBalanceDbService } from '../models/AddressBalance'
-import { RichListDroppedOutService } from '../models/RichListDroppedOut'
+import { CrawledBlockRepo } from '../models/CrawledBlock'
+import { AddressBalanceRepo } from '../models/AddressBalance'
+import { RichListDroppedOutRepo } from '../models/RichListDroppedOut'
 import { QueueModule, QueueService } from './QueueModule'
 
 @Module({
@@ -20,9 +20,9 @@ import { QueueModule, QueueService } from './QueueModule'
       provide: 'RICH_LIST_CORE_SERVICE',
       useFactory: (
         configService: ConfigService,
-        addressBalanceDbService: AddressBalanceDbService,
-        crawledBlockDbService: CrawledBlockDbService,
-        richListDroppedOutService: RichListDroppedOutService,
+        addressBalanceRepo: AddressBalanceRepo,
+        crawledBlockRepo: CrawledBlockRepo,
+        richListDroppedOutRepo: RichListDroppedOutRepo,
         apiClient: ApiClient,
         queueService: QueueService
       ): RichListService => {
@@ -36,9 +36,9 @@ import { QueueModule, QueueService } from './QueueModule'
           configService.get<string>('network') as NetworkName,
           apiClient,
           whaleApiClient,
-          addressBalanceDbService,
-          crawledBlockDbService,
-          richListDroppedOutService,
+          addressBalanceRepo,
+          crawledBlockRepo,
+          richListDroppedOutRepo,
           queueService
         )
 
@@ -46,9 +46,9 @@ import { QueueModule, QueueService } from './QueueModule'
       },
       inject: [
         ConfigService,
-        AddressBalanceDbService,
-        CrawledBlockDbService,
-        RichListDroppedOutService,
+        AddressBalanceRepo,
+        CrawledBlockRepo,
+        RichListDroppedOutRepo,
         ApiClient,
         QueueService
       ]

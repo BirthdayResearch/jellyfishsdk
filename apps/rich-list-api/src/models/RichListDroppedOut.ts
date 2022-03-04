@@ -19,7 +19,7 @@ export class RichListDroppedOutModel {
 }
 
 @Injectable()
-export class RichListDroppedOutService implements SingleIndexDb<string> {
+export class RichListDroppedOutRepo implements SingleIndexDb<string> {
   constructor (
     @InjectRepository(RichListDroppedOutModel)
     private readonly repo: Repository<RichListDroppedOutModel>
