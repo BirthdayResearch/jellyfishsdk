@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common'
+import { Module, Global } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AddressBalanceModel, AddressBalanceDbService } from '../models/AddressBalance'
 import { CrawledBlockDbService, CrawledBlockModel } from '../models/CrawledBlock'
 import { RichListDroppedOutModel, RichListDroppedOutService } from '../models/RichListDroppedOut'
 
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -13,6 +14,12 @@ import { RichListDroppedOutModel, RichListDroppedOutService } from '../models/Ri
     ])
   ],
   providers: [
+    CrawledBlockDbService,
+    AddressBalanceDbService,
+    RichListDroppedOutService
+  ],
+  exports: [
+    TypeOrmModule,
     CrawledBlockDbService,
     AddressBalanceDbService,
     RichListDroppedOutService

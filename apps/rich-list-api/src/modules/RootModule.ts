@@ -10,6 +10,7 @@ import { CrawledBlockModel } from '../models/CrawledBlock'
 import { AddressBalanceModel } from '../models/AddressBalance'
 import { RichListDatabaseModule } from './RichListDatabaseModule'
 import { RichListModule } from './RichListModule'
+import { RichListDroppedOutModel } from '../models/RichListDroppedOut'
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { RichListModule } from './RichListModule'
         entities: [
           QueueItem,
           CrawledBlockModel,
-          AddressBalanceModel
+          AddressBalanceModel,
+          RichListDroppedOutModel
         ],
         synchronize: true
       }),

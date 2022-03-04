@@ -76,6 +76,9 @@ export class Queue {
   imports: [
     TypeOrmModule.forFeature([QueueItem])
   ],
+  exports: [
+    QueueService
+  ],
   providers: [QueueService]
 })
 export class QueueModule {

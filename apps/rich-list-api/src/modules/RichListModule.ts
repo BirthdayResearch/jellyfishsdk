@@ -8,14 +8,12 @@ import { WhaleApiClient } from '@defichain/whale-api-client'
 import { CrawledBlockDbService } from '../models/CrawledBlock'
 import { AddressBalanceDbService } from '../models/AddressBalance'
 import { RichListDroppedOutService } from '../models/RichListDroppedOut'
-import { QueueService } from './QueueModule'
+import { QueueModule, QueueService } from './QueueModule'
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    CrawledBlockDbService,
-    AddressBalanceDbService,
-    RichListDroppedOutService
+    QueueModule
   ],
   providers: [
     {
