@@ -2,7 +2,7 @@
 Complementary library module for rich-list-api to compute and keep a rich list state in injected storage service.
 
 ## Prerequisite
-Three dependencies to be injected
+Two dependencies to be injected
 - Queue - LIFO, deduplication
 - Database - simpled database with one index allowed
 

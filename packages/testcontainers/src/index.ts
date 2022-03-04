@@ -1,6 +1,7 @@
 import { MasterNodeKey as MNK, RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 export { DockerOptions } from 'dockerode'
+export { waitForCondition } from './utils'
 
 /**
  * Moved to @defichain/jellyfish-network

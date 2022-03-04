@@ -4,9 +4,8 @@ import { QueueClient, Queue } from './lib/Queue'
 import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
 import { AddressParser } from './controller/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { RichListItem } from '@defichain/rich-list-api-client'
 import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
-import { ActiveAddressAccountAmount } from './controller/AddressParser/ActiveAddressAccountAmount'
+import { RichListItem, ActiveAddressAccountAmount } from './types'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
 

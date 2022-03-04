@@ -1,8 +1,8 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { RichListItem } from '@defichain/rich-list-api-client'
 import { waitForCondition } from '@defichain/testcontainers'
 import { InMemoryDatabase, InMemoryQueueClient } from '../src/lib'
 import { CrawledBlock, RichListCore } from '../src/RichListCore'
+import { RichListItem } from '../src/types'
 import { StubbedWhaleApiClient } from './StubbedWhaleClient'
 
 export function RichListCoreTest (apiClient: JsonRpcClient): RichListCore {
