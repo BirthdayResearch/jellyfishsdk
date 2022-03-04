@@ -3,7 +3,7 @@ import { PlaygroundApiClient } from '@defichain/playground-api-client'
 import { PlaygroundStubServer } from './PlaygroundStubServer'
 import { PlaygroundStubClient } from './PlaygroundStubClient'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 /**
@@ -33,7 +33,7 @@ export class PlaygroundApiTesting {
     return this.testing.container
   }
 
-  get rpc (): ApiClient {
+  get rpc (): JsonRpcClient {
     return this.testing.rpc
   }
 

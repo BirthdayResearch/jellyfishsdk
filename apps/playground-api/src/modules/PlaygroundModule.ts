@@ -3,7 +3,7 @@ import { SetupToken } from '../setups/setup.token'
 import { SetupDex } from '../setups/setup.dex'
 import { SetupOracle } from '../setups/setup.oracle'
 import { PlaygroundProbeIndicator } from '../PlaygroundIndicator'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { PlaygroundBlock } from '../PlaygroundBlock'
 import { PlaygroundSetup } from '../setups/setup'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
@@ -46,7 +46,7 @@ export class PlaygroundModule implements OnApplicationBootstrap {
   private readonly setups: Array<PlaygroundSetup<any>>
 
   constructor (
-    private readonly client: ApiClient,
+    private readonly client: JsonRpcClient,
     private readonly indicator: PlaygroundProbeIndicator,
     utxo: SetupUtxo,
     token: SetupToken,

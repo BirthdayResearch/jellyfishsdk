@@ -9,7 +9,7 @@ import {
   Injectable,
   ArgumentMetadata
 } from '@nestjs/common'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 /**
  * MethodWhitelist is a whitelist validation pipe to check whether a plain old rpc can be
@@ -68,7 +68,7 @@ export class CallRequest {
 
 @Controller('/v0/playground/rpc')
 export class RpcController {
-  constructor (private readonly client: ApiClient) {
+  constructor (private readonly client: JsonRpcClient) {
   }
 
   @Post('/:method')

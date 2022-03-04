@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 import { Body, Controller, Get, Param, Post } from '@nestjs/common'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { CTransaction, DeFiTransactionConstants, OP_CODES, Script, Transaction, Vout } from '@defichain/jellyfish-transaction'
 import { fromAddress } from '@defichain/jellyfish-address'
 import { waitForCondition } from '@defichain/testcontainers'
@@ -17,7 +17,7 @@ export interface SendTo {
 
 @Controller('/v0/playground/wallet')
 export class WalletController {
-  constructor (private readonly client: ApiClient) {
+  constructor (private readonly client: JsonRpcClient) {
   }
 
   @Get('/balances')

@@ -1,9 +1,10 @@
 import { Controller, Get, ParseIntPipe, Query } from '@nestjs/common'
-import { ApiClient, mining } from '@defichain/jellyfish-api-core'
+import { mining } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 @Controller('/rawtx')
 export class RawTxController {
-  constructor (private readonly client: ApiClient) {
+  constructor (private readonly client: JsonRpcClient) {
   }
 
   /**

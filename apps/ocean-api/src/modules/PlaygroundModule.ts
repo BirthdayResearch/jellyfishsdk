@@ -2,7 +2,7 @@ import { Injectable, Logger, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Interval, ScheduleModule } from '@nestjs/schedule'
 import { BotLogger, Playground } from '@defichain/playground'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 /**
  * Provide a PlaygroundRunner when PLAYGROUND_ENABLE is enabled.
@@ -14,7 +14,7 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
   providers: [
     {
       provide: 'PLAYGROUND_RUNNER',
-      useFactory: (configService: ConfigService, apiClient: ApiClient): PlaygroundRunner | undefined => {
+      useFactory: (configService: ConfigService, apiClient: JsonRpcClient): PlaygroundRunner | undefined => {
         if (configService.get<boolean>('PLAYGROUND_ENABLE') === false) {
           return undefined
         }
@@ -25,7 +25,7 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 
         return new PlaygroundRunner(apiClient)
       },
-      inject: [ConfigService, ApiClient]
+      inject: [ConfigService, JsonRpcClient]
     }
   ]
 })
@@ -46,7 +46,7 @@ class PlaygroundLogger implements BotLogger {
 @Injectable()
 class PlaygroundRunner {
   constructor (
-    private readonly apiClient: ApiClient,
+    private readonly apiClient: JsonRpcClient,
     private readonly logger: PlaygroundLogger = new PlaygroundLogger(),
     private readonly playground: Playground = new Playground(apiClient, logger)
   ) {

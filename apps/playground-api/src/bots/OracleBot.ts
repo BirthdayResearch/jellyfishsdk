@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { BigNumber } from '@defichain/jellyfish-json'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Interval } from '@nestjs/schedule'
 
 enum PriceDirection {
@@ -143,7 +143,7 @@ export class OracleBot {
 
   public oracleIds: string[] = []
 
-  constructor (readonly client: ApiClient) {
+  constructor (readonly client: JsonRpcClient) {
   }
 
   @Interval(6000)

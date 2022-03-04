@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 export interface Info {
   block: {
@@ -10,7 +10,7 @@ export interface Info {
 
 @Controller('/v0/playground')
 export class PlaygroundController {
-  constructor (private readonly client: ApiClient) {
+  constructor (private readonly client: JsonRpcClient) {
   }
 
   @Get('/info')

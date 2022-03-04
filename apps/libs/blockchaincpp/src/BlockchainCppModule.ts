@@ -1,7 +1,7 @@
 import { Global, Injectable, Module } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
-import { ApiClient, blockchain as bc } from '@defichain/jellyfish-api-core'
+import { blockchain as bc } from '@defichain/jellyfish-api-core'
 import { ActuatorProbes, ProbeIndicator } from '@defichain-apps/libs/actuator'
 import { HealthIndicatorResult } from '@nestjs/terminus'
 
@@ -10,7 +10,7 @@ import { HealthIndicatorResult } from '@nestjs/terminus'
  */
 @Injectable()
 export class BlockchainCppProbeIndicator extends ProbeIndicator {
-  constructor (private readonly client: ApiClient) {
+  constructor (private readonly client: JsonRpcClient) {
     super()
   }
 
@@ -70,8 +70,8 @@ export class BlockchainCppProbeIndicator extends ProbeIndicator {
   providers: [
     BlockchainCppProbeIndicator,
     {
-      provide: ApiClient,
-      useFactory: (configService: ConfigService): ApiClient => {
+      provide: JsonRpcClient,
+      useFactory: (configService: ConfigService): JsonRpcClient => {
         const url = configService.get<string>('BLOCKCHAIN_CPP_URL')
         if (url === undefined) {
           throw new Error('BlockchainCppModule config:BLOCKCHAIN_CPP_URL not provided')
@@ -82,7 +82,7 @@ export class BlockchainCppProbeIndicator extends ProbeIndicator {
     }
   ],
   exports: [
-    ApiClient
+    JsonRpcClient
   ]
 })
 export class BlockchainCppModule {

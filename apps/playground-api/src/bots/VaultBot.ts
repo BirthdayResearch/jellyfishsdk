@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Interval } from '@nestjs/schedule'
 import { PlaygroundSetup } from '../setups/setup'
 
@@ -7,7 +7,7 @@ import { PlaygroundSetup } from '../setups/setup'
 export class VaultBot {
   private vaultId?: string
 
-  constructor (protected readonly client: ApiClient) {
+  constructor (protected readonly client: JsonRpcClient) {
   }
 
   @Interval(6000)

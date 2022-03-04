@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { AppointOracleOptions, OraclePriceFeed } from '@defichain/jellyfish-api-core/src/category/oracle'
 import { OracleBot } from '../bots/OracleBot'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 interface OracleSetup {
   address: string
@@ -91,7 +91,7 @@ export class SetupOracle extends PlaygroundSetup<OracleSetup> {
   oracleOwnerAddress: string = RegTestFoundationKeys[0].owner.address
   private readonly oracleIds: string[] = []
 
-  constructor (client: ApiClient, readonly oracleBot: OracleBot) {
+  constructor (client: JsonRpcClient, readonly oracleBot: OracleBot) {
     super(client)
   }
 

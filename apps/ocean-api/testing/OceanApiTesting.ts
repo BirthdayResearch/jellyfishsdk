@@ -3,7 +3,7 @@ import { OceanApiClient } from '@defichain/ocean-api-client'
 import { OceanStubServer } from './OceanStubServer'
 import { OceanStubClient } from './OceanStubClient'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 /**
@@ -33,7 +33,7 @@ export class OceanApiTesting {
     return this.testing.container
   }
 
-  get rpc (): ApiClient {
+  get rpc (): JsonRpcClient {
     return this.testing.rpc
   }
 

@@ -1,4 +1,4 @@
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Injectable } from '@nestjs/common'
 import { GenesisKeys } from '@defichain/testcontainers'
 import { Interval } from '@nestjs/schedule'
@@ -21,7 +21,7 @@ export abstract class PlaygroundBot<Each> {
     return PlaygroundBot.MN_KEY.operator.privKey
   }
 
-  constructor (protected readonly client: ApiClient) {
+  constructor (protected readonly client: JsonRpcClient) {
   }
 
   @Interval(5000)

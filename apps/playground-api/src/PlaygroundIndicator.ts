@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { HealthIndicatorResult } from '@nestjs/terminus'
 import { ProbeIndicator } from '@defichain-apps/libs/actuator'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
 
 @Injectable()
@@ -9,7 +9,7 @@ export class PlaygroundProbeIndicator extends ProbeIndicator {
   ready: boolean = false
   private readonly maxBlockCount: number
 
-  constructor (private readonly client: ApiClient, private readonly configService: ConfigService) {
+  constructor (private readonly client: JsonRpcClient, private readonly configService: ConfigService) {
     super()
     this.maxBlockCount = configService.get<number>('PLAYGROUND_MAX_BLOCK_COUNT', 20 * 60 * 24)
   }

@@ -1,13 +1,13 @@
 import { Interval } from '@nestjs/schedule'
 import { Injectable, Logger } from '@nestjs/common'
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { PlaygroundSetup } from './setups/setup'
 
 @Injectable()
 export class PlaygroundBlock {
   private readonly logger = new Logger(PlaygroundBlock.name)
 
-  constructor (private readonly client: ApiClient) {
+  constructor (private readonly client: JsonRpcClient) {
   }
 
   @Interval(3000)

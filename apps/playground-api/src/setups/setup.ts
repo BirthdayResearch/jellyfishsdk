@@ -1,4 +1,4 @@
-import { ApiClient } from '@defichain/jellyfish-api-core'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Injectable, Logger } from '@nestjs/common'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
@@ -22,7 +22,7 @@ export abstract class PlaygroundSetup<Each> {
 
   private readonly logger = new Logger(PlaygroundSetup.name)
 
-  constructor (protected readonly client: ApiClient) {
+  constructor (protected readonly client: JsonRpcClient) {
   }
 
   /**
