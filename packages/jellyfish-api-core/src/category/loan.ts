@@ -1,3 +1,4 @@
+import { UTXO } from '../interfaces/utxo'
 import { ApiClient, token } from '..'
 import BigNumber from 'bignumber.js'
 
@@ -574,11 +575,6 @@ export interface VaultLiquidation extends Vault {
   liquidationPenalty: number
   batchCount: number
   batches: VaultLiquidationBatch[]
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
 }
 
 export interface DepositVault {

@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { UTXO } from '../interfaces/utxo'
 import { ApiClient } from '../.'
 
 /**
@@ -146,9 +147,4 @@ export interface TokenPagination {
   start: number
   including_start: boolean
   limit: number
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
 }

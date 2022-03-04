@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { UTXO } from '../interfaces/utxo'
 import { ApiClient } from '../.'
 
 /**
@@ -432,11 +433,6 @@ export interface BalanceTransferPayload {
 
 export interface BalanceTransferAccountOptions {
   utxos?: UTXO[]
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
 }
 
 export interface AccountHistory {

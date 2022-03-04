@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js'
+import { UTXO } from '../interfaces/utxo'
 import { ApiClient } from '..'
 
 /**
@@ -184,11 +185,6 @@ export interface CreatePoolPairMetadata {
   ownerAddress: string
   customRewards?: string[]
   pairSymbol?: string
-}
-
-export interface UTXO {
-  txid: string
-  vout: number
 }
 
 export interface PoolPairsResult {

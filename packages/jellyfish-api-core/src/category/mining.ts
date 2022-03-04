@@ -1,4 +1,5 @@
 import { ApiClient } from '../.'
+import { MasternodeInfo } from './masternode'
 
 export enum EstimateMode {
   UNSET = 'UNSET',
@@ -80,19 +81,6 @@ export interface MiningInfo {
   pooledtx: number
   chain: 'main' | 'test' | 'regtest' | string
   warnings: string
-}
-
-/**
- * Masternode related information
- */
-export interface MasternodeInfo {
-  id: string
-  operator: string
-  state: 'PRE_ENABLED' | 'ENABLED' | 'PRE_RESIGNED' | 'RESIGNED' | 'PRE_BANNED' | 'BANNED'
-  generate: boolean
-  mintedblocks: number
-  lastblockcreationattempt: string
-  targetMultiplier: number
 }
 
 export interface SmartFeeEstimation {

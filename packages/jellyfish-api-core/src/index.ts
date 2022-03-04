@@ -35,24 +35,13 @@ export * as icxorderbook from './category/icxorderbook'
 export * as misc from './category/misc'
 export * as loan from './category/loan'
 
-export { AccountHistory } from './category/account'
-export { BlockchainInfo } from './category/blockchain'
-export {
-  AuctionPagination,
-  CollateralTokenDetail,
-  GetLoanSchemeResult,
-  LoanSchemeResult,
-  LoanTokenResult,
-  VaultActive,
-  VaultLiquidation,
-  VaultLiquidationBatch,
-  VaultPagination,
-  VaultState
-} from './category/loan'
-export { EstimateMode } from './category/mining'
-export { PoolPairInfo } from './category/poolpair'
-export { TokenInfo, TokenResult } from './category/token'
-export { MasternodeInfo, MasternodeState, MasternodeTimeLock } from './category/masternode'
+export * from './category/account'
+export * from './category/blockchain'
+export * from './category/loan'
+export * from './category/mining'
+export * from './category/poolpair'
+export * from './category/token'
+export * from './category/masternode'
 
 /**
  * A protocol agnostic DeFiChain node client, RPC calls are separated into their category.
