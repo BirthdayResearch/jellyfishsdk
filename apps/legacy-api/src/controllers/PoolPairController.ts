@@ -1,9 +1,9 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { Transaction, TransactionVout } from '@defichain/whale-api-client/dist/api/transactions'
+import { Transaction, TransactionVout } from '@defichain/whale-api-client/src/api/Transactions'
 import {
   CCompositeSwap,
   CompositeSwap,
