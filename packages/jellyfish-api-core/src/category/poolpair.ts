@@ -67,8 +67,8 @@ export class PoolPair {
    * Add pool liquidity transaction
    *
    * @param {AddPoolLiquiditySource} from pool liquidity sources
-   * @param {string | string[]} from[address] provides at least two types of token with format 'amoun@token'
-   * @param {string} shareAddress defi address for crediting tokens
+   * @param {string | string[]} from[address] provides at least two types of token with format 'amount@token'
+   * @param {string} shareAddress defi address for crediting liquidity tokens
    * @param {PoolLiquidityOptions} [options]
    * @param {AddPoolLiquidityUTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
@@ -162,8 +162,8 @@ export class PoolPair {
   /**
    * Remove pool liquidity transaction
    *
-   * @param {string} address defi address for crediting tokens
-   * @param {string} poolAccount pool liquidity account of owner
+   * @param {string} address defi address containing the liquidity tokens
+   * @param {string} poolAccount pool liquidity account of owner, e.g. 123@BTC-DFI
    * @param {PoolLiquidityOptions} [options]
    * @param {UTXO[]} [options.utxos] utxos array of specific UTXOs to spend
    * @param {string} [options.utxos.txid]
