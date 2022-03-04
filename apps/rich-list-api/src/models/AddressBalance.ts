@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository } from 'typeorm'
+import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SingleIndexDb, AddressBalance, Schema, FindOptions } from '@defichain/rich-list-core'
@@ -43,17 +43,23 @@ export class AddressBalanceDbService implements SingleIndexDb<AddressBalance> {
     return this._map(raw)
   }
 
-  async list (filter: FindOptions): Promise<Array<Schema<AddressBalance>>> {
-    const findOpt: FindManyOptions<AddressBalanceModel> = {
-      where: {
-        tokenId: filter.partition,
-        amount: Between(
-          filter.gt ?? Number.NEGATIVE_INFINITY,
-          filter.lt ?? Number.POSITIVE_INFINITY
-        )
-      },
-      order: { amount: filter.order },
-      skip: filter.limit
+  async list (option: FindOptions): Promise<Array<Schema<AddressBalance>>> {
+    const where: FindManyOptions<AddressBalanceModel>['where'] = {
+      tokenId: option.partition
+    }
+
+    if (option.gt !== undefined && option.lt !== undefined) {
+      where.amount = Between(option.gt, option.lt)
+    } else if (option.gt !== undefined) {
+      where.amount = MoreThan(option.gt)
+    } else if (option.lt !== undefined) {
+      where.amount = LessThan(option.lt)
+    }
+
+    const findOpt: FindManyOptions<AddressBalanceModel>['where'] = {
+      where: where,
+      order: { amount: option.order },
+      skip: option.limit
     }
 
     const raw = await this.repo.find(findOpt)

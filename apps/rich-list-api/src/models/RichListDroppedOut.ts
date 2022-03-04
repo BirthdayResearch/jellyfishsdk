@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository } from 'typeorm'
+import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SingleIndexDb, Schema, FindOptions } from '@defichain/rich-list-core'
@@ -41,16 +41,21 @@ export class RichListDroppedOutService implements SingleIndexDb<string> {
     return this._map(raw)
   }
 
-  async list (filter: FindOptions): Promise<Array<Schema<string>>> {
+  async list (option: FindOptions): Promise<Array<Schema<string>>> {
+    const where: FindManyOptions<RichListDroppedOutModel>['where'] = {}
+
+    if (option.gt !== undefined && option.lt !== undefined) {
+      where.height = Between(option.gt, option.lt)
+    } else if (option.gt !== undefined) {
+      where.height = MoreThan(option.gt)
+    } else if (option.lt !== undefined) {
+      where.height = LessThan(option.lt)
+    }
+
     const findOpt: FindManyOptions<RichListDroppedOutModel> = {
-      where: {
-        height: Between(
-          filter.gt ?? Number.NEGATIVE_INFINITY,
-          filter.lt ?? Number.POSITIVE_INFINITY
-        )
-      },
-      order: { height: filter.order },
-      skip: filter.limit
+      where: where,
+      order: { height: option.order },
+      skip: option.limit
     }
 
     const raw = await this.repo.find(findOpt)

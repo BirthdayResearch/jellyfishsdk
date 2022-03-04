@@ -1,4 +1,4 @@
-import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository } from 'typeorm'
+import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SingleIndexDb, Schema, FindOptions, CrawledBlock } from '@defichain/rich-list-core'
@@ -38,16 +38,21 @@ export class CrawledBlockDbService implements SingleIndexDb<CrawledBlock> {
     return this._map(raw)
   }
 
-  async list (filter: FindOptions): Promise<Array<Schema<CrawledBlock>>> {
+  async list (option: FindOptions): Promise<Array<Schema<CrawledBlock>>> {
+    const where: FindManyOptions<CrawledBlockModel>['where'] = {}
+
+    if (option.gt !== undefined && option.lt !== undefined) {
+      where.height = Between(option.gt, option.lt)
+    } else if (option.gt !== undefined) {
+      where.height = MoreThan(option.gt)
+    } else if (option.lt !== undefined) {
+      where.height = LessThan(option.lt)
+    }
+
     const findOpt: FindManyOptions<CrawledBlockModel> = {
-      where: {
-        height: Between(
-          filter.gt ?? Number.NEGATIVE_INFINITY,
-          filter.lt ?? Number.POSITIVE_INFINITY
-        )
-      },
-      order: { height: filter.order },
-      skip: filter.limit
+      where: where,
+      order: { height: option.order },
+      skip: option.limit
     }
 
     const raw = await this.repo.find(findOpt)
