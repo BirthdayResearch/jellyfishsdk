@@ -3,7 +3,7 @@ import { StubWhaleApiClient } from '../stub.client'
 import { StubService } from '../stub.service'
 import { ApiPagedResponse, WhaleApiClient, WhaleApiException } from '../../src'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens, poolSwap } from '@defichain/testing'
-import { PoolPairData, PoolSwap, PoolSwapAggregated, PoolSwapAggregatedInterval } from '../../src/api/poolpairs'
+import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '../../src/api/poolpairs'
 import { Testing } from '@defichain/jellyfish-testing'
 
 let container: MasterNodeRegTestContainer
@@ -371,13 +371,95 @@ describe('poolswap', () => {
     await container.generate(1)
     await service.waitForIndexedHeight(height)
 
-    const response: ApiPagedResponse<PoolSwap> = await client.poolpairs.listPoolSwaps('9')
-    expect(response.length).toStrictEqual(2)
+    const response: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwaps('9')
     expect(response.hasNext).toStrictEqual(false)
-    expect(response[0].fromAmount).toStrictEqual('50.00000000')
-    expect(response[1].fromAmount).toStrictEqual('25.00000000')
-    expect(response[0].fromTokenId).toStrictEqual(1)
-    expect(response[1].fromTokenId).toStrictEqual(1)
+    expect([...response]).toStrictEqual([
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: 1,
+        poolPairId: '9',
+        sort: expect.any(String),
+        fromAmount: '50.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        }
+      },
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: 3,
+        poolPairId: '9',
+        sort: expect.any(String),
+        fromAmount: '25.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        }
+      }
+    ])
+
+    const verbose: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwapsVerbose('9')
+    expect(verbose.hasNext).toStrictEqual(false)
+    expect([...verbose]).toStrictEqual([
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: 1,
+        poolPairId: '9',
+        sort: expect.any(String),
+        fromAmount: '50.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        },
+        from: {
+          address: expect.any(String),
+          symbol: 'A',
+          amount: '50.00000000'
+        },
+        to: {
+          address: expect.any(String),
+          amount: '45.71428571',
+          symbol: 'DFI'
+        }
+      },
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: 3,
+        poolPairId: '9',
+        sort: expect.any(String),
+        fromAmount: '25.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        },
+        from: {
+          address: expect.any(String),
+          symbol: 'A',
+          amount: '25.00000000'
+        },
+        to: {
+          address: expect.any(String),
+          amount: '39.99999999',
+          symbol: 'DFI'
+        }
+      }
+    ])
 
     const poolPair: PoolPairData = await client.poolpairs.get('9')
     expect(poolPair).toStrictEqual({
@@ -594,7 +676,7 @@ describe('poolswap aggregated', () => {
       await service.waitForIndexedHeight(height)
     }
 
-    const dayAggregated: ApiPagedResponse<PoolSwapAggregated> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_DAY, 10)
+    const dayAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_DAY, 10)
     expect([...dayAggregated]).toStrictEqual([
       {
         aggregated: {
@@ -631,7 +713,7 @@ describe('poolswap aggregated', () => {
 
     ])
 
-    const hourAggregated: ApiPagedResponse<PoolSwapAggregated> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)
+    const hourAggregated: ApiPagedResponse<PoolSwapAggregatedData> = await client.poolpairs.listPoolSwapAggregates('10', PoolSwapAggregatedInterval.ONE_HOUR, 3)
     expect([...hourAggregated]).toStrictEqual([
       {
         aggregated: {
