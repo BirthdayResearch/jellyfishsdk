@@ -85,22 +85,38 @@ export class PoolPairController {
     @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(100, limit)
-    const next: NextToken = (nextString !== undefined)
-      ? JSON.parse(Buffer.from(nextString, 'base64url').toString())
-      : {}
-    return await this.getSwapsHistory(network, limit, next)
+    limit = Math.min(30, limit)
+    const nextToken: NextToken = (nextString !== undefined) ? JSON.parse(Buffer.from(nextString, 'base64url').toString()) : {}
+    const {
+      swaps,
+      next
+    } = await this.getSwapsHistory(network, limit, nextToken)
+
+    return {
+      data: { swaps: swaps },
+      page: {
+        next: Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
+      }
+    }
   }
 
-  async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<LegacySubgraphSwapsResponse> {
+  async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
     const api = this.whaleApiClientProvider.getClient(network)
     const swaps: LegacySubgraphSwap[] = []
 
     let iterations = 0
     while (swaps.length <= limit) {
-      // injected height for this operation
-      for (const block of await api.blocks.list(200, next?.height ?? '892800')) {
-        for (const transaction of await api.blocks.getTransactions(block.hash, 100, next?.order)) {
+      for (const block of await api.blocks.list(200, next?.height)) {
+        for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
+          if (transaction.voutCount !== 2) {
+            continue
+          }
+          if (transaction.weight === 605) {
+            continue
+          }
+
+          iterations++
+
           const vouts = await api.transactions.getVouts(transaction.txid, 1)
           const dftx = findPoolSwapDfTx(vouts)
           if (dftx === undefined) {
@@ -121,30 +137,21 @@ export class PoolPairController {
 
           if (swaps.length === limit) {
             return {
-              data: {
-                swaps
-              },
-              page: {
-                next: JSON.stringify(next)
-              }
+              swaps,
+              next
             }
           }
         }
       }
 
-      iterations++
-      if (swaps.length === 0 && iterations >= 1000) {
+      if (swaps.length === 0 || iterations >= 500) {
         break
       }
     }
 
     return {
-      data: {
-        swaps
-      },
-      page: {
-        next: JSON.stringify(next)
-      }
+      swaps,
+      next
     }
   }
 
