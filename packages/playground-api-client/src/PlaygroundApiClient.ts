@@ -3,6 +3,8 @@ import { Rpc } from './apis/Rpc'
 import { Playground } from './apis/Playground'
 import { Wallet } from './apis/Wallet'
 
+export type Method = 'POST' | 'GET'
+
 /**
  * PlaygroundApiClient Options
  */

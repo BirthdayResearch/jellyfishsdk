@@ -74,6 +74,7 @@ export class RpcController {
   @Post('/:method')
   @HttpCode(200)
   async call (@Param('method', MethodBlacklist) method: string, @Body() call?: CallRequest): Promise<any> {
+    console.log('call')
     return await this.client.call(method, call?.params ?? [], 'lossless')
   }
 }
