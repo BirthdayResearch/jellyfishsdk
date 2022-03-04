@@ -5,6 +5,8 @@ import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/accountToUtxos'
 import { UtxoAddressParser } from './utxo'
+import { WithdrawFromVaultParser } from './dftx/withdrawFromVault'
+import { DepositToVaultParser } from './dftx/depositToVault'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
@@ -15,7 +17,9 @@ export class AddressParser {
     private readonly network: NetworkName
   ) {
     this.dftxs = [
-      new AccountToUtxosParser(network)
+      new AccountToUtxosParser(network),
+      new WithdrawFromVaultParser(network),
+      new DepositToVaultParser(network)
       // TODO(@ivan-zynesis): add ALL
     ]
     this.utxo = new UtxoAddressParser(apiClient)
