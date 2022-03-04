@@ -6,6 +6,10 @@ import { ActuatorModule } from '@defichain-apps/libs/actuator'
 import { BlockchainCppModule } from '@defichain-apps/libs/blockchaincpp'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { QueueItem, QueueModule } from './QueueModule'
+import { CrawledBlockModel } from '../models/CrawledBlock'
+import { AddressBalanceModel } from '../models/AddressBalance'
+import { RichListDatabaseModule } from './RichListDatabaseModule'
+import { RichListModule } from './RichListModule'
 
 @Module({
   imports: [
@@ -25,13 +29,19 @@ import { QueueItem, QueueModule } from './QueueModule'
         database: configService.get<string>('POSTGRES_DB'),
         migrations: [/* TODO(@ivan-zynesis): create table if not exists */],
         // FIXME(@ivan-zynesis): remove sync after entities loading can be done via migration
-        entities: [QueueItem],
+        entities: [
+          QueueItem,
+          CrawledBlockModel,
+          AddressBalanceModel
+        ],
         synchronize: true
       }),
       inject: [ConfigService]
     }),
     QueueModule,
     BlockchainCppModule,
+    RichListDatabaseModule,
+    RichListModule,
     ControllerModule
   ]
 })
@@ -49,6 +59,8 @@ function ENV_VALIDATION_SCHEMA (): any {
     POSTGRES_PORT: Joi.number().default(5432),
     POSTGRES_USER: Joi.string(),
     POSTGRES_PASS: Joi.string(),
-    POSTGRES_DB: Joi.string()
+    POSTGRES_DB: Joi.string(),
+
+    WHALE_API_URL: Joi.string()
   })
 }

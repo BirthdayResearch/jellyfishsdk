@@ -4,7 +4,7 @@ export interface ActiveAddressAccountAmount {
   [key: string]: AccountAmount
 }
 
-export interface RichListItem {
+export interface AddressBalance {
   address: string
   amount: number
 }

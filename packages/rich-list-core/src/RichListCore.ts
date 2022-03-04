@@ -5,7 +5,7 @@ import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
 import { AddressParser } from './controller/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
-import { RichListItem, ActiveAddressAccountAmount } from './types'
+import { AddressBalance, ActiveAddressAccountAmount } from './types'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
 
@@ -18,7 +18,7 @@ export class RichListCore {
     private readonly network: NetworkName,
     private readonly apiClient: ApiClient,
     private readonly whaleApiClient: WhaleApiClient,
-    readonly addressBalances: SingleIndexDb<RichListItem>,
+    readonly addressBalances: SingleIndexDb<AddressBalance>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
@@ -116,7 +116,7 @@ export class RichListCore {
     }
   }
 
-  async get (tokenId: string): Promise<RichListItem[]> {
+  async get (tokenId: string): Promise<AddressBalance[]> {
     if (Number.isNaN(tokenId)) {
       throw new Error('Invalid token id')
     }
