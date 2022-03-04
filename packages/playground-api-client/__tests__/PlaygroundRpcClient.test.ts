@@ -26,7 +26,7 @@ afterAll(async () => {
 })
 
 describe('whitelisted rpc methods', () => {
-  it('should client.blockchain.getBlockchainInfo()', async () => {
+  it.only('should client.blockchain.getBlockchainInfo()', async () => {
     const info = await client.blockchain.getBlockchainInfo()
     console.log('info: ', info)
 

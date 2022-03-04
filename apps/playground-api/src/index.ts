@@ -1,14 +1,14 @@
 import { RootModule } from './modules/RootModule'
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
+import { newFastifyAdapter } from './Fastify'
 
 export class RootServer {
   app?: NestFastifyApplication
 
   async create (): Promise<NestFastifyApplication> {
-    const adapter = new FastifyAdapter()
-    return await NestFactory.create<NestFastifyApplication>(RootModule, adapter)
+    return await NestFactory.create<NestFastifyApplication>(RootModule, newFastifyAdapter())
   }
 
   async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
