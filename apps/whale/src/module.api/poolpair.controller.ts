@@ -2,7 +2,7 @@ import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { PoolPairData, PoolSwap, PoolSwapAggregated } from '@whale-api-client/api/poolpairs'
+import { PoolPairData, PoolSwapAggregatedData, PoolSwapData } from '@whale-api-client/api/poolpairs'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PoolPairService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
@@ -83,9 +83,35 @@ export class PoolPairController {
   async listPoolSwaps (
     @Param('id', ParseIntPipe) id: string,
       @Query() query: PaginationQuery
-  ): Promise<ApiPagedResponse<PoolSwap>> {
-    const result = await this.poolSwapMapper.query(id, query.size, query.next)
-    return ApiPagedResponse.of(result, query.size, item => {
+  ): Promise<ApiPagedResponse<PoolSwapData>> {
+    const items = await this.poolSwapMapper.query(id, query.size, query.next)
+    return ApiPagedResponse.of(items, query.size, item => {
+      return item.sort
+    })
+  }
+
+  /**
+   * @param {string} id poolpair id
+   * @param {PaginationQuery} query with size restricted to 20
+   * @param {number} query.size
+   * @param {string} [query.next]
+   * @return {Promise<ApiPagedResponse<PoolPairData>>}
+   */
+  @Get('/:id/swaps/verbose')
+  async listPoolSwapsVerbose (
+    @Param('id', ParseIntPipe) id: string,
+      @Query() query: PaginationQuery
+  ): Promise<ApiPagedResponse<PoolSwapData>> {
+    query.size = query.size > 20 ? 20 : query.size
+    const items: PoolSwapData[] = await this.poolSwapMapper.query(id, query.size, query.next)
+
+    for (const swap of items) {
+      const fromTo = await this.poolPairService.findSwapFromTo(swap.block.height, swap.txid, swap.txno)
+      swap.from = fromTo?.from
+      swap.to = fromTo?.to
+    }
+
+    return ApiPagedResponse.of(items, query.size, item => {
       return item.sort
     })
   }
@@ -106,10 +132,10 @@ export class PoolPairController {
     @Param('id', ParseIntPipe) id: string,
       @Param('interval', ParseIntPipe) interval: string,
       @Query() query: PaginationQuery
-  ): Promise<ApiPagedResponse<PoolSwapAggregated>> {
+  ): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
     const lt = query.next === undefined ? undefined : parseInt(query.next)
     const aggregates = await this.poolSwapAggregatedMapper.query(`${id}-${interval}`, query.size, lt)
-    const mapped: Array<Promise<PoolSwapAggregated>> = aggregates.map(async value => {
+    const mapped: Array<Promise<PoolSwapAggregatedData>> = aggregates.map(async value => {
       return {
         ...value,
         aggregated: {
@@ -126,8 +152,7 @@ export class PoolPairController {
   }
 }
 
-function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr'],
-  volume?: PoolPairData['volume']): PoolPairData {
+function mapPoolPair (id: string, info: PoolPairInfo, totalLiquidityUsd?: BigNumber, apr?: PoolPairData['apr'], volume?: PoolPairData['volume']): PoolPairData {
   const [symbolA, symbolB] = info.symbol.split('-')
 
   return {
