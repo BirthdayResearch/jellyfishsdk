@@ -10,6 +10,7 @@ import { MasternodeStats, MasternodeStatsMapper } from '@src/module.model/master
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/blockchain'
 import { getBlockSubsidy } from '@src/module.api/subsidy'
 import { BlockSubsidy } from '@defichain/jellyfish-network'
+import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
 
 @Controller('/stats')
 export class StatsController {
@@ -52,7 +53,7 @@ export class StatsController {
 
     const max = 1200000000
     const total = this.blockSubsidy.getSupply(height).div(100000000)
-    const burned = await this.cachedGet('supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1806)
+    const burned = await this.cachedGet('Controller.supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1806)
     const circulating = total.minus(burned)
 
     return {
@@ -61,6 +62,13 @@ export class StatsController {
       burned: burned.toNumber(),
       circulating: circulating.toNumber()
     }
+  }
+
+  @Get('/burn')
+  async getBurn (): Promise<BurnInfo> {
+    return await this.cachedGet('Controller.burn.getBurnInfo', async () => {
+      return await this.rpcClient.account.getBurnInfo()
+    }, 123)
   }
 
   private async cachedGet<T> (field: string, fetch: () => Promise<T>, ttl: number): Promise<T> {

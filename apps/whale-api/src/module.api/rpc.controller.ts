@@ -32,7 +32,6 @@ export class MethodWhitelist implements PipeTransform {
     'getblockcount',
     'getblock',
     'getblockstats',
-    'getburninfo',
     'getgov',
     'validateaddress',
     'listcommunitybalances',
