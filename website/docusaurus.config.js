@@ -44,13 +44,13 @@ module.exports = {
         {
           to: 'ocean',
           activeBasePath: 'ocean',
-          label: 'ocean.defichain.com/v0',
+          label: 'Ocean API',
           position: 'left'
         },
         {
           to: 'legacy',
           activeBasePath: 'legacy',
-          label: 'api.defichain.com/v1',
+          label: 'Stats API',
           position: 'left'
         },
         {
