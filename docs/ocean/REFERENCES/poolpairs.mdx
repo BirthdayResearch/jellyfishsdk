@@ -443,7 +443,8 @@ export interface PoolPairData {
 
 ## List Pool Swaps (Verbose)
 
-List all pool swaps with from/to information for each Pool Pair. Includes composite pair and normal pair swaps.
+List all `PoolSwap` with from and to information for each `PoolPair`. This endpoint will include all swaps that are
+routed through a given `PoolPair`. Composite PoolSwap & PoolSwap.
 
 #### Code Samples
 
@@ -524,6 +525,8 @@ await api.poolpairs.listPoolSwapsVerbose('5')
 ##### TypeScript Definitions
 
 ```typescript
+export type CompositePoolSwapData = PoolSwapData
+
 export interface PoolSwapData {
   id: string
   sort: string
