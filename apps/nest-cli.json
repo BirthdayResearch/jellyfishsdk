@@ -5,6 +5,12 @@
     "tsConfigPath": "tsconfig.json"
   },
   "projects": {
+    "centralised-indexer": {
+      "type": "application",
+      "root": "centralised-indexer",
+      "entryFile": "apps/centralised-indexer/src/indexer/index",
+      "sourceRoot": "centralised-indexer/src/indexer"
+    },
     "legacy-api": {
       "type": "application",
       "root": "legacy-api",
