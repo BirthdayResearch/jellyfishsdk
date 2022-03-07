@@ -149,7 +149,7 @@ export class PoolPairController {
         }
       }
 
-      if (swaps.length === 0 || iterations >= 500) {
+      if (swaps.length === 0 || iterations >= 1000) {
         break
       }
     }
