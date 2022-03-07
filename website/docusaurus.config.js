@@ -44,13 +44,13 @@ module.exports = {
         {
           to: 'ocean',
           activeBasePath: 'ocean',
-          label: 'Ocean Rest API',
+          label: 'Ocean REST API',
           position: 'left'
         },
         {
           to: 'legacy',
           activeBasePath: 'legacy',
-          label: 'Stats Rest API',
+          label: 'Stats REST API',
           position: 'left'
         },
         {
