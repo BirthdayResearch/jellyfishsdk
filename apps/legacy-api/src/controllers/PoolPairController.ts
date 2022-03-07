@@ -108,6 +108,11 @@ export class PoolPairController {
     while (swaps.length <= limit) {
       for (const block of await api.blocks.list(200, next?.height)) {
         for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
+          next = {
+            height: block.height.toString(),
+            order: transaction.order.toString()
+          }
+
           if (transaction.voutCount !== 2) {
             continue
           }
@@ -130,17 +135,17 @@ export class PoolPairController {
 
           swaps.push(swap)
 
-          next = {
-            height: block.height.toString(),
-            order: transaction.order.toString()
-          }
-
           if (swaps.length === limit) {
             return {
               swaps,
               next
             }
           }
+        }
+
+        next = {
+          height: block.height.toString(),
+          order: '0'
         }
       }
 
