@@ -14,6 +14,21 @@ export abstract class RootServer {
       allowedHeaders: ['Content-Type'],
       maxAge: 60 * 24 * 7
     })
+
+    // for ocean-api & rich-list-api
+    // avoid duplication for now due to small
+    // TODO(canonbrother): move to its own class while wide variety of configuration
+    const version = config.get<string>('API_VERSION') as string
+    const network = config.get<string>('API_NETWORK') as string
+
+    if (version !== undefined && network !== undefined) {
+      app.setGlobalPrefix(`${version}/${network}`, {
+        exclude: [
+          '/_actuator/probes/liveness',
+          '/_actuator/probes/readiness'
+        ]
+      })
+    }
   }
 
   async init (app: NestFastifyApplication, config: ConfigService): Promise<void> {
