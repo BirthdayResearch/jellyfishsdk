@@ -8,6 +8,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  APPS: 'legacy-api,ocean-api,playground-api'
+
 jobs:
   build:
     if: github.actor != 'dependabot[bot]'
@@ -41,13 +44,15 @@ jobs:
         with:
           script: return require('./.github/scripts/release-tags.js')({ context })
           result-encoding: string
-      
+
       - name: Build & Publish
         uses: docker/build-push-action@7f9d37fa544684fb73bfe4835ed7214c255ce02b
         with:
           push: true
           build-args: APP=${{ matrix.app }}
-          platforms: ${{ matrix.platform }}
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: ${{ steps.tags.outputs.result }}
 
   report:
@@ -57,12 +62,10 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@230611dbd0eb52da1e1f4f7bc8bb0c3a339fc8b7
-      
+
       - name: Create Report
         uses: actions/github-script@9ac08808f993958e9de277fe43a64532a609130e
         id: report
-        env:
-          APPS: 'legacy-api,ocean-api,playground-api'
         with:
           script: return require('./.github/scripts/release-report.js')({ context })
           result-encoding: string
