@@ -22,6 +22,8 @@ export abstract class RootServer {
   }
 
   async start (): Promise<void> {
+    await this.stop() // safety start
+
     this.app = await this.create()
     const config = this.app.get(ConfigService)
 
