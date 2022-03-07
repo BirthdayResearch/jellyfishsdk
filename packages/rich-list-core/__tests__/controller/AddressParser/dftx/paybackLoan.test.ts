@@ -4,7 +4,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from 'packages/jellyfish-api-core/src/category/rawtx'
 import { AddressParser } from '../../../../src/controller/AddressParser'
 
-describe('TakeLoanParser', () => {
+describe('PaybackLoanParser', () => {
   const container = new MasterNodeRegTestContainer()
   let apiClient!: JsonRpcClient
 
@@ -50,8 +50,8 @@ describe('TakeLoanParser', () => {
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
-      { token: 'GOOGL', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' }
+      { token: 'TSLA', currency: 'USD' },
+      { token: 'DUSD', currency: 'USD' }
     ]
     oracleId = await apiClient.oracle.appointOracle(
       oracleAddr,
@@ -69,7 +69,7 @@ describe('TakeLoanParser', () => {
           { tokenAmount: '1@DFI', currency: 'USD' },
           { tokenAmount: '500@BTC', currency: 'USD' },
           { tokenAmount: '2@TSLA', currency: 'USD' },
-          { tokenAmount: '4@GOOGL', currency: 'USD' }
+          { tokenAmount: '1@DUSD', currency: 'USD' }
         ]
       }
     )
@@ -92,14 +92,14 @@ describe('TakeLoanParser', () => {
 
     // setLoanToken
     await apiClient.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
     })
     await container.generate(1)
 
     await apiClient.loan.setLoanToken({
-      symbol: 'GOOGL',
-      fixedIntervalPriceId: 'GOOGL/USD'
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
     })
     await container.generate(1)
 
@@ -132,10 +132,52 @@ describe('TakeLoanParser', () => {
     })
     await container.generate(1)
 
-    const txn = await apiClient.loan.takeLoan({
+    await apiClient.loan.takeLoan({
       vaultId: vault,
       to: loanTaker,
-      amounts: ['100@TSLA']
+      amounts: ['500@TSLA', '500@DUSD']
+    })
+    await container.generate(1)
+
+    // Create pools for the assets
+    // Although using loantaker as the liquidity provider
+    // doesn't make sense in real life scenario
+    // TODO(chen): Improve tests
+    const shareAddress = await container.getNewAddress()
+
+    await apiClient.poolpair.createPoolPair({
+      tokenA: 'TSLA',
+      tokenB: 'DUSD',
+      commission: 0,
+      status: true,
+      ownerAddress: loanTaker
+    })
+    await container.generate(1)
+
+    await apiClient.poolpair.addPoolLiquidity({
+      [loanTaker]: ['400@TSLA', '100@DUSD']
+    }, shareAddress)
+    await container.generate(1)
+
+    await apiClient.poolpair.createPoolPair({
+      tokenA: 'DUSD',
+      tokenB: 'DFI',
+      commission: 0,
+      status: true,
+      ownerAddress: loanTaker
+    })
+    await container.generate(1)
+
+    await apiClient.poolpair.addPoolLiquidity({
+      [loanTaker]: ['100@DUSD', '200@DFI']
+    }, shareAddress)
+    await container.generate(1)
+
+    // Payback
+    const txn = await apiClient.loan.paybackLoan({
+      vaultId: vault,
+      from: loanTaker,
+      amounts: ['10@TSLA']
     })
 
     // test subject
@@ -146,7 +188,7 @@ describe('TakeLoanParser', () => {
     await container.stop()
   })
 
-  it('should extract all addresses involved in takeLoan tx', async () => {
+  it('should extract all addresses involved in paybackLoan tx', async () => {
     const parser = new AddressParser(apiClient, 'regtest')
     const addresses = await parser.parse(rawTx)
 
