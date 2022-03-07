@@ -14,6 +14,7 @@ import { PoolSwapParser } from './dftx/poolSwap'
 import { CompositeSwapParser } from './dftx/compositeSwap'
 import { WithdrawFromVaultParser } from './dftx/withdrawFromVault'
 import { DepositToVaultParser } from './dftx/depositToVault'
+import { TakeLoanParser } from './dftx/takeLoan'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
@@ -32,6 +33,7 @@ export class AddressParser {
       new PoolRemoveLiquidityParser(network),
       new PoolSwapParser(network),
       new CompositeSwapParser(network),
+      new TakeLoanParser(network),
       new WithdrawFromVaultParser(network),
       new DepositToVaultParser(network)
       // TODO(@ivan-zynesis): add ALL
