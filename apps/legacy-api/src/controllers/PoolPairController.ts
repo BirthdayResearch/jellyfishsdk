@@ -176,8 +176,6 @@ export class PoolPairController {
         poolPair.totalLiquidity.usd ?? 1
       )
     )
-    // console.log(`${poolPairVolumeInUsd} USD = ${volumeInBase} ${poolPair.tokenA.symbol}`)
-    // console.log(`${poolPairVolumeInUsd} USD = ${volumeInQuote} ${poolPair.tokenB.symbol}`)
     return [volumeInBase, volumeInQuote]
   }
 
