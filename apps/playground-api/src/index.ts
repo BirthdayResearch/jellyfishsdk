@@ -3,8 +3,11 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
 import { RootServer } from '@defichain-apps/libs/rootserver'
+import { newFastifyAdapter } from './Fastify'
 
 export class PlaygroundApiServer extends RootServer {
+  adapter = newFastifyAdapter()
+
   async create (): Promise<NestFastifyApplication> {
     return await NestFactory.create<NestFastifyApplication>(RootModule, this.adapter)
   }
