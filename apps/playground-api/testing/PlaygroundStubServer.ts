@@ -1,9 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Test } from '@nestjs/testing'
 import { RootModule } from '../src/modules/RootModule'
 import { RootServer } from '../src'
 import { ConfigService } from '@nestjs/config'
+import { newFastifyAdapter } from '../src/Fastify'
 
 /**
  * Service stubs are simulations of a real service, which are used for functional testing.
@@ -24,7 +25,7 @@ export class PlaygroundStubServer extends RootServer {
       .overrideProvider(ConfigService).useValue(new TestConfigService(url))
       .compile()
 
-    const adapter = new FastifyAdapter({
+    const adapter = newFastifyAdapter({
       logger: false
     })
     return module.createNestApplication<NestFastifyApplication>(adapter)
