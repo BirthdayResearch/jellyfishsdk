@@ -12,15 +12,6 @@ export class PlaygroundApiServer extends RootServer {
     return await NestFactory.create<NestFastifyApplication>(RootModule, this.adapter)
   }
 
-  async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
-    app.enableCors({
-      origin: '*',
-      methods: ['GET', 'PUT', 'POST', 'DELETE'],
-      allowedHeaders: ['Content-Type'],
-      maxAge: 60 * 24 * 7
-    })
-  }
-
   async init (app: NestFastifyApplication, config: ConfigService): Promise<void> {
     await app.listen(process.env.PORT ?? '3000', '0.0.0.0')
   }

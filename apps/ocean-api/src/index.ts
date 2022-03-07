@@ -10,15 +10,10 @@ export class OceanApiServer extends RootServer {
   }
 
   async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
+    await super.configure(app, config)
+
     const version = config.get<string>('API_VERSION') as string
     const network = config.get<string>('API_NETWORK') as string
-
-    app.enableCors({
-      origin: '*',
-      methods: ['GET', 'PUT', 'POST', 'DELETE'],
-      allowedHeaders: ['Content-Type'],
-      maxAge: 60 * 24 * 7
-    })
 
     app.setGlobalPrefix(`${version}/${network}`, {
       exclude: [
@@ -26,11 +21,6 @@ export class OceanApiServer extends RootServer {
         '/_actuator/probes/readiness'
       ]
     })
-  }
-
-  async init (app: NestFastifyApplication, config: ConfigService): Promise<void> {
-    const port = config.get<number>('PORT', 3000)
-    await app.listen(port, '0.0.0.0')
   }
 }
 

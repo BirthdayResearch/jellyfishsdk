@@ -7,9 +7,19 @@ export abstract class RootServer {
 
   abstract create (): Promise<NestFastifyApplication>
 
-  abstract configure (app: NestFastifyApplication, config: ConfigService): Promise<void>
+  async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
+    app.enableCors({
+      origin: '*',
+      methods: ['GET', 'PUT', 'POST', 'DELETE'],
+      allowedHeaders: ['Content-Type'],
+      maxAge: 60 * 24 * 7
+    })
+  }
 
-  abstract init (app: NestFastifyApplication, config: ConfigService): Promise<void>
+  async init (app: NestFastifyApplication, config: ConfigService): Promise<void> {
+    const port = config.get<number>('PORT', 3000)
+    await app.listen(port, '0.0.0.0')
+  }
 
   async start (): Promise<void> {
     this.app = await this.create()
