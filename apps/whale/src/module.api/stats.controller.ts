@@ -1,4 +1,4 @@
-import { BadGatewayException, Controller, Get } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 import { StatsData, SupplyData } from '@whale-api-client/api/stats'
 import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
@@ -30,16 +30,16 @@ export class StatsController {
 
     return {
       count: {
-        ...await this.cachedGet('count', this.getCount.bind(this), 1800),
+        ...await this.cachedGet('count', this.getCount.bind(this), 1801),
         blocks: block.height
       },
-      burned: await this.cachedGet('burned', this.getBurned.bind(this), 1800),
-      tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 300),
-      price: await this.cachedGet('price', this.getPrice.bind(this), 240),
-      masternodes: await this.cachedGet('masternodes', this.getMasternodes.bind(this), 300),
-      loan: await this.cachedGet('loan', this.getLoan.bind(this), 300),
-      emission: await this.cachedGet('emission', this.getEmission.bind(this), 1800),
-      net: await this.cachedGet('net', this.getNet.bind(this), 1800),
+      burned: await this.cachedGet('burned', this.getBurned.bind(this), 1700),
+      tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 310),
+      price: await this.cachedGet('price', this.getPrice.bind(this), 220),
+      masternodes: await this.cachedGet('masternodes', this.getMasternodes.bind(this), 325),
+      loan: await this.cachedGet('loan', this.getLoan.bind(this), 299),
+      emission: await this.cachedGet('emission', this.getEmission.bind(this), 1750),
+      net: await this.cachedGet('net', this.getNet.bind(this), 1830),
       blockchain: {
         difficulty: block.difficulty
       }
@@ -52,10 +52,7 @@ export class StatsController {
 
     const max = 1200000000
     const total = this.blockSubsidy.getSupply(height).div(100000000)
-    const burned = await this.getBurnedTotal()
-    if (burned === undefined) {
-      throw new BadGatewayException('rpc gateway error')
-    }
+    const burned = await this.cachedGet('supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1806)
     const circulating = total.minus(burned)
 
     return {
@@ -108,7 +105,7 @@ export class StatsController {
     const masternodeTvl = requireValue(masternodes?.stats?.tvl, 'masternodes.stats.tvl')
     const masternodeTvlUSD = new BigNumber(masternodeTvl).times(usd).toNumber()
 
-    const loan = await this.cachedGet('loan', this.getLoan.bind(this), 1800)
+    const loan = await this.cachedGet('loan', this.getLoan.bind(this), 1810)
 
     return {
       dex: dex.toNumber(),
@@ -140,18 +137,19 @@ export class StatsController {
     }
   }
 
-  private async getBurnedTotal (): Promise<BigNumber | undefined> {
-    return await this.cache.get<BigNumber>('stats.getBurnedTotal', async () => {
-      // 8defichainBurnAddressXXXXXXXdRQkSm, using the hex representation as it's applicable in all network
-      const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
-      const tokens = await this.rpcClient.account.getAccount(address)
-      const burnInfo = await this.rpcClient.account.getBurnInfo()
+  /**
+   * '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac' is '8defichainBurnAddressXXXXXXXdRQkSm'
+   * using the hex representation as it's applicable in all network
+   */
+  private async getBurnedTotal (): Promise<BigNumber> {
+    const address = '76a914f7874e8821097615ec345f74c7e5bcf61b12e2ee88ac'
+    const tokens = await this.rpcClient.account.getAccount(address)
+    const burnInfo = await this.rpcClient.account.getBurnInfo()
 
-      const utxo = burnInfo.amount
-      const account = findTokenBalance(tokens, 'DFI')
-      const emission = burnInfo.emissionburn
-      return utxo.plus(account).plus(emission)
-    })
+    const utxo = burnInfo.amount
+    const account = findTokenBalance(tokens, 'DFI')
+    const emission = burnInfo.emissionburn
+    return utxo.plus(account).plus(emission)
   }
 
   private async getPrice (): Promise<StatsData['price']> {
