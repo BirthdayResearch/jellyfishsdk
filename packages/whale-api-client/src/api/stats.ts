@@ -1,4 +1,7 @@
 import { WhaleApiClient } from '../whale.api.client'
+import { account } from '@defichain/jellyfish-api-core'
+
+export type BurnData = account.BurnInfo
 
 export class Stats {
   constructor (private readonly client: WhaleApiClient) {
@@ -16,10 +19,19 @@ export class Stats {
   /**
    * Get supply of DeFi Blockchain
    *
-   * @return {Promise<BlockRewardDistribution}
+   * @return {Promise<SupplyData}
    */
   async getSupply (): Promise<SupplyData> {
     return await this.client.requestData('GET', 'stats/supply')
+  }
+
+  /**
+   * Get burn info of DeFi Blockchain
+   *
+   * @return {Promise<BurnData}
+   */
+  async getBurn (): Promise<BurnData> {
+    return await this.client.requestData('GET', 'stats/burn')
   }
 }
 
