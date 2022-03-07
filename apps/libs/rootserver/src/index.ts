@@ -11,7 +11,15 @@ export abstract class RootServer {
 
   abstract init (app: NestFastifyApplication, config: ConfigService): Promise<void>
 
-  abstract start (): Promise<void>
+  async start (): Promise<void> {
+    this.app = await this.create()
+    const config = this.app.get(ConfigService)
 
-  abstract stop (): Promise<void>
+    await this.configure(this.app, config)
+    await this.init(this.app, config)
+  }
+
+  async stop (): Promise<void> {
+    await this.app?.close()
+  }
 }

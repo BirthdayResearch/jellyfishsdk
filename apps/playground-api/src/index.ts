@@ -24,18 +24,6 @@ export class PlaygroundApiServer extends RootServer {
   async init (app: NestFastifyApplication, config: ConfigService): Promise<void> {
     await app.listen(process.env.PORT ?? '3000', '0.0.0.0')
   }
-
-  async start (): Promise<void> {
-    this.app = await this.create()
-    const config = this.app.get(ConfigService)
-
-    await this.configure(this.app, config)
-    await this.init(this.app, config)
-  }
-
-  async stop (): Promise<void> {
-    await this.app?.close()
-  }
 }
 
 /**
