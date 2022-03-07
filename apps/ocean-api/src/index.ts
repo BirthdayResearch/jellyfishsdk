@@ -1,14 +1,12 @@
 import { RootModule } from './modules/RootModule'
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
+import { RootServer } from '@defichain-apps/libs/rootserver'
 
-export class RootServer {
-  app?: NestFastifyApplication
-
+export class OceanApiServer extends RootServer {
   async create (): Promise<NestFastifyApplication> {
-    const adapter = new FastifyAdapter()
-    return await NestFactory.create<NestFastifyApplication>(RootModule, adapter)
+    return await NestFactory.create<NestFastifyApplication>(RootModule, this.adapter)
   }
 
   async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
@@ -52,5 +50,5 @@ export class RootServer {
  * Bootstrap RootModule and start server
  */
 if (require.main === module) {
-  void new RootServer().start()
+  void new OceanApiServer().start()
 }
