@@ -38,10 +38,10 @@
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.4",
-    "typeorm": "^0.2.44"
+    "typeorm": "^0.2.45"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.1",
+    "@nestjs/cli": "^8.2.2",
     "@nestjs/schematics": "^8.0.7",
     "@nestjs/testing": "^8.4.0",
     "@types/cron": "^1.7.3",
