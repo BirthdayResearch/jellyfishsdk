@@ -2,9 +2,9 @@
 # More details are here: https://help.github.com/articles/about-codeowners/
 
 # SIG: Blockchain
-/docs/node/                                     @fuxingloh @surangap @canonbrother @ivan-zynesis @jingyi2811 @chee-chyuan
+/docs/node/                                     @fuxingloh @surangap @canonbrother @ivan-zynesis @jingyi2811 @chee-chyuan @chanakasameera
 
-/packages/jellyfish-api-core/                   @fuxingloh @surangap @canonbrother @ivan-zynesis @jingyi2811 @chee-chyuan
+/packages/jellyfish-api-core/                   @fuxingloh @surangap @canonbrother @ivan-zynesis @jingyi2811 @chee-chyuan @chanakasameera
 /packages/jellyfish-api-jsonrpc/                @fuxingloh @surangap
 /packages/jellyfish-json/                       @fuxingloh @canonbrother
 /packages/jellyfish-network/                    @fuxingloh @surangap @ivan-zynesis @canonbrother
@@ -14,15 +14,27 @@
 /packages/jellyfish-transaction-builder/        @fuxingloh @surangap @ivan-zynesis @canonbrother @jingyi2811 @chee-chyuan
 
 # SIG: Ecosystem
+/website/                                       @fuxingloh @kodemon
 /docs/ecosystem/                                @fuxingloh @canonbrother @ivan-zynesis
-/docs/ocean/                                    @fuxingloh @canonbrother @ivan-zynesis
 /docs/testing/                                  @fuxingloh @canonbrother @ivan-zynesis
 
-/apps/ocean-api/                                @fuxingloh
-/apps/website/                                  @fuxingloh
+/apps/libs                                      @fuxingloh @eli-lim @kodemon
+
+/docs/legacy/                                   @fuxingloh @eli-lim
+/apps/legacy-api/                               @fuxingloh @joeldavidw @eli-lim
+
+/docs/ocean/                                    @fuxingloh @canonbrother @ivan-zynesis
+/apps/ocean-api/                                @fuxingloh @canonbrother @kodemon
+/packages/ocean-api-client/                     @fuxingloh @canonbrother @kodemon
+
+/apps/playground-api/                           @fuxingloh @canonbrother
+/packages/playground-api-client/                @fuxingloh @canonbrother
+
+/apps/whale-api/                                @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon
+/packages/whale-api-client/                     @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon
+/packages/whale-api-wallet/                     @fuxingloh @canonbrother @ivan-zynesis @jingyi2811 @kodemon
 
 /packages/jellyfish-testing/                    @fuxingloh @canonbrother @jingyi2811 @surangap
-/packages/ocean-api-client/                     @fuxingloh
 /packages/playground/                           @fuxingloh @canonbrother
 /packages/testcontainers/                       @fuxingloh @canonbrother @surangap
 /packages/testing/                              @fuxingloh @canonbrother @surangap
@@ -31,14 +43,20 @@
 /packages/jellyfish-address/                    @fuxingloh @ivan-zynesis
 /packages/jellyfish-crypto/                     @fuxingloh @ivan-zynesis @surangap
 /packages/jellyfish-transaction-signature/      @fuxingloh @ivan-zynesis @surangap
+
 /packages/jellyfish-wallet/                     @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet-classic/             @fuxingloh @ivan-zynesis @monstrobishi
 /packages/jellyfish-wallet-encrypted/           @fuxingloh @ivan-zynesis
 /packages/jellyfish-wallet-mnemonic/            @fuxingloh @ivan-zynesis
 
+/apps/rich-list-api/                            @ivan-zynesis @cwkang1998
+/packages/rich-list-api-client/                 @ivan-zynesis @cwkang1998
+
 # Chore
 /.github/                                       @fuxingloh
 /.husky/                                        @fuxingloh
+Dockerfile                                      @fuxingloh @kodemon
+.dockerignore                                   @fuxingloh
 lerna.json                                      @fuxingloh @canonbrother @ivan-zynesis
 tsconfig.json                                   @fuxingloh @canonbrother @ivan-zynesis
 tsconfig.base.json                              @fuxingloh @canonbrother @ivan-zynesis

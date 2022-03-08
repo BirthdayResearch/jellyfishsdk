@@ -385,3 +385,15 @@ interface wallet {
   importPrivKey (privkey: string, label: string = "", rescan: boolean = true): Promise<void>
 }
 ```
+
+## listWallets
+
+Returns a list of currently loaded wallets.
+
+For full information on the wallet, use [getWalletInfo](#getwalletinfo)
+
+```ts title="client.wallet.listWallets()"
+interface wallet {
+  listWallets (): Promise<string[]>
+}
+```

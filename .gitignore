@@ -7,6 +7,10 @@
 !.idea/*.iml
 !.idea/README.md
 
+!.idea/.run/
+.idea/.run/*
+!.idea/.run/run-all-jest-tests-from-proj-root.run.xml
+
 # Yarn
 .yarn/*
 !.yarn/patches

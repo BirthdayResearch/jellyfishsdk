@@ -301,6 +301,22 @@ export class Account {
   }
 
   /**
+   * Returns information about single account history
+   *
+   * @param {string} owner Single account ID (CScript or address)
+   * @param {number} blockHeight Block height to search in
+   * @param {number} txn Order in block
+   * @return {Promise<AccountHistory>}
+   */
+  async getAccountHistory (
+    owner: string,
+    blockHeight: number,
+    txn: number
+  ): Promise<AccountHistory> {
+    return await this.client.call('getaccounthistory', [owner, blockHeight, txn], 'number')
+  }
+
+  /**
    * Returns count of account history
    *
    * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history count for all owned accounts or 'all' to list whole DB
@@ -387,6 +403,7 @@ export interface AccountResult<T, U> {
 
 export interface AccountOwner {
   asm: string
+  hex: string
   reqSigs: BigNumber
   type: string
   addresses: string[]
@@ -493,9 +510,9 @@ export interface BurnInfo {
    */
   amount: BigNumber
   /**
-   * Token amount send to burn address
+   * Token amount send to burn address; formatted as AMOUNT@SYMBOL
    */
-  tokens: Array<{ name: string, amount: BigNumber }>
+  tokens: string[]
   /**
    * Amount collected via fee burn
    */
@@ -504,4 +521,24 @@ export interface BurnInfo {
    * Amount collected via emission burn
    */
   emissionburn: BigNumber
+  /**
+   * Amount collected via auction burn
+   */
+  auctionburn: BigNumber
+  /**
+   * Value of burn after payback
+   */
+  paybackburn: BigNumber
+  /**
+   * Formatted as AMOUNT@SYMBOL
+   */
+  dexfeetokens: string[]
+  /**
+   * Amount of DFI collected from penalty resulting from paying DUSD using DFI
+   */
+  dfipaybackfee: BigNumber
+  /**
+   * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
+   */
+  dfipaybacktokens: string[]
 }

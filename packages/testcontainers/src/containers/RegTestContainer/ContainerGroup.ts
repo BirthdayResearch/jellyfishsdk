@@ -2,6 +2,7 @@ import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { waitForCondition } from '../../utils'
 import { MasterNodeRegTestContainer } from './Masternode'
 import { RegTestContainer } from './index'
+import { StartOptions } from '../DeFiDContainer'
 
 export class ContainerGroup {
   protected readonly docker: Dockerode
@@ -23,7 +24,7 @@ export class ContainerGroup {
     return this.containers[index] as MasterNodeRegTestContainer
   }
 
-  async start (): Promise<void> {
+  async start (opts?: StartOptions): Promise<void> {
     this.network = await new Promise((resolve, reject) => {
       return this.docker.createNetwork({
         Name: this.name,
@@ -41,7 +42,7 @@ export class ContainerGroup {
 
     // Removing all predefined containers and adding it to group
     for (const container of this.containers.splice(0)) {
-      await container.start()
+      await container.start(opts)
       await this.add(container)
     }
   }

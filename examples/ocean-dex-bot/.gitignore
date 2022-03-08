@@ -1,0 +1,20 @@
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Node Modules
+node_modules
+package-lock.json
+
+# dist & pack
+dist
+*.tgz
+.next
+tsconfig.build.tsbuildinfo
+
+

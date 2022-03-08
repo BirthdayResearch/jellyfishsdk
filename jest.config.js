@@ -3,7 +3,10 @@ module.exports = {
   testRegex: '((\\.|/)(e2e|test|spec))\\.[jt]sx?$',
   testSequencer: require.resolve('./jest.sequencer'),
   moduleNameMapper: {
-    '@defichain/(.*)': '<rootDir>/packages/$1/src'
+    '@defichain/(?!whale-api-client)(.*)': '<rootDir>/packages/$1/src',
+
+    // apps
+    '@defichain-apps/libs/(.*)': '<rootDir>/apps/libs/$1/src'
   },
   verbose: true,
   clearMocks: true,
@@ -11,7 +14,7 @@ module.exports = {
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/examples/',
-    '/apps/website/',
+    '/website/',
     '.*/__tests__/.*',
     '.*/testing/.*'
   ]

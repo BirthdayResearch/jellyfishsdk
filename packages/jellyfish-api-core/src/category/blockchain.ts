@@ -214,6 +214,17 @@ export class Blockchain {
   async waitForBlockHeight (height: number, timeout: number = 30000): Promise<WaitBlockResult> {
     return await this.client.call('waitforblockheight', [height, timeout], 'number')
   }
+
+  /**
+   * Get statistics about the total number and rate of transactions in the chain.
+   *
+   * @param {number} [nBlocks] size of the window in number of blocks. Defaults to 1 month (~86,400) blocks.
+   * @param {string} [blockHash] the hash of the block that ends the window. Defaults to the chain tip.
+   * @return {Promise<ChainTxStats>}
+   */
+  async getChainTxStats (nBlocks?: number, blockHash?: string): Promise<ChainTxStats> {
+    return await this.client.call('getchaintxstats', [nBlocks, blockHash], 'number')
+  }
 }
 
 /**
@@ -414,4 +425,15 @@ export interface MempoolInfo {
 export interface WaitBlockResult {
   hash: string
   height: number
+}
+
+export interface ChainTxStats {
+  time: number
+  txcount: number
+  window_final_block_hash: string
+  window_final_block_height: number
+  window_block_count: number
+  window_tx_count: number
+  window_interval: number
+  txrate: number
 }

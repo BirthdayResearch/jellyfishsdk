@@ -209,9 +209,34 @@ describe('Loan listVaults with options and pagination', () => {
     })
     await testing.generate(1)
 
-    await testing.token.mint({
-      symbol: 'AAPL',
-      amount: 10
+    // setup loan token vault for loaning of loan token
+    const loanTokenSchemeId = 'borrow'
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: loanTokenSchemeId
+    })
+    await testing.generate(1)
+    const loanVaultOwner = await testing.generateAddress()
+    const loanTokenVaultId = await testing.rpc.loan.createVault({
+      ownerAddress: loanVaultOwner,
+      loanSchemeId: loanTokenSchemeId
+    })
+    await testing.generate(1)
+
+    await testing.token.dfi({ address: collateralAddress, amount: '100000' })
+    await testing.container.generate(1)
+
+    // deposit to vault to loan tokens
+    await testing.rpc.loan.depositToVault({
+      vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000@DFI'
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: loanTokenVaultId,
+      amounts: '10@AAPL',
+      to: loanVaultOwner
     })
     await testing.generate(1)
 
@@ -411,7 +436,7 @@ describe('Loan listVaults with options and pagination', () => {
       start: vaults[vaults.length - 1].vaultId
     })
     // should be 2 entries
-    expect(vaultsSecondPage.length).toStrictEqual(2) // total 4, started at index[2], listing 2
+    expect(vaultsSecondPage.length).toStrictEqual(3) // total 4, started at index[2], listing 2 + 1 extra due loantoken vault
 
     // fetch the second page with including_start = true
     const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({
@@ -419,9 +444,10 @@ describe('Loan listVaults with options and pagination', () => {
       start: vaults[vaults.length - 1].vaultId
     })
     // should be 3 entries
-    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(3) // total 4, including_start, started at index[1], listing 3
+    expect(vaultsSecondPageIncludingStart.length).toStrictEqual(4) // total 5, including_start, started at index[1], listing 3 + one more for borrowing loan tokens
 
     //  check if we retrived all 4 entries
+    // need to add the mint token vault here
     expect(vaults.concat(vaultsSecondPageIncludingStart)).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
@@ -513,8 +539,8 @@ describe('Loan listVaults with options and pagination', () => {
       including_start: false,
       start: vaults[Object.keys(vaults).length - 1].vaultId
     }, { state: VaultState.ACTIVE })
-    // should be one more entry
-    expect(Object.keys(vaultsSecondPage).length).toStrictEqual(1)
+    // should be one more entry + another one due to loanTokenVault
+    expect(Object.keys(vaultsSecondPage).length).toStrictEqual(2)
   })
 
   it('should listVaults filtered by state', async () => {
@@ -580,5 +606,5 @@ describe('Loan listVaults with options and pagination', () => {
     const vaults = await testing.rpc.loan.listVaults()
     const theLiqVault = vaults.find(vault => vault.vaultId === vaultId)!
     expect(theLiqVault.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
-  })
+  }, 480000)
 })

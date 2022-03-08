@@ -199,6 +199,17 @@ export class Masternode {
   }
 
   /**
+   * Checks that custom transaction was affected on chain
+   *
+   * @param {string} transactionId transaction hash
+   * @param {number} blockHeight height of block which contain transaction
+   * @return {Promise<boolean>} indicate that custom transaction was affected on chain
+   */
+  async isAppliedCustomTransaction (transactionId: string, blockHeight: number): Promise<boolean> {
+    return await this.client.call('isappliedcustomtx', [transactionId, blockHeight], 'number')
+  }
+
+  /**
    * Returns the auth and confirm anchor masternode teams at current or specified height
    *
    * @param {number} blockHeight The height of block which contain tx

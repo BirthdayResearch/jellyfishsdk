@@ -58,11 +58,12 @@ describe('dex.poolswap()', () => {
     await providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
+    const tokenInitialLiquidity = 100
     await addPoolLiquidity(container, {
       tokenA: 'DFI',
-      amountA: 100,
+      amountA: tokenInitialLiquidity,
       tokenB: 'DOG',
-      amountB: 100,
+      amountB: tokenInitialLiquidity,
       shareAddress: addressLP
     })
     // Fund 100 DFI TOKEN
@@ -92,18 +93,25 @@ describe('dex.poolswap()', () => {
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
+    // calculate swap
+    const dogSwapAmount = new BigNumber(tokenInitialLiquidity).minus(new BigNumber(tokenInitialLiquidity * tokenInitialLiquidity).dividedBy(new BigNumber(tokenInitialLiquidity + 10))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const reserveAAfter = new BigNumber(tokenInitialLiquidity).plus(10)
+    const reserveBAfter = new BigNumber(tokenInitialLiquidity).minus(dogSwapAmount)
+
     // Ensure your balance is correct
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
-    expect(account).toContain('90.00000000@DFI')
-    expect(account).toContain('19.09090910@DOG')
+    const dfiAccountAfter = new BigNumber(100).minus(10)
+    const dogAccountAfter = new BigNumber(10).plus(dogSwapAmount)
+    expect(account).toContain(`${dfiAccountAfter.toFixed(8)}@DFI`)
+    expect(account).toContain(`${dogAccountAfter.toFixed(8)}@DOG`)
 
     const poolPair = await jsonRpc.poolpair.getPoolPair('DFI-DOG', true)
     const pair = Object.values(poolPair)[0]
 
     // Ensure correct pp liquidity and reverse balances
     expect(pair.totalLiquidity.toFixed(8)).toStrictEqual('100.00000000')
-    expect(pair.reserveA.toFixed(8)).toStrictEqual('110.00000000')
-    expect(pair.reserveB.toFixed(8)).toStrictEqual('90.90909090') // 100-9.09090910
+    expect(pair.reserveA.toFixed(8)).toStrictEqual(reserveAAfter.toFixed(8))
+    expect(pair.reserveB.toFixed(8)).toStrictEqual(reserveBAfter.toFixed(8)) // 100-9.09090909
 
     // Ensure you don't send all your balance away during poolswap
     const prevouts = await providers.prevout.all()
@@ -144,16 +152,21 @@ describe('dex.poolswap()', () => {
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(await providers.getAddress())
 
+    const pigSwapAmount = new BigNumber(20).minus(new BigNumber(100 * 20).dividedBy(new BigNumber(100 + 2))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const reserveBAfter = new BigNumber(20).minus(pigSwapAmount)
+    const reserveAAfter = new BigNumber(100 + 2)
+    const accountPigBalanceAfter = pigSwapAmount.plus(2)
+
     const account = await jsonRpc.account.getAccount(await providers.getAddress())
     expect(account).toContain('98.00000000@DFI')
-    expect(account).toContain('2.39215687@PIG')
+    expect(account).toContain(`${accountPigBalanceAfter.toFixed(8)}@PIG`)
 
     const poolPair = await jsonRpc.poolpair.getPoolPair('DFI-PIG', true)
     const pair = Object.values(poolPair)[0]
 
     expect(pair.totalLiquidity.toFixed(8)).toStrictEqual('44.72135954')
-    expect(pair.reserveA.toFixed(8)).toStrictEqual('102.00000000')
-    expect(pair.reserveB.toFixed(8)).toStrictEqual('19.60784313')
+    expect(pair.reserveA.toFixed(8)).toStrictEqual(reserveAAfter.toFixed(8))
+    expect(pair.reserveB.toFixed(8)).toStrictEqual(reserveBAfter.toFixed(8))
 
     const prevouts = await providers.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
@@ -161,7 +174,7 @@ describe('dex.poolswap()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 
-  it('should pass with 500', async () => {
+  it('should pass with 500.25012506', async () => {
     providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
@@ -178,19 +191,22 @@ describe('dex.poolswap()', () => {
     await fundEllipticPair(container, providers.ellipticPair, 10)
     const script = await providers.elliptic.script()
 
+    // price = fromAmount/resultantSwapAmount = 500.25012506
+    // max price has to be greater or equal to price
+
     const txn = await builder.dex.poolSwap({
       fromScript: script,
       fromTokenId: pairs.GOAT.tokenB,
       fromAmount: new BigNumber('0.01'), // use small amount to reduce slippage effect
       toScript: script,
       toTokenId: pairs.GOAT.tokenA,
-      maxPrice: new BigNumber('500')
+      maxPrice: new BigNumber('500.25012506')
     }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).resolves.not.toThrow()
   })
 
-  it('should fail with 499.99999999', async () => {
+  it('should fail with 500.25012505', async () => {
     providers.randomizeEllipticPair()
     await container.waitForWalletBalanceGTE(1)
     const addressLP = await container.getNewAddress()
@@ -213,8 +229,7 @@ describe('dex.poolswap()', () => {
       fromAmount: new BigNumber('0.01'), // use small amount to reduce slippage effect
       toScript: script,
       toTokenId: pairs.FISH.tokenA,
-      // min acceptable maxPrice should be 10000 / 20 = 500
-      maxPrice: new BigNumber('499.99999999')
+      maxPrice: new BigNumber('500.25012505')
     }, script)
     const promise = sendTransaction(container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
