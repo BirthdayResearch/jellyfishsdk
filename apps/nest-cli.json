@@ -17,6 +17,12 @@
       "entryFile": "apps/ocean-api/src/index",
       "sourceRoot": "ocean-api/src"
     },
+    "playground-api": {
+      "type": "application",
+      "root": "playground-api",
+      "entryFile": "apps/playground-api/src/index",
+      "sourceRoot": "playground-api/src"
+    },
     "rich-list-api": {
       "type": "application",
       "root": "rich-list-api",
