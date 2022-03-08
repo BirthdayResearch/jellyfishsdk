@@ -19,7 +19,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -b ./tsconfig.build.json"
+    "build": "tsc -b ./tsconfig.build.json",
+    "build:typedocs": "typedoc --tsconfig tsconfig.build.json --out typedocs src"
   },
   "dependencies": {
     "@defichain/jellyfish-json": "^0.0.0"
