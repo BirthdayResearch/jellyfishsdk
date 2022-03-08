@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { BurnInfo, CommunityBalanceData } from '@defichain/jellyfish-api-core/src/category/account'
+import { CommunityBalanceData } from '@defichain/jellyfish-api-core/src/category/account'
 import {
   BlockRewardDistributionPercentage,
   BlockSubsidy,
@@ -133,7 +133,7 @@ export class MainnetLegacyStatsProvider {
   }
 
   async getBurnInfo (): Promise<LegacyBurnInfo> {
-    const burnInfo = await this.api.rpc.call<BurnInfo>('getburninfo', [], 'bignumber')
+    const burnInfo = await this.api.stats.getBurn()
     return {
       address: burnInfo.address,
       amount: burnInfo.amount.toFixed(DECIMAL_PLACES),
