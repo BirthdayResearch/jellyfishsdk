@@ -1255,7 +1255,7 @@ describe('paybackLoan for dusd using dfi', () => {
     }, script)
     let promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of DUSD loans with DFI not currently active (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active (code 16)\', code: -26')
 
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
     await testing.container.generate(1)
@@ -1274,7 +1274,7 @@ describe('paybackLoan for dusd using dfi', () => {
     }, script)
     promise = sendTransaction(testing.container, txn)
 
-    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of DUSD loans with DFI not currently active (code 16)\', code: -26')
+    await expect(promise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active (code 16)\', code: -26')
   })
 
   it('should not be able to payback TSLA loan using DFI', async () => {
