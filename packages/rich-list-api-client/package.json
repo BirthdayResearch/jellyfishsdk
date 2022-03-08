@@ -1,0 +1,25 @@
+{
+  "private": false,
+  "name": "@defichain/rich-list-api-client",
+  "version": "0.0.0",
+  "description": "DeFiChain Jellyfish Ecosystem",
+  "repository": "DeFiCh/jellyfish",
+  "bugs": "https://github.com/DeFiCh/jellyfish/issues",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b ./tsconfig.build.json"
+  },
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "cross-fetch": "^3.1.5",
+    "url-search-params-polyfill": "8.1.1"
+  },
+  "peerDependencies": {
+    "defichain": "^0.0.0"
+  }
+}
