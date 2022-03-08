@@ -238,7 +238,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.get('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,

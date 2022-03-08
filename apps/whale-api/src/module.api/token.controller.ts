@@ -1,13 +1,17 @@
-import { BadRequestException, Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
+import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { TokenData } from '@whale-api-client/api/tokens'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 
 @Controller('/tokens')
 export class TokenController {
-  constructor (private readonly client: JsonRpcClient) {
+  constructor (
+    private readonly client: JsonRpcClient,
+    protected readonly deFiDCache: DeFiDCache
+  ) {
   }
 
   /**
@@ -44,17 +48,11 @@ export class TokenController {
    */
   @Get('/:id')
   async get (@Param('id', ParseIntPipe) id: string): Promise<TokenData> {
-    try {
-      const data = await this.client.token.getToken(id)
-      return mapTokenData(String(id), data[Object.keys(data)[0]])
-    } catch (err) {
-      /* istanbul ignore else */
-      if (err?.payload?.message === 'Token not found') {
-        throw new NotFoundException('Unable to find token')
-      } else {
-        throw new BadRequestException(err)
-      }
+    const info = await this.deFiDCache.getTokenInfo(id)
+    if (info === undefined) {
+      throw new NotFoundException('Unable to find token')
     }
+    return mapTokenData(String(id), info)
   }
 }
 

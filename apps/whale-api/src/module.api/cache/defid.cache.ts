@@ -68,7 +68,7 @@ export class DeFiDCache extends GlobalCache {
         return undefined
       }
       return result[id]
-    } catch (err) {
+    } catch (err: any) {
       /* istanbul ignore else */
       if (err?.payload?.message === 'Pool not found') {
         return undefined

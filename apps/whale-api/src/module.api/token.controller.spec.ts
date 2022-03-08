@@ -3,7 +3,8 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { TokenController } from '@src/module.api/token.controller'
 import { createPoolPair, createToken } from '@defichain/testing'
-import { NotFoundException } from '@nestjs/common'
+import { NotFoundException, CacheModule } from '@nestjs/common'
+import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient
@@ -20,7 +21,8 @@ beforeAll(async () => {
 
   const app: TestingModule = await Test.createTestingModule({
     controllers: [TokenController],
-    providers: [{ provide: JsonRpcClient, useValue: client }]
+    imports: [CacheModule.register()],
+    providers: [DeFiDCache, { provide: JsonRpcClient, useValue: client }]
   }).compile()
   controller = app.get<TokenController>(TokenController)
 })
@@ -296,7 +298,7 @@ describe('get', () => {
     expect.assertions(2)
     try {
       await controller.get('999')
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect(err.response).toStrictEqual({
         statusCode: 404,
