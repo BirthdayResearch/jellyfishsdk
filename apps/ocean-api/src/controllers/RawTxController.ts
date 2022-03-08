@@ -61,7 +61,7 @@ export class RawTxController {
       }
     } catch (err: any) {
       if (err.message.indexOf('Transaction is not allowed to be inserted') !== -1) {
-        throw new BadRequestApiException('Transaction is not allowed to be inserted')
+        throw err
       }
       if (err?.payload?.message === 'TX decode failed') {
         throw new BadRequestApiException('Transaction decode failed')
