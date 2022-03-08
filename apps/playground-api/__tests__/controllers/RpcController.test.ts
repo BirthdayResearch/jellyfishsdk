@@ -11,7 +11,7 @@ afterAll(async () => {
   await apiTesting.stop()
 })
 
-it.only('should be able call rpc getblockcount', async () => {
+it('should be able call rpc getblockcount', async () => {
   const res = await apiTesting.client.rpc.call('getblockcount', [], 'number')
   expect(res).toBeGreaterThanOrEqual(100)
 })
