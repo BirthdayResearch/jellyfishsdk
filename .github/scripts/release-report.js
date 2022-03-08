@@ -8,11 +8,11 @@ module.exports = ({ context }) => {
   const links = getContainerLinks(context)
   return `
 
-Build preview for jellyfish apps is ready!
+Docker build preview for jellyfish/apps is ready!
           
 Built with commit ${context.sha}
 
-${links.join('\n')}
+ - ${links.join('\n - ')}
 `
 }
 
