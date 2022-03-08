@@ -17,7 +17,7 @@ export class ApiValidationException extends ApiException<{ properties: ApiValida
   /**
    * @return {ApiValidationProperty[]} that failed constraints validation
    */
-  get properties (): ApiValidationProperty[] | undefined {
-    return this.error.payload?.properties
+  get properties (): ApiValidationProperty[] {
+    return this.error.payload.properties
   }
 }

@@ -57,15 +57,19 @@ export class RawTxController {
     try {
       const result = await this.client.rawtx.testMempoolAccept(tx.hex, maxFeeRate)
       if (!result.allowed) {
+        console.log('err 1 ')
         throw new BadRequestApiException('Transaction is not allowed to be inserted')
       }
     } catch (err: any) {
       if (err.message.indexOf('Transaction is not allowed to be inserted') !== -1) {
+        console.log('err 2 ', err)
         throw err
       }
       if (err?.payload?.message === 'TX decode failed') {
+        console.log('err 3 ', err)
         throw new BadRequestApiException('Transaction decode failed')
       }
+      console.log('err 4 ', err)
       throw new Error(err?.payload?.message)
     }
   }

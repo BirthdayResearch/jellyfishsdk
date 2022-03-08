@@ -6,7 +6,8 @@ export class BadRequestApiException extends ApiException {
       code: 400,
       type: ApiErrorType.BadRequest,
       at: Date.now(),
-      message: message
+      message: message,
+      payload: undefined
     })
   }
 }
