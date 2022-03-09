@@ -38,6 +38,12 @@ module.exports = {
           position: 'left'
         },
         {
+          to: 'packages',
+          activeBasePath: 'packages',
+          label: 'Packages Docs',
+          position: 'left'
+        },
+        {
           to: 'ocean',
           activeBasePath: 'ocean',
           label: 'Ocean REST API',
@@ -180,6 +186,16 @@ module.exports = {
         routeBasePath: 'legacy',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'packages',
+        path: '../docs/packages',
+        routeBasePath: 'packages',
+        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        sidebarCollapsed: true,
       },
     ],
   ],
