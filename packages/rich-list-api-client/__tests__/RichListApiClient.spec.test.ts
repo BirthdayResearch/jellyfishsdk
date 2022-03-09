@@ -5,7 +5,6 @@ const client = new RichListApiClient({
   url: 'http://rich-list-api-test.internal',
   network: 'unit-test',
   version: 'v0',
-  timeout: 60000
 })
 
 describe('Inherit behaviors from OceanApiClient', () => {
