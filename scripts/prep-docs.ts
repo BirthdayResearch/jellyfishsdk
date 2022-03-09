@@ -31,7 +31,7 @@ async function reRouteModulesMdToReadme (input: string): Promise<string> {
 async function main (): Promise<void> {
   // Create directory from docs
   try {
-    await ensureDir(`${DOC_DIR}`)
+    await ensureDir(DOC_DIR)
   } catch (err) {
     console.error(`Failed to create ${DOC_DIR}`)
   }
@@ -47,7 +47,7 @@ async function main (): Promise<void> {
       await remove(`${docsFolderFullPath}/README.md`)
       await rename(`${docsFolderFullPath}/modules.md`, `${docsFolderFullPath}/README.md`)
     } catch (err) {
-      console.error(err)
+      // Do nothing
     }
 
     const relevantPaths = [
@@ -80,8 +80,9 @@ async function main (): Promise<void> {
           await writeFile(docPath, output)
         }
       })
-      await Promise.all(promises)
+      await Promise.allSettled(promises)
     } catch (err) {
+      console.error(err)
       // Do nothing if error since it might not have these folders
     }
   }
