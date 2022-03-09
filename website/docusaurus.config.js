@@ -4,7 +4,7 @@ module.exports = {
   tagline: 'A collection of TypeScript + JavaScript tools and libraries to build Native DeFi products.',
   url: 'https://jellyfish.defichain.com',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
   organizationName: 'DeFiChain',
