@@ -361,6 +361,9 @@ export class Loan {
    * @param {string} metadata.vaultId Vault id
    * @param {string| string[]} metadata.amounts In "amount@symbol" format
    * @param {string} metadata.from Address from transfer tokens
+   * @param {TokenPaybackAmount[]} metadata.loans
+   * @param {TokenPaybackAmount.amounts} metadata.loans In "amount@symbol" format to be spent
+   * @param {TokenPaybackAmount.dToken} metadata.loans Token to be paid
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
@@ -599,10 +602,16 @@ export interface TakeLoanMetadata {
   to?: string
 }
 
+export interface TokenPaybackAmount {
+  dToken: string
+  amounts: string | string[] // amount@symbol
+}
+
 export interface PaybackLoanMetadata {
   vaultId: string
-  amounts: string | string[] // amount@symbol
+  amounts?: string | string[] // amount@symbol
   from: string
+  loans?: TokenPaybackAmount[]
 }
 
 export interface VaultPagination {

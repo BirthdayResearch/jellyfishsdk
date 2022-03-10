@@ -187,8 +187,8 @@ describe('Masternode setGov ATTRIBUTES', () => {
     await testing.container.generate(1)
 
     const govAfter = await testing.rpc.masternode.getGov(attributeKey)
-    // expect(Boolean(govAfter[attributeKey].hasOwnProperty(key0))).toBeFalsy()
-    // expect(Boolean(govAfter[attributeKey].hasOwnProperty(key1))).toBeFalsy()
+    expect(govAfter.ATTRIBUTES[key0]).toBeUndefined()
+    expect(govAfter.ATTRIBUTES[key1]).toBeUndefined()
 
     const key2 = `${key}/payback_dfi`
     const key3 = `${key}/payback_dfi_fee_pct`
