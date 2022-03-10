@@ -44,3 +44,6 @@ tsconfig.build.tsbuildinfo
 # Level
 .level
 .leveldb
+
+# envvar
+apps/.env

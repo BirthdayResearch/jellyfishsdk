@@ -28,8 +28,6 @@ import { RichListDroppedOutModel } from '../models/RichListDroppedOut'
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASS'),
         database: configService.get<string>('POSTGRES_DB'),
-        migrations: [/* TODO(@ivan-zynesis): create table if not exists */],
-        // FIXME(@ivan-zynesis): remove sync after entities loading can be done via migration
         entities: [
           QueueItem,
           CrawledBlockModel,
