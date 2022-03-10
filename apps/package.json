@@ -10,6 +10,7 @@
     "build": "nest build",
     "start:legacy-api": "nest start legacy-api",
     "start:ocean-api": "nest start ocean-api",
+    "start:playground-api": "nest start playground-api",
     "start:rich-list-api": "nest start rich-list-api",
     "clean": "rm -rf dist"
   },
@@ -18,6 +19,7 @@
     "@defichain/jellyfish-api-jsonrpc": "^0.0.0",
     "@defichain/jellyfish-testing": "^0.0.0",
     "@defichain/ocean-api-client": "^0.0.0",
+    "@defichain/playground-api-client": "^0.0.0",
     "@defichain/playground": "^0.0.0",
     "@defichain/rich-list-core": "^0.0.0",
     "@defichain/whale-api-client": "0.26.3",
@@ -37,11 +39,11 @@
     "pg": "^8.7.3",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.4",
-    "typeorm": "^0.2.44"
+    "typeorm": "^0.2.45"
   },
   "devDependencies": {
-    "@nestjs/cli": "^8.2.1",
-    "@nestjs/schematics": "^8.0.7",
+    "@nestjs/cli": "^8.2.2",
+    "@nestjs/schematics": "^8.0.8",
     "@nestjs/testing": "^8.4.0",
     "@types/cron": "^1.7.3",
     "@types/express": "^4.17.13",
@@ -49,12 +51,12 @@
     "@types/node": "^16.11.26",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
-    "@typescript-eslint/parser": "^5.13.0",
+    "@typescript-eslint/parser": "^5.14.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.2.2",
-    "testcontainers": "^8.3.0",
+    "testcontainers": "^8.4.0",
     "ts-loader": "^9.2.7",
-    "ts-node": "^10.6.0",
-    "tsconfig-paths": "^3.12.0"
+    "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.13.0"
   }
 }

@@ -441,3 +441,117 @@ export interface PoolPairData {
 }
 ```
 
+## List Pool Swaps (Verbose)
+
+List all `PoolSwap` with from and to information for each `PoolPair`. This endpoint will include all swaps that are
+routed through a given `PoolPair`. Composite PoolSwap & PoolSwap.
+
+#### Code Samples
+
+##### Shell
+
+```shell
+https://ocean.defichain.com/v0/mainnet/poolpairs/5/swaps/verbose
+```
+
+##### JavaScript ([@defichain/whale-api-client](https://www.npmjs.com/package/@defichain/whale-api-client))
+
+```javascript
+await api.poolpairs.listPoolSwapsVerbose('5')
+```
+
+##### Response
+
+```json
+{
+  "data": [
+    {
+      "id": "5-3e05541fb8cf8865928914dc10248726cee60def92f61da28953f7278084aee5",
+      "txid": "3e05541fb8cf8865928914dc10248726cee60def92f61da28953f7278084aee5",
+      "txno": 46,
+      "poolPairId": "5",
+      "sort": "0019bb100000002e",
+      "fromAmount": "0.00001744",
+      "fromTokenId": 2,
+      "block": {
+        "hash": "569dd605b99a36c56b999325d687781a5f49e99a3abbe72c2db961b793bd7f01",
+        "height": 1686288,
+        "time": 1646655844,
+        "medianTime": 1646655687
+      },
+      "from": {
+        "address": "dSPPfAPY8BA3TQdqfZRnzJ7212HPWunDms",
+        "symbol": "BTC",
+        "amount": "0.00001744"
+      },
+      "to": {
+        "address": "dXCuxKuMc9u4PSbDs7XCNqgE2Upjz3zWNa",
+        "amount": "0.19209075",
+        "symbol": "DFI"
+      }
+    },
+    {
+      "id": "5-fa72ecb67c27bf4e311844c2faf47f009c3c72f7457a2fcdba2a0789392f827c",
+      "txid": "fa72ecb67c27bf4e311844c2faf47f009c3c72f7457a2fcdba2a0789392f827c",
+      "txno": 30,
+      "poolPairId": "5",
+      "sort": "0019bb100000001e",
+      "fromAmount": "1.15000000",
+      "fromTokenId": 0,
+      "block": {
+        "hash": "569dd605b99a36c56b999325d687781a5f49e99a3abbe72c2db961b793bd7f01",
+        "height": 1686288,
+        "time": 1646655844,
+        "medianTime": 1646655687
+      },
+      "from": {
+        "address": "dKp2Z17NxQcKPfdsPCaRDmK6WaZTqJ9JmC",
+        "symbol": "DFI",
+        "amount": "1.15000000"
+      },
+      "to": {
+        "address": "dKp2Z17NxQcKPfdsPCaRDmK6WaZTqJ9JmC",
+        "amount": "0.00010402",
+        "symbol": "BTC"
+      }
+    }
+  ],
+  "page": {
+    "next": "0019bb100000001e"
+  }
+}
+```
+
+##### TypeScript Definitions
+
+```typescript
+export type CompositePoolSwapData = PoolSwapData
+
+export interface PoolSwapData {
+  id: string
+  sort: string
+  txid: string
+  txno: number
+
+  poolPairId: string
+  fromAmount: string
+  fromTokenId: number
+
+  from?: PoolSwapFromToData
+  to?: PoolSwapFromToData
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
+  }
+}
+
+export interface PoolSwapFromToData {
+  address: string
+  amount: string
+  symbol: string
+}
+```
+
