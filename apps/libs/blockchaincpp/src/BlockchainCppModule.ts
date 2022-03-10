@@ -2,7 +2,7 @@ import { Global, Injectable, Module } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
 import { ApiClient, blockchain as bc } from '@defichain/jellyfish-api-core'
-import { ActuatorProbes, ProbeIndicator } from './ActuatorModule'
+import { ActuatorProbes, ProbeIndicator } from '@defichain-apps/libs/actuator'
 import { HealthIndicatorResult } from '@nestjs/terminus'
 
 /**

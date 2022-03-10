@@ -50,7 +50,7 @@ module.exports = {
         {
           to: 'legacy',
           activeBasePath: 'legacy',
-          label: 'Legacy API',
+          label: 'Stats REST API',
           position: 'left'
         },
         {

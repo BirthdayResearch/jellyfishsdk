@@ -7,7 +7,7 @@ export class RootServer {
   app?: NestFastifyApplication
 
   async create (): Promise<NestFastifyApplication> {
-    const adapter = new FastifyAdapter()
+    const adapter = new FastifyAdapter({ logger: true })
     return await NestFactory.create<NestFastifyApplication>(RootModule, adapter)
   }
 

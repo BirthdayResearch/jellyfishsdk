@@ -1,9 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "include": [
-    "./legacy-api/src",
-    "./ocean-api/src",
-    "./rich-list-api/src",
+    "./*/src",
     "./libs/*/src"
   ],
   "compilerOptions": {
