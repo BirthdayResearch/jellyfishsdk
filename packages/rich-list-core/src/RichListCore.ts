@@ -1,10 +1,10 @@
 import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
-import { WhaleApiClient } from '@defichain/whale-api-client'
 import { QueueClient, Queue } from './lib/Queue'
 import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
+import { WhaleApiClient } from './lib/WhaleApiClient'
 import { AddressParser } from './controller/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
+import { AccountAmount } from '@defichain/jellyfish-api-core/dist/category/account'
 import { AddressBalance, ActiveAddressAccountAmount } from './types'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
@@ -15,7 +15,7 @@ export class RichListCore {
   readonly addressParser: AddressParser
 
   constructor (
-    private readonly network: NetworkName,
+    readonly network: NetworkName,
     private readonly apiClient: ApiClient,
     private readonly whaleApiClient: WhaleApiClient,
     readonly addressBalances: SingleIndexDb<AddressBalance>,
@@ -118,11 +118,11 @@ export class RichListCore {
 
   async get (tokenId: string): Promise<AddressBalance[]> {
     if (Number.isNaN(tokenId)) {
-      throw new Error('Invalid token id')
+      throw new Error('InvalidTokenId')
     }
 
     if (!(await this._listTokenIds()).includes(Number(tokenId))) {
-      throw new Error('Invalid token id')
+      throw new Error('InvalidTokenId')
     }
 
     return (await this.addressBalances.list({

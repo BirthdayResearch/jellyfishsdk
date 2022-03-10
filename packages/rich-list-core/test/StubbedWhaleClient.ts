@@ -1,27 +1,16 @@
-import { Method, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client'
+import { WhaleApiClient } from '../src/lib/WhaleApiClient'
 
 /**
  * a Stubbed WhaleApiClient for test purpose.
  * without setting up WhaleApiServer
  * stub each required method one by one as usage is minimal
  */
-export class StubbedWhaleApiClient extends WhaleApiClient {
-  constructor () {
-    super({ url: 'stubbed' })
-  }
-
-  async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
-    const pathComponent = path.split('/')
-
-    if (method === 'GET' && pathComponent[0] === 'address' && pathComponent[2] === 'balance') {
+export class StubbedWhaleApiClient implements WhaleApiClient {
+  address = {
+    getBalance: async (address: string): Promise<string> => {
       const power = Math.round(Math.random() * 4)
       const coef = Math.random()
-      return {
-        status: 200,
-        body: JSON.stringify({ data: `${coef * Math.pow(10, power)}` })
-      }
+      return `${coef * Math.pow(10, power)}`
     }
-
-    throw new Error(`Endpoint "${path}" not stubbed for test`)
   }
 }

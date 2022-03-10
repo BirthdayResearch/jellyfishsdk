@@ -1,5 +1,5 @@
 import { AddressBalance, RichListCore } from '@defichain/rich-list-core'
-import { Controller, Get, ParseIntPipe, Param } from '@nestjs/common'
+import { Controller, Get, ParseIntPipe, Param, NotFoundException } from '@nestjs/common'
 
 @Controller('/rich-list')
 export class RichListController {
@@ -16,6 +16,14 @@ export class RichListController {
    */
   @Get('/:tokenId')
   async get (@Param('tokenId', ParseIntPipe) tokenId: number): Promise<AddressBalance[]> {
-    return await this.richListCore.get(`${tokenId}`)
+    try {
+      const richList = await this.richListCore.get(`${tokenId}`)
+      return richList
+    } catch (e: any) {
+      if (e.message === 'InvalidTokenId') {
+        throw new NotFoundException()
+      }
+      throw e
+    }
   }
 }
