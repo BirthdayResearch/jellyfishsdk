@@ -172,18 +172,8 @@ describe('dex.compositeSwap()', () => {
 
     // Perform SWAP
     // simulate compositeSwap
-
-    // dfi - (dfi * cat / (cat+1))
-    const intermediateDFISwapAmount = new BigNumber(100)
-      .minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1)))
-      .multipliedBy(100000000)
-      .minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
-
-    // fish - (fish * dfi / dfi + intermediate)
-    const fishSwapAmount = new BigNumber(50)
-      .minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount)))
-      .multipliedBy(100000000)
-      .minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const intermediateDFISwapAmount = new BigNumber(100).minus(new BigNumber(100 * 10).dividedBy(new BigNumber(10 + 1))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const fishSwapAmount = new BigNumber(50).minus(new BigNumber(50 * 100).dividedBy(new BigNumber(100).plus(intermediateDFISwapAmount))).multipliedBy(100000000).minus(1).dividedBy(100000000).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
     const catReserveAfter = new BigNumber(10 + 1)
     const fishReserveAfter = new BigNumber(50).minus(fishSwapAmount)
