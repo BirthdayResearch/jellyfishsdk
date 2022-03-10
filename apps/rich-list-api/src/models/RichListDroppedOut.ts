@@ -1,21 +1,13 @@
-import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
+import { Column, Entity, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SingleIndexDb, Schema, FindOptions } from '@defichain/rich-list-core'
+import { BaseModel } from './BaseModel'
 
 @Entity()
-@Index(['height'])
-export class RichListDroppedOutModel {
-  @PrimaryColumn()
-  id!: string
-
-  @Column()
-  height!: number
-
+export class RichListDroppedOutModel extends BaseModel {
   @Column()
   address!: string
-
-  partition!: 'NONE'
 }
 
 @Injectable()
@@ -27,9 +19,10 @@ export class RichListDroppedOutRepo implements SingleIndexDb<string> {
 
   async put (address: Schema<string>): Promise<void> {
     await this.repo.save({
-      // NONE: addressBalance.partition, // no partitioning is required
-      hash: address.data,
-      height: address.sort
+      id: address.id,
+      partition: address.partition,
+      sort: address.sort,
+      address: address.data
     })
   }
 
@@ -42,19 +35,21 @@ export class RichListDroppedOutRepo implements SingleIndexDb<string> {
   }
 
   async list (option: FindOptions): Promise<Array<Schema<string>>> {
-    const where: FindManyOptions<RichListDroppedOutModel>['where'] = {}
+    const where: FindManyOptions<RichListDroppedOutModel>['where'] = {
+      partition: option.partition
+    }
 
     if (option.gt !== undefined && option.lt !== undefined) {
-      where.height = Between(option.gt, option.lt)
+      where.sort = Between(option.gt, option.lt)
     } else if (option.gt !== undefined) {
-      where.height = MoreThan(option.gt)
+      where.sort = MoreThan(option.gt)
     } else if (option.lt !== undefined) {
-      where.height = LessThan(option.lt)
+      where.sort = LessThan(option.lt)
     }
 
     const findOpt: FindManyOptions<RichListDroppedOutModel> = {
       where: where,
-      order: { height: option.order },
+      order: { sort: option.order },
       skip: option.limit
     }
 
@@ -70,7 +65,7 @@ export class RichListDroppedOutRepo implements SingleIndexDb<string> {
     return {
       id: droppedOut.id,
       partition: droppedOut.partition,
-      sort: droppedOut.height,
+      sort: droppedOut.sort,
       data: droppedOut.address
     }
   }

@@ -1,17 +1,11 @@
-import { Column, Entity, Index, PrimaryColumn, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
+import { Column, Entity, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { SingleIndexDb, AddressBalance, Schema, FindOptions } from '@defichain/rich-list-core'
+import { BaseModel } from './BaseModel'
 
 @Entity()
-@Index(['tokenId', 'amount'])
-export class AddressBalanceModel implements AddressBalance {
-  @PrimaryColumn()
-  id!: string
-
-  @Column()
-  tokenId!: string
-
+export class AddressBalanceModel extends BaseModel {
   @Column()
   address!: string
 
@@ -29,7 +23,8 @@ export class AddressBalanceRepo implements SingleIndexDb<AddressBalance> {
   async put (addressBalance: Schema<AddressBalance>): Promise<void> {
     await this.repo.save({
       id: addressBalance.id,
-      tokenId: addressBalance.partition,
+      sort: addressBalance.sort,
+      partition: addressBalance.partition,
       address: addressBalance.data.address,
       amount: addressBalance.data.amount
     })
@@ -45,20 +40,20 @@ export class AddressBalanceRepo implements SingleIndexDb<AddressBalance> {
 
   async list (option: FindOptions): Promise<Array<Schema<AddressBalance>>> {
     const where: FindManyOptions<AddressBalanceModel>['where'] = {
-      tokenId: option.partition
+      partition: option.partition
     }
 
     if (option.gt !== undefined && option.lt !== undefined) {
-      where.amount = Between(option.gt, option.lt)
+      where.sort = Between(option.gt, option.lt)
     } else if (option.gt !== undefined) {
-      where.amount = MoreThan(option.gt)
+      where.sort = MoreThan(option.gt)
     } else if (option.lt !== undefined) {
-      where.amount = LessThan(option.lt)
+      where.sort = LessThan(option.lt)
     }
 
     const findOpt: FindManyOptions<AddressBalanceModel>['where'] = {
       where: where,
-      order: { amount: option.order },
+      order: { sort: option.order },
       skip: option.limit
     }
 
@@ -73,8 +68,8 @@ export class AddressBalanceRepo implements SingleIndexDb<AddressBalance> {
   private _map (ab: AddressBalanceModel): Schema<AddressBalance> {
     return {
       id: ab.id,
-      partition: ab.tokenId,
-      sort: ab.amount,
+      partition: ab.partition,
+      sort: ab.sort,
       data: ab
     }
   }
