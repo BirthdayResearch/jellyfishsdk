@@ -2,7 +2,8 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { BigNumber } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { AddressParser } from '../../../../src/controller/AddressParser'
+import { AddressParserTest } from '../../../../test/AddressParserTest'
+import { DepositToVaultParser } from '../../../../src/controller/AddressParser/dftx/depositToVault'
 
 describe('DepositToVaultParser', () => {
   const container = new MasterNodeRegTestContainer()
@@ -112,11 +113,11 @@ describe('DepositToVaultParser', () => {
     await container.stop()
   })
 
-  it('should extract all addresses involved in deplositToVault tx', async () => {
-    const parser = new AddressParser(apiClient, 'regtest')
+  it('should extract all addresses involved in depositToVault tx', async () => {
+    const parser = AddressParserTest(apiClient, [new DepositToVaultParser('regtest')])
     const addresses = await parser.parse(rawTx)
 
-    expect(addresses.length).toBeGreaterThanOrEqual(1)
+    expect(addresses.length).toStrictEqual(1)
     expect(addresses).toContain(sender)
   })
 })

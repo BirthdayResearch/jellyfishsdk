@@ -1,7 +1,8 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { AddressParser } from '../../../../src/controller/AddressParser'
+import { AddressParserTest } from '../../../../test/AddressParserTest'
+import { PoolAddLiquidityParser } from '../../../../src/controller/AddressParser/dftx/poolAddLiquidity'
 
 describe('PoolAddLiquidityParser', () => {
   const container = new MasterNodeRegTestContainer()
@@ -60,10 +61,10 @@ describe('PoolAddLiquidityParser', () => {
   })
 
   it('should extract all addresses involved in poolAddLiquidity tx', async () => {
-    const parser = new AddressParser(apiClient, 'regtest')
+    const parser = AddressParserTest(apiClient, [new PoolAddLiquidityParser('regtest')])
     const addresses = await parser.parse(rawTx)
 
-    expect(addresses.length).toBeGreaterThanOrEqual(2)
+    expect(addresses.length).toStrictEqual(2)
     expect(addresses).toContain(sender)
     expect(addresses).toContain(shareAddress)
   })

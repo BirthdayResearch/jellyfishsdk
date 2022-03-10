@@ -17,14 +17,10 @@ import { DepositToVaultParser } from './dftx/depositToVault'
 import { TakeLoanParser } from './dftx/takeLoan'
 
 export class AddressParser {
-  private readonly dftxs: Array<DfTxAddressParser<any>>
-  private readonly utxo: UtxoAddressParser
-
   constructor (
     private readonly apiClient: ApiClient,
-    private readonly network: NetworkName
-  ) {
-    this.dftxs = [
+    private readonly network: NetworkName,
+    private readonly dftxs: Array<DfTxAddressParser<any>> = [
       new UtxosToAccountParser(network),
       new AccountToUtxosParser(network),
       new AccountToAccountParser(network),
@@ -37,8 +33,9 @@ export class AddressParser {
       new WithdrawFromVaultParser(network),
       new DepositToVaultParser(network)
       // TODO(@ivan-zynesis): add ALL
-    ]
-    this.utxo = new UtxoAddressParser(apiClient)
+    ],
+    private readonly utxo: UtxoAddressParser = new UtxoAddressParser(apiClient)
+  ) {
   }
 
   async parse (txn: defid.Transaction): Promise<string[]> {

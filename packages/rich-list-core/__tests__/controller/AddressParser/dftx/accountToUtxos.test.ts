@@ -1,7 +1,9 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { AddressParser } from '../../../../src/controller/AddressParser'
+import { AccountToUtxosParser } from '../../../../src/controller/AddressParser/dftx/accountToUtxos'
+import { AddressParserTest } from '../../../../test/AddressParserTest'
+import { UtxoAddressParser } from '../../../../src/controller/AddressParser/utxo'
 
 describe('AccountToUtxosParser', () => {
   const container = new MasterNodeRegTestContainer()
@@ -38,12 +40,23 @@ describe('AccountToUtxosParser', () => {
     rawTx = await apiClient.rawtx.getRawTransaction(txn, true)
   })
 
-  it('Should extract all addresses spent and receive utxo in a transaction', async () => {
-    const parser = new AddressParser(apiClient, 'regtest')
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  it('should extract addresses sending utxo in a transaction', async () => {
+    const parser = AddressParserTest(apiClient, [new AccountToUtxosParser('regtest')])
     const addresses = await parser.parse(rawTx)
 
-    expect(addresses.length).toBeGreaterThanOrEqual(4)
+    expect(addresses.length).toStrictEqual(1)
     expect(addresses).toContain(sender)
+  })
+
+  it('should extract addresses receiving utxo in a transaction', async () => {
+    const parser = AddressParserTest(apiClient, [], new UtxoAddressParser(apiClient))
+    const addresses = await parser.parse(rawTx)
+
+    expect(addresses.length).toBeGreaterThanOrEqual(3)
     expect(addresses).toContain(rec1)
     expect(addresses).toContain(rec2)
     expect(addresses).toContain(rec3)

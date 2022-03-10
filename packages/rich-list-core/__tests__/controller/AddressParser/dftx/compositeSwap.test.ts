@@ -2,7 +2,8 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { AddressParser } from '../../../../src/controller/AddressParser'
+import { AddressParserTest } from '../../../../test/AddressParserTest'
+import { CompositeSwapParser } from '../../../../src/controller/AddressParser/dftx/compositeSwap'
 
 describe('CompositeSwapParser', () => {
   const container = new MasterNodeRegTestContainer()
@@ -95,10 +96,10 @@ describe('CompositeSwapParser', () => {
   })
 
   it('should extract all addresses involved in compositeSwap tx', async () => {
-    const parser = new AddressParser(apiClient, 'regtest')
+    const parser = AddressParserTest(apiClient, [new CompositeSwapParser('regtest')])
     const addresses = await parser.parse(rawTx)
 
-    expect(addresses.length).toBeGreaterThanOrEqual(2)
+    expect(addresses.length).toStrictEqual(2)
     expect(addresses).toContain(sender)
     expect(addresses).toContain(receiver)
   })

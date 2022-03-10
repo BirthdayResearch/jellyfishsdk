@@ -2,7 +2,8 @@ import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from 'packages/jellyfish-api-core/src/category/rawtx'
-import { AddressParser } from '../../../../src/controller/AddressParser'
+import { PaybackLoanParser } from '../../../../src/controller/AddressParser/dftx/paybackLoan'
+import { AddressParserTest } from '../../../../test/AddressParserTest'
 
 describe('PaybackLoanParser', () => {
   const container = new MasterNodeRegTestContainer()
@@ -189,10 +190,10 @@ describe('PaybackLoanParser', () => {
   })
 
   it('should extract all addresses involved in paybackLoan tx', async () => {
-    const parser = new AddressParser(apiClient, 'regtest')
+    const parser = AddressParserTest(apiClient, [new PaybackLoanParser('regtest')])
     const addresses = await parser.parse(rawTx)
 
-    expect(addresses.length).toBeGreaterThanOrEqual(1)
+    expect(addresses.length).toStrictEqual(1)
     expect(addresses).toContain(loanTaker)
   })
 })
