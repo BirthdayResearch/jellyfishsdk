@@ -1,8 +1,8 @@
-import { Column, Entity, Between, FindManyOptions, Repository, MoreThan, LessThan } from 'typeorm'
+import { Column, Entity, Repository } from 'typeorm'
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { SingleIndexDb, AddressBalance, Schema, FindOptions } from '@defichain/rich-list-core'
-import { BaseModel } from './BaseModel'
+import { SingleIndexDb, AddressBalance, Schema } from '@defichain/rich-list-core'
+import { BaseModel, SingleIndexRepo } from './_abstract'
 
 @Entity()
 export class AddressBalanceModel extends BaseModel {
@@ -14,63 +14,30 @@ export class AddressBalanceModel extends BaseModel {
 }
 
 @Injectable()
-export class AddressBalanceRepo implements SingleIndexDb<AddressBalance> {
+export class AddressBalanceRepo extends SingleIndexRepo<AddressBalanceModel, AddressBalance> implements SingleIndexDb<AddressBalance> {
   constructor (
     @InjectRepository(AddressBalanceModel)
-    private readonly repo: Repository<AddressBalanceModel>
-  ) {}
-
-  async put (addressBalance: Schema<AddressBalance>): Promise<void> {
-    await this.repo.save({
-      id: addressBalance.id,
-      sort: addressBalance.sort,
-      partition: addressBalance.partition,
-      address: addressBalance.data.address,
-      amount: addressBalance.data.amount
-    })
+    protected readonly repo: Repository<AddressBalanceModel>
+  ) {
+    super()
   }
 
-  async get (id: string): Promise<Schema<AddressBalance> | undefined> {
-    const raw = await this.repo.findOne(id)
-    if (raw === undefined) {
-      return undefined
-    }
-    return this._map(raw)
-  }
-
-  async list (option: FindOptions): Promise<Array<Schema<AddressBalance>>> {
-    const where: FindManyOptions<AddressBalanceModel>['where'] = {
-      partition: option.partition
-    }
-
-    if (option.gt !== undefined && option.lt !== undefined) {
-      where.sort = Between(option.gt, option.lt)
-    } else if (option.gt !== undefined) {
-      where.sort = MoreThan(option.gt)
-    } else if (option.lt !== undefined) {
-      where.sort = LessThan(option.lt)
-    }
-
-    const findOpt: FindManyOptions<AddressBalanceModel>['where'] = {
-      where: where,
-      order: { sort: option.order },
-      skip: option.limit
-    }
-
-    const raw = await this.repo.find(findOpt)
-    return raw.map(ab => this._map(ab))
-  }
-
-  async delete (id: string): Promise<void> {
-    await this.repo.delete(id)
-  }
-
-  private _map (ab: AddressBalanceModel): Schema<AddressBalance> {
+  _fromModel (ab: AddressBalanceModel): Schema<AddressBalance> {
     return {
       id: ab.id,
       partition: ab.partition,
       sort: ab.sort,
       data: ab
+    }
+  }
+
+  _toModel (data: Schema<AddressBalance>): AddressBalanceModel {
+    return {
+      id: data.id,
+      partition: data.partition,
+      sort: data.sort,
+      address: data.data.address,
+      amount: data.data.amount
     }
   }
 }
