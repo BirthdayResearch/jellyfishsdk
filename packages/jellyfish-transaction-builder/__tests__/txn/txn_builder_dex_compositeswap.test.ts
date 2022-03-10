@@ -273,8 +273,7 @@ describe('dex.compositeSwap()', () => {
       await expect(promise).rejects.toThrowError('PoolSwapTx: Price is higher than indicated')
     }
 
-    // swap FISH
-    {
+    { // swap FISH
       await testing.token.mint({ symbol: 'FISH', amount: 10 })
       await testing.generate(1)
       await testing.token.send({ symbol: 'FISH', amount: 10, address })
