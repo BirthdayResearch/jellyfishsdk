@@ -1507,6 +1507,54 @@ describe('paybackloan for any token', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual([])
   })
 
+  it('should be able to payback DUSD loan using DFI - use loans property', async () => {
+    const dusdInfo = await testing.rpc.token.getToken('DUSD')
+    const dusdId: string = Object.keys(dusdInfo)[0]
+    const paybackKey = `v0/token/${dusdId}/payback_dfi`
+    const penaltyRateKey = `v0/token/${dusdId}/payback_dfi_fee_pct`
+    const penaltyRate = 0.015
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [paybackKey]: 'true', [penaltyRateKey]: penaltyRate.toString() } })
+    await testing.generate(1)
+
+    const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestPerBlockBefore = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
+    const dusdInterestAmountBefore = dusdInterestPerBlockBefore.multipliedBy(new BigNumber(blockHeightBefore - dusdTakeLoanBlockHeight + 1))
+    const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`])
+
+    const dfiPaybackAmount = 100
+    const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+    await testing.rpc.loan.paybackLoan({
+      vaultId: vaultId,
+      from: vaultOwnerAddress,
+      loans: [{
+        dToken: dusdId,
+        amounts: `${dfiPaybackAmount}@DFI`
+      }]
+    })
+
+    // Price of dfi to dusd depends on the oracle, in this case 1 DFI = 1 DUSD
+    const effectiveDusdPerDfi = new BigNumber(1).multipliedBy(1 - penaltyRate) // (DUSD per DFI * (1 - penalty rate))
+    const dusdPayback = new BigNumber(dfiPaybackAmount).multipliedBy(effectiveDusdPerDfi)
+    const dusdLoanPayback = dusdPayback.minus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const dusdInterestPerBlockAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
+    const dusdLoanRemainingAfterFirstPayback = new BigNumber(dusdLoanAmount).minus(dusdLoanPayback)
+
+    // Let some time, generate blocks
+    await testing.generate(1)
+    await testing.generate(1)
+
+    const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(blockHeightAfter - paybackLoanBlockHeight)
+    const dusdLoanAmountAfter = dusdLoanRemainingAfterFirstPayback.plus(dusdInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
+  })
+
   it('should be able to payback TSLA loan using DFI', async () => {
     await setupForTslaLoan()
     const tslaInfo = await testing.rpc.token.getToken('TSLA')
@@ -1519,7 +1567,7 @@ describe('paybackloan for any token', () => {
     await testing.generate(1)
 
     const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
-    const tslaInterestPerBlockBefore = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay)).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const tslaInterestPerBlockBefore = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay))
     const tslaInterestAmountBefore = tslaInterestPerBlockBefore.multipliedBy(new BigNumber(blockHeightBefore - tslaTakeLoanBlockHeight))
     const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
@@ -1527,11 +1575,6 @@ describe('paybackloan for any token', () => {
     expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
 
     const dfiPaybackAmount = 100
-    const burnInfoBefore = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
-    expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
-    expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
-
     const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.paybackLoan({
       vaultId: tslaVaultId,
@@ -1541,17 +1584,21 @@ describe('paybackloan for any token', () => {
         amounts: `${dfiPaybackAmount}@DFI`
       }]
     })
+
+    // Price of dfi to tsla depends on the oracle, in this case 1 DFI = 0.001 TSLA
+    const effectiveTslaPerDfi = new BigNumber(0.001).multipliedBy(1 - penaltyRate) // (TSLA per DFI * (1 - penalty rate))
+    const tslaPayback = new BigNumber(dfiPaybackAmount).multipliedBy(effectiveTslaPerDfi)
+    const tslaLoanPayback = tslaPayback.minus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const tslaInterestPerBlockAfter = new BigNumber(tslaLoanAmount).minus(tslaLoanPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
+    const tslaLoanRemainingAfterFirstPayback = new BigNumber(tslaLoanAmount).minus(tslaLoanPayback)
+
+    // Let some time, generate blocks
+    await testing.generate(1)
     await testing.generate(1)
 
-    // price of dfi to tsla depends on the oracle, in this case 1 DFI = 0.001 TSLA
     const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
-    const effectiveTslaPerDfi = new BigNumber(0.001).multipliedBy(1 - penaltyRate) // (TSLA per DFI * (1 - penalty rate))
-    const tslaPaybackAmount = new BigNumber(dfiPaybackAmount).multipliedBy(effectiveTslaPerDfi)
-    const tslaLoanDecreased = tslaPaybackAmount.minus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
-    const tslaInterestPerBlockAfter = new BigNumber(tslaLoanAmount).minus(tslaLoanDecreased).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
     const tslaInterestAmountAfter = tslaInterestPerBlockAfter.multipliedBy(blockHeightAfter - paybackLoanBlockHeight)
-    const tslaLoanRemainingAfter = new BigNumber(tslaLoanAmount).minus(tslaLoanDecreased)
-    const tslaLoanAmountAfter = tslaLoanRemainingAfter.plus(tslaInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const tslaLoanAmountAfter = tslaLoanRemainingAfterFirstPayback.plus(tslaInterestAmountAfter.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
     const vaultAfter = await testing.rpc.loan.getVault(tslaVaultId) as VaultActive
     expect(vaultAfter.loanAmounts).toStrictEqual([`${tslaLoanAmountAfter.toFixed(8)}@TSLA`])
