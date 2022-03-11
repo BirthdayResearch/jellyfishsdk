@@ -37,7 +37,8 @@ export class CentralisedIndexerStubServer extends RootServer {
             INDEXER_DYNAMODB_ENDPOINT: `http://localhost:${dynamoDbContainerPort}`,
             INDEXER_DYNAMODB_REGION: 'dummy',
             INDEXER_DYNAMODB_ACCESSKEYID: 'dummy',
-            INDEXER_DYNAMODB_SECRETACCESSKEY: 'dummy'
+            INDEXER_DYNAMODB_SECRETACCESSKEY: 'dummy',
+            NETWORK: 'regtest'
           }
           return TEST_CONFIGS[key]
         })

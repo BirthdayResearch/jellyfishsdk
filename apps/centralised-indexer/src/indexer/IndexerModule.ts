@@ -1,5 +1,5 @@
 import { Logger, Module } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ActuatorModule } from '@defichain-apps/libs/actuator'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ModelModule } from '../models/ModelModule'
@@ -8,14 +8,17 @@ import { RootIndexer } from './RootIndexer'
 import { RpcBlockProvider } from './RpcBlockProvider'
 import { BlockIndexer } from './block/BlockIndexer'
 import { DexSwapIndexer } from './dex-swap/DexSwapIndexer'
+import { RootDfTxIndexer } from './RootDfTxIndexer'
+import { TokenIndexer } from './token/TokenIndexer'
 
-function AppConfiguration (): any {
+function AppConfiguration (): Record<string, string | undefined> {
   return {
     BLOCKCHAIN_CPP_URL: process.env.INDEXER_DEFID_URL,
     INDEXER_DYNAMODB_ENDPOINT: process.env.INDEXER_DYNAMODB_ENDPOINT,
     INDEXER_DYNAMODB_REGION: process.env.INDEXER_DYNAMODB_REGION,
     INDEXER_DYNAMODB_ACCESSKEYID: process.env.INDEXER_DYNAMODB_ACCESSKEYID,
-    INDEXER_DYNAMODB_SECRETACCESSKEY: process.env.INDEXER_DYNAMODB_SECRETACCESSKEY
+    INDEXER_DYNAMODB_SECRETACCESSKEY: process.env.INDEXER_DYNAMODB_SECRETACCESSKEY,
+    NETWORK: process.env.NETWORK ?? 'mainnet'
   }
 }
 
@@ -28,14 +31,25 @@ function AppConfiguration (): any {
     ActuatorModule,
     ScheduleModule.forRoot(),
     BlockchainCppModule,
-    IndexerModule,
     ModelModule
   ],
   providers: [
-    RootIndexer,
+    {
+      provide: 'NETWORK',
+      useFactory: async (configService: ConfigService) => {
+        return configService.get<string>('NETWORK')
+      },
+      inject: [ConfigService]
+    },
+    Logger,
     RpcBlockProvider,
+
+    RootIndexer,
     BlockIndexer,
-    DexSwapIndexer
+
+    RootDfTxIndexer,
+    DexSwapIndexer,
+    TokenIndexer
   ]
 })
 export class IndexerModule {

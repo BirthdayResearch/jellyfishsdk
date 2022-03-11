@@ -3,6 +3,8 @@ import { Interval } from '@nestjs/schedule'
 import { waitForCondition } from '@defichain/testcontainers'
 import { ApiClient, blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
 import { Block, BlockService } from '../models/Block'
+import { RootIndexer } from './RootIndexer'
+import { TokenService } from '../models/Token'
 
 @Injectable()
 export class RpcBlockProvider {
@@ -12,7 +14,9 @@ export class RpcBlockProvider {
 
   constructor (
     private readonly client: ApiClient,
-    private readonly blockService: BlockService
+    private readonly blockService: BlockService,
+    private readonly tokenService: TokenService,
+    private readonly rootIndexer: RootIndexer
   ) {
   }
 
@@ -101,44 +105,40 @@ export class RpcBlockProvider {
   public async indexGenesis (): Promise<boolean> {
     const hash = await this.client.blockchain.getBlockHash(0)
     const block = await this.client.blockchain.getBlock(hash, 2)
-    console.log('indexing genesis', block.hash)
     await this.index(block)
+
+    // Seed DFI token
+    await this.tokenService.upsert({
+      id: 0,
+      symbol: 'DFI',
+      name: 'Default Defi token',
+      decimal: 8,
+      limit: '0.00000000',
+      isDAT: true,
+      isLPS: false,
+      tradeable: true,
+      mintable: false,
+      block: {
+        hash: block.hash,
+        height: 0,
+        time: block.time,
+        medianTime: block.mediantime
+      }
+    })
+
     return true
   }
 
   private async index (block: defid.Block<defid.Transaction>): Promise<void> {
     this.logger.log(`Index - hash: ${block.hash} - height: ${block.height}`)
-    // TODO(eli-lim): Delegate to other async indexers
-    await this.blockService.upsert(createIndexedBlockFromDefidBlock(block))
+    await this.rootIndexer.index(block)
   }
 
   private async invalidate (hash: string, height: number): Promise<void> {
-    // TODO(eli-lim)
+    // TODO(eli-lim): status
   }
 
   private async cleanup (): Promise<void> {
     // TODO(eli-lim)
-  }
-}
-
-export function createIndexedBlockFromDefidBlock (block: defid.Block<defid.Transaction>): Block {
-  return {
-    hash: block.hash,
-    height: block.height,
-    difficulty: block.difficulty,
-    masternode: block.masternode,
-    medianTime: block.mediantime,
-    merkleroot: block.merkleroot,
-    minter: block.minter,
-    minterBlockCount: block.mintedBlocks,
-    previousHash: block.previousblockhash,
-    reward: block.tx[0].vout[0].value.toFixed(8),
-    size: block.size,
-    sizeStripped: block.strippedsize,
-    stakeModifier: block.stakeModifier,
-    time: block.time,
-    transactionCount: block.nTx,
-    version: block.version,
-    weight: block.weight
   }
 }

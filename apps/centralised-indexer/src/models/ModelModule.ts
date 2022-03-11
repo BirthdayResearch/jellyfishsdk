@@ -2,6 +2,8 @@ import { Global, Module } from '@nestjs/common'
 import { BlockSchema, BlockService } from './Block'
 import { DynamooseModule } from 'nestjs-dynamoose'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { DexSwapSchema, DexSwapService } from './DexSwap'
+import { TokenSchema, TokenService } from './Token'
 
 function getConfigOrThrow (configService: ConfigService, configKey: string): string {
   const configValue = configService.get<string>(configKey)
@@ -33,18 +35,29 @@ function getConfigOrThrow (configService: ConfigService, configKey: string): str
             create: true,
             waitForActive: true
           }
+          // logger: console
         }
       },
       inject: [ConfigService]
     }),
+
+    // Register models
     DynamooseModule.forFeature([
-      { name: 'Block', schema: BlockSchema }
+      { name: 'Block', schema: BlockSchema },
+      { name: 'DexSwap', schema: DexSwapSchema },
+      { name: 'Token', schema: TokenSchema }
     ])
   ],
   providers: [
-    BlockService
+    BlockService,
+    DexSwapService,
+    TokenService
   ],
-  exports: [BlockService]
+  exports: [
+    BlockService,
+    DexSwapService,
+    TokenService
+  ]
 })
 export class ModelModule {
 

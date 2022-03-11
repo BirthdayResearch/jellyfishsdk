@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { blockchain as defid } from '@defichain/jellyfish-api-core'
+import { RootDfTxIndexer } from './RootDfTxIndexer'
 import { BlockIndexer } from './block/BlockIndexer'
-import { DexSwapIndexer } from './dex-swap/DexSwapIndexer'
 
 export interface Indexer {
   index: (block: defid.Block<defid.Transaction>) => Promise<void>
-  invalidate: (hash: string) => Promise<void>
+  invalidate: (block: defid.Block<defid.Transaction>) => Promise<void>
 }
 
 /**
@@ -17,11 +17,11 @@ export class RootIndexer implements Indexer {
 
   constructor (
     private readonly blockIndexer: BlockIndexer,
-    private readonly dexSwapIndexer: DexSwapIndexer
+    private readonly rootDfTxIndexer: RootDfTxIndexer
   ) {
     this.indexers = [
       blockIndexer,
-      dexSwapIndexer
+      rootDfTxIndexer
     ]
   }
 
@@ -31,9 +31,9 @@ export class RootIndexer implements Indexer {
     }
   }
 
-  async invalidate (hash: string): Promise<void> {
+  async invalidate (block: defid.Block<defid.Transaction>): Promise<void> {
     for (const indexer of this.indexers) {
-      await indexer.invalidate(hash)
+      await indexer.invalidate(block)
     }
   }
 }

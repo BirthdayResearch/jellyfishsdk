@@ -55,8 +55,10 @@ export class CentralisedIndexerTesting {
    * @see CentralisedIndexerStubServer
    */
   async start (): Promise<void> {
-    await this.group.start()
-    await this.dynamoDbContainer.start()
+    await Promise.all([
+      await this.group.start(),
+      await this.dynamoDbContainer.start()
+    ])
     await this.stubServer.start()
   }
 
