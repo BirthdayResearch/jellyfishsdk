@@ -1,3 +1,4 @@
+import { ActuatorController, ActuatorProbes } from '@defichain-apps/libs/actuator'
 import {
   BlockSubsidy,
   MainNetCoinbaseSubsidyOptions,
@@ -10,7 +11,6 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 
 import { DeFiDCache } from '../cache/DeFiDCache'
 import { SemaphoreCache } from '../cache/SemaphoreCache'
-import { ActuatorController } from '../controllers/ActuatorController'
 import { AddressController } from '../controllers/AddressController'
 import { BlockController } from '../controllers/BlockController'
 import { FeeController } from '../controllers/FeeController'
@@ -30,6 +30,8 @@ import { ApiValidationPipe } from '../pipes/ApiValidationPipe'
 import { LoanVaultService } from '../services/LoanVaultService'
 import { PoolPairService } from '../services/PoolPairService'
 import { MasternodeService } from '../services/MasternodeService'
+import { DeFiDProbeIndicator } from '../probes/DeFiDProbeIndicator'
+import { ModelProbeIndicator } from '../probes/ModelProbeIndicator'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -84,4 +86,15 @@ import { MasternodeService } from '../services/MasternodeService'
   ]
 })
 export class ApiModule {
+  constructor (
+    private readonly probes: ActuatorProbes,
+    private readonly indicators: [DeFiDProbeIndicator, ModelProbeIndicator]
+  ) {
+  }
+
+  async onApplicationBootstrap (): Promise<void> {
+    for (const indicator of this.indicators) {
+      this.probes.add(indicator)
+    }
+  }
 }

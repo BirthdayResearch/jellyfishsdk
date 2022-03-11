@@ -1,9 +1,8 @@
+import { ProbeIndicator, HealthIndicatorResult } from '@defichain-apps/libs/actuator'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Injectable } from '@nestjs/common'
-import { HealthIndicatorResult } from '@nestjs/terminus'
 
 import { BlockMapper } from '../models/Block'
-import { ProbeIndicator } from '../probes/ProbeIndicator'
 
 @Injectable()
 export class ModelProbeIndicator extends ProbeIndicator {
