@@ -42,9 +42,7 @@ export class WhaleStubServer extends RootServer {
 class TestConfigService extends ConfigService {
   constructor (rpcUrl: string) {
     super({
-      BLOCKCHAIN_CPP_URL: rpcUrl,
-      BLOCKCHAIN_CPP_LIVENESS_MAX_BLOCK_COUNT: 1000,
-      BLOCKCHAIN_CPP_READINESS_MAX_BLOCK_COUNT: 20
+      BLOCKCHAIN_CPP_URL: rpcUrl
     })
   }
 }
