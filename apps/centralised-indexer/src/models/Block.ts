@@ -7,6 +7,8 @@ export interface BlockKey {
   hash: string // ----------------| partition / hash key; unique id of the block, same as the hash
 }
 
+const FIXED_PARTITION_KEY = 0
+
 /**
  * Information about a block in the best chain.
  */
@@ -72,9 +74,11 @@ export const BlockSchema = new Schema({
 
   // To support queries where only sortKey is provided
   _fixedPartitionKey: {
-    type: Number, // 0
+    default: FIXED_PARTITION_KEY,
+    forceDefault: true,
+    type: Number,
     index: [
-      { // support query for highest block
+      {
         global: true,
         name: 'height-sorted-list-index',
         rangeKey: 'height'
@@ -82,8 +86,6 @@ export const BlockSchema = new Schema({
     ]
   }
 })
-
-const FIXED_PARTITION_KEY = 0
 
 function getBlockKey (block: Block): BlockKey {
   return { hash: block.hash }
@@ -98,10 +100,7 @@ export class BlockService {
   }
 
   async upsert (block: Block): Promise<void> {
-    await this.model.create(
-      { ...block, _fixedPartitionKey: FIXED_PARTITION_KEY },
-      { overwrite: true, return: 'document' }
-    )
+    await this.model.create(block, { overwrite: true, return: 'document' })
   }
 
   async getByHash (hash: string): Promise<Block | undefined> {
