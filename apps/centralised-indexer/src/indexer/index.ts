@@ -1,4 +1,4 @@
-import { RootModule } from './RootModule'
+import { IndexerModule } from './IndexerModule'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
@@ -8,7 +8,7 @@ export class RootServer {
 
   async create (): Promise<NestFastifyApplication> {
     const adapter = new FastifyAdapter()
-    return await NestFactory.create<NestFastifyApplication>(RootModule, adapter)
+    return await NestFactory.create<NestFastifyApplication>(IndexerModule, adapter)
   }
 
   async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {

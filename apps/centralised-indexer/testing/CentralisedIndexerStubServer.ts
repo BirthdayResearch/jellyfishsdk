@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Test } from '@nestjs/testing'
-import { RootModule } from '../src/indexer/RootModule'
+import { IndexerModule } from '../src/indexer/IndexerModule'
 import { RootServer } from '../src/indexer'
 import { ConfigService } from '@nestjs/config'
 import { DynamoDbContainer } from './containers/DynamoDbContainer'
@@ -26,7 +26,7 @@ export class CentralisedIndexerStubServer extends RootServer {
     const dynamoDbContainerPort = await this.dynamoDbContainer.getHostPort()
     const module = await Test.createTestingModule({
       imports: [
-        RootModule
+        IndexerModule
       ]
     })
       .overrideProvider(ConfigService)
