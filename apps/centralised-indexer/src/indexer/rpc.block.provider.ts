@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Interval } from '@nestjs/schedule'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { waitForCondition } from '@defichain/testcontainers'
-import { blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
+import { ApiClient, blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
 import { Block, BlockService } from '../models/block'
 
 @Injectable()
@@ -12,7 +11,7 @@ export class RPCBlockProvider {
   private indexing = false
 
   constructor (
-    private readonly client: JsonRpcClient,
+    private readonly client: ApiClient,
     private readonly blockService: BlockService
   ) {
   }

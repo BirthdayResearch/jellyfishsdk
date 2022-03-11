@@ -1,17 +1,18 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { DeFiDModule } from '../defid/_module'
 import { ActuatorModule } from '@defichain-apps/libs/actuator'
 import { ScheduleModule } from '@nestjs/schedule'
 import { IndexerModule } from './_module'
 import { ModelModule } from '../models/_module'
+import { BlockchainCppModule } from '@defichain-apps/libs/blockchaincpp'
 
 function AppConfiguration (): any {
   return {
-    isProd: process.env.NODE_ENV === 'production',
-    defid: {
-      url: process.env.INDEXER_DEFID_URL
-    }
+    BLOCKCHAIN_CPP_URL: process.env.INDEXER_DEFID_URL,
+    INDEXER_DYNAMODB_ENDPOINT: process.env.INDEXER_DYNAMODB_ENDPOINT,
+    INDEXER_DYNAMODB_REGION: process.env.INDEXER_DYNAMODB_REGION,
+    INDEXER_DYNAMODB_ACCESSKEYID: process.env.INDEXER_DYNAMODB_ACCESSKEYID,
+    INDEXER_DYNAMODB_SECRETACCESSKEY: process.env.INDEXER_DYNAMODB_SECRETACCESSKEY
   }
 }
 
@@ -23,7 +24,7 @@ function AppConfiguration (): any {
     }),
     ActuatorModule,
     ScheduleModule.forRoot(),
-    DeFiDModule,
+    BlockchainCppModule,
     IndexerModule,
     ModelModule
   ]

@@ -4,7 +4,6 @@ import { Test } from '@nestjs/testing'
 import { RootModule } from '../src/indexer/RootModule'
 import { RootServer } from '../src/indexer'
 import { ConfigService } from '@nestjs/config'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { DynamoDbContainer } from './containers/DynamoDbContainer'
 
 /**
@@ -30,18 +29,17 @@ export class CentralisedIndexerStubServer extends RootServer {
         RootModule
       ]
     })
-      .overrideProvider(JsonRpcClient)
-      .useValue(new JsonRpcClient(masternodeRpcUrl))
       .overrideProvider(ConfigService)
       .useValue({
         get: jest.fn((key: string) => {
-          const DYNAMO_DB_TESTING_CONFIGS: Record<string, string> = {
+          const TEST_CONFIGS: Record<string, string> = {
+            BLOCKCHAIN_CPP_URL: masternodeRpcUrl,
             INDEXER_DYNAMODB_ENDPOINT: `http://localhost:${dynamoDbContainerPort}`,
             INDEXER_DYNAMODB_REGION: 'dummy',
             INDEXER_DYNAMODB_ACCESSKEYID: 'dummy',
             INDEXER_DYNAMODB_SECRETACCESSKEY: 'dummy'
           }
-          return DYNAMO_DB_TESTING_CONFIGS[key]
+          return TEST_CONFIGS[key]
         })
       })
       .compile()
