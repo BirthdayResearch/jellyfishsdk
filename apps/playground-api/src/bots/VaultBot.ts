@@ -13,7 +13,7 @@ export class VaultBot {
   @Interval(6000)
   async run (): Promise<void> {
     if (this.vaultId === undefined) {
-      this.vaultId = await this.client.loan.createVault({
+      this.vaultId = await this.client.vault.createVault({
         loanSchemeId: 'MIN150',
         ownerAddress: PlaygroundSetup.address
       })
@@ -24,7 +24,7 @@ export class VaultBot {
       return
     }
 
-    await this.client.loan.depositToVault({
+    await this.client.vault.depositToVault({
       amount: '100@DFI',
       from: PlaygroundSetup.address,
       vaultId: this.vaultId
