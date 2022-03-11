@@ -53,7 +53,7 @@ export class WhaleApiTesting {
    *
    * @see TestingGroup
    * @see Testing
-   * @see PlaygroundStubServer
+   * @see WhaleStubServer
    */
   async start (): Promise<void> {
     await this.group.start()
@@ -65,7 +65,7 @@ export class WhaleApiTesting {
    *
    * @see TestingGroup
    * @see Testing
-   * @see PlaygroundStubServer
+   * @see WhaleStubServer
    */
   async stop (): Promise<void> {
     try {
