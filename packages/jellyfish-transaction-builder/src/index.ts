@@ -8,6 +8,7 @@ import { TxnBuilderGovernance } from './txn/txn_builder_governance'
 import { TxnBuilderICXOrderBook } from './txn/txn_builder_icxorderbook'
 import { TxnBuilderMasternode } from './txn/txn_builder_masternode'
 import { TxnBuilderLoans } from './txn/txn_builder_loans'
+import { TxnBuilderVault } from './txn/txn_builder_vault'
 
 export * from './provider'
 export * from './txn/txn_fee'
@@ -17,6 +18,7 @@ export * from './txn/txn_builder_utxo'
 export * from './txn/txn_builder_account'
 export * from './txn/txn_builder_oracles'
 export * from './txn/txn_builder_loans'
+export * from './txn/txn_builder_vault'
 export * from './txn/txn_builder_liq_pool'
 export * from './txn/txn_builder_icxorderbook'
 export * from './txn/txn_builder_masternode'
@@ -35,4 +37,5 @@ export class P2WPKHTransactionBuilder extends P2WPKHTxnBuilder {
   public readonly icxorderbook = new TxnBuilderICXOrderBook(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
   public readonly masternode = new TxnBuilderMasternode(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
   public readonly loans = new TxnBuilderLoans(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
+  public readonly vault = new TxnBuilderVault(this.feeProvider, this.prevoutProvider, this.ellipticPairProvider, this.network)
 }

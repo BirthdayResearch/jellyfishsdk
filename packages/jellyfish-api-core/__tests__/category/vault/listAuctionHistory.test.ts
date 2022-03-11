@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ListAuctionHistoryDetail } from '../../../src/category/loan'
+import { ListAuctionHistoryDetail } from '../../../src/category/vault'
 
 describe('Loan listAuctionHistory', () => {
   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
@@ -170,13 +170,13 @@ describe('Loan listAuctionHistory', () => {
     await alice.generate(1)
 
     const loanTokenVaultAddr = await alice.generateAddress()
-    const loanVaultId = await alice.rpc.loan.createVault({
+    const loanVaultId = await alice.rpc.vault.createVault({
       ownerAddress: loanTokenVaultAddr,
       loanSchemeId: loanTokenSchemeId
     })
     await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: loanVaultId,
       from: aliceColAddr,
       amount: '1000000@DFI'
@@ -277,16 +277,16 @@ describe('Loan listAuctionHistory', () => {
       const data = await alice.container.call('listauctions', [])
       expect(data).toStrictEqual([])
 
-      const vault1 = await alice.rpc.loan.getVault(vaultId1)
+      const vault1 = await alice.rpc.vault.getVault(vaultId1)
       expect(vault1.state).toStrictEqual('active')
 
-      const vault2 = await alice.rpc.loan.getVault(vaultId2)
+      const vault2 = await alice.rpc.vault.getVault(vaultId2)
       expect(vault2.state).toStrictEqual('active')
 
-      const vault3 = await alice.rpc.loan.getVault(vaultId3)
+      const vault3 = await alice.rpc.vault.getVault(vaultId3)
       expect(vault3.state).toStrictEqual('active')
 
-      const vault4 = await alice.rpc.loan.getVault(vaultId4)
+      const vault4 = await alice.rpc.vault.getVault(vaultId4)
       expect(vault4.state).toStrictEqual('active')
     }
 
@@ -384,8 +384,8 @@ describe('Loan listAuctionHistory', () => {
   describe('listAuctionHistory without pagination', () => {
     it('should listAuctionHistory with owner = mine', async () => {
       {
-        const auctionhistory1 = await alice.rpc.loan.listAuctionHistory() // default to mine
-        const auctionhistory2 = await alice.rpc.loan.listAuctionHistory('mine')
+        const auctionhistory1 = await alice.rpc.vault.listAuctionHistory() // default to mine
+        const auctionhistory2 = await alice.rpc.vault.listAuctionHistory('mine')
         expect(auctionhistory1).toStrictEqual(auctionhistory2)
         expect(auctionhistory1.length).toStrictEqual(2)
         {
@@ -420,8 +420,8 @@ describe('Loan listAuctionHistory', () => {
         }
       }
       {
-        const auctionhistory1 = await bob.rpc.loan.listAuctionHistory() // default to mine
-        const auctionhistory2 = await bob.rpc.loan.listAuctionHistory('mine')
+        const auctionhistory1 = await bob.rpc.vault.listAuctionHistory() // default to mine
+        const auctionhistory2 = await bob.rpc.vault.listAuctionHistory('mine')
         expect(auctionhistory1).toStrictEqual(auctionhistory2)
         expect(auctionhistory1.length).toStrictEqual(2)
         {
@@ -458,7 +458,7 @@ describe('Loan listAuctionHistory', () => {
     })
 
     it('should listAuctionHistory with owner = all', async () => {
-      const data = await alice.rpc.loan.listAuctionHistory('all')
+      const data = await alice.rpc.vault.listAuctionHistory('all')
       expect(data.length).toStrictEqual(4)
 
       const data1 = data.find(d => d.vaultId === vaultId1)
@@ -476,7 +476,7 @@ describe('Loan listAuctionHistory', () => {
 
     it('should listAuctionHistory with owner = address', async () => {
       {
-        const data = await alice.rpc.loan.listAuctionHistory(aliceColAddr)
+        const data = await alice.rpc.vault.listAuctionHistory(aliceColAddr)
         const data1 = data.find(d => d.vaultId === vaultId1)
         expect(data1).toBeDefined()
 
@@ -491,7 +491,7 @@ describe('Loan listAuctionHistory', () => {
       }
 
       {
-        const data = await alice.rpc.loan.listAuctionHistory(bobColAddr)
+        const data = await alice.rpc.vault.listAuctionHistory(bobColAddr)
         const data1 = data.find(d => d.vaultId === vaultId1)
         expect(data1).toBeUndefined()
 
@@ -513,16 +513,16 @@ describe('Loan listAuctionHistory', () => {
     let bobAuctionHistoryArr: ListAuctionHistoryDetail[]
 
     beforeAll(async () => {
-      auctionHistoryArr = await alice.rpc.loan.listAuctionHistory('all')
-      aliceAuctionHistoryArr = await alice.rpc.loan.listAuctionHistory('mine')
-      bobAuctionHistoryArr = await bob.rpc.loan.listAuctionHistory('mine')
+      auctionHistoryArr = await alice.rpc.vault.listAuctionHistory('all')
+      aliceAuctionHistoryArr = await alice.rpc.vault.listAuctionHistory('mine')
+      bobAuctionHistoryArr = await bob.rpc.vault.listAuctionHistory('mine')
     })
 
     it('should listAuctionHistory with maxBlockHeight only', async () => {
       // All
       // ListAuctionHistory for maxBlockHeight of first vault
       {
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[0].blockHeight }
         )
         expect(page.length).toStrictEqual(4)
@@ -534,7 +534,7 @@ describe('Loan listAuctionHistory', () => {
 
       // ListAuctionHistory for maxBlockHeight of forth vault
       {
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[3].blockHeight }
         )
         expect(page.length).toStrictEqual(1)
@@ -544,7 +544,7 @@ describe('Loan listAuctionHistory', () => {
       // Mine
       // ListAuctionHistory for maxBlockHeight of first vault for Alice
       {
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { maxBlockHeight: aliceAuctionHistoryArr[0].blockHeight }
         )
         expect(page.length).toStrictEqual(2)
@@ -554,7 +554,7 @@ describe('Loan listAuctionHistory', () => {
 
       // ListAuctionHistory for maxBlockHeight of second vault for Alice
       {
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { maxBlockHeight: aliceAuctionHistoryArr[1].blockHeight }
         )
         expect(page.length).toStrictEqual(1)
@@ -564,7 +564,7 @@ describe('Loan listAuctionHistory', () => {
       // Address
       // ListAuctionHistory for maxBlockHeight of first vault for Bob
       {
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { maxBlockHeight: bobAuctionHistoryArr[0].blockHeight }
         )
         expect(page.length).toStrictEqual(2)
@@ -574,7 +574,7 @@ describe('Loan listAuctionHistory', () => {
 
       // ListAuctionHistory for maxBlockHeight of second vault for Bob
       {
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { maxBlockHeight: bobAuctionHistoryArr[1].blockHeight }
         )
         expect(page.length).toStrictEqual(1)
@@ -585,7 +585,7 @@ describe('Loan listAuctionHistory', () => {
     it('should not listAuctionHistory with vaultId only', async () => { // This test shows that we can not use vaultId only for the pagination start point as the DB composite index starts with maxBlockHeight. Need to pass maxBlockHeight and vaultId together.
       {
         // All
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { vaultId: auctionHistoryArr[2].vaultId }
         )
         expect(page.length).toStrictEqual(4)
@@ -593,7 +593,7 @@ describe('Loan listAuctionHistory', () => {
 
       {
         // Mine for Alice
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { vaultId: aliceAuctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(2)
@@ -601,7 +601,7 @@ describe('Loan listAuctionHistory', () => {
 
       {
         // Address for Bob
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { vaultId: bobAuctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(2)
@@ -611,7 +611,7 @@ describe('Loan listAuctionHistory', () => {
     it('should not listAuctionHistory with index only', async () => { // This test shows that we can not use index only for the pagination start point as the DB composite index starts with maxBlockHeight.
       {
         // All
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { index: 1 }
         )
 
@@ -620,7 +620,7 @@ describe('Loan listAuctionHistory', () => {
 
       {
         // Mine for Alice
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { index: 5 }
         )
 
@@ -629,7 +629,7 @@ describe('Loan listAuctionHistory', () => {
 
       {
         // Address for Bob
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { index: 3 }
         )
 
@@ -641,14 +641,14 @@ describe('Loan listAuctionHistory', () => {
       {
         // All
         // ListAuctionHistory with limit < size
-        const pageLimit3 = await alice.rpc.loan.listAuctionHistory('all', { limit: 3 })
+        const pageLimit3 = await alice.rpc.vault.listAuctionHistory('all', { limit: 3 })
         expect(pageLimit3.length).toStrictEqual(3)
         expect(pageLimit3[0].vaultId).toStrictEqual(auctionHistoryArr[0].vaultId)
         expect(pageLimit3[1].vaultId).toStrictEqual(auctionHistoryArr[1].vaultId)
         expect(pageLimit3[2].vaultId).toStrictEqual(auctionHistoryArr[2].vaultId)
 
         // ListAuctionHistory with limit = size
-        const pageLimit4 = await alice.rpc.loan.listAuctionHistory('all', { limit: 4 })
+        const pageLimit4 = await alice.rpc.vault.listAuctionHistory('all', { limit: 4 })
         expect(pageLimit4.length).toStrictEqual(4)
         expect(pageLimit4[0].vaultId).toStrictEqual(auctionHistoryArr[0].vaultId)
         expect(pageLimit4[1].vaultId).toStrictEqual(auctionHistoryArr[1].vaultId)
@@ -656,7 +656,7 @@ describe('Loan listAuctionHistory', () => {
         expect(pageLimit4[3].vaultId).toStrictEqual(auctionHistoryArr[3].vaultId)
 
         // ListAuctionHistory with limit > size
-        const pageLimit5 = await alice.rpc.loan.listAuctionHistory('all', { limit: 5 })
+        const pageLimit5 = await alice.rpc.vault.listAuctionHistory('all', { limit: 5 })
         expect(pageLimit5.length).toStrictEqual(4)
         expect(pageLimit5).toStrictEqual(pageLimit4)
       }
@@ -664,18 +664,18 @@ describe('Loan listAuctionHistory', () => {
       {
         // Mine
         // ListAuctionHistory with limit < size for Alice
-        const pageLimit1 = await alice.rpc.loan.listAuctionHistory('mine', { limit: 1 })
+        const pageLimit1 = await alice.rpc.vault.listAuctionHistory('mine', { limit: 1 })
         expect(pageLimit1.length).toStrictEqual(1)
         expect(pageLimit1[0].vaultId).toStrictEqual(aliceAuctionHistoryArr[0].vaultId)
 
         // ListAuctionHistory with limit = size for Alice
-        const pageLimit2 = await alice.rpc.loan.listAuctionHistory('mine', { limit: 2 })
+        const pageLimit2 = await alice.rpc.vault.listAuctionHistory('mine', { limit: 2 })
         expect(pageLimit2.length).toStrictEqual(2)
         expect(pageLimit2[0].vaultId).toStrictEqual(aliceAuctionHistoryArr[0].vaultId)
         expect(pageLimit2[1].vaultId).toStrictEqual(aliceAuctionHistoryArr[1].vaultId)
 
         // ListAuctionHistory with limit > size for Alice
-        const pageLimit3 = await alice.rpc.loan.listAuctionHistory('mine', { limit: 3 })
+        const pageLimit3 = await alice.rpc.vault.listAuctionHistory('mine', { limit: 3 })
         expect(pageLimit3.length).toStrictEqual(2)
         expect(pageLimit3).toStrictEqual(pageLimit2)
       }
@@ -683,18 +683,18 @@ describe('Loan listAuctionHistory', () => {
       {
         // Address
         // ListAuctionHistory with limit < size for Bob
-        const pageLimit1 = await bob.rpc.loan.listAuctionHistory(bobColAddr, { limit: 1 })
+        const pageLimit1 = await bob.rpc.vault.listAuctionHistory(bobColAddr, { limit: 1 })
         expect(pageLimit1.length).toStrictEqual(1)
         expect(pageLimit1[0].vaultId).toStrictEqual(bobAuctionHistoryArr[0].vaultId)
 
         // ListAuctionHistory with limit = size for Bob
-        const pageLimit2 = await bob.rpc.loan.listAuctionHistory(bobColAddr, { limit: 2 })
+        const pageLimit2 = await bob.rpc.vault.listAuctionHistory(bobColAddr, { limit: 2 })
         expect(pageLimit2.length).toStrictEqual(2)
         expect(pageLimit2[0].vaultId).toStrictEqual(bobAuctionHistoryArr[0].vaultId)
         expect(pageLimit2[1].vaultId).toStrictEqual(bobAuctionHistoryArr[1].vaultId)
 
         // ListAuctionHistory with limit > size for Bob
-        const pageLimit3 = await bob.rpc.loan.listAuctionHistory(bobColAddr, { limit: 3 })
+        const pageLimit3 = await bob.rpc.vault.listAuctionHistory(bobColAddr, { limit: 3 })
         expect(pageLimit3.length).toStrictEqual(2)
         expect(pageLimit3).toStrictEqual(pageLimit2)
       }
@@ -704,7 +704,7 @@ describe('Loan listAuctionHistory', () => {
       // All
       // ListAuctionHistory for maxBlockHeight and vaultId of second vault
       {
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[1].blockHeight, vaultId: auctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(3)
@@ -716,7 +716,7 @@ describe('Loan listAuctionHistory', () => {
       // Mine for Alice
       // ListAuctionHistory for maxBlockHeight and vaultId of second vault
       {
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { maxBlockHeight: aliceAuctionHistoryArr[1].blockHeight, vaultId: aliceAuctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(1)
@@ -726,7 +726,7 @@ describe('Loan listAuctionHistory', () => {
       // Address for Bob
       // ListAuctionHistory for maxBlockHeight and vaultId of second vault
       {
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { maxBlockHeight: bobAuctionHistoryArr[1].blockHeight, vaultId: bobAuctionHistoryArr[1].vaultId }
         )
         expect(page.length).toStrictEqual(1)
@@ -738,7 +738,7 @@ describe('Loan listAuctionHistory', () => {
       // All
       // ListAuctionHistory for maxBlockHeight and index of second vault
       {
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[1].blockHeight, index: auctionHistoryArr[1].batchIndex }
         )
         expect(page.length).toStrictEqual(3)
@@ -750,7 +750,7 @@ describe('Loan listAuctionHistory', () => {
       // Mine for Alice
       // ListAuctionHistory for maxBlockHeight and index of second vault
       {
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { maxBlockHeight: aliceAuctionHistoryArr[1].blockHeight, index: aliceAuctionHistoryArr[1].batchIndex }
         )
         expect(page.length).toStrictEqual(1)
@@ -760,7 +760,7 @@ describe('Loan listAuctionHistory', () => {
       // Address for Bob
       // ListAuctionHistory for maxBlockHeight and index of second vault
       {
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { maxBlockHeight: bobAuctionHistoryArr[1].blockHeight, index: bobAuctionHistoryArr[1].batchIndex }
         )
         expect(page.length).toStrictEqual(1)
@@ -772,7 +772,7 @@ describe('Loan listAuctionHistory', () => {
       // All
       // ListAuctionHistory for maxBlockHeight, vaultId and index of second vault with limit = 2
       {
-        const page = await alice.rpc.loan.listAuctionHistory('all',
+        const page = await alice.rpc.vault.listAuctionHistory('all',
           { maxBlockHeight: auctionHistoryArr[1].blockHeight, vaultId: auctionHistoryArr[1].vaultId, index: auctionHistoryArr[1].batchIndex, limit: 2 }
         )
         expect(page.length).toStrictEqual(2)
@@ -783,7 +783,7 @@ describe('Loan listAuctionHistory', () => {
       // Mine
       // ListAuctionHistory for maxBlockHeight, vaultId and index of second vault with limit = 1 for Alice
       {
-        const page = await alice.rpc.loan.listAuctionHistory('mine',
+        const page = await alice.rpc.vault.listAuctionHistory('mine',
           { maxBlockHeight: aliceAuctionHistoryArr[1].blockHeight, vaultId: aliceAuctionHistoryArr[1].vaultId, index: aliceAuctionHistoryArr[1].batchIndex, limit: 1 }
         )
         expect(page.length).toStrictEqual(1)
@@ -793,7 +793,7 @@ describe('Loan listAuctionHistory', () => {
       // Address
       // ListAuctionHistory for maxBlockHeight, vaultId and index of second vault with limit = 1 for Bob
       {
-        const page = await bob.rpc.loan.listAuctionHistory(bobColAddr,
+        const page = await bob.rpc.vault.listAuctionHistory(bobColAddr,
           { maxBlockHeight: bobAuctionHistoryArr[1].blockHeight, vaultId: bobAuctionHistoryArr[1].vaultId, index: bobAuctionHistoryArr[1].batchIndex, limit: 1 }
         )
         expect(page.length).toStrictEqual(1)

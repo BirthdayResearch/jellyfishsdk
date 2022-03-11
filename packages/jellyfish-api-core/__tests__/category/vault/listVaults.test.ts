@@ -1,10 +1,10 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { VaultState } from '../../../src/category/loan'
+import { VaultState } from '../../../src/category/vault'
 
 describe('Loan listVaults', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string
   let oracleId: string
@@ -68,20 +68,20 @@ describe('Loan listVaults', () => {
   it('should listVaults without any arguments', async () => {
     // Before createVault
     {
-      const vaults = await testing.rpc.loan.listVaults()
+      const vaults = await testing.rpc.vault.listVaults()
       expect(vaults).toStrictEqual([])
     }
 
     // create an empty vault
     const ownerAddress1 = await testing.generateAddress()
-    const vaultId1 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress1, loanSchemeId: 'default' })
+    const vaultId1 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress1, loanSchemeId: 'default' })
     await testing.generate(1)
 
     // create a vault and deposit collateral
     const ownerAddress2 = await testing.generateAddress()
-    const vaultId2 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress2, loanSchemeId: 'default' })
+    const vaultId2 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress2, loanSchemeId: 'default' })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.vault.depositToVault({ vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
 
     // create a vault and deposit collateral and take a loan
@@ -89,18 +89,18 @@ describe('Loan listVaults', () => {
     // another loan scheme
     await testing.container.call('createloanscheme', [110, 1, 'scheme'])
     await testing.generate(1)
-    const vaultId3 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress3, loanSchemeId: 'scheme' })
+    const vaultId3 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress3, loanSchemeId: 'scheme' })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId3, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.vault.depositToVault({ vaultId: vaultId3, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
     await testing.rpc.loan.takeLoan({ vaultId: vaultId3, amounts: '30@TSLA' })
     await testing.generate(1)
 
     // create a vault and make it liqudated.
     const ownerAddress4 = await testing.generateAddress()
-    const vaultId4 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress4, loanSchemeId: 'default' })
+    const vaultId4 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress4, loanSchemeId: 'default' })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
     await testing.rpc.loan.takeLoan({ vaultId: vaultId4, amounts: '30@AAPL' })
     await testing.generate(1)
@@ -113,7 +113,7 @@ describe('Loan listVaults', () => {
 
     // List vaults
     // should return all vaults vaultId1, vaultId2, vaultId3, vaultId4
-    const vaults = await testing.rpc.loan.listVaults()
+    const vaults = await testing.rpc.vault.listVaults()
     expect(vaults).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
@@ -144,7 +144,7 @@ describe('Loan listVaults', () => {
 })
 
 describe('Loan listVaults with options and pagination', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string
   let oracleId: string
@@ -218,7 +218,7 @@ describe('Loan listVaults with options and pagination', () => {
     })
     await testing.generate(1)
     const loanVaultOwner = await testing.generateAddress()
-    const loanTokenVaultId = await testing.rpc.loan.createVault({
+    const loanTokenVaultId = await testing.rpc.vault.createVault({
       ownerAddress: loanVaultOwner,
       loanSchemeId: loanTokenSchemeId
     })
@@ -228,7 +228,7 @@ describe('Loan listVaults with options and pagination', () => {
     await testing.container.generate(1)
 
     // deposit to vault to loan tokens
-    await testing.rpc.loan.depositToVault({
+    await testing.rpc.vault.depositToVault({
       vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000@DFI'
     })
     await testing.container.generate(1)
@@ -248,14 +248,14 @@ describe('Loan listVaults with options and pagination', () => {
 
     // create an empty vault
     ownerAddress1 = await testing.generateAddress()
-    vaultId1 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress1, loanSchemeId: 'default' })
+    vaultId1 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress1, loanSchemeId: 'default' })
     await testing.generate(1)
 
     // create a vault and deposit collateral
     ownerAddress2 = await testing.generateAddress()
-    vaultId2 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress2, loanSchemeId: 'default' })
+    vaultId2 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress2, loanSchemeId: 'default' })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.vault.depositToVault({ vaultId: vaultId2, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
 
     // create a vault and deposit collateral and take a loan
@@ -263,18 +263,18 @@ describe('Loan listVaults with options and pagination', () => {
     // another loan scheme
     await testing.container.call('createloanscheme', [110, 1, 'scheme'])
     await testing.generate(1)
-    vaultId3 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress3, loanSchemeId: 'scheme' })
+    vaultId3 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress3, loanSchemeId: 'scheme' })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId3, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.vault.depositToVault({ vaultId: vaultId3, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
     await testing.rpc.loan.takeLoan({ vaultId: vaultId3, amounts: '30@TSLA' })
     await testing.generate(1)
 
     // create a vault and make it liqudated.
     ownerAddress4 = await testing.generateAddress()
-    vaultId4 = await testing.rpc.loan.createVault({ ownerAddress: ownerAddress4, loanSchemeId: 'default' })
+    vaultId4 = await testing.rpc.vault.createVault({ ownerAddress: ownerAddress4, loanSchemeId: 'default' })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10000@DFI' })
+    await testing.rpc.vault.depositToVault({ vaultId: vaultId4, from: collateralAddress, amount: '10000@DFI' })
     await testing.generate(1)
     await testing.rpc.loan.takeLoan({ vaultId: vaultId4, amounts: '30@AAPL' })
     await testing.generate(1)
@@ -300,7 +300,7 @@ describe('Loan listVaults with options and pagination', () => {
 
   it('should listVaults verbose', async () => {
     // List vaults
-    const vaults = await testing.rpc.loan.listVaults({}, { verbose: true })
+    const vaults = await testing.rpc.vault.listVaults({}, { verbose: true })
 
     const activeTemplate = {
       collateralAmounts: expect.any(Array),
@@ -360,7 +360,7 @@ describe('Loan listVaults with options and pagination', () => {
 
   it('should listVaults with ownerAddress', async () => {
     // List vaults
-    const vaults = await testing.rpc.loan.listVaults({}, { ownerAddress: ownerAddress1 })
+    const vaults = await testing.rpc.vault.listVaults({}, { ownerAddress: ownerAddress1 })
     expect(vaults).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
@@ -379,7 +379,7 @@ describe('Loan listVaults with options and pagination', () => {
 
   it('should listVaults with loanSchemeId', async () => {
     // List vaults
-    const vaults = await testing.rpc.loan.listVaults({}, { loanSchemeId: 'scheme' })
+    const vaults = await testing.rpc.vault.listVaults({}, { loanSchemeId: 'scheme' })
     expect(vaults).toStrictEqual([
       {
         vaultId: vaultId3,
@@ -392,7 +392,7 @@ describe('Loan listVaults with options and pagination', () => {
 
   it('should listVaults with Active|IN_LIQUIDATION', async () => {
     // List vaults
-    const nonLiquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.ACTIVE })
+    const nonLiquidatedVaults = await testing.rpc.vault.listVaults({}, { state: VaultState.ACTIVE })
     expect(nonLiquidatedVaults).toStrictEqual(expect.arrayContaining([
       {
         vaultId: vaultId1,
@@ -414,7 +414,7 @@ describe('Loan listVaults with options and pagination', () => {
       }
     ]))
 
-    const liquidatedVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
+    const liquidatedVaults = await testing.rpc.vault.listVaults({}, { state: VaultState.IN_LIQUIDATION })
     expect(liquidatedVaults).toStrictEqual([
       {
         vaultId: vaultId4,
@@ -427,11 +427,11 @@ describe('Loan listVaults with options and pagination', () => {
 
   it('should listVaults with pagination', async () => {
     // List vaults
-    const vaults = await testing.rpc.loan.listVaults({ limit: 2 })
+    const vaults = await testing.rpc.vault.listVaults({ limit: 2 })
     expect(vaults.length).toStrictEqual(2)
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+    const vaultsSecondPage = await testing.rpc.vault.listVaults({
       including_start: false,
       start: vaults[vaults.length - 1].vaultId
     })
@@ -439,7 +439,7 @@ describe('Loan listVaults with options and pagination', () => {
     expect(vaultsSecondPage.length).toStrictEqual(3) // total 4, started at index[2], listing 2 + 1 extra due loantoken vault
 
     // fetch the second page with including_start = true
-    const vaultsSecondPageIncludingStart = await testing.rpc.loan.listVaults({
+    const vaultsSecondPageIncludingStart = await testing.rpc.vault.listVaults({
       including_start: true,
       start: vaults[vaults.length - 1].vaultId
     })
@@ -479,7 +479,7 @@ describe('Loan listVaults with options and pagination', () => {
   it('should listVaults with pagination and ownerAddress', async () => {
     // List vaults with ownerAddress1
     // note that ownerAddress3 = ownerAddress1
-    const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { ownerAddress: ownerAddress1 })
+    const vaults = await testing.rpc.vault.listVaults({ limit: 2 }, { ownerAddress: ownerAddress1 })
     expect(Object.keys(vaults).length).toStrictEqual(2)
     expect(vaults).toStrictEqual(expect.arrayContaining([
       {
@@ -497,7 +497,7 @@ describe('Loan listVaults with options and pagination', () => {
     ]))
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+    const vaultsSecondPage = await testing.rpc.vault.listVaults({
       including_start: false,
       start: vaults[Object.keys(vaults).length - 1].vaultId
     }, { ownerAddress: ownerAddress1 })
@@ -508,7 +508,7 @@ describe('Loan listVaults with options and pagination', () => {
   it('should listVaults with pagination and loanSchemeId', async () => {
     // List vaults with loanSchemeId = 'scheme'
     // only vaultId3 has loanSchemeId = 'scheme'
-    const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { loanSchemeId: 'scheme' })
+    const vaults = await testing.rpc.vault.listVaults({ limit: 2 }, { loanSchemeId: 'scheme' })
     expect(Object.keys(vaults).length).toStrictEqual(1)
     expect(vaults).toStrictEqual([
       {
@@ -520,7 +520,7 @@ describe('Loan listVaults with options and pagination', () => {
     ])
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+    const vaultsSecondPage = await testing.rpc.vault.listVaults({
       including_start: false,
       start: vaults[Object.keys(vaults).length - 1].vaultId
     }, { loanSchemeId: 'scheme' })
@@ -531,11 +531,11 @@ describe('Loan listVaults with options and pagination', () => {
   it('should listVaults with pagination and state', async () => {
     // List vaults with state: VaultState.ACTIVE
     // only vaultId1, vaultId2, vaultId3 have state: VaultState.ACTIVE
-    const vaults = await testing.rpc.loan.listVaults({ limit: 2 }, { state: VaultState.ACTIVE })
+    const vaults = await testing.rpc.vault.listVaults({ limit: 2 }, { state: VaultState.ACTIVE })
     expect(Object.keys(vaults).length).toStrictEqual(2)
 
     // fetch the second page
-    const vaultsSecondPage = await testing.rpc.loan.listVaults({
+    const vaultsSecondPage = await testing.rpc.vault.listVaults({
       including_start: false,
       start: vaults[Object.keys(vaults).length - 1].vaultId
     }, { state: VaultState.ACTIVE })
@@ -544,17 +544,17 @@ describe('Loan listVaults with options and pagination', () => {
   })
 
   it('should listVaults filtered by state', async () => {
-    const activeVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.ACTIVE })
+    const activeVaults = await testing.rpc.vault.listVaults({}, { state: VaultState.ACTIVE })
     expect(activeVaults.length).toBeGreaterThan(0)
     expect(activeVaults.every(vault => vault.state === VaultState.ACTIVE))
 
     const ts = Math.floor(new Date().getTime() / 1000)
-    const vaultId = await testing.rpc.loan.createVault({
+    const vaultId = await testing.rpc.vault.createVault({
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({
+    await testing.rpc.vault.depositToVault({
       vaultId: vaultId,
       from: collateralAddress,
       amount: '10000@DFI'
@@ -581,7 +581,7 @@ describe('Loan listVaults with options and pagination', () => {
     const googlPrice = await testing.container.call('getfixedintervalprice', ['GOOGL/USD'])
     expect(googlPrice.isLive).toStrictEqual(false) // vault will be frozen while price.isLive: false
 
-    const fVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.FROZEN })
+    const fVaults = await testing.rpc.vault.listVaults({}, { state: VaultState.FROZEN })
     expect(fVaults.length).toBeGreaterThan(0)
     expect(fVaults.every(vault => vault.state === VaultState.FROZEN))
     // back to active
@@ -595,7 +595,7 @@ describe('Loan listVaults with options and pagination', () => {
     )
     await testing.container.waitForActivePrice('GOOGL/USD', '800')
 
-    const liqVaults = await testing.rpc.loan.listVaults({}, { state: VaultState.IN_LIQUIDATION })
+    const liqVaults = await testing.rpc.vault.listVaults({}, { state: VaultState.IN_LIQUIDATION })
     expect(liqVaults.length).toBeGreaterThan(0)
     const liqVault = liqVaults.find(vault => vault.vaultId === vaultId)!
     expect(liqVault?.state).toStrictEqual(VaultState.IN_LIQUIDATION)
@@ -603,7 +603,7 @@ describe('Loan listVaults with options and pagination', () => {
     // end the auction
     await testing.generate(36)
 
-    const vaults = await testing.rpc.loan.listVaults()
+    const vaults = await testing.rpc.vault.listVaults()
     const theLiqVault = vaults.find(vault => vault.vaultId === vaultId)!
     expect(theLiqVault.state).toStrictEqual(VaultState.MAY_LIQUIDATE)
   }, 480000)

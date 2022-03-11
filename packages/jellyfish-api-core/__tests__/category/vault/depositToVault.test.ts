@@ -1,11 +1,10 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 describe('Loan depositToVault', () => {
-  const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
+  const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let vaultId1: string
   let liqVaultId: string
@@ -99,44 +98,44 @@ describe('Loan depositToVault', () => {
     await tGroup.get(0).generate(1)
 
     vaultAddress = await tGroup.get(0).generateAddress()
-    vaultId = await tGroup.get(0).rpc.loan.createVault({
+    vaultId = await tGroup.get(0).rpc.vault.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
 
-    vaultId1 = await tGroup.get(0).rpc.loan.createVault({
+    vaultId1 = await tGroup.get(0).rpc.vault.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
 
     // set up liquidated vault here
-    liqVaultId = await tGroup.get(0).rpc.loan.createVault({
+    liqVaultId = await tGroup.get(0).rpc.vault.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
 
     // set up loan token vault
     const loanTokenProviderAddress = await tGroup.get(0).generateAddress()
-    const loanTokenVaultId = await tGroup.get(0).rpc.loan.createVault({
+    const loanTokenVaultId = await tGroup.get(0).rpc.vault.createVault({
       ownerAddress: loanTokenProviderAddress,
       loanSchemeId: loanTokenSchemeId
     })
     await tGroup.get(0).generate(1)
 
     // deposit to vault to loan CAT
-    await tGroup.get(0).rpc.loan.depositToVault({
+    await tGroup.get(0).rpc.vault.depositToVault({
       vaultId: loanTokenVaultId, from: collateralAddress, amount: '100000000@DFI'
     })
     await tGroup.get(0).container.generate(1)
 
-    await tGroup.get(0).rpc.loan.depositToVault({
+    await tGroup.get(0).rpc.vault.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
     })
     await tGroup.get(0).generate(1)
 
-    await tGroup.get(0).rpc.loan.depositToVault({
+    await tGroup.get(0).rpc.vault.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '1@CAT'
     })
     await tGroup.get(0).generate(1)
@@ -155,7 +154,7 @@ describe('Loan depositToVault', () => {
 
   // TODO: Logic moved to take loan (need to test it on take loan side instead)
   it.skip('should be failed as first deposit must be DFI', async () => {
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -163,7 +162,7 @@ describe('Loan depositToVault', () => {
   })
 
   it('should be failed as insufficient fund', async () => {
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '99999@DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -172,7 +171,7 @@ describe('Loan depositToVault', () => {
 
   it('should be failed as different auth address', async () => {
     const addr = await tGroup.get(1).generateAddress()
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId, from: addr, amount: '1@DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -180,7 +179,7 @@ describe('Loan depositToVault', () => {
   })
 
   it('should be failed as vault is not exists', async () => {
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: '0'.repeat(64), from: collateralAddress, amount: '10000@DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -202,7 +201,7 @@ describe('Loan depositToVault', () => {
         : undefined
       const vaultBeforeDFIAmt = vaultBeforeDFIAcc !== undefined ? Number(vaultBeforeDFIAcc.split('@')[0]) : 0
 
-      const depositId = await tGroup.get(0).rpc.loan.depositToVault({
+      const depositId = await tGroup.get(0).rpc.vault.depositToVault({
         vaultId: vaultId, from: collateralAddress, amount: '10000@DFI'
       })
       expect(typeof depositId).toStrictEqual('string')
@@ -236,7 +235,7 @@ describe('Loan depositToVault', () => {
         : undefined
       const vaultBeforeBTCAmt = vaultBeforeBTCAcc !== undefined ? Number(vaultBeforeBTCAcc.split('@')[0]) : 0
 
-      const depositId = await tGroup.get(0).rpc.loan.depositToVault({
+      const depositId = await tGroup.get(0).rpc.vault.depositToVault({
         vaultId: vaultId, from: collateralAddress, amount: '1@BTC'
       })
       expect(typeof depositId).toStrictEqual('string')
@@ -268,7 +267,7 @@ describe('Loan depositToVault', () => {
     const addr = await tGroup.get(1).generateAddress()
     await tGroup.get(1).token.dfi({ address: addr, amount: 100 })
     await tGroup.get(1).generate(1)
-    const depositId = await tGroup.get(1).rpc.loan.depositToVault({
+    const depositId = await tGroup.get(1).rpc.vault.depositToVault({
       vaultId: vaultId, from: addr, amount: '2@DFI'
     })
     expect(typeof depositId).toStrictEqual('string')
@@ -295,7 +294,7 @@ describe('Loan depositToVault', () => {
     const vaultBeforeDFIAmt = vaultBeforeDFIAcc !== undefined ? Number(vaultBeforeDFIAcc.split('@')[0]) : 0
 
     const utxo = await tGroup.get(0).container.fundAddress(collateralAddress, 250)
-    const depositId = await tGroup.get(0).rpc.loan.depositToVault({
+    const depositId = await tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '250@DFI'
     }, [utxo])
     expect(typeof depositId).toStrictEqual('string')
@@ -315,7 +314,7 @@ describe('Loan depositToVault', () => {
   it('should not depositToVault with arbitrary utxos', async () => {
     const utxo = await tGroup.get(0).container.fundAddress(await tGroup.get(0).generateAddress(), 10)
 
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '1@BTC'
     }, [utxo])
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -324,14 +323,14 @@ describe('Loan depositToVault', () => {
 
   // TODO: Logic moved to take loan (need to test it on take loan side instead)
   it.skip('should be failed as vault must contain min 50% of DFI', async () => {
-    await tGroup.get(0).rpc.loan.depositToVault({
+    await tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '1000@DFI'
     })
     await tGroup.get(0).generate(1)
     await tGroup.waitForSync()
 
     // deposit * factor >= collateralValue / 2
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: vaultId1, from: collateralAddress, amount: '0.201@BTC' // Throw error if more than 0.2
     })
     await expect(promise).rejects.toThrow(RpcApiError)
@@ -344,7 +343,7 @@ describe('Loan depositToVault', () => {
     const liqVault = await tGroup.get(0).container.call('getvault', [liqVaultId])
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
-    const promise = tGroup.get(0).rpc.loan.depositToVault({
+    const promise = tGroup.get(0).rpc.vault.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '1000@DFI'
     })
     await expect(promise).rejects.toThrow(RpcApiError)

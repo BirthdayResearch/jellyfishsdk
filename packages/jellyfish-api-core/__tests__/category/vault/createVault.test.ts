@@ -1,11 +1,10 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { GenesisKeys } from '@defichain/testcontainers'
-import { VaultState } from '../../../src/category/loan'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import { VaultState } from '../../../src/category/vault'
 
 describe('Loan createVault', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   beforeAll(async () => {
@@ -35,7 +34,7 @@ describe('Loan createVault', () => {
 
   it('should createVault', async () => {
     const ownerAddress = await testing.generateAddress()
-    const vaultId = await testing.rpc.loan.createVault({
+    const vaultId = await testing.rpc.vault.createVault({
       ownerAddress: ownerAddress,
       loanSchemeId: 'scheme'
     })
@@ -44,7 +43,7 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.rpc.loan.getVault(vaultId)
+    const data = await testing.rpc.vault.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'scheme',
@@ -63,7 +62,7 @@ describe('Loan createVault', () => {
 
   it('should createVault with default scheme if CreateVault.loanSchemeId is not given', async () => {
     const ownerAddress = await testing.generateAddress()
-    const vaultId = await testing.rpc.loan.createVault({
+    const vaultId = await testing.rpc.vault.createVault({
       ownerAddress: ownerAddress,
       loanSchemeId: ''
     })
@@ -72,7 +71,7 @@ describe('Loan createVault', () => {
     expect(vaultId.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const data = await testing.rpc.loan.getVault(vaultId)
+    const data = await testing.rpc.vault.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
@@ -90,7 +89,7 @@ describe('Loan createVault', () => {
   })
 
   it('should not createVault if ownerAddress is invalid', async () => {
-    const promise = testing.rpc.loan.createVault({
+    const promise = testing.rpc.vault.createVault({
       ownerAddress: '1234',
       loanSchemeId: 'scheme'
     })
@@ -99,7 +98,7 @@ describe('Loan createVault', () => {
   })
 
   it('should not createVault if loanSchemeId is invalid', async () => {
-    const promise = testing.rpc.loan.createVault({
+    const promise = testing.rpc.vault.createVault({
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: '1234'
     })
@@ -109,7 +108,7 @@ describe('Loan createVault', () => {
 
   it('should createVault with utxos', async () => {
     const { txid, vout } = await testing.container.fundAddress(GenesisKeys[0].owner.address, 10)
-    const vaultId = await testing.rpc.loan.createVault({
+    const vaultId = await testing.rpc.vault.createVault({
       ownerAddress: GenesisKeys[0].owner.address,
       loanSchemeId: 'scheme'
     }, [{ txid, vout }])
@@ -121,7 +120,7 @@ describe('Loan createVault', () => {
     expect(rawtx.vin[0].txid).toStrictEqual(txid)
     expect(rawtx.vin[0].vout).toStrictEqual(vout)
 
-    const data = await testing.rpc.loan.getVault(vaultId)
+    const data = await testing.rpc.vault.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'scheme',
@@ -139,7 +138,7 @@ describe('Loan createVault', () => {
   })
 
   describe('Loan createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
-    const container = new LoanMasterNodeRegTestContainer()
+    const container = new MasterNodeRegTestContainer()
     const testing = Testing.create(container)
 
     beforeAll(async () => {
@@ -152,7 +151,7 @@ describe('Loan createVault', () => {
     })
 
     it('should not createVault when no default scheme and CreateVault.loanSchemeId is not given', async () => {
-      const promise = testing.rpc.loan.createVault({
+      const promise = testing.rpc.vault.createVault({
         ownerAddress: await testing.generateAddress(),
         loanSchemeId: ''
       })
@@ -163,7 +162,7 @@ describe('Loan createVault', () => {
 })
 
 describe('Loan createVault with scheme set to be destroyed', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
   beforeAll(async () => {
@@ -199,7 +198,7 @@ describe('Loan createVault with scheme set to be destroyed', () => {
     await testing.rpc.loan.destroyLoanScheme({ id: 'scheme', activateAfterBlock: 120 })
     await testing.generate(1)
 
-    const promise = testing.rpc.loan.createVault({
+    const promise = testing.rpc.vault.createVault({
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'scheme'
     })

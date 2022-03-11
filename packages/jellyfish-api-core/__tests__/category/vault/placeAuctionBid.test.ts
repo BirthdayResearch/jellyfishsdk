@@ -1,11 +1,10 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
-import { GenesisKeys } from '@defichain/testcontainers'
+import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { VaultActive, VaultLiquidation, VaultState } from '../../../src/category/loan'
+import { VaultActive, VaultLiquidation, VaultState } from '../../../src/category/vault'
 
-const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
+const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
 const bob = tGroup.get(1)
 let aliceColAddr: string
@@ -103,7 +102,7 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   const loanTokenVaultAddr = await alice.generateAddress()
-  const loanTokenVault = await alice.rpc.loan.createVault(
+  const loanTokenVault = await alice.rpc.vault.createVault(
     {
       ownerAddress: loanTokenVaultAddr,
       loanSchemeId: loanTokenSchemeId
@@ -113,7 +112,7 @@ async function setup (): Promise<void> {
   await alice.container.waitForPriceValid('TSLA/USD')
 
   // loan token deposit into vault and loan TSLA
-  await alice.rpc.loan.depositToVault(
+  await alice.rpc.vault.depositToVault(
     {
       vaultId: loanTokenVault,
       from: loanTokenProviderAddress,
@@ -142,13 +141,13 @@ async function setup (): Promise<void> {
   await alice.generate(1)
 
   const aliceDusdVaultAddr = await alice.generateAddress()
-  const aliceDusdVaultId = await alice.rpc.loan.createVault({
+  const aliceDusdVaultId = await alice.rpc.vault.createVault({
     ownerAddress: aliceDusdVaultAddr,
     loanSchemeId: 'scheme'
   })
   await alice.generate(1)
 
-  await alice.rpc.loan.depositToVault({
+  await alice.rpc.vault.depositToVault({
     vaultId: aliceDusdVaultId, from: aliceColAddr, amount: '5000@DFI'
   })
 
@@ -198,18 +197,18 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   bobVaultAddr = await bob.generateAddress()
-  bobVaultId = await bob.rpc.loan.createVault({
+  bobVaultId = await bob.rpc.vault.createVault({
     ownerAddress: bobVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
-  await bob.rpc.loan.depositToVault({
+  await bob.rpc.vault.depositToVault({
     vaultId: bobVaultId, from: bobColAddr, amount: '10000@DFI'
   })
   await bob.generate(1)
 
-  await bob.rpc.loan.depositToVault({
+  await bob.rpc.vault.depositToVault({
     vaultId: bobVaultId, from: bobColAddr, amount: '1@BTC'
   })
   await bob.generate(1)
@@ -358,7 +357,7 @@ describe('placeAuctionBid success', () => {
         : undefined
       const bobTSLAAmtBefore = bobTSLAAccBefore !== undefined ? Number(bobTSLAAccBefore.split('@')[0]) : 0
 
-      const txid = await bob.rpc.loan.placeAuctionBid({
+      const txid = await bob.rpc.vault.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: bobColAddr,
@@ -407,7 +406,7 @@ describe('placeAuctionBid success', () => {
     }
 
     { // first round second bid
-      await alice.rpc.loan.placeAuctionBid({
+      await alice.rpc.vault.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: aliceColAddr,
@@ -511,7 +510,7 @@ describe('placeAuctionBid success', () => {
     }
 
     {
-      await alice.rpc.loan.placeAuctionBid({
+      await alice.rpc.vault.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: aliceColAddr,
@@ -552,7 +551,7 @@ describe('placeAuctionBid success', () => {
 
     const utxo = await alice.container.fundAddress(bobColAddr, 50)
 
-    const txid = await bob.rpc.loan.placeAuctionBid({
+    const txid = await bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -580,7 +579,7 @@ describe('placeAuctionBid success', () => {
       const bobColAccBefore = await bob.rpc.account.getAccount(bobColAddr)
       expect(bobColAccBefore).toStrictEqual(['8900.00000000@DFI', `${tslaSwapAmount}@TSLA`])
 
-      const txid = await bob.rpc.loan.placeAuctionBid({
+      const txid = await bob.rpc.vault.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: bobColAddr,
@@ -623,7 +622,7 @@ describe('placeAuctionBid success', () => {
 
     // test alice bids on second index
     {
-      const txid1 = await alice.rpc.loan.placeAuctionBid({
+      const txid1 = await alice.rpc.vault.placeAuctionBid({
         vaultId: bobVaultId,
         index: 1,
         from: aliceColAddr,
@@ -719,18 +718,18 @@ describe('placeAuctionBid success', () => {
 
     // create another vault
     const aliceVaultAddr = await alice.generateAddress()
-    const aliceVaultId = await alice.rpc.loan.createVault({
+    const aliceVaultId = await alice.rpc.vault.createVault({
       ownerAddress: aliceVaultAddr,
       loanSchemeId: 'Loan200'
     })
     await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: aliceVaultId, from: aliceColAddr, amount: '60@DFI'
     })
     await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: aliceVaultId, from: aliceColAddr, amount: '60@BTC'
     })
     await alice.generate(1)
@@ -760,7 +759,7 @@ describe('placeAuctionBid success', () => {
     await alice.generate(12)
 
     // see the aliceVaultId inLiquidation
-    const vault = await alice.rpc.loan.getVault(aliceVaultId) as VaultLiquidation
+    const vault = await alice.rpc.vault.getVault(aliceVaultId) as VaultLiquidation
     expect(vault.state).toStrictEqual('inLiquidation')
     expect(vault.batches).toStrictEqual([
       { index: 0, collaterals: ['49.99999980@DFI', '49.99999980@BTC'], loan: '50.00006639@TSLA' },
@@ -768,7 +767,7 @@ describe('placeAuctionBid success', () => {
     ])
 
     // place auction bid for the first batch
-    const txid1 = await alice.rpc.loan.placeAuctionBid({
+    const txid1 = await alice.rpc.vault.placeAuctionBid({
       vaultId: aliceVaultId,
       index: 0,
       from: aliceColAddr,
@@ -792,7 +791,7 @@ describe('placeAuctionBid success', () => {
     await alice.container.generate(35)
 
     // check the vault again
-    const vaultAfter = await alice.rpc.loan.getVault(aliceVaultId) as VaultActive
+    const vaultAfter = await alice.rpc.vault.getVault(aliceVaultId) as VaultActive
     expect(vaultAfter.state).toStrictEqual('active')
 
     // update the prices back
@@ -823,7 +822,7 @@ describe('placeAuctionBid failed', () => {
   })
 
   it('should not placeAuctionBid as first bid should include liquidation penalty of 5%', async () => {
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -834,7 +833,7 @@ describe('placeAuctionBid failed', () => {
   })
 
   it('next bid is required 1% higher', async () => {
-    await bob.rpc.loan.placeAuctionBid({
+    await bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -843,7 +842,7 @@ describe('placeAuctionBid failed', () => {
     await bob.container.generate(1)
     await tGroup.waitForSync()
 
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -857,7 +856,7 @@ describe('placeAuctionBid failed', () => {
   it('should not placeAuctionBid with arbitrary utxos', async () => {
     const utxo = await alice.container.fundAddress(await alice.generateAddress(), 10)
 
-    const promise = alice.rpc.loan.placeAuctionBid({
+    const promise = alice.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -868,7 +867,7 @@ describe('placeAuctionBid failed', () => {
   })
 
   it('should not placeAuctionBid on non-existent vault', async () => {
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: '0'.repeat(64),
       index: 0,
       from: bobColAddr,
@@ -879,7 +878,7 @@ describe('placeAuctionBid failed', () => {
   })
 
   it('should not placeAuctionBid on non-existent batches index', async () => {
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 99,
       from: bobColAddr,
@@ -891,7 +890,7 @@ describe('placeAuctionBid failed', () => {
 
   it('should not placeAuctionBid as vault is not under liquidation', async () => {
     const addr = await alice.generateAddress()
-    const bobVaultId = await alice.rpc.loan.createVault({
+    const bobVaultId = await alice.rpc.vault.createVault({
       ownerAddress: addr,
       loanSchemeId: 'scheme'
     })
@@ -901,7 +900,7 @@ describe('placeAuctionBid failed', () => {
     const vault = await alice.container.call('getvault', [bobVaultId])
     expect(vault.state).toStrictEqual('active')
 
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -912,7 +911,7 @@ describe('placeAuctionBid failed', () => {
   })
 
   it('should not placeAuctionBid as bid token does not match auction one', async () => {
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -941,7 +940,7 @@ describe('placeAuctionBid failed #2', () => {
     const tslaAmt = Number(tslaAcc?.split('@')[0])
     expect(Number(tslaAmt)).toBeLessThan(30000)
 
-    const promise = bob.rpc.loan.placeAuctionBid({
+    const promise = bob.rpc.vault.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,

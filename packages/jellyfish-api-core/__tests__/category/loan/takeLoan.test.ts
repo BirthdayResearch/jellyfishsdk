@@ -3,7 +3,7 @@ import { GenesisKeys } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { VaultActive, VaultLiquidation } from '../../../src/category/loan'
+import { VaultActive, VaultLiquidation } from '../../../src/category/vault'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
@@ -108,7 +108,7 @@ describe('takeLoan success', () => {
     await tGroup.waitForSync()
 
     bobVaultAddr = await bob.generateAddress()
-    bobVaultId = await bob.rpc.loan.createVault({
+    bobVaultId = await bob.rpc.vault.createVault({
       ownerAddress: bobVaultAddr,
       loanSchemeId: 'scheme'
     })
@@ -116,18 +116,18 @@ describe('takeLoan success', () => {
     await tGroup.waitForSync()
 
     // deposit on active vault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
     })
     await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC'
     })
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    bobVault = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     expect(bobVault.loanSchemeId).toStrictEqual('scheme')
     expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
     expect(bobVault.state).toStrictEqual('active')
@@ -162,7 +162,7 @@ describe('takeLoan success', () => {
 
     const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultAfter = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     expect(vaultAfter.loanSchemeId).toStrictEqual('scheme')
     expect(vaultAfter.ownerAddress).toStrictEqual(bobVaultAddr)
     expect(vaultAfter.state).toStrictEqual('active')
@@ -204,7 +204,7 @@ describe('takeLoan success', () => {
     const tslaLoanValueAfter = tslaLoanAmountAfter.multipliedBy(2)
     const interestValueAfter = tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultAfter = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
 
     expect(vaultAfter.loanSchemeId).toStrictEqual('scheme')
     expect(vaultAfter.ownerAddress).toStrictEqual(bobVaultAddr)
@@ -281,7 +281,7 @@ describe('takeLoan success', () => {
     const totalLoanValueAfter = tslaLoanValueAfter.plus(googleLoanValueAfter)
     const interestValueAfter = tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(new BigNumber(2)).plus(googlInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(4))
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultAfter = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
 
     expect(vaultAfter.loanSchemeId).toStrictEqual('scheme')
     expect(vaultAfter.ownerAddress).toStrictEqual(bobVaultAddr)
@@ -313,7 +313,7 @@ describe('takeLoan success', () => {
     await alice.generate(12)
     await tGroup.waitForSync()
 
-    const vault = await bob.rpc.loan.getVault(bobVaultId) as VaultLiquidation
+    const vault = await bob.rpc.vault.getVault(bobVaultId) as VaultLiquidation
     expect(vault.loanSchemeId).toStrictEqual('scheme')
     expect(vault.ownerAddress).toStrictEqual(bobVaultAddr)
     expect(vault.state).toStrictEqual('inLiquidation')
@@ -335,14 +335,14 @@ describe('takeLoan success', () => {
     })
     await bob.generate(1)
 
-    const vaultId = await bob.rpc.loan.createVault({
+    const vaultId = await bob.rpc.vault.createVault({
       ownerAddress: await bob.generateAddress(),
       loanSchemeId: 'scheme5'
     })
     await bob.generate(1)
     await tGroup.waitForSync()
 
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: vaultId, from: aliceAddr, amount: '10000@DFI'
     })
     await alice.generate(1)
@@ -357,7 +357,7 @@ describe('takeLoan success', () => {
     await bob.generate(1)
 
     {
-      const vault = await bob.rpc.loan.getVault(vaultId) as VaultActive
+      const vault = await bob.rpc.vault.getVault(vaultId) as VaultActive
       expect(vault).toStrictEqual({
         vaultId: vaultId,
         loanSchemeId: 'scheme5',
@@ -375,7 +375,7 @@ describe('takeLoan success', () => {
     }
     await bob.generate(1)
     {
-      const vault = await bob.rpc.loan.getVault(vaultId) as VaultLiquidation
+      const vault = await bob.rpc.vault.getVault(vaultId) as VaultLiquidation
       expect(vault).toStrictEqual({
         vaultId: vaultId,
         loanSchemeId: 'scheme5',
@@ -501,35 +501,35 @@ describe('takeloan failed', () => {
     await tGroup.waitForSync()
 
     bobVaultAddr = await bob.generateAddress()
-    bobVaultId = await bob.rpc.loan.createVault({
+    bobVaultId = await bob.rpc.vault.createVault({
       ownerAddress: bobVaultAddr,
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
 
     liqVaultAddr = await bob.generateAddress()
-    liqVaultId = await bob.rpc.loan.createVault({
+    liqVaultId = await bob.rpc.vault.createVault({
       ownerAddress: liqVaultAddr,
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
 
     mayLiqVaultAddr = await bob.generateAddress()
-    mayLiqVaultId = await bob.rpc.loan.createVault({
+    mayLiqVaultId = await bob.rpc.vault.createVault({
       ownerAddress: mayLiqVaultAddr,
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
 
     frozenVaultAddr = await bob.generateAddress()
-    frozenVaultId = await bob.rpc.loan.createVault({
+    frozenVaultId = await bob.rpc.vault.createVault({
       ownerAddress: frozenVaultAddr,
       loanSchemeId: 'scheme'
     })
     await bob.generate(1)
 
     emptyVaultAddr = await bob.generateAddress()
-    emptyVaultId = await bob.rpc.loan.createVault({
+    emptyVaultId = await bob.rpc.vault.createVault({
       ownerAddress: emptyVaultAddr,
       loanSchemeId: 'scheme'
     })
@@ -537,36 +537,36 @@ describe('takeloan failed', () => {
     await tGroup.waitForSync()
 
     // deposit on active vault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
     })
     await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC'
     })
     await alice.generate(1)
 
     // deposit on liqVault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: liqVaultId, from: aliceAddr, amount: '10000@DFI'
     })
     await alice.generate(1)
 
     // deposit on mayLiqVault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: mayLiqVaultId, from: aliceAddr, amount: '10000@DFI'
     })
     await alice.generate(1)
 
     // deposit on frozenVault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId: frozenVaultId, from: aliceAddr, amount: '10000@DFI'
     })
     await alice.generate(1)
     await tGroup.waitForSync()
 
-    bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    bobVault = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     expect(bobVault.loanSchemeId).toStrictEqual('scheme')
     expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
     expect(bobVault.state).toStrictEqual('active')
@@ -665,7 +665,7 @@ describe('takeloan failed', () => {
     await alice.generate(12)
     await tGroup.waitForSync()
 
-    const liqVault = await bob.rpc.loan.getVault(liqVaultId) as VaultLiquidation
+    const liqVault = await bob.rpc.vault.getVault(liqVaultId) as VaultLiquidation
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const promise = bob.rpc.loan.takeLoan({
@@ -691,7 +691,7 @@ describe('takeloan failed', () => {
     await alice.generate(6)
     await tGroup.waitForSync()
 
-    const mayLiqVault = await bob.rpc.loan.getVault(mayLiqVaultId) as VaultActive
+    const mayLiqVault = await bob.rpc.vault.getVault(mayLiqVaultId) as VaultActive
     expect(mayLiqVault.state).toStrictEqual('mayLiquidate')
 
     const promise = bob.rpc.loan.takeLoan({
@@ -717,7 +717,7 @@ describe('takeloan failed', () => {
     await alice.generate(6)
     await tGroup.waitForSync()
 
-    const frozenVault = await bob.rpc.loan.getVault(frozenVaultId) as VaultActive
+    const frozenVault = await bob.rpc.vault.getVault(frozenVaultId) as VaultActive
     expect(frozenVault.state).toStrictEqual('frozen')
 
     const promise = bob.rpc.loan.takeLoan({

@@ -75,7 +75,7 @@ describe('loans updateVault', () => {
     await alice.generate(1)
 
     // Create a default vault
-    vaultId = await alice.rpc.loan.createVault({
+    vaultId = await alice.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
@@ -88,13 +88,13 @@ describe('loans updateVault', () => {
 
   beforeEach(async () => {
     // Always update the vault back to default scheme
-    await alice.rpc.loan.updateVault(vaultId, {
+    await alice.rpc.vault.updateVault(vaultId, {
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await alice.generate(1)
 
-    const data = await alice.rpc.loan.getVault(vaultId)
+    const data = await alice.rpc.vault.getVault(vaultId)
     expect(data.loanSchemeId).toStrictEqual('default')
 
     // Fund 10 DFI UTXO
@@ -104,7 +104,7 @@ describe('loans updateVault', () => {
 
   it('should updateVault', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateVault({
+    const txn = await builder.vault.updateVault({
       vaultId,
       ownerAddress: script,
       schemeId: 'scheme'
@@ -122,7 +122,7 @@ describe('loans updateVault', () => {
     expect(prevouts.length).toStrictEqual(1)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
-    const data = await alice.rpc.loan.getVault(vaultId)
+    const data = await alice.rpc.vault.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId,
       loanSchemeId: 'scheme',
@@ -141,14 +141,14 @@ describe('loans updateVault', () => {
 
   it('should updateVault if the vault state is mayliquidate', async () => {
     // Create another vault
-    const vaultId = await alice.rpc.loan.createVault({
+    const vaultId = await alice.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await alice.generate(1)
 
     // Deposit to vault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId, from: collateralAddress, amount: '100@DFI'
     })
     await alice.generate(1)
@@ -165,11 +165,11 @@ describe('loans updateVault', () => {
 
     await alice.container.waitForNextPrice('DFI/USD', '0.9')
 
-    const data = await alice.rpc.loan.getVault(vaultId)
+    const data = await alice.rpc.vault.getVault(vaultId)
     expect(data.state).toStrictEqual('mayLiquidate')
 
     const script = await providers.elliptic.script()
-    await builder.loans.updateVault({
+    await builder.vault.updateVault({
       vaultId,
       ownerAddress: script,
       schemeId: 'default'
@@ -186,14 +186,14 @@ describe('loans updateVault', () => {
 
   it('should not updateVault if any of the asset\'s price is invalid', async () => {
     // Create another vault
-    const vaultId = await alice.rpc.loan.createVault({
+    const vaultId = await alice.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await alice.generate(1)
 
     // Deposit to vault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId, from: collateralAddress, amount: '100@DFI'
     })
     await alice.generate(1)
@@ -212,12 +212,12 @@ describe('loans updateVault', () => {
     await alice.container.waitForPriceInvalid('DFI/USD')
 
     // Frozen = invalid price and active vault
-    const data = await alice.rpc.loan.getVault(vaultId)
+    const data = await alice.rpc.vault.getVault(vaultId)
     expect(data.state).toStrictEqual('frozen')
 
     // Unable to update to the new scheme as vault state is frozen
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateVault({
+    const txn = await builder.vault.updateVault({
       vaultId,
       ownerAddress: script,
       schemeId: 'default'
@@ -239,14 +239,14 @@ describe('loans updateVault', () => {
 
   it('should not updateVault if new chosen scheme could trigger liquidation', async () => {
     // Create another vault
-    const vaultId = await alice.rpc.loan.createVault({
+    const vaultId = await alice.rpc.vault.createVault({
       ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await alice.generate(1)
 
     // Deposit to vault
-    await alice.rpc.loan.depositToVault({
+    await alice.rpc.vault.depositToVault({
       vaultId, from: collateralAddress, amount: '100@DFI'
     })
     await alice.generate(1)
@@ -259,13 +259,13 @@ describe('loans updateVault', () => {
     await alice.generate(1)
 
     {
-      const data = await alice.rpc.loan.getVault(vaultId)
+      const data = await alice.rpc.vault.getVault(vaultId)
       expect(data.state).toStrictEqual('active')
     }
 
     // Unable to update to new scheme as it could liquidate the vault
     const script = await providers.elliptic.script()
-    const txn = await builder.loans.updateVault({
+    const txn = await builder.vault.updateVault({
       vaultId,
       ownerAddress: script,
       schemeId: 'scheme'
@@ -277,7 +277,7 @@ describe('loans updateVault', () => {
   })
 
   it('should not updateVault as different auth address', async () => {
-    vaultId = await alice.rpc.loan.createVault({
+    vaultId = await alice.rpc.vault.createVault({
       ownerAddress: await alice.generateAddress(),
       loanSchemeId: 'scheme'
     })
@@ -289,7 +289,7 @@ describe('loans updateVault', () => {
     const script = await providers.elliptic.script()
     const fromScript = P2WPKH.fromAddress(RegTest, await bob.generateAddress(), P2WPKH).getScript()
 
-    const txn = await builder.loans.updateVault({
+    const txn = await builder.vault.updateVault({
       vaultId,
       ownerAddress: fromScript,
       schemeId: 'scheme'
