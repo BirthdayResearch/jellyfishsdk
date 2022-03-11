@@ -1,5 +1,5 @@
 {
-  "private": false,
+  "private": true,
   "name": "@defichain/whale-api-client",
   "version": "0.0.0",
   "description": "Official JS client for DeFi Whale, the super index for DeFi Blockchain to simplify DeFi light implementation.",
