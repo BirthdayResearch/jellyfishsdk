@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { ActuatorModule } from '@defichain-apps/libs/actuator'
 import { ScheduleModule } from '@nestjs/schedule'
-import { IndexerModule } from './_module'
-import { ModelModule } from '../models/_module'
+import { IndexerModule } from './IndexerModule'
+import { ModelModule } from '../models/ModelModule'
 import { BlockchainCppModule } from '@defichain-apps/libs/blockchaincpp'
 
 function AppConfiguration (): any {

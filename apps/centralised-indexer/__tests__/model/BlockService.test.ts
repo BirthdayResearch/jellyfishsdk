@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing'
-import { BlockService } from '../../src/models/block'
+import { BlockService } from '../../src/models/Block'
 import { DynamoDbContainer } from '../../testing/containers/DynamoDbContainer'
-import { ModelModule } from '../../src/models/_module'
+import { ModelModule } from '../../src/models/ModelModule'
 import { ConfigService } from '@nestjs/config'
 
 describe('BlockService', () => {

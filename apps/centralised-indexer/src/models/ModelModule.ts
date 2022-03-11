@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common'
-import { BlockSchema, BlockService } from './block'
+import { BlockSchema, BlockService } from './Block'
 import { DynamooseModule } from 'nestjs-dynamoose'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 

@@ -1,15 +1,15 @@
 import { Logger, Module } from '@nestjs/common'
-import { RPCBlockProvider } from './rpc.block.provider'
+import { RpcBlockProvider } from './RpcBlockProvider'
 
 @Module({
   providers: [
-    RPCBlockProvider
+    RpcBlockProvider
   ]
 })
 export class IndexerModule {
   private readonly logger = new Logger(IndexerModule.name)
 
-  constructor (private readonly provider: RPCBlockProvider) {
+  constructor (private readonly provider: RpcBlockProvider) {
   }
 
   async onApplicationBootstrap (): Promise<void> {

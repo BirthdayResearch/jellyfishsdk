@@ -2,11 +2,11 @@ import { Injectable, Logger } from '@nestjs/common'
 import { Interval } from '@nestjs/schedule'
 import { waitForCondition } from '@defichain/testcontainers'
 import { ApiClient, blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
-import { Block, BlockService } from '../models/block'
+import { Block, BlockService } from '../models/Block'
 
 @Injectable()
-export class RPCBlockProvider {
-  private readonly logger = new Logger(RPCBlockProvider.name)
+export class RpcBlockProvider {
+  private readonly logger = new Logger(RpcBlockProvider.name)
   private running = false
   private indexing = false
 
@@ -82,7 +82,7 @@ export class RPCBlockProvider {
     }
 
     const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
-    if (await RPCBlockProvider.isBestChain(indexed, nextBlock)) {
+    if (await RpcBlockProvider.isBestChain(indexed, nextBlock)) {
       await this.index(nextBlock)
     } else {
       await this.invalidate(indexed.hash, indexed.height)
