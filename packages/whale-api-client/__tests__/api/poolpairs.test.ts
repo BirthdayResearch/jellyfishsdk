@@ -367,6 +367,14 @@ describe('poolswap', () => {
       tokenTo: 'DUSD'
     })
 
+    await testing.rpc.poolpair.compositeSwap({
+      from: await testing.address('swap'),
+      tokenFrom: 'A',
+      amountFrom: 123,
+      to: await testing.address('swap'),
+      tokenTo: 'C'
+    })
+
     const height = await container.getBlockCount()
     await container.generate(1)
     await service.waitForIndexedHeight(height)
@@ -377,7 +385,22 @@ describe('poolswap', () => {
       {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
-        txno: 1,
+        txno: expect.any(Number),
+        poolPairId: '9',
+        sort: expect.any(String),
+        fromAmount: '123.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        }
+      },
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: expect.any(Number),
         poolPairId: '9',
         sort: expect.any(String),
         fromAmount: '50.00000000',
@@ -392,7 +415,7 @@ describe('poolswap', () => {
       {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
-        txno: 3,
+        txno: expect.any(Number),
         poolPairId: '9',
         sort: expect.any(String),
         fromAmount: '25.00000000',
@@ -412,7 +435,32 @@ describe('poolswap', () => {
       {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
-        txno: 1,
+        txno: expect.any(Number),
+        poolPairId: '9',
+        sort: expect.any(String),
+        fromAmount: '123.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        },
+        from: {
+          address: expect.any(String),
+          symbol: 'A',
+          amount: '123.00000000'
+        },
+        to: {
+          address: expect.any(String),
+          amount: '10.42667420',
+          symbol: 'C'
+        }
+      },
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: expect.any(Number),
         poolPairId: '9',
         sort: expect.any(String),
         fromAmount: '50.00000000',
@@ -437,7 +485,7 @@ describe('poolswap', () => {
       {
         id: expect.any(String),
         txid: expect.stringMatching(/[0-f]{64}/),
-        txno: 3,
+        txno: expect.any(Number),
         poolPairId: '9',
         sort: expect.any(String),
         fromAmount: '25.00000000',
@@ -471,14 +519,14 @@ describe('poolswap', () => {
       tokenA: {
         id: expect.any(String),
         symbol: 'A',
-        reserve: '175',
+        reserve: '298',
         blockCommission: '0',
         displaySymbol: 'dA'
       },
       tokenB: {
         id: '0',
         symbol: 'DFI',
-        reserve: '114.2857143',
+        reserve: '67.11409397',
         blockCommission: '0',
         displaySymbol: 'DFI'
       },
@@ -490,13 +538,13 @@ describe('poolswap', () => {
       commission: '0',
       totalLiquidity: {
         token: '141.42135623',
-        usd: '529.6978124963500510109100852'
+        usd: '311.06415164247241009334543708'
       },
       tradeEnabled: true,
       ownerAddress: expect.any(String),
       priceRatio: {
-        ab: '1.53124999',
-        ba: '0.65306122'
+        ab: '4.44019999',
+        ba: '0.22521508'
       },
       rewardPct: '0',
       creation: {
@@ -504,8 +552,8 @@ describe('poolswap', () => {
         height: expect.any(Number)
       },
       volume: {
-        d30: 113.50667410636073,
-        h24: 113.50667410636073
+        d30: 103.34010406914354,
+        h24: 103.34010406914354
       }
     })
 
