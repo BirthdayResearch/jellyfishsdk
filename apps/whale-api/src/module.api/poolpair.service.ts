@@ -235,9 +235,6 @@ export class PoolPairService {
     }
 
     const history = await this.getAccountHistory(toAddress, height, txno)
-    if (history === undefined) {
-      return undefined
-    }
 
     return {
       from: {
@@ -401,7 +398,11 @@ function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwapDfTx | undefined {
   }
 }
 
-function findPoolSwapFromTo (history: AccountHistory, from: boolean): PoolSwapFromToData | undefined {
+function findPoolSwapFromTo (history: AccountHistory | undefined, from: boolean): PoolSwapFromToData | undefined {
+  if (history?.amounts === undefined) {
+    return undefined
+  }
+
   for (const amount of history.amounts) {
     const [value, symbol] = amount.split('@')
     const isNegative = value.startsWith('-')
