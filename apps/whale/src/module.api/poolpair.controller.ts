@@ -2,9 +2,9 @@ import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { PoolPairData, PoolSwapAggregatedData, PoolSwapData } from '@whale-api-client/api/poolpairs'
+import { BestSwapPathResult, PoolPairData, PoolSwapAggregatedData, PoolSwapData, SwapPathsResult } from '@whale-api-client/api/poolpairs'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
-import { PoolPairService } from './poolpair.service'
+import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { parseDATSymbol } from '@src/module.api/token.controller'
@@ -17,6 +17,7 @@ export class PoolPairController {
     protected readonly rpcClient: JsonRpcClient,
     protected readonly deFiDCache: DeFiDCache,
     private readonly poolPairService: PoolPairService,
+    private readonly poolSwapPathService: PoolSwapPathFindingService,
     private readonly poolSwapMapper: PoolSwapMapper,
     private readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper
   ) {
@@ -149,6 +150,22 @@ export class PoolPairController {
     return ApiPagedResponse.of(result, query.size, item => {
       return `${item.bucket}`
     })
+  }
+
+  @Get('/paths/from/:fromTokenId/to/:toTokenId')
+  async listPaths (
+    @Param('fromTokenId', ParseIntPipe) fromTokenId: string,
+      @Param('toTokenId', ParseIntPipe) toTokenId: string
+  ): Promise<SwapPathsResult> {
+    return await this.poolSwapPathService.getAllSwapPaths(fromTokenId, toTokenId)
+  }
+
+  @Get('/paths/best/from/:fromTokenId/to/:toTokenId')
+  async getBestPath (
+    @Param('fromTokenId', ParseIntPipe) fromTokenId: string,
+      @Param('toTokenId', ParseIntPipe) toTokenId: string
+  ): Promise<BestSwapPathResult> {
+    return await this.poolSwapPathService.getBestPath(fromTokenId, toTokenId)
   }
 }
 
