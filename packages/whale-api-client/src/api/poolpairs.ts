@@ -156,6 +156,7 @@ export interface PoolSwapFromToData {
   address: string
   amount: string
   symbol: string
+  displaySymbol: string
 }
 
 export interface PoolSwapAggregatedData {
