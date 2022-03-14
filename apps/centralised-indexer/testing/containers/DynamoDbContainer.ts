@@ -80,6 +80,17 @@ export class DynamoDbContainer extends DockerContainer {
     return await this.dynamoDb.listTables().promise()
   }
 
+  /**
+   * Helper to reduce test code verbosity
+   */
+  async getItem (getItemInput: AWS.DynamoDB.Types.GetItemInput): Promise<Record<any, any> | undefined> {
+    const result = await this.dynamoDb.getItem(getItemInput).promise()
+    if (result.Item === undefined) {
+      return undefined
+    }
+    return AWS.DynamoDB.Converter.unmarshall(result.Item)
+  }
+
   private initDynamoDbClient (hostPort: string): void {
     this.dynamoDb = new AWS.DynamoDB({
       endpoint: `http://localhost:${hostPort}`,

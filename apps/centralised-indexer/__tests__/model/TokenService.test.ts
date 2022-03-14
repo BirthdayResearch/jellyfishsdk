@@ -46,6 +46,29 @@ it('should create and read a token', async () => {
   expect({ ...await tokenService.get(1) }).toStrictEqual(token)
 })
 
+it('should get by symbol', async () => {
+  const token = {
+    id: 4,
+    decimal: 1,
+    isDAT: true,
+    isLPS: false,
+    limit: '0.00001',
+    mintable: false,
+    name: 'CAT token',
+    symbol: 'CAT',
+    tradeable: false,
+    block: {
+      hash: 'abcdef',
+      height: 1,
+      medianTime: 1,
+      time: 1
+    }
+  }
+
+  await tokenService.upsert(token)
+  expect({ ...await tokenService.getBySymbol('CAT') }).toStrictEqual(token)
+})
+
 it('should return undefined for non-existent token id', async () => {
   expect(await tokenService.get(100)).toStrictEqual(undefined)
 })
@@ -94,6 +117,6 @@ it('should get next id for DAT and DST', async () => {
   }
 
   await tokenService.upsert(token)
-  expect(await tokenService.getNextTokenID(true)).toStrictEqual(4)
+  expect(await tokenService.getNextTokenID(true)).toStrictEqual(5)
   expect(await tokenService.getNextTokenID(false)).toStrictEqual(128)
 })

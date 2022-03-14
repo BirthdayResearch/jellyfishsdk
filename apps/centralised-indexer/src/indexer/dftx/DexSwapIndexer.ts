@@ -8,6 +8,7 @@ import { fromScript } from '@defichain/jellyfish-address'
 import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
 import { NetworkName } from '@defichain/jellyfish-network'
 import BigNumber from 'bignumber.js'
+import { Block } from '../../models/block/Block'
 
 /**
  * Indexes dex swaps to support performant queries
@@ -28,8 +29,8 @@ export class DexSwapIndexer implements DfTxIndexer<PoolSwap> {
     await this.dexSwapService.upsert(await this.map(block, dfTx))
   }
 
-  async invalidate (block: defid.Block<defid.Transaction>, dfTx: DfTxTransaction<PoolSwap>): Promise<void> {
-    // TODO(eli-lim)
+  async invalidate (block: Block, dfTx: DfTxTransaction<PoolSwap>): Promise<void> {
+    await this.dexSwapService.delete(dfTx.txn.txid)
   }
 
   async map (block: defid.Block<defid.Transaction>, dfTx: DfTxTransaction<PoolSwap>): Promise<DexSwap> {

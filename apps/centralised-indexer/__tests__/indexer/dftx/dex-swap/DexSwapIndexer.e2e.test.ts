@@ -1,6 +1,5 @@
 import waitForExpect from 'wait-for-expect'
 import { CentralisedIndexerTesting } from '../../../../testing/CentralisedIndexerTesting'
-import * as AWS from 'aws-sdk'
 
 const testsuite = CentralisedIndexerTesting.create()
 const container = testsuite.container
@@ -14,14 +13,15 @@ beforeAll(async () => {
     const info = await container.getMiningInfo()
     expect(info.blocks).toBeGreaterThan(100)
   })
-})
 
-afterAll(async () => {
-  await testsuite.stop()
-})
+  // Fund for more swaps
+  await container.call('utxostoaccount', [
+    {
+      [await testing.address('my')]: '1000@0'
+    }
+  ])
+  await container.generate(1)
 
-it('should read dex swaps from blockchain and write to db', async () => {
-  // Given some poolPairs
   await testing.token.create({ symbol: 'ABC' })
   await testing.token.dfi({ amount: 10 })
   await testing.generate(1)
@@ -38,11 +38,11 @@ it('should read dex swaps from blockchain and write to db', async () => {
 
   await testing.poolpair.add({
     a: {
-      amount: '10',
+      amount: '100',
       symbol: 'DFI'
     },
     b: {
-      amount: '100',
+      amount: '1000',
       symbol: 'ABC'
     },
     address: await testing.address('my')
@@ -51,10 +51,18 @@ it('should read dex swaps from blockchain and write to db', async () => {
 
   await testing.poolpair.remove({
     address: await testing.address('my'),
-    amount: '2',
+    amount: '20',
     symbol: 'ABC-DFI'
   })
   await testing.generate(1)
+})
+
+afterAll(async () => {
+  await testsuite.stop()
+})
+
+it('should read dex swaps from blockchain and write to db', async () => {
+  // Given some poolPairs (setup above)
 
   // When multiple swaps occur across blocks
   const block1Swap1 = await testing.poolpair.swap({
@@ -83,11 +91,9 @@ it('should read dex swaps from blockchain and write to db', async () => {
   await testing.generate(2)
 
   const account = await testing.rpc.account.getAccount(await testing.address('my'))
-  expect(account).toStrictEqual(expect.objectContaining([
-    '1.19633829@DFI',
-    '0.32455532@ABC',
-    '29.62276660@ABC-DFI'
-  ]))
+  expect(account[0]).toMatch(/906.+@DFI/)
+  expect(account[1]).toMatch(/57.+@ABC/)
+  expect(account[2]).toMatch(/296.+@ABC-DFI/)
 
   // Then database has a DexSwap table
   expect(
@@ -102,14 +108,14 @@ it('should read dex swaps from blockchain and write to db', async () => {
 
     // Check indexed swap has correct values
     { // Block 1, Swap 1
-      const indexedDexSwap = await testsuite.dbContainer.dynamoDb.getItem({
+      const indexedDexSwap = (await testsuite.dbContainer.getItem({
         TableName: 'DexSwap',
         Key: { id: { S: block1Swap1 } }
-      }).promise()
-      expect(AWS.DynamoDB.Converter.unmarshall(indexedDexSwap.Item!)).toStrictEqual({
+      }))!
+      expect(indexedDexSwap).toStrictEqual({
         block: {
           hash: expect.any(String),
-          height: 106,
+          height: 107,
           medianTime: expect.any(Number),
           time: expect.any(Number)
         },
@@ -117,21 +123,21 @@ it('should read dex swaps from blockchain and write to db', async () => {
         fromSymbol: 'ABC',
         id: expect.any(String),
         timestamp: expect.any(String),
-        toAmount: expect.stringMatching(/0\.09894375|0\.09487130/), // swap1 and swap2 order is not guaranteed
+        toAmount: expect.stringMatching(/0\.09946839|0\.09989336/), // swap1 and swap2 order is not guaranteed
         toSymbol: 'DFI',
         txno: expect.any(Number),
         _fixedPartitionKey: 0
       })
     }
     { // Block 1, Swap 2
-      const indexedDexSwap = await testsuite.dbContainer.dynamoDb.getItem({
+      const indexedDexSwap = (await testsuite.dbContainer.getItem({
         TableName: 'DexSwap',
         Key: { id: { S: block1Swap2 } }
-      }).promise()
-      expect(AWS.DynamoDB.Converter.unmarshall(indexedDexSwap.Item!)).toStrictEqual({
+      }))!
+      expect(indexedDexSwap).toStrictEqual({
         block: {
           hash: expect.any(String),
-          height: 106,
+          height: 107,
           medianTime: expect.any(Number),
           time: expect.any(Number)
         },
@@ -139,21 +145,21 @@ it('should read dex swaps from blockchain and write to db', async () => {
         fromSymbol: 'ABC',
         id: expect.any(String),
         timestamp: expect.any(String),
-        toAmount: expect.stringMatching(/0\.19174674|0\.19581919/), // swap1 and swap2 order is not guaranteed
+        toAmount: expect.stringMatching(/0\.19957390|0\.19914894/), // swap1 and swap2 order is not guaranteed
         toSymbol: 'DFI',
         txno: expect.any(Number),
         _fixedPartitionKey: 0
       })
     }
     { // Block 2, Swap 1
-      const indexedDexSwap = await testsuite.dbContainer.dynamoDb.getItem({
+      const indexedDexSwap = (await testsuite.dbContainer.getItem({
         TableName: 'DexSwap',
         Key: { id: { S: block2Swap } }
-      }).promise()
-      expect(AWS.DynamoDB.Converter.unmarshall(indexedDexSwap.Item!)).toStrictEqual({
+      }))!
+      expect(indexedDexSwap).toStrictEqual({
         block: {
           hash: expect.any(String),
-          height: 107,
+          height: 108,
           medianTime: expect.any(Number),
           time: expect.any(Number)
         },
@@ -161,11 +167,58 @@ it('should read dex swaps from blockchain and write to db', async () => {
         fromSymbol: 'ABC',
         id: expect.any(String),
         timestamp: expect.any(String),
-        toAmount: '0.27319227',
+        toAmount: '0.29713909',
         toSymbol: 'DFI',
         txno: 1,
         _fixedPartitionKey: 0
       })
     }
   })
+})
+
+it('should delete dexSwaps when block is invalidated', async () => {
+  // Given some poolpairs (setup above)
+
+  // When swap occurs
+  const swapTxHash = await testing.poolpair.swap({
+    from: await testing.address('my'),
+    tokenFrom: 'ABC',
+    amountFrom: 1,
+    to: await testing.address('my'),
+    tokenTo: 'DFI'
+  })
+  await testing.generate(1)
+
+  const height = await container.getBlockCount()
+  await testsuite.waitForIndexedHeight(height)
+
+  // Then it gets indexed
+  let indexedDexSwap: Record<string, any> = {}
+  await waitForExpect(async () => {
+    indexedDexSwap = (await testsuite.dbContainer.getItem({
+      TableName: 'DexSwap',
+      Key: {
+        id: {
+          S: swapTxHash
+        }
+      }
+    }))!
+    expect(indexedDexSwap).toBeDefined()
+  })
+
+  // When block is invalidated and indexer catches up
+  await testsuite.invalidateFromHeight(height)
+  await testsuite.waitForIndexedHeight(height)
+
+  // Then dexSwap doesn't exist anymore
+  const swap = (await testsuite.dbContainer.getItem({
+    TableName: 'DexSwap',
+    Key: {
+      id: {
+        S: indexedDexSwap.id
+      }
+    }
+  }))!
+
+  expect(swap).toBeUndefined()
 })

@@ -6,12 +6,13 @@ import { Transaction } from '@defichain/jellyfish-api-core/src/category/blockcha
 import { Indexer } from '../core/RootIndexer'
 import { SmartBuffer } from 'smart-buffer'
 import { CreateTokenIndexer } from './CreateTokenIndexer'
+import { Block } from '../../models/block/Block'
 
 export interface DfTxIndexer<T> {
   OP_CODE: number
 
   index: (block: defid.Block<defid.Transaction>, dfTx: DfTxTransaction<T>) => Promise<void>
-  invalidate: (block: defid.Block<defid.Transaction>, dfTx: DfTxTransaction<T>) => Promise<void>
+  invalidate: (block: Block, dfTx: DfTxTransaction<T>) => Promise<void>
 }
 
 /**
@@ -34,7 +35,7 @@ export class RootDfTxIndexer implements Indexer {
   }
 
   async index (block: defid.Block<defid.Transaction>): Promise<void> {
-    const dfTxns = this.getDfTxns(block)
+    const dfTxns = this.getDfTxns(block.tx)
     for (const indexer of this.indexers) {
       for (const dfTx of dfTxns) {
         if (indexer.OP_CODE === dfTx.dftx.type) {
@@ -44,20 +45,22 @@ export class RootDfTxIndexer implements Indexer {
     }
   }
 
-  async invalidate (block: defid.Block<defid.Transaction>): Promise<void> {
-    const dfTxns = this.getDfTxns(block)
+  async invalidate (block: Block): Promise<void> {
+    const dfTxns = this.getDfTxns(block.txns)
     for (const indexer of this.indexers) {
       for (const dfTx of dfTxns) {
-        await indexer.invalidate(block, dfTx)
+        if (indexer.OP_CODE === dfTx.dftx.type) {
+          await indexer.invalidate(block, dfTx)
+        }
       }
     }
   }
 
-  private getDfTxns (block: defid.Block<defid.Transaction>): Array<DfTxTransaction<any>> {
+  private getDfTxns (txns: defid.Transaction[]): Array<DfTxTransaction<any>> {
     const transactions: Array<DfTxTransaction<any>> = []
 
-    for (let i = 0; i < block.tx.length; i++) {
-      const txn = block.tx[i]
+    for (let i = 0; i < txns.length; i++) {
+      const txn = txns[i]
       for (const vout of txn.vout) {
         if (!vout.scriptPubKey.asm.startsWith('OP_RETURN 44665478')) {
           continue

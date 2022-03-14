@@ -2,6 +2,7 @@ import { Schema } from 'dynamoose'
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel, Model } from 'nestjs-dynamoose'
 import { SortOrder } from 'dynamoose/dist/General'
+import { blockchain as defid } from '@defichain/jellyfish-api-core'
 
 export interface BlockKey {
   hash: string // ----------------| partition / hash key; unique id of the block, same as the hash
@@ -35,6 +36,8 @@ export interface Block extends BlockKey {
   size: number // --------------| block size in bytes
   sizeStripped: number // ------| block size in bytes, excluding witness data.
   weight: number // ------------| block weight as defined in BIP 141
+
+  txns: defid.Transaction[] // -| nested transactions
 
   _fixedPartitionKey?: 0
 }
@@ -72,6 +75,11 @@ export const BlockSchema = new Schema({
   sizeStripped: Number,
   weight: Number,
 
+  txns: {
+    type: Array,
+    schema: [Object]
+  },
+
   // To support queries where only sortKey is provided
   _fixedPartitionKey: {
     default: FIXED_PARTITION_KEY,
@@ -85,6 +93,8 @@ export const BlockSchema = new Schema({
       }
     ]
   }
+}, {
+  saveUnknown: true
 })
 
 const fetchAttrs = BlockSchema.attributes()
@@ -103,8 +113,8 @@ export class BlockService {
   }
 
   async getByHash (hash: string): Promise<Block | undefined> {
-    const block = await this.model.query('hash').eq(hash).limit(1).attributes(fetchAttrs).exec()
-    return block[0]
+    const blocks = await this.model.query('hash').eq(hash).limit(1).attributes(fetchAttrs).exec()
+    return blocks[0] ?? undefined
   }
 
   async getByHeight (height: number): Promise<Block | undefined> {

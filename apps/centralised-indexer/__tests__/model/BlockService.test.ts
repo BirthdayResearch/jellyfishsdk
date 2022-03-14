@@ -1,11 +1,26 @@
 import { TestingModule } from '@nestjs/testing'
-import { BlockService } from '../../src/models/block/Block'
+import { Block, BlockService } from '../../src/models/block/Block'
 import { DynamoDbContainer } from '../../testing/containers/DynamoDbContainer'
 import { modelModuleTesting } from './ModelModuleTesting'
 
 let blockService: BlockService
 const ddbContainer = new DynamoDbContainer()
 let testingModule: TestingModule
+
+const DUMMY_TXNS = [
+  {
+    txid: 'abc123',
+    hash: 'abc123',
+    version: 1,
+    size: 1,
+    vsize: 1,
+    weight: 1,
+    locktime: 1,
+    vin: [],
+    vout: [],
+    hex: 'a'
+  }
+]
 
 beforeAll(async () => {
   await ddbContainer.start()
@@ -41,7 +56,8 @@ it('should create and read', async () => {
     time: 1,
     transactionCount: 1,
     version: 1,
-    weight: 1
+    weight: 1,
+    txns: DUMMY_TXNS
   }
 
   await blockService.upsert(block)
@@ -52,7 +68,7 @@ it('should create and read', async () => {
 })
 
 it('should update', async () => {
-  const block = {
+  const block: Block = {
     hash: 'def',
     height: 0,
     difficulty: 0,
@@ -69,7 +85,8 @@ it('should update', async () => {
     time: 0,
     transactionCount: 0,
     version: 0,
-    weight: 0
+    weight: 0,
+    txns: DUMMY_TXNS
   }
 
   await blockService.upsert(block)
@@ -91,7 +108,8 @@ it('should update', async () => {
     time: 1000,
     transactionCount: 1000,
     version: 1000,
-    weight: 1000
+    weight: 1000,
+    txns: DUMMY_TXNS
   }
 
   await blockService.upsert(blockUpdate)
@@ -119,7 +137,8 @@ it('should delete', async () => {
     time: 0,
     transactionCount: 0,
     version: 0,
-    weight: 0
+    weight: 0,
+    txns: DUMMY_TXNS
   })
   await blockService.delete('ghi')
   const savedBlock = await blockService.getByHash('ghi')
@@ -144,7 +163,8 @@ it('should get highest block', async () => {
     time: 0,
     transactionCount: 0,
     version: 0,
-    weight: 0
+    weight: 0,
+    txns: DUMMY_TXNS
   }
   await blockService.upsert(highestBlock)
   await blockService.upsert({
@@ -164,7 +184,8 @@ it('should get highest block', async () => {
     time: 0,
     transactionCount: 0,
     version: 0,
-    weight: 0
+    weight: 0,
+    txns: DUMMY_TXNS
   })
   expect({ ...await blockService.getHighest() })
     .toStrictEqual(expect.objectContaining(highestBlock))
@@ -188,7 +209,8 @@ it('should get by height', async () => {
     time: 0,
     transactionCount: 0,
     version: 0,
-    weight: 0
+    weight: 0,
+    txns: DUMMY_TXNS
   }
   await blockService.upsert(block)
   expect({ ...await blockService.getByHeight(10) })

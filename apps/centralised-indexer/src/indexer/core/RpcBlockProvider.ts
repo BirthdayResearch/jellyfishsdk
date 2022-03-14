@@ -89,7 +89,7 @@ export class RpcBlockProvider {
     if (await RpcBlockProvider.isBestChain(indexed, nextBlock)) {
       await this.index(nextBlock)
     } else {
-      await this.invalidate(indexed.hash, indexed.height)
+      await this.invalidate(indexed)
     }
     return true
   }
@@ -134,8 +134,8 @@ export class RpcBlockProvider {
     await this.rootIndexer.index(block)
   }
 
-  private async invalidate (hash: string, height: number): Promise<void> {
-    // TODO(eli-lim): status
+  private async invalidate (block: Block): Promise<void> {
+    await this.rootIndexer.invalidate(block)
   }
 
   private async cleanup (): Promise<void> {

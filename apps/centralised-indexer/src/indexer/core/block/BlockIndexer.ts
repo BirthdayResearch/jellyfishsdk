@@ -14,9 +14,8 @@ export class BlockIndexer implements Indexer {
     await this.blockService.upsert(createIndexedBlockFromDefidBlock(block))
   }
 
-  async invalidate (block: defid.Block<defid.Transaction>): Promise<void> {
-    // TODO(eli-lim)
-    console.error('TODO')
+  async invalidate (block: Block): Promise<void> {
+    await this.blockService.delete(block.hash)
   }
 }
 
@@ -38,6 +37,7 @@ function createIndexedBlockFromDefidBlock (block: defid.Block<defid.Transaction>
     time: block.time,
     transactionCount: block.nTx,
     version: block.version,
-    weight: block.weight
+    weight: block.weight,
+    txns: block.tx
   }
 }

@@ -36,7 +36,17 @@ export const TokenSchema = new Schema({
     type: Number,
     hashKey: true
   },
-  symbol: String,
+
+  // support queries by symbol via 'inverted index' strategy
+  // assumed to be unique - not enforced by app / database
+  symbol: {
+    type: String,
+    index: {
+      global: true,
+      name: 'symbol-index',
+      rangeKey: 'id'
+    }
+  },
   name: String,
   decimal: Number,
   limit: String,
@@ -68,7 +78,8 @@ export const TokenSchema = new Schema({
   }
 })
 
-const fetchAttrs = TokenSchema.attributes()
+const fetchAttrs = TokenSchema
+  .attributes()
   .filter(attr => !attr.startsWith('_'))
 
 @Injectable()
@@ -91,12 +102,29 @@ export class TokenService {
     return token
   }
 
+  async getBySymbol (symbol: string, attrs: string[] = fetchAttrs): Promise<Partial<Token | undefined>> {
+    const tokens = await this.model
+      .query('symbol')
+      .eq(symbol)
+      .using('symbol-index')
+      .limit(1)
+      .attributes(attrs)
+      .exec()
+    return tokens[0] ?? undefined
+  }
+
   async delete (id: number): Promise<void> {
-    const token = this.model.get({ id }, { attributes: ['id'], return: 'document' })
-    if (token === undefined) {
-      return
+    if (await this.exists(id)) {
+      await this.model.delete({ id })
     }
-    await this.model.delete({ id })
+  }
+
+  async exists (id: number): Promise<boolean> {
+    const tokenId = this.model.get({ id }, {
+      attributes: ['id'],
+      return: 'document'
+    })
+    return tokenId !== undefined
   }
 
   async getNextTokenID (isDAT: boolean): Promise<number> {

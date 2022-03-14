@@ -3,6 +3,7 @@ import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
 import { CTokenCreate, TokenCreate } from '@defichain/jellyfish-transaction'
 import { Injectable } from '@nestjs/common'
 import { Token, TokenService } from '../../models/dftx/Token'
+import { Block } from '../../models/block/Block'
 
 /**
  * Indexes dex swaps to support performant queries
@@ -21,8 +22,12 @@ export class CreateTokenIndexer implements DfTxIndexer<TokenCreate> {
     await this.tokenService.upsert(await this.map(block, dfTx))
   }
 
-  async invalidate (block: defid.Block<defid.Transaction>, dfTx: DfTxTransaction<TokenCreate>): Promise<void> {
-    // TODO(eli-lim)
+  async invalidate (block: Block, dfTx: DfTxTransaction<TokenCreate>): Promise<void> {
+    const token = await this.tokenService.getBySymbol(dfTx.dftx.data.symbol, ['id'])
+    if (token === undefined || token.id === undefined) {
+      throw new Error('Could not delete token - failed to find token in database')
+    }
+    await this.tokenService.delete(token.id)
   }
 
   async map (block: defid.Block<defid.Transaction>, dfTx: DfTxTransaction<TokenCreate>): Promise<Token> {

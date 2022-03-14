@@ -1,13 +1,18 @@
 import waitForExpect from 'wait-for-expect'
 import { CentralisedIndexerTesting } from '../../../../testing/CentralisedIndexerTesting'
 import * as AWS from 'aws-sdk'
+import { DynamoDbContainer } from '../../../../testing/containers/DynamoDbContainer'
+
+const unmarshall = AWS.DynamoDB.Converter.unmarshall
 
 const testsuite = CentralisedIndexerTesting.create()
 const container = testsuite.container
 const testing = testsuite.testing
+let dynamoContainer: DynamoDbContainer
 
 beforeAll(async () => {
   await testsuite.start()
+  dynamoContainer = testsuite.dbContainer
 
   await container.waitForWalletCoinbaseMaturity()
   await waitForExpect(async () => {
@@ -43,7 +48,7 @@ it('should read blocks from blockchain and write to db', async () => {
         }
       }
     }).promise()
-    expect(AWS.DynamoDB.Converter.unmarshall(genesisBlockInDb.Item!)).toStrictEqual({
+    expect(unmarshall(genesisBlockInDb.Item!)).toStrictEqual({
       hash: genesisBlock.hash,
       height: genesisBlock.height,
       difficulty: genesisBlock.difficulty,
@@ -58,6 +63,7 @@ it('should read blocks from blockchain and write to db', async () => {
       transactionCount: genesisBlock.nTx,
       version: genesisBlock.version,
       weight: genesisBlock.weight,
+      txns: expect.any(Array),
       _fixedPartitionKey: 0
     })
 
@@ -72,7 +78,7 @@ it('should read blocks from blockchain and write to db', async () => {
         }
       }
     }).promise()
-    expect(AWS.DynamoDB.Converter.unmarshall(bestBlockInDb.Item!))
+    expect(unmarshall(bestBlockInDb.Item!))
       .toStrictEqual({
         hash: bestBlock.hash,
         height: bestBlock.height,
@@ -91,11 +97,47 @@ it('should read blocks from blockchain and write to db', async () => {
         transactionCount: bestBlock.nTx,
         version: bestBlock.version,
         weight: bestBlock.weight,
+        txns: expect.any(Array),
         _fixedPartitionKey: 0
       })
   })
 })
 
-it('should be able to recover', async () => {
-  // If the node is killed, it should pick up from where it left off
+it('should index best chain and invalidate old blocks', async () => {
+  const height = await container.getBlockCount()
+  const bestBlockHash = await container.getBestBlockHash()
+  await testsuite.waitForIndexedHeight(height)
+
+  // Get first block
+  const block = (await dynamoContainer.getItem({
+    TableName: 'Block',
+    Key: {
+      hash: {
+        S: bestBlockHash
+      }
+    }
+  }))!
+
+  expect(block.hash).toStrictEqual(bestBlockHash)
+
+  // Invalidate block, then wait for indexer to catch up
+  await testsuite.invalidateFromHeight(height)
+  await testsuite.waitForIndexedHeight(height)
+
+  const newBlock = (await dynamoContainer.getItem({
+    TableName: 'Block',
+    Key: {
+      hash: {
+        S: await container.getBestBlockHash()
+      }
+    }
+  }))!
+
+  // New block should be different from the invalidated one, but have the same height
+  await waitForExpect(async () => {
+    expect(block).toBeDefined()
+    expect(newBlock).toBeDefined()
+    expect(newBlock.hash).not.toStrictEqual(block.hash)
+    expect(newBlock.height).toStrictEqual((block.height as number) + 1)
+  })
 })
