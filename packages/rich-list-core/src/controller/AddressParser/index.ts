@@ -3,7 +3,7 @@ import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
 import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { AccountToUtxosParser } from './dftx/accountToUtxos'
+import { AccountToUtxosParser } from './dftx/AccountToUtxos'
 import { UtxoAddressParser } from './utxo'
 
 export class AddressParser {
