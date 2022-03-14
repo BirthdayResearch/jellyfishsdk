@@ -1,3 +1,3 @@
-export * from './feerate'
-export * from './prevout'
-export * from './wallet'
+export * from './FeeRate'
+export * from './Prevout'
+export * from './Wallet'

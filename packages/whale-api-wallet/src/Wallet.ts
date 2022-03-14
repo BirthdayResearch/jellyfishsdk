@@ -2,8 +2,8 @@ import { WalletAccount, WalletAccountProvider, WalletEllipticPair } from '@defic
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Network } from '@defichain/jellyfish-network'
 import { P2WPKHTransactionBuilder } from '@defichain/jellyfish-transaction-builder'
-import { WhaleFeeRateProvider } from './feerate'
-import { WhalePrevoutProvider } from './prevout'
+import { WhaleFeeRateProvider } from './FeeRate'
+import { WhalePrevoutProvider } from './Prevout'
 
 export class WhaleWalletAccount extends WalletAccount {
   protected readonly feeRateProvider: WhaleFeeRateProvider
