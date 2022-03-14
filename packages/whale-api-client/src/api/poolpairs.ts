@@ -180,3 +180,45 @@ export enum PoolSwapAggregatedInterval {
   ONE_HOUR = 60 * 60,
   ONE_DAY = ONE_HOUR * 24
 }
+
+export interface BestSwapPathResult {
+  fromToken: {
+    id: string
+    symbol: string
+  }
+  toToken: {
+    id: string
+    symbol: string
+  }
+  bestPath: SwapPathPoolPair[]
+  estimatedReturn: string
+}
+
+export interface SwapPathsResult {
+  fromToken: {
+    id: string
+    symbol: string
+  }
+  toToken: {
+    id: string
+    symbol: string
+  }
+  paths: SwapPathPoolPair[][]
+}
+
+export interface SwapPathPoolPair {
+  poolPairId: string
+  symbol: string
+  tokenA: {
+    id: string
+    symbol: string
+  }
+  tokenB: {
+    id: string
+    symbol: string
+  }
+  priceRatio: {
+    ab: string
+    ba: string
+  }
+}
