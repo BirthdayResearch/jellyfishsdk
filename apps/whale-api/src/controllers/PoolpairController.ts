@@ -2,7 +2,7 @@ import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
 
-import { PoolPairData, PoolSwapAggregatedData, PoolSwapData } from '@defichain/whale-api-client/src/api/poolpairs'
+import { PoolPairData, PoolSwapAggregatedData, PoolSwapData } from '@defichain/whale-api-client/src/api/PoolPairs'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
 
 import { DeFiDCache } from '../cache/DeFiDCache'

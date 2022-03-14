@@ -2,7 +2,7 @@ import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
-import { TokenData } from '@defichain/whale-api-client/src/api/tokens'
+import { TokenData } from '@defichain/whale-api-client/src/api/Tokens'
 
 import { DeFiDCache } from '../cache/DeFiDCache'
 import { ApiPagedResponse } from '../core/ApiPagedResponse'

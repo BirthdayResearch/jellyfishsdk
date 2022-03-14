@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js'
 
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/src/category/blockchain'
 import { BurnInfo } from '@defichain/jellyfish-api-core/src/category/account'
-import { StatsData, SupplyData } from '@defichain/whale-api-client/src/api/stats'
+import { StatsData, SupplyData } from '@defichain/whale-api-client/src/api/Stats'
 
 import { SemaphoreCache } from '../cache/SemaphoreCache'
 import { BlockMapper } from '../models/Block'

@@ -19,8 +19,8 @@ import {
   LoanVaultLiquidationBatch,
   LoanVaultState,
   LoanVaultTokenAmount
-} from '@defichain/whale-api-client/src/api/loan'
-import { ActivePrice } from '@defichain/whale-api-client/src/api/prices'
+} from '@defichain/whale-api-client/src/api/Loan'
+import { ActivePrice } from '@defichain/whale-api-client/src/api/Prices'
 
 import { DeFiDCache } from '../cache/DeFiDCache'
 import { PaginationQuery } from '../core/PaginationQuery'

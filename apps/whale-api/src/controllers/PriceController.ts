@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common'
 
-import { PriceOracle } from '@defichain/whale-api-client/src/api/prices'
+import { PriceOracle } from '@defichain/whale-api-client/src/api/Prices'
 
 import { ApiError } from '../core/ApiError'
 import { ApiPagedResponse } from '../core/ApiPagedResponse'

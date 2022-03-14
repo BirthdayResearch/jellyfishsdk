@@ -25,8 +25,8 @@ import {
   LoanToken,
   LoanVaultActive,
   LoanVaultLiquidated
-} from '@defichain/whale-api-client/src/api/loan'
-import { ActivePrice } from '@defichain/whale-api-client/src/api/prices'
+} from '@defichain/whale-api-client/src/api/Loan'
+import { ActivePrice } from '@defichain/whale-api-client/src/api/Prices'
 
 import { mapTokenData } from '../controllers/TokenController'
 import { ApiPagedResponse } from '../core/ApiPagedResponse'

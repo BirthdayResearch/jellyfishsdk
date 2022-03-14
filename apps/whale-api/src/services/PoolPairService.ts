@@ -16,7 +16,7 @@ import { SmartBuffer } from 'smart-buffer'
 
 import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
-import { PoolPairData, PoolSwapFromToData } from '@defichain/whale-api-client/src/api/poolpairs'
+import { PoolPairData, PoolSwapFromToData } from '@defichain/whale-api-client/src/api/PoolPairs'
 
 import { DeFiDCache } from '../cache/DeFiDCache'
 import { SemaphoreCache } from '../cache/SemaphoreCache'
