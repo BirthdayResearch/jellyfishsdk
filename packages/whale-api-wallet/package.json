@@ -1,5 +1,5 @@
 {
-  "private": false,
+  "private": true,
   "name": "@defichain/whale-api-wallet",
   "version": "0.0.0",
   "description": "Using whale-api-client with jellyfish-wallet with DeFi light wallet implementation.",
