@@ -223,6 +223,137 @@ describe('dex.compositeSwap()', () => {
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
   })
 
+  it('should fail as price is higher than indicated', async () => {
+    await providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+
+    await testing.poolpair.add({
+      a: { symbol: 'CAT', amount: 10 },
+      b: { symbol: 'DFI', amount: 100 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'FISH', amount: 50 },
+      b: { symbol: 'DFI', amount: 100 }
+    })
+    await testing.generate(1)
+
+    await providers.setupMocks() // required to move utxos
+
+    const address = await providers.getAddress()
+    const script = fromAddress(address, 'regtest')?.script as Script
+
+    { // swap CAT
+      await testing.token.mint({ symbol: 'CAT', amount: 10 })
+      await testing.generate(1)
+      await testing.token.send({ symbol: 'CAT', amount: 10, address })
+      await testing.generate(1)
+
+      await fundEllipticPair(container, providers.ellipticPair, 10)
+
+      const catPair = await testing.poolpair.get('CAT-DFI') // 0.1cat 10dfi
+      const catMaxPrice = catPair['reserveA/reserveB'] as BigNumber
+
+      const txn = await builder.dex.compositeSwap({
+        poolSwap: {
+          fromScript: script,
+          fromTokenId: pairs.CAT.tokenId,
+          fromAmount: new BigNumber('1'),
+          toScript: script,
+          toTokenId: pairs.FISH.tokenId,
+          maxPrice: catMaxPrice.minus(0.00000001)
+        },
+        pools: [
+          { id: pairs.CAT.poolId },
+          { id: pairs.FISH.poolId }
+        ]
+      }, script)
+
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrowError(DeFiDRpcError)
+      await expect(promise).rejects.toThrowError('PoolSwapTx: Price is higher than indicated')
+    }
+
+    { // swap FISH
+      await testing.token.mint({ symbol: 'FISH', amount: 10 })
+      await testing.generate(1)
+      await testing.token.send({ symbol: 'FISH', amount: 10, address })
+      await testing.generate(1)
+
+      await fundEllipticPair(container, providers.ellipticPair, 10)
+
+      const fishPair = await testing.poolpair.get('FISH-DFI') // 0.5@fish 2@dfi
+      const fishMaxPrice = fishPair['reserveA/reserveB'] as BigNumber
+
+      const txn = await builder.dex.compositeSwap({
+        poolSwap: {
+          fromScript: script,
+          fromTokenId: pairs.FISH.tokenId,
+          fromAmount: new BigNumber('1'),
+          toScript: script,
+          toTokenId: pairs.CAT.tokenId,
+          maxPrice: fishMaxPrice.minus(0.00000001)
+        },
+        pools: [
+          { id: pairs.FISH.poolId },
+          { id: pairs.CAT.poolId }
+        ]
+      }, script)
+
+      const promise = sendTransaction(container, txn)
+      await expect(promise).rejects.toThrowError(DeFiDRpcError)
+      await expect(promise).rejects.toThrowError('PoolSwapTx: Price is higher than indicated')
+    }
+  })
+
+  it('should fail as input token id does not match with pools id', async () => {
+    await providers.randomizeEllipticPair()
+    await container.waitForWalletBalanceGTE(1)
+
+    await testing.poolpair.add({
+      a: { symbol: 'CAT', amount: 10 },
+      b: { symbol: 'DFI', amount: 100 }
+    })
+    await testing.poolpair.add({
+      a: { symbol: 'FISH', amount: 50 },
+      b: { symbol: 'DFI', amount: 100 }
+    })
+    await testing.generate(1)
+
+    await providers.setupMocks() // required to move utxos
+
+    const address = await providers.getAddress()
+    const script = fromAddress(address, 'regtest')?.script as Script
+
+    await testing.token.mint({ symbol: 'CAT', amount: 10 })
+    await testing.generate(1)
+    await testing.token.send({ symbol: 'CAT', amount: 10, address })
+    await testing.generate(1)
+
+    await fundEllipticPair(container, providers.ellipticPair, 10)
+
+    const catPair = await testing.poolpair.get('CAT-DFI') // 0.1cat 10dfi
+    const catMaxPrice = catPair['reserveA/reserveB'] as BigNumber
+
+    const txn = await builder.dex.compositeSwap({
+      poolSwap: {
+        fromScript: script,
+        fromTokenId: pairs.CAT.tokenId,
+        fromAmount: new BigNumber('1'),
+        toScript: script,
+        toTokenId: pairs.FISH.tokenId,
+        maxPrice: catMaxPrice
+      },
+      pools: [
+        { id: pairs.FISH.poolId }, // will hit error if pools token order doesn't match with swap token order (from -> to)
+        { id: pairs.CAT.poolId }
+      ]
+    }, script)
+
+    const promise = sendTransaction(container, txn)
+    await expect(promise).rejects.toThrowError(DeFiDRpcError)
+    await expect(promise).rejects.toThrowError(`input token ID (${pairs.CAT.tokenId}) doesn't match pool tokens (${pairs.FISH.tokenId},0)`)
+  })
+
   it('should fail if path specified is not possible to achieve desired composite swap', async () => {
     // create another pair not composite swap-able
     const colAddr = await testing.generateAddress()
