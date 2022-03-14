@@ -2,7 +2,7 @@ import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from 'packages/jellyfish-api-core/src/category/rawtx'
-import { PaybackLoanParser } from '../../../../src/controller/AddressParser/dftx/paybackLoan'
+import { PaybackLoanParser } from '../../../../src/controller/AddressParser/dftx/PaybackLoan'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
 
 describe('PaybackLoanParser', () => {

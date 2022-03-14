@@ -1,7 +1,7 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { AccountToAccountParser } from '../../../../src/controller/AddressParser/dftx/accountToAccount'
+import { AccountToAccountParser } from '../../../../src/controller/AddressParser/dftx/AccountToAccount'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
 
 describe('AccountToAccountParser', () => {

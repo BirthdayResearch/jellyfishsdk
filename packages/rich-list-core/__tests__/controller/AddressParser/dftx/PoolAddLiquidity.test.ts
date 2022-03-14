@@ -1,16 +1,15 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { poolpair } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { PoolSwapParser } from '../../../../src/controller/AddressParser/dftx/poolSwap'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
+import { PoolAddLiquidityParser } from '../../../../src/controller/AddressParser/dftx/PoolAddLiquidity'
 
-describe('PoolSwapParser', () => {
+describe('PoolAddLiquidityParser', () => {
   const container = new MasterNodeRegTestContainer()
   let apiClient!: JsonRpcClient
 
   let sender!: string
-  let receiver!: string
+  let shareAddress!: string
   let rawTx!: RawTransaction
 
   beforeAll(async () => {
@@ -18,12 +17,11 @@ describe('PoolSwapParser', () => {
     await container.waitForWalletCoinbaseMaturity()
     apiClient = new JsonRpcClient(await container.getCachedRpcUrl())
     sender = await container.getNewAddress()
-    receiver = await container.getNewAddress()
-    const shareAddress = await container.getNewAddress()
+    shareAddress = await container.getNewAddress()
 
     // Address is funded at this point.
     // convert 100 DFI UTXO -> DFI Token
-    await apiClient.account.utxosToAccount({ [sender]: '200@DFI' })
+    await apiClient.account.utxosToAccount({ [sender]: '100@DFI' })
     await container.generate(1)
 
     // Mint wrapped tokens
@@ -36,7 +34,7 @@ describe('PoolSwapParser', () => {
       collateralAddress: sender
     })
     await container.generate(1)
-    await apiClient.token.mintTokens('400@DDAI')
+    await apiClient.token.mintTokens('2000@DDAI')
     await container.generate(1)
 
     // create poolpair and add liquidity
@@ -50,19 +48,9 @@ describe('PoolSwapParser', () => {
     })
     await container.generate(1)
 
-    await apiClient.poolpair.addPoolLiquidity({
-      [sender]: ['100@DFI', '200@DDAI']
+    const txn = await apiClient.poolpair.addPoolLiquidity({
+      [sender]: ['20@DFI', '100@DDAI']
     }, shareAddress)
-    await container.generate(1)
-
-    const metadata: poolpair.PoolSwapMetadata = {
-      from: sender,
-      tokenFrom: 'DFI',
-      amountFrom: 50,
-      to: receiver,
-      tokenTo: 'DDAI'
-    }
-    const txn = await apiClient.poolpair.poolSwap(metadata)
 
     // test subject
     rawTx = await apiClient.rawtx.getRawTransaction(txn, true)
@@ -72,12 +60,12 @@ describe('PoolSwapParser', () => {
     await container.stop()
   })
 
-  it('should extract all addresses involved in poolswap tx', async () => {
-    const parser = AddressParserTest(apiClient, [new PoolSwapParser('regtest')])
+  it('should extract all addresses involved in poolAddLiquidity tx', async () => {
+    const parser = AddressParserTest(apiClient, [new PoolAddLiquidityParser('regtest')])
     const addresses = await parser.parse(rawTx)
 
     expect(addresses.length).toStrictEqual(2)
     expect(addresses).toContain(sender)
-    expect(addresses).toContain(receiver)
+    expect(addresses).toContain(shareAddress)
   })
 })

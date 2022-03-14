@@ -3,7 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
-import { CompositeSwapParser } from '../../../../src/controller/AddressParser/dftx/compositeSwap'
+import { CompositeSwapParser } from '../../../../src/controller/AddressParser/dftx/CompositeSwap'
 
 describe('CompositeSwapParser', () => {
   const container = new MasterNodeRegTestContainer()

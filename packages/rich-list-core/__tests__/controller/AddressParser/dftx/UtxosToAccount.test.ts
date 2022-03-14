@@ -2,7 +2,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
-import { UtxosToAccountParser } from '../../../../src/controller/AddressParser/dftx/utxosToAccount'
+import { UtxosToAccountParser } from '../../../../src/controller/AddressParser/dftx/UtxosToAccount'
 
 describe('UtxosToAccountParser', () => {
   const container = new MasterNodeRegTestContainer()
