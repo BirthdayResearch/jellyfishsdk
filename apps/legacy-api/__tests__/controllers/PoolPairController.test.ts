@@ -1,5 +1,5 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
-import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
 
 const ONLY_DECIMAL_NUMBER_REGEX = /^[0-9]+(\.[0-9]+)?$/
 
