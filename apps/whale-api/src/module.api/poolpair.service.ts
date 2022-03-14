@@ -23,6 +23,7 @@ import { fromScript } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
+import { parseDisplaySymbol } from '@src/module.api/token.controller'
 import { UndirectedGraph } from 'graphology'
 import { PoolPairToken, PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
 import { Interval } from '@nestjs/schedule'
@@ -234,7 +235,9 @@ export class PoolPairService {
     const fromToken = await this.deFiDCache.getTokenInfo(dftx.fromTokenId.toString())
 
     const toAddress = fromScript(dftx.toScript, this.network)?.address
-    if (fromAddress === undefined || toAddress === undefined || fromToken === undefined) {
+    const toToken = await this.deFiDCache.getTokenInfo(dftx.toTokenId.toString())
+
+    if (fromAddress === undefined || toAddress === undefined || fromToken === undefined || toToken === undefined) {
       return undefined
     }
 
@@ -244,9 +247,10 @@ export class PoolPairService {
       from: {
         address: fromAddress,
         symbol: fromToken.symbol,
-        amount: dftx.fromAmount.toFixed(8)
+        amount: dftx.fromAmount.toFixed(8),
+        displaySymbol: parseDisplaySymbol(fromToken)
       },
-      to: findPoolSwapFromTo(history, false)
+      to: findPoolSwapFromTo(history, false, parseDisplaySymbol(toToken))
     }
   }
 
@@ -402,7 +406,7 @@ function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwapDfTx | undefined {
   }
 }
 
-function findPoolSwapFromTo (history: AccountHistory | undefined, from: boolean): PoolSwapFromToData | undefined {
+function findPoolSwapFromTo (history: AccountHistory | undefined, from: boolean, displaySymbol: string): PoolSwapFromToData | undefined {
   if (history?.amounts === undefined) {
     return undefined
   }
@@ -415,7 +419,8 @@ function findPoolSwapFromTo (history: AccountHistory | undefined, from: boolean)
       return {
         address: history.owner,
         amount: new BigNumber(value).absoluteValue().toFixed(8),
-        symbol: symbol
+        symbol: symbol,
+        displaySymbol: displaySymbol
       }
     }
 
@@ -423,7 +428,8 @@ function findPoolSwapFromTo (history: AccountHistory | undefined, from: boolean)
       return {
         address: history.owner,
         amount: new BigNumber(value).absoluteValue().toFixed(8),
-        symbol: symbol
+        symbol: symbol,
+        displaySymbol: displaySymbol
       }
     }
   }
