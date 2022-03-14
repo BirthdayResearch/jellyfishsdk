@@ -6,7 +6,7 @@ import { TransactionController } from '@src/module.api/transaction.controller'
 import { ApiValidationPipe } from '@src/module.api/pipes/api.validation.pipe'
 import { AddressController } from '@src/module.api/address.controller'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
-import { PoolPairService } from '@src/module.api/poolpair.service'
+import { PoolPairService, PoolSwapPathFindingService } from '@src/module.api/poolpair.service'
 import { MasternodeService } from '@src/module.api/masternode.service'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
@@ -66,6 +66,7 @@ import { LoanVaultService } from '@src/module.api/loan.vault.service'
     DeFiDCache,
     SemaphoreCache,
     PoolPairService,
+    PoolSwapPathFindingService,
     MasternodeService,
     LoanVaultService,
     {
