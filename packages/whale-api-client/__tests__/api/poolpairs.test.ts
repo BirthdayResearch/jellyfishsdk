@@ -5,6 +5,7 @@ import { ApiPagedResponse, WhaleApiClient, WhaleApiException } from '../../src'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens, poolSwap } from '@defichain/testing'
 import { PoolPairData, PoolSwapAggregatedData, PoolSwapAggregatedInterval, PoolSwapData } from '../../src/api/poolpairs'
 import { Testing } from '@defichain/jellyfish-testing'
+import waitForExpect from 'wait-for-expect'
 
 let container: MasterNodeRegTestContainer
 let service: StubService
@@ -800,5 +801,184 @@ describe('poolswap aggregated', () => {
         key: '10-3600'
       }
     ])
+  })
+})
+
+describe('poolpair - swappable tokens', () => {
+  it('should get all swappable tokens', async () => {
+    // Let indexer catch up
+    await service.waitForIndexedHeight(await testing.container.getBlockCount() - 1)
+
+    // Wait for expect needed because the token graph is synchronised with the indexer
+    // every X seconds - i.e. eventual consistency
+    await waitForExpect(async () => {
+      const response = await client.poolpairs.getSwappableTokens('1') // A
+      expect(response).toStrictEqual({
+        fromToken: {
+          id: '1',
+          symbol: 'A',
+          displaySymbol: 'dA'
+        },
+        swappableTokens: [
+          { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
+          { id: '17', symbol: 'USDT', displaySymbol: 'dUSDT' },
+          { id: '8', symbol: 'H', displaySymbol: 'dH' },
+          { id: '19', symbol: 'USDC', displaySymbol: 'dUSDC' },
+          { id: '7', symbol: 'G', displaySymbol: 'dG' },
+          { id: '6', symbol: 'F', displaySymbol: 'dF' },
+          { id: '5', symbol: 'E', displaySymbol: 'dE' },
+          { id: '4', symbol: 'D', displaySymbol: 'dD' },
+          { id: '3', symbol: 'C', displaySymbol: 'dC' },
+          { id: '2', symbol: 'B', displaySymbol: 'dB' }
+        ]
+      })
+    })
+  })
+
+  it('should throw error as numeric string is expected', async () => {
+    expect.assertions(2)
+    try {
+      await client.poolpairs.getSwappableTokens('A-DFI')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Validation failed (numeric string is expected)',
+        url: '/v0.0/regtest/poolpairs/paths/swappable/A-DFI'
+      })
+    }
+  })
+})
+
+describe('poolpair - best swap path', () => {
+  it('should get best swap path', async () => {
+    // Let indexer catch up
+    await service.waitForIndexedHeight(await testing.container.getBlockCount() - 1)
+
+    // Wait for expect needed because the token graph is synchronised with the indexer
+    // every X seconds - i.e. eventual consistency
+    await waitForExpect(async () => {
+      const response = await client.poolpairs.getBestPath('1', '2') // A to B
+      expect(response).toStrictEqual({
+        fromToken: {
+          displaySymbol: 'dA',
+          id: '1',
+          symbol: 'A'
+        },
+        toToken: {
+          displaySymbol: 'dB',
+          id: '2',
+          symbol: 'B'
+        },
+        bestPath: [
+          {
+            poolPairId: '9',
+            priceRatio: {
+              ab: '0.50000000',
+              ba: '2.00000000'
+            },
+            symbol: 'A-DFI',
+            tokenA: {
+              displaySymbol: 'dA',
+              id: '1',
+              symbol: 'A'
+            },
+            tokenB: {
+              displaySymbol: 'DFI',
+              id: '0',
+              symbol: 'DFI'
+            }
+          },
+          {
+            poolPairId: '10',
+            priceRatio: {
+              ab: '0.16666666',
+              ba: '6.00000000'
+            },
+            symbol: 'B-DFI',
+            tokenA: {
+              displaySymbol: 'dB',
+              id: '2',
+              symbol: 'B'
+            },
+            tokenB: {
+              displaySymbol: 'DFI',
+              id: '0',
+              symbol: 'DFI'
+            }
+          }
+        ],
+        estimatedReturn: '0.33333332'
+      })
+    })
+  })
+
+  it('should throw error as numeric string is expected', async () => {
+    expect.assertions(2)
+    try {
+      await client.poolpairs.getBestPath('A', 'B')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Validation failed (numeric string is expected)',
+        url: '/v0.0/regtest/poolpairs/paths/best/from/A/to/B'
+      })
+    }
+  })
+})
+
+describe('poolpair - all swap paths', () => {
+  it('should get all possible swap paths', async () => {
+    // Let indexer catch up
+    await service.waitForIndexedHeight(await testing.container.getBlockCount() - 1)
+
+    // Wait for expect needed because the token graph is synchronised with the indexer
+    // every X seconds - i.e. eventual consistency
+    await waitForExpect(async () => {
+      const response = await client.poolpairs.getAllPaths('1', '2') // A to B
+      expect(response).toStrictEqual({
+        fromToken: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+        toToken: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+        paths: [
+          [
+            {
+              symbol: 'A-DFI',
+              poolPairId: '9',
+              priceRatio: { ab: '0.50000000', ba: '2.00000000' },
+              tokenA: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+              tokenB: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' }
+            },
+            {
+              symbol: 'B-DFI',
+              poolPairId: '10',
+              priceRatio: { ab: '0.16666666', ba: '6.00000000' },
+              tokenA: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+              tokenB: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' }
+            }
+          ]
+        ]
+      })
+    })
+  })
+
+  it('should throw error as numeric string is expected', async () => {
+    expect.assertions(2)
+    try {
+      await client.poolpairs.getAllPaths('A', 'B')
+    } catch (err: any) {
+      expect(err).toBeInstanceOf(WhaleApiException)
+      expect(err.error).toStrictEqual({
+        code: 400,
+        type: 'BadRequest',
+        at: expect.any(Number),
+        message: 'Validation failed (numeric string is expected)',
+        url: '/v0.0/regtest/poolpairs/paths/from/A/to/B'
+      })
+    }
   })
 })
