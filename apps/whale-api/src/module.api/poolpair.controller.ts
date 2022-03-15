@@ -17,6 +17,7 @@ import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpa
 import { parseDATSymbol } from '@src/module.api/token.controller'
 import { PoolSwapMapper } from '@src/module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
+import { StringIsIntegerPipe } from '@src/module.api/pipes/api.validation.pipe'
 
 @Controller('/poolpairs')
 export class PoolPairController {
@@ -161,23 +162,23 @@ export class PoolPairController {
 
   @Get('/paths/swappable/:tokenId')
   async listSwappableTokens (
-    @Param('tokenId', ParseIntPipe) tokenId: string
+    @Param('tokenId', StringIsIntegerPipe) tokenId: string
   ): Promise<AllSwappableTokensResult> {
     return await this.poolSwapPathService.getAllSwappableTokens(tokenId)
   }
 
   @Get('/paths/from/:fromTokenId/to/:toTokenId')
   async listPaths (
-    @Param('fromTokenId', ParseIntPipe) fromTokenId: string,
-      @Param('toTokenId', ParseIntPipe) toTokenId: string
+    @Param('fromTokenId', StringIsIntegerPipe) fromTokenId: string,
+      @Param('toTokenId', StringIsIntegerPipe) toTokenId: string
   ): Promise<SwapPathsResult> {
     return await this.poolSwapPathService.getAllSwapPaths(fromTokenId, toTokenId)
   }
 
   @Get('/paths/best/from/:fromTokenId/to/:toTokenId')
   async getBestPath (
-    @Param('fromTokenId', ParseIntPipe) fromTokenId: string,
-      @Param('toTokenId', ParseIntPipe) toTokenId: string
+    @Param('fromTokenId', StringIsIntegerPipe) fromTokenId: string,
+      @Param('toTokenId', StringIsIntegerPipe) toTokenId: string
   ): Promise<BestSwapPathResult> {
     return await this.poolSwapPathService.getBestPath(fromTokenId, toTokenId)
   }
