@@ -2,7 +2,14 @@ import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { BestSwapPathResult, PoolPairData, PoolSwapAggregatedData, PoolSwapData, SwapPathsResult } from '@whale-api-client/api/poolpairs'
+import {
+  AllSwappableTokensResult,
+  BestSwapPathResult,
+  PoolPairData,
+  PoolSwapAggregatedData,
+  PoolSwapData,
+  SwapPathsResult
+} from '@whale-api-client/api/poolpairs'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
 import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
@@ -150,6 +157,13 @@ export class PoolPairController {
     return ApiPagedResponse.of(result, query.size, item => {
       return `${item.bucket}`
     })
+  }
+
+  @Get('/paths/swappable/:tokenId')
+  async listSwappableTokens (
+    @Param('tokenId', ParseIntPipe) tokenId: string
+  ): Promise<AllSwappableTokensResult> {
+    return await this.poolSwapPathService.getAllSwappableTokens(tokenId)
   }
 
   @Get('/paths/from/:fromTokenId/to/:toTokenId')

@@ -283,19 +283,21 @@ describe('get best path', () => {
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
-        symbol: 'A'
+        symbol: 'A',
+        displaySymbol: 'dA'
       },
       toToken: {
         id: '0',
-        symbol: 'DFI'
+        symbol: 'DFI',
+        displaySymbol: 'DFI'
       },
       bestPath: [
         {
           symbol: 'A-DFI',
           poolPairId: '13',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '1', symbol: 'A' },
-          tokenB: { id: '0', symbol: 'DFI' }
+          tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
       estimatedReturn: '2.00000000'
@@ -308,26 +310,28 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '1',
-        symbol: 'A'
+        symbol: 'A',
+        displaySymbol: 'dA'
       },
       toToken: {
         id: '3',
-        symbol: 'C'
+        symbol: 'C',
+        displaySymbol: 'dC'
       },
       bestPath: [
         {
           symbol: 'A-DFI',
           poolPairId: '13',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '1', symbol: 'A' },
-          tokenB: { id: '0', symbol: 'DFI' }
+          tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         },
         {
           symbol: 'C-DFI',
           poolPairId: '15',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-          tokenA: { id: '3', symbol: 'C' },
-          tokenB: { id: '0', symbol: 'DFI' }
+          tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
       estimatedReturn: '0.50000000'
@@ -339,33 +343,35 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '7',
-        symbol: 'G'
+        symbol: 'G',
+        displaySymbol: 'dG'
       },
       toToken: {
         id: '3',
-        symbol: 'C'
+        symbol: 'C',
+        displaySymbol: 'dC'
       },
       bestPath: [
         {
           symbol: 'G-A',
           poolPairId: '19',
           priceRatio: { ab: '0.00000000', ba: '0.00000000' },
-          tokenA: { id: '7', symbol: 'G' },
-          tokenB: { id: '1', symbol: 'A' }
+          tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
+          tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
         },
         {
           symbol: 'A-DFI',
           poolPairId: '13',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '1', symbol: 'A' },
-          tokenB: { id: '0', symbol: 'DFI' }
+          tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         },
         {
           symbol: 'C-DFI',
           poolPairId: '15',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-          tokenA: { id: '3', symbol: 'C' },
-          tokenB: { id: '0', symbol: 'DFI' }
+          tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
+          tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
       estimatedReturn: '0.00000000'
@@ -379,26 +385,28 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
-        symbol: 'J'
+        symbol: 'J',
+        displaySymbol: 'dJ'
       },
       toToken: {
         id: '11',
-        symbol: 'K'
+        symbol: 'K',
+        displaySymbol: 'dK'
       },
       bestPath: [
         {
           symbol: 'J-L',
           poolPairId: '22',
           priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-          tokenA: { id: '10', symbol: 'J' },
-          tokenB: { id: '12', symbol: 'L' }
+          tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
+          tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
         },
         {
           symbol: 'L-K',
           poolPairId: '23',
           priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-          tokenA: { id: '12', symbol: 'L' },
-          tokenB: { id: '11', symbol: 'K' }
+          tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
+          tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
         }
       ],
       estimatedReturn: '8.00000000'
@@ -410,11 +418,13 @@ describe('get best path', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '8',
-        symbol: 'H'
+        symbol: 'H',
+        displaySymbol: 'dH'
       },
       toToken: {
         id: '1',
-        symbol: 'A'
+        symbol: 'A',
+        displaySymbol: 'dA'
       },
       bestPath: [],
       estimatedReturn: '0'
@@ -437,19 +447,21 @@ describe('get all paths', () => {
     expect(paths1).toStrictEqual({
       fromToken: {
         id: '1',
-        symbol: 'A'
+        symbol: 'A',
+        displaySymbol: 'dA'
       },
       toToken: {
         id: '0',
-        symbol: 'DFI'
+        symbol: 'DFI',
+        displaySymbol: 'DFI'
       },
       paths: [
         [
           {
-            poolPairId: '13',
             symbol: 'A-DFI',
-            tokenA: { id: '1', symbol: 'A' },
-            tokenB: { id: '0', symbol: 'DFI' },
+            poolPairId: '13',
+            tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
             priceRatio: { ab: '0.50000000', ba: '2.00000000' }
           }
         ]
@@ -463,11 +475,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '1',
-        symbol: 'A'
+        symbol: 'A',
+        displaySymbol: 'dA'
       },
       toToken: {
         id: '3',
-        symbol: 'C'
+        symbol: 'C',
+        displaySymbol: 'dC'
       },
       paths: [
         [
@@ -475,15 +489,15 @@ describe('get all paths', () => {
             symbol: 'A-DFI',
             poolPairId: '13',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '1', symbol: 'A' },
-            tokenB: { id: '0', symbol: 'DFI' }
+            tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           },
           {
             symbol: 'C-DFI',
             poolPairId: '15',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '3', symbol: 'C' },
-            tokenB: { id: '0', symbol: 'DFI' }
+            tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           }
         ]
       ]
@@ -495,11 +509,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '7',
-        symbol: 'G'
+        symbol: 'G',
+        displaySymbol: 'dG'
       },
       toToken: {
         id: '3',
-        symbol: 'C'
+        symbol: 'C',
+        displaySymbol: 'dC'
       },
       paths: [
         [
@@ -507,22 +523,22 @@ describe('get all paths', () => {
             symbol: 'G-A',
             poolPairId: '19',
             priceRatio: { ab: '0.00000000', ba: '0.00000000' },
-            tokenA: { id: '7', symbol: 'G' },
-            tokenB: { id: '1', symbol: 'A' }
+            tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
+            tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
           },
           {
             symbol: 'A-DFI',
             poolPairId: '13',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '1', symbol: 'A' },
-            tokenB: { id: '0', symbol: 'DFI' }
+            tokenA: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           },
           {
             symbol: 'C-DFI',
             poolPairId: '15',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '3', symbol: 'C' },
-            tokenB: { id: '0', symbol: 'DFI' }
+            tokenA: { id: '3', symbol: 'C', displaySymbol: 'dC' },
+            tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
           }
         ]
       ]
@@ -534,11 +550,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '9',
-        symbol: 'I'
+        symbol: 'I',
+        displaySymbol: 'dI'
       },
       toToken: {
         id: '11',
-        symbol: 'K'
+        symbol: 'K',
+        displaySymbol: 'dK'
       },
       paths: [
         [
@@ -546,22 +564,22 @@ describe('get all paths', () => {
             symbol: 'I-J',
             poolPairId: '20',
             priceRatio: { ab: '0.00000000', ba: '0.00000000' },
-            tokenA: { id: '9', symbol: 'I' },
-            tokenB: { id: '10', symbol: 'J' }
+            tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
+            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
           },
           {
             symbol: 'J-L',
             poolPairId: '22',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '10', symbol: 'J' },
-            tokenB: { id: '12', symbol: 'L' }
+            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
           },
           {
             symbol: 'L-K',
             poolPairId: '23',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '12', symbol: 'L' },
-            tokenB: { id: '11', symbol: 'K' }
+            tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ],
         [
@@ -569,15 +587,15 @@ describe('get all paths', () => {
             symbol: 'I-J',
             poolPairId: '20',
             priceRatio: { ab: '0.00000000', ba: '0.00000000' },
-            tokenA: { id: '9', symbol: 'I' },
-            tokenB: { id: '10', symbol: 'J' }
+            tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
+            tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
           },
           {
             symbol: 'J-K',
             poolPairId: '21',
             priceRatio: { ab: '0.14285714', ba: '7.00000000' },
-            tokenA: { id: '10', symbol: 'J' },
-            tokenB: { id: '11', symbol: 'K' }
+            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ]
       ]
@@ -589,11 +607,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '10',
-        symbol: 'J'
+        symbol: 'J',
+        displaySymbol: 'dJ'
       },
       toToken: {
         id: '11',
-        symbol: 'K'
+        symbol: 'K',
+        displaySymbol: 'dK'
       },
       paths: [
         [
@@ -601,15 +621,15 @@ describe('get all paths', () => {
             symbol: 'J-L',
             poolPairId: '22',
             priceRatio: { ab: '0.50000000', ba: '2.00000000' },
-            tokenA: { id: '10', symbol: 'J' },
-            tokenB: { id: '12', symbol: 'L' }
+            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '12', symbol: 'L', displaySymbol: 'dL' }
           },
           {
             symbol: 'L-K',
             poolPairId: '23',
             priceRatio: { ab: '0.25000000', ba: '4.00000000' },
-            tokenA: { id: '12', symbol: 'L' },
-            tokenB: { id: '11', symbol: 'K' }
+            tokenA: { id: '12', symbol: 'L', displaySymbol: 'dL' },
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ],
         [
@@ -617,8 +637,8 @@ describe('get all paths', () => {
             symbol: 'J-K',
             poolPairId: '21',
             priceRatio: { ab: '0.14285714', ba: '7.00000000' },
-            tokenA: { id: '10', symbol: 'J' },
-            tokenB: { id: '11', symbol: 'K' }
+            tokenA: { id: '10', symbol: 'J', displaySymbol: 'dJ' },
+            tokenB: { id: '11', symbol: 'K', displaySymbol: 'dK' }
           }
         ]
       ]
@@ -630,11 +650,13 @@ describe('get all paths', () => {
     expect(response).toStrictEqual({
       fromToken: {
         id: '8',
-        symbol: 'H'
+        symbol: 'H',
+        displaySymbol: 'dH'
       },
       toToken: {
         id: '1',
-        symbol: 'A'
+        symbol: 'A',
+        displaySymbol: 'dA'
       },
       paths: []
     })
@@ -646,5 +668,38 @@ describe('get all paths', () => {
     await expect(controller.listPaths('100', '1')).rejects.toThrowError('Unable to find token 100')
     await expect(controller.listPaths('1', '100')).rejects.toThrowError('Unable to find token 100')
     await expect(controller.listPaths('-1', '100')).rejects.toThrowError('Unable to find token -1')
+  })
+})
+
+describe('get list swappable tokens', () => {
+  it('should list correct swappable tokens', async () => {
+    const result = await controller.listSwappableTokens('1') // A
+    expect(result).toStrictEqual({
+      fromToken: { id: '1', symbol: 'A', displaySymbol: 'dA' },
+      swappableTokens: [
+        { id: '7', symbol: 'G', displaySymbol: 'dG' },
+        { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
+        { id: '24', symbol: 'USDT', displaySymbol: 'dUSDT' },
+        { id: '6', symbol: 'F', displaySymbol: 'dF' },
+        { id: '5', symbol: 'E', displaySymbol: 'dE' },
+        { id: '4', symbol: 'D', displaySymbol: 'dD' },
+        { id: '3', symbol: 'C', displaySymbol: 'dC' },
+        { id: '2', symbol: 'B', displaySymbol: 'dB' }
+      ]
+    })
+  })
+
+  it('should list no tokens for token that is not swappable with any', async () => {
+    const result = await controller.listSwappableTokens('8') // H
+    expect(result).toStrictEqual({
+      fromToken: { id: '8', symbol: 'H', displaySymbol: 'dH' },
+      swappableTokens: []
+    })
+  })
+
+  it('should throw error for invalid / non-existent tokenId', async () => {
+    await expect(controller.listSwappableTokens('-1')).rejects.toThrowError('Unable to find token -1')
+    await expect(controller.listSwappableTokens('100')).rejects.toThrowError('Unable to find token 100')
+    await expect(controller.listSwappableTokens('a')).rejects.toThrowError('Unable to find token a')
   })
 })
