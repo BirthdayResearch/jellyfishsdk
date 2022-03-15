@@ -5,9 +5,14 @@ import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
 import { AddressParser } from './saga/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
-import { AddressBalance, ActiveAddressAccountAmount } from './types'
+import { ActiveAddressAccountAmount } from './types'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
+
+export interface AddressBalance {
+  address: string
+  amount: number
+}
 
 export class RichListCore {
   isCatchingUp = false
