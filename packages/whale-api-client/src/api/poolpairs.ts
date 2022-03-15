@@ -182,44 +182,37 @@ export enum PoolSwapAggregatedInterval {
   ONE_DAY = ONE_HOUR * 24
 }
 
+export interface AllSwappableTokensResult {
+  fromToken: TokenIdentifier
+  swappableTokens: TokenIdentifier[]
+}
+
 export interface BestSwapPathResult {
-  fromToken: {
-    id: string
-    symbol: string
-  }
-  toToken: {
-    id: string
-    symbol: string
-  }
+  fromToken: TokenIdentifier
+  toToken: TokenIdentifier
   bestPath: SwapPathPoolPair[]
   estimatedReturn: string
 }
 
 export interface SwapPathsResult {
-  fromToken: {
-    id: string
-    symbol: string
-  }
-  toToken: {
-    id: string
-    symbol: string
-  }
+  fromToken: TokenIdentifier
+  toToken: TokenIdentifier
   paths: SwapPathPoolPair[][]
 }
 
 export interface SwapPathPoolPair {
   poolPairId: string
   symbol: string
-  tokenA: {
-    id: string
-    symbol: string
-  }
-  tokenB: {
-    id: string
-    symbol: string
-  }
+  tokenA: TokenIdentifier
+  tokenB: TokenIdentifier
   priceRatio: {
     ab: string
     ba: string
   }
+}
+
+export interface TokenIdentifier {
+  id: string
+  symbol: string
+  displaySymbol: string
 }
