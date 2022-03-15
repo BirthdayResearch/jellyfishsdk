@@ -31,16 +31,6 @@ describe('Loan - getLoanInfo', () => {
   let container: MasterNodeRegTestContainer
   let testing: Testing
   let collateralOracleId!: string
-  const priceFeeds = [
-    // collateral tokens, existed
-    { token: 'DFI', currency: 'USD' },
-    { token: 'BTC', currency: 'USD' },
-    { token: 'ETH', currency: 'USD' },
-
-    // to be loan tokens, haven't exist
-    { token: 'TSLA', currency: 'USD' },
-    { token: 'AMZN', currency: 'USD' }
-  ]
 
   beforeEach(async () => {
     container = new MasterNodeRegTestContainer()
@@ -53,7 +43,16 @@ describe('Loan - getLoanInfo', () => {
 
     collateralOracleId = await testing.rpc.oracle.appointOracle(
       await testing.generateAddress(),
-      priceFeeds,
+      [
+        // collateral tokens, existed
+        { token: 'DFI', currency: 'USD' },
+        { token: 'BTC', currency: 'USD' },
+        { token: 'ETH', currency: 'USD' },
+
+        // to be loan tokens, haven't exist
+        { token: 'TSLA', currency: 'USD' },
+        { token: 'AMZN', currency: 'USD' }
+      ],
       { weightage: 1 }
     )
     await testing.generate(1)
@@ -562,13 +561,7 @@ describe('Loan - getLoanInfo', () => {
 
   it('should check openAuctions to reflect auction batch count', async () => {
     // extra preps
-    const collateralOracleId2 = await testing.rpc.oracle.appointOracle(
-      await testing.generateAddress(),
-      priceFeeds,
-      { weightage: 1 }
-    )
-    await testing.generate(1)
-    await testing.rpc.oracle.setOracleData(collateralOracleId2, now(), {
+    await testing.rpc.oracle.setOracleData(collateralOracleId, now(), {
       prices: [
         { tokenAmount: '1@DFI', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
@@ -577,7 +570,7 @@ describe('Loan - getLoanInfo', () => {
         { tokenAmount: '4@AMZN', currency: 'USD' }
       ]
     })
-    await testing.generate(10)
+    await testing.generate(11)
 
     await testing.rpc.loan.setCollateralToken({
       token: 'DFI',
@@ -661,11 +654,6 @@ describe('Loan - getLoanInfo', () => {
     }
 
     await testing.rpc.oracle.setOracleData(collateralOracleId, now(), {
-      prices: [
-        { tokenAmount: '80@TSLA', currency: 'USD' }
-      ]
-    })
-    await testing.rpc.oracle.setOracleData(collateralOracleId2, now(), {
       prices: [
         { tokenAmount: '85@TSLA', currency: 'USD' }
       ]
