@@ -31,6 +31,16 @@ describe('Loan - getLoanInfo', () => {
   let container: MasterNodeRegTestContainer
   let testing: Testing
   let collateralOracleId!: string
+  const priceFeeds = [
+    // collateral tokens, existed
+    { token: 'DFI', currency: 'USD' },
+    { token: 'BTC', currency: 'USD' },
+    { token: 'ETH', currency: 'USD' },
+
+    // to be loan tokens, haven't exist
+    { token: 'TSLA', currency: 'USD' },
+    { token: 'AMZN', currency: 'USD' }
+  ]
 
   beforeEach(async () => {
     container = new MasterNodeRegTestContainer()
@@ -43,16 +53,7 @@ describe('Loan - getLoanInfo', () => {
 
     collateralOracleId = await testing.rpc.oracle.appointOracle(
       await testing.generateAddress(),
-      [
-        // collateral tokens, existed
-        { token: 'DFI', currency: 'USD' },
-        { token: 'BTC', currency: 'USD' },
-        { token: 'ETH', currency: 'USD' },
-
-        // to be loan tokens, haven't exist
-        { token: 'TSLA', currency: 'USD' },
-        { token: 'AMZN', currency: 'USD' }
-      ],
+      priceFeeds,
       { weightage: 1 }
     )
     await testing.generate(1)
@@ -559,20 +560,11 @@ describe('Loan - getLoanInfo', () => {
     }
   })
 
-  it('should count openAuctions', async () => {
+  it('should check openAuctions to reflect auction batch count', async () => {
     // extra preps
     const collateralOracleId2 = await testing.rpc.oracle.appointOracle(
       await testing.generateAddress(),
-      [
-        // collateral tokens, existed
-        { token: 'DFI', currency: 'USD' },
-        { token: 'BTC', currency: 'USD' },
-        { token: 'ETH', currency: 'USD' },
-
-        // to be loan tokens, haven't exist
-        { token: 'TSLA', currency: 'USD' },
-        { token: 'AMZN', currency: 'USD' }
-      ],
+      priceFeeds,
       { weightage: 1 }
     )
     await testing.generate(1)
@@ -683,6 +675,7 @@ describe('Loan - getLoanInfo', () => {
     { // After
       const auctions = await testing.container.call('listauctions')
       expect(auctions.length).toStrictEqual(1)
+      expect(auctions[0].batchCount).toStrictEqual(10)
 
       const data = await testing.rpc.loan.getLoanInfo()
       expect(data).toStrictEqual({
