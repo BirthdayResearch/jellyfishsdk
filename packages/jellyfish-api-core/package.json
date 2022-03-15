@@ -18,6 +18,10 @@
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./category/*": "./dist/category/*.js"
+  },
   "scripts": {
     "build": "tsc -b ./tsconfig.build.json"
   },
