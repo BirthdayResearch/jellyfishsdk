@@ -2,7 +2,7 @@ import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { QueueClient, Queue } from './lib/Queue'
 import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
-import { AddressParser } from './controller/AddressParser'
+import { AddressParser } from './saga/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
 import { AddressBalance, ActiveAddressAccountAmount } from './types'

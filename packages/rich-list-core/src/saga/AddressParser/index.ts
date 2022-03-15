@@ -4,7 +4,7 @@ import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/AccountToUtxos'
-import { UtxoAddressParser } from './utxo'
+import { UtxoAddressParser } from './UtxoAddressParser'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
