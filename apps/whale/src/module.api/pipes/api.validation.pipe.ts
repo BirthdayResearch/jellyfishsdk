@@ -1,4 +1,4 @@
-import { HttpStatus, ValidationError, ValidationPipe } from '@nestjs/common'
+import { ArgumentMetadata, HttpStatus, ParseIntPipe, ValidationError, ValidationPipe } from '@nestjs/common'
 import { ApiErrorType, ApiException } from '@src/module.api/_core/api.error'
 
 export class ApiValidationPipe extends ValidationPipe {
@@ -54,5 +54,14 @@ export class ValidationApiException extends ApiException {
       constraints: mapConstraints(),
       properties: mapProperties()
     }
+  }
+}
+
+export class StringIsIntegerPipe extends ValidationPipe {
+  parseIntPipe = new ParseIntPipe()
+
+  async transform (value: string, metadata: ArgumentMetadata): Promise<string> {
+    await this.parseIntPipe.transform(value, metadata) // throws error if value is not a numeric string
+    return value
   }
 }
