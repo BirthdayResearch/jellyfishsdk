@@ -1,4 +1,4 @@
-import { BigNumber, RpcApiError } from '@defichain/jellyfish-api-core'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
@@ -74,39 +74,12 @@ describe('Masternode', () => {
 describe('Masternode setGov ATTRIBUTES', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
-  const loanSchemeId = 'scheme'
   const attributeKey = 'ATTRIBUTES'
-  const dusdLoanAmount = 5000
   let key: string
 
-  async function setupForDUSDLoan (): Promise<void> {
-    const vaultOwnerAddress = await testing.generateAddress()
-    await testing.token.dfi({ amount: 1000000, address: vaultOwnerAddress })
-    await testing.generate(1)
-
-    // setup oracle
-    const oracleAddress = await testing.generateAddress()
-    const priceFeeds = [
-      { token: 'DFI', currency: 'USD' },
-      { token: 'TSLA', currency: 'USD' },
-      { token: 'DUSD', currency: 'USD' }
-    ]
-
-    const oracleId = await testing.rpc.oracle.appointOracle(oracleAddress, priceFeeds, { weightage: 1 })
-    await testing.generate(1)
-    const timestamp = Math.floor(new Date().getTime() / 1000)
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DFI', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1000@TSLA', currency: 'USD' }] })
-    await testing.rpc.oracle.setOracleData(oracleId, timestamp, { prices: [{ tokenAmount: '1@DUSD', currency: 'USD' }] })
-    await testing.generate(1)
-
-    // setup collateral token
-    await testing.rpc.loan.setCollateralToken({
-      token: 'DFI',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'DFI/USD'
-    })
-    await testing.generate(1)
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
 
     // setup loan token
     await testing.rpc.loan.setLoanToken({
@@ -115,55 +88,24 @@ describe('Masternode setGov ATTRIBUTES', () => {
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-
-    // setup loan scheme
-    await testing.rpc.loan.createLoanScheme({
-      minColRatio: 150,
-      interestRate: new BigNumber(3),
-      id: loanSchemeId
-    })
+    const address = await container.call('getnewaddress')
+    const metadata = {
+      symbol: 'BTC',
+      name: 'BTC Token',
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await testing.rpc.token.createToken(metadata)
     await testing.generate(1)
 
-    // create vault
-    const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: vaultOwnerAddress,
-      loanSchemeId: loanSchemeId
-    })
-
-    await testing.generate(1)
-    await testing.container.waitForPriceValid('DFI/USD')
-
-    // deposite collateral
-    await testing.rpc.loan.depositToVault({
-      vaultId: vaultId,
-      from: vaultOwnerAddress,
-      amount: '100000@DFI'
-    })
-    await testing.generate(1)
-
-    // take DUSD as loan
-    await testing.rpc.loan.takeLoan({
-      vaultId: vaultId,
-      amounts: `${dusdLoanAmount}@DUSD`,
-      to: vaultOwnerAddress
-    })
-    await testing.generate(1)
-  }
-
-  beforeEach(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setupForDUSDLoan()
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId = Object.keys(dusdInfo)[0]
     key = `v0/token/${dusdId}`
   })
 
-  afterEach(async () => {
+  afterAll(async () => {
     await testing.container.stop()
   })
 

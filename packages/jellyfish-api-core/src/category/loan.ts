@@ -602,17 +602,24 @@ export interface TakeLoanMetadata {
   to?: string
 }
 
+export interface PaybackLoanMetadataV1 {
+  vaultId: string
+  amounts: string | string[] // amount@symbol
+  from: string
+}
+
 export interface TokenPaybackAmount {
   dToken: string
   amounts: string | string[] // amount@symbol
 }
 
-export interface PaybackLoanMetadata {
+export interface PaybackLoanMetadataV2 {
   vaultId: string
-  amounts?: string | string[] // amount@symbol
   from: string
-  loans?: TokenPaybackAmount[]
+  loans: TokenPaybackAmount[]
 }
+
+export type PaybackLoanMetadata = PaybackLoanMetadataV1 | PaybackLoanMetadataV2
 
 export interface VaultPagination {
   start?: string

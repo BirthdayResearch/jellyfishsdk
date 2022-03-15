@@ -1544,8 +1544,7 @@ describe('paybackloan for any token', () => {
     const dusdLoanRemainingAfterFirstPayback = new BigNumber(dusdLoanAmount).minus(dusdLoanPayback)
 
     // Let some time, generate blocks
-    await testing.generate(1)
-    await testing.generate(1)
+    await testing.generate(2)
 
     const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
     const dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(blockHeightAfter - paybackLoanBlockHeight)
@@ -1605,8 +1604,7 @@ describe('paybackloan for any token', () => {
     const dusdLoanRemainingAfterFirstPayback = new BigNumber(dusdLoanAmount).minus(dusdLoanPayback)
 
     // Let some time, generate blocks
-    await testing.generate(1)
-    await testing.generate(1)
+    await testing.generate(2)
 
     const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
     const dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(blockHeightAfter - paybackLoanBlockHeight)
@@ -1654,8 +1652,7 @@ describe('paybackloan for any token', () => {
     const tslaLoanRemainingAfterFirstPayback = new BigNumber(tslaLoanAmount).minus(tslaLoanPayback)
 
     // Let some time, generate blocks
-    await testing.generate(1)
-    await testing.generate(1)
+    await testing.generate(2)
 
     const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
     const tslaInterestAmountAfter = tslaInterestPerBlockAfter.multipliedBy(blockHeightAfter - paybackLoanBlockHeight)
