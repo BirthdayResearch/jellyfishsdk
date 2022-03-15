@@ -1,5 +1,5 @@
 import { Controller, Get, Query } from '@nestjs/common'
-import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
+import { TokenData } from '@defichain/whale-api-client/src/api/Tokens'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 
