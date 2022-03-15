@@ -6,7 +6,7 @@ import { CentralisedIndexerStubServer } from './CentralisedIndexerStubServer'
 import { DynamoDbContainer } from './containers/DynamoDbContainer'
 
 /**
- * OceanApi Testing framework.
+ * Centralised Indexer testing framework. Contains the core components required for writing e2e tests.
  */
 export class CentralisedIndexerTesting {
   constructor (
