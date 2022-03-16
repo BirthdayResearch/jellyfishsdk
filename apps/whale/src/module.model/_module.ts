@@ -1,3 +1,4 @@
+
 import { Global, Module } from '@nestjs/common'
 import { ModelProbeIndicator } from '@src/module.model/_model.probes'
 import { RawBlockMapper } from '@src/module.model/raw.block'
@@ -9,6 +10,7 @@ import { TransactionMapper } from '@src/module.model/transaction'
 import { TransactionVinMapper } from '@src/module.model/transaction.vin'
 import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
 import { OracleHistoryMapper } from '@src/module.model/oracle.history'
+import { OraclePriceAggregatedIntervalMapper } from '@src/module.model/oracle.price.aggregated.interval'
 import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
 import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
@@ -38,6 +40,7 @@ import { PoolSwapMapper } from './pool.swap'
     TransactionVoutMapper,
     OracleHistoryMapper,
     OraclePriceAggregatedMapper,
+    OraclePriceAggregatedIntervalMapper,
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
@@ -64,6 +67,7 @@ import { PoolSwapMapper } from './pool.swap'
     TransactionVoutMapper,
     OracleHistoryMapper,
     OraclePriceAggregatedMapper,
+    OraclePriceAggregatedIntervalMapper,
     OraclePriceFeedMapper,
     OracleTokenCurrencyMapper,
     OracleMapper,
