@@ -1,4 +1,4 @@
-import { Method, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client'
+import { ApiMethod, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client'
 
 /**
  * a Stubbed WhaleApiClient for test purpose.
@@ -10,7 +10,7 @@ export class StubbedWhaleApiClient extends WhaleApiClient {
     super({ url: 'stubbed' })
   }
 
-  async requestAsString (method: Method, path: string, body?: string): Promise<ResponseAsString> {
+  async requestAsString (method: ApiMethod, path: string, body?: string): Promise<ResponseAsString> {
     const pathComponent = path.split('/')
 
     if (method === 'GET' && pathComponent[0] === 'address' && pathComponent[2] === 'balance') {

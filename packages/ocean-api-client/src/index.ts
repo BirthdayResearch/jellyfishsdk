@@ -1,3 +1,5 @@
+export * from './apis/RawTx'
+
 export * from './errors/ApiException'
 export * from './errors/ApiValidationException'
 export * from './errors/ClientException'
