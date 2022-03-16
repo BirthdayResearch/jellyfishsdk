@@ -3,7 +3,7 @@ module.exports = {
   testRegex: '((\\.|/)(e2e|test|spec))\\.[jt]sx?$',
   testSequencer: require.resolve('./jest.sequencer'),
   moduleNameMapper: {
-    '@defichain/(?!whale-api-client)(.*)': '<rootDir>/packages/$1/src',
+    '@defichain/(.*)': '<rootDir>/packages/$1/src',
 
     // apps
     '@defichain-apps/libs/(.*)': '<rootDir>/apps/libs/$1/src'

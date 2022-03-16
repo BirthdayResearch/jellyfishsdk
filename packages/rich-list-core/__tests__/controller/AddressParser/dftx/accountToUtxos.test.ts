@@ -1,16 +1,14 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { AddressParser } from '../../../../src/controller/AddressParser'
+import { AddressParser } from '../../../../src/saga/AddressParser'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('AccountToUtxosParser', () => {
   const container = new MasterNodeRegTestContainer()
   let apiClient!: JsonRpcClient
 
-  let sender!: string
-  let rec1!: string
-  let rec2!: string
-  let rec3!: string
+  const testing = Testing.create(container)
   let rawTx!: RawTransaction
 
   beforeAll(async () => {
@@ -18,10 +16,10 @@ describe('AccountToUtxosParser', () => {
     await container.waitForWalletCoinbaseMaturity()
     apiClient = new JsonRpcClient(await container.getCachedRpcUrl())
 
-    sender = await container.getNewAddress()
-    rec1 = await container.getNewAddress()
-    rec2 = await container.getNewAddress()
-    rec3 = await container.getNewAddress()
+    const sender = await testing.address('sender')
+    const rec1 = await testing.address('rec1')
+    const rec2 = await testing.address('rec2')
+    const rec3 = await testing.address('rec3')
 
     // fund send address
     await apiClient.wallet.sendMany({ [sender]: 1 })
@@ -43,9 +41,9 @@ describe('AccountToUtxosParser', () => {
     const addresses = await parser.parse(rawTx)
 
     expect(addresses.length).toBeGreaterThanOrEqual(4)
-    expect(addresses).toContain(sender)
-    expect(addresses).toContain(rec1)
-    expect(addresses).toContain(rec2)
-    expect(addresses).toContain(rec3)
+    expect(addresses).toContain(await testing.address('sender'))
+    expect(addresses).toContain(await testing.address('rec1'))
+    expect(addresses).toContain(await testing.address('rec2'))
+    expect(addresses).toContain(await testing.address('rec3'))
   })
 })
