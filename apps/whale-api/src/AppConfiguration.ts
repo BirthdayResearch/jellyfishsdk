@@ -1,0 +1,20 @@
+/**
+ * AppConfiguration declares a dictionary for a deeply configurable DeFi whale setup.
+ * `process.env` resolves env variable at service initialization and allows setting of default.
+ * This configuration can be injected/replaced at runtime by overriding provider 'ConfigService' or
+ * replacing the config module.
+ */
+export function AppConfiguration (): any {
+  return {
+    IS_PROD: process.env.NODE_ENV === 'production',
+    /**
+     * Allows you to override whale endpoint version.
+     */
+    API_VERSION: process.env.WHALE_VERSION,
+    API_NETWORK: process.env.WHALE_NETWORK,
+    BLOCKCHAIN_CPP_URL: process.env.WHALE_DEFID_URL,
+    // Provider can only be set via environmental variable
+    DATABASE_PROVIDER: process.env.WHALE_DATABASE_PROVIDER,
+    DATABASE_LEVEL_LOCATION: process.env.WHALE_DATABASE_LEVEL_LOCATION
+  }
+}
