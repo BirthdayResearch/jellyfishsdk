@@ -8,20 +8,19 @@ import { ApiMethod, ResponseAsString, WhaleApiClient } from '@defichain/whale-ap
 export class StubbedWhaleApiClient extends WhaleApiClient {
   constructor () {
     super({ url: 'stubbed' })
+    this.stubMethods()
   }
 
   async requestAsString (method: ApiMethod, path: string, body?: string): Promise<ResponseAsString> {
-    const pathComponent = path.split('/')
+    // stub the api method thus test case logic should not reach this point
+    throw new Error(`Endpoint "${method}/${path}" not stubbed for test`)
+  }
 
-    if (method === 'GET' && pathComponent[0] === 'address' && pathComponent[2] === 'balance') {
+  private stubMethods (): void {
+    this.address.getBalance = async (address: string): Promise<string> => {
       const power = Math.round(Math.random() * 4)
       const coef = Math.random()
-      return {
-        status: 200,
-        body: JSON.stringify({ data: `${coef * Math.pow(10, power)}` })
-      }
+      return `${coef * Math.pow(10, power)}`
     }
-
-    throw new Error(`Endpoint "${path}" not stubbed for test`)
   }
 }
