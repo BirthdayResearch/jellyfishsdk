@@ -69,6 +69,10 @@ export const DexSwapSchema = new Schema({
   }
 })
 
+const fetchAttrs = DexSwapSchema
+  .attributes()
+  .filter(attr => !attr.startsWith('_'))
+
 @Injectable()
 export class DexSwapService {
   constructor (
@@ -86,13 +90,12 @@ export class DexSwapService {
   }
 
   async get (id: string): Promise<DexSwap | undefined> {
-    const dexSwap = await this.model.get({ id })
+    const dexSwap = await this.model.get({ id }, { attributes: fetchAttrs, return: 'document' })
 
     if (dexSwap === undefined) {
       return undefined
     }
 
-    delete dexSwap._fixedPartitionKey
     return {
       ...dexSwap,
       fromAmount: new BigNumber(dexSwap.fromAmount),
@@ -101,7 +104,7 @@ export class DexSwapService {
   }
 
   async delete (id: string): Promise<void> {
-    const dexSwap = await this.model.get({ id })
+    const dexSwap = await this.model.get({ id }, { attributes: ['id'], return: 'document' })
     if (dexSwap === undefined) {
       throw new NotFoundException('Attempt to delete non-existent dexSwap')
     }

@@ -68,6 +68,9 @@ export const TokenSchema = new Schema({
   }
 })
 
+const fetchAttrs = TokenSchema.attributes()
+  .filter(attr => !attr.startsWith('_'))
+
 @Injectable()
 export class TokenService {
   constructor (
@@ -81,16 +84,15 @@ export class TokenService {
   }
 
   async get (id: number): Promise<Token | undefined> {
-    const token = await this.model.get({ id })
+    const token = await this.model.get({ id }, { attributes: fetchAttrs, return: 'document' })
     if (token === undefined) {
       return undefined
     }
-    delete token._fixedPartitionKey
     return token
   }
 
   async delete (id: number): Promise<void> {
-    const token = this.model.get({ id })
+    const token = this.model.get({ id }, { attributes: ['id'], return: 'document' })
     if (token === undefined) {
       return
     }

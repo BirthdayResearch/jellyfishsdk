@@ -87,9 +87,8 @@ export const BlockSchema = new Schema({
   }
 })
 
-function getBlockKey (block: Block): BlockKey {
-  return { hash: block.hash }
-}
+const fetchAttrs = BlockSchema.attributes()
+  .filter(attr => !attr.startsWith('_'))
 
 @Injectable()
 export class BlockService {
@@ -104,12 +103,12 @@ export class BlockService {
   }
 
   async getByHash (hash: string): Promise<Block | undefined> {
-    const block = await this.model.query('hash').eq(hash).limit(1).exec()
+    const block = await this.model.query('hash').eq(hash).limit(1).attributes(fetchAttrs).exec()
     return block[0]
   }
 
   async getByHeight (height: number): Promise<Block | undefined> {
-    const blocks = await this.model.query('height').eq(height).exec()
+    const blocks = await this.model.query('height').eq(height).attributes(fetchAttrs).exec()
     return blocks[0] ?? undefined
   }
 
@@ -119,6 +118,7 @@ export class BlockService {
       .using('height-sorted-list-index')
       .sort(SortOrder.descending)
       .limit(1)
+      .attributes(fetchAttrs)
       .exec()
     if (blocks.length === 0) {
       return undefined
@@ -127,10 +127,10 @@ export class BlockService {
   }
 
   async delete (hash: string): Promise<void> {
-    const block = await this.model.get({ hash: hash })
+    const block = await this.model.get({ hash: hash }, { attributes: ['hash'], return: 'document' })
     if (block === undefined) {
       throw new NotFoundException('Attempt to delete non-existent block')
     }
-    await this.model.delete(getBlockKey(block))
+    await this.model.delete({ hash: block.hash })
   }
 }
