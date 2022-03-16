@@ -1,5 +1,5 @@
-import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
-import { WhaleApiClient } from '@defichain/whale-api-client'
+import { BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
+import { WhaleApiClient, WhaleRpcClient } from '@defichain/whale-api-client'
 import { QueueClient, Queue } from './lib/Queue'
 import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
 import { AddressParser } from './saga/AddressParser'
@@ -21,14 +21,14 @@ export class RichListCore {
 
   constructor (
     private readonly network: NetworkName,
-    private readonly apiClient: ApiClient,
+    private readonly whaleRpcClient: WhaleRpcClient,
     private readonly whaleApiClient: WhaleApiClient,
     readonly addressBalances: SingleIndexDb<AddressBalance>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
   ) {
-    this.addressParser = new AddressParser(apiClient, network)
+    this.addressParser = new AddressParser(whaleRpcClient, network)
   }
 
   setRichListLength (length: number): void {
@@ -91,8 +91,8 @@ export class RichListCore {
 
   private async _getBlock (height: number): Promise<defid.Block<defid.Transaction> | undefined> {
     try {
-      const bh = await this.apiClient.blockchain.getBlockHash(height)
-      return await this.apiClient.blockchain.getBlock(bh, 2)
+      const bh = await this.whaleRpcClient.blockchain.getBlockHash(height)
+      return await this.whaleRpcClient.blockchain.getBlock(bh, 2)
     } catch (err: any) {
       if (err?.payload?.message === 'Block height out of range') {
         return undefined
@@ -175,7 +175,7 @@ export class RichListCore {
 
     const balances: Record<string, AccountAmount> = {}
     for (const a of addresses) {
-      const nonZeroBalances = await this.apiClient.account.getTokenBalances(
+      const nonZeroBalances = await this.whaleRpcClient.account.getTokenBalances(
         { limit: Number.MAX_SAFE_INTEGER },
         true
       ) as any as AccountAmount
@@ -221,7 +221,7 @@ export class RichListCore {
   }
 
   private async _listTokenIds (): Promise<number[]> {
-    const tokens = await this.apiClient.token.listTokens()
+    const tokens = await this.whaleRpcClient.token.listTokens()
     return Object.keys(tokens).map(id => Number(id)).concat([-1])
   }
 

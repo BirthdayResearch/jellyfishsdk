@@ -1,24 +1,25 @@
 import { OP_DEFI_TX, OPCode, DfTx, toOPCodes } from '@defichain/jellyfish-transaction'
-import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
+import { blockchain as defid } from '@defichain/jellyfish-api-core'
 import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/AccountToUtxos'
 import { UtxoAddressParser } from './UtxoAddressParser'
+import { WhaleRpcClient } from '@defichain/whale-api-client'
 
 export class AddressParser {
   private readonly dftxs: Array<DfTxAddressParser<any>>
   private readonly utxo: UtxoAddressParser
 
   constructor (
-    private readonly apiClient: ApiClient,
+    private readonly rpcClient: WhaleRpcClient,
     private readonly network: NetworkName
   ) {
     this.dftxs = [
       new AccountToUtxosParser(network)
       // TODO(@ivan-zynesis): add ALL
     ]
-    this.utxo = new UtxoAddressParser(apiClient)
+    this.utxo = new UtxoAddressParser(rpcClient)
   }
 
   async parse (txn: defid.Transaction): Promise<string[]> {
