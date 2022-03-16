@@ -38,11 +38,10 @@ export class OceanApiClient {
     protected readonly options: OceanApiClientOptions
   ) {
     this.options = {
-      url: 'https://ocean.defichain.com',
-      timeout: 60000,
-      version: 'v1',
-      network: 'mainnet',
-      ...options
+      url: options.url ?? 'https://ocean.defichain.com',
+      timeout: options.timeout === undefined ? 60000 : options.timeout,
+      version: options.version ?? 'v1',
+      network: options.network ?? 'mainnet'
     }
     this.options.url = this.options.url?.replace(/\/$/, '')
   }
