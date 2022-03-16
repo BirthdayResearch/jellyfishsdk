@@ -11,21 +11,6 @@ const client = new RichListApiClient({
 describe('RichListApiClient - get', () => {
   it('Should be able to retrieve latest rich list', async () => {
     nock('http://rich-list-api-test.internal')
-      .get('/v0/unit-test/foo')
-      .reply(200, function () {
-        return {
-          data: {
-            bar: ['1', '2']
-          }
-        }
-      })
-
-    const result = await client.requestData('GET', 'foo')
-    await expect(result).toStrictEqual({
-      bar: ['1', '2']
-    })
-
-    nock('http://rich-list-api-test.internal')
       .get('/v0/unit-test/rich-list/1')
       .reply(200, function () {
         return {
