@@ -1,4 +1,20 @@
 import { ApiClient, token } from '..'
+import {
+  AuctionPagination,
+  CloseVault,
+  CreateVault,
+  DepositVault,
+  ListAuctionHistoryDetail,
+  ListAuctionHistoryPagination,
+  ListVaultOptions,
+  PlaceAuctionBid,
+  UpdateVault,
+  Vault,
+  VaultActive,
+  VaultLiquidation,
+  VaultPagination,
+  WithdrawVault
+} from './vault'
 import BigNumber from 'bignumber.js'
 
 /**
@@ -244,6 +260,199 @@ export class Loan {
    */
   async paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('paybackloan', [metadata, utxos], 'number')
+  }
+
+  // --- Deprecated vault methods---
+  /**
+     * Creates a vault transaction.
+     *
+     * @deprecated Vault methods are moving to dedicated vault category
+     * @param {CreateVault} vault
+     * @param {string} vault.ownerAddress Any valid address or "" to generate a new address
+     * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max). If empty, the default loan scheme will be selected
+     * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+     * @param {string} utxos.txid Transaction Id
+     * @param {number} utxos.vout Output number
+     * @return {Promise<string>} Transaction id of the transaction
+     */
+  async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
+  }
+
+  /**
+   * Create update vault transaction.
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {string} vaultId
+   * @param {UpdateVault} vault
+   * @param {string} [vault.ownerAddress] Any valid address
+   * @param {string} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max)
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
+  async updateVault (vaultId: string, vault: UpdateVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('updatevault', [vaultId, vault, utxos], 'number')
+  }
+
+  /**
+   * Returns information about vault.
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {string} vaultId vault hex id
+   * @return {Promise<VaultActive | VaultLiquidation>}
+   */
+  async getVault (vaultId: string): Promise<VaultActive | VaultLiquidation> {
+    return await this.client.call(
+      'getvault',
+      [vaultId],
+      {
+        collateralValue: 'bignumber',
+        loanValue: 'bignumber',
+        interestValue: 'bignumber',
+        informativeRatio: 'bignumber'
+      }
+    )
+  }
+
+  /**
+   * List all available vaults.
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {VaultPagination} [pagination]
+   * @param {string} [pagination.start]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @param {ListVaultOptions} [options]
+   * @param {string} [options.ownerAddress] Address of the vault owner
+   * @param {string} [options.loanSchemeId] Vault's loan scheme id
+   * @param {VaultState} [options.state = VaultState.UNKNOWN] vault's state
+   * @param {boolean} [options.verbose = false] true to return same information as getVault
+   * @return {Promise<Vault | VaultActive | VaultLiquidation[]>} Array of objects including details of the vaults.
+   * @deprecated
+   */
+  async listVaults (pagination: VaultPagination = {}, options: ListVaultOptions = {}): Promise<Array<Vault | VaultActive | VaultLiquidation>> {
+    return await this.client.call(
+      'listvaults',
+      [options, pagination],
+      {
+        collateralValue: 'bignumber',
+        loanValue: 'bignumber',
+        interestValue: 'bignumber',
+        informativeRatio: 'bignumber'
+      }
+    )
+  }
+
+  /**
+   * Close vault
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {CloseVault} closeVault
+   * @param {string} closeVault.vaultId Vault id
+   * @param {string} closeVault.to Valid address to receive collateral tokens
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async closeVault (closeVault: CloseVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('closevault', [closeVault.vaultId, closeVault.to, utxos], 'number')
+  }
+
+  /**
+   * Deposit to vault
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {DepositVault} depositVault
+   * @param {string} depositVault.vaultId Vault id
+   * @param {string} depositVault.from Collateral address
+   * @param {string} depositVault.amount In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async depositToVault (depositVault: DepositVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('deposittovault', [depositVault.vaultId, depositVault.from, depositVault.amount, utxos], 'number')
+  }
+
+  /**
+   * Withdraw from vault
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {WithdrawVault} withdrawVault
+   * @param {string} withdrawVault.vaultId Vault id
+   * @param {string} withdrawVault.to Collateral address
+   * @param {string} withdrawVault.amount In "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>}
+   */
+  async withdrawFromVault (withdrawVault: WithdrawVault, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('withdrawfromvault', [withdrawVault.vaultId, withdrawVault.to, withdrawVault.amount, utxos], 'number')
+  }
+
+  /**
+   * Bid to vault in auction
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {PlaceAuctionBid} placeAuctionBid
+   * @param {string} placeAuctionBid.vaultId Vault Id
+   * @param {index} placeAuctionBid.index Auction index
+   * @param {from} placeAuctionBid.from Address to get token
+   * @param {amount} placeAuctionBid.amount in "amount@symbol" format
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} The transaction id
+   */
+  async placeAuctionBid (placeAuctionBid: PlaceAuctionBid, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call(
+      'placeauctionbid',
+      [placeAuctionBid.vaultId, placeAuctionBid.index, placeAuctionBid.from, placeAuctionBid.amount, utxos],
+      'number'
+    )
+  }
+
+  /**
+   * List all available auctions.
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {AuctionPagination} pagination
+   * @param {AuctionPaginationStart} [pagination.start]
+   * @param {string} [pagination.start.vaultId]
+   * @param {number} [pagination.start.height]
+   * @param {boolean} [pagination.including_start]
+   * @param {number} [pagination.limit=100]
+   * @return {Promise<VaultLiquidation[]>}
+   */
+  async listAuctions (pagination: AuctionPagination = {}): Promise<VaultLiquidation[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctions', [{ ...defaultPagination, ...pagination }], 'number')
+  }
+
+  /**
+   * Returns information about auction history.
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {string} [owner] address or reserved word : mine / all (Default to mine)
+   * @param {ListAuctionHistoryPagination} pagination
+   * @param {number} [pagination.maxBlockHeight] Maximum block height
+   * @param {string} [pagination.vaultId] Vault Id
+   * @param {number} [pagination.index] Auction index
+   * @param {number} [pagination.limit = 100]
+   * @return {Promise<ListAuctionHistoryDetail>}
+   */
+  async listAuctionHistory (owner: string = 'mine', pagination?: ListAuctionHistoryPagination): Promise<ListAuctionHistoryDetail[]> {
+    const defaultPagination = {
+      limit: 100
+    }
+    return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
   }
 }
 
