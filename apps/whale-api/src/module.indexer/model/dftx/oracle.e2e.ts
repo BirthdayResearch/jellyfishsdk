@@ -7,6 +7,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
 import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
+import { OracleIntervalSeconds, OraclePriceAggregatedIntervalMapper } from '@src/module.model/oracle.price.aggregated.interval'
 
 describe('invalidate appoint/remove/update oracle', () => {
   const container = new MasterNodeRegTestContainer()
@@ -364,5 +365,130 @@ describe('invalidate set oracle data', () => {
       const as2 = await app.get(OraclePriceAggregatedMapper).query('S2-USD2', Number.MAX_SAFE_INTEGER)
       expect(as2.length).toStrictEqual(1)
     }
+  })
+})
+
+describe('interval set oracle data', () => {
+  const container = new MasterNodeRegTestContainer()
+  let app: NestFastifyApplication
+  let client: JsonRpcClient
+
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+
+    app = await createTestingApp(container)
+    client = new JsonRpcClient(await container.getCachedRpcUrl())
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should get interval', async () => {
+    const address = await container.getNewAddress()
+    const oracleId = await client.oracle.appointOracle(address, [
+      {
+        token: 'S1',
+        currency: 'USD'
+      }
+    ], {
+      weightage: 1
+    })
+    await container.generate(1)
+
+    const oneMinute = 60
+    let price = 0
+    let mockTime = Math.floor(new Date().getTime() / 1000)
+    for (let h = 0; h < 24; h++) { // loop for 24 hours to make a day
+      for (let z = 0; z < 4; z++) { // loop for 4 x 15 mins interval to make an hour
+        mockTime += (15 * oneMinute) + 1 // +1 sec to fall into the next 15 mins bucket
+        await client.misc.setMockTime(mockTime)
+        await container.generate(2)
+
+        await client.oracle.setOracleData(oracleId, mockTime, {
+          prices: [
+            {
+              tokenAmount: `${(++price).toFixed(2)}@S1`,
+              currency: 'USD'
+            }
+          ]
+        })
+        await container.generate(1)
+      }
+    }
+
+    const height = await container.getBlockCount()
+    await container.generate(1)
+    await waitForIndexedHeight(app, height)
+
+    const noInterval = await app.get(OraclePriceAggregatedMapper).query('S1-USD', Number.MAX_SAFE_INTEGER)
+    expect(noInterval.length).toStrictEqual(96)
+
+    const interval15Mins = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.FIFTEEN_MINUTES}`, Number.MAX_SAFE_INTEGER)
+    expect(interval15Mins.length).toStrictEqual(96)
+    let prevMedianTime = 0
+    let checkPrice = price
+    interval15Mins.forEach(value => {
+      expect(value.aggregated.amount).toStrictEqual(checkPrice.toFixed(8)) // check if price is descending in intervals of 1
+      checkPrice--
+      if (prevMedianTime !== 0) { // check if time interval is in 15 mins block
+        expect(prevMedianTime - value.block.medianTime - 1).toStrictEqual(OracleIntervalSeconds.FIFTEEN_MINUTES) // account for +1 in mock time
+      }
+      prevMedianTime = value.block.medianTime
+    })
+
+    const interval1Hour = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.ONE_HOUR}`, Number.MAX_SAFE_INTEGER)
+    expect(interval1Hour.length).toStrictEqual(24)
+    prevMedianTime = 0
+    interval1Hour.forEach(value => { // check if time interval is in 1-hour block
+      if (prevMedianTime !== 0) {
+        expect(prevMedianTime - value.block.medianTime - 4).toStrictEqual(OracleIntervalSeconds.ONE_HOUR) // account for + 1 per block in mock time
+      }
+      prevMedianTime = value.block.medianTime
+    })
+    expect(interval1Hour.map(x => x.aggregated.amount)).toStrictEqual(
+      [
+        '94.50000000',
+        '90.50000000',
+        '86.50000000',
+        '82.50000000',
+        '78.50000000',
+        '74.50000000',
+        '70.50000000',
+        '66.50000000',
+        '62.50000000',
+        '58.50000000',
+        '54.50000000',
+        '50.50000000',
+        '46.50000000',
+        '42.50000000',
+        '38.50000000',
+        '34.50000000',
+        '30.50000000',
+        '26.50000000',
+        '22.50000000',
+        '18.50000000',
+        '14.50000000',
+        '10.50000000',
+        '6.50000000',
+        '2.50000000'
+      ]
+    )
+
+    const interval1Day = await app.get(OraclePriceAggregatedIntervalMapper).query(`S1-USD-${OracleIntervalSeconds.ONE_DAY}`, Number.MAX_SAFE_INTEGER)
+    expect(interval1Day.length).toStrictEqual(1)
+    prevMedianTime = 0
+    interval1Day.forEach(value => { // check if time interval is in 1-day block
+      if (prevMedianTime !== 0) {
+        expect(prevMedianTime - value.block.medianTime - 96).toStrictEqual(OracleIntervalSeconds.ONE_DAY) // account for + 1 per block in mock time
+      }
+      prevMedianTime = value.block.medianTime
+    })
+    expect(interval1Day.map(x => x.aggregated.amount)).toStrictEqual(
+      [
+        '48.50000000'
+      ]
+    )
   })
 })
