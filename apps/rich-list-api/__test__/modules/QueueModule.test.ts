@@ -8,7 +8,7 @@ let app!: TestingModule
 let queueService: QueueService
 let postgres!: StartedTestContainer
 
-describe('LIFO', () => {
+describe('Queue Module', () => {
   beforeAll(async () => {
     postgres = await new GenericContainer('postgres')
       .withEnv('POSTGRES_USER', 'test')
