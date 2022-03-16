@@ -1,14 +1,13 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { waitForCondition } from '@defichain/testcontainers'
-import { InMemoryDatabase, InMemoryQueueClient } from '../src/lib'
-import { CrawledBlock, RichListCore } from '../src/RichListCore'
-import { AddressBalance } from '../src/types'
+import { InMemoryDatabase, InMemoryQueueClient } from '../src/persistent'
+import { AddressBalance, CrawledBlock, RichListCore } from '../src/RichListCore'
 import { StubbedWhaleApiClient } from './StubbedWhaleClient'
 
 export function RichListCoreTest (apiClient: JsonRpcClient): RichListCore {
   return new RichListCore(
     'regtest',
-    apiClient,
+    apiClient, // using defid rpc directly for test instead of exposed via whale
     new StubbedWhaleApiClient(),
     new InMemoryDatabase<AddressBalance>(),
     new InMemoryDatabase<CrawledBlock>(),

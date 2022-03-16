@@ -1,11 +1,13 @@
 {
   "private": true,
-  "name": "@defichain/rich-list-core",
+  "name": "@defichain/whale-api-wallet",
   "version": "0.0.0",
-  "description": "A modular library to compute DeFiChain rich list with persistence storage provider injected.",
+  "description": "Using whale-api-client with jellyfish-wallet with DeFi light wallet implementation.",
   "keywords": [
     "DeFiChain",
     "DeFi",
+    "DeFi Whale",
+    "Whale",
     "Blockchain",
     "API",
     "Bitcoin"
@@ -22,16 +24,11 @@
     "build": "tsc -b ./tsconfig.build.json"
   },
   "dependencies": {
-    "@defichain/jellyfish-address": "^0.0.0",
-    "@defichain/jellyfish-api-core": "^0.0.0",
-    "@defichain/jellyfish-transaction": "^0.0.0",
-    "@defichain/whale-api-client": "0.26.3",
-    "smart-buffer":"^4.2.0"
+    "@defichain/jellyfish-transaction-builder": "^0.0.0",
+    "@defichain/jellyfish-wallet": "^0.0.0",
+    "@defichain/whale-api-client": "^0.0.0"
   },
   "peerDependencies": {
     "defichain": "^0.0.0"
-  },
-  "devDependencies": {
-    "@defichain/testcontainers": "^0.0.0"
   }
 }
