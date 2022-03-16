@@ -213,7 +213,7 @@ export class PoolPairController {
 
     return {
       id: transaction.txid,
-      timestamp: transaction.block.medianTime.toString(),
+      timestampMs: transaction.block.medianTime.toString(),
       from: from,
       to: to
     }

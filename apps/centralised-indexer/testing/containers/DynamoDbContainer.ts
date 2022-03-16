@@ -40,9 +40,16 @@ export class DynamoDbContainer extends DockerContainer {
       Tty: true,
       HostConfig: {
         PublishAllPorts: true
-      }
+      },
+      Cmd: [
+        'bash', '-c',
+        `echo '${DynamoDbContainer.createLog4JConfig()}' > log4j2.xml && ` + // intentional concatenation
+        'java -Dlog4j.configurationFile=file:log4j2.xml -jar DynamoDBLocal.jar log4j2.xml -inMemory'
+      ],
+      Entrypoint: []
     })
     await this.container.start()
+    // Expose dynamo db-related testing for convenience
     this.initDynamoDbClient(await this.getHostPort())
   }
 
@@ -100,6 +107,19 @@ export class DynamoDbContainer extends DockerContainer {
         secretAccessKey: 'dummy'
       }
     })
+  }
+
+  private static createLog4JConfig (): string {
+    return `
+      <?xml version="1.0" encoding="UTF-8"?>
+      <Configuration status="WARN">
+        <Loggers>
+          <Logger name="com.amazonaws.services.dynamodbv2.local" level="INFO">
+            <AppenderRef ref="Console"/>
+          </Logger>
+        </Loggers>
+      </Configuration>
+    `.trim()
   }
 }
 

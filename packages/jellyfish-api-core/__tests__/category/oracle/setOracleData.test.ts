@@ -45,7 +45,7 @@ describe('Oracle', () => {
             token: 'AAPL',
             currency: 'EUR',
             amount: 0.5,
-            timestamp
+            timestamp: timestampMs
           }
         ]
       }
@@ -73,7 +73,7 @@ describe('Oracle', () => {
       nextPrice: 1, // should remain 1
       activePriceBlock: expect.any(Number),
       nextPriceBlock: expect.any(Number),
-      timestamp: expect.any(Number),
+      timestampMs: expect.any(Number),
       isLive: true
     })
   })
@@ -155,7 +155,7 @@ describe('Oracle', () => {
             token: 'AAPL',
             currency: 'EUR',
             amount: 0.5,
-            timestamp
+            timestamp: timestampMs
           }
         ]
       }

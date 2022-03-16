@@ -6,6 +6,7 @@ import { CentralisedIndexerStubServer } from './CentralisedIndexerStubServer'
 import { DynamoDbContainer } from './containers/DynamoDbContainer'
 import waitForExpect from 'wait-for-expect'
 import { BlockService } from '../src/models/block/Block'
+import { CentralisedApiStubServer } from './CentralisedApiStubServer'
 
 /**
  * Centralised Indexer testing framework. Contains the core components required for writing e2e tests.
@@ -14,7 +15,8 @@ export class CentralisedIndexerTesting {
   constructor (
     private readonly testingGroup: TestingGroup,
     private readonly dynamoDbContainer: DynamoDbContainer = new DynamoDbContainer(),
-    private readonly stubServer: CentralisedIndexerStubServer = new CentralisedIndexerStubServer(testingGroup.get(0).container, dynamoDbContainer)
+    private readonly indexerStubServer: CentralisedIndexerStubServer = new CentralisedIndexerStubServer(testingGroup.get(0).container, dynamoDbContainer),
+    private readonly apiStubServer: CentralisedApiStubServer = new CentralisedApiStubServer(dynamoDbContainer)
   ) {
   }
 
@@ -42,11 +44,18 @@ export class CentralisedIndexerTesting {
     return this.testing.rpc
   }
 
-  get app (): NestFastifyApplication {
-    if (this.stubServer.app === undefined) {
+  get indexerApp (): NestFastifyApplication {
+    if (this.indexerStubServer.app === undefined) {
       throw new Error('not yet initialized')
     }
-    return this.stubServer.app
+    return this.indexerStubServer.app
+  }
+
+  get apiApp (): NestFastifyApplication {
+    if (this.apiStubServer.app === undefined) {
+      throw new Error('not yet initialized')
+    }
+    return this.apiStubServer.app
   }
 
   /**
@@ -61,7 +70,8 @@ export class CentralisedIndexerTesting {
       await this.group.start(),
       await this.dynamoDbContainer.start()
     ])
-    await this.stubServer.start()
+    await this.indexerStubServer.start()
+    await this.apiStubServer.start()
   }
 
   /**
@@ -73,7 +83,7 @@ export class CentralisedIndexerTesting {
    */
   async stop (): Promise<void> {
     try {
-      await this.stubServer.stop()
+      await this.indexerStubServer.stop()
     } catch (err) {
       console.error(err)
     }
@@ -87,6 +97,11 @@ export class CentralisedIndexerTesting {
     } catch (err) {
       console.error(err)
     }
+    try {
+      await this.apiStubServer.stop()
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   /**
@@ -95,7 +110,7 @@ export class CentralisedIndexerTesting {
    * @param {number} invalidateHeight the height from which blocks should be invalidated
    */
   async invalidateFromHeight (invalidateHeight: number): Promise<void> {
-    if (this.stubServer.app === undefined) {
+    if (this.indexerStubServer.app === undefined) {
       throw new Error('Indexer nest app not yet started!')
     }
 
@@ -108,7 +123,7 @@ export class CentralisedIndexerTesting {
     // New behavior where RPCBlockProvider won't invalidate block on the same height as itself
     await this.container.generate(height - invalidateHeight + 2)
 
-    const blockService = this.stubServer.app.get(BlockService)
+    const blockService = this.indexerStubServer.app.get(BlockService)
     await waitForExpect(async () => {
       const block = await blockService.getByHeight(height)
       expect(block).not.toStrictEqual(undefined)
@@ -117,7 +132,7 @@ export class CentralisedIndexerTesting {
   }
 
   async waitForIndexedHeight (height: number, timeout: number = 30000): Promise<void> {
-    const blockService = this.app.get(BlockService)
+    const blockService = this.indexerApp.get(BlockService)
     await waitForExpect(async () => {
       const block = await blockService.getHighest()
       await expect(block?.height).toBeGreaterThanOrEqual(height)

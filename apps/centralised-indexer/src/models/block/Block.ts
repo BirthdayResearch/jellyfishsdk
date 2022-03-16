@@ -122,6 +122,21 @@ export class BlockService {
     return blocks[0] ?? undefined
   }
 
+  async getHighestBlockIdentifiers (): Promise<{ height: number, hash: string } | undefined> {
+    const blocks = await this.model
+      .query('_fixedPartitionKey').eq(FIXED_PARTITION_KEY)
+      .using('height-sorted-list-index')
+      .sort(SortOrder.descending)
+      .limit(1)
+      .attributes(['height', 'hash'])
+      .exec()
+    if (blocks.length === 0) {
+      return undefined
+    }
+    const { height, hash } = blocks[0]
+    return { height, hash }
+  }
+
   async getHighest (): Promise<Block | undefined> {
     const blocks = await this.model
       .query('_fixedPartitionKey').eq(FIXED_PARTITION_KEY)

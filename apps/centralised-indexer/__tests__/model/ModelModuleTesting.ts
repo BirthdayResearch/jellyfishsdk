@@ -2,10 +2,10 @@ import { Test, TestingModuleBuilder } from '@nestjs/testing'
 import { ModelModule } from '../../src/models/ModelModule'
 import { ConfigService } from '@nestjs/config'
 
-export function modelModuleTesting (dynamoDbPort: string): TestingModuleBuilder {
+export function modelModuleTesting (dynamoDbPort: string, readonly: boolean = false): TestingModuleBuilder {
   return Test.createTestingModule({
     imports: [
-      ModelModule
+      ModelModule.register({ readOnly: readonly })
     ]
   }).overrideProvider(ConfigService)
     .useValue({

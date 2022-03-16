@@ -72,7 +72,7 @@ describe('Oracle', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('0'),
         nextPrice: new BigNumber('8'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: false
       })
     }
@@ -86,7 +86,7 @@ describe('Oracle', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: true
       })
     }
@@ -102,7 +102,7 @@ describe('Oracle', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('32'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: false
       })
 
@@ -114,7 +114,7 @@ describe('Oracle', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('32'),
         nextPrice: new BigNumber('32'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: true
       })
     }
@@ -133,7 +133,7 @@ describe('Oracle', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('32'),
         nextPrice: new BigNumber('12'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: false
       })
     }
@@ -187,7 +187,7 @@ describe('Multi Oracles', () => {
         token: 'UBER',
         currency: 'USD',
         amount: 8,
-        timestamp: expect.any(Number)
+        timestampMs: expect.any(Number)
       })
 
       const oracle1 = await testing.rpc.oracle.getOracleData(oracleId1)
@@ -195,7 +195,7 @@ describe('Multi Oracles', () => {
         token: 'UBER',
         currency: 'USD',
         amount: 9,
-        timestamp: expect.any(Number)
+        timestampMs: expect.any(Number)
       })
     }
 
@@ -217,7 +217,7 @@ describe('Multi Oracles', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8.5'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: true
       })
     }
@@ -242,7 +242,7 @@ describe('Multi Oracles', () => {
         fixedIntervalPriceId: 'UBER/USD',
         activePrice: new BigNumber('8.5'),
         nextPrice: new BigNumber('12'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: false
       })
     }

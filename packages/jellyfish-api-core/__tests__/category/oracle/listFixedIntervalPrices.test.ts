@@ -98,35 +98,35 @@ describe('Oracle', () => {
           priceFeedId: 'DFI/USD',
           activePrice: new BigNumber('1'),
           nextPrice: new BigNumber('1'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'AMZN/USD',
           activePrice: new BigNumber('0'),
           nextPrice: new BigNumber('8'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: false
         },
         {
           priceFeedId: 'TSLA/USD',
           activePrice: new BigNumber('2'),
           nextPrice: new BigNumber('2'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'UBER/USD',
           activePrice: new BigNumber('8'),
           nextPrice: new BigNumber('8'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'GOOGL/USD',
           activePrice: new BigNumber('2'),
           nextPrice: new BigNumber('2'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         }
       ])
@@ -139,7 +139,7 @@ describe('Oracle', () => {
         priceFeedId: 'AMZN/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('8'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: true
       })
     }
@@ -152,7 +152,7 @@ describe('Oracle', () => {
         priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('8'),
         nextPrice: new BigNumber('32'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: false
       })
 
@@ -162,7 +162,7 @@ describe('Oracle', () => {
         priceFeedId: 'UBER/USD',
         activePrice: new BigNumber('32'),
         nextPrice: new BigNumber('32'),
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: true
       })
     }
@@ -180,7 +180,7 @@ describe('Oracle', () => {
         priceFeedId: 'TSLA/USD',
         activePrice: new BigNumber('2'),
         nextPrice: new BigNumber('12'), // ensure its the latest set price
-        timestamp: expect.any(Number),
+        timestampMs: expect.any(Number),
         isLive: false
       })
     }
@@ -250,13 +250,13 @@ describe('Multi Oracles', () => {
         token: 'GOOGL',
         currency: 'USD',
         amount: 2,
-        timestamp: expect.any(Number)
+        timestampMs: expect.any(Number)
       })
       expect(oracle.tokenPrices[0]).toStrictEqual({
         token: 'AMZN',
         currency: 'USD',
         amount: 8,
-        timestamp: expect.any(Number)
+        timestampMs: expect.any(Number)
       })
 
       const oracle1 = await testing.rpc.oracle.getOracleData(oracleId1)
@@ -264,13 +264,13 @@ describe('Multi Oracles', () => {
         token: 'GOOGL',
         currency: 'USD',
         amount: 5,
-        timestamp: expect.any(Number)
+        timestampMs: expect.any(Number)
       })
       expect(oracle1.tokenPrices[0]).toStrictEqual({
         token: 'AMZN',
         currency: 'USD',
         amount: 9,
-        timestamp: expect.any(Number)
+        timestampMs: expect.any(Number)
       })
     }
 
@@ -298,35 +298,35 @@ describe('Multi Oracles', () => {
           priceFeedId: 'DFI/USD',
           activePrice: 1,
           nextPrice: 1,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'AMZN/USD',
           activePrice: 0, // weird
           nextPrice: 8,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: false
         },
         {
           priceFeedId: 'TSLA/USD',
           activePrice: 2,
           nextPrice: 2,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'UBER/USD',
           activePrice: 8,
           nextPrice: 8,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'GOOGL/USD',
           activePrice: 2,
           nextPrice: 2,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         }
       ])
@@ -339,35 +339,35 @@ describe('Multi Oracles', () => {
           priceFeedId: 'DFI/USD',
           activePrice: 1,
           nextPrice: 1,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'AMZN/USD',
           activePrice: 8,
           nextPrice: 8.5,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true // weird
         },
         {
           priceFeedId: 'TSLA/USD',
           activePrice: 2,
           nextPrice: 2,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'UBER/USD',
           activePrice: 8,
           nextPrice: 8,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'GOOGL/USD',
           activePrice: 2,
           nextPrice: 3.5,
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: false
         }
       ])
@@ -396,35 +396,35 @@ describe('Multi Oracles', () => {
           priceFeedId: 'DFI/USD',
           activePrice: new BigNumber('1'),
           nextPrice: new BigNumber('1'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'AMZN/USD',
           activePrice: new BigNumber('8.5'),
           nextPrice: new BigNumber('12'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: false
         },
         {
           priceFeedId: 'TSLA/USD',
           activePrice: new BigNumber('2'),
           nextPrice: new BigNumber('2'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'UBER/USD',
           activePrice: new BigNumber('8'),
           nextPrice: new BigNumber('8'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: true
         },
         {
           priceFeedId: 'GOOGL/USD',
           activePrice: new BigNumber('3.5'),
           nextPrice: new BigNumber('7.5'),
-          timestamp: expect.any(Number),
+          timestampMs: expect.any(Number),
           isLive: false
         }
       ])

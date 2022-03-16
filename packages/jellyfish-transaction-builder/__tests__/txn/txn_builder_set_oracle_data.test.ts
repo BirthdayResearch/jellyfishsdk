@@ -57,7 +57,7 @@ describe('set oracle data', () => {
     const timestamp = Math.floor(new Date().getTime() / 1000)
     const setDataTxn = await builder.oracles.setOracleData({
       oracleId: oracleId,
-      timestamp: new BigNumber(timestamp),
+      timestampMs: new BigNumber(timestamp),
       tokens: [
         {
           token: 'TEST',
@@ -137,7 +137,7 @@ describe('set oracle data', () => {
     // Set Oracle Data
     const setDataTxn = await newBuilder.oracles.setOracleData({
       oracleId: oracleId,
-      timestamp: new BigNumber(Math.floor(new Date().getTime() / 1000)),
+      timestampMs: new BigNumber(Math.floor(new Date().getTime() / 1000)),
       tokens: [
         {
           token: 'TEST',

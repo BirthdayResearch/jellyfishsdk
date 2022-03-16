@@ -65,14 +65,14 @@ it('should read dex swaps from blockchain and write to db', async () => {
   // Given some poolPairs (setup above)
 
   // When multiple swaps occur across blocks
-  const block1Swap1 = await testing.poolpair.swap({
+  await testing.poolpair.swap({
     from: await testing.address('my'),
     tokenFrom: 'ABC',
     amountFrom: 1,
     to: await testing.address('my'),
     tokenTo: 'DFI'
   })
-  const block1Swap2 = await testing.poolpair.swap({
+  await testing.poolpair.swap({
     from: await testing.address('my'),
     tokenFrom: 'ABC',
     amountFrom: 2,
@@ -81,7 +81,7 @@ it('should read dex swaps from blockchain and write to db', async () => {
   })
   await testing.generate(1)
 
-  const block2Swap = await testing.poolpair.swap({
+  await testing.poolpair.swap({
     from: await testing.address('my'),
     tokenFrom: 'ABC',
     amountFrom: 3,
@@ -95,92 +95,86 @@ it('should read dex swaps from blockchain and write to db', async () => {
   expect(account[1]).toMatch(/57.+@ABC/)
   expect(account[2]).toMatch(/296.+@ABC-DFI/)
 
-  // Then database has a DexSwap table
+  const block1Swap1Indexed = {
+    block: {
+      hash: expect.any(String),
+      height: 107,
+      medianTime: expect.any(Number),
+      time: expect.any(Number)
+    },
+    fromAmount: '1.00000000',
+    fromSymbol: 'ABC',
+    id: expect.any(String),
+    timestampMs: expect.any(String),
+    toAmount: expect.stringMatching(/0\.09946839|0\.09989336/), // swap1 and swap2 order is not guaranteed
+    toSymbol: 'DFI',
+    txno: expect.any(Number)
+  }
+
+  const block1Swap2Indexed = {
+    block: {
+      hash: expect.any(String),
+      height: 107,
+      medianTime: expect.any(Number),
+      time: expect.any(Number)
+    },
+    fromAmount: '2.00000000',
+    fromSymbol: 'ABC',
+    id: expect.any(String),
+    timestampMs: expect.any(String),
+    toAmount: expect.stringMatching(/0\.19957390|0\.19914894/), // swap1 and swap2 order is not guaranteed
+    toSymbol: 'DFI',
+    txno: expect.any(Number)
+  }
+
+  const block2Swap1Indexed = {
+    block: {
+      hash: expect.any(String),
+      height: 108,
+      medianTime: expect.any(Number),
+      time: expect.any(Number)
+    },
+    fromAmount: '3.00000000',
+    fromSymbol: 'ABC',
+    id: expect.any(String),
+    timestampMs: expect.any(String),
+    toAmount: '0.29713909',
+    toSymbol: 'DFI',
+    txno: 1
+  }
+
   expect(
     (await testsuite.dbContainer.listTables()).TableNames)
     .toContain('DexSwap')
 
-  // And DexSwap table contains correct rows
-  await waitForExpect(async () => {
-    // Check number of swaps in DB is correct
-    const dexSwapTable = await testsuite.dbContainer.dynamoDb.describeTable({ TableName: 'DexSwap' }).promise()
-    expect(dexSwapTable.Table!.ItemCount).toStrictEqual(3)
-
-    // Check indexed swap has correct values
-    { // Block 1, Swap 1
-      const indexedDexSwap = (await testsuite.dbContainer.getItem({
-        TableName: 'DexSwap',
-        Key: { id: { S: block1Swap1 } }
-      }))!
-      expect(indexedDexSwap).toStrictEqual({
-        block: {
-          hash: expect.any(String),
-          height: 107,
-          medianTime: expect.any(Number),
-          time: expect.any(Number)
-        },
-        fromAmount: '1.00000000',
-        fromSymbol: 'ABC',
-        id: expect.any(String),
-        timestamp: expect.any(String),
-        toAmount: expect.stringMatching(/0\.09946839|0\.09989336/), // swap1 and swap2 order is not guaranteed
-        toSymbol: 'DFI',
-        txno: expect.any(Number),
-        _fixedPartitionKey: 0
-      })
-    }
-    { // Block 1, Swap 2
-      const indexedDexSwap = (await testsuite.dbContainer.getItem({
-        TableName: 'DexSwap',
-        Key: { id: { S: block1Swap2 } }
-      }))!
-      expect(indexedDexSwap).toStrictEqual({
-        block: {
-          hash: expect.any(String),
-          height: 107,
-          medianTime: expect.any(Number),
-          time: expect.any(Number)
-        },
-        fromAmount: '2.00000000',
-        fromSymbol: 'ABC',
-        id: expect.any(String),
-        timestamp: expect.any(String),
-        toAmount: expect.stringMatching(/0\.19957390|0\.19914894/), // swap1 and swap2 order is not guaranteed
-        toSymbol: 'DFI',
-        txno: expect.any(Number),
-        _fixedPartitionKey: 0
-      })
-    }
-    { // Block 2, Swap 1
-      const indexedDexSwap = (await testsuite.dbContainer.getItem({
-        TableName: 'DexSwap',
-        Key: { id: { S: block2Swap } }
-      }))!
-      expect(indexedDexSwap).toStrictEqual({
-        block: {
-          hash: expect.any(String),
-          height: 108,
-          medianTime: expect.any(Number),
-          time: expect.any(Number)
-        },
-        fromAmount: '3.00000000',
-        fromSymbol: 'ABC',
-        id: expect.any(String),
-        timestamp: expect.any(String),
-        toAmount: '0.29713909',
-        toSymbol: 'DFI',
-        txno: 1,
-        _fixedPartitionKey: 0
-      })
-    }
+  // Check that the swaps are retrievable via the rest endpoint, returned in order
+  await testsuite.waitForIndexedHeight(await container.getBlockCount())
+  const response = await testsuite.apiApp.inject({
+    method: 'GET',
+    url: '/dexswaps' // TODO(eli-lim): version and network prefix
   })
+
+  expect(response.json()).toStrictEqual({
+    page: {
+      next: {}
+    },
+    swaps: [
+      block1Swap1Indexed,
+      block1Swap2Indexed,
+      block2Swap1Indexed
+    ]
+  })
+})
+
+it('should paginate', async () => {
+  // TODO(eli-lim)
 })
 
 it('should delete dexSwaps when block is invalidated', async () => {
   // Given some poolpairs (setup above)
 
   // When swap occurs
-  const swapTxHash = await testing.poolpair.swap({
+  await testing.poolpair.swap({
     from: await testing.address('my'),
     tokenFrom: 'ABC',
     amountFrom: 1,
@@ -193,32 +187,7 @@ it('should delete dexSwaps when block is invalidated', async () => {
   await testsuite.waitForIndexedHeight(height)
 
   // Then it gets indexed
-  let indexedDexSwap: Record<string, any> = {}
-  await waitForExpect(async () => {
-    indexedDexSwap = (await testsuite.dbContainer.getItem({
-      TableName: 'DexSwap',
-      Key: {
-        id: {
-          S: swapTxHash
-        }
-      }
-    }))!
-    expect(indexedDexSwap).toBeDefined()
-  })
-
-  // When block is invalidated and indexer catches up
-  await testsuite.invalidateFromHeight(height)
-  await testsuite.waitForIndexedHeight(height)
-
-  // Then dexSwap doesn't exist anymore
-  const swap = (await testsuite.dbContainer.getItem({
-    TableName: 'DexSwap',
-    Key: {
-      id: {
-        S: indexedDexSwap.id
-      }
-    }
-  }))!
+  const swap = undefined
 
   expect(swap).toBeUndefined()
 })

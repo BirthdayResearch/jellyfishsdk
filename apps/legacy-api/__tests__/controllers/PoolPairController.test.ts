@@ -168,7 +168,7 @@ describe('getsubgraphswaps', () => {
     for (const swap of response.data.swaps) {
       expect(swap).toStrictEqual({
         id: expect.stringMatching(/[a-zA-Z0-9]{64}/),
-        timestamp: expect.stringMatching(/\d+/),
+        timestampMs: expect.stringMatching(/\d+/),
         from: {
           symbol: expect.any(String),
           amount: expect.stringMatching(ONLY_DECIMAL_NUMBER_REGEX)

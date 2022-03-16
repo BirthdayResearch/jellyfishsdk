@@ -57,10 +57,10 @@ export class DexSwapIndexer implements DfTxIndexer<PoolSwap> {
       },
       id: dfTx.txn.txid,
       txno: dfTx.txnNo,
-      timestamp: block.mediantime.toFixed(0),
-      fromAmount: poolSwap.fromAmount,
+      timestampMs: (block.mediantime * 1000).toString(),
+      fromAmount: poolSwap.fromAmount.toFixed(8),
       fromSymbol: fromToken.symbol,
-      toAmount: await this.findToAmount(block, dfTx),
+      toAmount: (await this.findToAmount(block, dfTx)).toFixed(8),
       toSymbol: toToken.symbol
     }
   }

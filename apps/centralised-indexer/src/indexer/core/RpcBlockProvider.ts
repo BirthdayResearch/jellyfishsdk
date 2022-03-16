@@ -70,14 +70,16 @@ export class RpcBlockProvider {
    * @return {boolean} whether there is any indexing activity
    */
   private async synchronize (): Promise<boolean> {
-    const indexed = await this.blockService.getHighest()
-    if (indexed === undefined) {
+    const blockIdentifiers = await this.blockService.getHighestBlockIdentifiers()
+    if (blockIdentifiers === undefined) {
       return await this.indexGenesis()
     }
 
+    const { height, hash } = blockIdentifiers
+
     let nextHash: string
     try {
-      nextHash = await this.client.blockchain.getBlockHash(indexed.height + 1)
+      nextHash = await this.client.blockchain.getBlockHash(height + 1)
     } catch (err) {
       if (err instanceof RpcApiError && err.payload.message === 'Block height out of range') {
         return false
@@ -86,20 +88,19 @@ export class RpcBlockProvider {
     }
 
     const nextBlock = await this.client.blockchain.getBlock(nextHash, 2)
-    if (await RpcBlockProvider.isBestChain(indexed, nextBlock)) {
+    if (await RpcBlockProvider.isBestChain(hash, nextBlock)) {
       await this.index(nextBlock)
     } else {
-      await this.invalidate(indexed)
+      const blockToInvalidate = await this.blockService.getHighest()
+      if (blockToInvalidate !== undefined) {
+        await this.invalidate(blockToInvalidate)
+      }
     }
     return true
   }
 
-  /**
-   * @param {Block} indexed previous block
-   * @param {defid.Block<Transaction>} nextBlock to check previous block hash
-   */
-  private static async isBestChain (indexed: Block, nextBlock: defid.Block<defid.Transaction>): Promise<boolean> {
-    return nextBlock.previousblockhash === indexed.hash
+  private static async isBestChain (lastIndexedHash: string, nextBlock: defid.Block<defid.Transaction>): Promise<boolean> {
+    return nextBlock.previousblockhash === lastIndexedHash
   }
 
   public async indexGenesis (): Promise<boolean> {

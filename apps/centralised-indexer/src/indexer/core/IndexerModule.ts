@@ -31,7 +31,9 @@ function AppConfiguration (): Record<string, string | undefined> {
     ActuatorModule,
     ScheduleModule.forRoot(),
     BlockchainCppModule,
-    ModelModule
+    ModelModule.register({
+      readOnly: false
+    })
   ],
   providers: [
     {

@@ -2,7 +2,7 @@ import { SmartBuffer } from 'smart-buffer'
 import {
   SetOracleData,
   CSetOracleData
-} from '../../../../src/script/dftx/dftx_oracles'
+} from '@defichain/jellyfish-transaction'
 import BigNumber from 'bignumber.js'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
@@ -28,7 +28,7 @@ const data = '061d35948925528b2025c4b84ea6f4899bab6efbcaf63776258186d7728424d1bc
 
 const setOracleData: SetOracleData = {
   oracleId: 'd1248472d78681257637f6cafb6eab9b89f4a64eb8c425208b52258994351d06',
-  timestamp: new BigNumber('1621567932'),
+  timestampMs: new BigNumber('1621567932'),
   tokens: [
     {
       token: 'TSLA',

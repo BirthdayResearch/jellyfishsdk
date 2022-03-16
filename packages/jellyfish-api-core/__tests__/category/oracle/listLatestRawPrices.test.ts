@@ -70,7 +70,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
           oracleid: oracleId1,
           weightage: new BigNumber(1),
-          timestamp: new BigNumber(timestamp1),
+          timestampMs: new BigNumber(timestamp1),
           rawprice: new BigNumber(0.5),
           state: OracleRawPriceState.LIVE
         },
@@ -78,7 +78,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'AAPL', currency: 'USD' },
           oracleid: oracleId1,
           weightage: new BigNumber(1),
-          timestamp: new BigNumber(timestamp1),
+          timestampMs: new BigNumber(timestamp1),
           rawprice: new BigNumber(1),
           state: OracleRawPriceState.LIVE
         }
@@ -93,7 +93,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'TSLA', currency: 'EUR' },
           oracleid: oracleId2,
           weightage: new BigNumber(2),
-          timestamp: new BigNumber(timestamp2),
+          timestampMs: new BigNumber(timestamp2),
           rawprice: new BigNumber(1.5),
           state: OracleRawPriceState.LIVE
         },
@@ -101,7 +101,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'TSLA', currency: 'USD' },
           oracleid: oracleId2,
           weightage: new BigNumber(2),
-          timestamp: new BigNumber(timestamp2),
+          timestampMs: new BigNumber(timestamp2),
           rawprice: new BigNumber(2),
           state: OracleRawPriceState.LIVE
         }
@@ -133,7 +133,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
           oracleid: oracleId,
           weightage: new BigNumber(1),
-          timestamp: new BigNumber(timestamp),
+          timestampMs: new BigNumber(timestamp),
           rawprice: new BigNumber(0.5),
           state: OracleRawPriceState.EXPIRED
         }
@@ -171,7 +171,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
           oracleid: oracleId,
           weightage: new BigNumber(1),
-          timestamp: new BigNumber(timestamp),
+          timestampMs: new BigNumber(timestamp),
           rawprice: new BigNumber(0.5),
           state: OracleRawPriceState.LIVE
         }
@@ -210,7 +210,7 @@ describe('Oracle', () => {
           priceFeeds: { token: 'AAPL', currency: 'EUR' },
           oracleid: oracleId1,
           weightage: new BigNumber(1),
-          timestamp: new BigNumber(timestamp),
+          timestampMs: new BigNumber(timestamp),
           rawprice: new BigNumber(0.5),
           state: OracleRawPriceState.LIVE
         }

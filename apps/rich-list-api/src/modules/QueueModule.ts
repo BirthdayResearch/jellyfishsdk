@@ -47,7 +47,7 @@ export class Queue {
       },
       take: maxMessage,
       order: {
-        timestamp: this.mode === 'FIFO' ? 'ASC' : 'DESC'
+        timestampMs: this.mode === 'FIFO' ? 'ASC' : 'DESC'
       }
     })
     await this.repo.delete({ id: In(consumed.map(i => i.id)) })
@@ -66,7 +66,7 @@ export class Queue {
     const saved = await this.repo.save({
       data: message,
       queueName: this.queueName,
-      timestamp: Date.now()
+      timestampMs: Date.now()
     })
     return saved.id
   }
