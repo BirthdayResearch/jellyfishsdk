@@ -2,7 +2,7 @@ import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RichListCore } from '../src/RichListCore'
-import { RichListCoreTest, waitForCatchingUp } from '../test/RichListCoreTest'
+import { RichListCoreTest, waitForCatchingUp } from '../src/test/RichListCoreTest'
 
 // addresses used by MNRegTest (default elliptic pair), up to `waitForWalletCoinbaseMaturity()`
 // reproducible results, mn always derive new addresses following same HD paths in sequence

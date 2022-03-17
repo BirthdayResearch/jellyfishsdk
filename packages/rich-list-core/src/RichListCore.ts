@@ -127,7 +127,7 @@ export class RichListCore {
     }
 
     if (!(await this.listTokenIds()).includes(Number(tokenId))) {
-      throw new Error('Invalid token id')
+      throw new Error('InvalidTokenId')
     }
 
     return (await this.addressBalances.list({

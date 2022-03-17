@@ -1,7 +1,7 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RichListController } from '../../src/controllers/RichList'
-import { RichListCoreTest } from '@defichain/rich-list-core/test/RichListCoreTest'
+import { RichListCoreTest } from '@defichain/rich-list-core'
 
 describe('RichListController', () => {
   const container = new MasterNodeRegTestContainer()
