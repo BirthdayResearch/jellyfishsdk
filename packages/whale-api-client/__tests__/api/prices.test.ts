@@ -321,34 +321,217 @@ describe('pricefeed with interval', () => {
       }
       prevMedianTime = value.block.medianTime
     })
-    expect(interval1Hour.map(x => x.aggregated.amount)).toStrictEqual(
+
+    expect(interval1Hour.map(x => {
+      return {
+        amount: x.aggregated.amount,
+        time: x.aggregated.time
+      }
+    })).toStrictEqual(
       [
-        '94.50000000',
-        '90.50000000',
-        '86.50000000',
-        '82.50000000',
-        '78.50000000',
-        '74.50000000',
-        '70.50000000',
-        '66.50000000',
-        '62.50000000',
-        '58.50000000',
-        '54.50000000',
-        '50.50000000',
-        '46.50000000',
-        '42.50000000',
-        '38.50000000',
-        '34.50000000',
-        '30.50000000',
-        '26.50000000',
-        '22.50000000',
-        '18.50000000',
-        '14.50000000',
-        '10.50000000',
-        '6.50000000',
-        '2.50000000'
+        {
+          amount: '94.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '90.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '86.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '82.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '78.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '74.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '70.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '66.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '62.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '58.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '54.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '50.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '46.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '42.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '38.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '34.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '30.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '26.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '22.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '18.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '14.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '10.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '6.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        },
+        {
+          amount: '2.50000000',
+          time: {
+            interval: 3600,
+            start: expect.any(Number),
+            end: expect.any(Number)
+          }
+        }
       ]
     )
+
+    { // ensure all aggregated time is aligned
+      let prevStart = interval1Hour[0].aggregated.time.start
+      for (let i = 1; i < interval1Hour.length; i++) {
+        const interval = interval1Hour[i]
+        expect(interval.aggregated.time.end).toStrictEqual(prevStart)
+        prevStart = interval.aggregated.time.start
+      }
+    }
 
     const interval1Day = await apiClient.prices.getFeedWithInterval('S1', 'USD', PriceFeedTimeInterval.ONE_DAY, height)
     expect(interval1Day.length).toStrictEqual(1)

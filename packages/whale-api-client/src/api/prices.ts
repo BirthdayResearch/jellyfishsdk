@@ -127,6 +127,17 @@ export interface PriceFeedInterval {
       active: number
       total: number
     }
+    /**
+     * Aggregated interval time range in seconds.
+     * - Interval that aggregated in seconds
+     * - Start Time Inclusive
+     * - End Time Exclusive
+     */
+    time: {
+      interval: number
+      start: number
+      end: number
+    }
   }
 
   block: {
