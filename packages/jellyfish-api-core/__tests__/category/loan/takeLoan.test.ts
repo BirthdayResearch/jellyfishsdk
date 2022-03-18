@@ -985,7 +985,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(tBalances).toStrictEqual([`${tslaLoanAmount.toFixed(8)}@3`]) // tokenId: 3 is TSLA
   })
 
-  it('should takeLoan with 50% DUSD of minimun required collateral', async () => {
+  it('should takeLoan with 50% DUSD of minimum required collateral', async () => {
     // add btc collateral, new total collateral = 20000 USD
     await alice.rpc.loan.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC' // collateral value = 1 x 10000 x 0.5 = 5000 USD
