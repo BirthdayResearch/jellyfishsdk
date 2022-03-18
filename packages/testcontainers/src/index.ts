@@ -14,6 +14,7 @@ export const GenesisKeys = RegTestFoundationKeys
  */
 export type MasterNodeKey = MNK
 
+export * from './containers/DockerContainer'
 export * from './containers/DeFiDContainer'
 export * from './containers/MainNetContainer'
 export * from './containers/TestNetContainer'

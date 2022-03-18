@@ -5,6 +5,12 @@
     "tsConfigPath": "tsconfig.json"
   },
   "projects": {
+    "dexswap-indexer": {
+      "type": "application",
+      "root": "dexswap-indexer",
+      "entryFile": "apps/dexswap-indexer/src/indexer/index",
+      "sourceRoot": "dexswap-indexer/src/indexer"
+    },
     "legacy-api": {
       "type": "application",
       "root": "legacy-api",
