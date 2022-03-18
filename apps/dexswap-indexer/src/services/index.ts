@@ -1,20 +1,17 @@
-import { IndexerModule } from './core/IndexerModule'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
+import { ServiceModule } from './ServiceModule'
 
-export class RootServer {
+export class CentralisedApiServer {
   app?: NestFastifyApplication
 
   async create (): Promise<NestFastifyApplication> {
     const adapter = new FastifyAdapter()
-    return await NestFactory.create<NestFastifyApplication>(IndexerModule, adapter)
+    return await NestFactory.create<NestFastifyApplication>(ServiceModule, adapter)
   }
 
   async configure (app: NestFastifyApplication, config: ConfigService): Promise<void> {
-    const version = config.get<string>('API_VERSION') as string
-    const network = config.get<string>('API_NETWORK') as string
-
     app.enableCors({
       origin: '*',
       methods: ['GET', 'PUT', 'POST', 'DELETE'],
@@ -22,16 +19,19 @@ export class RootServer {
       maxAge: 60 * 24 * 7
     })
 
-    app.setGlobalPrefix(`${version}/${network}`, {
-      exclude: [
-        '/_actuator/probes/liveness',
-        '/_actuator/probes/readiness'
-      ]
-    })
+    // TODO(eli-lim):
+    // const version = config.get<string>('API_VERSION') as string
+    // const network = config.get<string>('NETWORK') as string
+    // app.setGlobalPrefix(`${version}/${network}`, {
+    //   exclude: [
+    //     '/_actuator/probes/liveness',
+    //     '/_actuator/probes/readiness'
+    //   ]
+    // })
   }
 
   async init (app: NestFastifyApplication, config: ConfigService): Promise<void> {
-    const port = config.get<number>('PORT', 3000)
+    const port = config.get<number>('PORT', 3001)
     await app.listen(port, '0.0.0.0')
   }
 
@@ -52,5 +52,5 @@ export class RootServer {
  * Bootstrap RootModule and start server
  */
 if (require.main === module) {
-  void new RootServer().start()
+  void new CentralisedApiServer().start()
 }
