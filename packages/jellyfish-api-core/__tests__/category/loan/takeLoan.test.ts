@@ -985,6 +985,65 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(tBalances).toStrictEqual([`${tslaLoanAmount.toFixed(8)}@3`]) // tokenId: 3 is TSLA
   })
 
+  it('should takeLoan with 50% DUSD of minimun required collateral', async () => {
+    // add btc collateral, new total collateral = 20000 USD
+    await alice.rpc.loan.depositToVault({
+      vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC' // collateral value = 1 x 10000 x 0.5 = 5000 USD
+    })
+    await alice.generate(1)
+
+    // remove dfi collateral, new total collateral = 15000 USD
+    await bob.rpc.loan.withdrawFromVault({
+      vaultId: bobVaultId, to: aliceAddr, amount: '5000@DFI'
+    })
+
+    // loan token
+    await bob.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    // must wait until block count reaches fort canning road height
+    const blockCount = await bob.container.getBlockCount()
+    await bob.generate(fortCanningRoadHeight - blockCount)
+
+    const tslaLoanAmount = 2500 // loan amount = 5000 USD
+    const txid = await bob.rpc.loan.takeLoan({
+      vaultId: bobVaultId,
+      amounts: `${tslaLoanAmount}@TSLA`
+    })
+    expect(typeof txid).toStrictEqual('string')
+    await bob.generate(1)
+
+    const tslaLoanHeight = await bob.container.getBlockCount()
+    const interests = await bob.rpc.loan.getInterest('scheme')
+
+    // manually calculate interest to compare rpc getInterest above is working correctly
+    const height = await bob.container.getBlockCount()
+    const tslaInterestPerBlock = new BigNumber((netInterest * tslaLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
+    expect(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].interestPerBlock.toFixed(8))
+    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight + 1))
+    expect(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].totalInterest.toFixed(8))
+
+    const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
+
+    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    expect(vaultAfter.loanSchemeId).toStrictEqual('scheme')
+    expect(vaultAfter.ownerAddress).toStrictEqual(bobVaultAddr)
+    expect(vaultAfter.state).toStrictEqual('active')
+    expect(vaultAfter.collateralAmounts).toStrictEqual(['5000.00000000@DUSD', '2.00000000@BTC'])
+    expect(vaultAfter.collateralValue).toStrictEqual(new BigNumber(15000))
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${tslaLoanAmountAfter.toFixed(8)}@TSLA`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)}@TSLA`])
+    expect(vaultAfter.loanValue).toStrictEqual(tslaLoanAmountAfter.multipliedBy(2))
+    expect(vaultAfter.interestValue).toStrictEqual(tslaInterestTotal.decimalPlaces(8, BigNumber.ROUND_CEIL).multipliedBy(2))
+    expect(vaultAfter.collateralRatio).toStrictEqual(300) // (collateral / loan)%
+    expect(vaultAfter.informativeRatio).toStrictEqual(new BigNumber(299.99982876)) // (collateral / (loan + interest))%
+
+    // check received loan via getTokenBalances while takeLoan without 'to'
+    const tBalances = await bob.rpc.account.getTokenBalances()
+    expect(tBalances).toStrictEqual([`${tslaLoanAmount.toFixed(8)}@3`]) // tokenId: 3 is TSLA
+  })
+
   it('should takeLoan with DUSD sole collateral', async () => {
     // remove dfi collateral, new total collateral = 10000 USD
     await bob.rpc.loan.withdrawFromVault({
