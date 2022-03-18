@@ -1,14 +1,15 @@
 import { Module, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Interval, ScheduleModule } from '@nestjs/schedule'
-import { ApiClient } from '@defichain/jellyfish-api-core'
 import { RichListCore } from '@defichain/rich-list-core'
 import { NetworkName } from '@defichain/jellyfish-network/src/Network'
-import { WhaleApiClient } from '@defichain/whale-api-client'
+import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
+import { WhaleApiClient, WhaleRpcClient } from '@defichain/whale-api-client'
 import { CrawledBlockRepo } from '../models/CrawledBlock'
 import { AddressBalanceRepo } from '../models/AddressBalance'
 import { RichListDroppedOutRepo } from '../models/RichListDroppedOut'
 import { QueueModule, QueueService } from './QueueModule'
+import { LocalWhaleRpcClient } from '../../testing/LocalWhaleRpcClient'
 
 @Module({
   imports: [
@@ -23,7 +24,6 @@ import { QueueModule, QueueService } from './QueueModule'
         addressBalanceRepo: AddressBalanceRepo,
         crawledBlockRepo: CrawledBlockRepo,
         richListDroppedOutRepo: RichListDroppedOutRepo,
-        apiClient: ApiClient,
         queueService: QueueService
       ): RichListService => {
         const whaleApiClient = new WhaleApiClient({
@@ -32,9 +32,19 @@ import { QueueModule, QueueService } from './QueueModule'
           version: 'v0'
         })
 
+        let whaleRpcClient!: WhaleRpcClient
+        if (configService.get<string>('NODE_ENV') === 'production') {
+          whaleRpcClient = new WhaleRpcClient(configService.get<string>('WHALE_RPC_URL'))
+        } else {
+          // application can be spun up locally with defid in docker
+          // e2e testing can run with defid container instead ocean infra
+          const defidRpc = new JsonRpcClient(configService.get<string>('BLOCKCHAIN_CPP_URL') as string)
+          whaleRpcClient = new LocalWhaleRpcClient(defidRpc)
+        }
+
         const core = new RichListCore(
           configService.get<string>('network') as NetworkName,
-          apiClient,
+          whaleRpcClient,
           whaleApiClient,
           addressBalanceRepo,
           crawledBlockRepo,
@@ -49,7 +59,6 @@ import { QueueModule, QueueService } from './QueueModule'
         AddressBalanceRepo,
         CrawledBlockRepo,
         RichListDroppedOutRepo,
-        ApiClient,
         QueueService
       ]
     }

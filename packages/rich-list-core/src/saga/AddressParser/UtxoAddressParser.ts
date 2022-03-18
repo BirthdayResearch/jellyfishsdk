@@ -1,7 +1,8 @@
-import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
+import { blockchain as defid } from '@defichain/jellyfish-api-core'
+import { WhaleRpcClient } from '@defichain/whale-api-client'
 
 export class UtxoAddressParser {
-  constructor (protected readonly apiClient: ApiClient) {}
+  constructor (protected readonly apiClient: WhaleRpcClient) {}
 
   /**
    * @WARNING return empty for any `nulldata` typed scriptPubKey

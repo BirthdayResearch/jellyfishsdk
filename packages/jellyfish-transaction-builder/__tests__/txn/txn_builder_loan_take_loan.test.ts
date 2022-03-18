@@ -336,6 +336,9 @@ describe('loans.takeLoan success', () => {
     // Ensure you don't send all your balance away
     const prevouts = await bProviders.prevout.all()
     expect(prevouts.length).toStrictEqual(1)
+    console.log(prevouts[0].value.toFixed())
+    console.log('number:', new BigNumber(9.99999999).toNumber())
+    console.log('less than ten:', new BigNumber(9.99999999).toNumber() < 10)
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
     expect(prevouts[0].value.toNumber()).toBeGreaterThan(9.999)
 
