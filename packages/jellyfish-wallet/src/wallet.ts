@@ -31,21 +31,37 @@ export class JellyfishWallet<Account extends WalletAccount, HdNode extends Walle
    * @param {number} [purpose=0] PURPOSE_LIGHT_WALLET
    */
   constructor (
-    private readonly nodeProvider: WalletHdNodeProvider<HdNode>,
-    private readonly accountProvider: WalletAccountProvider<Account>,
-    private readonly coinType: number = JellyfishWallet.COIN_TYPE_DFI,
-    private readonly purpose: number = JellyfishWallet.PURPOSE_LIGHT_WALLET
+    protected readonly nodeProvider: WalletHdNodeProvider<HdNode>,
+    protected readonly accountProvider: WalletAccountProvider<Account>,
+    protected readonly coinType: number = JellyfishWallet.COIN_TYPE_DFI,
+    protected readonly purpose: number = JellyfishWallet.PURPOSE_LIGHT_WALLET
   ) {
   }
 
   /**
    * @param {number} account number to get
-   * @return Promise<WalletAccount>
+   * @return {WalletAccount}
    */
   get (account: number): Account {
-    const path = `${this.coinType}/${this.purpose}/0/${account}`
-    const node = this.nodeProvider.derive(path)
+    const node = this.deriveNode(account)
     return this.accountProvider.provide(node)
+  }
+
+  /**
+   * @param {number} account number to get
+   * @return {WalletHdNode}
+   */
+  deriveNode (account: number): HdNode {
+    const path = this.derivePath(account)
+    return this.nodeProvider.derive(path)
+  }
+
+  /**
+   * @param {number} account number to get
+   * @return {string} HD path
+   */
+  derivePath (account: number): string {
+    return `${this.coinType}/${this.purpose}/0/${account}`
   }
 
   /**
