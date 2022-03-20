@@ -95,7 +95,8 @@ it('/v1/listswaps', async () => {
   //   },
   //   ...
   // }
-  for (const [key, poolpair] of Object.entries(res.json())) {
+  const v1JsonResponse = res.json()
+  for (const [key, poolpair] of Object.entries(v1JsonResponse)) {
     // Verify all keys follow snake case
     expect(key).toMatch(/^\w+_\w+$/)
 
@@ -112,6 +113,100 @@ it('/v1/listswaps', async () => {
       quote_symbol: expect.any(String),
       quote_volume: expect.any(Number)
     })
+  }
+
+  expect(v1JsonResponse.ETH_DFI).toStrictEqual({
+    base_id: '1',
+    base_name: 'ETH',
+    base_symbol: 'ETH',
+    quote_id: '0',
+    quote_name: 'DFI',
+    quote_symbol: 'DFI',
+    last_price: expect.any(String),
+    base_volume: expect.any(Number),
+    quote_volume: expect.any(Number),
+    isFrozen: expect.any(Number)
+  })
+})
+
+it('/v2/listswaps', async () => {
+  const res = await apiTesting.app.inject({
+    method: 'GET',
+    url: '/v2/listswaps'
+  })
+
+  // {
+  //   ETH_DFI: {
+  //     base_id: '1',
+  //     base_name: 'ETH',
+  //     ...
+  //   },
+  //   ...
+  // }
+  const v2JsonResponse = res.json()
+  for (const [key, poolpair] of Object.entries(v2JsonResponse)) {
+    // Verify all keys follow snake case
+    expect(key).toMatch(/^\w+_\w+$/)
+    // Verify each swap object's fields
+    expect(poolpair).toStrictEqual({
+      base_id: expect.any(String),
+      base_name: expect.any(String),
+      base_symbol: expect.any(String),
+      base_volume: expect.any(Number),
+      isFrozen: expect.any(Number),
+      last_price: expect.stringMatching(ONLY_DECIMAL_NUMBER_REGEX),
+      quote_id: expect.stringMatching(/\d+/),
+      quote_name: expect.any(String),
+      quote_symbol: expect.any(String),
+      quote_volume: expect.any(Number)
+    })
+  }
+
+  expect(v2JsonResponse.ETH_DFI).toStrictEqual({
+    base_id: '0',
+    base_name: 'DFI',
+    base_symbol: 'DFI',
+    quote_id: '1',
+    quote_name: 'ETH',
+    quote_symbol: 'ETH',
+    last_price: expect.any(String),
+    base_volume: expect.any(Number),
+    quote_volume: expect.any(Number),
+    isFrozen: expect.any(Number)
+  })
+})
+
+// Skipping as flaky due to network latency
+it.skip('/v2/listswaps has correct quote and base', async () => {
+  const [v2Result, v1Result] = await Promise.all([
+    apiTesting.app.inject({
+      method: 'GET',
+      url: '/v2/listswaps'
+    }),
+    apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/listswaps'
+    })
+  ])
+
+  // Verify that quote_* and base_* are opposite of v1 which is wrong
+  const v2JsonResponse: Record<string, any> = v2Result.json()
+  const v1JsonResponse: Record<string, any> = v1Result.json()
+
+  for (const [key, poolpairV2] of Object.entries(v2JsonResponse)) {
+    const poolpairV1 = v1JsonResponse[key] // e.g. key: BTC_DFI, ETH_DFI
+
+    expect(poolpairV2).toStrictEqual(expect.objectContaining({
+      base_id: poolpairV1.quote_id,
+      base_name: poolpairV1.quote_name,
+      base_symbol: poolpairV1.quote_symbol,
+      quote_id: poolpairV1.base_id,
+      quote_name: poolpairV1.base_name,
+      quote_symbol: poolpairV1.base_symbol
+    }))
+
+    expect(Math.floor(poolpairV2.quote_volume)).toStrictEqual(Math.floor(poolpairV1.base_volume))
+    expect(Math.floor(poolpairV2.base_volume)).toStrictEqual(Math.floor(poolpairV1.quote_volume))
   }
 })
 
