@@ -458,7 +458,8 @@ describe('poolswap', () => {
           amount: '10.42667420',
           symbol: 'C',
           displaySymbol: 'dC'
-        }
+        },
+        type: 'SELL'
       },
       {
         id: expect.any(String),
@@ -485,7 +486,8 @@ describe('poolswap', () => {
           amount: '45.71428571',
           symbol: 'DFI',
           displaySymbol: 'DFI'
-        }
+        },
+        type: 'SELL'
       },
       {
         id: expect.any(String),
@@ -512,7 +514,8 @@ describe('poolswap', () => {
           amount: '39.99999999',
           symbol: 'DFI',
           displaySymbol: 'DFI'
-        }
+        },
+        type: 'SELL'
       }
     ])
 
