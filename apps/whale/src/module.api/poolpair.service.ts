@@ -239,7 +239,7 @@ export class PoolPairService {
   public async checkSwapType (swap: PoolSwapData): Promise<SwapType | undefined> {
     const dftx = await this.findCompositeSwapDfTx(swap.txid)
     // if dftx is undefined, no composite swap is returned so check for swap
-    if (dftx === undefined) {
+    if (dftx === undefined || dftx.pools.length <= 1) {
       const poolPairInfo = await this.deFiDCache.getPoolPairInfo(swap.poolPairId)
       if (poolPairInfo === undefined) {
         return undefined
