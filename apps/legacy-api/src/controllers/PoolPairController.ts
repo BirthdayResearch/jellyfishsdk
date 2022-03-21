@@ -225,7 +225,7 @@ export class PoolPairControllerV2 {
   }
 
   /**
-   * Fixes the implementation in v1, which has base_* and quote_* erroneously swapped.
+   * Fixes the implementation in v1 - inverting the last_price
    */
   @Get('listswaps')
   async listSwaps (
@@ -235,15 +235,17 @@ export class PoolPairControllerV2 {
 
     const result: LegacyListSwapsResponse = {}
     const poolPairs = await api.poolpairs.list(200)
+
+    // quote and base are intentionally reversed to conform to the current api requirements
     for (const poolPair of poolPairs) {
       const {
-        tokenA: quote,
-        tokenB: base
+        tokenA: base,
+        tokenB: quote
       } = poolPair
 
-      const [quoteVolume, baseVolume] = getVolumes(poolPair) // swapped from v1
+      const [baseVolume, quoteVolume] = getVolumes(poolPair)
 
-      const pairKey = quote.symbol + '_' + base.symbol // BTC_DFI
+      const pairKey = base.symbol + '_' + quote.symbol
       result[pairKey] = {
         base_id: base.id,
         base_name: base.symbol,
