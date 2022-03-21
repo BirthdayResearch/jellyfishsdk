@@ -251,7 +251,7 @@ export class PoolPairControllerV2 {
         quote_id: quote.id,
         quote_name: quote.symbol,
         quote_symbol: quote.symbol,
-        last_price: poolPair.priceRatio.ab,
+        last_price: poolPair.priceRatio.ba, // inverted from v1
         base_volume: baseVolume.toNumber(),
         quote_volume: quoteVolume.toNumber(),
         isFrozen: (poolPair.status) ? 0 : 1
