@@ -1,11 +1,11 @@
-import { ApiClient } from '@defichain/jellyfish-api-core'
-import { AddressParser } from '../src/controller/AddressParser'
-import { DfTxAddressParser } from '../src/controller/AddressParser/dftx/_abstract'
-import { UtxoAddressParser } from '../src/controller/AddressParser/utxo'
+import { WhaleRpcClient } from '@defichain/whale-api-client'
+import { AddressParser } from '../src/saga/AddressParser'
+import { DfTxAddressParser } from '../src/saga/AddressParser/dftx/_abstract'
+import { UtxoAddressParser } from '../src/saga/AddressParser/UtxoAddressParser'
 import { StubbedUtxoAddressParser } from './StubbedUtxoAddressParser'
 
 export function AddressParserTest (
-  apiClient: ApiClient,
+  apiClient: WhaleRpcClient,
   dfTxAddressParsers: Array<DfTxAddressParser<any>> = [],
   utxoAddressParser: UtxoAddressParser = new StubbedUtxoAddressParser(apiClient)
 ): AddressParser {
