@@ -43,6 +43,37 @@ const prevout: Vout = {
   tokenId: 0x00
 }
 
+describe('validation', () => {
+  it('should validate mnemonic sentence and succeed 1000 times', () => {
+    for (let i = 0; i < 1000; i++) {
+      const words = MnemonicHdNodeProvider.generateWords(24)
+      MnemonicHdNodeProvider.fromWords(words, regTestBip32Options, true)
+    }
+  })
+
+  it('should validate mnemonic sentence and fail 1000 times', () => {
+    for (let i = 0; i < 1000; i++) {
+      const words = MnemonicHdNodeProvider.generateWords(24)
+      words[0] = 'mnemonic'
+
+      expect(() => {
+        MnemonicHdNodeProvider.fromWords(words, regTestBip32Options, true)
+      }).toThrow('mnemonic sentence checksum invalid')
+    }
+  })
+
+  it('should not validate mnemonic sentence and not fail 1000 times', () => {
+    for (let i = 0; i < 1000; i++) {
+      const words = MnemonicHdNodeProvider.generateWords(24)
+      words[0] = 'mnemonic'
+
+      expect(() => {
+        MnemonicHdNodeProvider.fromWords(words, regTestBip32Options, false)
+      }).not.toThrow('mnemonic sentence checksum invalid')
+    }
+  })
+})
+
 describe('24 words: random', () => {
   let provider: MnemonicHdNodeProvider
 
@@ -51,11 +82,11 @@ describe('24 words: random', () => {
     provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
   })
 
-  describe("44'/1129'/0'/0/0", () => {
+  describe('44\'/1129\'/0\'/0/0', () => {
     let node: MnemonicHdNode
 
     beforeEach(() => {
-      node = provider.derive("44'/1129'/0'/0/0")
+      node = provider.derive('44\'/1129\'/0\'/0/0')
     })
 
     it('should derive pub key', async () => {
@@ -156,12 +187,12 @@ describe('24 words: abandon x23 art', () => {
     provider = MnemonicHdNodeProvider.fromWords(words, regTestBip32Options)
   })
 
-  describe("44'/1129'/0'/0/0", () => {
+  describe('44\'/1129\'/0\'/0/0', () => {
     let node: MnemonicHdNode
     const pubKey = '034849fafd49b531a2b8a101993c34ea5c70bdc094fd4fc45d2fca2068d2143553'
 
     beforeEach(() => {
-      node = provider.derive("44'/1129'/0'/0/0")
+      node = provider.derive('44\'/1129\'/0\'/0/0')
     })
 
     it('should derive pub key', async () => {
@@ -203,12 +234,12 @@ describe('24 words: abandon x23 art', () => {
     })
   })
 
-  describe("44'/1129'/1'/0/0", () => {
+  describe('44\'/1129\'/1\'/0/0', () => {
     let node: MnemonicHdNode
     const pubKey = '032a530c06df4a2b4e50863da169733d57ec07c598f8188e5a0341952fa2580075'
 
     beforeEach(() => {
-      node = provider.derive("44'/1129'/1'/0/0")
+      node = provider.derive('44\'/1129\'/1\'/0/0')
     })
 
     it('should derive pub key', async () => {
