@@ -1,9 +1,7 @@
-import { BigNumber } from '@defichain/jellyfish-api-core'
+import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
 
-export interface AccountAmount {
-  [id: string]: BigNumber
-}
+export type Address = string
 
-export interface ActiveAddressAccountAmount {
-  [key: string]: AccountAmount
+export interface AddressAccountAmount {
+  [key: Address]: AccountAmount
 }

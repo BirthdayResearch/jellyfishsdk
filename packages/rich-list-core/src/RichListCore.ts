@@ -5,7 +5,7 @@ import { SingleIndexDb, Schema } from './persistent/SingleIndexDb'
 import { AddressParser } from './saga/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
-import { ActiveAddressAccountAmount } from './types'
+import { AddressAccountAmount } from './types'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
 
@@ -169,11 +169,11 @@ export class RichListCore {
     }
   }
 
-  private async getActiveAddressBalances (tokens: number[], queuedAddressLimit: number): Promise<ActiveAddressAccountAmount> {
+  private async getActiveAddressBalances (tokens: number[], queuedAddressLimit: number): Promise<AddressAccountAmount> {
     const queue = await this.addressQueue()
     const addresses = await queue.receive(queuedAddressLimit)
 
-    const balances: Record<string, AccountAmount> = {}
+    const balances: AddressAccountAmount = {}
     for (const a of addresses) {
       const nonZeroBalances = await this.whaleRpcClient.account.getTokenBalances(
         { limit: Number.MAX_SAFE_INTEGER },
