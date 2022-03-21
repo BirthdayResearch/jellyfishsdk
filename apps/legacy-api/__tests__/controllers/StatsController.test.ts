@@ -94,6 +94,7 @@ describe('StatsController', () => {
 
     // Additional checks
     expect(actual.rewards.minter).toStrictEqual(actual.rewards.masternode)
+    expect(res.headers['content-type']).toStrictEqual('application/json; charset=utf-8')
   })
 
   it('/v1/stats?q=rewards - returns nested object', async () => {
@@ -119,6 +120,7 @@ describe('StatsController', () => {
       options: expect.any(Number),
       unallocated: expect.any(Number)
     })
+    expect(res.headers['content-type']).toStrictEqual('application/json; charset=utf-8')
   })
 
   it('/v1/stats?q=tokens.supply.total - returns text (leaf)', async () => {
@@ -128,6 +130,7 @@ describe('StatsController', () => {
     })
 
     expect(Number(res.body)).toStrictEqual(expect.any(Number))
+    expect(res.headers['content-type']).toStrictEqual('text; charset=utf-8')
   })
 })
 

@@ -16,10 +16,6 @@ module.exports = {
     },
     colorMode: {
       defaultMode: 'light',
-      switchConfig: {
-        darkIcon: '🌙',
-        lightIcon: '💡'
-      },
       respectPrefersColorScheme: true
     },
     navbar: {
@@ -45,6 +41,12 @@ module.exports = {
           to: 'ocean',
           activeBasePath: 'ocean',
           label: 'Ocean REST API',
+          position: 'left'
+        },
+        {
+          to: 'legacy',
+          activeBasePath: 'legacy',
+          label: 'Stats REST API',
           position: 'left'
         },
         {
@@ -166,6 +168,16 @@ module.exports = {
         id: 'testing',
         path: '../docs/testing',
         routeBasePath: 'testing',
+        editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
+        sidebarCollapsed: false,
+      },
+    ],
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'legacy',
+        path: '../docs/legacy',
+        routeBasePath: 'legacy',
         editUrl: 'https://github.com/DeFiCh/jellyfish/tree/main/website',
         sidebarCollapsed: false,
       },

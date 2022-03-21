@@ -150,6 +150,7 @@
       <w>listmasternodes</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
+      <w>listswaps</w>
       <w>listunspent</w>
       <w>listvaults</w>
       <w>liveness</w>
