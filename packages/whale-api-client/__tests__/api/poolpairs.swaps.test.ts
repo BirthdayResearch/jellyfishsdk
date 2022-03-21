@@ -376,4 +376,92 @@ describe('poolswap buy-sell indicator', () => {
       }
     ])
   })
+
+  it('should get direct pool swap for composite swap', async () => {
+    await testing.rpc.poolpair.compositeSwap({
+      from: await testing.address('swap'),
+      tokenFrom: 'C',
+      amountFrom: 10,
+      to: await testing.address('swap'),
+      tokenTo: 'DFI'
+    })
+
+    await testing.rpc.poolpair.compositeSwap({
+      from: await testing.address('swap'),
+      tokenFrom: 'A',
+      amountFrom: 10,
+      to: await testing.address('swap'),
+      tokenTo: 'B'
+    })
+
+    const height = await container.getBlockCount()
+    await container.generate(1)
+    await service.waitForIndexedHeight(height)
+
+    const verbose6: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwapsVerbose('6')
+    expect(verbose6.hasNext).toStrictEqual(false)
+    expect([...verbose6]).toStrictEqual([
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: expect.any(Number),
+        poolPairId: '6',
+        sort: expect.any(String),
+        fromAmount: '10.00000000',
+        fromTokenId: 3,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        },
+        from: {
+          address: expect.any(String),
+          symbol: 'C',
+          amount: '10.00000000',
+          displaySymbol: 'dC'
+        },
+        to: {
+          address: expect.any(String),
+          amount: '4.76190476',
+          symbol: 'DFI',
+          displaySymbol: 'DFI'
+        },
+        type: 'BUY'
+      }
+    ])
+
+    const verbose4: ApiPagedResponse<PoolSwapData> = await client.poolpairs.listPoolSwapsVerbose('4')
+    expect(verbose4.hasNext).toStrictEqual(false)
+    expect([...verbose4]).toStrictEqual([
+      {
+        id: expect.any(String),
+        txid: expect.stringMatching(/[0-f]{64}/),
+        txno: expect.any(Number),
+        poolPairId: '4',
+        sort: expect.any(String),
+        fromAmount: '10.00000000',
+        fromTokenId: 1,
+        block: {
+          hash: expect.stringMatching(/[0-f]{64}/),
+          height: expect.any(Number),
+          time: expect.any(Number),
+          medianTime: expect.any(Number)
+        },
+        from: {
+          address: expect.any(String),
+          symbol: 'A',
+          amount: '10.00000000',
+          displaySymbol: 'dA'
+        },
+        to: {
+          address: expect.any(String),
+          amount: '18.18181818',
+          symbol: 'B',
+          displaySymbol: 'dB'
+        },
+        type: 'SELL'
+      }
+    ])
+  })
 })
