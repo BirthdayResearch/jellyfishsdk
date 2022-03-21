@@ -2,17 +2,14 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParserTest } from '../../../test/AddressParserTest'
-import { UtxoAddressParser } from '../../../src/controller/AddressParser/utxo'
+import { UtxoAddressParser } from '../../../src/saga/AddressParser/UtxoAddressParser'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('UtxoAddressParser', () => {
   const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
   let apiClient!: JsonRpcClient
 
-  let sender1!: string
-  let sender2!: string
-  let rec1!: string
-  let rec2!: string
-  let rec3!: string
   let rawTx!: RawTransaction
 
   beforeAll(async () => {
@@ -20,11 +17,11 @@ describe('UtxoAddressParser', () => {
     await container.waitForWalletCoinbaseMaturity()
     apiClient = new JsonRpcClient(await container.getCachedRpcUrl())
 
-    sender1 = await container.getNewAddress()
-    sender2 = await container.getNewAddress()
-    rec1 = await container.getNewAddress()
-    rec2 = await container.getNewAddress()
-    rec3 = await container.getNewAddress()
+    const sender1 = await testing.address('sender1')
+    const sender2 = await testing.address('sender2')
+    const rec1 = await testing.address('rec1')
+    const rec2 = await testing.address('rec2')
+    const rec3 = await testing.address('rec3')
 
     // fund addresses
     await apiClient.wallet.sendMany({
@@ -52,10 +49,10 @@ describe('UtxoAddressParser', () => {
     const addresses = await parser.parse(rawTx)
 
     expect(addresses.length).toBeGreaterThanOrEqual(5)
-    expect(addresses).toContain(sender1)
-    expect(addresses).toContain(sender2)
-    expect(addresses).toContain(rec1)
-    expect(addresses).toContain(rec2)
-    expect(addresses).toContain(rec3)
+    expect(addresses).toContain(await testing.address('sender1'))
+    expect(addresses).toContain(await testing.address('sender2'))
+    expect(addresses).toContain(await testing.address('rec1'))
+    expect(addresses).toContain(await testing.address('rec2'))
+    expect(addresses).toContain(await testing.address('rec3'))
   })
 })

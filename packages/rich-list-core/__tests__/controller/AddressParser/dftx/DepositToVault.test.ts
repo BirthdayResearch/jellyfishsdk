@@ -3,7 +3,7 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { BigNumber } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
-import { DepositToVaultParser } from '../../../../src/controller/AddressParser/dftx/DepositToVault'
+import { DepositToVaultParser } from '../../../../src/saga/AddressParser/dftx/DepositToVault'
 
 describe('DepositToVaultParser', () => {
   const container = new MasterNodeRegTestContainer()

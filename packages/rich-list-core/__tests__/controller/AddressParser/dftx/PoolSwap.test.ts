@@ -2,7 +2,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { poolpair } from '@defichain/jellyfish-api-core'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
-import { PoolSwapParser } from '../../../../src/controller/AddressParser/dftx/PoolSwap'
+import { PoolSwapParser } from '../../../../src/saga/AddressParser/dftx/PoolSwap'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
 
 describe('PoolSwapParser', () => {

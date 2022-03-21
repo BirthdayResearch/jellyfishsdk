@@ -2,7 +2,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RawTransaction } from '@defichain/jellyfish-api-core/src/category/rawtx'
 import { AddressParserTest } from '../../../../test/AddressParserTest'
-import { PoolAddLiquidityParser } from '../../../../src/controller/AddressParser/dftx/PoolAddLiquidity'
+import { PoolAddLiquidityParser } from '../../../../src/saga/AddressParser/dftx/PoolAddLiquidity'
 
 describe('PoolAddLiquidityParser', () => {
   const container = new MasterNodeRegTestContainer()

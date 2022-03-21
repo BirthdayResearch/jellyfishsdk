@@ -1,10 +1,9 @@
 import { OP_DEFI_TX, OPCode, DfTx, toOPCodes } from '@defichain/jellyfish-transaction'
-import { ApiClient, blockchain as defid } from '@defichain/jellyfish-api-core'
+import { blockchain as defid } from '@defichain/jellyfish-api-core'
 import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/AccountToUtxos'
-import { UtxoAddressParser } from './utxo'
 import { AccountToAccountParser } from './dftx/accountToAccount'
 import { AnyAccountToAccountParser } from './dftx/AnyAccountToAccount'
 import { UtxosToAccountParser } from './dftx/UtxosToAccount'
@@ -15,10 +14,12 @@ import { CompositeSwapParser } from './dftx/CompositeSwap'
 import { WithdrawFromVaultParser } from './dftx/WithdrawFromVault'
 import { DepositToVaultParser } from './dftx/DepositToVault'
 import { TakeLoanParser } from './dftx/TakeLoan'
+import { UtxoAddressParser } from './UtxoAddressParser'
+import { WhaleRpcClient } from '@defichain/whale-api-client'
 
 export class AddressParser {
   constructor (
-    private readonly apiClient: ApiClient,
+    private readonly rpcClient: WhaleRpcClient,
     private readonly network: NetworkName,
     private readonly dftxs: Array<DfTxAddressParser<any>> = [
       new UtxosToAccountParser(network),
@@ -34,7 +35,7 @@ export class AddressParser {
       new DepositToVaultParser(network)
       // TODO(@ivan-zynesis): add ALL
     ],
-    private readonly utxo: UtxoAddressParser = new UtxoAddressParser(apiClient)
+    private readonly utxo: UtxoAddressParser = new UtxoAddressParser(rpcClient)
   ) {
   }
 

@@ -2,7 +2,7 @@
   "private": true,
   "name": "@defichain/rich-list-core",
   "version": "0.0.0",
-  "description": "A modulular library to compute DeFiChain rich list with persistence storage provider injected.",
+  "description": "A modular library to compute DeFiChain rich list with persistence storage provider injected.",
   "keywords": [
     "DeFiChain",
     "DeFi",
@@ -13,8 +13,8 @@
   "repository": "DeFiCh/jellyfish",
   "bugs": "https://github.com/DeFiCh/jellyfish/issues",
   "license": "MIT",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
