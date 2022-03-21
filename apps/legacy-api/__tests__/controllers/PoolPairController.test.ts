@@ -95,7 +95,8 @@ it('/v1/listswaps', async () => {
   //   },
   //   ...
   // }
-  for (const [key, poolpair] of Object.entries(res.json())) {
+  const v1JsonResponse = res.json()
+  for (const [key, poolpair] of Object.entries(v1JsonResponse)) {
     // Verify all keys follow snake case
     expect(key).toMatch(/^\w+_\w+$/)
 
@@ -113,6 +114,68 @@ it('/v1/listswaps', async () => {
       quote_volume: expect.any(Number)
     })
   }
+
+  expect(v1JsonResponse.ETH_DFI).toStrictEqual({
+    base_id: '1',
+    base_name: 'ETH',
+    base_symbol: 'ETH',
+    quote_id: '0',
+    quote_name: 'DFI',
+    quote_symbol: 'DFI',
+    last_price: expect.any(String),
+    base_volume: expect.any(Number),
+    quote_volume: expect.any(Number),
+    isFrozen: expect.any(Number)
+  })
+})
+
+it('/v2/listswaps', async () => {
+  const res = await apiTesting.app.inject({
+    method: 'GET',
+    url: '/v2/listswaps'
+  })
+
+  // {
+  //   ETH_DFI: {
+  //     base_id: '1',
+  //     base_name: 'ETH',
+  //     ...
+  //   },
+  //   ...
+  // }
+  const v2JsonResponse = res.json()
+  for (const [key, poolpair] of Object.entries(v2JsonResponse)) {
+    // Verify all keys follow snake case
+    expect(key).toMatch(/^\w+_\w+$/)
+    // Verify each swap object's fields
+    expect(poolpair).toStrictEqual({
+      base_id: expect.any(String),
+      base_name: expect.any(String),
+      base_symbol: expect.any(String),
+      base_volume: expect.any(Number),
+      isFrozen: expect.any(Number),
+      last_price: expect.stringMatching(ONLY_DECIMAL_NUMBER_REGEX),
+      quote_id: expect.stringMatching(/\d+/),
+      quote_name: expect.any(String),
+      quote_symbol: expect.any(String),
+      quote_volume: expect.any(Number)
+    })
+  }
+
+  expect(v2JsonResponse.ETH_DFI).toStrictEqual({
+    base_id: '1',
+    base_name: 'ETH',
+    base_symbol: 'ETH',
+    quote_id: '0',
+    quote_name: 'DFI',
+    quote_symbol: 'DFI',
+    last_price: expect.any(String),
+    base_volume: expect.any(Number),
+    quote_volume: expect.any(Number),
+    isFrozen: expect.any(Number)
+  })
+
+  expect(v2JsonResponse.ETH_DFI.last_price).not.toMatch('^0') // doesn't start with 0
 })
 
 it('/v1/listyieldfarming', async () => {
