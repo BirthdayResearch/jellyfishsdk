@@ -1,19 +1,6 @@
 import { MasterNodeRegTestContainer } from './Masternode'
 import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
-import Dockerode, { ContainerInfo } from 'dockerode'
-
-async function getContainerInfoByName (docker: Dockerode, name: string): Promise<ContainerInfo | undefined> {
-  return await new Promise((resolve, reject) => {
-    const opts = { limit: 1, filters: `{"name": ["${name}"]}` }
-    docker.listContainers(opts, function (err, containers) {
-      if (err === null && containers !== undefined) {
-        resolve(containers[0])
-      } else {
-        reject(err)
-      }
-    })
-  })
-}
+import { GenericContainer } from 'testcontainers'
 
 /**
  * PersistentMNRegTestContainer container is a RegTest container with MasterNode minting preconfigured.
@@ -25,12 +12,13 @@ async function getContainerInfoByName (docker: Dockerode, name: string): Promise
  * Once you are done with your dev work, you should swap this out for MasterNodeRegTestContainer.
  */
 export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
+  private static readonly PERSISTENT_CONTAINER: GenericContainer = new GenericContainer(PersistentMNRegTestContainer.image)
+
   /**
    * Init the required container instances  for start/stop operation
    */
   async init (): Promise<void> {
-    const info = await getContainerInfoByName(this.docker, this.generateName())
-    this.container = info?.Id !== undefined ? this.docker.getContainer(info.Id) : undefined
+    this.docker = PersistentMNRegTestContainer.PERSISTENT_CONTAINER
   }
 
   /**
@@ -43,8 +31,6 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
 
     try {
       await this.init()
-      this.requireContainer()
-      await this.waitForReady(3000)
     } catch (e) {
       // Attempt clean up before starting
       await super.stop()

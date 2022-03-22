@@ -1,8 +1,7 @@
-import Dockerode, { ContainerInfo, DockerOptions } from 'dockerode'
 import fetch from 'cross-fetch'
-import { DockerContainer } from './DockerContainer'
+import { DockerContainer, DockerOptions } from './DockerContainer'
 import { waitForCondition } from '../utils'
-
+import Dockerode from 'dockerode'
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
  */
@@ -36,6 +35,13 @@ export abstract class DeFiDContainer extends DockerContainer {
       return process.env.DEFICHAIN_DOCKER_IMAGE
     }
     return 'defi/defichain:master-3f7f6ecc3'
+  }
+
+  public static readonly DefiDPorts: Record<Network, number[]> = {
+    mainnet: [8554, 8555],
+    testnet: [18554, 18555],
+    devnet: [18554, 18555],
+    regtest: [19554, 19555]
   }
 
   public static readonly DefaultStartOptions = {
@@ -78,19 +84,15 @@ export abstract class DeFiDContainer extends DockerContainer {
    * Create container and start it immediately waiting for defid to be ready
    */
   async start (startOptions: StartOptions = {}): Promise<void> {
-    await this.tryPullImage()
     this.startOptions = Object.assign(DeFiDContainer.DefaultStartOptions, startOptions)
-    this.container = await this.docker.createContainer({
-      name: this.generateName(),
-      Image: this.image,
-      Tty: true,
-      Cmd: this.getCmd(this.startOptions),
-      HostConfig: {
-        PublishAllPorts: true
-      }
-    })
-    await this.container.start()
-    await this.waitForRpc(startOptions.timeout)
+    const timeout = this.startOptions.timeout !== undefined ? this.startOptions.timeout : 20000
+
+    this.docker
+      .withName(this.generateName())
+      .withCmd(this.getCmd(this.startOptions))
+      .withExposedPorts(...DeFiDContainer.DefiDPorts[this.network])
+    await this._startContainer()
+    await this.waitForRpc(timeout)
   }
 
   /**
@@ -100,10 +102,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   async setDeFiConf (options: string[]): Promise<void> {
     if (options.length > 0) {
       const fileContents = `${options.join('\n')}\n`
-
-      await this.exec({
-        Cmd: ['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`]
-      })
+      await this.exec(['bash', '-c', `echo "${fileContents}" > ~/.defi/defi.conf`])
     }
   }
 
@@ -118,7 +117,7 @@ export abstract class DeFiDContainer extends DockerContainer {
   /**
    * Get host machine port used for defid rpc
    */
-  public abstract getRpcPort (): Promise<string>
+  public abstract getRpcPort (): string
 
   /**
    * Get host machine url used for defid rpc calls with auth
@@ -207,7 +206,7 @@ export abstract class DeFiDContainer extends DockerContainer {
    * Wait for rpc to be ready
    * @param {number} [timeout=20000] in millis
    */
-  private async waitForRpc (timeout = 40000): Promise<void> {
+  private async waitForRpc (timeout = 20000): Promise<void> {
     await waitForCondition(async () => {
       this.cachedRpcUrl = undefined
       await this.getMiningInfo()
@@ -223,21 +222,11 @@ export abstract class DeFiDContainer extends DockerContainer {
   }
 
   /**
-   * Stop and remove the current node and their associated volumes.
-   *
-   * This method will also automatically stop and removes nodes that are stale.
-   * Stale nodes are nodes that are running for more than 1 hour
+   * Stop the current node and their associated volumes.
+   * Removal should be automatic based on testcontainers' implementation
    */
   async stop (): Promise<void> {
-    try {
-      await this.container?.stop()
-    } finally {
-      try {
-        await this.container?.remove({ v: true })
-      } finally {
-        await cleanUpStale(DeFiDContainer.PREFIX, this.docker)
-      }
-    }
+    await this._stopContainer()
   }
 
   /**
@@ -245,8 +234,10 @@ export abstract class DeFiDContainer extends DockerContainer {
    * This will stop the container and start it again with old data intact.
    * @param {number} [timeout=30000] in millis
    */
-  async restart (timeout: number = 30000): Promise<void> {
-    await this.container?.restart()
+  async restart (timeout: number = 60000): Promise<void> {
+    const dockerrode = new Dockerode()
+    const dockerrodeContainer = dockerrode.getContainer(this.requireContainer().getId())
+    await dockerrodeContainer.restart()
     await this.waitForRpc(timeout)
   }
 }
@@ -258,45 +249,4 @@ export class DeFiDRpcError extends Error {
   constructor (error: { code: number, message: string }) {
     super(`DeFiDRpcError: '${error.message}', code: ${error.code}`)
   }
-}
-
-/**
- * Clean up stale nodes are nodes that are running for 1 hour
- */
-async function cleanUpStale (prefix: string, docker: Dockerode): Promise<void> {
-  /**
-   * Same prefix and created more than 1 hour ago
-   */
-  function isStale (containerInfo: ContainerInfo): boolean {
-    if (containerInfo.Names.filter((value) => value.startsWith(prefix)).length > 0) {
-      return containerInfo.Created + 60 * 60 < Date.now() / 1000
-    }
-
-    return false
-  }
-
-  /**
-   * Stop container that are running, remove them after and their associated volumes
-   */
-  async function tryStopRemove (containerInfo: ContainerInfo): Promise<void> {
-    const container = docker.getContainer(containerInfo.Id)
-    if (containerInfo.State === 'running') {
-      await container.stop()
-    }
-    await container.remove({ v: true })
-  }
-
-  return await new Promise((resolve, reject) => {
-    docker.listContainers({ all: true }, (error, result) => {
-      if (error instanceof Error) {
-        return reject(error)
-      }
-
-      const promises = (result ?? [])
-        .filter(isStale)
-        .map(tryStopRemove)
-
-      Promise.all(promises).finally(resolve)
-    })
-  })
 }

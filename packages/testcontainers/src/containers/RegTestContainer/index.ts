@@ -1,4 +1,4 @@
-import { DockerOptions } from 'dockerode'
+import { DockerOptions } from '../DockerContainer'
 import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
 import { SPV } from './SPV'
 
@@ -50,7 +50,7 @@ export class RegTestContainer extends DeFiDContainer {
     return await this.call('getnewaddress', [label, addressType])
   }
 
-  async getRpcPort (): Promise<string> {
-    return await this.getPort('19554/tcp')
+  getRpcPort (): string {
+    return this.getPort(19554).toString()
   }
 }

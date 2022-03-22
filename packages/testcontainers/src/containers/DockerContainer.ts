@@ -1,145 +1,121 @@
-import Dockerode, { Container, DockerOptions } from 'dockerode'
+import {
+  GenericContainer,
+  Network,
+  StartedTestContainer
+} from 'testcontainers'
+
+export interface DockerOptions {
+  username?: string | undefined
+  timeout?: number | undefined
+}
+export interface DockerNetworkInfo {
+  id: string
+  name: string
+}
+export interface DockerContainerInfo {
+  id: string
+  name: string
+  host: string
+  networks: DockerNetworkInfo[]
+}
 
 export abstract class DockerContainer {
-  protected readonly docker: Dockerode
-  protected container?: Container
+  protected docker: GenericContainer
+  protected container?: StartedTestContainer
 
   protected constructor (
     protected readonly image: string,
     options?: DockerOptions
   ) {
-    this.docker = new Dockerode(options)
+    this.docker = new GenericContainer(image)
+    if (options !== undefined) {
+      if (options?.username !== undefined) {
+        this.docker.withUser(options.username)
+      }
+      if (options?.timeout !== undefined) {
+        this.docker.withStartupTimeout(options.timeout)
+      }
+    }
+  }
+
+  protected async _startContainer (): Promise<void> {
+    this.container = await this.docker.start()
+  }
+
+  protected async _stopContainer (): Promise<void> {
+    await this.requireContainer().stop()
+    this.container = undefined
   }
 
   get id (): string {
-    return this.requireContainer().id
+    return this.requireContainer().getId()
   }
 
-  async getIp (name = 'default'): Promise<string> {
-    const { NetworkSettings: networkSettings } = await this.inspect()
-    const { Networks: networks } = networkSettings
-    return networks[name].IPAddress
+  getIp (name = 'default'): string {
+    return this.requireContainer().getIpAddress(name)
   }
 
-  async listNetworks (): Promise<Dockerode.NetworkInspectInfo[]> {
-    return await this.docker.listNetworks()
+  listNetworks (): DockerNetworkInfo[] {
+    return this.requireContainer().getNetworkNames().map((name) => ({
+      name,
+      id: this.requireContainer().getNetworkId(name)
+    }))
   }
 
-  async getNetwork (id: string): Promise<Dockerode.Network> {
-    return this.docker.getNetwork(id)
+  async getNetwork (id: string): Promise<DockerNetworkInfo | undefined> {
+    return this.listNetworks().find(network => network.id === id)
   }
 
-  async createNetwork (name: string): Promise<void> {
-    await this.docker.createNetwork({
-      Name: name,
-      IPAM: {
-        Driver: 'default',
-        Config: []
-      }
-    })
+  async createNetwork (name: string): Promise<string> {
+    const network = await new Network({ name }).start()
+    return network.getId()
   }
 
-  async connectNetwork (id: string): Promise<void> {
-    const network = await this.getNetwork(id)
-    await network.connect({ Container: this.id })
-  }
-
-  async removeNetwork (id: string): Promise<void> {
-    const network = await this.getNetwork(id)
-    await network.remove(id)
-  }
-
-  /**
-   * Try pull docker image if it doesn't already exist.
-   */
-  protected async tryPullImage (): Promise<void> {
-    if (await hasImageLocally(this.image, this.docker)) {
-      return
-    }
-
-    /* istanbul ignore next */
-    return await new Promise((resolve, reject) => {
-      this.docker.pull(this.image, {}, (error, result) => {
-        if (error instanceof Error) {
-          reject(error)
-          return
-        }
-        this.docker.modem.followProgress(result, () => {
-          resolve()
-        })
-      })
-    })
+  async connectNetwork (networkName: string): Promise<void> {
+    this.docker.withNetworkMode(networkName)
   }
 
   /**
    * Require container, else error exceptionally.
    * Not a clean design, but it keep the complexity of this implementation low.
    */
-  protected requireContainer (): Container {
-    if (this.container !== undefined) {
-      return this.container
+  protected requireContainer (): StartedTestContainer {
+    if (this.container === undefined) {
+      throw new Error('container not yet started')
     }
-    throw new Error('container not yet started')
+    return this.container
   }
 
   /**
    * Get host machine port
    *
-   * @param {string} name of ExposedPorts e.g. '80/tcp'
+   * @param {number} port
    */
-  async getPort (name: string): Promise<string> {
+  getPort (port: number): number {
     const container = this.requireContainer()
-
-    return await new Promise((resolve, reject) => {
-      container.inspect(function (err, data) {
-        if (err instanceof Error) {
-          return reject(err)
-        }
-
-        if (data?.NetworkSettings.Ports[name] !== undefined) {
-          return resolve(data.NetworkSettings.Ports[name][0].HostPort)
-        }
-
-        return reject(new Error('Unable to find rpc port, the container might have crashed'))
-      })
-    })
+    return container.getMappedPort(port)
   }
 
   /**
    * tty into docker
    */
-  async exec (opts: { Cmd: string[] }): Promise<void> {
-    return await new Promise((resolve, reject) => {
-      const container = this.requireContainer()
-      container.exec({
-        Cmd: opts.Cmd
-      }, (error, exec) => {
-        if (error instanceof Error) {
-          reject(error)
-        } else {
-          exec?.start({})
-            .then(() => setTimeout(resolve, 100)) // to prevent stream race condition
-            .catch(reject)
-        }
-      })
-    })
+  async exec (cmds: string[]): Promise<void> {
+    const container = this.requireContainer()
+    await container.exec(cmds)
   }
 
   /**
    * Inspect docker container info
    *
-   * @return {Promise<Record<string, any>>}
+   * @return {Promise<DockerContainerInfo>}
    */
-  async inspect (): Promise<Record<string, any>> {
+  async inspect (): Promise<DockerContainerInfo> {
     const container = this.requireContainer()
-    return await container.inspect()
+    return {
+      id: container.getId(),
+      name: container.getName(),
+      host: container.getHost(),
+      networks: this.listNetworks()
+    }
   }
-}
-
-async function hasImageLocally (image: string, docker: Dockerode): Promise<boolean> {
-  return await new Promise((resolve, reject) => {
-    docker.getImage(image).inspect((error, result) => {
-      resolve(!(error instanceof Error))
-    })
-  })
 }

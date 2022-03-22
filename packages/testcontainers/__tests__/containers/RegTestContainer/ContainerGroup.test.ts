@@ -30,6 +30,7 @@ it('send balance and wait for sync for balance to reach', async () => {
 
 it('should add another container to already running group', async () => {
   const container = new MasterNodeRegTestContainer()
+  await group.addToNetwork(container)
   await container.start()
 
   await group.add(container)

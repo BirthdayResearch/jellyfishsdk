@@ -1,4 +1,4 @@
-import { DockerOptions } from 'dockerode'
+import { DockerOptions } from './DockerContainer'
 import { DeFiDContainer } from './DeFiDContainer'
 
 export class MainNetContainer extends DeFiDContainer {
@@ -10,7 +10,7 @@ export class MainNetContainer extends DeFiDContainer {
     super('mainnet', image, options)
   }
 
-  async getRpcPort (): Promise<string> {
-    return await this.getPort('8554/tcp')
+  getRpcPort (): string {
+    return this.getPort(8554).toString()
   }
 }

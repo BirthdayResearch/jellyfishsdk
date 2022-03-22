@@ -1,20 +1,17 @@
-import Dockerode, { DockerOptions, Network } from 'dockerode'
 import { v4 as uuidv4 } from 'uuid'
 import { waitForCondition } from '../../utils'
 import { MasterNodeRegTestContainer } from './Masternode'
 import { RegTestContainer } from './index'
 import { StartOptions } from '../DeFiDContainer'
+import { Network, StartedNetwork } from 'testcontainers'
 
 export class ContainerGroup {
-  protected readonly docker: Dockerode
-  protected network?: Network
+  protected network?: StartedNetwork
 
   public constructor (
     protected readonly containers: RegTestContainer[] = [],
-    protected readonly name = `testcontainers-${uuidv4()}`,
-    options?: DockerOptions
+    protected readonly name = `testcontainers-${uuidv4()}`
   ) {
-    this.docker = new Dockerode(options)
   }
 
   /**
@@ -26,23 +23,11 @@ export class ContainerGroup {
   }
 
   async start (opts?: StartOptions): Promise<void> {
-    this.network = await new Promise((resolve, reject) => {
-      return this.docker.createNetwork({
-        Name: this.name,
-        IPAM: {
-          Driver: 'default',
-          Config: []
-        }
-      }, (err, data) => {
-        if (err instanceof Error || data === undefined) {
-          return reject(err)
-        }
-        return resolve(data)
-      })
-    })
+    this.network = await new Network({ name: this.name, driver: 'bridge' }).start()
 
     // Removing all predefined containers and adding it to group
     for (const container of this.containers.splice(0)) {
+      await this.addToNetwork(container)
       await container.start(opts)
       await this.add(container)
     }
@@ -60,19 +45,23 @@ export class ContainerGroup {
    * Require network, else error exceptionally.
    * Not a clean design, but it keep the complexity of this implementation low.
    */
-  protected requireNetwork (): Network {
+  protected requireNetwork (): StartedNetwork {
     if (this.network !== undefined) {
       return this.network
     }
     throw new Error('network not yet started')
   }
 
+  async addToNetwork (container: RegTestContainer): Promise<void> {
+    const network = this.requireNetwork()
+    await container.connectNetwork(network.getName())
+  }
+
   /**
+   * @method addToNetwork should be called on the container before this is called
    * @param {DeFiDContainer} container to add into container group with addnode
    */
   async add (container: RegTestContainer): Promise<void> {
-    await this.requireNetwork().connect({ Container: container.id })
-
     for (const each of this.containers) {
       await container.addNode(await each.getIp(this.name))
     }
@@ -115,11 +104,11 @@ export class ContainerGroup {
    */
   async stop (): Promise<void> {
     for (const container of this.containers) {
-      await this.requireNetwork().disconnect({ Container: container.id })
       await container.stop()
     }
 
-    await this.requireNetwork().remove()
+    await this.requireNetwork().stop()
+    this.network = undefined
     // NOTE: for anyone have RPC timeout issue, esp newer version docker, v3.6.x / v4.x.x
     // enable the following line to ensure docker network pruned correctly between tests
     // global containers prune may cause multithreaded tests clashing each other

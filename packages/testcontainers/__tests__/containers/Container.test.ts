@@ -12,8 +12,9 @@ describe('container error handling', () => {
 
   it('should error immediately if required container is not yet started', async () => {
     container = new RegTestContainer()
-    return await expect(container.getRpcPort())
-      .rejects.toThrow(/container not yet started/)
+    expect(() => {
+      container.getRpcPort()
+    }).toThrow(/container not yet started/)
   })
 
   it('should error rpc as DeFiDRpcError', async () => {
@@ -35,14 +36,15 @@ describe('container error handling', () => {
 
     container = new InvalidCmd()
     return await expect(container.start({ timeout: 5000 }))
-      .rejects.toThrow(/waitForRpc is not ready within given timeout of 5000ms./)
+      .rejects.toThrow(/container stopped\/paused/)
   })
 
-  it('should get error: container not found if container is stopped', async () => {
+  it('should get error: container not yet started if container is stopped', async () => {
     container = new RegTestContainer()
     await container.start()
     await container.stop()
-    return await expect(container.getRpcPort())
-      .rejects.toThrow(/\(HTTP code 404\) no such container - No such container:/)
+    return expect(() => {
+      container.getRpcPort()
+    }).toThrow(/container not yet started/)
   })
 })
