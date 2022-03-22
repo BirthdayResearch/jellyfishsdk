@@ -10,7 +10,7 @@ import {
   PoolSwapFromToData,
   SwapPathPoolPair,
   SwapPathsResult, TokenIdentifier
-} from '@defichain/whale-api-client/src/api/poolpairs'
+} from '@defichain/whale-api-client/src/api/PoolPairs'
 import { getBlockSubsidy } from '../module.api/subsidy'
 import { BlockMapper } from '../module.model/block'
 import { TokenMapper } from '../module.model/token'

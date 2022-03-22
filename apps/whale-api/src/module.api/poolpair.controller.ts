@@ -9,7 +9,7 @@ import {
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
-} from '@defichain/whale-api-client/src/api/poolpairs'
+} from '@defichain/whale-api-client/src/api/PoolPairs'
 import { PaginationQuery } from '../module.api/_core/api.query'
 import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
 import BigNumber from 'bignumber.js'

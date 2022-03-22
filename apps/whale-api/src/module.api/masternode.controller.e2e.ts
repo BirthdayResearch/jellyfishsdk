@@ -4,7 +4,7 @@ import { createTestingApp, DelayedEunosPayaTestContainer, stopTestingApp, waitFo
 import { NotFoundException } from '@nestjs/common'
 import { MasternodeController } from '../module.api/masternode.controller'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { MasternodeState } from '@defichain/whale-api-client/src/api/masternodes'
+import { MasternodeState } from '@defichain/whale-api-client/src/api/MasterNodes'
 import { MasternodeTimeLock } from '@defichain/jellyfish-api-core/src/category/masternode'
 
 describe('list', () => {
