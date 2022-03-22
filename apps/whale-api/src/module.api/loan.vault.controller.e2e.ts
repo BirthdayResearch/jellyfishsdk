@@ -127,10 +127,12 @@ describe('get', () => {
       await controller.getVault('0530ab29a9f09416a014a4219f186f1d5d530e9a270a9f941275b3972b43ebb7')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException)).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find vault',
-        error: 'Not Found'
+      expect((err as NotFoundException).getResponse()).toStrictEqual({
+        error: {
+          statusCode: 404,
+          message: 'Unable to find vault',
+          error: 'Not Found'
+        }
       })
     }
 
@@ -138,10 +140,12 @@ describe('get', () => {
       await controller.getVault('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException)).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find vault',
-        error: 'Not Found'
+      expect((err as NotFoundException).getResponse()).toStrictEqual({
+        error: {
+          statusCode: 404,
+          message: 'Unable to find vault',
+          error: 'Not Found'
+        }
       })
     }
   })

@@ -94,10 +94,12 @@ describe('get', () => {
       await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException)).toStrictEqual({
-        statusCode: 404,
-        message: 'Unable to find masternode',
-        error: 'Not Found'
+      expect((err as NotFoundException).getResponse()).toStrictEqual({
+        error: {
+          statusCode: 404,
+          message: 'Unable to find masternode',
+          error: 'Not Found'
+        }
       })
     }
   })
