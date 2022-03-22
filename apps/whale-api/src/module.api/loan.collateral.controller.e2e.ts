@@ -216,11 +216,9 @@ describe('get', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect((err as NotFoundException).getResponse()).toStrictEqual({
-        error: {
-          statusCode: 404,
-          message: 'Unable to find collateral token',
-          error: 'Not Found'
-        }
+        statusCode: 404,
+        message: 'Unable to find collateral token',
+        error: 'Not Found'
       })
     }
   })

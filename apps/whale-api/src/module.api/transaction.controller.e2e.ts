@@ -86,11 +86,9 @@ describe('get', () => {
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
       expect((err as NotFoundException).getResponse()).toStrictEqual({
-        error: {
-          statusCode: 404,
-          message: 'transaction not found',
-          error: 'Not Found'
-        }
+        statusCode: 404,
+        message: 'transaction not found',
+        error: 'Not Found'
       })
     }
   })
