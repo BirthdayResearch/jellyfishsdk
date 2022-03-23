@@ -20,22 +20,7 @@ import BigNumber from 'bignumber.js'
 /**
  * @deprecated exports would be deprecated soon
  */
-export {
-  AuctionPagination,
-  CloseVault,
-  CreateVault,
-  DepositVault,
-  ListAuctionHistoryDetail,
-  ListAuctionHistoryPagination,
-  ListVaultOptions,
-  PlaceAuctionBid,
-  UpdateVault,
-  Vault,
-  VaultActive,
-  VaultLiquidation,
-  VaultPagination,
-  WithdrawVault
-}
+export * from './vault'
 
 /**
  * Loan RPCs for DeFi Blockchain
