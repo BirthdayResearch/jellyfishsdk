@@ -39,7 +39,6 @@ describe('Masternode', () => {
   it('should getAnchorTeams correctly when a new anchor team has been added', async () => {
     // add another Test container
     const newTestContainer = new MasterNodeRegTestContainer(RegTestFoundationKeys[1])
-    await newTestContainer.start()
 
     await tGroup.add(newTestContainer)
     await tGroup.waitForSync()

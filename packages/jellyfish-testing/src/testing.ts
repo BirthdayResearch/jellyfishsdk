@@ -100,6 +100,8 @@ export class TestingGroup {
   }
 
   async add (container: MasterNodeRegTestContainer): Promise<void> {
+    await this.group.addToNetwork(container)
+    await container.start()
     await this.group.add(container)
     const testing = Testing.create(container)
     this.testings.push(testing)
