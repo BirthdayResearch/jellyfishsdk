@@ -1824,7 +1824,7 @@ describe('paybackloan for any token', () => {
     const btcPenaltyRateKey = `v0/token/${dusdId}/loan_payback_fee_pct/${btcId}`
     const btcPenaltyRate = 0.01
     await testing.rpc.masternode.setGov({ [attributeKey]: { [btcPaybackKey]: 'true', [btcPenaltyRateKey]: btcPenaltyRate.toString() } })
-    await testing.generate(1)
+    await testing.generate(5)
 
     const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
     const dusdInterestPerBlockBefore = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
@@ -1840,7 +1840,6 @@ describe('paybackloan for any token', () => {
     expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
     expect(burnInfoBefore.paybackfees).toStrictEqual([])
     expect(burnInfoBefore.paybacktokens).toStrictEqual([])
-    await testing.generate(4)
 
     const tslaPaybackAmount = 1
     const btcPaybackAmount = 1
@@ -1884,10 +1883,8 @@ describe('paybackloan for any token', () => {
     const dusdLoanAmountAfter = dusdLoanRemainingAfter.plus(dusdInterestAmountAfter)
 
     const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
-    // expect(vaultAfter.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
-    // expect(vaultAfter.interestAmounts).toStrictEqual([`${dusdInterestAmountAfter.toFixed(8)}@DUSD`])
-    console.log(`dusdLoanAmountAfter - from vault ${vaultAfter.loanAmounts[0]}, from calculation ${dusdLoanAmountAfter.toFixed(8)}@DUSD`)
-    console.log(`dusdLoanAmountAfter - from vault ${vaultAfter.interestAmounts[0]}, from calculation ${dusdInterestAmountAfter.toFixed(8)}@DUSD`)
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${dusdInterestAmountAfter.toFixed(8)}@DUSD`])
   })
 
   it('should be able to payback DUSD loan using DUSD - use PaybackLoanMetadataV2.loans', async () => {
