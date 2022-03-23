@@ -72,13 +72,13 @@ describe('Loan getInterest', () => {
     await testing.generate(1)
 
     const vaultAddress = await testing.generateAddress()
-    vaultId = await testing.rpc.loan.createVault({
+    vaultId = await testing.rpc.vault.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.depositToVault({
+    await testing.rpc.vault.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '10000@DFI'
     })
     await testing.generate(1)
@@ -251,13 +251,13 @@ describe('Loan getInterest realizedInterestPerBlock', () => {
     await testing.generate(1)
 
     const vaultAddress = await testing.generateAddress()
-    vaultId = await testing.rpc.loan.createVault({
+    vaultId = await testing.rpc.vault.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.depositToVault({
+    await testing.rpc.vault.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '100000000@DFI'
     })
     await testing.generate(1)

@@ -1,10 +1,10 @@
-import { LoanMasterNodeRegTestContainer } from './loan_container'
+import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { VaultActive, VaultState } from '../../../src/category/loan'
+import { VaultActive, VaultState } from '../../../src/category/vault'
 
 describe('Loan getVault', () => {
-  const container = new LoanMasterNodeRegTestContainer()
+  const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string
   let oracleId: string
@@ -74,7 +74,7 @@ describe('Loan getVault', () => {
     const vaultId = await testing.rpc.container.call('createvault', [ownerAddress, 'default'])
     await testing.container.generate(1)
 
-    const data = await testing.rpc.loan.getVault(vaultId)
+    const data = await testing.rpc.vault.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
@@ -101,7 +101,7 @@ describe('Loan getVault', () => {
     await testing.container.call('deposittovault', [vaultId, collateralAddress, '1@BTC'])
     await testing.generate(1)
 
-    const data = await testing.rpc.loan.getVault(vaultId)
+    const data = await testing.rpc.vault.getVault(vaultId)
     expect(data).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
@@ -136,7 +136,7 @@ describe('Loan getVault', () => {
     // interest info.
     const interestInfo: any = await testing.rpc.call('getinterest', ['default', 'TSLA'], 'bignumber')
 
-    const data = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    const data = await testing.rpc.vault.getVault(vaultId) as VaultActive
     const informativeRatio: BigNumber = data.collateralValue.dividedBy(data.loanValue).multipliedBy(100)
 
     expect(data).toStrictEqual({
@@ -174,7 +174,7 @@ describe('Loan getVault', () => {
     await testing.generate(1)
 
     // check vault not under liquidation.
-    const data = await testing.rpc.loan.getVault(vaultId)
+    const data = await testing.rpc.vault.getVault(vaultId)
     expect(data.state).toStrictEqual(VaultState.ACTIVE)
 
     // make vault enter under liquidation state by a price hike of the loan token
@@ -193,7 +193,7 @@ describe('Loan getVault', () => {
     expect(txid.length).toStrictEqual(64)
     await testing.generate(1)
 
-    const vaultDataAfterPriceHike = await testing.rpc.loan.getVault(vaultId)
+    const vaultDataAfterPriceHike = await testing.rpc.vault.getVault(vaultId)
     expect(vaultDataAfterPriceHike).toStrictEqual({
       vaultId: vaultId,
       loanSchemeId: 'default', // Get default loan scheme
@@ -235,17 +235,17 @@ describe('Loan getVault', () => {
   it('should not getVault if vault id is invalid', async () => {
     {
       // Pass non existing hex id
-      const promise = testing.rpc.loan.getVault('2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f')
+      const promise = testing.rpc.vault.getVault('2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f')
       await expect(promise).rejects.toThrow('RpcApiError: \'Vault <2cca2e3be0504af2daac12255cb5a691447e0aa3c9ca9120fb634a96010d2b4f> not found\', code: -20, method: getvault')
     }
     {
       // Pass hex id with invalid length
-      const promise = testing.rpc.loan.getVault(Buffer.from('INVALID_VAULT_ID').toString('hex'))
+      const promise = testing.rpc.vault.getVault(Buffer.from('INVALID_VAULT_ID').toString('hex'))
       await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be of length 64 (not 32, for \'494e56414c49445f5641554c545f4944\')\', code: -8, method: getvault')
     }
     {
       // Pass non hex id
-      const promise = testing.rpc.loan.getVault('x'.repeat(64))
+      const promise = testing.rpc.vault.getVault('x'.repeat(64))
       await expect(promise).rejects.toThrow('RpcApiError: \'vaultId must be hexadecimal string (not \'' + 'x'.repeat(64) + '\')\', code: -8, method: getvault')
     }
   })
