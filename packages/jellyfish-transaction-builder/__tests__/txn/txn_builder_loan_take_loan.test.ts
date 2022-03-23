@@ -8,7 +8,7 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
-import { VaultActive } from '@defichain/jellyfish-api-core/src/category/loan'
+import { VaultActive } from '@defichain/jellyfish-api-core/src/category/vault'
 import { Script } from '@defichain/jellyfish-transaction'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
@@ -140,35 +140,35 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   bobVaultAddr = await bProviders.getAddress()
-  bobVaultId = await bob.rpc.loan.createVault({
+  bobVaultId = await bob.rpc.vault.createVault({
     ownerAddress: bobVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
   liqVaultAddr = await bProviders.getAddress()
-  liqVaultId = await bob.rpc.loan.createVault({
+  liqVaultId = await bob.rpc.vault.createVault({
     ownerAddress: liqVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
   mayLiqVaultAddr = await bProviders.getAddress()
-  mayLiqVaultId = await bob.rpc.loan.createVault({
+  mayLiqVaultId = await bob.rpc.vault.createVault({
     ownerAddress: mayLiqVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
   frozenVaultAddr = await bProviders.getAddress()
-  frozenVaultId = await bob.rpc.loan.createVault({
+  frozenVaultId = await bob.rpc.vault.createVault({
     ownerAddress: frozenVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
   emptyVaultAddr = await bProviders.getAddress()
-  emptyVaultId = await bob.rpc.loan.createVault({
+  emptyVaultId = await bob.rpc.vault.createVault({
     ownerAddress: emptyVaultAddr,
     loanSchemeId: 'scheme'
   })
@@ -176,36 +176,36 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   // deposit on active vault
-  await alice.rpc.loan.depositToVault({
+  await alice.rpc.vault.depositToVault({
     vaultId: bobVaultId, from: aliceAddr, amount: '10000@DFI'
   })
   await alice.generate(1)
 
-  await alice.rpc.loan.depositToVault({
+  await alice.rpc.vault.depositToVault({
     vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC'
   })
   await alice.generate(1)
 
   // deposit on liqVault
-  await alice.rpc.loan.depositToVault({
+  await alice.rpc.vault.depositToVault({
     vaultId: liqVaultId, from: aliceAddr, amount: '10000@DFI'
   })
   await alice.generate(1)
 
   // deposit on mayLiqVault
-  await alice.rpc.loan.depositToVault({
+  await alice.rpc.vault.depositToVault({
     vaultId: mayLiqVaultId, from: aliceAddr, amount: '10000@DFI'
   })
   await alice.generate(1)
 
   // deposit on frozenVault
-  await alice.rpc.loan.depositToVault({
+  await alice.rpc.vault.depositToVault({
     vaultId: frozenVaultId, from: aliceAddr, amount: '10000@DFI'
   })
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  bobVault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+  bobVault = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
   expect(bobVault.loanSchemeId).toStrictEqual('scheme')
   expect(bobVault.ownerAddress).toStrictEqual(bobVaultAddr)
   expect(bobVault.state).toStrictEqual('active')
@@ -264,7 +264,7 @@ describe('loans.takeLoan success', () => {
 
     await bob.generate(1)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultAfter = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     const interestAfter = await alice.rpc.loan.getInterest('scheme', 'TSLA')
 
     const vaultBeforeLoanTSLAAcc = bobVault.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'TSLA')
@@ -280,7 +280,7 @@ describe('loans.takeLoan success', () => {
   })
 
   it('should takeLoan to a given address', async () => {
-    const vaultBefore = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultBefore = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     const toAddress = await bob.generateAddress()
     const txn = await bBuilder.loans.takeLoan({
       vaultId: bobVaultId,
@@ -303,7 +303,7 @@ describe('loans.takeLoan success', () => {
 
     await bob.generate(1)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultAfter = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     const interestAfter = await bob.rpc.loan.getInterest('scheme', 'CAT')
 
     const vaultBeforeLoanTSLAAcc = vaultBefore.loanAmounts.find((amt: string) => amt.split('@')[1] === 'CAT')
@@ -341,7 +341,7 @@ describe('loans.takeLoan success', () => {
 
     await bob.generate(1)
 
-    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    const vaultAfter = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
     const interestAfter = await bob.rpc.loan.getInterest('scheme')
 
     const vaultBeforeLoanAMZNAcc = bobVault.loanAmounts?.find((amt: string) => amt.split('@')[1] === 'AMZN')
@@ -492,7 +492,7 @@ describe('loans.takeLoan failed', () => {
     await alice.generate(12)
     await tGroup.waitForSync()
 
-    const liqVault = await bob.rpc.loan.getVault(liqVaultId)
+    const liqVault = await bob.rpc.vault.getVault(liqVaultId)
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const txn = await bBuilder.loans.takeLoan({
@@ -521,7 +521,7 @@ describe('loans.takeLoan failed', () => {
     await alice.generate(6)
     await tGroup.waitForSync()
 
-    const mayLiqVault = await bob.rpc.loan.getVault(mayLiqVaultId)
+    const mayLiqVault = await bob.rpc.vault.getVault(mayLiqVaultId)
     expect(mayLiqVault.state).toStrictEqual('mayLiquidate')
 
     const txn = await bBuilder.loans.takeLoan({
@@ -550,7 +550,7 @@ describe('loans.takeLoan failed', () => {
     await alice.generate(6)
     await tGroup.waitForSync()
 
-    const frozenVault = await bob.rpc.loan.getVault(frozenVaultId)
+    const frozenVault = await bob.rpc.vault.getVault(frozenVaultId)
     expect(frozenVault.state).toStrictEqual('frozen')
 
     const txn = await bBuilder.loans.takeLoan({

@@ -396,12 +396,12 @@ describe('dex.compositeSwap()', () => {
       id: 'default'
     })
     await testing.generate(1)
-    const vaultId = await testing.rpc.loan.createVault({
+    const vaultId = await testing.rpc.vault.createVault({
       ownerAddress: await testing.generateAddress(),
       loanSchemeId: 'default'
     })
     await testing.generate(1)
-    await testing.rpc.loan.depositToVault({
+    await testing.rpc.vault.depositToVault({
       vaultId: vaultId, from: colAddr, amount: '30000@DFI'
     })
     await testing.generate(1)
