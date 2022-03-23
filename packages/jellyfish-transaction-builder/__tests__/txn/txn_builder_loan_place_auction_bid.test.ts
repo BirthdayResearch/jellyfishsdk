@@ -112,14 +112,14 @@ async function setup (): Promise<void> {
   })
   await alice.generate(1)
   const loanTokenVaultAddr = await alice.generateAddress()
-  const loanVaultId = await alice.rpc.vault.createVault({
+  const loanVaultId = await alice.rpc.loan.createVault({
     ownerAddress: loanTokenVaultAddr,
     loanSchemeId: loanTokenSchemeId
   })
   await alice.generate(1)
 
   // deposit to loan vault
-  await alice.rpc.vault.depositToVault({
+  await alice.rpc.loan.depositToVault({
     vaultId: loanVaultId,
     from: loanTokenProviderAddr,
     amount: '1000000@DFI'
@@ -144,13 +144,13 @@ async function setup (): Promise<void> {
   await alice.generate(5)
 
   const aliceDusdVaultAddr = await alice.generateAddress()
-  const aliceDusdVaultId = await alice.rpc.vault.createVault({
+  const aliceDusdVaultId = await alice.rpc.loan.createVault({
     ownerAddress: aliceDusdVaultAddr,
     loanSchemeId: 'scheme'
   })
   await alice.generate(1)
 
-  await alice.rpc.vault.depositToVault({
+  await alice.rpc.loan.depositToVault({
     vaultId: aliceDusdVaultId, from: aliceColAddr, amount: '5000@DFI'
   })
   await alice.generate(1)
@@ -199,18 +199,18 @@ async function setup (): Promise<void> {
   await tGroup.waitForSync()
 
   bobVaultAddr = await bob.generateAddress()
-  bobVaultId = await bob.rpc.vault.createVault({
+  bobVaultId = await bob.rpc.loan.createVault({
     ownerAddress: bobVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
-  await bob.rpc.vault.depositToVault({
+  await bob.rpc.loan.depositToVault({
     vaultId: bobVaultId, from: bobColAddr, amount: '10000@DFI'
   })
   await bob.generate(1)
 
-  await bob.rpc.vault.depositToVault({
+  await bob.rpc.loan.depositToVault({
     vaultId: bobVaultId, from: bobColAddr, amount: '1@BTC'
   })
   await bob.generate(1)
@@ -350,7 +350,7 @@ async function setup (): Promise<void> {
   expect(aliceColAccBefore).toStrictEqual(['29000.00000000@DFI', '29999.00000000@BTC', '10000.00000000@TSLA'])
 }
 
-describe('vault.placeAuctionBid success', () => {
+describe('placeAuctionBid success', () => {
   beforeEach(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -383,7 +383,7 @@ describe('vault.placeAuctionBid success', () => {
     const bobTSLAAmtBefore = bobTSLAAccBefore !== undefined ? Number(bobTSLAAccBefore.split('@')[0]) : 0
 
     {
-      const txn = await bBuilder.vault.placeAuctionBid({
+      const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: bobColScript,
@@ -418,7 +418,7 @@ describe('vault.placeAuctionBid success', () => {
 
     // test second round placeAuctionBid
     {
-      const txn = await aBuilder.vault.placeAuctionBid({
+      const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: aliceColScript,
@@ -487,7 +487,7 @@ describe('vault.placeAuctionBid success', () => {
   it('should placeAuctionBid on all batches', async () => {
     // test bob bids on first index
     {
-      const txn = await bBuilder.vault.placeAuctionBid({
+      const txn = await bBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: 0,
         from: bobColScript,
@@ -543,7 +543,7 @@ describe('vault.placeAuctionBid success', () => {
 
     // test alice bids on second index
     {
-      const txn = await aBuilder.vault.placeAuctionBid({
+      const txn = await aBuilder.loans.placeAuctionBid({
         vaultId: bobVaultId,
         index: 1,
         from: aliceColScript,
@@ -624,7 +624,7 @@ describe('vault.placeAuctionBid success', () => {
   })
 })
 
-describe('vault.placeAuctionBid failed', () => {
+describe('placeAuctionBid failed', () => {
   beforeAll(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -648,7 +648,7 @@ describe('vault.placeAuctionBid failed', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColScript,
@@ -661,7 +661,7 @@ describe('vault.placeAuctionBid failed', () => {
   })
 
   it('next bid is required 1% higher', async () => {
-    await bob.rpc.vault.placeAuctionBid({
+    await bob.rpc.loan.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColAddr,
@@ -673,7 +673,7 @@ describe('vault.placeAuctionBid failed', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColScript,
@@ -689,7 +689,7 @@ describe('vault.placeAuctionBid failed', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: '0'.repeat(64),
       index: 0,
       from: bobColScript,
@@ -705,7 +705,7 @@ describe('vault.placeAuctionBid failed', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
       index: 99,
       from: bobColScript,
@@ -719,7 +719,7 @@ describe('vault.placeAuctionBid failed', () => {
 
   it('should not placeAuctionBid as vault is not under liquidation', async () => {
     const addr = await alice.generateAddress()
-    const aliceVaultId = await alice.rpc.vault.createVault({
+    const aliceVaultId = await alice.rpc.loan.createVault({
       ownerAddress: addr,
       loanSchemeId: 'scheme'
     })
@@ -732,7 +732,7 @@ describe('vault.placeAuctionBid failed', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: aliceVaultId,
       index: 0,
       from: bobColScript,
@@ -748,7 +748,7 @@ describe('vault.placeAuctionBid failed', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColScript,
@@ -762,7 +762,7 @@ describe('vault.placeAuctionBid failed', () => {
 })
 
 // move insufficient fund test out of another scope for testing independent
-describe('vault.placeAuctionBid failed #2', () => {
+describe('placeAuctionBid failed #2', () => {
   beforeEach(async () => {
     await tGroup.start()
     await alice.container.waitForWalletCoinbaseMaturity()
@@ -791,7 +791,7 @@ describe('vault.placeAuctionBid failed #2', () => {
     await fundEllipticPair(bob.container, bProviders.ellipticPair, 10)
     const bobColScript = P2WPKH.fromAddress(RegTest, bobColAddr, P2WPKH).getScript()
 
-    const txn = await bBuilder.vault.placeAuctionBid({
+    const txn = await bBuilder.loans.placeAuctionBid({
       vaultId: bobVaultId,
       index: 0,
       from: bobColScript,

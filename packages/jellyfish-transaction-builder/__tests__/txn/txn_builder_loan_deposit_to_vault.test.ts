@@ -8,9 +8,9 @@ import { LoanMasterNodeRegTestContainer } from './loan_container'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
-import { VaultActive } from '@defichain/jellyfish-api-core/src/category/vault'
+import { VaultActive } from '@defichain/jellyfish-api-core/src/category/loan'
 
-describe('vault.depositToVault', () => {
+describe('loans.depositToVault', () => {
   const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId: string
   let liqVaultId: string
@@ -112,25 +112,25 @@ describe('vault.depositToVault', () => {
     await tGroup.get(0).generate(1)
 
     const vaultAddress = await tGroup.get(0).generateAddress()
-    vaultId = await tGroup.get(0).rpc.vault.createVault({
+    vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: vaultAddress,
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
 
     // set up liquidated vault here
-    liqVaultId = await tGroup.get(0).rpc.vault.createVault({
+    liqVaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
     await tGroup.get(0).generate(1)
 
-    await tGroup.get(0).rpc.vault.depositToVault({
+    await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '10000@DFI'
     })
     await tGroup.get(0).generate(1)
 
-    await tGroup.get(0).rpc.vault.depositToVault({
+    await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: liqVaultId, from: collateralAddress, amount: '1@BTC'
     })
     await tGroup.get(0).generate(1)
@@ -154,9 +154,9 @@ describe('vault.depositToVault', () => {
 
   it('should depositToVault', async () => {
     {
-      const vaultBefore = await tGroup.get(0).rpc.vault.getVault(vaultId) as VaultActive
+      const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId) as VaultActive
       const script = await providers.elliptic.script()
-      const txn = await builder.vault.depositToVault({
+      const txn = await builder.loans.depositToVault({
         vaultId: vaultId,
         from: script,
         tokenAmount: { token: 0, amount: new BigNumber(10000) }
@@ -178,7 +178,7 @@ describe('vault.depositToVault', () => {
       await tGroup.get(0).generate(1)
       await tGroup.waitForSync()
 
-      const vaultAfter = await tGroup.get(0).rpc.vault.getVault(vaultId) as VaultActive
+      const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId) as VaultActive
       // check the changes after deposit
       // calculate DFI collateral value with factor
       const dfiDeposit = 10000 * 1 * 1 // deposit 10000 DFI * priceFeed 1 USD * 1 factor
@@ -186,9 +186,9 @@ describe('vault.depositToVault', () => {
     }
 
     {
-      const vaultBefore = await tGroup.get(0).rpc.vault.getVault(vaultId) as VaultActive
+      const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId) as VaultActive
       const script = await providers.elliptic.script()
-      const txn = await builder.vault.depositToVault({
+      const txn = await builder.loans.depositToVault({
         vaultId: vaultId,
         from: script,
         tokenAmount: { token: 1, amount: new BigNumber(1) }
@@ -210,7 +210,7 @@ describe('vault.depositToVault', () => {
       await tGroup.get(0).generate(1)
       await tGroup.waitForSync()
 
-      const vaultAfter = await tGroup.get(0).rpc.vault.getVault(vaultId) as VaultActive
+      const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId) as VaultActive
       // check the changes after deposit
       // calculate BTC collateral value with factor
       const btcDeposit = 1 * 10000 * 0.5 // deposit 1 BTC * priceFeed 10000 USD * 0.5 factor
@@ -219,7 +219,7 @@ describe('vault.depositToVault', () => {
   })
 
   it('should be able to depositToVault by anyone', async () => {
-    const vaultBefore = await tGroup.get(0).rpc.vault.getVault(vaultId) as VaultActive
+    const vaultBefore = await tGroup.get(0).rpc.loan.getVault(vaultId) as VaultActive
 
     // test node1 deposits to vault
     const newProviders = await getProviders(tGroup.get(1).container)
@@ -236,7 +236,7 @@ describe('vault.depositToVault', () => {
     // fund elliptic pair with 10 DFI for fees
     await fundEllipticPair(tGroup.get(1).container, newProviders.ellipticPair, 10)
 
-    const txn = await newBuilder.vault.depositToVault({
+    const txn = await newBuilder.loans.depositToVault({
       vaultId: vaultId,
       from: newScript,
       tokenAmount: { token: 0, amount: new BigNumber(2) }
@@ -257,7 +257,7 @@ describe('vault.depositToVault', () => {
     await tGroup.get(1).generate(1)
     await tGroup.waitForSync()
 
-    const vaultAfter = await tGroup.get(0).rpc.vault.getVault(vaultId) as VaultActive
+    const vaultAfter = await tGroup.get(0).rpc.loan.getVault(vaultId) as VaultActive
     // check the changes after deposit
     // calculate DFI collateral value with factor
     const dfiDeposit = 2 * 1 * 1 // deposit 2 DFI * priceFeed 1 USD * 1 factor
@@ -266,7 +266,7 @@ describe('vault.depositToVault', () => {
 
   // TODO: Logic moved to take loan (need to test it on take loan side instead)
   it.skip('should be failed as first deposit must be DFI', async () => {
-    const vaultId = await tGroup.get(0).rpc.vault.createVault({
+    const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
@@ -275,7 +275,7 @@ describe('vault.depositToVault', () => {
     await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
 
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.depositToVault({
+    const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
       tokenAmount: { token: 1, amount: new BigNumber(1) }
@@ -292,7 +292,7 @@ describe('vault.depositToVault', () => {
     const AccountBalanceDFIStart = AccountBalanceStart.find((amt: string) => amt.split('@')[1] === 'DFI')
 
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.depositToVault({
+    const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
       tokenAmount: { token: 0, amount: new BigNumber(99999) }
@@ -308,7 +308,7 @@ describe('vault.depositToVault', () => {
     const newAddress = await tGroup.get(1).generateAddress()
     const fromScript = P2WPKH.fromAddress(RegTest, newAddress, P2WPKH).getScript()
 
-    const txn = await builder.vault.depositToVault({
+    const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: fromScript,
       tokenAmount: { token: 0, amount: new BigNumber(1) }
@@ -321,7 +321,7 @@ describe('vault.depositToVault', () => {
 
   it('should be failed as vault is not exists', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.depositToVault({
+    const txn = await builder.loans.depositToVault({
       vaultId: '0'.repeat(64),
       from: script,
       tokenAmount: { token: 0, amount: new BigNumber(99999) }
@@ -334,7 +334,7 @@ describe('vault.depositToVault', () => {
 
   // TODO: Logic moved to take loan (need to test it on take loan side instead)
   it.skip('should be failed as vault must contain min 50% of DFI', async () => {
-    const vaultId = await tGroup.get(0).rpc.vault.createVault({
+    const vaultId = await tGroup.get(0).rpc.loan.createVault({
       ownerAddress: await tGroup.get(0).generateAddress(),
       loanSchemeId: 'scheme'
     })
@@ -343,7 +343,7 @@ describe('vault.depositToVault', () => {
     // Fund 10 DFI UTXO to providers.getAddress() for fees
     await fundEllipticPair(tGroup.get(0).container, providers.ellipticPair, 10)
 
-    await tGroup.get(0).rpc.vault.depositToVault({
+    await tGroup.get(0).rpc.loan.depositToVault({
       vaultId: vaultId, from: collateralAddress, amount: '1000@DFI'
     })
     await tGroup.get(0).generate(1)
@@ -351,7 +351,7 @@ describe('vault.depositToVault', () => {
 
     // deposit * factor >= collateralValue / 2
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.depositToVault({
+    const txn = await builder.loans.depositToVault({
       vaultId: vaultId,
       from: script,
       tokenAmount: { token: 1, amount: new BigNumber(0.22) }
@@ -365,11 +365,11 @@ describe('vault.depositToVault', () => {
   it('should not deposit to liquidated vault', async () => {
     await tGroup.get(0).generate(6)
 
-    const liqVault = await tGroup.get(0).rpc.vault.getVault(liqVaultId)
+    const liqVault = await tGroup.get(0).rpc.loan.getVault(liqVaultId)
     expect(liqVault.state).toStrictEqual('inLiquidation')
 
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.depositToVault({
+    const txn = await builder.loans.depositToVault({
       vaultId: liqVaultId,
       from: script,
       tokenAmount: { token: 0, amount: new BigNumber(1000) }

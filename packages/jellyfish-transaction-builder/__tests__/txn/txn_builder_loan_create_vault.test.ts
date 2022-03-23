@@ -9,7 +9,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { RegTest } from '@defichain/jellyfish-network'
 import { OP_CODES } from '@defichain/jellyfish-transaction'
 
-describe('vault.createVault', () => {
+describe('loans.createVault', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -57,7 +57,7 @@ describe('vault.createVault', () => {
 
   it('should createVault', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: 'scheme'
     }, script)
@@ -74,7 +74,7 @@ describe('vault.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.vault.getVault(txid)
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'scheme',
@@ -93,7 +93,7 @@ describe('vault.createVault', () => {
 
   it('should createVault with the default scheme if the given schemeId is empty', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: ''
     }, script)
@@ -110,7 +110,7 @@ describe('vault.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.vault.getVault(txid)
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'default',
@@ -129,7 +129,7 @@ describe('vault.createVault', () => {
 
   it('should createVault and then again createVault with the same parameters', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: 'scheme2'
     }, script)
@@ -146,7 +146,7 @@ describe('vault.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.vault.getVault(txid)
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'scheme2',
@@ -164,7 +164,7 @@ describe('vault.createVault', () => {
 
     await testing.generate(1)
 
-    const txn2 = await builder.vault.createVault({
+    const txn2 = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: 'scheme2'
     }, script)
@@ -181,7 +181,7 @@ describe('vault.createVault', () => {
     expect(prevouts2[0].value.toNumber()).toBeLessThan(10)
 
     const txid2 = calculateTxid(txn2)
-    const data2 = await testing.rpc.vault.getVault(txid2)
+    const data2 = await testing.rpc.loan.getVault(txid2)
     expect(data2).toStrictEqual({
       vaultId: txid2,
       loanSchemeId: 'scheme2',
@@ -203,7 +203,7 @@ describe('vault.createVault', () => {
 
   it('should createVault for any address', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: {
         stack: [
           OP_CODES.OP_0,
@@ -225,7 +225,7 @@ describe('vault.createVault', () => {
     expect(prevouts[0].value.toNumber()).toBeLessThan(10)
 
     const txid = calculateTxid(txn)
-    const data = await testing.rpc.vault.getVault(txid)
+    const data = await testing.rpc.loan.getVault(txid)
     expect(data).toStrictEqual({
       vaultId: txid,
       loanSchemeId: 'scheme',
@@ -244,7 +244,7 @@ describe('vault.createVault', () => {
 
   it('should not createVault if loanSchemeId is invalid', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: 'scheme3'
     }, script)
@@ -268,7 +268,7 @@ describe('vault.createVault', () => {
     await testing.generate(1)
 
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: 'scheme4'
     }, script)
@@ -279,7 +279,7 @@ describe('vault.createVault', () => {
   })
 })
 
-describe('vault.createVault when no default scheme and the given schemeId is empty', () => {
+describe('loans.createVault when no default scheme and the given schemeId is empty', () => {
   const container = new LoanMasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -307,7 +307,7 @@ describe('vault.createVault when no default scheme and the given schemeId is emp
 
   it('should not createVault when no default scheme and given schemeId is empty', async () => {
     const script = await providers.elliptic.script()
-    const txn = await builder.vault.createVault({
+    const txn = await builder.loans.createVault({
       ownerAddress: script,
       schemeId: ''
     }, script)
