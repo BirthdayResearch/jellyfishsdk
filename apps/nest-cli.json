@@ -31,9 +31,9 @@
     },
     "whale-api": {
       "type": "application",
-      "root": "whale-api",
-      "entryFile": "apps/whale-api/src/main",
-      "sourceRoot": "whale-api/src"
+      "root": "whale",
+      "entryFile": "apps/whale/src/main",
+      "sourceRoot": "whale/src"
     },
     "actuator": {
       "type": "library",
