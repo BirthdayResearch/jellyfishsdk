@@ -1,13 +1,18 @@
-import { ApiClient, BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
-import { QueueClient, Queue } from './lib/Queue'
-import { SingleIndexDb, Schema } from './lib/SingleIndexDb'
-import { WhaleApiClient } from './lib/WhaleApiClient'
-import { AddressParser } from './controller/AddressParser'
+import { BigNumber, blockchain as defid } from '@defichain/jellyfish-api-core'
+import { WhaleApiClient, WhaleRpcClient } from '@defichain/whale-api-client'
+import { QueueClient, Queue } from './persistent/Queue'
+import { SingleIndexDb, Schema } from './persistent/SingleIndexDb'
+import { AddressParser } from './saga/AddressParser'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { AccountAmount } from '@defichain/jellyfish-api-core/dist/category/account'
-import { AddressBalance, ActiveAddressAccountAmount } from './types'
+import { AccountAmount } from '@defichain/jellyfish-api-core/src/category/account'
+import { ActiveAddressAccountAmount } from './types'
 
 const DEFAULT_RICH_LIST_LENGTH = 1000
+
+export interface AddressBalance {
+  address: string
+  amount: number
+}
 
 export class RichListCore {
   isCatchingUp = false
@@ -15,15 +20,15 @@ export class RichListCore {
   readonly addressParser: AddressParser
 
   constructor (
-    readonly network: NetworkName,
-    private readonly apiClient: ApiClient,
+    private readonly network: NetworkName,
+    private readonly whaleRpcClient: WhaleRpcClient,
     private readonly whaleApiClient: WhaleApiClient,
     readonly addressBalances: SingleIndexDb<AddressBalance>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
     private readonly droppedFromRichList: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
   ) {
-    this.addressParser = new AddressParser(apiClient, network)
+    this.addressParser = new AddressParser(whaleRpcClient, network)
   }
 
   setRichListLength (length: number): void {
@@ -42,13 +47,13 @@ export class RichListCore {
       return
     }
     this.isCatchingUp = true
-    void this._catchUp()
+    void this.catchUp()
   }
 
-  private async _catchUp (): Promise<void> {
-    const lastBlock = await this._getCrawledTip()
+  private async catchUp (): Promise<void> {
+    const lastBlock = await this.getCrawledTip()
     const nextBlockHeight = lastBlock === undefined ? 0 : lastBlock.data.height + 1
-    const nextBlock = await this._getBlock(nextBlockHeight)
+    const nextBlock = await this.getBlock(nextBlockHeight)
 
     if (nextBlock === undefined) {
       this.isCatchingUp = false
@@ -56,10 +61,10 @@ export class RichListCore {
     }
 
     if (lastBlock !== undefined && lastBlock.data.hash !== nextBlock.previousblockhash) {
-      await this._invalidate(lastBlock)
+      await this.invalidate(lastBlock)
     } else {
-      const queue = await this._addressQueue()
-      const _addresses = await this._getAddresses(nextBlock)
+      const queue = await this.addressQueue()
+      const _addresses = await this.getAddresses(nextBlock)
       for (const a of _addresses) {
         await queue.push(a)
       }
@@ -72,10 +77,10 @@ export class RichListCore {
       })
     }
 
-    return await this._catchUp()
+    return await this.catchUp()
   }
 
-  private async _getAddresses (block: defid.Block<defid.Transaction>): Promise<string[]> {
+  private async getAddresses (block: defid.Block<defid.Transaction>): Promise<string[]> {
     const _addresses = []
     for (const tx of block.tx) {
       const addresses = await this.addressParser.parse(tx)
@@ -84,10 +89,10 @@ export class RichListCore {
     return _addresses
   }
 
-  private async _getBlock (height: number): Promise<defid.Block<defid.Transaction> | undefined> {
+  private async getBlock (height: number): Promise<defid.Block<defid.Transaction> | undefined> {
     try {
-      const bh = await this.apiClient.blockchain.getBlockHash(height)
-      return await this.apiClient.blockchain.getBlock(bh, 2)
+      const bh = await this.whaleRpcClient.blockchain.getBlockHash(height)
+      return await this.whaleRpcClient.blockchain.getBlock(bh, 2)
     } catch (err: any) {
       if (err?.payload?.message === 'Block height out of range') {
         return undefined
@@ -96,19 +101,19 @@ export class RichListCore {
     }
   }
 
-  private async _invalidate (block: Schema<CrawledBlock>): Promise<void> {
-    const tokenIds = await this._listTokenIds()
+  private async invalidate (block: Schema<CrawledBlock>): Promise<void> {
+    const tokenIds = await this.listTokenIds()
     // delete for this block height
     await this.crawledBlockHashes.delete(block.id)
     for (const tokenId of tokenIds) {
-      await this._invalidateDroppedOutRichList(`${tokenId}`, block.data.height)
+      await this.invalidateDroppedOutRichList(`${tokenId}`, block.data.height)
     }
 
     // find dropped out addresses to check their balance again
     if (block.data.height !== 0) {
       for (const tokenId of tokenIds) {
-        const addresses = await this._getDroppedOutRichList(`${tokenId}`, block.data.height - 1)
-        const queue = await this._addressQueue()
+        const addresses = await this.getDroppedOutRichList(`${tokenId}`, block.data.height - 1)
+        const queue = await this.addressQueue()
         for (const a of addresses) {
           await queue.push(a.data)
         }
@@ -121,7 +126,7 @@ export class RichListCore {
       throw new Error('InvalidTokenId')
     }
 
-    if (!(await this._listTokenIds()).includes(Number(tokenId))) {
+    if (!(await this.listTokenIds()).includes(Number(tokenId))) {
       throw new Error('InvalidTokenId')
     }
 
@@ -139,8 +144,8 @@ export class RichListCore {
    * @param queuedAddressLimit [5000]
    */
   async calculateNext (queuedAddressLimit = 5000): Promise<void> {
-    const tokens = await this._listTokenIds()
-    let updatedBalances = await this._getActiveAddressBalances(tokens, queuedAddressLimit)
+    const tokens = await this.listTokenIds()
+    let updatedBalances = await this.getActiveAddressBalances(tokens, queuedAddressLimit)
 
     while (Object.keys(updatedBalances).length > 0) {
       for (const address of Object.keys(updatedBalances)) {
@@ -160,28 +165,28 @@ export class RichListCore {
         }
       }
 
-      updatedBalances = await this._getActiveAddressBalances(tokens, queuedAddressLimit)
+      updatedBalances = await this.getActiveAddressBalances(tokens, queuedAddressLimit)
     }
   }
 
-  private async _getActiveAddressBalances (tokens: number[], queuedAddressLimit: number): Promise<ActiveAddressAccountAmount> {
-    const queue = await this._addressQueue()
+  private async getActiveAddressBalances (tokens: number[], queuedAddressLimit: number): Promise<ActiveAddressAccountAmount> {
+    const queue = await this.addressQueue()
     const addresses = await queue.receive(queuedAddressLimit)
 
     const balances: Record<string, AccountAmount> = {}
     for (const a of addresses) {
-      const nonZeroBalances = await this.apiClient.account.getTokenBalances(
+      const nonZeroBalances = await this.whaleRpcClient.account.getTokenBalances(
         { limit: Number.MAX_SAFE_INTEGER },
         true
       ) as any as AccountAmount
-      balances[a] = this._appendZeroBalances(nonZeroBalances, tokens)
+      balances[a] = this.appendZeroBalances(nonZeroBalances, tokens)
       // TBD: should be combine utxo and DFI rich list
       balances[a]['-1'] = new BigNumber(await this.whaleApiClient.address.getBalance(a))
     }
     return balances
   }
 
-  private _appendZeroBalances (tokenBalances: AccountAmount, tokens: number[]): AccountAmount {
+  private appendZeroBalances (tokenBalances: AccountAmount, tokens: number[]): AccountAmount {
     const result: AccountAmount = {}
     for (const t of tokens) {
       result[t] = tokenBalances[t] ?? new BigNumber(0)
@@ -189,7 +194,7 @@ export class RichListCore {
     return result
   }
 
-  private async _getCrawledTip (): Promise<Schema<CrawledBlock> | undefined> {
+  private async getCrawledTip (): Promise<Schema<CrawledBlock> | undefined> {
     const [lastBlock] = await this.crawledBlockHashes.list({
       partition: 'NONE',
       order: 'DESC',
@@ -198,14 +203,14 @@ export class RichListCore {
     return lastBlock
   }
 
-  private async _invalidateDroppedOutRichList (tokenId: string, height: number): Promise<void> {
-    const lastBlockRichList = await this._getDroppedOutRichList(tokenId, height)
+  private async invalidateDroppedOutRichList (tokenId: string, height: number): Promise<void> {
+    const lastBlockRichList = await this.getDroppedOutRichList(tokenId, height)
     await Promise.all(
       lastBlockRichList.map(async rl => await this.droppedFromRichList.delete(rl.id))
     )
   }
 
-  private async _getDroppedOutRichList (tokenId: string, height: number): Promise<Array<Schema<string>>> {
+  private async getDroppedOutRichList (tokenId: string, height: number): Promise<Array<Schema<string>>> {
     return await this.droppedFromRichList.list({
       limit: Number.MAX_SAFE_INTEGER,
       partition: tokenId,
@@ -215,12 +220,12 @@ export class RichListCore {
     })
   }
 
-  private async _listTokenIds (): Promise<number[]> {
-    const tokens = await this.apiClient.token.listTokens()
+  private async listTokenIds (): Promise<number[]> {
+    const tokens = await this.whaleRpcClient.token.listTokens()
     return Object.keys(tokens).map(id => Number(id)).concat([-1])
   }
 
-  private async _addressQueue (): Promise<Queue<string>> {
+  private async addressQueue (): Promise<Queue<string>> {
     return await this.queueClient.createQueueIfNotExist('RichListCore_ACTIVE_ADDRESSES', 'LIFO')
   }
 }

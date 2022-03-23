@@ -50,17 +50,21 @@ export class RootModule {
 
 function ENV_VALIDATION_SCHEMA (): any {
   return Joi.object({
+    // main
     NODE_ENV: Joi.string().valid('production', 'test').default('test'),
     PORT: Joi.number().default(3000),
     API_VERSION: Joi.string().regex(/^v[0-9]+(\.[0-9]+)?$/).default('v1'),
     API_NETWORK: Joi.string().valid('regtest', 'testnet', 'mainnet').default('regtest'),
 
+    // db module
     POSTGRES_HOST: Joi.string().ip(),
     POSTGRES_PORT: Joi.number().default(5432),
     POSTGRES_USER: Joi.string(),
     POSTGRES_PASS: Joi.string(),
     POSTGRES_DB: Joi.string(),
 
-    WHALE_API_URL: Joi.string()
+    // whale as remote service
+    WHALE_API_URL: Joi.string(),
+    WHALE_RPC_URL: Joi.string()
   })
 }
