@@ -1,13 +1,13 @@
 import { PersistentMNRegTestContainer } from '../../../src'
 
-beforeEach(async () => {
+beforeAll(async () => {
   try {
     await new PersistentMNRegTestContainer().stop()
   } catch (ignored) {
   }
 })
 
-afterEach(async () => {
+afterAll(async () => {
   try {
     await new PersistentMNRegTestContainer().stop()
   } catch (ignored) {

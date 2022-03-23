@@ -1,7 +1,7 @@
 import fetch from 'cross-fetch'
 import { DockerContainer, DockerOptions } from './DockerContainer'
 import { waitForCondition } from '../utils'
-import Dockerode from 'dockerode'
+import { dockerClient } from 'testcontainers/dist/docker/docker-client'
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
  */
@@ -234,8 +234,8 @@ export abstract class DeFiDContainer extends DockerContainer {
    * This will stop the container and start it again with old data intact.
    * @param {number} [timeout=30000] in millis
    */
-  async restart (timeout: number = 60000): Promise<void> {
-    const dockerrode = new Dockerode()
+  async restart (timeout: number = 30000): Promise<void> {
+    const dockerrode = (await dockerClient).dockerode
     const dockerrodeContainer = dockerrode.getContainer(this.requireContainer().getId())
     await dockerrodeContainer.restart()
     await this.waitForRpc(timeout)

@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from './Masternode'
 import { DeFiDContainer, StartOptions } from '../DeFiDContainer'
-import { GenericContainer } from 'testcontainers'
-
+import { StartedTestContainer } from 'testcontainers'
 /**
  * PersistentMNRegTestContainer container is a RegTest container with MasterNode minting preconfigured.
  * The container configuration is persistent and can be used consistently.
@@ -12,13 +11,16 @@ import { GenericContainer } from 'testcontainers'
  * Once you are done with your dev work, you should swap this out for MasterNodeRegTestContainer.
  */
 export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
-  private static readonly PERSISTENT_CONTAINER: GenericContainer = new GenericContainer(PersistentMNRegTestContainer.image)
+  private static persistentContainer: StartedTestContainer
 
   /**
    * Init the required container instances  for start/stop operation
    */
   async init (): Promise<void> {
-    this.docker = PersistentMNRegTestContainer.PERSISTENT_CONTAINER
+    if (PersistentMNRegTestContainer.persistentContainer === undefined) {
+      throw new PersistentContainerNotInitedException()
+    }
+    this.container = PersistentMNRegTestContainer.persistentContainer
   }
 
   /**
@@ -35,6 +37,7 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
       // Attempt clean up before starting
       await super.stop()
       await super.start(startOptions)
+      PersistentMNRegTestContainer.persistentContainer = this.requireContainer()
     }
   }
 
@@ -49,4 +52,8 @@ export class PersistentMNRegTestContainer extends MasterNodeRegTestContainer {
     await this.init()
     await super.stop()
   }
+}
+
+class PersistentContainerNotInitedException extends Error {
+  message: string = 'The persistent container have not been initialized yet.'
 }

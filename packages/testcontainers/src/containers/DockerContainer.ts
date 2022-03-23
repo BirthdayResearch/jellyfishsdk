@@ -43,8 +43,10 @@ export abstract class DockerContainer {
   }
 
   protected async _stopContainer (): Promise<void> {
-    await this.requireContainer().stop()
-    this.container = undefined
+    if (this.container !== undefined) {
+      await this.requireContainer().stop()
+      this.container = undefined
+    }
   }
 
   get id (): string {
