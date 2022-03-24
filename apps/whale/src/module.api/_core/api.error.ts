@@ -49,7 +49,8 @@ export class ApiException extends HttpException {
    * @return ApiException of the same instance
    */
   withUrl (url: string): ApiException {
-    this.apiError.url = url
+    // @ts-expect-error
+    this.getResponse().error?.url = url
     return this
   }
 

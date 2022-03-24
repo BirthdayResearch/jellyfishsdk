@@ -1,4 +1,4 @@
-import { RawBlock } from '../../module.indexer/model/_abstract'
+import { RawBlock } from './_abstract'
 import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import { Injectable } from '@nestjs/common'

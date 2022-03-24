@@ -1,10 +1,10 @@
 import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { ApiPagedResponse } from './_core/api.paged.response'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { PaginationQuery } from '../module.api/_core/api.query'
-import { TokenData } from '@defichain/whale-api-client/dist/api/Tokens'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { PaginationQuery } from './_core/api.query'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
+import { DeFiDCache } from './cache/defid.cache'
 
 @Controller('/tokens')
 export class TokenController {

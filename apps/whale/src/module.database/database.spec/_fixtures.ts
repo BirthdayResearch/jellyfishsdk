@@ -1,4 +1,4 @@
-import { Partition, PartitionSort } from '../../module.database/database.spec/_model'
+import { Partition, PartitionSort } from './_model'
 
 export const PARTITIONS: Partition[] = [
   {

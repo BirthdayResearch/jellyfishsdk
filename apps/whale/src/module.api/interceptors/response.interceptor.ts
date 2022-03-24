@@ -1,8 +1,8 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { ApiResponse, ApiRawResponse } from '../../module.api/_core/api.response'
-import { isVersionPrefixed } from '../../module.api/_core/api.version'
+import { ApiResponse, ApiRawResponse } from '../_core/api.response'
+import { isVersionPrefixed } from '../_core/api.version'
 
 /**
  * Transforms all response from module.api into a object {data:...}

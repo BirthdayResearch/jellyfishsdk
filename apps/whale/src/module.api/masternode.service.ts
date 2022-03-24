@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { SemaphoreCache } from '../module.api/cache/semaphore.cache'
+import { SemaphoreCache } from './cache/semaphore.cache'
 import { Masternode } from '../module.model/masternode'
 import { MasternodeState } from '@defichain/jellyfish-api-core/dist/category/masternode'
 import { NetworkName } from '@defichain/jellyfish-network'
@@ -61,7 +61,7 @@ export class MasternodeService {
   }
 
   // !TODO: Alter retrospective behaviour based on EunosPaya height
-  // See: https://github.com/DeFiCh/ain/blob/master/dist/masternodes/masternodes.cpp#L116
+  // See: https://github.com/DeFiCh/ain/blob/master/src/masternodes/masternodes.cpp#L116
   async getMasternodeState (masternode: Masternode, height: number): Promise<MasternodeState> {
     if (masternode.resignHeight === -1) { // enabled or pre-enabled
       // Special case for genesis block
