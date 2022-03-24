@@ -3,6 +3,15 @@ import { WhaleApiClient } from '../WhaleApiClient'
 import { OraclePriceFeed } from './Oracles'
 
 /**
+ * Time interval for graphing
+ */
+export enum PriceFeedTimeInterval {
+  FIFTEEN_MINUTES = 15 * 60,
+  ONE_HOUR = 60 * 60,
+  ONE_DAY = 24 * 60 * 60
+}
+
+/**
  * DeFi whale endpoint for price related services.
  */
 export class Prices {
@@ -51,6 +60,11 @@ export class Prices {
     return await this.client.requestList('GET', `prices/${key}/feed`, size, next)
   }
 
+  async getFeedWithInterval (token: string, currency: string, interval: PriceFeedTimeInterval, size: number = 30, next?: string): Promise<ApiPagedResponse<PriceFeedInterval>> {
+    const key = `${token}-${currency}`
+    return await this.client.requestList('GET', `prices/${key}/feed/interval/${interval}`, size, next)
+  }
+
   /**
    * Get a list of Oracles
    *
@@ -86,6 +100,43 @@ export interface PriceFeed {
     oracles: {
       active: number
       total: number
+    }
+  }
+
+  block: {
+    hash: string
+    height: number
+    time: number
+    medianTime: number
+  }
+}
+
+export interface PriceFeedInterval {
+  id: string
+  key: string
+  sort: string
+
+  token: string
+  currency: string
+
+  aggregated: {
+    amount: string
+    weightage: number
+    count: number
+    oracles: {
+      active: number
+      total: number
+    }
+    /**
+     * Aggregated interval time range in seconds.
+     * - Interval that aggregated in seconds
+     * - Start Time Inclusive
+     * - End Time Exclusive
+     */
+    time: {
+      interval: number
+      start: number
+      end: number
     }
   }
 
