@@ -6,7 +6,7 @@ import { TransactionController } from '@src/module.api/transaction.controller'
 import { ApiValidationPipe } from '@src/module.api/pipes/api.validation.pipe'
 import { AddressController } from '@src/module.api/address.controller'
 import { PoolPairController } from '@src/module.api/poolpair.controller'
-import { PoolPairService, PoolSwapPathFindingService } from '@src/module.api/poolpair.service'
+import { PoolPairService } from '@src/module.api/poolpair.service'
 import { MasternodeService } from '@src/module.api/masternode.service'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
@@ -29,6 +29,8 @@ import { FeeController } from '@src/module.api/fee.controller'
 import { RawtxController } from '@src/module.api/rawtx.controller'
 import { LoanController } from '@src/module.api/loan.controller'
 import { LoanVaultService } from '@src/module.api/loan.vault.service'
+import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
+import { PoolPairPricesService } from '@src/module.api/poolpair.prices.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -67,6 +69,7 @@ import { LoanVaultService } from '@src/module.api/loan.vault.service'
     SemaphoreCache,
     PoolPairService,
     PoolSwapPathFindingService,
+    PoolPairPricesService,
     MasternodeService,
     LoanVaultService,
     {

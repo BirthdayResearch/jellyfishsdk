@@ -4,6 +4,9 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
+import { BigNumber } from 'bignumber.js'
+import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
+import { CacheOption } from '@src/module.api/cache/global.cache'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -16,6 +19,14 @@ beforeAll(async () => {
 
   app = await createTestingApp(container)
   controller = app.get(PoolPairController)
+
+  // Disable cache during tests
+  const cache = app.get(SemaphoreCache)
+  jest.spyOn(cache, 'get').mockImplementation(
+    async (key: string, fetch: () => Promise<any>, options: CacheOption = {}): Promise<any> => {
+      return await fetch()
+    }
+  )
 
   await waitForIndexedHeight(app, 100)
 
@@ -73,6 +84,15 @@ async function setup (): Promise<void> {
     amountA: 90,
     tokenB: 'DFI',
     amountB: 360,
+    shareAddress: await getNewAddress(container)
+  })
+
+  // 1 G = 5 A = 10 DFI
+  await addPoolLiquidity(container, {
+    tokenA: 'G',
+    amountA: 10,
+    tokenB: 'A',
+    amountB: 50,
     shareAddress: await getNewAddress(container)
   })
 
@@ -355,7 +375,7 @@ describe('get best path', () => {
         {
           symbol: 'G-A',
           poolPairId: '19',
-          priceRatio: { ab: '0.00000000', ba: '0.00000000' },
+          priceRatio: { ab: '0.20000000', ba: '5.00000000' },
           tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
           tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
         },
@@ -374,7 +394,7 @@ describe('get best path', () => {
           tokenB: { id: '0', symbol: 'DFI', displaySymbol: 'DFI' }
         }
       ],
-      estimatedReturn: '0.00000000'
+      estimatedReturn: '2.50000000'
     })
   })
 
@@ -522,7 +542,7 @@ describe('get all paths', () => {
           {
             symbol: 'G-A',
             poolPairId: '19',
-            priceRatio: { ab: '0.00000000', ba: '0.00000000' },
+            priceRatio: { ab: '0.20000000', ba: '5.00000000' },
             tokenA: { id: '7', symbol: 'G', displaySymbol: 'dG' },
             tokenB: { id: '1', symbol: 'A', displaySymbol: 'dA' }
           },
@@ -563,7 +583,7 @@ describe('get all paths', () => {
           {
             symbol: 'I-J',
             poolPairId: '20',
-            priceRatio: { ab: '0.00000000', ba: '0.00000000' },
+            priceRatio: { ab: '0', ba: '0' },
             tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
             tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
           },
@@ -586,7 +606,7 @@ describe('get all paths', () => {
           {
             symbol: 'I-J',
             poolPairId: '20',
-            priceRatio: { ab: '0.00000000', ba: '0.00000000' },
+            priceRatio: { ab: '0', ba: '0' },
             tokenA: { id: '9', symbol: 'I', displaySymbol: 'dI' },
             tokenB: { id: '10', symbol: 'J', displaySymbol: 'dJ' }
           },
@@ -662,6 +682,14 @@ describe('get all paths', () => {
     })
   })
 
+  it('should throw error when fromToken === toToken', async () => {
+    // DFI to DFI - forbid technically correct but redundant results,
+    // e.g. [DFI -> A -> DFI], [DFI -> B -> DFI], etc.
+    await expect(controller.listPaths('0', '0'))
+      .rejects
+      .toThrowError('Invalid tokens: fromToken must be different from toToken')
+  })
+
   it('should throw error for invalid tokenId', async () => {
     await expect(controller.listPaths('-1', '1')).rejects.toThrowError('Unable to find token -1')
     await expect(controller.listPaths('1', '-1')).rejects.toThrowError('Unable to find token -1')
@@ -701,5 +729,195 @@ describe('get list swappable tokens', () => {
     await expect(controller.listSwappableTokens('-1')).rejects.toThrowError('Unable to find token -1')
     await expect(controller.listSwappableTokens('100')).rejects.toThrowError('Unable to find token 100')
     await expect(controller.listSwappableTokens('a')).rejects.toThrowError('Unable to find token a')
+  })
+})
+
+describe('latest dex prices', () => {
+  it('should get latest dex prices - denomination: DFI', async () => {
+    const result = await controller.listDexPrices('DFI')
+    expect(result).toStrictEqual({
+      denomination: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
+      dexPrices: {
+        USDT: {
+          token: { displaySymbol: 'dUSDT', id: '24', symbol: 'USDT' },
+          denominationPrice: '0.43151288'
+        },
+        L: {
+          token: { displaySymbol: 'dL', id: '12', symbol: 'L' },
+          denominationPrice: '0'
+        },
+        K: {
+          token: { displaySymbol: 'dK', id: '11', symbol: 'K' },
+          denominationPrice: '0'
+        },
+        J: {
+          token: { displaySymbol: 'dJ', id: '10', symbol: 'J' },
+          denominationPrice: '0'
+        },
+        I: {
+          token: { displaySymbol: 'dI', id: '9', symbol: 'I' },
+          denominationPrice: '0'
+        },
+        H: {
+          token: { displaySymbol: 'dH', id: '8', symbol: 'H' },
+          denominationPrice: '0'
+        },
+        G: {
+          token: { displaySymbol: 'dG', id: '7', symbol: 'G' },
+          denominationPrice: '10.00000000'
+        },
+        F: {
+          token: { displaySymbol: 'dF', id: '6', symbol: 'F' },
+          denominationPrice: '0'
+        },
+        E: {
+          token: { displaySymbol: 'dE', id: '5', symbol: 'E' },
+          denominationPrice: '0'
+        },
+        D: {
+          token: { displaySymbol: 'dD', id: '4', symbol: 'D' },
+          denominationPrice: '0'
+        },
+        C: {
+          token: { displaySymbol: 'dC', id: '3', symbol: 'C' },
+          denominationPrice: '4.00000000'
+        },
+        B: {
+          token: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+          denominationPrice: '6.00000000'
+        },
+        A: {
+          token: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+          denominationPrice: '2.00000000'
+        }
+      }
+    })
+  })
+
+  it('should get latest dex prices - denomination: USDT', async () => {
+    const result = await controller.listDexPrices('USDT')
+    expect(result).toStrictEqual({
+      denomination: { displaySymbol: 'dUSDT', id: '24', symbol: 'USDT' },
+      dexPrices: {
+        DFI: {
+          token: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
+          denominationPrice: '2.31742792' // 1 DFI = 2.31 USDT
+        },
+        A: {
+          token: { displaySymbol: 'dA', id: '1', symbol: 'A' },
+          denominationPrice: '4.63485584' // 1 A = 4.63 USDT
+        },
+        G: {
+          token: { displaySymbol: 'dG', id: '7', symbol: 'G' },
+          denominationPrice: '23.17427920' // 1 G = 5 A = 10 DFI = 23 USDT
+        },
+        B: {
+          token: { displaySymbol: 'dB', id: '2', symbol: 'B' },
+          denominationPrice: '13.90456752'
+        },
+        C: {
+          token: { displaySymbol: 'dC', id: '3', symbol: 'C' },
+          denominationPrice: '9.26971168'
+        },
+        L: {
+          token: { displaySymbol: 'dL', id: '12', symbol: 'L' },
+          denominationPrice: '0'
+        },
+        K: {
+          token: { displaySymbol: 'dK', id: '11', symbol: 'K' },
+          denominationPrice: '0'
+        },
+        J: {
+          token: { displaySymbol: 'dJ', id: '10', symbol: 'J' },
+          denominationPrice: '0'
+        },
+        I: {
+          token: { displaySymbol: 'dI', id: '9', symbol: 'I' },
+          denominationPrice: '0'
+        },
+        H: {
+          token: { displaySymbol: 'dH', id: '8', symbol: 'H' },
+          denominationPrice: '0'
+        },
+        F: {
+          token: { displaySymbol: 'dF', id: '6', symbol: 'F' },
+          denominationPrice: '0'
+        },
+        E: {
+          token: { displaySymbol: 'dE', id: '5', symbol: 'E' },
+          denominationPrice: '0'
+        },
+        D: {
+          token: { displaySymbol: 'dD', id: '4', symbol: 'D' },
+          denominationPrice: '0'
+        }
+      }
+    })
+  })
+
+  it('should get consistent, mathematically sound dex prices - USDT and DFI', async () => {
+    const pricesInUSDT = await controller.listDexPrices('USDT')
+    const pricesInDFI = await controller.listDexPrices('DFI')
+
+    // 1 DFI === x USDT
+    // 1 USDT === 1/x DFI
+    expect(new BigNumber(pricesInDFI.dexPrices.USDT.denominationPrice).toFixed(8))
+      .toStrictEqual(
+        new BigNumber(pricesInUSDT.dexPrices.DFI.denominationPrice)
+          .pow(-1)
+          .toFixed(8)
+      )
+    expect(pricesInDFI.dexPrices.USDT.denominationPrice).toStrictEqual('0.43151288')
+    expect(pricesInUSDT.dexPrices.DFI.denominationPrice).toStrictEqual('2.31742792')
+  })
+
+  it('should get consistent, mathematically sound dex prices - A and B', async () => {
+    // 1 A = n DFI
+    // 1 B = m DFI
+    // 1 DFI = 1/m B
+    // hence 1 A = n DFI = n/m B
+    const pricesInDFI = await controller.listDexPrices('DFI')
+    const pricesInA = await controller.listDexPrices('A')
+    const pricesInB = await controller.listDexPrices('B')
+
+    // 1 A = n DFI
+    const AInDfi = new BigNumber(pricesInDFI.dexPrices.A.denominationPrice) // n
+    // 1 DFI = 1/n A
+    const DFIInA = new BigNumber(pricesInA.dexPrices.DFI.denominationPrice)
+
+    // Verify that B/DFI and DFI/B values are consistent between listPrices('DFI') and listPrices('A')
+    expect(AInDfi.toFixed(8)).toStrictEqual(DFIInA.pow(-1).toFixed(8))
+    expect(AInDfi.toFixed(8)).toStrictEqual('2.00000000')
+    expect(DFIInA.toFixed(8)).toStrictEqual('0.50000000')
+
+    // 1 B = m DFI
+    const BInDfi = new BigNumber(pricesInDFI.dexPrices.B.denominationPrice) // m
+    // 1 DFI = 1/m B
+    const DFIInB = new BigNumber(pricesInB.dexPrices.DFI.denominationPrice)
+
+    // Verify that B/DFI and DFI/B values are consistent between listPrices('DFI') and listPrices('B')
+    expect(BInDfi.toFixed(6)).toStrictEqual(
+      DFIInB.pow(-1).toFixed(6) // precision - 2 due to floating point imprecision
+    )
+    expect(BInDfi.toFixed(8)).toStrictEqual('6.00000000')
+    expect(DFIInB.toFixed(8)).toStrictEqual('0.16666666')
+
+    // Verify that the value of token A denoted in B (1 A = n/m B) is also returned by the endpoint
+    expect(new BigNumber(pricesInB.dexPrices.A.denominationPrice).toFixed(7))
+      .toStrictEqual(
+        AInDfi.div(BInDfi).toFixed(7) // precision - 1 due to floating point imprecision
+      )
+    expect(AInDfi.div(BInDfi).toFixed(8)).toStrictEqual('0.33333333')
+    expect(pricesInB.dexPrices.A.denominationPrice).toStrictEqual('0.33333332')
+  })
+
+  describe('param validation - denomination', () => {
+    it('should throw error for invalid denomination', async () => {
+      await expect(controller.listDexPrices('aaaaa')).rejects.toThrowError('Could not find token with symbol \'aaaaa\'')
+      await expect(controller.listDexPrices('-1')).rejects.toThrowError('Could not find token with symbol \'-1\'')
+
+      // endpoint is case-sensitive
+      await expect(controller.listDexPrices('dfi')).rejects.toThrowError('Could not find token with symbol \'dfi\'')
+    })
   })
 })

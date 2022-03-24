@@ -4,20 +4,22 @@ import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
 import {
   AllSwappableTokensResult,
-  BestSwapPathResult,
+  BestSwapPathResult, DexPricesResult,
   PoolPairData,
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
 } from '@whale-api-client/api/poolpairs'
 import { PaginationQuery } from '@src/module.api/_core/api.query'
-import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
+import { PoolPairService } from './poolpair.service'
+import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { parseDATSymbol } from '@src/module.api/token.controller'
 import { PoolSwapMapper } from '@src/module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
 import { StringIsIntegerPipe } from '@src/module.api/pipes/api.validation.pipe'
+import { PoolPairPricesService } from '@src/module.api/poolpair.prices.service'
 
 @Controller('/poolpairs')
 export class PoolPairController {
@@ -26,6 +28,7 @@ export class PoolPairController {
     protected readonly deFiDCache: DeFiDCache,
     private readonly poolPairService: PoolPairService,
     private readonly poolSwapPathService: PoolSwapPathFindingService,
+    private readonly poolPairPricesService: PoolPairPricesService,
     private readonly poolSwapMapper: PoolSwapMapper,
     private readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper
   ) {
@@ -182,6 +185,13 @@ export class PoolPairController {
       @Param('toTokenId', StringIsIntegerPipe) toTokenId: string
   ): Promise<BestSwapPathResult> {
     return await this.poolSwapPathService.getBestPath(fromTokenId, toTokenId)
+  }
+
+  @Get('/dexprices')
+  async listDexPrices (
+    @Query('denomination') denomination: string
+  ): Promise<DexPricesResult> {
+    return await this.poolPairPricesService.listDexPrices(denomination)
   }
 }
 
