@@ -215,7 +215,7 @@ describe('get', () => {
       await controller.getCollateral('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect((err as NotFoundException).getResponse()).toStrictEqual({
+      expect(err.response).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find collateral token',
         error: 'Not Found'

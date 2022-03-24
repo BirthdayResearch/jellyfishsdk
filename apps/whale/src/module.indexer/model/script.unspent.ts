@@ -1,5 +1,5 @@
 import { ScriptUnspent, ScriptUnspentMapper } from '../../module.model/script.unspent'
-import { defid, Indexer, RawBlock } from '../../module.indexer/model/_abstract'
+import { defid, Indexer, RawBlock } from './_abstract'
 import { Injectable } from '@nestjs/common'
 import { HexEncoder } from '../../module.model/_hex.encoder'
 import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
