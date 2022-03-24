@@ -9,7 +9,7 @@ import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RegTest, RegTestFoundationKeys, RegTestGenesisKeys } from '@defichain/jellyfish-network'
 import { P2WPKH } from '@defichain/jellyfish-address'
 import { Script } from '@defichain/jellyfish-transaction'
-import { VaultActive } from '@defichain/jellyfish-api-core/src/category/vault'
+import { VaultActive } from '@defichain/jellyfish-api-core/src/category/loan'
 import { BalanceTransferPayload } from 'packages/jellyfish-api-core/src/category/account'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(RegTestGenesisKeys[i]))
@@ -144,13 +144,13 @@ async function setup (): Promise<void> {
 
   // create vault for taking large loan tokens
   const aliceVaultAddr = await alice.generateAddress()
-  const aliceVaultId = await alice.rpc.vault.createVault({
+  const aliceVaultId = await alice.rpc.loan.createVault({
     ownerAddress: aliceVaultAddr,
     loanSchemeId: 'default'
   })
   await alice.generate(1)
 
-  await alice.rpc.vault.depositToVault({
+  await alice.rpc.loan.depositToVault({
     vaultId: aliceVaultId, from: aliceColAddr, amount: '10000@DFI'
   })
   await alice.generate(1)
@@ -208,46 +208,46 @@ async function setup (): Promise<void> {
 
   // createVault
   bobVaultAddr = await bob.generateAddress()
-  bobVaultId = await bob.rpc.vault.createVault({
+  bobVaultId = await bob.rpc.loan.createVault({
     ownerAddress: bobVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
   // depositToVault DFI 1000
-  await bob.rpc.vault.depositToVault({
+  await bob.rpc.loan.depositToVault({
     vaultId: bobVaultId, from: bobColAddr, amount: '10000@DFI'
   })
   await bob.generate(1)
 
   // depositToVault BTC 1
-  await bob.rpc.vault.depositToVault({
+  await bob.rpc.loan.depositToVault({
     vaultId: bobVaultId, from: bobColAddr, amount: '1@BTC'
   })
   await bob.generate(1)
 
   // createVault #2
   bobVaultAddr1 = await bob.generateAddress()
-  bobVaultId1 = await bob.rpc.vault.createVault({
+  bobVaultId1 = await bob.rpc.loan.createVault({
     ownerAddress: bobVaultAddr1,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
-  await bob.rpc.vault.depositToVault({
+  await bob.rpc.loan.depositToVault({
     vaultId: bobVaultId1, from: bobColAddr, amount: '10000@DFI'
   })
   await bob.generate(1)
 
   // createVault for liquidation
   const bobLiqVaultAddr = await bob.generateAddress()
-  bobLiqVaultId = await bob.rpc.vault.createVault({
+  bobLiqVaultId = await bob.rpc.loan.createVault({
     ownerAddress: bobLiqVaultAddr,
     loanSchemeId: 'scheme'
   })
   await bob.generate(1)
 
-  await bob.rpc.vault.depositToVault({
+  await bob.rpc.loan.depositToVault({
     vaultId: bobLiqVaultId, from: bobColAddr, amount: '10000@DFI'
   })
   await bob.generate(1)
@@ -774,7 +774,7 @@ describe('paybackLoan failed', () => {
   })
 
   it('should not paybackLoan on empty vault', async () => {
-    const emptyVaultId = await bob.rpc.vault.createVault({
+    const emptyVaultId = await bob.rpc.loan.createVault({
       ownerAddress: bobVaultAddr,
       loanSchemeId: 'scheme'
     })
@@ -845,7 +845,7 @@ describe('paybackLoan failed #2', () => {
   })
 
   it('should not paybackLoan while insufficient amount', async () => {
-    const vault = await bob.rpc.vault.getVault(bobVaultId) as VaultActive
+    const vault = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
     expect(vault.loanAmounts).toStrictEqual(['40.00002284@TSLA'])
 
     const bobLoanAcc = await bob.rpc.account.getAccount(bobColAddr)
@@ -936,7 +936,7 @@ describe('paybackLoan for dusd using dfi', () => {
     await testing.generate(1)
 
     // create vault
-    vaultId = await testing.rpc.vault.createVault({
+    vaultId = await testing.rpc.loan.createVault({
       ownerAddress: vaultOwnerAddress,
       loanSchemeId: loanSchemeId
     })
@@ -945,7 +945,7 @@ describe('paybackLoan for dusd using dfi', () => {
     await testing.container.waitForPriceValid('DFI/USD')
 
     // deposite collateral
-    await testing.rpc.vault.depositToVault({
+    await testing.rpc.loan.depositToVault({
       vaultId: vaultId,
       from: vaultOwnerAddress,
       amount: '100000@DFI'
@@ -963,13 +963,13 @@ describe('paybackLoan for dusd using dfi', () => {
   }
 
   async function setupForTslaLoan (): Promise<void> {
-    tslaVaultId = await testing.rpc.vault.createVault({
+    tslaVaultId = await testing.rpc.loan.createVault({
       ownerAddress: vaultOwnerAddress,
       loanSchemeId: loanSchemeId
     })
     await testing.generate(1)
 
-    await testing.rpc.vault.depositToVault({
+    await testing.rpc.loan.depositToVault({
       vaultId: tslaVaultId,
       from: vaultOwnerAddress,
       amount: '100000@DFI'
@@ -1023,7 +1023,7 @@ describe('paybackLoan for dusd using dfi', () => {
     const tslaInterestAmountBefore = tslaInterestPerBlock.multipliedBy(new BigNumber(blockHeightBefore - tslaTakeLoanBlockHeight + 1))
     const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
-    const vaultBefore = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`, `${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
 
     const dfiPaybackAmount = 100
@@ -1064,7 +1064,7 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(burnInfoAfterFirstPayback.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfterFirstPayback.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
-    const vaultAfterFirstPayback = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`, `${tslaLoanAmountAfter.toFixed(8)}@TSLA`])
 
     // change penalty rate to 10% and payback
@@ -1105,7 +1105,7 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(burnInfoAfterSecondPayback.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
-    const vaultAfterSecondPayback = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfterSecondPayback.loanAmounts).toStrictEqual([`${dusdLoanAmountAfterSecondPayback.toFixed(8)}@DUSD`, `${tslaLoanAmountAfterSecondPayback.toFixed(8)}@TSLA`])
   })
 
@@ -1120,7 +1120,7 @@ describe('paybackLoan for dusd using dfi', () => {
     await testing.generate(1)
 
     const vaultOneSatOwnerAddress = await testing.generateAddress()
-    const vaultIdOneSat = await testing.rpc.vault.createVault({
+    const vaultIdOneSat = await testing.rpc.loan.createVault({
       ownerAddress: vaultOneSatOwnerAddress,
       loanSchemeId: loanSchemeId
     })
@@ -1130,7 +1130,7 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(burnInfoBefore.paybackburn).toStrictEqual(new BigNumber(0))
     expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
 
-    await testing.rpc.vault.depositToVault({
+    await testing.rpc.loan.depositToVault({
       vaultId: vaultIdOneSat,
       from: vaultOwnerAddress,
       amount: '100000@DFI'
@@ -1148,7 +1148,7 @@ describe('paybackLoan for dusd using dfi', () => {
     })
     await testing.generate(1)
 
-    const vaultBefore = await testing.rpc.vault.getVault(vaultIdOneSat) as VaultActive
+    const vaultBefore = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
     expect(vaultBefore.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
 
     let colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
@@ -1168,7 +1168,7 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(burnInfoFirstPayback.paybackburn).toStrictEqual(new BigNumber(oneSat))
     expect(burnInfoFirstPayback.dfipaybackfee).toStrictEqual(new BigNumber(0))
 
-    const vaultAfterFirstPayback = await testing.rpc.vault.getVault(vaultIdOneSat) as VaultActive
+    const vaultAfterFirstPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
     expect(vaultAfterFirstPayback.loanAmounts).toStrictEqual(['0.00000002@DUSD'])
 
     colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
@@ -1188,7 +1188,7 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(burnInfoAfterSecondPayback.paybackburn).toStrictEqual(new BigNumber(oneSat * 4))
     expect(burnInfoAfterSecondPayback.dfipaybacktokens).toStrictEqual(['0.00000002@DUSD'])
 
-    const vaultAfterSecondPayback = await testing.rpc.vault.getVault(vaultIdOneSat) as VaultActive
+    const vaultAfterSecondPayback = await testing.rpc.loan.getVault(vaultIdOneSat) as VaultActive
     expect(vaultAfterSecondPayback.loanAmounts).toHaveLength(0)
   })
 
@@ -1234,7 +1234,7 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(burnInfoAfter.dfipaybackfee.toFixed(8)).toStrictEqual(totalDfiPenalty.toFixed(8, BigNumber.ROUND_FLOOR))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
-    const vaultAfter = await testing.rpc.vault.getVault(vaultId) as VaultActive
+    const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
     expect(vaultAfter.loanAmounts).toStrictEqual([])
     expect(vaultAfter.interestAmounts).toStrictEqual([])
   })
@@ -1287,7 +1287,7 @@ describe('paybackLoan for dusd using dfi', () => {
     const tslaInterestAmount = tslaInterestPerBlock.multipliedBy(new BigNumber(currentHeight - tslaTakeLoanBlockHeight))
     const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmount.decimalPlaces(8, BigNumber.ROUND_CEIL))
 
-    const vaultBefore = await testing.rpc.vault.getVault(tslaVaultId) as VaultActive
+    const vaultBefore = await testing.rpc.loan.getVault(tslaVaultId) as VaultActive
     expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
 
     const colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
