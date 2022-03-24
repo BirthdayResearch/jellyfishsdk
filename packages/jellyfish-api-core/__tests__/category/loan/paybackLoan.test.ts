@@ -3,7 +3,7 @@ import { GenesisKeys, StartFlags, MasterNodeRegTestContainer } from '@defichain/
 import BigNumber from 'bignumber.js'
 import { Testing, TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
-import { VaultActive } from '../../../src/category/vault'
+import { VaultActive } from '../../../src/category/loan'
 
 const tGroup = TestingGroup.create(2, i => new LoanMasterNodeRegTestContainer(GenesisKeys[i]))
 const alice = tGroup.get(0)
