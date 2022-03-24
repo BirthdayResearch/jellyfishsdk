@@ -1327,6 +1327,49 @@ describe('paybackloan for any token', () => {
     await testing.generate(1)
   }
 
+  // this will borrow tesla tokens and will give to you
+  async function takeTslaTokensToPayback (): Promise<void> {
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+    await testing.generate(4) // wait for live fixed prices for TSLA/USD
+
+    const tokenProviderSchemeId = 'LoanTsla'
+    await testing.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: tokenProviderSchemeId
+    })
+    await testing.container.generate(1)
+
+    const tokenProviderVaultAddress = await testing.generateAddress()
+    await testing.token.dfi({ address: tokenProviderVaultAddress, amount: 1000000 })
+
+    const tokenProviderVaultId = await testing.rpc.loan.createVault({
+      ownerAddress: tokenProviderVaultAddress,
+      loanSchemeId: tokenProviderSchemeId
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.depositToVault({
+      vaultId: tokenProviderVaultId,
+      from: tokenProviderVaultAddress,
+      amount: '1000000@DFI'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.takeLoan({
+      vaultId: tokenProviderVaultId,
+      amounts: '100@TSLA',
+      to: tokenProviderVaultAddress
+    })
+    await testing.container.generate(1)
+
+    await testing.rpc.account.accountToAccount(tokenProviderVaultAddress, { [vaultOwnerAddress]: '100@TSLA' })
+    await testing.container.generate(1)
+  }
+
   beforeEach(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -1623,26 +1666,7 @@ describe('paybackloan for any token', () => {
   })
 
   it('should be able to payback DUSD loan using TSLA - use PaybackLoanMetadataV2', async () => {
-    const metadata = {
-      symbol: 'TSLA',
-      name: 'TSLA',
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: vaultOwnerAddress
-    }
-    await testing.token.create(metadata)
-    await testing.container.generate(1)
-
-    await testing.token.mint({ amount: 10, symbol: 'TSLA' })
-    await testing.container.generate(1)
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'TSLA',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
+    await takeTslaTokensToPayback()
 
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId: string = Object.keys(dusdInfo)[0]
@@ -1708,26 +1732,7 @@ describe('paybackloan for any token', () => {
   })
 
   it('should be able to payback DUSD loan using both TSLA and DFI - use PaybackLoanMetadataV2', async () => {
-    const metadata = {
-      symbol: 'TSLA',
-      name: 'TSLA',
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: vaultOwnerAddress
-    }
-    await testing.token.create(metadata)
-    await testing.container.generate(1)
-
-    await testing.token.mint({ amount: 10, symbol: 'TSLA' })
-    await testing.container.generate(1)
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'TSLA',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
+    await takeTslaTokensToPayback()
 
     const dfiInfo = await testing.rpc.token.getToken('DFI')
     const dfiId: string = Object.keys(dfiInfo)[0]
@@ -1810,26 +1815,7 @@ describe('paybackloan for any token', () => {
   })
 
   it('should be able to payback DUSD loan using both TSLA and BTC - use PaybackLoanMetadataV2', async () => {
-    const metadataTsla = {
-      symbol: 'TSLA',
-      name: 'TSLA',
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: vaultOwnerAddress
-    }
-    await testing.token.create(metadataTsla)
-    await testing.container.generate(1)
-
-    await testing.token.mint({ amount: 10, symbol: 'TSLA' })
-    await testing.container.generate(1)
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'TSLA',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
+    await takeTslaTokensToPayback()
 
     const metadataBtc = {
       symbol: 'BTC',
@@ -2373,27 +2359,8 @@ describe('paybackloan for any token', () => {
     await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nThere is no loan on token (DUSD) in this vault!\', code: -32600, method: paybackloan')
   })
 
-  it('should no be able to payback DUSD loan using TSLA - without PaybackLoanMetadataV2', async () => {
-    const metadata = {
-      symbol: 'TSLA',
-      name: 'TSLA',
-      isDAT: true,
-      mintable: true,
-      tradeable: true,
-      collateralAddress: vaultOwnerAddress
-    }
-    await testing.token.create(metadata)
-    await testing.container.generate(1)
-
-    await testing.token.mint({ amount: 10, symbol: 'TSLA' })
-    await testing.container.generate(1)
-
-    await testing.rpc.loan.setCollateralToken({
-      token: 'TSLA',
-      factor: new BigNumber(1),
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(1)
+  it('should not be able to payback DUSD loan using TSLA - without PaybackLoanMetadataV2', async () => {
+    await takeTslaTokensToPayback()
 
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId: string = Object.keys(dusdInfo)[0]
@@ -2413,6 +2380,6 @@ describe('paybackloan for any token', () => {
       from: vaultOwnerAddress,
       amounts: `${tslaPaybackAmount}@TSLA`
     })
-    await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nLoan token with id (2) does not exist!\', code: -32600, method: paybackloan')
+    await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nThere is no loan on token (TSLA) in this vault!\', code: -32600, method: paybackloan')
   })
 })
