@@ -28,13 +28,17 @@ export class StatsController {
   @Get()
   async get (): Promise<StatsData> {
     const block = requireValue(await this.blockMapper.getHighest(), 'block')
-
+    const burned = await this.cachedGet('burned', this.getBurned.bind(this), 1806)
+    const burnedTotal = await this.cachedGet('Controller.supply.getBurnedTotal', this.getBurnedTotal.bind(this), 1806)
     return {
       count: {
         ...await this.cachedGet('count', this.getCount.bind(this), 1801),
         blocks: block.height
       },
-      burned: await this.cachedGet('burned', this.getBurned.bind(this), 1700),
+      burned: {
+        ...burned,
+        total: burnedTotal.toNumber()
+      },
       tvl: await this.cachedGet('tvl', this.getTVL.bind(this), 310),
       price: await this.cachedGet('price', this.getPrice.bind(this), 220),
       masternodes: await this.cachedGet('masternodes', this.getMasternodes.bind(this), 325),
@@ -157,7 +161,8 @@ export class StatsController {
     const utxo = burnInfo.amount
     const account = findTokenBalance(tokens, 'DFI')
     const emission = burnInfo.emissionburn
-    return utxo.plus(account).plus(emission)
+    const fee = burnInfo.feeburn
+    return utxo.plus(account).plus(emission).plus(fee)
   }
 
   private async getPrice (): Promise<StatsData['price']> {
