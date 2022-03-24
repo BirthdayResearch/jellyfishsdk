@@ -1,6 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common'
 import { TokenController } from '../controllers/TokenController'
-import { PoolPairController } from '../controllers/PoolPairController'
+import { PoolPairController, PoolPairControllerV2 } from '../controllers/PoolPairController'
 import { MiscController } from '../controllers/MiscController'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { StatsController } from '../controllers/stats/StatsController'
@@ -17,6 +17,7 @@ import { ActuatorController } from '@defichain-apps/libs/actuator'
   controllers: [
     TokenController,
     PoolPairController,
+    PoolPairControllerV2,
     MiscController,
     StatsController,
     ActuatorController
