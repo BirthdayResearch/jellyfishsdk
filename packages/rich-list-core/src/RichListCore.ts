@@ -36,7 +36,7 @@ export class RichListCore {
   }
 
   /**
-   * Expected to be called on application bootstarapped.
+   * Expected to be called on application bootstrapped.
    * Start sync-ing up rich list up to tip and stop.
    * Application layer should also consume this on interval basis to allow rich list updates again
    *
@@ -177,8 +177,9 @@ export class RichListCore {
     for (const a of addresses) {
       const nonZeroBalances = await this.whaleRpcClient.account.getTokenBalances(
         { limit: Number.MAX_SAFE_INTEGER },
-        true
-      ) as any as AccountAmount
+        true,
+        { symbolLookup: false }
+      )
       balances[a] = this.appendZeroBalances(nonZeroBalances, tokens)
       // TBD: should be combine utxo and DFI rich list
       balances[a]['-1'] = new BigNumber(await this.whaleApiClient.address.getBalance(a))
