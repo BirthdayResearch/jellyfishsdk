@@ -12,7 +12,7 @@
     "start:ocean-api": "nest start ocean-api",
     "start:playground-api": "nest start playground-api",
     "start:rich-list-api": "nest start rich-list-api",
-    "start:whale-api": "nest start whale-api",
+    "start:whale": "nest start whale",
     "clean": "rm -rf dist"
   },
   "dependencies": {
