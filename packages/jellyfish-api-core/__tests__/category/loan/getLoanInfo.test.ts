@@ -270,7 +270,7 @@ describe('Loan - getLoanInfo', () => {
     }
 
     // create vault and deposit collateral
-    const vault1Id = await testing.rpc.vault.createVault({
+    const vault1Id = await testing.rpc.loan.createVault({
       ownerAddress: await testing.generateAddress()
     })
     await testing.container.generate(1)
@@ -278,7 +278,7 @@ describe('Loan - getLoanInfo', () => {
     const tempAddress = await testing.generateAddress()
     await testing.token.dfi({ amount: 10000, address: tempAddress })
     await testing.container.generate(1)
-    await testing.rpc.vault.depositToVault({
+    await testing.rpc.loan.depositToVault({
       vaultId: vault1Id,
       from: tempAddress,
       amount: '10000@DFI'
@@ -302,7 +302,7 @@ describe('Loan - getLoanInfo', () => {
     }
 
     // create empty vault
-    await testing.rpc.vault.createVault({
+    await testing.rpc.loan.createVault({
       ownerAddress: await testing.generateAddress()
     })
     await testing.container.generate(1)
@@ -347,7 +347,7 @@ describe('Loan - getLoanInfo', () => {
     })
     await testing.container.generate(1)
 
-    const vault1Id = await testing.rpc.vault.createVault({
+    const vault1Id = await testing.rpc.loan.createVault({
       ownerAddress: await testing.generateAddress()
     })
     await testing.container.generate(1)
@@ -355,7 +355,7 @@ describe('Loan - getLoanInfo', () => {
     const tempAddress = await testing.generateAddress()
     await testing.token.dfi({ amount: 10000, address: tempAddress })
     await testing.container.generate(1)
-    await testing.rpc.vault.depositToVault({
+    await testing.rpc.loan.depositToVault({
       vaultId: vault1Id,
       from: tempAddress,
       amount: '10000@DFI'
@@ -487,7 +487,7 @@ describe('Loan - getLoanInfo', () => {
     })
     await testing.container.generate(1)
 
-    const vault1Id = await testing.rpc.vault.createVault({
+    const vault1Id = await testing.rpc.loan.createVault({
       ownerAddress: await testing.generateAddress()
     })
     await testing.container.generate(1)
@@ -495,7 +495,7 @@ describe('Loan - getLoanInfo', () => {
     const tempAddress = await testing.generateAddress()
     await testing.token.dfi({ amount: 10000, address: tempAddress })
     await testing.container.generate(1)
-    await testing.rpc.vault.depositToVault({
+    await testing.rpc.loan.depositToVault({
       vaultId: vault1Id,
       from: tempAddress,
       amount: '10000@DFI'
