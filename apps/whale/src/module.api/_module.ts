@@ -1,20 +1,20 @@
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { CacheModule, Module } from '@nestjs/common'
-import { RpcController } from '../module.api/rpc.controller'
-import { ActuatorController } from '../module.api/actuator.controller'
-import { TransactionController } from '../module.api/transaction.controller'
-import { ApiValidationPipe } from '../module.api/pipes/api.validation.pipe'
-import { AddressController } from '../module.api/address.controller'
-import { PoolPairController } from '../module.api/poolpair.controller'
-import { PoolPairService, PoolSwapPathFindingService } from '../module.api/poolpair.service'
-import { MasternodeService } from '../module.api/masternode.service'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
-import { SemaphoreCache } from '../module.api/cache/semaphore.cache'
-import { ExceptionInterceptor } from '../module.api/interceptors/exception.interceptor'
-import { ResponseInterceptor } from '../module.api/interceptors/response.interceptor'
-import { TokenController } from '../module.api/token.controller'
-import { BlockController } from '../module.api/block.controller'
-import { MasternodeController } from '../module.api/masternode.controller'
+import { RpcController } from './rpc.controller'
+import { ActuatorController } from './actuator.controller'
+import { TransactionController } from './transaction.controller'
+import { ApiValidationPipe } from './pipes/api.validation.pipe'
+import { AddressController } from './address.controller'
+import { PoolPairController } from './poolpair.controller'
+import { PoolPairService } from './poolpair.service'
+import { MasternodeService } from './masternode.service'
+import { DeFiDCache } from './cache/defid.cache'
+import { SemaphoreCache } from './cache/semaphore.cache'
+import { ExceptionInterceptor } from './interceptors/exception.interceptor'
+import { ResponseInterceptor } from './interceptors/response.interceptor'
+import { TokenController } from './token.controller'
+import { BlockController } from './block.controller'
+import { MasternodeController } from './masternode.controller'
 import { ConfigService } from '@nestjs/config'
 import {
   BlockSubsidy,
@@ -22,13 +22,15 @@ import {
   NetworkName,
   TestNetCoinbaseSubsidyOptions
 } from '@defichain/jellyfish-network'
-import { OracleController } from '../module.api/oracle.controller'
-import { PriceController } from '../module.api/price.controller'
-import { StatsController } from '../module.api/stats.controller'
-import { FeeController } from '../module.api/fee.controller'
-import { RawtxController } from '../module.api/rawtx.controller'
-import { LoanController } from '../module.api/loan.controller'
-import { LoanVaultService } from '../module.api/loan.vault.service'
+import { OracleController } from './oracle.controller'
+import { PriceController } from './price.controller'
+import { StatsController } from './stats.controller'
+import { FeeController } from './fee.controller'
+import { RawtxController } from './rawtx.controller'
+import { LoanController } from './loan.controller'
+import { LoanVaultService } from './loan.vault.service'
+import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
+import { PoolPairPricesService } from './poolpair.prices.service'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -67,6 +69,7 @@ import { LoanVaultService } from '../module.api/loan.vault.service'
     SemaphoreCache,
     PoolPairService,
     PoolSwapPathFindingService,
+    PoolPairPricesService,
     MasternodeService,
     LoanVaultService,
     {

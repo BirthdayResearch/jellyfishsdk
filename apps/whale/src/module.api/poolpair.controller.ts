@@ -1,23 +1,25 @@
 import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { ApiPagedResponse } from './_core/api.paged.response'
+import { DeFiDCache } from './cache/defid.cache'
 import {
   AllSwappableTokensResult,
-  BestSwapPathResult,
+  BestSwapPathResult, DexPricesResult,
   PoolPairData,
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
-} from '@defichain/whale-api-client/dist/api/PoolPairs'
-import { PaginationQuery } from '../module.api/_core/api.query'
-import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
+} from '@defichain/whale-api-client/dist/api/poolpairs'
+import { PaginationQuery } from './_core/api.query'
+import { PoolPairService } from './poolpair.service'
+import { PoolSwapPathFindingService } from './poolswap.pathfinding.service'
 import BigNumber from 'bignumber.js'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { parseDATSymbol } from '../module.api/token.controller'
+import { parseDATSymbol } from './token.controller'
 import { PoolSwapMapper } from '../module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
-import { StringIsIntegerPipe } from '../module.api/pipes/api.validation.pipe'
+import { StringIsIntegerPipe } from './pipes/api.validation.pipe'
+import { PoolPairPricesService } from './poolpair.prices.service'
 
 @Controller('/poolpairs')
 export class PoolPairController {
@@ -26,6 +28,7 @@ export class PoolPairController {
     protected readonly deFiDCache: DeFiDCache,
     private readonly poolPairService: PoolPairService,
     private readonly poolSwapPathService: PoolSwapPathFindingService,
+    private readonly poolPairPricesService: PoolPairPricesService,
     private readonly poolSwapMapper: PoolSwapMapper,
     private readonly poolSwapAggregatedMapper: PoolSwapAggregatedMapper
   ) {
@@ -118,6 +121,7 @@ export class PoolPairController {
       const fromTo = await this.poolPairService.findSwapFromTo(swap.block.height, swap.txid, swap.txno)
       swap.from = fromTo?.from
       swap.to = fromTo?.to
+      swap.type = await this.poolPairService.checkSwapType(swap)
     }
 
     return ApiPagedResponse.of(items, query.size, item => {
@@ -181,6 +185,13 @@ export class PoolPairController {
       @Param('toTokenId', StringIsIntegerPipe) toTokenId: string
   ): Promise<BestSwapPathResult> {
     return await this.poolSwapPathService.getBestPath(fromTokenId, toTokenId)
+  }
+
+  @Get('/dexprices')
+  async listDexPrices (
+    @Query('denomination') denomination: string
+  ): Promise<DexPricesResult> {
+    return await this.poolPairPricesService.listDexPrices(denomination)
   }
 }
 
