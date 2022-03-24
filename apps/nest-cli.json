@@ -29,7 +29,7 @@
       "entryFile": "apps/rich-list-api/src/index",
       "sourceRoot": "rich-list-api/src"
     },
-    "whale-api": {
+    "whale": {
       "type": "application",
       "root": "whale",
       "entryFile": "apps/whale/src/main",
