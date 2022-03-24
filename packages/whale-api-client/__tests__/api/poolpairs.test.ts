@@ -985,3 +985,71 @@ describe('poolpair - all swap paths', () => {
     }
   })
 })
+
+describe('poolpair - get dex prices', () => {
+  it('should get dex prices in denominated currency', async () => {
+    // Let indexer catch up
+    await service.waitForIndexedHeight(await testing.container.getBlockCount() - 1)
+
+    const response = await client.poolpairs.listDexPrices('DFI')
+    await waitForExpect(async () => {
+      expect(response).toStrictEqual({
+        denomination: {
+          displaySymbol: 'DFI',
+          id: '0',
+          symbol: 'DFI'
+        },
+        dexPrices: {
+          A: {
+            denominationPrice: '2.00000000',
+            token: { displaySymbol: 'dA', id: '1', symbol: 'A' }
+          },
+          B: {
+            denominationPrice: '6.00000000',
+            token: { displaySymbol: 'dB', id: '2', symbol: 'B' }
+          },
+          C: {
+            denominationPrice: '4.00000000',
+            token: { displaySymbol: 'dC', id: '3', symbol: 'C' }
+          },
+          D: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dD', id: '4', symbol: 'D' }
+          },
+          E: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dE', id: '5', symbol: 'E' }
+          },
+          USDT: {
+            denominationPrice: '0.43151288',
+            token: { displaySymbol: 'dUSDT', id: '17', symbol: 'USDT' }
+          },
+          DUSD: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'DUSD', id: '21', symbol: 'DUSD' }
+          },
+          USDC: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dUSDC', id: '19', symbol: 'USDC' }
+          },
+          F: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dF', id: '6', symbol: 'F' }
+          },
+          G: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dG', id: '7', symbol: 'G' }
+          },
+          H: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dH', id: '8', symbol: 'H' }
+          },
+          TEST: {
+            denominationPrice: '0',
+            token: { displaySymbol: 'dTEST', id: '22', symbol: 'TEST' }
+          }
+        }
+      })
+    })
+  })
+})
