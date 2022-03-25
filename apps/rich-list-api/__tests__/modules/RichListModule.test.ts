@@ -58,7 +58,7 @@ describe('RichList Module', () => {
     expect(richListCore.isCatchingUp).toStrictEqual(false)
   })
 
-  it('should sync on interval', async () => {
+  it('should sync', async () => {
     await app.init()
     await waitForCatchingUp(richListCore)
     await richListService.sync()
@@ -67,7 +67,7 @@ describe('RichList Module', () => {
     expect(richListCore.isCatchingUp).toStrictEqual(false)
   })
 
-  it('should consumeAddressQueue on interval', async () => {
+  it('should consumeAddressQueue', async () => {
     await app.init()
     await waitForCatchingUp(richListCore)
     let res = await richListCore.addressBalances.list({ limit: 100, order: 'ASC', partition: '0' })
