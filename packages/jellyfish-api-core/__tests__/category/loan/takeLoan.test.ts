@@ -1101,7 +1101,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(tBalances).toStrictEqual([`${tslaLoanAmount.toFixed(8)}@3`]) // tokenId: 3 is TSLA
   })
 
-  it('should takeLoan with 50% (DFI + DUSD) collateral', async () => {
+  it('should takeLoan with 25% DFI + 25% DUSD collateral', async () => {
     // add btc collateral, new total collateral = 20000 USD
     await alice.rpc.loan.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC' // collateral value = 1 x 10000 x 0.5 = 5000 USD
@@ -1209,7 +1209,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
   })
 
-  it('should not takeLoan with 50% (DFI + DUSD) collateral before reaching fort canning road height', async () => {
+  it('should not takeLoan with 25% DFI + 25% DUSD collateral before reaching fort canning road height', async () => {
     // add btc collateral, new total collateral = 20000 USD
     await alice.rpc.loan.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '1@BTC' // collateral value = 1 x 10000 x 0.5 = 5000 USD
@@ -1265,7 +1265,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     await expect(txid).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan.')
   })
 
-  it('should not takeLoan with 40% (DFI + DUSD) collateral', async () => {
+  it('should not takeLoan with 24.9975% DFI + 24.9975% DUSD of minimum required collateral', async () => {
     // add btc collateral, new total collateral = 25000 USD
     await alice.rpc.loan.depositToVault({
       vaultId: bobVaultId, from: aliceAddr, amount: '2@BTC' // collateral value = 2 x 10000 x 0.5 = 10000 USD
@@ -1281,7 +1281,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     const blockCount = await bob.container.getBlockCount()
     await bob.generate(fortCanningRoadHeight - blockCount)
 
-    const tslaLoanAmount = 6250 // loan amount = 12500 USD
+    const tslaLoanAmount = 5000.5 // loan amount = 10001 USD
     const txid = bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
