@@ -1,7 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RichListController } from '../../src/controllers/RichList'
-import { RichListCoreTest, waitForCatchingUp } from '@defichain/rich-list-core/test/RichListCoreTest'
-import { RichListCore } from '@defichain/rich-list-core'
+import { RichListCore, RichListCoreTest, waitForCatchingUp } from '@defichain/rich-list-core'
 import { Testing } from '@defichain/jellyfish-testing'
 
 describe('RichListController', () => {

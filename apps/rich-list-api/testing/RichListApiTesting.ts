@@ -17,7 +17,8 @@ export class RichListApiTesting {
   }
 
   static async create (testingGroup: TestingGroup = TestingGroup.create(1)): Promise<RichListApiTesting> {
-    const postgres = await new GenericContainer('postgres')
+    const postgres = await new GenericContainer('postgres:14')
+      .withName('richdb')
       .withEnv('POSTGRES_USER', 'test')
       .withEnv('POSTGRES_PASSWORD', 'test')
       .withEnv('POSTGRES_DB', 'riche2e')
