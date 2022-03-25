@@ -289,6 +289,7 @@ export class Account {
    * @param {string} [options.token] Filter by token
    * @param {DfTxType} [options.txtype] Filter by transaction type. See DfTxType.
    * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @param {number} [options.txn] Order in block, unlimited by default
    * @return {Promise<AccountHistory[]>}
    */
   async listAccountHistory (
@@ -457,6 +458,7 @@ export interface AccountHistoryOptions {
   token?: string
   txtype?: DfTxType
   limit?: number
+  txn?: number
 }
 
 export interface AccountHistoryCountOptions {
