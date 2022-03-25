@@ -82,8 +82,8 @@ export class PoolPairPricesService {
     const allTokenInfo: TokensBySymbol = {}
 
     for (const token of tokens) {
-      // Skip LP tokens
-      if (token.isLPS) {
+      // Skip LP tokens and non-DAT tokens
+      if (token.isLPS || !token.isDAT) {
         continue
       }
 
