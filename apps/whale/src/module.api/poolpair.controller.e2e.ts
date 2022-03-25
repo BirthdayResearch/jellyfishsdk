@@ -52,6 +52,20 @@ async function setup (): Promise<void> {
     await createToken(container, token)
     await mintTokens(container, token)
   }
+
+  // Create non-DAT token - direct RPC call required as createToken() will
+  // rpc call 'gettoken' with symbol, but will fail for non-DAT tokens
+  await container.waitForWalletBalanceGTE(110)
+  await container.call('createtoken', [{
+    symbol: 'M',
+    name: 'M',
+    isDAT: false,
+    mintable: true,
+    tradeable: true,
+    collateralAddress: await getNewAddress(container)
+  }])
+  await container.generate(1)
+
   await createPoolPair(container, 'A', 'DFI')
   await createPoolPair(container, 'B', 'DFI')
   await createPoolPair(container, 'C', 'DFI')
@@ -909,6 +923,19 @@ describe('latest dex prices', () => {
       )
     expect(AInDfi.div(BInDfi).toFixed(8)).toStrictEqual('0.33333333')
     expect(pricesInB.dexPrices.A.denominationPrice).toStrictEqual('0.33333332')
+  })
+
+  it('should list DAT tokens only - M (non-DAT token) is not included in result', async () => {
+    { // M not included in any denominated dex prices
+      const result = await controller.listDexPrices('DFI')
+      expect(result.dexPrices.M).toBeUndefined()
+    }
+
+    { // M is not a valid 'denomination' token
+      await expect(controller.listDexPrices('M'))
+        .rejects
+        .toThrowError('Could not find token with symbol \'M\'')
+    }
   })
 
   describe('param validation - denomination', () => {
