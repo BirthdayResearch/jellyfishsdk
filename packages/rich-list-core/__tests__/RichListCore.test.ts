@@ -54,7 +54,7 @@ describe('RichListCore', () => {
       richListCore.start()
       await waitForCatchingUp(richListCore)
 
-      const beforeProcess = await richListCore.get('-1')
+      const beforeProcess = await richListCore.get('0')
       expect(beforeProcess.length).toStrictEqual(0)
 
       await richListCore.calculateNext()
@@ -63,7 +63,7 @@ describe('RichListCore', () => {
       const anythingRemainedInQ = await queue.receive(Number.MAX_SAFE_INTEGER)
       expect(anythingRemainedInQ.length).toStrictEqual(0)
 
-      const richList = await richListCore.get('-1')
+      const richList = await richListCore.get('0')
       expect(richList.length).toStrictEqual(EXPECTED_RICH_LIST_ADDRESSES.length)
 
       for (let i = 0; i < richList.length - 1; i++) {
@@ -84,7 +84,7 @@ describe('RichListCore', () => {
       richListCore.setRichListLength(3)
       await richListCore.calculateNext()
 
-      const richList = await richListCore.get('-1')
+      const richList = await richListCore.get('0')
       expect(richList.length).toStrictEqual(3)
 
       for (let i = 0; i < richList.length - 1; i++) {
@@ -96,7 +96,7 @@ describe('RichListCore', () => {
       }
 
       const excludedFromTopThree = await richListCore.addressBalances.list({
-        partition: '-1', // token id for utxo
+        partition: '0', // token id for DFI and DFI utxo
         order: 'DESC',
         limit: Number.MAX_SAFE_INTEGER,
         lt: new BigNumber(richList[2].amount).times('1e8').dividedToIntegerBy(1).toNumber()

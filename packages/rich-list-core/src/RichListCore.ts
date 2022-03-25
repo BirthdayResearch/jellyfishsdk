@@ -181,8 +181,12 @@ export class RichListCore {
         { symbolLookup: false }
       )
       balances[a] = this.appendZeroBalances(nonZeroBalances, tokens)
-      // TBD: should be combine utxo and DFI rich list
-      balances[a]['-1'] = new BigNumber(await this.whaleApiClient.address.getBalance(a))
+      const utxoBal = new BigNumber(await this.whaleApiClient.address.getBalance(a))
+      if (balances[a]['0'] !== undefined) {
+        balances[a]['0'] = balances[a]['0'].plus(utxoBal)
+      } else {
+        balances[a]['0'] = utxoBal
+      }
     }
     return balances
   }
@@ -223,7 +227,7 @@ export class RichListCore {
 
   private async listTokenIds (): Promise<number[]> {
     const tokens = await this.whaleRpcClient.token.listTokens()
-    return Object.keys(tokens).map(id => Number(id)).concat([-1])
+    return Object.keys(tokens).map(id => Number(id))
   }
 
   private async addressQueue (): Promise<Queue<string>> {
