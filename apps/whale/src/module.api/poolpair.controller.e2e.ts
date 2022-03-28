@@ -1,7 +1,7 @@
-import { PoolPairController } from '@src/module.api/poolpair.controller'
+import { PoolPairController } from '../module.api/poolpair.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
 
@@ -267,7 +267,7 @@ describe('get', () => {
       await controller.get('999')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
+      expect((err as NotFoundException).getResponse()).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find poolpair',
         error: 'Not Found'

@@ -7,8 +7,8 @@ import {
   BadRequestApiException,
   NestJSApiException,
   UnknownApiException
-} from '@src/module.api/_core/api.error'
-import { isVersionPrefixed } from '@src/module.api/_core/api.version'
+} from '../../module.api/_core/api.error'
+import { isVersionPrefixed } from '../../module.api/_core/api.version'
 
 /**
  * Exception Interceptor to remap errors in module-api.

@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { HealthCheck, HealthCheckResult, HealthCheckService } from '@nestjs/terminus'
-import { DeFiDProbeIndicator } from '@src/module.defid/defid.probes'
-import { ModelProbeIndicator } from '@src/module.model/_model.probes'
+import { DeFiDProbeIndicator } from '../module.defid/defid.probes'
+import { ModelProbeIndicator } from '../module.model/_model.probes'
 
 @Controller('/_actuator')
 export class ActuatorController {

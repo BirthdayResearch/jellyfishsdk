@@ -1,6 +1,6 @@
 import { DynamicModule, Module, Type } from '@nestjs/common'
-import { LevelDatabaseModule } from '@src/module.database/provider.level/module'
-import { MemoryDatabaseModule } from '@src/module.database/provider.memory/module'
+import { LevelDatabaseModule } from '../module.database/provider.level/module'
+import { MemoryDatabaseModule } from '../module.database/provider.memory/module'
 
 const PROVIDER = process.env.WHALE_DATABASE_PROVIDER
 

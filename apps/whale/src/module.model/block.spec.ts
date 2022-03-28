@@ -1,8 +1,8 @@
-import { Database } from '@src/module.database/database'
+import { Database } from '../module.database/database'
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '@src/module.database/provider.memory/module'
-import { LevelDatabase } from '@src/module.database/provider.level/level.database'
-import { BlockMapper } from '@src/module.model/block'
+import { MemoryDatabaseModule } from '../module.database/provider.memory/module'
+import { LevelDatabase } from '../module.database/provider.level/level.database'
+import { BlockMapper } from '../module.model/block'
 import assert from 'assert'
 
 let database: Database

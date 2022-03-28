@@ -1,7 +1,7 @@
-import { ProbeIndicator } from '@src/module.health/probe.indicator'
+import { ProbeIndicator } from '../module.health/probe.indicator'
 import { Injectable } from '@nestjs/common'
 import { HealthIndicatorResult } from '@nestjs/terminus'
-import { BlockMapper } from '@src/module.model/block'
+import { BlockMapper } from '../module.model/block'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 @Injectable()

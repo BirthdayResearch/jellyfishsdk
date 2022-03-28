@@ -1,13 +1,13 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { OracleMapper } from '@src/module.model/oracle'
-import { OracleHistoryMapper } from '@src/module.model/oracle.history'
-import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
+import { OracleMapper } from '../../../module.model/oracle'
+import { OracleHistoryMapper } from '../../../module.model/oracle.history'
+import { OracleTokenCurrencyMapper } from '../../../module.model/oracle.token.currency'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
-import { OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
-import { OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
-import { OracleIntervalSeconds, OraclePriceAggregatedIntervalMapper } from '@src/module.model/oracle.price.aggregated.interval'
+import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../e2e.module'
+import { OraclePriceFeedMapper } from '../../../module.model/oracle.price.feed'
+import { OraclePriceAggregatedMapper } from '../../../module.model/oracle.price.aggregated'
+import { OracleIntervalSeconds, OraclePriceAggregatedIntervalMapper } from '../../../module.model/oracle.price.aggregated.interval'
 
 describe('invalidate appoint/remove/update oracle', () => {
   const container = new MasterNodeRegTestContainer()

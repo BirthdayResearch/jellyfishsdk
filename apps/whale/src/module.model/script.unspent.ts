@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { Database, SortOrder } from '@src/module.database/database'
-import { Model, ModelMapping } from '@src/module.database/model'
+import { Database, SortOrder } from '../module.database/database'
+import { Model, ModelMapping } from '../module.database/model'
 
 const ScriptUnspentMapping: ModelMapping<ScriptUnspent> = {
   type: 'script_unspent',

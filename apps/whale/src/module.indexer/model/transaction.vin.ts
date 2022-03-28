@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { defid, Indexer, RawBlock } from '@src/module.indexer/model/_abstract'
-import { TransactionVin, TransactionVinMapper } from '@src/module.model/transaction.vin'
-import { TransactionVout } from '@src/module.model/transaction.vout'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
-import { VoutFinder } from '@src/module.indexer/model/_vout_finder'
-import { NotFoundIndexerError } from '@src/module.indexer/error'
+import { defid, Indexer, RawBlock } from '../../module.indexer/model/_abstract'
+import { TransactionVin, TransactionVinMapper } from '../../module.model/transaction.vin'
+import { TransactionVout } from '../../module.model/transaction.vout'
+import { HexEncoder } from '../../module.model/_hex.encoder'
+import { VoutFinder } from '../../module.indexer/model/_vout_finder'
+import { NotFoundIndexerError } from '../../module.indexer/error'
 
 @Injectable()
 export class TransactionVinIndexer extends Indexer {

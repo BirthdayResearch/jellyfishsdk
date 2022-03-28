@@ -11,29 +11,29 @@ import {
   Inject
 } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
-import { PaginationQuery } from '@src/module.api/_core/api.query'
+import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { PaginationQuery } from '../module.api/_core/api.query'
 import {
   CollateralTokenDetail,
   GetLoanSchemeResult,
   LoanSchemeResult,
   LoanTokenResult
-} from '@defichain/jellyfish-api-core/dist/category/loan'
+} from '@defichain/jellyfish-api-core/src/category/loan'
 import {
   CollateralToken,
   LoanScheme,
   LoanToken,
   LoanVaultActive,
   LoanVaultLiquidated
-} from '@whale-api-client/api/loan'
-import { mapTokenData } from '@src/module.api/token.controller'
-import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { LoanVaultService } from '@src/module.api/loan.vault.service'
-import { OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
-import { VaultAuctionHistoryMapper, VaultAuctionBatchHistory } from '@src/module.model/vault.auction.batch.history'
-import { ActivePrice } from '@whale-api-client/api/prices'
+} from '@defichain/whale-api-client/src/api/Loan'
+import { mapTokenData } from '../module.api/token.controller'
+import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { LoanVaultService } from '../module.api/loan.vault.service'
+import { OraclePriceActiveMapper } from '../module.model/oracle.price.active'
+import { VaultAuctionHistoryMapper, VaultAuctionBatchHistory } from '../module.model/vault.auction.batch.history'
+import { ActivePrice } from '@defichain/whale-api-client/src/api/Prices'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { HexEncoder } from '../module.model/_hex.encoder'
 
 @Controller('/loans')
 export class LoanController {

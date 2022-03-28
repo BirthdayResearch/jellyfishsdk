@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { Database } from '@src/module.database/database'
-import { Model, ModelMapping } from '@src/module.database/model'
+import { Database } from '../module.database/database'
+import { Model, ModelMapping } from '../module.database/model'
 
 const IndexStatusMapping: ModelMapping<IndexStatus> = {
   type: 'index_status',

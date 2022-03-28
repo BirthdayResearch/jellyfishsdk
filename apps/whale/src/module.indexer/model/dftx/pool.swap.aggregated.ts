@@ -1,9 +1,9 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
 import { PoolSwap } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../../../module.indexer/model/_abstract'
 import { Injectable } from '@nestjs/common'
-import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
-import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
+import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../../../module.model/pool.swap.aggregated'
+import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
 
 export enum PoolSwapAggregatedInterval {
   ONE_HOUR = 60 * 60,

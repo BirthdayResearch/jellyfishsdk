@@ -1,11 +1,11 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { TestingGroup, Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
-import { VaultAuctionHistoryMapper } from '@src/module.model/vault.auction.batch.history'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../e2e.module'
+import { VaultAuctionHistoryMapper } from '../../../module.model/vault.auction.batch.history'
 import BigNumber from 'bignumber.js'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { HexEncoder } from '../../../module.model/_hex.encoder'
 
 let app: NestFastifyApplication
 const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(RegTestFoundationKeys[i]))

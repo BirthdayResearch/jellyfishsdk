@@ -1,8 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
-import { BlockMapper, Block } from '@src/module.model/block'
-import { Transaction, TransactionMapper } from '@src/module.model/transaction'
-import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
-import { PaginationQuery } from '@src/module.api/_core/api.query'
+import { BlockMapper, Block } from '../module.model/block'
+import { Transaction, TransactionMapper } from '../module.model/transaction'
+import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { PaginationQuery } from '../module.api/_core/api.query'
 
 export function parseHeight (str: string | undefined): number | undefined {
   if (str !== undefined && /^\d+$/.test(str)) {

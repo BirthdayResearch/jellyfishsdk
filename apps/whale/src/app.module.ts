@@ -1,19 +1,19 @@
-import packageJson from '../package.json'
+import packageJson from '../../package.json'
 import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { ScheduleModule } from '@nestjs/schedule'
 
-import { AppConfiguration } from '@src/app.configuration'
+import { AppConfiguration } from './app.configuration'
 
-import { ApiModule } from '@src/module.api/_module'
-import { DatabaseModule } from '@src/module.database/_module'
-import { DeFiDModule } from '@src/module.defid/_module'
-import { HealthModule } from '@src/module.health/_module'
-import { IndexerModule } from '@src/module.indexer/_module'
-import { ModelModule } from '@src/module.model/_module'
+import { ApiModule } from './module.api/_module'
+import { DatabaseModule } from './module.database/_module'
+import { DeFiDModule } from './module.defid/_module'
+import { HealthModule } from './module.health/_module'
+import { IndexerModule } from './module.indexer/_module'
+import { ModelModule } from './module.model/_module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
-import { newFastifyAdapter } from '@src/fastify'
+import { newFastifyAdapter } from './fastify'
 import { AbstractHttpAdapter } from '@nestjs/core/adapters/http-adapter'
 
 @Module({})

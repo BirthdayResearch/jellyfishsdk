@@ -1,4 +1,4 @@
-import { AppModule } from '@src/app.module'
+import { AppModule } from './app.module'
 
 /**
  * Bootstrap AppModule and start on port 3000

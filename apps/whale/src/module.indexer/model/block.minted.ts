@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { Indexer, RawBlock } from '@src/module.indexer/model/_abstract'
-import { MasternodeMapper } from '@src/module.model/masternode'
+import { Indexer, RawBlock } from '../../module.indexer/model/_abstract'
+import { MasternodeMapper } from '../../module.model/masternode'
 
 @Injectable()
 export class BlockMintedIndexer extends Indexer {

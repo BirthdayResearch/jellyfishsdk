@@ -1,11 +1,11 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
 import { CRemoveOracle, RemoveOracle } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../../../module.indexer/model/_abstract'
 import { Injectable } from '@nestjs/common'
-import { OracleMapper } from '@src/module.model/oracle'
-import { OracleHistory, OracleHistoryMapper } from '@src/module.model/oracle.history'
-import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
-import { NotFoundIndexerError } from '@src/module.indexer/error'
+import { OracleMapper } from '../../../module.model/oracle'
+import { OracleHistory, OracleHistoryMapper } from '../../../module.model/oracle.history'
+import { OracleTokenCurrencyMapper } from '../../../module.model/oracle.token.currency'
+import { NotFoundIndexerError } from '../../../module.indexer/error'
 
 @Injectable()
 export class RemoveOracleIndexer extends DfTxIndexer<RemoveOracle> {

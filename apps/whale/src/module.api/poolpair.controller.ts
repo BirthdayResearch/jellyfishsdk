@@ -1,7 +1,7 @@
 import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
-import { DeFiDCache } from '@src/module.api/cache/defid.cache'
+import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { DeFiDCache } from '../module.api/cache/defid.cache'
 import {
   AllSwappableTokensResult,
   BestSwapPathResult,
@@ -9,15 +9,15 @@ import {
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
-} from '@whale-api-client/api/poolpairs'
-import { PaginationQuery } from '@src/module.api/_core/api.query'
+} from '@defichain/whale-api-client/src/api/PoolPairs'
+import { PaginationQuery } from '../module.api/_core/api.query'
 import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
-import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { parseDATSymbol } from '@src/module.api/token.controller'
-import { PoolSwapMapper } from '@src/module.model/pool.swap'
-import { PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
-import { StringIsIntegerPipe } from '@src/module.api/pipes/api.validation.pipe'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
+import { parseDATSymbol } from '../module.api/token.controller'
+import { PoolSwapMapper } from '../module.model/pool.swap'
+import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
+import { StringIsIntegerPipe } from '../module.api/pipes/api.validation.pipe'
 
 @Controller('/poolpairs')
 export class PoolPairController {
@@ -118,7 +118,6 @@ export class PoolPairController {
       const fromTo = await this.poolPairService.findSwapFromTo(swap.block.height, swap.txid, swap.txno)
       swap.from = fromTo?.from
       swap.to = fromTo?.to
-      swap.type = await this.poolPairService.checkSwapType(swap)
     }
 
     return ApiPagedResponse.of(items, query.size, item => {

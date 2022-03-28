@@ -1,8 +1,8 @@
 import fs from 'fs'
 import { Global, Module } from '@nestjs/common'
-import { LevelDatabase } from '@src/module.database/provider.level/level.database'
+import { LevelDatabase } from '../../module.database/provider.level/level.database'
 import { ConfigService } from '@nestjs/config'
-import { Database } from '@src/module.database/database'
+import { Database } from '../../module.database/database'
 
 /**
  * LevelUp will fail to create if directory does not exist.

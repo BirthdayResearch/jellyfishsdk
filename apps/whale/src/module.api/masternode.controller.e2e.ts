@@ -1,11 +1,11 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, DelayedEunosPayaTestContainer, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { createTestingApp, DelayedEunosPayaTestContainer, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { NotFoundException } from '@nestjs/common'
-import { MasternodeController } from '@src/module.api/masternode.controller'
+import { MasternodeController } from '../module.api/masternode.controller'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { MasternodeState } from '@whale-api-client/api/masternodes'
-import { MasternodeTimeLock } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import { MasternodeState } from '@defichain/whale-api-client/src/api/MasterNodes'
+import { MasternodeTimeLock } from '@defichain/jellyfish-api-core/src/category/masternode'
 
 describe('list', () => {
   const container = new MasterNodeRegTestContainer()
@@ -94,7 +94,7 @@ describe('get', () => {
       await controller.get('8d4d987dee688e400a0cdc899386f243250d3656d802231755ab4d28178c9816')
     } catch (err) {
       expect(err).toBeInstanceOf(NotFoundException)
-      expect(err.response).toStrictEqual({
+      expect((err as NotFoundException).getResponse()).toStrictEqual({
         statusCode: 404,
         message: 'Unable to find masternode',
         error: 'Not Found'

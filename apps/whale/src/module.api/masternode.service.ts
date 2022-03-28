@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
-import { Masternode } from '@src/module.model/masternode'
-import { MasternodeState } from '@defichain/jellyfish-api-core/dist/category/masternode'
+import { SemaphoreCache } from '../module.api/cache/semaphore.cache'
+import { Masternode } from '../module.model/masternode'
+import { MasternodeState } from '@defichain/jellyfish-api-core/src/category/masternode'
 import { NetworkName } from '@defichain/jellyfish-network'
 
 const MasternodeConsensusParams = {

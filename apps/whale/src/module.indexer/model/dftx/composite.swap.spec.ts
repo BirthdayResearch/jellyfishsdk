@@ -1,9 +1,9 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight, waitForIndexedHeightLatest } from '@src/e2e.module'
+import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight, waitForIndexedHeightLatest } from '../../../e2e.module'
 import { Testing } from '@defichain/jellyfish-testing'
-import { PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
-import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
+import { PoolPairHistoryMapper } from '../../../module.model/pool.pair.history'
+import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
 
 const container = new MasterNodeRegTestContainer()
 let testing: Testing

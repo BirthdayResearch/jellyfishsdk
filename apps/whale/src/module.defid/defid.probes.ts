@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { HealthIndicatorResult, ProbeIndicator } from '@src/module.health/probe.indicator'
+import { HealthIndicatorResult, ProbeIndicator } from '../module.health/probe.indicator'
 import { blockchain as bc } from '@defichain/jellyfish-api-core'
 
 @Injectable()

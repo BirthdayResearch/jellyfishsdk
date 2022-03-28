@@ -1,9 +1,9 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
-import { TransactionMapper, Transaction } from '@src/module.model/transaction'
-import { PaginationQuery } from '@src/module.api/_core/api.query'
-import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
-import { TransactionVin, TransactionVinMapper } from '@src/module.model/transaction.vin'
-import { TransactionVout, TransactionVoutMapper } from '@src/module.model/transaction.vout'
+import { TransactionMapper, Transaction } from '../module.model/transaction'
+import { PaginationQuery } from '../module.api/_core/api.query'
+import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { TransactionVin, TransactionVinMapper } from '../module.model/transaction.vin'
+import { TransactionVout, TransactionVoutMapper } from '../module.model/transaction.vout'
 
 @Controller('/transactions')
 export class TransactionController {

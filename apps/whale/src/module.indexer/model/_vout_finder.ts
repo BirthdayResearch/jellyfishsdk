@@ -1,6 +1,6 @@
-import { RawBlock } from '@src/module.indexer/model/_abstract'
-import { TransactionVout, TransactionVoutMapper } from '@src/module.model/transaction.vout'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { RawBlock } from '../../module.indexer/model/_abstract'
+import { TransactionVout, TransactionVoutMapper } from '../../module.model/transaction.vout'
+import { HexEncoder } from '../../module.model/_hex.encoder'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()

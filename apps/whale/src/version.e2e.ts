@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { newFastifyAdapter } from '@src/fastify'
-import { AppModule } from '@src/app.module'
+import { newFastifyAdapter } from './fastify'
+import { AppModule } from './app.module'
 import { Test } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
 

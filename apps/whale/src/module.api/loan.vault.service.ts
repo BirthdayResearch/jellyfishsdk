@@ -1,12 +1,12 @@
-import { PaginationQuery } from '@src/module.api/_core/api.query'
+import { PaginationQuery } from '../module.api/_core/api.query'
 import {
   AuctionPagination,
   VaultActive,
   VaultLiquidation,
   VaultPagination,
   VaultState
-} from '@defichain/jellyfish-api-core/dist/category/loan'
-import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
+} from '@defichain/jellyfish-api-core/src/category/loan'
+import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
 import {
   LoanScheme,
   LoanVaultActive,
@@ -14,19 +14,19 @@ import {
   LoanVaultLiquidationBatch,
   LoanVaultState,
   LoanVaultTokenAmount
-} from '@whale-api-client/api/loan'
+} from '@defichain/whale-api-client/src/api/Loan'
 import { Inject, BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
-import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
+import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { parseDisplaySymbol } from '@src/module.api/token.controller'
-import { ActivePrice } from '@whale-api-client/api/prices'
-import { OraclePriceActiveMapper } from '@src/module.model/oracle.price.active'
+import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { parseDisplaySymbol } from '../module.api/token.controller'
+import { ActivePrice } from '@defichain/whale-api-client/src/api/Prices'
+import { OraclePriceActiveMapper } from '../module.model/oracle.price.active'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { fromScriptHex } from '@defichain/jellyfish-address'
-import { VaultAuctionHistoryMapper } from '@src/module.model/vault.auction.batch.history'
+import { VaultAuctionHistoryMapper } from '../module.model/vault.auction.batch.history'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { HexEncoder } from '../module.model/_hex.encoder'
 
 @Injectable()
 export class LoanVaultService {

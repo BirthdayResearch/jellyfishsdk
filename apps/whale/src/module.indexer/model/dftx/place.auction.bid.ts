@@ -1,10 +1,10 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
 import { PlaceAuctionBid, CPlaceAuctionBid } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../../../module.indexer/model/_abstract'
 import { Injectable, Logger } from '@nestjs/common'
-import { VaultAuctionHistoryMapper } from '@src/module.model/vault.auction.batch.history'
-import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { VaultAuctionHistoryMapper } from '../../../module.model/vault.auction.batch.history'
+import { toBuffer } from '@defichain/jellyfish-transaction/src/script/_buffer'
+import { HexEncoder } from '../../../module.model/_hex.encoder'
 
 @Injectable()
 export class PlaceAuctionBidIndexer extends DfTxIndexer<PlaceAuctionBid> {

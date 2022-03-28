@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { Interval } from '@nestjs/schedule'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { MainIndexer } from '@src/module.indexer/model/_main'
-import { Block, BlockMapper } from '@src/module.model/block'
-import { IndexStatusMapper, Status } from '@src/module.indexer/status'
-import { TokenMapper } from '@src/module.model/token'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
-import { waitForCondition } from '@defichain/testcontainers/dist/utils'
-import { blockchain as defid } from '@defichain/jellyfish-api-core'
+import { MainIndexer } from '../module.indexer/model/_main'
+import { Block, BlockMapper } from '../module.model/block'
+import { IndexStatusMapper, Status } from '../module.indexer/status'
+import { TokenMapper } from '../module.model/token'
+import { HexEncoder } from '../module.model/_hex.encoder'
+import { waitForCondition } from '@defichain/testcontainers/src/utils'
+import { blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class RPCBlockProvider {
@@ -83,7 +83,7 @@ export class RPCBlockProvider {
     try {
       nextHash = await this.client.blockchain.getBlockHash(indexed.height + 1)
     } catch (err) {
-      if (err.payload.message === 'Block height out of range') {
+      if ((err as RpcApiError).payload.message === 'Block height out of range') {
         return false
       }
       throw err

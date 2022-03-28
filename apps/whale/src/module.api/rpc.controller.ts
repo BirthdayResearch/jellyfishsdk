@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { IsArray, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator'
-import { ApiRawResponse } from '@src/module.api/_core/api.response'
+import { ApiRawResponse } from '../module.api/_core/api.response'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Transform } from 'class-transformer'
 

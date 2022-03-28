@@ -1,10 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { BlockMapper } from '@src/module.model/block'
-import { TransactionMapper } from '@src/module.model/transaction'
-import { TransactionVinMapper } from '@src/module.model/transaction.vin'
-import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
+import { BlockMapper } from '../../module.model/block'
+import { TransactionMapper } from '../../module.model/transaction'
+import { TransactionVinMapper } from '../../module.model/transaction.vin'
+import { TransactionVoutMapper } from '../../module.model/transaction.vout'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../e2e.module'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication

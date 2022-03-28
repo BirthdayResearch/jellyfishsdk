@@ -1,10 +1,10 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
 import { CResignMasternode, ResignMasternode } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../../../module.indexer/model/_abstract'
 import { Injectable } from '@nestjs/common'
-import { Masternode, MasternodeMapper } from '@src/module.model/masternode'
-import { MasternodeStatsMapper, TimelockStats } from '@src/module.model/masternode.stats'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { Masternode, MasternodeMapper } from '../../../module.model/masternode'
+import { MasternodeStatsMapper, TimelockStats } from '../../../module.model/masternode.stats'
+import { HexEncoder } from '../../../module.model/_hex.encoder'
 import BigNumber from 'bignumber.js'
 
 @Injectable()

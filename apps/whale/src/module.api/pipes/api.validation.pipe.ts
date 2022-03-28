@@ -1,5 +1,5 @@
 import { ArgumentMetadata, HttpStatus, ParseIntPipe, ValidationError, ValidationPipe } from '@nestjs/common'
-import { ApiErrorType, ApiException } from '@src/module.api/_core/api.error'
+import { ApiErrorType, ApiException } from '../../module.api/_core/api.error'
 
 export class ApiValidationPipe extends ValidationPipe {
   constructor () {

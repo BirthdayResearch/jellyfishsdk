@@ -1,8 +1,8 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
-import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
-import { SemaphoreCache } from '@src/module.api/cache/semaphore.cache'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
+import { SemaphoreCache } from '../module.api/cache/semaphore.cache'
 import {
   AllSwappableTokensResult,
   BestSwapPathResult,
@@ -10,36 +10,35 @@ import {
   PoolSwapData,
   PoolSwapFromToData,
   SwapPathPoolPair,
-  SwapPathsResult,
-  SwapType,
-  TokenIdentifier
-} from '@whale-api-client/api/poolpairs'
-import { getBlockSubsidy } from '@src/module.api/subsidy'
-import { BlockMapper } from '@src/module.model/block'
-import { TokenMapper } from '@src/module.model/token'
-import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '@src/module.model/pool.swap.aggregated'
-import { PoolSwapAggregatedInterval } from '@src/module.indexer/model/dftx/pool.swap.aggregated'
-import { TransactionVoutMapper } from '@src/module.model/transaction.vout'
+  SwapPathsResult, SwapType, TokenIdentifier
+} from '@defichain/whale-api-client/src/api/PoolPairs'
+import { getBlockSubsidy } from '../module.api/subsidy'
+import { BlockMapper } from '../module.model/block'
+import { TokenMapper } from '../module.model/token'
+import { PoolSwapAggregated, PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
+import { PoolSwapAggregatedInterval } from '../module.indexer/model/dftx/pool.swap.aggregated'
+import { TransactionVoutMapper } from '../module.model/transaction.vout'
 import { SmartBuffer } from 'smart-buffer'
 import {
   CCompositeSwap,
   CompositeSwap,
   CPoolSwap,
+  DfTx,
   OP_DEFI_TX,
   PoolSwap as PoolSwapDfTx,
   toOPCodes
 } from '@defichain/jellyfish-transaction'
 import { fromScript } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
-import { DeFiDCache } from '@src/module.api/cache/defid.cache'
-import { parseDisplaySymbol } from '@src/module.api/token.controller'
+import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
+import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { parseDisplaySymbol } from '../module.api/token.controller'
 import { UndirectedGraph } from 'graphology'
-import { PoolPairToken, PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
+import { PoolPairToken, PoolPairTokenMapper } from '../module.model/pool.pair.token'
 import { Interval } from '@nestjs/schedule'
 import { allSimplePaths } from 'graphology-simple-path'
 import { connectedComponents } from 'graphology-components'
-import { DfTx } from '@defichain/jellyfish-transaction/dist/script/dftx/dftx'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class PoolPairService {
@@ -65,7 +64,7 @@ export class PoolPairService {
         return Object.values(result)[0]
       }
     } catch (err) {
-      if (err?.payload?.message !== 'Pool not found') {
+      if ((err as RpcApiError)?.payload?.message !== 'Pool not found') {
         throw err
       }
     }
@@ -76,7 +75,7 @@ export class PoolPairService {
         return Object.values(result)[0]
       }
     } catch (err) {
-      if (err?.payload?.message !== 'Pool not found') {
+      if ((err as RpcApiError)?.payload?.message !== 'Pool not found') {
         throw err
       }
     }

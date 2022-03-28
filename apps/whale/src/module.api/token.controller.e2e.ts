@@ -1,7 +1,7 @@
-import { TokenController } from '@src/module.api/token.controller'
+import { TokenController } from '../module.api/token.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
 

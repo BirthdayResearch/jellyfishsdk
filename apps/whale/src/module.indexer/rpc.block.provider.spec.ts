@@ -1,5 +1,5 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createTestingApp, stopTestingApp } from '@src/e2e.module'
+import { createTestingApp, stopTestingApp } from '../e2e.module'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { RPCBlockProvider } from './rpc.block.provider'
 

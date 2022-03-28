@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
-import { Model, ModelMapping } from '@src/module.database/model'
-import { Database, SortOrder } from '@src/module.database/database'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
+import { Model, ModelMapping } from '../module.database/model'
+import { Database, SortOrder } from '../module.database/database'
+import { HexEncoder } from '../module.model/_hex.encoder'
 
 const MasternodeStatsMapping: ModelMapping<MasternodeStats> = {
   type: 'masternode_stats',

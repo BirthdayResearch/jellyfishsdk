@@ -1,6 +1,6 @@
-import { Model, ModelMapping } from '@src/module.database/model'
+import { Model, ModelMapping } from '../module.database/model'
 import { Injectable } from '@nestjs/common'
-import { Database, SortOrder } from '@src/module.database/database'
+import { Database, SortOrder } from '../module.database/database'
 
 const PoolPairHistoryMapping: ModelMapping<PoolPairHistory> = {
   type: 'pool_pair_history',

@@ -1,4 +1,4 @@
-import { Model, ModelIndex, ModelKey, ModelMapping } from '@src/module.database/model'
+import { Model, ModelIndex, ModelKey, ModelMapping } from '../module.database/model'
 
 /**
  * DeFi whale uses a database-agnostic implementation. Any provider is valid as long as it

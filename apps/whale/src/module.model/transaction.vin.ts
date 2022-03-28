@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
-import { Model, ModelMapping } from '@src/module.database/model'
-import { Database, SortOrder } from '@src/module.database/database'
+import { Model, ModelMapping } from '../module.database/model'
+import { Database, SortOrder } from '../module.database/database'
 
 const TransactionVinMapping: ModelMapping<TransactionVin> = {
   type: 'transaction_vin',

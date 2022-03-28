@@ -1,12 +1,12 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
 import { CCompositeSwap, CompositeSwap, PoolId } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../../../module.indexer/model/_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { PoolSwapIndexer } from './pool.swap'
-import { PoolPairHistory, PoolPairHistoryMapper } from '@src/module.model/pool.pair.history'
-import { PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
+import { PoolPairHistory, PoolPairHistoryMapper } from '../../../module.model/pool.pair.history'
+import { PoolPairTokenMapper } from '../../../module.model/pool.pair.token'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { IndexerError } from '@src/module.indexer/error'
+import { IndexerError } from '../../../module.indexer/error'
 import BigNumber from 'bignumber.js'
 
 @Injectable()

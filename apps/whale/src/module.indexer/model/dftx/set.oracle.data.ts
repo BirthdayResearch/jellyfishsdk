@@ -1,13 +1,13 @@
-import { DfTxIndexer, DfTxTransaction } from '@src/module.indexer/model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from '../../../module.indexer/model/dftx/_abstract'
 import { CSetOracleData, SetOracleData } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '@src/module.indexer/model/_abstract'
+import { RawBlock } from '../../../module.indexer/model/_abstract'
 import { Injectable } from '@nestjs/common'
-import { OraclePriceAggregated, OraclePriceAggregatedMapper } from '@src/module.model/oracle.price.aggregated'
-import { OraclePriceFeed, OraclePriceFeedMapper } from '@src/module.model/oracle.price.feed'
-import { HexEncoder } from '@src/module.model/_hex.encoder'
-import { OracleTokenCurrencyMapper } from '@src/module.model/oracle.token.currency'
+import { OraclePriceAggregated, OraclePriceAggregatedMapper } from '../../../module.model/oracle.price.aggregated'
+import { OraclePriceFeed, OraclePriceFeedMapper } from '../../../module.model/oracle.price.feed'
+import { HexEncoder } from '../../../module.model/_hex.encoder'
+import { OracleTokenCurrencyMapper } from '../../../module.model/oracle.token.currency'
 import BigNumber from 'bignumber.js'
-import { PriceTickerMapper } from '@src/module.model/price.ticker'
+import { PriceTickerMapper } from '../../../module.model/price.ticker'
 
 @Injectable()
 export class SetOracleDataIndexer extends DfTxIndexer<SetOracleData> {

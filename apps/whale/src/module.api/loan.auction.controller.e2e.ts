@@ -1,7 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '@src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import BigNumber from 'bignumber.js'
-import { LoanController } from '@src/module.api/loan.controller'
+import { LoanController } from '../module.api/loan.controller'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 
 const tGroup = TestingGroup.create(3)
@@ -130,115 +130,107 @@ beforeAll(async () => {
   })
   await alice.generate(1)
 
-  { // Vault 1
-    vaultId1 = await alice.rpc.loan.createVault({
-      ownerAddress: await alice.generateAddress(),
-      loanSchemeId: 'default'
-    })
-    await alice.generate(1)
+  // Vault 1
+  vaultId1 = await alice.rpc.loan.createVault({
+    ownerAddress: await alice.generateAddress(),
+    loanSchemeId: 'default'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId1, from: aliceColAddr, amount: '1000@DFI'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId1, from: aliceColAddr, amount: '1000@DFI'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId1, from: aliceColAddr, amount: '0.05@BTC'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId1, from: aliceColAddr, amount: '0.05@BTC'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.takeLoan({
-      vaultId: vaultId1,
-      amounts: '750@AAPL',
-      to: aliceColAddr
-    })
-    await alice.generate(1)
-  }
+  await alice.rpc.loan.takeLoan({
+    vaultId: vaultId1,
+    amounts: '750@AAPL',
+    to: aliceColAddr
+  })
+  await alice.generate(1)
 
-  { // Vault 2
-    vaultId2 = await alice.rpc.loan.createVault({
-      ownerAddress: await alice.generateAddress(),
-      loanSchemeId: 'default'
-    })
-    await alice.generate(1)
+  // Vault 2
+  vaultId2 = await alice.rpc.loan.createVault({
+    ownerAddress: await alice.generateAddress(),
+    loanSchemeId: 'default'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId2, from: aliceColAddr, amount: '2000@DFI'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId2, from: aliceColAddr, amount: '2000@DFI'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId2, from: aliceColAddr, amount: '0.1@BTC'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId2, from: aliceColAddr, amount: '0.1@BTC'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.takeLoan({
-      vaultId: vaultId2,
-      amounts: '1500@TSLA',
-      to: aliceColAddr
-    })
-    await alice.generate(1)
-  }
+  await alice.rpc.loan.takeLoan({
+    vaultId: vaultId2,
+    amounts: '1500@TSLA',
+    to: aliceColAddr
+  })
+  await alice.generate(1)
 
-  { // Vault 3
-    vaultId3 = await alice.rpc.loan.createVault({
-      ownerAddress: await alice.generateAddress(),
-      loanSchemeId: 'default'
-    })
-    await alice.generate(1)
+  // Vault 3
+  vaultId3 = await alice.rpc.loan.createVault({
+    ownerAddress: await alice.generateAddress(),
+    loanSchemeId: 'default'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId3, from: aliceColAddr, amount: '3000@DFI'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId3, from: aliceColAddr, amount: '3000@DFI'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId3, from: aliceColAddr, amount: '0.15@BTC'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId3, from: aliceColAddr, amount: '0.15@BTC'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.takeLoan({
-      vaultId: vaultId3,
-      amounts: '2250@MSFT',
-      to: aliceColAddr
-    })
-    await alice.generate(1)
-  }
+  await alice.rpc.loan.takeLoan({
+    vaultId: vaultId3,
+    amounts: '2250@MSFT',
+    to: aliceColAddr
+  })
+  await alice.generate(1)
 
-  { // Vault 4
-    vaultId4 = await alice.rpc.loan.createVault({
-      ownerAddress: await alice.generateAddress(),
-      loanSchemeId: 'default'
-    })
-    await alice.generate(1)
+  // Vault 4
+  vaultId4 = await alice.rpc.loan.createVault({
+    ownerAddress: await alice.generateAddress(),
+    loanSchemeId: 'default'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId4, from: aliceColAddr, amount: '4000@DFI'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId4, from: aliceColAddr, amount: '4000@DFI'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.depositToVault({
-      vaultId: vaultId4, from: aliceColAddr, amount: '0.2@BTC'
-    })
-    await alice.generate(1)
+  await alice.rpc.loan.depositToVault({
+    vaultId: vaultId4, from: aliceColAddr, amount: '0.2@BTC'
+  })
+  await alice.generate(1)
 
-    await alice.rpc.loan.takeLoan({
-      vaultId: vaultId4,
-      amounts: '3000@FB',
-      to: aliceColAddr
-    })
-    await alice.generate(1)
-  }
+  await alice.rpc.loan.takeLoan({
+    vaultId: vaultId4,
+    amounts: '3000@FB',
+    to: aliceColAddr
+  })
+  await alice.generate(1)
 
-  {
-    const auctions = await alice.rpc.loan.listAuctions()
-    expect(auctions).toStrictEqual([])
-  }
+  const auctions = await alice.rpc.loan.listAuctions()
+  expect(auctions).toStrictEqual([])
 
-  {
-    const vaults = await alice.rpc.loan.listVaults()
-    expect(vaults.every(v => v.state === 'active'))
-  }
+  const vaults = await alice.rpc.loan.listVaults()
+  expect(vaults.every(v => v.state === 'active'))
 
   // Going to liquidate the vaults by price increase of the loan tokens
   await alice.rpc.oracle.setOracleData(oracleId, now(), {
@@ -283,77 +275,71 @@ beforeAll(async () => {
   await alice.generate(1)
   await tGroup.waitForSync()
 
-  { // bid #1
-    await bob.rpc.loan.placeAuctionBid({
-      vaultId: vaultId1,
-      index: 0,
-      from: bobAddr,
-      amount: '800@AAPL'
-    })
-    await bob.generate(1)
-    await tGroup.waitForSync()
+  // bid #1
+  await bob.rpc.loan.placeAuctionBid({
+    vaultId: vaultId1,
+    index: 0,
+    from: bobAddr,
+    amount: '800@AAPL'
+  })
+  await bob.generate(1)
+  await tGroup.waitForSync()
 
-    await charlie.rpc.loan.placeAuctionBid({
-      vaultId: vaultId1,
-      index: 0,
-      from: charlieAddr,
-      amount: '900@AAPL'
-    })
-    await charlie.generate(1)
-    await tGroup.waitForSync()
-  }
+  await charlie.rpc.loan.placeAuctionBid({
+    vaultId: vaultId1,
+    index: 0,
+    from: charlieAddr,
+    amount: '900@AAPL'
+  })
+  await charlie.generate(1)
+  await tGroup.waitForSync()
 
-  { // bid #2
-    await bob.rpc.loan.placeAuctionBid({
-      vaultId: vaultId2,
-      index: 0,
-      from: bobAddr,
-      amount: '2000@TSLA'
-    })
-    await bob.generate(1)
-    await tGroup.waitForSync()
+  // bid #2
+  await bob.rpc.loan.placeAuctionBid({
+    vaultId: vaultId2,
+    index: 0,
+    from: bobAddr,
+    amount: '2000@TSLA'
+  })
+  await bob.generate(1)
+  await tGroup.waitForSync()
 
-    await alice.rpc.loan.placeAuctionBid({
-      vaultId: vaultId2,
-      index: 0,
-      from: aliceColAddr,
-      amount: '2100@TSLA'
-    })
-    await alice.generate(1)
-    await tGroup.waitForSync()
-  }
+  await alice.rpc.loan.placeAuctionBid({
+    vaultId: vaultId2,
+    index: 0,
+    from: aliceColAddr,
+    amount: '2100@TSLA'
+  })
+  await alice.generate(1)
+  await tGroup.waitForSync()
 
-  { // bid #3
-    await bob.rpc.loan.placeAuctionBid({
-      vaultId: vaultId3,
-      index: 0,
-      from: bobAddr,
-      amount: '3000@MSFT'
-    })
-    await bob.generate(1)
-    await tGroup.waitForSync()
+  // bid #3
+  await bob.rpc.loan.placeAuctionBid({
+    vaultId: vaultId3,
+    index: 0,
+    from: bobAddr,
+    amount: '3000@MSFT'
+  })
+  await bob.generate(1)
+  await tGroup.waitForSync()
 
-    await alice.rpc.loan.placeAuctionBid({
-      vaultId: vaultId3,
-      index: 0,
-      from: aliceColAddr,
-      amount: '3100@MSFT'
-    })
-    await alice.generate(1)
-    await tGroup.waitForSync()
+  await alice.rpc.loan.placeAuctionBid({
+    vaultId: vaultId3,
+    index: 0,
+    from: aliceColAddr,
+    amount: '3100@MSFT'
+  })
+  await alice.generate(1)
+  await tGroup.waitForSync()
 
-    await charlie.rpc.loan.placeAuctionBid({
-      vaultId: vaultId3,
-      index: 0,
-      from: charlieAddr,
-      amount: '3200@MSFT'
-    })
-    await charlie.generate(1)
-    await tGroup.waitForSync()
-  }
-
-  { // bid #4 - no bid
-  }
+  await charlie.rpc.loan.placeAuctionBid({
+    vaultId: vaultId3,
+    index: 0,
+    from: charlieAddr,
+    amount: '3200@MSFT'
+  })
+  await charlie.generate(1)
+  await tGroup.waitForSync()
 
   const height = await alice.container.call('getblockcount')
   await waitForIndexedHeight(app, height - 1)
