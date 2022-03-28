@@ -56,7 +56,7 @@ export class AddressParser {
         for (let i = 0; i < this.dftxs.length; i++) {
           const parser = this.dftxs[i]
           if (parser.OP_CODE === dftx.type) {
-            result.push(...(await parser.extract(dftx)))
+            result.push(...(parser.extract(dftx)))
           }
           // with assumption, not implemented DfTx parser do not affect token balance
         }

@@ -38,7 +38,7 @@ describe('RichListCore', () => {
     await container.stop()
   })
 
-  describe('startOrResume() - should start crawl blocks and push active addresses', () => {
+  describe('start() - should start crawl blocks and push active addresses', () => {
     it('should extract all addresses from transactions and push into queue', async () => {
       richListCore.start()
       await waitForCatchingUp(richListCore)
