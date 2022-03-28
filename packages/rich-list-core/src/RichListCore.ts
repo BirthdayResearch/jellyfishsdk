@@ -198,7 +198,7 @@ export class RichListCore {
   private appendZeroBalances (tokenBalances: AccountAmount, tokens: number[]): AccountAmount {
     const result: AccountAmount = {}
     for (const t of tokens) {
-      result[t] = tokenBalances[t] ?? new BigNumber(0)
+      result[t] = tokenBalances[t] !== undefined ? new BigNumber(tokenBalances[t]) : new BigNumber(0)
     }
     return result
   }

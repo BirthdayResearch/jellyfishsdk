@@ -80,9 +80,9 @@ describe('RichListCore', () => {
     it('should control rich list query output length', async () => {
       richListCore.start()
       await waitForCatchingUp(richListCore)
+      await richListCore.calculateNext()
 
       richListCore.setRichListLength(3)
-      await richListCore.calculateNext()
 
       const richList = await richListCore.get('0')
       expect(richList.length).toStrictEqual(3)
@@ -106,6 +106,27 @@ describe('RichListCore', () => {
       for (let i = 0; i < excludedFromTopThree.length; i++) {
         expect(excludedFromTopThree[i].data.amount).toBeLessThanOrEqual(richList[2].amount)
       }
+    })
+  })
+
+  describe('dfi utxo and token balance', () => {
+    it('should be calculated together', async () => {
+      const sender = await container.getNewAddress()
+      await apiClient.account.utxosToAccount({ [sender]: '100@0' })
+      await container.generate(1)
+
+      const receiver = await container.getNewAddress()
+      await apiClient.account.accountToUtxos(sender, { [receiver]: '25@0' })
+      await apiClient.account.accountToAccount(sender, { [receiver]: '25@0' })
+
+      await container.generate(1)
+
+      richListCore.start()
+      await waitForCatchingUp(richListCore)
+      await richListCore.calculateNext()
+
+      const result = (await richListCore.get('0')).find(val => val.address === receiver)
+      expect(result?.amount).toStrictEqual(50)
     })
   })
 })
