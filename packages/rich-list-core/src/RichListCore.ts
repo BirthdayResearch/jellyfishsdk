@@ -60,10 +60,10 @@ export class RichListCore {
       return
     }
 
-    const isBestChain = lastBlock !== undefined && // any crawled history
+    const isNotBestChain = lastBlock !== undefined && // any crawled history
       lastBlock.data.hash !== nextBlock.previousblockhash // is crawled on best chain right now
 
-    if (isBestChain) {
+    if (isNotBestChain) {
       await this.invalidate(lastBlock)
     } else {
       const queue = await this.addressQueue()
