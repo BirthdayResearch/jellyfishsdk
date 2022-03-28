@@ -2,14 +2,14 @@ import { Global, Module } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
 import { FactoryProvider } from '@nestjs/common/interfaces/modules/provider.interface'
-import { DeFiDProbeIndicator } from './defid.probes'
+import { DeFiDProbeIndicator } from './DeFiDProbes'
 
 const JsonRpcClientFactory: FactoryProvider = {
   provide: JsonRpcClient,
   useFactory: (configService: ConfigService) => {
     const url = configService.get<string>('defid.url')
     if (url === undefined) {
-      throw new Error('bootstrapping error: missing config in app.configuration.ts - defid.url is not configured')
+      throw new Error('bootstrapping error: missing config in AppConfiguration.ts - defid.url is not configured')
     }
     return new JsonRpcClient(url)
   },

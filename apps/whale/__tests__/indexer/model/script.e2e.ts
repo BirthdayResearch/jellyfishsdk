@@ -1,10 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { ScriptUnspentMapper } from '../../../src/model/script.unspent'
-import { HexEncoder } from '../../../src/model/_hex.encoder'
-import { ScriptActivityMapper } from '../../../src/model/script.activity'
-import { ScriptAggregationMapper } from '../../../src/model/script.aggregation'
+import { ScriptUnspentMapper } from '../../../src/model/ScriptUnspent'
+import { HexEncoder } from '../../../src/model/_HexEncoder'
+import { ScriptActivityMapper } from '../../../src/model/ScriptActivity'
+import { ScriptAggregationMapper } from '../../../src/model/ScriptAggregation'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../src/E2EModule'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication

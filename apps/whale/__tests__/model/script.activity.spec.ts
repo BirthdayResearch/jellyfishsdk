@@ -1,9 +1,9 @@
-import { Database } from '../../src/database/database'
+import { Database } from '../../src/database/Database'
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '../../src/database/provider.memory/module'
-import { LevelDatabase } from '../../src/database/provider.level/level.database'
-import { ScriptActivityMapper, ScriptActivityType } from '../../src/model/script.activity'
-import { HexEncoder } from '../../src/model/_hex.encoder'
+import { MemoryDatabaseModule } from '../../src/database/provider.memory/_module'
+import { LevelDatabase } from '../../src/database/provider.level/LevelDatabase'
+import { ScriptActivityMapper, ScriptActivityType } from '../../src/model/ScriptActivity'
+import { HexEncoder } from '../../src/model/_HexEncoder'
 
 let database: Database
 let mapper: ScriptActivityMapper

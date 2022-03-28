@@ -1,8 +1,8 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../../src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../../src/E2EModule'
 import { createToken, getNewAddress } from '@defichain/testing'
-import { TokenMapper } from '../../../../src/model/token'
+import { TokenMapper } from '../../../../src/model/Token'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication

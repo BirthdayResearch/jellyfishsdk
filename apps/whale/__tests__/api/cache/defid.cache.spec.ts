@@ -2,12 +2,12 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { Test, TestingModule } from '@nestjs/testing'
 import { CACHE_MANAGER, CacheModule } from '@nestjs/common'
-import { DeFiDCache } from '../../../src/api/cache/defid.cache'
+import { DeFiDCache } from '../../../src/api/cache/DeFiDCache'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
 import { TokenInfo } from '@defichain/jellyfish-api-core/src/category/token'
 import { Cache } from 'cache-manager'
-import { CachePrefix } from '../../../src/api/cache/global.cache'
+import { CachePrefix } from '../../../src/api/cache/GlobalCache'
 
 const container = new MasterNodeRegTestContainer()
 let client: JsonRpcClient

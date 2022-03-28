@@ -1,8 +1,8 @@
-import { createTestingApp, DelayedEunosPayaTestContainer, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../../src/e2e.module'
+import { createTestingApp, DelayedEunosPayaTestContainer, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../../src/E2EModule'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { MasternodeMapper } from '../../../../src/model/masternode'
-import { MasternodeStatsMapper } from '../../../../src/model/masternode.stats'
+import { MasternodeMapper } from '../../../../src/model/Masternode'
+import { MasternodeStatsMapper } from '../../../../src/model/MasterNodeStats'
 
 describe('resign masternode (pre eunos paya)', () => {
   const container = new DelayedEunosPayaTestContainer()

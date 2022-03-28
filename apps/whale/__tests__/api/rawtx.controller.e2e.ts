@@ -2,10 +2,10 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createSignedTxnHex } from '@defichain/testing'
 import { Bech32, Elliptic, HRP } from '@defichain/jellyfish-crypto'
 import { RegTest } from '@defichain/jellyfish-network'
-import { BadRequestApiException } from '../../src/api/_core/api.error'
+import { BadRequestApiException } from '../../src/api/_core/ApiError'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp } from '../../src/e2e.module'
-import { RawtxController } from '../../src/api/rawtx.controller'
+import { createTestingApp, stopTestingApp } from '../../src/E2EModule'
+import { RawtxController } from '../../src/api/RawtxController'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication

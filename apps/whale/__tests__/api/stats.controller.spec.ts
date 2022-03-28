@@ -1,4 +1,4 @@
-import { getEmission } from '../../src/api/stats.controller'
+import { getEmission } from '../../src/api/StatsController'
 
 it('should have emission at 1250240', () => {
   const emission = getEmission(894000, 1250240)

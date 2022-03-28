@@ -1,7 +1,7 @@
-import { BlockController, parseHeight } from '../../src/api/block.controller'
+import { BlockController, parseHeight } from '../../src/api/BlockController'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../src/E2EModule'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()

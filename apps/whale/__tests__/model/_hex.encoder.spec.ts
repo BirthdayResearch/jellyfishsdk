@@ -1,4 +1,4 @@
-import { HexEncoder } from '../../src/model/_hex.encoder'
+import { HexEncoder } from '../../src/model/_HexEncoder'
 
 it('should encode script hex', () => {
   const hex = HexEncoder.asSHA256('1600140e7c0ab18b305bc987a266dc06de26fcfab4b56a')

@@ -1,10 +1,10 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../../src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../../../src/E2EModule'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { OracleMapper } from '../../../../src/model/oracle'
-import { OracleHistoryMapper } from '../../../../src/model/oracle.history'
-import { OracleTokenCurrencyMapper } from '../../../../src/model/oracle.token.currency'
-import { HexEncoder } from '../../../../src/model/_hex.encoder'
+import { OracleMapper } from '../../../../src/model/Oracle'
+import { OracleHistoryMapper } from '../../../../src/model/OracleHistory'
+import { OracleTokenCurrencyMapper } from '../../../../src/model/OracleTokenCurrency'
+import { HexEncoder } from '../../../../src/model/_HexEncoder'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()

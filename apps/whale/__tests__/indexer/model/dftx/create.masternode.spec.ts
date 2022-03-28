@@ -4,13 +4,13 @@ import {
   invalidateFromHeight,
   stopTestingApp,
   waitForIndexedHeight
-} from '../../../../src/e2e.module'
+} from '../../../../src/E2EModule'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { MasternodeMapper } from '../../../../src/model/masternode'
+import { MasternodeMapper } from '../../../../src/model/Masternode'
 import { MasternodeInfo } from '@defichain/jellyfish-api-core/src/category/masternode'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { MasternodeStatsMapper } from '../../../../src/model/masternode.stats'
+import { MasternodeStatsMapper } from '../../../../src/model/MasterNodeStats'
 
 describe('genesis masternodes', () => {
   const container = new MasterNodeRegTestContainer()

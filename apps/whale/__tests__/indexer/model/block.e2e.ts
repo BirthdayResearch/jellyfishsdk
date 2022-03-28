@@ -1,6 +1,6 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { BlockMapper } from '../../../src/model/block'
-import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../src/e2e.module'
+import { BlockMapper } from '../../../src/model/Block'
+import { createTestingApp, invalidateFromHeight, stopTestingApp, waitForIndexedHeight } from '../../../src/E2EModule'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 const container = new MasterNodeRegTestContainer()

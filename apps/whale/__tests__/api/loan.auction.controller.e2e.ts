@@ -1,7 +1,7 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../src/E2EModule'
 import BigNumber from 'bignumber.js'
-import { LoanController } from '../../src/api/loan.controller'
+import { LoanController } from '../../src/api/LoanController'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 
 const tGroup = TestingGroup.create(3)

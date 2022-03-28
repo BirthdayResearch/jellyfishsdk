@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { createTestingApp, stopTestingApp } from '../../../src/e2e.module'
+import { createTestingApp, stopTestingApp } from '../../../src/E2EModule'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { BlockMintedIndexer } from '../../../src/indexer/model/block.minted'
+import { BlockMintedIndexer } from '../../../src/indexer/model/BlockMinted'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 
 const container = new MasterNodeRegTestContainer()

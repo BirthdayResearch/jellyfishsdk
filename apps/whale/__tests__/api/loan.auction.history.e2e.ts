@@ -1,12 +1,12 @@
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../src/e2e.module'
+import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../../src/E2EModule'
 import BigNumber from 'bignumber.js'
-import { LoanController } from '../../src/api/loan.controller'
+import { LoanController } from '../../src/api/LoanController'
 import { TestingGroup, Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 import { VaultLiquidation } from '@defichain/jellyfish-api-core/src/category/loan'
-import { HexEncoder } from '../../src/model/_hex.encoder'
+import { HexEncoder } from '../../src/model/_HexEncoder'
 
 let app: NestFastifyApplication
 let controller: LoanController

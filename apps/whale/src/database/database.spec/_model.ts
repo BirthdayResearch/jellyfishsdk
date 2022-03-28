@@ -1,4 +1,4 @@
-import { Model, ModelMapping } from '../model'
+import { Model, ModelMapping } from '../Model'
 
 export const PartitionMapping: ModelMapping<Partition> = {
   type: 'Partition',

@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { CacheModule } from '@nestjs/common'
-import { SemaphoreCache } from '../../../src/api/cache/semaphore.cache'
+import { SemaphoreCache } from '../../../src/api/cache/SemaphoreCache'
 
 let testing: TestingModule
 let cache: SemaphoreCache
