@@ -458,3 +458,82 @@ interface BurnInfo {
   dfipaybacktokens: string[]
 }
 ```
+
+## futureSwap
+
+Creates and submits to the network a futures contract.
+
+```ts title="client.account.futureSwap()"
+interface account {
+  futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## withdrawFutureSwap
+
+Creates and submits to the network a withdrawl from futures contract transaction.
+
+```ts title="client.account.withdrawFutureSwap()"
+interface account {
+  withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination: number
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
+## listPendingFutureSwaps
+
+List all pending futures.
+
+```ts title="client.account.listPendingFutureSwaps()"
+interface account {
+  listPendingFutureSwaps (): Promise<FutureInfo[]>
+}
+
+interface FutureInfo {
+  owner: string
+  source: string
+  destination: string
+}
+```
+
+## getPendingFutureSwaps
+
+Get specific pending futures.
+
+```ts title="client.account.getPendingFutureSwaps()"
+interface account {
+  getPendingFutureSwaps (): Promise<GetFutureInfo>
+}
+
+interface GetFutureInfo {
+  owner: string
+  values: Omit<FutureInfo, "owner"> []
+}
+
+interface FutureInfo {
+  owner: string
+  source: string
+  destination: string
+}
+```
