@@ -60,8 +60,12 @@ export class RichListCore {
       return
     }
 
-    if (lastBlock !== undefined && lastBlock.data.hash !== nextBlock.previousblockhash) {
-      await this.invalidate(lastBlock)
+    const isNotBestChain = lastBlock !== undefined && // any crawled history
+      lastBlock.data.hash !== nextBlock.previousblockhash // is crawled on best chain right now
+
+    if (isNotBestChain) {
+      // testing syntax, CI do not recognize `lastBlock` not undefined and complaining
+      await this.invalidate(lastBlock as Schema<CrawledBlock>)
     } else {
       const queue = await this.addressQueue()
       const _addresses = await this.getAddresses(nextBlock)
