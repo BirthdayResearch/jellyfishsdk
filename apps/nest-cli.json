@@ -2,6 +2,7 @@
   "collection": "@nestjs/schematics",
   "monorepo": true,
   "compilerOptions": {
+    "webpack": false,
     "tsConfigPath": "tsconfig.json"
   },
   "projects": {
