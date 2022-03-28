@@ -179,10 +179,10 @@ export class RichListCore {
 
     const balances: AddressAccountAmount = {}
     for (const a of addresses) {
-      const nonZeroBalances = await this.whaleRpcClient.account.getTokenBalances(
+      const nonZeroBalances = await this.whaleRpcClient.account.getAccount(
+        a,
         { limit: Number.MAX_SAFE_INTEGER },
-        true,
-        { symbolLookup: false }
+        { indexedAmounts: true }
       )
       balances[a] = this.appendZeroBalances(nonZeroBalances, tokens)
       const utxoBal = new BigNumber(await this.whaleApiClient.address.getBalance(a))
