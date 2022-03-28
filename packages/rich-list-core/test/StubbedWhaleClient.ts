@@ -1,3 +1,4 @@
+import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiMethod, ResponseAsString, WhaleApiClient } from '@defichain/whale-api-client'
 
@@ -21,12 +22,16 @@ export class StubbedWhaleApiClient extends WhaleApiClient {
     this.address.getBalance = async (address: string): Promise<string> => {
       const power = Math.round(Math.random() * 4)
       const coef = Math.random()
-      const utxoBal = (await this.rpcClient.wallet.listUnspent()).find(val => val.address === address)
+      const utxoBals = (await this.rpcClient.wallet.listUnspent()).filter(val => val.address === address)
+      let totalUtxoBal = new BigNumber(0)
+      utxoBals.forEach(utxo => {
+        totalUtxoBal = totalUtxoBal.plus(utxo.amount)
+      })
       // So this is done specifically this way
       // As there is some conflict with the previous test cases
       // TODO: Determine if we should use rpcClient for stubbing, or
       // keep to using random values, as its not compatible with each other.
-      return utxoBal?.amount.toString() ?? `${coef * Math.pow(10, power)}`
+      return totalUtxoBal.toString() === '0' ? `${coef * Math.pow(10, power)}` : totalUtxoBal.toString()
     }
   }
 }

@@ -74,6 +74,50 @@ describe('RichListCore', () => {
         expect(current.amount).toBeGreaterThanOrEqual(next.amount)
       }
     })
+
+    it('should calculate balance of dfi utxo and token together', async () => {
+      const sender = await container.getNewAddress()
+      await apiClient.account.utxosToAccount({ [sender]: '150@0' })
+      await container.generate(1)
+
+      const receiver = await container.getNewAddress()
+      await apiClient.account.accountToUtxos(sender, { [receiver]: '25@0' })
+      await apiClient.account.accountToAccount(sender, { [receiver]: '25@0' })
+      await container.generate(1)
+      richListCore.start()
+      await waitForCatchingUp(richListCore)
+      await richListCore.calculateNext()
+
+      const result = (await richListCore.get('0')).find(val => val.address === receiver)
+      expect(result?.amount).toStrictEqual(50)
+    })
+
+    it('should update new balance of dfi utxo and token together', async () => {
+      const sender = await container.getNewAddress()
+      await apiClient.account.utxosToAccount({ [sender]: '150@0' })
+      await container.generate(1)
+
+      const receiver = await container.getNewAddress()
+      await apiClient.account.accountToUtxos(sender, { [receiver]: '25@0' })
+      await apiClient.account.accountToAccount(sender, { [receiver]: '25@0' })
+      await container.generate(1)
+      richListCore.start()
+      await waitForCatchingUp(richListCore)
+      await richListCore.calculateNext()
+
+      const oldResult = (await richListCore.get('0')).find(val => val.address === receiver)
+      expect(oldResult?.amount).toStrictEqual(50)
+
+      await apiClient.account.accountToUtxos(sender, { [receiver]: '10@0' })
+      await apiClient.account.accountToAccount(sender, { [receiver]: '15@0' })
+      await container.generate(1)
+      richListCore.start()
+      await waitForCatchingUp(richListCore)
+      await richListCore.calculateNext()
+
+      const newResult = (await richListCore.get('0')).find(val => val.address === receiver)
+      expect(newResult?.amount).toStrictEqual(75)
+    })
   })
 
   describe('setRichListLength()', () => {
@@ -106,27 +150,6 @@ describe('RichListCore', () => {
       for (let i = 0; i < excludedFromTopThree.length; i++) {
         expect(excludedFromTopThree[i].data.amount).toBeLessThanOrEqual(richList[2].amount)
       }
-    })
-  })
-
-  describe('dfi utxo and token balance', () => {
-    it('should be calculated together', async () => {
-      const sender = await container.getNewAddress()
-      await apiClient.account.utxosToAccount({ [sender]: '100@0' })
-      await container.generate(1)
-
-      const receiver = await container.getNewAddress()
-      await apiClient.account.accountToUtxos(sender, { [receiver]: '25@0' })
-      await apiClient.account.accountToAccount(sender, { [receiver]: '25@0' })
-
-      await container.generate(1)
-
-      richListCore.start()
-      await waitForCatchingUp(richListCore)
-      await richListCore.calculateNext()
-
-      const result = (await richListCore.get('0')).find(val => val.address === receiver)
-      expect(result?.amount).toStrictEqual(50)
     })
   })
 })
