@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing'
-import { MemoryDatabaseModule } from '../provider.memory/module'
+import { MemoryDatabaseModule } from './module'
 import * as spec from '../database.spec/specifications'
 import { Database } from '../database'
 import { LevelDatabase } from '../provider.level/level.database'

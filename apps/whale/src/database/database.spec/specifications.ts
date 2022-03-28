@@ -1,6 +1,6 @@
 import { Database, SortOrder } from '../database'
-import { PartitionMapping, PartitionSortMapping } from '../database.spec/_model'
-import { PARTITION_SORTS, PARTITIONS } from '../database.spec/_fixtures'
+import { PartitionMapping, PartitionSortMapping } from './_model'
+import { PARTITION_SORTS, PARTITIONS } from './_fixtures'
 
 /**
  * Setup everything that is required to test database specification

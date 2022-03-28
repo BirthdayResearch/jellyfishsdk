@@ -11,8 +11,8 @@ import {
   Inject
 } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from './/_core/api.paged.response'
-import { PaginationQuery } from './/_core/api.query'
+import { ApiPagedResponse } from './_core/api.paged.response'
+import { PaginationQuery } from './_core/api.query'
 import {
   CollateralTokenDetail,
   GetLoanSchemeResult,
@@ -26,9 +26,9 @@ import {
   LoanVaultActive,
   LoanVaultLiquidated
 } from '@defichain/whale-api-client/src/api/Loan'
-import { mapTokenData } from './/token.controller'
-import { DeFiDCache } from './/cache/defid.cache'
-import { LoanVaultService } from './/loan.vault.service'
+import { mapTokenData } from './token.controller'
+import { DeFiDCache } from './cache/defid.cache'
+import { LoanVaultService } from './loan.vault.service'
 import { OraclePriceActiveMapper } from '../model/oracle.price.active'
 import { VaultAuctionHistoryMapper, VaultAuctionBatchHistory } from '../model/vault.auction.batch.history'
 import { ActivePrice } from '@defichain/whale-api-client/src/api/Prices'

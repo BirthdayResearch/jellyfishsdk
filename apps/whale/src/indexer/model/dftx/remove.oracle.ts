@@ -1,6 +1,6 @@
-import { DfTxIndexer, DfTxTransaction } from '../../model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CRemoveOracle, RemoveOracle } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '../../model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Injectable } from '@nestjs/common'
 import { OracleMapper } from '../../../model/oracle'
 import { OracleHistory, OracleHistoryMapper } from '../../../model/oracle.history'

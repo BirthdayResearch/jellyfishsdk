@@ -3,7 +3,7 @@ import { ScriptActivity, ScriptActivityMapper } from '../../model/script.activit
 import { Injectable } from '@nestjs/common'
 import { HexEncoder } from '../../model/_hex.encoder'
 import { TransactionVout } from '../../model/transaction.vout'
-import { VoutFinder } from '../model/_vout_finder'
+import { VoutFinder } from './_vout_finder'
 import { NotFoundIndexerError } from '../error'
 
 @Injectable()

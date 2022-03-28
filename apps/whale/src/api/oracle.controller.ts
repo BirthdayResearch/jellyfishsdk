@@ -1,8 +1,8 @@
 import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common'
 import { Oracle, OracleMapper } from '../model/oracle'
 import { OraclePriceFeed, OraclePriceFeedMapper } from '../model/oracle.price.feed'
-import { ApiPagedResponse } from './/_core/api.paged.response'
-import { PaginationQuery } from './/_core/api.query'
+import { ApiPagedResponse } from './_core/api.paged.response'
+import { PaginationQuery } from './_core/api.query'
 
 @Controller('/oracles')
 export class OracleController {

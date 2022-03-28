@@ -1,6 +1,6 @@
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { TransactionController } from './/transaction.controller'
+import { TransactionController } from './transaction.controller'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.module'
 import { NotFoundException } from '@nestjs/common'

@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ConfigService } from '@nestjs/config'
 import { FactoryProvider } from '@nestjs/common/interfaces/modules/provider.interface'
-import { DeFiDProbeIndicator } from './/defid.probes'
+import { DeFiDProbeIndicator } from './defid.probes'
 
 const JsonRpcClientFactory: FactoryProvider = {
   provide: JsonRpcClient,

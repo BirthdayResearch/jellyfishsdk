@@ -1,6 +1,6 @@
-import { DfTxIndexer, DfTxTransaction } from '../../model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CSetOracleData, SetOracleData } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '../../model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Injectable } from '@nestjs/common'
 import { OraclePriceAggregated, OraclePriceAggregatedMapper } from '../../../model/oracle.price.aggregated'
 import { OracleIntervalSeconds, OraclePriceAggregatedIntervalMapper } from '../../../model/oracle.price.aggregated.interval'

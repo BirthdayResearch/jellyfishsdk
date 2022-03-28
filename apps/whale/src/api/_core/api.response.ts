@@ -1,5 +1,5 @@
-import { ApiPage } from '../_core/api.paged.response'
-import { ApiError } from '../_core/api.error'
+import { ApiPage } from './api.paged.response'
+import { ApiError } from './api.error'
 
 /**
  * Universal response structure for 'module.api'

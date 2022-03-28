@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { BadRequestApiException } from './/_core/api.error'
+import { BadRequestApiException } from './_core/api.error'
 import { IsHexadecimal, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator'
 import BigNumber from 'bignumber.js'
 import { SmartBuffer } from 'smart-buffer'
@@ -11,7 +11,7 @@ import {
   OP_CODES,
   OP_DEFI_TX
 } from '@defichain/jellyfish-transaction'
-import { DeFiDCache } from './/cache/defid.cache'
+import { DeFiDCache } from './cache/defid.cache'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 class RawTxDto {

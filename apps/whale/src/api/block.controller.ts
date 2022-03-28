@@ -1,8 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common'
 import { BlockMapper, Block } from '../model/block'
 import { Transaction, TransactionMapper } from '../model/transaction'
-import { ApiPagedResponse } from './/_core/api.paged.response'
-import { PaginationQuery } from './/_core/api.query'
+import { ApiPagedResponse } from './_core/api.paged.response'
+import { PaginationQuery } from './_core/api.query'
 
 export function parseHeight (str: string | undefined): number | undefined {
   if (str !== undefined && /^\d+$/.test(str)) {

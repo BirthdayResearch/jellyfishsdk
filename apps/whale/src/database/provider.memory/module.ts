@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common'
-import { MemoryDatabase } from '../provider.memory/memory.database'
+import { MemoryDatabase } from './memory.database'
 import { Database } from '../database'
 
 @Global()

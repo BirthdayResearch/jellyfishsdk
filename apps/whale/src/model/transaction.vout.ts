@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Model, ModelMapping } from '../database/model'
 import { Database, SortOrder } from '../database/database'
-import { HexEncoder } from './/_hex.encoder'
+import { HexEncoder } from './_hex.encoder'
 
 const TransactionVoutMapping: ModelMapping<TransactionVout> = {
   type: 'transaction_vout',

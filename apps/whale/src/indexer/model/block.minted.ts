@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { Indexer, RawBlock } from '../model/_abstract'
+import { Indexer, RawBlock } from './_abstract'
 import { MasternodeMapper } from '../../model/masternode'
 
 @Injectable()

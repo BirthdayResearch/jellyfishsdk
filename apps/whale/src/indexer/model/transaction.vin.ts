@@ -3,7 +3,7 @@ import { defid, Indexer, RawBlock } from '../model/_abstract'
 import { TransactionVin, TransactionVinMapper } from '../../model/transaction.vin'
 import { TransactionVout } from '../../model/transaction.vout'
 import { HexEncoder } from '../../model/_hex.encoder'
-import { VoutFinder } from '../model/_vout_finder'
+import { VoutFinder } from './_vout_finder'
 import { NotFoundIndexerError } from '../error'
 
 @Injectable()

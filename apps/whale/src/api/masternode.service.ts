@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { SemaphoreCache } from './/cache/semaphore.cache'
+import { SemaphoreCache } from './cache/semaphore.cache'
 import { Masternode } from '../model/masternode'
 import { MasternodeState } from '@defichain/jellyfish-api-core/src/category/masternode'
 import { NetworkName } from '@defichain/jellyfish-network'

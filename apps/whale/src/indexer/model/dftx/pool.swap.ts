@@ -1,6 +1,6 @@
-import { DfTxIndexer, DfTxTransaction } from '../../model/dftx/_abstract'
+import { DfTxIndexer, DfTxTransaction } from './_abstract'
 import { CPoolSwap, PoolSwap } from '@defichain/jellyfish-transaction'
-import { RawBlock } from '../../model/_abstract'
+import { RawBlock } from '../_abstract'
 import { Inject, Injectable } from '@nestjs/common'
 import { PoolPairToken, PoolPairTokenMapper } from '../../../model/pool.pair.token'
 import { NetworkName } from '@defichain/jellyfish-network'

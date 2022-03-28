@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { Global, Module } from '@nestjs/common'
-import { LevelDatabase } from '../provider.level/level.database'
+import { LevelDatabase } from './level.database'
 import { ConfigService } from '@nestjs/config'
 import { Database } from '../database'
 

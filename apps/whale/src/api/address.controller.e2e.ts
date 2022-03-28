@@ -1,4 +1,4 @@
-import { AddressController } from './/address.controller'
+import { AddressController } from './address.controller'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp, waitForAddressTxCount, waitForIndexedHeight } from '../e2e.module'

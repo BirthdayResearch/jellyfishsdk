@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigModule } from '@nestjs/config'
-import { DatabaseModule } from './/_module'
-import { Database } from './/database'
-import { LevelDatabase } from './/provider.level/level.database'
-import { MemoryDatabase } from './/provider.memory/memory.database'
+import { DatabaseModule } from './_module'
+import { Database } from './database'
+import { LevelDatabase } from './provider.level/level.database'
+import { MemoryDatabase } from './provider.memory/memory.database'
 
 describe('provided module: level', () => {
   let app: TestingModule

@@ -2,7 +2,7 @@ import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { createTestingApp, stopTestingApp } from '../e2e.module'
-import { FeeController } from './/fee.controller'
+import { FeeController } from './fee.controller'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
