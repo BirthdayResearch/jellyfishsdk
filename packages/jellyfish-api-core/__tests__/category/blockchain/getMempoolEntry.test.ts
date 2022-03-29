@@ -20,7 +20,7 @@ describe('getMempoolInfo', () => {
 
   it('should getMempoolEntry and return MempoolTx', async () => {
     await waitForExpect(async () => {
-      const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
+      const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.002)
       const mempoolEntry: MempoolTx = await client.blockchain.getMempoolEntry(txId)
       expect(mempoolEntry.vsize instanceof BigNumber).toStrictEqual(true)
       expect(mempoolEntry.weight instanceof BigNumber).toStrictEqual(true)
@@ -37,5 +37,16 @@ describe('getMempoolInfo', () => {
       expect(typeof mempoolEntry.wtxid).toStrictEqual('string')
       expect(typeof mempoolEntry['bip125-replaceable']).toStrictEqual('boolean')
     }, 10000)
+  })
+
+  it('should return error for invalid txId', async () => {
+    const invalidTxIdErr = /RpcApiError: 'Transaction not in mempool', code: -5, method: getmempoolentry/
+    await expect(client.blockchain.getMempoolEntry('6b1bac73bf8071e7edecef30081058f342ff35be12eb2dd3aa1d2ec4933ee798'))
+      .rejects.toThrow(invalidTxIdErr)
+  })
+
+  it('should return error for txid of invalid length', async () => {
+    const invalidtxidstring = "RpcApiError: 'parameter 1 must be of length 64 (not 17, for 'invalidtxidstring')', code: -8, method: getmempoolentry"
+    await expect(client.blockchain.getMempoolEntry('invalidtxidstring')).rejects.toThrow(invalidtxidstring)
   })
 })
