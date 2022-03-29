@@ -165,6 +165,15 @@ export class Blockchain {
   }
 
   /**
+   *
+   * @param {string} txId the transaction id
+   * @return {Promise<MempoolTx>}
+   */
+  async getMempoolEntry (txId: string): Promise<MempoolTx> {
+    return await this.client.call('getmempoolentry', [txId], 'bignumber')
+  }
+
+  /**
    * Get block statistics for a given window.
    *
    * @param {number} hashOrHeight  The block hash or height of the target block.
