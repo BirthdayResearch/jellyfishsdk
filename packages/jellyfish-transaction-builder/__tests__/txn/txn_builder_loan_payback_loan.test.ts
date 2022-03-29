@@ -1239,6 +1239,69 @@ describe('paybackLoan for dusd using dfi', () => {
     expect(vaultAfter.interestAmounts).toStrictEqual([])
   })
 
+  it.skip('should be able to payback DUSD loan using DFI - use PaybackLoanMetadataV2', async () => {
+    const dusdInfo = await testing.rpc.token.getToken('DUSD')
+    const dusdId: string = Object.keys(dusdInfo)[0]
+    const paybackKey = `v0/token/${dusdId}/payback_dfi`
+    const penaltyRateKey = `v0/token/${dusdId}/payback_dfi_fee_pct`
+    const penaltyRate = 0.015
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [paybackKey]: 'true', [penaltyRateKey]: penaltyRate.toString() } })
+    await testing.generate(1)
+
+    const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestPerBlockBefore = new BigNumber(netInterest * dusdLoanAmount / (365 * blocksPerDay))
+    const dusdInterestAmountBefore = dusdInterestPerBlockBefore.multipliedBy(new BigNumber(blockHeightBefore - dusdTakeLoanBlockHeight + 1))
+    const dusdLoanAmountBefore = new BigNumber(dusdLoanAmount).plus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultBefore = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${dusdLoanAmountBefore.toFixed(8)}@DUSD`])
+
+    const burnInfoBefore = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoBefore.tokens).toStrictEqual([])
+    expect(burnInfoBefore.dfipaybackfee).toStrictEqual(new BigNumber(0))
+    expect(burnInfoBefore.dfipaybacktokens).toStrictEqual([])
+    expect(burnInfoBefore.paybackfees).toStrictEqual([])
+    expect(burnInfoBefore.paybacktokens).toStrictEqual([])
+
+    const dfiPaybackAmount = 100
+    const paybackLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
+
+    const colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
+    const script = await testingProvider.elliptic.script()
+    const txn = await testingBuilder.loans.paybackLoanV2({
+      vaultId: vaultId,
+      from: colScript,
+      loans: [{ dToken: dusdId, tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }] }]
+    }, script)
+    await sendTransaction(testing.container, txn)
+    await testing.generate(1)
+
+    // Price of dfi to dusd depends on the oracle, in this case 1 DFI = 1 DUSD
+    const effectiveDusdPerDfi = new BigNumber(1).multipliedBy(1 - penaltyRate) // (DUSD per DFI * (1 - penalty rate))
+    const dusdPayback = new BigNumber(dfiPaybackAmount).multipliedBy(effectiveDusdPerDfi)
+    const dusdLoanPayback = dusdPayback.minus(dusdInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+    const dusdInterestPerBlockAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanPayback).multipliedBy(netInterest).dividedBy(365 * blocksPerDay)
+    const dusdLoanRemainingAfter = new BigNumber(dusdLoanAmount).minus(dusdLoanPayback)
+
+    // Let some time, generate blocks
+    await testing.generate(2)
+
+    const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(penaltyRate)
+    const burnInfoAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`])
+    expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
+    expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`])
+
+    const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
+    const dusdInterestAmountAfter = dusdInterestPerBlockAfter.multipliedBy(blockHeightAfter - paybackLoanBlockHeight).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    const dusdLoanAmountAfter = dusdLoanRemainingAfter.plus(dusdInterestAmountAfter)
+
+    const vaultAfter = await testing.rpc.loan.getVault(vaultId) as VaultActive
+    expect(vaultAfter.loanAmounts).toStrictEqual([`${dusdLoanAmountAfter.toFixed(8)}@DUSD`])
+    expect(vaultAfter.interestAmounts).toStrictEqual([`${dusdInterestAmountAfter.toFixed(8)}@DUSD`])
+  })
+
   it('should not payback DUSD loan using DFI when attribute is not enabled in setGov', async () => {
     let attribute = await testing.rpc.masternode.getGov(attributeKey)
     // eslint-disable-next-line no-prototype-builtins
