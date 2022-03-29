@@ -212,7 +212,7 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   }
 
   /**
-   * PaybackLoanV2 to vault transaction.
+   * PaybackLoanV2 transaction.
    *
    * @param {PaybackLoanV2} paybackLoanV2 txn to create
    * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
