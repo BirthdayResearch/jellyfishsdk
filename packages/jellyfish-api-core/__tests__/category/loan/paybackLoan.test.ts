@@ -1264,6 +1264,11 @@ describe('paybackloan for any token', () => {
     })
     await testing.generate(1)
 
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'TSLA',
+      fixedIntervalPriceId: 'TSLA/USD'
+    })
+
     // setup loan scheme
     await testing.rpc.loan.createLoanScheme({
       minColRatio: 150,
@@ -1300,12 +1305,6 @@ describe('paybackloan for any token', () => {
   }
 
   async function setupForTslaLoan (): Promise<void> {
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(4)
-
     tslaVaultId = await testing.rpc.loan.createVault({
       ownerAddress: vaultOwnerAddress,
       loanSchemeId: loanSchemeId
@@ -1319,22 +1318,16 @@ describe('paybackloan for any token', () => {
     })
     await testing.generate(1)
 
+    tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
       vaultId: tslaVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
     })
-    tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.generate(1)
   }
 
   // this will borrow tesla tokens and will give to you
   async function takeTslaTokensToPayback (): Promise<void> {
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(4) // wait for live fixed prices for TSLA/USD
-
     const tokenProviderSchemeId = 'LoanTsla'
     await testing.rpc.loan.createLoanScheme({
       minColRatio: 100,
@@ -1384,12 +1377,6 @@ describe('paybackloan for any token', () => {
   })
 
   it('should be able to payback DUSD loan using DFI after enabled in setGov and repay correctly after penalty rate has changed, TSLA loan unaffected', async () => {
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(4)
-
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'true' } })
     await testing.generate(1)
 
@@ -2043,12 +2030,6 @@ describe('paybackloan for any token', () => {
   })
 
   it('should be able to payback DUSD and TSLA loans using DFI - use PaybackLoanMetadataV2', async () => {
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(4)
-
     const tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
@@ -2160,12 +2141,6 @@ describe('paybackloan for any token', () => {
       fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
-
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'TSLA',
-      fixedIntervalPriceId: 'TSLA/USD'
-    })
-    await testing.generate(4)
 
     const tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({

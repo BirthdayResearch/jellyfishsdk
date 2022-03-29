@@ -335,7 +335,7 @@ export interface TokenPayback {
 export class CTokenPayback extends ComposableBuffer<TokenPayback> {
   composers (tp: TokenPayback): BufferComposer[] {
     return [
-      ComposableBuffer.uInt32(() => tp.dToken, v => tp.dToken = v),
+      ComposableBuffer.varUInt(() => tp.dToken, v => tp.dToken = v),
       ComposableBuffer.varUIntArray(() => tp.amounts, v => tp.amounts = v, v => new CTokenBalance(v))
     ]
   }
