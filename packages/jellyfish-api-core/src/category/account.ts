@@ -438,6 +438,21 @@ export class Account {
   async getPendingFutureSwaps (): Promise<GetFutureInfo> {
     return await this.client.call('getpendingfutureswaps', [], 'number')
   }
+
+  /**
+   * Returns information about future swap history.
+   *
+   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
+   * @param {ListFutureHistoryOptions} [options]
+   * @param {number} [options.maxBlockHeight] Optional height to iterate from (downto genesis block), (default = chaintip).
+   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
+   * @param {string} [options.token] Filter by token
+   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
+   * @return {Promise<FutureHistory[]>}
+   */
+  async listFutureSwapHistory (owner: OwnerType | string = OwnerType.MINE, options: ListFutureHistoryOptions): Promise<FutureHistory[]> {
+    return await this.client.call('listfutureswaphistory', [], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -610,4 +625,18 @@ export interface FutureInfo {
 export interface GetFutureInfo {
   owner: string
   values: Array<Omit<FutureInfo, 'owner'>>
+}
+
+export interface ListFutureHistoryOptions {
+  maxBlockHeight: number
+  depth: number
+  token: string
+  limit: number
+}
+
+export interface FutureHistory {
+  height: number
+  address: string
+  source: string
+  destination: string
 }
