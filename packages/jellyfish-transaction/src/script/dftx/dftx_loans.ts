@@ -324,7 +324,7 @@ export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
 }
 
 export interface TokenPayback {
-  dToken: number // ---------------------| 4 bytes unsigned
+  dToken: number // ---------------------| VarUInt{1-9 bytes}
   amounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
 }
 
