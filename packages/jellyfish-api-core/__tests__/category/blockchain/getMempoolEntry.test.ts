@@ -22,7 +22,6 @@ describe('getMempoolInfo', () => {
     await waitForExpect(async () => {
       const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00001)
       const mempoolEntry: MempoolTx = await client.blockchain.getMempoolEntry(txId)
-      console.log(mempoolEntry)
       expect(mempoolEntry.vsize instanceof BigNumber).toStrictEqual(true)
       expect(mempoolEntry.weight instanceof BigNumber).toStrictEqual(true)
       expect(mempoolEntry.fee instanceof BigNumber).toStrictEqual(true)
