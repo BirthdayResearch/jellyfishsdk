@@ -1,4 +1,6 @@
 import 'url-search-params-polyfill'
+import AbortController from 'abort-controller'
+import fetch from 'cross-fetch'
 import { version } from './Version'
 import { Address } from './api/Address'
 import { PoolPairs } from './api/PoolPairs'
