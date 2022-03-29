@@ -139,6 +139,7 @@
       <w>lastblockcreationattempt</w>
       <w>lessthan</w>
       <w>lessthanorequal</w>
+      <w>leveldown</w>
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
