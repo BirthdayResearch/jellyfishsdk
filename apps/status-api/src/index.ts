@@ -2,8 +2,9 @@ import { RootModule } from './modules/RootModule'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
+import { RootServer } from '@defichain-apps/libs/rootserver'
 
-export class RootServer {
+export class StatusApiServer extends RootServer {
   app?: NestFastifyApplication
 
   async create (): Promise<NestFastifyApplication> {
@@ -42,5 +43,5 @@ export class RootServer {
  * Bootstrap RootModule and start server
  */
 if (require.main === module) {
-  void new RootServer().start()
+  void new StatusApiServer().start()
 }

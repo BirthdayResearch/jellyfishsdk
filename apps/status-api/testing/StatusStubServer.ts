@@ -1,13 +1,13 @@
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { Test } from '@nestjs/testing'
 import { RootModule } from '../src/modules/RootModule'
-import { RootServer } from '../src'
 import { ConfigModule, ConfigService } from '@nestjs/config'
+import { StatusApiServer } from '../src'
 
 /**
  * Service stubs are simulations of a real service, which are used for functional testing.
  */
-export class StatusStubServer extends RootServer {
+export class StatusStubServer extends StatusApiServer {
   private readonly allRoutes: RegisteredRoute[] = []
 
   async create (): Promise<NestFastifyApplication> {

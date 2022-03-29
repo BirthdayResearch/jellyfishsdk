@@ -3,7 +3,7 @@ import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
 
 /**
- * LegacyApi Testing framework.
+ * StatusApi Testing framework.
  */
 export class StatusApiTesting {
   constructor (

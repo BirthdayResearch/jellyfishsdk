@@ -1,37 +1,37 @@
-import { Controller, Get, Query } from '@nestjs/common'
-import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
-import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
+import { Controller, Get } from '@nestjs/common'
 import { Block } from '@defichain/whale-api-client/src/api/Blocks'
+import { WhaleApiClient } from '@defichain/whale-api-client'
 
 @Controller('blockchain')
 export class BlockchainController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  constructor (private readonly client: WhaleApiClient) {
   }
 
   @Get('status')
-  async getToken (
-    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
-  ): Promise<{ [key: string]: string }> {
-    const api = this.whaleApiClientProvider.getClient(network)
-
-    const blocks: Block[] = await api.blocks.list(1)
+  async getToken (): Promise<{ [key: string]: string }> {
+    const blocks: Block[] = await this.client.blocks.list(1)
 
     const nowEpoch = Date.now()
     const latestBlockTime = blocks[0].time * 1000
     const timeDiff = nowEpoch - latestBlockTime
 
-    let status: string
+    const statusMap = new Map<string, number>([
+      ['outage', (45 * 60 * 1000)],
+      ['degraded', (30 * 60 * 1000)],
+      ['operational', 0]
+    ])
 
-    if (timeDiff > 45 * 60 * 1000) {
-      status = 'operational'
-    } else if (timeDiff > 30 * 60 * 1000) {
-      status = 'degraded'
-    } else {
-      status = 'operational'
+    let currentStatus: string = 'operational'
+
+    for (const [status, thresholdTime] of statusMap) {
+      if (timeDiff > thresholdTime) {
+        currentStatus = status
+        break
+      }
     }
 
     return {
-      data: status
+      status: currentStatus
     }
   }
 }
