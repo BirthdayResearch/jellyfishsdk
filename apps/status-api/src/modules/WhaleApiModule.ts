@@ -1,19 +1,19 @@
 import { Global, Injectable, Module } from '@nestjs/common'
 import { HealthIndicatorResult } from '@nestjs/terminus'
-import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { ActuatorProbes, ProbeIndicator } from '@defichain-apps/libs/actuator'
 import { BlockchainInfo } from '@defichain/jellyfish-api-core/src/category/blockchain'
+import { WhaleApiClient } from '@defichain/whale-api-client'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class WhaleApiProbeIndicator extends ProbeIndicator {
-  constructor (private readonly clientProvider: WhaleApiClientProvider) {
+  constructor (private readonly client: WhaleApiClient) {
     super()
   }
 
   async liveness (): Promise<HealthIndicatorResult> {
     try {
-      const client = this.clientProvider.getClient('mainnet')
-      await client.stats.get()
+      await this.client.stats.get()
       return this.withAlive('whale')
     } catch (ignored) {
       return this.withDead('whale', 'could not connect to mainnet')
@@ -23,8 +23,7 @@ export class WhaleApiProbeIndicator extends ProbeIndicator {
   async readiness (): Promise<HealthIndicatorResult> {
     let info
     try {
-      const client = this.clientProvider.getClient('mainnet')
-      info = await client.rpc.call<BlockchainInfo>('getblockchaininfo', [], 'number')
+      info = await this.client.rpc.call<BlockchainInfo>('getblockchaininfo', [], 'number')
     } catch (ignored) {
       return this.withDead('whale', 'could not get blockchain info from mainnet')
     }
@@ -42,10 +41,19 @@ export class WhaleApiProbeIndicator extends ProbeIndicator {
 @Module({
   providers: [
     WhaleApiProbeIndicator,
-    WhaleApiClientProvider
+    {
+      provide: WhaleApiClient,
+      useFactory: (configService: ConfigService): WhaleApiClient => {
+        return new WhaleApiClient({
+          version: 'v0',
+          network: configService.get<string>('network'),
+          url: 'https://ocean.defichain.com'
+        })
+      },
+      inject: [ConfigService]
+    }
   ],
   exports: [
-    WhaleApiClientProvider
   ]
 })
 export class WhaleApiModule {
