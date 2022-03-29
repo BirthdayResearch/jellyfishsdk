@@ -17,10 +17,8 @@ describe('WhaleWalletAccountProvider', () => {
   })
 
   it('should provide WhaleWalletAccount', () => {
-    const node = nodeProvider.derive('0/0/0')
+    const node = nodeProvider.derive('1129/0/0/0')
     const account = provider.provide(node)
     expect(account instanceof WhaleWalletAccount).toStrictEqual(true)
   })
 })
-
-// TODO(chen): More testing, perhaps using a local hosted whaleApiServer?
