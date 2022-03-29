@@ -1,6 +1,7 @@
 import { JellyfishJSON, Precision, PrecisionPath } from '@defichain/jellyfish-api-core'
-import { ApiException, ApiResponse } from '@defichain/ocean-api-client'
+import { raiseIfError } from '../errors'
 import { WhaleApiClient } from '../WhaleApiClient'
+import { WhaleApiResponse } from '../WhaleApiResponse'
 
 /**
  * @deprecated since 0.22.x, please use WhaleRpcClient directly
@@ -20,8 +21,8 @@ export class Rpc {
   async call<T> (method: string, params: any[], precision: Precision | PrecisionPath): Promise<T> {
     const body = JellyfishJSON.stringify({ params: params })
     const responseRaw = await this.client.requestAsString('POST', `rpc/${method}`, body)
-    const response: ApiResponse<T> = JellyfishJSON.parse(responseRaw.body, precision)
-    ApiException.raiseIfError(response)
+    const response: WhaleApiResponse<T> = JellyfishJSON.parse(responseRaw.body, precision)
+    raiseIfError(response)
     return response.data
   }
 }
