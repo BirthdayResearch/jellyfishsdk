@@ -324,8 +324,8 @@ export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
 }
 
 export interface TokenPayback {
-  dToken: string // ---------------------| utf8
-  tokenAmounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
+  dToken: number // ---------------------| 4 bytes unsigned
+  amounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
 }
 
 /**
@@ -335,8 +335,8 @@ export interface TokenPayback {
 export class CTokenPayback extends ComposableBuffer<TokenPayback> {
   composers (tp: TokenPayback): BufferComposer[] {
     return [
-      ComposableBuffer.varUIntUtf8LE(() => tp.dToken, v => tp.dToken = v),
-      ComposableBuffer.varUIntArray(() => tp.tokenAmounts, v => tp.tokenAmounts = v, v => new CTokenBalance(v))
+      ComposableBuffer.uInt32(() => tp.dToken, v => tp.dToken = v),
+      ComposableBuffer.varUIntArray(() => tp.amounts, v => tp.amounts = v, v => new CTokenBalance(v))
     ]
   }
 }

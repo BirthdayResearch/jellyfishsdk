@@ -1272,7 +1272,7 @@ describe('paybackLoan for dusd using dfi', () => {
     const txn = await testingBuilder.loans.paybackLoanV2({
       vaultId: vaultId,
       from: colScript,
-      loans: [{ dToken: dusdId, tokenAmounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }] }]
+      loans: [{ dToken: parseInt(dusdId), amounts: [{ token: 0, amount: new BigNumber(dfiPaybackAmount) }] }]
     }, script)
     await sendTransaction(testing.container, txn)
     await testing.generate(1)
