@@ -612,13 +612,24 @@ Return loan in a desired amount.
 
 ```ts title="client.loan.paybackLoan()"
 interface loan {
-  paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string>
+  paybackLoan (metadata: PaybackLoanMetadata | PaybackLoanMetadataV2, utxos: UTXO[] = []): Promise<string>
 }
 
 interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
+}
+
+interface TokenPaybackAmount {
+  dToken: string
+  amounts: string | string[] // amount@symbol
+}
+
+interface PaybackLoanMetadataV2 {
+  vaultId: string
+  from: string
+  loans: TokenPaybackAmount[]
 }
 
 interface UTXO {
