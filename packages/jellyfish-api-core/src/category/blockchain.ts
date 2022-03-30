@@ -165,7 +165,7 @@ export class Blockchain {
   }
 
   /**
-   *
+   * Get mempool data for the given transaction
    * @param {string} txId the transaction id
    * @return {Promise<MempoolTx>}
    */
