@@ -5,7 +5,6 @@ import { Interval } from '@nestjs/schedule'
 @Injectable()
 export class GovBot {
   public tokenIds: string[] = []
-  public loanTokenIds: string[] = []
 
   constructor (readonly client: ApiClient) {
   }

@@ -1,8 +1,6 @@
 import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 import { CreateTokenMetadata } from '@defichain/jellyfish-api-core/src/category/token'
-import { GovBot } from '../bots/GovBot'
-import { ApiClient } from '@defichain/jellyfish-api-core'
 
 interface TokenSetup {
   create: CreateTokenMetadata
@@ -12,10 +10,6 @@ interface TokenSetup {
 @Injectable()
 export class SetupToken extends PlaygroundSetup<TokenSetup> {
   private readonly tokenIds: string [] = []
-
-  constructor (client: ApiClient, readonly govBot: GovBot) {
-    super(client)
-  }
 
   list (): TokenSetup[] {
     return [
@@ -149,13 +143,6 @@ export class SetupToken extends PlaygroundSetup<TokenSetup> {
     await this.generate(1)
 
     await this.client.call('minttokens', [`${each.amount}@${each.create.symbol}`], 'number')
-    await this.generate(1)
-  }
-
-  protected async after (): Promise<void> {
-    await this.generate(1)
-    this.govBot.tokenIds = this.tokenIds
-    await this.govBot.run()
     await this.generate(1)
   }
 
