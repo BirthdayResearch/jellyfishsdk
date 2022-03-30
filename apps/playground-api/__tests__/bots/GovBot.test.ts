@@ -16,5 +16,12 @@ it('setgov "attributes" - enable payback for all dTokens', async () => {
     const attributes = await testing.container.call('getgov', ['ATTRIBUTES'])
     expect(Object.keys(attributes).length).toBeGreaterThan(0)
     console.log('attributes: ', attributes)
+
+    const tokens = await testing.container.call('listtokens')
+    console.log('tokens: ', tokens)
+
+    // setup
+
+    // takeloan
   })
 })
