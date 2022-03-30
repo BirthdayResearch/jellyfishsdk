@@ -55,14 +55,3 @@ it('should have loan collateral tokens', async () => {
   const results = await testing.container.call('listcollateraltokens')
   expect(results.length).toBe(12)
 })
-
-it('should have gov set', async () => {
-  const dusdInfo = await testing.container.call('gettoken', ['DUSD'])
-  const dusdId = Object.keys(dusdInfo)[0]
-  const gov = await testing.container.call('getgov', ['ATTRIBUTES'])
-  expect(gov).toStrictEqual({
-    ATTRIBUTES: {
-      [`v0/token/${dusdId}/payback_dfi`]: 'true'
-    }
-  })
-})

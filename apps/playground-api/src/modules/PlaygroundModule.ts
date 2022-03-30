@@ -14,6 +14,7 @@ import { SetupLoanScheme } from '../setups/setup.loan.scheme'
 import { SetupLoanToken } from '../setups/setup.loan.token'
 import { SetupLoanCollateral } from '../setups/setup.loan.collateral'
 import { VaultBot } from '../bots/VaultBot'
+import { GovBot } from '../bots/GovBot'
 import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
@@ -31,6 +32,7 @@ import { ScheduleModule } from '@nestjs/schedule'
     SetupLoanCollateral,
     OracleBot,
     VaultBot,
+    GovBot,
     PlaygroundBlock,
     PlaygroundProbeIndicator
   ],
