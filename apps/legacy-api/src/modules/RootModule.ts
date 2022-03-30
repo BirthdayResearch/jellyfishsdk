@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config'
 import { ControllerModule } from './ControllerModule'
 import { WhaleApiModule } from './WhaleApiModule'
 import { ActuatorModule } from '@defichain-apps/libs/actuator'
+import { LoggingModule } from './LoggingModule'
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { ActuatorModule } from '@defichain-apps/libs/actuator'
     }),
     ActuatorModule,
     WhaleApiModule,
-    ControllerModule
+    ControllerModule,
+    LoggingModule
   ]
 })
 export class RootModule {

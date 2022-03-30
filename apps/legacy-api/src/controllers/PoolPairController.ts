@@ -206,14 +206,38 @@ export class PoolPairController {
       provider_URL: 'https://defichain.com',
       tvl: stats.tvl.total,
       links: [
-        { title: 'Twitter', link: 'https://twitter.com/defichain' },
-        { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
-        { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
-        { title: 'Telegram', link: 'https://t.me/defiblockchain' },
-        { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
-        { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
-        { title: 'GitHub', link: 'https://github.com/DeFiCh' },
-        { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
+        {
+          title: 'Twitter',
+          link: 'https://twitter.com/defichain'
+        },
+        {
+          title: 'YouTube',
+          link: 'https://www.youtube.com/DeFiChain'
+        },
+        {
+          title: 'Reddit',
+          link: 'https://reddit.com/r/defiblockchain'
+        },
+        {
+          title: 'Telegram',
+          link: 'https://t.me/defiblockchain'
+        },
+        {
+          title: 'LinkedIn',
+          link: 'https://www.linkedin.com/company/defichain'
+        },
+        {
+          title: 'Facebook',
+          link: 'https://www.facebook.com/defichain.official'
+        },
+        {
+          title: 'GitHub',
+          link: 'https://github.com/DeFiCh'
+        },
+        {
+          title: 'Discord',
+          link: 'https://discord.com/invite/py55egyaGy'
+        }
       ]
     }
   }
@@ -439,6 +463,10 @@ interface LegacySubgraphSwapFromTo {
 }
 
 function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
+  if (vouts.length === 0) {
+    return undefined // reject because not yet indexed, cannot be found
+  }
+
   const hex = vouts[0].script.hex
   const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
   const stack = toOPCodes(buffer)
