@@ -20,8 +20,8 @@ export class LegacyStubServer extends LegacyApiServer {
         RootModule,
         ConfigModule.forFeature(() => {
           return {
-            'BLOCK_CACHE_COUNT-mainnet': this.testOptions.mainnetBlockCacheCount,
-            'BLOCK_CACHE_COUNT-testnet': this.testOptions.testnetBlockCacheCount
+            BLOCK_CACHE_COUNT_mainnet: this.testOptions.mainnetBlockCacheCount,
+            BLOCK_CACHE_COUNT_testnet: this.testOptions.testnetBlockCacheCount
           }
         })
       ]

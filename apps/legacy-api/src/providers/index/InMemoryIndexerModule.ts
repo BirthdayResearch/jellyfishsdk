@@ -22,11 +22,11 @@ export class InMemoryIndexerModule {
         },
 
         {
-          provide: `BLOCK_CACHE_COUNT-${network}`,
+          provide: `BLOCK_CACHE_COUNT_${network}`,
           useFactory: (configService: ConfigService): number => {
-            const cacheCount = configService.get<string>(`BLOCK_CACHE_COUNT-${network}`)
+            const cacheCount = configService.get<string>(`BLOCK_CACHE_COUNT_${network}`)
             if (cacheCount === undefined) {
-              throw new Error(`config:BLOCK_CACHE_COUNT-${network} was not provided`)
+              throw new Error(`config:BLOCK_CACHE_COUNT_${network} was not provided`)
             }
             return Number(cacheCount)
           },
@@ -34,7 +34,7 @@ export class InMemoryIndexerModule {
         },
         {
           provide: 'BLOCK_CACHE_COUNT',
-          useExisting: `BLOCK_CACHE_COUNT-${network}`
+          useExisting: `BLOCK_CACHE_COUNT_${network}`
         },
 
         {
