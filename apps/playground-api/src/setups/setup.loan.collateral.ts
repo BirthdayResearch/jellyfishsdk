@@ -2,17 +2,8 @@ import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 import { SetCollateralToken } from '@defichain/jellyfish-api-core/src/category/loan'
 import BigNumber from 'bignumber.js'
-import { GovBot } from '../bots/GovBot'
-import { ApiClient } from '@defichain/jellyfish-api-core'
-
 @Injectable()
 export class SetupLoanCollateral extends PlaygroundSetup<SetCollateralToken> {
-  private readonly tokenIds: string [] = []
-
-  constructor (client: ApiClient, readonly govBot: GovBot) {
-    super(client)
-  }
-
   list (): SetCollateralToken[] {
     return [
       {
@@ -89,9 +80,5 @@ export class SetupLoanCollateral extends PlaygroundSetup<SetCollateralToken> {
     } catch (e) {
       return false
     }
-  }
-
-  protected async after (): Promise<void> {
-    this.govBot.tokenIds = this.govBot.tokenIds.concat(this.tokenIds)
   }
 }

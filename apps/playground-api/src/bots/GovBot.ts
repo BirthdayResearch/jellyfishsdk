@@ -1,35 +1,36 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
+import { TokenResult } from '@defichain/jellyfish-api-core/src/category/token'
 import { Injectable } from '@nestjs/common'
 import { Interval } from '@nestjs/schedule'
 
 @Injectable()
 export class GovBot {
-  public tokenIds: string[] = []
-
   constructor (readonly client: ApiClient) {
   }
 
   @Interval(6000)
   async run (): Promise<void> {
-    for (const tokenId of this.tokenIds) {
-      await this.enablePayback(tokenId)
+    const tokens = await this.client.token.listTokens()
+    for (const id of Object.keys(tokens)) {
+      if (tokens[id].isLoanToken) {
+        await this.enablePayback(id, tokens)
+      }
     }
   }
 
   /**
    * Enable payback for all tokens
-   * @param {string} fromTokenId payback token Id
+   * @param {string} loanTokenId
    * @return {Promise<void>}
    */
-  async enablePayback (fromTokenId: string): Promise<void> {
-    for (const tokenId of this.tokenIds) {
-      if (tokenId === fromTokenId) {
+  async enablePayback (loanTokenId: string, tokens: TokenResult): Promise<void> {
+    for (const tokenId of Object.keys(tokens)) {
+      if (loanTokenId === tokenId || !tokens[tokenId].isDAT || tokens[tokenId].isLPS) {
         continue
       }
-      // const paybackKey = `v0/token/${tokenId}/payback_dfi`
-      // const penaltyRateKey = `v0/token/${tokenId}/payback_dfi_fee_pct`
-      const paybackKey = `v0/token/${tokenId}/loan_payback/${fromTokenId}`
-      const penaltyRateKey = `v0/token/${tokenId}/loan_payback_fee_pct/${fromTokenId}`
+
+      const paybackKey = `v0/token/${loanTokenId}/loan_payback/${tokenId}`
+      const penaltyRateKey = `v0/token/${loanTokenId}/loan_payback_fee_pct/${tokenId}`
 
       await this.client.masternode.setGov(
         {

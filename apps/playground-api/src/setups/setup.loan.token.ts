@@ -7,8 +7,6 @@ import { ApiClient } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
-  private readonly tokenIds: string [] = []
-
   constructor (client: ApiClient, readonly govBot: GovBot) {
     super(client)
   }
@@ -63,7 +61,6 @@ export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
 
   protected async after (): Promise<void> {
     await this.generate(1)
-    this.govBot.tokenIds = this.govBot.tokenIds.concat(this.tokenIds)
     await this.govBot.run()
     await this.generate(1)
   }
