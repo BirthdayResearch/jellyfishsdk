@@ -45,9 +45,8 @@ describe('getMempoolInfo', () => {
   })
 
   it('should return error for invalid txId', async () => {
-    const invalidTxIdErr = /RpcApiError: 'Transaction not in mempool', code: -5, method: getmempoolentry/
     await expect(client.blockchain.getMempoolEntry('6b1bac73bf8071e7edecef30081058f342ff35be12eb2dd3aa1d2ec4933ee798'))
-      .rejects.toThrow(invalidTxIdErr)
+      .rejects.toThrow(`RpcApiError: 'Transaction not in mempool', code: -5, method: getmempoolentry`)
   })
 
   it('should return error for txid of invalid length', async () => {
