@@ -120,7 +120,7 @@ function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
 }
 
 function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
-  for (const amount of history.amounts) {
+  for (const amount of history.amounts ?? []) {
     const [value, symbol] = amount.split('@')
     const isNegative = value.startsWith('-')
 

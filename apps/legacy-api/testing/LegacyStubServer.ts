@@ -2,7 +2,7 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { Test } from '@nestjs/testing'
 import { RootModule } from '../src/modules/RootModule'
 import { LegacyApiServer } from '../src'
-import { ConfigModule, ConfigService } from '@nestjs/config'
+import { ConfigService } from '@nestjs/config'
 
 /**
  * Service stubs are simulations of a real service, which are used for functional testing.
@@ -17,15 +17,11 @@ export class LegacyStubServer extends LegacyApiServer {
   async create (): Promise<NestFastifyApplication> {
     const module = await Test.createTestingModule({
       imports: [
-        RootModule,
-        ConfigModule.forFeature(() => {
-          return {
-            BLOCK_CACHE_COUNT_mainnet: this.testOptions.mainnetBlockCacheCount,
-            BLOCK_CACHE_COUNT_testnet: this.testOptions.testnetBlockCacheCount
-          }
-        })
+        RootModule
       ]
-    }).compile()
+    }).overrideProvider(ConfigService)
+      .useValue(new TestConfigService(this.testOptions))
+      .compile()
 
     const adapter = new FastifyAdapter({
       logger: false
@@ -52,6 +48,15 @@ export class LegacyStubServer extends LegacyApiServer {
       .addHook('onRoute', (opts: RegisteredRoute) => {
         this.allRoutes.push(opts)
       })
+  }
+}
+
+class TestConfigService extends ConfigService {
+  constructor (testOptions: TestOptions) {
+    super({
+      BLOCK_CACHE_COUNT_mainnet: testOptions.mainnetBlockCacheCount,
+      BLOCK_CACHE_COUNT_testnet: testOptions.testnetBlockCacheCount
+    })
   }
 }
 
