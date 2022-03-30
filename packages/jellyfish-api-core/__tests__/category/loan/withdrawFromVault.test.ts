@@ -459,16 +459,6 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     await alice.token.dfi({ address: aliceAddr, amount: 40000 })
     await alice.generate(1)
 
-    await alice.token.create({ symbol: 'DUSD', collateralAddress: aliceAddr })
-    await alice.generate(1)
-    await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
-    await alice.generate(1)
-
-    await alice.token.mint({ symbol: 'DUSD', amount: 40000 })
-    await alice.generate(1)
-    await alice.token.mint({ symbol: 'BTC', amount: 4 })
-    await alice.generate(1)
-
     // oracle setup
     const addr = await alice.generateAddress()
     const priceFeeds = [
@@ -491,7 +481,7 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
           { tokenAmount: '2@TSLA', currency: 'USD' }
         ]
       })
-    await alice.generate(4)
+    await alice.generate(1)
 
     // collateral token
     await alice.rpc.loan.setCollateralToken({
@@ -501,11 +491,19 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     })
     await alice.generate(1)
 
+    await takeDusdTokensToPayback()
+
     await alice.rpc.loan.setCollateralToken({
       token: 'DUSD',
       factor: new BigNumber(1),
       fixedIntervalPriceId: 'DUSD/USD'
     })
+    await alice.generate(1)
+
+    await alice.token.create({ symbol: 'BTC', collateralAddress: aliceAddr })
+    await alice.generate(1)
+
+    await alice.token.mint({ symbol: 'BTC', amount: 4 })
     await alice.generate(1)
 
     await alice.rpc.loan.setCollateralToken({
@@ -568,6 +566,46 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     expect(bobVault.interestValue).toStrictEqual(new BigNumber(0))
     expect(bobVault.collateralRatio).toStrictEqual(-1) // empty loan
     expect(bobVault.informativeRatio).toStrictEqual(new BigNumber(-1)) // empty loan
+  }
+
+  // this will borrow dusd tokens and will give to aliceAddr
+  async function takeDusdTokensToPayback (): Promise<void> {
+    await alice.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await alice.generate(1)
+
+    const tokenProviderSchemeId = 'LoanDusd'
+    await alice.rpc.loan.createLoanScheme({
+      minColRatio: 100,
+      interestRate: new BigNumber(0.01),
+      id: tokenProviderSchemeId
+    })
+    await alice.generate(1)
+
+    const tokenProviderVaultAddress = await alice.generateAddress()
+    const tokenProviderVaultId = await alice.rpc.loan.createVault({
+      ownerAddress: tokenProviderVaultAddress,
+      loanSchemeId: tokenProviderSchemeId
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.depositToVault({
+      vaultId: tokenProviderVaultId,
+      from: aliceAddr,
+      amount: '10000@DFI'
+    })
+    await alice.generate(1)
+
+    await alice.rpc.loan.takeLoan({
+      vaultId: tokenProviderVaultId,
+      amounts: '10000@DUSD',
+      to: tokenProviderVaultAddress
+    })
+    await alice.generate(1)
+
+    await alice.rpc.account.accountToAccount(tokenProviderVaultAddress, { [aliceAddr]: '10000@DUSD' })
   }
 
   it('should withdrawFromVault with 50% DUSD collateral', async () => {
