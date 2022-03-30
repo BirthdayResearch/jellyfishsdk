@@ -18,7 +18,7 @@ export class GovBot {
   }
 
   /**
-   * Enable payback for all tokens
+   * Enable payback for all dTokens
    * @param {string} loanTokenId
    * @return {Promise<void>}
    */

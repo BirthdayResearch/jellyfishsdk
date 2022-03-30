@@ -11,7 +11,7 @@ afterAll(async () => {
   await testing.stop()
 })
 
-it('', async () => {
+it('setgov "attributes" - enable payback for all dTokens', async () => {
   await waitForExpect(async () => {
     const attributes = await testing.container.call('getgov', ['ATTRIBUTES'])
     expect(Object.keys(attributes).length).toBeGreaterThan(0)
