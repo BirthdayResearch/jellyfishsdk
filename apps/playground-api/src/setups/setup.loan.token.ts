@@ -60,7 +60,6 @@ export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
   }
 
   protected async after (): Promise<void> {
-    await this.generate(1)
     await this.govBot.run()
     await this.generate(1)
   }

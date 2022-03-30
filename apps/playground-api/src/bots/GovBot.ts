@@ -1,14 +1,13 @@
 import { ApiClient } from '@defichain/jellyfish-api-core'
 import { TokenResult } from '@defichain/jellyfish-api-core/src/category/token'
 import { Injectable } from '@nestjs/common'
-import { Interval } from '@nestjs/schedule'
 
 @Injectable()
 export class GovBot {
   constructor (readonly client: ApiClient) {
   }
 
-  @Interval(6000)
+  // @Interval(6000)
   async run (): Promise<void> {
     const tokens = await this.client.token.listTokens()
     for (const id of Object.keys(tokens)) {
