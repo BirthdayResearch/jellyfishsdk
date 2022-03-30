@@ -51,7 +51,7 @@ describe('getMempoolInfo', () => {
   })
 
   it('should return error for txid of invalid length', async () => {
-    const invalidtxidstring = "RpcApiError: 'parameter 1 must be of length 64 (not 17, for 'invalidtxidstring')', code: -8, method: getmempoolentry"
-    await expect(client.blockchain.getMempoolEntry('invalidtxidstring')).rejects.toThrow(invalidtxidstring)
+    await expect(client.blockchain.getMempoolEntry('invalidtxidstring'))
+      .rejects.toThrow(`RpcApiError: 'parameter 1 must be of length 64 (not 17, for 'invalidtxidstring')', code: -8, method: getmempoolentry`)
   })
 })
