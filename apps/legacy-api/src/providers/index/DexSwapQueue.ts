@@ -164,10 +164,7 @@ export class DexSwapQueue {
     for (const swap of swaps) {
       this.swapsSorted.push(swap)
     }
-    this.logger.log(
-      `Cached ${swaps.length} swaps from ` +
-      `block(height=${block.height} hash=${block.hash.substr(0, 8)}..)`
-    )
+    this.logger.log(`Cached ${swaps.length} swaps from block ${block.height}`)
 
     // Maybe unnecessary
     this.swapsSorted.sort((a, b) => {
@@ -181,8 +178,15 @@ export class DexSwapQueue {
     })
   }
 
-  async invalidate (hash: string): Promise<void> {
-    this.swapsSorted = this.swapsSorted.filter(swap => swap.block.hash !== hash)
+  async invalidate (blockHash: string): Promise<void> {
+    const originalSize = this.swapsSorted.length
+    this.swapsSorted = this.swapsSorted.filter(swap => swap.block.hash !== blockHash)
+    const newSize = this.swapsSorted.length
+
+    const diff = originalSize - newSize
+    if (diff > 0) {
+      this.logger.log(`Removed ${originalSize - newSize} swaps from cache. Remaining: ${newSize}`)
+    }
   }
 
   getAll (): LegacySubgraphSwap[] {
