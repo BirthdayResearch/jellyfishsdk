@@ -1520,7 +1520,7 @@ describe('paybackloan for dusd using dfi', () => {
       from: vaultOwnerAddress
     })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of DUSD loans with DFI not currently active\', code: -32600, method: paybackloan')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of loan via DFI token is not currently active\', code: -32600, method: paybackloan')
 
     await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
     await testing.container.generate(1)
@@ -1535,7 +1535,7 @@ describe('paybackloan for dusd using dfi', () => {
       from: vaultOwnerAddress
     })
 
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of DUSD loans with DFI not currently active\', code: -32600, method: paybackloan')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of loan via DFI token is not currently active\', code: -32600, method: paybackloan')
   })
 
   it('should not be able to payback TSLA loan using DFI', async () => {
