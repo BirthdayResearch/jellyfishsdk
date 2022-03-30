@@ -2,15 +2,9 @@ import { PlaygroundSetup } from '../setups/setup'
 import { Injectable } from '@nestjs/common'
 import { SetLoanToken } from '@defichain/jellyfish-api-core/src/category/loan'
 import BigNumber from 'bignumber.js'
-import { GovBot } from '../bots/GovBot'
-import { ApiClient } from '@defichain/jellyfish-api-core'
 
 @Injectable()
 export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
-  constructor (client: ApiClient, readonly govBot: GovBot) {
-    super(client)
-  }
-
   list (): SetLoanToken[] {
     return [
       {
@@ -48,6 +42,7 @@ export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
 
   async create (each: SetLoanToken): Promise<void> {
     await this.client.loan.setLoanToken(each)
+    await this.generate(1)
   }
 
   async has (each: SetLoanToken): Promise<boolean> {
@@ -57,10 +52,5 @@ export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
     } catch (e) {
       return false
     }
-  }
-
-  protected async after (): Promise<void> {
-    await this.govBot.run()
-    await this.generate(1)
   }
 }

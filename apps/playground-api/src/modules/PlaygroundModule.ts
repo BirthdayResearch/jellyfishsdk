@@ -13,8 +13,8 @@ import { OracleBot } from '../bots/OracleBot'
 import { SetupLoanScheme } from '../setups/setup.loan.scheme'
 import { SetupLoanToken } from '../setups/setup.loan.token'
 import { SetupLoanCollateral } from '../setups/setup.loan.collateral'
+import { SetupGov } from '../setups/setup.gov'
 import { VaultBot } from '../bots/VaultBot'
-import { GovBot } from '../bots/GovBot'
 import { ScheduleModule } from '@nestjs/schedule'
 
 @Module({
@@ -30,9 +30,9 @@ import { ScheduleModule } from '@nestjs/schedule'
     SetupLoanScheme,
     SetupLoanToken,
     SetupLoanCollateral,
+    SetupGov,
     OracleBot,
     VaultBot,
-    GovBot,
     PlaygroundBlock,
     PlaygroundProbeIndicator
   ],
@@ -55,7 +55,8 @@ export class PlaygroundModule implements OnApplicationBootstrap {
     masternode: SetupMasternode,
     loanScheme: SetupLoanScheme,
     loanToken: SetupLoanToken,
-    loanCollateral: SetupLoanCollateral
+    loanCollateral: SetupLoanCollateral,
+    gov: SetupGov
   ) {
     this.setups = [
       utxo,
@@ -65,7 +66,8 @@ export class PlaygroundModule implements OnApplicationBootstrap {
       loanScheme,
       loanToken,
       loanCollateral,
-      dex
+      dex,
+      gov
     ]
   }
 
