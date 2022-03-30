@@ -9,8 +9,6 @@ interface TokenSetup {
 
 @Injectable()
 export class SetupToken extends PlaygroundSetup<TokenSetup> {
-  private readonly tokenIds: string [] = []
-
   list (): TokenSetup[] {
     return [
       {
