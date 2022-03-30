@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common'
-import { StatsData, SupplyData } from '@defichain/whale-api-client/src/api/Stats'
+import { StatsData, SupplyData } from '@defichain/whale-api-client/dist/api/Stats'
 import { SemaphoreCache } from '../module.api/cache/semaphore.cache'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { BlockMapper } from '../module.model/block'
@@ -7,10 +7,10 @@ import { PoolPairService } from '../module.api/poolpair.service'
 import BigNumber from 'bignumber.js'
 import { PriceTickerMapper } from '../module.model/price.ticker'
 import { MasternodeStats, MasternodeStatsMapper } from '../module.model/masternode.stats'
-import { BlockchainInfo } from '@defichain/jellyfish-api-core/src/category/blockchain'
+import { BlockchainInfo } from '@defichain/jellyfish-api-core/dist/category/blockchain'
 import { getBlockSubsidy } from '../module.api/subsidy'
 import { BlockSubsidy } from '@defichain/jellyfish-network'
-import { BurnInfo } from '@defichain/jellyfish-api-core/src/category/account'
+import { BurnInfo } from '@defichain/jellyfish-api-core/dist/category/account'
 
 @Controller('/stats')
 export class StatsController {

@@ -6,7 +6,7 @@ import { Block, BlockMapper } from '../module.model/block'
 import { IndexStatusMapper, Status } from '../module.indexer/status'
 import { TokenMapper } from '../module.model/token'
 import { HexEncoder } from '../module.model/_hex.encoder'
-import { waitForCondition } from '@defichain/testcontainers/src/utils'
+import { waitForCondition } from '@defichain/testcontainers/dist/utils'
 import { blockchain as defid, RpcApiError } from '@defichain/jellyfish-api-core'
 
 @Injectable()

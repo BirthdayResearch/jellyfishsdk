@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import BigNumber from 'bignumber.js'
-import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { SemaphoreCache } from '../module.api/cache/semaphore.cache'
 import {
   AllSwappableTokensResult,
@@ -11,7 +11,7 @@ import {
   PoolSwapFromToData,
   SwapPathPoolPair,
   SwapPathsResult, SwapType, TokenIdentifier
-} from '@defichain/whale-api-client/src/api/PoolPairs'
+} from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { getBlockSubsidy } from '../module.api/subsidy'
 import { BlockMapper } from '../module.model/block'
 import { TokenMapper } from '../module.model/token'
@@ -30,7 +30,7 @@ import {
 } from '@defichain/jellyfish-transaction'
 import { fromScript } from '@defichain/jellyfish-address'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
+import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
 import { DeFiDCache } from '../module.api/cache/defid.cache'
 import { parseDisplaySymbol } from '../module.api/token.controller'
 import { UndirectedGraph } from 'graphology'

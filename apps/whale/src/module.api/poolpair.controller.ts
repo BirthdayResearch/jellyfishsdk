@@ -9,11 +9,11 @@ import {
   PoolSwapAggregatedData,
   PoolSwapData,
   SwapPathsResult
-} from '@defichain/whale-api-client/src/api/PoolPairs'
+} from '@defichain/whale-api-client/dist/api/PoolPairs'
 import { PaginationQuery } from '../module.api/_core/api.query'
 import { PoolPairService, PoolSwapPathFindingService } from './poolpair.service'
 import BigNumber from 'bignumber.js'
-import { PoolPairInfo } from '@defichain/jellyfish-api-core/src/category/poolpair'
+import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { parseDATSymbol } from '../module.api/token.controller'
 import { PoolSwapMapper } from '../module.model/pool.swap'
 import { PoolSwapAggregatedMapper } from '../module.model/pool.swap.aggregated'
