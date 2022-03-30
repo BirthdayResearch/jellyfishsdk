@@ -273,35 +273,8 @@ interface MempoolTx {
 Get transaction details in the memory pool using a transaction ID.
 
 ```ts title="client.blockchain.getMempoolEntry(txId: string)"
-interface MempoolTx {
-  [key: string]: {
-    vsize: BigNumber
-    /**
-     * @deprecated same as vsize. Only returned if defid is started with -deprecatedrpc=size
-     */
-    size: BigNumber
-    weight: BigNumber
-    fee: BigNumber
-    modifiedfee: BigNumber
-    time: BigNumber
-    height: BigNumber
-    descendantcount: BigNumber
-    descendantsize: BigNumber
-    descendantfees: BigNumber
-    ancestorcount: BigNumber
-    ancestorsize: BigNumber
-    ancestorfees: BigNumber
-    wtxid: string
-    fees: {
-      base: BigNumber
-      modified: BigNumber
-      ancestor: BigNumber
-      descendant: BigNumber
-    }
-    depends: string[]
-    spentby: string[]
-    'bip125-replaceable': boolean
-  }
+interface blockchain {
+  getMempoolEntry (txId: string): Promise<MempoolTx>
 }
 ```
 
