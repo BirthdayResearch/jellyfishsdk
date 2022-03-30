@@ -22,20 +22,25 @@ describe('getMempoolInfo', () => {
     await waitForExpect(async () => {
       const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.002)
       const mempoolEntry: MempoolTx = await client.blockchain.getMempoolEntry(txId)
-      expect(mempoolEntry.vsize instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.weight instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.fee instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.modifiedfee instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.time instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.height instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.descendantcount instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.descendantsize instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.descendantfees instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.ancestorcount instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.ancestorsize instanceof BigNumber).toStrictEqual(true)
-      expect(mempoolEntry.ancestorfees instanceof BigNumber).toStrictEqual(true)
-      expect(typeof mempoolEntry.wtxid).toStrictEqual('string')
-      expect(typeof mempoolEntry['bip125-replaceable']).toStrictEqual('boolean')
+      expect(mempoolEntry).toMatchObject({
+        fees: expect.any(Object),
+        vsize: expect.any(BigNumber),
+        weight: expect.any(BigNumber),
+        fee: expect.any(BigNumber),
+        modifiedfee: expect.any(BigNumber),
+        time: expect.any(BigNumber),
+        height: expect.any(BigNumber),
+        descendantcount: expect.any(BigNumber),
+        descendantsize: expect.any(BigNumber),
+        descendantfees: expect.any(BigNumber),
+        ancestorcount: expect.any(BigNumber),
+        ancestorsize: expect.any(BigNumber),
+        ancestorfees: expect.any(BigNumber),
+        wtxid: expect.any(String),
+        depends: expect.any(Array),
+        spentby: expect.any(Array),
+        'bip125-replaceable': expect.any(Boolean)
+      })
     }, 10000)
   })
 
