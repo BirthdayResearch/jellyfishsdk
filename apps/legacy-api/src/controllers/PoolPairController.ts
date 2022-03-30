@@ -1,24 +1,21 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, DefaultValuePipe, Get, Inject, ParseIntPipe, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
 import BigNumber from 'bignumber.js'
-import { Transaction, TransactionVout } from '@defichain/whale-api-client/src/api/Transactions'
-import {
-  CCompositeSwap,
-  CompositeSwap,
-  CPoolSwap,
-  OP_DEFI_TX,
-  PoolSwap,
-  toOPCodes
-} from '@defichain/jellyfish-transaction'
-import { SmartBuffer } from 'smart-buffer'
-import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
-import { fromScript } from '@defichain/jellyfish-address'
+import { DexSwapFinder, DexSwapQueue, LegacySubgraphSwap } from '../providers/index/DexSwapQueue'
 
 @Controller('v1')
 export class PoolPairController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  constructor (
+    private readonly whaleApiClientProvider: WhaleApiClientProvider,
+
+    @Inject('DexSwapQueue-mainnet') private readonly dexSwapQueueMainnet: DexSwapQueue,
+    @Inject('DexSwapQueue-testnet') private readonly dexSwapQueueTestnet: DexSwapQueue,
+
+    @Inject('DexSwapFinder-mainnet') private readonly dexSwapFinderMainnet: DexSwapFinder,
+    @Inject('DexSwapFinder-testnet') private readonly dexSwapFinderTestnet: DexSwapFinder
+  ) {
   }
 
   @Get('getpoolpair')
@@ -82,15 +79,39 @@ export class PoolPairController {
   @Get('getsubgraphswaps')
   async getSubgraphSwaps (
     @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet',
-    @Query('limit') limit: number = 30,
+    @Query('limit', new DefaultValuePipe(30), ParseIntPipe) limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(30, limit)
-    const nextToken: NextToken = (nextString !== undefined) ? JSON.parse(Buffer.from(nextString, 'base64url').toString()) : {}
-    const {
-      swaps,
-      next
-    } = await this.getSwapsHistory(network, limit, nextToken)
+    let swaps: LegacySubgraphSwap[] = []
+
+    switch (network) {
+      case 'mainnet':
+        if (this.dexSwapQueueMainnet.isReady) {
+          swaps = this.dexSwapQueueMainnet.getLast(limit)
+        }
+        break
+      case 'testnet':
+        if (this.dexSwapQueueTestnet.isReady) {
+          swaps = this.dexSwapQueueTestnet.getLast(limit)
+        }
+        break
+    }
+
+    const nextToken: NextToken = (nextString !== undefined)
+      ? JSON.parse(Buffer.from(nextString, 'base64url').toString())
+      : {}
+    let next: NextToken = {}
+
+    // Indexer is not ready yet, so we search for swaps starting from chain tip
+    if (swaps.length === 0) {
+      const { swaps: foundSwaps, next: _next } = await this.findSwapsFromBlocks(
+        network,
+        Math.min(30, limit),
+        nextToken
+      )
+      swaps = foundSwaps
+      next = _next
+    }
 
     return {
       data: { swaps: swaps },
@@ -100,46 +121,27 @@ export class PoolPairController {
     }
   }
 
-  async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
-    const api = this.whaleApiClientProvider.getClient(network)
+  async findSwapsFromBlocks (
+    network: SupportedNetwork,
+    limit: number,
+    next: NextToken
+  ): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
     const swaps: LegacySubgraphSwap[] = []
 
-    let iterations = 0
-    while (swaps.length <= limit) {
+    const api = this.whaleApiClientProvider.getClient(network)
+    const swapFinder = network === 'mainnet'
+      ? this.dexSwapFinderMainnet
+      : this.dexSwapFinderTestnet
+
+    // Search for swaps in the last 200 blocks, break when limit is hit
+    const iterations = 0
+    swap_search:
+    while (swaps.length < limit) {
       for (const block of await api.blocks.list(200, next?.height)) {
-        for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
-          next = {
-            height: block.height.toString(),
-            order: transaction.order.toString()
-          }
-
-          if (transaction.voutCount !== 2) {
-            continue
-          }
-          if (transaction.weight === 605) {
-            continue
-          }
-
-          iterations++
-
-          const vouts = await api.transactions.getVouts(transaction.txid, 1)
-          const dftx = findPoolSwapDfTx(vouts)
-          if (dftx === undefined) {
-            continue
-          }
-
-          const swap = await this.findSwap(network, dftx, transaction)
-          if (swap === undefined) {
-            continue
-          }
-
+        for (const swap of await swapFinder.getSwapsHistory(block.hash)) {
           swaps.push(swap)
-
-          if (swaps.length === limit) {
-            return {
-              swaps,
-              next
-            }
+          if (swaps.length >= limit) {
+            break swap_search
           }
         }
 
@@ -157,34 +159,6 @@ export class PoolPairController {
     return {
       swaps,
       next
-    }
-  }
-
-  async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
-    const api = this.whaleApiClientProvider.getClient(network)
-    const fromAddress = fromScript(poolSwap.fromScript, network)?.address
-    const toAddress = fromScript(poolSwap.toScript, network)?.address
-
-    const fromHistory: AccountHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [fromAddress, transaction.block.height, transaction.order], 'number')
-    let toHistory: AccountHistory
-    if (toAddress === fromAddress) {
-      toHistory = fromHistory
-    } else {
-      toHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [toAddress, transaction.block.height, transaction.order], 'number')
-    }
-
-    const from = findAmountSymbol(fromHistory, true)
-    const to = findAmountSymbol(toHistory, false)
-
-    if (from === undefined || to === undefined) {
-      return undefined
-    }
-
-    return {
-      id: transaction.txid,
-      timestamp: transaction.block.medianTime.toString(),
-      from: from,
-      to: to
     }
   }
 
@@ -448,68 +422,4 @@ interface LegacySubgraphSwapsResponse {
 interface NextToken {
   height?: string
   order?: string
-}
-
-interface LegacySubgraphSwap {
-  id: string
-  timestamp: string
-  from: LegacySubgraphSwapFromTo
-  to: LegacySubgraphSwapFromTo
-}
-
-interface LegacySubgraphSwapFromTo {
-  amount: string
-  symbol: string
-}
-
-function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
-  if (vouts.length === 0) {
-    return undefined // reject because not yet indexed, cannot be found
-  }
-
-  const hex = vouts[0].script.hex
-  const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
-  const stack = toOPCodes(buffer)
-  if (stack.length !== 2 || stack[1].type !== 'OP_DEFI_TX') {
-    return undefined
-  }
-
-  const dftx = (stack[1] as OP_DEFI_TX).tx
-  if (dftx === undefined) {
-    return undefined
-  }
-
-  switch (dftx.name) {
-    case CPoolSwap.OP_NAME:
-      return (dftx.data as PoolSwap)
-
-    case CCompositeSwap.OP_NAME:
-      return (dftx.data as CompositeSwap).poolSwap
-
-    default:
-      return undefined
-  }
-}
-
-function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySubgraphSwapFromTo | undefined {
-  for (const amount of history.amounts) {
-    const [value, symbol] = amount.split('@')
-    const isNegative = value.startsWith('-')
-
-    if (isNegative && outgoing) {
-      return {
-        amount: new BigNumber(value).absoluteValue().toFixed(8),
-        symbol: symbol
-      }
-    }
-
-    if (!isNegative && !outgoing) {
-      return {
-        amount: new BigNumber(value).absoluteValue().toFixed(8),
-        symbol: symbol
-      }
-    }
-  }
-
-  return undefined
 }

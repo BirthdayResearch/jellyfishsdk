@@ -1,9 +1,13 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
 import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
+import { verifySwapsOrdering, verifySwapsShape } from '../providers/DexSwapQueue.e2e'
 
 const ONLY_DECIMAL_NUMBER_REGEX = /^[0-9]+(\.[0-9]+)?$/
 
-const apiTesting = LegacyApiTesting.create()
+const apiTesting = LegacyApiTesting.create({
+  mainnetBlockCacheCount: 100,
+  testnetBlockCacheCount: 10
+})
 
 beforeAll(async () => {
   await apiTesting.start()
@@ -217,7 +221,7 @@ it('/v1/listyieldfarming', async () => {
   })
 })
 
-describe('getsubgraphswaps', () => {
+describe('getsubgraphswaps - without waiting for inmemory indexer', () => {
   it('/v1/getsubgraphswaps', async () => {
     const res = await apiTesting.app.inject({
       method: 'GET',
@@ -230,6 +234,10 @@ describe('getsubgraphswaps', () => {
 
     for (const swap of response.data.swaps) {
       expect(swap).toStrictEqual({
+        block: {
+          hash: expect.any(String),
+          height: expect.any(Number)
+        },
         id: expect.stringMatching(/[a-zA-Z0-9]{64}/),
         timestamp: expect.stringMatching(/\d+/),
         from: {
@@ -262,12 +270,41 @@ describe('getsubgraphswaps', () => {
     expect(response.data.swaps.length).toStrictEqual(0)
   })
 
-  it('/v1/getsubgraphswaps?limit=101 - limited to 30', async () => {
+  it('/v1/getsubgraphswaps?limit=101 - limited to 30 when indexer is not ready', async () => {
     const res = await apiTesting.app.inject({
       method: 'GET',
       url: '/v1/getsubgraphswaps?limit=101'
     })
     const response = res.json()
     expect(response.data.swaps.length).toStrictEqual(30)
+  })
+})
+
+describe('getsubgraphswaps - relying on inmemory indexer', () => {
+  beforeAll(async () => {
+    // Given synchronised inmemory indexer
+    await apiTesting.waitForSyncToTip('mainnet')
+  })
+
+  it('/v1/getsubgraphswaps - should return relatively quickly', async () => {
+    // When getsubgraphswaps query is made
+    const msStart = Date.now()
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/v1/getsubgraphswaps?limit=50'
+    })
+    // Then response is returned relatively quickly: less than 100ms
+    const msElapsed = Date.now() - msStart
+    expect(msElapsed).toBeLessThanOrEqual(100)
+
+    // And number of swaps returned is correct
+    const response = res.json()
+    expect(response.data.swaps.length).toStrictEqual(50)
+
+    // And all swaps have correct shape
+    verifySwapsShape(response.data.swaps)
+
+    // And swaps are ordered by timestamp
+    verifySwapsOrdering(response.data.swaps, 'mainnet', 'desc')
   })
 })

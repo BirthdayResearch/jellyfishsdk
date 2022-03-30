@@ -1,18 +1,25 @@
-import { LegacyStubServer, RegisteredRoute } from './LegacyStubServer'
+import { LegacyStubServer, RegisteredRoute, TestOptions } from './LegacyStubServer'
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { InjectOptions, Response as LightMyRequestResponse } from 'light-my-request'
+import { SupportedNetwork } from '../src/pipes/NetworkValidationPipe'
+import { waitForCondition } from '@defichain/testcontainers'
+import { DexSwapQueue } from '../src/providers/index/DexSwapQueue'
 
 /**
  * LegacyApi Testing framework.
  */
 export class LegacyApiTesting {
   constructor (
-    private readonly stubServer: LegacyStubServer = new LegacyStubServer()
+    private readonly testOptions: TestOptions,
+    private readonly stubServer: LegacyStubServer = new LegacyStubServer(testOptions)
   ) {
   }
 
-  static create (): LegacyApiTesting {
-    return new LegacyApiTesting()
+  static create (testOptions?: TestOptions): LegacyApiTesting {
+    return new LegacyApiTesting(testOptions ?? {
+      mainnetBlockCacheCount: 30,
+      testnetBlockCacheCount: 30
+    })
   }
 
   get app (): NestFastifyApplication {
@@ -54,5 +61,15 @@ export class LegacyApiTesting {
 
   getAllRoutes (): RegisteredRoute[] {
     return this.stubServer.getAllRoutes()
+  }
+
+  /**
+   * Helper to wait for swap queue to fully synchronise
+   * @param network
+   */
+  async waitForSyncToTip (network: SupportedNetwork): Promise<void> {
+    // Wait for dex swap queue to be ready
+    const dexSwapQueue: DexSwapQueue = this.app.get(`DexSwapQueue-${network}`)
+    await waitForCondition(async () => dexSwapQueue.isReady, 180_000)
   }
 }

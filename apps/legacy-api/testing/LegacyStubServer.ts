@@ -10,12 +10,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 export class LegacyStubServer extends LegacyApiServer {
   private readonly allRoutes: RegisteredRoute[] = []
 
+  constructor (readonly testOptions: TestOptions) {
+    super()
+  }
+
   async create (): Promise<NestFastifyApplication> {
     const module = await Test.createTestingModule({
       imports: [
         RootModule,
         ConfigModule.forFeature(() => {
-          return {}
+          return {
+            'BLOCK_CACHE_COUNT-mainnet': this.testOptions.mainnetBlockCacheCount,
+            'BLOCK_CACHE_COUNT-testnet': this.testOptions.testnetBlockCacheCount
+          }
         })
       ]
     }).compile()
@@ -57,4 +64,9 @@ export interface RegisteredRoute {
   path: string // `url` alias
   routePath: string // the URL of the route without the prefix
   prefix: string
+}
+
+export interface TestOptions {
+  mainnetBlockCacheCount: number
+  testnetBlockCacheCount: number
 }
