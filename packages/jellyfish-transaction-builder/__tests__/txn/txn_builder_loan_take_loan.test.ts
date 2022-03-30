@@ -618,7 +618,7 @@ describe('loans.takeLoan failed', () => {
 
     const promise = sendTransaction(bob.container, txn)
     await expect(promise).rejects.toThrow(DeFiDRpcError)
-    await expect(promise).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI when taking a loan.')
+    await expect(promise).rejects.toThrow('At least 50% of the minimum required collateral must be in DFI or DUSD when taking a loan.')
 
     {
       // revert DFI value changes
