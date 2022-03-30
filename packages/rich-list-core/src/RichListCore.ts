@@ -25,7 +25,6 @@ export class RichListCore {
     private readonly whaleApiClient: WhaleApiClient,
     readonly addressBalances: SingleIndexDb<AddressBalance>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
-    private readonly droppedFromRichList: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
   ) {
     this.addressParser = new AddressParser(whaleRpcClient, network)
@@ -106,21 +105,19 @@ export class RichListCore {
   }
 
   private async invalidate (block: Schema<CrawledBlock>): Promise<void> {
-    const tokenIds = await this.listTokenIds()
     // delete for this block height
     await this.crawledBlockHashes.delete(block.id)
-    for (const tokenId of tokenIds) {
-      await this.invalidateDroppedOutRichList(`${tokenId}`, block.data.height)
-    }
 
     // find dropped out addresses to check their balance again
     if (block.data.height !== 0) {
-      for (const tokenId of tokenIds) {
-        const addresses = await this.getDroppedOutRichList(`${tokenId}`, block.data.height - 1)
-        const queue = await this.addressQueue()
-        for (const a of addresses) {
-          await queue.push(a.data)
-        }
+      const queue = await this.addressQueue()
+      const defidBlock = await this.getBlock(block.data.height)
+      if (defidBlock === undefined) {
+        return
+      }
+      const addresses = await this.getAddresses(defidBlock)
+      for (const a of addresses) {
+        await queue.push(a)
       }
     }
   }
@@ -206,23 +203,6 @@ export class RichListCore {
       limit: 1
     })
     return lastBlock
-  }
-
-  private async invalidateDroppedOutRichList (tokenId: string, height: number): Promise<void> {
-    const lastBlockRichList = await this.getDroppedOutRichList(tokenId, height)
-    await Promise.all(
-      lastBlockRichList.map(async rl => await this.droppedFromRichList.delete(rl.id))
-    )
-  }
-
-  private async getDroppedOutRichList (tokenId: string, height: number): Promise<Array<Schema<string>>> {
-    return await this.droppedFromRichList.list({
-      limit: Number.MAX_SAFE_INTEGER,
-      partition: tokenId,
-      order: 'DESC',
-      gt: height - 1,
-      lt: height + 1
-    })
   }
 
   private async listTokenIds (): Promise<number[]> {

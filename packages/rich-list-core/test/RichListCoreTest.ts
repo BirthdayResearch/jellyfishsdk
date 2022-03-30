@@ -11,7 +11,6 @@ export function RichListCoreTest (apiClient: JsonRpcClient): RichListCore {
     new StubbedWhaleApiClient(),
     new InMemoryDatabase<AddressBalance>(),
     new InMemoryDatabase<CrawledBlock>(),
-    new InMemoryDatabase<string>(),
     new InMemoryQueueClient()
   )
 }
