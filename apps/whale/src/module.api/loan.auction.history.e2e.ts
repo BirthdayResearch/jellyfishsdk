@@ -5,7 +5,7 @@ import { LoanController } from '../module.api/loan.controller'
 import { TestingGroup, Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { VaultLiquidation } from '@defichain/jellyfish-api-core/src/category/loan'
+import { VaultLiquidation } from '@defichain/jellyfish-api-core/dist/category/loan'
 import { HexEncoder } from '../module.model/_hex.encoder'
 
 let app: NestFastifyApplication

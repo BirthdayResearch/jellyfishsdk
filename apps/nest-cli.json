@@ -2,6 +2,7 @@
   "collection": "@nestjs/schematics",
   "monorepo": true,
   "compilerOptions": {
+    "webpack": false,
     "tsConfigPath": "tsconfig.json"
   },
   "projects": {
@@ -32,7 +33,7 @@
     "whale": {
       "type": "application",
       "root": "whale",
-      "entryFile": "apps/whale/src/main",
+      "entryFile": "apps/whale/src/index",
       "sourceRoot": "whale/src"
     },
     "actuator": {

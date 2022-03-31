@@ -1,17 +1,6 @@
-# for POC purpose and illustrate requisites, should use test container via dockerode for test case
-version: '3.1'
+version: '3.7'
 
 services:
-  db:
-    image: postgres
-    restart: always
-    ports:
-      - '5432:5432'
-    environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_DB: defichainrichlist
-
   defi-blockchain:
     image: defi/defichain:2.6.0
     ports:
@@ -21,10 +10,11 @@ services:
       -printtoconsole
       -rpcallowip=0.0.0.0/0
       -rpcbind=0.0.0.0
-      -rpcuser=api-test
-      -rpcpassword=api-test
+      -rpcuser=whale-rpcuser
+      -rpcpassword=whale-rpcpassword
       -rpcworkqueue=512
       -masternode_operator=mswsMVsyGMj1FzDMbbxw2QW3KvQAv2FKiy
+      -disablewallet=1
       -regtest=1
       -jellyfish_regtest=1
       -txnotokens=0
@@ -42,4 +32,17 @@ services:
       -fortcanningheight=8
       -fortcanningmuseumheight=9
       -fortcanninghillheight=10
-      -fortcanningroadheight=11
+
+  defi-whale:
+    build:
+      context: ../..
+      args:
+        APP: whale
+    ports:
+      - "3000:3000"
+    depends_on:
+      - defi-blockchain
+    environment:
+      WHALE_DEFID_URL: http://whale-rpcuser:whale-rpcpassword@defi-blockchain:19554
+      WHALE_NETWORK: regtest
+      WHALE_DATABASE_PROVIDER: memory
