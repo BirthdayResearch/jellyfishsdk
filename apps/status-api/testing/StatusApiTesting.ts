@@ -29,9 +29,7 @@ export class StatusApiTesting {
   /**
    * Start connected services for testing.
    *
-   * @see TestingGroup
-   * @see Testing
-   * @see LegacyStubServer
+   * @see StatusStubServer
    */
   async start (): Promise<void> {
     await this.stubServer.start()
