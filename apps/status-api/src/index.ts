@@ -10,15 +10,6 @@ export class StatusApiServer extends RootServer {
     const adapter = new FastifyAdapter({ logger: true })
     return await NestFactory.create<NestFastifyApplication>(RootModule, adapter)
   }
-
-  async configure (app: NestFastifyApplication): Promise<void> {
-    app.enableCors({
-      origin: '*',
-      methods: ['GET'],
-      allowedHeaders: ['Content-Type'],
-      maxAge: 60 * 24 * 7
-    })
-  }
 }
 
 /**
