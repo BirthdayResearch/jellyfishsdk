@@ -608,6 +608,40 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     await alice.rpc.account.accountToAccount(tokenProviderVaultAddress, { [aliceAddr]: '10000@DUSD' })
   }
 
+  it('should withdrawFromVault - If there is no loan, everything can be withdrawn', async () => {
+    const destinationAddress = await alice.generateAddress()
+    const accountBalancesBefore = await alice.rpc.account.getAccount(destinationAddress)
+    expect(accountBalancesBefore.length).toStrictEqual(0)
+
+    // remove dfi collateral, new total collateral = 10000 USD
+    await bob.rpc.loan.withdrawFromVault({
+      vaultId: bobVaultId, to: destinationAddress, amount: '5000@DFI'
+    })
+    await bob.generate(1)
+
+    // remove dusd collateral, new total collateral = 5000 USD
+    await bob.rpc.loan.withdrawFromVault({
+      vaultId: bobVaultId, to: destinationAddress, amount: '5000@DUSD'
+    })
+    await bob.generate(1)
+
+    // remove btc collateral, new total collateral = 0 USD
+    await bob.rpc.loan.withdrawFromVault({
+      vaultId: bobVaultId, to: destinationAddress, amount: '1@BTC'
+    })
+    await bob.generate(1)
+
+    await tGroup.waitForSync()
+
+    const accountBalancesAfter = await alice.rpc.account.getAccount(destinationAddress)
+    expect(accountBalancesAfter.length).toStrictEqual(3)
+    expect(accountBalancesAfter).toStrictEqual(['5000.00000000@DFI', '5000.00000000@DUSD', '1.00000000@BTC'])
+
+    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    expect(vaultAfter.collateralAmounts).toStrictEqual([])
+    expect(vaultAfter.collateralValue).toStrictEqual(new BigNumber(0))
+  })
+
   it('should withdrawFromVault with 50% DUSD collateral', async () => {
     // must wait until block count reaches fort canning road height
     const blockCount = await bob.container.getBlockCount()

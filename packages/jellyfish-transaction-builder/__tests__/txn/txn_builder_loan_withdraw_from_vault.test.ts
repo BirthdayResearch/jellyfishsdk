@@ -396,9 +396,9 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
 
     await setup()
 
-    // Fund 40000 DFI UTXO to providers.getAddress() for funds
-    await fundEllipticPair(alice.container, providers.ellipticPair, 40000)
-    await fundEllipticPair(bob.container, providers.ellipticPair, 40000)
+    // Fund 10 DFI UTXO to providers.getAddress() for funds
+    await fundEllipticPair(alice.container, providers.ellipticPair, 10)
+    await fundEllipticPair(bob.container, providers.ellipticPair, 10)
   })
 
   afterEach(async () => {
@@ -563,6 +563,60 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     await alice.rpc.account.accountToAccount(tokenProviderVaultAddress, { [aliceAddr]: '10000@DUSD' })
   }
 
+  it('should withdrawFromVault - If there is no loan, everything can be withdrawn', async () => {
+    const destinationAddress = await alice.generateAddress()
+    const accountBalancesBefore = await alice.rpc.account.getAccount(destinationAddress)
+    expect(accountBalancesBefore.length).toStrictEqual(0)
+
+    // remove dfi collateral, new total collateral = 10000 USD
+    const decoded = fromAddress(destinationAddress, 'regtest')
+    const script = decoded?.script as Script
+    let txn = await builder.loans.withdrawFromVault({
+      vaultId: bobVaultId,
+      to: script,
+      tokenAmount: { token: 0, amount: new BigNumber(5000) }
+    }, bobVaultScript)
+    let outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(20)
+    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
+
+    // remove dusd collateral, new total collateral = 5000 USD
+    txn = await builder.loans.withdrawFromVault({
+      vaultId: bobVaultId,
+      to: script,
+      tokenAmount: { token: 1, amount: new BigNumber(5000) }
+    }, bobVaultScript)
+    outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(20)
+    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
+
+    // remove btc collateral, new total collateral = 0 USD
+    txn = await builder.loans.withdrawFromVault({
+      vaultId: bobVaultId,
+      to: script,
+      tokenAmount: { token: 2, amount: new BigNumber(1) }
+    }, bobVaultScript)
+    outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(20)
+    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
+
+    await tGroup.waitForSync()
+
+    const accountBalancesAfter = await alice.rpc.account.getAccount(destinationAddress)
+    expect(accountBalancesAfter.length).toStrictEqual(3)
+    expect(accountBalancesAfter).toStrictEqual(['5000.00000000@DFI', '5000.00000000@DUSD', '1.00000000@BTC'])
+
+    const vaultAfter = await bob.rpc.loan.getVault(bobVaultId) as VaultActive
+    expect(vaultAfter.collateralAmounts).toStrictEqual([])
+    expect(vaultAfter.collateralValue).toStrictEqual(new BigNumber(0))
+  })
+
   it('should withdrawFromVault with 50% DUSD collateral', async () => {
     // must wait until block count reaches fort canning road height
     const blockCount = await bob.container.getBlockCount()
@@ -586,7 +640,11 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
       to: script,
       tokenAmount: { token: 0, amount: new BigNumber(5000) }
     }, bobVaultScript)
-    await sendTransaction(bob.container, txn)
+    const outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     await bob.generate(1)
     await tGroup.waitForSync()
@@ -629,7 +687,11 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
       to: script,
       tokenAmount: { token: 0, amount: new BigNumber(5000) }
     }, bobVaultScript)
-    await sendTransaction(bob.container, txn)
+    const outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     await bob.generate(1)
     await tGroup.waitForSync()
@@ -667,7 +729,11 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
       to: script,
       tokenAmount: { token: 0, amount: new BigNumber(2500) }
     }, bobVaultScript)
-    await sendTransaction(bob.container, txn)
+    let outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(10)
+    expect(outs[1].value).toBeGreaterThan(9.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     // remove dusd collateral, new total collateral = 10000 USD
     decoded = fromAddress(destinationAddress, 'regtest')
@@ -677,7 +743,11 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
       to: script,
       tokenAmount: { token: 1, amount: new BigNumber(2499) }
     }, bobVaultScript)
-    await sendTransaction(bob.container, txn)
+    outs = await sendTransaction(bob.container, txn)
+    expect(outs[0].value).toStrictEqual(0)
+    expect(outs[1].value).toBeLessThan(20)
+    expect(outs[1].value).toBeGreaterThan(19.999)
+    expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
     await bob.generate(1)
     await tGroup.waitForSync()

@@ -811,6 +811,7 @@ describe('takeloan failed', () => {
 
 describe('takeLoan with 50% DUSD or DFI collaterals', () => {
   const fortCanningRoadHeight = 128
+
   beforeEach(async () => {
     const startFlags: StartFlags[] = [{ name: 'fortcanningroadheight', value: fortCanningRoadHeight }]
     await tGroup.start({ startFlags: startFlags })
@@ -881,15 +882,15 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
       fixedIntervalPriceId: 'BTC/USD'
     })
     await alice.generate(1)
+    await tGroup.waitForSync()
 
     // loan scheme set up
-    await alice.rpc.loan.createLoanScheme({
+    await bob.rpc.loan.createLoanScheme({
       minColRatio: 200,
       interestRate: new BigNumber(3),
       id: 'scheme'
     })
-    await alice.generate(1)
-    await tGroup.waitForSync()
+    await bob.generate(1)
 
     bobVaultAddr = await bob.generateAddress()
     bobVaultId = await bob.rpc.loan.createVault({
@@ -986,6 +987,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     await bob.generate(fortCanningRoadHeight - blockCount)
 
     const tslaLoanAmount = 2500 // loan amount = 5000 USD
+    const tslaLoanHeight = await bob.container.getBlockCount()
     const txid = await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
@@ -993,14 +995,13 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(typeof txid).toStrictEqual('string')
     await bob.generate(1)
 
-    const tslaLoanHeight = await bob.container.getBlockCount()
     const interests = await bob.rpc.loan.getInterest('scheme')
 
     // manually calculate interest to compare rpc getInterest above is working correctly
     const height = await bob.container.getBlockCount()
     const tslaInterestPerBlock = new BigNumber((netInterest * tslaLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
     expect(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].interestPerBlock.toFixed(8))
-    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight + 1))
+    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight))
     expect(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].totalInterest.toFixed(8))
 
     const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
@@ -1045,6 +1046,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     await bob.generate(fortCanningRoadHeight - blockCount)
 
     const tslaLoanAmount = 2500 // loan amount = 5000 USD
+    const tslaLoanHeight = await bob.container.getBlockCount()
     const txid = await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
@@ -1052,14 +1054,13 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(typeof txid).toStrictEqual('string')
     await bob.generate(1)
 
-    const tslaLoanHeight = await bob.container.getBlockCount()
     const interests = await bob.rpc.loan.getInterest('scheme')
 
     // manually calculate interest to compare rpc getInterest above is working correctly
     const height = await bob.container.getBlockCount()
     const tslaInterestPerBlock = new BigNumber((netInterest * tslaLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
     expect(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].interestPerBlock.toFixed(8))
-    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight + 1))
+    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight))
     expect(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].totalInterest.toFixed(8))
 
     const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
@@ -1102,6 +1103,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     await bob.generate(fortCanningRoadHeight - blockCount)
 
     const tslaLoanAmount = 1250 // loan amount = 2500 USD
+    const tslaLoanHeight = await bob.container.getBlockCount()
     const txid = await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
@@ -1109,14 +1111,13 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(typeof txid).toStrictEqual('string')
     await bob.generate(1)
 
-    const tslaLoanHeight = await bob.container.getBlockCount()
     const interests = await bob.rpc.loan.getInterest('scheme')
 
     // manually calculate interest to compare rpc getInterest above is working correctly
     const height = await bob.container.getBlockCount()
     const tslaInterestPerBlock = new BigNumber((netInterest * tslaLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
     expect(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].interestPerBlock.toFixed(8))
-    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight + 1))
+    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight))
     expect(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].totalInterest.toFixed(8))
 
     const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
@@ -1156,6 +1157,7 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     await bob.generate(fortCanningRoadHeight - blockCount)
 
     const tslaLoanAmount = 5000 // loan amount = 10000 USD
+    const tslaLoanHeight = await bob.container.getBlockCount()
     const txid = await bob.rpc.loan.takeLoan({
       vaultId: bobVaultId,
       amounts: `${tslaLoanAmount}@TSLA`
@@ -1163,14 +1165,13 @@ describe('takeLoan with 50% DUSD or DFI collaterals', () => {
     expect(typeof txid).toStrictEqual('string')
     await bob.generate(1)
 
-    const tslaLoanHeight = await bob.container.getBlockCount()
     const interests = await bob.rpc.loan.getInterest('scheme')
 
     // manually calculate interest to compare rpc getInterest above is working correctly
     const height = await bob.container.getBlockCount()
     const tslaInterestPerBlock = new BigNumber((netInterest * tslaLoanAmount) / (365 * blocksPerDay)) //  netInterest * loanAmt / 365 * blocksPerDay
     expect(tslaInterestPerBlock.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].interestPerBlock.toFixed(8))
-    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight + 1))
+    const tslaInterestTotal = tslaInterestPerBlock.multipliedBy(new BigNumber(height - tslaLoanHeight))
     expect(tslaInterestTotal.toFixed(8, BigNumber.ROUND_CEIL)).toStrictEqual(interests[0].totalInterest.toFixed(8))
 
     const tslaLoanAmountAfter = new BigNumber(tslaLoanAmount).plus(tslaInterestTotal).decimalPlaces(8, BigNumber.ROUND_CEIL)
