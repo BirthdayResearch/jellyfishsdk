@@ -38,9 +38,7 @@ export class StatusApiTesting {
   /**
    * Stop all connected services.
    *
-   * @see TestingGroup
-   * @see Testing
-   * @see LegacyStubServer
+   * @see StatusStubServer
    */
   async stop (): Promise<void> {
     try {
