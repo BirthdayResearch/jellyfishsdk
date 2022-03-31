@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  APPS: 'legacy-api,ocean-api,playground-api'
+  APPS: 'legacy-api,ocean-api,playground-api,status-api'
 
 jobs:
   build:
