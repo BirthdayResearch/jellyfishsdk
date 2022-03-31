@@ -3,8 +3,8 @@ import { DexSwapQueue, LegacySubgraphSwap } from '../../src/providers/index/DexS
 import { SupportedNetwork } from '../../src/pipes/NetworkValidationPipe'
 
 const apiTesting = LegacyApiTesting.create({
-  mainnetBlockCacheCount: 200,
-  testnetBlockCacheCount: 20
+  mainnetBlockCacheCount: 100,
+  testnetBlockCacheCount: 10
 })
 let dexSwapQueueMainnet: DexSwapQueue
 let dexSwapQueueTestnet: DexSwapQueue

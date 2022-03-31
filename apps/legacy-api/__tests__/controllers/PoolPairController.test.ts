@@ -1,6 +1,6 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
 import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
-import { verifySwapsOrdering, verifySwapsShape } from '../providers/DexSwapQueue.e2e'
+import { verifySwapsOrdering, verifySwapsShape } from '../providers/DexSwapQueue.test'
 
 const ONLY_DECIMAL_NUMBER_REGEX = /^[0-9]+(\.[0-9]+)?$/
 
