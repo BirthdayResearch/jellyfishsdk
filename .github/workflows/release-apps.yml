@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [ legacy-api, ocean-api, playground-api ]
+        app: [ legacy-api, ocean-api, playground-api, status-api ]
     steps:
       - uses: actions/checkout@230611dbd0eb52da1e1f4f7bc8bb0c3a339fc8b7
 
