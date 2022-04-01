@@ -25,6 +25,7 @@ export class RichListCore {
     private readonly whaleApiClient: WhaleApiClient,
     readonly addressBalances: SingleIndexDb<AddressBalance>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
+    private readonly crawledBlockAddresses: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
   ) {
     this.addressParser = new AddressParser(whaleRpcClient, network)
@@ -70,6 +71,13 @@ export class RichListCore {
       const _addresses = await this.getAddresses(nextBlock)
       for (const a of _addresses) {
         await queue.push(a)
+
+        await this.crawledBlockAddresses.put({
+          partition: `${nextBlock.height}`,
+          sort: nextBlock.height,
+          id: `${nextBlock.height}-${a}`,
+          data: a
+        })
       }
 
       await this.crawledBlockHashes.put({
@@ -110,14 +118,11 @@ export class RichListCore {
 
     // find dropped out addresses to check their balance again
     if (block.data.height !== 0) {
+      const addresses = await this.getCrawledBlockAddresses(block.data.height)
       const queue = await this.addressQueue()
-      const defidBlock = await this.getBlock(block.data.height)
-      if (defidBlock === undefined) {
-        return
-      }
-      const addresses = await this.getAddresses(defidBlock)
       for (const a of addresses) {
-        await queue.push(a)
+        await queue.push(a.data)
+        await this.crawledBlockAddresses.delete(a.id)
       }
     }
   }
@@ -191,7 +196,7 @@ export class RichListCore {
   private appendZeroBalances (tokenBalances: AccountAmount, tokens: number[]): AccountAmount {
     const result: AccountAmount = {}
     for (const t of tokens) {
-      result[t] = tokenBalances[t] ?? new BigNumber(0)
+      result[t] = tokenBalances[t] !== undefined ? new BigNumber(tokenBalances[t]) : new BigNumber(0)
     }
     return result
   }
@@ -203,6 +208,14 @@ export class RichListCore {
       limit: 1
     })
     return lastBlock
+  }
+
+  private async getCrawledBlockAddresses (height: number): Promise<Array<Schema<string>>> {
+    return await this.crawledBlockAddresses.list({
+      limit: Number.MAX_SAFE_INTEGER,
+      partition: `${height}`,
+      order: 'DESC'
+    })
   }
 
   private async listTokenIds (): Promise<number[]> {
