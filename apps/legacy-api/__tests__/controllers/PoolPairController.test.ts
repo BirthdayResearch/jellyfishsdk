@@ -298,93 +298,26 @@ describe('getsubgraphswaps', () => {
     expect(response.data.swaps.length).toStrictEqual(100)
   })
 
-  it('should paginate correctly', async () => {
-    const swap1 = {
-      id: '034cbe632cd15bd186d1977f6bb2cf122e61020d5527870ce6d6c80526fb6c5a',
-      timestamp: '1648795499',
-      from: { amount: '417.15100000', symbol: 'USDT' },
-      to: { amount: '417.34346336', symbol: 'DUSD' }
-    }
-    const swap2 = {
-      id: '83f1b597cdb9777d7a98c51e945453b706fbd2e24a7be8cd36f56d7e83a69664',
-      timestamp: '1648795390',
-      from: { amount: '11.56907797', symbol: 'DFI' },
-      to: { amount: '0.25767674', symbol: 'AAPL' }
-    }
-    const swap3 = {
-      id: 'd2122646688c01dc03814dc8ae46cf05d3d07df6acadeb153c32d317aedc6000',
-      timestamp: '1648795366',
-      from: { amount: '6225.00000000', symbol: 'DUSD' },
-      to: { amount: '14.91801818', symbol: 'NFLX' }
-    }
+  it('should paginate', async () => {
+    const [swap1And2, swap1]: any = await Promise.all([
+      apiTesting.app.inject({
+        method: 'GET',
+        url: `/v1/getsubgraphswaps?limit=2&next=${encodeBase64({ height: '1757996', order: '0' })}`
+      }).then(res => res.json()),
 
-    // When endpoint is queried with pagination token starting from block 1757725 tx 0
-    const swapsResponseAll = (await apiTesting.app.inject({
+      apiTesting.app.inject({
+        method: 'GET',
+        url: `/v1/getsubgraphswaps?limit=1&next=${encodeBase64({ height: '1757996', order: '0' })}`
+      }).then(res => res.json())
+    ])
+
+    const swap2 = (await apiTesting.app.inject({
       method: 'GET',
-      url: `/v1/getsubgraphswaps?limit=3&next=${encodeBase64({ height: '1757725', order: '0' })}`
+      url: `/v1/getsubgraphswaps?limit=1&next=${swap1.page.next as string}`
     })).json()
 
-    // Then swaps are returned from the correct page, starting from BEFORE swap1
-    expect(swapsResponseAll).toStrictEqual({
-      data: {
-        swaps: [swap1, swap2, swap3]
-      },
-      page: {
-        next: encodeBase64({
-          height: '1757722',
-          order: '5',
-          index: '1'
-        })
-      }
-    })
-
-    // When endpoint is queried with pagination token starting BEFORE swap1
-    const swapsResponse1 = (await apiTesting.app.inject({
-      method: 'GET',
-      url: `/v1/getsubgraphswaps?limit=1&next=${encodeBase64({ height: '1757725', order: '0' })}`
-    })).json()
-    // Then swap1 is returned
-    expect(swapsResponse1).toStrictEqual({
-      data: {
-        swaps: [swap1]
-      },
-      page: {
-        next: encodeBase64({
-          height: '1757724',
-          order: '0',
-          index: '0'
-        })
-      }
-    })
-
-    // When endpoint is queried with pagination token from previous response (start from swap1)
-    const swapsResponse2 = (await apiTesting.app.inject({
-      method: 'GET',
-      url: `/v1/getsubgraphswaps?limit=1&next=${swapsResponse1.page.next as string}`
-    })).json()
-
-    // Then swap2 is returned
-    expect(swapsResponse2).toStrictEqual({
-      data: {
-        swaps: [swap2]
-      },
-      page: {
-        next: encodeBase64({
-          height: '1757722',
-          order: '0',
-          index: '0'
-        })
-      }
-    })
-
-    // When endpoint is queried with pagination token from previous response (start from swap2)
-    const swapsResponse3 = (await apiTesting.app.inject({
-      method: 'GET',
-      url: `/v1/getsubgraphswaps?limit=1&next=${swapsResponse2.page.next as string}`
-    })).json()
-
-    // Then swap3 is returned
-    expect(swapsResponse3.data.swaps[0]).toStrictEqual(swap3)
+    expect(swap1.data.swaps[0]).toStrictEqual(swap1And2.data.swaps[0])
+    expect(swap2.data.swaps[0]).toStrictEqual(swap1And2.data.swaps[1])
   })
 })
 
@@ -451,7 +384,7 @@ export function verifySwapsOrdering (
   network: SupportedNetwork,
   order: 'asc' | 'desc' = 'asc'
 ): void {
-// Since testsuite relies on mainnet / testnet, skip if fewer than 2 swaps
+  // Since testsuite relies on mainnet / testnet, skip if fewer than 2 swaps
   if (swaps.length < 2) {
     console.warn(`No ${network} swaps found for this test run`)
     return

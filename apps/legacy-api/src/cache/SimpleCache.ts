@@ -16,10 +16,10 @@ export class SimpleCache {
    * Get from cache, providing a fetch interface if cache miss.
    *
    * @param {string} key to get from cache
-   * @param {(id: string) => Promise<T | NO_VALUE>} fetch if miss cache
+   * @param {(id: string) => Promise<T | null>} fetch if miss cache
    * @param {GlobalCache} options
    * @param {number} [options.ttl=600] cache ttl, 600 seconds
-   * @return {Promise<T | NO_VALUE>}
+   * @return {Promise<T | null>}
    */
   async get<T> (
     key: string,
@@ -38,9 +38,3 @@ export class SimpleCache {
     return fetched
   }
 }
-
-/**
- * Allows null values to be cached, to indicate that the given look-up key has no value
- * This is different from `undefined` which indicates a cache miss
- */
-export const NO_VALUE = null
