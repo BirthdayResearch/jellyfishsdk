@@ -479,7 +479,7 @@ interface account {
 interface FutureSwap {
   address: string
   amount: string
-  destination: number
+  destination: string
 }
 
 interface UTXO {
@@ -500,7 +500,7 @@ interface account {
 interface FutureSwap {
   address: string
   amount: string
-  destination: number
+  destination: string
 }
 
 interface UTXO {
@@ -541,35 +541,6 @@ interface GetFutureInfo {
 
 interface FutureInfo {
   owner: string
-  source: string
-  destination: string
-}
-```
-
-## listFutureSwapHistory
-
-Returns information about future swap history.
-
-```ts title="client.account.listFutureSwapHistory()"
-interface account {
-  listFutureSwapHistory (owner: OwnerType | string = OwnerType.MINE, options: ListFutureHistoryOptions): Promise<FutureHistory[]>
-}
-
-enum OwnerType {
-  MINE = 'mine',
-  ALL = 'all'
-}
-
-interface ListFutureHistoryOptions {
-  maxBlockHeight: number
-  depth: number
-  token: string
-  limit: number
-}
-
-interface FutureHistory {
-  height: number
-  address: string
   source: string
   destination: string
 }

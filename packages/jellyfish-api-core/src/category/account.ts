@@ -395,7 +395,7 @@ export class Account {
    * @param {FutureSwap} future
    * @param {string} future.address Address to fund contract and receive resulting token
    * @param {string} future.amount Amount to send in amount@token format
-   * @param {number} [future.destination] Expected dToken if DUSD supplied
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} options.utxos.txid
    * @param {number} options.utxos.vout
@@ -411,7 +411,7 @@ export class Account {
    * @param {FutureSwap} future
    * @param {string} future.address Address to fund contract and receive resulting token
    * @param {string} future.amount Amount to send in amount@token format
-   * @param {number} [future.destination] Expected dToken if DUSD supplied
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
    * @param {UTXO[]} [options.utxos = []]
    * @param {string} options.utxos.txid
    * @param {number} options.utxos.vout
@@ -437,21 +437,6 @@ export class Account {
    */
   async getPendingFutureSwaps (): Promise<GetFutureInfo> {
     return await this.client.call('getpendingfutureswaps', [], 'number')
-  }
-
-  /**
-   * Returns information about future swap history.
-   *
-   * @param {OwnerType | string} [owner=OwnerType.MINE] single account ID (CScript or address) or reserved words 'mine' to list history for all owned accounts or 'all' to list whole DB
-   * @param {ListFutureHistoryOptions} [options]
-   * @param {number} [options.maxBlockHeight] Optional height to iterate from (downto genesis block), (default = chaintip).
-   * @param {number} [options.depth] Maximum depth, from the genesis block is the default
-   * @param {string} [options.token] Filter by token
-   * @param {number} [options.limit=100] Maximum number of records to return, 100 by default
-   * @return {Promise<FutureHistory[]>}
-   */
-  async listFutureSwapHistory (owner: OwnerType | string = OwnerType.MINE, options: ListFutureHistoryOptions): Promise<FutureHistory[]> {
-    return await this.client.call('listfutureswaphistory', [], 'number')
   }
 }
 
@@ -621,7 +606,7 @@ export interface BurnInfo {
 export interface FutureSwap {
   address: string
   amount: string
-  destination: number
+  destination: string
 }
 
 export interface FutureInfo {
