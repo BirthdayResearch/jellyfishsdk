@@ -165,7 +165,9 @@ describe('stats', () => {
       emissionburn: expect.any(Number),
       feeburn: expect.any(Number),
       paybackburn: 0,
-      tokens: []
+      tokens: [],
+      paybackfees: [],
+      paybacktokens: []
     })
   })
 })
