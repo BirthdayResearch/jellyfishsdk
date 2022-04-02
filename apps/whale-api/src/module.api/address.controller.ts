@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { ConflictException, Controller, ForbiddenException, Get, Inject, Param, Query } from '@nestjs/common'
+import { BadRequestException, ConflictException, Controller, ForbiddenException, Get, Inject, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { ApiPagedResponse } from '@src/module.api/_core/api.paged.response'
 import { DeFiDCache } from '@src/module.api/cache/defid.cache'
@@ -29,6 +29,26 @@ export class AddressController {
     protected readonly vaultService: LoanVaultService,
     @Inject('NETWORK') protected readonly network: NetworkName
   ) {
+  }
+
+  @Get('/history/:height/:txno')
+  async getAccountHistory (
+    @Param('address') address: string,
+      @Param('height', ParseIntPipe) height: number,
+      @Param('txno', ParseIntPipe) txno: number
+  ): Promise<AddressHistory> {
+    try {
+      const accountHistory = await this.rpcClient.account.getAccountHistory(address, height, txno)
+      if (Object.keys(accountHistory).length === 0) {
+        throw new NotFoundException('Record not found')
+      }
+      return mapAddressHistory(accountHistory)
+    } catch (err) {
+      if (err instanceof NotFoundException) {
+        throw err
+      }
+      throw new BadRequestException(err)
+    }
   }
 
   /**
@@ -81,7 +101,7 @@ export class AddressController {
       })
     }
 
-    const history = mapAddressHistory(list)
+    const history = list.map(each => mapAddressHistory(each))
 
     return ApiPagedResponse.of(history, query.size, item => {
       return `${item.txid}-${item.type}-${item.block.height}`
@@ -195,19 +215,17 @@ function mapAddressToken (id: string, tokenInfo: TokenInfo, value: BigNumber): A
   }
 }
 
-function mapAddressHistory (list: AccountHistory[]): AddressHistory[] {
-  return list.map(each => {
-    return {
-      owner: each.owner,
-      txid: each.txid,
-      txn: each.txn,
-      type: each.type,
-      amounts: each.amounts,
-      block: {
-        height: each.blockHeight,
-        hash: each.blockHash,
-        time: each.blockTime
-      }
+function mapAddressHistory (history: AccountHistory): AddressHistory {
+  return {
+    owner: history.owner,
+    txid: history.txid,
+    txn: history.txn,
+    type: history.type,
+    amounts: history.amounts,
+    block: {
+      height: history.blockHeight,
+      hash: history.blockHash,
+      time: history.blockTime
     }
-  })
+  }
 }

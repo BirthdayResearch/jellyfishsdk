@@ -8,6 +8,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
+import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -206,6 +207,157 @@ describe('listAccountHistory', () => {
     expect(forth.data[0]).toStrictEqual(full.data[9])
     expect(forth.data[1]).toStrictEqual(full.data[10])
     expect(forth.data[2]).toStrictEqual(full.data[11])
+  })
+})
+
+describe('getAccount', () => {
+  beforeAll(async () => {
+    await container.start()
+    await container.waitForWalletCoinbaseMaturity()
+
+    colAddr = await testing.generateAddress()
+    usdcAddr = await testing.generateAddress()
+    poolAddr = await testing.generateAddress()
+    emptyAddr = await testing.generateAddress()
+
+    await testing.token.dfi({ address: colAddr, amount: 20000 })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'USDC', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.mint({ symbol: 'USDC', amount: 10000 })
+    await testing.generate(1)
+
+    await testing.rpc.account.accountToAccount(colAddr, { [usdcAddr]: '10000@USDC' })
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.createPoolPair({
+      tokenA: 'DFI',
+      tokenB: 'USDC',
+      commission: 0,
+      status: true,
+      ownerAddress: poolAddr
+    })
+    await testing.generate(1)
+
+    const poolPairsKeys = Object.keys(await testing.rpc.poolpair.listPoolPairs())
+    expect(poolPairsKeys.length).toStrictEqual(1)
+    dfiUsdc = poolPairsKeys[0]
+
+    // set LP_SPLIT, make LM gain rewards, MANDATORY
+    // ensure `no_rewards` flag turned on
+    // ensure do not get response without txid
+    await testing.container.call('setgov', [{ LP_SPLITS: { [dfiUsdc]: 1.0 } }])
+    await container.generate(1)
+
+    await testing.rpc.poolpair.addPoolLiquidity({
+      [colAddr]: '5000@DFI',
+      [usdcAddr]: '5000@USDC'
+    }, poolAddr)
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.poolSwap({
+      from: colAddr,
+      tokenFrom: 'DFI',
+      amountFrom: 555,
+      to: usdcAddr,
+      tokenTo: 'USDC'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.poolpair.removePoolLiquidity(poolAddr, '2@DFI-USDC')
+    await testing.generate(1)
+
+    // for testing same block pagination
+    await testing.token.create({ symbol: 'APE', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'CAT', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'DOG', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'ELF', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'FOX', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'RAT', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'BEE', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'COW', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'OWL', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'ELK', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    await testing.token.create({ symbol: 'PIG', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'KOI', collateralAddress: colAddr })
+    await testing.token.create({ symbol: 'FLY', collateralAddress: colAddr })
+    await testing.generate(1)
+
+    app = await createTestingApp(container)
+    controller = app.get(AddressController)
+
+    await testing.generate(1)
+  })
+
+  afterAll(async () => {
+    await stopTestingApp(container, app)
+  })
+
+  it('should getAccount', async () => {
+    const history = await controller.listAccountHistory(colAddr, { size: 30 })
+    for (const h of history.data) {
+      if (['sent', 'receive'].includes(h.type)) {
+        continue
+      }
+      const acc = await controller.getAccountHistory(colAddr, h.block.height, h.txn)
+      expect(acc?.owner).toStrictEqual(h.owner)
+      expect(acc?.txid).toStrictEqual(h.txid)
+      expect(acc?.txn).toStrictEqual(h.txn)
+    }
+
+    const poolHistory = await controller.listAccountHistory(poolAddr, { size: 30 })
+    for (const h of poolHistory.data) {
+      if (['sent', 'receive'].includes(h.type)) {
+        continue
+      }
+      const acc = await controller.getAccountHistory(poolAddr, h.block.height, h.txn)
+      expect(acc?.owner).toStrictEqual(h.owner)
+      expect(acc?.txid).toStrictEqual(h.txid)
+      expect(acc?.txn).toStrictEqual(h.txn)
+    }
+  })
+
+  it('should be failed for non-existence data', async () => {
+    const promise = controller.getAccountHistory(await container.getNewAddress(), Number(`${'0'.repeat(64)}`), 1)
+    await expect(promise).rejects.toThrow('Record not found')
+  })
+
+  it('should be failed as invalid height', async () => {
+    { // NaN
+      const promise = controller.getAccountHistory(await container.getNewAddress(), Number('NotANumber'), 1)
+      await expect(promise).rejects.toThrow('JSON value is not an integer as expected')
+    }
+
+    { // negative height
+      const promise = controller.getAccountHistory(await container.getNewAddress(), -1, 1)
+      await expect(promise).rejects.toThrow('Record not found')
+    }
+  })
+
+  it('should be failed as getting unsupport tx type - sent, received, blockReward', async () => {
+    const history = await controller.listAccountHistory(colAddr, { size: 30 })
+    for (const h of history.data) {
+      if (['sent', 'receive'].includes(h.type)) {
+        const promise = controller.getAccountHistory(colAddr, h.block.height, h.txn)
+        await expect(promise).rejects.toThrow('Record not found')
+      }
+    }
+
+    const operatorAccHistory = await container.call('listaccounthistory', [RegTestFoundationKeys[0].operator.address])
+    for (const h of operatorAccHistory) {
+      if (['blockReward'].includes(h.type)) {
+        const promise = controller.getAccountHistory(RegTestFoundationKeys[0].operator.address, h.blockHeight, h.txn)
+        await expect(promise).rejects.toThrow('Record not found')
+      }
+    }
   })
 })
 
