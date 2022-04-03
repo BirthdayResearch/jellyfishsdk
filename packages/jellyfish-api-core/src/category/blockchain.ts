@@ -165,6 +165,35 @@ export class Blockchain {
   }
 
   /**
+   *
+   * Get all in-mempool ancestors for the given transaction as string[]
+   * @param {string} txId the transaction id in mempool
+   * @param {boolean} verbose false
+   * @returns {Promise<string[]>}
+   */
+  getMempoolAncestors (txId: string, verbose: false): Promise<string[]>
+
+  /**
+   *
+   * Get all in-mempool ancestors for the given transaction as JSON object
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose true
+   * @returns {Promise<MempoolTx>}
+   */
+  getMempoolAncestors (txId: string, verbose: true): Promise<MempoolTx>
+  /**
+   *
+   * Get all in-mempool ancestors for the given transaction as JSON object
+   * if verbose is true else as string[]
+   * @param {string} txId the transaction id
+   * @param {boolean} verbose true
+   * @returns {Promise<string[] | MempoolTx>}
+   */
+  async getMempoolAncestors (txId: string, verbose: boolean): Promise<string[] | MempoolTx> {
+    return await this.client.call('getmempoolancestors', [txId, verbose], 'bignumber')
+  }
+
+  /**
    * Get block statistics for a given window.
    *
    * @param {number} hashOrHeight  The block hash or height of the target block.
