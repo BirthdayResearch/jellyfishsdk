@@ -402,7 +402,7 @@ export class Account {
    * @return {Promise<string>}
    */
   async futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('futureswap', [future, utxos], 'number')
+    return await this.client.call('futureswap', [future.address, future.amount, future.destination, utxos], 'number')
   }
 
   /**
@@ -601,12 +601,16 @@ export interface BurnInfo {
    * Amount of tokens that are paid back
    */
   paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
 }
 
 export interface FutureSwap {
   address: string
   amount: string
-  destination: string
+  destination?: string
 }
 
 export interface FutureInfo {

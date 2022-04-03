@@ -464,6 +464,10 @@ interface BurnInfo {
    * Amount of tokens that are paid back
    */
   paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
 }
 ```
 
@@ -479,7 +483,7 @@ interface account {
 interface FutureSwap {
   address: string
   amount: string
-  destination: string
+  destination?: string
 }
 
 interface UTXO {
@@ -500,7 +504,7 @@ interface account {
 interface FutureSwap {
   address: string
   amount: string
-  destination: string
+  destination?: string
 }
 
 interface UTXO {
