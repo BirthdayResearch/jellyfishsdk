@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js'
 import { MempoolTx } from '../../../src/category/blockchain'
 import waitForExpect from 'wait-for-expect'
 
-describe('getMempoolInfo', () => {
+describe('getMempoolEntry', () => {
   const container = new MasterNodeRegTestContainer()
   const client = new ContainerAdapterClient(container)
 
