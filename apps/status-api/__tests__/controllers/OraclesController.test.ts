@@ -6,6 +6,8 @@ const apiTesting = StatusApiTesting.create()
 
 beforeAll(async () => {
   await apiTesting.start()
+  jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getOracleByAddress')
+    .mockReturnValue(getOracle())
 })
 
 afterAll(async () => {
@@ -14,12 +16,7 @@ afterAll(async () => {
 
 describe('OracleStatusController - Status test', () => {
   it('/oracles?address=<address> - should get operational', async () => {
-    jest
-      .spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getOracleByAddress')
-      .mockReturnValueOnce(getOracle('df1qm7f2cx8vs9lqn8v43034nvckz6dxxpqezfh6dw'))
-
-    jest
-      .spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
       .mockReturnValueOnce(getOraclePriceFeed('df1qm7f2cx8vs9lqn8v43034nvckz6dxxpqezfh6dw', 5))
 
     const res = await apiTesting.app.inject({
@@ -33,12 +30,7 @@ describe('OracleStatusController - Status test', () => {
   })
 
   it('/oracles?address=<address> -should get outage', async () => {
-    jest
-      .spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getOracleByAddress')
-      .mockReturnValueOnce(getOracle('df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4'))
-
-    jest
-      .spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
+    jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
       .mockReturnValueOnce(getOraclePriceFeed('df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4', 46))
 
     const res = await apiTesting.app.inject({
@@ -57,6 +49,12 @@ async function getOraclePriceFeed (oracleAddress: string, minutesDiff: number): 
 
   return new ApiPagedResponse({
     data: [{
+      block: {
+        medianTime: blockMedianTime,
+        hash: '',
+        height: 0,
+        time: 0
+      },
       id: '',
       key: '',
       sort: '',
@@ -65,19 +63,12 @@ async function getOraclePriceFeed (oracleAddress: string, minutesDiff: number): 
       oracleId: '',
       txid: '',
       time: 0,
-      amount: '',
-
-      block: {
-        hash: '',
-        height: 0,
-        medianTime: blockMedianTime,
-        time: 0
-      }
+      amount: ''
     }]
   }, 'GET', `oracles/${oracleAddress}/AAPL-USD/feed`)
 }
 
-async function getOracle (oracleAddress: string): Promise<Oracle> {
+async function getOracle (): Promise<Oracle> {
   return {
     id: '',
     block: {
@@ -86,7 +77,7 @@ async function getOracle (oracleAddress: string): Promise<Oracle> {
       medianTime: 0,
       time: 0
     },
-    ownerAddress: oracleAddress,
+    ownerAddress: '',
     priceFeeds: [{
       token: '',
       currency: ''
