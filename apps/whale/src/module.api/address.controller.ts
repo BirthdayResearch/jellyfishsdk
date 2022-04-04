@@ -16,7 +16,7 @@ import { toBuffer } from '@defichain/jellyfish-transaction/dist/script/_buffer'
 import { LoanVaultActive, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/Loan'
 import { LoanVaultService } from '../module.api/loan.vault.service'
 import { parseDisplaySymbol } from '../module.api/token.controller'
-import { AccountHistory } from '@defichain/jellyfish-api-core/dist/category/account'
+import { AccountHistoryWithTxn } from '@defichain/jellyfish-api-core/dist/category/account'
 
 @Controller('/address/:address')
 export class AddressController {
@@ -45,12 +45,12 @@ export class AddressController {
 
     const limit = query.size > 200 ? 200 : query.size
     const next = query.next ?? undefined
-    let list: AccountHistory[]
+    let list: AccountHistoryWithTxn[]
 
     if (next !== undefined) {
       const [txid, txType, maxBlockHeight] = next.split('-')
 
-      const loop = async (maxBlockHeight: number, limit: number): Promise<AccountHistory[]> => {
+      const loop = async (maxBlockHeight: number, limit: number): Promise<AccountHistoryWithTxn[]> => {
         const list = await this.rpcClient.account.listAccountHistory(address, {
           limit: limit,
           maxBlockHeight: maxBlockHeight,
@@ -83,8 +83,8 @@ export class AddressController {
 
     const history = mapAddressHistory(list)
 
-    return ApiPagedResponse.of(history, query.size, item => {
-      return `${item.txid}-${item.type}-${item.block.height}`
+    return ApiPagedResponse.of(history, query.size, (item: AddressHistory) => {
+      return `${item.txid}-${item.type}-${item.block.height.toString()}`
     })
   }
 
@@ -195,7 +195,7 @@ function mapAddressToken (id: string, tokenInfo: TokenInfo, value: BigNumber): A
   }
 }
 
-function mapAddressHistory (list: AccountHistory[]): AddressHistory[] {
+function mapAddressHistory (list: AccountHistoryWithTxn[]): AddressHistory[] {
   return list.map(each => {
     return {
       owner: each.owner,

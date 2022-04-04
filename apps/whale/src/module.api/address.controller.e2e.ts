@@ -8,6 +8,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { Testing } from '@defichain/jellyfish-testing'
 import { ForbiddenException } from '@nestjs/common'
 import BigNumber from 'bignumber.js'
+import { AddressHistory } from 'packages/whale-api-client/src/api/Address'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -186,21 +187,21 @@ describe('listAccountHistory', () => {
     expect(first.data[1]).toStrictEqual(full.data[1])
     expect(first.data[2]).toStrictEqual(full.data[2])
 
-    const firstLast = first.data[first.data.length - 1]
+    const firstLast: AddressHistory = first.data[first.data.length - 1]
     const secondToken = `${firstLast.txid}-${firstLast.type}-${firstLast.block.height}`
     const second = await controller.listAccountHistory(colAddr, { size: 3, next: secondToken })
     expect(second.data[0]).toStrictEqual(full.data[3])
     expect(second.data[1]).toStrictEqual(full.data[4])
     expect(second.data[2]).toStrictEqual(full.data[5])
 
-    const secondLast = second.data[second.data.length - 1]
+    const secondLast: AddressHistory = second.data[second.data.length - 1]
     const thirdToken = `${secondLast.txid}-${secondLast.type}-${secondLast.block.height}`
     const third = await controller.listAccountHistory(colAddr, { size: 3, next: thirdToken })
     expect(third.data[0]).toStrictEqual(full.data[6])
     expect(third.data[1]).toStrictEqual(full.data[7])
     expect(third.data[2]).toStrictEqual(full.data[8])
 
-    const thirdLast = third.data[third.data.length - 1]
+    const thirdLast: AddressHistory = third.data[third.data.length - 1]
     const forthToken = `${thirdLast.txid}-${thirdLast.type}-${thirdLast.block.height}`
     const forth = await controller.listAccountHistory(colAddr, { size: 3, next: forthToken })
     expect(forth.data[0]).toStrictEqual(full.data[9])

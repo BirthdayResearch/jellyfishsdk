@@ -278,6 +278,23 @@ export class Account {
     return await this.client.call('accounttoutxos', [from, payload, options.utxos], 'number')
   }
 
+  async listAccountHistory (): Promise<AccountHistory[]>;
+
+  async listAccountHistory (
+    owner: OwnerType | string,
+    options: Omit<AccountHistoryOptions, 'no_rewards'> & {no_rewards: false}
+  ): Promise<AccountHistoryWithTxn[]>;
+
+  async listAccountHistory (
+    owner: OwnerType | string,
+    options: Omit<AccountHistoryOptions, 'no_rewards'> & {no_rewards: true}
+  ): Promise<AccountHistoryWithTxn[]>;
+
+  async listAccountHistory (
+    owner: OwnerType | string,
+    options?: AccountHistoryOptions
+  ): Promise<AccountHistory[]>;
+
   /**
    * Returns information about account history
    *
@@ -297,7 +314,7 @@ export class Account {
     options: AccountHistoryOptions = {
       limit: 100
     }
-  ): Promise<AccountHistory[]> {
+  ): Promise<AccountHistory[] | AccountHistoryWithTxn[]> {
     return await this.client.call('listaccounthistory', [owner, options], 'number')
   }
 
@@ -441,6 +458,17 @@ export interface UTXO {
 }
 
 export interface AccountHistory {
+  owner: string
+  blockHeight: number
+  blockHash: string
+  blockTime: number
+  type: string
+  txn?: number
+  txid?: string
+  amounts: string[]
+}
+
+export interface AccountHistoryWithTxn extends AccountHistory {
   owner: string
   blockHeight: number
   blockHash: string

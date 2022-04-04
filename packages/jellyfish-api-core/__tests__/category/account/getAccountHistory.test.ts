@@ -36,8 +36,9 @@ describe('Account', () => {
     const accountHistories = await testing.rpc.account.listAccountHistory(hex)
 
     const referenceHistory = accountHistories[0]
+    expect(referenceHistory.txn).not.toBeUndefined() // assert here to ensure test works as expected
 
-    const history = await testing.rpc.account.getAccountHistory(hex, referenceHistory.blockHeight, referenceHistory.txn)
+    const history = await testing.rpc.account.getAccountHistory(hex, referenceHistory.blockHeight, referenceHistory.txn!)
     expect(history.owner).toStrictEqual(referenceHistory.owner)
     expect(history.blockHeight).toStrictEqual(referenceHistory.blockHeight)
     expect(history.txn).toStrictEqual(referenceHistory.txn)
@@ -54,8 +55,9 @@ describe('Account', () => {
     expect(accountHistories.length).toBeGreaterThan(0)
 
     const referenceHistory = accountHistories[0]
+    expect(referenceHistory.txn).not.toBeUndefined() // assert here to ensure test works as expected
 
-    const history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight, referenceHistory.txn)
+    const history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight, referenceHistory.txn!)
     expect(history.owner).toStrictEqual(referenceHistory.owner)
     expect(history.blockHeight).toStrictEqual(referenceHistory.blockHeight)
     expect(history.txn).toStrictEqual(referenceHistory.txn)
@@ -71,11 +73,12 @@ describe('Account', () => {
     expect(accountHistories.length).toBeGreaterThan(0)
 
     const referenceHistory = accountHistories[0]
+    expect(referenceHistory.txn).not.toBeUndefined() // assert here to ensure test works as expected
 
-    const history = await testing.rpc.account.getAccountHistory('mrLrCt3kMFhhfYeT8euQw5ERwyvFg9K21j', referenceHistory.blockHeight, referenceHistory.txn)
+    const history = await testing.rpc.account.getAccountHistory('mrLrCt3kMFhhfYeT8euQw5ERwyvFg9K21j', referenceHistory.blockHeight, referenceHistory.txn!)
     expect(history.owner).toBeUndefined()
 
-    const historyPromise = testing.rpc.account.getAccountHistory('mrLrCt3kMFhhfYeT8euQw5ERw', referenceHistory.blockHeight, referenceHistory.txn - 1)
+    const historyPromise = testing.rpc.account.getAccountHistory('mrLrCt3kMFhhfYeT8euQw5ERw', referenceHistory.blockHeight, referenceHistory.txn! - 1)
     await expect(historyPromise).rejects.toThrow(RpcApiError)
     await expect(historyPromise).rejects.toThrow('does not refer to any valid address')
   })
@@ -85,11 +88,12 @@ describe('Account', () => {
     expect(accountHistories.length).toBeGreaterThan(0)
 
     const referenceHistory = accountHistories[0]
+    expect(referenceHistory.txn).not.toBeUndefined() // assert here to ensure test works as expected
 
-    let history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight - 1, referenceHistory.txn)
+    let history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight - 1, referenceHistory.txn!)
     expect(history.owner).toBeUndefined()
 
-    history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, -1, referenceHistory.txn)
+    history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, -1, referenceHistory.txn!)
     expect(history.owner).toBeUndefined()
   })
 
@@ -98,8 +102,9 @@ describe('Account', () => {
     expect(accountHistories.length).toBeGreaterThan(0)
 
     const referenceHistory = accountHistories[0]
+    expect(referenceHistory.txn).not.toBeUndefined() // assert here to ensure test works as expected
 
-    let history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight, referenceHistory.txn - 1)
+    let history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight, referenceHistory.txn! - 1)
     expect(history.owner).toBeUndefined()
 
     history = await testing.rpc.account.getAccountHistory(referenceHistory.owner, referenceHistory.blockHeight, -1)
