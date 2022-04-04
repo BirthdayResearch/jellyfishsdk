@@ -22,7 +22,8 @@ describe('BlockchainController - Status test', () => {
     })
 
     expect(res.statusCode).toStrictEqual(200)
-    expect(res.body).toContain('operational')
+    const body = JSON.parse(res.body)
+    expect(body.status).toStrictEqual('operational')
   })
 
   it('/blockchain/status - should get degraded', async () => {
@@ -36,7 +37,8 @@ describe('BlockchainController - Status test', () => {
     })
 
     expect(res.statusCode).toStrictEqual(200)
-    expect(res.body).toContain('degraded')
+    const body = JSON.parse(res.body)
+    expect(body.status).toStrictEqual('degraded')
   })
 
   it('/blockchain/status - should get outage', async () => {
@@ -50,7 +52,8 @@ describe('BlockchainController - Status test', () => {
     })
 
     expect(res.statusCode).toStrictEqual(200)
-    expect(res.body).toContain('outage')
+    const body = JSON.parse(res.body)
+    expect(body.status).toStrictEqual('outage')
   })
 })
 
