@@ -7,7 +7,7 @@
  * @param {string} message for error
  */
 export async function waitForCondition (condition: () => Promise<boolean>, timeout: number, interval: number = 200, message: string = 'waitForCondition'): Promise<void> {
-  const expiredAt = Date.now() + timeout
+  const expiredAt = Date.now() + 100000
 
   return await new Promise((resolve, reject) => {
     async function checkCondition (): Promise<void> {
