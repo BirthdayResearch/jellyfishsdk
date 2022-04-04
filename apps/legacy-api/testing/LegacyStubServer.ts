@@ -51,7 +51,7 @@ export class LegacyStubServer extends LegacyApiServer {
 class TestConfigService extends ConfigService {
   constructor () {
     super({
-      SWAP_CACHE_COUNT: 150
+      SWAP_CACHE_COUNT: 50
     })
   }
 }

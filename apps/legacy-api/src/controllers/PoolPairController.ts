@@ -18,6 +18,7 @@ import { fromScript } from '@defichain/jellyfish-address'
 import { Interval } from '@nestjs/schedule'
 import { SimpleCache } from '../cache/SimpleCache'
 import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
+import { WhaleApiClient } from '@defichain/whale-api-client'
 
 @Controller('v1')
 export class PoolPairController {
@@ -114,18 +115,15 @@ export class PoolPairController {
     const api = this.whaleApiClientProvider.getClient(network)
     const allSwaps: LegacySubgraphSwap[] = []
 
-    const chainHeight = (await api.stats.get()).count.blocks
-
     while (allSwaps.length <= limit) {
       for (const block of await api.blocks.list(200, next?.height)) {
         let blockTxns = []
 
-        const isRecentBlock = chainHeight - block.height <= 2
         // don't cache if within 2 blocks from tip, as block might be invalidated / swaps might be added
-        if (isRecentBlock) {
+        if (await this.isRecentBlock(api, block)) {
           blockTxns = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, next)
         } else {
-          blockTxns = await this.cache.get<BlockSwapTxn[]>(
+          blockTxns = await this.cache.get<BlockTxn[]>(
             block.hash,
             async () => {
               const cached = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, next)
@@ -198,9 +196,9 @@ export class PoolPairController {
     block: Block,
     network: SupportedNetwork,
     next: NextToken
-  ): Promise<BlockSwapTxn[]> {
+  ): Promise<BlockTxn[]> {
     const api = this.whaleApiClientProvider.getClient(network)
-    const swaps: BlockSwapTxn[] = []
+    const swaps: BlockTxn[] = []
     for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
       const swap = await this.getSwapFromTransaction(transaction, network)
       swaps.push({
@@ -323,6 +321,11 @@ export class PoolPairController {
         }
       ]
     }
+  }
+
+  async isRecentBlock (api: WhaleApiClient, block: Block): Promise<boolean> {
+    const chainHeight = (await api.stats.get()).count.blocks
+    return chainHeight - block.height <= 2
   }
 }
 
@@ -649,7 +652,7 @@ export function encodeBase64 (next: NextToken): string {
   return Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
 }
 
-interface BlockSwapTxn {
+export interface BlockTxn {
   swap: LegacySubgraphSwap | null
   height: number
   order: number

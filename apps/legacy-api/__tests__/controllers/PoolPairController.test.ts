@@ -1,8 +1,14 @@
 import { LegacyApiTesting } from '../../testing/LegacyApiTesting'
 import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
 import { SupportedNetwork } from 'apps/legacy-api/src/pipes/NetworkValidationPipe'
-import { encodeBase64, SwapCacheFiller } from '../../src/controllers/PoolPairController'
+import {
+  BlockTxn,
+  encodeBase64,
+  PoolPairController,
+  SwapCacheFiller
+} from '../../src/controllers/PoolPairController'
 import { waitForCondition } from '@defichain/testcontainers'
+import { SimpleCache } from '../../src/cache/SimpleCache'
 
 const ONLY_DECIMAL_NUMBER_REGEX = /^[0-9]+(\.[0-9]+)?$/
 
@@ -323,11 +329,30 @@ describe('getsubgraphswaps', () => {
 
 describe('getsubgraphswaps - relying on caching', () => {
   beforeAll(async () => {
-    // Given caching enabled and cache is filled sufficiently
-    await waitForCondition(
-      async () => apiTesting.app.get(SwapCacheFiller).isReady,
-      30_000 // 30s
-    )
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async function relyOnProduction (): Promise<void> {
+      // Given caching enabled and cache is filled sufficiently
+      await waitForCondition(
+        async () => apiTesting.app.get(SwapCacheFiller).isReady,
+        60_000 // 60s
+      )
+    }
+
+    /**
+     * Mock the blocks and poolswaps in cache so that tests
+     * are not flaky due to dependency on production ocean api.
+     */
+    async function mockCache (): Promise<void> {
+      // Force route all requests to cache
+      const poolPairController: PoolPairController = await apiTesting.app.get(PoolPairController)
+      jest.spyOn(poolPairController, 'isRecentBlock').mockResolvedValue(false)
+
+      // Mock the swaps in cache
+      const cache: SimpleCache = await apiTesting.app.get(SimpleCache)
+      jest.spyOn(cache, 'get').mockResolvedValue(getMockBlockTxns(10))
+    }
+
+    await mockCache()
   })
 
   it('/v1/getsubgraphswaps - should return 100 relatively quickly', async () => {
@@ -351,6 +376,11 @@ describe('getsubgraphswaps - relying on caching', () => {
 
     // And number of swaps returned is correct
     const response = res.json()
+    expect(response).not.toStrictEqual({
+      statusCode: 500,
+      message: 'Internal server error'
+    })
+
     expect(response.data.swaps.length).toStrictEqual(100)
 
     // And all swaps have correct shape
@@ -405,4 +435,52 @@ export function verifySwapsOrdering (
       expect(Number(swap1.timestamp)).toBeGreaterThanOrEqual(Number(swap2.timestamp))
     }
   }
+}
+
+/**
+ * Returns mocked block transactions in the cache, so that tests
+ * are not flaky due to dependency on production ocean api.
+ * @param {number} blockCount the number of blocks in the cache to mock.
+ */
+function getMockBlockTxns (blockCount: number): BlockTxn[] {
+  const swaps: BlockTxn[] = []
+  const txnsPerBlock = 50
+
+  for (let blockHeight = 0; blockHeight < blockCount; blockHeight++) {
+    for (let txno = 0; txno < txnsPerBlock; txno++) {
+      // Some txns are pool swaps, some are not
+      const swap: BlockTxn['swap'] = (Math.random() > 0.5)
+        ? null
+        : {
+            id: makeId(64),
+            timestamp: ((Date.now() / 1000) + blockHeight).toString(),
+            from: {
+              symbol: 'ACE',
+              amount: '123.12345678'
+            },
+            to: {
+              symbol: 'DFI',
+              amount: '123.12345678'
+            }
+          }
+
+      swaps.push({
+        swap: swap,
+        height: blockHeight,
+        order: txno
+      })
+    }
+  }
+
+  return swaps.reverse()
+}
+
+function makeId (length: number): string {
+  let result = ''
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  const charactersLength = characters.length
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+  return result
 }
