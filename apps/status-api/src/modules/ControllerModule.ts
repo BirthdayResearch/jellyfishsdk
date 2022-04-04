@@ -1,5 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common'
 import { ActuatorController } from '@defichain-apps/libs/actuator'
+import { BlockchainController } from '../controllers/BlockchainController'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { ConfigService } from '@nestjs/config'
 
@@ -11,6 +12,7 @@ import { ConfigService } from '@nestjs/config'
     CacheModule.register()
   ],
   controllers: [
+    BlockchainController,
     ActuatorController
   ],
   providers: [
