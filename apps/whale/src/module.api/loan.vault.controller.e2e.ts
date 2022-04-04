@@ -5,7 +5,7 @@ import { LoanController } from '../module.api/loan.controller'
 import { NotFoundException } from '@nestjs/common'
 import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
-import { LoanVaultState } from '@defichain/whale-api-client/src/api/Loan'
+import { LoanVaultState } from '@defichain/whale-api-client/dist/api/Loan'
 
 const container = new LoanMasterNodeRegTestContainer()
 let app: NestFastifyApplication

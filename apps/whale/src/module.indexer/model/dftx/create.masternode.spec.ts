@@ -8,7 +8,7 @@ import {
 import { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasternodeMapper } from '../../../module.model/masternode'
-import { MasternodeInfo } from '@defichain/jellyfish-api-core/src/category/masternode'
+import { MasternodeInfo } from '@defichain/jellyfish-api-core/dist/category/masternode'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { MasternodeStatsMapper } from '../../../module.model/masternode.stats'
 
