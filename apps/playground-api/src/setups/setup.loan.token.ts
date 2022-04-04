@@ -44,6 +44,9 @@ export class SetupLoanToken extends PlaygroundSetup<SetLoanToken> {
     await this.client.loan.setLoanToken(each)
     await this.generate(1)
 
+    // loan token is not mintable but here as
+    // some loan token price, eg: TD10 = 1000000000 USD
+    // the proper approach might not friendly in this case
     await this.client.token.mintTokens(`10000@${each.symbol}`)
     await this.generate(1)
   }
