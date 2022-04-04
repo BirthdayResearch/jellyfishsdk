@@ -17,7 +17,7 @@ export class BlockchainController {
 
     let currentStatus: string = 'operational'
 
-    for (const [status, thresholdTime] of Object.entries(StatusMap)) {
+    for (const [status, thresholdTime] of Object.entries(StatusToThresholdInMs)) {
       if (timeDiff > thresholdTime) {
         currentStatus = status
         break
