@@ -1,5 +1,7 @@
+import fetch from 'cross-fetch'
 import Dockerode from 'dockerode'
 import * as path from 'path'
+
 import { DockerContainer, hasImageLocally } from '../DockerContainer'
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 
