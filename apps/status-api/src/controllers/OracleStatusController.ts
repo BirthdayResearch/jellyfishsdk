@@ -3,7 +3,7 @@ import { WhaleApiClient } from '@defichain/whale-api-client'
 import { Oracle } from '@defichain/whale-api-client/dist/api/Oracles'
 import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
 
-@Controller('/status')
+@Controller('oracles')
 export class OracleStatusController {
   constructor (
     private readonly client: WhaleApiClient,
@@ -11,7 +11,7 @@ export class OracleStatusController {
   ) {
   }
 
-  @Get('oracles')
+  @Get()
   async getOracleStatus (
     @Query('address') oracleAddress: string
   ): Promise<{ [key: string]: string }> {

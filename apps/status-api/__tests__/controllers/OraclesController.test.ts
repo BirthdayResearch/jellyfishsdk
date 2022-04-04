@@ -13,14 +13,14 @@ afterAll(async () => {
 })
 
 describe('OracleStatusController - Status test', () => {
-  it('/status/oracles?address=<address> - should get operational', async () => {
+  it('/oracles?address=<address> - should get operational', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getOracleByAddress')
       .mockReturnValueOnce(getOracle(5))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: 'status/oracles?address=df1q02jh2rkymd6ncl75ql3f267u3guja9nzqj2qmn'
+      url: 'oracles?address=df1qm7f2cx8vs9lqn8v43034nvckz6dxxpqezfh6dw'
     })
     expect(res.json()).toStrictEqual({
       status: 'operational'
@@ -35,10 +35,10 @@ describe('OracleStatusController - Status test', () => {
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: 'status/oracles?address=df1q02jh2rkymd6ncl75ql3f267u3guja9nzqj2qmn'
+      url: 'oracles?address=df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4'
     })
     expect(res.json()).toStrictEqual({
-      status: 'operational'
+      status: 'outage'
     })
     expect(res.statusCode).toStrictEqual(200)
   })
