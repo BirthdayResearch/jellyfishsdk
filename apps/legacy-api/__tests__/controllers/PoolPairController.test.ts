@@ -289,7 +289,7 @@ describe('getsubgraphswaps', () => {
     expect(response.data.swaps.length).toStrictEqual(0)
   })
 
-  it('/v1/getsubgraphswaps?limit=101 - limited to 30', async () => {
+  it('/v1/getsubgraphswaps?limit=101 - limited to 100', async () => {
     const res = await apiTesting.app.inject({
       method: 'GET',
       url: '/v1/getsubgraphswaps?limit=101'
@@ -298,7 +298,7 @@ describe('getsubgraphswaps', () => {
     expect(response.data.swaps.length).toStrictEqual(100)
   })
 
-  it('should paginate', async () => {
+  it('/v1/getsubgraphswaps?limit=X&next=Y - should paginate', async () => {
     const [swap1And2, swap1]: any = await Promise.all([
       apiTesting.app.inject({
         method: 'GET',
@@ -326,7 +326,7 @@ describe('getsubgraphswaps - relying on caching', () => {
     // Given caching enabled and cache is filled sufficiently
     await waitForCondition(
       async () => apiTesting.app.get(SwapCacheFiller).isReady,
-      60_000 // 60s
+      30_000 // 30s
     )
   })
 
