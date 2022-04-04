@@ -3,6 +3,7 @@ import { ActuatorController } from '@defichain-apps/libs/actuator'
 import { BlockchainStatusController } from '../controllers/BlockchainStatusController'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { ConfigService } from '@nestjs/config'
+import { OracleController } from '../../../whale/src/module.api/oracle.controller'
 import { OverallStatusController } from '../controllers/OverallStatusController'
 
 /**
@@ -13,8 +14,10 @@ import { OverallStatusController } from '../controllers/OverallStatusController'
     CacheModule.register()
   ],
   controllers: [
+    ActuatorController,
     BlockchainStatusController,
     ActuatorController,
+    OracleController,
     OverallStatusController
   ],
   providers: [
