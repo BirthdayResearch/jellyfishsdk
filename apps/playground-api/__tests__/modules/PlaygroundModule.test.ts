@@ -47,12 +47,9 @@ it('should have loan schemes', async () => {
   expect(results.length).toBe(6)
 })
 
-it.only('should have loan tokens', async () => {
+it('should have loan tokens', async () => {
   const results = await testing.container.call('listloantokens')
   expect(results.length).toBe(5)
-
-  const res = await testing.container.call('gettokenbalances')
-  console.log('res: ', res)
 })
 
 it('should have loan collateral tokens', async () => {
