@@ -24,7 +24,7 @@ export class OracleStatusController {
     const timeDiff = nowEpoch - latestPublishedTime
 
     return {
-      status: timeDiff < (15 * 60 * 1000) ? 'operational' : 'outage'
+      status: timeDiff <= (15 * 60 * 1000) ? 'operational' : 'outage'
     }
   }
 
