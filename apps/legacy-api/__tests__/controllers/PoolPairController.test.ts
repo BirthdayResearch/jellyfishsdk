@@ -326,7 +326,7 @@ describe('getsubgraphswaps - relying on caching', () => {
     // Given caching enabled and cache is filled sufficiently
     await waitForCondition(
       async () => apiTesting.app.get(SwapCacheFiller).isReady,
-      30_000 // 30s
+      60_000 // 60s
     )
   })
 
