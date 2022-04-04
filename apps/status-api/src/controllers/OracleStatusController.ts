@@ -4,7 +4,7 @@ import { Oracle } from '@defichain/whale-api-client/dist/api/Oracles'
 import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
 
 @Controller('/status')
-export class OraclesController {
+export class OracleStatusController {
   constructor (
     private readonly client: WhaleApiClient,
     protected readonly cache: SemaphoreCache
@@ -12,7 +12,7 @@ export class OraclesController {
   }
 
   @Get('oracles')
-  async getToken (
+  async getOracleStatus (
     @Query('address') oracleAddress: string
   ): Promise<{ [key: string]: string }> {
     const oracle: Oracle = await this.cachedGet('ORACLE', async () => {
@@ -24,12 +24,12 @@ export class OraclesController {
     const timeDiff = nowEpoch - latestPublishedTime
 
     return {
-      status: timeDiff > (15 * 60 * 1000) ? 'operational' : 'outage'
+      status: timeDiff < (15 * 60 * 1000) ? 'operational' : 'outage'
     }
   }
 
   private async cachedGet<T> (field: string, fetch: () => Promise<T>, ttl: number): Promise<T> {
-    const object = await this.cache.get(`OraclesController.${field}`, fetch, { ttl })
+    const object = await this.cache.get(`OracleStatusController.${field}`, fetch, { ttl })
     return requireValue(object, field)
   }
 }
