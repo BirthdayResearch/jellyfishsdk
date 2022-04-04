@@ -283,7 +283,7 @@ export class Account {
   async listAccountHistory (
     owner: OwnerType | string,
     options: Omit<AccountHistoryOptions, 'no_rewards'> & {no_rewards: false}
-  ): Promise<AccountHistoryWithTxn[]>;
+  ): Promise<AccountHistory[]>;
 
   async listAccountHistory (
     owner: OwnerType | string,
