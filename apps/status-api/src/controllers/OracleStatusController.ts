@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { Oracle } from '@defichain/whale-api-client/dist/api/Oracles'
+import { OraclePriceFeed } from '@defichain/whale-api-client/dist/api/Oracles'
 import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
 
 @Controller('oracles')
@@ -15,12 +15,13 @@ export class OracleStatusController {
   async getOracleStatus (
     @Query('address') oracleAddress: string
   ): Promise<{ [key: string]: string }> {
-    const oracle: Oracle = await this.cachedGet('ORACLE', async () => {
-      return await this.client.oracles.getOracleByAddress(oracleAddress)
-    }, 1000)
+    const oraclePriceFeed: OraclePriceFeed = await this.cachedGet(`oracle-${oracleAddress}`, async () => {
+      const oracle = await this.client.oracles.getOracleByAddress(oracleAddress)
+      return (await this.client.oracles.getPriceFeed(oracle.id, oracle.priceFeeds[0].token, oracle.priceFeeds[0].currency, 1))[0]
+    }, 5000)
 
     const nowEpoch = Date.now()
-    const latestPublishedTime = oracle.block.medianTime * 1000
+    const latestPublishedTime = oraclePriceFeed.block.medianTime * 1000
     const timeDiff = nowEpoch - latestPublishedTime
 
     return {
