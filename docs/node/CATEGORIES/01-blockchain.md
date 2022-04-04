@@ -289,6 +289,17 @@ interface MempoolInfo {
 }
 ```
 
+## getMempoolAncestors
+
+Get all in-mempool ancestors if txId is in mempool.
+
+```ts title="client.blockchain.getBlockHeader()"
+interface blockchain {
+  getMempoolAncestors (txId: string, verbosity: true): Promise<MempoolTx>
+  getMempoolAncestors (txId: string, verbosity: false): Promise<string[]>
+}
+```
+
 ## getBlockStats
 
 Get block statistics for a given window. Returns all stats values if nothing is passed in the second param.  
