@@ -181,6 +181,15 @@ Returns information about account history
 
 ```ts title="client.account.listAccountHistory()"
 interface account {
+  async listAccountHistory (): Promise<AccountHistory[]>;
+  async listAccountHistory (
+    owner: OwnerType | string,
+    options: Omit<AccountHistoryOptions, 'no_rewards'> & {no_rewards: false}
+  ): Promise<AccountHistory[]>;
+  async listAccountHistory (
+    owner: OwnerType | string,
+    options: Omit<AccountHistoryOptions, 'no_rewards'> & {no_rewards: true}
+  ): Promise<AccountHistoryWithTxn[]>;
   listAccountHistory (
     owner: OwnerType | string = OwnerType.MINE,
     options: AccountHistoryOptions = {
@@ -221,9 +230,14 @@ interface AccountHistory {
   blockHash: string
   blockTime: number
   type: string
+  txn?: number
+  txid?: string
+  amounts: string[]
+}
+
+export interface AccountHistoryWithTxn extends AccountHistory {
   txn: number
   txid: string
-  amounts: string[]
 }
 
 interface AccountHistoryOptions {

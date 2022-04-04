@@ -469,14 +469,8 @@ export interface AccountHistory {
 }
 
 export interface AccountHistoryWithTxn extends AccountHistory {
-  owner: string
-  blockHeight: number
-  blockHash: string
-  blockTime: number
-  type: string
   txn: number
   txid: string
-  amounts: string[]
 }
 
 export interface AccountHistoryOptions {
