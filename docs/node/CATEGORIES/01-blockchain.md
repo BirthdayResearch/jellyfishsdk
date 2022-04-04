@@ -291,7 +291,7 @@ interface MempoolInfo {
 
 ## getMempoolAncestors
 
-Get all in-mempool ancestors if txId is in mempool.
+Get all in-mempool ancestors if txId is in mempool as string[] if verbose is false else as json object.
 
 ```ts title="client.blockchain.getBlockHeader()"
 interface blockchain {
