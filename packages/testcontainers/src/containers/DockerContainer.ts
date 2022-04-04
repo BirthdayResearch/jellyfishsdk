@@ -136,7 +136,7 @@ export abstract class DockerContainer {
   }
 }
 
-async function hasImageLocally (image: string, docker: Dockerode): Promise<boolean> {
+export async function hasImageLocally (image: string, docker: Dockerode): Promise<boolean> {
   return await new Promise((resolve, reject) => {
     docker.getImage(image).inspect((error, result) => {
       resolve(!(error instanceof Error))
