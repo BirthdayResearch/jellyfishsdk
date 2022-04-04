@@ -12,7 +12,6 @@ describe('getMempoolInfo', () => {
     await container.start()
     await container.waitForReady()
     await container.waitForWalletCoinbaseMaturity()
-    await container.generate(1)
   })
 
   afterAll(async () => {
@@ -20,11 +19,10 @@ describe('getMempoolInfo', () => {
   })
   it('should getMempoolAncestors and return JSON object if verbose is true', async () => {
     await waitForExpect(async () => {
-      const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00003)
+      const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.003)
       const mempoolEntry: MempoolTx = await client.blockchain.getMempoolAncestors(txId, true)
-      console.log(mempoolEntry)
-      console.log('=------BREAK0-000---------=')
-      expect(mempoolEntry).toStrictEqual({
+      const entryKey = Object.keys(mempoolEntry)[0]
+      expect(mempoolEntry[entryKey]).toStrictEqual({
         fees: expect.any(Object),
         vsize: expect.any(BigNumber),
         weight: expect.any(BigNumber),
@@ -48,7 +46,7 @@ describe('getMempoolInfo', () => {
 
   it('should getMempoolAncestors and return array of txids if verbose is false', async () => {
     await waitForExpect(async () => {
-      const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.00003)
+      const txId = await client.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.003)
       const mempoolEntry: string[] = await client.blockchain.getMempoolAncestors(txId, false)
       expect(mempoolEntry.length).toBeGreaterThan(0)
     }, 10000)
