@@ -1,23 +1,12 @@
 import fetch from 'cross-fetch'
 import Dockerode from 'dockerode'
 import * as path from 'path'
+import { pack } from 'tar-fs'
 
 import { DockerContainer, hasImageLocally } from '../DockerContainer'
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../../../')
-const BUILD_FILES = [
-  'Dockerfile',
-  'LICENSE',
-  'lerna.json',
-  'tsconfig.base.json',
-  'tsconfig.build.json',
-  'tsconfig.json',
-  'package.json',
-  'package-lock.json',
-  'packages',
-  'apps'
-]
 
 export class SanityContainer extends DockerContainer {
   constructor (
@@ -30,7 +19,7 @@ export class SanityContainer extends DockerContainer {
 
   public async start (): Promise<void> {
     if (!await hasImageLocally(this.image, this.docker)) {
-      await buildLocalImage(this.image, this.docker)
+      await buildLocalImage(this.app, this.image, this.docker)
     }
     await this.blockchain.start()
     await this.blockchain.generate(3)
@@ -72,12 +61,18 @@ export class SanityContainer extends DockerContainer {
   }
 }
 
-async function buildLocalImage (imageName: string, docker: Dockerode): Promise<void> {
-  const stream = await docker.buildImage({
-    context: PROJECT_ROOT,
-    src: BUILD_FILES
-  }, { t: imageName })
+async function buildLocalImage (app: string, imageName: string, docker: Dockerode): Promise<void> {
+  // Build image with tar - see https://github.com/apocas/dockerode/issues/432
+  const _pack = pack(PROJECT_ROOT)
+  const stream = await docker.buildImage(_pack, {
+    t: imageName,
+    buildargs: {
+      APP: app
+    }
+  })
   await new Promise((resolve, reject) => {
-    docker.modem.followProgress(stream, (err, res) => (err != null) ? reject(err) : resolve(res))
+    docker.modem.followProgress(stream,
+      (err, res) => (err != null) ? reject(err) : resolve(res),
+      console.log)
   })
 }
