@@ -390,53 +390,12 @@ export class Account {
   }
 
   /**
-   * Creates and submits to the network a futures contract.
-   *
-   * @param {FutureSwap} future
-   * @param {string} future.address Address to fund contract and receive resulting token
-   * @param {string} future.amount Amount to send in amount@token format
-   * @param {string} [future.destination] Expected dToken if DUSD supplied
-   * @param {UTXO[]} [options.utxos = []]
-   * @param {string} options.utxos.txid
-   * @param {number} options.utxos.vout
-   * @return {Promise<string>}
-   */
-  async futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('futureswap', [future.address, future.amount, future.destination, utxos], 'number')
-  }
-
-  /**
-   * Creates and submits to the network a withdrawl from futures contract transaction.
-   *
-   * @param {FutureSwap} future
-   * @param {string} future.address Address to fund contract and receive resulting token
-   * @param {string} future.amount Amount to send in amount@token format
-   * @param {string} [future.destination] Expected dToken if DUSD supplied
-   * @param {UTXO[]} [options.utxos = []]
-   * @param {string} options.utxos.txid
-   * @param {number} options.utxos.vout
-   * @return {Promise<string>}
-   */
-  async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('withdrawfutureswap', [future, utxos], 'number')
-  }
-
-  /**
    * List all pending futures.
    *
    * @return {Promise<FutureInfo[]>}
    */
   async listPendingFutureSwaps (): Promise<FutureInfo[]> {
     return await this.client.call('listpendingfutureswaps', [], 'number')
-  }
-
-  /**
-   * Get specific pending futures.
-   *
-   * @return {Promise<GetFutureInfo>}
-   */
-  async getPendingFutureSwaps (): Promise<GetFutureInfo> {
-    return await this.client.call('getpendingfutureswaps', [], 'number')
   }
 }
 
@@ -603,33 +562,8 @@ export interface BurnInfo {
   paybacktokens: string[]
 }
 
-export interface FutureSwap {
-  address: string
-  amount: string
-  destination?: string
-}
-
 export interface FutureInfo {
   owner: string
-  source: string
-  destination: string
-}
-
-export interface GetFutureInfo {
-  owner: string
-  values: Array<Omit<FutureInfo, 'owner'>>
-}
-
-export interface ListFutureHistoryOptions {
-  maxBlockHeight: number
-  depth: number
-  token: string
-  limit: number
-}
-
-export interface FutureHistory {
-  height: number
-  address: string
   source: string
   destination: string
 }
