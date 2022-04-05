@@ -593,6 +593,14 @@ export interface BurnInfo {
    * Amount of tokens that are paid back; formatted as AMOUNT@SYMBOL
    */
   dfipaybacktokens: string[]
+  /**
+   * Amount of paybacks
+   */
+  paybackfees: string[]
+  /**
+   * Amount of tokens that are paid back
+   */
+  paybacktokens: string[]
 }
 
 export interface FutureSwap {

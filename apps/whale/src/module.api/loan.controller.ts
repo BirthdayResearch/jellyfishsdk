@@ -18,20 +18,20 @@ import {
   GetLoanSchemeResult,
   LoanSchemeResult,
   LoanTokenResult
-} from '@defichain/jellyfish-api-core/src/category/loan'
+} from '@defichain/jellyfish-api-core/dist/category/loan'
 import {
   CollateralToken,
   LoanScheme,
   LoanToken,
   LoanVaultActive,
   LoanVaultLiquidated
-} from '@defichain/whale-api-client/src/api/Loan'
+} from '@defichain/whale-api-client/dist/api/Loan'
 import { mapTokenData } from '../module.api/token.controller'
 import { DeFiDCache } from '../module.api/cache/defid.cache'
 import { LoanVaultService } from '../module.api/loan.vault.service'
 import { OraclePriceActiveMapper } from '../module.model/oracle.price.active'
 import { VaultAuctionHistoryMapper, VaultAuctionBatchHistory } from '../module.model/vault.auction.batch.history'
-import { ActivePrice } from '@defichain/whale-api-client/src/api/Prices'
+import { ActivePrice } from '@defichain/whale-api-client/dist/api/Prices'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { HexEncoder } from '../module.model/_hex.encoder'
 

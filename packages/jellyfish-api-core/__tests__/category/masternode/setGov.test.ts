@@ -2,6 +2,7 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { createPoolPair, createToken } from '@defichain/testing'
 import { ContainerAdapterClient } from '../../container_adapter_client'
+import { Testing } from '@defichain/jellyfish-testing'
 
 describe('Masternode', () => {
   const container = new MasterNodeRegTestContainer()
@@ -67,5 +68,73 @@ describe('Masternode', () => {
     const promise = client.masternode.setGov({ LP_DAILY_DFI_REWARD: 999.00293001 })
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('LP_DAILY_DFI_REWARD: Cannot be set manually after Eunos hard fork')
+  })
+})
+
+describe('Masternode setGov ATTRIBUTES', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+  const attributeKey = 'ATTRIBUTES'
+  let key: string
+
+  beforeAll(async () => {
+    await testing.container.start()
+    await testing.container.waitForWalletCoinbaseMaturity()
+
+    // setup loan token
+    await testing.rpc.loan.setLoanToken({
+      symbol: 'DUSD',
+      fixedIntervalPriceId: 'DUSD/USD'
+    })
+    await testing.generate(1)
+
+    const address = await container.call('getnewaddress')
+    const metadata = {
+      symbol: 'BTC',
+      name: 'BTC Token',
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: address
+    }
+    await testing.rpc.token.createToken(metadata)
+    await testing.generate(1)
+
+    const dusdInfo = await testing.rpc.token.getToken('DUSD')
+    const dusdId = Object.keys(dusdInfo)[0]
+    key = `v0/token/${dusdId}`
+  })
+
+  afterAll(async () => {
+    await testing.container.stop()
+  })
+
+  it('should setGov with loan_payback and loan_payback_fee_pct', async () => {
+    const key0 = `${key}/loan_payback/1`
+    const key1 = `${key}/loan_payback/2`
+    const key2 = `${key}/loan_payback_fee_pct/1`
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key0]: 'true', [key1]: 'true', [key2]: '0.25' } })
+    await testing.container.generate(1)
+
+    const govAfter = await testing.rpc.masternode.getGov(attributeKey)
+    expect(govAfter.ATTRIBUTES[key0].toString()).toStrictEqual('true')
+    expect(govAfter.ATTRIBUTES[key1].toString()).toStrictEqual('true')
+    expect(govAfter.ATTRIBUTES[key2].toString()).toStrictEqual('0.25')
+  })
+
+  it('should setGov dfi keys with loan_payback and loan_payback_fee_pct', async () => {
+    const key0 = `${key}/loan_payback/0`
+    const key1 = `${key}/loan_payback_fee_pct/0`
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key0]: 'false', [key1]: '0.35' } })
+    await testing.container.generate(1)
+
+    const govAfter = await testing.rpc.masternode.getGov(attributeKey)
+    expect(govAfter.ATTRIBUTES[key0]).toBeUndefined()
+    expect(govAfter.ATTRIBUTES[key1]).toBeUndefined()
+
+    const key2 = `${key}/payback_dfi`
+    const key3 = `${key}/payback_dfi_fee_pct`
+    expect(govAfter.ATTRIBUTES[key2].toString()).toStrictEqual('false')
+    expect(govAfter.ATTRIBUTES[key3].toString()).toStrictEqual('0.35')
   })
 })
