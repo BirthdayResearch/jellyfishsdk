@@ -1,38 +1,45 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
-import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { TokenController } from '../module.api/token.controller'
-import { createPoolPair, createToken } from '@defichain/testing'
-import { NotFoundException, CacheModule } from '@nestjs/common'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { TokenController } from './token.controller'
+import { NotFoundException } from '@nestjs/common'
+import { Testing } from '@defichain/jellyfish-testing'
+import { createTestingApp, stopTestingApp } from '../e2e.module'
+import { NestFastifyApplication } from '@nestjs/platform-fastify'
 
 const container = new MasterNodeRegTestContainer()
-let client: JsonRpcClient
 let controller: TokenController
+let app: NestFastifyApplication
+const testing = Testing.create(container)
 
 beforeAll(async () => {
   await container.start()
-  await container.waitForReady()
   await container.waitForWalletCoinbaseMaturity()
-  client = new JsonRpcClient(await container.getCachedRpcUrl())
-  await createToken(container, 'DBTC')
-  await createToken(container, 'DETH')
-  await createPoolPair(container, 'DBTC', 'DETH')
 
-  const app: TestingModule = await Test.createTestingModule({
-    controllers: [TokenController],
-    imports: [CacheModule.register()],
-    providers: [DeFiDCache, { provide: JsonRpcClient, useValue: client }]
-  }).compile()
-  controller = app.get<TokenController>(TokenController)
+  await testing.token.create({ symbol: 'DBTC' })
+  await testing.generate(1)
+  await testing.token.create({ symbol: 'DETH' })
+  await testing.generate(1)
+  await testing.token.create({
+    symbol: 'BTC',
+    isDAT: false
+  })
+  await testing.generate(1)
+  await testing.poolpair.create({
+    tokenA: 'DBTC',
+    tokenB: 'DETH'
+  })
+  await testing.generate(1)
+
+  app = await createTestingApp(container)
+  controller = app.get(TokenController)
 })
 
 afterAll(async () => {
   await container.stop()
+  await stopTestingApp(container, app)
 })
 
 describe('list', () => {
-  it('should list', async () => {
+  it('should only list all tokens where isDAT is true', async () => {
     const result = await controller.list({ size: 100 })
     expect(result.data.length).toStrictEqual(4)
 
@@ -140,14 +147,22 @@ describe('list', () => {
     })
   })
 
-  it('should list with pagination', async () => {
+  it('should list tokens where isDAT is true with pagination', async () => {
     const first = await controller.list({ size: 2 })
 
     expect(first.data.length).toStrictEqual(2)
     expect(first.page?.next).toStrictEqual('1')
 
-    expect(first.data[0]).toStrictEqual(expect.objectContaining({ id: '0', symbol: 'DFI', symbolKey: 'DFI' }))
-    expect(first.data[1]).toStrictEqual(expect.objectContaining({ id: '1', symbol: 'DBTC', symbolKey: 'DBTC' }))
+    expect(first.data[0]).toStrictEqual(expect.objectContaining({
+      id: '0',
+      symbol: 'DFI',
+      symbolKey: 'DFI'
+    }))
+    expect(first.data[1]).toStrictEqual(expect.objectContaining({
+      id: '1',
+      symbol: 'DBTC',
+      symbolKey: 'DBTC'
+    }))
 
     const next = await controller.list({
       size: 2,
@@ -157,8 +172,16 @@ describe('list', () => {
     expect(next.data.length).toStrictEqual(2)
     expect(next.page?.next).toStrictEqual('3')
 
-    expect(next.data[0]).toStrictEqual(expect.objectContaining({ id: '2', symbol: 'DETH', symbolKey: 'DETH' }))
-    expect(next.data[1]).toStrictEqual(expect.objectContaining({ id: '3', symbol: 'DBTC-DETH', symbolKey: 'DBTC-DETH' }))
+    expect(next.data[0]).toStrictEqual(expect.objectContaining({
+      id: '2',
+      symbol: 'DETH',
+      symbolKey: 'DETH'
+    }))
+    expect(next.data[1]).toStrictEqual(expect.objectContaining({
+      id: '3',
+      symbol: 'DBTC-DETH',
+      symbolKey: 'DBTC-DETH'
+    }))
 
     const last = await controller.list({
       size: 1,
@@ -170,7 +193,10 @@ describe('list', () => {
   })
 
   it('should list empty object as out of range', async () => {
-    const result = await controller.list({ size: 100, next: '300' })
+    const result = await controller.list({
+      size: 100,
+      next: '300'
+    })
 
     expect(result.data.length).toStrictEqual(0)
     expect(result.page).toBeUndefined()

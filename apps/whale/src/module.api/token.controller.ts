@@ -1,10 +1,10 @@
 import { Controller, Get, NotFoundException, Param, ParseIntPipe, Query } from '@nestjs/common'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
-import { ApiPagedResponse } from '../module.api/_core/api.paged.response'
+import { ApiPagedResponse } from './_core/api.paged.response'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
-import { PaginationQuery } from '../module.api/_core/api.query'
+import { PaginationQuery } from './_core/api.query'
 import { TokenData } from '@defichain/whale-api-client/dist/api/Tokens'
-import { DeFiDCache } from '../module.api/cache/defid.cache'
+import { DeFiDCache } from './cache/defid.cache'
 
 @Controller('/tokens')
 export class TokenController {
@@ -30,10 +30,13 @@ export class TokenController {
       limit: query.size
     }, true)
 
-    const tokens: TokenData[] = Object.entries(data)
-      .map(([id, value]): TokenData => {
-        return mapTokenData(id, value)
-      }).sort(a => Number.parseInt(a.id))
+    const tokens: TokenData[] = []
+    for (const [id, tokenInfo] of Object.entries(data)) {
+      if (tokenInfo.isDAT) {
+        tokens.push(mapTokenData(id, tokenInfo))
+      }
+    }
+    tokens.sort(token => Number.parseInt(token.id))
 
     return ApiPagedResponse.of(tokens, query.size, item => {
       return item.id
