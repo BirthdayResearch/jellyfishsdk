@@ -101,9 +101,15 @@ describe('Oracle getFutureSwapBlock', () => {
   })
 
   describe('Should getFutureSwapBlock with number = 0', () => {
-    it('Should getFutureSwapBlock if no GOV attribute is set', async () => {
-      const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
-      expect(futureSwapBlock).toStrictEqual(0)
+    it('Should getFutureSwapBlock if GOV attributes: active is set to true but reward_pct and block_period are not set', async () => {
+      {
+        // Only active is set to false
+        await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
+        await testing.generate(1)
+
+        const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
+        expect(futureSwapBlock).toStrictEqual(0)
+      }
     })
 
     it('Should getFutureSwapBlock if GOV attributes: active is set to false', async () => {
@@ -126,15 +132,9 @@ describe('Oracle getFutureSwapBlock', () => {
       }
     })
 
-    it('Should getFutureSwapBlock if GOV attributes: active is set to true but reward_pct and block_period are not set', async () => {
-      {
-        // Only active is set to false
-        await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
-        await testing.generate(1)
-
-        const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
-        expect(futureSwapBlock).toStrictEqual(0)
-      }
+    it('Should getFutureSwapBlock if no GOV attribute is set', async () => {
+      const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
+      expect(futureSwapBlock).toStrictEqual(0)
     })
   })
 })
