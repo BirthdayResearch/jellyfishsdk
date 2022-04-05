@@ -557,64 +557,6 @@ describe('futureSwap', () => {
     expect(burnAfter.dfip2203).toStrictEqual([swapAmount.toFixed(8) + '@DUSD'])
   })
 
-  it('should withdraw futureswap', async () => {
-    const tslaAddress = await testing.generateAddress()
-    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@DUSD' })
-    await testing.generate(1)
-
-    const swapAmount = 1
-    const fswap: FutureSwap = {
-      address: tslaAddress,
-      amount: swapAmount.toString() + '@DUSD',
-      destination: 'TSLA'
-    }
-    await testing.rpc.account.futureSwap(fswap)
-    await testing.generate(1)
-
-    // check the future is in effect
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(1)
-      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[0].source).toStrictEqual(swapAmount.toFixed(8) + '@DUSD')
-      expect(pendingFutures[0].destination).toStrictEqual('TSLA')
-    }
-
-    const withdraw = 0.5
-    const fswapWithdraw: FutureSwap = {
-      address: tslaAddress,
-      amount: withdraw.toString() + '@DUSD',
-      destination: 'TSLA'
-    }
-
-    // Withdraw half of future swap
-    {
-      await testing.rpc.account.withdrawFutureSwap(fswapWithdraw)
-      await testing.generate(1)
-    }
-
-    // check the future after withdraw half
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(1)
-      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[0].source).toStrictEqual((swapAmount - withdraw).toFixed(8) + '@DUSD')
-      expect(pendingFutures[0].destination).toStrictEqual('TSLA')
-    }
-
-    // Withdraw second half of future swap
-    {
-      await testing.rpc.account.withdrawFutureSwap(fswapWithdraw)
-      await testing.generate(1)
-    }
-
-    // check the future after withdrawing all
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(0)
-    }
-  })
-
   it('should not create futureswap when DFIP2203 is not active', async () => {
     const tslaAddress = await testing.generateAddress()
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
