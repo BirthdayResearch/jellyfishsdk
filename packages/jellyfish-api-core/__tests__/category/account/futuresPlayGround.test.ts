@@ -185,7 +185,7 @@ async function settingFuturesGovVars (): Promise<void> {
   await testing.generate(1)
 
   const nextFuturesBlock = await testing.rpc.blockchain.getBlockCount() + futInterval - await testing.rpc.blockchain.getBlockCount() % futInterval
-  // expect(nextFuturesBlock).toStrictEqual(await testing.container.call('getfutureswapblock'))
+  expect(nextFuturesBlock).toStrictEqual(await testing.container.call('getfutureswapblock'))
   expect(nextFuturesBlock).toStrictEqual(175)
 }
 
