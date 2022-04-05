@@ -394,8 +394,8 @@ export class Account {
    *
    * @return {Promise<GetFutureInfo>}
    */
-  async getPendingFutureSwaps (param: any): Promise<GetFutureInfo> {
-    return await this.client.call('getpendingfutureswaps', [param], 'number')
+  async getPendingFutureSwaps (address: string): Promise<GetFutureInfo> {
+    return await this.client.call('getpendingfutureswaps', [address], 'number')
   }
 }
 

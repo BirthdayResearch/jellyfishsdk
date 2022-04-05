@@ -473,7 +473,7 @@ Get specific pending futures.
 
 ```ts title="client.account.getPendingFutureSwaps()"
 interface account {
-  getPendingFutureSwaps (): Promise<GetFutureInfo>
+  getPendingFutureSwaps (address: string): Promise<GetFutureInfo>
 }
 
 interface GetFutureInfo {
