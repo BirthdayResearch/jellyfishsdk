@@ -1288,7 +1288,6 @@ describe('paybackLoan for any token', () => {
 
     const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(penaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`])
 
@@ -1376,7 +1375,6 @@ describe('paybackLoan for any token', () => {
     const dfiPenaltyForTslaLoan = new BigNumber(dfiPaybackAmount).multipliedBy(tslaPenaltyRate)
 
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount * 2).toFixed(8)}@DFI`])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(dfiPenaltyForDusdLoan.plus(dfiPenaltyForTslaLoan))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`, `${tslaPayback.toFixed(8)}@TSLA`])
 
@@ -1501,6 +1499,6 @@ describe('paybackLoan for any token', () => {
     }, script)
     const payBackPromise = sendTransaction(testing.container, txn)
 
-    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: There is no loan on token (DUSD) in this vault! (code 16)\', code: -26')
+    await expect(payBackPromise).rejects.toThrow('DeFiDRpcError: \'PaybackLoanTx: Payback of loan via DFI token is not currently active (code 16)\', code: -26')
   })
 })
