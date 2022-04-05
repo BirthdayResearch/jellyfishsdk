@@ -1,5 +1,4 @@
 import fetch from 'cross-fetch'
-import Dockerode from 'dockerode'
 import * as path from 'path'
 import { pack } from 'tar-fs'
 
@@ -8,27 +7,61 @@ import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 
 const PROJECT_ROOT = path.resolve(__dirname, '../../../../../')
 
-export class SanityContainer extends DockerContainer {
+export abstract class SanityContainer extends DockerContainer {
   constructor (
-    public readonly blockchain: MasterNodeRegTestContainer,
+    public readonly blockchain: MasterNodeRegTestContainer = new MasterNodeRegTestContainer(),
     public readonly app: string,
     public readonly tag: string
   ) {
     super(`${app}:${tag}`)
   }
 
-  public async start (): Promise<void> {
-    if (!await hasImageLocally(this.image, this.docker)) {
-      await buildLocalImage(this.app, this.image, this.docker)
+  public async initialize (): Promise<{
+    blockchain: {
+      ip: string
+      port: string
     }
+  }> {
+    if (!await hasImageLocally(this.image, this.docker)) {
+      await this.build()
+    }
+
     await this.blockchain.start()
     await this.blockchain.generate(3)
+
+    const hostRegTestIp = 'host.docker.internal' // TODO(eli-lim): Works on linux?
+    const hostRegTestPort = await this.blockchain.getPort('19554/tcp')
+
+    return {
+      blockchain: {
+        ip: hostRegTestIp,
+        port: hostRegTestPort
+      }
+    }
   }
 
+  public abstract start (): Promise<void>
+
   public async stop (): Promise<void> {
-    await this.blockchain.stop()
     await this.container?.stop()
     await this.container?.remove({ v: true })
+    await this.blockchain.stop()
+  }
+
+  public async build (): Promise<void> {
+    // Build image with tar - see https://github.com/apocas/dockerode/issues/432
+    const image = pack(PROJECT_ROOT)
+    const stream = await this.docker.buildImage(image, {
+      t: this.image,
+      buildargs: {
+        APP: this.app
+      }
+    })
+    await new Promise((resolve, reject) => {
+      this.docker.modem.followProgress(stream,
+        (err, res) => (err != null) ? reject(err) : resolve(res),
+        console.log)
+    })
   }
 
   public generateName (): string {
@@ -36,14 +69,14 @@ export class SanityContainer extends DockerContainer {
     return `${this.app}-${rand}`
   }
 
-  async post<T = any>(endpoint: string, data: any): Promise<T> {
+  public async post<T = any>(endpoint: string, data: any): Promise<T> {
     return await this.fetch(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)
     })
   }
 
-  async get<T = any>(endpoint: string): Promise<T> {
+  public async get<T = any>(endpoint: string): Promise<T> {
     return await this.fetch(endpoint, {
       method: 'GET'
     })
@@ -59,20 +92,4 @@ export class SanityContainer extends DockerContainer {
     const ip = await this.getIp('bridge')
     return `http://${ip}:3000`
   }
-}
-
-async function buildLocalImage (app: string, imageName: string, docker: Dockerode): Promise<void> {
-  // Build image with tar - see https://github.com/apocas/dockerode/issues/432
-  const _pack = pack(PROJECT_ROOT)
-  const stream = await docker.buildImage(_pack, {
-    t: imageName,
-    buildargs: {
-      APP: app
-    }
-  })
-  await new Promise((resolve, reject) => {
-    docker.modem.followProgress(stream,
-      (err, res) => (err != null) ? reject(err) : resolve(res),
-      console.log)
-  })
 }
