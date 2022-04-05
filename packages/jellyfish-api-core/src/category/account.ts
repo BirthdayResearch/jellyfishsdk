@@ -418,7 +418,7 @@ export class Account {
    * @return {Promise<string>}
    */
   async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
-    return await this.client.call('withdrawfutureswap', [future, utxos], 'number')
+    return await this.client.call('withdrawfutureswap', [future.address, future.amount, future.destination, utxos], 'number')
   }
 
   /**
