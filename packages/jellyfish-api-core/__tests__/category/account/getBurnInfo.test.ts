@@ -56,6 +56,7 @@ it('should getBurnInfo', async () => {
     paybacktokens: [],
     dexfeetokens: [],
     dfipaybackfee: new BigNumber(0),
-    dfipaybacktokens: []
+    dfipaybacktokens: [],
+    dfip2203: []
   })
 })
