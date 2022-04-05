@@ -297,6 +297,7 @@ Get all in-mempool ancestors if txId is in mempool as string[] if verbose is fal
 interface blockchain {
   getMempoolAncestors (txId: string, verbosity: true): Promise<MempoolTx>
   getMempoolAncestors (txId: string, verbosity: false): Promise<string[]>
+  getMempoolAncestors (txId: string, verbosity: true | false): Promise<MempoolTx | string[]>
 }
 ```
 
