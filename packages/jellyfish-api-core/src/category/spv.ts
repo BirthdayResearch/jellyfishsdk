@@ -121,6 +121,24 @@ export class Spv {
   }
 
   /**
+   * Gets all HTLC contracts stored in wallet and creates refunds transactions for all that have expired
+   *
+   * @param {string} destinationAddress Destination for funds in the HTLC
+   * @param {SpvDefaultOptions} [options]
+   * @param {BigNumber} [options.feeRate=10000] Fee rate in satoshis per KB. Minimum is 1000.
+   * @return {Promise<string>} txid
+   */
+  async refundHtlcAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<string> {
+    /**
+     * Looking at ain, its returning an array of txid containing only 1 txid.
+     * https://github.com/DeFiCh/ain/blob/86f554f2454edc8c16684cac6f7332b437a991e0/src/spv/spv_wrapper.cpp#L1354-L1379
+     * For now, extract the txid from the array according to docs from rpc.
+     */
+    const result = await this.client.call<string[]>('spv_refundhtlcall', [destinationAddress, options.feeRate], 'number')
+    return result[0]
+  }
+
+  /**
    * List all outputs related to HTLC addresses in the wallet.
    *
    * @param {string | undefined} [scriptAddress] HTLC address to filter result

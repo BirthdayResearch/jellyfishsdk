@@ -158,6 +158,20 @@ interface SendMessageResult {
 }
 ```
 
+## refundHtlcAll
+
+Gets all HTLC contracts stored in wallet and creates refunds transactions for all that have expired
+
+```ts title="client.spv.refundHtlcAll()"
+interface spv {
+  refundHtlcAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<string>
+}
+
+interface SpvDefaultOptions {
+  feeRate?: BigNumber
+}
+```
+
 ## listHtlcOutputs
 
 List all outputs related to HTLC addresses in the wallet.
