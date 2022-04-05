@@ -16,10 +16,6 @@ module.exports = {
     },
     colorMode: {
       defaultMode: 'light',
-      switchConfig: {
-        darkIcon: '🌙',
-        lightIcon: '💡'
-      },
       respectPrefersColorScheme: true
     },
     navbar: {

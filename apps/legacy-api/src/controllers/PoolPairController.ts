@@ -60,7 +60,7 @@ export class PoolPairController {
         tokenB: quote
       } = poolPair
 
-      const [baseVolume, quoteVolume] = this.getVolumes(poolPair)
+      const [baseVolume, quoteVolume] = getVolumes(poolPair)
 
       const pairKey = base.symbol + '_' + quote.symbol
       result[pairKey] = {
@@ -160,37 +160,6 @@ export class PoolPairController {
     }
   }
 
-  getVolumes (poolPair: PoolPairData): [BigNumber, BigNumber] {
-    const poolPairVolumeInUsd = new BigNumber(poolPair.volume?.h24 ?? 0)
-
-    // vol in token = vol in usd * (usd per 1 token)
-    const volumeInBase = poolPairVolumeInUsd.times(
-      this.usdToTokenConversionRate(
-        poolPair.tokenA.reserve,
-        poolPair.totalLiquidity.usd ?? 1
-      )
-    )
-    const volumeInQuote = poolPairVolumeInUsd.times(
-      this.usdToTokenConversionRate(
-        poolPair.tokenB.reserve,
-        poolPair.totalLiquidity.usd ?? 1
-      )
-    )
-    return [volumeInBase, volumeInQuote]
-  }
-
-  /**
-   * Derive from totalLiquidity in USD and token's reserve
-   * BTC in USD = totalLiquidity in USD / (BTC.reserve * 2)
-   * USD in BTC = (BTC.reserve * 2) / totalLiquidity in USD
-   * @param tokenReserve
-   * @param totalLiquidityInUsd
-   */
-  usdToTokenConversionRate (tokenReserve: string | number, totalLiquidityInUsd: string | number): BigNumber {
-    return new BigNumber(tokenReserve).times(2)
-      .div(new BigNumber(totalLiquidityInUsd))
-  }
-
   async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
     const api = this.whaleApiClientProvider.getClient(network)
     const fromAddress = fromScript(poolSwap.fromScript, network)?.address
@@ -237,17 +206,117 @@ export class PoolPairController {
       provider_URL: 'https://defichain.com',
       tvl: stats.tvl.total,
       links: [
-        { title: 'Twitter', link: 'https://twitter.com/defichain' },
-        { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
-        { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
-        { title: 'Telegram', link: 'https://t.me/defiblockchain' },
-        { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
-        { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
-        { title: 'GitHub', link: 'https://github.com/DeFiCh' },
-        { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
+        {
+          title: 'Twitter',
+          link: 'https://twitter.com/defichain'
+        },
+        {
+          title: 'YouTube',
+          link: 'https://www.youtube.com/DeFiChain'
+        },
+        {
+          title: 'Reddit',
+          link: 'https://reddit.com/r/defiblockchain'
+        },
+        {
+          title: 'Telegram',
+          link: 'https://t.me/defiblockchain'
+        },
+        {
+          title: 'LinkedIn',
+          link: 'https://www.linkedin.com/company/defichain'
+        },
+        {
+          title: 'Facebook',
+          link: 'https://www.facebook.com/defichain.official'
+        },
+        {
+          title: 'GitHub',
+          link: 'https://github.com/DeFiCh'
+        },
+        {
+          title: 'Discord',
+          link: 'https://discord.com/invite/py55egyaGy'
+        }
       ]
     }
   }
+}
+
+@Controller('v2')
+export class PoolPairControllerV2 {
+  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  }
+
+  /**
+   * Fixes the implementation in v1 - inverting the last_price
+   */
+  @Get('listswaps')
+  async listSwaps (
+    @Query('network', NetworkValidationPipe) network: SupportedNetwork = 'mainnet'
+  ): Promise<LegacyListSwapsResponse> {
+    const api = this.whaleApiClientProvider.getClient(network)
+
+    const result: LegacyListSwapsResponse = {}
+    const poolPairs = await api.poolpairs.list(200)
+
+    // quote and base are intentionally reversed to conform to the current api requirements
+    for (const poolPair of poolPairs) {
+      const {
+        tokenA: base,
+        tokenB: quote
+      } = poolPair
+
+      const [baseVolume, quoteVolume] = getVolumes(poolPair)
+
+      const pairKey = base.symbol + '_' + quote.symbol
+      result[pairKey] = {
+        base_id: base.id,
+        base_name: base.symbol,
+        base_symbol: base.symbol,
+        quote_id: quote.id,
+        quote_name: quote.symbol,
+        quote_symbol: quote.symbol,
+        last_price: poolPair.priceRatio.ba, // inverted from v1
+        base_volume: baseVolume.toNumber(),
+        quote_volume: quoteVolume.toNumber(),
+        isFrozen: (poolPair.status) ? 0 : 1
+      }
+    }
+    return result
+  }
+}
+
+function getVolumes (poolPair: PoolPairData): [BigNumber, BigNumber] {
+  const poolPairVolumeInUsd = new BigNumber(poolPair.volume?.h24 ?? 0)
+
+  const volumeInQuote = poolPairVolumeInUsd.times(
+    usdToTokenConversionRate(
+      poolPair.tokenA.reserve,
+      poolPair.totalLiquidity.usd ?? 1
+    )
+  )
+  // vol in token = vol in usd * (usd per 1 token)
+  const volumeInBase = poolPairVolumeInUsd.times(
+    usdToTokenConversionRate(
+      poolPair.tokenB.reserve,
+      poolPair.totalLiquidity.usd ?? 1
+    )
+  )
+
+  return [volumeInQuote, volumeInBase]
+}
+
+/**
+ * Derive from totalLiquidity in USD and token's reserve
+ * BTC in USD = totalLiquidity in USD / (BTC.reserve * 2)
+ * USD in BTC = (BTC.reserve * 2) / totalLiquidity in USD
+ * @param tokenReserve
+ * @param totalLiquidityInUsd
+ */
+function usdToTokenConversionRate (tokenReserve: string | number, totalLiquidityInUsd: string | number): BigNumber {
+  return new BigNumber(tokenReserve).times(2)
+    .div(new BigNumber(totalLiquidityInUsd))
 }
 
 interface LegacyPoolPairData {
@@ -394,6 +463,10 @@ interface LegacySubgraphSwapFromTo {
 }
 
 function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
+  if (vouts.length === 0) {
+    return undefined // reject because not yet indexed, cannot be found
+  }
+
   const hex = vouts[0].script.hex
   const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
   const stack = toOPCodes(buffer)

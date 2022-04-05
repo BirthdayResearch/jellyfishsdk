@@ -193,3 +193,35 @@ describe('get accounts on MASTERNODE', () => {
     expect(address).toStrictEqual('bcrt1qfyygclxhcwh97hyylhkn3asucae29x6qhnnh47')
   })
 })
+
+describe('deriveNode', () => {
+  const accountProvider = new TestAccountProvider([])
+  const wallet = new JellyfishWallet(nodeProvider, accountProvider)
+
+  it('should get account 0 (default address)', async () => {
+    const node = wallet.deriveNode(0)
+    const pubKey = await node.publicKey()
+    expect(pubKey.toString('hex')).toStrictEqual('03880a9552c2881b126d6d11d5639f3578d9fdf9c50207c5f220eb795ac5691148')
+  })
+
+  it('should get account 1', async () => {
+    const node = wallet.deriveNode(1)
+    const pubKey = await node.publicKey()
+    expect(pubKey.toString('hex')).toStrictEqual('0385f1e9d6d3a2a2c6ba2855f44c258564bc1951039f29bb32b029b565c59b2de4')
+  })
+})
+
+describe('derivePath', () => {
+  const accountProvider = new TestAccountProvider([])
+  const wallet = new JellyfishWallet(nodeProvider, accountProvider)
+
+  it('should get account 0 (default address)', async () => {
+    const path = wallet.derivePath(0)
+    expect(path).toStrictEqual('1129/0/0/0')
+  })
+
+  it('should get account 1', async () => {
+    const path = wallet.derivePath(1)
+    expect(path).toStrictEqual('1129/0/0/1')
+  })
+})
