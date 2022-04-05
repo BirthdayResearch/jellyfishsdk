@@ -8,36 +8,30 @@ import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 const PROJECT_ROOT = path.resolve(__dirname, '../../../../../')
 
 export abstract class SanityContainer extends DockerContainer {
+  public readonly name = this.generateName()
+
   constructor (
-    public readonly blockchain: MasterNodeRegTestContainer = new MasterNodeRegTestContainer(),
     public readonly app: string,
-    public readonly tag: string
+    public readonly port = Math.floor(Math.random() * (5000 - 3000 + 1) + 3000),
+    public readonly blockchain: MasterNodeRegTestContainer = new MasterNodeRegTestContainer()
   ) {
-    super(`${app}:${tag}`)
+    super(`${app}:sanity`)
   }
 
   public async initialize (): Promise<{
-    blockchain: {
-      ip: string
-      port: string
-    }
+    hostRegTestIp: string
+    hostRegTestPort: string
   }> {
     if (!await hasImageLocally(this.image, this.docker)) {
       await this.build()
     }
 
     await this.blockchain.start()
-    await this.blockchain.generate(3)
 
     const hostRegTestIp = 'host.docker.internal' // TODO(eli-lim): Works on linux?
     const hostRegTestPort = await this.blockchain.getPort('19554/tcp')
 
-    return {
-      blockchain: {
-        ip: hostRegTestIp,
-        port: hostRegTestPort
-      }
-    }
+    return { hostRegTestIp, hostRegTestPort }
   }
 
   public abstract start (): Promise<void>
@@ -89,7 +83,6 @@ export abstract class SanityContainer extends DockerContainer {
   }
 
   public async getUrl (): Promise<string> {
-    const ip = await this.getIp('bridge')
-    return `http://${ip}:3000`
+    return `http://127.0.0.1:${this.port}`
   }
 }
