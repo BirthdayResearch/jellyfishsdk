@@ -512,4 +512,214 @@ describe('futuresSwap', () => {
       )
     }
   })
+
+  it('Swap block range', async () => {
+    const addressTSLA = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+    await testing.generate(1)
+
+    {
+      const nextSettleBlock = await getNextSettleBlock()
+      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+    }
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['2.10000000@DUSD']
+      )
+    }
+
+    const fswap: FutureSwap = {
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    }
+
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['1.05000000@DUSD', '0.95238095@TSLA']
+      )
+    }
+
+    await testing.generate(1)
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['1.05000000@DUSD', '0.95238095@TSLA']
+      )
+    }
+
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures).toStrictEqual([])
+    }
+
+    {
+      const promise = testing.container.call('withdrawfutureswap', [addressTSLA, '0.00000001@DUSD', 'TSLA'])
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.00000001\', code: -32600')
+    }
+
+    {
+      const nextSettleBlock = await getNextSettleBlock()
+      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+    }
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      console.log(account)
+    }
+
+    {
+      const account = await testing.rpc.account.getAccount(contractAddress)
+      console.log(account)
+    }
+  })
+
+  it('check_multiple_swaps', async () => {
+    const addressTSLA = await testing.generateAddress()
+    const addressTWTR = await testing.generateAddress()
+
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTWTR]: '2.1@DUSD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    })
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    })
+    await testing.rpc.account.futureSwap({
+      address: addressTWTR,
+      amount: '1.05@DUSD',
+      destination: 'TWTR'
+    })
+    await testing.rpc.account.futureSwap({
+      address: addressTWTR,
+      amount: '1.05@DUSD',
+      destination: 'TWTR'
+    })
+    await testing.generate(1)
+
+    {
+      const result = await testing.container.call('getpendingfutureswaps', [addressTSLA])
+      expect(result).toStrictEqual(
+        {
+          owner: addressTSLA,
+          values: [
+            { source: '1.05000000@DUSD', destination: 'TSLA' },
+            { source: '1.05000000@DUSD', destination: 'TSLA' }
+          ]
+        }
+      )
+    }
+
+    {
+      const result = await testing.container.call('getpendingfutureswaps', [addressTWTR])
+      expect(result).toStrictEqual(
+        {
+          owner: addressTWTR,
+          values: [
+            { source: '1.05000000@DUSD', destination: 'TWTR' },
+            { source: '1.05000000@DUSD', destination: 'TWTR' }
+          ]
+        }
+      )
+    }
+
+    {
+      const nextSettleBlock = await getNextSettleBlock()
+      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    }
+
+    {
+      const result = await testing.container.call('getpendingfutureswaps', [addressTWTR])
+      expect(result).toStrictEqual([])
+    }
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['1.90476190@TSLA']
+      )
+    }
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTWTR)
+      expect(account).toStrictEqual(
+        ['1.90476190@TWTR']
+      )
+    }
+  })
+
+  it('check_withdrawals', async () => {
+    const addressTSLA = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+  })
+
+  it('check_minimum_swaps', async () => {
+    const addressTSLA = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TWTR'
+    })
+
+    {
+      const nextSettleBlock = await getNextSettleBlock()
+      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    }
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['1.05000000@DUSD', '0.95238095@TWTR']
+      )
+    }
+
+    const minimumPurchase = new BigNumber(1.05).div(100000000).dp(8, BigNumber.ROUND_FLOOR).toString()
+    console.log(minimumPurchase)
+
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: `${minimumPurchase}@DUSD`,
+      destination: 'TSLA'
+    })
+    await testing.generate(1)
+  })
+
+  it('check_gov_var_change', async () => {
+
+  })
+
+  it('unpaid_contract', async () => {
+
+  })
+
+  it('rpc_history', async () => {
+
+  })
 })
