@@ -2,12 +2,12 @@ import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
-import { FutureSwap } from '../../../src/category/account'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
 
 const collateralAddress = RegTestFoundationKeys[0].owner.address
+const futureRewardPercentage = 0.05
 const futureInterval = 25
 
 let addressTSLA: string
@@ -105,6 +105,12 @@ async function setup (): Promise<void> {
 
   await testing.generate(1)
 
+  await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
+  await testing.generate(1)
+
+  await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/reward_pct': futureRewardPercentage.toString(), 'v0/params/dfip2203/block_period': futureInterval.toString() } })
+  await testing.generate(1)
+
   await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
   await testing.generate(1)
 
@@ -140,22 +146,12 @@ describe('listPendingFutureSwaps', () => {
     }
 
     {
-      const fswap: FutureSwap = {
-        address: addressTSLA,
-        amount: '1@TSLA'
-      }
-
-      await testing.rpc.account.futureSwap(fswap)
+      await testing.container.call('futureswap', [addressTSLA, '1@TSLA'])
       await testing.generate(1)
     }
 
     {
-      const fswap: FutureSwap = {
-        address: addressGOOGL,
-        amount: '1@GOOGL'
-      }
-
-      await testing.rpc.account.futureSwap(fswap)
+      await testing.container.call('futureswap', [addressGOOGL, '1@GOOGL'])
       await testing.generate(1)
     }
 
