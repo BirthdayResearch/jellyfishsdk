@@ -598,7 +598,7 @@ export interface BurnInfo {
 export interface FutureSwap {
   address: string
   amount: string
-  destination: string
+  destination?: string
 }
 
 export interface FutureInfo {
