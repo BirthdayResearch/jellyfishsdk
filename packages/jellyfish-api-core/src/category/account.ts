@@ -388,6 +388,15 @@ export class Account {
   async getBurnInfo (): Promise<BurnInfo> {
     return await this.client.call('getburninfo', [], 'bignumber')
   }
+
+  /**
+   * Get specific pending futures.
+   *
+   * @return {Promise<GetFutureInfo>}
+   */
+  async getPendingFutureSwaps (param: any): Promise<GetFutureInfo> {
+    return await this.client.call('getpendingfutureswaps', [param], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -551,4 +560,15 @@ export interface BurnInfo {
    * Amount of tokens that are paid back
    */
   paybacktokens: string[]
+}
+
+export interface FutureInfo {
+  owner: string
+  source: string
+  destination: string
+}
+
+export interface GetFutureInfo {
+  owner: string
+  values: Array<Omit<FutureInfo, 'owner'>>
 }

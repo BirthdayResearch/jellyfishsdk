@@ -466,3 +466,24 @@ interface BurnInfo {
   paybacktokens: string[]
 }
 ```
+
+## getPendingFutureSwaps
+
+Get specific pending futures.
+
+```ts title="client.account.getPendingFutureSwaps()"
+interface account {
+  getPendingFutureSwaps (): Promise<GetFutureInfo>
+}
+
+interface GetFutureInfo {
+  owner: string
+  values: Omit<FutureInfo, "owner"> []
+}
+
+interface FutureInfo {
+  owner: string
+  source: string
+  destination: string
+}
+```
