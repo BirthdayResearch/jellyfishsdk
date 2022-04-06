@@ -157,10 +157,12 @@ export class PoolSwapPathFindingService {
    */
   private async addTokensAndConnectionsToGraph (poolPairTokens: PoolPairToken[]): Promise<void> {
     for (const poolPairToken of poolPairTokens) {
-      const [a, b] = poolPairToken.id.split('-')
-      if (a === 'BURN' || b === 'BURN') {
+      const poolPair = await this.getPoolPairInfo(`${poolPairToken.poolPairId}`)
+      if (!poolPair.status) {
         continue
       }
+
+      const [a, b] = poolPairToken.id.split('-')
 
       if (!this.tokenGraph.hasNode(a)) {
         this.tokenGraph.addNode(a)
