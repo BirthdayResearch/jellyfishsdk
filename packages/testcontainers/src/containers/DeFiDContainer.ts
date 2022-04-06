@@ -1,7 +1,9 @@
+import { dockerClient } from 'testcontainers/dist/docker/docker-client'
+import { inspectContainer } from 'testcontainers/dist/docker/functions/container/inspect-container'
+import { BoundPorts } from 'testcontainers/dist/bound-ports'
 import fetch from 'cross-fetch'
 import { DockerContainer, DockerOptions } from './DockerContainer'
 import { waitForCondition } from '../utils'
-import { dockerClient } from 'testcontainers/dist/docker/docker-client'
 /**
  * Types of network as per https://github.com/DeFiCh/ain/blob/bc231241/src/chainparams.cpp#L825-L836
  */
@@ -238,6 +240,13 @@ export abstract class DeFiDContainer extends DockerContainer {
     const dockerrode = (await dockerClient).dockerode
     const dockerrodeContainer = dockerrode.getContainer(this.requireContainer().getId())
     await dockerrodeContainer.restart()
+    // Hacky solution to go pass changing ports after restart
+    // And since testcontainers doesn't update, we do it here
+    const container: any = this.requireContainer()
+    const inspectRes = await inspectContainer(dockerrodeContainer)
+    const boundPorts: BoundPorts = (BoundPorts as any).fromInspectResult(inspectRes).filter(DeFiDContainer.DefiDPorts[this.network])
+    container.inspectResult = inspectRes
+    container.boundPorts = boundPorts
     await this.waitForRpc(timeout)
   }
 }
