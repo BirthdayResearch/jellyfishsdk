@@ -29,7 +29,9 @@ export enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  FUTURE_SWAP_EXECUTION = 'q',
+  FUTURE_SWAP_REFUND = 'w'
 }
 
 export enum SelectionModeType {
@@ -420,24 +422,6 @@ export class Account {
   async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('withdrawfutureswap', [future.address, future.amount, future.destination, utxos], 'number')
   }
-
-  /**
-   * List all pending futures.
-   *
-   * @return {Promise<FutureInfo[]>}
-   */
-  async listPendingFutureSwaps (): Promise<FutureInfo[]> {
-    return await this.client.call('listpendingfutureswaps', [], 'number')
-  }
-
-  /**
-   * Get specific pending futures.
-   *
-   * @return {Promise<GetFutureInfo>}
-   */
-  async getPendingFutureSwaps (): Promise<GetFutureInfo> {
-    return await this.client.call('getpendingfutureswaps', [], 'number')
-  }
 }
 
 export interface AccountPagination {
@@ -611,29 +595,4 @@ export interface FutureSwap {
   address: string
   amount: string
   destination?: string
-}
-
-export interface FutureInfo {
-  owner: string
-  source: string
-  destination: string
-}
-
-export interface GetFutureInfo {
-  owner: string
-  values: Array<Omit<FutureInfo, 'owner'>>
-}
-
-export interface ListFutureHistoryOptions {
-  maxBlockHeight: number
-  depth: number
-  token: string
-  limit: number
-}
-
-export interface FutureHistory {
-  height: number
-  address: string
-  source: string
-  destination: string
 }

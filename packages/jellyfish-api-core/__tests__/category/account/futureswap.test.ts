@@ -1,7 +1,7 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { FutureSwap } from 'packages/jellyfish-api-core/src/category/account'
+import { DfTxType, FutureSwap } from '../../../src/category/account'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 const container = new MasterNodeRegTestContainer()
@@ -10,10 +10,7 @@ let collateralAddress: string
 let oracleId: string
 let idDUSD: string
 let idTSLA: string
-// let idAMZN: string
-// let idBTC: string
 const attributeKey = 'ATTRIBUTES'
-// let key: string
 let futInterval: number
 let futRewardPercentage: number
 const contractAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
@@ -93,9 +90,7 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
-  // idBTC = await testing.token.getTokenId('BTC')
   idTSLA = await testing.token.getTokenId('TSLA')
-  // idAMZN = await testing.token.getTokenId('AMZN')
   idDUSD = await testing.token.getTokenId('DUSD')
 
   // create a vault and take loans
@@ -211,10 +206,11 @@ describe('futureSwap', () => {
     const nextSettleBlock = await getNextSettleBlock()
     await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
 
+    let mintedDUSD: BigNumber
     // check future settled
     {
       // calclulate minted DUSD. dtoken goes for a discount.
-      const mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
+      mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
       const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
       expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
 
@@ -243,6 +239,10 @@ describe('futureSwap', () => {
     // check burn
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+
+    // check results can be retrived via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [mintedDUSD.toFixed(8) + '@DUSD'] }))
   })
 
   it('should create futureswap dtoken to dusd just before the next settle block', async () => {
@@ -469,6 +469,11 @@ describe('futureSwap', () => {
     // check burn
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([])
+
+    // check results can be retrived via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_REFUND })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: contractAddress, type: 'FutureSwapRefund', amounts: ['-' + swapAmount.toFixed(8) + '@TSLA'] }))
+    expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapRefund', amounts: [swapAmount.toFixed(8) + '@TSLA'] }))
   })
 
   it('should create futureswap dusd to dtoken', async () => {
@@ -678,6 +683,16 @@ describe('futureSwap', () => {
       const promise = testing.rpc.account.futureSwap(fswap)
       await expect(promise).rejects.toThrow(RpcApiError)
       await expect(promise).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: futureswap')
+    }
+    {
+      // non loan source token
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '1@BTC'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get source loan token 1\', code: -32600, method: futureswap')
     }
     {
       // destination is given when futureswap dtoken to dusd

@@ -7,7 +7,7 @@ export class BlockchainController {
   constructor (private readonly client: WhaleApiClient) {
   }
 
-  @Get('status')
+  @Get()
   async getBlockChainStatus (): Promise<{ [key: string]: string }> {
     const blocks: Block[] = await this.client.blocks.list(1)
 
