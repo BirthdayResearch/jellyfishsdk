@@ -3,7 +3,7 @@ import { Block } from '@defichain/whale-api-client/src/api/Blocks'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 
 @Controller('blockchain')
-export class BlockchainController {
+export class BlockchainStatusController {
   constructor (private readonly client: WhaleApiClient) {
   }
 
