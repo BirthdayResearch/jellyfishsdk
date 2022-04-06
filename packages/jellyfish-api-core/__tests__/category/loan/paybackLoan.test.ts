@@ -2476,6 +2476,58 @@ describe('paybackloan for any token', () => {
     await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of loan via DFI token is not currently active\', code: -32600, method: paybackloan')
   })
 
+  it('should not be able to payback TSLA loan using BTC - without PaybackLoanMetadataV2', async () => {
+    const metadata = {
+      symbol: 'BTC',
+      name: 'BTC',
+      isDAT: true,
+      mintable: true,
+      tradeable: true,
+      collateralAddress: vaultOwnerAddress
+    }
+    await testing.token.create(metadata)
+    await testing.container.generate(1)
+
+    await testing.token.mint({ amount: 10, symbol: 'BTC' })
+    await testing.container.generate(1)
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'BTC',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'BTC/USD'
+    })
+    await testing.generate(1)
+
+    await setupForTslaLoan()
+
+    const btcInfo = await testing.rpc.token.getToken('BTC')
+    const btcId: string = Object.keys(btcInfo)[0]
+    const tslaInfo = await testing.rpc.token.getToken('TSLA')
+    const tslaId: string = Object.keys(tslaInfo)[0]
+    const paybackKey = `v0/token/${tslaId}/loan_payback/${btcId}`
+    const penaltyRateKey = `v0/token/${tslaId}/loan_payback_fee_pct/${btcId}`
+    const penaltyRate = 0.02
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [paybackKey]: 'true', [penaltyRateKey]: penaltyRate.toString() } })
+    await testing.generate(1)
+
+    const blockHeightBefore = await testing.rpc.blockchain.getBlockCount()
+    const tslaInterestPerBlockBefore = new BigNumber(netInterest * tslaLoanAmount / (365 * blocksPerDay))
+    const tslaInterestAmountBefore = tslaInterestPerBlockBefore.multipliedBy(new BigNumber(blockHeightBefore - tslaTakeLoanBlockHeight))
+    const tslaLoanAmountBefore = new BigNumber(tslaLoanAmount).plus(tslaInterestAmountBefore.decimalPlaces(8, BigNumber.ROUND_CEIL))
+
+    const vaultBefore = await testing.rpc.loan.getVault(tslaVaultId) as VaultActive
+    expect(vaultBefore.loanAmounts).toStrictEqual([`${tslaLoanAmountBefore.toFixed(8)}@TSLA`])
+
+    const payBackPromise = testing.rpc.loan.paybackLoan({
+      vaultId: tslaVaultId,
+      amounts: '1@BTC',
+      from: vaultOwnerAddress
+    })
+
+    await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nLoan token with id (3) does not exist!\', code: -32600, method: paybackloan')
+  })
+
   it('should not be able to payback DUSD loan using TSLA - without PaybackLoanMetadataV2', async () => {
     await takeTslaTokensToPayback()
 
