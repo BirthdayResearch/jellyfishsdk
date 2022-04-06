@@ -29,7 +29,8 @@ export enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  FutureSwapRefund = 'w'
 }
 
 export enum SelectionModeType {

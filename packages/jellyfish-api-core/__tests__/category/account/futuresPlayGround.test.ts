@@ -1,7 +1,7 @@
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
+import { DfTxType, FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -673,6 +673,64 @@ describe('futuresSwap', () => {
     await testing.rpc.account.accountToAccount(address, {
       [addressTSLA]: '2.1@DUSD'
     })
+    await testing.generate(1)
+
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const promise = testing.container.call('withdrawfutureswap', [addressTSLA, '2@DUSD', 'TSLA'])
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'Test DFIP2203Tx execution failed:\namount 1.05000000 is less than 2.00000000\', code: -32600')
+    }
+
+    {
+      const promise = testing.container.call('withdrawfutureswap', [addressTSLA, '0.00000001@TSLA'])
+      await expect(promise).rejects.toThrow('DeFiDRpcError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.00000001\', code: -32600')
+    }
+
+    {
+      {
+        const result = await testing.container.call('getpendingfutureswaps', [addressTSLA])
+        expect(result).toStrictEqual(
+          {
+            owner: addressTSLA,
+            values: [
+              { source: '1.05000000@DUSD', destination: 'TSLA' }
+            ]
+          }
+        )
+      }
+
+      // Try withdraw future swap
+      await testing.container.call('withdrawfutureswap', [addressTSLA, '1.00@DUSD', 'TSLA'])
+      await testing.generate(1)
+
+      {
+        const result = await testing.container.call('getpendingfutureswaps', [addressTSLA])
+        expect(result).toStrictEqual(
+          {
+            owner: addressTSLA,
+            values: [
+              { source: '0.05000000@DUSD', destination: 'TSLA' }
+            ]
+          }
+        )
+      }
+
+      {
+        const nextSettleBlock = await getNextSettleBlock()
+        await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+      }
+
+      // {
+      //   const result = await testing.container.call('getpendingfutureswaps', [addressTSLA])
+      //   expect(result.values).toStrictEqual([])
+      // }
+    }
   })
 
   it('check_minimum_swaps', async () => {
@@ -712,7 +770,145 @@ describe('futuresSwap', () => {
   })
 
   it('check_gov_var_change', async () => {
+    const addressTSLA = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+    await testing.generate(1)
 
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['2.10000000@DUSD']
+      )
+    }
+
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['1.05000000@DUSD']
+      )
+    }
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+    await testing.generate(1)
+
+    const options = {
+      depth: 0,
+      maxBlockHeight: await testing.rpc.blockchain.getBlockCount(),
+      txtype: DfTxType.FutureSwapRefund
+    }
+
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', options)
+    expect(accountHistories).toStrictEqual(
+      [
+        {
+          owner: 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc',
+          blockHeight: 158,
+          blockHash: expect.any(String),
+          blockTime: expect.any(Number),
+          type: 'FutureSwapRefund',
+          txn: 4294967295,
+          txid: '0000000000000000000000000000000000000000000000000000000000000000',
+          amounts: ['-1.05000000@DUSD']
+        },
+        {
+          owner: addressTSLA,
+          blockHeight: 158,
+          blockHash: expect.any(String),
+          blockTime: expect.any(Number),
+          type: 'FutureSwapRefund',
+          txn: 4294967294,
+          txid: '0000000000000000000000000000000000000000000000000000000000000000',
+          amounts: ['1.05000000@DUSD']
+        }
+      ]
+    )
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['2.10000000@DUSD']
+      )
+    }
+  })
+
+  it('check_gov_var_change v2', async () => {
+    const addressTSLA = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+    await testing.generate(1)
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['2.10000000@DUSD']
+      )
+    }
+
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    })
+    await testing.generate(1)
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['1.05000000@DUSD']
+      )
+    }
+    const idTSLA = await testing.token.getTokenId('TSLA')
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+    await testing.generate(1)
+
+    const options = {
+      depth: 0,
+      maxBlockHeight: await testing.rpc.blockchain.getBlockCount(),
+      txtype: DfTxType.FutureSwapRefund
+    }
+
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', options)
+    expect(accountHistories).toStrictEqual(
+      [
+        {
+          owner: 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc',
+          blockHeight: 158,
+          blockHash: expect.any(String),
+          blockTime: expect.any(Number),
+          type: 'FutureSwapRefund',
+          txn: 4294967295,
+          txid: '0000000000000000000000000000000000000000000000000000000000000000',
+          amounts: ['-1.05000000@DUSD']
+        },
+        {
+          owner: addressTSLA,
+          blockHeight: 158,
+          blockHash: expect.any(String),
+          blockTime: expect.any(Number),
+          type: 'FutureSwapRefund',
+          txn: 4294967294,
+          txid: '0000000000000000000000000000000000000000000000000000000000000000',
+          amounts: ['1.05000000@DUSD']
+        }
+      ]
+    )
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['2.10000000@DUSD']
+      )
+    }
   })
 
   it('unpaid_contract', async () => {
