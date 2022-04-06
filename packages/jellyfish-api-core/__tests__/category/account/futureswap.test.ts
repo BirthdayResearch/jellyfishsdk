@@ -1,7 +1,8 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { FutureSwap } from 'packages/jellyfish-api-core/src/category/account'
+import { DfTxType, FutureSwap } from '../../../src/category/account'
+import { RpcApiError } from '@defichain/jellyfish-api-core'
 
 const container = new MasterNodeRegTestContainer()
 const testing = Testing.create(container)
@@ -9,10 +10,7 @@ let collateralAddress: string
 let oracleId: string
 let idDUSD: string
 let idTSLA: string
-// let idAMZN: string
-// let idBTC: string
 const attributeKey = 'ATTRIBUTES'
-// let key: string
 let futInterval: number
 let futRewardPercentage: number
 const contractAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
@@ -92,9 +90,7 @@ async function setup (): Promise<void> {
   })
   await testing.generate(1)
 
-  // idBTC = await testing.token.getTokenId('BTC')
   idTSLA = await testing.token.getTokenId('TSLA')
-  // idAMZN = await testing.token.getTokenId('AMZN')
   idDUSD = await testing.token.getTokenId('DUSD')
 
   // create a vault and take loans
@@ -210,10 +206,11 @@ describe('futureSwap', () => {
     const nextSettleBlock = await getNextSettleBlock()
     await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
 
+    let mintedDUSD: BigNumber
     // check future settled
     {
       // calclulate minted DUSD. dtoken goes for a discount.
-      const mintedDUSD = (1 - futRewardPercentage) * 2 * swapAmount // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
+      mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
       const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
       expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
 
@@ -242,6 +239,241 @@ describe('futureSwap', () => {
     // check burn
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+
+    // check results can be retrived via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [mintedDUSD.toFixed(8) + '@DUSD'] }))
+  })
+
+  it('should create futureswap dtoken to dusd just before the next settle block', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    // move to next settle block - 1
+    const nextSettleBlock = await getNextSettleBlock()
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+
+    const swapAmount = 1
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: swapAmount.toString() + '@TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    // check future settled
+    {
+      // calclulate minted DUSD. dtoken goes for a discount.
+      const mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
+
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([mintedDUSD.toFixed(8) + '@DUSD'])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([mintedDUSD.toFixed(8) + '@DUSD'])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2203).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+  })
+
+  it('should consider new oracle active price, if changed before futureswap execution', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    let blockHeight = await testing.rpc.blockchain.getBlockCount()
+    let nextSettleBlock = await getNextSettleBlock()
+
+    // move to next settle block for better duration for the oracle price to kick in
+    await testing.generate(nextSettleBlock - blockHeight)
+    blockHeight = await testing.rpc.blockchain.getBlockCount()
+    nextSettleBlock = await getNextSettleBlock()
+
+    const swapAmount = 1
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: swapAmount.toString() + '@TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    // change the oracle price
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '2.2@TSLA', currency: 'USD' }
+        ]
+      }
+    )
+    await testing.generate(1)
+    await testing.container.waitForActivePrice('TSLA/USD', '2.2')
+
+    const blockHeightAfter = await testing.rpc.blockchain.getBlockCount()
+
+    // check next settle block is not reached yet
+    expect(blockHeightAfter).toBeLessThan(nextSettleBlock)
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+
+    // move to nextSettleBlock
+    await testing.generate(nextSettleBlock - blockHeightAfter)
+
+    // check future settled
+    {
+      // calclulate minted DUSD. dtoken goes for a discount.
+      const mintedDUSD = new BigNumber((1 - futRewardPercentage) * 2.2 * swapAmount).dp(8, BigNumber.ROUND_FLOOR) // (1 - reward percentage) * TSLADUSD value * TSLA swap amount;
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore.plus(mintedDUSD))
+
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([mintedDUSD.toFixed(8) + '@DUSD'])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([mintedDUSD.toFixed(8) + '@DUSD'])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2203).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+  })
+
+  it('should refund if the oracle price is invalid at futureswap execution block', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    let blockHeight = await testing.rpc.blockchain.getBlockCount()
+    let nextSettleBlock = await getNextSettleBlock()
+
+    // move to next settle block
+    await testing.generate(nextSettleBlock - blockHeight)
+    blockHeight = await testing.rpc.blockchain.getBlockCount()
+    nextSettleBlock = await getNextSettleBlock()
+    const nextPriceBlock = await testing.container.getImmediatePriceBlockBeforeBlock('TSLA/USD', nextSettleBlock)
+
+    // create the futureswap
+    const swapAmount = 1
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: swapAmount.toString() + '@TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    // check the futureswap is in effect
+    const pendingFutures = await testing.container.call('listpendingfutureswaps')
+    expect(pendingFutures.length).toStrictEqual(1)
+
+    // move to nextPriceBlock - 1
+    await testing.generate(nextPriceBlock - 1 - await testing.rpc.blockchain.getBlockCount())
+
+    // change the oracle price
+    const timestamp = Math.floor(new Date().getTime() / 1000)
+    await testing.rpc.oracle.setOracleData(
+      oracleId,
+      timestamp,
+      {
+        prices: [
+          { tokenAmount: '3@TSLA', currency: 'USD' }
+        ]
+      }
+    )
+    await testing.generate(1)
+    {
+      // now check the price invalid
+      const priceDataInvalid = await testing.rpc.oracle.getFixedIntervalPrice('TSLA/USD')
+      expect(priceDataInvalid.isLive).toBeFalsy()
+    }
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+
+    // move to nextSettleBlock
+    await testing.generate(nextSettleBlock - nextPriceBlock)
+
+    // check price is still invalid
+    {
+      const priceDataInvalid = await testing.rpc.oracle.getFixedIntervalPrice('TSLA/USD')
+      expect(priceDataInvalid.isLive).toBeFalsy()
+    }
+
+    // check futureswap is not executed.
+    {
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore)
+
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2203).toStrictEqual([])
+
+    // check results can be retrived via account history
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_REFUND })
+    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: contractAddress, type: 'FutureSwapRefund', amounts: ['-' + swapAmount.toFixed(8) + '@TSLA'] }))
+    expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapRefund', amounts: [swapAmount.toFixed(8) + '@TSLA'] }))
   })
 
   it('should create futureswap dusd to dtoken', async () => {
@@ -328,5 +560,185 @@ describe('futureSwap', () => {
     // check burn
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([swapAmount.toFixed(8) + '@DUSD'])
+  })
+
+  it('should not create futureswap when DFIP2203 is not active', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    // deactivate DFIP2203
+    await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+    await testing.generate(1)
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('false')
+
+    const swapAmount = 1
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: swapAmount.toString() + '@TSLA'
+    }
+
+    const promise = testing.rpc.account.futureSwap(fswap)
+
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 not currently active\', code: -32600, method: futureswap')
+  })
+
+  it('should refund the futureswap if DFIP2203 is disabled before execution', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    // create the futureswap
+    const swapAmount = 1
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: swapAmount.toString() + '@TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    const nextSettleBlock = await getNextSettleBlock()
+
+    // check the futureswap is in effect
+    const pendingFutures = await testing.container.call('listpendingfutureswaps')
+    expect(pendingFutures.length).toStrictEqual(1)
+
+    // get minted DUSD
+    const dusdMintedBefore = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+
+    // deactivate DFIP2203
+    await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
+    await testing.generate(1)
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('false')
+
+    // move to nextSettleBlock
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+
+    // check futureswap is not executed.
+    {
+      const dusdMintedAfter = (await testing.rpc.token.getToken(idDUSD))[idDUSD].minted
+      expect(dusdMintedAfter).toStrictEqual(dusdMintedBefore)
+
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([swapAmount.toFixed(8) + '@TSLA'])
+      }
+    }
+
+    // check burn
+    const burnAfter = await testing.rpc.account.getBurnInfo()
+    expect(burnAfter.dfip2203).toStrictEqual([])
+  })
+
+  it('should not create futureswap when invalid inputs given', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    {
+      // zero source amount is given
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '0@TSLA'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: futureswap')
+    }
+    {
+      // negative source amount is given
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '-1@TSLA'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \': Amount out of range\', code: -3, method: futureswap')
+    }
+    {
+      // invlaid source dtoken
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '1@INVALID'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: futureswap')
+    }
+    {
+      // non loan source token
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '1@BTC'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get source loan token 1\', code: -32600, method: futureswap')
+    }
+    {
+      // destination is given when futureswap dtoken to dusd
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '1@TSLA',
+        destination: 'DUSD'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDestination should not be set when source amount is a dToken\', code: -32600, method: futureswap')
+    }
+    {
+      // INVALID destination is given when futureswap dusd to dtoken
+      const fswap: FutureSwap = {
+        address: tslaAddress,
+        amount: '1@DUSD',
+        destination: 'INVALID'
+      }
+      const promise = testing.rpc.account.futureSwap(fswap)
+      await expect(promise).rejects.toThrow(RpcApiError)
+      await expect(promise).rejects.toThrow('RpcApiError: \'Destination token not found\', code: -5, method: futureswap')
+    }
+  })
+
+  it('should not create futureswap when DFIP2203 is disabled for the dtoken', async () => {
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: '1@TSLA' })
+    await testing.generate(1)
+
+    // deactivate DFIP2203 for dtoken
+    const key = 'v0/token/' + idTSLA + '/dfip2203'
+
+    await testing.rpc.masternode.setGov({ [attributeKey]: { [key]: 'false' } })
+    await testing.generate(1)
+    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+    expect(attributes.ATTRIBUTES[key]).toStrictEqual('false')
+
+    const swapAmount = 1
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: swapAmount.toString() + '@TSLA'
+    }
+
+    const promise = testing.rpc.account.futureSwap(fswap)
+    await expect(promise).rejects.toThrow(RpcApiError)
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nDFIP2203 currently disabled for token 2\', code: -32600, method: futureswap')
   })
 })
