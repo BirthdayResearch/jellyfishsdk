@@ -239,14 +239,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
     }, timeout, 100, 'waitForPriceInvalid')
   }
 
-  /**
-   * Wait for valut state
-   *
-   * @param {string} vaultId
-   * @param {string} state
-   * @param {number} [timeout=30000] in ms
-   * @return {Promise<void>}
-   */
   async waitForVaultState (vaultId: string, state: string, timeout = 30000): Promise<void> {
     return await waitForCondition(async () => {
       const vault = await this.call('getvault', [vaultId])
@@ -256,22 +248,6 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       }
       return true
     }, timeout, 100, 'waitForVaultState')
-  }
-
-  /**
-   * Get next price block before the given target block
-   *
-   * @param {string} fixedIntervalPriceId
-   * @param {number} [targetBlock]
-   * @return {Promise<number>}
-   */
-  async getImmediatePriceBlockBeforeBlock (fixedIntervalPriceId: string, targetBlock: number): Promise<number> {
-    const data: any = await this.call('getfixedintervalprice', [fixedIntervalPriceId])
-    let nextPriceBlock = data.nextPriceBlock as number
-    while (nextPriceBlock < targetBlock) {
-      nextPriceBlock += 6 // 1 hour in regtest is 6 blocks
-    }
-    return nextPriceBlock
   }
 
   /**

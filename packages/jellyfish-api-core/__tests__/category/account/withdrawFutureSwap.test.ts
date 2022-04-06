@@ -31,7 +31,6 @@ async function setup (): Promise<void> {
     { token: 'DFI', currency: 'USD' },
     { token: 'BTC', currency: 'USD' },
     { token: 'TSLA', currency: 'USD' },
-    { token: 'AMZN', currency: 'USD' },
     { token: 'DUSD', currency: 'USD' }
   ]
 
@@ -48,7 +47,6 @@ async function setup (): Promise<void> {
         { tokenAmount: '1@DFI', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
         { tokenAmount: '2@TSLA', currency: 'USD' },
-        { tokenAmount: '4@AMZN', currency: 'USD' },
         { tokenAmount: '1@DUSD', currency: 'USD' }
       ]
     }
@@ -78,12 +76,6 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   await testing.rpc.loan.setLoanToken({
-    symbol: 'AMZN',
-    fixedIntervalPriceId: 'AMZN/USD'
-  })
-  await testing.generate(1)
-
-  await testing.rpc.loan.setLoanToken({
     symbol: 'DUSD',
     fixedIntervalPriceId: 'DUSD/USD'
   })
@@ -108,7 +100,7 @@ async function setup (): Promise<void> {
   await testing.rpc.loan.takeLoan({
     vaultId: vaultId,
     to: collateralAddress,
-    amounts: ['300@TSLA', '500@DUSD', '100@AMZN']
+    amounts: ['300@TSLA', '500@DUSD']
   })
   await testing.generate(1)
 

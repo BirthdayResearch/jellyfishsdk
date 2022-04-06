@@ -43,11 +43,6 @@ export class TestingToken {
     const to = { [address]: [account] }
     return await this.rpc.account.sendTokensToAddress({}, to)
   }
-
-  async getTokenId (symbol: string): Promise<string> {
-    const tokenInfo = await this.rpc.token.getToken(symbol)
-    return Object.keys(tokenInfo)[0]
-  }
 }
 
 interface TestingTokenCreate {

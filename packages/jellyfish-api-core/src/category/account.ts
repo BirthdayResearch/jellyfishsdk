@@ -408,7 +408,7 @@ export class Account {
   }
 
   /**
-   * Creates and submits to the network a withdrawl from futures contract transaction.
+   * Creates and submits to the network a withdrawal from futures contract transaction.
    *
    * @param {FutureSwap} future
    * @param {string} future.address Address to fund contract and receive resulting token

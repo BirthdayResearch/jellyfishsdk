@@ -491,3 +491,24 @@ interface UTXO {
   vout: number
 }
 ```
+
+## withdrawFutureSwap
+
+Creates and submits to the network a withdrawal from futures contract transaction.
+
+```ts title="client.account.withdrawFutureSwap()"
+interface account {
+  withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
