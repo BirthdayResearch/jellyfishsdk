@@ -104,6 +104,12 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
           commission: 0.02,
           status: true,
           ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['10000000@DUSD', '10000000@DFI']
+        },
+        utxoToAccount: {
+          [PlaygroundSetup.address]: '10000000@0'
         }
       },
       {
@@ -114,6 +120,9 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
           commission: 0.02,
           status: true,
           ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['10000000@DUSD', '10000000@TU10']
         }
       },
       {
@@ -124,6 +133,9 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
           commission: 0.02,
           status: true,
           ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['10000000@DUSD', '10000000@TD10']
         }
       },
       {
@@ -144,6 +156,9 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
           commission: 0.02,
           status: true,
           ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['10000000@DUSD', '10000000@TR50']
         }
       },
       {
@@ -164,6 +179,32 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
           commission: 0,
           status: false,
           ownerAddress: PlaygroundSetup.address
+        }
+      },
+      {
+        symbol: 'BTC-DUSD',
+        create: {
+          tokenA: 'BTC',
+          tokenB: 'DUSD',
+          commission: 0.01,
+          status: true,
+          ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['1000@BTC', '10000000@DUSD']
+        }
+      },
+      {
+        symbol: 'CU10-DUSD',
+        create: {
+          tokenA: 'CU10',
+          tokenB: 'DUSD',
+          commission: 0.01,
+          status: true,
+          ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['100000@CU10', '1000@DUSD']
         }
       }
     ]
@@ -199,7 +240,7 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
     const poolPairs = await this.client.poolpair.listPoolPairs()
     const poolPairIds = Object.keys(poolPairs)
 
-    // apply `toFixed(8)` due to 1 / 12 = 0.08333333333333333 which is invalid amount on setgov
+    // apply `toFixed(8)` due to 1 / 14 = 0.07142857 which is invalid amount on setgov
     const splits = Number(new BigNumber(1 / poolPairIds.length).toFixed(8))
 
     const lpSplits: any = {}
@@ -207,10 +248,10 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
       lpSplits[parseInt(k)] = splits
     }
 
-    // to fix: LP_SPLITS: total = 99999996 vs expected 100000000', code: -32600, method: setgov
-    // 0.08333333 * 11 !== 100000000
+    // to fix: LP_SPLITS: total = 99999998 vs expected 100000000', code: -32600, method: setgov
+    // 0.07142857 * 14 !== 100000000
     const lstKey = Object.keys(lpSplits)[0]
-    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).plus(0.00000004).toFixed(8))
+    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).plus(0.00000002).toFixed(8))
 
     await this.client.masternode.setGov({ LP_SPLITS: lpSplits })
     await this.generate(1)
