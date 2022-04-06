@@ -3,31 +3,21 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-const container = new MasterNodeRegTestContainer()
-const testing = Testing.create(container)
-
 describe('Account GetPendingFutureSwaps', () => {
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
+
   const collateralAddress = RegTestFoundationKeys[0].owner.address
   const futureRewardPercentage = 0.05
   const futureInterval = 25
 
-  let addressTSLA: string
-  let addressGOOGL: string
-
-  async function getNextSettleBlock (): Promise<number> {
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    return blockCount + futureInterval - (blockCount % futureInterval)
-  }
+  let tslaAddress: string
 
   async function setup (): Promise<void> {
     const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
       {
         currency: 'USD',
         token: 'TSLA'
-      },
-      {
-        currency: 'USD',
-        token: 'GOOGL'
       }
     ],
     { weightage: 1 }
@@ -39,10 +29,6 @@ describe('Account GetPendingFutureSwaps', () => {
         {
           currency: 'USD',
           tokenAmount: '2@TSLA'
-        },
-        {
-          currency: 'USD',
-          tokenAmount: '2@GOOGL'
         }
       ]
     })
@@ -66,15 +52,6 @@ describe('Account GetPendingFutureSwaps', () => {
     })
     await testing.generate(1)
 
-    await testing.rpc.loan.setLoanToken({
-      symbol: 'GOOGL',
-      name: 'GOOGL',
-      fixedIntervalPriceId: 'GOOGL/USD',
-      mintable: true,
-      interest: new BigNumber(1)
-    })
-    await testing.generate(1)
-
     await testing.token.mint({
       symbol: 'DUSD',
       amount: 4
@@ -83,13 +60,7 @@ describe('Account GetPendingFutureSwaps', () => {
 
     await testing.token.mint({
       symbol: 'TSLA',
-      amount: 2
-    })
-    await testing.generate(1)
-
-    await testing.token.mint({
-      symbol: 'GOOGL',
-      amount: 2
+      amount: 4
     })
     await testing.generate(1)
 
@@ -102,28 +73,22 @@ describe('Account GetPendingFutureSwaps', () => {
     await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
     await testing.generate(1)
 
-    addressTSLA = await testing.generateAddress()
-    addressGOOGL = await testing.generateAddress()
+    tslaAddress = await testing.generateAddress()
 
     await testing.rpc.account.accountToAccount(collateralAddress, {
-      [addressTSLA]: '2@DUSD'
+      [tslaAddress]: '4@DUSD'
     })
     await testing.generate(1)
 
     await testing.rpc.account.accountToAccount(collateralAddress, {
-      [addressTSLA]: '2@TSLA'
+      [tslaAddress]: '4@TSLA'
     })
     await testing.generate(1)
+  }
 
-    await testing.rpc.account.accountToAccount(collateralAddress, {
-      [addressGOOGL]: '2@DUSD'
-    })
-    await testing.generate(1)
-
-    await testing.rpc.account.accountToAccount(collateralAddress, {
-      [addressGOOGL]: '2@GOOGL'
-    })
-    await testing.generate(1)
+  async function getNextSettleBlock (): Promise<number> {
+    const blockCount = await testing.rpc.blockchain.getBlockCount()
+    return blockCount + futureInterval - (blockCount % futureInterval)
   }
 
   beforeAll(async () => {
@@ -137,25 +102,25 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Single futureswap', () => {
-    it('Should getPendingFutureSwap if futureswap TSLA for DUSD', async () => {
+    it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressTSLA)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressTSLA,
+          owner: tslaAddress,
           values: []
         })
       }
 
       // futureswap
-      await testing.container.call('futureswap', [addressTSLA, '1@TSLA'])
+      await testing.container.call('futureswap', [tslaAddress, '1@TSLA'])
       await testing.generate(1)
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(addressTSLA)
+        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFutures).toStrictEqual({
-          owner: addressTSLA,
+          owner: tslaAddress,
           values: [
             {
               source: '1.00000000@TSLA',
@@ -171,33 +136,33 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressTSLA)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressTSLA,
+          owner: tslaAddress,
           values: []
         })
       }
     })
 
-    it('Should getPendingFutureSwap if futureswap DUSD for TSLA', async () => {
+    it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressTSLA)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressTSLA,
+          owner: tslaAddress,
           values: []
         })
       }
 
       // futureswap
-      await testing.container.call('futureswap', [addressTSLA, '1@DUSD', 'TSLA'])
+      await testing.container.call('futureswap', [tslaAddress, '1@DUSD', 'TSLA'])
       await testing.generate(1)
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(addressTSLA)
+        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFutures).toStrictEqual({
-          owner: addressTSLA,
+          owner: tslaAddress,
           values: [
             {
               source: '1.00000000@DUSD',
@@ -213,9 +178,9 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressTSLA)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressTSLA,
+          owner: tslaAddress,
           values: []
         })
       }
@@ -223,35 +188,49 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Multiple futureswaps', () => {
-    it('Should getPendingFutureSwap if futureswap GOOGL for DUSD', async () => {
+    it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressGOOGL)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressGOOGL,
+          owner: tslaAddress,
           values: []
         })
       }
 
-      // futureswap 2 times
-      await testing.container.call('futureswap', [addressGOOGL, '0.9@GOOGL'])
+      // futureswap 4 times
+      await testing.container.call('futureswap', [tslaAddress, '0.7@TSLA'])
       await testing.generate(1)
 
-      await testing.container.call('futureswap', [addressGOOGL, '1.1@GOOGL'])
+      await testing.container.call('futureswap', [tslaAddress, '0.6@TSLA'])
+      await testing.generate(1)
+
+      await testing.container.call('futureswap', [tslaAddress, '0.5@TSLA'])
+      await testing.generate(1)
+
+      await testing.container.call('futureswap', [tslaAddress, '0.2@TSLA'])
       await testing.generate(1)
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(addressGOOGL)
+        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFutures).toStrictEqual({
-          owner: addressGOOGL,
+          owner: tslaAddress,
           values: [
             {
-              source: '1.10000000@GOOGL',
+              source: '0.20000000@TSLA',
               destination: 'DUSD'
             },
             {
-              source: '0.90000000@GOOGL',
+              source: '0.50000000@TSLA',
+              destination: 'DUSD'
+            },
+            {
+              source: '0.60000000@TSLA',
+              destination: 'DUSD'
+            },
+            {
+              source: '0.70000000@TSLA',
               destination: 'DUSD'
             }
           ]
@@ -264,44 +243,58 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressGOOGL)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressGOOGL,
+          owner: tslaAddress,
           values: []
         })
       }
     })
 
-    it('Should getPendingFutureSwap if futureswap DUSD for GOOGL', async () => {
+    it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressGOOGL)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressGOOGL,
+          owner: tslaAddress,
           values: []
         })
       }
 
       // futureswap
-      await testing.container.call('futureswap', [addressGOOGL, '0.8@DUSD', 'GOOGL'])
+      await testing.container.call('futureswap', [tslaAddress, '0.8@DUSD', 'TSLA'])
       await testing.generate(1)
 
-      await testing.container.call('futureswap', [addressGOOGL, '1.2@DUSD', 'GOOGL'])
+      await testing.container.call('futureswap', [tslaAddress, '0.6@DUSD', 'TSLA'])
+      await testing.generate(1)
+
+      await testing.container.call('futureswap', [tslaAddress, '0.4@DUSD', 'TSLA'])
+      await testing.generate(1)
+
+      await testing.container.call('futureswap', [tslaAddress, '0.2@DUSD', 'TSLA'])
       await testing.generate(1)
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(addressGOOGL)
+        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFutures).toStrictEqual({
-          owner: addressGOOGL,
+          owner: tslaAddress,
           values: [
             {
-              source: '1.20000000@DUSD',
-              destination: 'GOOGL'
+              source: '0.20000000@DUSD',
+              destination: 'TSLA'
+            },
+            {
+              source: '0.40000000@DUSD',
+              destination: 'TSLA'
+            },
+            {
+              source: '0.60000000@DUSD',
+              destination: 'TSLA'
             },
             {
               source: '0.80000000@DUSD',
-              destination: 'GOOGL'
+              destination: 'TSLA'
             }
           ]
         })
@@ -313,9 +306,9 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(addressGOOGL)
+        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFuture).toStrictEqual({
-          owner: addressGOOGL,
+          owner: tslaAddress,
           values: []
         })
       }
