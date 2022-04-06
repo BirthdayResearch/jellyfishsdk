@@ -135,6 +135,18 @@ async function setup (): Promise<void> {
     shareAddress: await getNewAddress(container)
   })
 
+  // BURN should not be listed as swappable
+  await createToken(container, 'BURN')
+  await createPoolPair(container, 'BURN', 'DFI', { status: false })
+  await mintTokens(container, 'BURN', { mintAmount: 1 })
+  await addPoolLiquidity(container, {
+    tokenA: 'BURN',
+    amountA: 1,
+    tokenB: 'DFI',
+    amountB: 1,
+    shareAddress: await getNewAddress(container)
+  })
+
   // dexUsdtDfi setup
   await createToken(container, 'USDT')
   await createPoolPair(container, 'USDT', 'DFI')
@@ -219,7 +231,7 @@ describe('list', () => {
     expect(first.data[1].symbol).toStrictEqual('B-DFI')
 
     const next = await controller.list({
-      size: 11,
+      size: 12,
       next: first.page?.next
     })
 
@@ -721,7 +733,7 @@ describe('get list swappable tokens', () => {
       swappableTokens: [
         { id: '7', symbol: 'G', displaySymbol: 'dG' },
         { id: '0', symbol: 'DFI', displaySymbol: 'DFI' },
-        { id: '24', symbol: 'USDT', displaySymbol: 'dUSDT' },
+        { id: '26', symbol: 'USDT', displaySymbol: 'dUSDT' },
         { id: '6', symbol: 'F', displaySymbol: 'dF' },
         { id: '5', symbol: 'E', displaySymbol: 'dE' },
         { id: '4', symbol: 'D', displaySymbol: 'dD' },
@@ -729,6 +741,12 @@ describe('get list swappable tokens', () => {
         { id: '2', symbol: 'B', displaySymbol: 'dB' }
       ]
     })
+  })
+
+  it('should not show status:false tokens', async () => {
+    const result = await controller.listSwappableTokens('1') // A
+    expect(result.swappableTokens.map(token => token.symbol))
+      .not.toContain('BURN')
   })
 
   it('should list no tokens for token that is not swappable with any', async () => {
@@ -753,7 +771,7 @@ describe('latest dex prices', () => {
       denomination: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
       dexPrices: {
         USDT: {
-          token: { displaySymbol: 'dUSDT', id: '24', symbol: 'USDT' },
+          token: { displaySymbol: 'dUSDT', id: '26', symbol: 'USDT' },
           denominationPrice: '0.43151288'
         },
         L: {
@@ -811,7 +829,7 @@ describe('latest dex prices', () => {
   it('should get latest dex prices - denomination: USDT', async () => {
     const result = await controller.listDexPrices('USDT')
     expect(result).toStrictEqual({
-      denomination: { displaySymbol: 'dUSDT', id: '24', symbol: 'USDT' },
+      denomination: { displaySymbol: 'dUSDT', id: '26', symbol: 'USDT' },
       dexPrices: {
         DFI: {
           token: { displaySymbol: 'DFI', id: '0', symbol: 'DFI' },
@@ -935,6 +953,19 @@ describe('latest dex prices', () => {
       await expect(controller.listDexPrices('M'))
         .rejects
         .toThrowError('Could not find token with symbol \'M\'')
+    }
+  })
+
+  it('should list DAT tokens only - status:false tokens are excluded', async () => {
+    { // BURN not included in any denominated dex prices
+      const result = await controller.listDexPrices('DFI')
+      expect(result.dexPrices.BURN).toBeUndefined()
+    }
+
+    { // BURN is not a valid 'denomination' token
+      await expect(controller.listDexPrices('BURN'))
+        .rejects
+        .toThrowError('Unexpected error: could not find token with symbol \'BURN\'')
     }
   })
 
