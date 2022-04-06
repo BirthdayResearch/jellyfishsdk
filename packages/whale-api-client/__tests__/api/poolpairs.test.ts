@@ -120,6 +120,17 @@ async function setup (): Promise<void> {
     address: await testing.address('swap'),
     amount: 20
   })
+
+  await createToken(container, 'BURN')
+  await createPoolPair(container, 'BURN', 'DFI', { status: false })
+  await mintTokens(container, 'BURN', { mintAmount: 1 })
+  await addPoolLiquidity(container, {
+    tokenA: 'BURN',
+    amountA: 1,
+    tokenB: 'DFI',
+    amountB: 1,
+    shareAddress: await getNewAddress(container)
+  })
 }
 
 describe('poolpair info', () => {
@@ -178,33 +189,34 @@ describe('poolpair info', () => {
   })
 
   it('should list with pagination', async () => {
-    const first = await client.poolpairs.list(4)
-    expect(first.length).toStrictEqual(4)
+    const first = await client.poolpairs.list(5)
+    expect(first.length).toStrictEqual(5)
     expect(first.hasNext).toStrictEqual(true)
-    expect(first.nextToken).toStrictEqual('12')
+    expect(first.nextToken).toStrictEqual('13')
 
     expect(first[0].symbol).toStrictEqual('A-DFI')
     expect(first[1].symbol).toStrictEqual('B-DFI')
     expect(first[2].symbol).toStrictEqual('C-DFI')
     expect(first[3].symbol).toStrictEqual('D-DFI')
+    expect(first[4].symbol).toStrictEqual('E-DFI')
 
     const next = await client.paginate(first)
-    expect(next.length).toStrictEqual(4)
+    expect(next.length).toStrictEqual(5)
     expect(next.hasNext).toStrictEqual(true)
-    expect(next.nextToken).toStrictEqual('16')
+    expect(next.nextToken).toStrictEqual('20')
 
-    expect(next[0].symbol).toStrictEqual('E-DFI')
-    expect(next[1].symbol).toStrictEqual('F-DFI')
-    expect(next[2].symbol).toStrictEqual('G-DFI')
-    expect(next[3].symbol).toStrictEqual('H-DFI')
+    expect(next[0].symbol).toStrictEqual('F-DFI')
+    expect(next[1].symbol).toStrictEqual('G-DFI')
+    expect(next[2].symbol).toStrictEqual('H-DFI')
+    expect(next[3].symbol).toStrictEqual('USDT-DFI')
+    expect(next[4].symbol).toStrictEqual('USDC-H')
 
     const last = await client.paginate(next)
-    expect(last.length).toStrictEqual(3)
+    expect(last.length).toStrictEqual(1)
     expect(last.hasNext).toStrictEqual(false)
     expect(last.nextToken).toBeUndefined()
 
-    expect(last[0].symbol).toStrictEqual('USDT-DFI')
-    expect(last[1].symbol).toStrictEqual('USDC-H')
+    expect(last[0].symbol).toStrictEqual('TEST-DUSD')
   })
 
   it('should get 9', async () => {
