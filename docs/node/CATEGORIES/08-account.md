@@ -478,11 +478,10 @@ interface account {
 
 interface GetFutureInfo {
   owner: string
-  values: Omit<FutureInfo, "owner"> []
+  values: FutureData[]
 }
 
-interface FutureInfo {
-  owner: string
+interface FutureData {
   source: string
   destination: string
 }

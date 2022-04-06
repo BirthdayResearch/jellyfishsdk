@@ -564,11 +564,10 @@ export interface BurnInfo {
 
 export interface GetFutureInfo {
   owner: string
-  values: Array<Omit<FutureInfo, 'owner'>>
+  values: FutureData[]
 }
 
-export interface FutureInfo {
-  owner: string
+export interface FutureData {
   source: string
   destination: string
 }
