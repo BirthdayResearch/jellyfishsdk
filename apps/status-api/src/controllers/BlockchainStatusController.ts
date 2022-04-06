@@ -7,19 +7,25 @@ export class BlockchainController {
   constructor (private readonly client: WhaleApiClient) {
   }
 
+  /**
+   *
+   * To provide the status of the blockchain based on the block creation time interval
+   *
+   * @return {Promise<BlockchainStatus>}
+   */
   @Get()
-  async getBlockChainStatus (): Promise<{ [key: string]: string }> {
+  async getBlockChainStatus (): Promise<{ status: BlockchainStatus }> {
     const blocks: Block[] = await this.client.blocks.list(1)
 
     const nowEpoch = Date.now()
     const latestBlockTime = blocks[0].time * 1000
     const timeDiff = nowEpoch - latestBlockTime
 
-    let currentStatus: string = 'operational'
+    let currentStatus: BlockchainStatus = 'operational'
 
     for (const [status, thresholdTime] of Object.entries(StatusToThresholdInMs)) {
       if (timeDiff > thresholdTime) {
-        currentStatus = status
+        currentStatus = status as BlockchainStatus
         break
       }
     }
