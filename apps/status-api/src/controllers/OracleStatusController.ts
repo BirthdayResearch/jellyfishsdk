@@ -11,10 +11,16 @@ export class OracleStatusController {
   ) {
   }
 
+  /**
+   * To provide the status of each oracle given the address based on the last published time for any given token
+   *
+   * @param oracleAddress
+   * @return {Promise<OracleStatus>}
+   */
   @Get()
   async getOracleStatus (
     @Query('address') oracleAddress: string
-  ): Promise<{ [key: string]: string }> {
+  ): Promise<{status: OracleStatus}> {
     const oraclePriceFeed: OraclePriceFeed = await this.cachedGet(`oracle-${oracleAddress}`, async () => {
       const oracle = await this.client.oracles.getOracleByAddress(oracleAddress)
       return (await this.client.oracles.getPriceFeed(oracle.id, oracle.priceFeeds[0].token, oracle.priceFeeds[0].currency, 1))[0]
@@ -41,3 +47,5 @@ function requireValue<T> (value: T | undefined, name: string): T {
   }
   return value
 }
+
+export type OracleStatus = 'outage' | 'operational'
