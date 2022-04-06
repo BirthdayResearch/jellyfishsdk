@@ -83,7 +83,7 @@ export class PoolPairPricesService {
 
     for (const token of tokens) {
       // Skip LP tokens and non-DAT tokens
-      if (token.isLPS || !token.isDAT) {
+      if (token.isLPS || !token.isDAT || token.symbol === 'BURN') {
         continue
       }
 
