@@ -27,6 +27,8 @@ async function getNextSettleBlock (): Promise<number> {
   return blockCount + (futInterval - (blockCount % futInterval))
 }
 
+let oracleId: string
+
 async function setup (): Promise<void> {
   futInterval = 25
   futRewardPercentage = 0.05
@@ -56,7 +58,7 @@ async function setup (): Promise<void> {
     { currency: 'USD', token: symbolMSFT }
   ]
 
-  const oracleId = await testing.rpc.oracle.appointOracle(oracleAddress, priceFeeds, { weightage: 10 })
+  oracleId = await testing.rpc.oracle.appointOracle(oracleAddress, priceFeeds, { weightage: 10 })
   await testing.generate(1)
 
   const oraclePrices = [
@@ -912,10 +914,67 @@ describe('futuresSwap', () => {
   })
 
   it('unpaid_contract', async () => {
+    const addressTSLA = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(address, {
+      [addressTSLA]: '2.1@DUSD'
+    })
+    await testing.generate(1)
 
+    await testing.rpc.account.futureSwap({
+      address: addressTSLA,
+      amount: '1.05@DUSD',
+      destination: 'TSLA'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.oracle.removeOracle(oracleId)
+
+    {
+      const nextSettleBlock = await getNextSettleBlock()
+      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+    }
+
+    const options = {
+      depth: 0,
+      maxBlockHeight: await testing.rpc.blockchain.getBlockCount(),
+      txtype: DfTxType.FutureSwapRefund
+    }
+
+    const accountHistories = await testing.rpc.account.listAccountHistory('all', options)
+    expect(accountHistories).toStrictEqual(
+      [
+        {
+          owner: 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc',
+          blockHeight: expect.any(Number),
+          blockHash: expect.any(String),
+          blockTime: expect.any(Number),
+          type: 'FutureSwapRefund',
+          txn: expect.any(Number),
+          txid: '0000000000000000000000000000000000000000000000000000000000000000',
+          amounts: ['-1.05000000@DUSD']
+        },
+        {
+          owner: addressTSLA,
+          blockHeight: expect.any(Number),
+          blockHash: expect.any(String),
+          blockTime: expect.any(Number),
+          type: 'FutureSwapRefund',
+          txn: expect.any(Number),
+          txid: '0000000000000000000000000000000000000000000000000000000000000000',
+          amounts: ['1.05000000@DUSD']
+        }
+      ]
+    )
+
+    {
+      const account = await testing.rpc.account.getAccount(addressTSLA)
+      expect(account).toStrictEqual(
+        ['2.10000000@DUSD']
+      )
+    }
   })
 
   it('rpc_history', async () => {
-
+    // I don't think this is important
   })
 })
