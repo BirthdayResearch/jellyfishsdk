@@ -1,5 +1,6 @@
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
 import { SanityContainer } from '.'
+import { waitForCondition } from '../../utils'
 
 export class WhaleSanityContainer extends SanityContainer {
   constructor (port?: number, blockchain?: MasterNodeRegTestContainer) {
@@ -25,6 +26,12 @@ export class WhaleSanityContainer extends SanityContainer {
       }
     })
 
-    await this.container?.start()
+    await this.container.start()
+
+    // wait for whale to start listening on its container port
+    await waitForCondition(async () => {
+      const res = await this.get('/_actuator/probes/liveness')
+      return res.status === 200
+    }, 30_000) // 30s
   }
 }

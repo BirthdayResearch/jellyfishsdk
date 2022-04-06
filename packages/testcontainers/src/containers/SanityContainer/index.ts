@@ -1,4 +1,4 @@
-import fetch from 'cross-fetch'
+import { fetch, Response } from 'cross-fetch'
 import * as path from 'path'
 import { pack } from 'tar-fs'
 
@@ -63,23 +63,22 @@ export abstract class SanityContainer extends DockerContainer {
     return `${this.app}-${rand}`
   }
 
-  public async post<T = any>(endpoint: string, data: any): Promise<T> {
+  public async post (endpoint: string, data: any): Promise<Response> {
     return await this.fetch(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)
     })
   }
 
-  public async get<T = any>(endpoint: string): Promise<T> {
+  public async get (endpoint: string): Promise<Response> {
     return await this.fetch(endpoint, {
       method: 'GET'
     })
   }
 
-  public async fetch (endpoint: string, init: RequestInit = {}): Promise<any> {
+  public async fetch (endpoint: string, init: RequestInit = {}): Promise<Response> {
     const url = await this.getUrl()
-    const res = await fetch(`${url}${endpoint}`, init)
-    return await res.json()
+    return await fetch(`${url}${endpoint}`, init)
   }
 
   public async getUrl (): Promise<string> {
