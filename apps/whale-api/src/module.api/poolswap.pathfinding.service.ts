@@ -3,7 +3,8 @@ import { UndirectedGraph } from 'graphology'
 import {
   AllSwappableTokensResult,
   BestSwapPathResult,
-  SwapPathPoolPair, SwapPathsResult,
+  SwapPathPoolPair,
+  SwapPathsResult,
   TokenIdentifier
 } from '@whale-api-client/api/poolpairs'
 import { PoolPairToken, PoolPairTokenMapper } from '@src/module.model/pool.pair.token'
@@ -43,7 +44,11 @@ export class PoolSwapPathFindingService {
   }
 
   async getBestPath (fromTokenId: string, toTokenId: string): Promise<BestSwapPathResult> {
-    const { fromToken, toToken, paths } = await this.getAllSwapPaths(fromTokenId, toTokenId)
+    const {
+      fromToken,
+      toToken,
+      paths
+    } = await this.getAllSwapPaths(fromTokenId, toTokenId)
 
     let bestPath: SwapPathPoolPair[] = []
     let bestReturn = new BigNumber(0)
@@ -153,6 +158,10 @@ export class PoolSwapPathFindingService {
   private async addTokensAndConnectionsToGraph (poolPairTokens: PoolPairToken[]): Promise<void> {
     for (const poolPairToken of poolPairTokens) {
       const [a, b] = poolPairToken.id.split('-')
+      if (a === 'BURN' || b === 'BURN') {
+        continue
+      }
+
       if (!this.tokenGraph.hasNode(a)) {
         this.tokenGraph.addNode(a)
       }
