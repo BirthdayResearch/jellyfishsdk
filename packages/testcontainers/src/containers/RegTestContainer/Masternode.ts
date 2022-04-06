@@ -345,9 +345,4 @@ export class MasterNodeRegTestContainer extends RegTestContainer {
       pubKey: getaddressinfo.pubkey
     }
   }
-
-  async getNextFutureBlock (futureInterval: number): Promise<number> {
-    const blockCount = await this.getBlockCount()
-    return blockCount + futureInterval - (blockCount % futureInterval)
-  }
 }
