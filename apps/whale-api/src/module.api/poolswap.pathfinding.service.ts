@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { UndirectedGraph } from 'graphology'
 import {
   AllSwappableTokensResult,
@@ -15,6 +15,7 @@ import { allSimplePaths } from 'graphology-simple-path'
 import { parseDisplaySymbol } from '@src/module.api/token.controller'
 import { PoolPairInfo } from '@defichain/jellyfish-api-core/dist/category/poolpair'
 import { connectedComponents } from 'graphology-components'
+import { NetworkName } from '@defichain/jellyfish-network'
 
 @Injectable()
 export class PoolSwapPathFindingService {
@@ -23,7 +24,8 @@ export class PoolSwapPathFindingService {
 
   constructor (
     protected readonly poolPairTokenMapper: PoolPairTokenMapper,
-    protected readonly deFiDCache: DeFiDCache
+    protected readonly deFiDCache: DeFiDCache,
+    @Inject('NETWORK') protected readonly network: NetworkName
   ) {
   }
 
@@ -157,8 +159,7 @@ export class PoolSwapPathFindingService {
    */
   private async addTokensAndConnectionsToGraph (poolPairTokens: PoolPairToken[]): Promise<void> {
     for (const poolPairToken of poolPairTokens) {
-      const poolPair = await this.getPoolPairInfo(`${poolPairToken.poolPairId}`)
-      if (!poolPair.status) {
+      if (await this.isPoolPairIgnored(poolPairToken)) {
         continue
       }
 
@@ -174,6 +175,22 @@ export class PoolSwapPathFindingService {
         this.tokenGraph.addUndirectedEdgeWithKey(poolPairToken.poolPairId, a, b)
       }
     }
+  }
+
+  private async isPoolPairIgnored (pair: PoolPairToken): Promise<boolean> {
+    // Hot Fix for MainNet due to cost of running getPoolPairInfo during boot up.
+    if (this.network === 'mainnet') {
+      if (pair.poolPairId === 48) {
+        return true
+      }
+    } else {
+      const poolPair = await this.getPoolPairInfo(`${pair.poolPairId}`)
+      if (!poolPair.status) {
+        return true
+      }
+    }
+
+    return false
   }
 
   private async getTokenIdentifier (tokenId: string): Promise<TokenIdentifier> {
