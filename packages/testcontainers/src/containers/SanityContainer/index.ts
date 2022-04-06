@@ -63,7 +63,7 @@ export abstract class SanityContainer extends DockerContainer {
     return `${this.app}-${rand}`
   }
 
-  public async post (endpoint: string, data: any): Promise<Response> {
+  public async post (endpoint: string, data?: any): Promise<Response> {
     return await this.fetch(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)

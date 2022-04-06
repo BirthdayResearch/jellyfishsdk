@@ -8,8 +8,8 @@ export class WhaleSanityContainer extends SanityContainer {
   }
 
   public async start (): Promise<void> {
+    // Create whale container and bind defid url
     const { hostRegTestIp, hostRegTestPort } = await this.initialize()
-
     this.container = await this.docker.createContainer({
       name: this.name,
       Image: this.image,
@@ -26,9 +26,10 @@ export class WhaleSanityContainer extends SanityContainer {
       }
     })
 
+    // Start containers concurrently
     await this.container.start()
 
-    // wait for whale to start listening on its container port
+    // Wait for whale to start listening on its container port
     await waitForCondition(async () => {
       const res = await this.get('/_actuator/probes/liveness')
       return res.status === 200
