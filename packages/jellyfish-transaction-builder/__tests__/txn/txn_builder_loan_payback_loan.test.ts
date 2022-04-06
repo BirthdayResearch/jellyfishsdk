@@ -872,7 +872,7 @@ describe('paybackLoan for any token', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
-  const dusdLoanAmount = 5000
+  const dusdLoanAmount = 50000
   const tslaLoanAmount = 10
   const loanSchemeId = 'scheme'
   const attributeKey = 'ATTRIBUTES'
@@ -1250,7 +1250,11 @@ describe('paybackLoan for any token', () => {
     const dfiPaybackAmount = dusdLoanAmount + 1000
     const defaultPenaltyRate = 0.01
     const dfiEffectPriceAfterPenaltyRate = 1 * (1 - defaultPenaltyRate)
-    const dfiNeededToPayOffDusd = dusdLoanAmountBefore.dividedBy(dfiEffectPriceAfterPenaltyRate).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    let dfiNeededToPayOffDusd = dusdLoanAmountBefore.dividedBy(dfiEffectPriceAfterPenaltyRate)
+
+    if (dfiNeededToPayOffDusd.multipliedBy(dfiEffectPriceAfterPenaltyRate) !== dusdLoanAmountBefore) {
+      dfiNeededToPayOffDusd = dfiNeededToPayOffDusd.plus(0.00000001)
+    }
 
     const colScript = P2WPKH.fromAddress(RegTest, vaultOwnerAddress, P2WPKH).getScript()
     const script = await testingProvider.elliptic.script()
@@ -1269,7 +1273,7 @@ describe('paybackLoan for any token', () => {
     const totalDfiPenalty = dfiNeededToPayOffDusd.multipliedBy(defaultPenaltyRate)
     const totalDusdPaybackAmount = dusdLoanAmountBefore
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.paybackburn.toFixed(8)).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty).toFixed(8))
+    expect(burnInfoAfter.paybackburn.toFixed(8)).toStrictEqual(dfiNeededToPayOffDusd.toFixed(8))
     expect(burnInfoAfter.dfipaybackfee.toFixed(8)).toStrictEqual(totalDfiPenalty.toFixed(8, BigNumber.ROUND_FLOOR))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
@@ -1345,6 +1349,37 @@ describe('paybackLoan for any token', () => {
   it('should be able to payback DUSD loan using TSLA - use PaybackLoanMetadataV2', async () => {
     await takeTslaTokensToPayback()
 
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-TSLA
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'TSLA'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-TSLA
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20 },
+        b: { symbol: 'TSLA', amount: 10 }
+      })
+      await testing.generate(1)
+    }
+
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId: string = Object.keys(dusdInfo)[0]
     const tslaInfo = await testing.rpc.token.getToken('TSLA')
@@ -1399,7 +1434,7 @@ describe('paybackLoan for any token', () => {
 
     const totalTslaPenalty = new BigNumber(tslaPaybackAmount).multipliedBy(penaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(tslaPaybackAmount).toFixed(8)}@TSLA`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${totalTslaPenalty.toFixed(8)}@TSLA`])
     expect(burnInfoAfter.paybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`])
 
@@ -1414,6 +1449,37 @@ describe('paybackLoan for any token', () => {
 
   it('should be able to payback DUSD loan using both TSLA and DFI - use PaybackLoanMetadataV2', async () => {
     await takeTslaTokensToPayback()
+
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-TSLA
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'TSLA'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-TSLA
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20 },
+        b: { symbol: 'TSLA', amount: 10 }
+      })
+      await testing.generate(1)
+    }
 
     const dfiInfo = await testing.rpc.token.getToken('DFI')
     const dfiId: string = Object.keys(dfiInfo)[0]
@@ -1484,7 +1550,7 @@ describe('paybackLoan for any token', () => {
     const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(dfiPenaltyRate)
     const totalTslaPenalty = new BigNumber(tslaPaybackAmount).multipliedBy(tslaPenaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`, `${new BigNumber(tslaPaybackAmount).toFixed(8)}@TSLA`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPaybackByDfi.toFixed(8)}@DUSD`])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${totalTslaPenalty.toFixed(8)}@TSLA`])
@@ -1522,6 +1588,51 @@ describe('paybackLoan for any token', () => {
       fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
+
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-TSLA
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'TSLA'
+      })
+      await testing.generate(1)
+
+      // create DUSD-BTC
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'BTC'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-TSLA
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20 },
+        b: { symbol: 'TSLA', amount: 10 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-BTC
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20000 },
+        b: { symbol: 'BTC', amount: 2 }
+      })
+      await testing.generate(1)
+    }
 
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId: string = Object.keys(dusdInfo)[0]
@@ -1592,7 +1703,7 @@ describe('paybackLoan for any token', () => {
     const totalTslaPenalty = new BigNumber(tslaPaybackAmount).multipliedBy(tslaPenaltyRate)
     const totalBtcPenalty = new BigNumber(btcPaybackAmount).multipliedBy(btcPenaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(tslaPaybackAmount).toFixed(8)}@TSLA`, `${new BigNumber(btcPaybackAmount).toFixed(8)}@BTC`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(new BigNumber(0))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${totalTslaPenalty.toFixed(8)}@TSLA`, `${totalBtcPenalty.toFixed(8)}@BTC`])
@@ -1726,7 +1837,7 @@ describe('paybackLoan for any token', () => {
 
     const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(penaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${tslaPayback.toFixed(8)}@TSLA`])
 
@@ -1853,6 +1964,37 @@ describe('paybackLoan for any token', () => {
     })
     await testing.generate(1)
 
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-BTC
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'BTC'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-BTC
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20000 },
+        b: { symbol: 'BTC', amount: 2 }
+      })
+      await testing.generate(1)
+    }
+
     const tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
       vaultId: vaultId,
@@ -1935,7 +2077,7 @@ describe('paybackLoan for any token', () => {
     const btcPenaltyForTslaLoan = new BigNumber(btcPaybackAmount).multipliedBy(tslaPenaltyRate)
 
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(btcPaybackAmount * 2).toFixed(8)}@BTC`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(new BigNumber(0))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${btcPenaltyForDusdLoan.plus(btcPenaltyForTslaLoan).toFixed(8)}@BTC`])
