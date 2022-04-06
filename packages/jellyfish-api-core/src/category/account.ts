@@ -562,13 +562,13 @@ export interface BurnInfo {
   paybacktokens: string[]
 }
 
+export interface GetFutureInfo {
+  owner: string
+  values: Array<Omit<FutureInfo, 'owner'>>
+}
+
 export interface FutureInfo {
   owner: string
   source: string
   destination: string
-}
-
-export interface GetFutureInfo {
-  owner: string
-  values: Array<Omit<FutureInfo, 'owner'>>
 }
