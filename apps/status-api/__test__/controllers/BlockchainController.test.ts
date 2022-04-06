@@ -11,14 +11,14 @@ describe('BlockchainController - Status test', () => {
     await apiTesting.stop()
   })
 
-  it('/blockchain/status - should get operational', async () => {
+  it('/blockchain - should get operational', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(25))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/blockchain/status'
+      url: '/blockchain'
     })
 
     expect(res.statusCode).toStrictEqual(200)
@@ -27,14 +27,14 @@ describe('BlockchainController - Status test', () => {
     })
   })
 
-  it('/blockchain/status - should get degraded', async () => {
+  it('/blockchain - should get degraded', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(36))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/blockchain/status'
+      url: '/blockchain'
     })
 
     expect(res.statusCode).toStrictEqual(200)
@@ -43,14 +43,14 @@ describe('BlockchainController - Status test', () => {
     })
   })
 
-  it('/blockchain/status - should get outage', async () => {
+  it('/blockchain - should get outage', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(46))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/blockchain/status'
+      url: '/blockchain'
     })
 
     expect(res.statusCode).toStrictEqual(200)
