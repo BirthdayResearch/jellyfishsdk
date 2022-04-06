@@ -105,8 +105,8 @@ describe('Account GetPendingFutureSwaps', () => {
     it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -118,8 +118,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutures).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: [
             {
@@ -136,8 +136,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -147,8 +147,8 @@ describe('Account GetPendingFutureSwaps', () => {
     it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -160,8 +160,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutures).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: [
             {
@@ -178,8 +178,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -191,8 +191,8 @@ describe('Account GetPendingFutureSwaps', () => {
     it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -213,8 +213,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutures).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: [
             {
@@ -243,8 +243,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -254,8 +254,8 @@ describe('Account GetPendingFutureSwaps', () => {
     it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
@@ -276,8 +276,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after performing futureswap
       {
-        const pendingFutures = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutures).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: [
             {
@@ -306,8 +306,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
       // Call getpendingfutureswaps after futureswap is settled
       {
-        const pendingFuture = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFuture).toStrictEqual({
+        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps).toStrictEqual({
           owner: tslaAddress,
           values: []
         })
