@@ -273,7 +273,7 @@ describe('Account GetPendingFutureSwaps', () => {
         })
       }
 
-      // futureswap
+      // futureswap 4 times
       await testing.container.call('futureswap', [tslaAddress, '0.8@DUSD', 'TSLA'])
       await testing.generate(1)
 
