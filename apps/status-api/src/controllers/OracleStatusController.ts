@@ -3,6 +3,8 @@ import { WhaleApiClient } from '@defichain/whale-api-client'
 import { OraclePriceFeed } from '@defichain/whale-api-client/dist/api/Oracles'
 import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
 
+type OracleStatus = 'outage' | 'operational'
+
 @Controller('oracles')
 export class OracleStatusController {
   constructor (
@@ -20,7 +22,7 @@ export class OracleStatusController {
   @Get()
   async getOracleStatus (
     @Query('address') oracleAddress: string
-  ): Promise<{status: OracleStatus}> {
+  ): Promise<{ status: OracleStatus }> {
     const oraclePriceFeed: OraclePriceFeed = await this.cachedGet(`oracle-${oracleAddress}`, async () => {
       const oracle = await this.client.oracles.getOracleByAddress(oracleAddress)
       return (await this.client.oracles.getPriceFeed(oracle.id, oracle.priceFeeds[0].token, oracle.priceFeeds[0].currency, 1))[0]
@@ -47,5 +49,3 @@ function requireValue<T> (value: T | undefined, name: string): T {
   }
   return value
 }
-
-export type OracleStatus = 'outage' | 'operational'
