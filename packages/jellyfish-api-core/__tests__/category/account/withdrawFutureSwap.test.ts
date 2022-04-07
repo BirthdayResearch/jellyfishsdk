@@ -336,6 +336,144 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
+  it('should withdraw futureswaps dtoken to dusd - before settle block', async () => {
+    const swapAmount = 1
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount * 2}@TSLA` })
+    await testing.generate(1)
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount.toFixed(8)}@TSLA`
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    const withdrawAmount = swapAmount * 1.5
+    const withdrawFutureSwap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${withdrawAmount.toFixed(8)}@TSLA`
+    }
+
+    // withdraw from both of the future swaps
+    {
+      const result = await testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      expect(typeof result).toStrictEqual('string')
+      expect(result.length).toStrictEqual(64)
+      await testing.generate(1)
+    }
+
+    // check the future swap after withdrawing
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(1)
+      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
+      expect(pendingFutures[0].source).toStrictEqual(`${(swapAmount * 2 - withdrawAmount).toFixed(8)}@TSLA`)
+      expect(pendingFutures[0].destination).toStrictEqual('DUSD')
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(swapAmount * 2 - withdrawAmount).toFixed(8)}@TSLA`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${(swapAmount * 2 - withdrawAmount).toFixed(8)}@TSLA`])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${withdrawAmount.toFixed(8)}@TSLA`])
+      }
+    }
+
+    // verify that all happened before settle block
+    const currentBlock = await testing.rpc.blockchain.getBlockCount()
+    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    expect(currentBlock).toBeLessThan(nextSettleBlock)
+  })
+
+  it('should withdraw futureswaps dusd to dtoken - before settle block', async () => {
+    const swapAmount = 1
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount * 2}@DUSD` })
+    await testing.generate(1)
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount.toFixed(8)}@DUSD`,
+      destination: 'TSLA'
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    const withdrawFutureSwap1: FutureSwap = {
+      address: tslaAddress,
+      amount: `${(swapAmount * 0.8).toFixed(8)}@DUSD`,
+      destination: 'TSLA'
+    }
+    const withdrawFutureSwap2: FutureSwap = {
+      address: tslaAddress,
+      amount: `${(swapAmount * 1.2).toFixed(8)}@DUSD`,
+      destination: 'TSLA'
+    }
+
+    // withdraw all within the same block
+    {
+      const result1 = await testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap1)
+      expect(typeof result1).toStrictEqual('string')
+      expect(result1.length).toStrictEqual(64)
+      const result2 = await testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap2)
+      expect(typeof result2).toStrictEqual('string')
+      expect(result2.length).toStrictEqual(64)
+      await testing.generate(1)
+    }
+
+    // check the future swap after withdrawing all
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${(swapAmount * 2).toFixed(8)}@DUSD`])
+      }
+    }
+
+    // verify that all happened before settle block
+    const currentBlock = await testing.rpc.blockchain.getBlockCount()
+    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    expect(currentBlock).toBeLessThan(nextSettleBlock)
+  })
+
   it('should withdraw 1 satoshi futureswap dtoken to dusd - before settle block', async () => {
     const swapAmount = 1
     const tslaAddress = await testing.generateAddress()
