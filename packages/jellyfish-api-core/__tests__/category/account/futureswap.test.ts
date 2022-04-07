@@ -448,15 +448,12 @@ describe('futureSwap', () => {
     {
       const pendingFutures = await testing.container.call('listpendingfutureswaps')
       expect(pendingFutures.length).toStrictEqual(3)
-      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[0].source).toStrictEqual(`${(0.4).toFixed(8)}@TSLA`)
-      expect(pendingFutures[0].destination).toStrictEqual('DUSD')
-      expect(pendingFutures[1].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[1].source).toStrictEqual(`${(0.6).toFixed(8)}@TSLA`)
-      expect(pendingFutures[1].destination).toStrictEqual('DUSD')
-      expect(pendingFutures[2].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[2].source).toStrictEqual(`${(13).toFixed(8)}@DUSD`)
-      expect(pendingFutures[2].destination).toStrictEqual('TSLA')
+
+      expect(pendingFutures).toStrictEqual(expect.arrayContaining([
+        { owner: tslaAddress, source: `${(0.4).toFixed(8)}@TSLA`, destination: 'DUSD' },
+        { owner: tslaAddress, source: `${(0.6).toFixed(8)}@TSLA`, destination: 'DUSD' },
+        { owner: tslaAddress, source: `${(13).toFixed(8)}@DUSD`, destination: 'TSLA' }
+      ]))
 
       // check live/economy/dfip2203_*
       const attributes = await testing.rpc.masternode.getGov(attributeKey)
@@ -531,9 +528,12 @@ describe('futureSwap', () => {
 
     // check results can be retrieve d via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
-    expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.multipliedBy(0.4).toFixed(8)}@DUSD`] }))
-    expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.multipliedBy(0.6).toFixed(8)}@DUSD`] }))
-    expect(accountHistories[2]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedTSLA.toFixed(8)}@TSLA`] }))
+    expect(accountHistories.length).toStrictEqual(3)
+    expect(accountHistories).toStrictEqual(expect.arrayContaining([
+      expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.multipliedBy(0.4).toFixed(8)}@DUSD`] }),
+      expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.multipliedBy(0.6).toFixed(8)}@DUSD`] }),
+      expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedTSLA.toFixed(8)}@TSLA`] })
+    ]))
   })
 
   it('should create dtoken to dusd futureswap at the next settle block', async () => {
