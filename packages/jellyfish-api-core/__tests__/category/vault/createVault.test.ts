@@ -3,7 +3,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { VaultState } from '../../../src/category/vault'
 
-describe('Loan createVault', () => {
+describe('Vault createVault', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -137,7 +137,7 @@ describe('Loan createVault', () => {
     })
   })
 
-  describe('Loan createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
+  describe('Vault createVault when no default scheme and CreateVault.loanSchemeId is not given', () => {
     const container = new MasterNodeRegTestContainer()
     const testing = Testing.create(container)
 
@@ -161,7 +161,7 @@ describe('Loan createVault', () => {
   })
 })
 
-describe('Loan createVault with scheme set to be destroyed', () => {
+describe('Vault createVault with scheme set to be destroyed', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 

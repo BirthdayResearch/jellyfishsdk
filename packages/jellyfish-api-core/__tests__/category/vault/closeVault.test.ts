@@ -2,7 +2,7 @@ import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontaine
 import BigNumber from 'bignumber.js'
 import { TestingGroup } from '@defichain/jellyfish-testing'
 
-describe('Loan', () => {
+describe('Vault', () => {
   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultWithCollateralId: string // Vault with collateral token deposited
 

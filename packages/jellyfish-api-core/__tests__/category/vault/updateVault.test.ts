@@ -4,7 +4,7 @@ import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontaine
 import { VaultState } from '../../../src/category/vault'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 
-describe('Loan updateVault', () => {
+describe('Vault updateVault', () => {
   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   const alice = tGroup.get(0)
   const bob = tGroup.get(1)
@@ -403,7 +403,7 @@ describe('Loan updateVault', () => {
   })
 })
 
-describe('Loan updateVault with scheme set to be destroyed', () => {
+describe('Vault updateVault with scheme set to be destroyed', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
