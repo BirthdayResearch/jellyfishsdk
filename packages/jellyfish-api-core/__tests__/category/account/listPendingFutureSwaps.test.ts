@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
-describe('Account GetPendingFutureSwaps', () => {
+describe('Account ListPendingFutureSwaps', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
@@ -167,8 +167,8 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Single futureswap', () => {
-    it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
-      // Call getpendingfutureswaps before performing futureswap
+    it('Should listPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
+      // Call listpendingfutureswaps before performing futureswap
       {
         const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps).toStrictEqual([])
@@ -178,7 +178,7 @@ describe('Account GetPendingFutureSwaps', () => {
       await testing.container.call('futureswap', [tslaAddress, '1@TSLA'])
       await testing.generate(1)
 
-      // Call getpendingfutureswaps after performing futureswap
+      // Call listpendingfutureswaps after performing futureswap
       const pendingFutureSwaps1 = await testing.rpc.account.listPendingFutureSwaps()
       expect(pendingFutureSwaps1).toStrictEqual([{
         owner: tslaAddress,
@@ -186,25 +186,25 @@ describe('Account GetPendingFutureSwaps', () => {
         destination: 'DUSD'
       }])
 
-      // Wait for 1 block before the next settle block
+      // Wait for 1 block before getfutureswapblock
       const nextSettleBlock = await testing.container.call('getfutureswapblock')
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
       const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
       expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-      // Generate 1 more block to settle
+      // Generate 1 more block to execute futureswap
       await testing.generate(1)
 
-      // Call getpendingfutureswaps after futureswap is settled
+      // Call listpendingfutureswaps after futureswap
       {
         const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps).toStrictEqual([])
       }
     })
 
-    it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
-      // Call getpendingfutureswaps before performing futureswap
+    it('Should listPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
+      // Call listpendingfutureswaps before performing futureswap
       {
         const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps).toStrictEqual([])
@@ -214,7 +214,7 @@ describe('Account GetPendingFutureSwaps', () => {
       await testing.container.call('futureswap', [tslaAddress, '1@DUSD', 'TSLA'])
       await testing.generate(1)
 
-      // Call getpendingfutureswaps after performing futureswap
+      // Call listpendingfutureswaps after performing futureswap
       const pendingFutureSwaps1 = await testing.rpc.account.listPendingFutureSwaps()
       expect(pendingFutureSwaps1).toStrictEqual([{
         owner: tslaAddress,
@@ -222,17 +222,17 @@ describe('Account GetPendingFutureSwaps', () => {
         destination: 'TSLA'
       }])
 
-      // Wait for 1 block before the next settle block
+      // Wait for 1 block before getfutureswapblock
       const nextSettleBlock = await testing.container.call('getfutureswapblock')
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
       const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
       expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-      // Generate 1 more block to settle
+      // Generate 1 more block to swap at futures swap block
       await testing.generate(1)
 
-      // Call getpendingfutureswaps after futureswap is settled
+      // Call listpendingfutureswaps after futureswap
       {
         const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps).toStrictEqual([])
@@ -242,8 +242,8 @@ describe('Account GetPendingFutureSwaps', () => {
 
   describe('Multiple futureswaps', () => {
     describe('For single token which is TSLA only', () => {
-      it('Should getPendingFutureSwaps if multiple futureswaps TSLA for DUSD', async () => {
-        // Call getpendingfutureswaps before performing futureswap
+      it('Should listpendingfutureswaps if multiple futureswaps TSLA for DUSD', async () => {
+        // Call listpendingfutureswaps before performing futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
@@ -262,7 +262,7 @@ describe('Account GetPendingFutureSwaps', () => {
         await testing.container.call('futureswap', [tslaAddress, '0.2@TSLA'])
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after performing futureswap
+        // Call listpendingfutureswaps after performing futureswap
         const pendingFutureSwaps1 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps1).toStrictEqual(
           [
@@ -289,25 +289,25 @@ describe('Account GetPendingFutureSwaps', () => {
           ]
         )
 
-        // Wait for 1 block before the next settle block
+        // Wait for 1 block before getfutureswapblock
         const nextSettleBlock = await testing.container.call('getfutureswapblock')
         await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
         const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-        // Generate 1 more block to settle
+        // Generate 1 more block to swap at futures swap block
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after futureswap is settled
+        // Call listpendingfutureswaps after futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
         }
       })
 
-      it('Should getPendingFutureSwaps if multiple futureswap DUSD for TSLA', async () => {
-        // Call getpendingfutureswaps before performing futureswap
+      it('Should listPendingFutureSwaps if multiple futureswap DUSD for TSLA', async () => {
+        // Call listPendingFutureSwaps before performing futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
@@ -326,7 +326,7 @@ describe('Account GetPendingFutureSwaps', () => {
         await testing.container.call('futureswap', [tslaAddress, '0.2@DUSD', 'TSLA'])
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after performing futureswap
+        // Call listpendingfutureswaps after performing futureswap
         const pendingFutureSwaps1 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps1).toStrictEqual(
           [
@@ -353,17 +353,17 @@ describe('Account GetPendingFutureSwaps', () => {
           ]
         )
 
-        // Wait for 1 block before the next settle block
+        // Wait for 1 block before getfutureswapblock
         const nextSettleBlock = await testing.container.call('getfutureswapblock')
         await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
         const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-        // Generate 1 more block to settle
+        // Generate 1 more block to futureswap
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after futureswap is settled
+        // Call listpendingfutureswaps after futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
@@ -372,8 +372,8 @@ describe('Account GetPendingFutureSwaps', () => {
     })
 
     describe('For multiple tokens which are TSLA, AAPL, MSFT', () => {
-      it('Should getPendingFutureSwaps if multiple futureswaps TSLA, AAPL, MSFT for DUSD', async () => {
-        // Call getpendingfutureswaps before performing futureswap
+      it('Should listPendingFutureSwaps if multiple futureswaps TSLA, AAPL, MSFT for DUSD', async () => {
+        // Call listpendingfutureswaps before performing futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
@@ -388,7 +388,7 @@ describe('Account GetPendingFutureSwaps', () => {
         await testing.container.call('futureswap', [msftAddress, '0.27@MSFT'])
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after performing futureswap
+        // Call listpendingfutureswaps after performing futureswap
         const pendingFutureSwaps1 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps1.length).toStrictEqual(6)
 
@@ -459,18 +459,18 @@ describe('Account GetPendingFutureSwaps', () => {
         const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-        // Generate 1 more block to settle
+        // Generate 1 more block to futureswap
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after futureswap is settled
+        // Call listpendingfutureswaps after futureswap is settled
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
         }
       })
 
-      it('Should getPendingFutureSwaps if multiple futureswaps DUSD for TSLA, AAPL, MSFT', async () => {
-        // Call getpendingfutureswaps before performing futureswap
+      it('Should listPendingFutureSwaps if multiple futureswaps DUSD for TSLA, AAPL, MSFT', async () => {
+        // Call listpendingfutureswaps before performing futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
@@ -485,7 +485,7 @@ describe('Account GetPendingFutureSwaps', () => {
         await testing.container.call('futureswap', [msftAddress, '0.27@DUSD', 'MSFT'])
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after performing futureswap
+        // Call listpendingfutureswaps after performing futureswap
         const pendingFutureSwaps1 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps1.length).toStrictEqual(6)
 
@@ -556,10 +556,10 @@ describe('Account GetPendingFutureSwaps', () => {
         const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
         expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-        // Generate 1 more block to settle
+        // Generate 1 more block to futureswap
         await testing.generate(1)
 
-        // Call getpendingfutureswaps after futureswap is settled
+        // Call listpendingfutureswaps after futureswap is settled
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
