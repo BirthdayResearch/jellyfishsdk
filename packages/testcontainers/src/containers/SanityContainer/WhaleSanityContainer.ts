@@ -7,9 +7,26 @@ export class WhaleSanityContainer extends SanityContainer {
     super('whale', port, blockchain)
   }
 
+  /**
+   * Start the whale container by initiating a build procedure, instantiate the
+   * underlying blockchain node, and create a container instance to send sanity
+   * requests to.
+   *
+   * We provide the blockchain node ip and port to the internal whale configuration
+   * which links it to the node allowing it to hit the chain with RPC requests.
+   *
+   * @remarks
+   *
+   * The method performs a wait for condition to ensure the container is ready
+   * before the start method is considered resolved. Otherwise the unit tests
+   * will run before the container is ready which can result in various network
+   * or request errors.
+   */
   public async start (): Promise<void> {
-    // Create whale container and bind defid url
-    const { hostRegTestIp, hostRegTestPort } = await this.initialize()
+    await this.build()
+
+    const { hostRegTestIp, hostRegTestPort } = await this.startMasterNode()
+
     this.container = await this.docker.createContainer({
       name: this.name,
       Image: this.image,
@@ -26,10 +43,8 @@ export class WhaleSanityContainer extends SanityContainer {
       }
     })
 
-    // Start containers concurrently
     await this.container.start()
 
-    // Wait for whale to start listening on its container port
     await waitForCondition(async () => {
       const res = await this.get('/_actuator/probes/liveness')
       return res.status === 200
