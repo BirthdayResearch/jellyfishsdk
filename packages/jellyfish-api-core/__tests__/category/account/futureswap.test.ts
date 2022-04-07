@@ -601,12 +601,11 @@ describe('futureSwap', () => {
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
     await testing.generate(1)
 
-    let blockHeight = await testing.rpc.blockchain.getBlockCount()
+    const blockHeight = await testing.rpc.blockchain.getBlockCount()
     let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     // move to next settle block for better duration for the oracle price to kick in
     await testing.generate(nextSettleBlock - blockHeight)
-    blockHeight = await testing.rpc.blockchain.getBlockCount()
     nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     const fswap: FutureSwap = {
@@ -687,12 +686,11 @@ describe('futureSwap', () => {
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
     await testing.generate(1)
 
-    let blockHeight = await testing.rpc.blockchain.getBlockCount()
+    const blockHeight = await testing.rpc.blockchain.getBlockCount()
     let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     // move to next settle block
     await testing.generate(nextSettleBlock - blockHeight)
-    blockHeight = await testing.rpc.blockchain.getBlockCount()
     nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const nextPriceBlock = await testing.container.getImmediatePriceBlockBeforeBlock('TSLA/USD', nextSettleBlock)
 
