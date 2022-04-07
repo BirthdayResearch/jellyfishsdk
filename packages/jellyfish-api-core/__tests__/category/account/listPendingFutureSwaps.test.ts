@@ -229,7 +229,7 @@ describe('Account ListPendingFutureSwaps', () => {
       const pendingFutureSwaps2 = await testing.rpc.account.listPendingFutureSwaps()
       expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-      // Generate 1 more block to swap at futures swap block
+      // Generate 1 more block to execute futureswap
       await testing.generate(1)
 
       // Call listpendingfutureswaps after futureswap
@@ -242,7 +242,7 @@ describe('Account ListPendingFutureSwaps', () => {
 
   describe('Multiple futureswaps', () => {
     describe('For single token which is TSLA only', () => {
-      it('Should listpendingfutureswaps if multiple futureswaps TSLA for DUSD', async () => {
+      it('Should listPendingFutureSwaps if multiple futureswaps TSLA for DUSD', async () => {
         // Call listpendingfutureswaps before performing futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
@@ -267,24 +267,24 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           [
             {
-              destination: 'DUSD',
               owner: tslaAddress,
-              source: '0.20000000@TSLA'
+              source: '0.20000000@TSLA',
+              destination: 'DUSD'
             },
             {
-              destination: 'DUSD',
               owner: tslaAddress,
-              source: '0.50000000@TSLA'
+              source: '0.50000000@TSLA',
+              destination: 'DUSD'
             },
             {
-              destination: 'DUSD',
               owner: tslaAddress,
-              source: '0.60000000@TSLA'
+              source: '0.60000000@TSLA',
+              destination: 'DUSD'
             },
             {
-              destination: 'DUSD',
               owner: tslaAddress,
-              source: '0.70000000@TSLA'
+              source: '0.70000000@TSLA',
+              destination: 'DUSD'
             }
           ]
         )
@@ -331,24 +331,24 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           [
             {
-              destination: 'TSLA',
               owner: tslaAddress,
-              source: '0.20000000@DUSD'
+              source: '0.20000000@DUSD',
+              destination: 'TSLA'
             },
             {
-              destination: 'TSLA',
               owner: tslaAddress,
-              source: '0.40000000@DUSD'
+              source: '0.40000000@DUSD',
+              destination: 'TSLA'
             },
             {
-              destination: 'TSLA',
               owner: tslaAddress,
-              source: '0.60000000@DUSD'
+              source: '0.60000000@DUSD',
+              destination: 'TSLA'
             },
             {
-              destination: 'TSLA',
               owner: tslaAddress,
-              source: '0.80000000@DUSD'
+              source: '0.80000000@DUSD',
+              destination: 'TSLA'
             }
           ]
         )
@@ -395,9 +395,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'DUSD',
               owner: tslaAddress,
-              source: '0.85000000@TSLA'
+              source: '0.85000000@TSLA',
+              destination: 'DUSD'
             })
           ])
         )
@@ -405,9 +405,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'DUSD',
               owner: tslaAddress,
-              source: '0.15000000@TSLA'
+              source: '0.15000000@TSLA',
+              destination: 'DUSD'
             })
           ])
         )
@@ -415,9 +415,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'DUSD',
               owner: aaplAddress,
-              source: '0.71000000@AAPL'
+              source: '0.71000000@AAPL',
+              destination: 'DUSD'
             })
           ])
         )
@@ -425,9 +425,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'DUSD',
               owner: aaplAddress,
-              source: '0.29000000@AAPL'
+              source: '0.29000000@AAPL',
+              destination: 'DUSD'
             })
           ])
         )
@@ -435,9 +435,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'DUSD',
               owner: msftAddress,
-              source: '0.63000000@MSFT'
+              source: '0.63000000@MSFT',
+              destination: 'DUSD'
             })
           ])
         )
@@ -445,14 +445,14 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'DUSD',
               owner: msftAddress,
-              source: '0.27000000@MSFT'
+              source: '0.27000000@MSFT',
+              destination: 'DUSD'
             })
           ])
         )
 
-        // Wait for 1 block before the next settle block
+        // Wait for 1 block before getfutureswapblock
         const nextSettleBlock = await testing.container.call('getfutureswapblock')
         await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
@@ -462,7 +462,7 @@ describe('Account ListPendingFutureSwaps', () => {
         // Generate 1 more block to futureswap
         await testing.generate(1)
 
-        // Call listpendingfutureswaps after futureswap is settled
+        // Call listpendingfutureswaps after futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
@@ -492,9 +492,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'TSLA',
               owner: tslaAddress,
-              source: '0.85000000@DUSD'
+              source: '0.85000000@DUSD',
+              destination: 'TSLA'
             })
           ])
         )
@@ -502,9 +502,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'TSLA',
               owner: tslaAddress,
-              source: '0.15000000@DUSD'
+              source: '0.15000000@DUSD',
+              destination: 'TSLA'
             })
           ])
         )
@@ -512,9 +512,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'AAPL',
               owner: aaplAddress,
-              source: '0.71000000@DUSD'
+              source: '0.71000000@DUSD',
+              destination: 'AAPL'
             })
           ])
         )
@@ -522,9 +522,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'AAPL',
               owner: aaplAddress,
-              source: '0.29000000@DUSD'
+              source: '0.29000000@DUSD',
+              destination: 'AAPL'
             })
           ])
         )
@@ -532,9 +532,9 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'MSFT',
               owner: msftAddress,
-              source: '0.63000000@DUSD'
+              source: '0.63000000@DUSD',
+              destination: 'MSFT'
             })
           ])
         )
@@ -542,14 +542,14 @@ describe('Account ListPendingFutureSwaps', () => {
         expect(pendingFutureSwaps1).toStrictEqual(
           expect.arrayContaining([
             expect.objectContaining({
-              destination: 'MSFT',
               owner: msftAddress,
-              source: '0.27000000@DUSD'
+              source: '0.27000000@DUSD',
+              destination: 'MSFT'
             })
           ])
         )
 
-        // Wait for 1 block before the next settle block
+        // Wait for 1 block before getfutureswapblock
         const nextSettleBlock = await testing.container.call('getfutureswapblock')
         await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
@@ -559,7 +559,7 @@ describe('Account ListPendingFutureSwaps', () => {
         // Generate 1 more block to futureswap
         await testing.generate(1)
 
-        // Call listpendingfutureswaps after futureswap is settled
+        // Call listpendingfutureswaps after futureswap
         {
           const pendingFutureSwaps = await testing.rpc.account.listPendingFutureSwaps()
           expect(pendingFutureSwaps).toStrictEqual([])
