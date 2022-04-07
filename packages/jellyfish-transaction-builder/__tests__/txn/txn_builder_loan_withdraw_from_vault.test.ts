@@ -693,6 +693,7 @@ describe('withdrawFromVault with 50% DUSD or DFI collaterals', () => {
     expect(outs[1].value).toBeGreaterThan(9.999)
     expect(outs[1].scriptPubKey.addresses[0]).toStrictEqual(bobVaultAddr)
 
+    await alice.generate(1)
     await bob.generate(1)
     await tGroup.waitForSync()
 

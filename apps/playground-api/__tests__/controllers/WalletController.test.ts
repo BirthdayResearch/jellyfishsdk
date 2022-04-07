@@ -26,6 +26,9 @@ describe('sendUtxo', () => {
     const txid = await apiTesting.client.wallet.sendUtxo('19.34153143', address)
     expect(txid.length).toStrictEqual(64)
 
+    // Generate a block first
+    await apiTesting.container.generate(1)
+
     const unspent = await apiTesting.rpc.wallet.listUnspent(1, 999999, {
       addresses: [address]
     })

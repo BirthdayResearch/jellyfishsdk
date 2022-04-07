@@ -116,6 +116,12 @@ it('should have gov set', async () => {
   })
   await testing.generate(1)
 
+  await testing.container.waitForPriceValid('BTC/USD')
+  await testing.container.waitForPriceValid('ETH/USD')
+  await testing.container.waitForPriceValid('USDT/USD')
+  await testing.container.waitForPriceValid('CU10/USD')
+  await testing.container.waitForPriceValid('CD10/USD')
+  await testing.container.waitForPriceValid('DUSD/USD')
   await testing.container.waitForPriceValid('TD10/USD')
   await testing.container.waitForPriceValid('TU10/USD')
   await testing.container.waitForPriceValid('TR50/USD')
