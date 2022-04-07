@@ -44,7 +44,7 @@ export abstract class DockerContainer {
 
   protected async _stopContainer (): Promise<void> {
     if (this.container !== undefined) {
-      await this.requireContainer().stop()
+      await this.requireContainer().stop({ removeVolumes: true })
       this.container = undefined
     }
   }
