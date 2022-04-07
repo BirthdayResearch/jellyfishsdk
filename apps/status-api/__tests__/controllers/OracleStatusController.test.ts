@@ -7,7 +7,7 @@ const apiTesting = StatusApiTesting.create()
 beforeAll(async () => {
   await apiTesting.start()
   jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getOracleByAddress')
-    .mockReturnValue(getOracle())
+    .mockReturnValue(getMockedOracle())
 })
 
 afterAll(async () => {
@@ -17,7 +17,7 @@ afterAll(async () => {
 describe('OracleStatusController - Status test', () => {
   it('/oracles?address=<address> - should get operational', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
-      .mockReturnValueOnce(getOraclePriceFeed('df1qm7f2cx8vs9lqn8v43034nvckz6dxxpqezfh6dw', 5))
+      .mockReturnValueOnce(getMockedOraclePriceFeed('df1qm7f2cx8vs9lqn8v43034nvckz6dxxpqezfh6dw', 5))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
@@ -31,7 +31,7 @@ describe('OracleStatusController - Status test', () => {
 
   it('/oracles?address=<address> -should get outage', async () => {
     jest.spyOn(apiTesting.app.get(WhaleApiClient).oracles, 'getPriceFeed')
-      .mockReturnValueOnce(getOraclePriceFeed('df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4', 46))
+      .mockReturnValueOnce(getMockedOraclePriceFeed('df1qcpp3entq53tdyklm5v0lnvqer4verr4puxchq4', 46))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
@@ -44,7 +44,7 @@ describe('OracleStatusController - Status test', () => {
   })
 })
 
-async function getOraclePriceFeed (oracleAddress: string, minutesDiff: number): Promise<ApiPagedResponse<OraclePriceFeed>> {
+async function getMockedOraclePriceFeed (oracleAddress: string, minutesDiff: number): Promise<ApiPagedResponse<OraclePriceFeed>> {
   const blockMedianTime = Date.now() / 1000 - (minutesDiff * 60)
 
   return new ApiPagedResponse({
@@ -68,7 +68,7 @@ async function getOraclePriceFeed (oracleAddress: string, minutesDiff: number): 
   }, 'GET', `oracles/${oracleAddress}/AAPL-USD/feed`)
 }
 
-async function getOracle (): Promise<Oracle> {
+async function getMockedOracle (): Promise<Oracle> {
   return {
     id: '',
     block: {
