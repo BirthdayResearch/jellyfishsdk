@@ -221,4 +221,48 @@ export class CPaybackLoan extends ComposableBuffer<PaybackLoan> {
   }
 }
 
+export interface TokenPayback {
+  dToken: number // ---------------------| VarUInt{1-9 bytes}
+  amounts: TokenBalance[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
+}
+
+/**
+ * Composable TokenPayback, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CTokenPayback extends ComposableBuffer<TokenPayback> {
+  composers (tp: TokenPayback): BufferComposer[] {
+    return [
+      ComposableBuffer.varUInt(() => tp.dToken, v => tp.dToken = v),
+      ComposableBuffer.varUIntArray(() => tp.amounts, v => tp.amounts = v, v => new CTokenBalance(v))
+    ]
+  }
+}
+
+/**
+ * PaybackLoanV2 DeFi Transaction
+ */
+export interface PaybackLoanV2 {
+  vaultId: string // --------------------| 32 bytes, Vault Id
+  from: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address containing collateral
+  loans: TokenPayback[] // -------| c = VarUInt{1-9 bytes} + c x TokenBalance(4 bytes for token Id + 8 bytes for amount), Amount to pay loan
+}
+
+/**
+ * Composable PaybackLoanV2, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CPaybackLoanV2 extends ComposableBuffer<PaybackLoanV2> {
+  static OP_CODE = 0x6B // 'k'
+  static OP_NAME = 'OP_DEFI_TX_PAYBACK_LOAN_V2'
+
+  composers (pl: PaybackLoanV2): BufferComposer[] {
+    return [
+      ComposableBuffer.hexBEBufferLE(32, () => pl.vaultId, v => pl.vaultId = v),
+      ComposableBuffer.single<Script>(() => pl.from, v => pl.from = v, v => new CScript(v)),
+      ComposableBuffer.varUIntArray(() => pl.loans, v => pl.loans = v, v => new CTokenPayback(v))
+    ]
+  }
+}
+
 export * from './dftx_vault'
