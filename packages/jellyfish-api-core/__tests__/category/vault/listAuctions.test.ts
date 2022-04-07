@@ -3,7 +3,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { VaultLiquidation } from '../../../src/category/vault'
 
-describe('Loan listAuctions', () => {
+describe('Vault listAuctions', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 

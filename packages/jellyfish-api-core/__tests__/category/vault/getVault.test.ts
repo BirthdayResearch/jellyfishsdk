@@ -3,7 +3,7 @@ import { Testing } from '@defichain/jellyfish-testing'
 import BigNumber from 'bignumber.js'
 import { VaultActive, VaultState } from '../../../src/category/vault'
 
-describe('Loan getVault', () => {
+describe('Vault getVault', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
   let collateralAddress: string

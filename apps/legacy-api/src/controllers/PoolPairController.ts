@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Inject, Injectable, Logger, Query } from '@nestjs/common'
 import { PoolPairData } from '@defichain/whale-api-client/src/api/PoolPairs'
 import { WhaleApiClientProvider } from '../providers/WhaleApiClientProvider'
 import { NetworkValidationPipe, SupportedNetwork } from '../pipes/NetworkValidationPipe'
@@ -15,10 +15,18 @@ import {
 import { SmartBuffer } from 'smart-buffer'
 import { AccountHistory } from '@defichain/jellyfish-api-core/src/category/account'
 import { fromScript } from '@defichain/jellyfish-address'
+import { Interval } from '@nestjs/schedule'
+import { SimpleCache } from '../cache/SimpleCache'
+import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
+import { WhaleApiClient } from '@defichain/whale-api-client'
 
 @Controller('v1')
 export class PoolPairController {
-  constructor (private readonly whaleApiClientProvider: WhaleApiClientProvider) {
+  private readonly logger = new Logger(PoolPairController.name)
+  constructor (
+    private readonly whaleApiClientProvider: WhaleApiClientProvider,
+    private readonly cache: SimpleCache
+  ) {
   }
 
   @Get('getpoolpair')
@@ -85,8 +93,11 @@ export class PoolPairController {
     @Query('limit') limit: number = 30,
     @Query('next') nextString?: string
   ): Promise<LegacySubgraphSwapsResponse> {
-    limit = Math.min(30, limit)
-    const nextToken: NextToken = (nextString !== undefined) ? JSON.parse(Buffer.from(nextString, 'base64url').toString()) : {}
+    limit = Math.min(100, limit)
+    const nextToken: NextToken = (nextString !== undefined)
+      ? JSON.parse(Buffer.from(nextString, 'base64url').toString())
+      : {}
+
     const {
       swaps,
       next
@@ -95,69 +106,139 @@ export class PoolPairController {
     return {
       data: { swaps: swaps },
       page: {
-        next: Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
+        next: encodeBase64(next)
       }
     }
   }
 
   async getSwapsHistory (network: SupportedNetwork, limit: number, next: NextToken): Promise<{ swaps: LegacySubgraphSwap[], next: NextToken }> {
     const api = this.whaleApiClientProvider.getClient(network)
-    const swaps: LegacySubgraphSwap[] = []
+    const allSwaps: LegacySubgraphSwap[] = []
 
-    let iterations = 0
-    while (swaps.length <= limit) {
+    while (allSwaps.length <= limit) {
       for (const block of await api.blocks.list(200, next?.height)) {
-        for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
-          next = {
-            height: block.height.toString(),
-            order: transaction.order.toString()
-          }
+        let blockTxns = []
 
-          if (transaction.voutCount !== 2) {
+        // don't cache if within 2 blocks from tip, as block might be invalidated / swaps might be added
+        if (await this.isRecentBlock(api, block)) {
+          blockTxns = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, next)
+        } else {
+          blockTxns = await this.cache.get<BlockTxn[]>(
+            block.hash,
+            async () => {
+              const cached = await this.getBlockTransactionsWithNonSwapsAsNull(block, network, next)
+              if (cached.length > 0) {
+                const swapCount = cached.reduce(
+                  (count, txn) => txn.swap === null ? count : count + 1,
+                  0
+                )
+                this.logger.log(`[${network}] Block ${block.height} - cached ${swapCount} swaps`)
+              }
+              return cached
+            },
+            {
+              ttl: 24 * 60 * 60
+            }
+          )
+        }
+
+        for (let i = Number(next.order ?? '0'); i < blockTxns.length; i++) {
+          const blockTxn = blockTxns[i]
+          if (blockTxn.swap === null) {
             continue
           }
-          if (transaction.weight === 605) {
-            continue
+          allSwaps.push(blockTxn.swap)
+
+          const isLastSwapInBlock = ((i + 1) === blockTxns.length)
+          if (isLastSwapInBlock) {
+            // Pagination fix: since this is the last swap in the block, we will point
+            // the pagination cursor to skip the current block. We also reset 'order' to 0
+            // (the start of the block).
+            next = {
+              height: block.height.toString(),
+              order: '0'
+            }
+          } else {
+            // Pagination fix: since this isn't the last pool swap in the block,
+            // we move the cursor to the previous block (1 above), as there might still be
+            // pool swaps in the current block, and we don't want to skip them (setting
+            // the next.height value to N will result in block N being skipped).
+            next = {
+              height: (blockTxn.height + 1).toString(),
+              order: blockTxn.order.toString()
+            }
           }
 
-          iterations++
-
-          const vouts = await api.transactions.getVouts(transaction.txid, 1)
-          const dftx = findPoolSwapDfTx(vouts)
-          if (dftx === undefined) {
-            continue
-          }
-
-          const swap = await this.findSwap(network, dftx, transaction)
-          if (swap === undefined) {
-            continue
-          }
-
-          swaps.push(swap)
-
-          if (swaps.length === limit) {
+          if (allSwaps.length === limit) {
+            this.logger.debug(`[${network}] Block ${block.height} - pagination ${JSON.stringify(next)}`)
             return {
-              swaps,
-              next
+              swaps: allSwaps,
+              next: next
             }
           }
         }
 
+        // Move cursor to next block, as we're done with it
         next = {
           height: block.height.toString(),
           order: '0'
         }
       }
-
-      if (swaps.length === 0 || iterations >= 1000) {
-        break
-      }
     }
-
+    // Highly unlikely to reach here, but for completeness
     return {
-      swaps,
+      swaps: allSwaps,
       next
     }
+  }
+
+  private async getBlockTransactionsWithNonSwapsAsNull (
+    block: Block,
+    network: SupportedNetwork,
+    next: NextToken
+  ): Promise<BlockTxn[]> {
+    const api = this.whaleApiClientProvider.getClient(network)
+    const swaps: BlockTxn[] = []
+    for (const transaction of await api.blocks.getTransactions(block.hash, 200, next?.order)) {
+      const swap = await this.getSwapFromTransaction(transaction, network)
+      swaps.push({
+        swap: swap,
+        height: transaction.block.height,
+        order: transaction.order
+      })
+    }
+    return swaps
+  }
+
+  /**
+   * Caches at the transaction level, so that we can avoid calling expensive rpc calls for newer blocks
+   */
+  private async getSwapFromTransaction (transaction: Transaction, network: SupportedNetwork): Promise<LegacySubgraphSwap | null> {
+    return await this.cache.get<LegacySubgraphSwap | null>(transaction.txid, async () => {
+      const api = this.whaleApiClientProvider.getClient(network)
+
+      if (transaction.voutCount !== 2) {
+        return null
+      }
+      if (transaction.weight === 605) {
+        return null
+      }
+
+      const vouts = await api.transactions.getVouts(transaction.txid, 1)
+      const dftx = findPoolSwapDfTx(vouts)
+      if (dftx === undefined) {
+        return null
+      }
+
+      const swap = await this.findSwap(network, dftx, transaction)
+      if (swap === undefined) {
+        return null
+      }
+
+      return swap
+    }, {
+      ttl: 24 * 60 * 60
+    })
   }
 
   async findSwap (network: SupportedNetwork, poolSwap: PoolSwap, transaction: Transaction): Promise<LegacySubgraphSwap | undefined> {
@@ -206,16 +287,45 @@ export class PoolPairController {
       provider_URL: 'https://defichain.com',
       tvl: stats.tvl.total,
       links: [
-        { title: 'Twitter', link: 'https://twitter.com/defichain' },
-        { title: 'YouTube', link: 'https://www.youtube.com/DeFiChain' },
-        { title: 'Reddit', link: 'https://reddit.com/r/defiblockchain' },
-        { title: 'Telegram', link: 'https://t.me/defiblockchain' },
-        { title: 'LinkedIn', link: 'https://www.linkedin.com/company/defichain' },
-        { title: 'Facebook', link: 'https://www.facebook.com/defichain.official' },
-        { title: 'GitHub', link: 'https://github.com/DeFiCh' },
-        { title: 'Discord', link: 'https://discord.com/invite/py55egyaGy' }
+        {
+          title: 'Twitter',
+          link: 'https://twitter.com/defichain'
+        },
+        {
+          title: 'YouTube',
+          link: 'https://www.youtube.com/DeFiChain'
+        },
+        {
+          title: 'Reddit',
+          link: 'https://reddit.com/r/defiblockchain'
+        },
+        {
+          title: 'Telegram',
+          link: 'https://t.me/defiblockchain'
+        },
+        {
+          title: 'LinkedIn',
+          link: 'https://www.linkedin.com/company/defichain'
+        },
+        {
+          title: 'Facebook',
+          link: 'https://www.facebook.com/defichain.official'
+        },
+        {
+          title: 'GitHub',
+          link: 'https://github.com/DeFiCh'
+        },
+        {
+          title: 'Discord',
+          link: 'https://discord.com/invite/py55egyaGy'
+        }
       ]
     }
+  }
+
+  async isRecentBlock (api: WhaleApiClient, block: Block): Promise<boolean> {
+    const chainHeight = (await api.stats.get()).count.blocks
+    return chainHeight - block.height <= 2
   }
 }
 
@@ -260,6 +370,54 @@ export class PoolPairControllerV2 {
       }
     }
     return result
+  }
+}
+
+/**
+ * Hits PoolPairController with requests to enable pre-fetching behaviour,
+ * improving performance on queries
+ */
+@Injectable()
+export class SwapCacheFiller {
+  private readonly logger = new Logger(SwapCacheFiller.name)
+  isRunning = false
+  isReady = false
+  isFillingCache = false
+
+  constructor (
+    private readonly poolPairController: PoolPairController,
+    @Inject('SWAP_CACHE_COUNT') readonly cacheCountToBeReady: number
+  ) {
+  }
+
+  onApplicationBootstrap (): void {
+    this.isRunning = true
+    void this.fillCache()
+  }
+
+  @Interval(30_000) // 30s
+  private async fillCache (): Promise<void> {
+    if (this.isRunning && !this.isFillingCache) {
+      this.isFillingCache = true
+      await this.followPagination('mainnet')
+      this.isFillingCache = false
+    }
+  }
+
+  private async followPagination (network: SupportedNetwork): Promise<void> {
+    let swapsCount = 0
+    let next: string | undefined
+    while (swapsCount < this.cacheCountToBeReady) {
+      try {
+        const result: LegacySubgraphSwapsResponse = await this.poolPairController.getSubgraphSwaps(network, 30, next)
+        next = result.page?.next
+        swapsCount += result.data.swaps.length
+      } catch (err) {
+        this.logger.error(network, err)
+      }
+    }
+    this.isReady = true
+    this.logger.log(`[${network}] cache is ready`)
   }
 }
 
@@ -439,6 +597,10 @@ interface LegacySubgraphSwapFromTo {
 }
 
 function findPoolSwapDfTx (vouts: TransactionVout[]): PoolSwap | undefined {
+  if (vouts.length === 0) {
+    return undefined // reject because not yet indexed, cannot be found
+  }
+
   const hex = vouts[0].script.hex
   const buffer = SmartBuffer.fromBuffer(Buffer.from(hex, 'hex'))
   const stack = toOPCodes(buffer)
@@ -484,4 +646,14 @@ function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySu
   }
 
   return undefined
+}
+
+export function encodeBase64 (next: NextToken): string {
+  return Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
+}
+
+export interface BlockTxn {
+  swap: LegacySubgraphSwap | null
+  height: number
+  order: number
 }

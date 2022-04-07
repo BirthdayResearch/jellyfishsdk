@@ -254,32 +254,35 @@ export class Loan {
   /**
    * Return loan in a desired amount.
    *
-   * @param {PaybackLoanMetadata} metadata
+   * @param {PaybackLoanMetadata | PaybackLoanMetadataV2} metadata
    * @param {string} metadata.vaultId Vault id
    * @param {string| string[]} metadata.amounts In "amount@symbol" format
    * @param {string} metadata.from Address from transfer tokens
+   * @param {TokenPaybackAmount[]} metadata.loans
+   * @param {string | string[]} metadata.loans[0].amounts In "amount@symbol" format to be spent
+   * @param {string} metadata.loans[0].dToken Token to be paid
    * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
    * @param {string} utxos.txid Transaction Id
    * @param {number} utxos.vout Output number
    * @return {Promise<string>} txid
    */
-  async paybackLoan (metadata: PaybackLoanMetadata, utxos: UTXO[] = []): Promise<string> {
+  async paybackLoan (metadata: PaybackLoanMetadata | PaybackLoanMetadataV2, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('paybackloan', [metadata, utxos], 'number')
   }
 
   // --- Deprecated vault methods---
   /**
-     * Creates a vault transaction.
-     *
-     * @deprecated Vault methods are moving to dedicated vault category
-     * @param {CreateVault} vault
-     * @param {string} vault.ownerAddress Any valid address or "" to generate a new address
-     * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max). If empty, the default loan scheme will be selected
-     * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
-     * @param {string} utxos.txid Transaction Id
-     * @param {number} utxos.vout Output number
-     * @return {Promise<string>} Transaction id of the transaction
-     */
+   * Creates a vault transaction.
+   *
+   * @deprecated Vault methods are moving to dedicated vault category
+   * @param {CreateVault} vault
+   * @param {string} vault.ownerAddress Any valid address or "" to generate a new address
+   * @param {number} [vault.loanSchemeId] Unique identifier of the loan scheme (8 chars max). If empty, the default loan scheme will be selected
+   * @param {UTXO[]} [utxos = []] Specific UTXOs to spend
+   * @param {string} utxos.txid Transaction Id
+   * @param {number} utxos.vout Output number
+   * @return {Promise<string>} Transaction id of the transaction
+   */
   async createVault (vault: CreateVault, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('createvault', [vault.ownerAddress, vault.loanSchemeId, utxos], 'number')
   }
@@ -581,4 +584,15 @@ export interface PaybackLoanMetadata {
   vaultId: string
   amounts: string | string[] // amount@symbol
   from: string
+}
+
+export interface TokenPaybackAmount {
+  dToken: string
+  amounts: string | string[] // amount@symbol
+}
+
+export interface PaybackLoanMetadataV2 {
+  vaultId: string
+  from: string
+  loans: TokenPaybackAmount[]
 }

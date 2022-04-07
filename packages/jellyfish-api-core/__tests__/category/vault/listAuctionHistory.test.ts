@@ -3,7 +3,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { GenesisKeys, MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import { ListAuctionHistoryDetail } from '../../../src/category/vault'
 
-describe('Loan listAuctionHistory', () => {
+describe('Vault listAuctionHistory', () => {
   const tGroup = TestingGroup.create(2, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   const alice = tGroup.get(0)
   const bob = tGroup.get(1)

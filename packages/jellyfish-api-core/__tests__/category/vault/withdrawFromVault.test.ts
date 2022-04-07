@@ -4,7 +4,7 @@ import { TestingGroup } from '@defichain/jellyfish-testing'
 import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { VaultActive } from 'packages/jellyfish-api-core/src/category/vault'
 
-describe('Loan', () => {
+describe('Vault', () => {
   const tGroup = TestingGroup.create(3, i => new MasterNodeRegTestContainer(GenesisKeys[i]))
   let vaultId1!: string // without loan taken
   let vaultId2: string // single collateral, with loan taken, test: loan:collateral ratio

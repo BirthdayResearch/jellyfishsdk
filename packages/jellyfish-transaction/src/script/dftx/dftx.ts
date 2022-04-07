@@ -87,23 +87,27 @@ import {
   SetLoanToken,
   CUpdateLoanToken,
   UpdateLoanToken,
+  TakeLoan,
+  CTakeLoan,
+  CPaybackLoan,
+  PaybackLoan,
+  CPaybackLoanV2,
+  PaybackLoanV2
+} from './dftx_loans'
+import {
   CCreateVault,
   CreateVault,
   CUpdateVault,
   UpdateVault,
-  DepositToVault,
   CDepositToVault,
-  WithdrawFromVault,
+  DepositToVault,
   CWithdrawFromVault,
-  CloseVault,
+  WithdrawFromVault,
   CCloseVault,
-  CTakeLoan,
-  TakeLoan,
-  CPaybackLoan,
-  PaybackLoan,
-  PlaceAuctionBid,
-  CPlaceAuctionBid
-} from './dftx_loans'
+  CloseVault,
+  CPlaceAuctionBid,
+  PlaceAuctionBid
+} from './dftx_vault'
 
 /**
  * DeFi Transaction
@@ -269,6 +273,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<TakeLoan>(CTakeLoan.OP_NAME, d => new CTakeLoan(d))
       case CPaybackLoan.OP_CODE:
         return compose<PaybackLoan>(CPaybackLoan.OP_NAME, d => new CPaybackLoan(d))
+      case CPaybackLoanV2.OP_CODE:
+        return compose<PaybackLoanV2>(CPaybackLoanV2.OP_NAME, d => new CPaybackLoanV2(d))
       case CPlaceAuctionBid.OP_CODE:
         return compose<PlaceAuctionBid>(CPlaceAuctionBid.OP_NAME, d => new CPlaceAuctionBid(d))
       default:
