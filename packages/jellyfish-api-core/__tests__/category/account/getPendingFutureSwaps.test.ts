@@ -1,23 +1,37 @@
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
-import { RegTestFoundationKeys } from '@defichain/jellyfish-network'
 
 describe('Account GetPendingFutureSwaps', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
-  const collateralAddress = RegTestFoundationKeys[0].owner.address
+  let collateralAddress: string
+  let tslaAddress: string
+
   const futureRewardPercentage = 0.05
   const futureInterval = 25
 
-  let tslaAddress: string
-
   async function setup (): Promise<void> {
+    collateralAddress = await testing.generateAddress()
+    await testing.token.dfi({ address: collateralAddress, amount: 12 })
+    await testing.token.create({ symbol: 'BTC', collateralAddress })
+    await testing.generate(1)
+    await testing.token.mint({ symbol: 'BTC', amount: 1 })
+    await testing.generate(1)
+
     const oracleId = await testing.rpc.oracle.appointOracle(await testing.generateAddress(), [
       {
-        currency: 'USD',
-        token: 'TSLA'
+        token: 'DFI',
+        currency: 'USD'
+      },
+      {
+        token: 'BTC',
+        currency: 'USD'
+      },
+      {
+        token: 'TSLA',
+        currency: 'USD'
       }
     ],
     { weightage: 1 }
@@ -27,10 +41,35 @@ describe('Account GetPendingFutureSwaps', () => {
     await testing.rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
       prices: [
         {
-          currency: 'USD',
-          tokenAmount: '2@TSLA'
+          tokenAmount: '1@DFI',
+          currency: 'USD'
+        },
+        {
+          tokenAmount: '1000@BTC',
+          currency: 'USD'
+        },
+        {
+          tokenAmount: '2@TSLA',
+          currency: 'USD'
         }
       ]
+    })
+    await testing.generate(1)
+
+    await testing.container.call('createloanscheme', [100, 1, 'default'])
+    await testing.generate(1)
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'DFI',
+      factor: new BigNumber(1),
+      fixedIntervalPriceId: 'DFI/USD'
+    })
+    await testing.generate(1)
+
+    await testing.rpc.loan.setCollateralToken({
+      token: 'BTC',
+      factor: new BigNumber(0.5),
+      fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
 
@@ -52,15 +91,23 @@ describe('Account GetPendingFutureSwaps', () => {
     })
     await testing.generate(1)
 
-    await testing.token.mint({
-      symbol: 'DUSD',
-      amount: 4
+    const vaultId = await testing.rpc.loan.createVault({
+      ownerAddress: await testing.generateAddress(),
+      loanSchemeId: 'default'
     })
     await testing.generate(1)
 
-    await testing.token.mint({
-      symbol: 'TSLA',
-      amount: 4
+    await testing.rpc.loan.depositToVault({
+      vaultId: vaultId, from: collateralAddress, amount: '12@DFI'
+    })
+
+    await testing.container.waitForPriceValid('TSLA/USD')
+
+    // take multiple loans
+    await testing.rpc.loan.takeLoan({
+      vaultId: vaultId,
+      to: collateralAddress,
+      amounts: ['4@TSLA', '4@DUSD']
     })
     await testing.generate(1)
 
@@ -102,6 +149,9 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Single futureswap', () => {
+    it('x', async () => {
+    })
+
     it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
