@@ -116,17 +116,14 @@ it('should have gov set', async () => {
   })
   await testing.generate(1)
 
-  await testing.container.waitForPriceValid('BTC/USD')
-  await testing.container.waitForPriceValid('ETH/USD')
-  await testing.container.waitForPriceValid('USDT/USD')
-  await testing.container.waitForPriceValid('CU10/USD')
-  await testing.container.waitForPriceValid('CD10/USD')
-  await testing.container.waitForPriceValid('DUSD/USD')
-  await testing.container.waitForPriceValid('TD10/USD')
-  await testing.container.waitForPriceValid('TU10/USD')
-  await testing.container.waitForPriceValid('TR50/USD')
-  await testing.container.waitForPriceValid('TS25/USD')
+  {
+    const prices = await testing.container.call('listfixedintervalprices')
 
+    const invalidPrices = prices.filter((p: any) => p.isLive !== true)
+    for (const p of invalidPrices) {
+      await testing.container.waitForPriceValid(p.priceFeedId)
+    }
+  }
   await testing.rpc.loan.takeLoan({
     vaultId: vaultId,
     to: colAddr,
@@ -184,6 +181,15 @@ it('should have gov set', async () => {
     ]
   })
   await testing.generate(1)
+
+  {
+    const prices = await testing.container.call('listfixedintervalprices')
+
+    const invalidPrices = prices.filter((p: any) => p.isLive !== true)
+    for (const p of invalidPrices) {
+      await testing.container.waitForPriceValid(p.priceFeedId)
+    }
+  }
 
   // test fail payback
   // DUSD pay TS25 should be failed
