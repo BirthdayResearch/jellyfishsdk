@@ -25,7 +25,7 @@ export class RichListCore {
     private readonly whaleApiClient: WhaleApiClient,
     readonly addressBalances: SingleIndexDb<AddressBalance>,
     private readonly crawledBlockHashes: SingleIndexDb<CrawledBlock>,
-    private readonly droppedFromRichList: SingleIndexDb<string>,
+    private readonly crawledBlockAddresses: SingleIndexDb<string>,
     readonly queueClient: QueueClient<string>
   ) {
     this.addressParser = new AddressParser(whaleRpcClient, network)
@@ -71,6 +71,13 @@ export class RichListCore {
       const _addresses = await this.getAddresses(nextBlock)
       for (const a of _addresses) {
         await queue.push(a)
+
+        await this.crawledBlockAddresses.put({
+          partition: `${nextBlock.height}`,
+          sort: nextBlock.height,
+          id: `${nextBlock.height}-${a}`,
+          data: a
+        })
       }
 
       await this.crawledBlockHashes.put({
@@ -106,21 +113,16 @@ export class RichListCore {
   }
 
   private async invalidate (block: Schema<CrawledBlock>): Promise<void> {
-    const tokenIds = await this.listTokenIds()
     // delete for this block height
     await this.crawledBlockHashes.delete(block.id)
-    for (const tokenId of tokenIds) {
-      await this.invalidateDroppedOutRichList(`${tokenId}`, block.data.height)
-    }
 
     // find dropped out addresses to check their balance again
     if (block.data.height !== 0) {
-      for (const tokenId of tokenIds) {
-        const addresses = await this.getDroppedOutRichList(`${tokenId}`, block.data.height - 1)
-        const queue = await this.addressQueue()
-        for (const a of addresses) {
-          await queue.push(a.data)
-        }
+      const addresses = await this.getCrawledBlockAddresses(block.data.height)
+      const queue = await this.addressQueue()
+      for (const a of addresses) {
+        await queue.push(a.data)
+        await this.crawledBlockAddresses.delete(a.id)
       }
     }
   }
@@ -194,7 +196,7 @@ export class RichListCore {
   private appendZeroBalances (tokenBalances: AccountAmount, tokens: number[]): AccountAmount {
     const result: AccountAmount = {}
     for (const t of tokens) {
-      result[t] = tokenBalances[t] ?? new BigNumber(0)
+      result[t] = tokenBalances[t] !== undefined ? new BigNumber(tokenBalances[t]) : new BigNumber(0)
     }
     return result
   }
@@ -208,20 +210,11 @@ export class RichListCore {
     return lastBlock
   }
 
-  private async invalidateDroppedOutRichList (tokenId: string, height: number): Promise<void> {
-    const lastBlockRichList = await this.getDroppedOutRichList(tokenId, height)
-    await Promise.all(
-      lastBlockRichList.map(async rl => await this.droppedFromRichList.delete(rl.id))
-    )
-  }
-
-  private async getDroppedOutRichList (tokenId: string, height: number): Promise<Array<Schema<string>>> {
-    return await this.droppedFromRichList.list({
+  private async getCrawledBlockAddresses (height: number): Promise<Array<Schema<string>>> {
+    return await this.crawledBlockAddresses.list({
       limit: Number.MAX_SAFE_INTEGER,
-      partition: tokenId,
-      order: 'DESC',
-      gt: height - 1,
-      lt: height + 1
+      partition: `${height}`,
+      order: 'DESC'
     })
   }
 

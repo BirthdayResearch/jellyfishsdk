@@ -4,7 +4,7 @@ import { WalletHdNode, WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { DERSignature } from '@defichain/jellyfish-crypto'
 import { SIGHASH, Transaction, TransactionSegWit, Vout } from '@defichain/jellyfish-transaction'
 import { TransactionSigner } from '@defichain/jellyfish-transaction-signature'
-import { generateMnemonicWords, mnemonicToSeed } from './mnemonic'
+import { generateMnemonicWords, mnemonicToSeed, validateMnemonicSentence } from './mnemonic'
 
 /**
  * Bip32 Options, version bytes and WIF format. Unique to each chain.
@@ -136,22 +136,36 @@ export class MnemonicHdNodeProvider implements WalletHdNodeProvider<MnemonicHdNo
   /**
    * @param {string[]} words to init MnemonicHdNodeProvider
    * @param {Bip32Options} options
+   * @param {boolean} [validate=false] optionally validate mnemonic words. While BIP39 standard doesn't enforce
+   * validation of words to generate the HD seed, this implementation optionally allow you to validate the BIP39 word
+   * list before generating the MnemonicProviderData.
+   * @throws {Error} if mnemonic sentence checksum invalid, if validate=true
    */
-  static fromWords (words: string[], options: Bip32Options): MnemonicHdNodeProvider {
-    const data = this.wordsToData(words, options)
+  static fromWords (words: string[], options: Bip32Options, validate: boolean = false): MnemonicHdNodeProvider {
+    const data = this.wordsToData(words, options, validate)
     return this.fromData(data, options)
   }
 
   /**
    * @param {string[]} words to convert into MnemonicProviderData
    * @param {Bip32Options} options
+   * @param {boolean} [validate=false] optionally validate mnemonic words. While BIP39 standard doesn't enforce
+   * validation of words to generate the HD seed, this implementation optionally allow you to validate the BIP39 word
+   * list before generating the MnemonicProviderData.
    * @return MnemonicProviderData
+   * @throws {Error} if mnemonic sentence checksum invalid, if validate=true
    */
-  static wordsToData (words: string[], options: Bip32Options): MnemonicProviderData {
+  static wordsToData (words: string[], options: Bip32Options, validate: boolean = false): MnemonicProviderData {
+    if (validate && !validateMnemonicSentence(words)) {
+      throw new Error('mnemonic sentence checksum invalid')
+    }
+
     const node: bip32.BIP32Interface = fromWordsToSeed(words, options)
-    const privKey = (node.privateKey as Buffer).toString('hex')
-    const chainCode = node.chainCode.toString('hex')
-    return { words, chainCode, privKey }
+    return {
+      words: words,
+      chainCode: node.chainCode.toString('hex'),
+      privKey: (node.privateKey as Buffer).toString('hex')
+    }
   }
 
   /**

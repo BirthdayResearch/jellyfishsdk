@@ -8,7 +8,7 @@ export function RichListCoreTest (apiClient: JsonRpcClient): RichListCore {
   return new RichListCore(
     'regtest',
     apiClient, // using defid rpc directly for test instead of exposed via whale
-    new StubbedWhaleApiClient(),
+    new StubbedWhaleApiClient(apiClient),
     new InMemoryDatabase<AddressBalance>(),
     new InMemoryDatabase<CrawledBlock>(),
     new InMemoryDatabase<string>(),

@@ -5,8 +5,8 @@ import { DfTxAddressParser } from './_abstract'
 export class AccountToUtxosParser extends DfTxAddressParser<AccountToUtxos> {
   OP_CODE: number = CAccountToUtxos.OP_CODE
 
-  extract (accountToUtxos: DfTx<AccountToUtxos>): string[] {
-    const address = fromScript(accountToUtxos.data.from, this.network)?.address as string
+  extract (accountToAccount: DfTx<AccountToUtxos>): string[] {
+    const address = fromScript(accountToAccount.data.from, this.network)?.address as string
     return [address]
   }
 }

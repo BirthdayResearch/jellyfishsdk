@@ -85,6 +85,8 @@ import {
   CTakeLoan,
   CPaybackLoan,
   PaybackLoan,
+  CPaybackLoanV2,
+  PaybackLoanV2,
   CPlaceAuctionBid,
   PlaceAuctionBid
 } from './dftx/dftx_loans'
@@ -573,6 +575,14 @@ export const OP_CODES = {
       type: CPaybackLoan.OP_CODE,
       name: CPaybackLoan.OP_NAME,
       data: paybackLoan
+    })
+  },
+  OP_DEFI_TX_PAYBACK_LOAN_V2: (paybackLoanV2: PaybackLoanV2): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CPaybackLoanV2.OP_CODE,
+      name: CPaybackLoanV2.OP_NAME,
+      data: paybackLoanV2
     })
   },
   OP_DEFI_TX_AUCTION_BID: (placeAuctionBid: PlaceAuctionBid): OP_DEFI_TX => {
