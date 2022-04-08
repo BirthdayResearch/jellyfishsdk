@@ -249,6 +249,8 @@ describe('Account GetPendingFutureSwaps', () => {
       }
 
       // futureswap 4 times
+      // first two futureswaps - generate block after every futureswap
+      // last two futureswaps - generate 1 block only after both futureswaps
       await testing.container.call('futureswap', [tslaAddress, '0.7@TSLA'])
       await testing.generate(1)
 
@@ -256,8 +258,6 @@ describe('Account GetPendingFutureSwaps', () => {
       await testing.generate(1)
 
       await testing.container.call('futureswap', [tslaAddress, '0.5@TSLA'])
-      await testing.generate(1)
-
       await testing.container.call('futureswap', [tslaAddress, '0.2@TSLA'])
       await testing.generate(1)
 
@@ -316,6 +316,8 @@ describe('Account GetPendingFutureSwaps', () => {
       }
 
       // futureswap 4 times
+      // first two futureswaps - generate block after every futureswap
+      // last two futureswaps - generate 1 block only after both futureswaps
       await testing.container.call('futureswap', [tslaAddress, '0.8@DUSD', 'TSLA'])
       await testing.generate(1)
 
@@ -323,8 +325,6 @@ describe('Account GetPendingFutureSwaps', () => {
       await testing.generate(1)
 
       await testing.container.call('futureswap', [tslaAddress, '0.4@DUSD', 'TSLA'])
-      await testing.generate(1)
-
       await testing.container.call('futureswap', [tslaAddress, '0.2@DUSD', 'TSLA'])
       await testing.generate(1)
 
