@@ -111,15 +111,6 @@ describe('Account GetPendingFutureSwaps', () => {
     })
     await testing.generate(1)
 
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
-    await testing.generate(1)
-
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/reward_pct': futureRewardPercentage.toString(), 'v0/params/dfip2203/block_period': futureInterval.toString() } })
-    await testing.generate(1)
-
-    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
-    await testing.generate(1)
-
     tslaAddress = await testing.generateAddress()
 
     await testing.rpc.account.accountToAccount(collateralAddress, {
@@ -133,255 +124,297 @@ describe('Account GetPendingFutureSwaps', () => {
     await testing.generate(1)
   }
 
-  beforeAll(async () => {
-    await testing.container.start()
-    await testing.container.waitForWalletCoinbaseMaturity()
-    await setup()
-  })
-
-  afterAll(async () => {
-    await testing.container.stop()
-  })
-
   describe('Single futureswap', () => {
-    it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
-      // Call getpendingfutureswaps before performing futureswap
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
-        })
-      }
+    describe('If GOV attributes: active = true, reward_pct and block_period values are set', () => {
+      beforeAll(async () => {
+        await testing.container.start()
+        await testing.container.waitForWalletCoinbaseMaturity()
+        await setup()
 
-      // futureswap
-      await testing.container.call('futureswap', [tslaAddress, '1@TSLA'])
-      await testing.generate(1)
+        await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
+        await testing.generate(1)
 
-      // Call getpendingfutureswaps after performing futureswap
-      const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps1).toStrictEqual({
-        owner: tslaAddress,
-        values: [
-          {
-            source: '1.00000000@TSLA',
-            destination: 'DUSD'
+        await testing.rpc.masternode.setGov({
+          ATTRIBUTES: {
+            'v0/params/dfip2203/reward_pct': futureRewardPercentage.toString(),
+            'v0/params/dfip2203/block_period': futureInterval.toString()
           }
-        ]
+        })
+        await testing.generate(1)
+
+        await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
+        await testing.generate(1)
       })
 
-      // Wait for 1 block before the next settle block
-      const nextSettleBlock = await testing.container.call('getfutureswapblock')
-      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+      afterAll(async () => {
+        await testing.container.stop()
+      })
 
-      const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
+      it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
+        // Call getpendingfutureswaps before performing futureswap
+        {
+          const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps).toStrictEqual({
+            owner: tslaAddress,
+            values: []
+          })
+        }
 
-      // Generate 1 more block to settle
-      await testing.generate(1)
+        // futureswap
+        await testing.container.call('futureswap', [tslaAddress, '1@TSLA'])
+        await testing.generate(1)
 
-      // Call getpendingfutureswaps after futureswap is settled
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
+        // Call getpendingfutureswaps after performing futureswap
+        const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps1).toStrictEqual({
           owner: tslaAddress,
-          values: []
+          values: [
+            {
+              source: '1.00000000@TSLA',
+              destination: 'DUSD'
+            }
+          ]
         })
-      }
+
+        // Wait for 1 block before the next settle block
+        const nextSettleBlock = await testing.container.call('getfutureswapblock')
+        await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+
+        const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
+
+        // Generate 1 more block to settle
+        await testing.generate(1)
+
+        // Call getpendingfutureswaps after futureswap is settled
+        {
+          const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps).toStrictEqual({
+            owner: tslaAddress,
+            values: []
+          })
+        }
+      })
+
+      it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
+        // Call getpendingfutureswaps before performing futureswap
+        {
+          const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps).toStrictEqual({
+            owner: tslaAddress,
+            values: []
+          })
+        }
+
+        // futureswap
+        await testing.container.call('futureswap', [tslaAddress, '1@DUSD', 'TSLA'])
+        await testing.generate(1)
+
+        // Call getpendingfutureswaps after performing futureswap
+        const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps1).toStrictEqual({
+          owner: tslaAddress,
+          values: [
+            {
+              source: '1.00000000@DUSD',
+              destination: 'TSLA'
+            }
+          ]
+        })
+
+        // Wait for 1 block before the next settle block
+        const nextSettleBlock = await testing.container.call('getfutureswapblock')
+        await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+
+        const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+        expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
+
+        // Generate 1 more block to settle
+        await testing.generate(1)
+
+        // Call getpendingfutureswaps after futureswap is settled
+        {
+          const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps).toStrictEqual({
+            owner: tslaAddress,
+            values: []
+          })
+        }
+      })
     })
 
-    it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
-      // Call getpendingfutureswaps before performing futureswap
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
+    describe('Multiple futureswaps', () => {
+      describe('If GOV attributes: active = true, reward_pct and block_period values are set', () => {
+        beforeAll(async () => {
+          await testing.container.start()
+          await testing.container.waitForWalletCoinbaseMaturity()
+          await setup()
+
+          await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
+          await testing.generate(1)
+
+          await testing.rpc.masternode.setGov({
+            ATTRIBUTES: {
+              'v0/params/dfip2203/reward_pct': futureRewardPercentage.toString(),
+              'v0/params/dfip2203/block_period': futureInterval.toString()
+            }
+          })
+          await testing.generate(1)
+
+          await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'true' } })
+          await testing.generate(1)
         })
-      }
 
-      // futureswap
-      await testing.container.call('futureswap', [tslaAddress, '1@DUSD', 'TSLA'])
-      await testing.generate(1)
+        afterAll(async () => {
+          await testing.container.stop()
+        })
 
-      // Call getpendingfutureswaps after performing futureswap
-      const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps1).toStrictEqual({
-        owner: tslaAddress,
-        values: [
+        it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
+          // Call getpendingfutureswaps before performing futureswap
           {
-            source: '1.00000000@DUSD',
-            destination: 'TSLA'
+            const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+            expect(pendingFutureSwaps).toStrictEqual({
+              owner: tslaAddress,
+              values: []
+            })
           }
-        ]
-      })
 
-      // Wait for 1 block before the next settle block
-      const nextSettleBlock = await testing.container.call('getfutureswapblock')
-      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+          // futureswap 4 times
+          // first two futureswaps - generate block after every futureswap
+          // last two futureswaps - generate 1 block only after both futureswaps
+          await testing.container.call('futureswap', [tslaAddress, '0.7@TSLA'])
+          await testing.generate(1)
 
-      const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
+          await testing.container.call('futureswap', [tslaAddress, '0.6@TSLA'])
+          await testing.generate(1)
 
-      // Generate 1 more block to settle
-      await testing.generate(1)
+          await testing.container.call('futureswap', [tslaAddress, '0.5@TSLA'])
+          await testing.container.call('futureswap', [tslaAddress, '0.2@TSLA'])
+          await testing.generate(1)
 
-      // Call getpendingfutureswaps after futureswap is settled
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
-        })
-      }
-    })
-  })
+          // Call getpendingfutureswaps after performing futureswap
+          const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps1).toStrictEqual({
+            owner: tslaAddress,
+            values: [
+              {
+                source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
+                destination: 'DUSD'
+              },
+              {
+                source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
+                destination: 'DUSD'
+              },
+              {
+                source: '0.60000000@TSLA',
+                destination: 'DUSD'
+              },
+              {
+                source: '0.70000000@TSLA',
+                destination: 'DUSD'
+              }
+            ]
+          })
+          expect(
+            (pendingFutureSwaps1.values[0].source === '0.20000000@TSLA' &&
+              pendingFutureSwaps1.values[1].source === '0.50000000@TSLA') ||
+            (pendingFutureSwaps1.values[0].source === '0.50000000@TSLA' &&
+              pendingFutureSwaps1.values[1].source === '0.20000000@TSLA')
+          ).toBe(true)
 
-  describe('Multiple futureswaps', () => {
-    it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
-      // Call getpendingfutureswaps before performing futureswap
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
-        })
-      }
+          // Wait for 1 block before the next settle block
+          const nextSettleBlock = await testing.container.call('getfutureswapblock')
+          await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
-      // futureswap 4 times
-      // first two futureswaps - generate block after every futureswap
-      // last two futureswaps - generate 1 block only after both futureswaps
-      await testing.container.call('futureswap', [tslaAddress, '0.7@TSLA'])
-      await testing.generate(1)
+          const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-      await testing.container.call('futureswap', [tslaAddress, '0.6@TSLA'])
-      await testing.generate(1)
+          // Generate 1 more block to settle
+          await testing.generate(1)
 
-      await testing.container.call('futureswap', [tslaAddress, '0.5@TSLA'])
-      await testing.container.call('futureswap', [tslaAddress, '0.2@TSLA'])
-      await testing.generate(1)
-
-      // Call getpendingfutureswaps after performing futureswap
-      const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps1).toStrictEqual({
-        owner: tslaAddress,
-        values: [
+          // Call getpendingfutureswaps after futureswap is settled
           {
-            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
-            destination: 'DUSD'
-          },
-          {
-            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
-            destination: 'DUSD'
-          },
-          {
-            source: '0.60000000@TSLA',
-            destination: 'DUSD'
-          },
-          {
-            source: '0.70000000@TSLA',
-            destination: 'DUSD'
+            const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+            expect(pendingFutureSwaps).toStrictEqual({
+              owner: tslaAddress,
+              values: []
+            })
           }
-        ]
-      })
-      expect(
-        (pendingFutureSwaps1.values[0].source === '0.20000000@TSLA' &&
-          pendingFutureSwaps1.values[1].source === '0.50000000@TSLA') ||
-        (pendingFutureSwaps1.values[0].source === '0.50000000@TSLA' &&
-          pendingFutureSwaps1.values[1].source === '0.20000000@TSLA')
-      ).toBe(true)
-
-      // Wait for 1 block before the next settle block
-      const nextSettleBlock = await testing.container.call('getfutureswapblock')
-      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
-
-      const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
-
-      // Generate 1 more block to settle
-      await testing.generate(1)
-
-      // Call getpendingfutureswaps after futureswap is settled
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
         })
-      }
-    })
 
-    it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
-      // Call getpendingfutureswaps before performing futureswap
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
-        })
-      }
-
-      // futureswap 4 times
-      // first two futureswaps - generate block after every futureswap
-      // last two futureswaps - generate 1 block only after both futureswaps
-      await testing.container.call('futureswap', [tslaAddress, '0.8@DUSD', 'TSLA'])
-      await testing.generate(1)
-
-      await testing.container.call('futureswap', [tslaAddress, '0.6@DUSD', 'TSLA'])
-      await testing.generate(1)
-
-      await testing.container.call('futureswap', [tslaAddress, '0.4@DUSD', 'TSLA'])
-      await testing.container.call('futureswap', [tslaAddress, '0.2@DUSD', 'TSLA'])
-      await testing.generate(1)
-
-      // Call getpendingfutureswaps after performing futureswap
-      const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps1).toStrictEqual({
-        owner: tslaAddress,
-        values: [
+        it('Should getPendingFutureSwaps if futureswap DUSD for TSLA', async () => {
+          // Call getpendingfutureswaps before performing futureswap
           {
-            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.40000000@DUSD
-            destination: 'TSLA'
-          },
-          {
-            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.40000000@DUSD
-            destination: 'TSLA'
-          },
-          {
-            source: '0.60000000@DUSD',
-            destination: 'TSLA'
-          },
-          {
-            source: '0.80000000@DUSD',
-            destination: 'TSLA'
+            const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+            expect(pendingFutureSwaps).toStrictEqual({
+              owner: tslaAddress,
+              values: []
+            })
           }
-        ]
-      })
-      expect(
-        (pendingFutureSwaps1.values[0].source === '0.20000000@DUSD' &&
-          pendingFutureSwaps1.values[1].source === '0.40000000@DUSD') ||
-        (pendingFutureSwaps1.values[0].source === '0.40000000@DUSD' &&
-          pendingFutureSwaps1.values[1].source === '0.20000000@DUSD')
-      ).toBe(true)
 
-      // Wait for 1 block before the next settle block
-      const nextSettleBlock = await testing.container.call('getfutureswapblock')
-      await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+          // futureswap 4 times
+          // first two futureswaps - generate block after every futureswap
+          // last two futureswaps - generate 1 block only after both futureswaps
+          await testing.container.call('futureswap', [tslaAddress, '0.8@DUSD', 'TSLA'])
+          await testing.generate(1)
 
-      const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-      expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
+          await testing.container.call('futureswap', [tslaAddress, '0.6@DUSD', 'TSLA'])
+          await testing.generate(1)
 
-      // Generate 1 more block to settle
-      await testing.generate(1)
+          await testing.container.call('futureswap', [tslaAddress, '0.4@DUSD', 'TSLA'])
+          await testing.container.call('futureswap', [tslaAddress, '0.2@DUSD', 'TSLA'])
+          await testing.generate(1)
 
-      // Call getpendingfutureswaps after futureswap is settled
-      {
-        const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
-        expect(pendingFutureSwaps).toStrictEqual({
-          owner: tslaAddress,
-          values: []
+          // Call getpendingfutureswaps after performing futureswap
+          const pendingFutureSwaps1 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps1).toStrictEqual({
+            owner: tslaAddress,
+            values: [
+              {
+                source: expect.any(String), // Can be either 0.20000000@DUSD or 0.40000000@DUSD
+                destination: 'TSLA'
+              },
+              {
+                source: expect.any(String), // Can be either 0.20000000@DUSD or 0.40000000@DUSD
+                destination: 'TSLA'
+              },
+              {
+                source: '0.60000000@DUSD',
+                destination: 'TSLA'
+              },
+              {
+                source: '0.80000000@DUSD',
+                destination: 'TSLA'
+              }
+            ]
+          })
+          expect(
+            (pendingFutureSwaps1.values[0].source === '0.20000000@DUSD' &&
+              pendingFutureSwaps1.values[1].source === '0.40000000@DUSD') ||
+            (pendingFutureSwaps1.values[0].source === '0.40000000@DUSD' &&
+              pendingFutureSwaps1.values[1].source === '0.20000000@DUSD')
+          ).toBe(true)
+
+          // Wait for 1 block before the next settle block
+          const nextSettleBlock = await testing.container.call('getfutureswapblock')
+          await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+
+          const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+          expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
+
+          // Generate 1 more block to settle
+          await testing.generate(1)
+
+          // Call getpendingfutureswaps after futureswap is settled
+          {
+            const pendingFutureSwaps = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
+            expect(pendingFutureSwaps).toStrictEqual({
+              owner: tslaAddress,
+              values: []
+            })
+          }
         })
-      }
+      })
     })
   })
 })
