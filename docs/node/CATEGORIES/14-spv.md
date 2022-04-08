@@ -164,7 +164,7 @@ Gets all HTLC contracts stored in wallet and creates refunds transactions for al
 
 ```ts title="client.spv.refundHtlcAll()"
 interface spv {
-  refundHtlcAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<string>
+  refundHtlcAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<string[]>
 }
 
 interface SpvDefaultOptions {

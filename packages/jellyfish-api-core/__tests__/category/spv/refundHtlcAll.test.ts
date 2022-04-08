@@ -28,9 +28,12 @@ describe('Spv', () => {
     await container.spv.increaseSpvHeight(10)
 
     const destinationAddress = await container.call('spv_getnewaddress')
-    const result = await testing.rpc.spv.refundHtlcAll(destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
-    expect(typeof result).toStrictEqual('string')
-    expect(result.length).toStrictEqual(64)
+    const results = await testing.rpc.spv.refundHtlcAll(destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
+    expect(results.length).toStrictEqual(1)
+    for (const txid of results) {
+      expect(typeof txid).toStrictEqual('string')
+      expect(txid.length).toStrictEqual(64)
+    }
 
     /**
      * Assert that refund happened
@@ -48,7 +51,7 @@ describe('Spv', () => {
       address: htlc1.address,
       confirms: 11,
       spent: {
-        txid: result,
+        txid: results[0],
         confirms: 1
       }
     })
@@ -59,7 +62,7 @@ describe('Spv', () => {
       address: htlc2.address,
       confirms: 11,
       spent: {
-        txid: result,
+        txid: results[0],
         confirms: 1
       }
     })
@@ -70,7 +73,7 @@ describe('Spv', () => {
     const listReceivingAddresses: any[] = await container.call('spv_listreceivedbyaddress')
     const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
     expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === result)).toStrictEqual(true)
+    expect(receivingAddress.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
 
   it('should refundHtlcAll for expired only', async () => {
@@ -84,9 +87,12 @@ describe('Spv', () => {
     await container.spv.increaseSpvHeight(10)
 
     const destinationAddress = await container.call('spv_getnewaddress')
-    const result = await testing.rpc.spv.refundHtlcAll(destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
-    expect(typeof result).toStrictEqual('string')
-    expect(result.length).toStrictEqual(64)
+    const results = await testing.rpc.spv.refundHtlcAll(destinationAddress) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
+    expect(results.length).toStrictEqual(1)
+    for (const txid of results) {
+      expect(typeof txid).toStrictEqual('string')
+      expect(txid.length).toStrictEqual(64)
+    }
 
     /**
      * Assert that refund happened
@@ -104,7 +110,7 @@ describe('Spv', () => {
       address: htlc1.address,
       confirms: 11,
       spent: {
-        txid: result,
+        txid: results[0],
         confirms: 1
       }
     })
@@ -122,7 +128,7 @@ describe('Spv', () => {
     const listReceivingAddresses: any[] = await container.call('spv_listreceivedbyaddress')
     const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
     expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === result)).toStrictEqual(true)
+    expect(receivingAddress.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
 
   it('should refundHtlcAll with custom feeRate', async () => {
@@ -134,9 +140,12 @@ describe('Spv', () => {
     await container.spv.increaseSpvHeight()
 
     const destinationAddress = await container.call('spv_getnewaddress')
-    const result = await testing.rpc.spv.refundHtlcAll(destinationAddress, { feeRate: new BigNumber('20000') }) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
-    expect(typeof result).toStrictEqual('string')
-    expect(result.length).toStrictEqual(64)
+    const results = await testing.rpc.spv.refundHtlcAll(destinationAddress, { feeRate: new BigNumber('20000') }) // This refund should only happen after timeout threshold set in createHtlc. See https://en.bitcoin.it/wiki/BIP_0199
+    expect(results.length).toStrictEqual(1)
+    for (const txid of results) {
+      expect(typeof txid).toStrictEqual('string')
+      expect(txid.length).toStrictEqual(64)
+    }
 
     /**
      * Assert that refund happened
@@ -153,7 +162,7 @@ describe('Spv', () => {
       address: htlc.address,
       confirms: 11,
       spent: {
-        txid: result,
+        txid: results[0],
         confirms: 1
       }
     })
@@ -164,7 +173,7 @@ describe('Spv', () => {
     const listReceivingAddresses = await container.call('spv_listreceivedbyaddress')
     const receivingAddress = listReceivingAddresses.find(({ address }: { address: string }) => address === destinationAddress)
     expect(receivingAddress.address).toStrictEqual(destinationAddress)
-    expect(receivingAddress.txids.some((txid: string) => txid === result)).toStrictEqual(true)
+    expect(receivingAddress.txids.some((txid: string) => txid === results[0])).toStrictEqual(true)
   })
 
   it('should not refundHtlcAll when no unspent HTLC outputs found', async () => {
