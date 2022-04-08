@@ -29,7 +29,7 @@ export abstract class SanityContainer extends DockerContainer {
 
   constructor (
     public readonly app: string,
-    public readonly port = Math.floor(Math.random() * (5000 - 3000 + 1) + 3000),
+    public readonly port = getRandomPort(3000, 5000),
     public readonly blockchain: MasterNodeRegTestContainer = new MasterNodeRegTestContainer()
   ) {
     super(`${app}:sanity`)
@@ -117,4 +117,11 @@ export abstract class SanityContainer extends DockerContainer {
   public async getUrl (): Promise<string> {
     return `http://127.0.0.1:${this.port}`
   }
+}
+
+/**
+ * @see https://stackoverflow.com/a/7228322
+ */
+function getRandomPort (min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1) + min)
 }
