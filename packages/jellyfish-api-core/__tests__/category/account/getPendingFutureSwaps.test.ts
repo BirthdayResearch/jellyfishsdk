@@ -267,11 +267,11 @@ describe('Account GetPendingFutureSwaps', () => {
         owner: tslaAddress,
         values: [
           {
-            source: '0.20000000@TSLA',
+            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
             destination: 'DUSD'
           },
           {
-            source: '0.50000000@TSLA',
+            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
             destination: 'DUSD'
           },
           {
@@ -284,6 +284,12 @@ describe('Account GetPendingFutureSwaps', () => {
           }
         ]
       })
+      expect(
+        (pendingFutureSwaps1.values[0].source === '0.20000000@TSLA' &&
+          pendingFutureSwaps1.values[1].source === '0.50000000@TSLA') ||
+        (pendingFutureSwaps1.values[0].source === '0.50000000@TSLA' &&
+          pendingFutureSwaps1.values[1].source === '0.20000000@TSLA')
+      ).toBe(true)
 
       // Wait for 1 block before the next settle block
       const nextSettleBlock = await testing.container.call('getfutureswapblock')
@@ -334,11 +340,11 @@ describe('Account GetPendingFutureSwaps', () => {
         owner: tslaAddress,
         values: [
           {
-            source: '0.20000000@DUSD',
+            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.40000000@DUSD
             destination: 'TSLA'
           },
           {
-            source: '0.40000000@DUSD',
+            source: expect.any(String), // Can be either 0.20000000@DUSD or 0.40000000@DUSD
             destination: 'TSLA'
           },
           {
@@ -351,6 +357,12 @@ describe('Account GetPendingFutureSwaps', () => {
           }
         ]
       })
+      expect(
+        (pendingFutureSwaps1.values[0].source === '0.20000000@DUSD' &&
+          pendingFutureSwaps1.values[1].source === '0.40000000@DUSD') ||
+        (pendingFutureSwaps1.values[0].source === '0.40000000@DUSD' &&
+          pendingFutureSwaps1.values[1].source === '0.20000000@DUSD')
+      ).toBe(true)
 
       // Wait for 1 block before the next settle block
       const nextSettleBlock = await testing.container.call('getfutureswapblock')
