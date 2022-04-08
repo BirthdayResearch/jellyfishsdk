@@ -133,11 +133,6 @@ describe('Account GetPendingFutureSwaps', () => {
     await testing.generate(1)
   }
 
-  async function getNextSettleBlock (): Promise<number> {
-    const blockCount = await testing.rpc.blockchain.getBlockCount()
-    return blockCount + futureInterval - (blockCount % futureInterval)
-  }
-
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
@@ -149,9 +144,6 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Single futureswap', () => {
-    it('x', async () => {
-    })
-
     it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
       // Call getpendingfutureswaps before performing futureswap
       {
@@ -179,7 +171,7 @@ describe('Account GetPendingFutureSwaps', () => {
       })
 
       // Wait for 1 block before the next settle block
-      const nextSettleBlock = await getNextSettleBlock()
+      const nextSettleBlock = await testing.container.call('getfutureswapblock')
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
       const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
@@ -225,7 +217,7 @@ describe('Account GetPendingFutureSwaps', () => {
       })
 
       // Wait for 1 block before the next settle block
-      const nextSettleBlock = await getNextSettleBlock()
+      const nextSettleBlock = await testing.container.call('getfutureswapblock')
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
       const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
@@ -294,7 +286,7 @@ describe('Account GetPendingFutureSwaps', () => {
       })
 
       // Wait for 1 block before the next settle block
-      const nextSettleBlock = await getNextSettleBlock()
+      const nextSettleBlock = await testing.container.call('getfutureswapblock')
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
       const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
@@ -361,7 +353,7 @@ describe('Account GetPendingFutureSwaps', () => {
       })
 
       // Wait for 1 block before the next settle block
-      const nextSettleBlock = await getNextSettleBlock()
+      const nextSettleBlock = await testing.container.call('getfutureswapblock')
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
 
       const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
