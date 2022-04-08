@@ -92,7 +92,7 @@ describe('Account GetPendingFutureSwaps', () => {
     await testing.generate(1)
 
     const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: await testing.generateAddress(),
+      ownerAddress: collateralAddress,
       loanSchemeId: 'default'
     })
     await testing.generate(1)
@@ -121,6 +121,9 @@ describe('Account GetPendingFutureSwaps', () => {
     await testing.rpc.account.accountToAccount(collateralAddress, {
       [tslaAddress]: '4@TSLA'
     })
+    await testing.generate(1)
+
+    await testing.rpc.masternode.setGov({ ATTRIBUTES: { 'v0/params/dfip2203/active': 'false' } })
     await testing.generate(1)
 
     await testing.rpc.masternode.setGov({
@@ -474,11 +477,11 @@ describe('Account GetPendingFutureSwaps', () => {
           owner: tslaAddress,
           values: [
             {
-              source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
+              source: expect.any(String), // Can be either 0.20000000@TSLA or 0.50000000@TSLA
               destination: 'DUSD'
             },
             {
-              source: expect.any(String), // Can be either 0.20000000@DUSD or 0.50000000@TSLA
+              source: expect.any(String), // Can be either 0.20000000@TSLA or 0.50000000@TSLA
               destination: 'DUSD'
             },
             {
