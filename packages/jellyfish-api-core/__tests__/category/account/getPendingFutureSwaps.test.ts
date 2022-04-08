@@ -146,7 +146,7 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Single futureswap', () => {
-    describe('If GOV attributes: active = true, reward_pct and block_period values are set', () => {
+    describe('If GOV attributes: active is enabled', () => {
       it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
         // Call getpendingfutureswaps before performing futureswap
         {
@@ -374,11 +374,12 @@ describe('Account GetPendingFutureSwaps', () => {
         const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-        // const idTSLA = await testing.token.getTokenId('TSLA')
-        // await testing.rpc.masternode.setGov({ ['ATTRIBUTES']: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
-        //
-        // const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-        // expect(attributes.ATTRIBUTES[`v0/token/${idTSLA}/dfip2203`]).toStrictEqual('false')
+        const idTSLA = await testing.token.getTokenId('TSLA')
+        await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+        await testing.generate(1)
+
+        const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+        expect(attributes.ATTRIBUTES[`v0/token/${idTSLA}/dfip2203`]).toStrictEqual('false')
 
         // Call getpendingfutureswaps after active is set to false
         {
@@ -423,11 +424,12 @@ describe('Account GetPendingFutureSwaps', () => {
         const pendingFutureSwaps2 = await testing.rpc.account.getPendingFutureSwaps(tslaAddress)
         expect(pendingFutureSwaps2).toStrictEqual(pendingFutureSwaps1) // Nothing change
 
-        // const idTSLA = await testing.token.getTokenId('TSLA')
-        // await testing.rpc.masternode.setGov({ ['ATTRIBUTES']: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
-        //
-        // const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-        // expect(attributes.ATTRIBUTES[`v0/token/${idTSLA}/dfip2203`]).toStrictEqual('false')
+        const idTSLA = await testing.token.getTokenId('TSLA')
+        await testing.rpc.masternode.setGov({ ATTRIBUTES: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
+        await testing.generate(1)
+
+        const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+        expect(attributes.ATTRIBUTES[`v0/token/${idTSLA}/dfip2203`]).toStrictEqual('false')
 
         // Call getpendingfutureswaps after active is set to false
         {
@@ -442,7 +444,7 @@ describe('Account GetPendingFutureSwaps', () => {
   })
 
   describe('Multiple futureswaps', () => {
-    describe('If GOV attributes: active = true, reward_pct and block_period values are set', () => {
+    describe('If GOV attributes: active is enabled', () => {
       it('Should getPendingFutureSwaps if futureswap TSLA for DUSD', async () => {
         // Call getpendingfutureswaps before performing futureswap
         {
