@@ -1152,7 +1152,7 @@ describe('paybackLoan before FortCanningHeight', () => {
     await tGroupFCH.waitForSync()
 
     const promise = testing.rpc.loan.paybackLoan(loanMetadata)
-    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanV2Tx execution failed:\nCannot payback this amount of loan for TSLA, either payback full amount or less than this amount!\', code: -32600, method: paybackloan')
+    await expect(promise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nCannot payback this amount of loan for TSLA, either payback full amount or less than this amount!\', code: -32600, method: paybackloan')
 
     await testing.container.waitForBlockHeight(fchBlockHeight)
     const blockInfo = await testing.rpc.blockchain.getBlockchainInfo()
@@ -1214,7 +1214,7 @@ describe('paybackloan for any token', () => {
   const container = new MasterNodeRegTestContainer()
   const testing = Testing.create(container)
 
-  const dusdLoanAmount = 5000
+  const dusdLoanAmount = 50000
   const tslaLoanAmount = 10
   const loanSchemeId = 'scheme'
   const attributeKey = 'ATTRIBUTES'
@@ -1566,7 +1566,11 @@ describe('paybackloan for any token', () => {
     const dfiPaybackAmount = dusdLoanAmount + 1000
     const defaultPenaltyRate = 0.01
     const dfiEffectPriceAfterPenaltyRate = 1 * (1 - defaultPenaltyRate)
-    const dfiNeededToPayOffDusd = dusdLoanAmountBefore.dividedBy(dfiEffectPriceAfterPenaltyRate).decimalPlaces(8, BigNumber.ROUND_CEIL)
+    let dfiNeededToPayOffDusd = dusdLoanAmountBefore.dividedBy(dfiEffectPriceAfterPenaltyRate)
+
+    if (dfiNeededToPayOffDusd.multipliedBy(dfiEffectPriceAfterPenaltyRate) !== dusdLoanAmountBefore) {
+      dfiNeededToPayOffDusd = dfiNeededToPayOffDusd.plus(0.00000001)
+    }
 
     await testing.rpc.loan.paybackLoan({
       vaultId: vaultId,
@@ -1582,7 +1586,7 @@ describe('paybackloan for any token', () => {
     const totalDfiPenalty = dfiNeededToPayOffDusd.multipliedBy(defaultPenaltyRate)
     const totalDusdPaybackAmount = dusdLoanAmountBefore
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.paybackburn.toFixed(8)).toStrictEqual(totalDusdPaybackAmount.plus(totalDfiPenalty).toFixed(8))
+    expect(burnInfoAfter.paybackburn.toFixed(8)).toStrictEqual(dfiNeededToPayOffDusd.toFixed(8))
     expect(burnInfoAfter.dfipaybackfee.toFixed(8)).toStrictEqual(totalDfiPenalty.toFixed(8, BigNumber.ROUND_FLOOR))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${totalDusdPaybackAmount.toFixed(8)}@DUSD`])
 
@@ -1639,7 +1643,7 @@ describe('paybackloan for any token', () => {
 
     const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(penaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`])
 
@@ -1654,6 +1658,37 @@ describe('paybackloan for any token', () => {
 
   it('should be able to payback DUSD loan using TSLA - use PaybackLoanMetadataV2', async () => {
     await takeTslaTokensToPayback()
+
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-TSLA
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'TSLA'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-TSLA
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20 },
+        b: { symbol: 'TSLA', amount: 10 }
+      })
+      await testing.generate(1)
+    }
 
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId: string = Object.keys(dusdInfo)[0]
@@ -1705,7 +1740,7 @@ describe('paybackloan for any token', () => {
 
     const totalTslaPenalty = new BigNumber(tslaPaybackAmount).multipliedBy(penaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(tslaPaybackAmount).toFixed(8)}@TSLA`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${totalTslaPenalty.toFixed(8)}@TSLA`])
     expect(burnInfoAfter.paybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`])
 
@@ -1720,6 +1755,37 @@ describe('paybackloan for any token', () => {
 
   it('should be able to payback DUSD loan using both TSLA and DFI - use PaybackLoanMetadataV2', async () => {
     await takeTslaTokensToPayback()
+
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-TSLA
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'TSLA'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-TSLA
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20 },
+        b: { symbol: 'TSLA', amount: 10 }
+      })
+      await testing.generate(1)
+    }
 
     const dfiInfo = await testing.rpc.token.getToken('DFI')
     const dfiId: string = Object.keys(dfiInfo)[0]
@@ -1786,7 +1852,7 @@ describe('paybackloan for any token', () => {
     const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(dfiPenaltyRate)
     const totalTslaPenalty = new BigNumber(tslaPaybackAmount).multipliedBy(tslaPenaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`, `${new BigNumber(tslaPaybackAmount).toFixed(8)}@TSLA`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPaybackByDfi.toFixed(8)}@DUSD`])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${totalTslaPenalty.toFixed(8)}@TSLA`])
@@ -1824,6 +1890,51 @@ describe('paybackloan for any token', () => {
       fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
+
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-TSLA
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'TSLA'
+      })
+      await testing.generate(1)
+
+      // create DUSD-BTC
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'BTC'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-TSLA
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20 },
+        b: { symbol: 'TSLA', amount: 10 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-BTC
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20000 },
+        b: { symbol: 'BTC', amount: 2 }
+      })
+      await testing.generate(1)
+    }
 
     const dusdInfo = await testing.rpc.token.getToken('DUSD')
     const dusdId: string = Object.keys(dusdInfo)[0]
@@ -1890,7 +2001,7 @@ describe('paybackloan for any token', () => {
     const totalTslaPenalty = new BigNumber(tslaPaybackAmount).multipliedBy(tslaPenaltyRate)
     const totalBtcPenalty = new BigNumber(btcPaybackAmount).multipliedBy(btcPenaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(tslaPaybackAmount).toFixed(8)}@TSLA`, `${new BigNumber(btcPaybackAmount).toFixed(8)}@BTC`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(new BigNumber(0))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${totalTslaPenalty.toFixed(8)}@TSLA`, `${totalBtcPenalty.toFixed(8)}@BTC`])
@@ -2016,7 +2127,7 @@ describe('paybackloan for any token', () => {
 
     const totalDfiPenalty = new BigNumber(dfiPaybackAmount).multipliedBy(penaltyRate)
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount).toFixed(8)}@DFI`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(totalDfiPenalty)
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${tslaPayback.toFixed(8)}@TSLA`])
 
@@ -2105,7 +2216,7 @@ describe('paybackloan for any token', () => {
     const dfiPenaltyForTslaLoan = new BigNumber(dfiPaybackAmount).multipliedBy(tslaPenaltyRate)
 
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(dfiPaybackAmount * 2).toFixed(8)}@DFI`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(dfiPenaltyForDusdLoan.plus(dfiPenaltyForTslaLoan))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([`${dusdPayback.toFixed(8)}@DUSD`, `${tslaPayback.toFixed(8)}@TSLA`])
 
@@ -2141,6 +2252,37 @@ describe('paybackloan for any token', () => {
       fixedIntervalPriceId: 'BTC/USD'
     })
     await testing.generate(1)
+
+    // create pools required for SwapToDFIOverUSD burn
+    {
+      // create DUSD-DFI
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'DFI'
+      })
+      await testing.generate(1)
+
+      // create DUSD-BTC
+      await testing.poolpair.create({
+        tokenA: 'DUSD',
+        tokenB: 'BTC'
+      })
+      await testing.generate(1)
+
+      // add DUSD-DFI
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 1000 },
+        b: { symbol: 'DFI', amount: 1000 }
+      })
+      await testing.generate(1)
+
+      // add DUSD-BTC
+      await testing.poolpair.add({
+        a: { symbol: 'DUSD', amount: 20000 },
+        b: { symbol: 'BTC', amount: 2 }
+      })
+      await testing.generate(1)
+    }
 
     const tslaTakeLoanBlockHeight = await testing.rpc.blockchain.getBlockCount()
     await testing.rpc.loan.takeLoan({
@@ -2222,7 +2364,7 @@ describe('paybackloan for any token', () => {
     const btcPenaltyForTslaLoan = new BigNumber(btcPaybackAmount).multipliedBy(tslaPenaltyRate)
 
     const burnInfoAfter = await testing.rpc.account.getBurnInfo()
-    expect(burnInfoAfter.tokens).toStrictEqual([`${new BigNumber(btcPaybackAmount * 2).toFixed(8)}@BTC`])
+    expect(burnInfoAfter.tokens).toStrictEqual([])
     expect(burnInfoAfter.dfipaybackfee).toStrictEqual(new BigNumber(0))
     expect(burnInfoAfter.dfipaybacktokens).toStrictEqual([])
     expect(burnInfoAfter.paybackfees).toStrictEqual([`${btcPenaltyForDusdLoan.plus(btcPenaltyForTslaLoan).toFixed(8)}@BTC`])
@@ -2331,7 +2473,7 @@ describe('paybackloan for any token', () => {
       from: vaultOwnerAddress
     })
 
-    await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nThere is no loan on token (DUSD) in this vault!\', code: -32600, method: paybackloan')
+    await expect(payBackPromise).rejects.toThrow('RpcApiError: \'Test PaybackLoanTx execution failed:\nPayback of loan via DFI token is not currently active\', code: -32600, method: paybackloan')
   })
 
   it('should not be able to payback TSLA loan using BTC - without PaybackLoanMetadataV2', async () => {

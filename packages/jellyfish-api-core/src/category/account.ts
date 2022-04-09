@@ -29,7 +29,9 @@ export enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  FUTURE_SWAP_EXECUTION = 'q',
+  FUTURE_SWAP_REFUND = 'w'
 }
 
 export enum SelectionModeType {
@@ -390,6 +392,22 @@ export class Account {
   }
 
   /**
+   * Creates and submits to the network a futures contract.
+   *
+   * @param {FutureSwap} future
+   * @param {string} future.address Address to fund contract and receive resulting token
+   * @param {string} future.amount Amount to send in amount@token format
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
+   */
+  async futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('futureswap', [future.address, future.amount, future.destination, utxos], 'number')
+  }
+
+  /**
    * Get specific pending futures.
    *
    * @return {Promise<GetFutureInfo>}
@@ -560,6 +578,16 @@ export interface BurnInfo {
    * Amount of tokens that are paid back
    */
   paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
+}
+
+export interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
 }
 
 export interface GetFutureInfo {
