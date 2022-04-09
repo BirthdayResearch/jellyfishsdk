@@ -491,6 +491,7 @@ interface UTXO {
   vout: number
 }
 ```
+
 ## listPendingFutureSwaps
 
 List all pending futures.
@@ -502,7 +503,7 @@ interface account {
 
 interface FutureInfo {
   owner: string
-  source: string
+  source: string // eg: '1.234@DUSD'
   destination: string
 }
 ```
