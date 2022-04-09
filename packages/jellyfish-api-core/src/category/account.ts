@@ -406,6 +406,15 @@ export class Account {
   async futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('futureswap', [future.address, future.amount, future.destination, utxos], 'number')
   }
+
+  /**
+   * List all pending futures.
+   *
+   * @return {Promise<FutureInfo[]>}
+   */
+  async listPendingFutureSwaps (): Promise<FutureInfo[]> {
+    return await this.client.call('listpendingfutureswaps', [], 'number')
+  }
 }
 
 export interface AccountPagination {
