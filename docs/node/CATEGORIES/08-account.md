@@ -506,7 +506,7 @@ interface GetFutureInfo {
 }
 
 interface FutureData {
-  source: string
+  source: string // eg: '1.234@DUSD'
   destination: string
 }
 ```
