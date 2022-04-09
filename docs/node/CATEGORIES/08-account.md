@@ -517,10 +517,10 @@ List all pending futures.
 
 ```ts title="client.account.listPendingFutureSwaps()"
 interface account {
-  listPendingFutureSwaps (): Promise<FutureInfo[]>
+  listPendingFutureSwaps (): Promise<ListFutureInfo[]>
 }
 
-interface FutureInfo {
+interface ListFutureInfo {
   owner: string
   source: string // eg: '1.234@DUSD'
   destination: string

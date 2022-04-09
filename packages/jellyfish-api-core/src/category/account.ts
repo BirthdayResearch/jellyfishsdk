@@ -419,9 +419,9 @@ export class Account {
   /**
    * List all pending futures.
    *
-   * @return {Promise<FutureInfo[]>}
+   * @return {Promise<ListFutureInfo[]>}
    */
-  async listPendingFutureSwaps (): Promise<FutureInfo[]> {
+  async listPendingFutureSwaps (): Promise<ListFutureInfo[]> {
     return await this.client.call('listpendingfutureswaps', [], 'number')
   }
 }
@@ -609,7 +609,7 @@ export interface FutureData {
   destination: string
 }
 
-export interface FutureInfo {
+export interface ListFutureInfo {
   owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
