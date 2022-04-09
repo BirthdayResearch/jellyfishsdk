@@ -39,7 +39,7 @@ describe('Oracle getFutureSwapBlock', () => {
         const currentBlockCount = await testing.rpc.blockchain.getBlockCount()
         expect(currentBlockCount).toStrictEqual(103)
 
-        const futureSwapBlock = await testing.container.call('getfutureswapblock')
+        const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
         expect(futureSwapBlock).toStrictEqual(125) // 103 + 25 - (103 % 25) = 128 - 3 = 125
       }
 
@@ -48,7 +48,7 @@ describe('Oracle getFutureSwapBlock', () => {
 
       // Call getfutureswapblock again after 25 blocks
       {
-        const futureSwapBlock = await testing.container.call('getfutureswapblock')
+        const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
         const currentBlockCount = await testing.rpc.blockchain.getBlockCount()
         expect(currentBlockCount).toStrictEqual(128)
         expect(futureSwapBlock).toStrictEqual(150) // 128 + 25 - (128 % 25) = 153 - 3 = 150
