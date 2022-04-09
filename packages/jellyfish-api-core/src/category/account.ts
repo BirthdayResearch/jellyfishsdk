@@ -596,6 +596,6 @@ export interface GetFutureInfo {
 }
 
 export interface FutureData {
-  source: string
+  source: string // eg: '1.234@DUSD'
   destination: string
 }
