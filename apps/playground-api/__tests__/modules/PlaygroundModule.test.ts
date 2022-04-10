@@ -13,12 +13,12 @@ afterAll(async () => {
 
 it('should have pool pairs setup', async () => {
   const pairs = await testing.container.call('listpoolpairs')
-  expect(Object.values(pairs).length).toBe(12)
+  expect(Object.values(pairs).length).toBe(14)
 })
 
 it('should have tokens setup', async () => {
   const tokens = await testing.container.call('listtokens')
-  expect(Object.values(tokens).length).toBe(29)
+  expect(Object.values(tokens).length).toBe(31)
 })
 
 it('should have oracles setup', async () => {
