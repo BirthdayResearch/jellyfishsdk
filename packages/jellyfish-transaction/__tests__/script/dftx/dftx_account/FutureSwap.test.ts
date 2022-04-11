@@ -55,7 +55,7 @@ it('should bi-directional buffer-object-buffer', () => {
 })
 
 describe('create FutureSwap', () => {
-  const header = '6a2a4466547851' // OP_RETURN(0x6a) (length 42 = 0x2a) CDfTx.SIGNATURE(0x44665478) CCloseVault.OP_CODE(0x51)
+  const header = '6a2a4466547851' // OP_RETURN(0x6a) (length 42 = 0x2a) CDfTx.SIGNATURE(0x44665478) CSetFutureSwap.OP_CODE(0x51)
   // SetFutureSwap.owner (0x1600148866af6e0455e34b5ef4ecb51b07dad4e5143179)
   // SetFutureSwap.source (0x0200e1f50500000000)
   // SetFutureSwap.destination (0x00000000)
@@ -102,7 +102,7 @@ describe('create FutureSwap', () => {
 })
 
 describe('withdraw FutureSwap', () => {
-  const header = '6a2a4466547851' // OP_RETURN(0x6a) (length 42 = 0x2a) CDfTx.SIGNATURE(0x44665478) CCloseVault.OP_CODE(0x51)
+  const header = '6a2a4466547851' // OP_RETURN(0x6a) (length 42 = 0x2a) CDfTx.SIGNATURE(0x44665478) CSetFutureSwap.OP_CODE(0x51)
   // SetFutureSwap.owner (0x1600148866af6e0455e34b5ef4ecb51b07dad4e5143179)
   // SetFutureSwap.source (0x0200e1f50500000000)
   // SetFutureSwap.destination (0x00000000)
