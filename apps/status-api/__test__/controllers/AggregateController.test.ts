@@ -13,7 +13,11 @@ describe('AggregateController - Status test', () => {
     await apiTesting.stop()
   })
 
-  it('/overall - should get operational with blockchainStatus', async () => {
+  it('/overall - should get operational when whale and ocean are up', async () => {
+    jest
+      .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
+      .mockReturnValueOnce(getWhaleStatus('up'))
+
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(25))
@@ -45,10 +49,10 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall - should get operational with whale up', async () => {
+  it('/overall - should get degraded with blockchainStatus', async () => {
     jest
-      .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
-      .mockReturnValueOnce(getWhaleStatus('up'))
+      .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
+      .mockReturnValueOnce(getBlockResponseWithPresetTime(36))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
@@ -57,7 +61,7 @@ describe('AggregateController - Status test', () => {
 
     expect(res.statusCode).toStrictEqual(200)
     expect(res.json()).toStrictEqual({
-      status: 'operational'
+      status: 'degraded'
     })
   })
 

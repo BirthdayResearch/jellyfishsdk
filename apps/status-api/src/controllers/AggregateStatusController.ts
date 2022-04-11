@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { BlockchainStatusController } from './BlockchainStatusController'
+import { BlockchainStatus, BlockchainStatusController } from './BlockchainStatusController'
 import { WhaleApiProbeIndicator } from '../modules/WhaleApiModule'
 
 @Controller('overall')
@@ -13,13 +13,14 @@ export class AggregateStatusController {
   }
 
   /**
-   *  To provide overall status for Ocean and whale services.
+   *  To provide overall status for Ocean and blockchain services. Returns 'operational' when both services are up, 'outage' when either service is down and 'degraded' when blockchain services is degraded.
    *
-   *  @return {Promise<{ status: AggregateStatus }>}
+   *  @return {Promise<{ status: BlockchainStatus }>}
    */
 
   @Get()
-  async getAggregateStatus (): Promise<{ status: AggregateStatus }> {
+  async getAggregateStatus (): Promise<{ status: BlockchainStatus }> {
+    let currentStatus: BlockchainStatus = 'operational'
     const liveness = await this.probe.liveness()
 
     if (liveness.whale.status === 'down') {
@@ -28,17 +29,10 @@ export class AggregateStatusController {
       }
     }
 
-    let currentStatus: AggregateStatus = 'operational'
+    currentStatus = (await this.blockchainStatusController.getBlockChainStatus()).status
 
-    const blockchainStatus = await this.blockchainStatusController.getBlockChainStatus()
-
-    if (blockchainStatus.status === 'outage') {
-      currentStatus = 'outage'
-    }
     return {
       status: currentStatus
     }
   }
 }
-
-export type AggregateStatus = 'operational' | 'outage'
