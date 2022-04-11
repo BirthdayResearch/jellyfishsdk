@@ -33,7 +33,7 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall - should get outage with blockchainStatus', async () => {
+  it('/overall - should get outage when blockchain is down', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(46))
@@ -49,7 +49,7 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall - should get degraded with blockchainStatus', async () => {
+  it('/overall - should get degraded when blockchain degraded', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(36))
@@ -65,7 +65,7 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall - should get outage with Ocean down', async () => {
+  it('/overall - should get outage when Ocean down', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
       .mockReturnValueOnce(getWhaleStatus('down'))
