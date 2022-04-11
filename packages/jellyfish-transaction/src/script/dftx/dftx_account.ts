@@ -115,7 +115,7 @@ export interface SetFutureSwap {
  */
 export class CSetFutureSwap extends ComposableBuffer<SetFutureSwap> {
   static OP_CODE = 0x51 // 'Q'
-  static OP_NAME = 'OP_DEFI_TX_FUTURE_SWAP'
+  static OP_NAME = 'OP_DEFI_TX_SET_FUTURE_SWAP'
 
   composers (sfs: SetFutureSwap): BufferComposer[] {
     return [

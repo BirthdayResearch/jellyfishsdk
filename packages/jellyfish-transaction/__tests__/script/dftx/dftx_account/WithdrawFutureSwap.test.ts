@@ -1,7 +1,7 @@
 import { SmartBuffer } from 'smart-buffer'
 import { OP_CODES } from '../../../../src/script'
 import { toBuffer, toOPCodes } from '../../../../src/script/_buffer'
-import { CFutureSwap, FutureSwap, OP_DEFI_TX } from '../../../../src/script/dftx'
+import { CSetFutureSwap, SetFutureSwap, OP_DEFI_TX } from '../../../../src/script/dftx'
 import BigNumber from 'bignumber.js'
 
 it('should bi-directional buffer-object-buffer', () => {
@@ -60,7 +60,7 @@ const header = '6a2a4466547851' // OP_RETURN(0x6a) (length 42 = 0x2a) CDfTx.SIGN
 // FutureSwap.destination (0x00000000)
 // FutureSwap.withdraw (0x00)
 const data = '1600148866af6e0455e34b5ef4ecb51b07dad4e51431790200e1f505000000000000000000'
-const futureSwap: FutureSwap = {
+const futureSwap: SetFutureSwap = {
   owner: {
     stack: [
       OP_CODES.OP_0,
@@ -75,7 +75,7 @@ const futureSwap: FutureSwap = {
 it('should craft dftx with OP_CODES._()', () => {
   const stack = [
     OP_CODES.OP_RETURN,
-    OP_CODES.OP_DEFI_TX_FUTURE_SWAP(futureSwap)
+    OP_CODES.OP_DEFI_TX_SET_FUTURE_SWAP(futureSwap)
   ]
 
   const buffer = toBuffer(stack)
@@ -85,13 +85,13 @@ it('should craft dftx with OP_CODES._()', () => {
 describe('Composable', () => {
   it('should compose from buffer to composable', () => {
     const buffer = SmartBuffer.fromBuffer(Buffer.from(data, 'hex'))
-    const composable = new CFutureSwap(buffer)
+    const composable = new CSetFutureSwap(buffer)
 
     expect(composable.toObject()).toStrictEqual(futureSwap)
   })
 
   it('should compose from composable to buffer', () => {
-    const composable = new CFutureSwap(futureSwap)
+    const composable = new CSetFutureSwap(futureSwap)
     const buffer = new SmartBuffer()
     composable.toBuffer(buffer)
 
