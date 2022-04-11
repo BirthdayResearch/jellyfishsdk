@@ -464,5 +464,65 @@ interface BurnInfo {
    * Amount of tokens that are paid back
    */
   paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
+}
+```
+
+## futureSwap
+
+Creates and submits to the network a futures contract.
+
+```ts title="client.account.futureSwap()"
+interface account {
+  futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+## getPendingFutureSwaps
+
+Get specific pending futures.
+
+```ts title="client.account.getPendingFutureSwaps()"
+interface account {
+  getPendingFutureSwaps (address: string): Promise<GetFutureInfo>
+}
+
+interface GetFutureInfo {
+  owner: string
+  values: FutureData[]
+}
+
+interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+```
+
+## listPendingFutureSwaps
+
+List all pending futures.
+
+```ts title="client.account.listPendingFutureSwaps()"
+interface account {
+  listPendingFutureSwaps (): Promise<ListFutureInfo[]>
+}
+
+interface ListFutureInfo {
+  owner: string
+  source: string // eg: '1.234@DUSD'
+  destination: string
 }
 ```
