@@ -45,7 +45,9 @@ import {
   CAccountToAccount,
   CAccountToUtxos,
   CAnyAccountToAccount,
+  CFutureSwap,
   CUtxosToAccount,
+  FutureSwap,
   UtxosToAccount
 } from './dftx/dftx_account'
 import {
@@ -319,6 +321,14 @@ export const OP_CODES = {
       type: CAnyAccountToAccount.OP_CODE,
       name: CAnyAccountToAccount.OP_NAME,
       data: anyAccountToAccount
+    })
+  },
+  OP_DEFI_TX_FUTURE_SWAP: (futureSwap: FutureSwap): OP_DEFI_TX => {
+    return new OP_DEFI_TX({
+      signature: CDfTx.SIGNATURE,
+      type: CFutureSwap.OP_CODE,
+      name: CFutureSwap.OP_NAME,
+      data: futureSwap
     })
   },
   OP_DEFI_TX_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {

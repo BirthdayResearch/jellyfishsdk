@@ -1,7 +1,7 @@
 import { BufferComposer, ComposableBuffer } from '@defichain/jellyfish-buffer'
 import { Script } from '../../tx'
 import { CScript } from '../../tx_composer'
-import { CScriptBalances, CTokenBalance, ScriptBalances, TokenBalance } from './dftx_balance'
+import { CScriptBalances, CTokenBalance, CTokenBalanceVarInt, ScriptBalances, TokenBalance, TokenBalanceVarInt } from './dftx_balance'
 
 /**
  * UtxosToAccount DeFi Transaction
@@ -95,6 +95,34 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
     return [
       ComposableBuffer.varUIntArray(() => aa2a.from, v => aa2a.from = v, v => new CScriptBalances(v)),
       ComposableBuffer.varUIntArray(() => aa2a.to, v => aa2a.to = v, v => new CScriptBalances(v))
+    ]
+  }
+}
+
+/**
+ * FutureSwap DeFi Transaction
+ */
+export interface FutureSwap {
+  owner: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes
+  source: TokenBalanceVarInt // --------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount
+  destination: number // ----------------| 4 bytes unsigned
+  withdraw: boolean // ------------------| 1 byte
+}
+
+/**
+ * Composable FutureSwap, C stands for Composable.
+ * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
+ */
+export class CFutureSwap extends ComposableBuffer<FutureSwap> {
+  static OP_CODE = 0x51 // 'Q'
+  static OP_NAME = 'OP_DEFI_TX_FUTURE_SWAP'
+
+  composers (fs: FutureSwap): BufferComposer[] {
+    return [
+      ComposableBuffer.single<Script>(() => fs.owner, v => fs.owner = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => fs.source, v => fs.source = v, v => new CTokenBalanceVarInt(v)),
+      ComposableBuffer.uInt32(() => fs.destination, v => fs.destination = v),
+      ComposableBuffer.uBool8(() => fs.withdraw, v => fs.withdraw = v)
     ]
   }
 }
