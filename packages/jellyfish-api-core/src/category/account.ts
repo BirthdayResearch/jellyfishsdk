@@ -29,7 +29,9 @@ export enum DfTxType {
   UPDATE_POOL_PAIR = 'u',
   SET_GOV_VARIABLE = 'G',
   AUTO_AUTH_PREP = 'A',
-  NONE = '0'
+  NONE = '0',
+  FUTURE_SWAP_EXECUTION = 'q',
+  FUTURE_SWAP_REFUND = 'w'
 }
 
 export enum SelectionModeType {
@@ -389,6 +391,56 @@ export class Account {
   async getBurnInfo (): Promise<BurnInfo> {
     return await this.client.call('getburninfo', [], 'bignumber')
   }
+
+  /**
+   * Creates and submits to the network a futures contract.
+   *
+   * @param {FutureSwap} future
+   * @param {string} future.address Address to fund contract and receive resulting token
+   * @param {string} future.amount Amount to send in amount@token format
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
+   */
+  async futureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('futureswap', [future.address, future.amount, future.destination, utxos], 'number')
+  }
+
+  /**
+   * Creates and submits to the network a withdrawal from futures contract transaction.
+   *
+   * @param {FutureSwap} future
+   * @param {string} future.address Address to fund contract and receive resulting token
+   * @param {string} future.amount Amount to send in amount@token format
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
+   */
+  async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('withdrawfutureswap', [future.address, future.amount, future.destination, utxos], 'number')
+  }
+
+  /**
+   * Get specific pending futures.
+   *
+   * @return {Promise<GetFutureInfo>}
+   */
+  async getPendingFutureSwaps (address: string): Promise<GetFutureInfo> {
+    return await this.client.call('getpendingfutureswaps', [address], 'number')
+  }
+
+  /**
+   * List all pending futures.
+   *
+   * @return {Promise<ListFutureInfo[]>}
+   */
+  async listPendingFutureSwaps (): Promise<ListFutureInfo[]> {
+    return await this.client.call('listpendingfutureswaps', [], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -552,4 +604,30 @@ export interface BurnInfo {
    * Amount of tokens that are paid back
    */
   paybacktokens: string[]
+  /**
+   * Amount of tokens burned due to futureswap
+   */
+  dfip2203: string[]
+}
+
+export interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+export interface GetFutureInfo {
+  owner: string
+  values: FutureData[]
+}
+
+export interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+
+export interface ListFutureInfo {
+  owner: string
+  source: string // eg: '1.234@DUSD'
+  destination: string
 }
