@@ -4,9 +4,7 @@ import { getProviders, MockProviders } from '../provider.mock'
 import { P2WPKHTransactionBuilder } from '../../src'
 import { fundEllipticPair, sendTransaction, TxOut } from '../test.utils'
 import { WIF } from '@defichain/jellyfish-crypto'
-
 import { Script, SetFutureSwap } from '@defichain/jellyfish-transaction'
-
 import BigNumber from 'bignumber.js'
 import { Testing } from '@defichain/jellyfish-testing'
 import { DfTxType, FutureSwap } from '@defichain/jellyfish-api-core/dist/category/account'
@@ -19,8 +17,8 @@ let oracleId: string
 let idDUSD: string
 let idTSLA: string
 const attributeKey = 'ATTRIBUTES'
-let futInterval: number
-let futRewardPercentage: number
+const futInterval = 25
+const futRewardPercentage = 0.05
 const contractAddress = 'bcrt1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpsqgljc'
 
 let provider: MockProviders
@@ -53,7 +51,6 @@ async function setup (): Promise<void> {
     { token: 'DFI', currency: 'USD' },
     { token: 'BTC', currency: 'USD' },
     { token: 'TSLA', currency: 'USD' },
-    { token: 'AMZN', currency: 'USD' },
     { token: 'DUSD', currency: 'USD' }
   ]
 
@@ -70,7 +67,6 @@ async function setup (): Promise<void> {
         { tokenAmount: '1@DFI', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
         { tokenAmount: '2@TSLA', currency: 'USD' },
-        { tokenAmount: '4@AMZN', currency: 'USD' },
         { tokenAmount: '1@DUSD', currency: 'USD' }
       ]
     }
@@ -96,12 +92,6 @@ async function setup (): Promise<void> {
   await testing.rpc.loan.setLoanToken({
     symbol: 'TSLA',
     fixedIntervalPriceId: 'TSLA/USD'
-  })
-  await testing.generate(1)
-
-  await testing.rpc.loan.setLoanToken({
-    symbol: 'AMZN',
-    fixedIntervalPriceId: 'AMZN/USD'
   })
   await testing.generate(1)
 
@@ -133,7 +123,7 @@ async function setup (): Promise<void> {
   await testing.rpc.loan.takeLoan({
     vaultId: vaultId,
     to: collateralAddress,
-    amounts: ['300@TSLA', '500@DUSD', '100@AMZN']
+    amounts: ['300@TSLA', '500@DUSD']
   })
   await testing.generate(1)
 
@@ -143,8 +133,6 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   // set dfip2203 params
-  futInterval = 25
-  futRewardPercentage = 0.05
   await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/reward_pct': futRewardPercentage.toString(), 'v0/params/dfip2203/block_period': futInterval.toString() } })
   await testing.generate(1)
 
@@ -153,7 +141,7 @@ async function setup (): Promise<void> {
   await testing.generate(1)
 
   // Retrieve and verify gov vars
-  const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+  const attributes = await testing.rpc.masternode.getGov(attributeKey)
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual(futRewardPercentage.toString())
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual(futInterval.toString())
@@ -500,7 +488,7 @@ describe('create futureswap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
   })
@@ -511,12 +499,11 @@ describe('create futureswap', () => {
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
     await testing.generate(1)
 
-    let blockHeight = await testing.rpc.blockchain.getBlockCount()
+    const blockHeight = await testing.rpc.blockchain.getBlockCount()
     let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     // move to next settle block for better duration for the oracle price to kick in
     await testing.generate(nextSettleBlock - blockHeight)
-    blockHeight = await testing.rpc.blockchain.getBlockCount()
     nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     // create futureswap
@@ -592,7 +579,7 @@ describe('create futureswap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
   })
@@ -603,12 +590,11 @@ describe('create futureswap', () => {
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
     await testing.generate(1)
 
-    let blockHeight = await testing.rpc.blockchain.getBlockCount()
+    const blockHeight = await testing.rpc.blockchain.getBlockCount()
     let nextSettleBlock = await testing.container.call('getfutureswapblock', [])
 
     // move to next settle block
     await testing.generate(nextSettleBlock - blockHeight)
-    blockHeight = await testing.rpc.blockchain.getBlockCount()
     nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const nextPriceBlock = await testing.container.getImmediatePriceBlockBeforeBlock('TSLA/USD', nextSettleBlock)
 
@@ -789,7 +775,7 @@ describe('create futureswap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@DUSD`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedTSLA.toFixed(8)}@TSLA`] }))
   })
@@ -888,7 +874,7 @@ describe('create futureswap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_REFUND })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: contractAddress, type: 'FutureSwapRefund', amounts: [`-${swapAmount.toFixed(8)}@TSLA`] }))
     expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapRefund', amounts: [`${swapAmount.toFixed(8)}@TSLA`] }))
@@ -940,7 +926,7 @@ describe('create futureswap', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Source amount must be more than zero (code 16)\', code: -26')
     }
     {
-      // invlaid source dtoken 100
+      // invalid source dtoken 100
       await fundForFeesIfUTXONotAvailable(10)
       const txn = await builder.account.futureSwap({
         owner: await provider.elliptic.script(),
@@ -996,7 +982,7 @@ describe('create futureswap', () => {
       await expect(promise).rejects.toThrow('DeFiDRpcError: \'DFIP2203Tx: Could not get destination loan token 100. Set valid destination. (code 16)\', code: -26')
     }
     {
-      // arbitary address without enough balance
+      // arbitrary address without enough balance
       await fundForFeesIfUTXONotAvailable(10)
       const arbAddress = await testing.generateAddress()
       const txn = await builder.account.futureSwap({
