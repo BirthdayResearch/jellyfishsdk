@@ -262,50 +262,6 @@ describe('withdrawFutureSwap', () => {
         expect(balance).toStrictEqual([`${(withdrawAmount * 2).toFixed(8)}@TSLA`])
       }
     }
-
-    // withdrawFutureSwap with utxo
-    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
-    await testing.generate(1)
-
-    await testing.rpc.account.futureSwap(fswap)
-    await testing.generate(1)
-
-    const utxo = await testing.container.fundAddress(tslaAddress, 50)
-
-    const txid = await testing.rpc.account.withdrawFutureSwap(fswap, [utxo])
-    await testing.generate(1)
-
-    const rawtx = await testing.container.call('getrawtransaction', [txid, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
-
-    // check the future is in effect
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(0)
-
-      // check live/economy/dfip2203_*
-      const attributes = await testing.rpc.masternode.getGov(attributeKey)
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
-
-      // dfip2203 burn should be empty
-      const burnBefore = await testing.rpc.account.getBurnInfo()
-      expect(burnBefore.dfip2203).toStrictEqual([])
-
-      {
-        // check contractAddress
-        const balance = await testing.rpc.account.getAccount(contractAddress)
-        expect(balance).toStrictEqual([])
-      }
-
-      {
-        // check tslaAddress
-        const balance = await testing.rpc.account.getAccount(tslaAddress)
-        expect(balance).toStrictEqual([`${(swapAmount * 2).toFixed(8)}@TSLA`])
-      }
-    }
   })
 
   it('Should withdrawFutureSwap futureswap dusd to dtoken', async () => {
@@ -446,17 +402,24 @@ describe('withdrawFutureSwap', () => {
         expect(balance).toStrictEqual([`${(withdrawAmount + oneSatoshi).toFixed(8)}@DUSD`])
       }
     }
+  })
 
-    // withdrawFutureSwap with utxo
-    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@DUSD` })
+  it('Should withdrawFutureSwap futureswap dtoken to dusd with utxo', async () => {
+    const swapAmount = 1
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
     await testing.generate(1)
 
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount}@TSLA`
+    }
     await testing.rpc.account.futureSwap(fswap)
     await testing.generate(1)
 
     const utxo = await testing.container.fundAddress(tslaAddress, 50)
 
-    const txid = await testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
+    const txid = await testing.rpc.account.withdrawFutureSwap(fswap, [utxo])
     await testing.generate(1)
 
     const rawtx = await testing.container.call('getrawtransaction', [txid, true])
@@ -466,16 +429,13 @@ describe('withdrawFutureSwap', () => {
     // check the future is in effect
     {
       const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(1)
-      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[0].source).toStrictEqual(`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`)
-      expect(pendingFutures[0].destination).toStrictEqual('TSLA')
+      expect(pendingFutures.length).toStrictEqual(0)
 
       // check live/economy/dfip2203_*
       const attributes = await testing.rpc.masternode.getGov(attributeKey)
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
 
       // dfip2203 burn should be empty
       const burnBefore = await testing.rpc.account.getBurnInfo()
@@ -484,13 +444,13 @@ describe('withdrawFutureSwap', () => {
       {
         // check contractAddress
         const balance = await testing.rpc.account.getAccount(contractAddress)
-        expect(balance).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`])
+        expect(balance).toStrictEqual([])
       }
 
       {
         // check tslaAddress
         const balance = await testing.rpc.account.getAccount(tslaAddress)
-        expect(balance).toStrictEqual([`${(2 * withdrawAmount + oneSatoshi).toFixed(8)}@DUSD`])
+        expect(balance).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
       }
     }
   })
