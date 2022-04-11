@@ -4,13 +4,13 @@ import {
   AccountToAccount,
   AccountToUtxos,
   AnyAccountToAccount,
+  UtxosToAccount,
+  SetFutureSwap,
   CAccountToAccount,
   CAccountToUtxos,
   CAnyAccountToAccount,
-  CSetFutureSwap,
   CUtxosToAccount,
-  SetFutureSwap,
-  UtxosToAccount
+  CSetFutureSwap
 } from './dftx_account'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx_masternode'
 import { CAutoAuthPrep } from './dftx_misc'
