@@ -11,7 +11,7 @@ export class AggregateStatusController {
   ) {
   }
 
-  @Get('status')
+  @Get()
   async getAggregateStatus (): Promise<{ [key: string]: AggregateStatus }> {
     let currentStatus: AggregateStatus = 'operational'
     const liveness = await this.probe.liveness()

@@ -13,14 +13,14 @@ describe('AggregateController - Status test', () => {
     await apiTesting.stop()
   })
 
-  it('/overall/status - should get operational when blockchainStatus is operational', async () => {
+  it('/overall - should get operational with blockchainStatus', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(25))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/overall/status'
+      url: '/overall'
     })
 
     expect(res.statusCode).toStrictEqual(200)
@@ -29,14 +29,14 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall/status - should get outage with blockchainStatus', async () => {
+  it('/overall - should get outage with blockchainStatus', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(46))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/overall/status'
+      url: '/overall'
     })
 
     expect(res.statusCode).toStrictEqual(200)
@@ -45,14 +45,14 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall/status - should get operational with whale up', async function () {
+  it('/overall - should get operational with whale up', async function () {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
       .mockReturnValueOnce(getWhaleStatus('up'))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/overall/status'
+      url: '/overall'
     })
 
     expect(res.statusCode).toStrictEqual(200)
@@ -61,14 +61,14 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall/status - should get operational with whale down', async function () {
+  it('/overall - should get outage with whale down', async function () {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
       .mockReturnValueOnce(getWhaleStatus('down'))
 
     const res = await apiTesting.app.inject({
       method: 'GET',
-      url: '/overall/status'
+      url: '/overall'
     })
 
     expect(res.statusCode).toStrictEqual(200)
