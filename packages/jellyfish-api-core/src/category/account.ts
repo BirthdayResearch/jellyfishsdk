@@ -422,6 +422,15 @@ export class Account {
   async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
     return await this.client.call('withdrawfutureswap', [future.address, future.amount, future.destination, utxos], 'number')
   }
+
+  /**
+   * Get specific pending futures.
+   *
+   * @return {Promise<GetFutureInfo>}
+   */
+  async getPendingFutureSwaps (address: string): Promise<GetFutureInfo> {
+    return await this.client.call('getpendingfutureswaps', [address], 'number')
+  }
 }
 
 export interface AccountPagination {
@@ -595,4 +604,14 @@ export interface FutureSwap {
   address: string
   amount: string
   destination?: string
+}
+
+export interface GetFutureInfo {
+  owner: string
+  values: FutureData[]
+}
+
+export interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
 }

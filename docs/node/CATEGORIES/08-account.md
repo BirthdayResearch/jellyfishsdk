@@ -512,3 +512,23 @@ interface UTXO {
   vout: number
 }
 ```
+
+## getPendingFutureSwaps
+
+Get specific pending futures.
+
+```ts title="client.account.getPendingFutureSwaps()"
+interface account {
+  getPendingFutureSwaps (address: string): Promise<GetFutureInfo>
+}
+
+interface GetFutureInfo {
+  owner: string
+  values: FutureData[]
+}
+
+interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+```
