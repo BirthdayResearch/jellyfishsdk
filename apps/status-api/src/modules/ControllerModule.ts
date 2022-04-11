@@ -3,7 +3,7 @@ import { ActuatorController } from '@defichain-apps/libs/actuator'
 import { BlockchainStatusController } from '../controllers/BlockchainStatusController'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { ConfigService } from '@nestjs/config'
-import { AggregateStatusController } from '../controllers/AggregateStatusController'
+import { OverallStatusController } from '../controllers/OverallStatusController'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -15,7 +15,7 @@ import { AggregateStatusController } from '../controllers/AggregateStatusControl
   controllers: [
     BlockchainStatusController,
     ActuatorController,
-    AggregateStatusController
+    OverallStatusController
   ],
   providers: [
     BlockchainStatusController,

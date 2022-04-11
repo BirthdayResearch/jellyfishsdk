@@ -4,7 +4,7 @@ import { BlockchainStatus, BlockchainStatusController } from './BlockchainStatus
 import { WhaleApiProbeIndicator } from '../modules/WhaleApiModule'
 
 @Controller('overall')
-export class AggregateStatusController {
+export class OverallStatusController {
   constructor (
     private readonly client: WhaleApiClient,
     private readonly probe: WhaleApiProbeIndicator,
