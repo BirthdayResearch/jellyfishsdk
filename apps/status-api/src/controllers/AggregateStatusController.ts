@@ -1,19 +1,25 @@
 import { Controller, Get } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { StatusToThresholdInMs } from './BlockchainStatusController'
+import { BlockchainStatusController } from './BlockchainStatusController'
 import { WhaleApiProbeIndicator } from '../modules/WhaleApiModule'
 
 @Controller('overall')
 export class AggregateStatusController {
   constructor (
     private readonly client: WhaleApiClient,
-    private readonly probe: WhaleApiProbeIndicator
+    private readonly probe: WhaleApiProbeIndicator,
+    private readonly blockchainStatusController: BlockchainStatusController
   ) {
   }
 
+  /**
+   *  To provide overall status for Ocean and whale services.
+   *
+   *  @return {Promise<{ status: AggregateStatus }>}
+   */
+
   @Get()
-  async getAggregateStatus (): Promise<{ [key: string]: AggregateStatus }> {
-    let currentStatus: AggregateStatus = 'operational'
+  async getAggregateStatus (): Promise<{ status: AggregateStatus }> {
     const liveness = await this.probe.liveness()
 
     if (liveness.whale.status === 'down') {
@@ -22,15 +28,13 @@ export class AggregateStatusController {
       }
     }
 
-    const blocks = await this.client.blocks.list(1)
-    const nowEpoch = Date.now()
-    const latestBlockTime = blocks[0].time * 1000
-    const timeDiff = nowEpoch - latestBlockTime
+    let currentStatus: AggregateStatus = 'operational'
 
-    if (timeDiff > StatusToThresholdInMs.outage) {
+    const blockchainStatus = await this.blockchainStatusController.getBlockChainStatus()
+
+    if (blockchainStatus.status === 'outage') {
       currentStatus = 'outage'
     }
-
     return {
       status: currentStatus
     }

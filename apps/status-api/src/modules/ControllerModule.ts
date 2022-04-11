@@ -18,6 +18,7 @@ import { AggregateStatusController } from '../controllers/AggregateStatusControl
     AggregateStatusController
   ],
   providers: [
+    BlockchainStatusController,
     {
       provide: WhaleApiClient,
       useFactory: (configService: ConfigService): WhaleApiClient => {
