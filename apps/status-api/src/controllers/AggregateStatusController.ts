@@ -13,7 +13,10 @@ export class AggregateStatusController {
   }
 
   /**
-   *  To provide overall status for Ocean and blockchain services. Returns 'operational' when both services are up, 'outage' when either service is down and 'degraded' when blockchain services is degraded.
+   *  To provide overall status for Ocean and blockchain services. Returns
+   *  'operational' when both services are up,
+   *  'outage' when either service is down and
+   *  'degraded' when blockchain service is degraded.
    *
    *  @return {Promise<{ status: BlockchainStatus }>}
    */
