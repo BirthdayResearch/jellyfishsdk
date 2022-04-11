@@ -103,8 +103,8 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
  * FutureSwap DeFi Transaction
  */
 export interface SetFutureSwap {
-  owner: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address used to fund contract with
-  source: TokenBalanceVarInt // --------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Source amount in amount@token format
+  owner: Script // ----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address used to fund contract with
+  source: TokenBalanceVarInt // ---------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Source amount in amount@token format
   destination: number // ----------------| 4 bytes unsigned, Destination dToken
   withdraw: boolean // ------------------| 1 byte, True if withdraw
 }

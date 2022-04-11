@@ -42,13 +42,13 @@ import {
   AccountToAccount,
   AccountToUtxos,
   AnyAccountToAccount,
+  UtxosToAccount,
+  SetFutureSwap,
   CAccountToAccount,
   CAccountToUtxos,
   CAnyAccountToAccount,
-  CSetFutureSwap,
   CUtxosToAccount,
-  SetFutureSwap,
-  UtxosToAccount
+  CSetFutureSwap
 } from './dftx/dftx_account'
 import {
   AppointOracle,

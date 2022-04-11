@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js'
 import {
-  AccountToAccount, AccountToUtxos, UtxosToAccount, DeFiTransactionConstants,
-  OP_CODES, Script, Transaction, TransactionSegWit, Vout, SetFutureSwap
+  AccountToAccount, AccountToUtxos, UtxosToAccount, SetFutureSwap,
+  DeFiTransactionConstants, OP_CODES, Script, Transaction, TransactionSegWit, Vout
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
 import { TxnBuilderError, TxnBuilderErrorType } from './txn_builder_error'
