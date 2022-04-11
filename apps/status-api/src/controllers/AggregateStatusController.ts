@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
-import { StatusToThresholdInMs } from './BlockchainController'
+import { StatusToThresholdInMs } from './BlockchainStatusController'
 import { WhaleApiProbeIndicator } from '../modules/WhaleApiModule'
 
 @Controller('overall')
-export class AggregateController {
+export class AggregateStatusController {
   constructor (
     private readonly client: WhaleApiClient,
     private readonly probe: WhaleApiProbeIndicator
