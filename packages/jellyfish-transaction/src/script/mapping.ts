@@ -45,10 +45,10 @@ import {
   CAccountToAccount,
   CAccountToUtxos,
   CAnyAccountToAccount,
-  CFutureSwap,
   CUtxosToAccount,
-  FutureSwap,
-  UtxosToAccount
+  UtxosToAccount,
+  SetFutureSwap,
+  CSetFutureSwap
 } from './dftx/dftx_account'
 import {
   AppointOracle,
@@ -323,12 +323,12 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
-  OP_DEFI_TX_FUTURE_SWAP: (futureSwap: FutureSwap): OP_DEFI_TX => {
+  OP_DEFI_TX_SET_FUTURE_SWAP: (setFutureSwap: SetFutureSwap): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CFutureSwap.OP_CODE,
-      name: CFutureSwap.OP_NAME,
-      data: futureSwap
+      type: CSetFutureSwap.OP_CODE,
+      name: CSetFutureSwap.OP_NAME,
+      data: setFutureSwap
     })
   },
   OP_DEFI_TX_APPOINT_ORACLE: (appointOracle: AppointOracle): OP_DEFI_TX => {
