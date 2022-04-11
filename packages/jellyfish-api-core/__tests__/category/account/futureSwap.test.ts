@@ -121,7 +121,7 @@ async function setup (): Promise<void> {
   await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'true' } })
   await testing.generate(1)
 
-  // Retrieve  and verify gov vars
+  // Retrieve and verify gov vars
   const attributes = await testing.rpc.masternode.getGov(attributeKey)
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual(`${futRewardPercentage}`)
@@ -224,7 +224,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
   })
@@ -405,7 +405,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${(swapAmount * 2).toFixed(8)}@TSLA`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.div(2).toFixed(8)}@DUSD`] }))
     expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.div(2).toFixed(8)}@DUSD`] }))
@@ -526,7 +526,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${(0.4 + 0.6).toFixed(8)}@TSLA`, `${(13).toFixed(8)}@DUSD`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories.length).toStrictEqual(3)
     expect(accountHistories).toStrictEqual(expect.arrayContaining([
@@ -590,7 +590,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
   })
@@ -675,7 +675,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedDUSD.toFixed(8)}@DUSD`] }))
   })
@@ -771,7 +771,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_REFUND })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: contractAddress, type: 'FutureSwapRefund', amounts: [`-${swapAmount.toFixed(8)}@TSLA`] }))
     expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapRefund', amounts: [`${swapAmount.toFixed(8)}@TSLA`] }))
@@ -863,12 +863,12 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([`${swapAmount.toFixed(8)}@DUSD`])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_EXECUTION })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapExecution', amounts: [`${mintedTSLA.toFixed(8)}@TSLA`] }))
   })
 
-  it('should not create futureswap with arbitary utxo', async () => {
+  it('should not create futureswap with arbitrary utxo', async () => {
     const swapAmount = 1
     const tslaAddress = await testing.generateAddress()
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
@@ -972,7 +972,7 @@ describe('futureSwap', () => {
     const burnAfter = await testing.rpc.account.getBurnInfo()
     expect(burnAfter.dfip2203).toStrictEqual([])
 
-    // check results can be retrieve d via account history
+    // check results can be retrieved via account history
     const accountHistories = await testing.rpc.account.listAccountHistory('all', { txtype: DfTxType.FUTURE_SWAP_REFUND })
     expect(accountHistories[0]).toStrictEqual(expect.objectContaining({ owner: contractAddress, type: 'FutureSwapRefund', amounts: [`-${swapAmount.toFixed(8)}@TSLA`] }))
     expect(accountHistories[1]).toStrictEqual(expect.objectContaining({ owner: tslaAddress, type: 'FutureSwapRefund', amounts: [`${swapAmount.toFixed(8)}@TSLA`] }))
@@ -1014,7 +1014,7 @@ describe('futureSwap', () => {
       await expect(promise).rejects.toThrow('RpcApiError: \': Invalid amount\', code: -3, method: futureswap')
     }
     {
-      // invlaid source dtoken
+      // invalid source dtoken
       const fswap: FutureSwap = {
         address: tslaAddress,
         amount: '1@INVALID'
@@ -1056,7 +1056,7 @@ describe('futureSwap', () => {
       await expect(promise).rejects.toThrow('RpcApiError: \'Destination token not found\', code: -5, method: futureswap')
     }
     {
-      // arbitary address without enough balance
+      // arbitrary address without enough balance
       const fswap: FutureSwap = {
         address: await testing.generateAddress(),
         amount: '1@TSLA'
