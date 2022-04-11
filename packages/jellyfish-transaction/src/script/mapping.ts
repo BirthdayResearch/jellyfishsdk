@@ -45,9 +45,9 @@ import {
   CAccountToAccount,
   CAccountToUtxos,
   CAnyAccountToAccount,
-  CFutureSwap,
+  CSetFutureSwap,
   CUtxosToAccount,
-  FutureSwap,
+  SetFutureSwap,
   UtxosToAccount
 } from './dftx/dftx_account'
 import {
@@ -323,11 +323,11 @@ export const OP_CODES = {
       data: anyAccountToAccount
     })
   },
-  OP_DEFI_TX_FUTURE_SWAP: (futureSwap: FutureSwap): OP_DEFI_TX => {
+  OP_DEFI_TX_FUTURE_SWAP: (futureSwap: SetFutureSwap): OP_DEFI_TX => {
     return new OP_DEFI_TX({
       signature: CDfTx.SIGNATURE,
-      type: CFutureSwap.OP_CODE,
-      name: CFutureSwap.OP_NAME,
+      type: CSetFutureSwap.OP_CODE,
+      name: CSetFutureSwap.OP_NAME,
       data: futureSwap
     })
   },

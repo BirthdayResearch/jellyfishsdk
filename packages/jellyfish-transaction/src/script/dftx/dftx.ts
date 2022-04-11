@@ -7,9 +7,9 @@ import {
   CAccountToAccount,
   CAccountToUtxos,
   CAnyAccountToAccount,
-  CFutureSwap,
+  CSetFutureSwap,
   CUtxosToAccount,
-  FutureSwap,
+  SetFutureSwap,
   UtxosToAccount
 } from './dftx_account'
 import { CCreateMasternode, CreateMasternode, CResignMasternode, ResignMasternode } from './dftx_masternode'
@@ -209,8 +209,8 @@ export class CDfTx extends ComposableBuffer<DfTx<any>> {
         return compose<AccountToAccount>(CAccountToAccount.OP_NAME, d => new CAccountToAccount(d))
       case CAnyAccountToAccount.OP_CODE:
         return compose<AnyAccountToAccount>(CAnyAccountToAccount.OP_NAME, d => new CAnyAccountToAccount(d))
-      case CFutureSwap.OP_CODE:
-        return compose<FutureSwap>(CFutureSwap.OP_NAME, d => new CFutureSwap(d))
+      case CSetFutureSwap.OP_CODE:
+        return compose<SetFutureSwap>(CSetFutureSwap.OP_NAME, d => new CSetFutureSwap(d))
       case CAppointOracle.OP_CODE:
         return compose<AppointOracle>(CAppointOracle.OP_NAME, d => new CAppointOracle(d))
       case CRemoveOracle.OP_CODE:

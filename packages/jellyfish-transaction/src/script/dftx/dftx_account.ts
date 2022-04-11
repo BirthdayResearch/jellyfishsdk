@@ -102,27 +102,27 @@ export class CAnyAccountToAccount extends ComposableBuffer<AnyAccountToAccount> 
 /**
  * FutureSwap DeFi Transaction
  */
-export interface FutureSwap {
-  owner: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes
-  source: TokenBalanceVarInt // --------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount
-  destination: number // ----------------| 4 bytes unsigned
-  withdraw: boolean // ------------------| 1 byte
+export interface SetFutureSwap {
+  owner: Script // -----------------------| n = VarUInt{1-9 bytes}, + n bytes, Address used to fund contract with
+  source: TokenBalanceVarInt // --------| VarUInt{1-9 bytes} for token Id + 8 bytes for amount, Source amount in amount@token format
+  destination: number // ----------------| 4 bytes unsigned, Destination dToken
+  withdraw: boolean // ------------------| 1 byte, True if withdraw
 }
 
 /**
  * Composable FutureSwap, C stands for Composable.
  * Immutable by design, bi-directional fromBuffer, toBuffer deep composer.
  */
-export class CFutureSwap extends ComposableBuffer<FutureSwap> {
+export class CSetFutureSwap extends ComposableBuffer<SetFutureSwap> {
   static OP_CODE = 0x51 // 'Q'
   static OP_NAME = 'OP_DEFI_TX_FUTURE_SWAP'
 
-  composers (fs: FutureSwap): BufferComposer[] {
+  composers (sfs: SetFutureSwap): BufferComposer[] {
     return [
-      ComposableBuffer.single<Script>(() => fs.owner, v => fs.owner = v, v => new CScript(v)),
-      ComposableBuffer.single<TokenBalanceVarInt>(() => fs.source, v => fs.source = v, v => new CTokenBalanceVarInt(v)),
-      ComposableBuffer.uInt32(() => fs.destination, v => fs.destination = v),
-      ComposableBuffer.uBool8(() => fs.withdraw, v => fs.withdraw = v)
+      ComposableBuffer.single<Script>(() => sfs.owner, v => sfs.owner = v, v => new CScript(v)),
+      ComposableBuffer.single<TokenBalanceVarInt>(() => sfs.source, v => sfs.source = v, v => new CTokenBalanceVarInt(v)),
+      ComposableBuffer.uInt32(() => sfs.destination, v => sfs.destination = v),
+      ComposableBuffer.uBool8(() => sfs.withdraw, v => sfs.withdraw = v)
     ]
   }
 }
