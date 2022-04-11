@@ -133,7 +133,7 @@ describe('withdrawFutureSwap', () => {
     await testing.container.stop()
   })
 
-  it('Should withdrawFutureSwap futureswap dtoken to dusd', async () => {
+  it('should withdrawFutureSwap futureswap dtoken to dusd', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -264,7 +264,7 @@ describe('withdrawFutureSwap', () => {
     }
   })
 
-  it('Should withdrawFutureSwap futureswap dusd to dtoken', async () => {
+  it('should withdrawFutureSwap futureswap dusd to dtoken', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -404,7 +404,7 @@ describe('withdrawFutureSwap', () => {
     }
   })
 
-  it('Should withdrawFutureSwap futureswap with utxo', async () => {
+  it('should withdrawFutureSwap futureswap with utxo', async () => {
     const swapAmount = 1
     const tslaAddress = await testing.generateAddress()
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
@@ -455,7 +455,7 @@ describe('withdrawFutureSwap', () => {
     }
   })
 
-  it('Should withdrawFutureSwap futureswap - at the settle block', async () => {
+  it('should withdrawFutureSwap futureswap - at the settle block', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -509,7 +509,7 @@ describe('withdrawFutureSwap', () => {
     }
   })
 
-  it('Should withdrawFutureSwap from multiple futureswaps dtoken to dusd', async () => {
+  it('should withdrawFutureSwap from multiple futureswaps dtoken to dusd', async () => {
     const swapAmount = 1
     const swapAmount2 = 10
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
@@ -634,7 +634,7 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  it('Should withdrawFutureSwap from multiple futureswaps dusd to dtoken', async () => {
+  it('should withdrawFutureSwap from multiple futureswaps dusd to dtoken', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -706,7 +706,7 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  it('Should not withdrawFutureSwap invalid futureswap dtoken to dusd', async () => {
+  it('should not withdrawFutureSwap invalid futureswap dtoken to dusd', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -894,7 +894,7 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  it('Should not withdrawFutureSwap invalid futureswap dusd to dtoken', async () => {
+  it('should not withdrawFutureSwap invalid futureswap dusd to dtoken', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -1105,7 +1105,7 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  it('Should not withdrawFutureSwap futureswap - after the settle block', async () => {
+  it('should not withdrawFutureSwap futureswap - after the settle block', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
