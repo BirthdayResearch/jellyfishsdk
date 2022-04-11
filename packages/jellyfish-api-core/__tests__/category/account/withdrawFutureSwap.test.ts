@@ -404,7 +404,7 @@ describe('withdrawFutureSwap', () => {
     }
   })
 
-  it('Should withdrawFutureSwap futureswap dtoken to dusd with utxo', async () => {
+  it('Should withdrawFutureSwap futureswap with utxo', async () => {
     const swapAmount = 1
     const tslaAddress = await testing.generateAddress()
     await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
@@ -436,6 +436,60 @@ describe('withdrawFutureSwap', () => {
       expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
       expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
       expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
+      }
+    }
+  })
+
+  it('Should withdrawFutureSwap futureswap - at the settle block', async () => {
+    const swapAmount = 1
+    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    const tslaAddress = await testing.generateAddress()
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
+    await testing.generate(1)
+
+    const fswap: FutureSwap = {
+      address: tslaAddress,
+      amount: `${swapAmount.toFixed(8)}@TSLA`
+    }
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    // move to next settle block
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount() - 1)
+
+    // withdraw at the settle block
+    {
+      const result = await testing.rpc.account.withdrawFutureSwap(fswap)
+      expect(typeof result).toStrictEqual('string')
+      expect(result.length).toStrictEqual(64)
+      await testing.generate(1)
+    }
+
+    // check the future swap after settle block
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
 
       // dfip2203 burn should be empty
       const burnBefore = await testing.rpc.account.getBurnInfo()
@@ -1051,64 +1105,7 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  it('Should not withdrawFutureSwap futureswap dtoken to dusd - at/after the settle block', async () => {
-    const swapAmount = 1
-    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
-    const tslaAddress = await testing.generateAddress()
-    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
-    await testing.generate(1)
-
-    const fswap: FutureSwap = {
-      address: tslaAddress,
-      amount: `${swapAmount.toFixed(8)}@TSLA`
-    }
-    await testing.rpc.account.futureSwap(fswap)
-    await testing.generate(1)
-
-    // move to next settle block
-    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
-
-    // check the future swap at the settle block
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(0)
-    }
-
-    const withdrawAmount = swapAmount / 2
-    const withdrawFutureSwap: FutureSwap = {
-      address: tslaAddress,
-      amount: `${withdrawAmount.toFixed(8)}@TSLA`
-    }
-
-    // withdraw at the settle block
-    {
-      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-      await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
-    }
-    {
-      const result = testing.rpc.account.withdrawFutureSwap(fswap)
-      await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
-    }
-
-    await testing.generate(1)
-
-    // check the future swap after the settle block
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(0)
-    }
-
-    // withdraw after settle block
-    {
-      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-      await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
-    }
-  })
-
-  it('Should not withdrawFutureSwap futureswap dusd to dtoken - at/after the settle block', async () => {
+  it('Should not withdrawFutureSwap futureswap - after the settle block', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
     const tslaAddress = await testing.generateAddress()
@@ -1126,33 +1123,6 @@ describe('withdrawFutureSwap', () => {
     // move to next settle block
     await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
 
-    // check the future swap at the settle block
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(0)
-    }
-
-    const withdrawAmount = swapAmount / 2
-    const withdrawFutureSwap: FutureSwap = {
-      address: tslaAddress,
-      amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-      destination: 'TSLA'
-    }
-
-    // withdraw at the settle block
-    {
-      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
-      await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
-    }
-    {
-      const result = testing.rpc.account.withdrawFutureSwap(fswap)
-      await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
-    }
-
-    await testing.generate(1)
-
     // check the future swap after the settle block
     {
       const pendingFutures = await testing.container.call('listpendingfutureswaps')
@@ -1161,9 +1131,9 @@ describe('withdrawFutureSwap', () => {
 
     // withdraw after settle block
     {
-      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      const result = testing.rpc.account.withdrawFutureSwap(fswap)
       await expect(result).rejects.toThrow(RpcApiError)
-      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 0.50000000\', code: -32600, method: withdrawfutureswap')
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\namount 0.00000000 is less than 1.00000000\', code: -32600, method: withdrawfutureswap')
     }
   })
 })
