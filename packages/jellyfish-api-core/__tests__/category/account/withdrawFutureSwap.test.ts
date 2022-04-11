@@ -262,6 +262,50 @@ describe('withdrawFutureSwap', () => {
         expect(balance).toStrictEqual([`${(withdrawAmount * 2).toFixed(8)}@TSLA`])
       }
     }
+
+    // withdrawFutureSwap with utxo
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
+    await testing.generate(1)
+
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    const utxo = await testing.container.fundAddress(tslaAddress, 50)
+
+    const txid = await testing.rpc.account.withdrawFutureSwap(fswap, [utxo])
+    await testing.generate(1)
+
+    const rawtx = await testing.container.call('getrawtransaction', [txid, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
+
+    // check the future is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(0)
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${(swapAmount * 2).toFixed(8)}@TSLA`])
+      }
+    }
   })
 
   it('Should withdrawFutureSwap futureswap dusd to dtoken', async () => {
@@ -400,6 +444,53 @@ describe('withdrawFutureSwap', () => {
         // check tslaAddress
         const balance = await testing.rpc.account.getAccount(tslaAddress)
         expect(balance).toStrictEqual([`${(withdrawAmount + oneSatoshi).toFixed(8)}@DUSD`])
+      }
+    }
+
+    // withdrawFutureSwap with utxo
+    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@DUSD` })
+    await testing.generate(1)
+
+    await testing.rpc.account.futureSwap(fswap)
+    await testing.generate(1)
+
+    const utxo = await testing.container.fundAddress(tslaAddress, 50)
+
+    const txid = await testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
+    await testing.generate(1)
+
+    const rawtx = await testing.container.call('getrawtransaction', [txid, true])
+    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
+    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
+
+    // check the future is in effect
+    {
+      const pendingFutures = await testing.container.call('listpendingfutureswaps')
+      expect(pendingFutures.length).toStrictEqual(1)
+      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
+      expect(pendingFutures[0].source).toStrictEqual(`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`)
+      expect(pendingFutures[0].destination).toStrictEqual('TSLA')
+
+      // check live/economy/dfip2203_*
+      const attributes = await testing.rpc.masternode.getGov(attributeKey)
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toStrictEqual([])
+      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toStrictEqual([])
+
+      // dfip2203 burn should be empty
+      const burnBefore = await testing.rpc.account.getBurnInfo()
+      expect(burnBefore.dfip2203).toStrictEqual([])
+
+      {
+        // check contractAddress
+        const balance = await testing.rpc.account.getAccount(contractAddress)
+        expect(balance).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`])
+      }
+
+      {
+        // check tslaAddress
+        const balance = await testing.rpc.account.getAccount(tslaAddress)
+        expect(balance).toStrictEqual([`${(2 * withdrawAmount + oneSatoshi).toFixed(8)}@DUSD`])
       }
     }
   })
@@ -601,119 +692,6 @@ describe('withdrawFutureSwap', () => {
     expect(currentBlock).toBeLessThan(nextSettleBlock)
   })
 
-  it('Should withdrawFutureSwap futureswap dtoken to dusd with utxo', async () => {
-    const swapAmount = 1
-    const tslaAddress = await testing.generateAddress()
-    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@TSLA` })
-    await testing.generate(1)
-
-    const fswap: FutureSwap = {
-      address: tslaAddress,
-      amount: `${swapAmount}@TSLA`
-    }
-    await testing.rpc.account.futureSwap(fswap)
-    await testing.generate(1)
-
-    const utxo = await testing.container.fundAddress(tslaAddress, 50)
-
-    const txid = await testing.rpc.account.withdrawFutureSwap(fswap, [utxo])
-    await testing.generate(1)
-
-    const rawtx = await testing.container.call('getrawtransaction', [txid, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
-
-    // check the future is in effect
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(0)
-
-      // check live/economy/dfip2203_*
-      const attributes = await testing.rpc.masternode.getGov(attributeKey)
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
-
-      // dfip2203 burn should be empty
-      const burnBefore = await testing.rpc.account.getBurnInfo()
-      expect(burnBefore.dfip2203).toStrictEqual([])
-
-      {
-        // check contractAddress
-        const balance = await testing.rpc.account.getAccount(contractAddress)
-        expect(balance).toStrictEqual([])
-      }
-
-      {
-        // check tslaAddress
-        const balance = await testing.rpc.account.getAccount(tslaAddress)
-        expect(balance).toStrictEqual([`${swapAmount.toFixed(8)}@TSLA`])
-      }
-    }
-  })
-
-  it('Should withdrawFutureSwap futureswap dusd to dtoken with utxo', async () => {
-    const swapAmount = 1
-    const tslaAddress = await testing.generateAddress()
-    await testing.rpc.account.accountToAccount(collateralAddress, { [tslaAddress]: `${swapAmount}@DUSD` })
-    await testing.generate(1)
-
-    const fswap: FutureSwap = {
-      address: tslaAddress,
-      amount: `${swapAmount.toFixed(8)}@DUSD`,
-      destination: 'TSLA'
-    }
-    await testing.rpc.account.futureSwap(fswap)
-    await testing.generate(1)
-
-    const utxo = await testing.container.fundAddress(tslaAddress, 50)
-
-    const withdrawAmount = swapAmount / 2
-    const withdrawFutureSwap: FutureSwap = {
-      address: tslaAddress,
-      amount: `${withdrawAmount.toFixed(8)}@DUSD`,
-      destination: 'TSLA'
-    }
-
-    const txid = await testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
-    await testing.generate(1)
-
-    const rawtx = await testing.container.call('getrawtransaction', [txid, true])
-    expect(rawtx.vin[0].txid).toStrictEqual(utxo.txid)
-    expect(rawtx.vin[0].vout).toStrictEqual(utxo.vout)
-
-    // check the future is in effect
-    {
-      const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      expect(pendingFutures.length).toStrictEqual(1)
-      expect(pendingFutures[0].owner).toStrictEqual(tslaAddress)
-      expect(pendingFutures[0].source).toStrictEqual(`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`)
-      expect(pendingFutures[0].destination).toStrictEqual('TSLA')
-
-      // check live/economy/dfip2203_*
-      const attributes = await testing.rpc.masternode.getGov(attributeKey)
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_current']).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`])
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_burned']).toBeUndefined()
-      expect(attributes.ATTRIBUTES['v0/live/economy/dfip2203_minted']).toBeUndefined()
-
-      // dfip2203 burn should be empty
-      const burnBefore = await testing.rpc.account.getBurnInfo()
-      expect(burnBefore.dfip2203).toStrictEqual([])
-
-      {
-        // check contractAddress
-        const balance = await testing.rpc.account.getAccount(contractAddress)
-        expect(balance).toStrictEqual([`${(swapAmount - withdrawAmount).toFixed(8)}@DUSD`])
-      }
-
-      {
-        // check tslaAddress
-        const balance = await testing.rpc.account.getAccount(tslaAddress)
-        expect(balance).toStrictEqual([`${withdrawAmount.toFixed(8)}@DUSD`])
-      }
-    }
-  })
-
   it('Should not withdrawFutureSwap invalid futureswap dtoken to dusd', async () => {
     const swapAmount = 1
     const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
@@ -778,13 +756,36 @@ describe('withdrawFutureSwap', () => {
       await expect(result).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: withdrawfutureswap')
     }
 
-    // withdraw from arbitrary address
+    // withdraw with BTC which is not a loan token
     {
-      const withdrawAmount = swapAmount
       const withdrawAddress = await testing.generateAddress()
       const withdrawFutureSwap: FutureSwap = {
         address: withdrawAddress,
-        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+        amount: `${swapAmount.toFixed(8)}@BTC`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get source loan token 1\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary address
+    {
+      const withdrawAddress = 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30\', code: -5, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary valid address
+    {
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@TSLA`
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
@@ -793,12 +794,11 @@ describe('withdrawFutureSwap', () => {
 
     // withdraw from arbitrary utxo
     {
-      const withdrawAmount = swapAmount
       const utxoAddress = await testing.generateAddress()
       const utxo = await testing.container.fundAddress(utxoAddress, 50)
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
-        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+        amount: `${swapAmount.toFixed(8)}@TSLA`
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
       await expect(result).rejects.toThrow(RpcApiError)
@@ -849,10 +849,9 @@ describe('withdrawFutureSwap', () => {
       const idTSLA = await testing.token.getTokenId('TSLA')
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
 
-      const withdrawAmount = swapAmount
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
-        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+        amount: `${swapAmount.toFixed(8)}@TSLA`
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
@@ -865,10 +864,9 @@ describe('withdrawFutureSwap', () => {
     {
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
 
-      const withdrawAmount = swapAmount
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
-        amount: `${withdrawAmount.toFixed(8)}@TSLA`
+        amount: `${swapAmount.toFixed(8)}@TSLA`
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
       await expect(result).rejects.toThrow(RpcApiError)
@@ -922,6 +920,19 @@ describe('withdrawFutureSwap', () => {
       await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get destination loan token 0. Set valid destination.\', code: -32600, method: withdrawfutureswap')
     }
 
+    // withdraw fail - with invalid destination
+    {
+      const withdrawAmount = 0.5
+      const withdrawFutureSwap: FutureSwap = {
+        address: tslaAddress,
+        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        destination: 'INVALID'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Destination token not found\', code: -5, method: withdrawfutureswap')
+    }
+
     // Withdraw fail - try to withdraw from unavailable futureswap
     {
       const withdrawAmount = 0.5
@@ -947,13 +958,38 @@ describe('withdrawFutureSwap', () => {
       await expect(result).rejects.toThrow('RpcApiError: \': Invalid Defi token: INVALID\', code: 0, method: withdrawfutureswap')
     }
 
-    // withdraw from arbitrary address
+    // withdraw with BTC which is not a loan token
     {
-      const withdrawAmount = swapAmount
       const withdrawAddress = await testing.generateAddress()
       const withdrawFutureSwap: FutureSwap = {
         address: withdrawAddress,
-        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'BTC'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Test DFIP2203Tx execution failed:\nCould not get destination loan token 1. Set valid destination.\', code: -32600, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary address
+    {
+      const withdrawAddress = 'bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30'
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
+        destination: 'TSLA'
+      }
+      const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
+      await expect(result).rejects.toThrow(RpcApiError)
+      await expect(result).rejects.toThrow('RpcApiError: \'Incorrect authorization for bcrt1qcnfukr6c78wlz2tqpv8vxe0zu339c06pmm3l30\', code: -5, method: withdrawfutureswap')
+    }
+
+    // withdraw from arbitrary valid address
+    {
+      const withdrawAddress = await testing.generateAddress()
+      const withdrawFutureSwap: FutureSwap = {
+        address: withdrawAddress,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
         destination: 'TSLA'
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
@@ -963,12 +999,11 @@ describe('withdrawFutureSwap', () => {
 
     // withdraw from arbitrary utxo
     {
-      const withdrawAmount = swapAmount
       const utxoAddress = await testing.generateAddress()
       const utxo = await testing.container.fundAddress(utxoAddress, 50)
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
-        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
         destination: 'TSLA'
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap, [utxo])
@@ -1023,10 +1058,9 @@ describe('withdrawFutureSwap', () => {
       const idTSLA = await testing.token.getTokenId('TSLA')
       await testing.rpc.masternode.setGov({ [attributeKey]: { [`v0/token/${idTSLA}/dfip2203`]: 'false' } })
 
-      const withdrawAmount = swapAmount
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
-        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
         destination: 'TSLA'
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
@@ -1040,10 +1074,9 @@ describe('withdrawFutureSwap', () => {
     {
       await testing.rpc.masternode.setGov({ [attributeKey]: { 'v0/params/dfip2203/active': 'false' } })
 
-      const withdrawAmount = swapAmount
       const withdrawFutureSwap: FutureSwap = {
         address: tslaAddress,
-        amount: `${withdrawAmount.toFixed(8)}@DUSD`,
+        amount: `${swapAmount.toFixed(8)}@DUSD`,
         destination: 'TSLA'
       }
       const result = testing.rpc.account.withdrawFutureSwap(withdrawFutureSwap)
