@@ -45,7 +45,7 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall - should get operational with whale up', async function () {
+  it('/overall - should get operational with whale up', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
       .mockReturnValueOnce(getWhaleStatus('up'))
@@ -61,7 +61,7 @@ describe('AggregateController - Status test', () => {
     })
   })
 
-  it('/overall - should get outage with whale down', async function () {
+  it('/overall - should get outage with whale down', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
       .mockReturnValueOnce(getWhaleStatus('down'))
