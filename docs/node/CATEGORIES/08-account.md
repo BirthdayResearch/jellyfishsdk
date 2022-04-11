@@ -510,3 +510,19 @@ interface FutureData {
   destination: string
 }
 ```
+
+## listPendingFutureSwaps
+
+List all pending futures.
+
+```ts title="client.account.listPendingFutureSwaps()"
+interface account {
+  listPendingFutureSwaps (): Promise<ListFutureInfo[]>
+}
+
+interface ListFutureInfo {
+  owner: string
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+```
