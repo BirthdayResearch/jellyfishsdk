@@ -76,7 +76,7 @@ describe('create FutureSwap', () => {
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_SET_FUTURE_SWAP(createFutureSwap)
+      OP_CODES.OP_DEFI_TX_FUTURE_SWAP(createFutureSwap)
     ]
 
     const buffer = toBuffer(stack)
@@ -123,7 +123,7 @@ describe('withdraw FutureSwap', () => {
   it('should craft dftx with OP_CODES._()', () => {
     const stack = [
       OP_CODES.OP_RETURN,
-      OP_CODES.OP_DEFI_TX_SET_FUTURE_SWAP(withdrawFutureSwap)
+      OP_CODES.OP_DEFI_TX_FUTURE_SWAP(withdrawFutureSwap)
     ]
 
     const buffer = toBuffer(stack)
