@@ -82,175 +82,143 @@ it('should have gov set', async () => {
       'v0/token/16/loan_payback/12': 'true',
       'v0/token/16/loan_payback/14': 'true',
       'v0/token/16/loan_payback_fee_pct/12': '0.01',
-      'v0/token/16/loan_payback_fee_pct/14': '0.01'
-      // 'v0/params/dfip2203/active': 'true',
-      // 'v0/params/dfip2203/block_period': '10',
-      // 'v0/params/dfip2203/reward_pct': '0.05'
+      'v0/token/16/loan_payback_fee_pct/14': '0.01',
+      'v0/params/dfip2203/active': 'true',
+      'v0/params/dfip2203/reward_pct': '0.05',
+      'v0/params/dfip2203/block_period': '10'
     })
   })
 
+  async function waitForPriceValid (): Promise<void> {
+    const prices = await testing.container.call('listfixedintervalprices')
+    const invalidPrices = prices.filter((p: any) => p.isLive !== true)
+    for (const p of invalidPrices) {
+      await testing.container.waitForPriceValid(p.priceFeedId)
+    }
+  }
+
   // paybackV2 test
-  {
-    const dusdInfo = await testing.rpc.token.getToken('DUSD')
-    const dusdId = Object.keys(dusdInfo)[0]
-    const td10Info = await testing.rpc.token.getToken('TD10')
-    const td10Id = Object.keys(td10Info)[0]
-    const tr50Info = await testing.rpc.token.getToken('TR50')
-    const tr50Id = Object.keys(tr50Info)[0]
-    const tu10Info = await testing.rpc.token.getToken('TU10')
-    const tu10Id = Object.keys(tu10Info)[0]
-    const ts25Info = await testing.rpc.token.getToken('TS25')
-    const ts25Id = Object.keys(ts25Info)[0]
+  const dusdInfo = await testing.rpc.token.getToken('DUSD')
+  const dusdId = Object.keys(dusdInfo)[0]
+  const td10Info = await testing.rpc.token.getToken('TD10')
+  const td10Id = Object.keys(td10Info)[0]
+  const tr50Info = await testing.rpc.token.getToken('TR50')
+  const tr50Id = Object.keys(tr50Info)[0]
+  const tu10Info = await testing.rpc.token.getToken('TU10')
+  const tu10Id = Object.keys(tu10Info)[0]
+  const ts25Info = await testing.rpc.token.getToken('TS25')
+  const ts25Id = Object.keys(ts25Info)[0]
 
-    const colAddr = await testing.container.getNewAddress()
-    await testing.token.dfi({ address: colAddr, amount: 15000 })
-    await testing.container.call('sendtokenstoaddress', [{}, { [colAddr]: ['1@BTC', '1@ETH', '1@USDT', '1@CU10', '1@CD10'] }])
-    await testing.generate(1)
+  const colAddr = await testing.container.getNewAddress()
+  await testing.token.dfi({ address: colAddr, amount: 15000 })
+  await testing.container.call('sendtokenstoaddress', [{}, { [colAddr]: ['1@BTC', '1@ETH', '1@USDT', '1@CU10', '1@CD10'] }])
+  await testing.generate(1)
 
-    const vaultId = await testing.rpc.loan.createVault({
-      ownerAddress: await testing.container.getNewAddress(),
-      loanSchemeId: 'MIN150'
-    })
-    await testing.generate(1)
+  const vaultId = await testing.rpc.loan.createVault({
+    ownerAddress: await testing.container.getNewAddress(),
+    loanSchemeId: 'MIN150'
+  })
+  await testing.generate(1)
 
-    await testing.rpc.loan.depositToVault({
-      vaultId: vaultId,
-      from: colAddr,
-      amount: '10000@DFI'
-    })
-    await testing.generate(1)
+  await testing.rpc.loan.depositToVault({
+    vaultId: vaultId,
+    from: colAddr,
+    amount: '10000@DFI'
+  })
+  await testing.generate(1)
 
-    {
-      const prices = await testing.container.call('listfixedintervalprices')
+  await waitForPriceValid()
+  await testing.rpc.loan.takeLoan({
+    vaultId: vaultId,
+    to: colAddr,
+    amounts: ['100@DUSD', '0.00000095@TD10', '0.06@TR50', '3@TU10', '5@TS25']
+  })
+  await testing.generate(1)
 
-      const invalidPrices = prices.filter((p: any) => p.isLive !== true)
-      for (const p of invalidPrices) {
-        await testing.container.waitForPriceValid(p.priceFeedId)
-      }
-    }
+  // DFI pay dToken
+  await waitForPriceValid()
+  await testing.rpc.loan.paybackLoan({
+    vaultId: vaultId,
+    from: colAddr,
+    loans: [
+      // { dToken: td10Id, amounts: '0.00000001@DFI' }, // x pay
+      // { dToken: tu10Id, amounts: '0.00000001@DFI' }, // x pay
+      // { dToken: ts25Id, amounts: '0.00000001@DFI' }, // x pay
+      { dToken: dusdId, amounts: '0.00000001@DFI' },
+      { dToken: tr50Id, amounts: '0.00000001@DFI' }
+    ]
+  })
+  await testing.generate(1)
 
-    {
-      const prices = await testing.container.call('listfixedintervalprices')
-      const invalidPrices = prices.filter((p: any) => p.isLive !== true)
-      console.log('invalidPrices: ', invalidPrices)
+  // dToken (DUSD) pay dToken #1
+  await waitForPriceValid()
+  await testing.rpc.loan.paybackLoan({
+    vaultId: vaultId,
+    from: colAddr,
+    loans: [
+      // { dToken: ts25Id, amounts: '0.00000001@DUSD' }, // x pay
+      { dToken: td10Id, amounts: '0.00000001@DUSD' },
+      { dToken: tu10Id, amounts: '0.00000001@DUSD' },
+      { dToken: tr50Id, amounts: '0.00000001@DUSD' }
+    ]
+  })
+  await testing.generate(1)
 
-      for (const p of prices) {
-        const v = await testing.container.call('getfixedintervalprice', [p.priceFeedId])
-        if (v.isLive !== true) {
-          console.log('v: ', v)
-        }
-      }
-    }
+  // dToken pay dToken #2
+  await waitForPriceValid()
+  await testing.rpc.loan.paybackLoan({
+    vaultId: vaultId,
+    from: colAddr,
+    loans: [
+      { dToken: dusdId, amounts: '0.00000001@TD10' },
+      { dToken: tr50Id, amounts: '0.00000001@TD10' },
+      { dToken: ts25Id, amounts: '0.00000001@TU10' }
+    ]
+  })
+  await testing.generate(1)
 
-    await testing.rpc.loan.takeLoan({
-      vaultId: vaultId,
-      to: colAddr,
-      amounts: ['100@DUSD', '0.00000095@TD10', '0.06@TR50', '3@TU10', '5@TS25']
-    })
-    await testing.generate(1)
+  // colToken pay dToken
+  await waitForPriceValid()
+  await testing.rpc.loan.paybackLoan({
+    vaultId: vaultId,
+    from: colAddr,
+    loans: [
+      { dToken: td10Id, amounts: '0.00000001@BTC' },
+      { dToken: dusdId, amounts: '0.00000001@BTC' },
+      { dToken: tu10Id, amounts: '0.00000001@CU10' }
+    ]
+  })
+  await testing.generate(1)
 
-    {
-      const prices = await testing.container.call('listfixedintervalprices')
-      const invalidPrices = prices.filter((p: any) => p.isLive !== true)
-      console.log('invalidPrices 1: ', invalidPrices)
+  // test fail payback
+  // DUSD pay TS25 should be failed
+  await waitForPriceValid()
+  const promise = testing.rpc.loan.paybackLoan({
+    vaultId: vaultId,
+    from: colAddr,
+    loans: [
+      { dToken: ts25Id, amounts: '0.00000001@DUSD' }
+    ]
+  })
+  await expect(promise).rejects.toThrow('Payback of loan via DUSD token is not currently active')
 
-      for (const p of prices) {
-        const v = await testing.container.call('getfixedintervalprice', [p.priceFeedId])
-        if (v.isLive !== true) {
-          console.log('v 1: ', v)
-        }
-      }
-    }
+  // future swap test
+  const swapAddr = await testing.generateAddress()
+  await testing.container.call('sendtokenstoaddress', [{}, { [swapAddr]: ['2@TR50'] }])
+  await testing.generate(1)
 
-    // DFI pay dToken
-    await testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      from: colAddr,
-      loans: [
-        // { dToken: td10Id, amounts: '0.00000001@DFI' }, // x pay
-        // { dToken: tu10Id, amounts: '0.00000001@DFI' }, // x pay
-        // { dToken: ts25Id, amounts: '0.00000001@DFI' }, // x pay
-        { dToken: dusdId, amounts: '0.00000001@DFI' },
-        { dToken: tr50Id, amounts: '0.00000001@DFI' }
-      ]
-    })
-    await testing.generate(1)
+  await waitForPriceValid()
+  await testing.rpc.account.futureSwap({
+    address: swapAddr,
+    amount: '2@TR50'
+  })
+  await testing.generate(1)
 
-    // dToken (DUSD) pay dToken #1
-    await testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      from: colAddr,
-      loans: [
-        // { dToken: ts25Id, amounts: '0.00000001@DUSD' }, // x pay
-        { dToken: td10Id, amounts: '0.00000001@DUSD' },
-        { dToken: tu10Id, amounts: '0.00000001@DUSD' },
-        { dToken: tr50Id, amounts: '0.00000001@DUSD' }
-      ]
-    })
-    await testing.generate(1)
+  const pending = await testing.container.call('listpendingfutureswaps')
+  expect(pending.length).toStrictEqual(1)
 
-    // dToken pay dToken #2
-    await testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      from: colAddr,
-      loans: [
-        { dToken: dusdId, amounts: '0.00000001@TD10' },
-        { dToken: tr50Id, amounts: '0.00000001@TD10' },
-        { dToken: ts25Id, amounts: '0.00000001@TU10' }
-      ]
-    })
-    await testing.generate(1)
-
-    // colToken pay dToken
-    await testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      from: colAddr,
-      loans: [
-        { dToken: td10Id, amounts: '0.00000001@BTC' },
-        { dToken: dusdId, amounts: '0.00000001@BTC' },
-        { dToken: tu10Id, amounts: '0.00000001@CU10' }
-      ]
-    })
-    await testing.generate(1)
-
-    const dusdPrice = await testing.container.call('getfixedintervalprice', ['DUSD/USD'])
-    console.log('dusdPrice: ', dusdPrice)
-    const tu10Price = await testing.container.call('getfixedintervalprice', ['TU10/USD'])
-    console.log('tu10Price: ', tu10Price)
-    const td10Price = await testing.container.call('getfixedintervalprice', ['TD10/USD'])
-    console.log('td10Price: ', td10Price)
-    const ts25 = await testing.container.call('getfixedintervalprice', ['TS25/USD'])
-    console.log('ts25: ', ts25)
-
-    // test fail payback
-    // DUSD pay TS25 should be failed
-    const promise = testing.rpc.loan.paybackLoan({
-      vaultId: vaultId,
-      from: colAddr,
-      loans: [
-        { dToken: ts25Id, amounts: '0.00000001@DUSD' }
-      ]
-    })
-    await expect(promise).rejects.toThrow('Payback of loan via DUSD token is not currently active')
-  }
-
-  { // future swap test
-    const swapAddr = await testing.generateAddress()
-    await testing.container.call('sendtokenstoaddress', [{}, { [swapAddr]: ['2@TR50'] }])
-    await testing.generate(1)
-
-    await testing.rpc.account.futureSwap({
-      address: swapAddr,
-      amount: '2@TR50'
-    })
-    await testing.generate(1)
-
-    const pending = await testing.container.call('listpendingfutureswaps')
-    expect(pending.length).toStrictEqual(1)
-
-    const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
-    expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
-    expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('10')
-    expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
-  }
+  const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('10')
+  expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
 })
