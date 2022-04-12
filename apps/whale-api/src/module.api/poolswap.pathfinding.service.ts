@@ -206,7 +206,7 @@ export class PoolSwapPathFindingService {
   }
 
   private async getPoolPairInfo (poolPairId: string): Promise<PoolPairInfo> {
-    const poolPair = await this.deFiDCache.getPoolPairInfo(poolPairId)
+    const poolPair = await this.deFiDCache.getPoolPairInfoFromPoolPairs(poolPairId)
     if (poolPair === undefined) {
       throw new NotFoundException(`Unable to find token ${poolPairId}`)
     }
