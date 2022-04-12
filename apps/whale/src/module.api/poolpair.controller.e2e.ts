@@ -5,8 +5,6 @@ import { createTestingApp, stopTestingApp, waitForIndexedHeight } from '../e2e.m
 import { addPoolLiquidity, createPoolPair, createToken, getNewAddress, mintTokens } from '@defichain/testing'
 import { NotFoundException } from '@nestjs/common'
 import { BigNumber } from 'bignumber.js'
-import { SemaphoreCache } from './cache/semaphore.cache'
-import { CacheOption } from './cache/global.cache'
 
 const container = new MasterNodeRegTestContainer()
 let app: NestFastifyApplication
@@ -19,14 +17,6 @@ beforeAll(async () => {
 
   app = await createTestingApp(container)
   controller = app.get(PoolPairController)
-
-  // Disable cache during tests
-  const cache = app.get(SemaphoreCache)
-  jest.spyOn(cache, 'get').mockImplementation(
-    async (key: string, fetch: () => Promise<any>, options: CacheOption = {}): Promise<any> => {
-      return await fetch()
-    }
-  )
 
   await waitForIndexedHeight(app, 100)
 
