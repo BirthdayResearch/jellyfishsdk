@@ -7,7 +7,7 @@ const testing = Testing.create(container)
 let collateralAddress: string
 let oracleId: string
 const attributeKey = 'ATTRIBUTES'
-const futInterval = 25
+const futInterval = 1
 const futRewardPercentage = 0.05
 
 async function setup (): Promise<void> {
@@ -135,7 +135,17 @@ describe('futureSwap', () => {
   })
 
   it('should create dtoken to dusd futureswap', async () => {
-    const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
-    console.log(futureSwapBlock)
+    {
+      const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
+      console.log(futureSwapBlock)
+    }
+
+    const nextSettleBlock = await testing.container.call('getfutureswapblock', [])
+    await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
+
+    {
+      const futureSwapBlock = await testing.rpc.oracle.getFutureSwapBlock()
+      console.log(futureSwapBlock)
+    }
   })
 })
