@@ -408,12 +408,37 @@ export class Account {
   }
 
   /**
+   * Creates and submits to the network a withdrawal from futures contract transaction.
+   *
+   * @param {FutureSwap} future
+   * @param {string} future.address Address to fund contract and receive resulting token
+   * @param {string} future.amount Amount to send in amount@token format
+   * @param {string} [future.destination] Expected dToken if DUSD supplied
+   * @param {UTXO[]} [options.utxos = []]
+   * @param {string} options.utxos.txid
+   * @param {number} options.utxos.vout
+   * @return {Promise<string>}
+   */
+  async withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string> {
+    return await this.client.call('withdrawfutureswap', [future.address, future.amount, future.destination, utxos], 'number')
+  }
+
+  /**
    * Get specific pending futures.
    *
    * @return {Promise<GetFutureInfo>}
    */
   async getPendingFutureSwaps (address: string): Promise<GetFutureInfo> {
     return await this.client.call('getpendingfutureswaps', [address], 'number')
+  }
+
+  /**
+   * List all pending futures.
+   *
+   * @return {Promise<ListFutureInfo[]>}
+   */
+  async listPendingFutureSwaps (): Promise<ListFutureInfo[]> {
+    return await this.client.call('listpendingfutureswaps', [], 'number')
   }
 }
 
@@ -596,6 +621,12 @@ export interface GetFutureInfo {
 }
 
 export interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+
+export interface ListFutureInfo {
+  owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
 }

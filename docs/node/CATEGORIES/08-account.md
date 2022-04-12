@@ -491,6 +491,28 @@ interface UTXO {
   vout: number
 }
 ```
+
+## withdrawFutureSwap
+
+Creates and submits to the network a withdrawal from futures contract transaction.
+
+```ts title="client.account.withdrawFutureSwap()"
+interface account {
+  withdrawFutureSwap (future: FutureSwap, utxos: UTXO[] = []): Promise<string>
+}
+
+interface FutureSwap {
+  address: string
+  amount: string
+  destination?: string
+}
+
+interface UTXO {
+  txid: string
+  vout: number
+}
+```
+
 ## getPendingFutureSwaps
 
 Get specific pending futures.
@@ -506,6 +528,22 @@ interface GetFutureInfo {
 }
 
 interface FutureData {
+  source: string // eg: '1.234@DUSD'
+  destination: string
+}
+```
+
+## listPendingFutureSwaps
+
+List all pending futures.
+
+```ts title="client.account.listPendingFutureSwaps()"
+interface account {
+  listPendingFutureSwaps (): Promise<ListFutureInfo[]>
+}
+
+interface ListFutureInfo {
+  owner: string
   source: string // eg: '1.234@DUSD'
   destination: string
 }
