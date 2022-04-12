@@ -76,7 +76,7 @@ export abstract class SanityContainer extends DockerContainer {
    * @see     https://github.com/apocas/dockerode/issues/432
    */
   public async build (): Promise<void> {
-    if (!await hasImageLocally(this.image, this.docker)) {
+    if (await hasImageLocally(this.image, this.docker)) {
       return // dont rebuild image during testing for concurrent container support
     }
     const image = pack(PROJECT_ROOT)
