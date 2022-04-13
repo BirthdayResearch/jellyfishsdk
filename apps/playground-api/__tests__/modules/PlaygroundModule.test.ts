@@ -13,12 +13,12 @@ afterAll(async () => {
 
 it('should have pool pairs setup', async () => {
   const pairs = await testing.container.call('listpoolpairs')
-  expect(Object.values(pairs).length).toBe(12)
+  expect(Object.values(pairs).length).toBe(15)
 })
 
 it('should have tokens setup', async () => {
   const tokens = await testing.container.call('listtokens')
-  expect(Object.values(tokens).length).toBe(29)
+  expect(Object.values(tokens).length).toBe(32)
 })
 
 it('should have oracles setup', async () => {
@@ -116,10 +116,14 @@ it('should have gov set', async () => {
   })
   await testing.generate(1)
 
-  await testing.container.waitForPriceValid('TD10/USD')
-  await testing.container.waitForPriceValid('TU10/USD')
-  await testing.container.waitForPriceValid('TR50/USD')
-  await testing.container.waitForPriceValid('TS25/USD')
+  {
+    const prices = await testing.container.call('listfixedintervalprices')
+
+    const invalidPrices = prices.filter((p: any) => p.isLive !== true)
+    for (const p of invalidPrices) {
+      await testing.container.waitForPriceValid(p.priceFeedId)
+    }
+  }
 
   await testing.rpc.loan.takeLoan({
     vaultId: vaultId,
