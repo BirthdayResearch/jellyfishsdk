@@ -253,7 +253,7 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
     const poolPairs = await this.client.poolpair.listPoolPairs()
     const poolPairIds = Object.keys(poolPairs)
 
-    // apply `toFixed(8)` due to 1 / 14 = 0.07142857 which is invalid amount on setgov
+    // apply `toFixed(8)` due to 1 / 15 = 0.06666667 which is invalid amount on setgov
     const splits = Number(new BigNumber(1 / poolPairIds.length).toFixed(8))
 
     const lpSplits: any = {}
@@ -261,10 +261,10 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
       lpSplits[parseInt(k)] = splits
     }
 
-    // to fix: LP_SPLITS: total = 99999998 vs expected 100000000', code: -32600, method: setgov
-    // 0.07142857 * 14 !== 100000000
+    // to fix: LP_SPLITS: total = 100000007 vs expected 100000000', code: -32600, method: setgov
+    // 0.066666667 * 15 !== 100000000
     const lstKey = Object.keys(lpSplits)[0]
-    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).plus(0.00000002).toFixed(8))
+    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).plus(0.00000007).toFixed(8))
 
     await this.client.masternode.setGov({ LP_SPLITS: lpSplits })
     await this.generate(1)
