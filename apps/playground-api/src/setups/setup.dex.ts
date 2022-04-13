@@ -206,6 +206,19 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
         add: {
           '*': ['100000@CU10', '1000@DUSD']
         }
+      },
+      {
+        symbol: 'BTC-USDT',
+        create: {
+          tokenA: 'BTC',
+          tokenB: 'USDT',
+          commission: 0.01,
+          status: true,
+          ownerAddress: PlaygroundSetup.address
+        },
+        add: {
+          '*': ['1000@BTC', '1000@USDT']
+        }
       }
     ]
   }
