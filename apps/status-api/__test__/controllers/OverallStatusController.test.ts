@@ -2,6 +2,7 @@ import { StatusApiTesting } from '../../testing/StatusApiTesting'
 import { ApiPagedResponse, WhaleApiClient } from '@defichain/whale-api-client'
 import { WhaleApiProbeIndicator } from '../../src/modules/WhaleApiModule'
 import { HealthIndicatorResult, HealthIndicatorStatus } from '@nestjs/terminus'
+import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
 
 describe('AggregateController - Status test', () => {
   const apiTesting = StatusApiTesting.create()
@@ -90,7 +91,7 @@ async function getWhaleStatus (status: HealthIndicatorStatus): Promise<HealthInd
   }
 }
 
-async function getBlockResponseWithPresetTime (minutesDiff: number): Promise<ApiPagedResponse<any>> {
+async function getBlockResponseWithPresetTime (minutesDiff: number): Promise<ApiPagedResponse<Block>> {
   const blockTime = Date.now() / 1000 - (minutesDiff * 60)
 
   return new ApiPagedResponse({
