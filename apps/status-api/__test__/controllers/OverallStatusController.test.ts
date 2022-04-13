@@ -18,7 +18,9 @@ describe('AggregateController - Status test', () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
       .mockReturnValueOnce(getWhaleStatus('up'))
-
+    jest
+      .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'readiness')
+      .mockReturnValueOnce(getWhaleStatus('up'))
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(25))
@@ -69,6 +71,22 @@ describe('AggregateController - Status test', () => {
   it('/overall - should get outage when Ocean down', async () => {
     jest
       .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'liveness')
+      .mockReturnValueOnce(getWhaleStatus('down'))
+
+    const res = await apiTesting.app.inject({
+      method: 'GET',
+      url: '/overall'
+    })
+
+    expect(res.statusCode).toStrictEqual(200)
+    expect(res.json()).toStrictEqual({
+      status: 'outage'
+    })
+  })
+
+  it('/overall - should get outage when Ocean is not ready ', async () => {
+    jest
+      .spyOn(apiTesting.app.get(WhaleApiProbeIndicator), 'readiness')
       .mockReturnValueOnce(getWhaleStatus('down'))
 
     const res = await apiTesting.app.inject({

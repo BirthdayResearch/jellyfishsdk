@@ -22,7 +22,7 @@ export class OverallStatusController {
    */
 
   @Get()
-  async getAggregateStatus (): Promise<{ status: BlockchainStatus }> {
+  async getOverallStatus (): Promise<{ status: BlockchainStatus }> {
     const liveness = await this.probe.liveness()
 
     if (liveness.whale.status === 'down') {
@@ -31,6 +31,13 @@ export class OverallStatusController {
       }
     }
 
+    const readiness = await this.probe.readiness()
+
+    if (readiness.whale.status === 'down') {
+      return {
+        status: 'outage'
+      }
+    }
     const blockchain = await this.blockchainStatusController.getBlockChainStatus()
 
     return {
