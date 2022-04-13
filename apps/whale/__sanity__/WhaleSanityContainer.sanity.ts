@@ -22,7 +22,6 @@ beforeAll(async () => {
   await waitForExpect(async () => {
     const response = await whale.get('/_actuator/probes/readiness')
     const json = await response.json()
-    console.log(json)
     expect(json.details.model.status).toStrictEqual('up')
     expect(json.details.defid.blocks).toBeGreaterThanOrEqual(100)
   }, 60_000)
@@ -55,7 +54,6 @@ describe('/_actuator', () => {
   describe('/_actuator/probes/readiness', () => {
     test('Status code is 503', async () => {
       const response = await whale.get('/_actuator/probes/readiness')
-      console.log(await response.json())
       expect(response.status).toStrictEqual(503)
     })
   })
