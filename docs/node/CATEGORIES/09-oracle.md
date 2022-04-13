@@ -250,3 +250,13 @@ interface ListFixedIntervalPrice {
   isLive: boolean
 }
 ```
+
+## getFutureSwapBlock
+
+Get the next block that futures will execute and update on.
+
+```ts title="client.oracle.getFutureSwapBlock()"
+interface oracle {
+  getFutureSwapBlock (): Promise<number>
+}
+```
