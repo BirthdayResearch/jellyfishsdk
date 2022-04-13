@@ -52,6 +52,21 @@ export class PoolSwapPathFindingService {
       paths
     } = await this.getAllSwapPaths(fromTokenId, toTokenId)
 
+    // always use direct path if available
+    for (const path of paths) {
+      if (path.length === 1) {
+        return {
+          fromToken: fromToken,
+          toToken: toToken,
+          bestPath: path,
+          estimatedReturn: formatNumber(
+            computeReturnInDestinationToken(path, fromTokenId)
+          ) // denoted in toToken
+        }
+      }
+    }
+
+    // otherwise, search for the best path based on return
     let bestPath: SwapPathPoolPair[] = []
     let bestReturn = new BigNumber(0)
 
@@ -62,6 +77,7 @@ export class PoolSwapPathFindingService {
         bestPath = path
       }
     }
+
     return {
       fromToken: fromToken,
       toToken: toToken,
