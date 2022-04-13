@@ -217,7 +217,7 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
           ownerAddress: PlaygroundSetup.address
         },
         add: {
-          '*': ['1000@BTC', '1000@USDT']
+          '*': ['1000@BTC', '10000000@USDT']
         }
       }
     ]
