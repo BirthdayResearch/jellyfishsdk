@@ -23,3 +23,5 @@ export * from './containers/RegTestContainer/Persistent'
 export * from './containers/RegTestContainer/ContainerGroup'
 
 export * from './containers/RegTestContainer/LoanContainer'
+
+export * from './containers/SanityContainer/WhaleSanityContainer'

@@ -20,6 +20,7 @@
     "prepare": "husky install",
     "lint": "eslint . --fix",
     "test": "jest --maxWorkers=100%",
+    "sanity": "jest --maxWorkers=100% --config=jest.sanity.js",
     "ci:test": "jest --ci --coverage --forceExit --maxWorkers=4",
     "all:clean": "rm -rf ./packages/**/dist && rm -rf ./apps/dist && rm -rf ./packages/**/tsconfig.build.tsbuildinfo",
     "all:build": "lerna run build",

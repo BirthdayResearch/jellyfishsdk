@@ -23,8 +23,6 @@ export class WhaleSanityContainer extends SanityContainer {
    * or request errors.
    */
   public async start (): Promise<void> {
-    await this.build()
-
     const { hostRegTestIp, hostRegTestPort } = await this.startMasterNode()
 
     this.container = await this.docker.createContainer({

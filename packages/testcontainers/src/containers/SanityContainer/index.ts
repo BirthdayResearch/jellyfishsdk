@@ -1,11 +1,7 @@
 import { fetch, Response } from 'cross-fetch'
-import * as path from 'path'
-import { pack } from 'tar-fs'
 
-import { DockerContainer, hasImageLocally } from '../DockerContainer'
+import { DockerContainer } from '../DockerContainer'
 import { MasterNodeRegTestContainer } from '../RegTestContainer/Masternode'
-
-const PROJECT_ROOT = path.resolve(__dirname, '../../../../../')
 
 /**
  * Sanity Container
@@ -23,7 +19,6 @@ const PROJECT_ROOT = path.resolve(__dirname, '../../../../../')
  * and running instances on random ports to support parallel testing allowing for
  * vertical scaling in our test environments.
  */
-
 export abstract class SanityContainer extends DockerContainer {
   public readonly name = this.generateName()
 
@@ -63,32 +58,6 @@ export abstract class SanityContainer extends DockerContainer {
     await this.container?.stop()
     await this.container?.remove({ v: true })
     await this.blockchain.stop()
-  }
-
-  /**
-   * Builds a new image with a :sanity tag that can be pulled into unit tests and
-   * run on the current state of the code base. These steps are required to
-   * ensure that we are sanity testing against the current code state and not
-   * pre-built solutions which is tested seperately during our standard unit
-   * tests.
-   *
-   * @remarks Images are built with tar
-   * @see     https://github.com/apocas/dockerode/issues/432
-   */
-  public async build (): Promise<void> {
-    if (await hasImageLocally(this.image, this.docker)) {
-      return // dont rebuild image during testing for concurrent container support
-    }
-    const image = pack(PROJECT_ROOT)
-    const stream = await this.docker.buildImage(image, {
-      t: this.image,
-      buildargs: {
-        APP: this.app
-      }
-    })
-    await new Promise((resolve, reject) => {
-      this.docker.modem.followProgress(stream, (err, res) => (err != null) ? reject(err) : resolve(res))
-    })
   }
 
   public generateName (): string {
