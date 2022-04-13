@@ -261,10 +261,10 @@ export class SetupDex extends PlaygroundSetup<PoolPairSetup> {
       lpSplits[parseInt(k)] = splits
     }
 
-    // to fix: LP_SPLITS: total = 100000007 vs expected 100000000', code: -32600, method: setgov
+    // to fix: LP_SPLITS: total = 100000005 vs expected 100000000', code: -32600, method: setgov
     // 0.066666667 * 15 !== 100000000
     const lstKey = Object.keys(lpSplits)[0]
-    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).plus(0.00000007).toFixed(8))
+    lpSplits[lstKey] = Number(new BigNumber(lpSplits[lstKey]).minus(0.00000005).toFixed(8))
 
     await this.client.masternode.setGov({ LP_SPLITS: lpSplits })
     await this.generate(1)
