@@ -8,7 +8,7 @@
   "homepage": "https://github.com/DeFiCh/jellyfish",
   "license": "MIT",
   "main": "dist/index.js",
-  "repository": "JustinWong98/defi-cli",
+  "repository": "DeFiCh/jellyfish",
   "files": [
     "/bin",
     "/dist",
@@ -16,16 +16,25 @@
     "/oclif.manifest.json"
   ],
   "dependencies": {
+    "@defichain/testcontainers": "^2.36.0",
     "@oclif/core": "^1",
     "@oclif/plugin-help": "^5",
-    "@oclif/plugin-plugins": "^2.0.1"
+    "@oclif/plugin-plugins": "^2.0.1",
+    "defichain": "^2.36.0",
+    "dockerode": "^3.3.1",
+    "dotenv": "^16.0.0"
   },
   "devDependencies": {
+    "@defichain/jellyfish-testing": "^2.36.0",
     "@oclif/test": "^2",
     "@types/chai": "^4",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.9.4",
+    "@typescript-eslint/parser": "^5.19.0",
     "chai": "^4",
+    "dockerode-compose": "^1.2.2",
+    "eslint": "^8.13.0",
+    "eslint-config-eslint": "^7.0.0",
     "globby": "^11",
     "mocha": "^9",
     "shx": "^0.3.3",
