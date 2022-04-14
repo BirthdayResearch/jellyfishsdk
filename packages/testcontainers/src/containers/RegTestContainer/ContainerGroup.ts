@@ -1,4 +1,5 @@
 import Dockerode, { DockerOptions, Network } from 'dockerode'
+import { v4 as uuidv4 } from 'uuid'
 import { waitForCondition } from '../../utils'
 import { MasterNodeRegTestContainer } from './Masternode'
 import { RegTestContainer } from './index'
@@ -10,7 +11,7 @@ export class ContainerGroup {
 
   public constructor (
     protected readonly containers: RegTestContainer[] = [],
-    protected readonly name = `testcontainers-${Math.floor(Math.random() * 10000000)}`,
+    protected readonly name = `testcontainers-${uuidv4()}`,
     options?: DockerOptions
   ) {
     this.docker = new Dockerode(options)
