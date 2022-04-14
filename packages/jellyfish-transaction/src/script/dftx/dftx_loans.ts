@@ -265,4 +265,7 @@ export class CPaybackLoanV2 extends ComposableBuffer<PaybackLoanV2> {
   }
 }
 
+/**
+ * @deprecated
+ */
 export * from './dftx_vault'
