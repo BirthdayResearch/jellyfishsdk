@@ -214,11 +214,22 @@ it('should have gov set', async () => {
   })
   await testing.generate(1)
 
-  const pending = await testing.container.call('listpendingfutureswaps')
-  expect(pending.length).toStrictEqual(1)
+  {
+    const pending = await testing.container.call('listpendingfutureswaps')
+    expect(pending.length).toStrictEqual(1)
+  }
 
   const attributes = await testing.rpc.masternode.getGov('ATTRIBUTES')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/active']).toStrictEqual('true')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/block_period']).toStrictEqual('10')
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
+
+  const current = await testing.container.getBlockCount()
+  const next = await testing.container.call('getfutureswapblock', [])
+  await testing.generate(next - current)
+
+  {
+    const pending = await testing.container.call('listpendingfutureswaps')
+    expect(pending.length).toStrictEqual(0)
+  }
 })
