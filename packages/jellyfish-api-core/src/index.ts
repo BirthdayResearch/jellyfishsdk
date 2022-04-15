@@ -15,6 +15,7 @@ import { Governance } from './category/governance'
 import { Spv } from './category/spv'
 import { Misc } from './category/misc'
 import { Loan } from './category/loan'
+import { Vault } from './category/vault'
 
 export * from '@defichain/jellyfish-json'
 
@@ -55,6 +56,7 @@ export abstract class ApiClient {
   public readonly spv = new Spv(this)
   public readonly misc = new Misc(this)
   public readonly loan = new Loan(this)
+  public readonly vault = new Vault(this)
 
   /**
    * A promise based procedure call handling
