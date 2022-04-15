@@ -225,7 +225,7 @@ it('should have gov set', async () => {
   expect(attributes.ATTRIBUTES['v0/params/dfip2203/reward_pct']).toStrictEqual('0.05')
 
   const current = await testing.container.getBlockCount()
-  const next = await testing.container.call('getfutureswapblock', [])
+  const next = await testing.container.call('getfutureswapblock')
   expect(next - current).toBeLessThanOrEqual(10)
   await testing.generate(next - current)
 
