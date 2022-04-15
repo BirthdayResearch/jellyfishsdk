@@ -191,6 +191,18 @@ export class Vault {
     }
     return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
   }
+
+  /**
+   * Returns amount of collateral tokens needed to take an amount of loan tokens for a target collateral ratio.
+   *
+   * @param {string[]} loanAmounts Amount as array. Example: [ "amount@token" ]
+   * @param {number} targetRatio Target collateral ratio.
+   * @param {TokenPercentageSplit} [tokenSplit] Object with loans token as key and their percent split as value
+   * @return {Promise<string[]>} Array of <amount@token> strings
+   */
+  async estimateCollateral (loanAmounts: string[], targetRatio: number, tokenSplit: TokenPercentageSplit = { DFI: 1 }): Promise<string[]> {
+    return await this.client.call('estimatecollateral', [loanAmounts, targetRatio, tokenSplit], 'number')
+  }
 }
 
 export interface CreateVault {
@@ -317,4 +329,8 @@ export interface ListAuctionHistoryDetail {
   batchIndex: number
   auctionBid: string
   auctionWon: string[]
+}
+
+export interface TokenPercentageSplit {
+  [key: string]: number
 }
