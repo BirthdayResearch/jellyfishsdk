@@ -9,14 +9,13 @@ export class RPCMethod extends Command {
     '$ defi-cli rpc getMempoolEntry TXID'
   ]
 
-  // static args = [
-  //   {name: 'method', description: 'RPC Method to call', required: true},
-  //   {name: 'firstParam', description: 'First parameter to RPC Method called', required: false},
-  //   {name: 'secondParam', description: 'Second parameter to RPC Method called', required: false},
-  // ]
+  static args = [
+    { name: 'method', description: 'RPC Method to call', required: true },
+    { name: 'firstParam', description: 'First parameter to RPC Method called', required: false },
+    { name: 'secondParam', description: 'Second parameter to RPC Method called', required: false }
+  ]
 
   async run (): Promise<void> {
     // const {args} = await this.parse(RPCMethod)
-    // const command = await container.call('getblockchaininfo')
   }
 }

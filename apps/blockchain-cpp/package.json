@@ -32,7 +32,6 @@
     "@types/node": "^16.9.4",
     "@typescript-eslint/parser": "^5.19.0",
     "chai": "^4",
-    "dockerode-compose": "^1.2.2",
     "eslint": "^8.13.0",
     "eslint-config-eslint": "^7.0.0",
     "globby": "^11",
