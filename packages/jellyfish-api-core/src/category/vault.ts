@@ -191,6 +191,17 @@ export class Vault {
     }
     return await this.client.call('listauctionhistory', [owner, { ...defaultPagination, ...pagination }], 'number')
   }
+
+  /**
+   * Returns estimated vault for given collateral and loan amounts.
+   *
+   * @param {string[]} collateralAmounts Collateral amounts as string array. [ "amount@token" ]
+   * @param {string[]} loanAmounts Loan amounts as string array. [ "amount@token" ]
+   * @return {Promise<VaultEstimation>}
+   */
+  async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
+    return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], 'number')
+  }
 }
 
 export interface CreateVault {
@@ -317,4 +328,11 @@ export interface ListAuctionHistoryDetail {
   batchIndex: number
   auctionBid: string
   auctionWon: string[]
+}
+
+export interface VaultEstimation {
+  collateralValue: number // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: number // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: number // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+  collateralRatio: number // n (uint) Ratio as unsigned int
 }

@@ -337,3 +337,20 @@ interface ListAuctionHistoryDetail {
   auctionWon: string[]
 }
 ```
+
+## estimateVault
+
+Returns estimated vault for given collateral and loan amounts.
+
+```ts title="client.vault.estimateVault()"
+interface vault {
+  estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation>
+}
+
+export interface VaultEstimation {
+  collateralValue: number // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: number // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: number // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+  collateralRatio: number // n (uint) Ratio as unsigned int
+}
+```
