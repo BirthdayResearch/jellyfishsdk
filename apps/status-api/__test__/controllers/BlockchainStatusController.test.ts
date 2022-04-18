@@ -13,6 +13,7 @@ describe('BlockchainController - Status test', () => {
   })
 
   it('/blockchain - should get operational', async () => {
+    // Set blocktime to be less than 30 minutes
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(25))
@@ -29,6 +30,7 @@ describe('BlockchainController - Status test', () => {
   })
 
   it('/blockchain - should get degraded', async () => {
+    // Set blocktime to be 30-45 minutes
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(36))
@@ -45,6 +47,7 @@ describe('BlockchainController - Status test', () => {
   })
 
   it('/blockchain - should get outage', async () => {
+    // Set blocktime to be greater than 45 minutes
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(46))
