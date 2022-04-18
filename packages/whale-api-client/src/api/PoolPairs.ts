@@ -65,6 +65,35 @@ export class PoolPairs {
   async listPoolSwapAggregates (id: string, interval: PoolSwapAggregatedInterval, size: number = 30, next?: string): Promise<ApiPagedResponse<PoolSwapAggregatedData>> {
     return await this.client.requestList('GET', `poolpairs/${id}/swaps/aggregate/${interval as number}`, size, next)
   }
+
+  /**
+   * Get all swappable tokens for a given token
+   * @param {string} tokenId
+   * @return {Promise<AllSwappableTokensResult>}
+   */
+  async getSwappableTokens (tokenId: string): Promise<AllSwappableTokensResult> {
+    return await this.client.requestData('GET', `poolpairs/paths/swappable/${tokenId}`)
+  }
+
+  /**
+   * Get the best (estimated) swap path from one token to another
+   * @param {string} fromTokenId
+   * @param {string} toTokenId
+   * @return {Promise<BestSwapPathResult>}
+   */
+  async getBestPath (fromTokenId: string, toTokenId: string): Promise<BestSwapPathResult> {
+    return await this.client.requestData('GET', `poolpairs/paths/best/from/${fromTokenId}/to/${toTokenId}`)
+  }
+
+  /**
+   * Get all possible swap paths from one token to another
+   * @param {string} fromTokenId
+   * @param {string} toTokenId
+   * @return {Promise<SwapPathsResult>}
+   */
+  async getAllPaths (fromTokenId: string, toTokenId: string): Promise<SwapPathsResult> {
+    return await this.client.requestData('GET', `poolpairs/paths/from/${fromTokenId}/to/${toTokenId}`)
+  }
 }
 
 export interface PoolPairData {
@@ -125,6 +154,11 @@ export type PoolSwap = PoolSwapData
  */
 export type PoolSwapAggregated = PoolSwapAggregatedData
 
+export enum SwapType {
+  BUY = 'BUY',
+  SELL = 'SELL'
+}
+
 export interface PoolSwapData {
   id: string
   sort: string
@@ -143,6 +177,10 @@ export interface PoolSwapData {
    * To handle for optional value as Whale service might fail to resolve when indexing
    */
   to?: PoolSwapFromToData
+  /**
+   * To handle for optional value as Whale service might fail to resolve when indexing
+   */
+  type?: SwapType
 
   block: {
     hash: string
@@ -156,6 +194,7 @@ export interface PoolSwapFromToData {
   address: string
   amount: string
   symbol: string
+  displaySymbol: string
 }
 
 export interface PoolSwapAggregatedData {
@@ -179,4 +218,39 @@ export interface PoolSwapAggregatedData {
 export enum PoolSwapAggregatedInterval {
   ONE_HOUR = 60 * 60,
   ONE_DAY = ONE_HOUR * 24
+}
+
+export interface AllSwappableTokensResult {
+  fromToken: TokenIdentifier
+  swappableTokens: TokenIdentifier[]
+}
+
+export interface BestSwapPathResult {
+  fromToken: TokenIdentifier
+  toToken: TokenIdentifier
+  bestPath: SwapPathPoolPair[]
+  estimatedReturn: string
+}
+
+export interface SwapPathsResult {
+  fromToken: TokenIdentifier
+  toToken: TokenIdentifier
+  paths: SwapPathPoolPair[][]
+}
+
+export interface SwapPathPoolPair {
+  poolPairId: string
+  symbol: string
+  tokenA: TokenIdentifier
+  tokenB: TokenIdentifier
+  priceRatio: {
+    ab: string
+    ba: string
+  }
+}
+
+export interface TokenIdentifier {
+  id: string
+  symbol: string
+  displaySymbol: string
 }

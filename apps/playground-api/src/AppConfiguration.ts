@@ -6,7 +6,7 @@
  */
 // eslint-disable-next-line
 export const AppConfiguration = (): any => ({
-  BLOCKCHAIN_CPP_URL: process.env.PLAYGROUND_DEFID_URL,
+  BLOCKCHAIN_CPP_URL: process.env.BLOCKCHAIN_CPP_URL ?? process.env.PLAYGROUND_DEFID_URL,
   // Playground alive till max block count
   PLAYGROUND_MAX_BLOCK_COUNT: 20 * 60 * 24 // 1 day with - 1 block per 3 seconds
 })
