@@ -35,7 +35,7 @@ describe('UtxosToAccountParser', () => {
     await container.stop()
   })
 
-  it('should extract all addresses receiving from utxo in a transaction', async () => {
+  it('should extract all addresses received from utxo in a transaction', async () => {
     const parser = AddressParserTest(apiClient, [new UtxosToAccountParser('regtest')])
     const addresses = await parser.parse(rawTx)
 

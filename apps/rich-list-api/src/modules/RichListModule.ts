@@ -11,6 +11,8 @@ import { RichListDroppedOutRepo } from '../models/RichListDroppedOut'
 import { QueueModule, QueueService } from './QueueModule'
 import { LocalWhaleRpcClient } from '../../testing/LocalWhaleRpcClient'
 
+const THIRTY_MINUTES = 1_800_000
+
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -75,12 +77,12 @@ export class RichListService {
     await this.richListCore.start()
   }
 
-  @Interval(1_800_000)
+  @Interval(THIRTY_MINUTES)
   async sync (): Promise<void> {
     await this.richListCore.start()
   }
 
-  @Interval(1_800_000)
+  @Interval(THIRTY_MINUTES)
   async consumeAddressQueue (): Promise<void> {
     await this.richListCore.calculateNext()
   }
