@@ -1,3 +1,4 @@
+import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
 import waitForExpect from 'wait-for-expect'
@@ -72,6 +73,39 @@ describe('RichListCore', () => {
         expect(EXPECTED_RICH_LIST_ADDRESSES).toContain(current.address)
         expect(EXPECTED_RICH_LIST_ADDRESSES).toContain(next.address)
         expect(current.amount).toBeGreaterThanOrEqual(next.amount)
+      }
+    })
+  })
+
+  describe('setRichListLength()', () => {
+    it('should control rich list query output length', async () => {
+      richListCore.start()
+      await waitForCatchingUp(richListCore)
+
+      richListCore.setRichListLength(2)
+      await richListCore.calculateNext()
+
+      const richList = await richListCore.get('-1')
+      expect(richList.length).toStrictEqual(2)
+
+      for (let i = 0; i < richList.length - 1; i++) {
+        const current = richList[i]
+        const next = richList[i + 1]
+        expect(EXPECTED_RICH_LIST_ADDRESSES).toContain(current.address)
+        expect(EXPECTED_RICH_LIST_ADDRESSES).toContain(next.address)
+        expect(current.amount).toBeGreaterThanOrEqual(next.amount)
+      }
+
+      const excludedFromTopTwo = await richListCore.addressBalances.list({
+        partition: '-1', // token id for utxo
+        order: 'DESC',
+        limit: Number.MAX_SAFE_INTEGER,
+        lt: new BigNumber(richList[1].amount).times('1e8').dividedToIntegerBy(1).toNumber()
+      })
+      expect(excludedFromTopTwo.length).toStrictEqual(EXPECTED_RICH_LIST_ADDRESSES.length - 2)
+
+      for (let i = 0; i < excludedFromTopTwo.length; i++) {
+        expect(excludedFromTopTwo[i].data.amount).toBeLessThanOrEqual(richList[1].amount)
       }
     })
   })

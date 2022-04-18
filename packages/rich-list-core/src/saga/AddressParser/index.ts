@@ -4,22 +4,39 @@ import { SmartBuffer } from 'smart-buffer'
 import { DfTxAddressParser } from './dftx/_abstract'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { AccountToUtxosParser } from './dftx/AccountToUtxos'
+import { AccountToAccountParser } from './dftx/AccountToAccount'
+import { AnyAccountToAccountParser } from './dftx/AnyAccountToAccount'
+import { UtxosToAccountParser } from './dftx/UtxosToAccount'
+import { PoolAddLiquidityParser } from './dftx/PoolAddLiquidity'
+import { PoolRemoveLiquidityParser } from './dftx/PoolRemoveLiquidity'
+import { PoolSwapParser } from './dftx/PoolSwap'
+import { CompositeSwapParser } from './dftx/CompositeSwap'
+import { WithdrawFromVaultParser } from './dftx/WithdrawFromVault'
+import { DepositToVaultParser } from './dftx/DepositToVault'
+import { TakeLoanParser } from './dftx/TakeLoan'
 import { UtxoAddressParser } from './UtxoAddressParser'
 import { WhaleRpcClient } from '@defichain/whale-api-client'
 
 export class AddressParser {
-  private readonly dftxs: Array<DfTxAddressParser<any>>
-  private readonly utxo: UtxoAddressParser
-
   constructor (
     private readonly rpcClient: WhaleRpcClient,
-    private readonly network: NetworkName
-  ) {
-    this.dftxs = [
-      new AccountToUtxosParser(network)
+    private readonly network: NetworkName,
+    private readonly dftxs: Array<DfTxAddressParser<any>> = [
+      new UtxosToAccountParser(network),
+      new AccountToUtxosParser(network),
+      new AccountToAccountParser(network),
+      new AnyAccountToAccountParser(network),
+      new PoolAddLiquidityParser(network),
+      new PoolRemoveLiquidityParser(network),
+      new PoolSwapParser(network),
+      new CompositeSwapParser(network),
+      new TakeLoanParser(network),
+      new WithdrawFromVaultParser(network),
+      new DepositToVaultParser(network)
       // TODO(@ivan-zynesis): add ALL
-    ]
-    this.utxo = new UtxoAddressParser(rpcClient)
+    ],
+    private readonly utxo: UtxoAddressParser = new UtxoAddressParser(rpcClient)
+  ) {
   }
 
   async parse (txn: defid.Transaction): Promise<string[]> {

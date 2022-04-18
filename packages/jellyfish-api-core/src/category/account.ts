@@ -338,6 +338,7 @@ export class Account {
 
   /**
    * Creates a transfer transaction from your accounts balances.
+   * The transaction created is an Any to Any transaction.
    *
    * @param {AddressBalances} from source address as the key, the value is amount formatted as amount@token
    * @param {AddressBalances} to address as the key, the value is amount formatted as amount@token
