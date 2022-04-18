@@ -20,8 +20,8 @@ export class StubbedWhaleApiClient extends WhaleApiClient {
 
   private stubMethods (): void {
     this.address.getBalance = async (address: string): Promise<string> => {
-      const power = Math.round(Math.random() * 4)
-      const coef = Math.random()
+      // const power = Math.round(Math.random() * 4)
+      // const coef = Math.random()
       const utxoBals = (await this.rpcClient.wallet.listUnspent()).filter(val => val.address === address)
       let totalUtxoBal = new BigNumber(0)
       utxoBals.forEach(utxo => {
@@ -31,7 +31,7 @@ export class StubbedWhaleApiClient extends WhaleApiClient {
       // As there is some conflict with the previous test cases
       // TODO: Determine if we should use rpcClient for stubbing, or
       // keep to using random values, as its not compatible with each other.
-      return totalUtxoBal.toString() === '0' ? `${coef * Math.pow(10, power)}` : totalUtxoBal.toString()
+      return totalUtxoBal.toString()
     }
   }
 }
