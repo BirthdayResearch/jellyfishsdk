@@ -5,21 +5,61 @@ import { Injectable } from '@nestjs/common'
 export class SetupGov extends PlaygroundSetup<Record<string, any>> {
   list (): Array<Record<string, any>> {
     return [
-      { ATTRIBUTES: { 'v0/token/:dusdId/payback_dfi': 'true' } }
+      {
+        ATTRIBUTES: {
+          // dfi pay dtoken
+          // DFI pay DUSD
+          'v0/token/12/payback_dfi': 'true',
+          'v0/token/12/payback_dfi_fee_pct': '0.01',
+
+          // DFI pay TR50
+          'v0/token/16/payback_dfi': 'true',
+          'v0/token/16/payback_dfi_fee_pct': '0.01',
+
+          // dtoken (DUSD) pay dtoken #1
+          // DUSD pay TD10
+          'v0/token/14/loan_payback/12': 'true',
+          'v0/token/14/loan_payback_fee_pct/12': '0.01',
+
+          // DUSD pay TU10
+          'v0/token/13/loan_payback/12': 'true',
+          'v0/token/13/loan_payback_fee_pct/12': '0.01',
+
+          // DUSD pay TR50
+          'v0/token/16/loan_payback/12': 'true',
+          'v0/token/16/loan_payback_fee_pct/12': '0.01',
+
+          // dtoken pay dtoken #2
+          // TD10 pay DUSD
+          'v0/token/12/loan_payback/14': 'true',
+          'v0/token/12/loan_payback_fee_pct/14': '0.01',
+
+          // TD10 pay TR50
+          'v0/token/16/loan_payback/14': 'true',
+          'v0/token/16/loan_payback_fee_pct/14': '0.01',
+
+          // TU10 pay TS25
+          'v0/token/15/loan_payback/13': 'true',
+          'v0/token/15/loan_payback_fee_pct/13': '0.01',
+
+          // cToken pay dToken
+          // BTC pay TD10
+          'v0/token/14/loan_payback/1': 'true',
+          'v0/token/14/loan_payback_fee_pct/1': '0.01',
+
+          // BTC pay DUSD
+          'v0/token/12/loan_payback/1': 'true',
+          'v0/token/12/loan_payback_fee_pct/1': '0.01',
+
+          // CU10 pay TU10
+          'v0/token/13/loan_payback/6': 'true',
+          'v0/token/13/loan_payback_fee_pct/6': '0.01'
+        }
+      }
     ]
   }
 
   async create (each: any): Promise<void> {
-    const key = Object.keys(each)[0]
-    if (key === 'ATTRIBUTES') {
-      const dusdInfo = await this.client.token.getToken('DUSD')
-      const dusdId = Object.keys(dusdInfo)[0]
-      /* eslint-disable-next-line */
-      var re = new RegExp(':dusdId', 'g');
-      const k = Object.keys(each[key])[0]
-      each[key] = { [k.replace(re, dusdId)]: 'true' }
-    }
-
     await this.client.masternode.setGov(each)
   }
 

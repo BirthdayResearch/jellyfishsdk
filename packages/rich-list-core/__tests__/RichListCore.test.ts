@@ -1,6 +1,6 @@
-import { BigNumber } from '@defichain/jellyfish-api-core'
 import { JsonRpcClient } from '@defichain/jellyfish-api-jsonrpc'
 import { MasterNodeRegTestContainer } from '@defichain/testcontainers'
+import waitForExpect from 'wait-for-expect'
 import { RichListCore } from '../src/RichListCore'
 import { RichListCoreTest, waitForCatchingUp } from '../test/RichListCoreTest'
 
@@ -38,7 +38,7 @@ describe('RichListCore', () => {
     await container.stop()
   })
 
-  describe('startOrResume() - should start crawl blocks and push active addresses', () => {
+  describe('start() - should start crawl blocks and push active addresses', () => {
     it('should extract all addresses from transactions and push into queue', async () => {
       richListCore.start()
       await waitForCatchingUp(richListCore)
@@ -76,35 +76,50 @@ describe('RichListCore', () => {
     })
   })
 
-  describe('setRichListLength()', () => {
-    it('should control rich list query output length', async () => {
+  describe('invalidate', () => {
+    async function rpcInvalidate (container: MasterNodeRegTestContainer, invalidateHeight: number): Promise<void> {
+      const invalidateBlockHash = await container.call('getblockhash', [invalidateHeight])
+      await container.call('invalidateblock', [invalidateBlockHash])
+      await container.call('clearmempool')
+    }
+
+    it('should invalidate if is not best chain', async () => {
+      const newAddr = await container.getNewAddress()
+      await apiClient.wallet.sendToAddress(newAddr, 100)
+      await container.generate(1)
+      await apiClient.wallet.sendToAddress(newAddr, 100)
+      await container.generate(1)
       richListCore.start()
       await waitForCatchingUp(richListCore)
-
-      richListCore.setRichListLength(3)
       await richListCore.calculateNext()
 
       const richList = await richListCore.get('-1')
-      expect(richList.length).toStrictEqual(3)
-
+      expect(richList).toContainEqual({ address: newAddr, amount: 200 })
       for (let i = 0; i < richList.length - 1; i++) {
         const current = richList[i]
         const next = richList[i + 1]
-        expect(EXPECTED_RICH_LIST_ADDRESSES).toContain(current.address)
-        expect(EXPECTED_RICH_LIST_ADDRESSES).toContain(next.address)
         expect(current.amount).toBeGreaterThanOrEqual(next.amount)
       }
 
-      const excludedFromTopThree = await richListCore.addressBalances.list({
-        partition: '-1', // token id for utxo
-        order: 'DESC',
-        limit: Number.MAX_SAFE_INTEGER,
-        lt: new BigNumber(richList[2].amount).times('1e8').dividedToIntegerBy(1).toNumber()
-      })
-      expect(excludedFromTopThree.length).toStrictEqual(EXPECTED_RICH_LIST_ADDRESSES.length - 3)
+      const curHeight = await apiClient.blockchain.getBlockCount()
+      await rpcInvalidate(container, curHeight)
+      await waitForExpect(async () => {
+        const newHeight = await apiClient.blockchain.getBlockCount()
+        expect(newHeight).toBeLessThan(curHeight)
+      }, 30000)
+      await container.generate(2)
 
-      for (let i = 0; i < excludedFromTopThree.length; i++) {
-        expect(excludedFromTopThree[i].data.amount).toBeLessThanOrEqual(richList[2].amount)
+      richListCore.start()
+      await waitForCatchingUp(richListCore)
+      await richListCore.calculateNext()
+
+      const newRichList = await richListCore.get('-1')
+      expect(newRichList).toContainEqual({ address: newAddr, amount: 100 })
+      // Should still keep the order.
+      for (let i = 0; i < newRichList.length - 1; i++) {
+        const current = newRichList[i]
+        const next = newRichList[i + 1]
+        expect(current.amount).toBeGreaterThanOrEqual(next.amount)
       }
     })
   })

@@ -4,14 +4,13 @@ import { RichListApiClient } from '../src/RichListApiClient'
 const client = new RichListApiClient({
   url: 'http://rich-list-api-test.internal',
   network: 'unit-test',
-  version: 'v0',
-  timeout: 60000
+  version: 'v99'
 })
 
 describe('RichListApiClient - get', () => {
   it('Should be able to retrieve latest rich list', async () => {
     nock('http://rich-list-api-test.internal')
-      .get('/v0/unit-test/rich-list/1')
+      .get('/v99/unit-test/rich-list/1')
       .reply(200, function () {
         return {
           data: [

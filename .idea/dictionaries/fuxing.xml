@@ -139,6 +139,7 @@
       <w>lastblockcreationattempt</w>
       <w>lessthan</w>
       <w>lessthanorequal</w>
+      <w>leveldown</w>
       <w>libevent</w>
       <w>listaccounts</w>
       <w>listaddressgroupings</w>
@@ -150,6 +151,7 @@
       <w>listmasternodes</w>
       <w>listpoolpairs</w>
       <w>listpoolshares</w>
+      <w>listswaps</w>
       <w>listunspent</w>
       <w>listvaults</w>
       <w>liveness</w>

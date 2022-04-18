@@ -1,4 +1,3 @@
-import 'url-search-params-polyfill'
 import { OceanApiClientOptions, OceanApiClient, ApiPagedResponse } from '@defichain/ocean-api-client'
 
 /**

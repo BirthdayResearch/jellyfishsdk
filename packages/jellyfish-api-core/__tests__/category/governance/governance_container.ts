@@ -14,6 +14,7 @@ export class GovernanceMasterNodeRegTestContainer extends MasterNodeRegTestConta
       .filter(cmd => cmd !== '-fortcanningheight=8')
       .filter(cmd => cmd !== '-fortcanningmuseumheight=9')
       .filter(cmd => cmd !== '-fortcanninghillheight=10')
+      .filter(cmd => cmd !== '-fortcanningroadheight=11')
 
     return [
       ...cmd,

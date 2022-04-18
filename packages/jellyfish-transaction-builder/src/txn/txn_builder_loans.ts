@@ -13,6 +13,7 @@ import {
   CloseVault,
   TakeLoan,
   PaybackLoan,
+  PaybackLoanV2,
   PlaceAuctionBid
 } from '@defichain/jellyfish-transaction'
 import { P2WPKHTxnBuilder } from './txn_builder'
@@ -206,6 +207,21 @@ export class TxnBuilderLoans extends P2WPKHTxnBuilder {
   async paybackLoan (paybackLoan: PaybackLoan, changeScript: Script): Promise<TransactionSegWit> {
     return await super.createDeFiTx(
       OP_CODES.OP_DEFI_TX_PAYBACK_LOAN(paybackLoan),
+      changeScript
+    )
+  }
+
+  /**
+   * PaybackLoanV2 transaction.
+   *
+   * @param {PaybackLoanV2} paybackLoanV2 txn to create
+   * @param {Script} changeScript to send unspent to after deducting the (converted + fees)
+   * @returns {Promise<TransactionSegWit>}
+   */
+
+  async paybackLoanV2 (paybackLoanV2: PaybackLoanV2, changeScript: Script): Promise<TransactionSegWit> {
+    return await super.createDeFiTx(
+      OP_CODES.OP_DEFI_TX_PAYBACK_LOAN_V2(paybackLoanV2),
       changeScript
     )
   }

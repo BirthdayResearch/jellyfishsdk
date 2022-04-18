@@ -2,7 +2,7 @@ import { OP_CODES, Script, Transaction, TransactionSegWit, Vout } from '@deficha
 import { WalletEllipticPair } from './wallet_elliptic_pair'
 import { Bech32, HASH160 } from '@defichain/jellyfish-crypto'
 import { Network } from '@defichain/jellyfish-network'
-import { DeFiAddress } from '@defichain/jellyfish-address'
+import { fromAddress } from '@defichain/jellyfish-address'
 
 /**
  * An HDW is organized as several 'accounts'.
@@ -45,10 +45,14 @@ export abstract class WalletAccount implements WalletEllipticPair {
    *
    * @param {string} address to parse into script
    * @return {Script} parsed from address
+   * @throws {Error} if address or network is invalid
    */
   addressToScript (address: string): Script {
-    const parsed = DeFiAddress.from(this.network.name, address)
-    return parsed.getScript()
+    const decodedAddress = fromAddress(address, this.network.name)
+    if (decodedAddress?.script === undefined) {
+      throw new Error('address is invalid')
+    }
+    return decodedAddress.script
   }
 
   /**
