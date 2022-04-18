@@ -20,11 +20,11 @@ describe('RichListController', () => {
   })
 
   it('should reject invalid number as token id', async () => {
-    await expect(richListController.get(NaN)).rejects.toThrow('Not Found')
+    await expect(richListController.get(NaN)).rejects.toThrow('Invalid token id')
   })
 
   it('should reject token id not found in defid', async () => {
-    await expect(richListController.get(88888)).rejects.toThrow('Not Found')
+    await expect(richListController.get(88888)).rejects.toThrow('Invalid token id')
   })
 
   it('should retrieve rich list', async () => {
