@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common'
+import { Controller, Get, Param } from '@nestjs/common'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { OraclePriceFeed } from '@defichain/whale-api-client/dist/api/Oracles'
 import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
@@ -19,9 +19,9 @@ export class OracleStatusController {
    * @param oracleAddress
    * @return {Promise<OracleStatus>}
    */
-  @Get()
+  @Get('/:address')
   async getOracleStatus (
-    @Query('address') oracleAddress: string
+    @Param('address') oracleAddress: string
   ): Promise<{ status: OracleStatus }> {
     const oraclePriceFeed: OraclePriceFeed = await this.cachedGet(`oracle-${oracleAddress}`, async () => {
       const oracle = await this.client.oracles.getOracleByAddress(oracleAddress)
