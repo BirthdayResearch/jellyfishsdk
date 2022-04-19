@@ -175,7 +175,7 @@ export class Blockchain {
 
   /**
    *
-   * Get all in-mempool ancestors for the given transaction as JSON object
+   * Get all in-mempool ancestors for the given transaction as MempoolTx object
    * @param {string} txId the transaction id
    * @param {boolean} verbose true
    * @returns {Promise<MempoolTx>}
