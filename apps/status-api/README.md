@@ -19,7 +19,7 @@ To provide the status of the blockchain based on the block creation time interva
 | `degraded`         | `30 - 45 minutes` |
 | `outage`           | `> 45 minutes`    |
 
-### `/oracles?address=<address>`
+### `/oracles/:address`
 
 To provide the status of each oracle given the address based on the last published time for any given token
 
