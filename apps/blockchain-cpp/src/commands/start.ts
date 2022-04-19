@@ -38,12 +38,12 @@ export class Start extends Command {
         ]
       }
     }
+    // TODO: Refactor this
     docker.createContainer(startOptions).then(
       (container) => {
         if (container !== undefined) {
           container.start()
             .then(() => {
-              // TODO: Allow streaming of Docker Container output while keeping input in our CLI
               if (args.attach === 'true') {
                 container.attach({ stream: true, stdout: true, stderr: true, stdin: true })
                   .then((stream) => {

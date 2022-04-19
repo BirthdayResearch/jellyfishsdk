@@ -3,7 +3,7 @@ import {
 } from '@defichain/testcontainers'
 import { DockerOptions } from 'dockerode'
 
-// May delete later
+// May delete later, if not using Testcontainers
 export class NodeContainer extends DeFiDContainer {
   /**
    * @param {string} image docker image name
