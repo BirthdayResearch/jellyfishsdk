@@ -293,7 +293,7 @@ interface MempoolInfo {
 
 Get all in-mempool ancestors if txId is in mempool as string[] if verbose is false else as json object.
 
-```ts title="client.blockchain.getBlockHeader()"
+```ts title="client.blockchain. getMempoolAncestors()"
 interface blockchain {
   getMempoolAncestors (txId: string, verbosity: true): Promise<MempoolTx>
   getMempoolAncestors (txId: string, verbosity: false): Promise<string[]>
