@@ -181,10 +181,12 @@ export class Blockchain {
    * @returns {Promise<MempoolTx>}
    */
   getMempoolAncestors (txId: string, verbose: true): Promise<MempoolTx>
+
   /**
    *
    * Get all in-mempool ancestors for the given transaction as JSON object
    * if verbose is true else as string[]
+   *
    * @param {string} txId the transaction id
    * @param {boolean} verbose true for json object, false for array of transaction ids
    * @returns {Promise<string[] | MempoolTx>}
