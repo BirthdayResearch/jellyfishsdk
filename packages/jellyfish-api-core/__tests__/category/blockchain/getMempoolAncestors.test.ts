@@ -18,21 +18,21 @@ describe('getMempoolAncestors', () => {
   })
 
   it('should return no ancestor ids for tx without ancestors', async () => {
+    const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
+    const mempoolEntry: string[] = await testing.rpc.blockchain.getMempoolAncestors(txId, false)
     await waitForExpect(async () => {
-      const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
-      console.log(txId)
-      // const txId = await testing.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
-      const mempoolEntry: string[] = await testing.rpc.blockchain.getMempoolAncestors(txId, false)
-      // const mempoolEntry: string[] = await testing.getMempoolAncestors(txId, false)
       expect(mempoolEntry.length).toStrictEqual(0)
     }, 10000)
   })
 
   it('should return JSON object if verbose is true', async () => {
+    for (let i = 0; i < 3; i++) {
+      await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
+    }
+    const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
+    const mempoolEntry: MempoolTx = await testing.rpc.blockchain.getMempoolAncestors(txId, true)
+    const entryKey = Object.keys(mempoolEntry)[0]
     await waitForExpect(async () => {
-      const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
-      const mempoolEntry: MempoolTx = await testing.rpc.blockchain.getMempoolAncestors(txId, true)
-      const entryKey = Object.keys(mempoolEntry)[0]
       expect(Object.keys(mempoolEntry).length).toBeGreaterThan(0)
       expect(mempoolEntry[entryKey]).toStrictEqual({
         fees: expect.any(Object),
@@ -57,16 +57,16 @@ describe('getMempoolAncestors', () => {
   })
 
   it('should return array of txids if verbose is false', async () => {
+    const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
+    const mempoolEntry: string[] = await testing.rpc.blockchain.getMempoolAncestors(txId, false)
     await waitForExpect(async () => {
-      const txId = await testing.rpc.wallet.sendToAddress('mwsZw8nF7pKxWH8eoKL9tPxTpaFkz7QeLU', 0.0003)
-      const mempoolEntry: string[] = await testing.rpc.blockchain.getMempoolAncestors(txId, false)
       expect(mempoolEntry.length).toBeGreaterThan(0)
     }, 10000)
   })
 
   it('should return error if tx not in mempool', async () => {
+    const txId = '9fb9c46b1d12dae8a4a35558f7ef4b047df3b444b1ead61d334e4f187f5f58b7'
     await waitForExpect(async () => {
-      const txId = '9fb9c46b1d12dae8a4a35558f7ef4b047df3b444b1ead61d334e4f187f5f58b7'
       await expect(testing.rpc.blockchain.getMempoolAncestors(txId, false)).rejects.toThrow('RpcApiError: \'Transaction not in mempool\', code: -5, method: getmempoolancestors')
     }, 10000)
   })
