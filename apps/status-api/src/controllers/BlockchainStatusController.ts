@@ -39,7 +39,7 @@ export class BlockchainStatusController {
 export type BlockchainStatus = 'outage' | 'degraded' | 'operational'
 
 export const StatusToThresholdInMs: Record<BlockchainStatus, number> = {
-  outage: 45 * 60 * 1000,
-  degraded: 30 * 60 * 1000,
-  operational: 0
+  outage: 45 * 60 * 1000, // > 45 minutes
+  degraded: 30 * 60 * 1000, // 30-45 minutes
+  operational: 0 // < 30 minutes
 }
