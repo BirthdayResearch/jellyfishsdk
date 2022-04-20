@@ -1,5 +1,6 @@
 import { StatusApiTesting } from '../../testing/StatusApiTesting'
 import { ApiPagedResponse, WhaleApiClient } from '@defichain/whale-api-client'
+import { Block } from '@defichain/whale-api-client/dist/api/Blocks'
 
 describe('BlockchainController - Status test', () => {
   const apiTesting = StatusApiTesting.create()
@@ -12,6 +13,7 @@ describe('BlockchainController - Status test', () => {
   })
 
   it('/blockchain - should get operational', async () => {
+    // Set blocktime to be less than 30 minutes
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(25))
@@ -28,6 +30,7 @@ describe('BlockchainController - Status test', () => {
   })
 
   it('/blockchain - should get degraded', async () => {
+    // Set blocktime to be 30-45 minutes
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(36))
@@ -44,6 +47,7 @@ describe('BlockchainController - Status test', () => {
   })
 
   it('/blockchain - should get outage', async () => {
+    // Set blocktime to be greater than 45 minutes
     jest
       .spyOn(apiTesting.app.get(WhaleApiClient).blocks, 'list')
       .mockReturnValueOnce(getBlockResponseWithPresetTime(46))
@@ -60,7 +64,7 @@ describe('BlockchainController - Status test', () => {
   })
 })
 
-async function getBlockResponseWithPresetTime (minutesDiff: number): Promise<ApiPagedResponse<any>> {
+async function getBlockResponseWithPresetTime (minutesDiff: number): Promise<ApiPagedResponse<Block>> {
   const blockTime = Date.now() / 1000 - (minutesDiff * 60)
 
   return new ApiPagedResponse({

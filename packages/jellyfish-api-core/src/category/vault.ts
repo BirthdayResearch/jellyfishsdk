@@ -202,6 +202,31 @@ export class Vault {
   async estimateVault (collateralAmounts: string[], loanAmounts: string[]): Promise<VaultEstimation> {
     return await this.client.call('estimatevault', [collateralAmounts, loanAmounts], 'number')
   }
+
+  /**
+   * Returns amount of collateral tokens needed to take an amount of loan tokens for a target collateral ratio.
+   *
+   * @param {string[]} loanAmounts Amount as array. Example: [ "amount@token" ]
+   * @param {number} targetRatio Target collateral ratio.
+   * @param {TokenPercentageSplit} [tokenSplit] Object with loans token as key and their percent split as value
+   * @return {Promise<string[]>} Array of <amount@token> strings
+   */
+  async estimateCollateral (loanAmounts: string[], targetRatio: number, tokenSplit: TokenPercentageSplit = { DFI: 1 }): Promise<string[]> {
+    return await this.client.call('estimatecollateral', [loanAmounts, targetRatio, tokenSplit], 'number')
+  }
+
+  /**
+   * Returns amount of loan tokens a vault can take depending on a target collateral ratio.
+   *
+   * @param {string} vaultId vault hex id
+   * @param {TokenPercentageSplit} tokenSplit Object with loans token as key and their percent split as value
+   * @param {number} [targetRatio] Target collateral ratio. (defaults to vault's loan scheme ratio)
+   * @return {Promise<string[]>} Array of `token@amount`
+   */
+  async estimateLoan (vaultId: string, tokenSplit: TokenPercentageSplit, targetRatio?: number): Promise<string[]> {
+    const params = targetRatio === undefined ? [vaultId, tokenSplit] : [vaultId, tokenSplit, targetRatio]
+    return await this.client.call('estimateloan', params, 'number')
+  }
 }
 
 export interface CreateVault {
@@ -335,4 +360,7 @@ export interface VaultEstimation {
   loanValue: number // n.nnnnnnnn (amount) The total loan value in USD
   informativeRatio: number // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
   collateralRatio: number // n (uint) Ratio as unsigned int
+}
+export interface TokenPercentageSplit {
+  [token: string]: number // Token: split
 }

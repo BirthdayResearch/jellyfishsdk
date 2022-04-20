@@ -54,6 +54,7 @@ export class WhaleApiProbeIndicator extends ProbeIndicator {
     }
   ],
   exports: [
+    WhaleApiProbeIndicator
   ]
 })
 export class WhaleApiModule {

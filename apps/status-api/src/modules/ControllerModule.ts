@@ -3,6 +3,9 @@ import { ActuatorController } from '@defichain-apps/libs/actuator'
 import { BlockchainStatusController } from '../controllers/BlockchainStatusController'
 import { WhaleApiClient } from '@defichain/whale-api-client'
 import { ConfigService } from '@nestjs/config'
+import { SemaphoreCache } from '../../../whale/src/module.api/cache/semaphore.cache'
+import { OracleStatusController } from '../controllers/OracleStatusController'
+import { OverallStatusController } from '../controllers/OverallStatusController'
 
 /**
  * Exposed ApiModule for public interfacing
@@ -12,10 +15,14 @@ import { ConfigService } from '@nestjs/config'
     CacheModule.register()
   ],
   controllers: [
+    ActuatorController,
     BlockchainStatusController,
-    ActuatorController
+    ActuatorController,
+    OracleStatusController,
+    OverallStatusController
   ],
   providers: [
+    BlockchainStatusController,
     {
       provide: WhaleApiClient,
       useFactory: (configService: ConfigService): WhaleApiClient => {
@@ -26,7 +33,8 @@ import { ConfigService } from '@nestjs/config'
         })
       },
       inject: [ConfigService]
-    }
+    },
+    SemaphoreCache
   ]
 })
 export class ControllerModule {
