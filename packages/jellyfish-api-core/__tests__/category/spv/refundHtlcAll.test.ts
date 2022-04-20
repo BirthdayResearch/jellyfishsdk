@@ -211,7 +211,7 @@ describe('Spv', () => {
     await expect(promise).rejects.toThrow('No unspent HTLC outputs found')
   })
 
-  it('should not refundHtlcAll when not htlc is created for wallet', async () => {
+  it('should not refundHtlcAll when no htlc is created for wallet', async () => {
     const promise = testing.rpc.spv.refundHtlcAll(await container.call('spv_getnewaddress'))
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow('Redeem script details not found.')
