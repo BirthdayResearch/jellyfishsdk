@@ -55,7 +55,8 @@ export abstract class P2WPKHTxnBuilder {
       )
     }
 
-    const joined = joinPrevouts(prevouts)
+    const joined = joinPrevoutsForMinSum(prevouts, minBalance)
+
     if (minBalance.gt(joined.total)) {
       throw new TxnBuilderError(TxnBuilderErrorType.MIN_BALANCE_NOT_ENOUGH,
         'not enough balance after combing all prevouts'
@@ -183,4 +184,32 @@ interface Prevouts {
   prevouts: Prevout[]
   vin: Vin[]
   total: BigNumber
+}
+
+/**
+ * @param {Prevout[]} prevouts to join
+ * @param {BigNumber} minSum minimum sum expected
+ * @return {Prevouts}
+ */
+function joinPrevoutsForMinSum (prevouts: Prevout[], minSum: BigNumber): Prevouts {
+  const prevOutsNew: Prevout[] = []
+  const vin: Vin[] = []
+  let total = new BigNumber(0)
+
+  for (const prevout of prevouts) {
+    if (total.isGreaterThan(minSum)) {
+      break
+    }
+
+    total = total.plus(prevout.value)
+    prevOutsNew.push(prevout)
+    vin.push({
+      txid: prevout.txid,
+      index: prevout.vout,
+      script: { stack: [] },
+      sequence: 0xffffffff
+    })
+  }
+
+  return { prevouts: prevOutsNew, vin, total }
 }

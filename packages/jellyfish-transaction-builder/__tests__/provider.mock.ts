@@ -43,9 +43,11 @@ export class MockPrevoutProvider implements PrevoutProvider {
     const address = Bech32.fromPubKey(pubKey, 'bcrt')
 
     // TODO(fuxingloh): minimumSumAmount behavior is weirdly inconsistent, listunspent will always
-    //  return the correct result without providing options. However, with 'minimumSumAmount', it
-    //  will appear sometimes. Likely due to race conditions in bitcoin code,
-    //  e.g. -reindex when importprivkey.
+    // return the correct result without providing options. However, with 'minimumSumAmount', it
+    // will appear sometimes.
+    // Refer -> https://github.com/DeFiCh/ain/issues/1208
+    // Due to the above, we collect all utxos for the given address here and extract what's required to statisfy minBalance
+    // down the line in P2WPKHTxnBuilder::joinPrevoutsForMinSum()
     const unspent: any[] = await this.container.call('listunspent', [
       1, 9999999, [address], true
     ])
