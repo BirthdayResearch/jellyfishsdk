@@ -12,9 +12,9 @@ A `Promise<?>` based design is used as async/await implementation are very matur
 life to modern development.
 
 ```js
-import {Client} from '@defichain/jellyfish'
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
 
-const client = new Client()
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 const {blocks} = await client.mining.getMiningInfo()
 ```
 
