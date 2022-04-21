@@ -1,6 +1,7 @@
 import { dSHA256, EllipticPair, HASH160 } from '@defichain/jellyfish-crypto'
 import { SmartBuffer } from 'smart-buffer'
 import {
+  CVoutV2,
   CVoutV4,
   CWitnessProgram,
   DeFiTransactionConstants,
@@ -79,7 +80,11 @@ function hashOutputs (transaction: Transaction, sigHashType: SIGHASH): string {
   }
 
   const buffer = new SmartBuffer()
-  transaction.vout.forEach(vout => (new CVoutV4(vout)).toBuffer(buffer))
+  if (transaction.version < 4) {
+    transaction.vout.forEach(vout => (new CVoutV2(vout)).toBuffer(buffer))
+  } else {
+    transaction.vout.forEach(vout => (new CVoutV4(vout)).toBuffer(buffer))
+  }
   return dSHA256(buffer.toBuffer()).toString('hex')
 }
 
