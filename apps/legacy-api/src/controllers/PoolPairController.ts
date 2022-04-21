@@ -95,7 +95,7 @@ export class PoolPairController {
   ): Promise<LegacySubgraphSwapsResponse> {
     limit = Math.min(100, limit)
     const nextToken: NextToken = (nextString !== undefined)
-      ? JSON.parse(Buffer.from(nextString, 'base64url').toString())
+      ? decodeNextToken(nextString)
       : {}
 
     const {
@@ -245,6 +245,13 @@ export class PoolPairController {
     const api = this.whaleApiClientProvider.getClient(network)
     const fromAddress = fromScript(poolSwap.fromScript, network)?.address
     const toAddress = fromScript(poolSwap.toScript, network)?.address
+
+    if (
+      toAddress === undefined || toAddress === '' ||
+      fromAddress === undefined || fromAddress === ''
+    ) {
+      return undefined
+    }
 
     const fromHistory: AccountHistory = await api.rpc.call<AccountHistory>('getaccounthistory', [fromAddress, transaction.block.height, transaction.order], 'number')
     let toHistory: AccountHistory
@@ -413,7 +420,11 @@ export class SwapCacheFiller {
         next = result.page?.next
         swapsCount += result.data.swaps.length
       } catch (err) {
-        this.logger.error(network, err)
+        this.logger.error(
+          `[${network}] ` +
+          'last page: ' + (next !== undefined ? JSON.stringify(decodeNextToken(next)) : 'none'),
+          err
+        )
       }
     }
     this.isReady = true
@@ -650,6 +661,10 @@ function findAmountSymbol (history: AccountHistory, outgoing: boolean): LegacySu
 
 export function encodeBase64 (next: NextToken): string {
   return Buffer.from(JSON.stringify(next), 'utf8').toString('base64url')
+}
+
+function decodeNextToken (nextString: string): NextToken {
+  return JSON.parse(Buffer.from(nextString, 'base64url').toString())
 }
 
 export interface BlockTxn {
