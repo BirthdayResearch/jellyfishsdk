@@ -244,7 +244,7 @@ export const TransactionSigner = {
   },
 
   validate (transaction: Transaction, inputOptions: SignInputOption[], option: SignOption) {
-    const { version = true, lockTime = true } = (option.validate !== undefined) ? option.validate : {}
+    const { lockTime = true } = (option.validate !== undefined) ? option.validate : {}
 
     if (transaction.vin.length === 0) {
       throw new Error('vin.length = 0 - attempting to sign transaction without vin is not allowed')
@@ -252,10 +252,6 @@ export const TransactionSigner = {
 
     if (transaction.vin.length !== inputOptions.length) {
       throw new Error('vin.length and inputOptions.length must match')
-    }
-
-    if (version && transaction.version !== DeFiTransactionConstants.Version) {
-      throw new Error(`option.validate.version = true - trying to sign a txn ${transaction.version} different from ${DeFiTransactionConstants.Version} is not supported`)
     }
 
     if (lockTime && transaction.lockTime !== 0) {
