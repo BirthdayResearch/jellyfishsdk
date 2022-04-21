@@ -437,11 +437,15 @@ describe('create futureswap', () => {
 
     await testing.generate(1)
 
-    async function sendTransactionWithoutBlockMint (transaction: TransactionSegWit): Promise<void> {
+    // send transaction without minting a single block in the process
+    async function sendTransactionWithoutBlockMint (transaction: TransactionSegWit): Promise<TxOut[]> {
       const buffer = new SmartBuffer()
       new CTransactionSegWit(transaction).toBuffer(buffer)
       const hex = buffer.toBuffer().toString('hex')
-      await testing.container.call('sendrawtransaction', [hex])
+      const txid = await testing.container.call('sendrawtransaction', [hex])
+
+      const tx = await container.call('getrawtransaction', [txid, true])
+      return tx.vout as TxOut[]
     }
 
     {
@@ -450,19 +454,15 @@ describe('create futureswap', () => {
       await testing.generate(nextSettleBlock - await testing.rpc.blockchain.getBlockCount())
     }
 
-    await fundForFeesIfUTXONotAvailable(10)
+    // NOTE(sp): fund 3 utxos to be used for fees (to send 3 times. This is because once sent, the remaining funds of that utxo will only be available after a block generation)
+    {
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+      await fundEllipticPair(testing.container, provider.ellipticPair, 10)
+    }
 
     const fsStartBlock = await testing.rpc.blockchain.getBlockCount()
     {
-      {
-        const walletinfo = await testing.rpc.wallet.getWalletInfo()
-        console.log(JSON.stringify(walletinfo))
-
-        const account = await testing.rpc.wallet.listUnspent()
-        console.log(tslaAddress)
-        console.log(JSON.stringify(account))
-      }
-
       const txn = await builder.account.futureSwap({
         owner: await provider.elliptic.script(),
         source: { token: Number(idTSLA), amount: new BigNumber(0.4) },
@@ -474,13 +474,6 @@ describe('create futureswap', () => {
       await sendTransactionWithoutBlockMint(txn)
     }
     {
-      {
-        // const account  = await  testing.rpc.wallet.listUnspent(1, 99999, { addresses: [tslaAddress] })
-        const account = await testing.rpc.wallet.listUnspent()
-        // console.log(tslaAddress)
-        console.log(JSON.stringify(account))
-      }
-      // await testing.container.call('sendtoaddress', [tslaAddress, 10])
       const txn = await builder.account.futureSwap({
         owner: await provider.elliptic.script(),
         source: { token: Number(idTSLA), amount: new BigNumber(0.6) },
@@ -513,7 +506,6 @@ describe('create futureswap', () => {
     // check the futureswap is in effect
     {
       const pendingFutures = await testing.container.call('listpendingfutureswaps')
-      console.log(JSON.stringify(pendingFutures))
       expect(pendingFutures.length).toStrictEqual(3)
 
       expect(pendingFutures).toStrictEqual(expect.arrayContaining([
