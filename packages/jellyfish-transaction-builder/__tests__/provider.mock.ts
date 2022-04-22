@@ -46,13 +46,26 @@ export class MockPrevoutProvider implements PrevoutProvider {
     // return the correct result without providing options. However, with 'minimumSumAmount', it
     // will appear sometimes.
     // Refer -> https://github.com/DeFiCh/ain/issues/1208
-    // Due to the above, we collect all utxos for the given address here and extract what's required to statisfy minBalance
-    // down the line in P2WPKHTxnBuilder::joinPrevoutsForMinSum()
+    // Due to the above, we collect all utxos for the given address here and extract what's required to statisfy the minBalance
+    // in jellyfish code.
     const unspent: any[] = await this.container.call('listunspent', [
       1, 9999999, [address], true
     ])
 
-    return unspent.map((utxo: any): Prevout => {
+    // extract utxos to satisfy minBalance
+    const utxoSelected: any[] = []
+    let total = new BigNumber(0)
+
+    for (const utxo of unspent) {
+      if (total.isGreaterThan(minBalance)) {
+        break
+      }
+
+      total = total.plus(utxo.amount)
+      utxoSelected.push(utxo)
+    }
+
+    return utxoSelected.map((utxo: any): Prevout => {
       return MockPrevoutProvider.mapPrevout(utxo, pubKey)
     })
   }

@@ -1712,7 +1712,7 @@ describe('withdraw futureswap', () => {
     const withdrawAmount1 = swapAmount * 1.5
     const withdrawAmount2 = swapAmount * 0.2
 
-    // NOTE(sp): fund 3 utxos to be used for fees (to send 3 times. This is because once sent, the remaining funds of that utxo will only be available after a block generation)
+    // NOTE(sp): fund 2 utxos to be used for fees (to send 2 times. This is because once sent, the remaining funds of that utxo will only be available after a block generation)
     {
       await fundEllipticPair(testing.container, provider.ellipticPair, 10)
       await fundEllipticPair(testing.container, provider.ellipticPair, 10)
