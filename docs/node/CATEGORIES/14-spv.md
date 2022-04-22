@@ -6,8 +6,8 @@ slug: /jellyfish/api/spv
 ---
 
 ```js
-import {Client} from '@defichain/jellyfish'
-const client = new Client()
+import {JsonRpcClient} from '@defichain/jellyfish-api-jsonrpc'
+const client = new JsonRpcClient('http://foo:bar@localhost:8554')
 
 // Using client.spv.
 const something = await client.spv.method()
@@ -155,6 +155,20 @@ interface SpvDefaultOptions {
 interface SendMessageResult {
   txid: string
   sendmessage: string
+}
+```
+
+## refundHtlcAll
+
+Gets all HTLC contracts stored in wallet and creates refunds transactions for all that have expired
+
+```ts title="client.spv.refundHtlcAll()"
+interface spv {
+  refundHtlcAll (destinationAddress: string, options: SpvDefaultOptions = { feeRate: new BigNumber('10000') }): Promise<string[]>
+}
+
+interface SpvDefaultOptions {
+  feeRate?: BigNumber
 }
 ```
 
