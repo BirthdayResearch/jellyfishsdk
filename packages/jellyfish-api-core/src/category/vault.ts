@@ -361,9 +361,9 @@ export interface ListAuctionHistoryDetail {
 }
 
 export interface VaultEstimation {
-  collateralValue: string // n.nnnnnnnn (amount) The total collateral value in USD
-  loanValue: string // n.nnnnnnnn (amount) The total loan value in USD
-  informativeRatio: string // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
+  collateralValue: BigNumber // n.nnnnnnnn (amount) The total collateral value in USD
+  loanValue: BigNumber // n.nnnnnnnn (amount) The total loan value in USD
+  informativeRatio: BigNumber // n.nnnnnnnn (amount) Informative ratio with 8 digit precision
   collateralRatio: number // n (uint) Ratio as unsigned int
 }
 

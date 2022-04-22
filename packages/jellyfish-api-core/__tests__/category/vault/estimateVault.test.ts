@@ -20,15 +20,12 @@ describe('Vault estimateVault', () => {
     // Setup non collateral token
     await tGroup.get(0).token.create({ symbol: 'DOGE', collateralAddress })
     await tGroup.get(0).generate(1)
-    await tGroup.get(0).token.mint({ symbol: 'DOGE', amount: 50000 })
-    await tGroup.get(0).generate(1)
 
     // oracle setup
     const addr = await tGroup.get(0).generateAddress()
     const priceFeeds = [
       { token: 'DFI', currency: 'USD' },
       { token: 'BTC', currency: 'USD' },
-      { token: 'DOGE', currency: 'USD' },
       { token: 'TSLA', currency: 'USD' },
       { token: 'MSFT', currency: 'USD' }
     ]
@@ -38,7 +35,6 @@ describe('Vault estimateVault', () => {
     await tGroup.get(0).rpc.oracle.setOracleData(oracleId, oracleTickTimestamp, {
       prices: [
         { tokenAmount: '1@DFI', currency: 'USD' },
-        { tokenAmount: '0.01@DOGE', currency: 'USD' },
         { tokenAmount: '10000@BTC', currency: 'USD' },
         { tokenAmount: '2@TSLA', currency: 'USD' },
         { tokenAmount: '5@MSFT', currency: 'USD' }
@@ -74,19 +70,6 @@ describe('Vault estimateVault', () => {
     })
     await tGroup.get(0).generate(1)
 
-    // loan scheme set up
-    await tGroup.get(0).rpc.loan.createLoanScheme({
-      minColRatio: 150,
-      interestRate: new BigNumber(3),
-      id: 'scheme'
-    })
-    await tGroup.get(0).generate(1)
-
-    await tGroup.get(0).rpc.oracle.setOracleData(oracleId, Math.floor(new Date().getTime() / 1000), {
-      prices: [{ tokenAmount: '2@TSLA', currency: 'USD' }, { tokenAmount: '5@MSFT', currency: 'USD' }]
-    })
-    await tGroup.get(0).generate(1)
-
     await tGroup.waitForSync()
     await tGroup.get(0).container.waitForPriceValid('TSLA/USD')
     await tGroup.get(0).container.waitForPriceValid('MSFT/USD')
@@ -103,14 +86,14 @@ describe('Vault estimateVault', () => {
   })
 
   it('should fail if collateralAmounts array contains non collateral token', async () => {
-    const tokenInfo: Record<string, any> = await tGroup.get(0).container.call('gettoken', ['DOGE'])
+    const tokenInfo: Record<string, TokenInfo> = await tGroup.get(0).container.call('gettoken', ['DOGE'])
     const promise = tGroup.get(0).rpc.vault.estimateVault(['5000@DOGE'], ['100@TSLA'])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Token with id (${Object.keys(tokenInfo)[0]}) is not a valid collateral!`)
   })
 
   it('should fail if collateralAmounts array contains non collateral token (loan token)', async () => {
-    const tokenInfo: Record<string, any> = await tGroup.get(0).container.call('gettoken', ['MSFT'])
+    const tokenInfo: Record<string, TokenInfo> = await tGroup.get(0).container.call('gettoken', ['MSFT'])
     const promise = tGroup.get(0).rpc.vault.estimateVault(['500@MSFT'], ['100@TSLA'])
     await expect(promise).rejects.toThrow(RpcApiError)
     await expect(promise).rejects.toThrow(`Token with id (${Object.keys(tokenInfo)[0]}) is not a valid collateral!`)
