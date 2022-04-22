@@ -45,7 +45,7 @@ jobs:
         env:
           GH_INSTANCE_INDEX: ${{ matrix.instance }}
 
-      - uses: codecov/codecov-action@e3c560433a6cc60aec8812599b7844a7b4fa0d71
+      - uses: codecov/codecov-action@81cd2dc8148241f03f5839d295e000b8f761e378
         with:
           fail_ci_if_error: true
 
