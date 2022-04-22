@@ -5,9 +5,10 @@ import { RpcApiError } from '@defichain/jellyfish-api-core'
 import { TokenInfo } from '@defichain/jellyfish-api-core/dist/category/token'
 
 describe('Vault estimateVault', () => {
-  const testing = Testing.create(new MasterNodeRegTestContainer())
+  const container = new MasterNodeRegTestContainer()
+  const testing = Testing.create(container)
 
-  async function setup (testing: Testing): Promise<void> {
+  async function setup (): Promise<void> {
     // token setup
     const collateralAddress = await testing.container.getNewAddress()
     await testing.token.dfi({ address: collateralAddress, amount: 30000 })
@@ -77,7 +78,7 @@ describe('Vault estimateVault', () => {
   beforeAll(async () => {
     await testing.container.start()
     await testing.container.waitForWalletCoinbaseMaturity()
-    await setup(testing)
+    await setup()
   })
 
   afterAll(async () => {
